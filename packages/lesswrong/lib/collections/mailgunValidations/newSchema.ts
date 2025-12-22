@@ -16,22 +16,6 @@ const schema = {
   },
 
   /**
-   * Whether this validation was requested with mailbox verification enabled.
-   * Mailgun treats this as an option that can materially change results/cost/time.
-   */
-  mailboxVerification: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean!",
-      canRead: ["admins"],
-    },
-  },
-
-  /**
    * When we attempted the validation (success or failure).
    */
   validatedAt: {

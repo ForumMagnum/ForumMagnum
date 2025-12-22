@@ -1259,7 +1259,6 @@ CREATE TABLE "MailgunValidations" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "email" TEXT NOT NULL,
-  "mailboxVerification" BOOL NOT NULL DEFAULT FALSE,
   "validatedAt" TIMESTAMPTZ NOT NULL,
   "httpStatus" INTEGER,
   "status" TEXT NOT NULL,
@@ -1274,8 +1273,8 @@ CREATE TABLE "MailgunValidations" (
   "sourceUserId" VARCHAR(27)
 );
 
--- Index "idx_MailgunValidations_email_mailboxVerification"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_MailgunValidations_email_mailboxVerification" ON "MailgunValidations" USING btree ("email", "mailboxVerification");
+-- Index "idx_MailgunValidations_email"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_MailgunValidations_email" ON "MailgunValidations" USING btree ("email");
 
 -- Index "idx_MailgunValidations_email_validatedAt"
 CREATE INDEX IF NOT EXISTS "idx_MailgunValidations_email_validatedAt" ON "MailgunValidations" USING btree ("email", "validatedAt");

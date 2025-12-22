@@ -4209,7 +4209,6 @@ const schema = {
               mv."sourceUserId"
             FROM "MailgunValidations" mv
             WHERE lower(mv.email) = $1
-              AND mv."mailboxVerification" IS NOT TRUE
             ORDER BY mv."validatedAt" DESC
             LIMIT 1
           `,

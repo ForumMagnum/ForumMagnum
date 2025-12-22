@@ -84,7 +84,6 @@ async function fetchAudienceBatch(args: {
         SELECT mv.*
         FROM "MailgunValidations" mv
         WHERE lower(mv.email) = lower(btrim(u."email"))
-          AND mv."mailboxVerification" IS NOT TRUE
         ORDER BY mv."validatedAt" DESC
         LIMIT 1
       ) mv ON TRUE
@@ -153,7 +152,6 @@ async function countAudience(filter: AudienceFilter): Promise<number> {
         SELECT mv.*
         FROM "MailgunValidations" mv
         WHERE lower(mv.email) = lower(btrim(u."email"))
-          AND mv."mailboxVerification" IS NOT TRUE
         ORDER BY mv."validatedAt" DESC
         LIMIT 1
       ) mv ON TRUE

@@ -10,7 +10,6 @@ import { loggerConstructor } from "@/lib/utils/logging";
  */
 export async function runMailgunValidationsUntilDone(args?: {
   batchSize?: number;
-  mailboxVerification?: boolean;
   concurrency?: number;
   maxBatches?: number;
 }) {

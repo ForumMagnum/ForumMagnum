@@ -8,11 +8,7 @@ export const MailgunValidations = createCollection({
   schema,
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
-    indexSet.addIndex(
-      "MailgunValidations",
-      { email: 1, mailboxVerification: 1 },
-      { unique: true },
-    );
+    indexSet.addIndex("MailgunValidations", { email: 1 }, { unique: true });
     indexSet.addIndex("MailgunValidations", { email: 1, validatedAt: -1 });
     return indexSet;
   },

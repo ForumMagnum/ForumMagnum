@@ -9,7 +9,6 @@ const logger = loggerConstructor("mailgunValidations");
 const MAILGUN_API_KEY_ENV_VAR = "MAILGUN_VALIDATION_API_KEY";
 const MAILGUN_VALIDATE_URL = "https://api.mailgun.net/v4/address/validate";
 
-const MAILBOX_VERIFICATION = false;
 const BATCH_SIZE = 250;
 const CONCURRENCY = 8;
 const REQUEST_TIMEOUT_MS = 15_000;
@@ -104,12 +103,7 @@ function parseMailgunResponse(json: unknown): MailgunValidationResult["parsed"] 
   };
 }
 
-async function validateEmailWithMailgun(args: {
-  email: string;
-  mailboxVerification: boolean;
-}): Promise<MailgunValidationResult> {
-  const { email, mailboxVerification } = args;
-
+async function validateEmailWithMailgun(email: string): Promise<MailgunValidationResult> {
   const apiKey = getMailgunApiKey();
   if (!apiKey) {
     return {
@@ -121,7 +115,6 @@ async function validateEmailWithMailgun(args: {
 
   const url = new URL(MAILGUN_VALIDATE_URL);
   url.searchParams.set("address", email);
-  url.searchParams.set("mailbox_verification", mailboxVerification ? "true" : "false");
 
   try {
     const { ok, status, json } = await fetchJsonWithTimeout(
@@ -136,21 +129,15 @@ async function validateEmailWithMailgun(args: {
     );
 
     if (!ok) {
-      // IMPORTANT:
-      // - `loggerConstructor` is gated behind the `debuggers` setting.
-      // - For errors we want always-visible output in dev, so also use console.error.
-      // - Never log the API key.
       let responseSnippet = "(unstringifiable)";
       try {
         responseSnippet = JSON.stringify(json).slice(0, 2_000);
       } catch {}
       // eslint-disable-next-line no-console
       console.error(
-        `[mailgunValidations] validate failed httpStatus=${status} email=${email} mailboxVerification=${mailboxVerification} response=${responseSnippet}`,
+        `[mailgunValidations] validate failed httpStatus=${status} email=${email} response=${responseSnippet}`,
       );
-      logger(
-        `validate failed httpStatus=${status} email=${email} mailboxVerification=${mailboxVerification} response=${responseSnippet}`,
-      );
+      logger(`validate failed httpStatus=${status} email=${email} response=${responseSnippet}`);
       return {
         status: "error",
         validatedAt: new Date(),
@@ -170,10 +157,8 @@ async function validateEmailWithMailgun(args: {
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     // eslint-disable-next-line no-console
-    console.error(
-      `[mailgunValidations] validate request error email=${email} mailboxVerification=${mailboxVerification} err=${message}`,
-    );
-    logger(`validate request error email=${email} mailboxVerification=${mailboxVerification} err=${message}`);
+    console.error(`[mailgunValidations] validate request error email=${email} err=${message}`);
+    logger(`validate request error email=${email} err=${message}`);
     return {
       status: "error",
       validatedAt: new Date(),
@@ -184,7 +169,6 @@ async function validateEmailWithMailgun(args: {
 
 async function upsertMailgunValidation(args: {
   email: string;
-  mailboxVerification: boolean;
   validatedAt: Date;
   status: "success" | "error";
   httpStatus?: number;
@@ -198,7 +182,6 @@ async function upsertMailgunValidation(args: {
 
   const {
     email,
-    mailboxVerification,
     validatedAt,
     status,
     httpStatus,
@@ -215,7 +198,6 @@ async function upsertMailgunValidation(args: {
         _id,
         "createdAt",
         email,
-        "mailboxVerification",
         "validatedAt",
         "httpStatus",
         status,
@@ -236,17 +218,16 @@ async function upsertMailgunValidation(args: {
         $5,
         $6,
         $7,
-        $8,
-        $9::jsonb,
+        $8::jsonb,
+        $9,
         $10,
         $11,
         $12,
         $13,
         $14,
-        $15,
-        $16
+        $15
       )
-      ON CONFLICT (email, "mailboxVerification")
+      ON CONFLICT (email)
       DO UPDATE SET
         "validatedAt" = EXCLUDED."validatedAt",
         "httpStatus" = EXCLUDED."httpStatus",
@@ -265,7 +246,6 @@ async function upsertMailgunValidation(args: {
       _id,
       new Date(),
       email,
-      mailboxVerification,
       validatedAt,
       httpStatus ?? null,
       status,
@@ -282,11 +262,7 @@ async function upsertMailgunValidation(args: {
   );
 }
 
-async function getNextEmailsToValidate(args: {
-  limit: number;
-  mailboxVerification: boolean;
-}): Promise<NextEmailRow[]> {
-  const { limit, mailboxVerification } = args;
+async function getNextEmailsToValidate(limit: number): Promise<NextEmailRow[]> {
   const db = getSqlClientOrThrow();
 
   return db.any<NextEmailRow>(
@@ -332,12 +308,11 @@ async function getNextEmailsToValidate(args: {
       FROM dedup d
       LEFT JOIN "MailgunValidations" mv
         ON lower(mv.email) = d.email_lc
-        AND mv."mailboxVerification" = $2
       WHERE mv._id IS NULL
       ORDER BY d.email
       LIMIT $1
     `,
-    [limit, mailboxVerification],
+    [limit],
   );
 }
 
@@ -355,10 +330,7 @@ export async function validateAndStoreMailgunValidation(args: {
   const normalizedEmail = args.email.trim().toLowerCase();
   if (!normalizedEmail) return;
 
-  const res = await validateEmailWithMailgun({
-    email: normalizedEmail,
-    mailboxVerification: MAILBOX_VERIFICATION,
-  });
+  const res = await validateEmailWithMailgun(normalizedEmail);
 
   if (res.status === "error") {
     // eslint-disable-next-line no-console
@@ -369,7 +341,6 @@ export async function validateAndStoreMailgunValidation(args: {
 
   await upsertMailgunValidation({
     email: normalizedEmail,
-    mailboxVerification: MAILBOX_VERIFICATION,
     validatedAt: res.validatedAt,
     status: res.status,
     httpStatus: res.httpStatus,
@@ -398,10 +369,7 @@ export async function runMailgunValidationsBatch(args?: {
   const limit = args?.limit ?? BATCH_SIZE;
   const concurrency = args?.concurrency ?? CONCURRENCY;
 
-  const rows = await getNextEmailsToValidate({
-    limit,
-    mailboxVerification: MAILBOX_VERIFICATION,
-  });
+  const rows = await getNextEmailsToValidate(limit);
 
   if (rows.length === 0) {
     logger("No emails to validate");
@@ -415,14 +383,10 @@ export async function runMailgunValidationsBatch(args?: {
 
   const promiseGenerators = rows.map(({ email, sourceUserId }) => async () => {
     const normalizedEmail = email.trim().toLowerCase();
-    const res = await validateEmailWithMailgun({
-      email: normalizedEmail,
-      mailboxVerification: MAILBOX_VERIFICATION,
-    });
+    const res = await validateEmailWithMailgun(normalizedEmail);
 
     await upsertMailgunValidation({
       email: normalizedEmail,
-      mailboxVerification: MAILBOX_VERIFICATION,
       validatedAt: res.validatedAt,
       status: res.status,
       httpStatus: res.httpStatus,

@@ -739,7 +739,6 @@ interface DbMailgunValidation extends DbObject {
   isDisposableAddress: boolean | null
   isRoleAddress: boolean | null
   isValid: boolean | null
-  mailboxVerification: boolean
   reason: string | null
   result: any | null
   risk: string | null
