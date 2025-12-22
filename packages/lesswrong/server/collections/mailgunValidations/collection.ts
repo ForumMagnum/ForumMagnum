@@ -13,7 +13,7 @@ export const MailgunValidations = createCollection({
       { email: 1, mailboxVerification: 1 },
       { unique: true },
     );
-    indexSet.addIndex("MailgunValidations", { validatedAt: -1, email: 1 });
+    indexSet.addIndex("MailgunValidations", { email: 1, validatedAt: -1 });
     return indexSet;
   },
 });

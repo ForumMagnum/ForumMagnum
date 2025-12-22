@@ -4181,7 +4181,7 @@ const schema = {
   },
   mailgunValidation: {
     graphql: {
-      outputType: "JSON",
+      outputType: "MailgunValidationResult",
       canRead: ["admins"],
       resolver: async (user: DbUser, _args: unknown, context: ResolverContext) => {
         const { currentUser } = context;

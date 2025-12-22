@@ -74,7 +74,7 @@ async function fetchAudienceBatch(args: {
   const { filter, limit, afterUserId, runId } = args;
 
   const whereSql = buildAudienceWhereSql(filter);
-  const afterSql = afterUserId ? `AND u._id > $2` : "";
+  const afterSql = afterUserId ? `AND u._id > $(afterUserId)` : "";
 
   // Latest mailgun validation (optional join depending on filters)
   const joinMailgun = filter.requireMailgunValid || !!filter.maxMailgunRisk || !filter.includeUnknownRisk;
@@ -97,9 +97,9 @@ async function fetchAudienceBatch(args: {
     // risk is stored as text, so we explicitly map "max risk" to an allowlist.
     // If includeUnknownRisk is false, require a known risk value.
     if (filter.includeUnknownRisk) {
-      mailgunWhere.push(`(mv.risk IS NULL OR mv.risk = 'unknown' OR mv.risk = ANY($3))`);
+      mailgunWhere.push(`(mv.risk IS NULL OR mv.risk = 'unknown' OR mv.risk = ANY($(allowedRisks)))`);
     } else {
-      mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown' AND mv.risk = ANY($3))`);
+      mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown' AND mv.risk = ANY($(allowedRisks)))`);
     }
   }
   // If the caller explicitly excludes unknown, enforce presence of a known risk.
@@ -109,20 +109,13 @@ async function fetchAudienceBatch(args: {
   }
   const mailgunWhereSql = mailgunWhere.length ? `AND ${mailgunWhere.join(" AND ")}` : "";
 
-  const params: any[] = [];
-  params.push(limit);
-  if (afterUserId) params.push(afterUserId);
-  if (filter.maxMailgunRisk) params.push(allowedRisksForMax(filter.maxMailgunRisk));
-  const runIdParam = runId ? `$${params.length + 1}` : null;
-  if (runId) params.push(runId);
-
-  const skipAlreadySentSql = runIdParam
+  const skipAlreadySentSql = runId
     ? `
       AND NOT EXISTS (
         SELECT 1
         FROM "LWEvents" e
         WHERE e.name = '${EMAIL_SEND_EVENT_NAME}'
-          AND e."documentId" = ${runIdParam}
+          AND e."documentId" = $(runId)
           AND e."userId" = u._id
           AND (e."properties"->>'status') = 'sent'
       )
@@ -139,8 +132,13 @@ async function fetchAudienceBatch(args: {
     ${mailgunWhereSql}
     ${skipAlreadySentSql}
     ORDER BY u._id
-    LIMIT $1
+    LIMIT $(limit)
   `;
+
+  const params: Record<string, number | string | string[]> = { limit };
+  if (afterUserId) params.afterUserId = afterUserId;
+  if (filter.maxMailgunRisk) params.allowedRisks = allowedRisksForMax(filter.maxMailgunRisk);
+  if (runId) params.runId = runId;
 
   return db.any<AudienceRow>(sql, params);
 }
@@ -166,9 +164,9 @@ async function countAudience(filter: AudienceFilter): Promise<number> {
   if (filter.requireMailgunValid) mailgunWhere.push(`mv."isValid" IS TRUE`);
   if (filter.maxMailgunRisk) {
     if (filter.includeUnknownRisk) {
-      mailgunWhere.push(`(mv.risk IS NULL OR mv.risk = 'unknown' OR mv.risk = ANY($1))`);
+      mailgunWhere.push(`(mv.risk IS NULL OR mv.risk = 'unknown' OR mv.risk = ANY($(allowedRisks)))`);
     } else {
-      mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown' AND mv.risk = ANY($1))`);
+      mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown' AND mv.risk = ANY($(allowedRisks)))`);
     }
   }
   if (!filter.includeUnknownRisk && !filter.maxMailgunRisk) {
@@ -176,8 +174,8 @@ async function countAudience(filter: AudienceFilter): Promise<number> {
   }
   const mailgunWhereSql = mailgunWhere.length ? `AND ${mailgunWhere.join(" AND ")}` : "";
 
-  const params: any[] = [];
-  if (filter.maxMailgunRisk) params.push(allowedRisksForMax(filter.maxMailgunRisk));
+  const params: Record<string, string[]> = {};
+  if (filter.maxMailgunRisk) params.allowedRisks = allowedRisksForMax(filter.maxMailgunRisk);
 
   const row = await db.one<{ count: string }>(
     `
@@ -301,13 +299,44 @@ export const graphqlTypeDefs = gql`
     runId: String
   }
 
+  type AdminEmailAudienceRow {
+    userId: String!
+    email: String!
+  }
+
+  type AdminEmailAudiencePreview {
+    totalCount: Int!
+    sample: [AdminEmailAudienceRow!]!
+  }
+
+  type AdminSendTestEmailResult {
+    ok: Boolean!
+    status: Int
+    email: String!
+    unsubscribeUrl: String!
+  }
+
+  type AdminSendBulkEmailError {
+    batch: Int!
+    status: Int
+  }
+
+  type AdminSendBulkEmailResult {
+    ok: Boolean!
+    runId: String!
+    processed: Int!
+    batches: Int!
+    errors: [AdminSendBulkEmailError!]!
+    lastAfterUserId: String
+  }
+
   extend type Query {
-    adminEmailPreviewAudience(input: AdminEmailPreviewAudienceInput!): JSON
+    adminEmailPreviewAudience(input: AdminEmailPreviewAudienceInput!): AdminEmailAudiencePreview!
   }
 
   extend type Mutation {
-    adminSendTestEmail(input: AdminSendTestEmailInput!): JSON
-    adminSendBulkEmail(input: AdminSendBulkEmailInput!): JSON
+    adminSendTestEmail(input: AdminSendTestEmailInput!): AdminSendTestEmailResult!
+    adminSendBulkEmail(input: AdminSendBulkEmailInput!): AdminSendBulkEmailResult!
   }
 `;
 
@@ -342,7 +371,7 @@ export const graphqlMutations = {
     const html = input.html ? input.html.replaceAll("{{unsubscribeUrl}}", unsubscribeUrl) : null;
     const text = input.text ? input.text.replaceAll("{{unsubscribeUrl}}", unsubscribeUrl) : null;
 
-    const { ok, status, json } = await sendMailgunBatchEmail({
+    const { ok, status } = await sendMailgunBatchEmail({
       subject: input.subject,
       from: input.from ?? undefined,
       to: [email],
@@ -351,7 +380,7 @@ export const graphqlMutations = {
       recipientVariables: { [email]: { unsubscribeUrl } },
     });
 
-    return { ok, status, json, email, unsubscribeUrl };
+    return { ok, status, email, unsubscribeUrl };
   },
 
   async adminSendBulkEmail(
@@ -384,7 +413,7 @@ export const graphqlMutations = {
     let afterUserId: string | null = null;
     let processed = 0;
     let batches = 0;
-    const errors: any[] = [];
+    const errors: Array<{ batch: number; status: number | null }> = [];
 
     // We prefetch up to (batchSize * concurrency) recipients at a time and then
     // send each batch concurrently. This keeps throughput high without a full queue.
@@ -416,7 +445,7 @@ export const graphqlMutations = {
             recipientVariables[r.email] = { unsubscribeUrl };
           }
 
-          const { ok, status, json } = await sendMailgunBatchEmail({
+          const { ok, status } = await sendMailgunBatchEmail({
             subject: input.subject,
             from: input.from ?? undefined,
             to,
@@ -426,7 +455,7 @@ export const graphqlMutations = {
           });
 
           if (!ok) {
-            errors.push({ batch: thisBatchIndex, status, json });
+            errors.push({ batch: thisBatchIndex, status });
             return;
           }
 
@@ -448,7 +477,7 @@ export const graphqlMutations = {
       runId,
       processed,
       batches,
-      errors: errors.slice(0, 5),
+      errors,
       lastAfterUserId: afterUserId,
     };
   },

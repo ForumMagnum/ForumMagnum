@@ -9,6 +9,10 @@ const schema = {
       type: "TEXT",
       nullable: false,
     },
+    graphql: {
+      outputType: "String!",
+      canRead: ["admins"],
+    },
   },
 
   /**
@@ -21,6 +25,10 @@ const schema = {
       defaultValue: false,
       nullable: false,
     },
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["admins"],
+    },
   },
 
   /**
@@ -30,6 +38,10 @@ const schema = {
     database: {
       type: "TIMESTAMPTZ",
       nullable: false,
+    },
+    graphql: {
+      outputType: "Date!",
+      canRead: ["admins"],
     },
   },
 
@@ -41,6 +53,10 @@ const schema = {
       type: "INTEGER",
       nullable: true,
     },
+    graphql: {
+      outputType: "Int",
+      canRead: ["admins"],
+    },
   },
 
   /**
@@ -50,6 +66,10 @@ const schema = {
     database: {
       type: "TEXT",
       nullable: false,
+    },
+    graphql: {
+      outputType: "String!",
+      canRead: ["admins"],
     },
   },
 
@@ -61,6 +81,10 @@ const schema = {
       type: "TEXT",
       nullable: true,
     },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+    },
   },
 
   /**
@@ -71,6 +95,10 @@ const schema = {
       type: "JSONB",
       nullable: true,
     },
+    graphql: {
+      outputType: "JSON",
+      canRead: ["admins"],
+    },
   },
 
   // A few parsed fields for convenience/querying.
@@ -79,12 +107,20 @@ const schema = {
       type: "BOOL",
       nullable: true,
     },
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["admins"],
+    },
   },
 
   risk: {
     database: {
       type: "TEXT",
       nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
     },
   },
 
@@ -93,12 +129,20 @@ const schema = {
       type: "TEXT",
       nullable: true,
     },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+    },
   },
 
   didYouMean: {
     database: {
       type: "TEXT",
       nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
     },
   },
 
@@ -107,12 +151,20 @@ const schema = {
       type: "BOOL",
       nullable: true,
     },
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["admins"],
+    },
   },
 
   isRoleAddress: {
     database: {
       type: "BOOL",
       nullable: true,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["admins"],
     },
   },
 
@@ -124,6 +176,10 @@ const schema = {
       type: "VARCHAR(27)",
       foreignKey: "Users",
       nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"MailgunValidations">>;

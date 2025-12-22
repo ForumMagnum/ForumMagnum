@@ -1277,8 +1277,8 @@ CREATE TABLE "MailgunValidations" (
 -- Index "idx_MailgunValidations_email_mailboxVerification"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_MailgunValidations_email_mailboxVerification" ON "MailgunValidations" USING btree ("email", "mailboxVerification");
 
--- Index "idx_MailgunValidations_validatedAt_email"
-CREATE INDEX IF NOT EXISTS "idx_MailgunValidations_validatedAt_email" ON "MailgunValidations" USING btree ("validatedAt", "email");
+-- Index "idx_MailgunValidations_email_validatedAt"
+CREATE INDEX IF NOT EXISTS "idx_MailgunValidations_email_validatedAt" ON "MailgunValidations" USING btree ("email", "validatedAt");
 
 -- Table "ManifoldProbabilitiesCaches"
 CREATE UNLOGGED TABLE "ManifoldProbabilitiesCaches" (

@@ -21,33 +21,45 @@ import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
-function formatMailgunValidationSummary(validation: any): string {
+function formatMailgunValidationSummary(validation: SunshineUsersList["mailgunValidation"]): string {
   if (!validation) return "not validated";
-  const status = validation.status as string | undefined;
-  const isValid = validation.isValid as boolean | null | undefined;
-  const risk = validation.risk as string | null | undefined;
-  const reason = validation.reason as string | null | undefined;
-  const validatedAt = validation.validatedAt as string | null | undefined;
-  const httpStatus = validation.httpStatus as number | null | undefined;
-  const err = validation.error as string | null | undefined;
-  const result = validation.result as any;
 
-  const resultMessage =
-    result && typeof result === "object"
-      ? (typeof result.message === "string" ? result.message : null) ??
-        (typeof result.error === "string" ? result.error : null) ??
-        (typeof result.details === "string" ? result.details : null)
-      : null;
+  // If there was an error calling the API, show that
+  if (validation.status === "error") {
+    return `error: ${validation.error ?? "unknown"}`;
+  }
 
   const parts: string[] = [];
-  if (typeof isValid === "boolean") parts.push(isValid ? "valid" : "invalid");
-  else if (status) parts.push(status);
-  if (httpStatus != null) parts.push(`http=${httpStatus}`);
-  if (risk) parts.push(`risk=${risk}`);
-  if (reason) parts.push(`reason=${reason}`);
-  if (validatedAt) parts.push(`at=${validatedAt}`);
-  if (resultMessage) parts.push(`msg=${resultMessage}`);
-  if (err) parts.push(`error=${err}`);
+
+  // Primary info: valid/invalid
+  if (typeof validation.isValid === "boolean") {
+    parts.push(validation.isValid ? "valid" : "invalid");
+  }
+
+  // Risk level
+  if (validation.risk) {
+    parts.push(`${validation.risk} risk`);
+  }
+
+  // Reason for risk/invalidity
+  if (validation.reason) {
+    parts.push(validation.reason);
+  }
+
+  // Suggestion for typos
+  if (validation.didYouMean) {
+    parts.push(`did you mean: ${validation.didYouMean}`);
+  }
+
+  // Flags
+  if (validation.isDisposableAddress) parts.push("disposable");
+  if (validation.isRoleAddress) parts.push("role address");
+
+  // If we have no useful info, show status to help debug
+  if (parts.length === 0) {
+    if (validation.status) parts.push(validation.status);
+    if (validation.httpStatus) parts.push(`http=${validation.httpStatus}`);
+  }
 
   return parts.join(" · ") || "validated";
 }
@@ -162,8 +174,9 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
   const comments = data?.comments?.results ?? [];
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   const bioHtml = truncate(user.htmlBio, bioWordcount, "words")
-  const mailgunValidationSummary = currentUser.isAdmin
-    ? formatMailgunValidationSummary((user as any).mailgunValidation)
+  // mailgunValidation is only returned by the server for admins
+  const mailgunValidationSummary = user.mailgunValidation
+    ? formatMailgunValidationSummary(user.mailgunValidation)
     : null;
   
   // All elements in this component should also appar in UsersReviewInfoCard
@@ -182,7 +195,7 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
                 </div>
               </div>              
               <div dangerouslySetInnerHTML={{__html: bioHtml}} className={classes.bio} onClick={() => setBioWordcount(MAX_BIO_WORDCOUNT)}/>
-              {currentUser.isAdmin && <div>Mailgun: {mailgunValidationSummary}</div>}
+              {mailgunValidationSummary && <div>Mailgun: {mailgunValidationSummary}</div>}
               {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
             </div>
             <ModeratorActions user={user} currentUser={currentUser} comments={comments} posts={posts} refetch={refetch}/>

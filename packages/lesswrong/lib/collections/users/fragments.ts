@@ -446,7 +446,20 @@ export const SunshineUsersList = gql(`
     createdAt
     email
     emails
-    mailgunValidation
+    mailgunValidation {
+      email
+      status
+      validatedAt
+      httpStatus
+      error
+      isValid
+      risk
+      reason
+      didYouMean
+      isDisposableAddress
+      isRoleAddress
+      sourceUserId
+    }
     commentCount
     maxCommentCount
     postCount

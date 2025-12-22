@@ -741,7 +741,7 @@ interface DbMailgunValidation extends DbObject {
   isValid: boolean | null
   mailboxVerification: boolean
   reason: string | null
-  result: any
+  result: any | null
   risk: string | null
   sourceUserId: string | null
   status: string

@@ -197,19 +197,40 @@ const styles = defineStyles("EmailSenderPage", (theme: ThemeType) => ({
 
 const PREVIEW_QUERY = gql(`
   query AdminEmailPreviewAudience($input: AdminEmailPreviewAudienceInput!) {
-    adminEmailPreviewAudience(input: $input)
+    adminEmailPreviewAudience(input: $input) {
+      totalCount
+      sample {
+        userId
+        email
+      }
+    }
   }
 `);
 
 const SEND_TEST_MUTATION = gql(`
   mutation AdminSendTestEmail($input: AdminSendTestEmailInput!) {
-    adminSendTestEmail(input: $input)
+    adminSendTestEmail(input: $input) {
+      ok
+      status
+      email
+      unsubscribeUrl
+    }
   }
 `);
 
 const SEND_BULK_MUTATION = gql(`
   mutation AdminSendBulkEmail($input: AdminSendBulkEmailInput!) {
-    adminSendBulkEmail(input: $input)
+    adminSendBulkEmail(input: $input) {
+      ok
+      runId
+      processed
+      batches
+      errors {
+        batch
+        status
+      }
+      lastAfterUserId
+    }
   }
 `);
 
@@ -346,9 +367,9 @@ const EmailSenderPage = () => {
     </SingleColumnSection>;
   }
 
-  const preview = previewData?.adminEmailPreviewAudience;
-  const testResult = sendTestData?.adminSendTestEmail;
-  const bulkResult = sendBulkData?.adminSendBulkEmail;
+  const preview = previewData?.adminEmailPreviewAudience ?? null;
+  const testResult = sendTestData?.adminSendTestEmail ?? null;
+  const bulkResult = sendBulkData?.adminSendBulkEmail ?? null;
 
   const htmlPreview = html.replaceAll("{{unsubscribeUrl}}", SAMPLE_UNSUBSCRIBE_URL);
   const textPreview = text.replaceAll("{{unsubscribeUrl}}", SAMPLE_UNSUBSCRIBE_URL);

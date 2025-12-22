@@ -1,6 +1,8 @@
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { randomId } from "@/lib/random";
+import { executePromiseQueue } from "@/lib/utils/asyncUtils";
+import { z } from "zod";
 
 const logger = loggerConstructor("mailgunValidations");
 
@@ -65,19 +67,41 @@ async function fetchJsonWithTimeout(
   }
 }
 
+// Mailgun v4 API response schema
+// See: https://documentation.mailgun.com/docs/inboxready/mailgun-validate/single-validation-v4/
+const mailgunResponseSchema = z.object({
+  // "deliverable" | "undeliverable" | "risky" | "unknown" | "catch_all" | "do_not_send"
+  result: z.string().optional(),
+  risk: z.string().optional(),
+  // reason is an array of strings in v4 API
+  reason: z.array(z.string()).optional(),
+  did_you_mean: z.string().nullable().optional(),
+  is_disposable_address: z.boolean().optional(),
+  is_role_address: z.boolean().optional(),
+}).passthrough();
+
 function parseMailgunResponse(json: unknown): MailgunValidationResult["parsed"] {
-  if (!json || typeof json !== "object") return {};
-  const obj = json as Record<string, unknown>;
+  const parsed = mailgunResponseSchema.safeParse(json);
+  if (!parsed.success) return {};
+  const data = parsed.data;
 
-  const isValid = typeof obj.is_valid === "boolean" ? obj.is_valid : undefined;
-  const risk = typeof obj.risk === "string" ? obj.risk : undefined;
-  const reason = typeof obj.reason === "string" ? obj.reason : undefined;
-  const didYouMean = typeof obj.did_you_mean === "string" ? obj.did_you_mean : undefined;
-  const isDisposableAddress =
-    typeof obj.is_disposable_address === "boolean" ? obj.is_disposable_address : undefined;
-  const isRoleAddress = typeof obj.is_role_address === "boolean" ? obj.is_role_address : undefined;
+  // Convert "result" to boolean isValid
+  // "deliverable" and "catch_all" are considered valid
+  const isValid = data.result
+    ? data.result === "deliverable" || data.result === "catch_all"
+    : undefined;
 
-  return { isValid, risk, reason, didYouMean, isDisposableAddress, isRoleAddress };
+  // Join reason array into a single string
+  const reason = data.reason?.length ? data.reason.join("; ") : undefined;
+
+  return {
+    isValid,
+    risk: data.risk,
+    reason,
+    didYouMean: data.did_you_mean ?? undefined,
+    isDisposableAddress: data.is_disposable_address,
+    isRoleAddress: data.is_role_address,
+  };
 }
 
 async function validateEmailWithMailgun(args: {
@@ -317,22 +341,6 @@ async function getNextEmailsToValidate(args: {
   );
 }
 
-async function runWithConcurrency<T>(
-  items: T[],
-  concurrency: number,
-  worker: (item: T) => Promise<void>,
-): Promise<void> {
-  let idx = 0;
-  async function runOne(): Promise<void> {
-    while (true) {
-      const myIdx = idx;
-      idx += 1;
-      if (myIdx >= items.length) return;
-      await worker(items[myIdx]);
-    }
-  }
-  await Promise.all(Array.from({ length: Math.max(1, concurrency) }, () => runOne()));
-}
 
 /**
  * Validate and store a single email (used on new user creation).
@@ -342,6 +350,8 @@ export async function validateAndStoreMailgunValidation(args: {
   email: string;
   sourceUserId?: string | null;
 }): Promise<void> {
+  if (!getMailgunApiKey()) return;
+
   const normalizedEmail = args.email.trim().toLowerCase();
   if (!normalizedEmail) return;
 
@@ -350,9 +360,6 @@ export async function validateAndStoreMailgunValidation(args: {
     mailboxVerification: MAILBOX_VERIFICATION,
   });
 
-  if (res.status === "error" && res.error === `${MAILGUN_API_KEY_ENV_VAR} is not set`) {
-    return;
-  }
   if (res.status === "error") {
     // eslint-disable-next-line no-console
     console.error(
@@ -383,6 +390,11 @@ export async function runMailgunValidationsBatch(args?: {
 }): Promise<{ processed: number; succeeded: number; failed: number }> {
   const logger = loggerConstructor("script-mailgunValidationsBatch");
 
+  if (!getMailgunApiKey()) {
+    logger(`${MAILGUN_API_KEY_ENV_VAR} is not set, skipping`);
+    return { processed: 0, succeeded: 0, failed: 0 };
+  }
+
   const limit = args?.limit ?? BATCH_SIZE;
   const concurrency = args?.concurrency ?? CONCURRENCY;
 
@@ -401,16 +413,12 @@ export async function runMailgunValidationsBatch(args?: {
   let succeeded = 0;
   let failed = 0;
 
-  await runWithConcurrency(rows, concurrency, async ({ email, sourceUserId }) => {
+  const promiseGenerators = rows.map(({ email, sourceUserId }) => async () => {
     const normalizedEmail = email.trim().toLowerCase();
     const res = await validateEmailWithMailgun({
       email: normalizedEmail,
       mailboxVerification: MAILBOX_VERIFICATION,
     });
-
-    if (res.status === "error" && res.error === `${MAILGUN_API_KEY_ENV_VAR} is not set`) {
-      return;
-    }
 
     await upsertMailgunValidation({
       email: normalizedEmail,
@@ -427,6 +435,8 @@ export async function runMailgunValidationsBatch(args?: {
     if (res.status === "success") succeeded += 1;
     else failed += 1;
   });
+
+  await executePromiseQueue(promiseGenerators, concurrency);
 
   logger(`Done. processed=${rows.length} succeeded=${succeeded} failed=${failed}`);
   return { processed: rows.length, succeeded, failed };
