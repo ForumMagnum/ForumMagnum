@@ -454,6 +454,7 @@ export const reviewWinnerYearGroupsInfo = new PublicInstanceSetting<Record<Revie
 export const moderationEmail = new PublicInstanceSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET", "optional");
 
 type AccountInfo = {
+  _id: string;
   username: string;
   email: string;
 };

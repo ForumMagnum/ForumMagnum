@@ -70,6 +70,7 @@ describe('Moderation Inbox Reducer', () => {
       const state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
@@ -99,6 +100,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user3',
         openedUserId: null,
@@ -124,6 +126,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
@@ -151,6 +154,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
@@ -190,6 +194,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
@@ -225,6 +230,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
@@ -253,6 +259,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
@@ -279,6 +286,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
@@ -309,6 +317,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
@@ -337,6 +346,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
@@ -364,6 +374,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
@@ -393,6 +404,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',

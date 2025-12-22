@@ -6201,6 +6201,7 @@ type PostSelector = {
   scheduled?: InputMaybe<PostsScheduledInput>;
   slugPost?: InputMaybe<PostsSlugPostInput>;
   stickied?: InputMaybe<PostsStickiedInput>;
+  sunshineAutoClassifiedPosts?: InputMaybe<PostsSunshineAutoClassifiedPostsInput>;
   sunshineCuratedSuggestions?: InputMaybe<PostsSunshineCuratedSuggestionsInput>;
   sunshineNewPosts?: InputMaybe<PostsSunshineNewPostsInput>;
   sunshineNewUsersPosts?: InputMaybe<PostsSunshineNewUsersPostsInput>;
@@ -7336,6 +7337,29 @@ type PostsStickiedInput = {
   filter?: InputMaybe<Scalars['String']['input']>;
   filterSettings?: InputMaybe<Scalars['JSON']['input']>;
   forum?: InputMaybe<Scalars['Boolean']['input']>;
+  groupId?: InputMaybe<Scalars['String']['input']>;
+  hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
+  includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
+  karmaThreshold?: InputMaybe<Scalars['Int']['input']>;
+  notPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  postIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  question?: InputMaybe<Scalars['Boolean']['input']>;
+  sortedBy?: InputMaybe<Scalars['String']['input']>;
+  timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  view?: InputMaybe<Scalars['String']['input']>;
+};
+
+type PostsSunshineAutoClassifiedPostsInput = {
+  af?: InputMaybe<Scalars['Boolean']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  curatedAfter?: InputMaybe<Scalars['String']['input']>;
+  exactPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  excludeEvents?: InputMaybe<Scalars['Boolean']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  filterSettings?: InputMaybe<Scalars['JSON']['input']>;
   groupId?: InputMaybe<Scalars['String']['input']>;
   hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
   includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
@@ -21878,6 +21902,25 @@ type multiPostModerationInboxQueryQueryVariables = Exact<{
 
 
 type multiPostModerationInboxQueryQuery = multiPostModerationInboxQueryQuery_Query;
+
+type multiPostAutoClassifiedInboxQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & SunshinePostsList
+);
+
+type multiPostAutoClassifiedInboxQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostAutoClassifiedInboxQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type multiPostAutoClassifiedInboxQueryQuery_Query = { __typename?: 'Query', posts: multiPostAutoClassifiedInboxQueryQuery_posts_MultiPostOutput | null };
+
+
+type multiPostAutoClassifiedInboxQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiPostAutoClassifiedInboxQueryQuery = multiPostAutoClassifiedInboxQueryQuery_Query;
 
 type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }

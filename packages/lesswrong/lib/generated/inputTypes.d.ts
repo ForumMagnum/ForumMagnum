@@ -5341,6 +5341,29 @@ interface PostsSunshineNewPostsInput {
   curatedAfter?: string | null;
 }
 
+interface PostsSunshineAutoClassifiedPostsInput {
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: any;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
 interface PostsSunshineNewUsersPostsInput {
   postIds?: Array<string> | null;
   notPostIds?: Array<string> | null;
@@ -5813,6 +5836,7 @@ interface PostSelector {
   postsWithBannedUsers: PostsPostsWithBannedUsersInput | null;
   communityResourcePosts: PostsCommunityResourcePostsInput | null;
   sunshineNewPosts: PostsSunshineNewPostsInput | null;
+  sunshineAutoClassifiedPosts: PostsSunshineAutoClassifiedPostsInput | null;
   sunshineNewUsersPosts: PostsSunshineNewUsersPostsInput | null;
   sunshineCuratedSuggestions: PostsSunshineCuratedSuggestionsInput | null;
   hasEverDialogued: PostsHasEverDialoguedInput | null;
@@ -10406,6 +10430,7 @@ interface GraphQLTypeMap {
   PostsPostsWithBannedUsersInput: PostsPostsWithBannedUsersInput;
   PostsCommunityResourcePostsInput: PostsCommunityResourcePostsInput;
   PostsSunshineNewPostsInput: PostsSunshineNewPostsInput;
+  PostsSunshineAutoClassifiedPostsInput: PostsSunshineAutoClassifiedPostsInput;
   PostsSunshineNewUsersPostsInput: PostsSunshineNewUsersPostsInput;
   PostsSunshineCuratedSuggestionsInput: PostsSunshineCuratedSuggestionsInput;
   PostsHasEverDialoguedInput: PostsHasEverDialoguedInput;

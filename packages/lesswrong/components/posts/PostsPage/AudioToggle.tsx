@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   togglePodcastContainer: {
     alignSelf: 'center',
     color: theme.palette.text.dim3,
-    height: podcastIconSize,
+    height: podcastIconSize(theme),
   },
   audioIcon: {
     width: podcastIconSize(theme) + (podcastIconPadding(theme) * 2),
