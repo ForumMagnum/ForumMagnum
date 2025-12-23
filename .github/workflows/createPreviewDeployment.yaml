@@ -13,8 +13,10 @@ env:
 jobs:
   check-and-deploy:
     runs-on: ubuntu-latest
-    # Only run for PRs targeting master
-    if: github.base_ref == 'master'
+    # Only run for PRs targeting master, from repo members (not external contributors)
+    if: >-
+      github.base_ref == 'master' &&
+      contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
