@@ -87,7 +87,7 @@ export const CommentsListWithTopLevelComment = () => frag`
   fragment CommentsListWithTopLevelComment on Comment {
     ...CommentsList
     topLevelComment {
-      ...CommentsList
+      ...CommentsListWithParentMetadata
     }
   }
 `

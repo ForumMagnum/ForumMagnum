@@ -27,7 +27,7 @@ import {
   MINIMUM_COAUTHOR_KARMA,
   DEFAULT_QUALITATIVE_VOTE,
   userPassesCrosspostingKarmaThreshold,
-  fetchPostRecentComments
+  fetchPostRecentComments,
 } from "./helpers";
 import { postStatuses, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";

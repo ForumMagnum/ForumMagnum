@@ -503,7 +503,7 @@ export const fetchPostRecentComments = async ({
   const maxAgeMs = maxAgeHours * oneHourInMs;
   const lastCommentedOrNow = post.lastCommentedAt ?? new Date();
   const timeCutoff = new Date(lastCommentedOrNow.getTime() - maxAgeMs);
-  const loaderName = af ? "recentCommentsAf" : "recentComments";
+  const loaderName = `recentComments-${maxAgeHours}-${commentsLimit}-${af}-${excludeTopLevel}`;
   const filter = {
     ...getDefaultViewSelector("Comments"),
     score: {$gt: 0},

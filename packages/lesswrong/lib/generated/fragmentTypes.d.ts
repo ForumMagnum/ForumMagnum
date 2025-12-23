@@ -583,7 +583,7 @@ interface CommentsListWithParentMetadata_post extends PostsMinimumInfo { // frag
 }
 
 interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments
-  readonly topLevelComment: CommentsList|null,
+  readonly topLevelComment: CommentsListWithParentMetadata|null,
 }
 
 interface ConceptItemFragment { // fragment on Tags

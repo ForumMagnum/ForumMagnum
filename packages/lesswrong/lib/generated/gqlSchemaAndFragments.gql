@@ -8137,7 +8137,7 @@ fragment CommentsListWithParentMetadata on Comment {
 fragment CommentsListWithTopLevelComment on Comment {
   ...CommentsList
   topLevelComment {
-    ...CommentsList
+    ...CommentsListWithParentMetadata
   }
 }
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useRecentDiscussionThread } from "./useRecentDiscussionThread";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import EARecentDiscussionItem from "./EARecentDiscussionItem";
 import CommentsItem from "../comments/CommentsItem/CommentsItem";
 import CommentsNodeInner from "../comments/CommentsNode";
@@ -55,6 +56,11 @@ const EARecentDiscussionQuickTakeCommented = ({
           action="commented on"
           postTitleOverride={`${post.user?.displayName}'s quick take`}
           post={post}
+          postUrlOverride={commentGetPageUrlFromIds({
+            postId: post._id,
+            postSlug: post.slug,
+            commentId: item._id,
+          })}
           timestamp={item.postedAt}
         >
           {item.topLevelComment &&
