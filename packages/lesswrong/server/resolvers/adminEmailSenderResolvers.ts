@@ -64,6 +64,61 @@ function buildAudienceWhereSql(filter: AudienceFilter) {
   return where.length ? `WHERE ${where.join(" AND ")}` : "";
 }
 
+/**
+ * Build SQL conditions for MailgunValidations filtering using EXISTS subqueries.
+ * Note: Emails in MailgunValidations are stored lowercase, so we only need to
+ * normalize the user's email. This allows the query to use the index on email.
+ */
+function buildMailgunFilterSql(filter: AudienceFilter): string {
+  // Build conditions that must be met by a validation record
+  const validationConds: string[] = [];
+  if (filter.requireMailgunValid) {
+    validationConds.push(`mv."isValid" IS TRUE`);
+  }
+  if (filter.maxMailgunRisk) {
+    validationConds.push(`mv.risk = ANY($(allowedRisks))`);
+  }
+
+  // If no mailgun requirements and includeUnknownRisk, no filter needed
+  if (validationConds.length === 0 && filter.includeUnknownRisk) {
+    return "";
+  }
+
+  // If we just need to exclude unknown risk (no other requirements)
+  if (validationConds.length === 0 && !filter.includeUnknownRisk) {
+    return `AND EXISTS (
+      SELECT 1 FROM "MailgunValidations" mv
+      WHERE mv.email = lower(btrim(u."email"))
+      AND mv.risk IS NOT NULL AND mv.risk <> 'unknown'
+    )`;
+  }
+
+  // We have validation requirements
+  const validationWhere = validationConds.join(" AND ");
+
+  if (filter.includeUnknownRisk) {
+    // Include users who have matching validation OR have no validation at all
+    return `AND (
+      EXISTS (
+        SELECT 1 FROM "MailgunValidations" mv
+        WHERE mv.email = lower(btrim(u."email"))
+        AND ${validationWhere}
+      )
+      OR NOT EXISTS (
+        SELECT 1 FROM "MailgunValidations" mv2
+        WHERE mv2.email = lower(btrim(u."email"))
+      )
+    )`;
+  } else {
+    // Require matching validation
+    return `AND EXISTS (
+      SELECT 1 FROM "MailgunValidations" mv
+      WHERE mv.email = lower(btrim(u."email"))
+      AND ${validationWhere}
+    )`;
+  }
+}
+
 async function fetchAudienceBatch(args: {
   filter: AudienceFilter;
   limit: number;
@@ -75,38 +130,7 @@ async function fetchAudienceBatch(args: {
 
   const whereSql = buildAudienceWhereSql(filter);
   const afterSql = afterUserId ? `AND u._id > $(afterUserId)` : "";
-
-  // Latest mailgun validation (optional join depending on filters)
-  const joinMailgun = filter.requireMailgunValid || !!filter.maxMailgunRisk || !filter.includeUnknownRisk;
-  const mailgunJoinSql = joinMailgun
-    ? `
-      LEFT JOIN LATERAL (
-        SELECT mv.*
-        FROM "MailgunValidations" mv
-        WHERE lower(mv.email) = lower(btrim(u."email"))
-        ORDER BY mv."validatedAt" DESC
-        LIMIT 1
-      ) mv ON TRUE
-    `
-    : "";
-
-  const mailgunWhere: string[] = [];
-  if (filter.requireMailgunValid) mailgunWhere.push(`mv."isValid" IS TRUE`);
-  if (filter.maxMailgunRisk) {
-    // risk is stored as text, so we explicitly map "max risk" to an allowlist.
-    // If includeUnknownRisk is false, require a known risk value.
-    if (filter.includeUnknownRisk) {
-      mailgunWhere.push(`(mv.risk IS NULL OR mv.risk = 'unknown' OR mv.risk = ANY($(allowedRisks)))`);
-    } else {
-      mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown' AND mv.risk = ANY($(allowedRisks)))`);
-    }
-  }
-  // If the caller explicitly excludes unknown, enforce presence of a known risk.
-  // This makes the checkbox meaningful even when maxMailgunRisk is unset ("Any").
-  if (!filter.includeUnknownRisk && !filter.maxMailgunRisk) {
-    mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown')`);
-  }
-  const mailgunWhereSql = mailgunWhere.length ? `AND ${mailgunWhere.join(" AND ")}` : "";
+  const mailgunFilterSql = buildMailgunFilterSql(filter);
 
   const skipAlreadySentSql = runId
     ? `
@@ -125,10 +149,9 @@ async function fetchAudienceBatch(args: {
     -- adminEmailSenderResolvers.fetchAudienceBatch
     SELECT u._id AS "userId", lower(btrim(u."email")) AS email
     FROM "Users" u
-    ${mailgunJoinSql}
     ${whereSql}
     ${afterSql}
-    ${mailgunWhereSql}
+    ${mailgunFilterSql}
     ${skipAlreadySentSql}
     ORDER BY u._id
     LIMIT $(limit)
@@ -145,32 +168,7 @@ async function fetchAudienceBatch(args: {
 async function countAudience(filter: AudienceFilter): Promise<number> {
   const db = getSqlClientOrThrow();
   const whereSql = buildAudienceWhereSql(filter);
-  const joinMailgun = filter.requireMailgunValid || !!filter.maxMailgunRisk || !filter.includeUnknownRisk;
-  const mailgunJoinSql = joinMailgun
-    ? `
-      LEFT JOIN LATERAL (
-        SELECT mv.*
-        FROM "MailgunValidations" mv
-        WHERE lower(mv.email) = lower(btrim(u."email"))
-        ORDER BY mv."validatedAt" DESC
-        LIMIT 1
-      ) mv ON TRUE
-    `
-    : "";
-
-  const mailgunWhere: string[] = [];
-  if (filter.requireMailgunValid) mailgunWhere.push(`mv."isValid" IS TRUE`);
-  if (filter.maxMailgunRisk) {
-    if (filter.includeUnknownRisk) {
-      mailgunWhere.push(`(mv.risk IS NULL OR mv.risk = 'unknown' OR mv.risk = ANY($(allowedRisks)))`);
-    } else {
-      mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown' AND mv.risk = ANY($(allowedRisks)))`);
-    }
-  }
-  if (!filter.includeUnknownRisk && !filter.maxMailgunRisk) {
-    mailgunWhere.push(`(mv.risk IS NOT NULL AND mv.risk <> 'unknown')`);
-  }
-  const mailgunWhereSql = mailgunWhere.length ? `AND ${mailgunWhere.join(" AND ")}` : "";
+  const mailgunFilterSql = buildMailgunFilterSql(filter);
 
   const params: Record<string, string[]> = {};
   if (filter.maxMailgunRisk) params.allowedRisks = allowedRisksForMax(filter.maxMailgunRisk);
@@ -180,9 +178,8 @@ async function countAudience(filter: AudienceFilter): Promise<number> {
       -- adminEmailSenderResolvers.countAudience
       SELECT COUNT(*)::text AS count
       FROM "Users" u
-      ${mailgunJoinSql}
       ${whereSql}
-      ${mailgunWhereSql}
+      ${mailgunFilterSql}
     `,
     params,
   );
