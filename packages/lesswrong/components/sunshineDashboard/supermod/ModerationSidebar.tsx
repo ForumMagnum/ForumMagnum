@@ -1,6 +1,7 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import SunshineUserMessages from '../SunshineUserMessages';
+import { useCurrentUser } from '@/components/common/withUser';
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
@@ -37,12 +38,14 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
 
 const ModerationSidebar = ({
   user,
-  currentUser,
 }: {
   user: SunshineUsersList;
-  currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  if (!currentUser) {
+    return null;
+  }
 
   if (!user) {
     return (

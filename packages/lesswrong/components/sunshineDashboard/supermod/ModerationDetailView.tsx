@@ -2,8 +2,10 @@ import React, { useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
-import type { InboxAction } from './inboxReducer';
+import type { InboxAction, InboxState } from './inboxReducer';
 import ModerationFullWidthHeader from './ModerationFullWidthHeader';
+import ModerationSidebar from './ModerationSidebar';
+import ModerationUndoHistory from './ModerationUndoHistory';
 
 const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   root: {
@@ -13,15 +15,15 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     height: '100%',
   },
   contentSection: {
-    display: 'flex',
-    flex: 1,
-    minHeight: 0,
+    display: 'grid',
+    gridTemplateColumns: '300px 1fr 1fr 350px',
+  },
+  userColumn: {
   },
   contentListColumn: {
-    width: "50%",
-    display: 'flex',
-    flexDirection: 'column',
-    borderRight: theme.palette.border.normal,
+    minWidth: 0,
+  },
+  sidebarColumn: {
   },
 }));
 
@@ -32,6 +34,7 @@ const ModerationDetailView = ({
   focusedContentIndex,
   runningLlmCheckId,
   dispatch,
+  state,
 }: {
   user: SunshineUsersList;
   posts: SunshinePostsList[];
@@ -39,6 +42,7 @@ const ModerationDetailView = ({
   focusedContentIndex: number;
   runningLlmCheckId: string | null;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
+  state: InboxState;
 }) => {
   const classes = useStyles(styles);
 
@@ -66,12 +70,14 @@ const ModerationDetailView = ({
   return (
     <div className={classes.root}>
       <div className={classes.contentSection}>
-        <ModerationFullWidthHeader
-          user={user}
-          posts={posts}
-          comments={comments}
-          dispatch={dispatch}
-        />
+        <div className={classes.userColumn}>
+          <ModerationFullWidthHeader
+            user={user}
+            posts={posts}
+            comments={comments}
+            dispatch={dispatch}
+          />
+        </div>
         <div className={classes.contentListColumn}>
           <ModerationContentList
             items={allContent}
@@ -83,6 +89,16 @@ const ModerationDetailView = ({
         </div>
         <div className={classes.contentListColumn}>
           <ModerationContentDetail item={focusedContent} />
+        </div>
+        <div className={classes.sidebarColumn}>
+          <ModerationSidebar
+            user={user}
+          />
+          <ModerationUndoHistory
+            undoQueue={state.undoQueue}
+            history={state.history}
+            dispatch={dispatch}
+          />
         </div>
       </div>
     </div>

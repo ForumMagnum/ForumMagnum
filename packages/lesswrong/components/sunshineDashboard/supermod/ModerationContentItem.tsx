@@ -68,7 +68,7 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   },
   contentPreview: {
     flex: 1,
-    minWidth: 220,
+    minWidth: 100,
     overflow: 'hidden',
     marginRight: 12,
   },

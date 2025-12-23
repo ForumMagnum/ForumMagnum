@@ -340,6 +340,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
               dispatch={dispatch}
+              state={state}
             />
           ) : (
             <ModerationInboxList
@@ -356,7 +357,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
             />
           )}
         </div>
-        <div className={classNames(classes.sidebar, { [classes.sidebarWide]: isPostsTab })}>
+        {/* <div className={classNames(classes.sidebar, { [classes.sidebarWide]: isPostsTab })}>
           {isPostsTab ? (
             <ModerationPostSidebar
               post={focusedPost}
@@ -380,7 +381,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
               </div>
             </>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
     </CoreTagsKeyboardProvider>
