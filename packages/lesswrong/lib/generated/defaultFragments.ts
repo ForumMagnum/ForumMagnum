@@ -920,6 +920,7 @@ export const PostsDefaultFragment = `
     title
     viewCount
     lastCommentedAt
+    lastCommentReplyAt
     clickCount
     deletedDraft
     status

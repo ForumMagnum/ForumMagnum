@@ -772,7 +772,8 @@ type RecentDiscussionFeedQueryResults {
 type RecentDiscussionFeedEntryType {
   type: String!
   postCommented: Post
-  shortformCommented: Post
+  newQuickTake: Comment
+  quickTakeCommented: Post
   tagDiscussed: Tag
   tagRevised: Revision
 }
@@ -3322,6 +3323,7 @@ type Post {
   title: String!
   viewCount: Float
   lastCommentedAt: Date!
+  lastCommentReplyAt: Date
   clickCount: Float
   deletedDraft: Boolean!
   status: Float!
@@ -3504,6 +3506,7 @@ type Post {
   commentCount: Float!
   topLevelCommentCount: Float!
   recentComments(commentsLimit: Int, maxAgeHours: Int, af: Boolean): [Comment]
+  recentQuickTakeComments(commentsLimit: Int, maxAgeHours: Int, af: Boolean): [Comment]
   languageModelSummary: String
   debate: Boolean!
   collabEditorDialogue: Boolean!
@@ -8134,7 +8137,7 @@ fragment CommentsListWithParentMetadata on Comment {
 fragment CommentsListWithTopLevelComment on Comment {
   ...CommentsList
   topLevelComment {
-    ...CommentsList
+    ...CommentsListWithParentMetadata
   }
 }
 
@@ -9317,6 +9320,13 @@ fragment PostForReviewWinnerItem on Post {
   }
 }
 
+fragment PostQuickTakesRecentDiscussion on Post {
+  ...PostsListWithVotes
+  recentQuickTakeComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+    ...CommentsListWithTopLevelComment
+  }
+}
+
 fragment PostRecommendationsDefaultFragment on PostRecommendation {
   _id
   schemaVersion
@@ -9573,6 +9583,7 @@ fragment PostsDefaultFragment on Post {
   title
   viewCount
   lastCommentedAt
+  lastCommentReplyAt
   clickCount
   deletedDraft
   status
@@ -10207,6 +10218,13 @@ fragment PostsWithVotes on Post {
   currentUserExtendedVote
 }
 
+fragment QuickTakesRecentDiscussion on Comment {
+  ...CommentsListWithParentMetadata
+  post {
+    ...PostsRecentDiscussion
+  }
+}
+
 fragment RSSFeedMinimumInfo on RSSFeed {
   _id
   userId
@@ -10622,13 +10640,6 @@ fragment ShortformComments on Comment {
   }
   relevantTags {
     ...TagPreviewFragment
-  }
-}
-
-fragment ShortformRecentDiscussion on Post {
-  ...PostsListWithVotes
-  recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
-    ...CommentsListWithTopLevelComment
   }
 }
 

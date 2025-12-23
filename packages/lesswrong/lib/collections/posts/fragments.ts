@@ -672,10 +672,10 @@ export const PostsRecentDiscussion = () => frag`
   }
 `
 
-export const ShortformRecentDiscussion = () => frag`
-  fragment ShortformRecentDiscussion on Post {
+export const PostQuickTakesRecentDiscussion = () => frag`
+  fragment PostQuickTakesRecentDiscussion on Post {
     ${PostsListWithVotes}
-    recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
+    recentQuickTakeComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsListWithTopLevelComment
     }
   }

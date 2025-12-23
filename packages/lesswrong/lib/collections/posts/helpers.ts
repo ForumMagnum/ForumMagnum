@@ -1,4 +1,4 @@
-import { PublicInstanceSetting, aboutPostIdSetting, isAF, siteUrlSetting } from '../../instanceSettings';
+import { PublicInstanceSetting, aboutPostIdSetting, isAF, isLWorAF, reviewUserBotSetting, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
@@ -9,6 +9,9 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
 import type { RouterLocation } from '../../vulcan-lib/routes';
+import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
+import { getWithCustomLoader } from "../../loaders";
+import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -479,4 +482,48 @@ export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimum
 
 export function userCanEditCoauthors(user: UsersCurrent | null) {
   return userIsAdminOrMod(user) || userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(user);
+}
+
+export const fetchPostRecentComments = async ({
+  context,
+  post,
+  maxAgeHours = 18,
+  commentsLimit = 5,
+  af,
+  excludeTopLevel,
+}: {
+  context: ResolverContext,
+  post: DbPost,
+  maxAgeHours?: number,
+  commentsLimit?: number,
+  af?: boolean,
+  excludeTopLevel?: boolean,
+}) => {
+  const oneHourInMs = 60 * 60 * 1000;
+  const maxAgeMs = maxAgeHours * oneHourInMs;
+  const lastCommentedOrNow = post.lastCommentedAt ?? new Date();
+  const timeCutoff = new Date(lastCommentedOrNow.getTime() - maxAgeMs);
+  const loaderName = `recentComments-${maxAgeHours}-${commentsLimit}-${af}-${excludeTopLevel}`;
+  const filter = {
+    ...getDefaultViewSelector("Comments"),
+    score: {$gt: 0},
+    draft: false,
+    deletedPublic: false,
+    postedAt: {$gt: timeCutoff},
+    ...(af ? {af: true} : {}),
+    ...(isLWorAF ? {userId: {$ne: reviewUserBotSetting.get()}} : {}),
+    ...(excludeTopLevel ? {parentCommentId: {$exists: true}} : {}),
+  };
+  const { currentUser, repos } = context;
+  const comments = await getWithCustomLoader(
+    context,
+    loaderName,
+    post._id,
+    (postIds) => repos.comments.getRecentCommentsOnPosts(
+      postIds,
+      commentsLimit,
+      filter,
+    ),
+  );
+  return await accessFilterMultiple(currentUser, "Comments", comments, context);
 }

@@ -87,7 +87,7 @@ export const CommentsListWithTopLevelComment = () => frag`
   fragment CommentsListWithTopLevelComment on Comment {
     ...CommentsList
     topLevelComment {
-      ...CommentsList
+      ...CommentsListWithParentMetadata
     }
   }
 `
@@ -313,3 +313,12 @@ export const SuggestAlignmentComment = () => frag`
       displayName
     }
   }`
+
+export const QuickTakesRecentDiscussion = () => frag`
+  fragment QuickTakesRecentDiscussion on Comment {
+    ...CommentsListWithParentMetadata
+    post {
+      ...PostsRecentDiscussion
+    }
+  }
+`

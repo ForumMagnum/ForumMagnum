@@ -552,7 +552,8 @@ interface RecentDiscussionFeedQueryResults {
 interface RecentDiscussionFeedEntryType {
   type: string;
   postCommented: Post | null;
-  shortformCommented: Post | null;
+  newQuickTake: Comment | null;
+  quickTakeCommented: Post | null;
   tagDiscussed: Tag | null;
   tagRevised: Revision | null;
 }
@@ -2648,6 +2649,7 @@ interface Post {
   title: string;
   viewCount: number | null;
   lastCommentedAt: Date;
+  lastCommentReplyAt: Date | null;
   clickCount: number | null;
   deletedDraft: boolean;
   status: number;
@@ -2830,6 +2832,7 @@ interface Post {
   commentCount: number;
   topLevelCommentCount: number;
   recentComments: Array<Comment | null> | null;
+  recentQuickTakeComments: Array<Comment | null> | null;
   languageModelSummary: string | null;
   debate: boolean;
   collabEditorDialogue: boolean;
