@@ -1003,21 +1003,19 @@ export function invalidatePostOnCommentUpdate({ postId }: { postId: string | nul
   backgroundTask(swrInvalidatePostRoute(postId, context));
 }
 
-export async function updateDescendentCommentCountsOnEdit(comment: DbComment, properties: UpdateCallbackProperties<"Comments">) {
-  const { context: { Comments } } = properties;
+export function isIncludedInDescendentCounts(comment: DbComment) {
+  return !comment.draft && !comment.deleted && !comment.rejected && !comment.authorIsUnreviewed;
+}
 
-  let changedField: 'deleted' | 'rejected' | undefined;
-  if (properties.oldDocument.deleted !== properties.newDocument.deleted) {
-    changedField = 'deleted';
-  } else if (properties.oldDocument.rejected !== properties.newDocument.rejected) {
-    changedField = 'rejected';
-  }
-  if (changedField) {
+export async function updateDescendentCommentCountsOnEdit(comment: DbComment, properties: UpdateCallbackProperties<"Comments">): Promise<void> {
+  const includedInDescendentCountsBefore = isIncludedInDescendentCounts(properties.oldDocument);
+  const includedInDescendentCountsAfter = isIncludedInDescendentCounts(properties.newDocument);
+
+  if (includedInDescendentCountsBefore !== includedInDescendentCountsAfter) {
     const ancestorIds: string[] = await getCommentAncestorIds(comment);
-    const increment = properties.oldDocument[changedField] ? 1 : -1;
-    await Comments.rawUpdateMany({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
+    const increment = includedInDescendentCountsAfter ? 1 : -1;
+    await properties.context.Comments.rawUpdateMany({_id: {$in: ancestorIds}}, {$inc: {descendentCount: increment}})
   }
-  return comment;
 }
 
 
