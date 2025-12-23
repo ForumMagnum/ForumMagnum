@@ -4,6 +4,12 @@ import CommentsNode from '@/components/comments/CommentsNode';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import { ContentItem, isPost } from './helpers';
 import ForumIcon from '@/components/common/ForumIcon';
+import { Link } from '@/lib/reactRouterWrapper';
+import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import PostBodyPrefix from '@/components/posts/PostsPage/PostBodyPrefix';
+import ContentStyles from '@/components/common/ContentStyles';
+import { ContentItemBody } from '@/components/contents/ContentItemBody';
+import { post } from 'request';
 
 const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   root: {
@@ -52,6 +58,16 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
     marginRight: -1,
     marginTop: -1,
     marginBottom: -1,
+  },
+  postContent: {
+    padding: 16,
+    borderLeft: `1px solid ${theme.palette.grey[300]}`,
+  },
+  postTitle: {
+    display: 'block',
+    ...theme.typography.headerStyle,
+    fontSize: 32,
+    fontWeight: 600,
   }
 }));
 const ModerationContentDetail = ({
@@ -89,6 +105,17 @@ const ModerationContentDetail = ({
     <div className={classes.root}>
       <div className={classes.contentWrapper} ref={contentWrapperRef}>
         {post
+          ? <div className={classes.postContent}>
+            <Link to={postGetPageUrl(item)} className={classes.postTitle}>
+              {item.title}
+            </Link>
+            <PostBodyPrefix post={item} />
+            <ContentStyles contentType="postHighlight">
+              <ContentItemBody
+                dangerouslySetInnerHTML={{__html: item.contents?.html ?? ''}}
+              />
+            </ContentStyles>
+          </div>
           // ? <PostsPageWrapper documentId={item._id} sequenceId={null} embedded/>
           : <div className={classes.commentsNode}>
             <CommentsNode treeOptions={{showPostTitle: true}} comment={item} forceUnTruncated forceUnCollapsed/>

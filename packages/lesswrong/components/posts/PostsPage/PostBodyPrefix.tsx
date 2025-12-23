@@ -63,7 +63,7 @@ const getForumNewUserProcessingTime = () => forumSelect({
 })
 
 const PostBodyPrefix = ({post, query, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|SunshinePostsList,
   query?: any,
   classes: ClassesType<typeof styles>,
 }) => {
