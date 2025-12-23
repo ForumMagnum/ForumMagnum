@@ -58,11 +58,10 @@ async function fetchAirtableDonationRecords(): Promise<number> {
   const unmatchedIncompleteEveryorg = incompleteEveryorg
     .filter((record: AnyBecauseIsInput) =>
         !completeEveryorg.some((completeRecord: AnyBecauseIsInput) =>
-          completeRecord.fields["Name"] === record.fields["Name"]
+          completeRecord.fields["Donor Name"]?.[0] === record.fields["Donor Name"]?.[0]
           && Math.abs(completeRecord.amount - record.amount)/completeRecord.amount < 0.2
         )
     );
-
   return [...unmatchedIncompleteEveryorg, ...completeEveryorg, ...nonEveryorg].reduce((acc, {amount}) => acc + amount, 0);
 }
 
