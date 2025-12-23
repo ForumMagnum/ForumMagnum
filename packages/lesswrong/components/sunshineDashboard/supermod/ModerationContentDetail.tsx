@@ -8,14 +8,16 @@ import ForumIcon from '@/components/common/ForumIcon';
 const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
-    height: 'calc(100vh - 178px)',
-    width: 800,
-    flexShrink: 0,
+    flex: 1,
+    minWidth: 0,
     position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
   },
   contentWrapper: {
     overflowY: 'auto',
-    height: 'calc(100% - 58px)',
+    flex: 1,
+    minHeight: 0,
   },
   empty: {
     padding: 40,

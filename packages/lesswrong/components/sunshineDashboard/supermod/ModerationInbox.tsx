@@ -10,6 +10,8 @@ import { gql } from '@/lib/generated/gql-codegen';
 import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
 import ModerationDetailView from './ModerationDetailView';
 import ModerationSidebar from './ModerationSidebar';
+import ModerationFullWidthHeader from './ModerationFullWidthHeader';
+import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ModerationPostSidebar from './ModerationPostSidebar';
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
@@ -52,6 +54,7 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     width: '100%',
     height: '100vh',
     display: 'flex',
+    flexDirection: 'column',
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     overflow: 'hidden',
     position: 'fixed',
@@ -61,6 +64,7 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     flex: 1,
     display: 'flex',
     overflow: 'hidden',
+    minHeight: 0,
   },
   leftPanel: {
     flex: 1,
@@ -272,6 +276,15 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
 
   const isPostsTab = state.activeTab === 'posts';
 
+  // Fetch user's posts and comments when a user is opened
+  const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
+
+  // #region agent log
+  React.useEffect(() => {
+    fetch('http://127.0.0.1:7245/ingest/aee04c0a-d536-4804-8b9c-ba91f89e023f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ModerationInbox.tsx:275',message:'ModerationInboxInner mounted',data:{openedUserId: state.openedUserId, isPostsTab, userPostsCount: userPosts.length, userCommentsCount: userComments.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
+  }, [state.openedUserId, isPostsTab, userPosts.length, userComments.length]);
+  // #endregion
+
   return (
     <CoreTagsKeyboardProvider>
     <div className={classes.root}>
@@ -308,11 +321,22 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
           dispatch={dispatch}
         />
       )}
+      {/* {openedUser && (
+        <ModerationFullWidthHeader
+          user={openedUser}
+          posts={userPosts}
+          comments={userComments}
+          currentUser={currentUser}
+          dispatch={dispatch}
+        />
+      )} */}
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
             <ModerationDetailView 
               user={openedUser}
+              posts={userPosts}
+              comments={userComments}
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
               dispatch={dispatch}
