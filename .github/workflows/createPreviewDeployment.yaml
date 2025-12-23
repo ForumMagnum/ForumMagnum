@@ -27,9 +27,6 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # - name: Link Vercel Project
-      #   run: vercel link --yes --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
-
       - name: Check for existing Vercel deployment
         id: check-deployment
         run: |
