@@ -27,8 +27,8 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Link Vercel Project
-        run: vercel link --yes --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
+      # - name: Link Vercel Project
+      #   run: vercel link --yes --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
 
       - name: Check for existing Vercel deployment
         id: check-deployment
@@ -54,7 +54,7 @@ jobs:
         if: steps.check-deployment.outputs.deployment_exists != 'true'
         id: deploy
         run: |
-          DEPLOYMENT_URL=$(vercel deploy --yes --token=${{ secrets.VERCEL_ACCESS_TOKEN }})
+          DEPLOYMENT_URL=$(vercel deploy --yes --token=${{ secrets.VERCEL_ACCESS_TOKEN }}) --project=${{ secrets.VERCEL_PROJECT_ID }}
           echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $DEPLOYMENT_URL"
 
