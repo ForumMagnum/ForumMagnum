@@ -377,6 +377,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
                 {sidebarUser && <ModerationSidebar
                   user={sidebarUser}
                   currentUser={currentUser}
+                  dispatch={dispatch}
                 />}
               </div>
               <div className={classes.sidebarBottom}>
