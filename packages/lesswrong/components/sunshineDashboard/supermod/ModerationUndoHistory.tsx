@@ -158,8 +158,8 @@ const ModerationUndoHistory = ({
       event.preventDefault();
       // Legacy browsers may still be relying on returnValue to be set
       // https://developer.mozilla.org/en-US/docs/Web/API/BeforeUnloadEvent/returnValue
-      event.returnValue = true;
-      return true;
+      event.returnValue = 'Pending undo queue entries!';
+      return 'Pending undo queue entries!';
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
