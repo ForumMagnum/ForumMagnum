@@ -62,7 +62,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
   }
 
   try {
-    const currentURL = new URLClass(location.url, getSiteUrl());
+    const currentURL = new URLClass(location.pathname, getSiteUrl());
     const linkTargetAbsolute = new URLClass(href, currentURL);
 
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;

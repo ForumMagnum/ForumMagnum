@@ -1,4 +1,4 @@
-import { parseRoute, parsePath } from '@/lib/vulcan-lib/routes';
+import { parseRoute, parsePath, type RouterLocation } from '@/lib/vulcan-lib/routes';
 import { CommentLinkPreviewLegacy, MessagePreview, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from './PostLinkPreview';
 import { TagHoverPreview } from '../tagging/TagHoverPreview';
 
@@ -6,7 +6,16 @@ import { TagHoverPreview } from '../tagging/TagHoverPreview';
 // This matches directory structure in app/lw which will need to be duplicated as app/ea
 const legacyRouteAcronym = 'lw';
 
-export const routePreviewComponentMapping = {
+export type LinkPreviewComponent = React.FC<{
+  href: string,
+  originalHref: string,
+  targetLocation: RouterLocation,
+  id: string,
+  className?: string,
+  children: React.ReactNode,
+}>
+
+export const routePreviewComponentMapping: Record<string,LinkPreviewComponent> = {
   '/sequences/:_id': SequencePreview,
   '/s/:_id': SequencePreview,
   '/s/:sequenceId/p/:postId': PostLinkPreviewSequencePost,
