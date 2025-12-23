@@ -429,6 +429,11 @@ export const SunshineUsersList = () => frag`
     karma
     htmlBio
     website
+    linkedinProfileURL
+    facebookProfileURL
+    twitterProfileURL
+    githubProfileURL
+    blueskyProfileURL
     createdAt
     email
     emails
