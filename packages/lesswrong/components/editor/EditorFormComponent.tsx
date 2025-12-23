@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useContext, useLayoutEffect } from 'react';
 import { debateEditorPlaceholder, getDefaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
@@ -71,11 +71,13 @@ interface EditorFormComponentProps<S, R> {
   addOnSubmitCallback: (fn: EditorSubmitCallback) => () => void;
   addOnSuccessCallback: (fn: EditorSuccessCallback<R>) => () => void;
   getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
+  externalEditorRef?: React.MutableRefObject<Editor | null>;
 }
 
 export function useEditorFormCallbacks<R>() {
   const onSubmitCallback = useRef<EditorSubmitCallback | null>(null);
   const onSuccessCallback = useRef<EditorSuccessCallback<R> | null>(null);
+  const editorRef = useRef<Editor | null>(null);
 
   const addOnSubmitCallback = (cb: EditorSubmitCallback) => {
     onSubmitCallback.current = cb;
@@ -91,11 +93,22 @@ export function useEditorFormCallbacks<R>() {
     };
   };
 
+  const appendToEditor = (html: string) => {
+    const ckEditorReference = editorRef.current?.state?.ckEditorReference;
+    if (ckEditorReference) {
+      const currentData = ckEditorReference.getData() || '';
+      const separator = currentData.trim() ? '<p><br></p>' : '';
+      ckEditorReference.data.set(currentData + separator + html);
+    }
+  };
+
   return {
     onSubmitCallback,
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback,
+    editorRef,
+    appendToEditor,
   };
 };
 
@@ -135,6 +148,7 @@ function InnerEditorFormComponent<S, R>({
   addOnSubmitCallback,
   addOnSuccessCallback,
   getLocalStorageId,
+  externalEditorRef,
 }: EditorFormComponentProps<S, R>) {
   const classes = useStyles(definedStyles);
   const { flash } = useMessages();
@@ -142,6 +156,11 @@ function InnerEditorFormComponent<S, R>({
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
+  useLayoutEffect(() => {
+    if (externalEditorRef) {
+      externalEditorRef.current = editorRef.current;
+    }
+  });
   const { captureEvent } = useTracking()
 
   const localStorageIdGenerator = getLocalStorageId ?? getDefaultLocalStorageIdGenerator(collectionName);

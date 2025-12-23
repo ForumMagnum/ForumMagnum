@@ -10,16 +10,29 @@ import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { ModerationTemplateFragment } from "@/lib/collections/moderationTemplates/fragments";
 import ConversationPreview from '../messaging/ConversationPreview';
 import ForumIcon from '../common/ForumIcon';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
+import LWTooltip from '../common/LWTooltip';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
     conversations(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...ConversationsList
+      }
+      totalCount
+    }
+  }
+`);
+
+const ModerationTemplatesListQuery = gql(`
+  query multiModerationTemplateSunshineUserMessagesQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
+    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ModerationTemplateFragment
       }
       totalCount
     }
@@ -64,6 +77,15 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginBottom: -1,
     marginLeft: 4,
   },
+  conversationForm: {
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
+    paddingBottom: theme.spacing.unit,
+    border: theme.palette.border.extraFaint,
+    // border: theme.palette.border.normal,
+    borderRadius: theme.spacing.unit/2,
+    padding: theme.spacing.unit,
+  },
   expandablePreview: {
     maxHeight: 100,
     overflow: 'hidden',
@@ -77,6 +99,21 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
       height: 30,
       background: `linear-gradient(to bottom, ${theme.palette.inverseGreyAlpha(0)}, ${theme.palette.background.pageActiveAreaBackground})`,
       pointerEvents: 'none',
+    },
+  },
+  templateList: {
+    marginBottom: theme.spacing.unit * 2,
+    opacity: 0.5,
+    "&:hover": {
+      opacity: 1,
+    },
+  },
+  templateItem: {
+    cursor: "pointer",
+    padding: theme.spacing.unit / 2,
+    marginBottom: theme.spacing.unit / 2,
+    "&:hover": {
+      backgroundColor: theme.palette.greyAlpha(0.1),
     },
   },
 }));
@@ -116,43 +153,62 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
     notifyOnNetworkStatusChange: true,
   });
 
+  const { data: templatesData } = useQuery(ModerationTemplatesListQuery, {
+    variables: {
+      selector: { moderationTemplatesList: { collectionName: "Messages" } },
+      limit: 50,
+      enableTotal: false,
+    },
+  });
+
   const results = data?.conversations?.results;
+  const templates = templatesData?.moderationTemplates?.results;
+
+  const handleTemplateClick = (template: NonNullable<typeof templates>[0]) => {
+    setTemplateQueries({
+      templateId: template._id,
+      displayName: user.displayName,
+      template: template as any,
+    } as TemplateQueryStrings);
+  };
 
   return <div>
     {results?.map(conversation => {
       const isExpanded = expandedConversationId === conversation._id;
       return (
         <div key={conversation._id} className={classes.conversationItem}>
-          <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
-            <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
-            <span>
-              Conversation with{" "} 
-              {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
-                return <MetaInfo key={`${conversation._id}${participant._id}`}>
-                  <UsersName simple user={participant}/>
-                </MetaInfo>
-              })}
-            </span>
-            <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
-            <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
-              <ForumIcon icon="Link" className={classes.linkIcon} />
-            </Link>
-          </div>
-          {(isExpanded || showExpandablePreview) && (
+          <LWTooltip title={ <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />}>
+            <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
+              <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
+              <span>
+                Conversation with{" "} 
+                {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
+                  return <MetaInfo key={`${conversation._id}${participant._id}`}>
+                    <UsersName simple user={participant}/>
+                  </MetaInfo>
+                })}
+              </span>
+              <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
+              <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
+                <ForumIcon icon="Link" className={classes.linkIcon} />
+              </Link>
+            </div>
+          </LWTooltip>
+          {/* {(isExpanded || showExpandablePreview) && (
             <div className={classNames((!isExpanded && showExpandablePreview) && classes.expandablePreview)}>
               <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
             </div>
-          )}
+          )} */}
         </div>
       );
     })}
-    <SunshineSendMessageWithDefaults 
+    {/* <SunshineSendMessageWithDefaults 
         user={user} 
         embedConversation={embedConversation}
-      />
-    {embeddedConversationId && <div>
+      /> */}
+    <div className={classes.conversationForm}>
       <MessagesNewForm 
-        conversationId={embeddedConversationId} 
+        conversationId={embeddedConversationId ?? ''} 
         templateQueries={templateQueries}
         successEvent={() => {
           captureEvent('messageSent', {
@@ -162,7 +218,20 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
           })
         }}
       />
-    </div>}
+    </div>
+    {templates && templates.length > 0 && (
+      <div className={classes.templateList}>
+        {templates.map((template: NonNullable<typeof templates>[0]) => (
+          <div
+            key={template._id}
+            className={classes.templateItem}
+            onClick={() => handleTemplateClick(template)}
+          >
+            {template.name}
+          </div>
+        ))}
+      </div>
+    )}
   </div>;
 }
 

@@ -47,6 +47,12 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
       boxShadow: theme.palette.boxShadow.lwCard,
     },
   },
+  commentsNode: {
+    marginLeft: -1,
+    marginRight: -1,
+    marginTop: -1,
+    marginBottom: -1,
+  }
 }));
 const ModerationContentDetail = ({
   item,
@@ -83,8 +89,11 @@ const ModerationContentDetail = ({
     <div className={classes.root}>
       <div className={classes.contentWrapper} ref={contentWrapperRef}>
         {post
-          ? <PostsPageWrapper documentId={item._id} sequenceId={null} embedded/>
-          : <CommentsNode treeOptions={{showPostTitle: true}} comment={item} forceUnTruncated forceUnCollapsed/>}
+          // ? <PostsPageWrapper documentId={item._id} sequenceId={null} embedded/>
+          : <div className={classes.commentsNode}>
+            <CommentsNode treeOptions={{showPostTitle: true}} comment={item} forceUnTruncated forceUnCollapsed/>
+            </div>
+          }
       </div>
       {post && (
         <button 

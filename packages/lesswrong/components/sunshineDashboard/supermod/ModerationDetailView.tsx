@@ -16,14 +16,20 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   },
   contentSection: {
     display: 'grid',
-    gridTemplateColumns: '300px 1fr 1fr 350px',
+    gridTemplateColumns: '300px 1fr 1fr 400px',
   },
   userColumn: {
+    borderRight: theme.palette.border.normal,
   },
   contentListColumn: {
     minWidth: 0,
+    borderRight: theme.palette.border.normal,
+    height: '100vh',
+    overflow: 'scroll',
   },
   sidebarColumn: {
+    height: '100vh',
+    overflow: 'scroll',
   },
 }));
 

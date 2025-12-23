@@ -10,6 +10,12 @@ import LoginPopup from "../users/LoginPopup";
 export interface TemplateQueryStrings {
   templateId: string;
   displayName: string;
+  template?: {
+    _id: string;
+    contents?: {
+      html?: string;
+    } | null;
+  };
 }
 
 // Button used to start a new conversation for a given user
