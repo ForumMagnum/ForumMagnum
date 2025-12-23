@@ -1664,6 +1664,10 @@ interface PostForReviewWinnerItem_reviewWinner { // fragment on ReviewWinners
   readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
 }
 
+interface PostQuickTakesRecentDiscussion extends PostsListWithVotes { // fragment on Posts
+  readonly recentQuickTakeComments: Array<CommentsListWithTopLevelComment>,
+}
+
 interface PostRecommendationsDefaultFragment { // fragment on PostRecommendations
   readonly _id: string,
   readonly schemaVersion: number,
@@ -1894,6 +1898,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly title: string,
   readonly viewCount: number|null,
   readonly lastCommentedAt: Date,
+  readonly lastCommentReplyAt: Date|null,
   readonly clickCount: number|null,
   readonly deletedDraft: boolean,
   readonly status: number,
@@ -2417,6 +2422,10 @@ interface PostsWithVotes extends PostsBase { // fragment on Posts
   readonly currentUserExtendedVote: any,
 }
 
+interface QuickTakesRecentDiscussion extends CommentsListWithParentMetadata { // fragment on Comments
+  readonly post: PostsRecentDiscussion|null,
+}
+
 interface RSSFeedMinimumInfo { // fragment on RSSFeeds
   readonly _id: string,
   readonly userId: string,
@@ -2795,10 +2804,6 @@ interface SharedUserBooleans { // fragment on Users
 interface ShortformComments extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly relevantTags: Array<TagPreviewFragment>,
-}
-
-interface ShortformRecentDiscussion extends PostsListWithVotes { // fragment on Posts
-  readonly recentComments: Array<CommentsListWithTopLevelComment>,
 }
 
 interface SideCommentCacheMinimumInfo { // fragment on SideCommentCaches
@@ -5753,6 +5758,7 @@ interface FragmentTypes {
   PodcastsDefaultFragment: PodcastsDefaultFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostForReviewWinnerItem: PostForReviewWinnerItem
+  PostQuickTakesRecentDiscussion: PostQuickTakesRecentDiscussion
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   PostSequenceNavigation: PostSequenceNavigation
@@ -5795,6 +5801,7 @@ interface FragmentTypes {
   PostsWithNavigation: PostsWithNavigation
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
   PostsWithVotes: PostsWithVotes
+  QuickTakesRecentDiscussion: QuickTakesRecentDiscussion
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
   RSSFeedMutationFragment: RSSFeedMutationFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
@@ -5830,7 +5837,6 @@ interface FragmentTypes {
   SessionsDefaultFragment: SessionsDefaultFragment
   SharedUserBooleans: SharedUserBooleans
   ShortformComments: ShortformComments
-  ShortformRecentDiscussion: ShortformRecentDiscussion
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
   SideCommentCachesDefaultFragment: SideCommentCachesDefaultFragment
   SplashArtCoordinates: SplashArtCoordinates
@@ -5981,7 +5987,7 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsDefaultFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   CommentModeratorActions: "CommentModeratorActionDisplay"|"CommentModeratorActionsDefaultFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsDefaultFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithModerationMetadata"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"QuickTakesRecentDiscussion"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsDefaultFragment"|"ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   CurationEmails: "CurationEmailsDefaultFragment"
@@ -6030,7 +6036,7 @@ interface FragmentTypesByCollection {
   PostRelations: "PostRelationsDefaultFragment"
   PostViewTimes: "PostViewTimesDefaultFragment"
   PostViewses: "PostViewsDefaultFragment"
-  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsPostsPageBannerDetails"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "HighlightWithHash"|"PostForReviewWinnerItem"|"PostQuickTakesRecentDiscussion"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDefaultFragment"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsPostsPageBannerDetails"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionEdit"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"RSSFeedMutationFragment"|"RSSFeedsDefaultFragment"|"newRSSFeedFragment"
   ReadStatuses: "ReadStatusesDefaultFragment"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
@@ -6203,6 +6209,7 @@ interface CollectionNamesByFragmentName {
   PodcastsDefaultFragment: "Podcasts"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostForReviewWinnerItem: "Posts"
+  PostQuickTakesRecentDiscussion: "Posts"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
   PostSequenceNavigation: "Posts"
@@ -6245,6 +6252,7 @@ interface CollectionNamesByFragmentName {
   PostsWithNavigation: "Posts"
   PostsWithNavigationAndRevision: "Posts"
   PostsWithVotes: "Posts"
+  QuickTakesRecentDiscussion: "Comments"
   RSSFeedMinimumInfo: "RSSFeeds"
   RSSFeedMutationFragment: "RSSFeeds"
   RSSFeedsDefaultFragment: "RSSFeeds"
@@ -6280,7 +6288,6 @@ interface CollectionNamesByFragmentName {
   SessionsDefaultFragment: "Sessions"
   SharedUserBooleans: "Users"
   ShortformComments: "Comments"
-  ShortformRecentDiscussion: "Posts"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
   SideCommentCachesDefaultFragment: "SideCommentCaches"
   SplashArtCoordinates: "SplashArtCoordinates"

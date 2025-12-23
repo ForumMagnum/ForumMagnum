@@ -313,3 +313,12 @@ export const SuggestAlignmentComment = () => frag`
       displayName
     }
   }`
+
+export const QuickTakesRecentDiscussion = () => frag`
+  fragment QuickTakesRecentDiscussion on Comment {
+    ...CommentsListWithParentMetadata
+    post {
+      ...PostsRecentDiscussion
+    }
+  }
+`

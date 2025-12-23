@@ -26,7 +26,8 @@ import {
   isDialogueParticipant,
   MINIMUM_COAUTHOR_KARMA,
   DEFAULT_QUALITATIVE_VOTE,
-  userPassesCrosspostingKarmaThreshold
+  userPassesCrosspostingKarmaThreshold,
+  fetchPostRecentComments
 } from "./helpers";
 import { postStatuses, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
@@ -478,6 +479,21 @@ const schema = {
       outputType: "Date!",
       canRead: ["guests"],
       onCreate: ({ document: post }) => post.postedAt || new Date(),
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  // This is similar to `lastCommentedAt`, but excludes top-level comments
+  lastCommentReplyAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      denormalized: true,
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: ["guests"],
       validation: {
         optional: true,
       },
@@ -3907,25 +3923,36 @@ const schema = {
       // commentsLimit for some reason can receive a null (which was happening in one case)
       // we haven't figured out why yet
       resolver: async (post, args: { commentsLimit?: number|null, maxAgeHours?: number, af?: boolean }, context) => {
-        const { commentsLimit, maxAgeHours = 18, af = false } = args;
-        const { currentUser, Comments } = context;
-        const oneHourInMs = 60 * 60 * 1000;
-        const lastCommentedOrNow = post.lastCommentedAt ?? new Date();
-        const timeCutoff = new Date(lastCommentedOrNow.getTime() - (maxAgeHours * oneHourInMs));
-        const loaderName = af ? "recentCommentsAf" : "recentComments";
-        const filter = {
-          ...getDefaultViewSelector("Comments"),
-          score: { $gt: 0 },
-          draft: false,
-          deletedPublic: false,
-          postedAt: { $gt: timeCutoff },
-          ...(af ? { af: true } : {}),
-          ...(isLWorAF ? { userId: { $ne: reviewUserBotSetting.get() } } : {}),
-        };
-        const comments = await getWithCustomLoader(context, loaderName, post._id, (postIds) => {
-          return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
+        const { commentsLimit, maxAgeHours, af } = args;
+        return fetchPostRecentComments({
+          context,
+          post,
+          maxAgeHours,
+          commentsLimit: commentsLimit ?? undefined,
+          af,
         });
-        return await accessFilterMultiple(currentUser, "Comments", comments, context);
+      },
+    },
+  },
+  // This is the same as `recentComments`, but it excludes top-level comments
+  // in order to fetch replies to quick takes.
+  recentQuickTakeComments: {
+    graphql: {
+      outputType: "[Comment]",
+      canRead: ["guests"],
+      arguments: "commentsLimit: Int, maxAgeHours: Int, af: Boolean",
+      // commentsLimit for some reason can receive a null (which was happening in one case)
+      // we haven't figured out why yet
+      resolver: async (post, args: { commentsLimit?: number|null, maxAgeHours?: number, af?: boolean }, context) => {
+        const { commentsLimit, maxAgeHours, af } = args;
+        return fetchPostRecentComments({
+          context,
+          post,
+          maxAgeHours,
+          commentsLimit: commentsLimit ?? undefined,
+          af,
+          excludeTopLevel: true,
+        });
       },
     },
   },

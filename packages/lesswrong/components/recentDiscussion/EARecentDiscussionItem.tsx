@@ -77,7 +77,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 type EARecentDiscussionItemDocument = {
-  post: PostsRecentDiscussion,
+  post: PostsRecentDiscussion | PostQuickTakesRecentDiscussion,
   tag?: never,
 } | {
   post?: never,

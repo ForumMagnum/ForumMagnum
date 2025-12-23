@@ -715,12 +715,19 @@ export async function commentsNewOperations(comment: CreateCommentDataInput, _: 
   // update lastCommentedAt field on post or tag
   if (comment.postId) {
     const lastCommentedAt = new Date()
+    const lastCommentReplyAt = comment.parentCommentId ? lastCommentedAt : undefined;
 
     // Debate responses should not trigger lastCommentedAt updates
     // (we're using a Promise.resolve() here to make sure we always have a promise to await)
     const updateLastCommentedAtPromise = comment.debateResponse 
       ? Promise.resolve()
-      : Posts.rawUpdateOne(comment.postId, {$set: {lastCommentedAt}})
+      : Posts.rawUpdateOne(
+        comment.postId,
+        {$set: {
+          lastCommentedAt,
+          lastCommentReplyAt,
+        }},
+      )
 
     // we're updating the comment author's lastVisitedAt time for the post as well,
     // so that their comment doesn't cause the post to look like it has unread comments

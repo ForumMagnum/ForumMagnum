@@ -128,6 +128,12 @@ export function getDbIndexesOnComments() {
     WHERE "suggestForAlignmentUserIds" IS DISTINCT FROM '{}';
   `);
 
+  void indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_postId_postedAt_no_parent"
+    ON "Comments" ("postId", "postedAt")
+    WHERE "parentCommentId" IS NOT NULL;
+  `);
+
   indexSet.addIndex("Comments", { userId: 1, createdAt: 1 });
 
   return indexSet;
