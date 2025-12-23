@@ -1,7 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CommentsNode from '@/components/comments/CommentsNode';
-import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import { ContentItem, isPost } from './helpers';
 import ForumIcon from '@/components/common/ForumIcon';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -9,7 +8,6 @@ import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import PostBodyPrefix from '@/components/posts/PostsPage/PostBodyPrefix';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
-import { post } from 'request';
 
 const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   root: {
