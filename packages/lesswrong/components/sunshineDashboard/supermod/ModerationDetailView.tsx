@@ -18,8 +18,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     minHeight: 0,
   },
   contentListColumn: {
-    width: 300,
-    flexShrink: 0,
+    width: "50%",
     display: 'flex',
     flexDirection: 'column',
     borderRight: theme.palette.border.normal,
@@ -82,7 +81,9 @@ const ModerationDetailView = ({
             dispatch={dispatch}
           />
         </div>
-        <ModerationContentDetail item={focusedContent} />
+        <div className={classes.contentListColumn}>
+          <ModerationContentDetail item={focusedContent} />
+        </div>
       </div>
     </div>
   );

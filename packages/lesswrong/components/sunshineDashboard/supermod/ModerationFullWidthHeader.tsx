@@ -21,7 +21,7 @@ const styles = defineStyles('ModerationFullWidthHeader', (theme: ThemeType) => (
     backgroundColor: theme.palette.grey[50],
     display: 'flex',
     flexDirection: 'column',
-    gap: 60,
+    gap: 32,
     flexShrink: 0,
     ...theme.typography.commentStyle,
   },
@@ -64,10 +64,10 @@ const ModerationFullWidthHeader = ({
   return (
     <div className={classes.header}>
       <ModerationUserIdentityColumn user={user} likelyReviewTrigger={likelyReviewTrigger} />
-      <ModerationUserStatsColumn user={user} posts={posts} comments={comments} />
-      <ModerationPermissionButtons user={user} dispatch={dispatch} />
-      <ModerationUserBioColumn user={user} />
       <ModeratorNotes user={user} currentUser={currentUser} />
+
+      <ModerationUserStatsColumn user={user} posts={posts} comments={comments} />
+      <ModerationUserBioColumn user={user} />
       <div className={classes.modActionsRow}>
           {activeModeratorActions.map(action => (
             <div key={action._id} className={classes.modActionItem}>
@@ -78,6 +78,8 @@ const ModerationFullWidthHeader = ({
             <UserRateLimitItem user={user} />
           </div>
         </div>
+      <ModerationPermissionButtons user={user} dispatch={dispatch} />
+
     </div>
   );
 };
