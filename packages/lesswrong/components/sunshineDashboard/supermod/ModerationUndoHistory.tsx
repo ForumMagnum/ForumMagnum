@@ -150,6 +150,25 @@ const ModerationUndoHistory = ({
 }) => {
   const classes = useStyles(styles);
 
+  // Warn user if they try to close the tab or navigate away while there are pending actions
+  useEffect(() => {
+    if (undoQueue.length === 0) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      // Legacy browsers may still be relying on returnValue to be set
+      // https://developer.mozilla.org/en-US/docs/Web/API/BeforeUnloadEvent/returnValue
+      event.returnValue = true;
+      return true;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [undoQueue.length]);
+
   const handleUndo = (userId: string) => {
     dispatch({ type: 'UNDO_ACTION', userId });
   };
