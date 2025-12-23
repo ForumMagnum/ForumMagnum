@@ -66,11 +66,6 @@ function buildAudienceWhereSql(filter: AudienceFilter) {
 
 /**
  * Build SQL conditions for MailgunValidations filtering using EXISTS subqueries.
- * This is much more efficient than LEFT JOIN LATERAL because:
- * 1. EXISTS short-circuits when a match is found
- * 2. PostgreSQL can use semi-join optimization
- * 3. No need to materialize joined rows
- *
  * Note: Emails in MailgunValidations are stored lowercase, so we only need to
  * normalize the user's email. This allows the query to use the index on email.
  */
