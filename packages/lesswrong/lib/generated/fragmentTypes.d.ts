@@ -3123,6 +3123,11 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly karma: number,
   readonly htmlBio: string,
   readonly website: string|null,
+  readonly linkedinProfileURL: string|null,
+  readonly facebookProfileURL: string|null,
+  readonly twitterProfileURL: string|null,
+  readonly githubProfileURL: string|null,
+  readonly blueskyProfileURL: string|null,
   readonly createdAt: Date,
   readonly email: string|null,
   readonly emails: Array<{

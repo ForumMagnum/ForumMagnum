@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getReasonForReview } from '../../lib/collections/moderatorActions/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
+import SunshineNewUserExternalLinks from './SunshineNewUserExternalLinks';
 import { usePublishedPosts } from '../hooks/usePublishedPosts';
 import MetaInfo from "../common/MetaInfo";
 import UserReviewMetadata from "./ModeratorUserInfo/UserReviewMetadata";
@@ -22,6 +23,7 @@ import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
 import SunshineUserMessages from "./SunshineUserMessages";
 import FirstContentIcons from "./FirstContentIcons";
 import UserAutoRateLimitsDisplay from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
+import UsersProfileImage from '../users/UsersProfileImage';
 
 export const CONTENT_LIMIT = 20
 
@@ -34,6 +36,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1rem"
   },
   displayName: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
     fontSize: theme.typography.body1.fontSize,
     marginBottom: 4
   },
@@ -106,9 +111,6 @@ const styles = (theme: ThemeType) => ({
       maxWidth: '100%',
     },
     overflow: "hidden",
-  },
-  website: {
-    color: theme.palette.primary.main,
   },
   info: {
     // '& > * + *': {
@@ -191,16 +193,17 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
   });
 
   const {needsReview: showReviewTrigger, reason: reviewTrigger} = getReasonForReview(user)
-  
+
   if (!userCanDo(currentUser, "posts.moderate.all")) return null
   
   const basicInfoRow = <div className={classes.basicInfoRow}>
     <div>
       <div className={classes.displayName}>
+        <UsersProfileImage size={32} user={user} />
         <UsersName user={user}/>
         <FirstContentIcons user={user}/>
         {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
-        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>{reviewTrigger}</MetaInfo>}
+        {showReviewTrigger && <MetaInfo className={classes.legacyReviewTrigger}>Reason: {reviewTrigger}</MetaInfo>}
       </div>
       <UserReviewStatus user={user}/>
       <UserReviewMetadata user={user}/>
@@ -236,7 +239,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
 
   const renderExpand = !!(posts?.length || comments?.length)
   const truncatedHtml = truncate(user.htmlBio, bioWordcount, "words")
-  
+
   return (
     <div className={classNames(classes.root, {[classes.flagged]:user.sunshineFlagged})}>
       {basicInfoRow}
@@ -248,7 +251,7 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
         </div>
         <div className={classes.contentColumn}>
           <div dangerouslySetInnerHTML={{__html: truncatedHtml}} className={classes.bio} onClick={() => setBioWordcount(MAX_BIO_WORDCOUNT)}/>
-          {user.website && <div>Website: <a href={`https://${user.website}`} target="_blank" rel="noopener noreferrer" className={classes.website}>{user.website}</a></div>}
+          <SunshineNewUserExternalLinks user={user} />
           {votesRow}
           <ContentSummaryRows user={user} posts={posts} comments={comments} loading={commentsLoading || postsLoading} />
           <NewUserDMSummary user={user} />
