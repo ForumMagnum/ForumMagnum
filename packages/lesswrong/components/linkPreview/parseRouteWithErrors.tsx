@@ -12,6 +12,7 @@ export type LinkPreviewComponent = React.FC<{
   targetLocation: RouterLocation,
   id: string,
   className?: string,
+  noPrefetch?: boolean,
   children: React.ReactNode,
 }>
 
