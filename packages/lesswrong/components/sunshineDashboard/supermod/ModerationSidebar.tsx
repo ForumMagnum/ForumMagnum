@@ -5,8 +5,9 @@ import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import SunshineUserMessages from '../SunshineUserMessages';
 import { getSignature } from '@/lib/collections/users/helpers';
-import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
+import SupermodModeratorActionItem from './SupermodModeratorActionItem';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
+import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
 
@@ -73,9 +74,11 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
 const ModerationSidebar = ({
   user,
   currentUser,
+  dispatch,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
+  dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
   const [notes, setNotes] = useState(user.sunshineNotes);
@@ -159,7 +162,7 @@ const ModerationSidebar = ({
         <div className={classes.userModActions}>
           {user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)).map(action => (
             <div key={action._id} className={classes.modActionItem}>
-              <ModeratorActionItem user={user} moderatorAction={action} comments={[]} posts={[]} />
+              <SupermodModeratorActionItem user={user} moderatorAction={action} dispatch={dispatch} />
             </div>
           ))}
         </div>

@@ -22049,6 +22049,24 @@ type rejectContentAndRemoveFromQueueRestrictAndNotifyMutationVariables = Exact<{
 
 type rejectContentAndRemoveFromQueueRestrictAndNotifyMutation = rejectContentAndRemoveFromQueueRestrictAndNotifyMutation_Mutation;
 
+type updateModeratorActionSupermodMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction = (
+  { __typename?: 'ModeratorAction' }
+  & ModeratorActionDisplay
+);
+
+type updateModeratorActionSupermodMutation_updateModeratorAction_ModeratorActionOutput = { __typename?: 'ModeratorActionOutput', data: updateModeratorActionSupermodMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction | null };
+
+type updateModeratorActionSupermodMutation_Mutation = { __typename?: 'Mutation', updateModeratorAction: updateModeratorActionSupermodMutation_updateModeratorAction_ModeratorActionOutput | null };
+
+
+type updateModeratorActionSupermodMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateModeratorActionDataInput;
+}>;
+
+
+type updateModeratorActionSupermodMutation = updateModeratorActionSupermodMutation_Mutation;
+
 type updatePostPostReviewActionsMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
   & PostsList
