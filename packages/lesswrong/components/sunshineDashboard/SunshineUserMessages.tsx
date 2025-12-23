@@ -81,10 +81,9 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit,
-    border: theme.palette.border.extraFaint,
+    borderBottom: theme.palette.border.extraFaint,
     // border: theme.palette.border.normal,
-    borderRadius: theme.spacing.unit/2,
-    padding: theme.spacing.unit,
+    // borderRadius: theme.spacing.unit/2,
   },
   expandablePreview: {
     maxHeight: 100,

@@ -3,9 +3,10 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
 import type { InboxAction, InboxState } from './inboxReducer';
-import ModerationFullWidthHeader from './ModerationFullWidthHeader';
+import ModerationFullWidthHeader from './ModerationUserInfoColumn';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 
 const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   root: {
@@ -20,6 +21,8 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   },
   userColumn: {
     borderRight: theme.palette.border.normal,
+    display: 'flex',
+    flexDirection: 'column',
   },
   contentListColumn: {
     minWidth: 0,
@@ -31,6 +34,10 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     height: '100vh',
     overflow: 'scroll',
   },
+  undoQueueColumn: {
+    marginTop: 'auto',
+    marginBottom: 50
+  }
 }));
 
 const ModerationDetailView = ({ 
@@ -60,8 +67,6 @@ const ModerationDetailView = ({
     allContent[focusedContentIndex] || null,
     [allContent, focusedContentIndex]
   );
-
-  // #region agent log
   React.useEffect(() => {
     setTimeout(() => {
       const root = document.querySelector('[class*="ModerationDetailView-root"]') as HTMLElement;
@@ -77,12 +82,19 @@ const ModerationDetailView = ({
     <div className={classes.root}>
       <div className={classes.contentSection}>
         <div className={classes.userColumn}>
-          <ModerationFullWidthHeader
+          <ModerationUserInfoColumn
             user={user}
             posts={posts}
             comments={comments}
             dispatch={dispatch}
           />
+          <div className={classes.undoQueueColumn}>
+            <ModerationUndoHistory
+              undoQueue={state.undoQueue}
+              history={state.history}
+              dispatch={dispatch}
+            />
+          </div>
         </div>
         <div className={classes.contentListColumn}>
           <ModerationContentList
@@ -99,11 +111,6 @@ const ModerationDetailView = ({
         <div className={classes.sidebarColumn}>
           <ModerationSidebar
             user={user}
-          />
-          <ModerationUndoHistory
-            undoQueue={state.undoQueue}
-            history={state.history}
-            dispatch={dispatch}
           />
         </div>
       </div>

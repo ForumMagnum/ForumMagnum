@@ -40,7 +40,7 @@ const styles = defineStyles('ModerationFullWidthHeader', (theme: ThemeType) => (
   rateLimitSection: {},
 }));
 
-const ModerationFullWidthHeader = ({
+const ModerationUserInfoColumn = ({
   user,
   posts,
   comments,
@@ -67,7 +67,6 @@ const ModerationFullWidthHeader = ({
       <ModeratorNotes user={user} currentUser={currentUser} />
 
       <ModerationUserStatsColumn user={user} posts={posts} comments={comments} />
-      <ModerationUserBioColumn user={user} />
       <div className={classes.modActionsRow}>
           {activeModeratorActions.map(action => (
             <div key={action._id} className={classes.modActionItem}>
@@ -79,9 +78,9 @@ const ModerationFullWidthHeader = ({
           </div>
         </div>
       <ModerationPermissionButtons user={user} dispatch={dispatch} />
-
+      <ModerationUserBioColumn user={user} />
     </div>
   );
 };
 
-export default ModerationFullWidthHeader;
+export default ModerationUserInfoColumn;

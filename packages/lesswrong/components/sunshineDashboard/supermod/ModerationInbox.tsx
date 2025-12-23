@@ -10,7 +10,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
 import ModerationDetailView from './ModerationDetailView';
 import ModerationSidebar from './ModerationSidebar';
-import ModerationFullWidthHeader from './ModerationFullWidthHeader';
+import ModerationFullWidthHeader from './ModerationUserInfoColumn';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ModerationPostSidebar from './ModerationPostSidebar';
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';

@@ -3,6 +3,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import ForumIcon from '@/components/common/ForumIcon';
 import ContentSummary from './ContentSummary';
+import Row from '@/components/common/Row';
 
 const sharedVoteStyles = {
   marginLeft: 4,
@@ -87,31 +88,33 @@ const ModerationUserStatsColumn = ({
 
   return (
     <div className={classes.column}>
-      <div className={classes.contentCounts}>
-        <span className={classNames(classes.contentCountItem, !user.usersContactedBeforeReview?.length && classes.deemphasizedContentCountItem)}>
-          <ForumIcon icon="Email" className={classes.icon} />
-          {user.usersContactedBeforeReview?.length ?? 0}
-        </span>
-        <span className={classNames(classes.contentCountItem, !user.rejectedContentCount && classes.deemphasizedContentCountItem)}>
-          <ForumIcon icon="NotInterested" className={classes.icon} />
-          {user.rejectedContentCount}
-        </span>
-      </div>
-      <div className={classNames(classes.votesRow, !user.bigUpvoteCount && !user.smallUpvoteCount && !user.smallDownvoteCount && !user.bigDownvoteCount && classes.deemphasizedVotesRow)}>
-        <span className={classes.votesLabel}>Votes:</span>
-        <span className={classes.bigUpvotes}>
-          {user.bigUpvoteCount ?? 0}
-        </span>
-        <span className={classes.upvotes}>
-          {user.smallUpvoteCount ?? 0}
-        </span>
-        <span className={classes.downvotes}>
-          {user.smallDownvoteCount ?? 0}
-        </span>
-        <span className={classes.bigDownvotes}>
-          {user.bigDownvoteCount ?? 0}
-        </span>
-      </div>
+      <Row justifyContent="flex-start">
+        <div className={classes.contentCounts}>
+          <span className={classNames(classes.contentCountItem, !user.usersContactedBeforeReview?.length && classes.deemphasizedContentCountItem)}>
+            <ForumIcon icon="Email" className={classes.icon} />
+            {user.usersContactedBeforeReview?.length ?? 0}
+          </span>
+          <span className={classNames(classes.contentCountItem, !user.rejectedContentCount && classes.deemphasizedContentCountItem)}>
+            <ForumIcon icon="NotInterested" className={classes.icon} />
+            {user.rejectedContentCount}
+          </span>
+        </div>
+        <div className={classNames(classes.votesRow, !user.bigUpvoteCount && !user.smallUpvoteCount && !user.smallDownvoteCount && !user.bigDownvoteCount && classes.deemphasizedVotesRow)}>
+          <span className={classes.votesLabel}>Votes:</span>
+          <span className={classes.bigUpvotes}>
+            {user.bigUpvoteCount ?? 0}
+          </span>
+          <span className={classes.upvotes}>
+            {user.smallUpvoteCount ?? 0}
+          </span>
+          <span className={classes.downvotes}>
+            {user.smallDownvoteCount ?? 0}
+          </span>
+          <span className={classes.bigDownvotes}>
+            {user.bigDownvoteCount ?? 0}
+          </span>
+        </div>
+      </Row>
       {(posts.length > 0 || comments.length > 0) && (
         <ContentSummary user={user} posts={posts} comments={comments} />
       )}
