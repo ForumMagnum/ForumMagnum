@@ -478,7 +478,16 @@ const FundraisingThermometer: React.FC<
 
       <DeferRender ssr={false}>
         {isClient && !fundraiserEnded && ReactDOM.createPortal(
-          <div className={classNames(classes.countdownOverlay, showCountdown && classes.countdownVisible)}>
+          <div
+            className={classNames(classes.countdownOverlay, showCountdown && classes.countdownVisible)}
+            // On mobile we can occasionally paint before the JSS style node is inserted (maybe itself a bug),
+            // which causes a brief flash of unstyled text which fades out. This ensures it starts hidden
+            // even if the stylesheet isn't attached yet.
+            style={{
+              opacity: showCountdown ? 1 : 0,
+              visibility: showCountdown ? 'visible' : 'hidden',
+            }}
+          >
             <div className={classes.countdownText}>
               <div>Dawn of</div>
               <div>The Final Push</div>
