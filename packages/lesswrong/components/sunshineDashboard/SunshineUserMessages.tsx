@@ -13,6 +13,7 @@ import ConversationPreview from '../messaging/ConversationPreview';
 import ForumIcon from '../common/ForumIcon';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWTooltip from '../common/LWTooltip';
+import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -98,8 +99,10 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     },
   },
   templateList: {
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: theme.spacing.unit * 4,
     opacity: 0.5,
+    display: 'flex',
+    flexDirection: 'column',
     "&:hover": {
       opacity: 1,
     },
@@ -110,6 +113,14 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginBottom: theme.spacing.unit / 2,
     "&:hover": {
       backgroundColor: theme.palette.greyAlpha(0.1),
+    },
+  },
+  templateGroup: {
+    marginBottom: theme.spacing.unit * 2,
+    display: 'flex',
+    flexDirection: 'column',
+    '& h3': {
+      marginBottom: theme.spacing.unit,
     },
   },
 }));
@@ -168,6 +179,30 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
     } as TemplateQueryStrings);
   };
 
+  // insofar as these stay hardcoded (maybe worth creating a "moderationTemplate group-label" on the backend?), I think it's better for them to be names than IDs because it's easier to review and update, and if someone is editing one it's not obvious they should stay in the same groupings anyway.
+
+  // (probably should add a "group" field to moderationTemplates)
+  const allTemplates = {
+    "Offboard": [
+      'Bad fit first post, unlikely to get better',
+      'This isn\'t gonna work out (multiple LLM rejections)',
+      'This isn\'t gonna work out',
+    ],
+    "Quality Warning": [
+      'Read Sequence Highlights First',
+      'Read Sequences Highlights',
+      'Your Submissions Aren\'t Finding Traction',
+    ],
+    "Other": [
+      'Make Username Pronounceable',
+      'Your Submissions Aren\'t Finding Traction',
+      'Make Username Pronounceable',
+      'Formatting / Grammar',
+      'Lotsa DMs',
+      'Spoilers',
+    ],
+  }
+
   return <div>
     {results?.map(conversation => {
       const isExpanded = expandedConversationId === conversation._id;
@@ -193,7 +228,7 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
         </div>
       );
     })}
-  <div className={classes.conversationForm}>
+    <div className={classes.conversationForm} onClick={() => setEmbeddedConversationId(undefined)}>
       <MessagesNewForm 
         conversationId={embeddedConversationId ?? ''} 
         templateQueries={templateQueries}
@@ -208,13 +243,16 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
     </div>
     {templates && templates.length > 0 && (
       <div className={classes.templateList}>
-        {templates.map((template: NonNullable<typeof templates>[0]) => (
-          <div
-            key={template._id}
-            className={classes.templateItem}
-            onClick={() => handleTemplateClick(template)}
-          >
-            {template.name}
+        {Object.entries(allTemplates).map(([group, templateNames]) => (
+          <div key={group} className={classes.templateGroup}>
+            <h3>{group}</h3>
+            {templateNames.map(templateName => {
+              const template = templates.find(template => template.name === templateName);
+              if (!template) return null;
+              return (
+              <ModerationTemplateSunshineItem key={template._id} template={template} onTemplateClick={handleTemplateClick} />
+              )
+            })}
           </div>
         ))}
       </div>

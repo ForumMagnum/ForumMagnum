@@ -47,9 +47,11 @@ const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) =>
 export const ModerationTemplatesForm = ({
   initialData,
   onSuccess,
+  onCancel,
 }: {
   initialData?: UpdateModerationTemplateDataInput & { _id: string; collectionName: TemplateType };
   onSuccess?: (doc: ModerationTemplateFragment) => void;
+  onCancel?: () => void;
 }) => {
   const classes = useStyles(formStyles);
 
@@ -207,13 +209,16 @@ export const ModerationTemplatesForm = ({
       <div className="form-submit">
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
-            <Button
-              type="submit"
-              disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.submitButton)}
-            >
-              Submit
-            </Button>
+            <>
+              {onCancel && <Button onClick={onCancel}>Cancel</Button>}
+              <Button
+                type="submit"
+                disabled={!canSubmit || isSubmitting}
+                className={classNames("primary-form-submit-button", classes.submitButton)}
+              >
+                Submit
+              </Button>
+            </>
           )}
         </form.Subscribe>
       </div>

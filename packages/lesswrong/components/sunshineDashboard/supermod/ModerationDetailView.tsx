@@ -27,11 +27,11 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   contentListColumn: {
     minWidth: 0,
     borderRight: theme.palette.border.normal,
-    height: '100vh',
+    height: 'calc(100vh - 64px)',
     overflow: 'scroll',
   },
   sidebarColumn: {
-    height: '100vh',
+    height: 'calc(100vh - 64px)',
     overflow: 'scroll',
   },
   undoQueueColumn: {
