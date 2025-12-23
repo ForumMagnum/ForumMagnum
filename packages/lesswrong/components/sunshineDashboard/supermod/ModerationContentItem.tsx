@@ -38,14 +38,13 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   icon: {
     height: 14,
     width: 14,
-    marginRight: 8,
     color: theme.palette.grey[500],
     flexShrink: 0,
   },
   karma: {
     fontSize: 13,
     marginRight: 12,
-    minWidth: 32,
+    minWidth: 20,
     textAlign: 'right',
     flexShrink: 0,
     fontWeight: 500,
@@ -62,7 +61,7 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   postedAt: {
     fontSize: 13,
     color: theme.palette.grey[600],
-    marginRight: 12,
+    marginRight: 4,
     minWidth: 24,
     flexShrink: 0,
   },

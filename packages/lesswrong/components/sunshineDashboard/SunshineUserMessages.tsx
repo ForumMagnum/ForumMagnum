@@ -176,7 +176,7 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
       const isExpanded = expandedConversationId === conversation._id;
       return (
         <div key={conversation._id} className={classes.conversationItem}>
-          <LWTooltip title={ <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />}>
+          <LWTooltip tooltip={false} placement="left" title={ <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />}>
             <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
               <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
               <span>

@@ -22,7 +22,7 @@ const styles = defineStyles('ModerationFullWidthHeader', (theme: ThemeType) => (
     display: 'flex',
     flexDirection: 'column',
     gap: 32,
-    flexShrink: 0,
+    flexGrow: 1,
     ...theme.typography.commentStyle,
   },
   rightSection: {

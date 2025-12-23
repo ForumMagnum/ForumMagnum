@@ -279,12 +279,6 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
   // Fetch user's posts and comments when a user is opened
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
-  // #region agent log
-  React.useEffect(() => {
-    fetch('http://127.0.0.1:7245/ingest/aee04c0a-d536-4804-8b9c-ba91f89e023f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ModerationInbox.tsx:275',message:'ModerationInboxInner mounted',data:{openedUserId: state.openedUserId, isPostsTab, userPostsCount: userPosts.length, userCommentsCount: userComments.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-  }, [state.openedUserId, isPostsTab, userPosts.length, userComments.length]);
-  // #endregion
-
   return (
     <CoreTagsKeyboardProvider>
     <div className={classes.root}>

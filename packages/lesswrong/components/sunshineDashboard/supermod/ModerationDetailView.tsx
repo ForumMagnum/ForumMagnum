@@ -67,16 +67,6 @@ const ModerationDetailView = ({
     allContent[focusedContentIndex] || null,
     [allContent, focusedContentIndex]
   );
-  React.useEffect(() => {
-    setTimeout(() => {
-      const root = document.querySelector('[class*="ModerationDetailView-root"]') as HTMLElement;
-      const fullWidthHeader = document.querySelector('[class*="ModerationFullWidthHeader-header"]') as HTMLElement;
-      const leftPanel = document.querySelector('[class*="ModerationInbox-leftPanel"]') as HTMLElement;
-      const sidebar = document.querySelector('[class*="ModerationInbox-sidebar"]') as HTMLElement;
-      fetch('http://127.0.0.1:7245/ingest/aee04c0a-d536-4804-8b9c-ba91f89e023f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ModerationDetailView.tsx:POST-FIX',message:'ModerationDetailView DOM dimensions POST-FIX',data:{rootWidth:root?.offsetWidth,fullWidthHeaderWidth:fullWidthHeader?.offsetWidth,leftPanelWidth:leftPanel?.offsetWidth,sidebarWidth:sidebar?.offsetWidth,windowWidth:window.innerWidth},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'H1,H2'})}).catch(()=>{});
-    }, 100);
-  }, [user._id]);
-  // #endregion
 
   return (
     <div className={classes.root}>

@@ -58,6 +58,7 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
     marginRight: -1,
     marginTop: -1,
     marginBottom: -1,
+    overflow: 'hidden',
   },
   postContent: {
     padding: 16,
