@@ -62,7 +62,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
   }
 
   try {
-    const currentURL = new URLClass(location.pathname, getSiteUrl());
+    const currentURL = new URLClass(location.url, getSiteUrl());
     const linkTargetAbsolute = new URLClass(href, currentURL);
 
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
@@ -78,7 +78,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
         if (PreviewComponent) {
           return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={previewComponentName} onsite>
             <NoSideItems>
-              <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} id={id ?? ''} noPrefetch={noPrefetch} className={className}>
+              <PreviewComponent href={destinationUrl} originalHref={href} targetLocation={parsedUrl} id={id ?? ''} noPrefetch={noPrefetch} className={className}>
                 {children}
               </PreviewComponent>
             </NoSideItems>
