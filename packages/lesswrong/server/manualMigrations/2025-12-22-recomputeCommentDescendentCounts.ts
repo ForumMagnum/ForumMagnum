@@ -25,7 +25,6 @@ export default registerMigration({
           const descendentCount = subtreeFiltered.filter(c=>c._id !== comment._id).length;
           if (descendentCount !== comment.descendentCount || !comment.lastSubthreadActivity) {
             updates.updated++;
-            console.log(`${comment._id}: descendentCount: ${comment.descendentCount} -> ${descendentCount}; lastSubthreadActivity: ${comment.lastSubthreadActivity} -> ${lastSubthreadActivity}`);
             await Comments.rawUpdateOne(
               {_id: comment._id},
               {$set: {
