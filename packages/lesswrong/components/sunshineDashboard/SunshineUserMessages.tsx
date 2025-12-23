@@ -4,17 +4,14 @@ import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
-import SunshineSendMessageWithDefaults from "./SunshineSendMessageWithDefaults";
 import MessagesNewForm from "../messaging/MessagesNewForm";
 import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { ModerationTemplateFragment } from "@/lib/collections/moderationTemplates/fragments";
 import ConversationPreview from '../messaging/ConversationPreview';
 import ForumIcon from '../common/ForumIcon';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import classNames from 'classnames';
 import LWTooltip from '../common/LWTooltip';
 
 const ConversationsListMultiQuery = gql(`
@@ -193,19 +190,10 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
               </Link>
             </div>
           </LWTooltip>
-          {/* {(isExpanded || showExpandablePreview) && (
-            <div className={classNames((!isExpanded && showExpandablePreview) && classes.expandablePreview)}>
-              <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
-            </div>
-          )} */}
         </div>
       );
     })}
-    {/* <SunshineSendMessageWithDefaults 
-        user={user} 
-        embedConversation={embedConversation}
-      /> */}
-    <div className={classes.conversationForm}>
+  <div className={classes.conversationForm}>
       <MessagesNewForm 
         conversationId={embeddedConversationId ?? ''} 
         templateQueries={templateQueries}
