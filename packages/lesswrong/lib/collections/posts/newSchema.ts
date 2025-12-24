@@ -78,6 +78,7 @@ import { commentIncludedInCounts } from "../comments/helpers";
 import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { classifyPost } from "@/server/frontpageClassifier/predictions";
+import { getCollectionBySlug } from "../sequences/helpers";
 
 const rsvpType = new SimpleSchema({
   name: {
@@ -2457,7 +2458,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, args, context) => {
         if (!post.canonicalCollectionSlug) return null;
-        const collection = await context.Collections.findOne({ slug: post.canonicalCollectionSlug });
+        const collection = await getCollectionBySlug(post.canonicalCollectionSlug, context);
         return await accessFilterSingle(context.currentUser, "Collections", collection, context);
       },
     },
