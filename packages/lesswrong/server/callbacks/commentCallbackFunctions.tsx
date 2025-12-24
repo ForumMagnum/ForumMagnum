@@ -766,13 +766,15 @@ export function invalidatePostOnCommentCreate({ postId }: DbComment, context: Re
 }
 
 export async function updateDescendentCommentCountsOnCreate(comment: DbComment, properties: AfterCreateCallbackProperties<'Comments'>) {
-  const { Comments } = properties.context;
-  const ancestorIds: string[] = await getCommentAncestorIds(comment);
-  
-  await Comments.rawUpdateMany({ _id: {$in: ancestorIds} }, {
-    $set: {lastSubthreadActivity: new Date()},
-    $inc: {descendentCount:1},
-  });
+  if (isIncludedInDescendentCounts(comment)) {
+    const { Comments } = properties.context;
+    const ancestorIds: string[] = await getCommentAncestorIds(comment);
+    
+    await Comments.rawUpdateMany({ _id: {$in: ancestorIds} }, {
+      $set: {lastSubthreadActivity: new Date()},
+      $inc: {descendentCount:1},
+    });
+  }
   
   return comment;
 }

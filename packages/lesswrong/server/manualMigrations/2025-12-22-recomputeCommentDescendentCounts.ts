@@ -19,7 +19,7 @@ export default registerMigration({
       callback: async (comments: DbComment[]) => {
         let updates = {updated:0};
         await asyncForeachParallel(comments, async (comment: DbComment) => {
-          const subtree = await getCommentSubtree(comment, {deleted:1,postedAt:1,lastSubthreadActivity:1,descendentCount:1});
+          const subtree = await getCommentSubtree(comment);
           const subtreeFiltered = subtree.filter(c=>isIncludedInDescendentCounts(c));
           const lastSubthreadActivity = maxBy(subtreeFiltered, c=>c.postedAt)?.postedAt ?? null;
           const descendentCount = subtreeFiltered.filter(c=>c._id !== comment._id).length;
