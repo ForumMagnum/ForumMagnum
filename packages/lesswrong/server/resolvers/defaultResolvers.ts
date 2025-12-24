@@ -18,6 +18,7 @@ import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 import UserActivities from "../collections/useractivities/collection";
 import { visitorGetsDynamicFrontpage } from "@/lib/betas";
 import { getWithCustomLoader } from "@/lib/loaders";
+import { enableCustomSqlResolvers } from "../sql/ProjectionContext";
 
 
 const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInfo, resultFieldName: string, typeName: string) => {
@@ -293,7 +294,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const fragmentInfo = getFragmentInfo(info, "result", typeName);
 
     let doc: ObjectsByCollectionName[N] | null;
-    if (fragmentInfo) {
+    if (fragmentInfo && enableCustomSqlResolvers) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
       const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
       const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentDefinitions);
@@ -310,7 +311,12 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       const db = getSqlClientOrThrow();
       doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
     } else {
-      doc = await collection.findOne(convertDocumentIdToIdInSelector(usedSelector));
+      const selector = convertDocumentIdToIdInSelector(usedSelector);
+      if (selector._id && Object.keys(selector).length===1) {
+        doc = await context.loaders[collectionName].load(selector._id);
+      } else {
+        doc = await collection.findOne(selector);
+      }
     }
 
     if (!doc) {
