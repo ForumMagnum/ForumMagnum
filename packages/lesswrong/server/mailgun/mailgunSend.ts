@@ -1,6 +1,7 @@
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import type { MailgunMessageData } from "mailgun.js/definitions";
-import { getMailgunClient, MAILGUN_DOMAIN, DEFAULT_FROM_ADDRESS } from "./mailgunClient";
+import { getMailgunClient, MAILGUN_DOMAIN } from "./mailgunClient";
+import { defaultEmailSetting } from "../databaseSettings";
 
 export function renderUnsubscribeLinkTemplateForBulk(htmlOrText: string): string {
   return htmlOrText.replaceAll("{{unsubscribeUrl}}", "%recipient.unsubscribeUrl%");
@@ -23,7 +24,7 @@ export async function sendMailgunBatchEmail(args: {
   if (!client) {
     throw new Error("MAILGUN_VALIDATION_API_KEY is not set");
   }
-  const from = args.from ?? DEFAULT_FROM_ADDRESS;
+  const from = args.from ?? defaultEmailSetting.get();
 
   try {
     // At least one of text or html must be provided
