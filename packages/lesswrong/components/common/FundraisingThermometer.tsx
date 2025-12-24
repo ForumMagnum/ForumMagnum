@@ -13,7 +13,7 @@ import LWTooltip from "./LWTooltip";
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
-  'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1765607802/fundraiserTest2_weie7h.png';
+  'https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1766549552/image_10_xzmrxb.webp';
 
 // Third thermometer background image:
 const lightconeFundraiserThermometerBgUrl3 =
@@ -273,10 +273,10 @@ const styles = (theme: ThemeType) => ({
       left: '-100%',
     },
     '72%': {
-      left: '-200%',
+      left: '-100%',
     },
     '100%': {
-      left: '-200%',
+      left: '-100%',
     }
   },
 
