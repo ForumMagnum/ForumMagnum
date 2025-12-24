@@ -8,6 +8,7 @@ import Headroom from '@/lib/react-headroom';
 import PostActionsButton from '../dropdowns/posts/PostActionsButton';
 import { usePostsPageContext } from './PostsPage/PostsPageContext';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
+import isNumber from 'lodash/isNumber';
 
 const styles = defineStyles("PostsBottomBar", (theme: ThemeType) => ({
   headroom: {
@@ -163,7 +164,7 @@ const PostsBottomBar = () => {
             <div className={classes.button} onClick={handleCommentsClick}>
               <div className={classes.commentsButton}>
                 <CommentIcon className={classes.commentIcon} />
-                {!!post?.commentCount && (
+                {isNumber(post?.commentCount) && (
                   <div className={classes.commentCount}>
                     {post.commentCount}
                   </div>
