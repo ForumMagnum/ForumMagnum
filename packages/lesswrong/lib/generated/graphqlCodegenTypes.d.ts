@@ -19020,7 +19020,7 @@ type postCommentsThreadQueryQuery = postCommentsThreadQueryQuery_Query;
 
 type multiPostusePostQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
-  & PostsPage
+  & PostsList
 );
 
 type multiPostusePostQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostusePostQueryQuery_posts_MultiPostOutput_results_Post> };
