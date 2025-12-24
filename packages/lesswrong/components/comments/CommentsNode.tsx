@@ -207,7 +207,7 @@ const CommentsNodeInner = ({
 
   // If not using in-context comments, scroll to top when the `commentId` query changes
   useEffect(() => {
-    if (!hasInContextLinks && !noAutoScroll && comment && linkedCommentId === comment._id) {
+    if (!hasInContextLinks && !noAutoScroll && !treeOptions.isSideComment && comment && linkedCommentId === comment._id) {
       window.scrollTo({top: 0})
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
