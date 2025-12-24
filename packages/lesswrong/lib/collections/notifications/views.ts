@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-function defaultView(terms: NotificationsViewTerms) {
+export const defaultNotificationsView: ViewFunction<"Notifications"> = (terms: NotificationsViewTerms) => {
   // const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
@@ -62,4 +62,4 @@ export const NotificationsViews = new CollectionViewSet('Notifications', {
   userNotifications,
   unreadUserNotifications,
   adminAlertNotifications
-}, defaultView);
+}, defaultNotificationsView);

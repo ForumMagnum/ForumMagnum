@@ -506,7 +506,7 @@ const schema = {
         const params = viewTermsToQuery(CommentsViews, {
           view: "shortformLatestChildren",
           topLevelCommentId: comment._id,
-        });
+        }, undefined, context);
         const comments = await Comments.find(params.selector, params.options).fetch();
         return await accessFilterMultiple(currentUser, "Comments", comments, context);
       },

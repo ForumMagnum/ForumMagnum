@@ -112,7 +112,7 @@ export const serveCommentRSS = async (terms: RSSTerms, req: NextRequest) => {
   const feed = new RSS(getMeta(url));
   const context = await getContextFromReqAndRes({req, isSSR: false});
 
-  let parameters = viewTermsToQuery(CommentsViews, terms);
+  let parameters = viewTermsToQuery(CommentsViews, terms, undefined, context);
   parameters.options.limit = 50;
   const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
   const restrictedComments = await accessFilterMultiple(null, 'Comments', commentsCursor, context) as DbComment[];

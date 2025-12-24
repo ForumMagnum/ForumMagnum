@@ -40,8 +40,7 @@ import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import express from 'express';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { requestToNextRequest } from './utils/requestToNextRequest';
-import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
-import { NotificationsViews } from '@/lib/collections/notifications/views';
+import { defaultNotificationsView, NotificationsViews } from '@/lib/collections/notifications/views';
 import Notifications from './collections/notifications/collection';
 import { isFriendlyUI } from '@/themes/forumTheme';
 
@@ -322,7 +321,7 @@ export async function startWebserver() {
     }
 
     const selector = {
-      ...getDefaultViewSelector(NotificationsViews),
+      ...defaultNotificationsView({view: "default"}).selector,
       userId: currentUser._id,
     };
   

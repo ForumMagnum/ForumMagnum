@@ -233,14 +233,14 @@ interface TagUpdates {
   documentDeletions: CategorizedDeletionEvent[];
 }
 
-function getRootCommentsInTimeBlockSelector(before: Date, after: Date): MongoSelector<DbComment> {
+function getRootCommentsInTimeBlockSelector(before: Date, after: Date, context: ResolverContext): MongoSelector<DbComment> {
   return mergeWithDefaultViewSelector(CommentsViews, {
     deleted: false,
     postedAt: {$lt: before, $gt: after},
     topLevelCommentId: null,
     tagId: {$exists: true, $ne: null},
     tagCommentType: "DISCUSSION",
-  });
+  }, context);
 }
 
 function getDocumentDeletionsInTimeBlockSelector(documentIds: string[], before: Date, after: Date) {
@@ -678,7 +678,7 @@ export const tagResolversGraphQLQueries = {
     if(moment.duration(moment(before).diff(after)).as('hours') > 30)
       throw new Error("TagUpdatesInTimeBlock limited to a one-day interval");
     
-    const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after);
+    const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after, context);
 
     // Get
     // - revisions to tags, lenses, and summaries in the given time interval
