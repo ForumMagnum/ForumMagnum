@@ -67,7 +67,7 @@ export const servePostRSS = async (terms: RSSTerms,) => {
     options: parameters.options,
   });
 
-  await asyncForeachSequential(postsCursor, async (post) => {
+  await asyncForeachSequential(postsCursor, async (post: PostsRSSFeed) => {
     // LESSWRONG - this was added to handle karmaThresholds
     let thresholdDate = (karmaThreshold === 2)  ? post.scoreExceeded2Date
                       : (karmaThreshold === 30) ? post.scoreExceeded30Date
@@ -93,7 +93,7 @@ export const servePostRSS = async (terms: RSSTerms,) => {
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
-      author: await userGetDisplayNameById(post.userId, context),
+      author: post.user?.displayName ?? "[anonymous]",
       // LESSWRONG - this was added to handle karmaThresholds
       // date: post.postedAt
       date: date,

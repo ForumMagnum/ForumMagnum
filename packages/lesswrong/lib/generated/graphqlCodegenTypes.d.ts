@@ -18709,23 +18709,6 @@ type multiReviewWinnerArtSplashImageEditingOptionsQueryQueryVariables = Exact<{
 
 type multiReviewWinnerArtSplashImageEditingOptionsQueryQuery = multiReviewWinnerArtSplashImageEditingOptionsQueryQuery_Query;
 
-type PostBodyQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostSideComments
-);
-
-type PostBodyQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostBodyQuery_post_SinglePostOutput_result_Post | null };
-
-type PostBodyQuery_Query = { __typename?: 'Query', post: PostBodyQuery_post_SinglePostOutput | null };
-
-
-type PostBodyQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type PostBodyQuery = PostBodyQuery_Query;
-
 type PostsPageWrapper1Query_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsWithNavigationAndRevision
@@ -19020,7 +19003,7 @@ type postCommentsThreadQueryQuery = postCommentsThreadQueryQuery_Query;
 
 type multiPostusePostQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
-  & PostsPage
+  & PostsList
 );
 
 type multiPostusePostQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostusePostQueryQuery_posts_MultiPostOutput_results_Post> };
@@ -25759,7 +25742,7 @@ type PostsPage_Post_contents_Revision = (
 );
 
 type PostsPage = (
-  { __typename?: 'Post', version: string | null, myEditorAccess: string, contents: PostsPage_Post_contents_Revision | null }
+  { __typename?: 'Post', version: string | null, sideComments: any | null, myEditorAccess: string, contents: PostsPage_Post_contents_Revision | null }
   & PostsDetails
 );
 
@@ -25795,9 +25778,8 @@ type PostsEdit_Post_coauthors_User = (
 );
 
 type PostsEdit = (
-  { __typename?: 'Post', myEditorAccess: string, version: string | null, coauthorUserIds: Array<string>, readTimeMinutesOverride: number | null, hideFromRecentDiscussions: boolean, hideFromPopularComments: boolean | null, tableOfContents: any | null, subforumTagId: string | null, socialPreviewImageId: string | null, generateDraftJargon: boolean | null, fmCrosspost: PostsEdit_Post_fmCrosspost_CrosspostOutput | null, moderationGuidelines: PostsEdit_Post_moderationGuidelines_Revision | null, customHighlight: PostsEdit_Post_customHighlight_Revision | null, socialPreview: PostsEdit_Post_socialPreview_SocialPreviewOutput | null, socialPreviewData: PostsEdit_Post_socialPreviewData_SocialPreviewType, user: PostsEdit_Post_user_User | null, usersSharedWith: Array<PostsEdit_Post_usersSharedWith_User> | null, coauthors: Array<PostsEdit_Post_coauthors_User> | null }
+  { __typename?: 'Post', sideComments: any | null, myEditorAccess: string, version: string | null, coauthorUserIds: Array<string>, readTimeMinutesOverride: number | null, hideFromRecentDiscussions: boolean, hideFromPopularComments: boolean | null, tableOfContents: any | null, subforumTagId: string | null, socialPreviewImageId: string | null, generateDraftJargon: boolean | null, fmCrosspost: PostsEdit_Post_fmCrosspost_CrosspostOutput | null, moderationGuidelines: PostsEdit_Post_moderationGuidelines_Revision | null, customHighlight: PostsEdit_Post_customHighlight_Revision | null, socialPreview: PostsEdit_Post_socialPreview_SocialPreviewOutput | null, socialPreviewData: PostsEdit_Post_socialPreviewData_SocialPreviewType, user: PostsEdit_Post_user_User | null, usersSharedWith: Array<PostsEdit_Post_usersSharedWith_User> | null, coauthors: Array<PostsEdit_Post_coauthors_User> | null }
   & PostsDetails
-  & PostSideComments
 );
 
 type PostsEditQueryFragment_Post_contents_Revision = (
@@ -25902,8 +25884,6 @@ type HighlightWithHash = { __typename?: 'Post', _id: string, contents: Highlight
 
 type PostWithDialogueMessage = { __typename?: 'Post', _id: string, dialogueMessageContents: string | null };
 
-type PostSideComments = { __typename?: 'Post', _id: string, sideComments: any | null };
-
 type PostWithGeneratedSummary = { __typename?: 'Post', _id: string, languageModelSummary: string | null };
 
 type PostsBestOfList_Post_podcastEpisode_PodcastEpisode_podcast_Podcast = { __typename?: 'Podcast', _id: string, title: string, applePodcastLink: string | null, spotifyPodcastLink: string | null };
@@ -25917,9 +25897,14 @@ type PostsBestOfList = (
   & PostsListWithVotes
 );
 
+type PostsRSSFeed_Post_contents_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionDisplay
+);
+
 type PostsRSSFeed = (
-  { __typename?: 'Post', scoreExceeded2Date: string | null, scoreExceeded30Date: string | null, scoreExceeded45Date: string | null, scoreExceeded75Date: string | null, scoreExceeded125Date: string | null, scoreExceeded200Date: string | null, metaDate: string | null }
-  & PostsPage
+  { __typename?: 'Post', scoreExceeded2Date: string | null, scoreExceeded30Date: string | null, scoreExceeded45Date: string | null, scoreExceeded75Date: string | null, scoreExceeded125Date: string | null, scoreExceeded200Date: string | null, metaDate: string | null, contents: PostsRSSFeed_Post_contents_Revision | null }
+  & PostsDetails
 );
 
 type PostsOriginalContents_Post_contents_Revision_originalContents_ContentType = { __typename?: 'ContentType', type: string, data: any };

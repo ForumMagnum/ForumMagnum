@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/instanceSettings';
+import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/reviewWinnerSections';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -770,13 +770,8 @@ const TopPostsPage = () => {
     />;
   }
 
-  const sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
-  const yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
-
-  if (!sectionsInfo)
-    throw new Error('Failed to load reviewWinnerSectionsInfo (image data) from public settings');
-  if (!yearGroupsInfo)
-    throw new Error('Failed to load reviewWinnerYearGroupsInfo (image data) from public settings');
+  const sectionsInfo = reviewWinnerSectionsInfo;
+  const yearGroupsInfo = reviewWinnerYearGroupsInfo;
 
   const sectionGrid = Object.entries(sectionsInfo).sort(([, a], [, b]) => a.order - b.order).map(([id, { title, imgUrl, coords }], index) => {
     const posts = sortedReviewWinners.filter(post => post.reviewWinner?.category === id);
@@ -831,8 +826,8 @@ function getInitialYear(yearQuery?: string): YearSelectorState {
 function TopSpotlightsSection({ reviewWinnersWithPosts }: {
   reviewWinnersWithPosts: PostsTopItemInfo[]
 }) {
-  const sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get()!;
-  const yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get()!;
+  const sectionsInfo = reviewWinnerSectionsInfo;
+  const yearGroupsInfo = reviewWinnerYearGroupsInfo;
   const classes = useStyles(styles);
   const location = useLocation();
   const navigate = useNavigate();
@@ -1111,7 +1106,7 @@ function getPostGridTemplateDimensions({ postGridRows, postGridColumns }: PostGr
   };
 }
 
-const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates, "_id" | "reviewWinnerArtId">, leftBookOffset: number, dpr: Dpr) => {
+const getCroppedUrl = (url: string, splashCoordinates: CoordinateInfo, leftBookOffset: number, dpr: Dpr) => {
   let coordinatePosition: CoordinatePosition | undefined = BOOK_OFFSETS_TO_COORDINATE_POSITIONS[leftBookOffset];
   if (!coordinatePosition) {
     // eslint-disable-next-line no-console
