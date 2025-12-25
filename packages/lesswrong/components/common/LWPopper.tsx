@@ -1,12 +1,12 @@
 "use client";
-import React, {use, createContext, MutableRefObject, ReactNode, useState, useRef, RefObject, useEffect, useLayoutEffect} from 'react';
+import React, {use, createContext, ReactNode, useState, useRef, RefObject} from 'react';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
 import { createPortal } from 'react-dom';
 import type { State } from '@popperjs/core/lib/types';
 import { defineStyles } from '../hooks/defineStyles';
-import { useStyles } from '../hooks/useStyles';
+import { useGetStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
   popper: {
@@ -69,7 +69,7 @@ const LWPopper = ({
   hideOnTouchScreens?: boolean,
   updateRef?: MutableRefObject<(() => Promise<Partial<State>>) | null | undefined>
 }) => {
-  const classes = useStyles(styles);
+  const getClasses = useGetStyles(styles);
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
   const flipModifier = !flip && allowOverflow ? [
@@ -131,6 +131,7 @@ const LWPopper = ({
   // unmounted) after page navigations.
   const tooltipContainer = use(PopperPortalContainerContext)?.current;
   if (!tooltipContainer) return null;
+  const classes = getClasses();
   return <>{
     createPortal(
       <div

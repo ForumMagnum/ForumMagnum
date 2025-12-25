@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { defineStyles, useGetStyles } from '@/components/hooks/useStyles';
 import { Backdrop } from '../widgets/Backdrop';
 import ClickAwayListener from '@/lib/vendor/react-click-away-listener';
 import { createPortal } from 'react-dom';
@@ -85,7 +85,7 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
   variant?: 'persistent' | 'temporary';
   children?: React.ReactNode;
 }) {
-  const classes = useStyles(styles);
+  const getClasses = useGetStyles(styles);
   const [mounted, setMounted] = useState(false);
   const [slidIn, setSlidIn] = useState(false);
   const paperRef = useRef<HTMLDivElement|null>(null);
@@ -153,6 +153,7 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
   );
 
   if (variant === 'persistent') {
+    const classes = getClasses();
     return (
       <div className={classNames(classes.container, classes.docked, className, {
         [classes.containerLeft]: anchor==='left',
@@ -164,24 +165,27 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
   }
   
   // variant === temporary
-  return <>
-    {mounted && <Backdrop visible={slidIn}/>}
-    {mounted && createPortal(
-      <div
-        className={classNames(classes.container, className, {
-          [classes.containerLeft]: anchor==='left',
-          [classes.containerRight]: anchor==='right',
-        })}
-      >
-        <ClickAwayListener onClickAway={(ev) => {
-          if (clickAwayListenerActive.current > 0) {
-            onClose?.(ev)
-          }
-        }}>
-          <span>{drawer}</span>
-        </ClickAwayListener>
-      </div>,
-      document.body
-    )}
-  </>;
+  if (mounted) {
+    const classes = getClasses();
+    return <>
+      <Backdrop visible={slidIn}/>
+      {createPortal(
+        <div
+          className={classNames(classes.container, className, {
+            [classes.containerLeft]: anchor==='left',
+            [classes.containerRight]: anchor==='right',
+          })}
+        >
+          <ClickAwayListener onClickAway={(ev) => {
+            if (clickAwayListenerActive.current > 0) {
+              onClose?.(ev)
+            }
+          }}>
+            <span>{drawer}</span>
+          </ClickAwayListener>
+        </div>,
+        document.body
+      )}
+    </>;
+  }
 }
