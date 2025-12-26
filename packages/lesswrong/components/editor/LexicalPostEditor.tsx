@@ -37,6 +37,13 @@ import { ClaimsPlugin, useInsertClaim } from './lexicalPlugins/claims/ClaimsPlug
 import { ClaimNode } from './lexicalPlugins/claims/ClaimNode';
 import { RemoveRedirectPlugin } from './lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import { LLMAutocompletePlugin } from './lexicalPlugins/autocomplete/LLMAutocompletePlugin';
+import {
+  CollapsibleSectionsPlugin,
+  INSERT_COLLAPSIBLE_SECTION_COMMAND,
+} from './lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
+import { CollapsibleSectionContainerNode } from './lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode';
+import { CollapsibleSectionTitleNode } from './lexicalPlugins/collapsibleSections/CollapsibleSectionTitleNode';
+import { CollapsibleSectionContentNode } from './lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode';
 
 // URL regex for auto-linking
 const URL_REGEX = /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
@@ -92,6 +99,198 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     '&:focus': {
       outline: 'none',
     },
+    // Content styles
+    '& p': {
+      margin: '0 0 1em 0',
+    },
+    '& h1': {
+      fontSize: '1.8rem',
+      fontWeight: 600,
+      marginBottom: '0.5em',
+      marginTop: '1em',
+    },
+    '& h2': {
+      fontSize: '1.5rem',
+      fontWeight: 600,
+      marginBottom: '0.5em',
+      marginTop: '1em',
+    },
+    '& h3': {
+      fontSize: '1.3rem',
+      fontWeight: 600,
+      marginBottom: '0.5em',
+      marginTop: '1em',
+    },
+    '& blockquote': {
+      margin: '1em 0',
+      padding: '0.5em 1em',
+      borderLeft: `4px solid ${theme.palette.grey[300]}`,
+      color: theme.palette.grey[700],
+      backgroundColor: theme.palette.grey[100],
+    },
+    '& ul, & ol': {
+      margin: '0 0 1em 0',
+      padding: '0 0 0 1.5em',
+    },
+    '& li': {
+      margin: '0.25em 0',
+    },
+    '& code': {
+      fontFamily: 'monospace',
+      backgroundColor: theme.palette.grey[100],
+      padding: '0.2em 0.4em',
+      borderRadius: 4,
+      fontSize: '0.9em',
+    },
+    '& pre': {
+      margin: '1em 0',
+      padding: '1em',
+      backgroundColor: theme.palette.grey[100],
+      borderRadius: 4,
+      overflow: 'auto',
+      '& code': {
+        backgroundColor: 'transparent',
+        padding: 0,
+      },
+    },
+    '& a': {
+      color: theme.palette.primary.main,
+      textDecoration: 'underline',
+    },
+    '& strong': {
+      fontWeight: 600,
+    },
+    '& em': {
+      fontStyle: 'italic',
+    },
+    // Footnote styles
+    '& .footnote-section': {
+      marginTop: '2em',
+      paddingTop: '1em',
+      borderTop: `1px solid ${theme.palette.grey[300]}`,
+      fontSize: '0.9em',
+      listStyle: 'none',
+      padding: 0,
+    },
+    '& .footnote-item': {
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '0.5em',
+      marginBottom: '0.5em',
+      padding: '0.5em',
+      backgroundColor: theme.palette.grey[50],
+      borderRadius: 4,
+    },
+    '& .footnote-content': {
+      flex: 1,
+      '& p': {
+        margin: 0,
+      },
+    },
+    '& .footnote-reference': {
+      cursor: 'pointer',
+      '& a': {
+        color: theme.palette.primary.main,
+        textDecoration: 'none',
+        '&:hover': {
+          textDecoration: 'underline',
+        },
+      },
+    },
+    '& .footnote-back-link': {
+      marginRight: '0.25em',
+      '& a': {
+        color: theme.palette.primary.main,
+        textDecoration: 'none',
+        '&:hover': {
+          textDecoration: 'underline',
+        },
+      },
+    },
+    // Math styles
+    '& .math-tex': {
+      cursor: 'pointer',
+    },
+    '& .math-preview': {
+      fontFamily: 'inherit',
+    },
+    '& .math-inline': {
+      display: 'inline-block',
+      verticalAlign: 'middle',
+    },
+    '& .math-display': {
+      display: 'block',
+      textAlign: 'center',
+      margin: '1em 0',
+      padding: '0.5em',
+    },
+    // Spoiler styles
+    '& .spoilers': {
+      backgroundColor: theme.palette.grey[100],
+      border: `1px solid ${theme.palette.grey[300]}`,
+      borderRadius: 4,
+      padding: '1em',
+      margin: '1em 0',
+      position: 'relative',
+      '&::before': {
+        content: '"Spoiler"',
+        position: 'absolute',
+        top: -10,
+        left: 10,
+        backgroundColor: theme.palette.panelBackground.default,
+        padding: '0 4px',
+        fontSize: '0.75em',
+        color: theme.palette.grey[600],
+        fontWeight: 500,
+      },
+    },
+    // Claim/prediction styles
+    '& .elicit-binary-prediction-wrapper': {
+      margin: '1em 0',
+    },
+    // Collapsible section styles
+    '& .detailsBlock': {
+      margin: '1em 0',
+      border: `1px solid ${theme.palette.grey[300]}`,
+      borderRadius: 4,
+      overflow: 'hidden',
+    },
+    '& .detailsBlockEdit': {
+      // In editing mode, we use a div instead of details for better cursor control
+    },
+    '& .detailsBlockTitle': {
+      padding: '0.75em 1em',
+      backgroundColor: theme.palette.grey[100],
+      fontWeight: 600,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5em',
+      '&::before': {
+        content: '"▼"',
+        fontSize: '0.75em',
+        transition: 'transform 0.2s ease',
+      },
+      '& p': {
+        margin: 0,
+        flex: 1,
+      },
+    },
+    '& .detailsBlockClosed .detailsBlockTitle::before': {
+      transform: 'rotate(-90deg)',
+    },
+    '& .detailsBlockContent': {
+      padding: '0.75em 1em',
+      '& > p:first-child': {
+        marginTop: 0,
+      },
+      '& > p:last-child': {
+        marginBottom: 0,
+      },
+    },
+    '& .detailsBlockClosed .detailsBlockContent': {
+      display: 'none',
+    },
   },
   editorInputComment: {
     minHeight: 100,
@@ -107,155 +306,6 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     userSelect: 'none',
     display: 'inline-block',
     pointerEvents: 'none',
-  },
-  // Content styles
-  '& p': {
-    margin: '0 0 1em 0',
-  },
-  '& h1': {
-    fontSize: '1.8rem',
-    fontWeight: 600,
-    marginBottom: '0.5em',
-    marginTop: '1em',
-  },
-  '& h2': {
-    fontSize: '1.5rem',
-    fontWeight: 600,
-    marginBottom: '0.5em',
-    marginTop: '1em',
-  },
-  '& h3': {
-    fontSize: '1.3rem',
-    fontWeight: 600,
-    marginBottom: '0.5em',
-    marginTop: '1em',
-  },
-  '& blockquote': {
-    margin: '1em 0',
-    padding: '0.5em 1em',
-    borderLeft: `4px solid ${theme.palette.grey[300]}`,
-    color: theme.palette.grey[700],
-    backgroundColor: theme.palette.grey[100],
-  },
-  '& ul, & ol': {
-    margin: '0 0 1em 0',
-    padding: '0 0 0 1.5em',
-  },
-  '& li': {
-    margin: '0.25em 0',
-  },
-  '& code': {
-    fontFamily: 'monospace',
-    backgroundColor: theme.palette.grey[100],
-    padding: '0.2em 0.4em',
-    borderRadius: 4,
-    fontSize: '0.9em',
-  },
-  '& pre': {
-    margin: '1em 0',
-    padding: '1em',
-    backgroundColor: theme.palette.grey[100],
-    borderRadius: 4,
-    overflow: 'auto',
-    '& code': {
-      backgroundColor: 'transparent',
-      padding: 0,
-    },
-  },
-  '& a': {
-    color: theme.palette.primary.main,
-    textDecoration: 'underline',
-  },
-  '& strong': {
-    fontWeight: 600,
-  },
-  '& em': {
-    fontStyle: 'italic',
-  },
-  // Footnote styles
-  '& .footnote-section': {
-    marginTop: '2em',
-    paddingTop: '1em',
-    borderTop: `1px solid ${theme.palette.grey[300]}`,
-    fontSize: '0.9em',
-    listStyle: 'none',
-    padding: 0,
-  },
-  '& .footnote-item': {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '0.5em',
-    marginBottom: '0.5em',
-    padding: '0.5em',
-    backgroundColor: theme.palette.grey[50],
-    borderRadius: 4,
-  },
-  '& .footnote-content': {
-    flex: 1,
-    '& p': {
-      margin: 0,
-    },
-  },
-  '& .footnote-reference': {
-    cursor: 'pointer',
-    '& a': {
-      color: theme.palette.primary.main,
-      textDecoration: 'none',
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    },
-  },
-  '& .footnote-back-link': {
-    marginRight: '0.25em',
-    '& a': {
-      color: theme.palette.primary.main,
-      textDecoration: 'none',
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    },
-  },
-  // Math styles
-  '& .math-tex': {
-    cursor: 'pointer',
-  },
-  '& .math-preview': {
-    fontFamily: 'inherit',
-  },
-  '& .math-inline': {
-    display: 'inline-block',
-    verticalAlign: 'middle',
-  },
-  '& .math-display': {
-    display: 'block',
-    textAlign: 'center',
-    margin: '1em 0',
-    padding: '0.5em',
-  },
-  // Spoiler styles
-  '& .spoilers': {
-    backgroundColor: theme.palette.grey[100],
-    border: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: 4,
-    padding: '1em',
-    margin: '1em 0',
-    position: 'relative',
-    '&::before': {
-      content: '"Spoiler"',
-      position: 'absolute',
-      top: -10,
-      left: 10,
-      backgroundColor: theme.palette.panelBackground.default,
-      padding: '0 4px',
-      fontSize: '0.75em',
-      color: theme.palette.grey[600],
-      fontWeight: 500,
-    },
-  },
-  // Claim/prediction styles
-  '& .elicit-binary-prediction-wrapper': {
-    margin: '1em 0',
   },
 }), { allowNonThemeColors: true });
 
@@ -361,6 +411,10 @@ function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
   const classes = useStyles(toolbarStyles);
   const insertClaim = useInsertClaim();
+
+  const insertCollapsibleSection = useCallback(() => {
+    editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined);
+  }, [editor]);
 
   const formatBold = useCallback(() => {
     editor.dispatchCommand(
@@ -469,6 +523,15 @@ function ToolbarPlugin() {
       >
         <span style={{ fontSize: '12px' }}>📊</span>
       </button>
+      <button
+        type="button"
+        onClick={insertCollapsibleSection}
+        className={classes.toolbarButton}
+        aria-label="Insert Collapsible Section"
+        title="Insert Collapsible Section (+++)"
+      >
+        <span style={{ fontSize: '12px' }}>▶</span>
+      </button>
     </div>
   );
 }
@@ -561,6 +624,10 @@ const LexicalPostEditor = ({
       SpoilerNode,
       // Claim node
       ClaimNode,
+      // Collapsible section nodes
+      CollapsibleSectionContainerNode,
+      CollapsibleSectionTitleNode,
+      CollapsibleSectionContentNode,
     ],
   };
 
@@ -595,6 +662,7 @@ const LexicalPostEditor = ({
           <MentionPlugin feeds={getLexicalMentionFeeds()} />
           <SpoilersPlugin />
           <ClaimsPlugin />
+          <CollapsibleSectionsPlugin />
           <RemoveRedirectPlugin />
           <LLMAutocompletePlugin />
           <InitialContentPlugin 

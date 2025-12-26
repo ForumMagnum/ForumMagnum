@@ -144,7 +144,7 @@ function MathEditorPanel({
       // Also adjust width based on content
       const lines = equation.split('\n');
       const maxLength = Math.max(...lines.map(l => l.length), 20);
-      textarea.style.width = `${Math.min(maxLength * 8 + 24, 500)}px`;
+      textarea.style.width = `${Math.min((maxLength * 8) + 24, 500)}px`;
     }
   }, [equation]);
 
@@ -182,7 +182,7 @@ function MathEditorPanel({
 
   // Calculate position - center below the cursor
   const panelStyle: React.CSSProperties = {
-    left: anchorRect.left + anchorRect.width / 2,
+    left: anchorRect.left + (anchorRect.width / 2),
     top: anchorRect.bottom + 8,
     transform: 'translateX(-50%)',
   };
