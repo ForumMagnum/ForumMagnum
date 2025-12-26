@@ -127,6 +127,12 @@ export const revisionResolversGraphQLQueries = {
           type: "markdown",
           value: dataToMarkdown(document.value, document.type),
         };
+      case "lexical":
+        // Lexical stores content as HTML internally, so convert to HTML
+        return {
+          type: "lexical",
+          value: await dataToHTML(document.value, document.type, context),
+        };
     }
   },
   latestGoogleDocMetadata: async (root: void, { postId, version }: { postId: string; version?: string }, { Revisions }: ResolverContext) => {

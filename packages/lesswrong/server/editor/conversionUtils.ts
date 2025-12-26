@@ -296,6 +296,8 @@ interface DataToHTMLOptions {
 export async function dataToHTML(data: AnyBecauseTodo, type: string, context: ResolverContext, options?: DataToHTMLOptions) {
   switch (type) {
     case "html":
+    case "lexical":
+      // Lexical content is stored as HTML
       const maybeSanitized = options?.sanitize ? sanitize(data) : data;
       if (options?.skipMathjax) {
         return maybeSanitized;
@@ -318,7 +320,9 @@ export function dataToMarkdown(data: AnyBecauseTodo, type: string) {
     case "markdown": {
       return data
     }
-    case "html": {
+    case "html":
+    case "lexical": {
+      // Lexical content is stored as HTML
       return htmlToMarkdown(data)
     }
     case "ckEditorMarkup": {
@@ -342,6 +346,8 @@ export function dataToMarkdown(data: AnyBecauseTodo, type: string) {
 export async function dataToCkEditor(data: AnyBecauseTodo, type: string) {
   switch (type) {
     case "html":
+    case "lexical":
+      // Lexical content is stored as HTML
       return sanitize(data);
     case "ckEditorMarkup":
       return data;
