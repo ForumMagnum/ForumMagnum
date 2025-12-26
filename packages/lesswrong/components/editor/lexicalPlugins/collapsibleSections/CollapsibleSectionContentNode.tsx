@@ -77,6 +77,12 @@ export class CollapsibleSectionContentNode extends ElementNode {
   canBeEmpty(): boolean {
     return false;
   }
+
+  // Marks this as a container that can hold block-level content
+  // like lists, blockquotes, etc. Without this, markdown shortcuts for lists won't work.
+  isShadowRoot(): boolean {
+    return true;
+  }
 }
 
 function convertCollapsibleContentElement(): DOMConversionOutput {

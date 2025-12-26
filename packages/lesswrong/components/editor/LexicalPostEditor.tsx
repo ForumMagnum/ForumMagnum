@@ -291,6 +291,10 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     '& .detailsBlockClosed .detailsBlockContent': {
       display: 'none',
     },
+    '& .detailsBlock.detailsBlockSelected': {
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: 2,
+    },
   },
   editorInputComment: {
     minHeight: 100,

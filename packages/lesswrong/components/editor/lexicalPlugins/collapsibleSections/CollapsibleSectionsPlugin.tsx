@@ -5,17 +5,29 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $getSelection,
   $isRangeSelection,
+  $isNodeSelection,
   $createParagraphNode,
+  $createNodeSelection,
+  $setSelection,
   $getNodeByKey,
+  $getRoot,
+  $isElementNode,
   COMMAND_PRIORITY_LOW,
   KEY_ENTER_COMMAND,
   KEY_TAB_COMMAND,
+  KEY_ARROW_RIGHT_COMMAND,
+  KEY_ARROW_DOWN_COMMAND,
+  KEY_ARROW_LEFT_COMMAND,
+  KEY_ARROW_UP_COMMAND,
+  KEY_BACKSPACE_COMMAND,
+  KEY_DELETE_COMMAND,
   createCommand,
   LexicalCommand,
   TextNode,
   $isTextNode,
   LexicalNode,
   CLICK_COMMAND,
+  ElementNode,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import {
@@ -128,6 +140,81 @@ function $isInCollapsibleContent(node: LexicalNode): boolean {
   }
   return false;
 }
+
+/**
+ * Get the content node that directly contains this node (for shadow root traversal)
+ */
+function $getDirectCollapsibleContent(node: LexicalNode): CollapsibleSectionContentNode | null {
+  let current: LexicalNode | null = node.getParent();
+  while (current) {
+    if ($isCollapsibleSectionContentNode(current)) {
+      return current;
+    }
+    // Stop at container boundary
+    if ($isCollapsibleSectionContainerNode(current)) {
+      return null;
+    }
+    current = current.getParent();
+  }
+  return null;
+}
+
+/**
+ * Check if cursor is at the very end of a node's content
+ */
+function $isAtEndOfNode(node: LexicalNode, offset: number): boolean {
+  if ($isTextNode(node)) {
+    return offset === node.getTextContentSize();
+  }
+  if ($isElementNode(node)) {
+    return offset === node.getChildrenSize();
+  }
+  return false;
+}
+
+/**
+ * Check if cursor is at the very start of a node's content
+ */
+function $isAtStartOfNode(node: LexicalNode, offset: number): boolean {
+  return offset === 0;
+}
+
+/**
+ * Delete the entire collapsible section and place cursor appropriately
+ */
+function $deleteCollapsibleSection(container: CollapsibleSectionContainerNode): void {
+  const nextSibling = container.getNextSibling();
+  const prevSibling = container.getPreviousSibling();
+  
+  container.remove();
+  
+  // Place cursor in next sibling if exists, otherwise previous, otherwise create paragraph
+  if (nextSibling && $isElementNode(nextSibling)) {
+    nextSibling.selectStart();
+  } else if (prevSibling && $isElementNode(prevSibling)) {
+    prevSibling.selectEnd();
+  } else {
+    const paragraph = $createParagraphNode();
+    const parent = container.getParent();
+    if (parent) {
+      parent.append(paragraph);
+    } else {
+      $getRoot().append(paragraph);
+    }
+    paragraph.selectStart();
+  }
+}
+
+/**
+ * Select the entire collapsible section as a NodeSelection
+ */
+function $selectCollapsibleSection(container: CollapsibleSectionContainerNode): void {
+  const nodeSelection = $createNodeSelection();
+  nodeSelection.add(container.getKey());
+  $setSelection(nodeSelection);
+}
+
+const SELECTED_CLASS = 'detailsBlockSelected';
 
 /**
  * Plugin for collapsible sections (details/summary blocks).
@@ -358,6 +445,373 @@ export function CollapsibleSectionsPlugin(): null {
         COMMAND_PRIORITY_LOW
       ),
 
+      // Handle arrow right at end of content - select the collapsible section
+      editor.registerCommand(
+        KEY_ARROW_RIGHT_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          
+          // Handle when collapsible section is already selected (NodeSelection)
+          if ($isNodeSelection(selection)) {
+            const nodes = selection.getNodes();
+            if (nodes.length === 1 && $isCollapsibleSectionContainerNode(nodes[0])) {
+              event?.preventDefault();
+              const container = nodes[0];
+              
+              // Move to start of next element, or create one
+              let nextSibling = container.getNextSibling();
+              if (!nextSibling) {
+                nextSibling = $createParagraphNode();
+                container.insertAfter(nextSibling);
+              }
+              if ($isElementNode(nextSibling)) {
+                nextSibling.selectStart();
+              }
+              return true;
+            }
+          }
+          
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+            return false;
+          }
+
+          const anchorNode = selection.anchor.getNode();
+          const offset = selection.anchor.offset;
+          
+          // Check if we're at the end of a text node
+          if (!$isAtEndOfNode(anchorNode, offset)) {
+            return false;
+          }
+          
+          // Check if we're in collapsible content
+          const contentNode = $getDirectCollapsibleContent(anchorNode);
+          if (!contentNode) {
+            return false;
+          }
+          
+          // Check if this is the last descendant in the content
+          const lastDescendant = contentNode.getLastDescendant();
+          if (anchorNode !== lastDescendant) {
+            return false;
+          }
+          
+          // We're at the end of the content - select the collapsible section
+          const container = $findCollapsibleParent(anchorNode);
+          if (!container) {
+            return false;
+          }
+          
+          event?.preventDefault();
+          $selectCollapsibleSection(container);
+          return true;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      // Handle arrow left - select collapsible section when at start of next element
+      editor.registerCommand(
+        KEY_ARROW_LEFT_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          
+          // Handle when collapsible section is already selected (NodeSelection)
+          if ($isNodeSelection(selection)) {
+            const nodes = selection.getNodes();
+            if (nodes.length === 1 && $isCollapsibleSectionContainerNode(nodes[0])) {
+              event?.preventDefault();
+              const container = nodes[0];
+              
+              // Move to end of content inside the collapsible
+              const content = $findContentInCollapsible(container);
+              if (content) {
+                const lastDescendant = content.getLastDescendant();
+                if (lastDescendant) {
+                  lastDescendant.selectEnd();
+                }
+              }
+              return true;
+            }
+          }
+          
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+            return false;
+          }
+
+          const anchorNode = selection.anchor.getNode();
+          const offset = selection.anchor.offset;
+          
+          // Check if we're at the start of content
+          if (!$isAtStartOfNode(anchorNode, offset)) {
+            return false;
+          }
+          
+          // Use getTopLevelElementOrThrow which handles shadow roots correctly
+          try {
+            const topLevelElement = anchorNode.getTopLevelElementOrThrow();
+            
+            // Check if cursor is at the very start of the top-level element
+            // This is true if:
+            // 1. anchorNode is the topLevelElement itself (empty paragraph), or
+            // 2. anchorNode is the first descendant of topLevelElement
+            const firstDescendant = topLevelElement.getFirstDescendant();
+            const isAtVeryStart = anchorNode === topLevelElement || anchorNode === firstDescendant;
+            
+            if (isAtVeryStart) {
+              const prevSibling = topLevelElement.getPreviousSibling();
+              
+              // If previous sibling is a collapsible section, select it
+              if ($isCollapsibleSectionContainerNode(prevSibling)) {
+                event?.preventDefault();
+                $selectCollapsibleSection(prevSibling);
+                return true;
+              }
+            }
+          } catch {
+            // getTopLevelElementOrThrow can throw if structure is unexpected
+          }
+          
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      // Handle arrow up - select collapsible section when in first block after it
+      editor.registerCommand(
+        KEY_ARROW_UP_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          
+          // Handle when collapsible section is already selected (NodeSelection)
+          if ($isNodeSelection(selection)) {
+            const nodes = selection.getNodes();
+            if (nodes.length === 1 && $isCollapsibleSectionContainerNode(nodes[0])) {
+              event?.preventDefault();
+              const container = nodes[0];
+              
+              // Move to end of content inside the collapsible
+              const content = $findContentInCollapsible(container);
+              if (content) {
+                const lastDescendant = content.getLastDescendant();
+                if (lastDescendant) {
+                  lastDescendant.selectEnd();
+                }
+              }
+              return true;
+            }
+          }
+          
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+            return false;
+          }
+
+          const anchorNode = selection.anchor.getNode();
+          
+          // Use getTopLevelElementOrThrow which handles shadow roots correctly
+          try {
+            const topLevelElement = anchorNode.getTopLevelElementOrThrow();
+            const prevSibling = topLevelElement.getPreviousSibling();
+            
+            // If previous sibling is a collapsible section, select it
+            if ($isCollapsibleSectionContainerNode(prevSibling)) {
+              event?.preventDefault();
+              $selectCollapsibleSection(prevSibling);
+              return true;
+            }
+          } catch {
+            // getTopLevelElementOrThrow can throw if structure is unexpected
+          }
+          
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      // Handle arrow down at end of content - select the collapsible section
+      editor.registerCommand(
+        KEY_ARROW_DOWN_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          
+          // Handle when collapsible section is already selected (NodeSelection)
+          if ($isNodeSelection(selection)) {
+            const nodes = selection.getNodes();
+            if (nodes.length === 1 && $isCollapsibleSectionContainerNode(nodes[0])) {
+              event?.preventDefault();
+              const container = nodes[0];
+              
+              // Move to start of next element, or create one
+              let nextSibling = container.getNextSibling();
+              if (!nextSibling) {
+                nextSibling = $createParagraphNode();
+                container.insertAfter(nextSibling);
+              }
+              if ($isElementNode(nextSibling)) {
+                nextSibling.selectStart();
+              }
+              return true;
+            }
+          }
+          
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+            return false;
+          }
+
+          const anchorNode = selection.anchor.getNode();
+          
+          // Check if we're in collapsible content
+          const contentNode = $getDirectCollapsibleContent(anchorNode);
+          if (!contentNode) {
+            return false;
+          }
+          
+          // Check if we're in the last block of the content
+          const topLevelElement = anchorNode.getTopLevelElementOrThrow();
+          const lastContentChild = contentNode.getLastChild();
+          if (topLevelElement !== lastContentChild) {
+            return false;
+          }
+          
+          // We're at the last block - select the collapsible section
+          const container = $findCollapsibleParent(anchorNode);
+          if (!container) {
+            return false;
+          }
+          
+          event?.preventDefault();
+          $selectCollapsibleSection(container);
+          return true;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      // Handle backspace - delete selected collapsible section or prevent invalid structure
+      editor.registerCommand(
+        KEY_BACKSPACE_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          
+          // Handle when collapsible section is selected (NodeSelection)
+          if ($isNodeSelection(selection)) {
+            const nodes = selection.getNodes();
+            if (nodes.length === 1 && $isCollapsibleSectionContainerNode(nodes[0])) {
+              event?.preventDefault();
+              $deleteCollapsibleSection(nodes[0]);
+              return true;
+            }
+          }
+          
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+            return false;
+          }
+
+          const anchorNode = selection.anchor.getNode();
+          const offset = selection.anchor.offset;
+          
+          // Check if we're at the start of content in the title
+          if ($isInCollapsibleTitle(anchorNode) && $isAtStartOfNode(anchorNode, offset)) {
+            const container = $findCollapsibleParent(anchorNode);
+            if (container) {
+              const title = $findTitleInCollapsible(container);
+              if (title) {
+                // Check if cursor is at the very beginning of the title
+                const firstDescendant = title.getFirstDescendant();
+                if (anchorNode === firstDescendant || anchorNode === title.getFirstChild()) {
+                  // If title is empty, delete the entire section
+                  if (title.getTextContent().trim() === '') {
+                    event?.preventDefault();
+                    $deleteCollapsibleSection(container);
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+          
+          // Check if we're at the start of content area
+          if ($isInCollapsibleContent(anchorNode) && $isAtStartOfNode(anchorNode, offset)) {
+            const container = $findCollapsibleParent(anchorNode);
+            if (container) {
+              const content = $findContentInCollapsible(container);
+              if (content) {
+                const firstDescendant = content.getFirstDescendant();
+                if (anchorNode === firstDescendant || anchorNode === content.getFirstChild()) {
+                  // If content is empty (just one empty paragraph), delete entire section
+                  if (content.getTextContent().trim() === '' && content.getChildrenSize() <= 1) {
+                    event?.preventDefault();
+                    $deleteCollapsibleSection(container);
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      // Handle forward delete - delete selected collapsible or section after cursor
+      editor.registerCommand(
+        KEY_DELETE_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          
+          // Handle when collapsible section is selected (NodeSelection)
+          if ($isNodeSelection(selection)) {
+            const nodes = selection.getNodes();
+            if (nodes.length === 1 && $isCollapsibleSectionContainerNode(nodes[0])) {
+              event?.preventDefault();
+              $deleteCollapsibleSection(nodes[0]);
+              return true;
+            }
+          }
+          
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+            return false;
+          }
+
+          const anchorNode = selection.anchor.getNode();
+          const offset = selection.anchor.offset;
+          
+          // Check if cursor is at end of something before a collapsible section
+          if ($isAtEndOfNode(anchorNode, offset)) {
+            const topLevelElement = anchorNode.getTopLevelElementOrThrow();
+            const nextSibling = topLevelElement.getNextSibling();
+            
+            if ($isCollapsibleSectionContainerNode(nextSibling)) {
+              // Forward delete right before a collapsible section - select it
+              event?.preventDefault();
+              $selectCollapsibleSection(nextSibling);
+              return true;
+            }
+          }
+          
+          // Check if in title at end and content is empty
+          if ($isInCollapsibleTitle(anchorNode) && $isAtEndOfNode(anchorNode, offset)) {
+            const container = $findCollapsibleParent(anchorNode);
+            if (container) {
+              const title = $findTitleInCollapsible(container);
+              const content = $findContentInCollapsible(container);
+              if (title && content) {
+                const lastDescendant = title.getLastDescendant();
+                if (anchorNode === lastDescendant) {
+                  // If content is empty, delete entire section
+                  if (content.getTextContent().trim() === '' && content.getChildrenSize() <= 1) {
+                    event?.preventDefault();
+                    $deleteCollapsibleSection(container);
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
       // Auto-format: "<details>" or "+++" at start of line creates collapsible section
       editor.registerNodeTransform(TextNode, (node) => {
         if (!$isTextNode(node)) return;
@@ -394,6 +848,82 @@ export function CollapsibleSectionsPlugin(): null {
             }
           }
         }
+      }),
+
+      // Node transform to fix invalid collapsible sections (missing title or content)
+      editor.registerNodeTransform(CollapsibleSectionContainerNode, (node) => {
+        const title = $findTitleInCollapsible(node);
+        const content = $findContentInCollapsible(node);
+        
+        // If missing either title or content, the structure is invalid - delete the section
+        if (!title || !content) {
+          // Move any remaining content out before deleting
+          const children = node.getChildren();
+          for (const child of children) {
+            if (!$isCollapsibleSectionTitleNode(child) && !$isCollapsibleSectionContentNode(child)) {
+              node.insertBefore(child);
+            }
+          }
+          node.remove();
+          return;
+        }
+        
+        // Ensure title has at least one child (paragraph)
+        if (title.getChildrenSize() === 0) {
+          const paragraph = $createParagraphNode();
+          title.append(paragraph);
+        }
+        
+        // Ensure content has at least one child (paragraph)
+        if (content.getChildrenSize() === 0) {
+          const paragraph = $createParagraphNode();
+          content.append(paragraph);
+        }
+      }),
+
+      // Post-fixer to ensure there's always a paragraph after a collapsible section at the end
+      editor.registerNodeTransform(CollapsibleSectionContainerNode, (node) => {
+        // Check if this is the last child in its parent
+        const nextSibling = node.getNextSibling();
+        if (!nextSibling) {
+          const parent = node.getParent();
+          // Only add paragraph if parent is root or another shadow root
+          if (parent && ($getRoot() === parent || (parent as ElementNode).isShadowRoot?.())) {
+            const paragraph = $createParagraphNode();
+            node.insertAfter(paragraph);
+          }
+        }
+      }),
+
+      // Update visual selection state when selection changes
+      editor.registerUpdateListener(({ editorState }) => {
+        editorState.read(() => {
+          const selection = $getSelection();
+          
+          // Get all collapsible section DOM elements
+          const rootElement = editor.getRootElement();
+          if (!rootElement) return;
+          
+          const collapsibleElements = rootElement.querySelectorAll('.detailsBlock');
+          
+          // Remove selected class from all
+          collapsibleElements.forEach((el) => {
+            el.classList.remove(SELECTED_CLASS);
+          });
+          
+          // Add selected class to selected collapsible sections
+          if ($isNodeSelection(selection)) {
+            const nodes = selection.getNodes();
+            for (const node of nodes) {
+              if ($isCollapsibleSectionContainerNode(node)) {
+                const element = editor.getElementByKey(node.getKey());
+                if (element) {
+                  element.classList.add(SELECTED_CLASS);
+                }
+              }
+            }
+          }
+        });
       })
     );
   }, [editor]);

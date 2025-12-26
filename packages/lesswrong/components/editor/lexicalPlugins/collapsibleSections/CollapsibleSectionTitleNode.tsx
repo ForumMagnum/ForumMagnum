@@ -99,6 +99,11 @@ export class CollapsibleSectionTitleNode extends ElementNode {
   canBeEmpty(): boolean {
     return true;
   }
+
+  // Marks this as a container that can hold block-level content (paragraph)
+  isShadowRoot(): boolean {
+    return true;
+  }
 }
 
 function convertCollapsibleTitleElement(): DOMConversionOutput {
