@@ -261,7 +261,7 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
           <InteractionWrapper>
             <Card>
               <ContentStyles contentType={contentStyleType} className={classes.hovercard}>
-                <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
+                <ContentItemBody dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
               </ContentStyles>
             </Card>
           </InteractionWrapper>
