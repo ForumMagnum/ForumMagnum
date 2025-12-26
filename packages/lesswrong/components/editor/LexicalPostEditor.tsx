@@ -16,6 +16,8 @@ import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import { TableNode, TableCellNode, TableRowNode, INSERT_TABLE_COMMAND } from '@lexical/table';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { TRANSFORMERS } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
@@ -420,6 +422,10 @@ function ToolbarPlugin() {
     editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined);
   }, [editor]);
 
+  const insertTable = useCallback(() => {
+    editor.dispatchCommand(INSERT_TABLE_COMMAND, { columns: '2', rows: '2', includeHeaders: false });
+  }, [editor]);
+
   const formatBold = useCallback(() => {
     editor.dispatchCommand(
       // Using FORMAT_TEXT_COMMAND
@@ -536,6 +542,15 @@ function ToolbarPlugin() {
       >
         <span style={{ fontSize: '12px' }}>▶</span>
       </button>
+      <button
+        type="button"
+        onClick={insertTable}
+        className={classes.toolbarButton}
+        aria-label="Insert Table"
+        title="Insert Table"
+      >
+        <span style={{ fontSize: '12px' }}>📊</span>
+      </button>
     </div>
   );
 }
@@ -616,6 +631,9 @@ const LexicalPostEditor = ({
       CodeHighlightNode,
       AutoLinkNode,
       LinkNode,
+      TableNode,
+      TableCellNode,
+      TableRowNode,
       // Footnote nodes
       FootnoteReferenceNode,
       FootnoteSectionNode,
@@ -669,6 +687,7 @@ const LexicalPostEditor = ({
           <CollapsibleSectionsPlugin />
           <RemoveRedirectPlugin />
           <LLMAutocompletePlugin />
+          <TablePlugin />
           <InitialContentPlugin 
             initialHtml={data} 
             onInternalIdsExtracted={handleInternalIdsExtracted}
