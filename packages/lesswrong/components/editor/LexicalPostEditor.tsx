@@ -47,6 +47,9 @@ import {
 import { CollapsibleSectionContainerNode } from './lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode';
 import { CollapsibleSectionTitleNode } from './lexicalPlugins/collapsibleSections/CollapsibleSectionTitleNode';
 import { CollapsibleSectionContentNode } from './lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode';
+import ImagesPlugin from './lexicalPlugins/images/ImagesPlugin';
+import { ImageNode } from './lexicalPlugins/images/ImageNode';
+import { DragDropPaste } from './lexicalPlugins/dragDropPaste/DragDropPaste';
 
 // URL regex for auto-linking
 const URL_REGEX = /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
@@ -687,6 +690,7 @@ const LexicalPostEditor = ({
       TableNode,
       TableCellNode,
       TableRowNode,
+      ImageNode,
       // Footnote nodes
       FootnoteReferenceNode,
       FootnoteSectionNode,
@@ -742,6 +746,8 @@ const LexicalPostEditor = ({
           <LLMAutocompletePlugin />
           <TablePlugin />
           <TablesPlugin />
+          <ImagesPlugin captionsEnabled={true} />
+          <DragDropPaste />
           <InitialContentPlugin 
             initialHtml={data} 
             onInternalIdsExtracted={handleInternalIdsExtracted}
