@@ -16,8 +16,9 @@ import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { AutoLinkPlugin } from '@lexical/react/LexicalAutoLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
-import { TableNode, TableCellNode, TableRowNode, INSERT_TABLE_COMMAND } from '@lexical/table';
+import { TableNode, TableCellNode, TableRowNode } from '@lexical/table';
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
+import { TablesPlugin, OPEN_TABLE_SELECTOR_COMMAND } from './lexicalPlugins/tables/TablesPlugin';
 import { TRANSFORMERS } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
@@ -250,6 +251,45 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     '& .elicit-binary-prediction-wrapper': {
       margin: '1em 0',
     },
+    // Table styles
+    '& table': {
+      borderCollapse: 'collapse',
+      width: 'auto',
+      margin: '1em 0',
+      border: `1px solid ${theme.palette.grey[300]}`,
+    },
+    '& th, & td': {
+      border: `1px solid ${theme.palette.grey[300]}`,
+      padding: '8px 12px',
+      minWidth: 50,
+      verticalAlign: 'top',
+      position: 'relative',
+    },
+    '& th': {
+      backgroundColor: theme.palette.grey[100],
+      fontWeight: 600,
+      textAlign: 'left',
+    },
+    '& td': {
+      backgroundColor: theme.palette.panelBackground.default,
+    },
+    // Selected cell highlighting (class applied by Lexical via theme.tableCellSelected)
+    '& td.editor-table-cell-selected, & th.editor-table-cell-selected': {
+      backgroundColor: theme.palette.primary.light,
+    },
+    // Table resize handles (if using column resize)
+    '& .table-cell-resizer': {
+      position: 'absolute',
+      right: -2,
+      top: 0,
+      bottom: 0,
+      width: 4,
+      cursor: 'col-resize',
+      backgroundColor: 'transparent',
+      '&:hover': {
+        backgroundColor: theme.palette.primary.main,
+      },
+    },
     // Collapsible section styles
     '& .detailsBlock': {
       margin: '1em 0',
@@ -345,6 +385,13 @@ const lexicalTheme = {
     code: 'editor-text-code',
   },
   code: 'editor-code',
+  // Table theme classes - required for table selection to work
+  table: 'editor-table',
+  tableCell: 'editor-table-cell',
+  tableCellHeader: 'editor-table-cell-header',
+  tableCellSelected: 'editor-table-cell-selected',
+  tableRow: 'editor-table-row',
+  tableSelection: 'editor-table-selection',
 };
 
 function onError(error: Error) {
@@ -422,8 +469,13 @@ function ToolbarPlugin() {
     editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined);
   }, [editor]);
 
+  const tableButtonRef = useRef<HTMLButtonElement>(null);
+  
   const insertTable = useCallback(() => {
-    editor.dispatchCommand(INSERT_TABLE_COMMAND, { columns: '2', rows: '2', includeHeaders: false });
+    if (tableButtonRef.current) {
+      const rect = tableButtonRef.current.getBoundingClientRect();
+      editor.dispatchCommand(OPEN_TABLE_SELECTOR_COMMAND, rect);
+    }
   }, [editor]);
 
   const formatBold = useCallback(() => {
@@ -543,13 +595,14 @@ function ToolbarPlugin() {
         <span style={{ fontSize: '12px' }}>▶</span>
       </button>
       <button
+        ref={tableButtonRef}
         type="button"
         onClick={insertTable}
         className={classes.toolbarButton}
         aria-label="Insert Table"
         title="Insert Table"
       >
-        <span style={{ fontSize: '12px' }}>📊</span>
+        <span style={{ fontSize: '12px' }}>⊞</span>
       </button>
     </div>
   );
@@ -688,6 +741,7 @@ const LexicalPostEditor = ({
           <RemoveRedirectPlugin />
           <LLMAutocompletePlugin />
           <TablePlugin />
+          <TablesPlugin />
           <InitialContentPlugin 
             initialHtml={data} 
             onInternalIdsExtracted={handleInternalIdsExtracted}
