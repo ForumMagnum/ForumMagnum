@@ -15,6 +15,7 @@ import FormatDate from "../common/FormatDate";
 import EventTime from "./EventTime";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const PostsListMultiQuery = gql(`
   query multiPostTabNavigationEventsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -150,7 +151,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
   </div>
 }
 
-const TabNavigationEventSingleLine = ({event, onClick, classes}: {
+const TabNavigationEventSingleLine = withErrorBoundary(({event, onClick, classes}: {
   event: PostsList,
   onClick: () => void,
   classes: ClassesType<typeof styles>,
@@ -181,9 +182,9 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
       <span>{event.title}</span>
     </TabNavigationSubItem>
   </MenuItemLink>
-}
+});
 
-const TabNavigationEventTwoLines = ({event, onClick, classes}: {
+const TabNavigationEventTwoLines = withErrorBoundary(({event, onClick, classes}: {
   event: PostsList,
   onClick: () => void,
   classes: ClassesType<typeof styles>,
@@ -207,20 +208,24 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
       </span>
     </TabNavigationSubItem>
   </MenuItemLink>
-}
+});
 
 export function getCityName(event: PostsBase|PostsList): string|null {
-  if (event.googleLocation) {
-    const locationTypePreferenceOrdering = ["locality", "political", "country"];
-    for (let locationType of locationTypePreferenceOrdering) {
-      for (let addressComponent of event.googleLocation.address_components) {
-        if (addressComponent.types.indexOf(locationType) >= 0)
-          return addressComponent.long_name;
+  try {
+    if (event.googleLocation) {
+      const locationTypePreferenceOrdering = ["locality", "political", "country"];
+      for (let locationType of locationTypePreferenceOrdering) {
+        for (let addressComponent of event.googleLocation.address_components) {
+          if (addressComponent.types.indexOf(locationType) >= 0)
+            return addressComponent.long_name;
+        }
       }
+      return null;
+    } else {
+      return "Online";
     }
+  } catch {
     return null;
-  } else {
-    return "Online";
   }
 }
 
