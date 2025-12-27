@@ -2,7 +2,7 @@ import Mailgun from "mailgun.js";
 import type { Interfaces } from "mailgun.js/definitions";
 
 // TODO: If/when we need multi-domain support, revisit this (and possibly reintroduce configuration).
-export const MAILGUN_DOMAIN = "lesswrong.com";
+export const MAILGUN_DOMAIN = "lesserwrong.com";
 
 let mailgunClientInstance: Interfaces.IMailgunClient | null = null;
 
