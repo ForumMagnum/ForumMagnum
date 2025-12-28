@@ -195,7 +195,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
       defaultSort = "needsPreliminaryVote";
       break;
     case 'REVIEWS':
-      defaultSort = "reviewVoteScoreHighKarma"
+      defaultSort = "needsReview"
       break;
     case 'VOTING':
       defaultSort = "needsFinalVote";
