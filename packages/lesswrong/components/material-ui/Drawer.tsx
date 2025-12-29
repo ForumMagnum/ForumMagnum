@@ -129,7 +129,12 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
   }, [open, mounted]);
 
   const paperWidth = paperRef.current?.clientWidth ?? 280;
+  
+  if (variant !== 'persistent' && !mounted) {
+    return null;
+  }
 
+  const classes = getClasses();
   const drawer = (
     <Paper
       elevation={variant === 'temporary' ? 16 : 0}
@@ -153,7 +158,6 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
   );
 
   if (variant === 'persistent') {
-    const classes = getClasses();
     return (
       <div className={classNames(classes.container, classes.docked, className, {
         [classes.containerLeft]: anchor==='left',
@@ -166,7 +170,6 @@ export function Drawer({className, paperClassName, onClose, anchor="left", open,
   
   // variant === temporary
   if (mounted) {
-    const classes = getClasses();
     return <>
       <Backdrop visible={slidIn}/>
       {createPortal(
