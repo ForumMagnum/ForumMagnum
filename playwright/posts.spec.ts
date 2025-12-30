@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { createNewPost, loginNewUser, logout, setPostContent, uniqueId } from "./playwrightUtils";
 
 test("create and edit post", async ({page, context}) => {
+  await page.goto("/");
   await loginNewUser(context);
   await page.goto("/newPost");
 
@@ -37,6 +38,7 @@ test("create and edit post", async ({page, context}) => {
 });
 
 test("can create 2 posts per day, but not 3", async ({page, context}) => {
+  await page.goto("/");
   await loginNewUser(context);
 
   // Create two posts with a single user
@@ -54,6 +56,7 @@ test("can create 2 posts per day, but not 3", async ({page, context}) => {
 
 test("voting on a post gives karma", async ({page, context}) => {
   // Create and visit a new post
+  await page.goto("/");
   await loginNewUser(context);
   const post = await createNewPost();
 
@@ -68,7 +71,7 @@ test("voting on a post gives karma", async ({page, context}) => {
   await expect(karma).toContainText("0");
 
   // Click the upvote button and give time for the page to update
-  await page.locator(".VoteArrowIconHollow-up").click();
+  await page.locator(".VoteArrowIconHollow-up").nth(1).click();
   await page.waitForTimeout(1000);
 
   // Post should now have 2 karma
@@ -76,7 +79,7 @@ test("voting on a post gives karma", async ({page, context}) => {
 
   // The post author should now have the karma
   await page.goto(authorPage);
-  await expect(page.getByText("1 karma")).toBeVisible();
+  await expect(page.locator('.UsersProfile-userMetaInfo').getByText("1")).toBeVisible();
 });
 
 test("admins can move posts to draft", async ({page, context}) => {
@@ -85,9 +88,10 @@ test("admins can move posts to draft", async ({page, context}) => {
   await page.goto(post.postPageUrl);
 
   // The post is visible
-  await expect(page.getByText(post.title)).toBeVisible();
+  await expect(page.getByText(post.title).first()).toBeVisible();
 
   // An admin can move the post to draft
+  await page.goto("/");
   await loginNewUser(context, {isAdmin: true});
   await page.reload();
   await page.locator(".PostActionsButton-root").first().click();
@@ -102,6 +106,7 @@ test("admins can move posts to draft", async ({page, context}) => {
 });
 
 test("cannot create posts with duplicate title", async ({page, context}) => {
+  await page.goto("/");
   await loginNewUser(context);
 
   // Create a post with a title and body
