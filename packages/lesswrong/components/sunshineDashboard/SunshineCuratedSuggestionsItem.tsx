@@ -49,6 +49,9 @@ const styles = (theme: ThemeType) => ({
     color: 'green',
     fontWeight: 600,
   },
+  oldPost: {
+    opacity: 0.5,
+  },
 });
 
 const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeForCuration}: {
@@ -113,8 +116,12 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   // On the EA Forum, only admins can curate and remove from curation suggestions
   const canCurate = isEAForum() ? currentUser?.isAdmin : true;
 
+  // De-emphasize posts that are 30+ days old
+  const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+  const isOldPost = post.postedAt && (Date.now() - new Date(post.postedAt).getTime()) > thirtyDaysInMs;
+
   return (
-    <span {...eventHandlers}>
+    <span {...eventHandlers} className={isOldPost ? classes.oldPost : undefined}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="title">
