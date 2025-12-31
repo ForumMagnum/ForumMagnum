@@ -8,7 +8,10 @@ import {
   InMemoryCache,
 } from "@apollo/client-integration-nextjs";
 import { ApolloNextAppProvider } from "@/lib/vendor/@apollo/client-integration-nextjs/ApolloNextAppProvider";
+import { SsrQueryCacheProvider } from "@/lib/crud/ssrQueryCache";
+import { SSRResolverContext } from "@/lib/crud/ssrResolverContext";
 import { disableFragmentWarnings } from "graphql-tag";
+import { HTMLInjector } from '../hooks/useInjectHTML';
 
 // In the internals of apollo client, they do two round-trips that look like `gql(print(gql(options.query)))`
 // This causes graphql-tag to emit warnings that look like "Warning: fragment with name PostsMinimumInfo already exists",
@@ -20,19 +23,19 @@ disableFragmentWarnings();
 const makeApolloClientForServer = async ({ loginToken, searchParams }: {
   loginToken: string|null,
   searchParams: Record<string,string>,
-}): Promise<ApolloClient> => {
+}): Promise<{ client: ApolloClient, context: ResolverContext }> => {
   if (!isServer) {
     throw new Error("Not server");
   }
 
   const { cookies, headers } = await import("next/headers");
-  const { getApolloClientForSSR } = await import('@/server/rendering/ssrApolloClient');
+  const { getApolloClientForSSRWithContext } = await import('@/server/rendering/ssrApolloClient');
   const [serverCookies, serverHeaders] = await Promise.all([
     cookies(),
     headers()
   ]);
 
-  return await getApolloClientForSSR({
+  return await getApolloClientForSSRWithContext({
     loginToken,
     cookies: serverCookies,
     headers: serverHeaders,
@@ -112,19 +115,28 @@ const ApolloWrapperServer = React.memo(({ loginToken, searchParams, children }: 
   // components, one of which creates a promise and one of which calls use()
   // on the promise, because otherwise we get double-construction (and doubling
   // of context-setup-related queries and CPU usage).
-  const apolloClientPromise = makeApolloClientForServer({ loginToken, searchParams });
-  return <ApolloWrapperServerAsync clientPromise={apolloClientPromise}>
+  const apolloClientAndContextPromise = makeApolloClientForServer({ loginToken, searchParams });
+  return <ApolloWrapperServerAsync clientAndContextPromise={apolloClientAndContextPromise}>
     {children}
   </ApolloWrapperServerAsync>
 })
 
-const ApolloWrapperServerAsync = React.memo(({ clientPromise, children }: {
-  clientPromise: Promise<ApolloClient>
+const ApolloWrapperServerAsync = React.memo(({ clientAndContextPromise, children }: {
+  clientAndContextPromise: Promise<{ client: ApolloClient, context: ResolverContext }>
   children: React.ReactNode
 }) => {
-  const client = use(clientPromise);
+  const { client, context } = use(clientAndContextPromise);
   const makeClient = useCallback(() => client, [client]);
-  return <ApolloNextAppProvider makeClient={makeClient}>
-    {children}
-  </ApolloNextAppProvider>
+
+  return (
+    <SSRResolverContext.Provider value={context}>
+      <HTMLInjector>
+        <SsrQueryCacheProvider>
+          <ApolloNextAppProvider makeClient={makeClient}>
+            {children}
+          </ApolloNextAppProvider>
+        </SsrQueryCacheProvider>
+      </HTMLInjector>
+    </SSRResolverContext.Provider>
+  );
 });
