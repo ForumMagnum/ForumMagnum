@@ -66,6 +66,9 @@ export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
     uri,
     credentials: isSameSiteRequest ? 'same-origin' : 'omit',
     batchMax: isServer ? 1 : graphqlBatchMaxSetting.get(),
+    headers: {
+      'accept': 'application/json',
+    },
     fetch,
     batchKey,
   });
