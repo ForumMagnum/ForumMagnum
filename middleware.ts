@@ -211,7 +211,7 @@ export const config: MiddlewareConfig = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: "/((?!api|$|auth|graphql|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+      source: "/((?!api|$|auth|graphql|graphql2|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
       missing: [{ type: 'header', key: 'next-router-state-tree' }],
     }
   ]
