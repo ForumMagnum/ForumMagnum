@@ -25,6 +25,12 @@ const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
     overflowX: 'clip',
     maxWidth: "100%",
   },
+  mainFullscreen: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
+  },
   centralColumn: {
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     marginLeft: "auto",
@@ -74,11 +80,13 @@ export const RouteRootClient = ({hasLeftNavigationColumn, fullscreen, children}:
   
   const hideNavigationSidebar = !!use(HideNavigationSidebarContext)?.hideNavigationSidebar;
 
+  const isFullscreen = isFullscreenRoute(pathname);
+
   return <PopperPortalProvider>
-    <div className={classes.main}>
+    <div className={classNames(classes.main, {[classes.mainFullscreen]: isFullscreen})}>
     <LeftAndRightSidebarsWrapper
       sidebarsEnabled={shouldUseGridLayout}
-      fullscreen={isFullscreenRoute(pathname)}
+      fullscreen={isFullscreen}
       leftSidebar={
         standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
           <MaybeStickyWrapper sticky={friendlyHomeLayout}>

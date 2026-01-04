@@ -104,6 +104,7 @@ export const allViews = {
   LoginTokens: new CollectionViewSet('LoginTokens', {}),
   LWEvents: LWEventsViews,
   ManifoldProbabilitiesCaches: new CollectionViewSet('ManifoldProbabilitiesCaches', {}),
+  MailgunValidations: new CollectionViewSet('MailgunValidations', {}),
   Messages: MessagesViews,
   Migrations: new CollectionViewSet('Migrations', {}),
   ModerationTemplates: ModerationTemplatesViews,

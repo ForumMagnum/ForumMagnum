@@ -21,19 +21,33 @@ async function fetchAirtableDonationRecords(): Promise<number> {
     throw new Error("Can't fetch Airtable records without an API key");
   }
 
-  const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableName)}?view=${encodeURIComponent(viewName)}`;
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
-  });
+  // Fetch all pages of records from Airtable (API returns max 100 per request)
+  const allRecords: AnyBecauseIsInput[] = [];
+  let offset: string | undefined;
 
-  if (!response.ok) {
-    throw new Error(`Airtable API responded with status ${response.status} - ${response.statusText}`);
-  }
+  do {
+    const url = new URL(`https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableName)}`);
+    url.searchParams.set('view', viewName);
+    if (offset) {
+      url.searchParams.set('offset', offset);
+    }
 
-  const data = await response.json();
-  const records: AnyBecauseIsInput[] = data.records ?? [];
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Airtable API responded with status ${response.status} - ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    allRecords.push(...(data.records ?? []));
+    offset = data.offset; // Will be undefined when there are no more pages
+  } while (offset);
+
+  const records: AnyBecauseIsInput[] = allRecords;
 
   const recordsWithAmount = records.map((record: AnyBecauseIsInput) => ({...record, amount: parseInt(record.fields["Amount"] ?? 0)}));
 
@@ -44,11 +58,10 @@ async function fetchAirtableDonationRecords(): Promise<number> {
   const unmatchedIncompleteEveryorg = incompleteEveryorg
     .filter((record: AnyBecauseIsInput) =>
         !completeEveryorg.some((completeRecord: AnyBecauseIsInput) =>
-          completeRecord.fields["Name"] === record.fields["Name"]
+          completeRecord.fields["Donor Name"]?.[0] === record.fields["Donor Name"]?.[0]
           && Math.abs(completeRecord.amount - record.amount)/completeRecord.amount < 0.2
         )
     );
-
   return [...unmatchedIncompleteEveryorg, ...completeEveryorg, ...nonEveryorg].reduce((acc, {amount}) => acc + amount, 0);
 }
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import mapValues from 'lodash/mapValues';
@@ -11,22 +11,10 @@ import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { useTracking } from '@/lib/analyticsEvents';
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen";
 import { SideCommentIcon } from "../../comments/SideCommentIcon";
 import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 import GlossarySidebar from "../../jargon/GlossarySidebar";
 
-
-const PostSideCommentsQuery = gql(`
-  query PostBody($documentId: String) {
-    post(input: { selector: { documentId: $documentId } }) {
-      result {
-        ...PostSideComments
-      }
-    }
-  }
-`);
 
 function useDisplayGlossary(post: PostsWithNavigation | PostsWithNavigationAndRevision| PostsListWithVotes) {
   const { captureEvent } = useTracking();
@@ -76,17 +64,11 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   const { showAllTerms, setShowAllTerms, termsToHighlight, unapprovedTermsCount, approvedTermsCount } = useDisplayGlossary(post);
 
   const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
-  const sideCommentMode= isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
+  const sideCommentMode = isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
   const includeSideComments =
     hasSideComments() &&
     sideCommentMode &&
     sideCommentMode !== "hidden";
-
-  const { data } = useQuery(PostSideCommentsQuery, {
-    variables: { documentId: post._id },
-    skip: !includeSideComments,
-  });
-  const document = data?.post?.result;
   
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
@@ -103,11 +85,11 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
   const replacedSubstrings = [...highlights, ...glossaryItems];
   const glossarySidebar = 'glossary' in post && <GlossarySidebar post={post} showAllTerms={showAllTerms} setShowAllTerms={setShowAllTerms} unapprovedTermsCount={unapprovedTermsCount} approvedTermsCount={approvedTermsCount} />
     
-  if (includeSideComments && document?.sideComments) {
-    const htmlWithIDs = document.sideComments.html;
+  if (includeSideComments && ('sideComments' in post) && post.sideComments) {
+    const htmlWithIDs = post.sideComments.html;
     const sideComments = sideCommentMode==="highKarma"
-      ? document.sideComments.highKarmaCommentsByBlock
-      : document.sideComments.commentsByBlock;
+      ? post.sideComments.highKarmaCommentsByBlock
+      : post.sideComments.commentsByBlock;
     const sideCommentsMap = mapValues(sideComments, commentIds => <SideCommentIcon post={post} commentIds={commentIds}/>)
 
     content = <ContentItemBody

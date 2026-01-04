@@ -7,6 +7,8 @@ import { getWithCustomLoader, getWithLoader } from "../../loaders";
 import { documentIsNotDeleted, userOwns } from "../../vulcan-users/permissions";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
+import { getChaptersInSequence } from "./sequenceServerHelpers";
+import { getCollectionBySlug } from "./helpers";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -223,15 +225,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (sequence, args, context) => {
         if (!sequence.canonicalCollectionSlug) return null;
-        const [collection] = await getWithLoader(
-          context,
-          context.Collections,
-          "canonicalCollection",
-          { slug: sequence.canonicalCollectionSlug },
-          "slug",
-          sequence.canonicalCollectionSlug,
-        );
-
+        const collection = await getCollectionBySlug(sequence.canonicalCollectionSlug, context);
         return await accessFilterSingle(context.currentUser, "Collections", collection, context);
       },
     },
@@ -317,16 +311,7 @@ const schema = {
       outputType: "[Chapter!]!",
       canRead: ["guests"],
       resolver: async (sequence, args, context) => {
-        const chapters = await getWithLoader(
-          context,
-          context.Chapters,
-          "sequenceChapters",
-          { sequenceId: sequence._id },
-          "sequenceId",
-          sequence._id,
-          { sort: { number: 1 } }
-        );
-
+        const chapters = await getChaptersInSequence(sequence._id, context);
         return await accessFilterMultiple(context.currentUser, "Chapters", chapters, context);
       },
     },

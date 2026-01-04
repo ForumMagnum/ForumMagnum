@@ -1,5 +1,5 @@
 import { htmlToText } from 'html-to-text';
-import { sendEmailSmtp } from './sendEmail';
+import { sendMailgunEmail } from './sendEmail';
 import React from 'react';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
@@ -312,7 +312,7 @@ async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     console.log("from: " + renderedEmail.from); //eslint-disable-line
     
-    return sendEmailSmtp(renderedEmail);
+    return sendMailgunEmail(renderedEmail);
   } else {
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line

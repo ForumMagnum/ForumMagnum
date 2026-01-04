@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from './karmaInflation';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { isAF, isEAForum, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
+import { adminAccountSetting, isAF, isEAForum, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
@@ -1047,6 +1047,23 @@ function sunshineNewPosts() {
   }
 }
 
+function sunshineAutoClassifiedPosts() {
+  const adminTeamAccountId = adminAccountSetting.get()?._id;
+  if (!adminTeamAccountId) {
+    throw new Error('Admin team account ID is not set');
+  }
+  return {
+    selector: {
+      reviewedByUserId: adminTeamAccountId,
+    },
+    options: {
+      sort: {
+        frontpageDate: -1,
+      }
+    }
+  };
+}
+
 function sunshineNewUsersPosts(terms: PostsViewTerms) {
   return {
     selector: {
@@ -1072,11 +1089,13 @@ function sunshineNewUsersPosts(terms: PostsViewTerms) {
 
 function sunshineCuratedSuggestions(terms: PostsViewTerms) {
   const audio = terms.audioOnly ? {podcastEpisodeId: {$exists: true}} : {}
+  const sixtyDaysAgo = new Date(Date.now() - (60 * 24 * 60 * 60 * 1000));
   return {
     selector: {
       ...audio,
       suggestForCuratedUserIds: {$exists:true, $ne: []},
-      reviewForCuratedUserId: {$exists:false}
+      reviewForCuratedUserId: {$exists:false},
+      postedAt: {$gt: sixtyDaysAgo}
     },
     options: {
       sort: {
@@ -1376,6 +1395,7 @@ export const PostsViews = new CollectionViewSet('Posts', {
   postsWithBannedUsers,
   communityResourcePosts,
   sunshineNewPosts,
+  sunshineAutoClassifiedPosts,
   sunshineNewUsersPosts,
   sunshineCuratedSuggestions,
   hasEverDialogued,

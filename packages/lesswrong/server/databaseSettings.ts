@@ -188,8 +188,6 @@ export const type3SourceUrlSetting = new ServerSetting<string>("type3.sourceUrl"
 
 export const elicitAPIKey = new ServerSetting('elicitAPIKey', null)
 
-export const mailUrlSetting = new ServerSetting<string | null>('mailUrl', null) // The SMTP URL used to send out email
-
 export const facebookClientIdSetting = new ServerSetting<string | null>('oAuth.facebook.appId', null)
 export const facebookOAuthSecretSetting = new ServerSetting<string | null>('oAuth.facebook.secret', null)
 

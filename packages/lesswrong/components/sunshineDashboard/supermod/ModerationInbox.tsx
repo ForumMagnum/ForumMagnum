@@ -47,6 +47,17 @@ const SunshinePostsListMultiQuery = gql(`
   }
 `);
 
+const SunshineAutoClassifiedPostsListMultiQuery = gql(`
+  query multiPostAutoClassifiedInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshinePostsList
+      }
+      totalCount
+    }
+  }
+`);
+
 const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   root: {
     width: '100%',
@@ -94,9 +105,10 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUserId, currentUser }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
+  classifiedPosts: SunshinePostsList[];
   initialOpenedUserId: string | null;
   currentUser: UsersCurrent;
 }) => {
@@ -106,12 +118,13 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
-      if (users.length === 0 && posts.length === 0) {
+      if (users.length === 0 && posts.length === 0 && classifiedPosts.length === 0) {
         return {
           users: [],
           posts: [],
+          classifiedPosts: [],
           activeTab: 'all',
           focusedUserId: null,
           openedUserId: null,
@@ -124,7 +137,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
       }
 
       const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length, posts.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length, posts.length, classifiedPosts.length);
 
       // Find first non-empty tab
       const firstNonEmptyTab = visibleTabs.find(tab => tab.count > 0);
@@ -134,10 +147,27 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
         return {
           users,
           posts,
+          classifiedPosts,
           activeTab: 'posts',
           focusedUserId: null,
           openedUserId: null,
           focusedPostId: posts[0]?._id ?? null,
+          focusedContentIndex: 0,
+          undoQueue: [],
+          history: [],
+          runningLlmCheckId: null,
+        };
+      }
+
+      if (firstTab === 'classifiedPosts') {
+        return {
+          users,
+          posts,
+          classifiedPosts,
+          activeTab: 'classifiedPosts',
+          focusedUserId: null,
+          openedUserId: null,
+          focusedPostId: classifiedPosts[0]?._id ?? null,
           focusedContentIndex: 0,
           undoQueue: [],
           history: [],
@@ -151,6 +181,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
       return {
         users,
         posts,
+        classifiedPosts,
         activeTab: firstTab,
         focusedUserId: orderedUsers[0]?._id ?? null,
         openedUserId: initialOpenedUserId,
@@ -199,8 +230,8 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
   const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
 
   const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length]);
+    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length);
+  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -217,8 +248,9 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
 
   const focusedPost = useMemo(() => {
     if (!state.focusedPostId) return null;
-    return state.posts.find(p => p._id === state.focusedPostId) ?? null;
-  }, [state.focusedPostId, state.posts]);
+    const allPosts = [...state.posts, ...state.classifiedPosts];
+    return allPosts.find(p => p._id === state.focusedPostId) ?? null;
+  }, [state.focusedPostId, state.posts, state.classifiedPosts]);
 
   const handleOpenUser = useCallback((userId: string) => dispatch({ type: 'OPEN_USER', userId }), []);
 
@@ -234,7 +266,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
 
   const handlePrevPost = useCallback(() => dispatch({ type: 'PREV_POST' }), []);
 
-  const handleTabChange = useCallback((newTab: ReviewGroup | 'all' | 'posts') => dispatch({ type: 'CHANGE_TAB', tab: newTab }), []);
+  const handleTabChange = useCallback((newTab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts') => dispatch({ type: 'CHANGE_TAB', tab: newTab }), []);
 
   const handleNextTab = useCallback(() => dispatch({ type: 'NEXT_TAB' }), []);
 
@@ -270,7 +302,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
     }
   }, [state.openedUserId, state.focusedUserId, allOrderedUsers]);
 
-  const isPostsTab = state.activeTab === 'posts';
+  const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
 
   return (
     <CoreTagsKeyboardProvider>
@@ -320,7 +352,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
           ) : (
             <ModerationInboxList
               userGroups={filteredGroups}
-              posts={state.posts}
+              posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
               focusedUserId={state.focusedUserId}
               focusedPostId={state.focusedPostId}
               onFocusUser={handleOpenUser}
@@ -345,6 +377,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
                 {sidebarUser && <ModerationSidebar
                   user={sidebarUser}
                   currentUser={currentUser}
+                  dispatch={dispatch}
                 />}
               </div>
               <div className={classes.sidebarBottom}>
@@ -386,19 +419,30 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const { data: classifiedPostsData, loading: classifiedPostsLoading } = useQuery(SunshineAutoClassifiedPostsListMultiQuery, {
+    variables: {
+      selector: { sunshineAutoClassifiedPosts: {} },
+      limit: 100,
+      enableTotal: true,
+    },
+    fetchPolicy: 'cache-and-network',
+  });
+
   // This is just to pre-fetch the core tags so that they're available when you open the posts tab
   useCoreTags();
 
   const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
   const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
+  const classifiedPosts = useMemo(() => classifiedPostsData?.posts?.results ?? [], [classifiedPostsData]);
 
   useHydrateModerationPostCache(posts);
+  useHydrateModerationPostCache(classifiedPosts);
 
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;
   }
 
-  if ((usersLoading && !usersData) || (postsLoading && !postsData)) {
+  if ((usersLoading && !usersData) || (postsLoading && !postsData) || (classifiedPostsLoading && !classifiedPostsData)) {
     return (
       <div className={classes.loading}>
         <Loading />
@@ -411,6 +455,7 @@ const ModerationInbox = () => {
   return <ModerationInboxInner
     users={users}
     posts={posts}
+    classifiedPosts={classifiedPosts}
     initialOpenedUserId={initialOpenedUserId}
     currentUser={currentUser}
   />;

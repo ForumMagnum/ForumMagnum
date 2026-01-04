@@ -1,11 +1,24 @@
-import { loadByIds } from '@/lib/loaders';
+import { getWithLoader, loadByIds } from '@/lib/loaders';
 import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
 import keyBy from 'lodash/keyBy';
 import { getSequenceCollectionBooks, SequencePostId } from './helpers';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 
+
+export const getChaptersInSequence = (sequenceId: string, context: ResolverContext) => {
+  return getWithLoader(
+    context,
+    context.Chapters,
+    "sequenceChapters",
+    { sequenceId: sequenceId },
+    "sequenceId",
+    sequenceId,
+    { sort: { number: 1 } }
+  );
+}
 
 export const sequenceGetAllPostIDs = async (sequenceId: string, context: ResolverContext): Promise<Array<string>> => {
-  const chapters = await context.Chapters.find({ sequenceId: sequenceId }, { sort: { number: 1 } }).fetch();
+  const chapters = await getChaptersInSequence(sequenceId, context);
   let allPostIds = chapters.flatMap(chapter => chapter.postIds);
 
   // Filter out nulls
@@ -24,7 +37,7 @@ export const sequenceGetAllPosts = async (sequenceId: string | null, context: Re
   const allPostIds = await sequenceGetAllPostIDs(sequenceId, context);
 
   // Retrieve those posts
-  const posts = await context.Posts.find({ _id: { $in: allPostIds } }).fetch();
+  const posts = filterNonnull(await loadByIds(context, "Posts", allPostIds));
 
   // Sort the posts retrieved back into reading order and return them
   const postsById = keyBy(posts, post => post._id);

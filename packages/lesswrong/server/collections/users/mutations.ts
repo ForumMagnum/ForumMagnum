@@ -8,6 +8,7 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { validateAndStoreMailgunValidation } from "@/server/mailgun/mailgunValidations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -84,6 +85,15 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
     newDoc: documentWithId,
     props: asyncProperties,
   });
+
+  if (documentWithId.email) {
+    backgroundTask(
+      validateAndStoreMailgunValidation({
+        email: documentWithId.email,
+        sourceUserId: documentWithId._id,
+      }),
+    );
+  }
 
   return documentWithId;
 }

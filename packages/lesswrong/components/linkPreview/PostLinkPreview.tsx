@@ -22,6 +22,9 @@ import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import { linkStyles } from './linkStyles';
 import LWTooltip from '../common/LWTooltip';
 import ConversationPreview from '../messaging/ConversationPreview';
+import type { LinkPreviewComponent } from './parseRouteWithErrors';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 
 const SequencesPageFragmentQuery = gql(`
@@ -75,8 +78,9 @@ function logMissingLinkPreview(message: string) {
   }
 }
 
-export const PostLinkPreview = ({href, targetLocation, id, className, children}: {
+export const PostLinkPreview = ({href, originalHref, targetLocation, id, className, children}: {
   href: string,
+  originalHref: string,
   targetLocation: RouterLocation,
   id: string,
   className?: string,
@@ -102,14 +106,16 @@ export const PostLinkPreview = ({href, targetLocation, id, className, children}:
     post={post||null}
     targetLocation={targetLocation}
     error={error}
-    href={href} id={id} className={className}
+    href={href} originalHref={originalHref}
+    id={id} className={className}
   >
     {children}
   </PostLinkPreviewVariantCheck>
 }
 
-export const PostLinkPreviewSequencePost = ({href, targetLocation, id, className, children}: {
+export const PostLinkPreviewSequencePost: LinkPreviewComponent = ({href, originalHref, targetLocation, id, className, children}: {
   href: string,
+  originalHref: string,
   targetLocation: RouterLocation,
   id: string,
   className?: string,
@@ -128,13 +134,14 @@ export const PostLinkPreviewSequencePost = ({href, targetLocation, id, className
     logMissingLinkPreview(`Link preview: No post found with ID ${postID}, error: ${error}`);
   }
 
-  return <PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} id={id} className={className}>
+  return <PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} originalHref={originalHref} id={id} className={className}>
     {children}
   </PostLinkPreviewVariantCheck>
 }
 
-export const PostLinkPreviewSlug = ({href, targetLocation, id, className, children}: {
+export const PostLinkPreviewSlug: LinkPreviewComponent = ({href, originalHref, targetLocation, id, className, children}: {
   href: string,
+  originalHref: string,
   targetLocation: RouterLocation,
   id: string,
   className?: string,
@@ -143,13 +150,14 @@ export const PostLinkPreviewSlug = ({href, targetLocation, id, className, childr
   const slug = targetLocation.params.slug;
   const { post, error } = usePostBySlug({ slug, ssr: false });
 
-  return <PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
+  return <PostLinkPreviewVariantCheck href={href} originalHref={originalHref} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
     {children}
   </PostLinkPreviewVariantCheck>
 }
 
-export const PostLinkPreviewLegacy = ({href, targetLocation, id, className, children}: {
+export const PostLinkPreviewLegacy: LinkPreviewComponent = ({href, originalHref, targetLocation, id, className, children}: {
   href: string,
+  originalHref: string,
   targetLocation: RouterLocation,
   id: string,
   className?: string,
@@ -158,12 +166,12 @@ export const PostLinkPreviewLegacy = ({href, targetLocation, id, className, chil
   const legacyId = targetLocation.params.id;
   const { post, error } = usePostByLegacyId({ legacyId, ssr: false });
 
-  return <PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
+  return <PostLinkPreviewVariantCheck href={href} originalHref={originalHref} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
     {children}
   </PostLinkPreviewVariantCheck>
 }
 
-export const CommentLinkPreviewLegacy = ({href, targetLocation, id, className, children}: {
+export const CommentLinkPreviewLegacy: LinkPreviewComponent = ({href, targetLocation, id, className, children}: {
   href: string,
   targetLocation: RouterLocation,
   id: string,
@@ -187,7 +195,7 @@ export const CommentLinkPreviewLegacy = ({href, targetLocation, id, className, c
   </PostLinkPreviewWithPost>
 }
 
-export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, className, children}: {
+export const PostCommentLinkPreviewGreaterWrong: LinkPreviewComponent = ({href, targetLocation, id, className, children}: {
   href: string,
   targetLocation: RouterLocation,
   id: string,
@@ -212,8 +220,9 @@ export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, cl
   </PostLinkCommentPreview>
 }
 
-const PostLinkPreviewVariantCheck = ({ href, post, targetLocation, comment, commentId, error, id, className, children}: {
+const PostLinkPreviewVariantCheck = ({ href, originalHref, post, targetLocation, comment, commentId, error, id, className, children}: {
   href: string,
+  originalHref: string,
   post: PostsList|null,
   targetLocation: RouterLocation,
   comment?: any,
@@ -223,7 +232,22 @@ const PostLinkPreviewVariantCheck = ({ href, post, targetLocation, comment, comm
   className?: string,
   children: ReactNode,
 }) => {
-  if (targetLocation.query.commentId) {
+  // If the link is to a ?commentId= or #commentId URL, the preview should show
+  // the comment that's been linked to. _But_, if a link is to a hash, then
+  // `targetLocation` will be a merged URL, which may inherit a commentId query
+  // from the page you're already on. Ie, if you're on /posts/postId/slug?commentId=1234
+  // and you hover over a link to "#Section_3", then targetLocation will be
+  // /posts/postId/slug?commentId=1234#Section_3 but the link should not be
+  // previewed link a comment permalink.
+  //
+  // To distinguish these, we check for ?commentId in originalHref (the link as
+  // it was before any parsing, relative-path resolution etc was done), rather
+  // than in href.
+  const URLClass = getUrlClass()
+  const originalUrlSiteRelative = new URLClass(originalHref, getSiteUrl());
+  const commentIdQuery = originalUrlSiteRelative.searchParams.get('commentId');
+
+  if (commentIdQuery) {
     return <PostLinkCommentPreview commentId={targetLocation.query.commentId} href={href} post={post} id={id} className={className}>
       {children}
     </PostLinkCommentPreview>
@@ -342,7 +366,7 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, className, chil
   );
 }
 
-export const SequencePreview = ({targetLocation, href, className, children}: {
+export const SequencePreview: LinkPreviewComponent = ({targetLocation, href, className, children}: {
   targetLocation: RouterLocation,
   href: string,
   className?: string,

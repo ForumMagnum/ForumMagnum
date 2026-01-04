@@ -29,6 +29,7 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
 import { getWithLoader, loadByIds } from "@/lib/loaders";
@@ -4175,6 +4176,44 @@ const schema = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
         return getRecentKarmaInfo(user._id, context);
+      },
+    },
+  },
+  mailgunValidation: {
+    graphql: {
+      outputType: "MailgunValidationResult",
+      canRead: ["admins"],
+      resolver: async (user: DbUser, _args: unknown, context: ResolverContext) => {
+        const { currentUser } = context;
+        if (!currentUser || !userIsAdmin(currentUser)) return null;
+
+        const email = user.email?.trim().toLowerCase();
+        if (!email) return null;
+
+        const db = getSqlClientOrThrow();
+        return db.oneOrNone(
+          `
+            -- Users.mailgunValidation
+            SELECT
+              mv.email,
+              mv.status,
+              mv."validatedAt",
+              mv."httpStatus",
+              mv.error,
+              mv."isValid",
+              mv.risk,
+              mv.reason,
+              mv."didYouMean",
+              mv."isDisposableAddress",
+              mv."isRoleAddress",
+              mv."sourceUserId"
+            FROM "MailgunValidations" mv
+            WHERE lower(mv.email) = $1
+            ORDER BY mv."validatedAt" DESC
+            LIMIT 1
+          `,
+          [email],
+        );
       },
     },
   },

@@ -3,7 +3,7 @@ import PostEmbeddings from '../collections/postEmbeddings/collection';
 import { frontpageClassifierModel, type FrontpageClassifierModel } from '../../lib/frontpageClassifier/model';
 import { getSqlClientOrThrow } from '../sql/sqlClient';
 import { postStatuses } from '../../lib/collections/posts/constants';
-import { isLW, requireReviewToFrontpagePostsSetting } from '../../lib/instanceSettings';
+import { adminAccountSetting, isLW } from '../../lib/instanceSettings';
 
 export type ClassifierModel = FrontpageClassifierModel;
 
@@ -171,8 +171,7 @@ export async function maybeAutoFrontpagePost(postId: string, context: ResolverCo
     return;
   }
 
-  const { getAdminTeamAccountId } = await import('../utils/adminTeamAccount');
-  const adminTeamAccountId = await getAdminTeamAccountId(context);
+  const adminTeamAccountId = adminAccountSetting.get()?._id;
   if (!adminTeamAccountId) {
     return;
   }

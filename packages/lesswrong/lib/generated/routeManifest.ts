@@ -33,6 +33,9 @@ export const routeTrie = {
         "debugHeaders": {
           "hasRoute": true
         },
+        "emailSender": {
+          "hasPage": true
+        },
         "llmConversations": {
           "hasPage": true
         },
@@ -71,6 +74,7 @@ export const routeTrie = {
         "commentembeddings": "commentEmbeddings",
         "curation": "curation",
         "debugheaders": "debugHeaders",
+        "emailsender": "emailSender",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
         "moderation": "moderation",
