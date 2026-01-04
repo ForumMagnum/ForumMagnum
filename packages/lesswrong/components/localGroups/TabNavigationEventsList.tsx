@@ -15,6 +15,9 @@ import FormatDate from "../common/FormatDate";
 import EventTime from "./EventTime";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import withErrorBoundary from '../common/withErrorBoundary';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostTabNavigationEventsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -32,7 +35,7 @@ const TODAY_STRING = "[Today]"
 const TOMORROW_STRING = "[Tomorrow]"
 const HIGHLIGHT_LENGTH = 600
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TabNavigationEventsList", (theme: ThemeType) => ({
   eventWrapper: {
     paddingTop: 0,
     paddingBottom: 0,
@@ -110,13 +113,13 @@ const styles = (theme: ThemeType) => ({
   dot: {
     color: theme.palette.grey[500]
   }
-});
+}));
 
-const TabNavigationEventsList = ({ terms, onClick, classes }: {
+const TabNavigationEventsList = ({ terms, onClick }: {
   terms: PostsViewTerms,
   onClick: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { view, limit, ...selectorTerms } = terms;
   const { data } = useQuery(PostsListMultiQuery, {
     variables: {
@@ -139,22 +142,21 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
       <LWTooltip
         key={event._id}
         placement="right-start"
-        title={<EventSidebarTooltip event={event} classes={classes}/>}
+        title={<EventSidebarTooltip event={event}/>}
       >
         <EventComponent
           event={event}
           onClick={onClick}
-          classes={classes}
         />
       </LWTooltip>)}
   </div>
 }
 
-const TabNavigationEventSingleLine = ({event, onClick, classes}: {
+const _TabNavigationEventSingleLine = ({event, onClick}: {
   event: PostsList,
   onClick: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { timezone } = useTimezone();
   const startTime = event.startTime && moment(event.startTime).tz(timezone)
 
@@ -181,13 +183,16 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
       <span>{event.title}</span>
     </TabNavigationSubItem>
   </MenuItemLink>
-}
+};
+const TabNavigationEventSingleLine = registerComponent("TabNavigationEventSingleLine", _TabNavigationEventSingleLine, {
+  hocs: [withErrorBoundary]
+});
 
-const TabNavigationEventTwoLines = ({event, onClick, classes}: {
+const _TabNavigationEventTwoLines = ({event, onClick}: {
   event: PostsList,
   onClick: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const cityName = event.onlineEvent ? "Online" : getCityName(event)
   
   return <MenuItemLink
@@ -207,27 +212,34 @@ const TabNavigationEventTwoLines = ({event, onClick, classes}: {
       </span>
     </TabNavigationSubItem>
   </MenuItemLink>
-}
+};
+const TabNavigationEventTwoLines = registerComponent("TabNavigationEventTwoLines", _TabNavigationEventTwoLines, {
+  hocs: [withErrorBoundary]
+});
 
 export function getCityName(event: PostsBase|PostsList): string|null {
-  if (event.googleLocation) {
-    const locationTypePreferenceOrdering = ["locality", "political", "country"];
-    for (let locationType of locationTypePreferenceOrdering) {
-      for (let addressComponent of event.googleLocation.address_components) {
-        if (addressComponent.types.indexOf(locationType) >= 0)
-          return addressComponent.long_name;
+  try {
+    if (event.googleLocation) {
+      const locationTypePreferenceOrdering = ["locality", "political", "country"];
+      for (let locationType of locationTypePreferenceOrdering) {
+        for (let addressComponent of event.googleLocation.address_components) {
+          if (addressComponent.types.indexOf(locationType) >= 0)
+            return addressComponent.long_name;
+        }
       }
+      return null;
+    } else {
+      return "Online";
     }
+  } catch {
     return null;
-  } else {
-    return "Online";
   }
 }
 
-const EventSidebarTooltip = ({event, classes}: {
+const EventSidebarTooltip = ({event}: {
   event: PostsList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { htmlHighlight = "" } = event.contents || {}
   const highlight = truncate(htmlHighlight, HIGHLIGHT_LENGTH)
   return <div>
@@ -251,6 +263,6 @@ const EventSidebarTooltip = ({event, classes}: {
   </div>
 }
 
-export default registerComponent('TabNavigationEventsList', TabNavigationEventsList, {styles});
+export default TabNavigationEventsList;
 
 

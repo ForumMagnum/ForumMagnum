@@ -1089,11 +1089,13 @@ function sunshineNewUsersPosts(terms: PostsViewTerms) {
 
 function sunshineCuratedSuggestions(terms: PostsViewTerms) {
   const audio = terms.audioOnly ? {podcastEpisodeId: {$exists: true}} : {}
+  const sixtyDaysAgo = new Date(Date.now() - (60 * 24 * 60 * 60 * 1000));
   return {
     selector: {
       ...audio,
       suggestForCuratedUserIds: {$exists:true, $ne: []},
-      reviewForCuratedUserId: {$exists:false}
+      reviewForCuratedUserId: {$exists:false},
+      postedAt: {$gt: sixtyDaysAgo}
     },
     options: {
       sort: {
