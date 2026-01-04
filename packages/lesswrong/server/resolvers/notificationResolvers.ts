@@ -1,5 +1,4 @@
 import { Notifications } from '../../server/collections/notifications/collection';
-import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import { NotificationDisplay } from '../../lib/notificationTypes';
 import type { NotificationCountsResult } from '@/components/hooks/useUnreadNotifications';
 import { isDialogueParticipant } from '../../lib/collections/posts/helpers';
@@ -10,7 +9,7 @@ import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import gql from "graphql-tag"
-import { NotificationsViews } from '@/lib/collections/notifications/views';
+import { defaultNotificationsView, NotificationsViews } from '@/lib/collections/notifications/views';
 
 const {Query: NotificationDisplaysQuery, typeDefs: NotificationDisplaysTypeDefs} = createPaginatedResolver({
   name: "NotificationDisplays",
@@ -102,8 +101,12 @@ export const notificationResolversGqlQueries = {
       }
     }
 
+    // Combine a user filter with the default notifications view. We call the
+    // default-view function directly rather than going through
+    // `getDefaultViewSelector` because views may require a ResolverContext,
+    // and we are relying on the fact that this particular view doesn't.
     const selector = {
-      ...getDefaultViewSelector(NotificationsViews),
+      ...defaultNotificationsView({view: "default"}).selector,
       userId: currentUser._id,
     };
     const lastNotificationsCheck = currentUser.lastNotificationsCheck;

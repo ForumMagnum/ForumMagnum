@@ -286,7 +286,7 @@ export const postGqlQueries = {
   },
   async HomepageCommunityEventPosts(root: void, { eventType }: { eventType: string }, context: ResolverContext) {
     const { Posts, currentUser } = context
-    const defaultPostSelector = getDefaultViewSelector(PostsViews)
+    const defaultPostSelector = getDefaultViewSelector(PostsViews, context)
 
     const timeRange = 5 * 30 * 24 * 60 * 60 * 1000 // 5 months
     const posts = await Posts.find({
