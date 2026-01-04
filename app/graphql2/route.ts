@@ -127,7 +127,7 @@ async function executeGraphql2Operation({
   return result;
 }
 
-async function* readNdjsonLinesFromRequest(request: NextRequest): AsyncGenerator<string> {
+async function* readJsonArrayStreamLinesFromRequest(request: NextRequest): AsyncGenerator<string> {
   const body = (request as any).body as ReadableStream<Uint8Array> | null | undefined;
   if (!body || typeof (body as any).getReader !== "function") {
     const text = await request.text();
@@ -167,6 +167,15 @@ async function* readNdjsonLinesFromRequest(request: NextRequest): AsyncGenerator
   }
 }
 
+function parseJsonArrayStreamLine(line: string): any | undefined {
+  const trimmed = line.trim();
+  if (!trimmed) return undefined;
+  if (trimmed === "[" || trimmed === "]" || trimmed === ",") return undefined;
+  const withoutTrailingComma = trimmed.endsWith(",") ? trimmed.slice(0, -1).trim() : trimmed;
+  if (!withoutTrailingComma) return undefined;
+  return JSON.parse(withoutTrailingComma);
+}
+
 async function graphql2Handler(request: NextRequest, { onComplete }: { onComplete?: (error?: unknown) => void } = {}) {
   const context = await getContextFromReqAndRes({ req: request, isSSR: false });
   const Sentry = getSentry();
@@ -184,15 +193,30 @@ async function graphql2Handler(request: NextRequest, { onComplete }: { onComplet
       let nextIndex = 0;
       let inFlight = 0;
       let requestDone = false;
+      let wroteOpenBracket = false;
+      let wroteAnyItem = false;
 
       const enqueueLine = (obj: unknown) => {
         if (cancelled) return;
+        if (!wroteOpenBracket) {
+          controller.enqueue(encoder.encode("[\n"));
+          wroteOpenBracket = true;
+        }
+        if (wroteAnyItem) {
+          controller.enqueue(encoder.encode(",\n"));
+        }
         controller.enqueue(encoder.encode(JSON.stringify(obj) + "\n"));
+        wroteAnyItem = true;
       };
 
       const maybeClose = () => {
         if (cancelled) return;
         if (requestDone && inFlight === 0) {
+          if (!wroteOpenBracket) {
+            controller.enqueue(encoder.encode("[\n"));
+            wroteOpenBracket = true;
+          }
+          controller.enqueue(encoder.encode("]\n"));
           controller.close();
           onComplete?.();
         }
@@ -200,19 +224,24 @@ async function graphql2Handler(request: NextRequest, { onComplete }: { onComplet
 
       void (async () => {
         try {
-          for await (const line of readNdjsonLinesFromRequest(request)) {
+          for await (const line of readJsonArrayStreamLinesFromRequest(request)) {
             if (cancelled) break;
-            const index = nextIndex++;
 
             let op: GraphqlHttpRequestBody;
             try {
-              op = JSON.parse(line) as GraphqlHttpRequestBody;
+              const parsed = parseJsonArrayStreamLine(line);
+              if (!parsed) {
+                continue;
+              }
+              op = parsed as GraphqlHttpRequestBody;
             } catch (error) {
               captureException(error);
+              const index = nextIndex++;
               enqueueLine({ index, result: { errors: [{ message: "Invalid JSON request line" }] } });
               continue;
             }
 
+            const index = nextIndex++;
             inFlight += 1;
             void executeGraphql2Operation({ op, context })
               .then((result) => {

@@ -25,7 +25,7 @@ type RequestEntry = {
   complete: Array<() => void>;
 };
 
-function readLineDelimitedJsonObjects(
+function readJsonArrayStreamObjects(
   response: Response,
   onLine: (obj: any) => void,
 ): Promise<void> {
@@ -34,7 +34,8 @@ function readLineDelimitedJsonObjects(
     return response.text().then((text) => {
       const lines = text.split("\n").filter(Boolean);
       for (const line of lines) {
-        onLine(JSON.parse(line));
+        const parsed = parseJsonArrayStreamLine(line);
+        if (parsed !== undefined) onLine(parsed);
       }
     });
   }
@@ -53,7 +54,8 @@ function readLineDelimitedJsonObjects(
         const line = buffer.slice(0, newlineIndex);
         buffer = buffer.slice(newlineIndex + 1);
         if (line.trim()) {
-          onLine(JSON.parse(line));
+          const parsed = parseJsonArrayStreamLine(line);
+          if (parsed !== undefined) onLine(parsed);
         }
         newlineIndex = buffer.indexOf("\n");
       }
@@ -61,7 +63,8 @@ function readLineDelimitedJsonObjects(
 
     const remaining = buffer.trim();
     if (remaining) {
-      onLine(JSON.parse(remaining));
+      const parsed = parseJsonArrayStreamLine(remaining);
+      if (parsed !== undefined) onLine(parsed);
     }
   };
 
@@ -72,6 +75,15 @@ function readLineDelimitedJsonObjects(
       // ignore
     }
   });
+}
+
+function parseJsonArrayStreamLine(line: string): any | undefined {
+  const trimmed = line.trim();
+  if (!trimmed) return undefined;
+  if (trimmed === "[" || trimmed === "]" || trimmed === ",") return undefined;
+  const withoutTrailingComma = trimmed.endsWith(",") ? trimmed.slice(0, -1).trim() : trimmed;
+  if (!withoutTrailingComma) return undefined;
+  return JSON.parse(withoutTrailingComma);
 }
 
 export declare namespace StreamingBatchGraphql2EndpointHttpLink {
@@ -263,7 +275,7 @@ export class StreamingBatchGraphql2EndpointHttpLink extends ApolloLink {
 
     const httpOptions: any = { ...optsAndBody[0].options };
     httpOptions.headers = { ...(httpOptions.headers ?? {}) };
-    httpOptions.headers["content-type"] = "application/x-ndjson; charset=utf-8";
+    httpOptions.headers["content-type"] = "application/json; charset=utf-8";
 
     if (httpOptions.method === "GET") {
       const error = new Error("graphql2 does not support GET requests");
@@ -271,7 +283,13 @@ export class StreamingBatchGraphql2EndpointHttpLink extends ApolloLink {
       return;
     }
 
-    httpOptions.body = optsAndBody.map(({ body }) => JSON.stringify(body) + "\n").join("");
+    httpOptions.body = [
+      "[\n",
+      ...optsAndBody.flatMap(({ body }, i) =>
+        i === 0 ? [JSON.stringify(body) + "\n"] : [",\n", JSON.stringify(body) + "\n"],
+      ),
+      "]\n",
+    ].join("");
 
     let controller: AbortController | undefined;
     if (!httpOptions.signal && typeof AbortController !== "undefined") {
@@ -302,7 +320,7 @@ export class StreamingBatchGraphql2EndpointHttpLink extends ApolloLink {
       .then((response) => {
         operations.forEach((op) => op.setContext({ response }));
 
-        return readLineDelimitedJsonObjects(response, (obj) => {
+        return readJsonArrayStreamObjects(response, (obj) => {
           const index = obj?.index;
           const rawResult = obj?.result;
           const storeDelta = obj?.storeDelta;
