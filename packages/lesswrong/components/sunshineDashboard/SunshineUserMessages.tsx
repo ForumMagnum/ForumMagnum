@@ -175,8 +175,11 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
     setTemplateQueries({
       templateId: template._id,
       displayName: user.displayName,
-      template: template as any,
-    } as TemplateQueryStrings);
+      template: {
+        _id: template._id,
+        contents: template.contents ? { html: template.contents.html ?? undefined } : null,
+      },
+    });
   };
 
   // insofar as these stay hardcoded (maybe worth creating a "moderationTemplate group-label" on the backend?), I think it's better for them to be names than IDs because it's easier to review and update, and if someone is editing one it's not obvious they should stay in the same groupings anyway.
@@ -194,8 +197,6 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
       'Your Submissions Aren\'t Finding Traction',
     ],
     "Other": [
-      'Make Username Pronounceable',
-      'Your Submissions Aren\'t Finding Traction',
       'Make Username Pronounceable',
       'Formatting / Grammar',
       'Lotsa DMs',

@@ -98,18 +98,3 @@ const ModerationUserBioColumn = ({
 };
 
 export default ModerationUserBioColumn;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

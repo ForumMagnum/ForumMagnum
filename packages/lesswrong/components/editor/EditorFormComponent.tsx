@@ -160,7 +160,7 @@ function InnerEditorFormComponent<S, R>({
     if (externalEditorRef) {
       externalEditorRef.current = editorRef.current;
     }
-  });
+  }, [externalEditorRef]);
   const { captureEvent } = useTracking()
 
   const localStorageIdGenerator = getLocalStorageId ?? getDefaultLocalStorageIdGenerator(collectionName);

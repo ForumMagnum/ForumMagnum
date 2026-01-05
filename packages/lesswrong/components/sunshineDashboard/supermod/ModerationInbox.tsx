@@ -9,16 +9,11 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
 import ModerationDetailView from './ModerationDetailView';
-import ModerationSidebar from './ModerationSidebar';
-import ModerationFullWidthHeader from './ModerationUserInfoColumn';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
-import ModerationPostSidebar from './ModerationPostSidebar';
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
-import ModerationUndoHistory from './ModerationUndoHistory';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
-import classNames from 'classnames';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type ReviewGroup } from './groupings';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import type { TabInfo } from './ModerationTabs';
@@ -315,15 +310,6 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
           dispatch={dispatch}
         />
       )}
-      {/* {openedUser && (
-        <ModerationFullWidthHeader
-          user={openedUser}
-          posts={userPosts}
-          comments={userComments}
-          currentUser={currentUser}
-          dispatch={dispatch}
-        />
-      )} */}
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
