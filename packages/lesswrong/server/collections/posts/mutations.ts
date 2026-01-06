@@ -39,10 +39,9 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
 
   await postsUndraftRateLimit(document, previewDocument, user, context);
 
-  // Prevent users from editing or re-drafting rejected posts to hide them
-  // Also, if the user doesn't have posting permissions, don't let them edit posts at all
+  // If the user doesn't have posting permissions, don't let them edit posts at all
   // This prevents them from publishing previously-made draft posts, etc.
-  if ((userOwns(user, document) && document.rejected) || !userCanPost(user)) {
+  if (!userCanPost(user)) {
     return false;
   }
 
