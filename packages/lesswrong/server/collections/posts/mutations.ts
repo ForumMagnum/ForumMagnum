@@ -45,11 +45,11 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
     return false;
   }
 
-  // For rejected posts owned by the user:
-  // - If the post is not yet a draft, only allow if they're redrafting (setting draft=true)
-  // - If the post is already a draft (previously redrafted), allow any edits for revision
-  if (userOwns(user, document) && document.rejected && !document.draft) {
-    if (!previewDocument.draft) {
+  // For rejected posts owned by the user, only allow redrafting (setting draft=true)
+  // Once redrafted, prevent further edits to hide the rejected content
+  if (userOwns(user, document) && document.rejected) {
+    const isRedrafting = !document.draft && previewDocument.draft;
+    if (!isRedrafting) {
       return false;
     }
   }
