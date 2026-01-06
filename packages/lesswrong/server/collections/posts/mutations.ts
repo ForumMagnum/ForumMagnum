@@ -34,27 +34,6 @@ async function newCheck(user: DbUser | null, document: CreatePostDataInput | nul
   return userCanPost(user)
 };
 
-/**
- * Check if only the draft field changed between two post documents.
- * Used to ensure rejected post redrafting doesn't bundle other edits.
- */
-function onlyDraftFieldChanged(oldDoc: DbPost, newDoc: DbPost): boolean {
-  const allKeys = new Set([...Object.keys(oldDoc), ...Object.keys(newDoc)]);
-  
-  for (const key of allKeys) {
-    if (key === 'draft') continue;
-    
-    const oldVal = oldDoc[key as keyof DbPost];
-    const newVal = newDoc[key as keyof DbPost];
-    
-    if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
-      return false;
-    }
-  }
-  
-  return true;
-}
-
 async function editCheck(user: DbUser|null, document: DbPost|null, context: ResolverContext, previewDocument: DbPost) {
   if (!user || !document) return false;
 
@@ -66,12 +45,13 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
     return false;
   }
 
-  // For rejected posts owned by the user, only allow redrafting (setting draft=true)
-  // with no other changes. Once redrafted, prevent further edits.
+  // For rejected posts owned by the user, allow redrafting.
+  // Technically this lets someone edit the contents if they do it in the same operation,
+  // but that's more annoying to prevent and I don't expect too many cases of that.
+  // (Also it only matters when doing moderation.)
   if (userOwns(user, document) && document.rejected) {
     const isRedrafting = !document.draft && previewDocument.draft;
-    const noOtherChanges = onlyDraftFieldChanged(document, previewDocument);
-    if (!isRedrafting || !noOtherChanges) {
+    if (!isRedrafting) {
       return false;
     }
   }
