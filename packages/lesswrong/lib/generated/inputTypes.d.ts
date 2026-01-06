@@ -3554,6 +3554,7 @@ interface Message {
   userId: string | null;
   user: User | null;
   conversationId: string | null;
+  targetUserId: string | null;
   conversation: Conversation | null;
   noEmail: boolean | null;
   currentUserVote: string | null;
@@ -8440,7 +8441,8 @@ interface CreateMessageDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
   userId?: string | null;
-  conversationId: string;
+  conversationId?: string | null;
+  targetUserId?: string | null;
   noEmail?: boolean | null;
 }
 

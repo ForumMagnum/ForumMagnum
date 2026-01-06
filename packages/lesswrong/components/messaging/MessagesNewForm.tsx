@@ -123,6 +123,7 @@ const InnerMessagesNewForm = ({
   prefilledProps,
   templateQueries,
   conversationId,
+  targetUserId,
   onSuccess,
 }: {
   isMinimalist: boolean;
@@ -139,6 +140,7 @@ const InnerMessagesNewForm = ({
   };
   templateQueries?: TemplateQueryStrings;
   conversationId: string;
+  targetUserId?: string;
   onSuccess: (doc: messageListFragment) => void;
 }) => {
   const classes = useStyles(styles);
@@ -165,6 +167,7 @@ const InnerMessagesNewForm = ({
   const form = useForm({
     defaultValues: {
       ...prefilledProps,
+      ...(targetUserId && { targetUserId }),
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -266,6 +269,7 @@ export const MessagesNewForm = ({
   submitLabel,
   sendEmail = true,
   formStyle="default",
+  targetUserId,
 }: {
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
@@ -273,6 +277,7 @@ export const MessagesNewForm = ({
   submitLabel?: string,
   sendEmail?: boolean;
   formStyle?: FormDisplayMode;
+  targetUserId?: string;
 }) => {
   const classes = useStyles(styles);
   
@@ -310,6 +315,7 @@ export const MessagesNewForm = ({
         }}
         templateQueries={templateQueries}
         conversationId={conversationId}
+        targetUserId={targetUserId}
         onSuccess={(newMessage) => successEvent(newMessage)}
       />
     </div>

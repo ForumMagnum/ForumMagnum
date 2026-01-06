@@ -245,7 +245,7 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
               <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
               <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
                 <ForumIcon icon="Link" className={classes.linkIcon} />
-              </Link>
+              </Link> 
             </div>
           </LWTooltip>
         </div>
@@ -255,9 +255,14 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
       <MessagesNewForm 
         conversationId={embeddedConversationId ?? ''} 
         templateQueries={templateQueries}
-        successEvent={() => {
+        targetUserId={!embeddedConversationId ? user._id : undefined}
+        successEvent={(newMessage) => {
+          const conversationId = newMessage.conversationId || embeddedConversationId;
+          if (!embeddedConversationId && conversationId) {
+            setEmbeddedConversationId(conversationId);
+          }
           captureEvent('messageSent', {
-            conversationId: embeddedConversationId,
+            conversationId: conversationId,
             sender: currentUser._id,
             moderatorConveration: true
           })

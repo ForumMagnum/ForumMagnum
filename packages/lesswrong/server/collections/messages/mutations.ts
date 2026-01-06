@@ -8,11 +8,22 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { createConversation } from "@/server/collections/conversations/mutations";
+import { isAF } from "@/lib/instanceSettings";
 import gql from "graphql-tag";
 
-async function newCheck(user: DbUser | null, document: DbMessage | null, context: ResolverContext) {
+async function newCheck(user: DbUser | null, document: CreateMessageDataInput | null, context: ResolverContext) {
   const { Conversations } = context;
   if (!user || !document) return false;
+  
+  // If conversationId is empty and targetUserId is provided, we'll create the conversation in createMessage
+  // Allow the mutation to proceed - permissions will be checked when the conversation is created
+  if ((!document.conversationId || document.conversationId === '') && document.targetUserId) {
+    return userCanDo(user, 'messages.new.all');
+  }
+  
+  if (!document.conversationId) return false;
+  
   const conversation = await Conversations.findOne({_id: document.conversationId})
   return conversation && conversation.participantIds.includes(user._id)
     ? userCanDo(user, 'messages.new.own')
@@ -30,6 +41,21 @@ async function editCheck(user: DbUser | null, document: DbMessage | null, contex
 
 export async function createMessage({ data }: CreateMessageInput, context: ResolverContext) {
   const { currentUser } = context;
+  if (!currentUser) {
+    throw new Error("Must be logged in to create a message");
+  }
+
+  // If conversationId is empty and targetUserId is provided, create a new moderator conversation
+  if ((!data.conversationId || data.conversationId === '') && data.targetUserId) {
+    const afField = isAF() ? { af: true } : {};
+    const conversationData = {
+      ...afField,
+      moderator: true,
+      participantIds: [currentUser._id, data.targetUserId],
+    };
+    const conversation = await createConversation({ data: conversationData }, context);
+    data.conversationId = conversation._id;
+  }
 
   const callbackProps = await getLegacyCreateCallbackProps('Messages', {
     context,
