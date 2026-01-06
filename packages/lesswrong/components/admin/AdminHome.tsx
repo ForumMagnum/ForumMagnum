@@ -79,6 +79,7 @@ const AdminHome = ({ classes }: {
         {hasForumEvents() &&
           <li><Link className={classes.link} to="/adminForumEvents">Forum events</Link></li>
         }
+        <li><Link className={classes.link} to="/admin/emailSender">Email Sender</Link></li>
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>
         <li><Link className={classes.link} to="/admin/synonyms">Search Synonyms</Link></li>

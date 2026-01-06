@@ -84,7 +84,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   let documentWithId = afterCreateProperties.document;
 
   invalidatePostOnCommentCreate(documentWithId, context);
-  documentWithId = await updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties);  
+  backgroundTask(updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties));
 
   documentWithId = await updateRevisionsDocumentIds({
     newDoc: documentWithId,
@@ -167,7 +167,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   let updatedDocument = await updateAndReturnDocument(data, Comments, commentSelector, context);
 
   invalidatePostOnCommentUpdate(updatedDocument, context);
-  updatedDocument = await updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties);  
+  backgroundTask(updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties));
 
   updatedDocument = await notifyUsersOfNewPingbackMentions({
     newDoc: updatedDocument,

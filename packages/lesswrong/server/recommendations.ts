@@ -135,11 +135,11 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
 
 // A filter (mongodb selector) for which posts should be considered at all as
 // recommendations.
-const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => {
+const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, resolverContext: ResolverContext) => {
   let recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
-    ...getDefaultViewSelector(PostsViews),
+    ...getDefaultViewSelector(PostsViews, resolverContext),
 
     // Only consider recommending posts if they hit the minimum base score. This has a big
     // effect on the size of the recommendable-post set, which needs to not be
@@ -169,7 +169,7 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => 
       $or: [
         recommendationFilter,
         {
-          ...getDefaultViewSelector(PostsViews), // Ensure drafts are still excluded
+          ...getDefaultViewSelector(PostsViews, resolverContext), // Ensure drafts are still excluded
           defaultRecommendation: true,
         },
       ],
@@ -181,9 +181,10 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => 
 // scoreRelevantFields included (but other fields projected away). If
 // onlyUnread is true and currentUser is nonnull, posts that the user has
 // already read are filtered out.
-const allRecommendablePosts = async ({currentUser, algorithm}: {
+const allRecommendablePosts = async ({currentUser, algorithm, resolverContext}: {
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
+  resolverContext: ResolverContext,
 }): Promise<Array<DbPost>> => {
   if (!(Posts instanceof PgCollection)) {
     throw new Error("Posts is not a Postgres collection");
@@ -199,7 +200,7 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
         {},
         {joinHook},
       ),
-      recommendablePostFilter(algorithm),
+      recommendablePostFilter(algorithm, resolverContext),
     ),
     {},
     {projection: scoreRelevantFields},
@@ -216,13 +217,14 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
 //   scoreFn: Function which takes a post (with at least scoreRelevantFields
 //     included), and returns a number. The posts with the highest scoreFn
 //     return value will be the ones returned.
-const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
+const topPosts = async ({count, currentUser, algorithm, scoreFn, resolverContext}: {
   count: number,
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
   scoreFn: (post: DbPost) => number,
+  resolverContext: ResolverContext,
 }) => {
-  const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
+  const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm, resolverContext});
 
   const defaultRecommendations = algorithm.excludeDefaultRecommendations ? [] : recommendablePostsMetadata.filter(p=> !!p.defaultRecommendation)
 
@@ -250,13 +252,14 @@ const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
 //   sampleWeightFn: Function which takes a post (with at least
 //     scoreRelevantFields included), and returns a number. Higher numbers are
 //     more likely to be recommended.
-const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}: {
+const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn, resolverContext}: {
   count: number,
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
   sampleWeightFn: (post: DbPost) => number,
+  resolverContext: ResolverContext,
 }) => {
-  const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
+  const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm, resolverContext});
 
   const numPostsToReturn = Math.max(0, Math.min(recommendablePostsMetadata.length, count))
 
@@ -280,10 +283,11 @@ const getModifierName = (post: DbPost) => {
   return 'personalBlogpostModifier'
 }
 
-const getRecommendedPosts = async ({count, algorithm, currentUser}: {
+const getRecommendedPosts = async ({count, algorithm, currentUser, resolverContext}: {
   count: number,
   algorithm: DefaultRecommendationsAlgorithm,
   currentUser: DbUser|null
+  resolverContext: ResolverContext
 }) => {
   const scoreFn = (post: DbPost) => {
     const sectionModifier = algorithm[getModifierName(post)]||0;
@@ -296,13 +300,14 @@ const getRecommendedPosts = async ({count, algorithm, currentUser}: {
     case "top": {
       return await topPosts({
         count, currentUser, algorithm,
-        scoreFn
+        scoreFn, resolverContext
       });
     }
     case "sample": {
       return await samplePosts({
         count, currentUser, algorithm,
         sampleWeightFn: scoreFn,
+        resolverContext,
       });
     }
     default: {
@@ -385,7 +390,7 @@ export const graphqlQueries = {
         );
       }
 
-      const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
+      const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser, resolverContext: context})
       const accessFilteredPosts = await accessFilterMultiple(currentUser, 'Posts', recommendedPosts, context);
       if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console

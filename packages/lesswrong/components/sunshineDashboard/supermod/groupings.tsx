@@ -129,7 +129,7 @@ export function getTabsInPriorityOrder(): ReviewGroup[] {
   return ['newContent', 'highContext', 'maybeSpam', 'automod', 'snoozeExpired', 'unknown'];
 }
 
-export function getReviewGroupDisplayName(group: ReviewGroup | 'all' | 'posts'): string {
+export function getReviewGroupDisplayName(group: ReviewGroup | 'all' | 'posts' | 'classifiedPosts'): string {
   switch (group) {
     case 'newContent':
       return 'New Content';
@@ -147,6 +147,8 @@ export function getReviewGroupDisplayName(group: ReviewGroup | 'all' | 'posts'):
       return 'All';
     case 'posts':
       return 'Posts';
+    case 'classifiedPosts':
+      return 'Auto-Classified';
   }
 }
 

@@ -160,6 +160,13 @@ const TabPicker = <T extends TabRecord[]>(
 ) => {
   const [activeTab, setActiveTab] = useState<T[number]['name']>(defaultTab ?? sortedTabs[0].name);
 
+  // Sync activeTab with defaultTab when the prop changes (e.g., from parent state updates)
+  useEffect(() => {
+    if (defaultTab !== undefined && defaultTab !== activeTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab, activeTab]);
+
   // we use the widths of the tab list container when calculating how far to scroll left and right
   const tabsListRef = useRef<HTMLDivElement | null>(null);
 

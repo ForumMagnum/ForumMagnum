@@ -1,6 +1,7 @@
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
+import { getWithLoader } from '@/lib/loaders';
 
 export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
 
@@ -24,19 +25,28 @@ export const getCollectionOrSequenceUrl = function (sequence: SequencesPageTitle
   return `${prefix}/${sequence.canonicalCollectionSlug}#${sequence._id}`
 }
 
+export const getCollectionBySlug = async (slug: string, context: ResolverContext) => {
+  const { Collections } = context;
+  const result = await getWithLoader(
+    context, Collections, "collectionBySlug",
+    {},
+    "slug", slug
+  );
+  return result[0] ?? null;
+}
+
 export const getSequenceCollectionBooks = async function(sequenceId: string, context: ResolverContext) {
-  const { Sequences, Books, Collections } = context;
-  const sequence = await Sequences.findOne({ _id: sequenceId });
+  const sequence = await context.loaders.Sequences.load(sequenceId);
   if (!sequence?.canonicalCollectionSlug) return;
 
   const { canonicalCollectionSlug } = sequence;
 
-  const collection = await Collections.findOne({ slug: canonicalCollectionSlug });
+  const collection = await getCollectionBySlug(canonicalCollectionSlug, context);
   if (!collection) return;
 
   const { _id: collectionId } = collection;
 
-  return Books.find({ collectionId }, { sort: { number: 1 } }).fetch();
+  return context.Books.find({ collectionId }, { sort: { number: 1 } }).fetch();
 }
 
 export const sequenceRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {

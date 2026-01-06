@@ -2,6 +2,12 @@ import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import SunshineUserMessages from '../SunshineUserMessages';
 import { useCurrentUser } from '@/components/common/withUser';
+import ModeratorNotes from './ModeratorNotes';
+import SupermodModeratorActionItem from './SupermodModeratorActionItem';
+import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
+import type { InboxAction } from './inboxReducer';
+import UserRateLimitItem from '../UserRateLimitItem';
+import classNames from 'classnames';
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
@@ -34,15 +40,31 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   userMessages: {
     overflow: 'auto',
   },
+  userModActions: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 8,
+  },
+  modActionItem: {
+    flexShrink: 0,
+  },
+  noBottomMargin: {
+    marginBottom: 0,
+  },
 }));
 
 const ModerationSidebar = ({
   user,
+  currentUser: currentUserProp,
+  dispatch,
 }: {
   user: SunshineUsersList;
+  currentUser?: UsersCurrent;
+  dispatch?: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
+  const currentUserFromHook = useCurrentUser();
+  const currentUser = currentUserProp ?? currentUserFromHook;
   if (!currentUser) {
     return null;
   }
@@ -59,6 +81,30 @@ const ModerationSidebar = ({
 
   return (
     <div className={classes.root}>
+      <div className={classes.section}>
+        <ModeratorNotes user={user} currentUser={currentUser} />
+      </div>
+
+      {dispatch && (
+        <div className={classes.section}>
+          <div className={classes.sectionTitle}>Outstanding Moderator Actions</div>
+          <div className={classes.userModActions}>
+            {user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)).map(action => (
+              <div key={action._id} className={classes.modActionItem}>
+                <SupermodModeratorActionItem user={user} moderatorAction={action} dispatch={dispatch} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className={classes.section}>
+        <div className={classNames(classes.sectionTitle, classes.noBottomMargin)}>Rate Limits</div>
+        <div className={classes.userModActions}>
+          <UserRateLimitItem user={user} />
+        </div>
+      </div>
+
       <div className={classes.section}>
         <div className={classes.sectionTitle}>User Messages</div>
         <div className={classes.userMessages}>

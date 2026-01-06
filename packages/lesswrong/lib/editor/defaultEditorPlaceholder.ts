@@ -8,6 +8,9 @@ export const getDefaultEditorPlaceholder = () => isFriendlyUI() ?
 
 lesswrong.com/editor covers formatting, draft-sharing, co-authoring, LaTeX, footnotes, tagging users and posts, spoiler tags, Markdown, tables, crossposting, and more.`;
 
+export const getCommentEditorPlaceholder = () => isFriendlyUI() ?
+  `Write a new comment...` :
+  `Text goes here! See lesswrong.com/editor for info about everything the editor can do.`;
 
 export const debateEditorPlaceholder = `Enter your first dialogue comment here, add other participants as co-authors, then save this as a draft.
 

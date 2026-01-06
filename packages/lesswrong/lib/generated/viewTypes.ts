@@ -40,6 +40,7 @@ type LlmConversationsViewName = "llmConversationsAll"|"llmConversationsWithUser"
 type LlmMessagesViewName = never
 type LocalgroupsViewName = "all"|"local"|"nearby"|"online"|"single"|"userActiveGroups"|"userInactiveGroups"|"userOrganizesGroups";
 type LoginTokensViewName = never
+type MailgunValidationsViewName = never
 type ManifoldProbabilitiesCachesViewName = never
 type MessagesViewName = "conversationPreview"|"messagesConversation";
 type MigrationsViewName = never
@@ -57,7 +58,7 @@ type PostRecommendationsViewName = never
 type PostRelationsViewName = "allPostRelations";
 type PostViewTimesViewName = never
 type PostViewsViewName = never
-type PostsViewName = "afRecentDiscussionThreadsList"|"alignmentSuggestedPosts"|"all_drafts"|"community"|"communityResourcePosts"|"communityRss"|"curated"|"curatedRss"|"currentOpenThread"|"daily"|"drafts"|"events"|"eventsInTimeRange"|"frontpage"|"frontpageReviewWidget"|"frontpageRss"|"globalEvents"|"hasEverDialogued"|"legacyIdPost"|"magic"|"metaRss"|"nearbyEvents"|"new"|"nominatablePostsByVote"|"nominations2018"|"nominations2019"|"nonEventGroupPosts"|"old"|"pastEvents"|"pingbackPosts"|"postsWithBannedUsers"|"recentComments"|"recentDiscussionThreadsList"|"recentQuestionActivity"|"rejected"|"reviewFinalVoting"|"reviewQuickPage"|"reviewRecentDiscussionThreadsList2018"|"reviewRecentDiscussionThreadsList2019"|"reviewVoting"|"reviews2018"|"reviews2019"|"rss"|"scheduled"|"slugPost"|"stickied"|"sunshineCuratedSuggestions"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"tagRelevance"|"tbdEvents"|"timeframe"|"top"|"topQuestions"|"unlisted"|"upcomingEvents"|"userAFSubmissions"|"userPosts"|"voting2019";
+type PostsViewName = "afRecentDiscussionThreadsList"|"alignmentSuggestedPosts"|"all_drafts"|"community"|"communityResourcePosts"|"communityRss"|"curated"|"curatedRss"|"currentOpenThread"|"daily"|"drafts"|"events"|"eventsInTimeRange"|"frontpage"|"frontpageReviewWidget"|"frontpageRss"|"globalEvents"|"hasEverDialogued"|"legacyIdPost"|"magic"|"metaRss"|"nearbyEvents"|"new"|"nominatablePostsByVote"|"nominations2018"|"nominations2019"|"nonEventGroupPosts"|"old"|"pastEvents"|"pingbackPosts"|"postsWithBannedUsers"|"recentComments"|"recentDiscussionThreadsList"|"recentQuestionActivity"|"rejected"|"reviewFinalVoting"|"reviewQuickPage"|"reviewRecentDiscussionThreadsList2018"|"reviewRecentDiscussionThreadsList2019"|"reviewVoting"|"reviews2018"|"reviews2019"|"rss"|"scheduled"|"slugPost"|"stickied"|"sunshineAutoClassifiedPosts"|"sunshineCuratedSuggestions"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"tagRelevance"|"tbdEvents"|"timeframe"|"top"|"topQuestions"|"unlisted"|"upcomingEvents"|"userAFSubmissions"|"userPosts"|"voting2019";
 type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
 type RecommendationsCachesViewName = never
@@ -134,6 +135,7 @@ interface ViewTermsByCollectionName {
   LlmMessages: ViewTermsBase
   Localgroups: LocalgroupsViewTerms
   LoginTokens: ViewTermsBase
+  MailgunValidations: ViewTermsBase
   ManifoldProbabilitiesCaches: ViewTermsBase
   Messages: MessagesViewTerms
   Migrations: ViewTermsBase

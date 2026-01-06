@@ -69,6 +69,7 @@ import { elicitQuestionPredictionsGraphQLTypeDefs } from '@/lib/collections/elic
 import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolvers/booksResolvers';
 import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
 import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from '@/server/resolvers/reviewPredictionResolvers';
+import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
 
 // Collection imports
 import { graphqlAdvisorRequestQueryTypeDefs, advisorRequestGqlQueryHandlers, advisorRequestGqlFieldResolvers } from "@/server/collections/advisorRequests/queries";
@@ -323,6 +324,7 @@ export const getTypeDefs = () => gql`
   ${booksResolversTypeDefs}
   ${sequencesResolversTypeDefs}
   ${reviewPredictionGraphQLTypeDefs}
+  ${adminEmailSenderGraphQLTypeDefs}
   ## CRUD Query typedefs
   ${graphqlAdvisorRequestQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
@@ -507,6 +509,7 @@ const getResolvers = () => ({
     ...booksResolversQueries,
     ...sequencesResolversQueries,
     ...reviewPredictionGraphQLQueries,
+    ...adminEmailSenderGraphQLQueries,
 
     // CRUD Query Handlers
     ...advisorRequestGqlQueryHandlers,
@@ -619,6 +622,7 @@ const getResolvers = () => ({
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
+    ...adminEmailSenderGraphQLMutations,
 
     // CRUD Mutation Handlers
     createAdvisorRequest: createAdvisorRequestGqlMutation,

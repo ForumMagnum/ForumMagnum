@@ -78,6 +78,7 @@ import { commentIncludedInCounts } from "../comments/helpers";
 import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { classifyPost } from "@/server/frontpageClassifier/predictions";
+import { getCollectionBySlug } from "../sequences/helpers";
 
 const rsvpType = new SimpleSchema({
   name: {
@@ -2457,7 +2458,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, args, context) => {
         if (!post.canonicalCollectionSlug) return null;
-        const collection = await context.Collections.findOne({ slug: post.canonicalCollectionSlug });
+        const collection = await getCollectionBySlug(post.canonicalCollectionSlug, context);
         return await accessFilterSingle(context.currentUser, "Collections", collection, context);
       },
     },
@@ -3538,7 +3539,7 @@ const schema = {
           Partial<Pick<DbComment, "contents">>;
 
         const comments: CommentForSideComments[] = await Comments.find({
-          ...getDefaultViewSelector(CommentsViews),
+          ...getDefaultViewSelector(CommentsViews, context),
           postId: post._id,
           ...(cacheIsValid && {
             _id: {
@@ -3845,7 +3846,7 @@ const schema = {
         const timeCutoff = new Date(lastCommentedOrNow.getTime() - (maxAgeHours * oneHourInMs));
         const loaderName = af ? "recentCommentsAf" : "recentComments";
         const filter = {
-          ...getDefaultViewSelector(CommentsViews),
+          ...getDefaultViewSelector(CommentsViews, context),
           score: { $gt: 0 },
           draft: false,
           deletedPublic: false,
@@ -4071,7 +4072,7 @@ const schema = {
         const { Comments } = context;
         const firstComment = await Comments.findOne(
           {
-            ...getDefaultViewSelector(CommentsViews),
+            ...getDefaultViewSelector(CommentsViews, context),
             postId: post._id,
             // This actually forces `deleted: false` by combining with the default view selector
             deletedPublic: false,
