@@ -226,6 +226,7 @@
     "jsonwebtoken": "^9.0.0",
     "jss": "^10.10.0",
     "juice": "^7.0.0",
+    "katex": "^0.16.27",
     "keycode": "^2.2.1",
     "lexical": "^0.39.0",
     "linkedom": "^0.16.11",
@@ -296,6 +297,7 @@
     "uuid": "^7.0.0",
     "voyageai": "^0.0.8",
     "warning": "^4.0.3",
+    "y-websocket": "^3.0.0",
     "yjs": "^13.6.24",
     "zod": "^3.25.76",
     "zod-to-json-schema": "^3.23.5"

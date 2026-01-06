@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import {debounce} from 'lodash-es';
+import debounce from 'lodash/debounce';
 import {useMemo, useRef} from 'react';
 
 export function useDebounce<T extends (...args: never[]) => void>(

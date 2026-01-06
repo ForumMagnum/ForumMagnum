@@ -6,7 +6,7 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, {type JSX} from 'react';
 
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
 import {CharacterLimitPlugin} from '@lexical/react/LexicalCharacterLimitPlugin';
@@ -39,7 +39,7 @@ import {
 } from './collaboration';
 import {useSettings} from './context/SettingsContext';
 import {useSharedHistoryContext} from './context/SharedHistoryContext';
-import ActionsPlugin from './plugins/ActionsPlugin';
+// import ActionsPlugin from './plugins/ActionsPlugin';
 import AutocompletePlugin from './plugins/AutocompletePlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
@@ -56,12 +56,12 @@ import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import EmojisPlugin from './plugins/EmojisPlugin';
 import EquationsPlugin from './plugins/EquationsPlugin';
-import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
+// import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
 import FloatingTextFormatToolbarPlugin from './plugins/FloatingTextFormatToolbarPlugin';
 import ImagesPlugin from './plugins/ImagesPlugin';
-import KeywordsPlugin from './plugins/KeywordsPlugin';
+// import KeywordsPlugin from './plugins/KeywordsPlugin';
 import {LayoutPlugin} from './plugins/LayoutPlugin/LayoutPlugin';
 import LinkPlugin from './plugins/LinkPlugin';
 import MarkdownShortcutPlugin from './plugins/MarkdownShortcutPlugin';
@@ -70,7 +70,7 @@ import MentionsPlugin from './plugins/MentionsPlugin';
 import PageBreakPlugin from './plugins/PageBreakPlugin';
 import PollPlugin from './plugins/PollPlugin';
 import ShortcutsPlugin from './plugins/ShortcutsPlugin';
-import SpecialTextPlugin from './plugins/SpecialTextPlugin';
+// import SpecialTextPlugin from './plugins/SpecialTextPlugin';
 import SpeechToTextPlugin from './plugins/SpeechToTextPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
@@ -79,7 +79,7 @@ import TableHoverActionsV2Plugin from './plugins/TableHoverActionsV2Plugin';
 import TableOfContentsPlugin from './plugins/TableOfContentsPlugin';
 import TableScrollShadowPlugin from './plugins/TableScrollShadowPlugin';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
-import TreeViewPlugin from './plugins/TreeViewPlugin';
+// import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import {VersionsPlugin} from './plugins/VersionsPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
@@ -186,7 +186,7 @@ export default function Editor(): JSX.Element {
         <MentionsPlugin />
         <EmojisPlugin />
         <HashtagPlugin />
-        <KeywordsPlugin />
+        {/* <KeywordsPlugin /> */}
         <SpeechToTextPlugin />
         <AutoLinkPlugin />
         <DateTimePlugin />
@@ -227,12 +227,13 @@ export default function Editor(): JSX.Element {
               ErrorBoundary={LexicalErrorBoundary}
             />
             <MarkdownShortcutPlugin />
-            {isCodeHighlighted &&
+            {/* {isCodeHighlighted &&
               (isCodeShiki ? (
                 <CodeHighlightShikiPlugin />
               ) : (
                 <CodeHighlightPrismPlugin />
-              ))}
+              ))} */}
+            <CodeHighlightPrismPlugin />
             <ListPlugin hasStrictIndent={listStrictIndent} />
             <CheckListPlugin />
             <TablePlugin
@@ -252,7 +253,7 @@ export default function Editor(): JSX.Element {
             <ClickableLinkPlugin disabled={isEditable} />
             <HorizontalRulePlugin />
             <EquationsPlugin />
-            <ExcalidrawPlugin />
+            {/* <ExcalidrawPlugin /> */}
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />
             <CollapsiblePlugin />
@@ -301,13 +302,14 @@ export default function Editor(): JSX.Element {
         {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
-        {shouldAllowHighlightingWithBrackets && <SpecialTextPlugin />}
-        <ActionsPlugin
+        {/* {shouldAllowHighlightingWithBrackets && <SpecialTextPlugin />} */}
+        {/* <ActionsPlugin
           shouldPreserveNewLinesInMarkdown={shouldPreserveNewLinesInMarkdown}
           useCollabV2={useCollabV2}
-        />
+        /> */}
       </div>
-      {showTreeView && <TreeViewPlugin />}
+      {/* Plugin for debugging */}
+      {/* {showTreeView && <TreeViewPlugin />} */}
     </>
   );
 }
@@ -327,6 +329,7 @@ function CollabV2({
   }, [doc]);
 
   return (
+    // eslint-disable-next-line react/jsx-pascal-case
     <CollaborationPluginV2__EXPERIMENTAL
       id={id}
       doc={doc}

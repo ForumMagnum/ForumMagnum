@@ -6,18 +6,18 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, {type JSX} from 'react';
 
 import {
   $isCodeNode,
   getCodeLanguageOptions as getCodeLanguageOptionsPrism,
   normalizeCodeLanguage as normalizeCodeLanguagePrism,
 } from '@lexical/code';
-import {
-  getCodeLanguageOptions as getCodeLanguageOptionsShiki,
-  getCodeThemeOptions as getCodeThemeOptionsShiki,
-  normalizeCodeLanguage as normalizeCodeLanguageShiki,
-} from '@lexical/code-shiki';
+// import {
+//   getCodeLanguageOptions as getCodeLanguageOptionsShiki,
+//   getCodeThemeOptions as getCodeThemeOptionsShiki,
+//   normalizeCodeLanguage as normalizeCodeLanguageShiki,
+// } from '@lexical/code-shiki';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {$isListNode, ListNode} from '@lexical/list';
 import {INSERT_EMBED_COMMAND} from '@lexical/react/LexicalAutoEmbedPlugin';
@@ -74,7 +74,6 @@ import {
   useToolbarState,
 } from '../../context/ToolbarContext';
 import useModal from '../../hooks/useModal';
-import catTypingGif from '../../images/cat-typing.gif';
 import {$createStickyNode} from '../../nodes/StickyNode';
 import DropDown, {DropDownItem} from '../../ui/DropDown';
 import DropdownColorPicker from '../../ui/DropdownColorPicker';
@@ -140,51 +139,51 @@ const CODE_LANGUAGE_OPTIONS_PRISM: [string, string][] =
     ].includes(option[0]),
   );
 
-const CODE_LANGUAGE_OPTIONS_SHIKI: [string, string][] =
-  getCodeLanguageOptionsShiki().filter((option) =>
-    [
-      'c',
-      'clike',
-      'cpp',
-      'css',
-      'html',
-      'java',
-      'js',
-      'javascript',
-      'markdown',
-      'objc',
-      'objective-c',
-      'plain',
-      'powershell',
-      'py',
-      'python',
-      'rust',
-      'sql',
-      'typescript',
-      'xml',
-    ].includes(option[0]),
-  );
+// const CODE_LANGUAGE_OPTIONS_SHIKI: [string, string][] =
+//   getCodeLanguageOptionsShiki().filter((option) =>
+//     [
+//       'c',
+//       'clike',
+//       'cpp',
+//       'css',
+//       'html',
+//       'java',
+//       'js',
+//       'javascript',
+//       'markdown',
+//       'objc',
+//       'objective-c',
+//       'plain',
+//       'powershell',
+//       'py',
+//       'python',
+//       'rust',
+//       'sql',
+//       'typescript',
+//       'xml',
+//     ].includes(option[0]),
+//   );
 
-const CODE_THEME_OPTIONS_SHIKI: [string, string][] =
-  getCodeThemeOptionsShiki().filter((option) =>
-    [
-      'catppuccin-latte',
-      'everforest-light',
-      'github-light',
-      'gruvbox-light-medium',
-      'kanagawa-lotus',
-      'dark-plus',
-      'light-plus',
-      'material-theme-lighter',
-      'min-light',
-      'one-light',
-      'rose-pine-dawn',
-      'slack-ochin',
-      'snazzy-light',
-      'solarized-light',
-      'vitesse-light',
-    ].includes(option[0]),
-  );
+// const CODE_THEME_OPTIONS_SHIKI: [string, string][] =
+//   getCodeThemeOptionsShiki().filter((option) =>
+//     [
+//       'catppuccin-latte',
+//       'everforest-light',
+//       'github-light',
+//       'gruvbox-light-medium',
+//       'kanagawa-lotus',
+//       'dark-plus',
+//       'light-plus',
+//       'material-theme-lighter',
+//       'min-light',
+//       'one-light',
+//       'rose-pine-dawn',
+//       'slack-ochin',
+//       'snazzy-light',
+//       'solarized-light',
+//       'vitesse-light',
+//     ].includes(option[0]),
+//   );
 
 const FONT_FAMILY_OPTIONS: [string, string][] = [
   ['Arial', 'Arial'],
@@ -623,9 +622,12 @@ export default function ToolbarPlugin({
           'codeLanguage',
           language
             ? (isCodeHighlighted &&
-                (isCodeShiki
-                  ? normalizeCodeLanguageShiki(language)
-                  : normalizeCodeLanguagePrism(language))) ||
+                // (isCodeShiki
+                //   ? normalizeCodeLanguageShiki(language)
+                //   : normalizeCodeLanguagePrism(language)
+                // )
+                normalizeCodeLanguagePrism(language)
+              ) ||
                 language
             : '',
         );
@@ -984,7 +986,7 @@ export default function ToolbarPlugin({
               })}
             </DropDown>
           )}
-          {isCodeShiki && (
+          {/* {isCodeShiki && (
             <>
               <DropDown
                 disabled={!isEditable}
@@ -1033,7 +1035,7 @@ export default function ToolbarPlugin({
                 })}
               </DropDown>
             </>
-          )}
+          )} */}
         </>
       ) : (
         <>
@@ -1293,17 +1295,6 @@ export default function ToolbarPlugin({
                   className="item">
                   <i className="icon image" />
                   <span className="text">Image</span>
-                </DropDownItem>
-                <DropDownItem
-                  onClick={() =>
-                    insertGifOnClick({
-                      altText: 'Cat typing on a laptop',
-                      src: catTypingGif,
-                    })
-                  }
-                  className="item">
-                  <i className="icon gif" />
-                  <span className="text">GIF</span>
                 </DropDownItem>
                 <DropDownItem
                   onClick={() =>

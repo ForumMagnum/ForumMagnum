@@ -12,6 +12,7 @@ import {
   LexicalCommand,
   TextNode,
   $isTextNode,
+  ElementNode,
 } from 'lexical';
 import { $setBlocksType } from '@lexical/selection';
 import { mergeRegister } from '@lexical/utils';
@@ -180,7 +181,7 @@ export function SpoilersPlugin(): null {
 /**
  * Find the spoiler node that contains this node, if any
  */
-function findSpoilerParent(node: ReturnType<typeof $getSelection extends () => infer R ? R : never> extends { anchor: { getNode: () => infer N } } ? N : never): SpoilerNode | null {
+function findSpoilerParent(node: ElementNode | TextNode): SpoilerNode | null {
   let current = node.getParent();
   while (current) {
     if ($isSpoilerNode(current)) {
