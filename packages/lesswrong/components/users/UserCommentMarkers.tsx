@@ -52,10 +52,8 @@ const UserCommentMarkers = ({
 
   const showAuthorIcon = isFriendlyUI && isPostAuthor;
   const showNewUserIcon = isNewUser(user);
-  const showDonatedIcon = user.givingSeason2025DonatedFlair;
-  const showVotedIcon = user.givingSeason2025VotedFlair;
 
-  if (!showAuthorIcon && !showNewUserIcon && !showDonatedIcon && !showVotedIcon) {
+  if (!showAuthorIcon && !showNewUserIcon) {
     return null;
   }
   return (
@@ -78,6 +76,7 @@ const UserCommentMarkers = ({
           <ForumIcon icon="Sprout" className={classes.sproutIcon} />
         </LWTooltip>
       }
+      {/*
       {showDonatedIcon &&
         <LWTooltip
           placement="bottom-start"
@@ -96,6 +95,7 @@ const UserCommentMarkers = ({
           <ForumIcon icon="Voted" className={classes.votedIcon} />
         </LWTooltip>
       }
+        */}
     </span>
   );
 }

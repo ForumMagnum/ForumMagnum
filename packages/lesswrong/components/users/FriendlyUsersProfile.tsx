@@ -519,6 +519,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
             <DisplayNameWithMarkers name={displayName} />{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
+            {/*
             {user.givingSeason2025DonatedFlair &&
               <LWTooltip
                 placement="bottom-start"
@@ -535,6 +536,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
                 <ForumIcon icon="Voted" className={classes.votedIcon} />
               </LWTooltip>
             }
+              */}
           </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}

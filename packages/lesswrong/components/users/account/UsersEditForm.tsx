@@ -1357,6 +1357,7 @@ const UsersForm = ({
       </LegacyFormGroupLayout>
 
       {showAdminGroup && <LegacyFormGroupLayout label="Admin">
+        {/*
         {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'realAdmins')) && <div className={classes.fieldWrapper}>
           <form.Field name="givingSeason2025DonatedFlair">
             {(field) => (
@@ -1378,6 +1379,7 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>}
+          */}
 
         {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'realAdmins')) && <div className={classes.fieldWrapper}>
           <form.Field name="isAdmin">
