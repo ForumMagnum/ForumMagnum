@@ -3774,6 +3774,19 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_votedAt" ON "Votes" USING btree ("votedAt"
 -- Index "idx_Votes_schemaVersion"
 CREATE INDEX IF NOT EXISTS "idx_Votes_schemaVersion" ON "Votes" USING btree ("schemaVersion");
 
+-- Table "YjsDocuments"
+CREATE TABLE "YjsDocuments" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "documentId" TEXT NOT NULL,
+  "yjsState" BYTEA NOT NULL,
+  "yjsStateVector" BYTEA NOT NULL,
+  "updatedAt" TIMESTAMPTZ NOT NULL
+);
+
+-- Index "idx_YjsDocuments_documentId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_YjsDocuments_documentId" ON "YjsDocuments" USING btree ("documentId");
+
 -- CustomIndex "idx_Comments_postId_promotedAt"
 CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")
 WHERE

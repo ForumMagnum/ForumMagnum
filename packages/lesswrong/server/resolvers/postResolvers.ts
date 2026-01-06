@@ -19,6 +19,8 @@ import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
+import { getCollaborativeEditorAccessWithKey } from '@/lib/collections/posts/collabEditingPermissions';
+import jwt from 'jsonwebtoken';
 
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
@@ -299,6 +301,41 @@ export const postGqlQueries = {
     const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', posts, context)
     return { posts: filteredPosts }  
   },
+  async HocuspocusAuth(root: void, { postId, linkSharingKey }: { postId: string, linkSharingKey: string | null }, context: ResolverContext) {
+    const { currentUser, loaders, clientId } = context
+    
+    const post = await loaders.Posts.load(postId);
+    
+    const accessLevel = await getCollaborativeEditorAccessWithKey({
+      formType: 'edit',
+      post,
+      user: currentUser,
+      context,
+      useAdminPowers: true,
+      linkSharingKey,
+    });
+    
+    if (accessLevel === 'none') {
+      throw new Error('Unauthorized: You do not have access to collaborate on this post');
+    }
+    
+    const token = jwt.sign(
+      {
+        userId: currentUser?._id ?? clientId,
+        displayName: currentUser?.displayName ?? 'Anonymous',
+        postId,
+        accessLevel,
+      },
+      process.env.HOCUSPOCUS_JWT_SECRET!,
+      { expiresIn: '1h' }
+    );
+
+    return {
+      token,
+      wsUrl: process.env.HOCUSPOCUS_URL,
+      documentName: `post-${postId}`,
+    };
+  },
   ...DigestHighlightsQuery,
   ...DigestPostsThisWeekQuery,
   ...CuratedAndPopularThisWeekQuery,
@@ -465,6 +502,7 @@ export const postGqlTypeDefs = gql`
 
     HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
     HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
+    HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
   }
 
   extend type Mutation {
@@ -525,6 +563,11 @@ export const postGqlTypeDefs = gql`
   }
   type HomepageCommunityEventPostsResult {
     posts: [Post!]!
+  }
+  type HocuspocusAuth {
+    token: String!
+    wsUrl: String!
+    documentName: String!
   }
   ${DigestHighlightsTypeDefs}
   ${DigestPostsThisWeekTypeDefs}

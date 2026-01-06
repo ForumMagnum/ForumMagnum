@@ -23,6 +23,7 @@ import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
 import PostVersionHistoryButton from './PostVersionHistory';
 import { gql } from '@/lib/generated/gql-codegen';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import LexicalPostEditor from './LexicalPostEditor';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -123,7 +124,7 @@ const PostCollaborationEditor = ({ classes }: {
       </div>*/}
       <ContentStyles className={classes.editor} contentType="post">
         <DeferRender ssr={false}>
-          <CKPostEditor
+          {/* <CKPostEditor
             documentId={postId}
             collectionName="Posts"
             fieldName="contents"
@@ -133,6 +134,15 @@ const PostCollaborationEditor = ({ classes }: {
             accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
             document={post}
             onReady={()=>{}}
+          /> */}
+          <LexicalPostEditor
+            data={''}
+            placeholder="Start writing..."
+            onChange={() => {}}
+            onReady={() => {}}
+            commentEditor={false}
+            postId={post._id}
+            collaborative
           />
           <PostVersionHistoryButton
             post={post}

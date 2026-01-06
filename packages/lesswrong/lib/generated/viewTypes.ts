@@ -91,6 +91,7 @@ type UserRateLimitsViewName = "activeUserRateLimits"|"userRateLimits";
 type UserTagRelsViewName = "single";
 type UsersViewName = "LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"alignmentSuggestedUsers"|"allUsers"|"recentlyActive"|"reviewAdminUsers"|"sunshineNewUsers"|"tagCommunityMembers"|"usersByUserIds"|"usersMapLocations"|"usersProfile"|"usersTopKarma"|"usersWithBannedUsers"|"usersWithOptedInToDialogueFacilitation"|"usersWithPaymentInfo";
 type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
+type YjsDocumentsViewName = never
 
 interface ViewTermsByCollectionName {
   AdvisorRequests: AdvisorRequestsViewTerms
@@ -186,6 +187,7 @@ interface ViewTermsByCollectionName {
   UserTagRels: UserTagRelsViewTerms
   Users: UsersViewTerms
   Votes: VotesViewTerms
+  YjsDocuments: ViewTermsBase
 }
 
 

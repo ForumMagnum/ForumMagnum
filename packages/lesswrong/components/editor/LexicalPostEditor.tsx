@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useMemo } from 'react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
+import { LexicalCollaboration } from '@lexical/react/LexicalCollaborationContext';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
@@ -24,6 +25,10 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import { $getRoot, $insertNodes, EditorState } from 'lexical';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useCurrentUser } from '../common/withUser';
+import { useClientId } from '../hooks/useClientId';
+import { CollaborationPlugin, CollaborationConfig } from './lexicalPlugins/collaboration/CollaborationPlugin';
+import { useHocuspocusAuth } from './lexicalPlugins/collaboration/useHocuspocusAuth'
 import { FootnotesPlugin, INSERT_FOOTNOTE_COMMAND } from './lexicalPlugins/footnotes/FootnotesPlugin';
 import { FootnoteReferenceNode } from './lexicalPlugins/footnotes/FootnoteReferenceNode';
 import { FootnoteSectionNode } from './lexicalPlugins/footnotes/FootnoteSectionNode';
@@ -641,6 +646,10 @@ interface LexicalPostEditorProps {
   onChange: (html: string) => void;
   onReady?: () => void;
   commentEditor?: boolean;
+  /** Post ID for enabling collaborative editing. If not provided, collaboration is disabled. */
+  postId?: string | null;
+  /** Whether to enable collaborative editing (requires postId) */
+  collaborative?: boolean;
 }
 
 /**
@@ -665,10 +674,44 @@ const LexicalPostEditor = ({
   onChange,
   onReady,
   commentEditor = false,
+  postId = null,
+  collaborative = false,
 }: LexicalPostEditorProps) => {
   const classes = useStyles(lexicalStyles);
+  const currentUser = useCurrentUser();
+  const clientId = useClientId();
+  
   // Store internal IDs extracted from the original HTML for preservation during export
   const internalIdsRef = useRef<InternalIdMap>(new Map());
+
+  // Fetch Hocuspocus auth if collaboration is enabled
+  // Anonymous users can collaborate if they have a clientId (from cookie)
+  const shouldEnableCollaboration = collaborative && !!postId;
+  const { auth: hocuspocusAuth, loading: authLoading, error: authError } = useHocuspocusAuth(
+    postId,
+    !shouldEnableCollaboration
+  );
+
+  // Build collaboration config when auth is available
+  const collaborationConfig: CollaborationConfig | null = useMemo(() => {
+    if (!shouldEnableCollaboration || !hocuspocusAuth) {
+      return null;
+    }
+    // Use currentUser info if logged in, otherwise use clientId for anonymous users
+    const userId = currentUser?._id ?? clientId ?? 'anonymous';
+    const userName = currentUser?.displayName ?? 'Anonymous';
+    
+    return {
+      postId: postId!,
+      token: hocuspocusAuth.token,
+      wsUrl: hocuspocusAuth.wsUrl,
+      documentName: hocuspocusAuth.documentName,
+      user: {
+        id: userId,
+        name: userName,
+      },
+    };
+  }, [shouldEnableCollaboration, hocuspocusAuth, currentUser, clientId, postId]);
 
   const handleInternalIdsExtracted = useCallback((ids: InternalIdMap) => {
     internalIdsRef.current = ids;
@@ -714,10 +757,29 @@ const LexicalPostEditor = ({
     onReady?.();
   }, [onReady]);
 
-  return (
-    <div className={classes.editorContainer}>
-      <LexicalComposer initialConfig={initialConfig}>
+  // Show loading state while fetching collaboration auth
+  if (shouldEnableCollaboration && authLoading) {
+    return (
+      <div className={classes.editorContainer}>
         <div className={classes.editorInner}>
+          <div className={classes.editorPlaceholder}>Loading collaborative editor...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Log auth errors but continue without collaboration
+  if (authError) {
+    // eslint-disable-next-line no-console
+    console.error('[LexicalPostEditor] Failed to get collaboration auth:', authError);
+  }
+
+  // Whether collaboration is actually active (auth succeeded)
+  const isCollaborative = !!collaborationConfig;
+
+  const editorContent = (
+    <LexicalComposer initialConfig={initialConfig}>
+      <div className={classes.editorInner}>
           <ToolbarPlugin />
           <RichTextPlugin
             contentEditable={
@@ -729,7 +791,8 @@ const LexicalPostEditor = ({
             }
             ErrorBoundary={LexicalErrorBoundary}
           />
-          <HistoryPlugin />
+          {/* Use HistoryPlugin only when not in collaborative mode (Yjs handles history) */}
+          {!isCollaborative && <HistoryPlugin />}
           <AutoFocusPlugin />
           <ListPlugin />
           <LinkPlugin />
@@ -748,16 +811,46 @@ const LexicalPostEditor = ({
           <TablesPlugin />
           <ImagesPlugin captionsEnabled={true} />
           <DragDropPaste />
-          <InitialContentPlugin 
-            initialHtml={data} 
-            onInternalIdsExtracted={handleInternalIdsExtracted}
-          />
+          {/* Only load initial HTML content when NOT in collaborative mode */}
+          {/* In collaborative mode, content comes from Yjs */}
+          {!isCollaborative && (
+            <InitialContentPlugin 
+              initialHtml={data} 
+              onInternalIdsExtracted={handleInternalIdsExtracted}
+            />
+          )}
           <HtmlExportPlugin 
             onChange={onChange} 
             internalIds={internalIdsRef.current}
           />
+          {/* Collaboration plugin - only when auth is available */}
+          {collaborationConfig && (
+            <CollaborationPlugin
+              config={collaborationConfig}
+              onSynced={() => {
+                // eslint-disable-next-line no-console
+                console.log('[LexicalPostEditor] Document synced with server');
+              }}
+              onError={(error) => {
+                // eslint-disable-next-line no-console
+                console.error('[LexicalPostEditor] Collaboration error:', error);
+              }}
+            />
+          )}
         </div>
       </LexicalComposer>
+  );
+
+  // Wrap with LexicalCollaboration when collaboration is enabled
+  return (
+    <div className={classes.editorContainer}>
+      {isCollaborative ? (
+        <LexicalCollaboration>
+          {editorContent}
+        </LexicalCollaboration>
+      ) : (
+        editorContent
+      )}
     </div>
   );
 };

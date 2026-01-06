@@ -2856,6 +2856,13 @@ type GoogleServiceAccountSessionSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
+type HocuspocusAuth = {
+  __typename?: 'HocuspocusAuth';
+  documentName: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+  wsUrl: Scalars['String']['output'];
+};
+
 type HomepageCommunityEventMarker = {
   __typename?: 'HomepageCommunityEventMarker';
   _id: Scalars['String']['output'];
@@ -7720,6 +7727,7 @@ type Query = {
   GetRandomUser?: Maybe<User>;
   GetUserBySlug?: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
+  HocuspocusAuth?: Maybe<HocuspocusAuth>;
   HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
@@ -8008,6 +8016,12 @@ type QueryGetUserBySlugArgs = {
 
 type QueryGivingSeasonHeartsArgs = {
   electionName: Scalars['String']['input'];
+};
+
+
+type QueryHocuspocusAuthArgs = {
+  linkSharingKey?: InputMaybe<Scalars['String']['input']>;
+  postId: Scalars['String']['input'];
 };
 
 
@@ -13130,6 +13144,12 @@ type WrappedDataByYear = {
   totalSeconds?: Maybe<Scalars['Int']['output']>;
 };
 
+type YjsDocument = {
+  __typename?: 'YjsDocument';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+};
+
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = { __typename?: 'Localgroup', _id: string, name: string, bannerImageId: string | null, contents: LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision | null };
@@ -15934,6 +15954,19 @@ type createElicitQuestionCreateClaimDialogMutationVariables = Exact<{
 
 
 type createElicitQuestionCreateClaimDialogMutation = createElicitQuestionCreateClaimDialogMutation_Mutation;
+
+type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string, wsUrl: string, documentName: string };
+
+type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
+
+
+type HocuspocusAuthQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
 
 type ConvertDocumentQuery_Query = { __typename?: 'Query', convertDocument: any | null };
 

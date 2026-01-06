@@ -594,9 +594,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   renderLexicalEditor = (contents: EditorContents) => {
-    const { _classes: classes, placeholder, commentEditor } = this.props;
+    const { _classes: classes, placeholder, commentEditor, documentId } = this.props;
     const value = (typeof contents?.value === 'string') ? contents.value : "";
-    
+
     return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
       <LexicalPostEditor
         data={value}
@@ -608,6 +608,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           // Lexical editor is ready
         }}
         commentEditor={commentEditor}
+        postId={documentId}
+        collaborative
       />
     </div>
   }

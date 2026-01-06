@@ -2859,6 +2859,13 @@ export type GoogleServiceAccountSessionSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
+export type HocuspocusAuth = {
+  __typename?: 'HocuspocusAuth';
+  documentName: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+  wsUrl: Scalars['String']['output'];
+};
+
 export type HomepageCommunityEventMarker = {
   __typename?: 'HomepageCommunityEventMarker';
   _id: Scalars['String']['output'];
@@ -7723,6 +7730,7 @@ export type Query = {
   GetRandomUser: Maybe<User>;
   GetUserBySlug: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
+  HocuspocusAuth: Maybe<HocuspocusAuth>;
   HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
@@ -8011,6 +8019,12 @@ export type QueryGetUserBySlugArgs = {
 
 export type QueryGivingSeasonHeartsArgs = {
   electionName: Scalars['String']['input'];
+};
+
+
+export type QueryHocuspocusAuthArgs = {
+  linkSharingKey?: InputMaybe<Scalars['String']['input']>;
+  postId: Scalars['String']['input'];
 };
 
 
@@ -13133,6 +13147,12 @@ export type WrappedDataByYear = {
   totalSeconds: Maybe<Scalars['Int']['output']>;
 };
 
+export type YjsDocument = {
+  __typename?: 'YjsDocument';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+};
+
 export type LocalgroupMetadataQueryVariables = Exact<{
   groupId?: InputMaybe<Scalars['String']['input']>;
 }>;
@@ -14839,6 +14859,14 @@ export type createElicitQuestionCreateClaimDialogMutation = { __typename?: 'Muta
       { __typename?: 'ElicitQuestion' }
       & ElicitQuestionFragment
     ) | null } | null };
+
+export type HocuspocusAuthQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type HocuspocusAuthQueryQuery = { __typename?: 'Query', HocuspocusAuth: { __typename?: 'HocuspocusAuth', token: string, wsUrl: string, documentName: string } | null };
 
 export type ConvertDocumentQueryVariables = Exact<{
   document?: InputMaybe<Scalars['JSON']['input']>;
@@ -22423,6 +22451,7 @@ export const GoogleServiceAccountSessionInfoDoc = {"kind":"Document","definition
 export const GroupFormDialogDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GroupFormDialog"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"localgroup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"localGroupsEdit"}}]}}]}}]}},localGroupsEditFragmentDef,localGroupsBaseFragmentDef,UsersMinimumInfoFragmentDef,RevisionEditFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<GroupFormDialogQuery, GroupFormDialogQueryVariables>;
 export const HeaderEventSubtitleSpotlightQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HeaderEventSubtitleSpotlightQuery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"currentSpotlight"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SpotlightHeaderEventSubtitle"}}]}}]}},SpotlightHeaderEventSubtitleFragmentDef,SpotlightMinimumInfoFragmentDef]} as unknown as DocumentNode<HeaderEventSubtitleSpotlightQueryQuery, HeaderEventSubtitleSpotlightQueryQueryVariables>;
 export const HighlightWithHashDoc = {"kind":"Document","definitions":[HighlightWithHashFragmentDef]} as unknown as DocumentNode<HighlightWithHash, unknown>;
+export const HocuspocusAuthQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HocuspocusAuthQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"linkSharingKey"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"HocuspocusAuth"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"linkSharingKey"},"value":{"kind":"Variable","name":{"kind":"Name","value":"linkSharingKey"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"wsUrl"}},{"kind":"Field","name":{"kind":"Name","value":"documentName"}}]}}]}}]} as unknown as DocumentNode<HocuspocusAuthQueryQuery, HocuspocusAuthQueryQueryVariables>;
 export const HomepageCommunityEventPostsQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HomepageCommunityEventPostsQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"eventType"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"HomepageCommunityEventPosts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"eventType"},"value":{"kind":"Variable","name":{"kind":"Name","value":"eventType"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"posts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsList"}}]}}]}}]}},PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef]} as unknown as DocumentNode<HomepageCommunityEventPostsQueryQuery, HomepageCommunityEventPostsQueryQueryVariables>;
 export const HomepageCommunityMapDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"HomepageCommunityMap"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsList"}}]}}]}}]}},PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef]} as unknown as DocumentNode<HomepageCommunityMapQuery, HomepageCommunityMapQueryVariables>;
 export const ImageUploadDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ImageUpload"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}}]}}]}},UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<ImageUploadQuery, ImageUploadQueryVariables>;

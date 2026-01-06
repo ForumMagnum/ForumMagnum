@@ -164,6 +164,7 @@ type Documents = {
     "\n  query TagVersionHistory($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionDisplay\n      }\n    }\n  }\n": typeof types.TagVersionHistoryDocument,
     "\n    mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {\n      revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {\n        ...TagPageFragment\n      }\n    }\n  ": typeof types.revertToRevisionDocument,
     "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n": typeof types.createElicitQuestionCreateClaimDialogDocument,
+    "\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n      wsUrl\n      documentName\n    }\n  }\n": typeof types.HocuspocusAuthQueryDocument,
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": typeof types.ConvertDocumentDocument,
     "\n  query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostEventsHomeQueryDocument,
     "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.updateUserEventsHomeDocument,
@@ -1087,6 +1088,7 @@ const documents: Documents = {
     "\n  query TagVersionHistory($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionDisplay\n      }\n    }\n  }\n": types.TagVersionHistoryDocument,
     "\n    mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {\n      revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {\n        ...TagPageFragment\n      }\n    }\n  ": types.revertToRevisionDocument,
     "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n": types.createElicitQuestionCreateClaimDialogDocument,
+    "\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n      wsUrl\n      documentName\n    }\n  }\n": types.HocuspocusAuthQueryDocument,
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": types.ConvertDocumentDocument,
     "\n  query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostEventsHomeQueryDocument,
     "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": types.updateUserEventsHomeDocument,
@@ -2474,6 +2476,10 @@ export function gql(source: "\n    mutation revertToRevision($tagId: String!, $r
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n      wsUrl\n      documentName\n    }\n  }\n"): (typeof documents)["\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n      wsUrl\n      documentName\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

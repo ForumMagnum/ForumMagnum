@@ -467,6 +467,7 @@ const accessFilters = {
   UserTagRels: userTagRelCheckAccess,
   UserActivities: allowAccess,
   Votes: voteCheckAccess,
+  YjsDocuments: denyAll,
 } satisfies Record<CollectionNameString, CheckAccessFunction<CollectionNameString>>;
 
 function collectionHasAccessFilter<N extends CollectionNameString>(collectionName: N): collectionName is (N & keyof typeof accessFilters) {

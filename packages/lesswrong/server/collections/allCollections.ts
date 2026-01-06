@@ -100,6 +100,7 @@ import { UserTagRels } from './userTagRels/collection';
 import { UserActivities } from './useractivities/collection';
 import { Users } from './users/collection';
 import { Votes } from './votes/collection';
+import { YjsDocuments } from './yjsDocuments/collection';
 
 function getTestCollections() {
   let testCollections: Record<never, never>;
@@ -122,12 +123,12 @@ const allCollections = {
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
   DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
   FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages,
-  Localgroups, LoginTokens, ManifoldProbabilitiesCaches, MailgunValidations, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions,
-  PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds,
-  ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches,
-  SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags,
-  Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels,
-  Users, Votes
+  Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
+  PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
+  Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,
+  Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags,
+  TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits,
+  UserTagRels, Users, Votes, YjsDocuments
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;
 
 const collectionsByLowercaseName = Object.fromEntries(
