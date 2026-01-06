@@ -12,7 +12,7 @@ import {
   $setSelection,
   LexicalEditor,
 } from 'lexical';
-import * as React from 'react';
+
 import {useState} from 'react';
 
 import {useDebounce} from '../../utils';
@@ -20,9 +20,10 @@ import {useDebounce} from '../../utils';
 interface Props {
   editor: LexicalEditor;
   getCodeDOMNode: () => HTMLElement | null;
+  menuItemClassName?: string;
 }
 
-export function CopyButton({editor, getCodeDOMNode}: Props) {
+export function CopyButton({editor, getCodeDOMNode, menuItemClassName}: Props) {
   const [isCopyCompleted, setCopyCompleted] = useState<boolean>(false);
 
   const removeSuccessIcon = useDebounce(() => {
@@ -59,7 +60,7 @@ export function CopyButton({editor, getCodeDOMNode}: Props) {
   }
 
   return (
-    <button className="menu-item" onClick={handleClick} aria-label="copy">
+    <button className={menuItemClassName} onClick={handleClick} aria-label="copy">
       {isCopyCompleted ? (
         <i className="format success" />
       ) : (

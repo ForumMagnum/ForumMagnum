@@ -23,7 +23,7 @@ import { TablesPlugin, OPEN_TABLE_SELECTOR_COMMAND } from './lexicalPlugins/tabl
 import { TRANSFORMERS } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
-import { $getRoot, $insertNodes, EditorState } from 'lexical';
+import { $getRoot, $insertNodes, defineExtension, EditorState } from 'lexical';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
 import { useClientId } from '../hooks/useClientId';
@@ -55,6 +55,14 @@ import { CollapsibleSectionContentNode } from './lexicalPlugins/collapsibleSecti
 import ImagesPlugin from './lexicalPlugins/images/ImagesPlugin';
 import { ImageNode } from './lexicalPlugins/images/ImageNode';
 import { DragDropPaste } from './lexicalPlugins/dragDropPaste/DragDropPaste';
+import Editor from '../lexical/Editor';
+import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
+import { SharedHistoryContext } from '../lexical/context/SharedHistoryContext';
+import { TableContext } from '../lexical/plugins/TablePlugin';
+import PlaygroundNodes from '../lexical/nodes/PlaygroundNodes';
+import PlaygroundEditorTheme from '../lexical/themes/PlaygroundEditorTheme';
+import { ToolbarContext } from '../lexical/context/ToolbarContext';
+import Settings from '../lexical/Settings';
 
 // URL regex for auto-linking
 const URL_REGEX = /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
@@ -757,6 +765,20 @@ const LexicalPostEditor = ({
     onReady?.();
   }, [onReady]);
 
+
+  const app = useMemo(
+    () =>
+      defineExtension({
+        $initialEditorState: null,
+        // html: buildHTMLConfig(),
+        name: '@lexical/playground',
+        namespace: 'Playground',
+        nodes: PlaygroundNodes,
+        theme: PlaygroundEditorTheme,
+      }),
+    [],
+  );
+
   // Show loading state while fetching collaboration auth
   if (shouldEnableCollaboration && authLoading) {
     return (
@@ -777,82 +799,105 @@ const LexicalPostEditor = ({
   // Whether collaboration is actually active (auth succeeded)
   const isCollaborative = !!collaborationConfig;
 
-  const editorContent = (
-    <LexicalComposer initialConfig={initialConfig}>
-      <div className={classes.editorInner}>
-          <ToolbarPlugin />
-          <RichTextPlugin
-            contentEditable={
-              <ContentEditable
-                className={`${classes.editorInput} ${commentEditor ? classes.editorInputComment : ''}`}
-                aria-placeholder={placeholder}
-                placeholder={<div className={classes.editorPlaceholder}>{placeholder}</div>}
-              />
-            }
-            ErrorBoundary={LexicalErrorBoundary}
-          />
-          {/* Use HistoryPlugin only when not in collaborative mode (Yjs handles history) */}
-          {!isCollaborative && <HistoryPlugin />}
-          <AutoFocusPlugin />
-          <ListPlugin />
-          <LinkPlugin />
-          <LinkEditorPlugin />
-          <AutoLinkPlugin matchers={URL_MATCHERS} />
-          <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
-          <FootnotesPlugin />
-          <MathPlugin />
-          <MentionPlugin feeds={getLexicalMentionFeeds()} />
-          <SpoilersPlugin />
-          <ClaimsPlugin />
-          <CollapsibleSectionsPlugin />
-          <RemoveRedirectPlugin />
-          <LLMAutocompletePlugin />
-          <TablePlugin />
-          <TablesPlugin />
-          <ImagesPlugin captionsEnabled={true} />
-          <DragDropPaste />
-          {/* Only load initial HTML content when NOT in collaborative mode */}
-          {/* In collaborative mode, content comes from Yjs */}
-          {!isCollaborative && (
-            <InitialContentPlugin 
-              initialHtml={data} 
-              onInternalIdsExtracted={handleInternalIdsExtracted}
-            />
-          )}
-          <HtmlExportPlugin 
-            onChange={onChange} 
-            internalIds={internalIdsRef.current}
-          />
-          {/* Collaboration plugin - only when auth is available */}
-          {collaborationConfig && (
-            <CollaborationPlugin
-              config={collaborationConfig}
-              onSynced={() => {
-                // eslint-disable-next-line no-console
-                console.log('[LexicalPostEditor] Document synced with server');
-              }}
-              onError={(error) => {
-                // eslint-disable-next-line no-console
-                console.error('[LexicalPostEditor] Collaboration error:', error);
-              }}
-            />
-          )}
-        </div>
-      </LexicalComposer>
+
+  return (
+    <LexicalCollaboration>
+      <LexicalExtensionComposer extension={app} contentEditable={null}>
+        <SharedHistoryContext>
+          <TableContext>
+            <ToolbarContext>
+              <div className="editor-shell">
+                <Editor />
+              </div>
+              <Settings />
+              {/* {isDevPlayground ? <DocsPlugin /> : null}
+              {isDevPlayground ? <PasteLogPlugin /> : null}
+              {isDevPlayground ? <TestRecorderPlugin /> : null}
+
+              {measureTypingPerf ? <TypingPerfPlugin /> : null} */}
+            </ToolbarContext>
+          </TableContext>
+        </SharedHistoryContext>
+      </LexicalExtensionComposer>
+    </LexicalCollaboration>
   );
 
+  // const editorContent = (
+  //   <LexicalComposer initialConfig={initialConfig}>
+  //     <div className={classes.editorInner}>
+  //         <ToolbarPlugin />
+  //         <RichTextPlugin
+  //           contentEditable={
+  //             <ContentEditable
+  //               className={`${classes.editorInput} ${commentEditor ? classes.editorInputComment : ''}`}
+  //               aria-placeholder={placeholder}
+  //               placeholder={<div className={classes.editorPlaceholder}>{placeholder}</div>}
+  //             />
+  //           }
+  //           ErrorBoundary={LexicalErrorBoundary}
+  //         />
+  //         {/* Use HistoryPlugin only when not in collaborative mode (Yjs handles history) */}
+  //         {!isCollaborative && <HistoryPlugin />}
+  //         <AutoFocusPlugin />
+  //         <ListPlugin />
+  //         <LinkPlugin />
+  //         <LinkEditorPlugin />
+  //         <AutoLinkPlugin matchers={URL_MATCHERS} />
+  //         <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+  //         <FootnotesPlugin />
+  //         <MathPlugin />
+  //         <MentionPlugin feeds={getLexicalMentionFeeds()} />
+  //         <SpoilersPlugin />
+  //         <ClaimsPlugin />
+  //         <CollapsibleSectionsPlugin />
+  //         <RemoveRedirectPlugin />
+  //         <LLMAutocompletePlugin />
+  //         <TablePlugin />
+  //         <TablesPlugin />
+  //         <ImagesPlugin captionsEnabled={true} />
+  //         <DragDropPaste />
+  //         {/* Only load initial HTML content when NOT in collaborative mode */}
+  //         {/* In collaborative mode, content comes from Yjs */}
+  //         {!isCollaborative && (
+  //           <InitialContentPlugin 
+  //             initialHtml={data} 
+  //             onInternalIdsExtracted={handleInternalIdsExtracted}
+  //           />
+  //         )}
+  //         <HtmlExportPlugin 
+  //           onChange={onChange} 
+  //           internalIds={internalIdsRef.current}
+  //         />
+  //         {/* Collaboration plugin - only when auth is available */}
+  //         {collaborationConfig && (
+  //           <CollaborationPlugin
+  //             config={collaborationConfig}
+  //             onSynced={() => {
+  //               // eslint-disable-next-line no-console
+  //               console.log('[LexicalPostEditor] Document synced with server');
+  //             }}
+  //             onError={(error) => {
+  //               // eslint-disable-next-line no-console
+  //               console.error('[LexicalPostEditor] Collaboration error:', error);
+  //             }}
+  //           />
+  //         )}
+  //       </div>
+  //     </LexicalComposer>
+  // );
+
   // Wrap with LexicalCollaboration when collaboration is enabled
-  return (
-    <div className={classes.editorContainer}>
-      {isCollaborative ? (
-        <LexicalCollaboration>
-          {editorContent}
-        </LexicalCollaboration>
-      ) : (
-        editorContent
-      )}
-    </div>
-  );
+  // return (
+  //   <div className={classes.editorContainer}>
+  //     {isCollaborative ? (
+  //       <LexicalCollaboration>
+  //         {editorContent}
+  //       </LexicalCollaboration>
+  //     ) : (
+  //       editorContent
+  //     )}
+  //   </div>
+  // );
 };
 
 export default LexicalPostEditor;

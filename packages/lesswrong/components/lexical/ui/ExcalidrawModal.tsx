@@ -6,24 +6,79 @@
  *
  */
 
-import type {
-  AppState,
-  BinaryFiles,
-  ExcalidrawImperativeAPI,
-  ExcalidrawInitialDataState,
-} from '@excalidraw/excalidraw/types';
-import type {JSX} from 'react';
+// These types are from @excalidraw/excalidraw/types - stubbed out until the dependency is installed
+type AppState = Record<string, unknown>;
+type BinaryFiles = Record<string, unknown>;
+type ExcalidrawImperativeAPI = { getAppState: () => AppState };
+type ExcalidrawInitialDataState = { elements?: unknown[] };
 
-import './ExcalidrawModal.css';
+import React, { type JSX } from 'react';
 
+// @ts-ignore - @excalidraw/excalidraw not installed yet
 import {Excalidraw} from '@excalidraw/excalidraw';
 import {isDOMNode} from 'lexical';
-import * as React from 'react';
+
 import {ReactPortal, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Button from './Button';
 import Modal from './Modal';
+
+const styles = defineStyles('LexicalExcalidrawModal', (theme: ThemeType) => ({
+  overlay: {
+    display: 'flex',
+    alignItems: 'center',
+    position: 'fixed',
+    flexDirection: 'column',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexGrow: 0,
+    flexShrink: 1,
+    zIndex: 100,
+    backgroundColor: theme.palette.lexicalEditor.modalOverlay,
+  },
+  actions: {
+    textAlign: 'end',
+    position: 'absolute',
+    right: 5,
+    top: 5,
+    zIndex: 1,
+    '& button': {
+      backgroundColor: theme.palette.grey[0],
+      borderRadius: 5,
+    },
+  },
+  row: {
+    position: 'relative',
+    padding: '40px 5px 5px',
+    width: '70vw',
+    height: '70vh',
+    borderRadius: 8,
+    boxShadow: `0 12px 28px 0 ${theme.palette.greyAlpha(0.2)}, 0 2px 4px 0 ${theme.palette.greyAlpha(0.1)}, inset 0 0 0 1px ${theme.palette.inverseGreyAlpha(0.5)}`,
+    '& > div': {
+      borderRadius: 5,
+    },
+  },
+  modal: {
+    position: 'relative',
+    zIndex: 10,
+    top: 50,
+    width: 'auto',
+    left: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    backgroundColor: theme.palette.grey[200],
+  },
+  discardModal: {
+    marginTop: 60,
+    textAlign: 'center',
+  },
+}));
 
 export type ExcalidrawInitialElements = ExcalidrawInitialDataState['elements'];
 
@@ -78,6 +133,7 @@ export default function ExcalidrawModal({
   onDelete,
   onClose,
 }: Props): ReactPortal | null {
+  const classes = useStyles(styles);
   const excaliDrawModelRef = useRef<HTMLDivElement | null>(null);
   const [excalidrawAPI, setExcalidrawAPI] =
     useState<ExcalidrawImperativeAPI | null>(null);
@@ -132,7 +188,7 @@ export default function ExcalidrawModal({
   }, [elements, files, onDelete]);
 
   const save = () => {
-    if (elements?.some((el) => !el.isDeleted)) {
+    if (elements?.some((el: { isDeleted?: boolean }) => !el.isDeleted)) {
       const appState = excalidrawAPI?.getAppState();
       // We only need a subset of the state
       const partialState: Partial<AppState> = {
@@ -168,7 +224,7 @@ export default function ExcalidrawModal({
         }}
         closeOnClickOutside={false}>
         Are you sure you want to discard the changes?
-        <div className="ExcalidrawModal__discardModal">
+        <div className={classes.discardModal}>
           <Button
             onClick={() => {
               setDiscardModalOpen(false);
@@ -201,12 +257,12 @@ export default function ExcalidrawModal({
   };
 
   return createPortal(
-    <div className="ExcalidrawModal__overlay" role="dialog">
+    <div className={classes.overlay} role="dialog">
       <div
-        className="ExcalidrawModal__modal"
+        className={classes.modal}
         ref={excaliDrawModelRef}
         tabIndex={-1}>
-        <div className="ExcalidrawModal__row">
+        <div className={classes.row}>
           {discardModalOpen && <ShowDiscardDialog />}
           <Excalidraw
             onChange={onChange}
@@ -217,7 +273,7 @@ export default function ExcalidrawModal({
               files: initialFiles,
             }}
           />
-          <div className="ExcalidrawModal__actions">
+          <div className={classes.actions}>
             <button className="action-button" onClick={discard}>
               Discard
             </button>

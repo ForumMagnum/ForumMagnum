@@ -17,14 +17,14 @@ import type {
   NodeKey,
   Spread,
 } from 'lexical';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {BlockWithAlignableContents} from '@lexical/react/LexicalBlockWithAlignableContents';
 import {
   DecoratorBlockNode,
   SerializedDecoratorBlockNode,
 } from '@lexical/react/LexicalDecoratorBlockNode';
-import * as React from 'react';
+
 import {useCallback, useEffect, useRef, useState} from 'react';
 
 const WIDGET_SCRIPT_URL = 'https://platform.twitter.com/widgets.js';

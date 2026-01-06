@@ -7,9 +7,7 @@
  */
 
 import type {LexicalEditor, NodeKey} from 'lexical';
-import type {JSX} from 'react';
-
-import './StickyNode.css';
+import React, { type JSX } from 'react';
 
 import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
 import {CollaborationPlugin} from '@lexical/react/LexicalCollaborationPlugin';
@@ -20,14 +18,47 @@ import {LexicalNestedComposer} from '@lexical/react/LexicalNestedComposer';
 import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
 import {calculateZoomLevel} from '@lexical/utils';
 import {$getNodeByKey} from 'lexical';
-import * as React from 'react';
+
 import {useEffect, useLayoutEffect, useRef} from 'react';
 
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {createWebsocketProvider} from '../collaboration';
 import {useSharedHistoryContext} from '../context/SharedHistoryContext';
 import StickyEditorTheme from '../themes/StickyEditorTheme';
 import ContentEditable from '../ui/ContentEditable';
 import {$isStickyNode} from './StickyNode';
+
+const styles = defineStyles('LexicalStickyComponent', (theme: ThemeType) => ({
+  contentEditable: {
+    minHeight: 20,
+    border: 0,
+    resize: 'none',
+    cursor: 'text',
+    fontSize: 24,
+    caretColor: theme.palette.grey[1000],
+    display: 'block',
+    position: 'relative',
+    outline: 0,
+    padding: 10,
+    userSelect: 'text',
+    whiteSpace: 'pre-wrap',
+    wordWrap: 'break-word',
+  },
+  placeholder: {
+    fontSize: 24,
+    color: theme.palette.grey[550],
+    overflow: 'hidden',
+    position: 'absolute',
+    textOverflow: 'ellipsis',
+    top: 30,
+    left: 20,
+    width: 120,
+    userSelect: 'none',
+    whiteSpace: 'nowrap',
+    display: 'inline-block',
+    pointerEvents: 'none',
+  },
+}));
 
 type Positioning = {
   isDragging: boolean;
@@ -63,6 +94,7 @@ export default function StickyComponent({
   x: number;
   y: number;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
   const stickyContainerRef = useRef<null | HTMLDivElement>(null);
   const positioningRef = useRef<Positioning>({
@@ -255,8 +287,8 @@ export default function StickyComponent({
             contentEditable={
               <ContentEditable
                 placeholder="What's up?"
-                placeholderClassName="StickyNode__placeholder"
-                className="StickyNode__contentEditable"
+                placeholderClassName={classes.placeholder}
+                className={classes.contentEditable}
               />
             }
             ErrorBoundary={LexicalErrorBoundary}

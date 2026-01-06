@@ -6,9 +6,7 @@
  *
  */
 
-import type {JSX} from 'react';
-
-import './index.css';
+import React, { type JSX } from 'react';
 
 import {
   $isCodeNode,
@@ -19,12 +17,57 @@ import {
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$getNearestNodeFromDOMNode, isHTMLElement} from 'lexical';
 import {useEffect, useRef, useState} from 'react';
-import * as React from 'react';
+
 import {createPortal} from 'react-dom';
 
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {CopyButton} from './components/CopyButton';
 // import {canBePrettier, PrettierButton} from './components/PrettierButton';
 import {useDebounce} from './utils';
+
+const styles = defineStyles('LexicalCodeActionMenuPlugin', (theme: ThemeType) => ({
+  container: {
+    height: 35.8,
+    fontSize: 10,
+    color: theme.palette.greyAlpha(0.5),
+    position: 'absolute',
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'row',
+    userSelect: 'none',
+  },
+  highlightLanguage: {
+    marginRight: 4,
+  },
+  menuItem: {
+    border: '1px solid transparent',
+    borderRadius: 4,
+    padding: 4,
+    background: 'none',
+    cursor: 'pointer',
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+    color: theme.palette.greyAlpha(0.5),
+    textTransform: 'uppercase',
+    '& i.format': {
+      height: 16,
+      width: 16,
+      opacity: 0.6,
+      display: 'flex',
+      color: theme.palette.greyAlpha(0.5),
+      backgroundSize: 'contain',
+    },
+    '&:hover': {
+      border: `1px solid ${theme.palette.greyAlpha(0.3)}`,
+      opacity: 0.9,
+    },
+    '&:active': {
+      backgroundColor: 'rgba(223, 232, 250)',
+      border: `1px solid ${theme.palette.greyAlpha(0.45)}`,
+    },
+  },
+}));
 
 const CODE_PADDING = 8;
 
@@ -38,6 +81,7 @@ function CodeActionMenuContainer({
 }: {
   anchorElem: HTMLElement;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
 
   const [lang, setLang] = useState('');
@@ -143,9 +187,9 @@ function CodeActionMenuContainer({
   return (
     <>
       {isShown ? (
-        <div className="code-action-menu-container" style={{...position}}>
-          <div className="code-highlight-language">{codeFriendlyName}</div>
-          <CopyButton editor={editor} getCodeDOMNode={getCodeDOMNode} />
+        <div className={classes.container} style={{...position}}>
+          <div className={classes.highlightLanguage}>{codeFriendlyName}</div>
+          <CopyButton editor={editor} getCodeDOMNode={getCodeDOMNode} menuItemClassName={classes.menuItem} />
           {/* {canBePrettier(normalizedLang) ? (
             <PrettierButton
               editor={editor}

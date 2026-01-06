@@ -7,11 +7,10 @@
  */
 import type {TableCellNode, TableDOMCell, TableMapType} from '@lexical/table';
 import type {LexicalEditor, NodeKey} from 'lexical';
-import type {JSX} from 'react';
-
-import './index.css';
+import React, { type JSX } from 'react';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
 import {
   $computeTableMapSkipCellCheck,
@@ -29,7 +28,7 @@ import {
   isHTMLElement,
   SKIP_SCROLL_INTO_VIEW_TAG,
 } from 'lexical';
-import * as React from 'react';
+
 import {
   CSSProperties,
   PointerEventHandler,
@@ -41,6 +40,17 @@ import {
   useState,
 } from 'react';
 import {createPortal} from 'react-dom';
+
+const styles = defineStyles('LexicalTableCellResizer', (theme: ThemeType) => ({
+  resizer: {
+    position: 'absolute',
+    touchAction: 'none',
+    '@media (pointer: coarse)': {
+      backgroundColor: '#adf',
+      mixBlendMode: 'color',
+    },
+  },
+}));
 
 type PointerPosition = {
   x: number;
@@ -54,6 +64,7 @@ const MIN_COLUMN_WIDTH = 92;
 const ACTIVE_RESIZER_COLOR = '#76b6ff';
 
 function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
+  const classes = useStyles(styles);
   const targetRef = useRef<HTMLElement | null>(null);
   const resizerRef = useRef<HTMLDivElement | null>(null);
   const tableRectRef = useRef<ClientRect | null>(null);
@@ -474,14 +485,14 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
       {activeCell != null && (
         <>
           <div
-            className="TableCellResizer__resizer TableCellResizer__ui"
+            className={classes.resizer}
             style={resizerStyles.right || undefined}
             onPointerEnter={handlePointerEnter('right')}
             onPointerLeave={handlePointerLeave}
             onPointerDown={toggleResize('right')}
           />
           <div
-            className="TableCellResizer__resizer TableCellResizer__ui"
+            className={classes.resizer}
             style={resizerStyles.bottom || undefined}
             onPointerDown={toggleResize('bottom')}
           />

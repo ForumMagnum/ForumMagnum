@@ -5,17 +5,34 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import './index.css';
-
 import {$isCodeNode} from '@lexical/code';
 import {$getNearestNodeFromDOMNode, LexicalEditor} from 'lexical';
 import {Options} from 'prettier';
 import {useState} from 'react';
 
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const styles = defineStyles('LexicalPrettierButton', (theme: ThemeType) => ({
+  wrapper: {
+    position: 'relative',
+  },
+  errorTips: {
+    padding: 5,
+    borderRadius: 4,
+    color: theme.palette.grey[0],
+    background: theme.palette.grey[800],
+    marginTop: 4,
+    position: 'absolute',
+    top: 26,
+    right: 0,
+  },
+}));
+
 interface Props {
   lang: string;
   editor: LexicalEditor;
   getCodeDOMNode: () => HTMLElement | null;
+  menuItemClassName?: string;
 }
 
 const PRETTIER_PARSER_MODULES = {
@@ -72,7 +89,8 @@ function getPrettierOptions(lang: string): Options {
   return options;
 }
 
-export function PrettierButton({lang, editor, getCodeDOMNode}: Props) {
+export function PrettierButton({lang, editor, getCodeDOMNode, menuItemClassName}: Props) {
+  const classes = useStyles(styles);
   const [syntaxError, setSyntaxError] = useState<string>('');
   const [tipsVisible, setTipsVisible] = useState<boolean>(false);
 
@@ -138,9 +156,9 @@ export function PrettierButton({lang, editor, getCodeDOMNode}: Props) {
   }
 
   return (
-    <div className="prettier-wrapper">
+    <div className={classes.wrapper}>
       <button
-        className="menu-item"
+        className={menuItemClassName}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -152,7 +170,7 @@ export function PrettierButton({lang, editor, getCodeDOMNode}: Props) {
         )}
       </button>
       {tipsVisible ? (
-        <pre className="code-error-tips">{syntaxError}</pre>
+        <pre className={classes.errorTips}>{syntaxError}</pre>
       ) : null}
     </div>
   );

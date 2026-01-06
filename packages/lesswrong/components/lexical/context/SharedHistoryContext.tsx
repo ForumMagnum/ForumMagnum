@@ -7,10 +7,10 @@
  */
 
 import type {HistoryState} from '@lexical/react/LexicalHistoryPlugin';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {createEmptyHistoryState} from '@lexical/react/LexicalHistoryPlugin';
-import * as React from 'react';
+
 import {createContext, ReactNode, useContext, useMemo} from 'react';
 
 type ContextShape = {

@@ -6,10 +6,10 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {LinkPlugin as LexicalLinkPlugin} from '@lexical/react/LexicalLinkPlugin';
-import * as React from 'react';
+
 
 import {validateUrl} from '../../utils/url';
 

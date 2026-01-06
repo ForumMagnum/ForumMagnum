@@ -7,7 +7,7 @@
  */
 
 import type {LexicalEditor} from 'lexical';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {
   AutoEmbedOption,
@@ -18,7 +18,7 @@ import {
 } from '@lexical/react/LexicalAutoEmbedPlugin';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useMemo, useState} from 'react';
-import * as React from 'react';
+
 import * as ReactDOM from 'react-dom';
 
 import useModal from '../../hooks/useModal';

@@ -3161,6 +3161,11 @@
   resolved "https://registry.npmjs.org/@datadog/sketches-js/-/sketches-js-2.1.0.tgz"
   integrity sha512-smLocSfrt3s53H/XSVP3/1kP42oqvrkjUPtyaFd1F79ux24oE31BKt+q0c6lsa6hOYrFzsIwyc5GXAI5JmfOew==
 
+"@date-fns/tz@^1.4.1":
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/@date-fns/tz/-/tz-1.4.1.tgz#2d905f282304630e07bef6d02d2e7dbf3f0cc4e4"
+  integrity sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA==
+
 "@dimforge/rapier3d-compat@~0.12.0":
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/@dimforge/rapier3d-compat/-/rapier3d-compat-0.12.0.tgz#7b3365e1dfdc5cd957b45afe920b4ac06c7cd389"
@@ -10973,6 +10978,11 @@ dataloader@^2.2.3:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-2.2.3.tgz#42d10b4913515f5b37c6acedcb4960d6ae1b1517"
   integrity sha512-y2krtASINtPFS1rSDjacrFgn1dcUuoREVabwlOGOe4SdxenREqwjwjElAdwvbGM7kgZz9a3KVicWR7vcz8rnzA==
+
+date-fns-jalali@^4.1.0-0:
+  version "4.1.0-0"
+  resolved "https://registry.yarnpkg.com/date-fns-jalali/-/date-fns-jalali-4.1.0-0.tgz#9c7fb286004fab267a300d3e9f1ada9f10b4b6b0"
+  integrity sha512-hTIP/z+t+qKwBDcmmsnmjWTduxCg+5KfdqWQvb2X/8C9+knYY6epN/pfxdDuyVlSVeFz0sM5eEfwIUQ70U4ckg==
 
 date-fns@^4.1.0:
   version "4.1.0"
@@ -19113,6 +19123,15 @@ react-datepicker@^8.3.0:
     "@floating-ui/react" "^0.27.3"
     clsx "^2.1.1"
     date-fns "^4.1.0"
+
+react-day-picker@^9.13.0:
+  version "9.13.0"
+  resolved "https://registry.yarnpkg.com/react-day-picker/-/react-day-picker-9.13.0.tgz#889a0ee413881abdc295109e775235c8a046c4dc"
+  integrity sha512-euzj5Hlq+lOHqI53NiuNhCP8HWgsPf/bBAVijR50hNaY1XwjKjShAnIe8jm8RD2W9IJUvihDIZ+KrmqfFzNhFQ==
+  dependencies:
+    "@date-fns/tz" "^1.4.1"
+    date-fns "^4.1.0"
+    date-fns-jalali "^4.1.0-0"
 
 react-display-name@^0.2.4:
   version "0.2.5"

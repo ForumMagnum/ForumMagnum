@@ -7,7 +7,7 @@
  */
 
 import type {LexicalEditor} from 'lexical';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {$createCodeNode, $isCodeNode} from '@lexical/code';
 import {
@@ -43,10 +43,10 @@ import useModal from '../../hooks/useModal';
 import Button from '../../ui/Button';
 import {docFromHash, docToHash} from '../../utils/docSerialization';
 import {PLAYGROUND_TRANSFORMERS} from '../MarkdownTransformers';
-import {
-  SPEECH_TO_TEXT_COMMAND,
-  SUPPORT_SPEECH_RECOGNITION,
-} from '../SpeechToTextPlugin';
+// import {
+//   SPEECH_TO_TEXT_COMMAND,
+//   SUPPORT_SPEECH_RECOGNITION,
+// } from '../SpeechToTextPlugin';
 import {SHOW_VERSIONS_COMMAND} from '../VersionsPlugin';
 
 async function sendEditorState(editor: LexicalEditor): Promise<void> {
@@ -199,7 +199,7 @@ export default function ActionsPlugin({
 
   return (
     <div className="actions">
-      {SUPPORT_SPEECH_RECOGNITION && (
+      {/* {SUPPORT_SPEECH_RECOGNITION && (
         <button
           onClick={() => {
             editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);
@@ -215,7 +215,7 @@ export default function ActionsPlugin({
           } speech to text`}>
           <i className="mic" />
         </button>
-      )}
+      )} */}
       <button
         className="action-button import"
         onClick={() => importFile(editor)}

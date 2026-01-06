@@ -6,10 +6,9 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import 'react-day-picker/style.css';
-import './DateTimeNode.css';
 
 import {
   autoUpdate,
@@ -28,11 +27,38 @@ import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useLexicalNodeSelection} from '@lexical/react/useLexicalNodeSelection';
 import {setHours, setMinutes} from 'date-fns';
 import {$getNodeByKey, NodeKey} from 'lexical';
-import * as React from 'react';
+
 import {useEffect, useRef, useState} from 'react';
 import {DayPicker} from 'react-day-picker';
 
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {$isDateTimeNode, type DateTimeNode} from './DateTimeNode';
+
+const styles = defineStyles('LexicalDateTimeComponent', (theme: ThemeType) => ({
+  dateTimePill: {
+    background: theme.palette.grey[300],
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 8,
+    padding: '0px 4px',
+    '&:hover': {
+      background: theme.palette.grey[120],
+    },
+  },
+  selected: {
+    outline: `2px solid ${theme.palette.primary.main}`,
+  },
+  dateTimePicker: {
+    background: theme.palette.grey[0],
+    border: `1px solid ${theme.palette.grey[300]}`,
+    boxShadow: `0px 5px 10px ${theme.palette.greyAlpha(0.3)}`,
+    borderRadius: 8,
+    padding: '0px 6px 0px 10px',
+    // Day picker CSS variables
+    '--rdp-accent-color': theme.palette.primary.light,
+    '--rdp-accent-background-color': theme.palette.grey[120],
+  },
+}));
 
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -43,6 +69,7 @@ export default function DateTimeComponent({
   dateTime: Date | undefined;
   nodeKey: NodeKey;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
@@ -183,7 +210,7 @@ export default function DateTimeComponent({
 
   return (
     <div
-      className={`dateTimePill ${isNodeSelected ? 'selected' : ''}`}
+      className={classNames(classes.dateTimePill, isNodeSelected && classes.selected)}
       ref={ref}
       style={{cursor: 'pointer', width: 'fit-content'}}>
       {dateTime?.toDateString() + (includeTime ? ' ' + timeValue : '') ||
@@ -193,7 +220,7 @@ export default function DateTimeComponent({
           <FloatingOverlay lockScroll={true}>
             <FloatingFocusManager context={context} initialFocus={-1}>
               <div
-                className={'dateTimePicker'}
+                className={classes.dateTimePicker}
                 ref={refs.setFloating}
                 style={floatingStyles}
                 {...getFloatingProps()}>

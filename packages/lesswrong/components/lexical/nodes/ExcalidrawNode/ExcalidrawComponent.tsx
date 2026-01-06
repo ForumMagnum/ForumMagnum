@@ -7,9 +7,10 @@
  */
 
 import type {ExcalidrawInitialElements} from '../../ui/ExcalidrawModal';
+// @ts-ignore - @excalidraw/excalidraw types not installed yet
 import type {AppState, BinaryFiles} from '@excalidraw/excalidraw/types';
 import type {NodeKey} from 'lexical';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
@@ -22,7 +23,7 @@ import {
   isDOMNode,
 } from 'lexical';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import * as React from 'react';
+
 
 import ExcalidrawModal from '../../ui/ExcalidrawModal';
 import ImageResizer from '../../ui/ImageResizer';

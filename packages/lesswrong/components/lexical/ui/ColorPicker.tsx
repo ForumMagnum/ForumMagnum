@@ -6,16 +6,82 @@
  *
  */
 
-import type {JSX} from 'react';
-
-import './ColorPicker.css';
+import React, { type JSX } from 'react';
 
 import {calculateZoomLevel} from '@lexical/utils';
 import {useMemo, useRef, useState} from 'react';
-import * as React from 'react';
 
+
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {isKeyboardInput} from '../utils/focusUtils';
 import TextInput from './TextInput';
+
+const styles = defineStyles('LexicalColorPicker', (theme: ThemeType) => ({
+  wrapper: {
+    padding: 20,
+  },
+  basicColor: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 10,
+    margin: 0,
+    padding: 0,
+    '& button': {
+      border: `1px solid ${theme.palette.grey[310]}`,
+      borderRadius: 4,
+      height: 16,
+      width: 16,
+      cursor: 'pointer',
+      listStyleType: 'none',
+    },
+    '& button.active': {
+      boxShadow: `0px 0px 2px 2px ${theme.palette.greyAlpha(0.3)}`,
+    },
+  },
+  saturation: {
+    width: '100%',
+    position: 'relative',
+    marginTop: 15,
+    height: 150,
+    backgroundImage: `linear-gradient(transparent, ${theme.palette.grey[1000]}), linear-gradient(to right, ${theme.palette.grey[0]}, transparent)`,
+    userSelect: 'none',
+  },
+  saturationCursor: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    border: `2px solid ${theme.palette.grey[0]}`,
+    borderRadius: '50%',
+    boxShadow: `0 0 15px ${theme.palette.greyAlpha(0.15)}`,
+    boxSizing: 'border-box',
+    transform: 'translate(-10px, -10px)',
+  },
+  hue: {
+    width: '100%',
+    position: 'relative',
+    marginTop: 15,
+    height: 12,
+    backgroundImage: 'linear-gradient(to right, rgb(255, 0, 0), rgb(255, 255, 0), rgb(0, 255, 0), rgb(0, 255, 255), rgb(0, 0, 255), rgb(255, 0, 255), rgb(255, 0, 0))',
+    userSelect: 'none',
+    borderRadius: 12,
+  },
+  hueCursor: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    border: `2px solid ${theme.palette.grey[0]}`,
+    borderRadius: '50%',
+    boxShadow: `${theme.palette.greyAlpha(0.2)} 0 0 0 0.5px`,
+    boxSizing: 'border-box',
+    transform: 'translate(-10px, -4px)',
+  },
+  color: {
+    border: `1px solid ${theme.palette.grey[310]}`,
+    marginTop: 15,
+    width: '100%',
+    height: 20,
+  },
+}));
 
 let skipAddingToHistoryStack = false;
 
@@ -57,6 +123,7 @@ export default function ColorPicker({
   color,
   onChange,
 }: Readonly<ColorPickerProps>): JSX.Element {
+  const classes = useStyles(styles);
   const [selfColor, setSelfColor] = useState(transformColor('hex', color));
   const [inputColor, setInputColor] = useState(
     transformColor('hex', color).hex,
@@ -125,14 +192,14 @@ export default function ColorPicker({
 
   return (
     <div
-      className="color-picker-wrapper"
+      className={classes.wrapper}
       style={{width: WIDTH}}
       ref={innerDivRef}>
       <TextInput label="Hex" onChange={onSetHex} value={inputColor} />
-      <div className="color-picker-basic-color">
+      <div className={classes.basicColor}>
         {basicColors.map((basicColor) => (
           <button
-            className={basicColor === selfColor.hex ? ' active' : ''}
+            className={basicColor === selfColor.hex ? 'active' : ''}
             key={basicColor}
             style={{backgroundColor: basicColor}}
             onClick={(e) => onBasicColorClick(e, basicColor)}
@@ -140,11 +207,11 @@ export default function ColorPicker({
         ))}
       </div>
       <MoveWrapper
-        className="color-picker-saturation"
+        className={classes.saturation}
         style={{backgroundColor: `hsl(${selfColor.hsv.h}, 100%, 50%)`}}
         onChange={onMoveSaturation}>
         <div
-          className="color-picker-saturation_cursor"
+          className={classes.saturationCursor}
           style={{
             backgroundColor: selfColor.hex,
             left: saturationPosition.x,
@@ -152,9 +219,9 @@ export default function ColorPicker({
           }}
         />
       </MoveWrapper>
-      <MoveWrapper className="color-picker-hue" onChange={onMoveHue}>
+      <MoveWrapper className={classes.hue} onChange={onMoveHue}>
         <div
-          className="color-picker-hue_cursor"
+          className={classes.hueCursor}
           style={{
             backgroundColor: `hsl(${selfColor.hsv.h}, 100%, 50%)`,
             left: huePosition.x,
@@ -162,7 +229,7 @@ export default function ColorPicker({
         />
       </MoveWrapper>
       <div
-        className="color-picker-color"
+        className={classes.color}
         style={{backgroundColor: selfColor.hex}}
       />
     </div>

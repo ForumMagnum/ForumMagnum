@@ -285,6 +285,10 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       // Banner ad compatibility
       bannerAdBackground: "rgba(0,0,0,0.5)",
     },
+    lexicalEditor: {
+      modalOverlay: "rgba(0, 0, 0, 0.7)",
+      equationText: "#c77dff",
+    },
     tab: {
       inactive: {
         text: shadePalette.grey[600],

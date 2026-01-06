@@ -15,11 +15,11 @@ import type {
   SerializedLexicalNode,
   Spread,
 } from 'lexical';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import katex from 'katex';
 import {$applyNodeReplacement, DecoratorNode, DOMExportOutput} from 'lexical';
-import * as React from 'react';
+
 
 const EquationComponent = React.lazy(() => import('./EquationComponent'));
 

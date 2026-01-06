@@ -6,12 +6,30 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
-import './Dialog.css';
 
-import * as React from 'react';
 import {ReactNode} from 'react';
+
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const styles = defineStyles('LexicalDialog', (theme: ThemeType) => ({
+  actions: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'right',
+    marginTop: 20,
+  },
+  buttonsList: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'right',
+    marginTop: 20,
+    '& button': {
+      marginBottom: 20,
+    },
+  },
+}));
 
 type Props = Readonly<{
   'data-test-id'?: string;
@@ -19,15 +37,17 @@ type Props = Readonly<{
 }>;
 
 export function DialogButtonsList({children}: Props): JSX.Element {
-  return <div className="DialogButtonsList">{children}</div>;
+  const classes = useStyles(styles);
+  return <div className={classes.buttonsList}>{children}</div>;
 }
 
 export function DialogActions({
   'data-test-id': dataTestId,
   children,
 }: Props): JSX.Element {
+  const classes = useStyles(styles);
   return (
-    <div className="DialogActions" data-test-id={dataTestId}>
+    <div className={classes.actions} data-test-id={dataTestId}>
       {children}
     </div>
   );

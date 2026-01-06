@@ -6,7 +6,7 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import './index.css';
 
@@ -24,7 +24,7 @@ import {
   NodeKey,
   SerializedLexicalNode,
 } from 'lexical';
-import * as React from 'react';
+
 import {useEffect} from 'react';
 
 export type SerializedPageBreakNode = SerializedLexicalNode;

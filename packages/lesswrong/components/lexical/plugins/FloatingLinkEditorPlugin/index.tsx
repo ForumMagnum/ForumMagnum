@@ -5,9 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type {JSX} from 'react';
-
-import './index.css';
+import React, { type JSX } from 'react';
 
 import {
   $createLinkNode,
@@ -33,12 +31,109 @@ import {
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
 import {Dispatch, useCallback, useEffect, useRef, useState} from 'react';
-import * as React from 'react';
+
 import {createPortal} from 'react-dom';
 
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl} from '../../utils/url';
+
+const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType) => ({
+  linkEditor: {
+    display: 'flex',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 10,
+    maxWidth: 400,
+    width: '100%',
+    opacity: 0,
+    backgroundColor: theme.palette.grey[0],
+    boxShadow: `0 5px 10px ${theme.palette.greyAlpha(0.3)}`,
+    borderRadius: '0 0 8px 8px',
+    transition: 'opacity 0.5s',
+    willChange: 'transform',
+  },
+  button: {
+    width: 20,
+    height: 20,
+    display: 'inline-block',
+    padding: 6,
+    borderRadius: 8,
+    cursor: 'pointer',
+    margin: '0 2px',
+    '&.hovered': {
+      backgroundColor: theme.palette.grey[200],
+    },
+    '& i': {
+      backgroundSize: 'contain',
+      display: 'inline-block',
+      height: 20,
+      width: 20,
+      verticalAlign: '-0.25em',
+    },
+  },
+  linkInput: {
+    display: 'block',
+    width: 'calc(100% - 24px)',
+    boxSizing: 'border-box',
+    margin: '8px 12px',
+    padding: '8px 12px',
+    borderRadius: 15,
+    backgroundColor: theme.palette.grey[200],
+    fontSize: 15,
+    color: theme.palette.grey[700],
+    border: 0,
+    outline: 0,
+    position: 'relative',
+    fontFamily: 'inherit',
+  },
+  linkView: {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    padding: '8px 12px',
+    '& a': {
+      flex: 1,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      color: theme.palette.primary.main,
+      textDecoration: 'none',
+      '&:hover': {
+        textDecoration: 'underline',
+      },
+    },
+  },
+  linkAction: {
+    width: 20,
+    height: 20,
+    display: 'inline-block',
+    padding: 4,
+    borderRadius: 4,
+    cursor: 'pointer',
+    marginLeft: 4,
+    backgroundSize: '16px',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
+  linkEdit: {
+    backgroundImage: 'url(/lexical/icons/pencil-fill.svg)',
+  },
+  linkTrash: {
+    backgroundImage: 'url(/lexical/icons/trash3.svg)',
+  },
+  linkCancel: {
+    backgroundImage: 'url(/lexical/icons/close.svg)',
+  },
+  linkConfirm: {
+    backgroundImage: 'url(/lexical/icons/success-alt.svg)',
+  },
+}));
 
 function preventDefault(
   event: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLElement>,
@@ -61,6 +156,7 @@ function FloatingLinkEditor({
   isLinkEditMode: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const editorRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [linkUrl, setLinkUrl] = useState('');
@@ -276,12 +372,12 @@ function FloatingLinkEditor({
   };
 
   return (
-    <div ref={editorRef} className="link-editor">
+    <div ref={editorRef} className={classes.linkEditor}>
       {!isLink ? null : isLinkEditMode ? (
         <>
           <input
             ref={inputRef}
-            className="link-input"
+            className={classes.linkInput}
             value={editedLinkUrl}
             onChange={(event) => {
               setEditedLinkUrl(event.target.value);
@@ -292,7 +388,7 @@ function FloatingLinkEditor({
           />
           <div>
             <div
-              className="link-cancel"
+              className={`${classes.linkAction} ${classes.linkCancel}`}
               role="button"
               tabIndex={0}
               onMouseDown={preventDefault}
@@ -302,7 +398,7 @@ function FloatingLinkEditor({
             />
 
             <div
-              className="link-confirm"
+              className={`${classes.linkAction} ${classes.linkConfirm}`}
               role="button"
               tabIndex={0}
               onMouseDown={preventDefault}
@@ -311,7 +407,7 @@ function FloatingLinkEditor({
           </div>
         </>
       ) : (
-        <div className="link-view">
+        <div className={classes.linkView}>
           <a
             href={sanitizeUrl(linkUrl)}
             target="_blank"
@@ -319,7 +415,7 @@ function FloatingLinkEditor({
             {linkUrl}
           </a>
           <div
-            className="link-edit"
+            className={`${classes.linkAction} ${classes.linkEdit}`}
             role="button"
             tabIndex={0}
             onMouseDown={preventDefault}
@@ -330,7 +426,7 @@ function FloatingLinkEditor({
             }}
           />
           <div
-            className="link-trash"
+            className={`${classes.linkAction} ${classes.linkTrash}`}
             role="button"
             tabIndex={0}
             onMouseDown={preventDefault}

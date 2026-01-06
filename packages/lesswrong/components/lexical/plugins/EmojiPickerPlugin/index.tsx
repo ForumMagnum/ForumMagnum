@@ -18,7 +18,7 @@ import {
   $isRangeSelection,
   TextNode,
 } from 'lexical';
-import * as React from 'react';
+
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import * as ReactDOM from 'react-dom';
 

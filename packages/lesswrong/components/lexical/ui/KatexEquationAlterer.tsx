@@ -6,17 +6,48 @@
  *
  */
 
-import type {JSX} from 'react';
-
-import './KatexEquationAlterer.css';
+import React, { type JSX } from 'react';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import * as React from 'react';
+
 import {useCallback, useState} from 'react';
 import {ErrorBoundary} from 'react-error-boundary';
 
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Button from '../ui/Button';
 import KatexRenderer from './KatexRenderer';
+
+const styles = defineStyles('LexicalKatexEquationAlterer', (theme: ThemeType) => ({
+  defaultRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginTop: 10,
+    marginBottom: 10,
+    justifyContent: 'space-between',
+    overflow: 'hidden',
+  },
+  dialogActions: {
+    display: 'flex',
+    flexDirection: 'row',
+    overflow: 'hidden',
+    marginTop: 20,
+    marginBottom: 0,
+    justifyContent: 'right',
+  },
+  centerRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginTop: 10,
+    marginBottom: 10,
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  textArea: {
+    width: '100%',
+    resize: 'none',
+    padding: 7,
+  },
+}));
 
 type Props = {
   initialEquation?: string;
@@ -27,6 +58,7 @@ export default function KatexEquationAlterer({
   onConfirm,
   initialEquation = '',
 }: Props): JSX.Element {
+  const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
   const [equation, setEquation] = useState<string>(initialEquation);
   const [inline, setInline] = useState<boolean>(true);
@@ -41,19 +73,19 @@ export default function KatexEquationAlterer({
 
   return (
     <>
-      <div className="KatexEquationAlterer_defaultRow">
+      <div className={classes.defaultRow}>
         Inline
         <input type="checkbox" checked={inline} onChange={onCheckboxChange} />
       </div>
-      <div className="KatexEquationAlterer_defaultRow">Equation </div>
-      <div className="KatexEquationAlterer_centerRow">
+      <div className={classes.defaultRow}>Equation </div>
+      <div className={classes.centerRow}>
         {inline ? (
           <input
             onChange={(event) => {
               setEquation(event.target.value);
             }}
             value={equation}
-            className="KatexEquationAlterer_textArea"
+            className={classes.textArea}
           />
         ) : (
           <textarea
@@ -61,12 +93,12 @@ export default function KatexEquationAlterer({
               setEquation(event.target.value);
             }}
             value={equation}
-            className="KatexEquationAlterer_textArea"
+            className={classes.textArea}
           />
         )}
       </div>
-      <div className="KatexEquationAlterer_defaultRow">Visualization </div>
-      <div className="KatexEquationAlterer_centerRow">
+      <div className={classes.defaultRow}>Visualization </div>
+      <div className={classes.centerRow}>
         <ErrorBoundary onError={(e) => editor._onError(e)} fallback={null}>
           <KatexRenderer
             equation={equation}
@@ -75,7 +107,7 @@ export default function KatexEquationAlterer({
           />
         </ErrorBoundary>
       </div>
-      <div className="KatexEquationAlterer_dialogActions">
+      <div className={classes.dialogActions}>
         <Button onClick={onClick}>Confirm</Button>
       </div>
     </>

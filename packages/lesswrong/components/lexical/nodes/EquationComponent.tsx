@@ -6,7 +6,7 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
@@ -20,7 +20,7 @@ import {
   NodeKey,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import * as React from 'react';
+
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {ErrorBoundary} from 'react-error-boundary';
 

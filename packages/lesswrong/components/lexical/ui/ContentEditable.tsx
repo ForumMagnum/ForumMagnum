@@ -6,12 +6,47 @@
  *
  */
 
-import type {JSX} from 'react';
-
-import './ContentEditable.css';
+import React, { type JSX } from 'react';
 
 import {ContentEditable} from '@lexical/react/LexicalContentEditable';
-import * as React from 'react';
+
+
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
+  root: {
+    border: 0,
+    fontSize: 15,
+    display: 'block',
+    position: 'relative',
+    outline: 0,
+    padding: '8px 46px 40px',
+    minHeight: 150,
+    '@media (max-width: 1025px)': {
+      paddingLeft: 8,
+      paddingRight: 8,
+    },
+  },
+  placeholder: {
+    fontSize: 15,
+    color: theme.palette.grey[550],
+    overflow: 'hidden',
+    position: 'absolute',
+    textOverflow: 'ellipsis',
+    top: 8,
+    left: 46,
+    right: 28,
+    userSelect: 'none',
+    whiteSpace: 'nowrap',
+    display: 'inline-block',
+    pointerEvents: 'none',
+    '@media (max-width: 1025px)': {
+      left: 8,
+      right: 8,
+    },
+  },
+}));
 
 type Props = {
   className?: string;
@@ -24,12 +59,13 @@ export default function LexicalContentEditable({
   placeholder,
   placeholderClassName,
 }: Props): JSX.Element {
+  const classes = useStyles(styles);
   return (
     <ContentEditable
-      className={className ?? 'ContentEditable__root'}
+      className={classNames(classes.root, className)}
       aria-placeholder={placeholder}
       placeholder={
-        <div className={placeholderClassName ?? 'ContentEditable__placeholder'}>
+        <div className={classNames(classes.placeholder, placeholderClassName)}>
           {placeholder}
         </div>
       }

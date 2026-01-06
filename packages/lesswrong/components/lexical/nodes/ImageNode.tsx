@@ -20,7 +20,7 @@ import type {
   SerializedLexicalNode,
   Spread,
 } from 'lexical';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {$insertGeneratedNodes} from '@lexical/clipboard';
 import {HashtagNode} from '@lexical/hashtag';
@@ -45,7 +45,7 @@ import {
   SKIP_DOM_SELECTION_TAG,
   TextNode,
 } from 'lexical';
-import * as React from 'react';
+
 
 import {EmojiNode} from './EmojiNode';
 import {KeywordNode} from './KeywordNode';

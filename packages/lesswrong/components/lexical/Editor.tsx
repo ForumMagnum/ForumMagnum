@@ -36,6 +36,8 @@ import {Doc} from 'yjs';
 import {
   createWebsocketProvider,
   createWebsocketProviderWithDoc,
+  setCollaborationConfig,
+  type CollaborationConfig,
 } from './collaboration';
 import {useSettings} from './context/SettingsContext';
 import {useSharedHistoryContext} from './context/SharedHistoryContext';
@@ -45,7 +47,7 @@ import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPrismPlugin from './plugins/CodeHighlightPrismPlugin';
-import CodeHighlightShikiPlugin from './plugins/CodeHighlightShikiPlugin';
+// import CodeHighlightShikiPlugin from './plugins/CodeHighlightShikiPlugin';
 import CollapsiblePlugin from './plugins/CollapsiblePlugin';
 import CommentPlugin from './plugins/CommentPlugin';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
@@ -71,7 +73,7 @@ import PageBreakPlugin from './plugins/PageBreakPlugin';
 import PollPlugin from './plugins/PollPlugin';
 import ShortcutsPlugin from './plugins/ShortcutsPlugin';
 // import SpecialTextPlugin from './plugins/SpecialTextPlugin';
-import SpeechToTextPlugin from './plugins/SpeechToTextPlugin';
+// import SpeechToTextPlugin from './plugins/SpeechToTextPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
 import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
@@ -87,12 +89,25 @@ import ContentEditable from './ui/ContentEditable';
 
 const COLLAB_DOC_ID = 'main';
 
-const skipCollaborationInit =
-  // @ts-expect-error
-  window.parent != null && window.parent.frames.right === window;
+// const skipCollaborationInit =
+//   // @ts-expect-error
+//   window.parent != null && window.parent.frames.right === window;
 
-export default function Editor(): JSX.Element {
+export interface EditorProps {
+  /** Collaboration config - if provided, enables real-time collaboration */
+  collaborationConfig?: CollaborationConfig;
+}
+
+export default function Editor({ collaborationConfig }: EditorProps): JSX.Element {
   const {historyState} = useSharedHistoryContext();
+  
+  // Set up collaboration config before rendering collaboration plugins
+  useEffect(() => {
+    setCollaborationConfig(collaborationConfig ?? null);
+    return () => {
+      setCollaborationConfig(null);
+    };
+  }, [collaborationConfig]);
   const {
     settings: {
       isCodeHighlighted,
@@ -187,7 +202,7 @@ export default function Editor(): JSX.Element {
         <EmojisPlugin />
         <HashtagPlugin />
         {/* <KeywordsPlugin /> */}
-        <SpeechToTextPlugin />
+        {/* <SpeechToTextPlugin /> */}
         <AutoLinkPlugin />
         <DateTimePlugin />
         {!(isCollab && useCollabV2) && (
@@ -197,12 +212,14 @@ export default function Editor(): JSX.Element {
         )}
         {isRichText ? (
           <>
-            {isCollab ? (
+            {isCollab && collaborationConfig ? (
               useCollabV2 ? (
                 <>
                   <CollabV2
                     id={COLLAB_DOC_ID}
-                    shouldBootstrap={!skipCollaborationInit}
+                    // shouldBootstrap={!skipCollaborationInit}
+                    shouldBootstrap={false}
+                    username={collaborationConfig.user.name}
                   />
                   <VersionsPlugin id={COLLAB_DOC_ID} />
                 </>
@@ -210,7 +227,9 @@ export default function Editor(): JSX.Element {
                 <CollaborationPlugin
                   id={COLLAB_DOC_ID}
                   providerFactory={createWebsocketProvider}
-                  shouldBootstrap={!skipCollaborationInit}
+                  // shouldBootstrap={!skipCollaborationInit}
+                  shouldBootstrap={false}
+                  username={collaborationConfig.user.name}
                 />
               )
             ) : (
@@ -317,9 +336,11 @@ export default function Editor(): JSX.Element {
 function CollabV2({
   id,
   shouldBootstrap,
+  username,
 }: {
   id: string;
   shouldBootstrap: boolean;
+  username?: string;
 }) {
   // VersionsPlugin needs GC disabled.
   const doc = useMemo(() => new Doc({gc: false}), []);
@@ -335,6 +356,7 @@ function CollabV2({
       doc={doc}
       provider={provider}
       __shouldBootstrapUnsafe={shouldBootstrap}
+      username={username}
     />
   );
 }

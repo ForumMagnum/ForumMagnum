@@ -6,7 +6,7 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {
   $getState,
@@ -22,7 +22,7 @@ import {
   StateConfigValue,
   type StateValueOrUpdater,
 } from 'lexical';
-import * as React from 'react';
+
 
 export type Options = ReadonlyArray<Option>;
 

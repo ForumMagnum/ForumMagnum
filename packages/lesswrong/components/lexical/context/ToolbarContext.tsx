@@ -6,8 +6,6 @@
  *
  */
 
-import type {JSX} from 'react';
-
 import {ElementFormatType} from 'lexical';
 import React, {
   createContext,
@@ -17,6 +15,7 @@ import React, {
   useEffect,
   useMemo,
   useState,
+  type JSX,
 } from 'react';
 
 export const MIN_ALLOWED_FONT_SIZE = 8;
@@ -44,8 +43,6 @@ export const blockTypeToBlockName = {
   quote: 'Quote',
 };
 
-//disable eslint sorting rule for quick reference to toolbar state
-/* eslint-disable sort-keys-fix/sort-keys-fix */
 const INITIAL_TOOLBAR_STATE = {
   bgColor: '#fff',
   blockType: 'paragraph' as keyof typeof blockTypeToBlockName,

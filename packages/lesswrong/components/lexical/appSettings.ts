@@ -6,14 +6,16 @@
  *
  */
 
-const hostName = window.location.hostname;
-export const isDevPlayground: boolean =
-  hostName !== 'playground.lexical.dev' &&
-  hostName !== 'lexical-playground.vercel.app';
+// const hostName = window.location.hostname;
+// export const isDevPlayground: boolean =
+//   hostName !== 'playground.lexical.dev' &&
+//   hostName !== 'lexical-playground.vercel.app';
+export const isDevPlayground: boolean = true;
 
 export const DEFAULT_SETTINGS = {
   disableBeforeInput: false,
-  emptyEditor: isDevPlayground,
+  // emptyEditor: isDevPlayground,
+  emptyEditor: true,
   hasLinkAttributes: false,
   hasNestedTables: false,
   isAutocomplete: false,

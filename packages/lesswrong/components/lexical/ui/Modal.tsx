@@ -6,14 +6,70 @@
  *
  */
 
-import type {JSX} from 'react';
-
-import './Modal.css';
+import React, { type JSX } from 'react';
 
 import {isDOMNode} from 'lexical';
-import * as React from 'react';
+
 import {ReactNode, useEffect, useRef} from 'react';
 import {createPortal} from 'react-dom';
+
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const styles = defineStyles('LexicalModal', (theme: ThemeType) => ({
+  overlay: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'fixed',
+    flexDirection: 'column',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.palette.lexicalEditor.modalOverlay,
+    flexGrow: 0,
+    flexShrink: 1,
+    zIndex: 100,
+  },
+  modal: {
+    padding: 20,
+    minHeight: 100,
+    minWidth: 300,
+    display: 'flex',
+    flexGrow: 0,
+    backgroundColor: theme.palette.panelBackground.default,
+    flexDirection: 'column',
+    position: 'relative',
+    boxShadow: `0 0 20px 0 ${theme.palette.greyAlpha(0.2)}`,
+    borderRadius: 10,
+  },
+  title: {
+    color: theme.palette.grey[800],
+    margin: 0,
+    paddingBottom: 10,
+    borderBottom: `1px solid ${theme.palette.grey[310]}`,
+  },
+  closeButton: {
+    border: 0,
+    position: 'absolute',
+    right: 20,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    display: 'flex',
+    width: 30,
+    height: 30,
+    textAlign: 'center',
+    cursor: 'pointer',
+    backgroundColor: theme.palette.grey[200],
+    '&:hover': {
+      backgroundColor: theme.palette.grey[300],
+    },
+  },
+  content: {
+    paddingTop: 20,
+  },
+}));
 
 function PortalImpl({
   onClose,
@@ -26,6 +82,7 @@ function PortalImpl({
   onClose: () => void;
   title: string;
 }) {
+  const classes = useStyles(styles);
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -71,17 +128,17 @@ function PortalImpl({
   }, [closeOnClickOutside, onClose]);
 
   return (
-    <div className="Modal__overlay" role="dialog">
-      <div className="Modal__modal" tabIndex={-1} ref={modalRef}>
-        <h2 className="Modal__title">{title}</h2>
+    <div className={classes.overlay} role="dialog">
+      <div className={classes.modal} tabIndex={-1} ref={modalRef}>
+        <h2 className={classes.title}>{title}</h2>
         <button
-          className="Modal__closeButton"
+          className={classes.closeButton}
           aria-label="Close modal"
           type="button"
           onClick={onClose}>
           X
         </button>
-        <div className="Modal__content">{children}</div>
+        <div className={classes.content}>{children}</div>
       </div>
     </div>
   );

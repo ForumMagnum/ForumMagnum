@@ -603,6 +603,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // Banner ad compatibility - non-affecting default for light mode
     bannerAdBackground: 'transparent',
   },
+  lexicalEditor: {
+    // Modal overlay - specific dark grey, not pure black
+    modalOverlay: "rgba(40, 40, 40, 0.6)",
+    // Equation/LaTeX editor - purple for math syntax
+    equationText: "#8421a2",
+  },
   blockquoteHighlight: {
     commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
     individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",

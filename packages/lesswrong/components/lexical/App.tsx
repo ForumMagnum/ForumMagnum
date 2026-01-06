@@ -6,6 +6,8 @@
  *
  */
 
+import './index.css';
+
 import {$createLinkNode} from '@lexical/link';
 import {$createListItemNode, $createListNode} from '@lexical/list';
 import {LexicalCollaboration} from '@lexical/react/LexicalCollaborationContext';

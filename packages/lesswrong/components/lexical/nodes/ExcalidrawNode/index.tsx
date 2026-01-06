@@ -17,10 +17,10 @@ import type {
   SerializedLexicalNode,
   Spread,
 } from 'lexical';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {DecoratorNode} from 'lexical';
-import * as React from 'react';
+
 
 type Dimension = number | 'inherit';
 

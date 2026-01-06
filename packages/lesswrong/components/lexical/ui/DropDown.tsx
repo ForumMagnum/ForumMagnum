@@ -6,11 +6,11 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {calculateZoomLevel} from '@lexical/utils';
 import {isDOMNode} from 'lexical';
-import * as React from 'react';
+
 import {
   ReactNode,
   useCallback,

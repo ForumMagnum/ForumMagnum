@@ -5,9 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import type {JSX} from 'react';
-
-import './index.css';
+import React, { type JSX } from 'react';
 
 import {
   autoUpdate,
@@ -16,6 +14,7 @@ import {
   useFloating,
   type VirtualElement,
 } from '@floating-ui/react';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
 import {
@@ -39,6 +38,71 @@ import {createPortal} from 'react-dom';
 
 import DropDown, {DropDownItem} from '../../ui/DropDown';
 import {getThemeSelector} from '../../utils/getThemeSelector';
+
+const styles = defineStyles('LexicalTableHoverActionsV2', (theme: ThemeType) => ({
+  addIndicator: {
+    backgroundImage: 'url(../../images/icons/plus.svg)',
+    backgroundColor: theme.palette.grey[0],
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '12px 12px',
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 2,
+    boxShadow: `0 1px 3px ${theme.palette.greyAlpha(0.12)}`,
+    boxSizing: 'border-box',
+    height: 18,
+    pointerEvents: 'auto',
+    transition: 'opacity 80ms ease',
+    width: 18,
+    zIndex: 10,
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[100],
+    },
+  },
+  filterIndicator: {
+    backgroundImage: 'url(../../images/icons/filter-left.svg)',
+    backgroundColor: theme.palette.grey[0],
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: '12px 12px',
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 2,
+    boxShadow: `0 1px 3px ${theme.palette.greyAlpha(0.12)}`,
+    boxSizing: 'border-box',
+    height: 18,
+    pointerEvents: 'auto',
+    transition: 'opacity 80ms ease',
+    width: 18,
+    zIndex: 10,
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[100],
+    },
+  },
+  topActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    position: 'relative',
+  },
+  filterContainer: {
+    position: 'relative',
+  },
+  sortMenuItem: {
+    width: '100%',
+    padding: '6px 12px',
+    background: 'transparent',
+    border: 'none',
+    textAlign: 'left',
+    fontSize: 12,
+    color: theme.palette.grey[900],
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[100],
+    },
+  },
+}));
 
 const INDICATOR_SIZE_PX = 18;
 const SIDE_INDICATOR_SIZE_PX = 18;
@@ -133,6 +197,7 @@ function TableHoverActionsV2({
 }: {
   anchorElem: HTMLElement;
 }): JSX.Element | null {
+  const classes = useStyles(styles);
   const [editor, {getTheme}] = useLexicalComposerContext();
   const isEditable = useLexicalEditable();
   const [isVisible, setIsVisible] = useState(false);
@@ -417,10 +482,10 @@ function TableHoverActionsV2({
           ...floatingStyles,
           opacity: isVisible ? 1 : 0,
         }}
-        className="floating-top-actions">
+        className={classes.topActions}>
         <DropDown
           buttonAriaLabel="Sort column"
-          buttonClassName="floating-filter-indicator"
+          buttonClassName={classes.filterIndicator}
           hideChevron={true}>
           <DropDownItem
             className="item"
@@ -434,7 +499,7 @@ function TableHoverActionsV2({
           </DropDownItem>
         </DropDown>
         <button
-          className="floating-add-indicator"
+          className={classes.addIndicator}
           aria-label="Add column"
           type="button"
           onClick={handleAddColumn}
@@ -449,7 +514,7 @@ function TableHoverActionsV2({
           ...leftFloatingStyles,
           opacity: isLeftVisible ? 1 : 0,
         }}
-        className="floating-add-indicator"
+        className={classes.addIndicator}
         aria-label="Add row"
         type="button"
         onClick={handleAddRow}

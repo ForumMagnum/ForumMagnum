@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import './index.css';
-
 import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
@@ -32,8 +30,55 @@ import {
   XmlElement,
 } from 'yjs';
 
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Button from '../../ui/Button';
 import Modal from '../../ui/Modal';
+
+const styles = defineStyles('LexicalVersionsPlugin', (theme: ThemeType) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16,
+    minWidth: 320,
+  },
+  header: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  versionList: {
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 4,
+    maxHeight: 300,
+    overflowY: 'auto',
+  },
+  versionItem: {
+    alignItems: 'center',
+    backgroundColor: theme.palette.grey[0],
+    border: 'none',
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '12px 16px',
+    width: '100%',
+    '&:disabled': {
+      color: theme.palette.grey[620],
+      fontStyle: 'italic',
+      cursor: 'default',
+    },
+    '&:hover:not(:disabled)': {
+      backgroundColor: theme.palette.grey[100],
+    },
+  },
+  versionItemSelected: {
+    backgroundColor: theme.palette.primary.light,
+  },
+  compareButton: {
+    alignSelf: 'center',
+  },
+}));
 
 interface Version {
   name: string;
@@ -221,13 +266,14 @@ function VersionsModal({
   onAddVersion: () => void;
   onClose: () => void;
 }) {
+  const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
   const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
 
   return (
     <Modal onClose={onClose} title="Version History">
-      <div className="VersionsPlugin_Container">
-        <div className="VersionsPlugin_Header">
+      <div className={classes.container}>
+        <div className={classes.header}>
           <Button onClick={onAddVersion}>+ Add snapshot</Button>
           {isDiffMode && (
             <Button
@@ -244,9 +290,9 @@ function VersionsModal({
         </div>
 
         {/* Version list */}
-        <div className="VersionsPlugin_VersionList">
+        <div className={classes.versionList}>
           {versions.length === 0 ? (
-            <button className="VersionsPlugin_VersionItem" disabled={true}>
+            <button className={classes.versionItem} disabled={true}>
               Add a snapshot to get started
             </button>
           ) : (
@@ -257,9 +303,10 @@ function VersionsModal({
                 <button
                   key={version.name}
                   onClick={() => setSelectedVersion(idx)}
-                  className={`VersionsPlugin_VersionItem ${
-                    isSelected ? 'VersionsPlugin_VersionItem--selected' : ''
-                  }`}>
+                  className={classNames(
+                    classes.versionItem,
+                    isSelected && classes.versionItemSelected,
+                  )}>
                   Snapshot at {new Date(version.timestamp).toLocaleString()}
                 </button>
               );
@@ -274,7 +321,7 @@ function VersionsModal({
             onClose();
           }}
           disabled={selectedVersion === null}
-          className="VersionsPlugin_CompareButton">
+          className={classes.compareButton}>
           Show changes since selected version
         </Button>
       </div>

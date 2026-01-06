@@ -571,6 +571,10 @@ declare global {
       // Banner ad compatibility
       bannerAdBackground: ColorString,
     },
+    lexicalEditor: {
+      modalOverlay: ColorString,
+      equationText: ColorString,
+    },
     blockquoteHighlight: {
       commentHovered: ColorString,
       individualQuoteHovered: ColorString,

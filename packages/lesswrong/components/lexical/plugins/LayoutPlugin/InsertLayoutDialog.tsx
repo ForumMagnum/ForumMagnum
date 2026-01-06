@@ -6,10 +6,10 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {LexicalEditor} from 'lexical';
-import * as React from 'react';
+
 import {useState} from 'react';
 
 import Button from '../../ui/Button';

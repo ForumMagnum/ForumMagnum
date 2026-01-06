@@ -6,9 +6,11 @@
  *
  */
 import type {ExcalidrawInitialElements} from '../../ui/ExcalidrawModal';
+// @ts-ignore - @excalidraw/excalidraw types not installed yet
 import type {AppState, BinaryFiles} from '@excalidraw/excalidraw/types';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
+// @ts-ignore - @excalidraw/excalidraw not installed yet
 import '@excalidraw/excalidraw/index.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';

@@ -6,7 +6,7 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {registerCodeHighlighting} from '@lexical/code-shiki';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';

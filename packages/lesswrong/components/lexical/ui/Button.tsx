@@ -6,14 +6,43 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
-import './Button.css';
 
-import * as React from 'react';
 import {ReactNode} from 'react';
 
-import joinClasses from '../utils/joinClasses';
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const styles = defineStyles('LexicalButton', (theme: ThemeType) => ({
+  root: {
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingLeft: 15,
+    paddingRight: 15,
+    border: 0,
+    backgroundColor: theme.palette.grey[200],
+    borderRadius: 5,
+    cursor: 'pointer',
+    fontSize: 14,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[300],
+    },
+  },
+  small: {
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    fontSize: 13,
+  },
+  disabled: {
+    cursor: 'not-allowed',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
+}));
 
 export default function Button({
   'data-test-id': dataTestId,
@@ -32,13 +61,14 @@ export default function Button({
   small?: boolean;
   title?: string;
 }): JSX.Element {
+  const classes = useStyles(styles);
   return (
     <button
       disabled={disabled}
-      className={joinClasses(
-        'Button__root',
-        disabled && 'Button__disabled',
-        small && 'Button__small',
+      className={classNames(
+        classes.root,
+        disabled && classes.disabled,
+        small && classes.small,
         className,
       )}
       onClick={onClick}

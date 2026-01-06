@@ -7,9 +7,7 @@
  */
 
 import type {LexicalCommand, LexicalEditor, NodeKey} from 'lexical';
-import type {JSX} from 'react';
-
-import './ImageNode.css';
+import React, { type JSX } from 'react';
 
 import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
 import {CollaborationPlugin} from '@lexical/react/LexicalCollaborationPlugin';
@@ -39,7 +37,7 @@ import {
   KEY_ESCAPE_COMMAND,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import * as React from 'react';
+
 import {
   Suspense,
   useCallback,
@@ -49,6 +47,7 @@ import {
   useState,
 } from 'react';
 
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {createWebsocketProvider} from '../collaboration';
 import {useSettings} from '../context/SettingsContext';
 import {useSharedHistoryContext} from '../context/SharedHistoryContext';
@@ -61,6 +60,43 @@ import TreeViewPlugin from '../plugins/TreeViewPlugin';
 import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import {$isCaptionEditorEmpty, $isImageNode} from './ImageNode';
+
+const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
+  contentEditable: {
+    minHeight: 20,
+    border: 0,
+    resize: 'none',
+    cursor: 'text',
+    caretColor: theme.palette.grey[1000],
+    display: 'block',
+    position: 'relative',
+    outline: 0,
+    padding: 10,
+    userSelect: 'text',
+    fontSize: 12,
+    width: '100%',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+    overflowWrap: 'break-word',
+    boxSizing: 'border-box',
+  },
+  placeholder: {
+    fontSize: 12,
+    color: theme.palette.grey[500],
+    overflow: 'hidden',
+    position: 'absolute',
+    textOverflow: 'ellipsis',
+    top: 10,
+    left: 10,
+    userSelect: 'none',
+    whiteSpace: 'nowrap',
+    display: 'inline-block',
+    pointerEvents: 'none',
+  },
+  resizing: {
+    touchAction: 'none',
+  },
+}));
 
 type ImageStatus =
   | {error: true}
@@ -247,6 +283,7 @@ export default function ImageComponent({
   width: 'inherit' | number;
   captionsEnabled: boolean;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const imageRef = useRef<null | HTMLImageElement>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [isSelected, setSelected, clearSelection] =
@@ -460,7 +497,7 @@ export default function ImageComponent({
   return (
     <Suspense fallback={null}>
       <>
-        <div draggable={draggable}>
+        <div draggable={draggable} className={isResizing ? classes.resizing : undefined}>
           {isLoadError ? (
             <BrokenImage />
           ) : (
@@ -503,8 +540,8 @@ export default function ImageComponent({
                 contentEditable={
                   <ContentEditable
                     placeholder="Enter a caption..."
-                    placeholderClassName="ImageNode__placeholder"
-                    className="ImageNode__contentEditable"
+                    placeholderClassName={classes.placeholder}
+                    className={classes.contentEditable}
                   />
                 }
                 ErrorBoundary={LexicalErrorBoundary}

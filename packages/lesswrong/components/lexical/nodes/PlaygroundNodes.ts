@@ -25,7 +25,7 @@ import {AutocompleteNode} from './AutocompleteNode';
 import {DateTimeNode} from './DateTimeNode/DateTimeNode';
 import {EmojiNode} from './EmojiNode';
 import {EquationNode} from './EquationNode';
-import {ExcalidrawNode} from './ExcalidrawNode';
+// import {ExcalidrawNode} from './ExcalidrawNode';
 import {FigmaNode} from './FigmaNode';
 import {ImageNode} from './ImageNode';
 import {KeywordNode} from './KeywordNode';
@@ -58,7 +58,7 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   ImageNode,
   MentionNode,
   EmojiNode,
-  ExcalidrawNode,
+  // ExcalidrawNode,
   EquationNode,
   AutocompleteNode,
   KeywordNode,

@@ -6,7 +6,7 @@
  *
  */
 
-import * as React from 'react';
+
 
 import ColorPicker from './ColorPicker';
 import DropDown from './DropDown';

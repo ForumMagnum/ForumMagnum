@@ -6,10 +6,10 @@
  *
  */
 
-import './fontSize.css';
-
 import {LexicalEditor} from 'lexical';
-import * as React from 'react';
+
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 
 import {
   MAX_ALLOWED_FONT_SIZE,
@@ -22,6 +22,51 @@ import {
   updateFontSizeInSelection,
   UpdateFontSizeType,
 } from './utils';
+
+import React from 'react';
+
+const styles = defineStyles('LexicalFontSize', (theme: ThemeType) => ({
+  fontSizeInput: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    borderRadius: 5,
+    borderColor: theme.palette.grey[500],
+    height: 15,
+    padding: '2px 4px',
+    textAlign: 'center',
+    width: 20,
+    alignSelf: 'center',
+    '&:disabled': {
+      opacity: 0.2,
+      cursor: 'not-allowed',
+    },
+    // Hide number input spinners
+    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+      WebkitAppearance: 'none',
+      margin: 0,
+    },
+    MozAppearance: 'textfield',
+  },
+  addIcon: {
+    backgroundImage: 'url(../../images/icons/add-sign.svg)',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+  },
+  minusIcon: {
+    backgroundImage: 'url(../../images/icons/minus-sign.svg)',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+  },
+  fontDecrement: {
+    padding: 0,
+    marginRight: 3,
+  },
+  fontIncrement: {
+    padding: 0,
+    marginLeft: 3,
+  },
+}));
 
 function parseFontSize(input: string): [number, string] | null {
   const match = input.match(/^(\d+(?:\.\d+)?)(px|pt)$/);
@@ -69,6 +114,7 @@ export default function FontSize({
   disabled: boolean;
   editor: LexicalEditor;
 }) {
+  const classes = useStyles(styles);
   const [inputValue, setInputValue] = React.useState<string>(selectionFontSize);
   const [inputChangeFlag, setInputChangeFlag] = React.useState<boolean>(false);
   const [isMouseMode, setIsMouseMode] = React.useState(false);
@@ -147,10 +193,10 @@ export default function FontSize({
             isKeyboardInput(e),
           );
         }}
-        className="toolbar-item font-decrement"
+        className={classNames('toolbar-item', classes.fontDecrement)}
         aria-label="Decrease font size"
         title={`Decrease font size (${SHORTCUTS.DECREASE_FONT_SIZE})`}>
-        <i className="format minus-icon" />
+        <i className={classNames('format', classes.minusIcon)} />
       </button>
 
       <input
@@ -158,7 +204,7 @@ export default function FontSize({
         title="Font size"
         value={inputValue}
         disabled={disabled}
-        className="toolbar-item font-size-input"
+        className={classNames('toolbar-item', classes.fontSizeInput)}
         min={MIN_ALLOWED_FONT_SIZE}
         max={MAX_ALLOWED_FONT_SIZE}
         onChange={(e) => setInputValue(e.target.value)}
@@ -182,10 +228,10 @@ export default function FontSize({
             isKeyboardInput(e),
           );
         }}
-        className="toolbar-item font-increment"
+        className={classNames('toolbar-item', classes.fontIncrement)}
         aria-label="Increase font size"
         title={`Increase font size (${SHORTCUTS.INCREASE_FONT_SIZE})`}>
-        <i className="format add-icon" />
+        <i className={classNames('format', classes.addIcon)} />
       </button>
     </>
   );

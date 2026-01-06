@@ -6,15 +6,18 @@
  *
  */
 
+// @ts-ignore - @excalidraw/excalidraw types not installed yet
 import type {
   ExcalidrawElement,
   NonDeleted,
 } from '@excalidraw/excalidraw/element/types';
+// @ts-ignore - @excalidraw/excalidraw types not installed yet
 import type {AppState, BinaryFiles} from '@excalidraw/excalidraw/types';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
+// @ts-ignore - @excalidraw/excalidraw not installed yet
 import {exportToSvg} from '@excalidraw/excalidraw';
-import * as React from 'react';
+
 import {useEffect, useState} from 'react';
 
 type ImageType = 'svg' | 'canvas';

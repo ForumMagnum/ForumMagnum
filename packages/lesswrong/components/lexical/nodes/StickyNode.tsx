@@ -16,10 +16,10 @@ import type {
   SerializedLexicalNode,
   Spread,
 } from 'lexical';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {$setSelection, createEditor, DecoratorNode} from 'lexical';
-import * as React from 'react';
+
 import {createPortal} from 'react-dom';
 
 const StickyComponent = React.lazy(() => import('./StickyComponent'));

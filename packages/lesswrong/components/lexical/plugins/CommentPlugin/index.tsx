@@ -14,10 +14,8 @@ import type {
   NodeKey,
   RangeSelection,
 } from 'lexical';
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 import type {Doc} from 'yjs';
-
-import './index.css';
 
 import {
   $createMarkNode,
@@ -61,7 +59,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import * as React from 'react';
 import {createPortal} from 'react-dom';
 
 import {
@@ -77,6 +74,379 @@ import useModal from '../../hooks/useModal';
 import CommentEditorTheme from '../../themes/CommentEditorTheme';
 import Button from '../../ui/Button';
 import ContentEditable from '../../ui/ContentEditable';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+
+const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
+  addCommentBox: {
+    display: 'block',
+    position: 'fixed',
+    borderRadius: 20,
+    backgroundColor: theme.palette.grey[0],
+    width: 40,
+    height: 60,
+    boxShadow: `0 0 3px ${theme.palette.greyAlpha(0.2)}`,
+    zIndex: 10,
+    '@media (max-width: 600px)': {
+      display: 'none',
+    },
+  },
+  addCommentBoxButton: {
+    borderRadius: 20,
+    border: 0,
+    background: 'none',
+    width: 40,
+    height: 60,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[100],
+    },
+  },
+  addCommentIcon: {
+    backgroundSize: 'contain',
+    display: 'inline-block',
+    height: 20,
+    width: 20,
+    verticalAlign: '-10px',
+    backgroundImage: 'url(../../images/icons/chat-left-text.svg)',
+  },
+  commentInputBox: {
+    display: 'block',
+    position: 'absolute',
+    width: 250,
+    minHeight: 80,
+    backgroundColor: theme.palette.grey[0],
+    boxShadow: `0 0 5px 0 ${theme.palette.greyAlpha(0.1)}`,
+    borderRadius: 5,
+    zIndex: 24,
+    animation: '$showInputBox 0.4s ease',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      width: 0,
+      height: 0,
+      marginLeft: '0.5em',
+      right: '-1em',
+      top: 0,
+      left: 'calc(50% + 0.25em)',
+      boxSizing: 'border-box',
+      border: `0.5em solid ${theme.palette.grey[1000]}`,
+      borderColor: `transparent transparent ${theme.palette.grey[0]} ${theme.palette.grey[0]}`,
+      transformOrigin: '0 0',
+      transform: 'rotate(135deg)',
+      boxShadow: `-3px 3px 3px 0 ${theme.palette.greyAlpha(0.05)}`,
+    },
+  },
+  '@keyframes showInputBox': {
+    '0%': {
+      opacity: 0,
+      transform: 'translateY(50px)',
+    },
+    '100%': {
+      opacity: 1,
+      transform: 'translateY(0)',
+    },
+  },
+  commentInputBoxButtons: {
+    display: 'flex',
+    flexDirection: 'row',
+    padding: '0 10px 10px 10px',
+    gap: 10,
+  },
+  commentInputBoxButton: {
+    flex: 1,
+  },
+  commentInputBoxButtonPrimary: {
+    backgroundColor: 'rgb(66, 135, 245)',
+    fontWeight: 'bold',
+    color: theme.palette.grey[0],
+    '&:hover': {
+      backgroundColor: 'rgb(53, 114, 211)',
+    },
+    '&:disabled': {
+      backgroundColor: theme.palette.grey[200],
+      opacity: 0.5,
+      cursor: 'not-allowed',
+      fontWeight: 'normal',
+      color: theme.palette.grey[700],
+      '&:hover': {
+        opacity: 0.5,
+        backgroundColor: theme.palette.grey[200],
+      },
+    },
+  },
+  commentInputBoxEditorContainer: {
+    position: 'relative',
+    margin: 10,
+    borderRadius: 5,
+  },
+  commentInputBoxEditor: {
+    position: 'relative',
+    border: `1px solid ${theme.palette.grey[400]}`,
+    backgroundColor: theme.palette.grey[0],
+    borderRadius: 5,
+    fontSize: 15,
+    caretColor: theme.palette.grey[900],
+    display: 'block',
+    padding: '9px 10px 10px 9px',
+    minHeight: 80,
+    '&:focus': {
+      outline: '1px solid rgb(66, 135, 245)',
+    },
+  },
+  showCommentsButton: {
+    position: 'fixed',
+    top: 10,
+    right: 10,
+    backgroundColor: theme.palette.grey[300],
+    borderRadius: 10,
+    '@media (max-width: 600px)': {
+      display: 'none',
+    },
+    '&:hover $commentsIcon': {
+      opacity: 1,
+    },
+  },
+  showCommentsButtonActive: {
+    backgroundColor: theme.palette.grey[400],
+  },
+  commentsIcon: {
+    backgroundSize: 'contain',
+    display: 'inline-block',
+    height: 20,
+    width: 20,
+    verticalAlign: '-10px',
+    backgroundImage: 'url(../../images/icons/comments.svg)',
+    opacity: 0.5,
+    transition: 'opacity 0.2s linear',
+  },
+  commentsPanel: {
+    position: 'fixed',
+    right: 0,
+    width: 300,
+    height: 'calc(100% - 88px)',
+    top: 88,
+    backgroundColor: theme.palette.grey[0],
+    borderTopLeftRadius: 10,
+    boxShadow: `0 0 10px ${theme.palette.greyAlpha(0.1)}`,
+    animation: '$showComments 0.2s ease',
+    zIndex: 25,
+  },
+  '@keyframes showComments': {
+    '0%': {
+      opacity: 0,
+      transform: 'translateX(300px)',
+    },
+    '100%': {
+      opacity: 1,
+      transform: 'translateX(0)',
+    },
+  },
+  commentsPanelHeading: {
+    paddingLeft: 15,
+    paddingTop: 10,
+    margin: 0,
+    height: 34,
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    fontSize: 20,
+    display: 'block',
+    width: '100%',
+    color: theme.palette.grey[700],
+    overflow: 'hidden',
+  },
+  commentsPanelEditor: {
+    position: 'relative',
+    border: `1px solid ${theme.palette.grey[400]}`,
+    backgroundColor: theme.palette.grey[0],
+    borderRadius: 5,
+    fontSize: 15,
+    caretColor: theme.palette.grey[900],
+    display: 'block',
+    padding: '9px 10px 10px 9px',
+    minHeight: 20,
+    '&::before': {
+      content: '""',
+      width: 30,
+      height: 20,
+      float: 'right',
+    },
+  },
+  commentsPanelSendButton: {
+    position: 'absolute',
+    right: 10,
+    top: 8,
+    background: 'none',
+    '&:hover': {
+      background: 'none',
+      '& $sendIcon': {
+        opacity: 1,
+        filter: 'invert(45%) sepia(98%) saturate(2299%) hue-rotate(201deg) brightness(100%) contrast(92%)',
+      },
+    },
+    '&:disabled $sendIcon': {
+      opacity: 0.3,
+    },
+    '&:disabled:hover $sendIcon': {
+      opacity: 0.3,
+      filter: 'none',
+    },
+  },
+  sendIcon: {
+    backgroundSize: 'contain',
+    display: 'inline-block',
+    height: 20,
+    width: 20,
+    verticalAlign: '-10px',
+    backgroundImage: 'url(../../images/icons/send.svg)',
+    opacity: 0.5,
+    transition: 'opacity 0.2s linear',
+  },
+  commentsPanelEmpty: {
+    color: theme.palette.grey[600],
+    fontSize: 15,
+    textAlign: 'center',
+    position: 'absolute',
+    top: 'calc(50% - 15px)',
+    margin: 0,
+    padding: 0,
+    width: '100%',
+  },
+  commentsPanelList: {
+    padding: 0,
+    listStyleType: 'none',
+    margin: 0,
+    width: '100%',
+    position: 'absolute',
+    top: 45,
+    overflowY: 'auto',
+    height: 'calc(100% - 45px)',
+  },
+  listComment: {
+    padding: '15px 0 15px 15px',
+    margin: 0,
+    fontSize: 14,
+    position: 'relative',
+    transition: 'all 0.2s linear',
+    '& p': {
+      margin: 0,
+      color: theme.palette.grey[700],
+    },
+  },
+  listDetails: {
+    color: theme.palette.grey[700],
+    paddingBottom: 5,
+    verticalAlign: 'top',
+  },
+  commentAuthor: {
+    fontWeight: 'bold',
+    paddingRight: 5,
+  },
+  commentTime: {
+    color: theme.palette.grey[500],
+  },
+  listThread: {
+    padding: 0,
+    margin: 0,
+    borderTop: `1px solid ${theme.palette.grey[200]}`,
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    position: 'relative',
+    transition: 'all 0.2s linear',
+    borderLeft: `0 solid ${theme.palette.grey[200]}`,
+    '&:first-child, & + &': {
+      borderTop: 'none',
+    },
+  },
+  listThreadInteractive: {
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[50],
+    },
+  },
+  listThreadActive: {
+    backgroundColor: theme.palette.grey[50],
+    borderLeft: `15px solid ${theme.palette.grey[200]}`,
+    cursor: 'inherit',
+    '& $listComment:hover': {
+      backgroundColor: 'inherit',
+    },
+  },
+  threadQuoteBox: {
+    paddingTop: 10,
+    color: theme.palette.grey[400],
+    display: 'block',
+    '&:hover $deleteButton': {
+      opacity: 0.5,
+    },
+  },
+  threadQuote: {
+    margin: '0px 10px 0 10px',
+    '& span': {
+      color: theme.palette.grey[900],
+      backgroundColor: 'rgba(255, 212, 0, 0.4)',
+      padding: 1,
+      lineHeight: 1.4,
+      display: 'inline',
+      fontWeight: 'bold',
+    },
+  },
+  threadComments: {
+    paddingLeft: 10,
+    listStyleType: 'none',
+    '& $listComment:first-child': {
+      border: 'none',
+      marginLeft: 0,
+      paddingLeft: 5,
+    },
+    '& $listComment:first-child:last-child': {
+      paddingBottom: 5,
+    },
+    '& $listComment': {
+      paddingLeft: 10,
+      borderLeft: `5px solid ${theme.palette.grey[200]}`,
+      marginLeft: 5,
+    },
+  },
+  threadEditor: {
+    position: 'relative',
+    paddingTop: 1,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 30,
+    height: 30,
+    backgroundColor: 'transparent',
+    opacity: 0,
+    '&:hover': {
+      backgroundColor: 'transparent',
+      opacity: 1,
+      filter: 'invert(45%) sepia(98%) saturate(2299%) hue-rotate(201deg) brightness(100%) contrast(92%)',
+    },
+  },
+  deleteIcon: {
+    backgroundSize: 'contain',
+    position: 'absolute',
+    left: 5,
+    top: 5,
+    height: 15,
+    width: 15,
+    verticalAlign: '-10px',
+    backgroundImage: 'url(../../images/icons/trash3.svg)',
+    transition: 'opacity 0.2s linear',
+  },
+  deletedComment: {
+    opacity: 0.5,
+  },
+  listCommentHover: {
+    '&:hover $deleteButton': {
+      opacity: 0.5,
+    },
+  },
+}));
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -91,6 +461,7 @@ function AddCommentBox({
   editor: LexicalEditor;
   onAddComment: () => void;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const boxRef = useRef<HTMLDivElement>(null);
 
   const updatePosition = useCallback(() => {
@@ -119,11 +490,11 @@ function AddCommentBox({
   }, [anchorKey, editor, updatePosition]);
 
   return (
-    <div className="CommentPlugin_AddCommentBox" ref={boxRef}>
+    <div className={classes.addCommentBox} ref={boxRef}>
       <button
-        className="CommentPlugin_AddCommentBox_button"
+        className={classes.addCommentBoxButton}
         onClick={onAddComment}>
-        <i className="icon add-comment" />
+        <i className={classNames('icon', classes.addCommentIcon)} />
       </button>
     </div>
   );
@@ -173,9 +544,10 @@ function PlainTextEditor({
     theme: CommentEditorTheme,
   };
 
+  const classes = useStyles(styles);
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className="CommentPlugin_CommentInputBox_EditorContainer">
+      <div className={classes.commentInputBoxEditorContainer}>
         <PlainTextPlugin
           contentEditable={
             <ContentEditable placeholder={placeholder} className={className} />
@@ -222,6 +594,7 @@ function CommentInputBox({
     selection?: RangeSelection | null,
   ) => void;
 }) {
+  const classes = useStyles(styles);
   const [content, setContent] = useState('');
   const [canSubmit, setCanSubmit] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
@@ -347,22 +720,22 @@ function CommentInputBox({
   const onChange = useOnChange(setContent, setCanSubmit);
 
   return (
-    <div className="CommentPlugin_CommentInputBox" ref={boxRef}>
+    <div className={classes.commentInputBox} ref={boxRef}>
       <PlainTextEditor
-        className="CommentPlugin_CommentInputBox_Editor"
+        className={classes.commentInputBoxEditor}
         onEscape={onEscape}
         onChange={onChange}
       />
-      <div className="CommentPlugin_CommentInputBox_Buttons">
+      <div className={classes.commentInputBoxButtons}>
         <Button
           onClick={cancelAddComment}
-          className="CommentPlugin_CommentInputBox_Button">
+          className={classes.commentInputBoxButton}>
           Cancel
         </Button>
         <Button
           onClick={submitComment}
           disabled={!canSubmit}
-          className="CommentPlugin_CommentInputBox_Button primary">
+          className={classNames(classes.commentInputBoxButton, classes.commentInputBoxButtonPrimary)}>
           Comment
         </Button>
       </div>
@@ -384,6 +757,7 @@ function CommentsComposer({
   ) => void;
   thread?: Thread;
 }) {
+  const classes = useStyles(styles);
   const [content, setContent] = useState('');
   const [canSubmit, setCanSubmit] = useState(false);
   const editorRef = useRef<LexicalEditor>(null);
@@ -404,7 +778,7 @@ function CommentsComposer({
   return (
     <>
       <PlainTextEditor
-        className="CommentPlugin_CommentsPanel_Editor"
+        className={classes.commentsPanelEditor}
         autoFocus={false}
         onEscape={() => {
           return true;
@@ -414,10 +788,10 @@ function CommentsComposer({
         placeholder={placeholder}
       />
       <Button
-        className="CommentPlugin_CommentsPanel_SendButton"
+        className={classes.commentsPanelSendButton}
         onClick={submitComment}
         disabled={!canSubmit}>
-        <i className="send" />
+        <i className={classes.sendIcon} />
       </Button>
     </>
   );
@@ -476,6 +850,7 @@ function CommentsPanelListComment({
   rtf: Intl.RelativeTimeFormat;
   thread?: Thread;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const seconds = Math.round(
     (comment.timeStamp - (performance.timeOrigin + performance.now())) / 1000,
   );
@@ -483,19 +858,17 @@ function CommentsPanelListComment({
   const [modal, showModal] = useModal();
 
   return (
-    <li className="CommentPlugin_CommentsPanel_List_Comment">
-      <div className="CommentPlugin_CommentsPanel_List_Details">
-        <span className="CommentPlugin_CommentsPanel_List_Comment_Author">
+    <li className={classNames(classes.listComment, classes.listCommentHover)}>
+      <div className={classes.listDetails}>
+        <span className={classes.commentAuthor}>
           {comment.author}
         </span>
-        <span className="CommentPlugin_CommentsPanel_List_Comment_Time">
+        <span className={classes.commentTime}>
           · {seconds > -10 ? 'Just now' : rtf.format(minutes, 'minute')}
         </span>
       </div>
       <p
-        className={
-          comment.deleted ? 'CommentPlugin_CommentsPanel_DeletedComment' : ''
-        }>
+        className={comment.deleted ? classes.deletedComment : ''}>
         {comment.content}
       </p>
       {!comment.deleted && (
@@ -511,8 +884,8 @@ function CommentsPanelListComment({
                 />
               ));
             }}
-            className="CommentPlugin_CommentsPanel_List_DeleteButton">
-            <i className="delete" />
+            className={classes.deleteButton}>
+            <i className={classes.deleteIcon} />
           </Button>
           {modal}
         </>
@@ -543,6 +916,7 @@ function CommentsPanelList({
     thread?: Thread,
   ) => void;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
   const [counter, setCounter] = useState(0);
   const [modal, showModal] = useModal();
@@ -568,7 +942,7 @@ function CommentsPanelList({
   }, [counter]);
 
   return (
-    <ul className="CommentPlugin_CommentsPanel_List" ref={listRef}>
+    <ul className={classes.commentsPanelList} ref={listRef}>
       {comments.map((commentOrThread) => {
         const id = commentOrThread.id;
         if (commentOrThread.type === 'thread') {
@@ -602,15 +976,16 @@ function CommentsPanelList({
           };
 
           return (
-            // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
             <li
               key={id}
               onClick={handleClickThread}
-              className={`CommentPlugin_CommentsPanel_List_Thread ${
-                markNodeMap.has(id) ? 'interactive' : ''
-              } ${activeIDs.indexOf(id) === -1 ? '' : 'active'}`}>
-              <div className="CommentPlugin_CommentsPanel_List_Thread_QuoteBox">
-                <blockquote className="CommentPlugin_CommentsPanel_List_Thread_Quote">
+              className={classNames(
+                classes.listThread,
+                { [classes.listThreadInteractive]: markNodeMap.has(id) },
+                { [classes.listThreadActive]: activeIDs.indexOf(id) !== -1 }
+              )}>
+              <div className={classes.threadQuoteBox}>
+                <blockquote className={classes.threadQuote}>
                   {'> '}
                   <span>{commentOrThread.quote}</span>
                 </blockquote>
@@ -625,12 +1000,12 @@ function CommentsPanelList({
                       />
                     ));
                   }}
-                  className="CommentPlugin_CommentsPanel_List_DeleteButton">
-                  <i className="delete" />
+                  className={classes.deleteButton}>
+                  <i className={classes.deleteIcon} />
                 </Button>
                 {modal}
               </div>
-              <ul className="CommentPlugin_CommentsPanel_List_Thread_Comments">
+              <ul className={classes.threadComments}>
                 {commentOrThread.comments.map((comment) => (
                   <CommentsPanelListComment
                     key={comment.id}
@@ -641,7 +1016,7 @@ function CommentsPanelList({
                   />
                 ))}
               </ul>
-              <div className="CommentPlugin_CommentsPanel_List_Thread_Editor">
+              <div className={classes.threadEditor}>
                 <CommentsComposer
                   submitAddComment={submitAddComment}
                   thread={commentOrThread}
@@ -684,14 +1059,15 @@ function CommentsPanel({
     thread?: Thread,
   ) => void;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const listRef = useRef<HTMLUListElement>(null);
   const isEmpty = comments.length === 0;
 
   return (
-    <div className="CommentPlugin_CommentsPanel">
-      <h2 className="CommentPlugin_CommentsPanel_Heading">Comments</h2>
+    <div className={classes.commentsPanel}>
+      <h2 className={classes.commentsPanelHeading}>Comments</h2>
       {isEmpty ? (
-        <div className="CommentPlugin_CommentsPanel_Empty">No Comments</div>
+        <div className={classes.commentsPanelEmpty}>No Comments</div>
       ) : (
         <CommentsPanelList
           activeIDs={activeIDs}
@@ -717,6 +1093,7 @@ export default function CommentPlugin({
 }: {
   providerFactory?: (id: string, yjsDocMap: Map<string, Doc>) => Provider;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const collabContext = useCollaborationContext();
   const [editor] = useLexicalComposerContext();
   const commentStore = useMemo(() => new CommentStore(editor), [editor]);
@@ -973,12 +1350,10 @@ export default function CommentPlugin({
         )}
       {createPortal(
         <Button
-          className={`CommentPlugin_ShowCommentsButton ${
-            showComments ? 'active' : ''
-          }`}
+          className={classNames(classes.showCommentsButton, { [classes.showCommentsButtonActive]: showComments })}
           onClick={() => setShowComments(!showComments)}
           title={showComments ? 'Hide Comments' : 'Show Comments'}>
-          <i className="comments" />
+          <i className={classes.commentsIcon} />
         </Button>,
         document.body,
       )}

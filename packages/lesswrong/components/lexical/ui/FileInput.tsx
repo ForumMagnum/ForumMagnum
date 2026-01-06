@@ -6,11 +6,36 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
-import './Input.css';
 
-import * as React from 'react';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const styles = defineStyles('LexicalFileInput', (theme: ThemeType) => ({
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  label: {
+    display: 'flex',
+    flex: 1,
+    color: theme.palette.grey[600],
+  },
+  input: {
+    display: 'flex',
+    flex: 2,
+    border: `1px solid ${theme.palette.grey[500]}`,
+    paddingTop: 7,
+    paddingBottom: 7,
+    paddingLeft: 10,
+    paddingRight: 10,
+    fontSize: 16,
+    borderRadius: 5,
+    minWidth: 0,
+  },
+}));
 
 type Props = Readonly<{
   'data-test-id'?: string;
@@ -25,13 +50,14 @@ export default function FileInput({
   onChange,
   'data-test-id': dataTestId,
 }: Props): JSX.Element {
+  const classes = useStyles(styles);
   return (
-    <div className="Input__wrapper">
-      <label className="Input__label">{label}</label>
+    <div className={classes.wrapper}>
+      <label className={classes.label}>{label}</label>
       <input
         type="file"
         accept={accept}
-        className="Input__input"
+        className={classes.input}
         onChange={(e) => onChange(e.target.files)}
         data-test-id={dataTestId}
       />

@@ -6,11 +6,11 @@
  *
  */
 
-import type {JSX} from 'react';
-
-import './index.css';
+import React, { type JSX } from 'react';
 
 import {$isCodeHighlightNode} from '@lexical/code';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
@@ -26,13 +26,132 @@ import {
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
 import {Dispatch, useCallback, useEffect, useRef, useState} from 'react';
-import * as React from 'react';
 import {createPortal} from 'react-dom';
 
 import {getDOMRangeRect} from '../../utils/getDOMRangeRect';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPosition} from '../../utils/setFloatingElemPosition';
 import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
+
+const styles = defineStyles('LexicalFloatingTextFormatToolbar', (theme: ThemeType) => ({
+  popup: {
+    display: 'flex',
+    background: theme.palette.grey[0],
+    padding: 4,
+    verticalAlign: 'middle',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 10,
+    opacity: 0,
+    boxShadow: `0px 5px 10px ${theme.palette.greyAlpha(0.3)}`,
+    borderRadius: 8,
+    transition: 'opacity 0.5s',
+    height: 35,
+    willChange: 'transform',
+  },
+  popupItem: {
+    border: 0,
+    display: 'flex',
+    background: 'none',
+    borderRadius: 10,
+    padding: 8,
+    cursor: 'pointer',
+    verticalAlign: 'middle',
+    '&:disabled': {
+      cursor: 'not-allowed',
+    },
+    '&:hover:not([disabled])': {
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
+  spaced: {
+    marginRight: 2,
+  },
+  format: {
+    backgroundSize: 'contain',
+    height: 18,
+    width: 18,
+    marginTop: 2,
+    verticalAlign: '-0.25em',
+    display: 'flex',
+    opacity: 0.6,
+  },
+  formatDisabled: {
+    opacity: 0.2,
+  },
+  active: {
+    backgroundColor: theme.palette.greyAlpha(0.03),
+    '& $format': {
+      opacity: 1,
+    },
+  },
+  selectPopupItem: {
+    border: 0,
+    display: 'flex',
+    background: 'none',
+    borderRadius: 10,
+    padding: 8,
+    verticalAlign: 'middle',
+    WebkitAppearance: 'none',
+    MozAppearance: 'none',
+    width: 70,
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    textOverflow: 'ellipsis',
+  },
+  codeLanguage: {
+    textTransform: 'capitalize',
+    width: 130,
+  },
+  text: {
+    display: 'flex',
+    lineHeight: '20px',
+    verticalAlign: 'middle',
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    textOverflow: 'ellipsis',
+    width: 70,
+    overflow: 'hidden',
+    height: 20,
+    textAlign: 'left',
+  },
+  icon: {
+    display: 'flex',
+    width: 20,
+    height: 20,
+    userSelect: 'none',
+    marginRight: 8,
+    lineHeight: '16px',
+    backgroundSize: 'contain',
+  },
+  chevronDown: {
+    marginTop: 3,
+    width: 16,
+    height: 16,
+    display: 'flex',
+    userSelect: 'none',
+  },
+  chevronDownInside: {
+    width: 16,
+    height: 16,
+    display: 'flex',
+    marginLeft: -25,
+    marginTop: 11,
+    marginRight: 10,
+    pointerEvents: 'none',
+  },
+  divider: {
+    width: 1,
+    backgroundColor: theme.palette.grey[200],
+    margin: '0 4px',
+  },
+  insertComment: {
+    '@media (max-width: 1024px)': {
+      display: 'none',
+    },
+  },
+}));
 
 function TextFormatFloatingToolbar({
   editor,
@@ -65,6 +184,7 @@ function TextFormatFloatingToolbar({
   isUnderline: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
 
   const insertLink = useCallback(() => {
@@ -192,7 +312,7 @@ function TextFormatFloatingToolbar({
   }, [editor, $updateTextFormatFloatingToolbar]);
 
   return (
-    <div ref={popupCharStylesEditorRef} className="floating-text-format-popup">
+    <div ref={popupCharStylesEditorRef} className={classes.popup}>
       {editor.isEditable() && (
         <>
           <button
@@ -200,118 +320,118 @@ function TextFormatFloatingToolbar({
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
             }}
-            className={'popup-item spaced ' + (isBold ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isBold })}
             title="Bold"
             aria-label="Format text as bold">
-            <i className="format bold" />
+            <i className={classNames(classes.format, 'bold')} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
             }}
-            className={'popup-item spaced ' + (isItalic ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isItalic })}
             title="Italic"
             aria-label="Format text as italics">
-            <i className="format italic" />
+            <i className={classNames(classes.format, 'italic')} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
             }}
-            className={'popup-item spaced ' + (isUnderline ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isUnderline })}
             title="Underline"
             aria-label="Format text to underlined">
-            <i className="format underline" />
+            <i className={classNames(classes.format, 'underline')} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
             }}
-            className={'popup-item spaced ' + (isStrikethrough ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isStrikethrough })}
             title="Strikethrough"
             aria-label="Format text with a strikethrough">
-            <i className="format strikethrough" />
+            <i className={classNames(classes.format, 'strikethrough')} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'subscript');
             }}
-            className={'popup-item spaced ' + (isSubscript ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isSubscript })}
             title="Subscript"
             aria-label="Format Subscript">
-            <i className="format subscript" />
+            <i className={classNames(classes.format, 'subscript')} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'superscript');
             }}
-            className={'popup-item spaced ' + (isSuperscript ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isSuperscript })}
             title="Superscript"
             aria-label="Format Superscript">
-            <i className="format superscript" />
+            <i className={classNames(classes.format, 'superscript')} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'uppercase');
             }}
-            className={'popup-item spaced ' + (isUppercase ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isUppercase })}
             title="Uppercase"
             aria-label="Format text to uppercase">
-            <i className="format uppercase" />
+            <i className={classNames(classes.format, 'uppercase')} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'lowercase');
             }}
-            className={'popup-item spaced ' + (isLowercase ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isLowercase })}
             title="Lowercase"
             aria-label="Format text to lowercase">
-            <i className="format lowercase" />
+            <i className={classNames(classes.format, 'lowercase')} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'capitalize');
             }}
-            className={'popup-item spaced ' + (isCapitalize ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isCapitalize })}
             title="Capitalize"
             aria-label="Format text to capitalize">
-            <i className="format capitalize" />
+            <i className={classNames(classes.format, 'capitalize')} />
           </button>
           <button
             type="button"
             onClick={() => {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
             }}
-            className={'popup-item spaced ' + (isCode ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isCode })}
             title="Insert code block"
             aria-label="Insert code block">
-            <i className="format code" />
+            <i className={classNames(classes.format, 'code')} />
           </button>
           <button
             type="button"
             onClick={insertLink}
-            className={'popup-item spaced ' + (isLink ? 'active' : '')}
+            className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isLink })}
             title="Insert link"
             aria-label="Insert link">
-            <i className="format link" />
+            <i className={classNames(classes.format, 'link')} />
           </button>
         </>
       )}
       <button
         type="button"
         onClick={insertComment}
-        className={'popup-item spaced insert-comment'}
+        className={classNames(classes.popupItem, classes.spaced, classes.insertComment)}
         title="Insert comment"
         aria-label="Insert comment">
-        <i className="format add-comment" />
+        <i className={classNames(classes.format, 'add-comment')} />
       </button>
     </div>
   );

@@ -6,7 +6,7 @@
  *
  */
 
-import type {JSX} from 'react';
+import React, { type JSX } from 'react';
 
 import {CAN_USE_BEFORE_INPUT} from '@lexical/utils';
 import {useEffect, useMemo, useState} from 'react';
