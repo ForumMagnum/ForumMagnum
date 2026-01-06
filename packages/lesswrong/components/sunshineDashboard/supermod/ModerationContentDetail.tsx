@@ -67,6 +67,12 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
     ...theme.typography.headerStyle,
     fontSize: 32,
     fontWeight: 600,
+    marginBottom: 12
+  },
+  draftNotice: {
+    fontSize: 20,
+    color: theme.palette.grey[700],
+    marginBottom: 4,
   }
 }));
 const ModerationContentDetail = ({
@@ -105,6 +111,7 @@ const ModerationContentDetail = ({
       <div className={classes.contentWrapper} ref={contentWrapperRef}>
         {post
           ? <div className={classes.postContent}>
+            {item.draft && <div className={classes.draftNotice}>[Draft]</div>}
             <Link to={postGetPageUrl(item)} className={classes.postTitle}>
               {item.title}
             </Link>
@@ -135,4 +142,3 @@ const ModerationContentDetail = ({
 };
 
 export default ModerationContentDetail;
-

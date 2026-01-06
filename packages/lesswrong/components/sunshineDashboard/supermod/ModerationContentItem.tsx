@@ -302,7 +302,7 @@ const ModerationContentItem = ({
 
       <div className={classes.contentPreview}>
         {itemIsPost && (
-          <div className={classes.title}>{item.title}</div>
+          <div className={classes.title}>{item.draft ? `[Draft] ${item.title}` : item.title}</div>
         )}
         <div className={classes.text}>{truncatedText}</div>
       </div>
@@ -360,4 +360,3 @@ const ModerationContentItem = ({
 };
 
 export default ModerationContentItem;
-

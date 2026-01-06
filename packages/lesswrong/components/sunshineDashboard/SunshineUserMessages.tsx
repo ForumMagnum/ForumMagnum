@@ -123,6 +123,27 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
       marginBottom: theme.spacing.unit,
     },
   },
+  allTemplatesSection: {
+    marginTop: theme.spacing.unit * 4,
+  },
+  allTemplatesHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
+    padding: theme.spacing.unit,
+    marginBottom: theme.spacing.unit,
+    '&:hover': {
+      backgroundColor: theme.palette.greyAlpha(0.1),
+    },
+  },
+  allTemplatesTitle: {
+    flex: 1,
+    fontWeight: 500,
+  },
+  allTemplatesContent: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
 }));
 
 export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}: {
@@ -135,6 +156,7 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
+  const [allTemplatesExpanded, setAllTemplatesExpanded] = useState<boolean>(false);
 
   const { captureEvent } = useTracking()
 
@@ -188,7 +210,7 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
   const allTemplates = {
     "Offboard": [
       'Bad fit first post, unlikely to get better',
-      'This isn\'t gonna work out (multiple LLM rejections)',
+      'Multiple LLM rejections',
       'This isn\'t gonna work out',
     ],
     "Quality Warning": [
@@ -258,6 +280,29 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
         ))}
       </div>
     )}
+    {templates && templates.length > 0 && (
+      <div className={classes.allTemplatesSection}>
+        <div 
+          className={classes.allTemplatesHeader}
+          onClick={() => setAllTemplatesExpanded(!allTemplatesExpanded)}
+        >
+          <span className={classes.allTemplatesTitle}>All Templates ({templates.length})</span>
+          <ForumIcon icon={allTemplatesExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
+        </div>
+        {allTemplatesExpanded && (
+          <div className={classes.allTemplatesContent}>
+            {templates.map(template => (
+              <ModerationTemplateSunshineItem 
+                key={template._id} 
+                template={template} 
+                onTemplateClick={handleTemplateClick} 
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    )}
+    
   </div>;
 }
 
