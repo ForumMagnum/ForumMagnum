@@ -356,7 +356,7 @@ export default function StickyComponent({
           initialTheme={StickyEditorTheme}>
           {isCollabActive ? (
             <CollaborationPlugin
-              id={caption.getKey()}
+              id={`sticky-${nodeKey}`}
               providerFactory={createWebsocketProvider}
               shouldBootstrap={true}
             />

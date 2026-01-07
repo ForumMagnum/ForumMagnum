@@ -18,6 +18,18 @@ function generateId(): string {
   return result;
 }
 
+/**
+ * Parse a document name to extract the document ID for storage.
+ * Document names can be:
+ * - "post-{postId}" for main document
+ * - "post-{postId}/{subDocId}" for nested documents (captions, comments, etc.)
+ * 
+ * Returns the full path after "post-" as the document ID.
+ */
+function parseDocumentId(documentName: string): string {
+  return documentName.replace(/^post-/, '');
+}
+
 export class PostgresExtension implements Extension {
   private pool: Pool;
   
@@ -30,12 +42,12 @@ export class PostgresExtension implements Extension {
   }
   
   async onLoadDocument({ documentName, document }: onLoadDocumentPayload): Promise<void> {
-    const postId = documentName.replace('post-', '');
+    const documentId = parseDocumentId(documentName);
     
     try {
       const result = await this.pool.query(
         'SELECT "yjsState" FROM "YjsDocuments" WHERE "documentId" = $1',
-        [postId]
+        [documentId]
       );
       
       if (result.rows.length === 0) {
@@ -53,13 +65,13 @@ export class PostgresExtension implements Extension {
       Y.applyUpdate(document, update);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error(`[PostgresExtension] Error loading document for postId: ${postId}`, error);
+      console.error(`[PostgresExtension] Error loading document: ${documentId}`, error);
       throw error;
     }
   }
   
   async onStoreDocument({ documentName, document }: onStoreDocumentPayload): Promise<void> {
-    const postId = documentName.replace('post-', '');
+    const documentId = parseDocumentId(documentName);
     const state = Y.encodeStateAsUpdate(document);
     const stateVector = Y.encodeStateVector(document);
     
@@ -71,10 +83,10 @@ export class PostgresExtension implements Extension {
           "yjsState" = EXCLUDED."yjsState",
           "yjsStateVector" = EXCLUDED."yjsStateVector",
           "updatedAt" = NOW()
-      `, [generateId(), postId, state, stateVector]);
+      `, [generateId(), documentId, state, stateVector]);
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error(`[PostgresExtension] Error storing document for postId: ${postId}`, error);
+      console.error(`[PostgresExtension] Error storing document: ${documentId}`, error);
       throw error;
     }
   }

@@ -19,17 +19,24 @@ const server = new Server({
     new Logger(),
   ],
   
-  async onAuthenticate({ token }) {
+  async onAuthenticate({ token, documentName }) {
     if (!token) {
       throw new Error('Authentication required');
     }
     
     const payload = await verifyAuthToken(token);
 
-    const { userId, displayName, accessLevel } = payload;
+    const { userId, displayName, accessLevel, postId } = payload;
     
     if (accessLevel === 'none') {
       throw new Error('Access denied');
+    }
+    
+    // Validate that the document belongs to the post the token authorizes.
+    // Document names are "post-{postId}" or "post-{postId}/{subDocId}" for nested documents.
+    const expectedPrefix = `post-${postId}`;
+    if (documentName !== expectedPrefix && !documentName.startsWith(`${expectedPrefix}/`)) {
+      throw new Error(`Access denied: token for post ${postId} cannot access document ${documentName}`);
     }
     
     return {

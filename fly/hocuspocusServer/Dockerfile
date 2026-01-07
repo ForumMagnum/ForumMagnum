@@ -5,12 +5,12 @@ WORKDIR /app
 
 # Install all dependencies (including devDependencies for building)
 COPY package*.json ./
-RUN npm ci
+RUN yarn install --frozen-lockfile
 
 # Copy source and build
 COPY tsconfig.json ./
 COPY src/ ./src/
-RUN npm run build
+RUN yarn build
 
 # Production stage
 FROM node:24-slim
@@ -19,7 +19,7 @@ WORKDIR /app
 
 # Install production dependencies only
 COPY package*.json ./
-RUN npm ci --only=production
+RUN yarn install --production --frozen-lockfile
 
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist

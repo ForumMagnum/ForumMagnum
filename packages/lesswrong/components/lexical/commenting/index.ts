@@ -290,7 +290,7 @@ export class CommentStore {
     const sharedCommentsArray = this._getCollabComments();
 
     const connect = () => {
-      provider.connect();
+      void provider.connect();
     };
 
     const disconnect = () => {

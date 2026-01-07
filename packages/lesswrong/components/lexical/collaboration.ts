@@ -58,12 +58,16 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
     throw new Error('[Collaboration] No collaboration config set. Call setCollaborationConfig() before using collaboration features.');
   }
   
+  // For nested editors (captions, etc.), use a unique document name to avoid conflicts.
+  // The main editor typically uses 'main' as the id.
+  const documentName = id === 'main' ? config.documentName : `${config.documentName}/${id}`;
+  
   // eslint-disable-next-line no-console
-  console.log('[Collaboration] Creating HocuspocusProvider for:', config.documentName);
+  console.log('[Collaboration] Creating HocuspocusProvider for:', documentName);
   
   const provider = new HocuspocusProvider({
     url: config.wsUrl,
-    name: config.documentName,
+    name: documentName,
     document: doc,
     token: config.token,
     // Don't connect automatically - Lexical's CollaborationPlugin will call connect()
@@ -71,12 +75,12 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
     
     onConnect: () => {
       // eslint-disable-next-line no-console
-      console.log('[Collaboration] Connected to Hocuspocus');
+      console.log(`[Collaboration] Connected to ${documentName}`);
     },
     
     onDisconnect: ({ event: { code, reason } }) => {
       // eslint-disable-next-line no-console
-      console.log('[Collaboration] Disconnected from Hocuspocus', code, reason);
+      console.log('[Collaboration] Disconnected from Hocuspocus', documentName, code, reason);
     },
     
     onSynced: () => {

@@ -550,7 +550,7 @@ export default function ImageComponent({
               <KeywordsPlugin />
               {isCollabActive ? (
                 <CollaborationPlugin
-                  id={caption.getKey()}
+                  id={`caption-${nodeKey}`}
                   providerFactory={createWebsocketProvider}
                   shouldBootstrap={true}
                 />
