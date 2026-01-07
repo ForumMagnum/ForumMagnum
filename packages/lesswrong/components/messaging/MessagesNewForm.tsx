@@ -159,7 +159,6 @@ const InnerMessagesNewForm = ({
     appendToEditor,
   } = useEditorFormCallbacks<messageListFragment>();
 
-  // Expose appendToEditor to parent when the editor is ready
   useEffect(() => {
     if (editorRef.current && onAppendToEditorReady) {
       onAppendToEditorReady(appendToEditor);

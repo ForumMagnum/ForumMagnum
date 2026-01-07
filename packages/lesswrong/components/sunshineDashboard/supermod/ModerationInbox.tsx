@@ -369,32 +369,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
             />
           )}
         </div>
-        {/* <div className={classNames(classes.sidebar, { [classes.sidebarWide]: isPostsTab })}>
-          {isPostsTab ? (
-            <ModerationPostSidebar
-              post={focusedPost}
-              currentUser={currentUser}
-              dispatch={dispatch}
-            />
-          ) : (
-            <>
-              <div className={classes.sidebarTop}>
-                {sidebarUser && <ModerationSidebar
-                  user={sidebarUser}
-                  currentUser={currentUser}
-                  dispatch={dispatch}
-                />}
-              </div>
-              <div className={classes.sidebarBottom}>
-                <ModerationUndoHistory
-                  undoQueue={state.undoQueue}
-                  history={state.history}
-                  dispatch={dispatch}
-                />
-              </div>
-            </>
-          )}
-        </div> */}
       </div>
     </div>
     </CoreTagsKeyboardProvider>

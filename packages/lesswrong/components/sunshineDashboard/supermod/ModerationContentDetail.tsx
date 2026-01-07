@@ -122,7 +122,6 @@ const ModerationContentDetail = ({
               />
             </ContentStyles>
           </div>
-          // ? <PostsPageWrapper documentId={item._id} sequenceId={null} embedded/>
           : <div className={classes.commentsNode}>
             <CommentsNode treeOptions={{showPostTitle: true}} comment={item} forceUnTruncated forceUnCollapsed/>
             </div>
