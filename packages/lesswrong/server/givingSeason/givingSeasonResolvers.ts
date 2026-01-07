@@ -13,7 +13,7 @@ const getVoteCounts = async () => {
   return instantRunoffAllPossibleResults(votes as IRVote[]);
 };
 
-const voteCountsWithCache = memoizeWithExpiration(getVoteCounts, 60 * 1000);
+const voteCountsWithCache = memoizeWithExpiration(getVoteCounts, 24 * 60 * 60 * 1000);
 
 export const givingSeasonGraphQLTypeDefs = gql`
   type GivingSeasonTagFeedQueryResults {
