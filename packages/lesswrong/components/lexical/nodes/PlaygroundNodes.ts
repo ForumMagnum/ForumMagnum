@@ -38,6 +38,13 @@ import {SpecialTextNode} from './SpecialTextNode';
 import {StickyNode} from './StickyNode';
 import {TweetNode} from './TweetNode';
 import {YouTubeNode} from './YouTubeNode';
+import { SpoilerNode } from '@/components/editor/lexicalPlugins/spoilers/SpoilerNode';
+import { ClaimNode } from '@/components/editor/lexicalPlugins/claims/ClaimNode';
+import { FootnoteBackLinkNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteBackLinkNode';
+import { FootnoteContentNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteContentNode';
+import { FootnoteItemNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode';
+import { FootnoteReferenceNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteReferenceNode';
+import { FootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
 
 const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   HeadingNode,
@@ -75,6 +82,13 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   LayoutItemNode,
   SpecialTextNode,
   DateTimeNode,
+  FootnoteReferenceNode,
+  FootnoteSectionNode,
+  FootnoteItemNode,
+  FootnoteContentNode,
+  FootnoteBackLinkNode,
+  SpoilerNode,
+  ClaimNode,
 ];
 
 export default PlaygroundNodes;

@@ -88,6 +88,13 @@ import TwitterPlugin from './plugins/TwitterPlugin';
 import {VersionsPlugin} from './plugins/VersionsPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
+import { FootnotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnotesPlugin';
+import { MentionPlugin } from '../editor/lexicalPlugins/mentions/MentionPlugin';
+import { getLexicalMentionFeeds } from '../editor/lexicalPlugins/mentions/lexicalMentionsConfig';
+import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
+import ClaimsPlugin from '../editor/lexicalPlugins/claims/ClaimsPlugin';
+import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
+import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   editorContainer: {
@@ -245,7 +252,6 @@ export default function Editor({ collaborationConfig }: EditorProps): JSX.Elemen
         <ComponentPickerPlugin />
         <EmojiPickerPlugin />
         <AutoEmbedPlugin />
-        <MentionsPlugin />
         <EmojisPlugin />
         <HashtagPlugin />
         {/* <KeywordsPlugin /> */}
@@ -325,6 +331,13 @@ export default function Editor({ collaborationConfig }: EditorProps): JSX.Elemen
             <CollapsiblePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
+            <FootnotesPlugin />
+            <MentionsPlugin />
+            <MentionPlugin feeds={getLexicalMentionFeeds()} />
+            <SpoilersPlugin />
+            <ClaimsPlugin />
+            <RemoveRedirectPlugin />
+            <LLMAutocompletePlugin />
             {floatingAnchorElem && (
               <>
                 <FloatingLinkEditorPlugin
