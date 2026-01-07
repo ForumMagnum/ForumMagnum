@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useContext, useLayoutEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { debateEditorPlaceholder, getDefaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
@@ -156,7 +156,7 @@ function InnerEditorFormComponent<S, R>({
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (externalEditorRef) {
       externalEditorRef.current = editorRef.current;
     }

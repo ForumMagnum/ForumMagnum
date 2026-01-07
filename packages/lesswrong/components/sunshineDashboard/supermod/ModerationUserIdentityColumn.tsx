@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import UsersName from '@/components/users/UsersName';
@@ -141,4 +143,3 @@ const ModerationUserIdentityColumn = ({
 };
 
 export default ModerationUserIdentityColumn;
-

@@ -13,7 +13,7 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client/react";
+import { useMutation, MutationHookOptions } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const ModerationTemplateFragmentUpdateMutation = gql(`
@@ -53,7 +53,7 @@ export const ModerationTemplatesForm = ({
   initialData?: UpdateModerationTemplateDataInput & { _id: string; collectionName: TemplateType };
   onSuccess?: (doc: ModerationTemplateFragment) => void;
   onCancel?: () => void;
-  refetchQueries?: any;
+  refetchQueries?: MutationHookOptions['refetchQueries'];
 }) => {
   const classes = useStyles(formStyles);
 

@@ -27,7 +27,7 @@ const ConversationsListMultiQuery = gql(`
   }
 `);
 
-const ModerationTemplatesListQuery = gql(`
+export const ModerationTemplatesListQuery = gql(`
   query multiModerationTemplateSunshineUserMessagesQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
     moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
@@ -165,7 +165,6 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
-  const [allTemplatesExpanded, setAllTemplatesExpanded] = useState<boolean>(false);
 
   const { captureEvent } = useTracking()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: true });

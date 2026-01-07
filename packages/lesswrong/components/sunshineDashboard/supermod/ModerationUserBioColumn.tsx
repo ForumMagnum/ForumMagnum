@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { truncate } from '@/lib/editor/ellipsize';

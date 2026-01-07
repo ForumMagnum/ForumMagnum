@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import SunshineUserMessages from '../SunshineUserMessages';
+import SunshineUserMessages, { ModerationTemplatesListQuery } from '../SunshineUserMessages';
 import { useCurrentUser } from '@/components/common/withUser';
-import ModeratorNotes from './ModeratorNotes';
-import SupermodModeratorActionItem from './SupermodModeratorActionItem';
-import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
-import type { InboxAction } from './inboxReducer';
-import UserRateLimitItem from '../UserRateLimitItem';
-import classNames from 'classnames';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import LWDialog from '@/components/common/LWDialog';
 import { ModerationTemplatesForm } from '@/components/moderationTemplates/ModerationTemplateForm';
-import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
@@ -49,12 +42,6 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: 8,
   },
-  modActionItem: {
-    flexShrink: 0,
-  },
-  noBottomMargin: {
-    marginBottom: 0,
-  },
   newTemplateButton: {
     marginTop: 'auto',
     flexShrink: 0,
@@ -63,17 +50,6 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     padding: 20,
   },
 }));
-
-const ModerationTemplatesListQuery = gql(`
-  query multiModerationTemplateSunshineUserMessagesQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
-    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...ModerationTemplateFragment
-      }
-      totalCount
-    }
-  }
-`);
 
 const ModerationSidebar = ({
   user,
@@ -154,16 +130,14 @@ const ModerationSidebar = ({
               setShowNewTemplateModal(false);
             }}
             onCancel={() => setShowNewTemplateModal(false)}
-            {...({
-              refetchQueries: [{
-                query: ModerationTemplatesListQuery,
-                variables: {
-                  selector: { moderationTemplatesList: { collectionName: "Messages" } },
-                  limit: 50,
-                  enableTotal: false,
-                },
-              }]
-            } as any)}
+            refetchQueries={[{
+              query: ModerationTemplatesListQuery,
+              variables: {
+                selector: { moderationTemplatesList: { collectionName: "Messages" } },
+                limit: 50,
+                enableTotal: false,
+              },
+            }]}
           />
         </div>
       </LWDialog>
