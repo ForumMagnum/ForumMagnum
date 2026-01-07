@@ -207,7 +207,7 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
   // insofar as these stay hardcoded (maybe worth creating a "moderationTemplate group-label" on the backend?), I think it's better for them to be names than IDs because it's easier to review and update, and if someone is editing one it's not obvious they should stay in the same groupings anyway.
 
   // (probably should add a "group" field to moderationTemplates)
-  const allTemplates = {
+  const hardcodedGroups: Record<string, string[]> = {
     "Offboard": [
       'Bad fit first post, unlikely to get better',
       'Multiple LLM rejections',
@@ -217,14 +217,19 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
       'Read Sequence Highlights First',
       'Read Sequences Highlights',
       'Your Submissions Aren\'t Finding Traction',
-    ],
-    "Other": [
-      'Make Username Pronounceable',
-      'Formatting / Grammar',
-      'Lotsa DMs',
-      'Spoilers',
+      'Semi-Automated Quality (low average)',
+      'Semi-automoderated quality warning (downvoted)',
     ],
   }
+
+  const allTemplatesGrouped: Record<string, string[]> = templates ? (() => {
+    const hardcodedTemplateNames = new Set(Object.values(hardcodedGroups).flat());
+    const otherTemplates = templates.filter(template => !hardcodedTemplateNames.has(template.name));
+    return {
+      ...hardcodedGroups,
+      "Other": otherTemplates.map(template => template.name),
+    };
+  })() : {};
 
   return <div>
     {results?.map(conversation => {
@@ -271,7 +276,7 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
     </div>
     {templates && templates.length > 0 && (
       <div className={classes.templateList}>
-        {Object.entries(allTemplates).map(([group, templateNames]) => (
+        {Object.entries(allTemplatesGrouped).map(([group, templateNames]) => (
           <div key={group} className={classes.templateGroup}>
             <h3>{group}</h3>
             {templateNames.map(templateName => {
@@ -283,28 +288,6 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
             })}
           </div>
         ))}
-      </div>
-    )}
-    {templates && templates.length > 0 && (
-      <div className={classes.allTemplatesSection}>
-        <div 
-          className={classes.allTemplatesHeader}
-          onClick={() => setAllTemplatesExpanded(!allTemplatesExpanded)}
-        >
-          <span className={classes.allTemplatesTitle}>All Templates ({templates.length})</span>
-          <ForumIcon icon={allTemplatesExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
-        </div>
-        {allTemplatesExpanded && (
-          <div className={classes.allTemplatesContent}>
-            {templates.map(template => (
-              <ModerationTemplateSunshineItem 
-                key={template._id} 
-                template={template} 
-                onTemplateClick={handleTemplateClick} 
-              />
-            ))}
-          </div>
-        )}
       </div>
     )}
     

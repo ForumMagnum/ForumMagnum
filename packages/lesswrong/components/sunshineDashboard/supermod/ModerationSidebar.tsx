@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import SunshineUserMessages from '../SunshineUserMessages';
 import { useCurrentUser } from '@/components/common/withUser';
@@ -8,6 +8,10 @@ import { persistentDisplayedModeratorActions } from '@/lib/collections/moderator
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
 import classNames from 'classnames';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import LWDialog from '@/components/common/LWDialog';
+import { ModerationTemplatesForm } from '@/components/moderationTemplates/ModerationTemplateForm';
+import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
@@ -51,7 +55,25 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   noBottomMargin: {
     marginBottom: 0,
   },
+  newTemplateButton: {
+    marginTop: 'auto',
+    flexShrink: 0,
+  },
+  dialogContent: {
+    padding: 20,
+  },
 }));
+
+const ModerationTemplatesListQuery = gql(`
+  query multiModerationTemplateSunshineUserMessagesQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
+    moderationTemplates(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...ModerationTemplateFragment
+      }
+      totalCount
+    }
+  }
+`);
 
 const ModerationSidebar = ({
   user,
@@ -65,6 +87,8 @@ const ModerationSidebar = ({
   const classes = useStyles(styles);
   const currentUserFromHook = useCurrentUser();
   const currentUser = currentUserProp ?? currentUserFromHook;
+  const [showNewTemplateModal, setShowNewTemplateModal] = useState(false);
+
   if (!currentUser) {
     return null;
   }
@@ -81,7 +105,7 @@ const ModerationSidebar = ({
 
   return (
     <div className={classes.root}>
-      <div className={classes.section}>
+      {/* <div className={classes.section}>
         <ModeratorNotes user={user} currentUser={currentUser} />
       </div>
 
@@ -103,7 +127,7 @@ const ModerationSidebar = ({
         <div className={classes.userModActions}>
           <UserRateLimitItem user={user} />
         </div>
-      </div>
+      </div> */}
 
       <div className={classes.section}>
         <div className={classes.sectionTitle}>User Messages</div>
@@ -112,6 +136,37 @@ const ModerationSidebar = ({
           <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} showExpandablePreview />
         </div>
       </div>
+
+      <div className={classes.newTemplateButton}>
+        <Button onClick={() => setShowNewTemplateModal(true)}>
+          NEW MOD TEMPLATE
+        </Button>
+      </div>
+
+      <LWDialog
+        open={showNewTemplateModal}
+        onClose={() => setShowNewTemplateModal(false)}
+        title="New Moderation Template"
+      >
+        <div className={classes.dialogContent}>
+          <ModerationTemplatesForm
+            onSuccess={() => {
+              setShowNewTemplateModal(false);
+            }}
+            onCancel={() => setShowNewTemplateModal(false)}
+            {...({
+              refetchQueries: [{
+                query: ModerationTemplatesListQuery,
+                variables: {
+                  selector: { moderationTemplatesList: { collectionName: "Messages" } },
+                  limit: 50,
+                  enableTotal: false,
+                },
+              }]
+            } as any)}
+          />
+        </div>
+      </LWDialog>
     </div>
   );
 };

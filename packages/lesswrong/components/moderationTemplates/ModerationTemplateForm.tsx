@@ -48,10 +48,12 @@ export const ModerationTemplatesForm = ({
   initialData,
   onSuccess,
   onCancel,
+  refetchQueries,
 }: {
   initialData?: UpdateModerationTemplateDataInput & { _id: string; collectionName: TemplateType };
   onSuccess?: (doc: ModerationTemplateFragment) => void;
   onCancel?: () => void;
+  refetchQueries?: any;
 }) => {
   const classes = useStyles(formStyles);
 
@@ -64,9 +66,13 @@ export const ModerationTemplatesForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<ModerationTemplateFragment>();
 
-  const [create] = useMutation(ModerationTemplateFragmentMutation);
+  const [create] = useMutation(ModerationTemplateFragmentMutation, {
+    refetchQueries,
+  });
 
-  const [mutate] = useMutation(ModerationTemplateFragmentUpdateMutation);
+  const [mutate] = useMutation(ModerationTemplateFragmentUpdateMutation, {
+    refetchQueries,
+  });
 
   const newFormDefaults = formType === 'new'
   ? { order: 10 }
