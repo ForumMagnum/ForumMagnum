@@ -160,7 +160,8 @@ function InnerEditorFormComponent<S, R>({
     if (externalEditorRef) {
       externalEditorRef.current = editorRef.current;
     }
-  }, [externalEditorRef]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalEditorRef, !!editorRef.current]);
   const { captureEvent } = useTracking()
 
   const localStorageIdGenerator = getLocalStorageId ?? getDefaultLocalStorageIdGenerator(collectionName);

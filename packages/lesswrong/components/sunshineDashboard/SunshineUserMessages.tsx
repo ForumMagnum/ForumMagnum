@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import { Link } from '../../lib/reactRouterWrapper';
 import isEqual from 'lodash/isEqual';
 import MessagesNewForm from "../messaging/MessagesNewForm";
+import { getDraftMessageHtml } from '../../lib/collections/messages/helpers';
 import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -165,9 +166,14 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
+  const appendToEditorRef = useRef<((html: string) => void) | null>(null);
 
   const { captureEvent } = useTracking()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: true });
+
+  const handleAppendToEditorReady = useCallback((appendFn: (html: string) => void) => {
+    appendToEditorRef.current = appendFn;
+  }, []);
 
   // When a conversation is created/found, sync it to state
   useEffect(() => {
@@ -213,11 +219,25 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
     // Initiate conversation if we don't have one yet
     if (!embeddedConversationId) {
       initiateConversation([user._id]);
+      // For new conversations, use templateQueries to prefill
+      setTemplateQueries({
+        templateId: template._id,
+        displayName: user.displayName,
+      });
+    } else if (appendToEditorRef.current && template.contents?.html) {
+      // If editor is ready, append directly
+      const processedHtml = getDraftMessageHtml({
+        html: template.contents.html,
+        displayName: user.displayName,
+      });
+      appendToEditorRef.current(processedHtml);
+    } else {
+      // Fallback to template queries (will replace content)
+      setTemplateQueries({
+        templateId: template._id,
+        displayName: user.displayName,
+      });
     }
-    setTemplateQueries({
-      templateId: template._id,
-      displayName: user.displayName,
-    });
   };
 
   const handleStartConversation = () => {
@@ -283,6 +303,7 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
         <MessagesNewForm 
           conversationId={embeddedConversationId} 
           templateQueries={templateQueries}
+          onAppendToEditorReady={handleAppendToEditorReady}
           successEvent={(newMessage) => {
             captureEvent('messageSent', {
               conversationId: newMessage.conversationId,

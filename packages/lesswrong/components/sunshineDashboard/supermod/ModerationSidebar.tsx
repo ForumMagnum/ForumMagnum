@@ -5,6 +5,7 @@ import { useCurrentUser } from '@/components/common/withUser';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import LWDialog from '@/components/common/LWDialog';
 import { ModerationTemplatesForm } from '@/components/moderationTemplates/ModerationTemplateForm';
+import type { InboxAction } from './inboxReducer';
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
