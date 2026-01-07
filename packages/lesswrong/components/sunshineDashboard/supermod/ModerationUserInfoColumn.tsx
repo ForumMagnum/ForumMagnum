@@ -14,7 +14,7 @@ import { getPrimaryDisplayedModeratorAction, partitionModeratorActions } from '.
 import type { InboxAction } from './inboxReducer';
 import { useCurrentUser } from '@/components/common/withUser';
 
-const styles = defineStyles('ModerationFullWidthHeader', (theme: ThemeType) => ({
+const styles = defineStyles('ModerationUserInfoColumn', (theme: ThemeType) => ({
   header: {
     padding: '12px 14px',
     borderBottom: theme.palette.border.normal,

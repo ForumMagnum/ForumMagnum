@@ -3,7 +3,6 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationContentList from './ModerationContentList';
 import ModerationContentDetail from './ModerationContentDetail';
 import type { InboxAction, InboxState } from './inboxReducer';
-import ModerationFullWidthHeader from './ModerationUserInfoColumn';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
