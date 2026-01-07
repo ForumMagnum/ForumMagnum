@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
@@ -123,7 +123,6 @@ const InnerMessagesNewForm = ({
   prefilledProps,
   templateQueries,
   conversationId,
-  targetUserId,
   onSuccess,
 }: {
   isMinimalist: boolean;
@@ -140,12 +139,10 @@ const InnerMessagesNewForm = ({
   };
   templateQueries?: TemplateQueryStrings;
   conversationId: string;
-  targetUserId?: string;
   onSuccess: (doc: messageListFragment) => void;
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const previousTemplateIdRef = useRef<string | undefined>(templateQueries?.templateId);
   
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
   const hintText = isMinimalist ? "Type a new message..." : getDefaultEditorPlaceholder();
@@ -156,8 +153,6 @@ const InnerMessagesNewForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback,
-    editorRef,
-    appendToEditor,
   } = useEditorFormCallbacks<messageListFragment>();
 
   const [create] = useMutation(messageListFragmentMutation);
@@ -167,7 +162,6 @@ const InnerMessagesNewForm = ({
   const form = useForm({
     defaultValues: {
       ...prefilledProps,
-      ...(targetUserId && { targetUserId }),
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -195,19 +189,6 @@ const InnerMessagesNewForm = ({
     },
   });
 
-  useEffect(() => {
-    if (templateQueries?.templateId && templateQueries.templateId !== previousTemplateIdRef.current) {
-      previousTemplateIdRef.current = templateQueries.templateId;
-      const template = templateQueries.template;
-      if (template?.contents?.html) {
-        const templateHtml = getDraftMessageHtml({ 
-          html: template.contents.html, 
-          displayName: templateQueries.displayName 
-        });
-        appendToEditor(templateHtml);
-      }
-    }
-  }, [templateQueries?.templateId, templateQueries?.template, templateQueries?.displayName, appendToEditor]);
 
   const handleSubmit = useCallback(() => form.handleSubmit(), [form]);
   const formRef = useFormSubmitOnCmdEnter(handleSubmit);
@@ -238,7 +219,6 @@ const InnerMessagesNewForm = ({
                 commentStyles={true}
                 hideControls={true}
                 getLocalStorageId={() => ({id: conversationId, verify: false})}
-                externalEditorRef={editorRef}
               />
             )}
           </form.Field>
@@ -269,7 +249,6 @@ export const MessagesNewForm = ({
   submitLabel,
   sendEmail = true,
   formStyle="default",
-  targetUserId,
 }: {
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
@@ -277,18 +256,17 @@ export const MessagesNewForm = ({
   submitLabel?: string,
   sendEmail?: boolean;
   formStyle?: FormDisplayMode;
-  targetUserId?: string;
 }) => {
   const classes = useStyles(styles);
   
-  const skip = !templateQueries?.templateId || !!templateQueries?.template;
+  const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
 
   const { loading: loadingTemplate, data } = useQuery(ModerationTemplateFragmentQuery, {
     variables: { documentId: templateQueries?.templateId },
     skip,
   });
-  const template = templateQueries?.template || data?.moderationTemplate?.result;
+  const template = data?.moderationTemplate?.result;
 
   // For some reason loading returns true even if we're skipping the query?
   if (!skip && loadingTemplate) return <Loading />;
@@ -315,7 +293,6 @@ export const MessagesNewForm = ({
         }}
         templateQueries={templateQueries}
         conversationId={conversationId}
-        targetUserId={targetUserId}
         onSuccess={(newMessage) => successEvent(newMessage)}
       />
     </div>
@@ -323,5 +300,3 @@ export const MessagesNewForm = ({
 };
 
 export default MessagesNewForm;
-
-

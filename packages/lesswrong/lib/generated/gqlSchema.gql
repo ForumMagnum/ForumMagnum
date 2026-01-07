@@ -3924,7 +3924,6 @@ type Message {
   userId: String
   user: User
   conversationId: String
-  targetUserId: String
   conversation: Conversation
   noEmail: Boolean
   currentUserVote: String
@@ -9222,8 +9221,7 @@ input CreateMessageDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
   userId: String
-  conversationId: String
-  targetUserId: String
+  conversationId: String!
   noEmail: Boolean
 }
 

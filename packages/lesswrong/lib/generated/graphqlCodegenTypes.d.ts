@@ -1480,10 +1480,9 @@ type CreateLocalgroupInput = {
 
 type CreateMessageDataInput = {
   contents?: InputMaybe<CreateRevisionDataInput>;
-  conversationId?: InputMaybe<Scalars['String']['input']>;
+  conversationId: Scalars['String']['input'];
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   noEmail?: InputMaybe<Scalars['Boolean']['input']>;
-  targetUserId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3212,7 +3211,6 @@ type Message = {
   noEmail?: Maybe<Scalars['Boolean']['output']>;
   schemaVersion: Scalars['Float']['output'];
   score: Scalars['Float']['output'];
-  targetUserId?: Maybe<Scalars['String']['output']>;
   user?: Maybe<User>;
   userId?: Maybe<Scalars['String']['output']>;
   voteCount: Scalars['Float']['output'];

@@ -70,20 +70,9 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      inputType: "String",
+      inputType: "String!",
       canRead: ["members"],
       canCreate: ["members"],
-    },
-  },
-  targetUserId: {
-    graphql: {
-      outputType: "String",
-      inputType: "String",
-      canRead: ["members"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
     },
   },
   conversation: {

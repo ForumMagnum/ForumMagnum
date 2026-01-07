@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -14,6 +14,7 @@ import ForumIcon from '../common/ForumIcon';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWTooltip from '../common/LWTooltip';
 import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
+import { useInitiateConversation } from '../hooks/useInitiateConversation';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -144,6 +145,14 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
   },
+  messagePrompt: {
+    padding: theme.spacing.unit,
+    color: theme.palette.grey[600],
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.greyAlpha(0.1),
+    },
+  },
 }));
 
 export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}: {
@@ -159,6 +168,14 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
   const [allTemplatesExpanded, setAllTemplatesExpanded] = useState<boolean>(false);
 
   const { captureEvent } = useTracking()
+  const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: true });
+
+  // When a conversation is created/found, sync it to state
+  useEffect(() => {
+    if (conversation && !embeddedConversationId) {
+      setEmbeddedConversationId(conversation._id);
+    }
+  }, [conversation, embeddedConversationId]);
 
   const embedConversation = (conversationId: string, newTemplateQueries: TemplateQueryStrings) => {
     setEmbeddedConversationId(conversationId);
@@ -194,14 +211,20 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
   const templates = templatesData?.moderationTemplates?.results;
 
   const handleTemplateClick = (template: NonNullable<typeof templates>[0]) => {
+    // Initiate conversation if we don't have one yet
+    if (!embeddedConversationId) {
+      initiateConversation([user._id]);
+    }
     setTemplateQueries({
       templateId: template._id,
       displayName: user.displayName,
-      template: {
-        _id: template._id,
-        contents: template.contents ? { html: template.contents.html ?? undefined } : null,
-      },
     });
+  };
+
+  const handleStartConversation = () => {
+    if (!embeddedConversationId) {
+      initiateConversation([user._id]);
+    }
   };
 
   // insofar as these stay hardcoded (maybe worth creating a "moderationTemplate group-label" on the backend?), I think it's better for them to be names than IDs because it's easier to review and update, and if someone is editing one it's not obvious they should stay in the same groupings anyway.
@@ -256,24 +279,25 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
         </div>
       );
     })}
-    <div className={classes.conversationForm} onClick={() => setEmbeddedConversationId(undefined)}>
-      <MessagesNewForm 
-        conversationId={embeddedConversationId ?? ''} 
-        templateQueries={templateQueries}
-        targetUserId={!embeddedConversationId ? user._id : undefined}
-        successEvent={(newMessage) => {
-          const conversationId = newMessage.conversationId || embeddedConversationId;
-          if (!embeddedConversationId && conversationId) {
-            setEmbeddedConversationId(conversationId);
-          }
-          captureEvent('messageSent', {
-            conversationId: conversationId,
-            sender: currentUser._id,
-            moderatorConveration: true
-          })
-        }}
-      />
-    </div>
+    {embeddedConversationId ? (
+      <div className={classes.conversationForm}>
+        <MessagesNewForm 
+          conversationId={embeddedConversationId} 
+          templateQueries={templateQueries}
+          successEvent={(newMessage) => {
+            captureEvent('messageSent', {
+              conversationId: newMessage.conversationId,
+              sender: currentUser._id,
+              moderatorConveration: true
+            })
+          }}
+        />
+      </div>
+    ) : (
+      <div className={classes.messagePrompt} onClick={handleStartConversation}>
+        Click to start a new message...
+      </div>
+    )}
     {templates && templates.length > 0 && (
       <div className={classes.templateList}>
         {Object.entries(allTemplatesGrouped).map(([group, templateNames]) => (
