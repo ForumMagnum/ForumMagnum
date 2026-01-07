@@ -206,7 +206,7 @@ function PollOptionComponent({
     cb: (pollNode: PollNode) => void,
     onSelect?: () => void,
   ) => void;
-  classes: ReturnType<typeof useStyles<typeof styles>>;
+  classes: Record<string, string>;
 }): JSX.Element {
   const {name: username} = useCollaborationContext();
   const checkboxRef = useRef(null);

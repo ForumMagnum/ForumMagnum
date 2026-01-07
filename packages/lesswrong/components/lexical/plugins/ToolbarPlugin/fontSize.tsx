@@ -24,9 +24,14 @@ import {
 } from './utils';
 
 import React from 'react';
+import { AddSignIcon } from '../../icons/AddSignIcon';
+import { MinusSignIcon } from '../../icons/MinusSignIcon';
+import { toolbarItem, formatIcon } from '../../styles/toolbarStyles';
 
 const styles = defineStyles('LexicalFontSize', (theme: ThemeType) => ({
+  toolbarItem: toolbarItem(theme),
   fontSizeInput: {
+    ...toolbarItem(theme),
     fontWeight: 'bold',
     fontSize: 14,
     color: theme.palette.grey[600],
@@ -48,21 +53,14 @@ const styles = defineStyles('LexicalFontSize', (theme: ThemeType) => ({
     },
     MozAppearance: 'textfield',
   },
-  addIcon: {
-    backgroundImage: 'url(../../images/icons/add-sign.svg)',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-  },
-  minusIcon: {
-    backgroundImage: 'url(../../images/icons/minus-sign.svg)',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-  },
+  formatIcon: formatIcon(),
   fontDecrement: {
+    ...toolbarItem(theme),
     padding: 0,
     marginRight: 3,
   },
   fontIncrement: {
+    ...toolbarItem(theme),
     padding: 0,
     marginLeft: 3,
   },
@@ -193,10 +191,10 @@ export default function FontSize({
             isKeyboardInput(e),
           );
         }}
-        className={classNames('toolbar-item', classes.fontDecrement)}
+        className={classes.fontDecrement}
         aria-label="Decrease font size"
         title={`Decrease font size (${SHORTCUTS.DECREASE_FONT_SIZE})`}>
-        <i className={classNames('format', classes.minusIcon)} />
+        <MinusSignIcon className={classes.formatIcon} />
       </button>
 
       <input
@@ -204,7 +202,7 @@ export default function FontSize({
         title="Font size"
         value={inputValue}
         disabled={disabled}
-        className={classNames('toolbar-item', classes.fontSizeInput)}
+        className={classes.fontSizeInput}
         min={MIN_ALLOWED_FONT_SIZE}
         max={MAX_ALLOWED_FONT_SIZE}
         onChange={(e) => setInputValue(e.target.value)}
@@ -228,10 +226,10 @@ export default function FontSize({
             isKeyboardInput(e),
           );
         }}
-        className={classNames('toolbar-item', classes.fontIncrement)}
+        className={classes.fontIncrement}
         aria-label="Increase font size"
         title={`Increase font size (${SHORTCUTS.INCREASE_FONT_SIZE})`}>
-        <i className={classNames('format', classes.addIcon)} />
+        <AddSignIcon className={classes.formatIcon} />
       </button>
     </>
   );

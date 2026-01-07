@@ -43,6 +43,73 @@ import useModal from '../../hooks/useModal';
 import Button from '../../ui/Button';
 import {docFromHash, docToHash} from '../../utils/docSerialization';
 import {PLAYGROUND_TRANSFORMERS} from '../MarkdownTransformers';
+import { MicIcon } from '../../icons/MicIcon';
+import { UploadIcon } from '../../icons/UploadIcon';
+import { DownloadIcon } from '../../icons/DownloadIcon';
+import { SendIcon } from '../../icons/SendIcon';
+import { TrashIcon } from '../../icons/TrashIcon';
+import { LockIcon } from '../../icons/LockIcon';
+import { LockFillIcon } from '../../icons/LockFillIcon';
+import { MarkdownIcon } from '../../icons/MarkdownIcon';
+import { PlugIcon } from '../../icons/PlugIcon';
+import { PlugFillIcon } from '../../icons/PlugFillIcon';
+import { ClockHistoryIcon } from '../../icons/ClockHistoryIcon';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+
+const styles = defineStyles('LexicalActionsPlugin', (theme: ThemeType) => ({
+  actions: {
+    position: 'absolute',
+    textAlign: 'right',
+    margin: 10,
+    bottom: 0,
+    right: 0,
+    '& svg': {
+      display: 'inline-block',
+      height: 15,
+      width: 15,
+      verticalAlign: '-0.25em',
+    },
+  },
+  treeView: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  actionButton: {
+    backgroundColor: theme.palette.grey[200],
+    border: 0,
+    padding: '8px 12px',
+    position: 'relative',
+    marginLeft: 5,
+    borderRadius: 15,
+    color: theme.palette.grey[800],
+    display: 'inline-block',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[300],
+      color: theme.palette.grey[1000],
+    },
+    '&:disabled': {
+      opacity: 0.6,
+      backgroundColor: theme.palette.grey[200],
+      cursor: 'not-allowed',
+    },
+  },
+  micActive: {
+    animation: '$micPulsateColor 3s infinite',
+  },
+  '@keyframes micPulsateColor': {
+    '0%': {
+      backgroundColor: '#ffdcdc',
+    },
+    '50%': {
+      backgroundColor: '#ff8585',
+    },
+    '100%': {
+      backgroundColor: '#ffdcdc',
+    },
+  },
+}));
 // import {
 //   SPEECH_TO_TEXT_COMMAND,
 //   SUPPORT_SPEECH_RECOGNITION,
@@ -197,35 +264,34 @@ export default function ActionsPlugin({
     });
   }, [editor, shouldPreserveNewLinesInMarkdown]);
 
+  const classes = useStyles(styles);
+
   return (
-    <div className="actions">
+    <div className={classes.actions}>
       {/* {SUPPORT_SPEECH_RECOGNITION && (
         <button
           onClick={() => {
             editor.dispatchCommand(SPEECH_TO_TEXT_COMMAND, !isSpeechToText);
             setIsSpeechToText(!isSpeechToText);
           }}
-          className={
-            'action-button action-button-mic ' +
-            (isSpeechToText ? 'active' : '')
-          }
+          className={classNames(classes.actionButton, isSpeechToText && classes.micActive)}
           title="Speech To Text"
           aria-label={`${
             isSpeechToText ? 'Enable' : 'Disable'
           } speech to text`}>
-          <i className="mic" />
+          <MicIcon />
         </button>
       )} */}
       <button
-        className="action-button import"
+        className={classes.actionButton}
         onClick={() => importFile(editor)}
         title="Import"
         aria-label="Import editor state from JSON">
-        <i className="import" />
+        <UploadIcon />
       </button>
 
       <button
-        className="action-button export"
+        className={classes.actionButton}
         onClick={() =>
           exportFile(editor, {
             fileName: `Playground ${new Date().toISOString()}`,
@@ -234,10 +300,10 @@ export default function ActionsPlugin({
         }
         title="Export"
         aria-label="Export editor state to JSON">
-        <i className="export" />
+        <DownloadIcon />
       </button>
       <button
-        className="action-button share"
+        className={classes.actionButton}
         disabled={isCollabActive || INITIAL_SETTINGS.isCollab}
         onClick={() =>
           shareDoc(
@@ -251,10 +317,10 @@ export default function ActionsPlugin({
         }
         title="Share"
         aria-label="Share Playground link to current editor state">
-        <i className="share" />
+        <SendIcon />
       </button>
       <button
-        className="action-button clear"
+        className={classes.actionButton}
         disabled={isEditorEmpty}
         onClick={() => {
           showModal('Clear editor', (onClose) => (
@@ -263,10 +329,10 @@ export default function ActionsPlugin({
         }}
         title="Clear"
         aria-label="Clear editor contents">
-        <i className="clear" />
+        <TrashIcon />
       </button>
       <button
-        className={`action-button ${!isEditable ? 'unlock' : 'lock'}`}
+        className={classes.actionButton}
         onClick={() => {
           // Send latest editor state to commenting validation server
           if (isEditable) {
@@ -276,19 +342,19 @@ export default function ActionsPlugin({
         }}
         title="Read-Only Mode"
         aria-label={`${!isEditable ? 'Unlock' : 'Lock'} read-only mode`}>
-        <i className={!isEditable ? 'unlock' : 'lock'} />
+        {!isEditable ? <LockIcon /> : <LockFillIcon />}
       </button>
       <button
-        className="action-button"
+        className={classes.actionButton}
         onClick={handleMarkdownToggle}
         title="Convert From Markdown"
         aria-label="Convert from markdown">
-        <i className="markdown" />
+        <MarkdownIcon />
       </button>
       {isCollabActive && (
         <>
           <button
-            className="action-button connect"
+            className={classes.actionButton}
             onClick={() => {
               editor.dispatchCommand(TOGGLE_CONNECT_COMMAND, !connected);
             }}
@@ -298,15 +364,15 @@ export default function ActionsPlugin({
             aria-label={`${
               connected ? 'Disconnect from' : 'Connect to'
             } a collaborative editing server`}>
-            <i className={connected ? 'disconnect' : 'connect'} />
+            {connected ? <PlugFillIcon /> : <PlugIcon />}
           </button>
           {useCollabV2 && (
             <button
-              className="action-button versions"
+              className={classes.actionButton}
               onClick={() => {
                 editor.dispatchCommand(SHOW_VERSIONS_COMMAND, undefined);
               }}>
-              <i className="versions" />
+              <ClockHistoryIcon />
             </button>
           )}
         </>

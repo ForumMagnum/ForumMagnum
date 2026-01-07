@@ -38,6 +38,11 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {sanitizeUrl} from '../../utils/url';
+import { PencilFillIcon } from '../../icons/PencilFillIcon';
+import { Trash3Icon } from '../../icons/Trash3Icon';
+import { SuccessAltIcon } from '../../icons/SuccessAltIcon';
+import { CloseIcon } from '../../icons/CloseIcon';
+import ForumIcon from '@/components/common/ForumIcon';
 
 const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType) => ({
   linkEditor: {
@@ -107,31 +112,25 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
     },
   },
   linkAction: {
-    width: 20,
-    height: 20,
-    display: 'inline-block',
+    width: 28,
+    height: 28,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 4,
     borderRadius: 4,
     cursor: 'pointer',
     marginLeft: 4,
-    backgroundSize: '16px',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
+    border: 'none',
+    background: 'transparent',
     '&:hover': {
       backgroundColor: theme.palette.grey[200],
     },
   },
-  linkEdit: {
-    backgroundImage: 'url(/lexical/icons/pencil-fill.svg)',
-  },
-  linkTrash: {
-    backgroundImage: 'url(/lexical/icons/trash3.svg)',
-  },
-  linkCancel: {
-    backgroundImage: 'url(/lexical/icons/close.svg)',
-  },
-  linkConfirm: {
-    backgroundImage: 'url(/lexical/icons/success-alt.svg)',
+  linkIcon: {
+    width: 16,
+    height: 16,
+    display: 'block',
   },
 }));
 
@@ -387,23 +386,27 @@ function FloatingLinkEditor({
             }}
           />
           <div>
-            <div
-              className={`${classes.linkAction} ${classes.linkCancel}`}
-              role="button"
+            <button
+              className={classes.linkAction}
+              type="button"
               tabIndex={0}
               onMouseDown={preventDefault}
               onClick={() => {
                 setIsLinkEditMode(false);
               }}
-            />
+              aria-label="Cancel">
+              <ForumIcon icon="Close" className={classes.linkIcon} />
+            </button>
 
-            <div
-              className={`${classes.linkAction} ${classes.linkConfirm}`}
-              role="button"
+            <button
+              className={classes.linkAction}
+              type="button"
               tabIndex={0}
               onMouseDown={preventDefault}
               onClick={handleLinkSubmission}
-            />
+              aria-label="Confirm">
+              <SuccessAltIcon className={classes.linkIcon} />
+            </button>
           </div>
         </>
       ) : (
@@ -414,9 +417,9 @@ function FloatingLinkEditor({
             rel="noopener noreferrer">
             {linkUrl}
           </a>
-          <div
-            className={`${classes.linkAction} ${classes.linkEdit}`}
-            role="button"
+          <button
+            className={classes.linkAction}
+            type="button"
             tabIndex={0}
             onMouseDown={preventDefault}
             onClick={(event) => {
@@ -424,16 +427,20 @@ function FloatingLinkEditor({
               setEditedLinkUrl(linkUrl);
               setIsLinkEditMode(true);
             }}
-          />
-          <div
-            className={`${classes.linkAction} ${classes.linkTrash}`}
-            role="button"
+            aria-label="Edit link">
+            <PencilFillIcon className={classes.linkIcon} />
+          </button>
+          <button
+            className={classes.linkAction}
+            type="button"
             tabIndex={0}
             onMouseDown={preventDefault}
             onClick={() => {
               editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
             }}
-          />
+            aria-label="Remove link">
+            <Trash3Icon className={classes.linkIcon} />
+          </button>
         </div>
       )}
     </div>

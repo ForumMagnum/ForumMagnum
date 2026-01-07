@@ -608,6 +608,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     modalOverlay: "rgba(40, 40, 40, 0.6)",
     // Equation/LaTeX editor - purple for math syntax
     equationText: "#8421a2",
+    // Blue hover background for edit buttons
+    editButtonHover: "rgba(60, 132, 244, 0.1)",
+    // Blue focus ring for selections
+    focusRing: "rgb(60, 132, 244)",
+    // Light blue shadow for mention focus
+    mentionFocus: "rgb(180, 213, 255)",
+    // Coral/orange color for keywords
+    keyword: "rgb(241, 118, 94)",
   },
   blockquoteHighlight: {
     commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",

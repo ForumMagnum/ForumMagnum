@@ -8,13 +8,21 @@
 import {$isCodeNode} from '@lexical/code';
 import {$getNearestNodeFromDOMNode, LexicalEditor} from 'lexical';
 import {Options} from 'prettier';
-import {useState} from 'react';
+import React, {useState} from 'react';
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { PrettierIcon } from '../../../../icons/PrettierIcon';
+import { PrettierErrorIcon } from '../../../../icons/PrettierErrorIcon';
 
 const styles = defineStyles('LexicalPrettierButton', (theme: ThemeType) => ({
   wrapper: {
     position: 'relative',
+  },
+  icon: {
+    display: 'flex',
+    width: 18,
+    height: 18,
+    opacity: 0.6,
   },
   errorTips: {
     padding: 5,
@@ -164,9 +172,9 @@ export function PrettierButton({lang, editor, getCodeDOMNode, menuItemClassName}
         onMouseLeave={handleMouseLeave}
         aria-label="prettier">
         {syntaxError ? (
-          <i className="format prettier-error" />
+          <PrettierErrorIcon className={classes.icon} />
         ) : (
-          <i className="format prettier" />
+          <PrettierIcon className={classes.icon} />
         )}
       </button>
       {tipsVisible ? (

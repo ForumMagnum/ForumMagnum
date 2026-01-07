@@ -7,6 +7,8 @@
  */
 
 import React, {type JSX} from 'react';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
 import {CharacterLimitPlugin} from '@lexical/react/LexicalCharacterLimitPlugin';
@@ -87,6 +89,40 @@ import {VersionsPlugin} from './plugins/VersionsPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
 
+const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
+  editorContainer: {
+    background: theme.palette.grey[0],
+    position: 'relative',
+    display: 'block',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  treeView: {
+    borderRadius: 0,
+  },
+  plainText: {
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  editorScroller: {
+    minHeight: 150,
+    maxWidth: '100%',
+    border: 0,
+    display: 'flex',
+    position: 'relative',
+    outline: 0,
+    zIndex: 0,
+    resize: 'vertical',
+  },
+  editor: {
+    flex: 'auto',
+    maxWidth: '100%',
+    position: 'relative',
+    resize: 'vertical',
+    zIndex: -1,
+  },
+}));
+
 const COLLAB_DOC_ID = 'main';
 
 // const skipCollaborationInit =
@@ -99,20 +135,26 @@ export interface EditorProps {
 }
 
 export default function Editor({ collaborationConfig }: EditorProps): JSX.Element {
+  const classes = useStyles(styles);
   const {historyState} = useSharedHistoryContext();
+  
+  // Track when collaboration config is ready (set synchronously, not in useEffect)
+  const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
   
   // Set up collaboration config before rendering collaboration plugins
   useEffect(() => {
     setCollaborationConfig(collaborationConfig ?? null);
+    setIsCollabConfigReady(!!collaborationConfig);
     return () => {
       setCollaborationConfig(null);
+      setIsCollabConfigReady(false);
     };
   }, [collaborationConfig]);
   const {
     settings: {
       isCodeHighlighted,
       isCodeShiki,
-      isCollab,
+      isCollab: isCollabSetting,
       useCollabV2,
       isAutocomplete,
       isMaxLength,
@@ -133,6 +175,9 @@ export default function Editor({ collaborationConfig }: EditorProps): JSX.Elemen
       listStrictIndent,
     },
   } = useSettings();
+  
+  // Enable collaboration if config is provided OR if the setting is enabled
+  const isCollab = isCollabSetting || !!collaborationConfig;
   const isEditable = useLexicalEditable();
   const placeholder = isCollab
     ? 'Enter some collaborative rich text...'
@@ -187,9 +232,11 @@ export default function Editor({ collaborationConfig }: EditorProps): JSX.Elemen
         />
       )}
       <div
-        className={`editor-container ${showTreeView ? 'tree-view' : ''} ${
-          !isRichText ? 'plain-text' : ''
-        }`}>
+        className={classNames(
+          classes.editorContainer,
+          showTreeView && classes.treeView,
+          !isRichText && classes.plainText
+        )}>
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <DragDropPaste />
         <AutoFocusPlugin />
@@ -207,12 +254,12 @@ export default function Editor({ collaborationConfig }: EditorProps): JSX.Elemen
         <DateTimePlugin />
         {!(isCollab && useCollabV2) && (
           <CommentPlugin
-            providerFactory={isCollab ? createWebsocketProvider : undefined}
+            providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
           />
         )}
         {isRichText ? (
           <>
-            {isCollab && collaborationConfig ? (
+            {isCollabConfigReady && collaborationConfig ? (
               useCollabV2 ? (
                 <>
                   <CollabV2
@@ -237,8 +284,8 @@ export default function Editor({ collaborationConfig }: EditorProps): JSX.Elemen
             )}
             <RichTextPlugin
               contentEditable={
-                <div className="editor-scroller">
-                  <div className="editor" ref={onRef}>
+                <div className={classes.editorScroller}>
+                  <div className={classes.editor} ref={onRef}>
                     <ContentEditable placeholder={placeholder} />
                   </div>
                 </div>

@@ -13,6 +13,7 @@ import setupEnv from './setupEnv';
 import './index.css';
 
 
+import * as React from 'react';
 import {createRoot} from 'react-dom/client';
 
 import App from './App';

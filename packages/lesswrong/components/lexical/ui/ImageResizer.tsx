@@ -12,6 +12,79 @@ import React, { type JSX } from 'react';
 import {calculateZoomLevel} from '@lexical/utils';
 
 import {useRef} from 'react';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+
+const styles = defineStyles('LexicalImageResizer', (theme: ThemeType) => ({
+  captionButton: {
+    display: 'block',
+    position: 'absolute',
+    bottom: 20,
+    left: 0,
+    right: 0,
+    width: '30%',
+    padding: 10,
+    margin: '0 auto',
+    border: `1px solid ${theme.palette.inverseGreyAlpha(0.3)}`,
+    borderRadius: 5,
+    backgroundColor: theme.palette.greyAlpha(0.5),
+    minWidth: 100,
+    color: theme.palette.grey[0],
+    cursor: 'pointer',
+    userSelect: 'none',
+    '&:hover': {
+      backgroundColor: 'rgba(60, 132, 244, 0.5)',
+    },
+  },
+  resizer: {
+    display: 'block',
+    width: 7,
+    height: 7,
+    position: 'absolute',
+    backgroundColor: 'rgb(60, 132, 244)',
+    border: `1px solid ${theme.palette.grey[0]}`,
+  },
+  resizerN: {
+    top: -6,
+    left: '48%',
+    cursor: 'n-resize',
+  },
+  resizerNE: {
+    top: -6,
+    right: -6,
+    cursor: 'ne-resize',
+  },
+  resizerE: {
+    bottom: '48%',
+    right: -6,
+    cursor: 'e-resize',
+  },
+  resizerSE: {
+    bottom: -2,
+    right: -6,
+    cursor: 'nwse-resize',
+  },
+  resizerS: {
+    bottom: -2,
+    left: '48%',
+    cursor: 's-resize',
+  },
+  resizerSW: {
+    bottom: -2,
+    left: -6,
+    cursor: 'sw-resize',
+  },
+  resizerW: {
+    bottom: '48%',
+    left: -6,
+    cursor: 'w-resize',
+  },
+  resizerNW: {
+    top: -6,
+    left: -6,
+    cursor: 'nw-resize',
+  },
+}));
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -252,11 +325,13 @@ export default function ImageResizer({
       document.removeEventListener('pointerup', handlePointerUp);
     }
   };
+  const classes = useStyles(styles);
+
   return (
     <div ref={controlWrapperRef}>
       {!showCaption && captionsEnabled && (
         <button
-          className="image-caption-button"
+          className={classes.captionButton}
           ref={buttonRef}
           onClick={() => {
             setShowCaption(!showCaption);
@@ -265,49 +340,49 @@ export default function ImageResizer({
         </button>
       )}
       <div
-        className="image-resizer image-resizer-n"
+        className={classNames(classes.resizer, classes.resizerN)}
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.north);
         }}
       />
       <div
-        className="image-resizer image-resizer-ne"
+        className={classNames(classes.resizer, classes.resizerNE)}
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.north | Direction.east);
         }}
       />
       <div
-        className="image-resizer image-resizer-e"
+        className={classNames(classes.resizer, classes.resizerE)}
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.east);
         }}
       />
       <div
-        className="image-resizer image-resizer-se"
+        className={classNames(classes.resizer, classes.resizerSE)}
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.south | Direction.east);
         }}
       />
       <div
-        className="image-resizer image-resizer-s"
+        className={classNames(classes.resizer, classes.resizerS)}
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.south);
         }}
       />
       <div
-        className="image-resizer image-resizer-sw"
+        className={classNames(classes.resizer, classes.resizerSW)}
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.south | Direction.west);
         }}
       />
       <div
-        className="image-resizer image-resizer-w"
+        className={classNames(classes.resizer, classes.resizerW)}
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.west);
         }}
       />
       <div
-        className="image-resizer image-resizer-nw"
+        className={classNames(classes.resizer, classes.resizerNW)}
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.north | Direction.west);
         }}

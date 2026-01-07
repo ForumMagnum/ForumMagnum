@@ -27,7 +27,8 @@ import { $getRoot, $insertNodes, defineExtension, EditorState } from 'lexical';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
 import { useClientId } from '../hooks/useClientId';
-import { CollaborationPlugin, CollaborationConfig } from './lexicalPlugins/collaboration/CollaborationPlugin';
+import { CollaborationPlugin } from './lexicalPlugins/collaboration/CollaborationPlugin';
+import type { CollaborationConfig } from '../lexical/collaboration';
 import { useHocuspocusAuth } from './lexicalPlugins/collaboration/useHocuspocusAuth'
 import { FootnotesPlugin, INSERT_FOOTNOTE_COMMAND } from './lexicalPlugins/footnotes/FootnotesPlugin';
 import { FootnoteReferenceNode } from './lexicalPlugins/footnotes/FootnoteReferenceNode';
@@ -807,7 +808,7 @@ const LexicalPostEditor = ({
           <TableContext>
             <ToolbarContext>
               <div className="editor-shell">
-                <Editor />
+                <Editor collaborationConfig={collaborationConfig ?? undefined} />
               </div>
               <Settings />
               {/* {isDevPlayground ? <DocsPlugin /> : null}

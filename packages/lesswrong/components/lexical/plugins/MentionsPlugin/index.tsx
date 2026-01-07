@@ -21,6 +21,24 @@ import {useCallback, useEffect, useMemo, useState} from 'react';
 import * as ReactDOM from 'react-dom';
 
 import {$createMentionNode} from '../../nodes/MentionNode';
+import ForumIcon from '@/components/common/ForumIcon';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+import {
+  typeaheadPopover,
+  typeaheadList,
+  typeaheadListItem,
+  typeaheadItem,
+  typeaheadItemText,
+} from '../../styles/typeaheadStyles';
+
+const styles = defineStyles('LexicalMentions', (theme: ThemeType) => ({
+  popover: typeaheadPopover(theme),
+  list: typeaheadList(theme),
+  listItem: typeaheadListItem(theme),
+  item: typeaheadItem(theme),
+  text: typeaheadItemText(),
+}));
 
 const PUNCTUATION =
   '\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%\'"~=<>_:;';
@@ -579,22 +597,20 @@ function MentionsTypeaheadMenuItem({
   onClick,
   onMouseEnter,
   option,
+  classes,
 }: {
   index: number;
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   option: MentionTypeaheadOption;
+  classes: Record<string, string>;
 }) {
-  let className = 'item';
-  if (isSelected) {
-    className += ' selected';
-  }
   return (
     <li
       key={option.key}
       tabIndex={-1}
-      className={className}
+      className={classNames(classes.item, classes.listItem, { selected: isSelected })}
       ref={option.setRefElement}
       role="option"
       aria-selected={isSelected}
@@ -602,7 +618,7 @@ function MentionsTypeaheadMenuItem({
       onMouseEnter={onMouseEnter}
       onClick={onClick}>
       {option.picture}
-      <span className="text">{option.name}</span>
+      <span className={classes.text}>{option.name}</span>
     </li>
   );
 }
@@ -623,7 +639,7 @@ export default function NewMentionsPlugin(): JSX.Element | null {
       results
         .map(
           (result) =>
-            new MentionTypeaheadOption(result, <i className="icon user" />),
+            new MentionTypeaheadOption(result, <ForumIcon icon="User" style={{ display: 'flex', width: 20, height: 20, marginRight: 8, opacity: 0.6 }} />),
         )
         .slice(0, SUGGESTION_LIST_LENGTH_LIMIT),
     [results],
@@ -658,6 +674,8 @@ export default function NewMentionsPlugin(): JSX.Element | null {
     [checkForSlashTriggerMatch, editor],
   );
 
+  const classes = useStyles(styles);
+
   return (
     <LexicalTypeaheadMenuPlugin<MentionTypeaheadOption>
       onQueryChange={setQueryString}
@@ -670,8 +688,8 @@ export default function NewMentionsPlugin(): JSX.Element | null {
       ) =>
         anchorElementRef.current && results.length
           ? ReactDOM.createPortal(
-              <div className="typeahead-popover mentions-menu">
-                <ul>
+              <div className={classes.popover}>
+                <ul className={classes.list}>
                   {options.map((option, i: number) => (
                     <MentionsTypeaheadMenuItem
                       index={i}
@@ -685,6 +703,7 @@ export default function NewMentionsPlugin(): JSX.Element | null {
                       }}
                       key={option.key}
                       option={option}
+                      classes={classes}
                     />
                   ))}
                 </ul>

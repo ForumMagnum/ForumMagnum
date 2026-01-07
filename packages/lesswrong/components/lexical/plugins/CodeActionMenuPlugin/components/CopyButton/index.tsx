@@ -13,9 +13,21 @@ import {
   LexicalEditor,
 } from 'lexical';
 
-import {useState} from 'react';
+import React, {useState} from 'react';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { ClipboardIcon } from '../../../../icons/ClipboardIcon';
+import { SuccessIcon } from '../../../../icons/SuccessIcon';
 
 import {useDebounce} from '../../utils';
+
+const styles = defineStyles('LexicalCopyButton', (theme: ThemeType) => ({
+  icon: {
+    display: 'flex',
+    width: 18,
+    height: 18,
+    opacity: 0.6,
+  },
+}));
 
 interface Props {
   editor: LexicalEditor;
@@ -24,6 +36,7 @@ interface Props {
 }
 
 export function CopyButton({editor, getCodeDOMNode, menuItemClassName}: Props) {
+  const classes = useStyles(styles);
   const [isCopyCompleted, setCopyCompleted] = useState<boolean>(false);
 
   const removeSuccessIcon = useDebounce(() => {
@@ -62,9 +75,9 @@ export function CopyButton({editor, getCodeDOMNode, menuItemClassName}: Props) {
   return (
     <button className={menuItemClassName} onClick={handleClick} aria-label="copy">
       {isCopyCompleted ? (
-        <i className="format success" />
+        <SuccessIcon className={classes.icon} />
       ) : (
-        <i className="format copy" />
+        <ClipboardIcon className={classes.icon} />
       )}
     </button>
   );

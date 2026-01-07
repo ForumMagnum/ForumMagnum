@@ -49,6 +49,54 @@ import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
 import {InsertPollDialog} from '../PollPlugin';
 import {InsertTableDialog} from '../TablePlugin';
 
+import { TableIcon } from '../../icons/TableIcon';
+import { TextParagraphIcon } from '../../icons/TextParagraphIcon';
+import { TypeH1Icon } from '../../icons/TypeH1Icon';
+import { TypeH2Icon } from '../../icons/TypeH2Icon';
+import { TypeH3Icon } from '../../icons/TypeH3Icon';
+import { ListOlIcon } from '../../icons/ListOlIcon';
+import { ListUlIcon } from '../../icons/ListUlIcon';
+import { SquareCheckIcon } from '../../icons/SquareCheckIcon';
+import { ChatSquareQuoteIcon } from '../../icons/ChatSquareQuoteIcon';
+import { CodeIcon } from '../../icons/CodeIcon';
+import { HorizontalRuleIcon } from '../../icons/HorizontalRuleIcon';
+import { ScissorsIcon } from '../../icons/ScissorsIcon';
+import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
+import { CalendarIcon } from '../../icons/CalendarIcon';
+import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
+import { FileImageIcon } from '../../icons/FileImageIcon';
+import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
+import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
+import { TextLeftIcon } from '../../icons/TextLeftIcon';
+import { TextCenterIcon } from '../../icons/TextCenterIcon';
+import { TextRightIcon } from '../../icons/TextRightIcon';
+import { JustifyIcon } from '../../icons/JustifyIcon';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+import {
+  typeaheadPopover,
+  typeaheadList,
+  typeaheadListItem,
+  typeaheadItem,
+  typeaheadItemText,
+  typeaheadItemIcon,
+  componentPickerMenu,
+} from '../../styles/typeaheadStyles';
+
+const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
+  popover: {
+    ...typeaheadPopover(theme),
+    ...componentPickerMenu(),
+  },
+  list: typeaheadList(theme),
+  listItem: typeaheadListItem(theme),
+  item: typeaheadItem(theme),
+  text: typeaheadItemText(),
+  icon: typeaheadItemIcon(),
+}));
+
+const iconStyle = { display: 'flex', width: 20, height: 20, marginRight: 8, opacity: 0.6 };
+
 class ComponentPickerOption extends MenuOption {
   // What shows up in the editor
   title: string;
@@ -85,22 +133,20 @@ function ComponentPickerMenuItem({
   onClick,
   onMouseEnter,
   option,
+  classes,
 }: {
   index: number;
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   option: ComponentPickerOption;
+  classes: Record<string, string>;
 }) {
-  let className = 'item';
-  if (isSelected) {
-    className += ' selected';
-  }
   return (
     <li
       key={option.key}
       tabIndex={-1}
-      className={className}
+      className={classNames(classes.item, classes.listItem, { selected: isSelected })}
       ref={option.setRefElement}
       role="option"
       aria-selected={isSelected}
@@ -108,7 +154,7 @@ function ComponentPickerMenuItem({
       onMouseEnter={onMouseEnter}
       onClick={onClick}>
       {option.icon}
-      <span className="text">{option.title}</span>
+      <span className={classes.text}>{option.title}</span>
     </li>
   );
 }
@@ -132,7 +178,7 @@ function getDynamicOptions(editor: LexicalEditor, queryString: string) {
       ...colOptions.map(
         (columns) =>
           new ComponentPickerOption(`${rows}x${columns} Table`, {
-            icon: <i className="icon table" />,
+            icon: <TableIcon style={iconStyle} />,
             keywords: ['table'],
             onSelect: () =>
               editor.dispatchCommand(INSERT_TABLE_COMMAND, {columns, rows}),
@@ -146,10 +192,23 @@ function getDynamicOptions(editor: LexicalEditor, queryString: string) {
 
 type ShowModal = ReturnType<typeof useModal>[1];
 
+const headingIcons = {
+  1: TypeH1Icon,
+  2: TypeH2Icon,
+  3: TypeH3Icon,
+} as const;
+
+const alignmentIcons = {
+  left: TextLeftIcon,
+  center: TextCenterIcon,
+  right: TextRightIcon,
+  justify: JustifyIcon,
+} as const;
+
 function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
   return [
     new ComponentPickerOption('Paragraph', {
-      icon: <i className="icon paragraph" />,
+      icon: <TextParagraphIcon style={iconStyle} />,
       keywords: ['normal', 'paragraph', 'p', 'text'],
       onSelect: () =>
         editor.update(() => {
@@ -160,9 +219,10 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         }),
     }),
     ...([1, 2, 3] as const).map(
-      (n) =>
-        new ComponentPickerOption(`Heading ${n}`, {
-          icon: <i className={`icon h${n}`} />,
+      (n) => {
+        const HeadingIcon = headingIcons[n];
+        return new ComponentPickerOption(`Heading ${n}`, {
+          icon: <HeadingIcon style={iconStyle} />,
           keywords: ['heading', 'header', `h${n}`],
           onSelect: () =>
             editor.update(() => {
@@ -171,10 +231,11 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
                 $setBlocksType(selection, () => $createHeadingNode(`h${n}`));
               }
             }),
-        }),
+        });
+      }
     ),
     new ComponentPickerOption('Table', {
-      icon: <i className="icon table" />,
+      icon: <TableIcon style={iconStyle} />,
       keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
       onSelect: () =>
         showModal('Insert Table', (onClose) => (
@@ -182,25 +243,25 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         )),
     }),
     new ComponentPickerOption('Numbered List', {
-      icon: <i className="icon number" />,
+      icon: <ListOlIcon style={iconStyle} />,
       keywords: ['numbered list', 'ordered list', 'ol'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined),
     }),
     new ComponentPickerOption('Bulleted List', {
-      icon: <i className="icon bullet" />,
+      icon: <ListUlIcon style={iconStyle} />,
       keywords: ['bulleted list', 'unordered list', 'ul'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
     }),
     new ComponentPickerOption('Check List', {
-      icon: <i className="icon check" />,
+      icon: <SquareCheckIcon style={iconStyle} />,
       keywords: ['check list', 'todo list'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
     }),
     new ComponentPickerOption('Quote', {
-      icon: <i className="icon quote" />,
+      icon: <ChatSquareQuoteIcon style={iconStyle} />,
       keywords: ['block quote'],
       onSelect: () =>
         editor.update(() => {
@@ -211,7 +272,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         }),
     }),
     new ComponentPickerOption('Code', {
-      icon: <i className="icon code" />,
+      icon: <CodeIcon style={iconStyle} />,
       keywords: ['javascript', 'python', 'js', 'codeblock'],
       onSelect: () =>
         editor.update(() => {
@@ -231,24 +292,24 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         }),
     }),
     new ComponentPickerOption('Divider', {
-      icon: <i className="icon horizontal-rule" />,
+      icon: <HorizontalRuleIcon style={iconStyle} />,
       keywords: ['horizontal rule', 'divider', 'hr'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined),
     }),
     new ComponentPickerOption('Page Break', {
-      icon: <i className="icon page-break" />,
+      icon: <ScissorsIcon style={iconStyle} />,
       keywords: ['page break', 'divider'],
       onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
     }),
     // new ComponentPickerOption('Excalidraw', {
-    //   icon: <i className="icon diagram-2" />,
+    //   icon: <Diagram2Icon style={iconStyle} />,
     //   keywords: ['excalidraw', 'diagram', 'drawing'],
     //   onSelect: () =>
     //     editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined),
     // }),
     new ComponentPickerOption('Poll', {
-      icon: <i className="icon poll" />,
+      icon: <CardChecklistIcon style={iconStyle} />,
       keywords: ['poll', 'vote'],
       onSelect: () =>
         showModal('Insert Poll', (onClose) => (
@@ -265,7 +326,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         }),
     ),
     new ComponentPickerOption('Date', {
-      icon: <i className="icon calendar" />,
+      icon: <CalendarIcon style={iconStyle} />,
       keywords: ['date', 'calendar', 'time'],
       onSelect: () => {
         const dateTime = new Date();
@@ -274,7 +335,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       },
     }),
     new ComponentPickerOption('Today', {
-      icon: <i className="icon calendar" />,
+      icon: <CalendarIcon style={iconStyle} />,
       keywords: ['date', 'calendar', 'time', 'today'],
       onSelect: () => {
         const dateTime = new Date();
@@ -283,7 +344,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       },
     }),
     new ComponentPickerOption('Tomorrow', {
-      icon: <i className="icon calendar" />,
+      icon: <CalendarIcon style={iconStyle} />,
       keywords: ['date', 'calendar', 'time', 'tomorrow'],
       onSelect: () => {
         const dateTime = new Date();
@@ -293,7 +354,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       },
     }),
     new ComponentPickerOption('Yesterday', {
-      icon: <i className="icon calendar" />,
+      icon: <CalendarIcon style={iconStyle} />,
       keywords: ['date', 'calendar', 'time', 'yesterday'],
       onSelect: () => {
         const dateTime = new Date();
@@ -303,7 +364,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       },
     }),
     new ComponentPickerOption('Equation', {
-      icon: <i className="icon equation" />,
+      icon: <PlusSlashMinusIcon style={iconStyle} />,
       keywords: ['equation', 'latex', 'math'],
       onSelect: () =>
         showModal('Insert Equation', (onClose) => (
@@ -311,7 +372,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         )),
     }),
     // new ComponentPickerOption('GIF', {
-    //   icon: <i className="icon gif" />,
+    //   icon: <FiletypeGifIcon style={iconStyle} />,
     //   keywords: ['gif', 'animate', 'image', 'file'],
     //   onSelect: () =>
     //     editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
@@ -320,7 +381,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
     //     }),
     // }),
     new ComponentPickerOption('Image', {
-      icon: <i className="icon image" />,
+      icon: <FileImageIcon style={iconStyle} />,
       keywords: ['image', 'photo', 'picture', 'file'],
       onSelect: () =>
         showModal('Insert Image', (onClose) => (
@@ -328,13 +389,13 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         )),
     }),
     new ComponentPickerOption('Collapsible', {
-      icon: <i className="icon caret-right" />,
+      icon: <CaretRightFillIcon style={iconStyle} />,
       keywords: ['collapse', 'collapsible', 'toggle'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined),
     }),
     new ComponentPickerOption('Columns Layout', {
-      icon: <i className="icon columns" />,
+      icon: <ThreeColumnsIcon style={iconStyle} />,
       keywords: ['columns', 'layout', 'grid'],
       onSelect: () =>
         showModal('Insert Columns Layout', (onClose) => (
@@ -342,13 +403,15 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
         )),
     }),
     ...(['left', 'center', 'right', 'justify'] as const).map(
-      (alignment) =>
-        new ComponentPickerOption(`Align ${alignment}`, {
-          icon: <i className={`icon ${alignment}-align`} />,
+      (alignment) => {
+        const AlignIcon = alignmentIcons[alignment];
+        return new ComponentPickerOption(`Align ${alignment}`, {
+          icon: <AlignIcon style={iconStyle} />,
           keywords: ['align', 'justify', alignment],
           onSelect: () =>
             editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment),
-        }),
+        });
+      }
     ),
   ];
 }
@@ -398,6 +461,8 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     [editor],
   );
 
+  const classes = useStyles(styles);
+
   return (
     <>
       {modal}
@@ -412,8 +477,8 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
         ) =>
           anchorElementRef.current && options.length
             ? ReactDOM.createPortal(
-                <div className="typeahead-popover component-picker-menu">
-                  <ul>
+                <div className={classes.popover}>
+                  <ul className={classes.list}>
                     {options.map((option, i: number) => (
                       <ComponentPickerMenuItem
                         index={i}
@@ -427,6 +492,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
                         }}
                         key={option.key}
                         option={option}
+                        classes={classes}
                       />
                     ))}
                   </ul>

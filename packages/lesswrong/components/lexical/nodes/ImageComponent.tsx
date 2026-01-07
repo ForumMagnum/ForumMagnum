@@ -96,6 +96,27 @@ const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
   resizing: {
     touchAction: 'none',
   },
+  captionContainer: {
+    display: 'block',
+    position: 'absolute',
+    bottom: 4,
+    left: 0,
+    right: 0,
+    padding: 0,
+    margin: 0,
+    borderTop: `1px solid ${theme.palette.grey[0]}`,
+    backgroundColor: theme.palette.inverseGreyAlpha(0.9),
+    minWidth: 100,
+    color: theme.palette.grey[1000],
+    overflow: 'hidden',
+    boxSizing: 'border-box',
+    maxWidth: '100%',
+    wordWrap: 'break-word',
+    '& .tree-view-output': {
+      margin: 0,
+      borderRadius: 0,
+    },
+  },
 }));
 
 type ImageStatus =
@@ -519,7 +540,7 @@ export default function ImageComponent({
         </div>
 
         {showCaption && (
-          <div className="image-caption-container">
+          <div className={classes.captionContainer}>
             <LexicalNestedComposer initialEditor={caption}>
               <DisableCaptionOnBlur setShowCaption={setShowCaption} />
               <MentionsPlugin />

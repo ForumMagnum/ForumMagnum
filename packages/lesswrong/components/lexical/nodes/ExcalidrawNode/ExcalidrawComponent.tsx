@@ -24,11 +24,47 @@ import {
 } from 'lexical';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 
-
+import {defineStyles, useStyles} from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 import ExcalidrawModal from '../../ui/ExcalidrawModal';
 import ImageResizer from '../../ui/ImageResizer';
 import {$isExcalidrawNode} from '.';
 import ExcalidrawImage from './ExcalidrawImage';
+import {PencilFillIcon} from '../../icons/PencilFillIcon';
+
+const styles = defineStyles('LexicalExcalidrawComponent', (theme: ThemeType) => ({
+  excalidrawButton: {
+    border: 0,
+    padding: 0,
+    margin: 0,
+    backgroundColor: 'transparent',
+  },
+  selected: {
+    outline: `2px solid ${theme.palette.primary.main}`,
+    userSelect: 'none',
+  },
+  imageEditButton: {
+    border: `1px solid ${theme.palette.greyAlpha(0.3)}`,
+    borderRadius: 5,
+    backgroundSize: 16,
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    width: 35,
+    height: 35,
+    verticalAlign: '-0.25em',
+    position: 'absolute',
+    right: 4,
+    top: 4,
+    cursor: 'pointer',
+    userSelect: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    '&:hover': {
+      backgroundColor: theme.palette.lexicalEditor.editButtonHover,
+    },
+  },
+}));
 
 export default function ExcalidrawComponent({
   nodeKey,
@@ -41,6 +77,7 @@ export default function ExcalidrawComponent({
   width: 'inherit' | number;
   height: 'inherit' | number;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
   const isEditable = useLexicalEditable();
   const [isModalOpen, setModalOpen] = useState<boolean>(
@@ -191,7 +228,7 @@ export default function ExcalidrawComponent({
       {elements.length > 0 && (
         <button
           ref={buttonRef}
-          className={`excalidraw-button ${isSelected ? 'selected' : ''}`}>
+          className={classNames(classes.excalidrawButton, isSelected && classes.selected)}>
           <ExcalidrawImage
             imageContainerRef={imageContainerRef}
             className="image"
@@ -203,12 +240,13 @@ export default function ExcalidrawComponent({
           />
           {isSelected && isEditable && (
             <div
-              className="image-edit-button"
+              className={classes.imageEditButton}
               role="button"
               tabIndex={0}
               onMouseDown={(event) => event.preventDefault()}
-              onClick={openModal}
-            />
+              onClick={openModal}>
+              <PencilFillIcon />
+            </div>
           )}
           {(isSelected || isResizing) && isEditable && (
             <ImageResizer

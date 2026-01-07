@@ -77,6 +77,11 @@ import ContentEditable from '../../ui/ContentEditable';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 
+import { ChatLeftTextIcon } from '../../icons/ChatLeftTextIcon';
+import { CommentsIcon } from '../../icons/CommentsIcon';
+import { SendIcon } from '../../icons/SendIcon';
+import { Trash3Icon } from '../../icons/Trash3Icon';
+
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   addCommentBox: {
     display: 'block',
@@ -106,12 +111,10 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     },
   },
   addCommentIcon: {
-    backgroundSize: 'contain',
     display: 'inline-block',
     height: 20,
     width: 20,
     verticalAlign: '-10px',
-    backgroundImage: 'url(../../images/icons/chat-left-text.svg)',
   },
   commentInputBox: {
     display: 'block',
@@ -214,12 +217,10 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[400],
   },
   commentsIcon: {
-    backgroundSize: 'contain',
     display: 'inline-block',
     height: 20,
     width: 20,
     verticalAlign: '-10px',
-    backgroundImage: 'url(../../images/icons/comments.svg)',
     opacity: 0.5,
     transition: 'opacity 0.2s linear',
   },
@@ -295,12 +296,10 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     },
   },
   sendIcon: {
-    backgroundSize: 'contain',
     display: 'inline-block',
     height: 20,
     width: 20,
     verticalAlign: '-10px',
-    backgroundImage: 'url(../../images/icons/send.svg)',
     opacity: 0.5,
     transition: 'opacity 0.2s linear',
   },
@@ -428,14 +427,12 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     },
   },
   deleteIcon: {
-    backgroundSize: 'contain',
     position: 'absolute',
     left: 5,
     top: 5,
     height: 15,
     width: 15,
     verticalAlign: '-10px',
-    backgroundImage: 'url(../../images/icons/trash3.svg)',
     transition: 'opacity 0.2s linear',
   },
   deletedComment: {
@@ -494,7 +491,7 @@ function AddCommentBox({
       <button
         className={classes.addCommentBoxButton}
         onClick={onAddComment}>
-        <i className={classNames('icon', classes.addCommentIcon)} />
+        <ChatLeftTextIcon className={classes.addCommentIcon} />
       </button>
     </div>
   );
@@ -791,7 +788,7 @@ function CommentsComposer({
         className={classes.commentsPanelSendButton}
         onClick={submitComment}
         disabled={!canSubmit}>
-        <i className={classes.sendIcon} />
+        <SendIcon className={classes.sendIcon} />
       </Button>
     </>
   );
@@ -885,7 +882,7 @@ function CommentsPanelListComment({
               ));
             }}
             className={classes.deleteButton}>
-            <i className={classes.deleteIcon} />
+            <Trash3Icon className={classes.deleteIcon} />
           </Button>
           {modal}
         </>
@@ -1001,7 +998,7 @@ function CommentsPanelList({
                     ));
                   }}
                   className={classes.deleteButton}>
-                  <i className={classes.deleteIcon} />
+                  <Trash3Icon className={classes.deleteIcon} />
                 </Button>
                 {modal}
               </div>
@@ -1353,7 +1350,7 @@ export default function CommentPlugin({
           className={classNames(classes.showCommentsButton, { [classes.showCommentsButtonActive]: showComments })}
           onClick={() => setShowComments(!showComments)}
           title={showComments ? 'Hide Comments' : 'Show Comments'}>
-          <i className={classes.commentsIcon} />
+          <CommentsIcon className={classes.commentsIcon} />
         </Button>,
         document.body,
       )}

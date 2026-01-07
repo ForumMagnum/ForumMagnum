@@ -14,6 +14,8 @@ import {useRef, useState} from 'react';
 
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { DraggableBlockMenuIcon } from '../../icons/DraggableBlockMenuIcon';
+import { PlusIcon } from '../../icons/PlusIcon';
 
 const styles = defineStyles('LexicalDraggableBlockPlugin', (theme: ThemeType) => ({
   menu: {
@@ -26,6 +28,7 @@ const styles = defineStyles('LexicalDraggableBlockPlugin', (theme: ThemeType) =>
     top: 0,
     willChange: 'transform, opacity',
     display: 'flex',
+    alignItems: 'center',
     gap: 2,
     transition: 'transform 140ms ease-in-out, opacity 160ms ease-in-out',
     '&:active': {
@@ -36,17 +39,23 @@ const styles = defineStyles('LexicalDraggableBlockPlugin', (theme: ThemeType) =>
     width: 16,
     height: 16,
     opacity: 0.3,
-    backgroundImage: 'url(/lexical/icons/draggable-block-menu.svg)',
+  },
+  dragHandle: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     '&:hover': {
       backgroundColor: theme.palette.grey[200],
     },
   },
-  iconPlus: {
-    display: 'inline-block',
+  addButton: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     border: 'none',
     cursor: 'pointer',
     backgroundColor: 'transparent',
-    backgroundImage: 'url(/lexical/icons/plus.svg)',
+    padding: 0,
   },
   targetLine: {
     pointerEvents: 'none',
@@ -104,13 +113,16 @@ export default function DraggableBlockPlugin({
       menuRef={menuRef}
       targetLineRef={targetLineRef}
       menuComponent={
-        <div ref={menuRef} className={classNames(classes.icon, classes.menu, 'draggable-block-menu')}>
+        <div ref={menuRef} className={classNames(classes.menu, 'draggable-block-menu')}>
           <button
             title="Click to add below"
-            className={classNames(classes.icon, classes.iconPlus)}
-            onClick={insertBlock}
-          />
-          <div className={classes.icon} />
+            className={classes.addButton}
+            onClick={insertBlock}>
+            <PlusIcon className={classes.icon} />
+          </button>
+          <div className={classes.dragHandle}>
+            <DraggableBlockMenuIcon className={classes.icon} />
+          </div>
         </div>
       }
       targetLineComponent={

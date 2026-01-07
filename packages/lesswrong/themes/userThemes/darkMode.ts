@@ -288,6 +288,10 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
     lexicalEditor: {
       modalOverlay: "rgba(0, 0, 0, 0.7)",
       equationText: "#c77dff",
+      editButtonHover: "rgba(60, 132, 244, 0.2)",
+      focusRing: "rgb(100, 160, 255)",
+      mentionFocus: "rgb(60, 100, 180)",
+      keyword: "rgb(255, 140, 120)",
     },
     tab: {
       inactive: {

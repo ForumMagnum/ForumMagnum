@@ -20,6 +20,169 @@ import {
   defineExtension,
 } from 'lexical';
 import React, {type JSX, useMemo} from 'react';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const styles = defineStyles('LexicalApp', (theme: ThemeType) => ({
+  editorShell: {
+    margin: '20px auto',
+    borderRadius: 2,
+    maxWidth: 1100,
+    color: theme.palette.grey[1000],
+    position: 'relative',
+    lineHeight: '1.7',
+    fontWeight: 400,
+    
+    // Typeahead menu width overrides
+    '& .mentions-menu': {
+      width: 250,
+    },
+    '& .auto-embed-menu': {
+      width: 150,
+    },
+    '& .emoji-menu': {
+      width: 200,
+    },
+    
+    // Mention focus state
+    '& .mention:focus': {
+      boxShadow: `${theme.palette.lexicalEditor.mentionFocus} 0px 0px 0px 2px`,
+      outline: 'none',
+    },
+    
+    // Character limit display
+    '& .characters-limit': {
+      color: theme.palette.grey[550],
+      fontSize: 12,
+      textAlign: 'right',
+      display: 'block',
+      position: 'absolute',
+      left: 12,
+      bottom: 5,
+      '&.characters-limit-exceeded': {
+        color: theme.palette.error.main,
+      },
+    },
+    
+    // Responsive dropdown behavior
+    '@media screen and (max-width: 1100px)': {
+      '& .dropdown-button-text': {
+        display: 'none !important',
+      },
+      '& .dialog-dropdown > .dropdown-button-text': {
+        display: 'flex !important',
+      },
+      '& .font-size .dropdown-button-text': {
+        display: 'flex !important',
+      },
+      '& .code-language .dropdown-button-text': {
+        display: 'flex !important',
+      },
+    },
+    
+    // Editor image styles (Lexical theme class names)
+    '& span.editor-image': {
+      cursor: 'default',
+      display: 'inline-block',
+      position: 'relative',
+      userSelect: 'none',
+      overflow: 'hidden',
+    },
+    '& .editor-image img': {
+      maxWidth: '100%',
+      cursor: 'default',
+    },
+    '& .editor-image img.focused': {
+      outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
+      userSelect: 'none',
+    },
+    '& .editor-image img.focused.draggable': {
+      cursor: 'grab',
+    },
+    '& .editor-image img.focused.draggable:active': {
+      cursor: 'grabbing',
+    },
+    
+    // Emoji styles (Lexical theme class names)
+    '& .emoji': {
+      color: 'transparent',
+      caretColor: theme.palette.grey[1000],
+      backgroundSize: '16px 16px',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      verticalAlign: 'middle',
+      margin: '0 -1px',
+    },
+    '& .emoji-inner': {
+      padding: '0 0.15em',
+    },
+    '& .emoji-inner::selection': {
+      color: 'transparent',
+      backgroundColor: theme.palette.greyAlpha(0.4),
+    },
+    // Note: emoji background-images (happysmile, etc.) kept in CSS due to URL references
+    
+    // Keyword styles (Lexical theme class name)
+    '& .keyword': {
+      color: theme.palette.lexicalEditor.keyword,
+      fontWeight: 'bold',
+    },
+    
+    // Table cell action button (Lexical theme class names)
+    '& .table-cell-action-button-container': {
+      position: 'absolute',
+      zIndex: 3,
+      top: 0,
+      left: 0,
+      willChange: 'transform',
+      '&.table-cell-action-button-container--active': {
+        pointerEvents: 'auto',
+        opacity: 1,
+      },
+      '&.table-cell-action-button-container--inactive': {
+        pointerEvents: 'none',
+        opacity: 0,
+      },
+    },
+    '& .table-cell-action-button': {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      border: 0,
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      borderRadius: 15,
+      color: theme.palette.grey[900],
+      cursor: 'pointer',
+    },
+    
+    // Editor equation styles (Lexical theme class names)
+    '& .editor-equation': {
+      cursor: 'default',
+      userSelect: 'none',
+      '&.focused': {
+        outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
+      },
+    },
+    
+    // TableNode content editable (Lexical table theme)
+    '& .TableNode__contentEditable': {
+      minHeight: 20,
+      border: 0,
+      resize: 'none',
+      cursor: 'text',
+      display: 'block',
+      position: 'relative',
+      outline: 0,
+      padding: 0,
+      userSelect: 'text',
+      fontSize: 15,
+      whiteSpace: 'pre-wrap',
+      wordBreak: 'break-word',
+      zIndex: 3,
+    },
+  },
+}));
 
 import {isDevPlayground} from './appSettings';
 import {buildHTMLConfig} from './buildHTMLConfig';
@@ -139,13 +302,15 @@ function App(): JSX.Element {
     [emptyEditor, isCollab],
   );
 
+  const classes = useStyles(styles);
+
   return (
     <LexicalCollaboration>
       <LexicalExtensionComposer extension={app} contentEditable={null}>
         <SharedHistoryContext>
           <TableContext>
             <ToolbarContext>
-              <div className="editor-shell">
+              <div className={classes.editorShell}>
                 <Editor />
               </div>
               <Settings />

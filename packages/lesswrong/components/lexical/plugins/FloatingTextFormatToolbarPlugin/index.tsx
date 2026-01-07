@@ -12,6 +12,20 @@ import {$isCodeHighlightNode} from '@lexical/code';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
+
+// Icon imports
+import { TypeBoldIcon } from '../../icons/TypeBoldIcon';
+import { TypeItalicIcon } from '../../icons/TypeItalicIcon';
+import { TypeUnderlineIcon } from '../../icons/TypeUnderlineIcon';
+import { TypeStrikethroughIcon } from '../../icons/TypeStrikethroughIcon';
+import { TypeSubscriptIcon } from '../../icons/TypeSubscriptIcon';
+import { TypeSuperscriptIcon } from '../../icons/TypeSuperscriptIcon';
+import { TypeUppercaseIcon } from '../../icons/TypeUppercaseIcon';
+import { TypeLowercaseIcon } from '../../icons/TypeLowercaseIcon';
+import { TypeCapitalizeIcon } from '../../icons/TypeCapitalizeIcon';
+import { CodeIcon } from '../../icons/CodeIcon';
+import { LinkIcon } from '../../icons/LinkIcon';
+import { ChatLeftTextIcon } from '../../icons/ChatLeftTextIcon';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {mergeRegister} from '@lexical/utils';
 import {
@@ -323,7 +337,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isBold })}
             title="Bold"
             aria-label="Format text as bold">
-            <i className={classNames(classes.format, 'bold')} />
+            <TypeBoldIcon className={classes.format} />
           </button>
           <button
             type="button"
@@ -333,7 +347,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isItalic })}
             title="Italic"
             aria-label="Format text as italics">
-            <i className={classNames(classes.format, 'italic')} />
+            <TypeItalicIcon className={classes.format} />
           </button>
           <button
             type="button"
@@ -343,7 +357,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isUnderline })}
             title="Underline"
             aria-label="Format text to underlined">
-            <i className={classNames(classes.format, 'underline')} />
+            <TypeUnderlineIcon className={classes.format} />
           </button>
           <button
             type="button"
@@ -353,7 +367,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isStrikethrough })}
             title="Strikethrough"
             aria-label="Format text with a strikethrough">
-            <i className={classNames(classes.format, 'strikethrough')} />
+            <TypeStrikethroughIcon className={classes.format} />
           </button>
           <button
             type="button"
@@ -363,7 +377,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isSubscript })}
             title="Subscript"
             aria-label="Format Subscript">
-            <i className={classNames(classes.format, 'subscript')} />
+            <TypeSubscriptIcon className={classes.format} />
           </button>
           <button
             type="button"
@@ -373,7 +387,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isSuperscript })}
             title="Superscript"
             aria-label="Format Superscript">
-            <i className={classNames(classes.format, 'superscript')} />
+            <TypeSuperscriptIcon className={classes.format} />
           </button>
           <button
             type="button"
@@ -383,7 +397,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isUppercase })}
             title="Uppercase"
             aria-label="Format text to uppercase">
-            <i className={classNames(classes.format, 'uppercase')} />
+            <TypeUppercaseIcon className={classes.format} />
           </button>
           <button
             type="button"
@@ -393,7 +407,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isLowercase })}
             title="Lowercase"
             aria-label="Format text to lowercase">
-            <i className={classNames(classes.format, 'lowercase')} />
+            <TypeLowercaseIcon className={classes.format} />
           </button>
           <button
             type="button"
@@ -403,7 +417,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isCapitalize })}
             title="Capitalize"
             aria-label="Format text to capitalize">
-            <i className={classNames(classes.format, 'capitalize')} />
+            <TypeCapitalizeIcon className={classes.format} />
           </button>
           <button
             type="button"
@@ -413,7 +427,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isCode })}
             title="Insert code block"
             aria-label="Insert code block">
-            <i className={classNames(classes.format, 'code')} />
+            <CodeIcon className={classes.format} />
           </button>
           <button
             type="button"
@@ -421,7 +435,7 @@ function TextFormatFloatingToolbar({
             className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isLink })}
             title="Insert link"
             aria-label="Insert link">
-            <i className={classNames(classes.format, 'link')} />
+            <LinkIcon className={classes.format} />
           </button>
         </>
       )}
@@ -431,7 +445,7 @@ function TextFormatFloatingToolbar({
         className={classNames(classes.popupItem, classes.spaced, classes.insertComment)}
         title="Insert comment"
         aria-label="Insert comment">
-        <i className={classNames(classes.format, 'add-comment')} />
+        <ChatLeftTextIcon className={classes.format} />
       </button>
     </div>
   );

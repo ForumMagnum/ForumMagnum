@@ -49,6 +49,26 @@ import {
 import {ReactPortal, useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 
+import { VerticalTopIcon } from '../../icons/VerticalTopIcon';
+import { VerticalMiddleIcon } from '../../icons/VerticalMiddleIcon';
+import { VerticalBottomIcon } from '../../icons/VerticalBottomIcon';
+import { ChevronDownIcon } from '../../icons/ChevronDownIcon';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const styles = defineStyles('LexicalTableActionMenuPlugin', (theme: ThemeType) => ({
+  dropdownIcon: {
+    display: 'flex',
+    width: 20,
+    height: 20,
+    marginRight: 12,
+  },
+  chevronIcon: {
+    width: 16,
+    height: 16,
+    display: 'flex',
+  },
+}));
+
 import useModal from '../../hooks/useModal';
 import ColorPicker from '../../ui/ColorPicker';
 import DropDown, {DropDownItem} from '../../ui/DropDown';
@@ -121,6 +141,7 @@ function TableActionMenu({
   cellMerge,
   showColorPickerModal,
 }: TableCellActionMenuProps) {
+  const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
   const dropDownRef = useRef<HTMLDivElement | null>(null);
   const [tableCellNode, updateTableCellNode] = useState(_tableCellNode);
@@ -535,7 +556,7 @@ function TableActionMenu({
           }}
           className="item wide">
           <div className="icon-text-container">
-            <i className="icon vertical-top" />
+            <VerticalTopIcon className={classes.dropdownIcon} />
             <span className="text">Top Align</span>
           </div>
         </DropDownItem>
@@ -545,7 +566,7 @@ function TableActionMenu({
           }}
           className="item wide">
           <div className="icon-text-container">
-            <i className="icon vertical-middle" />
+            <VerticalMiddleIcon className={classes.dropdownIcon} />
             <span className="text">Middle Align</span>
           </div>
         </DropDownItem>
@@ -555,7 +576,7 @@ function TableActionMenu({
           }}
           className="item wide">
           <div className="icon-text-container">
-            <i className="icon vertical-bottom" />
+            <VerticalBottomIcon className={classes.dropdownIcon} />
             <span className="text">Bottom Align</span>
           </div>
         </DropDownItem>
@@ -685,6 +706,7 @@ function TableCellActionMenuContainer({
   anchorElem: HTMLElement;
   cellMerge: boolean;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
 
   const menuButtonRef = useRef<HTMLDivElement | null>(null);
@@ -893,13 +915,13 @@ function TableCellActionMenuContainer({
         <>
           <button
             type="button"
-            className="table-cell-action-button chevron-down"
+            className="table-cell-action-button"
             onClick={(e) => {
               e.stopPropagation();
               setIsMenuOpen(!isMenuOpen);
             }}
             ref={menuRootRef}>
-            <i className="chevron-down" />
+            <ChevronDownIcon className={classes.chevronIcon} />
           </button>
           {colorPickerModal}
           {isMenuOpen && (

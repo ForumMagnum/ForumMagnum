@@ -38,14 +38,15 @@ import {createPortal} from 'react-dom';
 
 import DropDown, {DropDownItem} from '../../ui/DropDown';
 import {getThemeSelector} from '../../utils/getThemeSelector';
+import { PlusIcon } from '../../icons/PlusIcon';
+import { FilterLeftIcon } from '../../icons/FilterLeftIcon';
 
 const styles = defineStyles('LexicalTableHoverActionsV2', (theme: ThemeType) => ({
-  addIndicator: {
-    backgroundImage: 'url(../../images/icons/plus.svg)',
+  indicator: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: theme.palette.grey[0],
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: '12px 12px',
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 2,
     boxShadow: `0 1px 3px ${theme.palette.greyAlpha(0.12)}`,
@@ -60,25 +61,9 @@ const styles = defineStyles('LexicalTableHoverActionsV2', (theme: ThemeType) => 
       backgroundColor: theme.palette.grey[100],
     },
   },
-  filterIndicator: {
-    backgroundImage: 'url(../../images/icons/filter-left.svg)',
-    backgroundColor: theme.palette.grey[0],
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: '12px 12px',
-    border: `1px solid ${theme.palette.grey[300]}`,
-    borderRadius: 2,
-    boxShadow: `0 1px 3px ${theme.palette.greyAlpha(0.12)}`,
-    boxSizing: 'border-box',
-    height: 18,
-    pointerEvents: 'auto',
-    transition: 'opacity 80ms ease',
-    width: 18,
-    zIndex: 10,
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: theme.palette.grey[100],
-    },
+  indicatorIcon: {
+    width: 12,
+    height: 12,
   },
   topActions: {
     display: 'flex',
@@ -485,7 +470,8 @@ function TableHoverActionsV2({
         className={classes.topActions}>
         <DropDown
           buttonAriaLabel="Sort column"
-          buttonClassName={classes.filterIndicator}
+          buttonClassName={classes.indicator}
+          buttonIcon={<FilterLeftIcon className={classes.indicatorIcon} />}
           hideChevron={true}>
           <DropDownItem
             className="item"
@@ -499,11 +485,12 @@ function TableHoverActionsV2({
           </DropDownItem>
         </DropDown>
         <button
-          className={classes.addIndicator}
+          className={classes.indicator}
           aria-label="Add column"
           type="button"
-          onClick={handleAddColumn}
-        />
+          onClick={handleAddColumn}>
+          <PlusIcon className={classes.indicatorIcon} />
+        </button>
       </div>
       <button
         ref={(node) => {
@@ -514,11 +501,12 @@ function TableHoverActionsV2({
           ...leftFloatingStyles,
           opacity: isLeftVisible ? 1 : 0,
         }}
-        className={classes.addIndicator}
+        className={classes.indicator}
         aria-label="Add row"
         type="button"
-        onClick={handleAddRow}
-      />
+        onClick={handleAddRow}>
+        <PlusIcon className={classes.indicatorIcon} />
+      </button>
     </>
   );
 }

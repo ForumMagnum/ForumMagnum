@@ -27,6 +27,25 @@ import {DialogActions} from '../../ui/Dialog';
 import {INSERT_FIGMA_COMMAND} from '../FigmaPlugin';
 import {INSERT_TWEET_COMMAND} from '../TwitterPlugin';
 import {INSERT_YOUTUBE_COMMAND} from '../YouTubePlugin';
+import { YoutubeIcon } from '../../icons/YoutubeIcon';
+import { XIcon } from '../../icons/XIcon';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+import {
+  typeaheadPopover,
+  typeaheadList,
+  typeaheadListItem,
+  typeaheadItem,
+  typeaheadItemText,
+} from '../../styles/typeaheadStyles';
+
+const styles = defineStyles('LexicalAutoEmbed', (theme: ThemeType) => ({
+  popover: typeaheadPopover(theme),
+  list: typeaheadList(theme),
+  listItem: typeaheadListItem(theme),
+  item: typeaheadItem(theme),
+  text: typeaheadItemText(),
+}));
 
 interface PlaygroundEmbedConfig extends EmbedConfig {
   // Human readable name of the embedded content e.g. Tweet or Google Map.
@@ -45,13 +64,15 @@ interface PlaygroundEmbedConfig extends EmbedConfig {
   description?: string;
 }
 
+const embedIconStyle = { display: 'flex', width: 20, height: 20, marginRight: 8, opacity: 0.6 };
+
 export const YoutubeEmbedConfig: PlaygroundEmbedConfig = {
   contentName: 'Youtube Video',
 
   exampleUrl: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
 
   // Icon for display.
-  icon: <i className="icon youtube" />,
+  icon: <YoutubeIcon style={embedIconStyle} />,
 
   insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
     editor.dispatchCommand(INSERT_YOUTUBE_COMMAND, result.id);
@@ -86,7 +107,7 @@ export const TwitterEmbedConfig: PlaygroundEmbedConfig = {
   exampleUrl: 'https://x.com/jack/status/20',
 
   // Icon for display.
-  icon: <i className="icon x" />,
+  icon: <XIcon style={embedIconStyle} />,
 
   // Create the Lexical embed node from the url data.
   insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
@@ -116,43 +137,43 @@ export const TwitterEmbedConfig: PlaygroundEmbedConfig = {
   type: 'tweet',
 };
 
-export const FigmaEmbedConfig: PlaygroundEmbedConfig = {
-  contentName: 'Figma Document',
+// export const FigmaEmbedConfig: PlaygroundEmbedConfig = {
+//   contentName: 'Figma Document',
 
-  exampleUrl: 'https://www.figma.com/file/LKQ4FJ4bTnCSjedbRpk931/Sample-File',
+//   exampleUrl: 'https://www.figma.com/file/LKQ4FJ4bTnCSjedbRpk931/Sample-File',
 
-  icon: <i className="icon figma" />,
+//   icon: <FigmaIcon style={embedIconStyle} />,
 
-  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
-    editor.dispatchCommand(INSERT_FIGMA_COMMAND, result.id);
-  },
+//   insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+//     editor.dispatchCommand(INSERT_FIGMA_COMMAND, result.id);
+//   },
 
-  keywords: ['figma', 'figma.com', 'mock-up'],
+//   keywords: ['figma', 'figma.com', 'mock-up'],
 
-  // Determine if a given URL is a match and return url data.
-  parseUrl: (text: string) => {
-    const match =
-      /https:\/\/([\w.-]+\.)?figma.com\/(file|proto)\/([0-9a-zA-Z]{22,128})(?:\/.*)?$/.exec(
-        text,
-      );
+//   // Determine if a given URL is a match and return url data.
+//   parseUrl: (text: string) => {
+//     const match =
+//       /https:\/\/([\w.-]+\.)?figma.com\/(file|proto)\/([0-9a-zA-Z]{22,128})(?:\/.*)?$/.exec(
+//         text,
+//       );
 
-    if (match != null) {
-      return {
-        id: match[3],
-        url: match[0],
-      };
-    }
+//     if (match != null) {
+//       return {
+//         id: match[3],
+//         url: match[0],
+//       };
+//     }
 
-    return null;
-  },
+//     return null;
+//   },
 
-  type: 'figma',
-};
+//   type: 'figma',
+// };
 
 export const EmbedConfigs = [
   TwitterEmbedConfig,
   YoutubeEmbedConfig,
-  FigmaEmbedConfig,
+  // FigmaEmbedConfig,
 ];
 
 function AutoEmbedMenuItem({
@@ -161,29 +182,27 @@ function AutoEmbedMenuItem({
   onClick,
   onMouseEnter,
   option,
+  classes,
 }: {
   index: number;
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   option: AutoEmbedOption;
+  classes: Record<string, string>;
 }) {
-  let className = 'item';
-  if (isSelected) {
-    className += ' selected';
-  }
   return (
     <li
       key={option.key}
       tabIndex={-1}
-      className={className}
+      className={classNames(classes.item, classes.listItem, { selected: isSelected })}
       ref={option.setRefElement}
       role="option"
       aria-selected={isSelected}
       id={'typeahead-item-' + index}
       onMouseEnter={onMouseEnter}
       onClick={onClick}>
-      <span className="text">{option.title}</span>
+      <span className={classes.text}>{option.title}</span>
     </li>
   );
 }
@@ -193,15 +212,17 @@ function AutoEmbedMenu({
   selectedItemIndex,
   onOptionClick,
   onOptionMouseEnter,
+  classes,
 }: {
   selectedItemIndex: number | null;
   onOptionClick: (option: AutoEmbedOption, index: number) => void;
   onOptionMouseEnter: (index: number) => void;
   options: Array<AutoEmbedOption>;
+  classes: Record<string, string>;
 }) {
   return (
-    <div className="typeahead-popover">
-      <ul>
+    <div className={classes.popover}>
+      <ul className={classes.list}>
         {options.map((option: AutoEmbedOption, i: number) => (
           <AutoEmbedMenuItem
             index={i}
@@ -210,6 +231,7 @@ function AutoEmbedMenu({
             onMouseEnter={() => onOptionMouseEnter(i)}
             key={option.key}
             option={option}
+            classes={classes}
           />
         ))}
       </ul>
@@ -314,6 +336,8 @@ export default function AutoEmbedPlugin(): JSX.Element {
     ];
   };
 
+  const classes = useStyles(styles);
+
   return (
     <>
       {modal}
@@ -328,7 +352,7 @@ export default function AutoEmbedPlugin(): JSX.Element {
           anchorElementRef.current
             ? ReactDOM.createPortal(
                 <div
-                  className="typeahead-popover auto-embed-menu"
+                  className={classes.popover}
                   style={{
                     marginLeft: `${Math.max(
                       parseFloat(anchorElementRef.current.style.width) - 200,
@@ -346,6 +370,7 @@ export default function AutoEmbedPlugin(): JSX.Element {
                     onOptionMouseEnter={(index: number) => {
                       setHighlightedIndex(index);
                     }}
+                    classes={classes}
                   />
                 </div>,
                 anchorElementRef.current,

@@ -19,8 +19,26 @@ import {
   TextNode,
 } from 'lexical';
 
+import * as React from 'react';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import * as ReactDOM from 'react-dom';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+import {
+  typeaheadPopover,
+  typeaheadList,
+  typeaheadListItem,
+  typeaheadItem,
+  typeaheadItemText,
+} from '../../styles/typeaheadStyles';
+
+const styles = defineStyles('LexicalEmojiPicker', (theme: ThemeType) => ({
+  popover: typeaheadPopover(theme),
+  list: typeaheadList(theme),
+  listItem: typeaheadListItem(theme),
+  item: typeaheadItem(theme),
+  text: typeaheadItemText(),
+}));
 
 class EmojiOption extends MenuOption {
   title: string;
@@ -46,29 +64,27 @@ function EmojiMenuItem({
   onClick,
   onMouseEnter,
   option,
+  classes,
 }: {
   index: number;
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   option: EmojiOption;
+  classes: Record<string, string>;
 }) {
-  let className = 'item';
-  if (isSelected) {
-    className += ' selected';
-  }
   return (
     <li
       key={option.key}
       tabIndex={-1}
-      className={className}
+      className={classNames(classes.item, classes.listItem, { selected: isSelected })}
       ref={option.setRefElement}
       role="option"
       aria-selected={isSelected}
       id={'typeahead-item-' + index}
       onMouseEnter={onMouseEnter}
       onClick={onClick}>
-      <span className="text">
+      <span className={classes.text}>
         {option.emoji} {option.title}
       </span>
     </li>
@@ -155,6 +171,8 @@ export default function EmojiPickerPlugin() {
     [editor],
   );
 
+  const classes = useStyles(styles);
+
   return (
     <LexicalTypeaheadMenuPlugin
       onQueryChange={setQueryString}
@@ -171,8 +189,8 @@ export default function EmojiPickerPlugin() {
 
         return anchorElementRef.current && options.length
           ? ReactDOM.createPortal(
-              <div className="typeahead-popover emoji-menu">
-                <ul>
+              <div className={classes.popover}>
+                <ul className={classes.list}>
                   {options.map((option: EmojiOption, index) => (
                     <EmojiMenuItem
                       key={option.key}
@@ -186,6 +204,7 @@ export default function EmojiPickerPlugin() {
                         setHighlightedIndex(index);
                       }}
                       option={option}
+                      classes={classes}
                     />
                   ))}
                 </ul>

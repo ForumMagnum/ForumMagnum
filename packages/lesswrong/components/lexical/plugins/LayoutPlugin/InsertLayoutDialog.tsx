@@ -11,10 +11,22 @@ import React, { type JSX } from 'react';
 import {LexicalEditor} from 'lexical';
 
 import {useState} from 'react';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 
 import Button from '../../ui/Button';
 import DropDown, {DropDownItem} from '../../ui/DropDown';
 import {INSERT_LAYOUT_COMMAND} from './LayoutPlugin';
+import { toolbarItem } from '../../styles/toolbarStyles';
+
+const styles = defineStyles('LexicalInsertLayoutDialog', (theme: ThemeType) => ({
+  toolbarItem: {
+    ...toolbarItem(theme),
+    backgroundColor: theme.palette.grey[200],
+    marginBottom: 10,
+    width: '100%',
+  },
+}));
 
 const LAYOUTS = [
   {label: '2 columns (equal width)', value: '1fr 1fr'},
@@ -31,6 +43,7 @@ export default function InsertLayoutDialog({
   activeEditor: LexicalEditor;
   onClose: () => void;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const [layout, setLayout] = useState(LAYOUTS[0].value);
   const buttonLabel = LAYOUTS.find((item) => item.value === layout)?.label;
 
@@ -42,7 +55,7 @@ export default function InsertLayoutDialog({
   return (
     <>
       <DropDown
-        buttonClassName="toolbar-item dialog-dropdown"
+        buttonClassName={classes.toolbarItem}
         buttonLabel={buttonLabel}>
         {LAYOUTS.map(({label, value}) => (
           <DropDownItem

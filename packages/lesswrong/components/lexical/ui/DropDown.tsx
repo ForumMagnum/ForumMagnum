@@ -20,8 +20,106 @@ import {
   useState,
 } from 'react';
 import {createPortal} from 'react-dom';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 import {focusNearestDescendant, isKeyboardInput} from '../utils/focusUtils';
+import { ChevronDownIcon } from '../icons/ChevronDownIcon';
+import { chevronDown } from '../styles/toolbarStyles';
+
+const styles = defineStyles('LexicalDropDown', (theme: ThemeType) => ({
+  chevronDown: {
+    ...chevronDown(),
+    backgroundColor: 'transparent',
+    backgroundSize: 'contain',
+    height: 8,
+    width: 8,
+  },
+  dropdown: {
+    zIndex: 100,
+    display: 'block',
+    position: 'fixed',
+    boxShadow: `0 12px 28px 0 ${theme.palette.greyAlpha(0.2)}, 0 2px 4px 0 ${theme.palette.greyAlpha(0.1)}, inset 0 0 0 1px ${theme.palette.inverseGreyAlpha(0.5)}`,
+    borderRadius: 8,
+    minHeight: 40,
+    backgroundColor: theme.palette.grey[0],
+  },
+  item: {
+    margin: '0 8px',
+    padding: 8,
+    color: theme.palette.grey[1000],
+    cursor: 'pointer',
+    lineHeight: '16px',
+    fontSize: 15,
+    display: 'flex',
+    alignContent: 'center',
+    flexDirection: 'row',
+    flexShrink: 0,
+    justifyContent: 'space-between',
+    backgroundColor: theme.palette.grey[0],
+    borderRadius: 8,
+    border: 0,
+    maxWidth: 264,
+    minWidth: 100,
+    '&:first-child': {
+      marginTop: 8,
+    },
+    '&:last-child': {
+      marginBottom: 8,
+    },
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
+  itemWide: {
+    alignItems: 'center',
+    width: 260,
+  },
+  iconTextContainer: {
+    display: 'flex',
+    '& .text': {
+      minWidth: 120,
+    },
+  },
+  shortcut: {
+    color: theme.palette.grey[500],
+    alignSelf: 'flex-end',
+  },
+  active: {
+    display: 'flex',
+    width: 20,
+    height: 20,
+    backgroundSize: 'contain',
+  },
+  text: {
+    display: 'flex',
+    lineHeight: '20px',
+    flexGrow: 1,
+    minWidth: 150,
+  },
+  icon: {
+    display: 'flex',
+    width: 20,
+    height: 20,
+    userSelect: 'none',
+    marginRight: 12,
+    lineHeight: '16px',
+    backgroundSize: 'contain',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+  },
+  divider: {
+    width: 'auto',
+    backgroundColor: theme.palette.grey[200],
+    margin: '4px 8px',
+    height: 1,
+  },
+  dropdownItemActive: {
+    backgroundColor: theme.palette.greyAlpha(0.05),
+    '& i': {
+      opacity: 1,
+    },
+  },
+}));
 
 type DropDownContextType = {
   registerItem: (ref: React.RefObject<null | HTMLButtonElement>) => void;
@@ -42,6 +140,7 @@ export function DropDownItem({
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   title?: string;
 }) {
+  const classes = useStyles(styles);
   const ref = useRef<null | HTMLButtonElement>(null);
 
   const dropDownContext = React.useContext(DropDownContext);
@@ -58,9 +157,23 @@ export function DropDownItem({
     }
   }, [ref, registerItem]);
 
+  // Map class names to JSS classes
+  const classNameMap: Record<string, string> = {
+    'item': classes.item,
+    'wide': classes.itemWide,
+    'icon-text-container': classes.iconTextContainer,
+    'shortcut': classes.shortcut,
+    'active': classes.active,
+    'text': classes.text,
+    'icon': classes.icon,
+    'dropdown-item-active': classes.dropdownItemActive,
+  };
+  
+  const mappedClassName = className.split(' ').map(c => classNameMap[c] || c).join(' ');
+
   return (
     <button
-      className={className}
+      className={mappedClassName}
       onClick={onClick}
       ref={ref}
       title={title}
@@ -149,9 +262,11 @@ function DropDownItems({
     }
   }, [autofocus, dropDownRef]);
 
+  const classes = useStyles(styles);
+
   return (
     <DropDownContext.Provider value={contextValue}>
-      <div className="dropdown" ref={dropDownRef} onKeyDown={handleKeyDown}>
+      <div className={classes.dropdown} ref={dropDownRef} onKeyDown={handleKeyDown}>
         {children}
       </div>
     </DropDownContext.Provider>
@@ -164,6 +279,7 @@ export default function DropDown({
   buttonAriaLabel,
   buttonClassName,
   buttonIconClassName,
+  buttonIcon,
   children,
   stopCloseOnClickSelf,
   hideChevron,
@@ -172,11 +288,13 @@ export default function DropDown({
   buttonAriaLabel?: string;
   buttonClassName: string;
   buttonIconClassName?: string;
+  buttonIcon?: ReactNode;
   buttonLabel?: string;
   children: ReactNode;
   stopCloseOnClickSelf?: boolean;
   hideChevron?: boolean;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const dropDownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [showDropDown, setShowDropDown] = useState(false);
@@ -270,11 +388,12 @@ export default function DropDown({
         className={buttonClassName}
         onClick={handleOnClick}
         ref={buttonRef}>
-        {buttonIconClassName && <span className={buttonIconClassName} />}
+        {buttonIcon}
+        {buttonIconClassName && !buttonIcon && <span className={buttonIconClassName} />}
         {buttonLabel && (
           <span className="text dropdown-button-text">{buttonLabel}</span>
         )}
-        {!hideChevron && <i className="chevron-down" />}
+        {!hideChevron && <ChevronDownIcon className={classes.chevronDown} />}
       </button>
 
       {showDropDown &&

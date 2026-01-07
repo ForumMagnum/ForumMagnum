@@ -26,9 +26,15 @@ import {
   PASTE_COMMAND,
 } from 'lexical';
 import {useMemo} from 'react';
+import { ScissorsIcon } from '../../icons/ScissorsIcon';
+import { CopyIcon } from '../../icons/CopyIcon';
+import { ClipboardIcon } from '../../icons/ClipboardIcon';
+import { TrashIcon } from '../../icons/TrashIcon';
 
 export default function ContextMenuPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
+
+  const iconStyle = { width: 16, height: 16, marginRight: 8, opacity: 0.6 };
 
   const items = useMemo(() => {
     return [
@@ -38,7 +44,7 @@ export default function ContextMenuPlugin(): JSX.Element {
         },
         $showOn: (node: LexicalNode) => $isLinkNode(node.getParent()),
         disabled: false,
-        icon: <i className="PlaygroundEditorTheme__contextMenuItemIcon" />,
+        icon: <span style={iconStyle} />,
       }),
       new NodeContextMenuSeparator({
         $showOn: (node: LexicalNode) => $isLinkNode(node.getParent()),
@@ -48,16 +54,14 @@ export default function ContextMenuPlugin(): JSX.Element {
           editor.dispatchCommand(CUT_COMMAND, null);
         },
         disabled: false,
-        icon: (
-          <i className="PlaygroundEditorTheme__contextMenuItemIcon page-break" />
-        ),
+        icon: <ScissorsIcon style={iconStyle} />,
       }),
       new NodeContextMenuOption(`Copy`, {
         $onSelect: () => {
           editor.dispatchCommand(COPY_COMMAND, null);
         },
         disabled: false,
-        icon: <i className="PlaygroundEditorTheme__contextMenuItemIcon copy" />,
+        icon: <CopyIcon style={iconStyle} />,
       }),
       new NodeContextMenuOption(`Paste`, {
         $onSelect: () => {
@@ -89,9 +93,7 @@ export default function ContextMenuPlugin(): JSX.Element {
           });
         },
         disabled: false,
-        icon: (
-          <i className="PlaygroundEditorTheme__contextMenuItemIcon paste" />
-        ),
+        icon: <ClipboardIcon style={iconStyle} />,
       }),
       new NodeContextMenuOption(`Paste as Plain Text`, {
         $onSelect: () => {
@@ -117,7 +119,7 @@ export default function ContextMenuPlugin(): JSX.Element {
           });
         },
         disabled: false,
-        icon: <i className="PlaygroundEditorTheme__contextMenuItemIcon" />,
+        icon: <ClipboardIcon style={iconStyle} />,
       }),
       new NodeContextMenuSeparator(),
       new NodeContextMenuOption(`Delete Node`, {
@@ -140,9 +142,7 @@ export default function ContextMenuPlugin(): JSX.Element {
           }
         },
         disabled: false,
-        icon: (
-          <i className="PlaygroundEditorTheme__contextMenuItemIcon clear" />
-        ),
+        icon: <TrashIcon style={iconStyle} />,
       }),
     ];
   }, [editor]);

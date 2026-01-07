@@ -95,6 +95,9 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
     },
   });
   
+  // HocuspocusProvider uses 'document' property, but Lexical's code expects 'doc'
+  (provider as AnyBecauseHard).doc = provider.document;
+  
   // HocuspocusProvider is compatible with Lexical's Provider at runtime,
   // but has slightly different awareness typing (Awareness | null vs Awareness)
   return provider as unknown as Provider;

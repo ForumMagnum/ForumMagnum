@@ -22,11 +22,13 @@ import {$getNodeByKey} from 'lexical';
 import {useEffect, useLayoutEffect, useRef} from 'react';
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 import {createWebsocketProvider} from '../collaboration';
 import {useSharedHistoryContext} from '../context/SharedHistoryContext';
 import StickyEditorTheme from '../themes/StickyEditorTheme';
 import ContentEditable from '../ui/ContentEditable';
 import {$isStickyNode} from './StickyNode';
+import { PaintBucketIcon } from '../icons/PaintBucketIcon';
 
 const styles = defineStyles('LexicalStickyComponent', (theme: ThemeType) => ({
   contentEditable: {
@@ -57,6 +59,84 @@ const styles = defineStyles('LexicalStickyComponent', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     display: 'inline-block',
     pointerEvents: 'none',
+  },
+  container: {
+    position: 'absolute',
+    zIndex: 9,
+    width: 120,
+    display: 'inline-block',
+  },
+  dragging: {
+    transition: 'none !important',
+  },
+  stickyNote: {
+    lineHeight: 1,
+    textAlign: 'left',
+    width: 120,
+    margin: 25,
+    padding: '20px 10px',
+    position: 'relative',
+    border: '1px solid #e8e8e8',
+    fontFamily: "'Reenie Beanie'",
+    fontSize: 24,
+    borderBottomRightRadius: '60px 5px',
+    display: 'block',
+    cursor: 'move',
+    '&:after': {
+      content: "''",
+      position: 'absolute',
+      zIndex: -1,
+      right: 0,
+      bottom: 20,
+      width: 120,
+      height: 25,
+      background: theme.palette.greyAlpha(0.2),
+      boxShadow: `2px 15px 5px ${theme.palette.greyAlpha(0.4)}`,
+      transform: 'matrix(-1, -0.1, 0, 1, 0, 0)',
+    },
+    '& div': {
+      cursor: 'text',
+    },
+  },
+  yellow: {
+    borderTop: '1px solid #fdfd86',
+    background: 'linear-gradient(135deg, #ffff88 81%, #ffff88 82%, #ffff88 82%, #ffffc6 100%)',
+  },
+  pink: {
+    borderTop: '1px solid #e7d1e4',
+    background: 'linear-gradient(135deg, #f7cbe8 81%, #f7cbe8 82%, #f7cbe8 82%, #e7bfe1 100%)',
+  },
+  deleteButton: {
+    border: 0,
+    background: 'none',
+    position: 'absolute',
+    top: 8,
+    right: 10,
+    fontSize: 10,
+    cursor: 'pointer',
+    opacity: 0.5,
+    '&:hover': {
+      fontWeight: 'bold',
+      opacity: 1,
+    },
+  },
+  colorButton: {
+    border: 0,
+    background: 'none',
+    position: 'absolute',
+    top: 8,
+    right: 25,
+    cursor: 'pointer',
+    opacity: 0.5,
+    '&:hover': {
+      opacity: 1,
+    },
+  },
+  colorIcon: {
+    display: 'block',
+    width: 12,
+    height: 12,
+    backgroundSize: 'contain',
   },
 }));
 
@@ -197,7 +277,7 @@ export default function StickyComponent({
     const positioning = positioningRef.current;
     if (stickyContainer !== null) {
       positioning.isDragging = false;
-      stickyContainer.classList.remove('dragging');
+      stickyContainer.classList.remove(classes.dragging);
       editor.update(() => {
         const node = $getNodeByKey(nodeKey);
         if ($isStickyNode(node)) {
@@ -230,9 +310,9 @@ export default function StickyComponent({
   const {historyState} = useSharedHistoryContext();
 
   return (
-    <div ref={stickyContainerRef} className="sticky-note-container">
+    <div ref={stickyContainerRef} className={classes.container}>
       <div
-        className={`sticky-note ${color}`}
+        className={classNames(classes.stickyNote, color === 'yellow' ? classes.yellow : classes.pink)}
         onPointerDown={(event) => {
           const stickyContainer = stickyContainerRef.current;
           if (
@@ -251,7 +331,7 @@ export default function StickyComponent({
             positioning.offsetX = event.clientX / zoom - left;
             positioning.offsetY = event.clientY / zoom - top;
             positioning.isDragging = true;
-            stickContainer.classList.add('dragging');
+            stickContainer.classList.add(classes.dragging);
             document.addEventListener('pointermove', handlePointerMove);
             document.addEventListener('pointerup', handlePointerUp);
             event.preventDefault();
@@ -259,17 +339,17 @@ export default function StickyComponent({
         }}>
         <button
           onClick={handleDelete}
-          className="delete"
+          className={classes.deleteButton}
           aria-label="Delete sticky note"
           title="Delete">
           X
         </button>
         <button
           onClick={handleColorChange}
-          className="color"
+          className={classes.colorButton}
           aria-label="Change sticky note color"
           title="Color">
-          <i className="bucket" />
+          <PaintBucketIcon className={classes.colorIcon} />
         </button>
         <LexicalNestedComposer
           initialEditor={caption}
