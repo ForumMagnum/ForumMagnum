@@ -2,9 +2,7 @@ import RSS from 'rss';
 import { Comments } from '../server/collections/comments/collection';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
-import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
-import moment from '../lib/moment-timezone';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '@/lib/notificationDataHelpers';
@@ -86,10 +84,9 @@ export const servePostRSS = async (terms: RSSTerms,) => {
     let date = (viewDate > thresholdDate) ? viewDate : thresholdDate;
 
     const postLink = `<a href="${postGetPageUrl(post, true)}#comments">Discuss</a>`;
-    const formattedTime = moment(post.postedAt).tz(moment.tz.guess()).format('LLL z');
     const feedItem: any = {
       title: post.title,
-      description: `Published on ${formattedTime}<br/><br/>${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
+      description: `${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
