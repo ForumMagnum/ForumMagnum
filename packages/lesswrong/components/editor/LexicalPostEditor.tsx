@@ -64,6 +64,7 @@ import PlaygroundNodes from '../lexical/nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from '../lexical/themes/PlaygroundEditorTheme';
 import { ToolbarContext } from '../lexical/context/ToolbarContext';
 import Settings from '../lexical/Settings';
+import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
 
 // URL regex for auto-linking
 const URL_REGEX = /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
@@ -102,6 +103,31 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: '1.1rem',
     lineHeight: 1.7,
+    '& .lwSuggestionInsertion': {
+      backgroundColor: 'rgba(0, 180, 0, 0.10)',
+      textDecoration: 'underline',
+      textDecorationColor: 'rgba(0, 150, 0, 0.8)',
+      textUnderlineOffset: '2px',
+    },
+    '& .lwSuggestionDeletion': {
+      backgroundColor: 'rgba(220, 0, 0, 0.08)',
+      textDecoration: 'line-through',
+      textDecorationColor: 'rgba(180, 0, 0, 0.85)',
+    },
+    '& .lwSuggestionInsertionBlock': {
+      borderLeft: '3px solid rgba(0, 150, 0, 0.85)',
+      backgroundColor: 'rgba(0, 180, 0, 0.06)',
+      paddingLeft: 10,
+      borderRadius: 4,
+      margin: '6px 0',
+    },
+    '& .lwSuggestionDeletionBlock': {
+      borderLeft: '3px solid rgba(180, 0, 0, 0.85)',
+      backgroundColor: 'rgba(220, 0, 0, 0.05)',
+      paddingLeft: 10,
+      borderRadius: 4,
+      margin: '6px 0',
+    },
   },
   editorInner: {
     position: 'relative',
@@ -659,6 +685,8 @@ interface LexicalPostEditorProps {
   postId?: string | null;
   /** Whether to enable collaborative editing (requires postId) */
   collaborative?: boolean;
+  /** Access level for collaborative editing permissions (comment/edit) */
+  accessLevel?: CollaborativeEditingAccessLevel;
 }
 
 /**
@@ -685,6 +713,7 @@ const LexicalPostEditor = ({
   commentEditor = false,
   postId = null,
   collaborative = false,
+  accessLevel,
 }: LexicalPostEditorProps) => {
   const classes = useStyles(lexicalStyles);
   const currentUser = useCurrentUser();
@@ -799,6 +828,9 @@ const LexicalPostEditor = ({
 
   // Whether collaboration is actually active (auth succeeded)
   const isCollaborative = !!collaborationConfig;
+  
+  const localUserId = currentUser?._id ?? clientId ?? 'anonymous';
+  const localUserName = currentUser?.displayName ?? 'Anonymous';
 
 
   return (
@@ -808,7 +840,12 @@ const LexicalPostEditor = ({
           <TableContext>
             <ToolbarContext>
               <div className="editor-shell">
-                <Editor collaborationConfig={collaborationConfig ?? undefined} />
+                <Editor
+                  collaborationConfig={collaborationConfig ?? undefined}
+                  accessLevel={accessLevel}
+                  currentUserId={localUserId}
+                  currentUserName={localUserName}
+                />
               </div>
               <Settings />
               {/* {isDevPlayground ? <DocsPlugin /> : null}

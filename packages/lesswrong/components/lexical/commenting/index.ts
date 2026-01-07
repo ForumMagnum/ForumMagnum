@@ -125,6 +125,48 @@ export class CommentStore {
     return this._comments;
   }
 
+  updateThread(threadId: string, data: { quote?: string; firstCommentContent?: string }): void {
+    const nextComments = Array.from(this._comments);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sharedCommentsArray: YArray<any> | null = this._getCollabComments();
+
+    for (let i = 0; i < nextComments.length; i++) {
+      const c = nextComments[i];
+      if (c.type !== 'thread' || c.id !== threadId) continue;
+
+      const newThread = cloneThread(c);
+      nextComments.splice(i, 1, newThread);
+
+      if (data.quote !== undefined) {
+        newThread.quote = data.quote;
+        if (this.isCollaborative() && sharedCommentsArray !== null) {
+          this._withRemoteTransaction(() => {
+            sharedCommentsArray.get(i).set('quote', data.quote);
+          });
+        }
+      }
+
+      if (data.firstCommentContent !== undefined) {
+        const first = newThread.comments[0];
+        if (first && first.type === 'comment') {
+          first.content = data.firstCommentContent;
+          if (this.isCollaborative() && sharedCommentsArray !== null) {
+            this._withRemoteTransaction(() => {
+              const sharedThreadComments = sharedCommentsArray.get(i).get('comments');
+              if (sharedThreadComments?.length > 0) {
+                sharedThreadComments.get(0).set('content', data.firstCommentContent);
+              }
+            });
+          }
+        }
+      }
+
+      this._comments = nextComments;
+      triggerOnChange(this);
+      return;
+    }
+  }
+
   addComment(
     commentOrThread: Comment | Thread,
     thread?: Thread,

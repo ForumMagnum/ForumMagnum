@@ -358,6 +358,12 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
       borderTop: 'none',
     },
   },
+  suggestionThreadActions: {
+    display: 'flex',
+    gap: 8,
+    alignItems: 'center',
+    marginLeft: 12,
+  },
   listThreadInteractive: {
     cursor: 'pointer',
     '&:hover': {
@@ -448,6 +454,40 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
 );
+
+export type InsertInlineThreadPayload = {
+  threadId: string;
+  initialContent: string;
+  quote?: string;
+};
+
+export const INSERT_INLINE_THREAD_COMMAND: LexicalCommand<InsertInlineThreadPayload> = createCommand(
+  'INSERT_INLINE_THREAD_COMMAND',
+);
+
+export type UpdateInlineThreadPayload = {
+  threadId: string;
+  quote?: string;
+  firstCommentContent?: string;
+};
+
+export const UPDATE_INLINE_THREAD_COMMAND: LexicalCommand<UpdateInlineThreadPayload> = createCommand(
+  'UPDATE_INLINE_THREAD_COMMAND',
+);
+
+export type HideThreadPayload = { threadId: string };
+
+export const HIDE_THREAD_COMMAND: LexicalCommand<HideThreadPayload> = createCommand(
+  'HIDE_THREAD_COMMAND',
+);
+
+export type ResolveSuggestionByIdPayload = {
+  suggestionId: string;
+  action: 'accept' | 'reject';
+};
+
+export const RESOLVE_SUGGESTION_BY_ID_COMMAND: LexicalCommand<ResolveSuggestionByIdPayload> =
+  createCommand('RESOLVE_SUGGESTION_BY_ID_COMMAND');
 
 function AddCommentBox({
   anchorKey,
@@ -625,7 +665,7 @@ function CommentInputBox({
           const {left, bottom, width} = range.getBoundingClientRect();
           const selectionRects = createRectsFromDOMRange(editor, range);
           let correctedLeft =
-            selectionRects.length === 1 ? left + width / 2 - 125 : left - 125;
+            selectionRects.length === 1 ? left + (width / 2) - 125 : left - 125;
           if (correctedLeft < 10) {
             correctedLeft = 10;
           }
@@ -943,6 +983,10 @@ function CommentsPanelList({
       {comments.map((commentOrThread) => {
         const id = commentOrThread.id;
         if (commentOrThread.type === 'thread') {
+          const isSuggestionThread =
+            typeof document !== 'undefined' &&
+            document.querySelector(`[data-suggestion-id="${id}"]`) !== null;
+
           const handleClickThread = () => {
             const markNodeKeys = markNodeMap.get(id);
             if (
@@ -986,6 +1030,46 @@ function CommentsPanelList({
                   {'> '}
                   <span>{commentOrThread.quote}</span>
                 </blockquote>
+                {isSuggestionThread ? (
+                  <div
+                    className={classes.suggestionThreadActions}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Button
+                      onClick={() => {
+                        const ok = editor.dispatchCommand(RESOLVE_SUGGESTION_BY_ID_COMMAND, {
+                          suggestionId: id,
+                          action: 'accept',
+                        });
+                        if (ok) {
+                          editor.dispatchCommand(HIDE_THREAD_COMMAND, { threadId: id });
+                        }
+                      }}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        const ok = editor.dispatchCommand(RESOLVE_SUGGESTION_BY_ID_COMMAND, {
+                          suggestionId: id,
+                          action: 'reject',
+                        });
+                        if (ok) {
+                          editor.dispatchCommand(HIDE_THREAD_COMMAND, { threadId: id });
+                        }
+                      }}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                ) : null}
                 {/* INTRODUCE DELETE THREAD HERE*/}
                 <Button
                   onClick={() => {
@@ -1095,6 +1179,7 @@ export default function CommentPlugin({
   const [editor] = useLexicalComposerContext();
   const commentStore = useMemo(() => new CommentStore(editor), [editor]);
   const comments = useCommentStore(commentStore);
+  const author = useCollabAuthorName();
   const markNodeMap = useMemo<Map<string, Set<NodeKey>>>(() => {
     return new Map();
   }, []);
@@ -1316,8 +1401,82 @@ export default function CommentPlugin({
         },
         COMMAND_PRIORITY_EDITOR,
       ),
+      editor.registerCommand(
+        INSERT_INLINE_THREAD_COMMAND,
+        (payload) => {
+          const selection = $getSelection();
+          if (!$isRangeSelection(selection)) return false;
+          if (selection.isCollapsed()) return false;
+
+          const quote = payload.quote ?? selection.getTextContent();
+          const threadId = payload.threadId;
+
+          const existing = commentStore
+            .getComments()
+            .some((c) => c.type === 'thread' && c.id === threadId);
+
+          if (!existing) {
+            const thread = createThread(
+              quote,
+              [createComment(payload.initialContent, author)],
+              threadId,
+            );
+            commentStore.addComment(thread);
+          }
+
+          const isBackward = selection.isBackward();
+          $wrapSelectionInMarkNode(selection, isBackward, threadId);
+
+          setShowComments(true);
+          setShowCommentInput(false);
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand(
+        UPDATE_INLINE_THREAD_COMMAND,
+        (payload) => {
+          commentStore.updateThread(payload.threadId, {
+            quote: payload.quote,
+            firstCommentContent: payload.firstCommentContent,
+          });
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand(
+        HIDE_THREAD_COMMAND,
+        (payload) => {
+          const thread = commentStore
+            .getComments()
+            .find((c) => c.type === 'thread' && c.id === payload.threadId) as Thread | undefined;
+          if (thread) {
+            commentStore.deleteCommentOrThread(thread);
+          }
+
+          const markNodeKeys = markNodeMap.get(payload.threadId);
+          if (markNodeKeys !== undefined) {
+            // Do async to avoid causing a React infinite loop
+            setTimeout(() => {
+              editor.update(() => {
+                for (const key of markNodeKeys) {
+                  const node: null | MarkNode = $getNodeByKey(key);
+                  if ($isMarkNode(node)) {
+                    node.deleteID(payload.threadId);
+                    if (node.getIDs().length === 0) {
+                      $unwrapMarkNode(node);
+                    }
+                  }
+                }
+              });
+            }, 0);
+          }
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
     );
-  }, [editor, markNodeMap]);
+  }, [author, commentStore, editor, markNodeMap]);
 
   const onAddComment = () => {
     editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
