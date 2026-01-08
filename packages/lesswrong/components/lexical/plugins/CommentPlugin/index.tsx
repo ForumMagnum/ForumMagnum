@@ -39,6 +39,7 @@ import {createDOMRange, createRectsFromDOMRange} from '@lexical/selection';
 import {$isRootTextContentEmpty, $rootTextContent} from '@lexical/text';
 import {mergeRegister, registerNestedElementResolver} from '@lexical/utils';
 import {
+  $addUpdateTag,
   $getNodeByKey,
   $getSelection,
   $isRangeSelection,
@@ -49,6 +50,7 @@ import {
   COMMAND_PRIORITY_NORMAL,
   createCommand,
   getDOMSelection,
+  HISTORY_MERGE_TAG,
   KEY_ESCAPE_COMMAND,
 } from 'lexical';
 import {
@@ -1425,6 +1427,9 @@ export default function CommentPlugin({
           }
 
           const isBackward = selection.isBackward();
+          // MarkNodes are purely presentational metadata; creating them should not
+          // introduce extra undo steps. (E.g. suggested-edit undo/redo should remain one step.)
+          $addUpdateTag(HISTORY_MERGE_TAG);
           $wrapSelectionInMarkNode(selection, isBackward, threadId);
 
           setShowComments(true);
@@ -1456,20 +1461,36 @@ export default function CommentPlugin({
 
           const markNodeKeys = markNodeMap.get(payload.threadId);
           if (markNodeKeys !== undefined) {
-            // Do async to avoid causing a React infinite loop
-            setTimeout(() => {
-              editor.update(() => {
-                for (const key of markNodeKeys) {
-                  const node: null | MarkNode = $getNodeByKey(key);
-                  if ($isMarkNode(node)) {
-                    node.deleteID(payload.threadId);
-                    if (node.getIDs().length === 0) {
-                      $unwrapMarkNode(node);
+            // Important: we don't want deferred mark cleanup to run *after* undo/redo has restored
+            // the thread/suggestion, since that can invalidate selection points. We therefore:
+            // - run cleanup as a microtask (so it happens promptly)
+            // - and skip cleanup if the thread has been recreated in the meantime.
+            queueMicrotask(() => {
+              const threadStillAbsent = commentStore
+                .getComments()
+                .every((c) => c.type !== 'thread' || c.id !== payload.threadId);
+              if (!threadStillAbsent) return;
+
+              editor.update(
+                () => {
+                  // MarkNodes are UI-only metadata; ensure this doesn't create extra Lexical undo steps.
+                  $addUpdateTag(HISTORY_MERGE_TAG);
+                  // This is derived UI state. It should sync to Yjs so collaborators converge, but
+                  // must not be tracked by Yjs UndoManager (or it clears redo).
+                  $addUpdateTag('fmDerivedUi');
+                  for (const key of markNodeKeys) {
+                    const node: null | MarkNode = $getNodeByKey(key);
+                    if ($isMarkNode(node)) {
+                      node.deleteID(payload.threadId);
+                      if (node.getIDs().length === 0) {
+                        $unwrapMarkNode(node);
+                      }
                     }
                   }
-                }
-              });
-            }, 0);
+                },
+                { tag: HISTORY_MERGE_TAG },
+              );
+            });
           }
           return true;
         },

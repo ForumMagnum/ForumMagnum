@@ -31,9 +31,13 @@ import {
   KEY_DELETE_COMMAND,
   COLLABORATION_TAG,
   ParagraphNode,
+  HISTORY_MERGE_TAG,
   type LexicalCommand,
   type LexicalEditor,
   type LexicalNode,
+  type TextNode,
+  type EditorState,
+  type ElementNode,
 } from 'lexical';
 
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
@@ -58,23 +62,23 @@ import type { SuggestionMeta } from './types';
 import {
   $createSuggestionDeletionBlockNode,
   $isSuggestionDeletionBlockNode,
+  type SuggestionDeletionBlockNode,
 } from './nodes/SuggestionDeletionBlockNode';
 import {
   $createSuggestionInsertionBlockNode,
   $isSuggestionInsertionBlockNode,
+  type SuggestionInsertionBlockNode,
 } from './nodes/SuggestionInsertionBlockNode';
 import {
   $createSuggestionDeletionInlineNode,
   $isSuggestionDeletionInlineNode,
+  type SuggestionDeletionInlineNode,
 } from './nodes/SuggestionDeletionInlineNode';
 import {
   $createSuggestionInsertionInlineNode,
   $isSuggestionInsertionInlineNode,
+  type SuggestionInsertionInlineNode,
 } from './nodes/SuggestionInsertionInlineNode';
-import {
-  $createSuggestionReplacementInlineNode,
-  $isSuggestionReplacementInlineNode,
-} from './nodes/SuggestionReplacementInlineNode';
 
 function truncateForQuote(s: string, maxLen: number): string {
   const trimmed = s.trim().replace(/\s+/g, ' ');
@@ -82,10 +86,10 @@ function truncateForQuote(s: string, maxLen: number): string {
   return `${trimmed.slice(0, maxLen - 1)}…`;
 }
 
-function findFirstAndLastTextDescendant(node: LexicalNode): { first: import('lexical').TextNode; last: import('lexical').TextNode } | null {
+function findFirstAndLastTextDescendant(node: LexicalNode): { first: TextNode; last: TextNode } | null {
   const stack: LexicalNode[] = [node];
-  let first: import('lexical').TextNode | null = null;
-  let last: import('lexical').TextNode | null = null;
+  let first: TextNode | null = null;
+  let last: TextNode | null = null;
 
   while (stack.length) {
     const current = stack.pop();
@@ -107,21 +111,6 @@ function findFirstAndLastTextDescendant(node: LexicalNode): { first: import('lex
 }
 
 function buildDefaultSuggestionCommentBody(wrapper: LexicalNode): string {
-  if ($isSuggestionReplacementInlineNode(wrapper)) {
-    const children = wrapper.getChildren();
-    const deletionChild = children.find(
-      (c) => $isSuggestionDeletionInlineNode(c) || $isSuggestionDeletionBlockNode(c),
-    );
-    const insertionChild = children.find(
-      (c) => $isSuggestionInsertionInlineNode(c) || $isSuggestionInsertionBlockNode(c),
-    );
-    const before = deletionChild ? truncateForQuote(deletionChild.getTextContent(), 80) : '';
-    const after = insertionChild ? truncateForQuote(insertionChild.getTextContent(), 80) : '';
-    if (before && after) return `Suggested replacement: “${before}” → “${after}”`;
-    if (after) return `Suggested replacement: → “${after}”`;
-    if (before) return `Suggested replacement: “${before}” → (deleted)`;
-    return 'Suggested replacement.';
-  }
   if ($isSuggestionInsertionInlineNode(wrapper) || $isSuggestionInsertionBlockNode(wrapper)) {
     const inserted = truncateForQuote(wrapper.getTextContent(), 120);
     return inserted ? `Suggested insertion: “${inserted}”` : 'Suggested insertion.';
@@ -133,11 +122,72 @@ function buildDefaultSuggestionCommentBody(wrapper: LexicalNode): string {
   return 'Suggested edit.';
 }
 
-function autoCreateSuggestionCommentThread(editor: LexicalEditor, wrapper: LexicalNode): void {
-  const meta = getSuggestionMetaIfWrapper(wrapper);
-  if (!meta) return;
+type SuggestionDerivation = {
+  quote: string;
+  body: string;
+};
 
-  const range = findFirstAndLastTextDescendant(wrapper);
+function deriveSuggestionForId(suggestionId: string): SuggestionDerivation | null {
+  const wrappers = getSuggestionWrapperNodesBySuggestionId(suggestionId);
+  if (wrappers.length === 0) return null;
+
+  let deleted = '';
+  let inserted = '';
+  let quoteText = '';
+  for (const w of wrappers) {
+    if (!w.isAttached()) continue;
+    quoteText += w.getTextContent();
+    if ($isSuggestionDeletionInlineNode(w) || $isSuggestionDeletionBlockNode(w)) {
+      deleted += w.getTextContent();
+    } else if ($isSuggestionInsertionInlineNode(w) || $isSuggestionInsertionBlockNode(w)) {
+      inserted += w.getTextContent();
+    }
+  }
+
+  if (deleted && inserted) {
+    const before = truncateForQuote(deleted, 80);
+    const after = truncateForQuote(inserted, 80);
+    return {
+      quote: truncateForQuote(quoteText, 120),
+      body: before && after ? `Suggested replacement: “${before}” → “${after}”` : 'Suggested replacement.',
+    };
+  }
+  if (inserted) {
+    const q = truncateForQuote(inserted, 120);
+    return { quote: q, body: q ? `Suggested insertion: “${q}”` : 'Suggested insertion.' };
+  }
+  if (deleted) {
+    const q = truncateForQuote(deleted, 120);
+    return { quote: q, body: q ? `Suggested deletion: “${q}”` : 'Suggested deletion.' };
+  }
+  return { quote: truncateForQuote(quoteText, 120), body: 'Suggested edit.' };
+}
+
+function findFirstAndLastTextForSuggestionId(suggestionId: string): { first: TextNode; last: TextNode } | null {
+  const root = $getRoot();
+  let first: TextNode | null = null;
+  let last: TextNode | null = null;
+
+  const visit = (node: LexicalNode, inside: boolean) => {
+    const meta = getSuggestionMetaIfWrapper(node);
+    const nextInside = inside || meta?.suggestionId === suggestionId;
+    if ($isTextNode(node) && nextInside) {
+      if (!first) first = node;
+      last = node;
+    }
+    if ($isElementNode(node)) {
+      for (const child of node.getChildren()) visit(child, nextInside);
+    }
+  };
+  visit(root, false);
+  return first && last ? { first, last } : null;
+}
+
+function autoCreateSuggestionCommentThread(editor: LexicalEditor, suggestionId: string): void {
+  const derivation = deriveSuggestionForId(suggestionId);
+  if (!derivation) return;
+
+  const range = findFirstAndLastTextForSuggestionId(suggestionId);
   if (!range) return;
 
   const selection = $createRangeSelection();
@@ -146,20 +196,72 @@ function autoCreateSuggestionCommentThread(editor: LexicalEditor, wrapper: Lexic
   $setSelection(selection);
 
   editor.dispatchCommand(INSERT_INLINE_THREAD_COMMAND, {
-    threadId: meta.suggestionId,
-    initialContent: buildDefaultSuggestionCommentBody(wrapper),
-    quote: truncateForQuote(wrapper.getTextContent(), 120),
+    threadId: suggestionId,
+    initialContent: derivation.body,
+    quote: derivation.quote,
   });
 }
 
-function updateSuggestionThread(editor: LexicalEditor, wrapper: LexicalNode): void {
-  const meta = getSuggestionMetaIfWrapper(wrapper);
-  if (!meta) return;
+function updateSuggestionThread(editor: LexicalEditor, suggestionId: string): void {
+  const derivation = deriveSuggestionForId(suggestionId);
+  if (!derivation) return;
   editor.dispatchCommand(UPDATE_INLINE_THREAD_COMMAND, {
-    threadId: meta.suggestionId,
-    quote: truncateForQuote(wrapper.getTextContent(), 120),
-    firstCommentContent: buildDefaultSuggestionCommentBody(wrapper),
+    threadId: suggestionId,
+    quote: derivation.quote,
+    firstCommentContent: derivation.body,
   });
+}
+
+const SUGGESTED_EDITS_THREAD_RECONCILE_TAG = 'suggestedEditsThreadReconcile';
+
+type SuggestionThreadDerivation = {
+  quote: string;
+  body: string;
+};
+
+function deriveSuggestionThreadsFromState(state: EditorState): Map<string, SuggestionThreadDerivation> {
+  return state.read(() => {
+    const root = $getRoot();
+    const ids = new Set<string>();
+
+    const visit = (node: LexicalNode) => {
+      const meta = getSuggestionMetaIfWrapper(node);
+      if (meta?.suggestionId) ids.add(meta.suggestionId);
+      if ($isElementNode(node)) {
+        for (const child of node.getChildren()) visit(child);
+      }
+    };
+    visit(root);
+
+    const out = new Map<string, SuggestionThreadDerivation>();
+    for (const id of ids) {
+      const derivation = deriveSuggestionForId(id);
+      if (!derivation) continue;
+      out.set(id, derivation);
+    }
+    return out;
+  });
+}
+
+function findPreferredWrapperBySuggestionId(suggestionId: string): LexicalNode | null {
+  const root = $getRoot();
+  const stack: LexicalNode[] = [root];
+  let found: LexicalNode | null = null;
+  while (stack.length) {
+    const node = stack.pop();
+    if (!node) break;
+    const meta = getSuggestionMetaIfWrapper(node);
+    if (meta?.suggestionId === suggestionId) {
+      // With replacement represented as separate deletion/insertion wrappers, any wrapper for
+      // this id is fine for "find one" purposes (thread derivation uses deriveSuggestionForId).
+      found = found ?? node;
+    }
+    if ($isElementNode(node)) {
+      const children = node.getChildren();
+      for (let i = children.length - 1; i >= 0; i--) stack.push(children[i]);
+    }
+  }
+  return found;
 }
 
 function resolveSuggestionByIdInPlace(action: 'accept' | 'reject', suggestionId: string): boolean {
@@ -189,40 +291,7 @@ function resolveSuggestionByIdInPlace(action: 'accept' | 'reject', suggestionId:
   for (const node of wrappers) {
     if (!node.isAttached()) continue;
 
-    if ($isSuggestionReplacementInlineNode(node)) {
-      // Comment marks can wrap the inner insertion/deletion wrappers, so we must search descendants,
-      // not just direct children.
-      const deletionChild = findFirstDescendant(
-        node,
-        (c) => $isSuggestionDeletionInlineNode(c) || $isSuggestionDeletionBlockNode(c),
-      );
-      const insertionChild = findFirstDescendant(
-        node,
-        (c) => $isSuggestionInsertionInlineNode(c) || $isSuggestionInsertionBlockNode(c),
-      );
-
-      if (action === 'accept') {
-        if (deletionChild) {
-          deletionChild.remove();
-        }
-        if (insertionChild) {
-          if ($isElementNode(insertionChild)) {
-            unwrapElementNode(insertionChild);
-          }
-        }
-      } else {
-        if (insertionChild) {
-          insertionChild.remove();
-        }
-        if (deletionChild) {
-          if ($isElementNode(deletionChild)) {
-            unwrapElementNode(deletionChild);
-          }
-        }
-      }
-
-      unwrapElementNode(node);
-    } else if ($isSuggestionInsertionInlineNode(node) || $isSuggestionInsertionBlockNode(node)) {
+    if ($isSuggestionInsertionInlineNode(node) || $isSuggestionInsertionBlockNode(node)) {
       if (action === 'accept') {
         unwrapElementNode(node);
       } else {
@@ -299,7 +368,7 @@ function deepCloneSerializedNode(node: LexicalNode): SerializedLexicalNodeLike {
   return JSON.parse(JSON.stringify(serialized)) as SerializedLexicalNodeLike;
 }
 
-function unwrapElementNode(node: import('lexical').ElementNode): void {
+function unwrapElementNode(node: ElementNode): void {
   let child = node.getFirstChild();
   while (child) {
     const next = child.getNextSibling();
@@ -313,9 +382,6 @@ function findSuggestionWrapper(node: LexicalNode | null): LexicalNode | null {
   let current: LexicalNode | null = node;
   let candidate: LexicalNode | null = null;
   while (current) {
-    if ($isSuggestionReplacementInlineNode(current)) {
-      return current;
-    }
     if (
       $isSuggestionInsertionInlineNode(current) ||
       $isSuggestionDeletionInlineNode(current) ||
@@ -331,7 +397,6 @@ function findSuggestionWrapper(node: LexicalNode | null): LexicalNode | null {
 
 function isSuggestionWrapperNode(node: LexicalNode): boolean {
   return (
-    $isSuggestionReplacementInlineNode(node) ||
     $isSuggestionInsertionInlineNode(node) ||
     $isSuggestionDeletionInlineNode(node) ||
     $isSuggestionInsertionBlockNode(node) ||
@@ -344,7 +409,7 @@ function isInsideSuggestionWrapper(node: LexicalNode): boolean {
 }
 
 function makeMeta(params: {
-  suggestionType: 'insertion' | 'deletion' | 'replacement';
+  suggestionType: 'insertion' | 'deletion';
   currentUserId: string;
   currentUserName: string;
   groupId?: string;
@@ -361,7 +426,6 @@ function makeMeta(params: {
 }
 
 function getSuggestionMetaIfWrapper(node: LexicalNode): SuggestionMeta | null {
-  if ($isSuggestionReplacementInlineNode(node)) return node.getSuggestionMeta();
   if ($isSuggestionInsertionInlineNode(node)) return node.getSuggestionMeta();
   if ($isSuggestionDeletionInlineNode(node)) return node.getSuggestionMeta();
   if ($isSuggestionInsertionBlockNode(node)) return node.getSuggestionMeta();
@@ -410,7 +474,7 @@ function isTriviallyTextualNodeType(type: string): boolean {
 function isOwnInsertionWrapper(
   wrapper: LexicalNode | null,
   currentUserId: string,
-): wrapper is import('./nodes/SuggestionInsertionInlineNode').SuggestionInsertionInlineNode | import('./nodes/SuggestionInsertionBlockNode').SuggestionInsertionBlockNode {
+): wrapper is SuggestionInsertionInlineNode | SuggestionInsertionBlockNode {
   if ($isSuggestionInsertionInlineNode(wrapper) || $isSuggestionInsertionBlockNode(wrapper)) {
     const meta = wrapper.getSuggestionMeta();
     return meta.authorUserId === currentUserId;
@@ -422,7 +486,7 @@ function isMergeableDeletionWrapper(
   node: LexicalNode | null,
   currentUserId: string,
   isBlockWrapper: boolean,
-): node is import('./nodes/SuggestionDeletionInlineNode').SuggestionDeletionInlineNode | import('./nodes/SuggestionDeletionBlockNode').SuggestionDeletionBlockNode {
+): node is SuggestionDeletionInlineNode | SuggestionDeletionBlockNode {
   if (!node) return false;
   if (isBlockWrapper) {
     if (!$isSuggestionDeletionBlockNode(node)) return false;
@@ -433,7 +497,7 @@ function isMergeableDeletionWrapper(
   return meta?.authorUserId === currentUserId;
 }
 
-function prependChild(wrapper: import('lexical').ElementNode, child: LexicalNode): void {
+function prependChild(wrapper: ElementNode, child: LexicalNode): void {
   const first = wrapper.getFirstChild();
   if (first) {
     first.insertBefore(child);
@@ -527,7 +591,6 @@ export function SuggestedEditsPlugin({
         } else {
           selection.removeText();
         }
-        updateSuggestionThread(editor, selectionWrapper);
         event?.preventDefault();
         return;
       }
@@ -601,14 +664,14 @@ export function SuggestedEditsPlugin({
 
       // If we merged into an existing wrapper, just update its quote/comment body (no new thread).
       if (lastMergeTarget) {
-        updateSuggestionThread(editor, lastMergeTarget);
+        // Thread reconciliation will handle quote/body updates.
       } else if (lastWrapper) {
-        autoCreateSuggestionCommentThread(editor, lastWrapper);
+        // Thread reconciliation will create the thread.
       }
       lastWrapper?.selectEnd();
       event?.preventDefault();
     },
-    [currentUserId, currentUserName, editor],
+    [currentUserId, currentUserName],
   );
 
   const applyCommandAsReplacementSuggestion = useCallback(
@@ -628,16 +691,6 @@ export function SuggestedEditsPlugin({
           const firstNode = extracted.find((n) => n.isAttached());
           if (!firstNode) return;
 
-          const replacement = $createSuggestionReplacementInlineNode(
-            makeMeta({
-              suggestionType: 'replacement',
-              currentUserId,
-              currentUserName,
-              suggestionId,
-            }),
-          );
-          firstNode.insertBefore(replacement);
-
           const deletion = $createSuggestionDeletionInlineNode(
             makeMeta({
               suggestionType: 'deletion',
@@ -654,8 +707,8 @@ export function SuggestedEditsPlugin({
               suggestionId,
             }),
           );
-          replacement.append(deletion);
-          replacement.append(insertion);
+          firstNode.insertBefore(deletion);
+          deletion.insertAfter(insertion as AnyBecauseHard);
 
           for (const node of extracted) {
             if (!node.isAttached()) continue;
@@ -665,8 +718,15 @@ export function SuggestedEditsPlugin({
           for (const n of extracted) {
             insertion.append(cloneNodeViaJSON(n, editor));
           }
-          autoCreateSuggestionCommentThread(editor, replacement);
-          insertion.selectEnd();
+          const range = findFirstAndLastTextDescendant(insertion);
+          if (range) {
+            const insertionSelection = $createRangeSelection();
+            insertionSelection.anchor.set(range.first.getKey(), 0, 'text');
+            insertionSelection.focus.set(range.last.getKey(), range.last.getTextContentSize(), 'text');
+            $setSelection(insertionSelection);
+          } else {
+            insertion.selectEnd();
+          }
         },
         { tag: 'suggestedEdits' },
       );
@@ -735,7 +795,6 @@ export function SuggestedEditsPlugin({
               const meta = wrapper.getSuggestionMeta();
               if (meta.authorUserId === currentUserId) {
                 selection.insertText(text);
-                updateSuggestionThread(editor, wrapper);
                 return true;
               }
             }
@@ -743,15 +802,6 @@ export function SuggestedEditsPlugin({
               const meta = wrapper.getSuggestionMeta();
               if (meta.authorUserId === currentUserId) {
                 selection.insertText(text);
-                updateSuggestionThread(editor, wrapper);
-                return true;
-              }
-            }
-            if ($isSuggestionReplacementInlineNode(wrapper)) {
-              const meta = wrapper.getSuggestionMeta();
-              if (meta.authorUserId === currentUserId) {
-                selection.insertText(text);
-                updateSuggestionThread(editor, wrapper);
                 return true;
               }
             }
@@ -766,7 +816,6 @@ export function SuggestedEditsPlugin({
             const textNode = $createTextNode(text);
             insertion.append(textNode);
             selection.insertNodes([insertion]);
-            autoCreateSuggestionCommentThread(editor, insertion);
             textNode.selectEnd();
             return true;
           }
@@ -778,16 +827,6 @@ export function SuggestedEditsPlugin({
           const sid = createSuggestionId();
           const firstNode = extracted.find((n) => n.isAttached());
           if (!firstNode) return false;
-
-          const replacement = $createSuggestionReplacementInlineNode(
-            makeMeta({
-              suggestionType: 'replacement',
-              currentUserId,
-              currentUserName,
-              suggestionId: sid,
-            }),
-          );
-          firstNode.insertBefore(replacement);
 
           const deletion = $createSuggestionDeletionInlineNode(
             makeMeta({
@@ -805,8 +844,8 @@ export function SuggestedEditsPlugin({
               suggestionId: sid,
             }),
           );
-          replacement.append(deletion);
-          replacement.append(insertion);
+          firstNode.insertBefore(deletion);
+          deletion.insertAfter(insertion as AnyBecauseHard);
 
           for (const node of extracted) {
             if (!node.isAttached()) continue;
@@ -815,7 +854,6 @@ export function SuggestedEditsPlugin({
 
           const textNode = $createTextNode(text);
           insertion.append(textNode);
-          autoCreateSuggestionCommentThread(editor, replacement);
           textNode.selectEnd();
           return true;
         },
@@ -1027,7 +1065,6 @@ export function SuggestedEditsPlugin({
                   );
               node.replace(insertion as AnyBecauseHard);
               insertion.append(node);
-              autoCreateSuggestionCommentThread(editor, insertion);
               continue;
             }
 
@@ -1084,8 +1121,7 @@ export function SuggestedEditsPlugin({
               node.replace(deletion as AnyBecauseHard);
               deletion.insertAfter(insertion as AnyBecauseHard);
               insertion.append(node);
-              autoCreateSuggestionCommentThread(editor, insertion);
-              updateSuggestionThread(editor, insertion);
+              // Thread reconciliation will create/update the thread.
             }
           }
         },
@@ -1096,36 +1132,61 @@ export function SuggestedEditsPlugin({
 
   // Keep suggestion threads in sync with the document: if a suggestion wrapper disappears from the doc,
   // hide/archive the corresponding thread to prevent "orphan" suggestion threads.
+  //
+  // Also, in order to make thread state a pure function of the document state (including undo/redo),
+  // recreate/update threads whenever the set/content of suggestion wrappers changes.
   useEffect(() => {
-    const collectSuggestionIds = (state: import('lexical').EditorState): Set<string> => {
-      return state.read(() => {
-        const root = $getRoot();
-        const ids = new Set<string>();
-        const stack: LexicalNode[] = [root];
-        while (stack.length) {
-          const node = stack.pop();
-          if (!node) break;
-          const meta = getSuggestionMetaIfWrapper(node);
-          if (meta?.suggestionId) ids.add(meta.suggestionId);
-          if ($isElementNode(node)) {
-            const children = node.getChildren();
-            for (let i = children.length - 1; i >= 0; i--) stack.push(children[i]);
-          }
-        }
-        return ids;
-      });
-    };
-
     return editor.registerUpdateListener(({ editorState, prevEditorState, tags }) => {
-      // Avoid fighting with our own accept/reject handlers; this is best-effort and idempotent anyway.
-      if (tags.has('suggestedEdits')) return;
-      const prevIds = collectSuggestionIds(prevEditorState);
-      const nextIds = collectSuggestionIds(editorState);
-      for (const id of prevIds) {
-        if (!nextIds.has(id)) {
+      // Avoid infinite loops: reconciliation triggers an editor.update of its own.
+      if (tags.has(SUGGESTED_EDITS_THREAD_RECONCILE_TAG)) return;
+
+      const prevThreads = deriveSuggestionThreadsFromState(prevEditorState);
+      const nextThreads = deriveSuggestionThreadsFromState(editorState);
+
+      // Hide removed threads.
+      for (const id of prevThreads.keys()) {
+        if (!nextThreads.has(id)) {
           editor.dispatchCommand(HIDE_THREAD_COMMAND, { threadId: id });
         }
       }
+
+      // Create missing threads + update existing ones whose derived quote/body changed.
+      const idsToCreate: string[] = [];
+      const idsToUpdate: string[] = [];
+      for (const [id, next] of nextThreads.entries()) {
+        const prev = prevThreads.get(id);
+        if (!prev) {
+          idsToCreate.push(id);
+          continue;
+        }
+        if (prev.quote !== next.quote || prev.body !== next.body) {
+          idsToUpdate.push(id);
+        }
+      }
+
+      if (idsToCreate.length === 0 && idsToUpdate.length === 0) return;
+
+      // IMPORTANT: thread reconciliation should not add extra undo steps. In particular, recreating
+      // threads can wrap selections in MarkNodes (CommentPlugin), which would otherwise create a
+      // second history entry after the original edit.
+      editor.update(
+        () => {
+          $addUpdateTag(SUGGESTED_EDITS_THREAD_RECONCILE_TAG);
+          // This update is derived UI state (threads/marks). In collab mode we still want to
+          // sync it to Yjs so other clients see the same marks/threads, but it must NOT be
+          // tracked by the Yjs UndoManager (or it clears the redo stack). We handle that by
+          // using a special Yjs transaction origin for updates tagged "fmDerivedUi" (see patched
+          // @lexical/yjs binding).
+          $addUpdateTag('fmDerivedUi');
+          for (const id of idsToCreate) {
+            autoCreateSuggestionCommentThread(editor, id);
+          }
+          for (const id of idsToUpdate) {
+            updateSuggestionThread(editor, id);
+          }
+        },
+        { tag: HISTORY_MERGE_TAG },
+      );
     });
   }, [editor]);
 

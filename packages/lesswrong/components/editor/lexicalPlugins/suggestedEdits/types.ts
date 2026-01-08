@@ -1,4 +1,4 @@
-export type SuggestionType = 'insertion' | 'deletion' | 'replacement';
+export type SuggestionType = 'insertion' | 'deletion';
 
 export interface SuggestionThreadComment {
   _id: string;

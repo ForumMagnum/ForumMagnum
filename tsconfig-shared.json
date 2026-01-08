@@ -30,6 +30,7 @@
     "packages/lesswrong",
     "ckEditor/src/editorConfigs.js",
     "playwright",
+    "playwright.config.ts",
     "./build.ts",
     ".next/types/**/*.ts",
     "app",

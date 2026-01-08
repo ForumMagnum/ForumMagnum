@@ -49,7 +49,6 @@ import { SuggestionInsertionInlineNode } from '@/components/editor/lexicalPlugin
 import { SuggestionDeletionInlineNode } from '@/components/editor/lexicalPlugins/suggestedEdits/nodes/SuggestionDeletionInlineNode';
 import { SuggestionInsertionBlockNode } from '@/components/editor/lexicalPlugins/suggestedEdits/nodes/SuggestionInsertionBlockNode';
 import { SuggestionDeletionBlockNode } from '@/components/editor/lexicalPlugins/suggestedEdits/nodes/SuggestionDeletionBlockNode';
-import { SuggestionReplacementInlineNode } from '@/components/editor/lexicalPlugins/suggestedEdits/nodes/SuggestionReplacementInlineNode';
 
 const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   HeadingNode,
@@ -98,7 +97,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   SuggestionDeletionInlineNode,
   SuggestionInsertionBlockNode,
   SuggestionDeletionBlockNode,
-  SuggestionReplacementInlineNode,
 ];
 
 export default PlaygroundNodes;

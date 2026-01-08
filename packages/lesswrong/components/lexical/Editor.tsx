@@ -34,6 +34,14 @@ import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
 import {CAN_USE_DOM} from '@lexical/utils';
 import {useEffect, useMemo, useState} from 'react';
 import {Doc} from 'yjs';
+import {
+  $getRoot,
+  CAN_REDO_COMMAND,
+  CAN_UNDO_COMMAND,
+  REDO_COMMAND,
+  UNDO_COMMAND,
+} from 'lexical';
+import { getFmE2eDebug } from '@/lib/e2e/fmE2eDebug';
 
 import {
   createWebsocketProvider,
@@ -130,10 +138,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       paddingLeft: 10,
       borderRadius: 4,
       margin: '6px 0',
-    },
-    '& .lwSuggestionReplacement': {
-      borderBottom: '1px dotted rgba(0, 0, 0, 0.35)',
-      paddingBottom: 1,
     },
   },
   treeView: {
@@ -245,6 +249,106 @@ export default function Editor({
   const [editor] = useLexicalComposerContext();
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    const e2e = getFmE2eDebug();
+    if (!e2e) return;
+
+    e2e.push('lexical.editor.ready');
+
+    const unregisterUpdate = editor.registerUpdateListener(({ editorState, tags }) => {
+      const tagArray = Array.from(tags);
+      const { rootText, historicRootChildren, historicEditorStateJsonString } = editorState.read(() => {
+        const root = $getRoot();
+        const rootText = root.getTextContent();
+        let historicRootChildren: Array<{ type: string; key: string }> | null = null;
+        let historicEditorStateJsonString: string | null = null;
+        if (tagArray.includes('historic')) {
+          try {
+            historicEditorStateJsonString = JSON.stringify(editorState.toJSON());
+          } catch (e) {
+            historicEditorStateJsonString = `<<editorState.toJSON failed: ${String((e as AnyBecauseHard)?.message ?? e)}>>`;
+          }
+          try {
+            historicRootChildren = root
+              .getChildren()
+              .slice(0, 20)
+              .map((n) => ({ type: n.getType(), key: n.getKey() }));
+          } catch {
+            historicRootChildren = null;
+          }
+        }
+        return { rootText, historicRootChildren, historicEditorStateJsonString };
+      });
+      const nodeMapSize = (editorState as AnyBecauseHard)?._nodeMap?.size ?? null;
+      const rootChildrenSize = editorState.read(() => {
+        try {
+          return $getRoot().getChildrenSize();
+        } catch {
+          return null;
+        }
+      });
+      e2e.push('lexical.update', {
+        tags: tagArray,
+        text: rootText,
+        nodeMapSize,
+        rootChildrenSize,
+      });
+
+      // Extra dump for the specific "historic" updates that are introducing corruption in collab undo.
+      // Keep this cheap-ish: only run on historic-tagged updates.
+      if (historicEditorStateJsonString != null) {
+        e2e.push('lexical.rootJson.historic', {
+          len: historicEditorStateJsonString.length,
+          preview: historicEditorStateJsonString.slice(0, 2000),
+        });
+      }
+      if (historicRootChildren != null) {
+        e2e.push('lexical.rootChildren.historic', { children: historicRootChildren });
+      }
+    });
+
+    const unregisterUndo = editor.registerCommand(
+      UNDO_COMMAND,
+      () => {
+        e2e.push('lexical.command.undo');
+        return false;
+      },
+      0,
+    );
+    const unregisterRedo = editor.registerCommand(
+      REDO_COMMAND,
+      () => {
+        e2e.push('lexical.command.redo');
+        return false;
+      },
+      0,
+    );
+    const unregisterCanUndo = editor.registerCommand(
+      CAN_UNDO_COMMAND,
+      (payload: boolean) => {
+        e2e.push('lexical.canUndo', { value: payload });
+        return false;
+      },
+      0,
+    );
+    const unregisterCanRedo = editor.registerCommand(
+      CAN_REDO_COMMAND,
+      (payload: boolean) => {
+        e2e.push('lexical.canRedo', { value: payload });
+        return false;
+      },
+      0,
+    );
+
+    return () => {
+      unregisterUpdate();
+      unregisterUndo();
+      unregisterRedo();
+      unregisterCanUndo();
+      unregisterCanRedo();
+    };
+  }, [editor]);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {

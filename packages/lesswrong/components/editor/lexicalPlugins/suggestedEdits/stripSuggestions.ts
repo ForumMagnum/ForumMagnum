@@ -8,7 +8,6 @@ import {
 import { $isSuggestionInsertionBlockNode } from './nodes/SuggestionInsertionBlockNode';
 import { $isSuggestionDeletionInlineNode } from './nodes/SuggestionDeletionInlineNode';
 import { $isSuggestionInsertionInlineNode } from './nodes/SuggestionInsertionInlineNode';
-import { $isSuggestionReplacementInlineNode } from './nodes/SuggestionReplacementInlineNode';
 
 function unwrapElementNode(node: import('lexical').ElementNode): void {
   let child = node.getFirstChild();
@@ -21,16 +20,6 @@ function unwrapElementNode(node: import('lexical').ElementNode): void {
 }
 
 function stripSuggestionsInPlace(node: import('lexical').LexicalNode): void {
-  if ($isSuggestionReplacementInlineNode(node)) {
-    // Strip children first (will remove insertion wrappers and unwrap deletion wrappers),
-    // then unwrap the replacement wrapper itself.
-    const children = node.getChildren();
-    for (const child of children) {
-      stripSuggestionsInPlace(child);
-    }
-    unwrapElementNode(node);
-    return;
-  }
   if ($isSuggestionInsertionInlineNode(node) || $isSuggestionInsertionBlockNode(node)) {
     node.remove();
     return;

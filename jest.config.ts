@@ -254,7 +254,7 @@ export default () => createJestConfig({
   // This block needs to live here because otherwise it gets overriden by the
   // default `transformIgnorePatterns` from `createJestConfig`.
   config.transformIgnorePatterns = [
-    "/node_modules/(?!(react-instantsearch|@extractus|bellajs)/)"
+    "/node_modules/(?!(react-instantsearch|@extractus|bellajs|react-error-boundary)/)"
   ];
   return config;
 });

@@ -3,22 +3,29 @@ import React, { useLayoutEffect, useMemo } from 'react';
 import { render, act } from '@testing-library/react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { createEmptyHistoryState, HistoryPlugin, type HistoryState } from '@lexical/react/LexicalHistoryPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import { LexicalCollaboration } from '@lexical/react/LexicalCollaborationContext';
+import { CollaborationPlugin } from '@lexical/react/LexicalCollaborationPlugin';
+import type { Provider, ProviderAwareness, UserState } from '@lexical/yjs';
+import { Doc } from 'yjs';
 import {
   $createParagraphNode,
   $createTextNode,
   $createRangeSelection,
+  $getSelection,
   $getRoot,
   $getNodeByKey,
   $isElementNode,
+  $isRangeSelection,
   $isTextNode,
   $setSelection,
   COMMAND_PRIORITY_HIGH,
   CONTROLLED_TEXT_INSERTION_COMMAND,
   KEY_BACKSPACE_COMMAND,
-  createCommand,
+  UNDO_COMMAND,
+  REDO_COMMAND,
   LexicalEditor,
   ElementNode,
   EditorConfig,
@@ -28,6 +35,7 @@ import {
   SerializedElementNode,
   Spread,
 } from 'lexical';
+import { MarkNode } from '@lexical/mark';
 
 // We intentionally test SuggestedEditsPlugin in isolation from the full app UI/theme.
 // These mocks keep the tests focused on editor-state semantics.
@@ -41,33 +49,38 @@ jest.mock('@/lib/vendor/@material-ui/core/src/Button/Button', () => {
   return (props: AnyBecauseHard) => <button type="button" {...props} />;
 });
 
-// IMPORTANT:
-// `SuggestedEditsPlugin` imports `@/components/lexical/plugins/CommentPlugin`, which pulls in
-// `@lexical/react/LexicalErrorBoundary` -> `react-error-boundary` (ESM). Our Jest setup doesn't
-// currently transform that ESM dependency, so we mock CommentPlugin here to keep these tests runnable.
-jest.mock('@/components/lexical/plugins/CommentPlugin', () => {
-  // Use jest.requireActual inside the mock factory to avoid any hoisting pitfalls.
-  // (This is still synchronous and test-only.)
-  const { createCommand } = jest.requireActual('lexical') as typeof import('lexical');
-  return {
-    INSERT_INLINE_THREAD_COMMAND: createCommand('INSERT_INLINE_THREAD_COMMAND'),
-    UPDATE_INLINE_THREAD_COMMAND: createCommand('UPDATE_INLINE_THREAD_COMMAND'),
-    HIDE_THREAD_COMMAND: createCommand('HIDE_THREAD_COMMAND'),
-    RESOLVE_SUGGESTION_BY_ID_COMMAND: createCommand('RESOLVE_SUGGESTION_BY_ID_COMMAND'),
-  };
-});
+// JSDOM's Range doesn't implement getBoundingClientRect(), but Lexical calls it when syncing
+// selection to the DOM (e.g. after editor updates/undo/redo).
+if (typeof Range !== 'undefined') {
+  const rangeProto = Range.prototype as AnyBecauseHard;
+  if (!rangeProto.getBoundingClientRect) {
+    rangeProto.getBoundingClientRect = () => ({
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      toJSON: () => ({}),
+    });
+  }
+  if (!rangeProto.getClientRects) {
+    rangeProto.getClientRects = () => [];
+  }
+}
 
 import SuggestedEditsPlugin, {
   TOGGLE_SUGGESTING_MODE_COMMAND,
 } from '@/components/editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
 
-import {
+import CommentPlugin, {
   INSERT_INLINE_THREAD_COMMAND,
   UPDATE_INLINE_THREAD_COMMAND,
   HIDE_THREAD_COMMAND,
   RESOLVE_SUGGESTION_BY_ID_COMMAND,
 } from '@/components/lexical/plugins/CommentPlugin';
-
 import {
   $isSuggestionInsertionInlineNode,
   SuggestionInsertionInlineNode,
@@ -84,25 +97,18 @@ import {
   $isSuggestionDeletionBlockNode,
   SuggestionDeletionBlockNode,
 } from '@/components/editor/lexicalPlugins/suggestedEdits/nodes/SuggestionDeletionBlockNode';
-import {
-  $isSuggestionReplacementInlineNode,
-  SuggestionReplacementInlineNode,
-} from '@/components/editor/lexicalPlugins/suggestedEdits/nodes/SuggestionReplacementInlineNode';
-
 type AnySuggestionWrapper =
   | SuggestionInsertionInlineNode
   | SuggestionDeletionInlineNode
   | SuggestionInsertionBlockNode
-  | SuggestionDeletionBlockNode
-  | SuggestionReplacementInlineNode;
+  | SuggestionDeletionBlockNode;
 
 function isAnySuggestionWrapper(node: LexicalNode): node is AnySuggestionWrapper {
   return (
     $isSuggestionInsertionInlineNode(node) ||
     $isSuggestionDeletionInlineNode(node) ||
     $isSuggestionInsertionBlockNode(node) ||
-    $isSuggestionDeletionBlockNode(node) ||
-    $isSuggestionReplacementInlineNode(node)
+    $isSuggestionDeletionBlockNode(node)
   );
 }
 
@@ -200,12 +206,118 @@ type ThreadEvent =
   | { type: 'update'; id: string; quote?: string; body?: string }
   | { type: 'hide'; id: string };
 
+type ThreadRecord = { quote: string; body: string };
+
+class ThreadStore {
+  private threads = new Map<string, ThreadRecord>();
+  private appliedEventsCount = 0;
+
+  applyNew(events: ThreadEvent[]): void {
+    for (let i = this.appliedEventsCount; i < events.length; i++) {
+      const e = events[i]!;
+      if (e.type === 'insert') {
+        this.threads.set(e.id, { quote: e.quote ?? '', body: e.body });
+      } else if (e.type === 'update') {
+        const existing = this.threads.get(e.id);
+        if (!existing) continue;
+        this.threads.set(e.id, {
+          quote: e.quote ?? existing.quote,
+          body: e.body ?? existing.body,
+        });
+      } else if (e.type === 'hide') {
+        this.threads.delete(e.id);
+      }
+    }
+    this.appliedEventsCount = events.length;
+  }
+
+  getIds(): string[] {
+    return Array.from(this.threads.keys());
+  }
+
+  get(id: string): ThreadRecord | undefined {
+    return this.threads.get(id);
+  }
+}
+
+function truncateForQuote(s: string, maxLen: number): string {
+  const trimmed = s.trim().replace(/\s+/g, ' ');
+  if (trimmed.length <= maxLen) return trimmed;
+  return `${trimmed.slice(0, maxLen - 1)}…`;
+}
+
+function buildDefaultSuggestionCommentBody(wrapper: LexicalNode): string {
+  if ($isSuggestionInsertionInlineNode(wrapper) || $isSuggestionInsertionBlockNode(wrapper)) {
+    const inserted = truncateForQuote(wrapper.getTextContent(), 120);
+    return inserted ? `Suggested insertion: “${inserted}”` : 'Suggested insertion.';
+  }
+  if ($isSuggestionDeletionInlineNode(wrapper) || $isSuggestionDeletionBlockNode(wrapper)) {
+    const deleted = truncateForQuote(wrapper.getTextContent(), 120);
+    return deleted ? `Suggested deletion: “${deleted}”` : 'Suggested deletion.';
+  }
+  return 'Suggested edit.';
+}
+
+function readSuggestionThreadDerivation(editor: LexicalEditor): Map<string, ThreadRecord> {
+  return editor.getEditorState().read(() => {
+    const root = $getRoot();
+    const wrappers = collectNodes(root, isAnySuggestionWrapper) as AnySuggestionWrapper[];
+
+    const out = new Map<string, ThreadRecord>();
+    // Derive thread state as a pure function of all wrappers with the same suggestionId.
+    const ids = new Set<string>();
+    for (const w of wrappers) ids.add(w.getSuggestionMeta().suggestionId);
+
+    for (const id of ids) {
+      let deleted = '';
+      let inserted = '';
+      let quoteText = '';
+      for (const w of wrappers) {
+        const meta = w.getSuggestionMeta();
+        if (meta.suggestionId !== id) continue;
+        quoteText += w.getTextContent();
+        if ($isSuggestionDeletionInlineNode(w) || $isSuggestionDeletionBlockNode(w)) deleted += w.getTextContent();
+        if ($isSuggestionInsertionInlineNode(w) || $isSuggestionInsertionBlockNode(w)) inserted += w.getTextContent();
+      }
+
+      if (deleted && inserted) {
+        out.set(id, {
+          quote: truncateForQuote(quoteText, 120),
+          body: `Suggested replacement: “${truncateForQuote(deleted, 80)}” → “${truncateForQuote(inserted, 80)}”`,
+        });
+      } else if (inserted) {
+        const q = truncateForQuote(inserted, 120);
+        out.set(id, { quote: q, body: q ? `Suggested insertion: “${q}”` : 'Suggested insertion.' });
+      } else if (deleted) {
+        const q = truncateForQuote(deleted, 120);
+        out.set(id, { quote: q, body: q ? `Suggested deletion: “${q}”` : 'Suggested deletion.' });
+      }
+    }
+    return out;
+  });
+}
+
+function assertThreadsMatchDoc(editor: LexicalEditor, store: ThreadStore): void {
+  const expected = readSuggestionThreadDerivation(editor);
+  const expectedIds = Array.from(expected.keys()).sort();
+  const actualIds = store.getIds().sort();
+  expect(actualIds).toEqual(expectedIds);
+  for (const id of expectedIds) {
+    const actual = store.get(id);
+    const exp = expected.get(id);
+    expect(actual).toBeTruthy();
+    expect(exp).toBeTruthy();
+    expect(actual!.quote).toBe(exp!.quote);
+    expect(actual!.body).toBe(exp!.body);
+  }
+}
+
 function registerThreadCapture(editor: LexicalEditor, events: ThreadEvent[]): () => void {
   const unregisterInsert = editor.registerCommand(
     INSERT_INLINE_THREAD_COMMAND,
     (payload) => {
       events.push({ type: 'insert', id: payload.threadId, quote: payload.quote, body: payload.initialContent });
-      return true;
+      return false;
     },
     COMMAND_PRIORITY_HIGH,
   );
@@ -213,7 +325,7 @@ function registerThreadCapture(editor: LexicalEditor, events: ThreadEvent[]): ()
     UPDATE_INLINE_THREAD_COMMAND,
     (payload) => {
       events.push({ type: 'update', id: payload.threadId, quote: payload.quote, body: payload.firstCommentContent });
-      return true;
+      return false;
     },
     COMMAND_PRIORITY_HIGH,
   );
@@ -221,7 +333,7 @@ function registerThreadCapture(editor: LexicalEditor, events: ThreadEvent[]): ()
     HIDE_THREAD_COMMAND,
     (payload) => {
       events.push({ type: 'hide', id: payload.threadId });
-      return true;
+      return false;
     },
     COMMAND_PRIORITY_HIGH,
   );
@@ -230,6 +342,101 @@ function registerThreadCapture(editor: LexicalEditor, events: ThreadEvent[]): ()
     unregisterUpdate();
     unregisterHide();
   };
+}
+
+class InMemoryAwareness implements ProviderAwareness {
+  private localState: UserState | null = null;
+  private listeners = new Set<() => void>();
+  private clientID = 1;
+
+  getLocalState() {
+    return this.localState;
+  }
+
+  getStates() {
+    const states = new Map<number, UserState>();
+    if (this.localState) states.set(this.clientID, this.localState);
+    return states;
+  }
+
+  off(_type: 'update', cb: () => void) {
+    this.listeners.delete(cb);
+  }
+
+  on(_type: 'update', cb: () => void) {
+    this.listeners.add(cb);
+  }
+
+  setLocalState(arg0: UserState) {
+    this.localState = arg0;
+    for (const cb of this.listeners) cb();
+  }
+
+  setLocalStateField(field: string, value: unknown) {
+    if (!this.localState) {
+      // Minimal state used by LexicalCollaborationPlugin.
+      this.localState = {
+        anchorPos: null,
+        focusPos: null,
+        focusing: false,
+        color: 'rgb(0,0,0)',
+        name: 'Test User',
+        awarenessData: {},
+      };
+    }
+    (this.localState as AnyBecauseHard)[field] = value;
+    for (const cb of this.listeners) cb();
+  }
+}
+
+class InMemoryProvider implements Provider {
+  awareness: ProviderAwareness;
+  private listeners = new Map<string, Set<AnyBecauseHard>>();
+  private synced = false;
+
+  constructor(public doc: Doc) {
+    this.awareness = new InMemoryAwareness();
+    // Mimic providers that emit 'update' events when the document changes.
+    this.doc.on('update', (update: Uint8Array) => {
+      const cbs = this.listeners.get('update');
+      if (cbs) {
+        for (const cb of cbs) cb(update);
+      }
+    });
+  }
+
+  connect() {
+    // Immediately report synced.
+    this.synced = true;
+    const cbs = this.listeners.get('sync');
+    if (cbs) for (const cb of cbs) cb(true);
+    const statusCbs = this.listeners.get('status');
+    if (statusCbs) for (const cb of statusCbs) cb({ status: 'connected' });
+  }
+
+  disconnect() {
+    this.synced = false;
+    const cbs = this.listeners.get('sync');
+    if (cbs) for (const cb of cbs) cb(false);
+    const statusCbs = this.listeners.get('status');
+    if (statusCbs) for (const cb of statusCbs) cb({ status: 'disconnected' });
+  }
+
+  off(type: 'sync' | 'update' | 'status' | 'reload', cb: AnyBecauseHard) {
+    const set = this.listeners.get(type);
+    if (!set) return;
+    set.delete(cb);
+  }
+
+  on(type: 'sync' | 'update' | 'status' | 'reload', cb: AnyBecauseHard) {
+    let set = this.listeners.get(type);
+    if (!set) {
+      set = new Set();
+      this.listeners.set(type, set);
+    }
+    set.add(cb);
+    if (type === 'sync' && this.synced) cb(true);
+  }
 }
 
 // A simple “structural” node type so we can test the SuggestedEditsPlugin catch-all wrapping.
@@ -323,13 +530,13 @@ const BASE_INITIAL_CONFIG = {
   },
   nodes: [
     DummyBlockNode,
+    MarkNode,
     // Suggested edits nodes are registered by the Editor that uses the plugin in production;
     // in tests we include them explicitly so `cloneNodeViaJSON` can rehydrate them.
     SuggestionInsertionInlineNode,
     SuggestionDeletionInlineNode,
     SuggestionInsertionBlockNode,
     SuggestionDeletionBlockNode,
-    SuggestionReplacementInlineNode,
   ],
   editorState: () => {
     const root = $getRoot();
@@ -346,24 +553,65 @@ function TestEditor({
   currentUserName,
   canEdit,
   onEditorReady,
+  externalHistoryState,
+  enableCollab,
 }: {
   currentUserId: string;
   currentUserName: string;
   canEdit: boolean;
   onEditorReady: (editor: LexicalEditor) => void;
+  externalHistoryState?: HistoryState;
+  enableCollab?: boolean;
 }) {
   // Keep config referentially stable across rerenders so we don't reset the editor state.
-  const initialConfig = useMemo(() => BASE_INITIAL_CONFIG, []);
+  // In collaboration mode, we let the CollaborationPlugin bootstrap the editor state, otherwise
+  // Lexical can initialize nodes before Yjs binding is ready, leading to mapping mismatches.
+  const initialConfig = useMemo(() => {
+    if (!enableCollab) return BASE_INITIAL_CONFIG;
+    // Omit editorState so collaboration bootstrapping owns initialization.
+    const { editorState: _editorState, ...rest } = BASE_INITIAL_CONFIG as AnyBecauseHard;
+    return rest;
+  }, [enableCollab]);
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <EditorCapture onEditor={onEditorReady} />
-      <HistoryPlugin />
+      {enableCollab ? null : <HistoryPlugin delay={0} externalHistoryState={externalHistoryState} />}
       <RichTextPlugin
         contentEditable={<ContentEditable />}
         placeholder={<div />}
         ErrorBoundary={TestErrorBoundary}
       />
+      {enableCollab ? (
+        <LexicalCollaboration>
+          <CollaborationPlugin
+            id="main"
+            shouldBootstrap={true}
+            initialEditorState={() => {
+              const root = $getRoot();
+              root.clear();
+              const p = $createParagraphNode();
+              p.append($createTextNode(''));
+              root.append(p);
+              p.selectEnd();
+            }}
+            providerFactory={(id, yjsDocMap) => {
+              let doc = yjsDocMap.get(id);
+              if (!doc) {
+                doc = new Doc();
+                yjsDocMap.set(id, doc);
+              }
+              return new InMemoryProvider(doc);
+            }}
+            username={currentUserName}
+          />
+          <CommentPlugin />
+        </LexicalCollaboration>
+      ) : (
+        <LexicalCollaboration>
+          <CommentPlugin />
+        </LexicalCollaboration>
+      )}
       <SuggestedEditsPlugin
         canSuggest={true}
         canEdit={canEdit}
@@ -378,9 +626,11 @@ type TestEditorRenderArgs = {
   currentUserId: string;
   currentUserName: string;
   canEdit: boolean;
+  externalHistoryState?: HistoryState;
+  enableCollab?: boolean;
 };
 
-function renderTestEditor({ currentUserId, currentUserName, canEdit }: TestEditorRenderArgs) {
+function renderTestEditor({ currentUserId, currentUserName, canEdit, externalHistoryState, enableCollab }: TestEditorRenderArgs) {
   let editor: LexicalEditor | null = null;
   const onEditorReady = (e: LexicalEditor) => {
     editor = e;
@@ -392,6 +642,8 @@ function renderTestEditor({ currentUserId, currentUserName, canEdit }: TestEdito
       currentUserName={currentUserName}
       canEdit={canEdit}
       onEditorReady={onEditorReady}
+      externalHistoryState={externalHistoryState}
+      enableCollab={enableCollab}
     />,
   );
 
@@ -638,9 +890,13 @@ describe('SuggestedEditsPlugin (behavior divergences vs Google Docs)', () => {
       editor.dispatchCommand(CONTROLLED_TEXT_INSERTION_COMMAND, 'X');
     });
 
-    const replacement = getAllSuggestionWrappers(editor).find((w) => $isSuggestionReplacementInlineNode(w));
-    expect(replacement).toBeTruthy();
-    const suggestionId = replacement!.getSuggestionMeta().suggestionId;
+    const wrappers = getAllSuggestionWrappers(editor);
+    const deletion = wrappers.find((w) => $isSuggestionDeletionInlineNode(w));
+    const insertion = wrappers.find((w) => $isSuggestionInsertionInlineNode(w));
+    expect(deletion).toBeTruthy();
+    expect(insertion).toBeTruthy();
+    const suggestionId = (deletion as SuggestionDeletionInlineNode).getSuggestionMeta().suggestionId;
+    expect((insertion as SuggestionInsertionInlineNode).getSuggestionMeta().suggestionId).toBe(suggestionId);
 
     await act(async () => {
       editor.dispatchCommand(RESOLVE_SUGGESTION_BY_ID_COMMAND, { suggestionId, action: 'accept' });
@@ -670,9 +926,13 @@ describe('SuggestedEditsPlugin (behavior divergences vs Google Docs)', () => {
       editor.dispatchCommand(CONTROLLED_TEXT_INSERTION_COMMAND, 'X');
     });
 
-    const replacement = getAllSuggestionWrappers(editor).find((w) => $isSuggestionReplacementInlineNode(w));
-    expect(replacement).toBeTruthy();
-    const suggestionId = replacement!.getSuggestionMeta().suggestionId;
+    const wrappers = getAllSuggestionWrappers(editor);
+    const deletion = wrappers.find((w) => $isSuggestionDeletionInlineNode(w));
+    const insertion = wrappers.find((w) => $isSuggestionInsertionInlineNode(w));
+    expect(deletion).toBeTruthy();
+    expect(insertion).toBeTruthy();
+    const suggestionId = (deletion as SuggestionDeletionInlineNode).getSuggestionMeta().suggestionId;
+    expect((insertion as SuggestionInsertionInlineNode).getSuggestionMeta().suggestionId).toBe(suggestionId);
 
     await act(async () => {
       editor.dispatchCommand(RESOLVE_SUGGESTION_BY_ID_COMMAND, { suggestionId, action: 'reject' });
@@ -695,9 +955,13 @@ describe('SuggestedEditsPlugin (behavior divergences vs Google Docs)', () => {
       editor.dispatchCommand(CONTROLLED_TEXT_INSERTION_COMMAND, 'X');
     });
 
-    const replacement = getAllSuggestionWrappers(editor).find((w) => $isSuggestionReplacementInlineNode(w));
-    expect(replacement).toBeTruthy();
-    const suggestionId = replacement!.getSuggestionMeta().suggestionId;
+    const wrappers = getAllSuggestionWrappers(editor);
+    const deletion = wrappers.find((w) => $isSuggestionDeletionInlineNode(w));
+    const insertion = wrappers.find((w) => $isSuggestionInsertionInlineNode(w));
+    expect(deletion).toBeTruthy();
+    expect(insertion).toBeTruthy();
+    const suggestionId = (deletion as SuggestionDeletionInlineNode).getSuggestionMeta().suggestionId;
+    expect((insertion as SuggestionInsertionInlineNode).getSuggestionMeta().suggestionId).toBe(suggestionId);
 
     await act(async () => {
       const ok = editor.dispatchCommand(RESOLVE_SUGGESTION_BY_ID_COMMAND, { suggestionId, action: 'accept' });
@@ -707,6 +971,323 @@ describe('SuggestedEditsPlugin (behavior divergences vs Google Docs)', () => {
 
     const textAfter = editor.getEditorState().read(() => $getRoot().getTextContent());
     expect(textAfter).toBe('hellXo');
+  });
+});
+
+describe('SuggestedEditsPlugin (undo/redo reconciliation)', () => {
+  it('undo/redo reconciles threads for insertion suggestions (recreate on redo)', async () => {
+    const threadEvents: ThreadEvent[] = [];
+    const threadStore = new ThreadStore();
+    const { editor } = renderTestEditor({
+      currentUserId: 'userA',
+      currentUserName: 'User A',
+      canEdit: false,
+    });
+    registerThreadCapture(editor, threadEvents);
+
+    await act(async () => {
+      setPlainTextDoc(editor, 'hello');
+    });
+
+    await act(async () => {
+      editor.dispatchCommand(CONTROLLED_TEXT_INSERTION_COMMAND, 'X');
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    await act(async () => {
+      editor.dispatchCommand(UNDO_COMMAND, undefined);
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    await act(async () => {
+      editor.dispatchCommand(REDO_COMMAND, undefined);
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+  });
+
+  it('undo/redo reconciles threads for coalesced deletion suggestions (including quote/body updates)', async () => {
+    const threadEvents: ThreadEvent[] = [];
+    const threadStore = new ThreadStore();
+    const { editor } = renderTestEditor({
+      currentUserId: 'userA',
+      currentUserName: 'User A',
+      canEdit: false,
+    });
+    registerThreadCapture(editor, threadEvents);
+
+    await act(async () => {
+      setPlainTextDoc(editor, 'abc');
+    });
+
+    await act(async () => {
+      setSelectionRangeOnRootText(editor, 2, 3); // select "c"
+      editor.dispatchCommand(KEY_BACKSPACE_COMMAND, new KeyboardEvent('keydown', { key: 'Backspace' }));
+      setSelectionRangeOnRootText(editor, 1, 2); // select "b" (after prior delete)
+      editor.dispatchCommand(KEY_BACKSPACE_COMMAND, new KeyboardEvent('keydown', { key: 'Backspace' }));
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    await act(async () => {
+      editor.dispatchCommand(UNDO_COMMAND, undefined);
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    await act(async () => {
+      editor.dispatchCommand(UNDO_COMMAND, undefined);
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    await act(async () => {
+      editor.dispatchCommand(REDO_COMMAND, undefined);
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    await act(async () => {
+      editor.dispatchCommand(REDO_COMMAND, undefined);
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+  });
+
+  it('undo/redo reconciles threads for replacement suggestions and accept flow (recreate on undo)', async () => {
+    const threadEvents: ThreadEvent[] = [];
+    const threadStore = new ThreadStore();
+    const { editor } = renderTestEditor({
+      currentUserId: 'userA',
+      currentUserName: 'User A',
+      canEdit: true,
+    });
+    registerThreadCapture(editor, threadEvents);
+
+    await act(async () => {
+      // With canEdit=true the plugin starts in "editing" mode, so explicitly toggle to "suggesting".
+      editor.dispatchCommand(TOGGLE_SUGGESTING_MODE_COMMAND, undefined);
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      setPlainTextDoc(editor, 'hello');
+      setSelectionRangeOnRootText(editor, 1, 4); // "ell"
+      editor.dispatchCommand(CONTROLLED_TEXT_INSERTION_COMMAND, 'X');
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    const wrappers = getAllSuggestionWrappers(editor);
+    const deletion = wrappers.find((w) => $isSuggestionDeletionInlineNode(w));
+    const insertion = wrappers.find((w) => $isSuggestionInsertionInlineNode(w));
+    expect(deletion).toBeTruthy();
+    expect(insertion).toBeTruthy();
+    const suggestionId = (deletion as SuggestionDeletionInlineNode).getSuggestionMeta().suggestionId;
+    expect((insertion as SuggestionInsertionInlineNode).getSuggestionMeta().suggestionId).toBe(suggestionId);
+
+    await act(async () => {
+      const ok = editor.dispatchCommand(RESOLVE_SUGGESTION_BY_ID_COMMAND, { suggestionId, action: 'accept' });
+      expect(ok).toBe(true);
+      // In production, the CommentPlugin thread UI dispatches HIDE_THREAD_COMMAND after a successful resolve.
+      editor.dispatchCommand(HIDE_THREAD_COMMAND, { threadId: suggestionId });
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    await act(async () => {
+      editor.dispatchCommand(UNDO_COMMAND, undefined);
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    await act(async () => {
+      editor.dispatchCommand(REDO_COMMAND, undefined);
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+  });
+
+  it('undo/redo reconciles threads for structural/block insertion suggestions (catch-all wrapper)', async () => {
+    const threadEvents: ThreadEvent[] = [];
+    const threadStore = new ThreadStore();
+    const { editor } = renderTestEditor({
+      currentUserId: 'userA',
+      currentUserName: 'User A',
+      canEdit: false,
+    });
+    registerThreadCapture(editor, threadEvents);
+
+    // Ensure mutatedNodes includes this type by registering a no-op mutation listener.
+    const unregisterMutation = editor.registerMutationListener(DummyBlockNode, () => {}, { skipInitialization: true });
+
+    await act(async () => {
+      setPlainTextDoc(editor, 'hello');
+    });
+
+    await act(async () => {
+      editor.update(() => {
+        const root = $getRoot();
+        // Give the structural node a text descendant so comment threads (MarkNodes) can anchor to it.
+        const node = $createDummyBlockNode('structural');
+        node.append($createTextNode('Z'));
+        root.append(node);
+      });
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    await act(async () => {
+      editor.dispatchCommand(UNDO_COMMAND, undefined);
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    await act(async () => {
+      editor.dispatchCommand(REDO_COMMAND, undefined);
+    });
+    threadStore.applyNew(threadEvents);
+    assertThreadsMatchDoc(editor, threadStore);
+
+    unregisterMutation();
+  });
+
+  it(
+    'after undoing then redoing a suggested replacement, a single undo should fully undo the replacement again (no extra undo step from thread/mark reconciliation)',
+    async () => {
+      const threadEvents: ThreadEvent[] = [];
+      const historyState = createEmptyHistoryState();
+      const { editor } = renderTestEditor({
+        currentUserId: 'userA',
+        currentUserName: 'User A',
+        canEdit: true,
+        externalHistoryState: historyState,
+      });
+      // Capture thread command payloads without interfering with CommentPlugin handlers.
+      registerThreadCapture(editor, threadEvents);
+
+      await act(async () => {
+        editor.dispatchCommand(TOGGLE_SUGGESTING_MODE_COMMAND, undefined);
+        await Promise.resolve();
+      });
+
+      // Put the baseline doc into history in its own committed update, so the subsequent replacement
+      // is undoable as a single step (matching real usage).
+      await act(async () => {
+        setPlainTextDoc(editor, 'hello');
+      });
+
+      await act(async () => {
+        setSelectionRangeOnRootText(editor, 1, 4); // "ell"
+        editor.dispatchCommand(CONTROLLED_TEXT_INSERTION_COMMAND, 'X');
+      });
+      const textAfterCreate = editor.getEditorState().read(() => $getRoot().getTextContent());
+      expect(textAfterCreate).toBe('hellXo');
+
+      await act(async () => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      });
+      const textAfterUndo = editor.getEditorState().read(() => $getRoot().getTextContent());
+      expect(textAfterUndo).toBe('hello');
+
+      await act(async () => {
+        editor.dispatchCommand(REDO_COMMAND, undefined);
+      });
+      const textAfterRedo = editor.getEditorState().read(() => $getRoot().getTextContent());
+      expect(textAfterRedo).toBe('hellXo');
+
+      // Correct behavior: a single undo should fully revert to the pre-replacement state.
+      await act(async () => {
+        editor.dispatchCommand(UNDO_COMMAND, undefined);
+      });
+      const textAfterSecondUndo = editor.getEditorState().read(() => $getRoot().getTextContent());
+      expect(textAfterSecondUndo).toBe('hello');
+    },
+  );
+});
+
+// NOTE: We currently keep this as skipped because fully simulating Yjs collaboration in Jest
+// requires a more complete Provider implementation to avoid binding/mapping issues.
+describe.skip('SuggestedEditsPlugin (collaboration mode undo/redo regression)', () => {
+  it('replacement -> reject -> undo/redo does not corrupt text or lose redo (collab/yjs undo manager)', async () => {
+    const { editor } = renderTestEditor({
+      currentUserId: 'userA',
+      currentUserName: 'User A',
+      canEdit: true,
+      enableCollab: true,
+    });
+
+    // Let CollaborationPlugin mount effects (provider/binding, undo manager command handlers).
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+    });
+
+    // 1) fresh doc, type "hello"
+    await act(async () => {
+      editor.update(() => {
+        const root = $getRoot();
+        root.selectEnd();
+        const sel = $getSelection();
+        if ($isRangeSelection(sel)) {
+          sel.insertText('hello');
+        }
+      });
+    });
+
+    // 2) switch to suggesting
+    await act(async () => {
+      editor.dispatchCommand(TOGGLE_SUGGESTING_MODE_COMMAND, undefined);
+      await Promise.resolve();
+    });
+
+    // 3) replace "ell" with "X" -> creates replacement suggestion
+    await act(async () => {
+      setSelectionRangeOnRootText(editor, 1, 4);
+      editor.dispatchCommand(CONTROLLED_TEXT_INSERTION_COMMAND, 'X');
+    });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    const textAfterCreate = editor.getEditorState().read(() => $getRoot().getTextContent());
+    expect(textAfterCreate).toBe('hellXo');
+
+    const wrappers = getAllSuggestionWrappers(editor);
+    const deletion = wrappers.find((w) => $isSuggestionDeletionInlineNode(w));
+    const insertion = wrappers.find((w) => $isSuggestionInsertionInlineNode(w));
+    expect(deletion).toBeTruthy();
+    expect(insertion).toBeTruthy();
+    const suggestionId = (deletion as SuggestionDeletionInlineNode).getSuggestionMeta().suggestionId;
+    expect((insertion as SuggestionInsertionInlineNode).getSuggestionMeta().suggestionId).toBe(suggestionId);
+
+    // 4) reject suggestion + hide thread (matches UI behavior)
+    await act(async () => {
+      const ok = editor.dispatchCommand(RESOLVE_SUGGESTION_BY_ID_COMMAND, { suggestionId, action: 'reject' });
+      expect(ok).toBe(true);
+      editor.dispatchCommand(HIDE_THREAD_COMMAND, { threadId: suggestionId });
+      // CommentPlugin mark cleanup is async (setTimeout); let it run.
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    const textAfterReject = editor.getEditorState().read(() => $getRoot().getTextContent());
+    expect(textAfterReject).toBe('hello');
+
+    // 5) undo should restore the suggestion state
+    await act(async () => {
+      editor.dispatchCommand(UNDO_COMMAND, undefined);
+      // let any follow-up timers run
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    const textAfterUndo = editor.getEditorState().read(() => $getRoot().getTextContent());
+    expect(textAfterUndo).toBe('hellXo');
+
+    // 6) redo should re-apply the rejection
+    await act(async () => {
+      editor.dispatchCommand(REDO_COMMAND, undefined);
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    const textAfterRedo = editor.getEditorState().read(() => $getRoot().getTextContent());
+    expect(textAfterRedo).toBe('hello');
   });
 });
 

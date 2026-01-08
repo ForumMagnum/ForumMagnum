@@ -4,6 +4,7 @@ import { PostgresExtension } from './extensions/postgres';
 import { verifyAuthToken } from './auth';
 
 const port = parseInt(process.env.PORT ?? '8080');
+const e2eDebug = process.env.E2E === 'true';
 
 const server = new Server({
   port,
@@ -27,6 +28,10 @@ const server = new Server({
     const payload = await verifyAuthToken(token);
 
     const { userId, displayName, accessLevel, postId } = payload;
+    if (e2eDebug) {
+      // eslint-disable-next-line no-console
+      console.error('[e2e:hocuspocus] authenticate', { documentName, postId, userId, accessLevel });
+    }
     
     if (accessLevel === 'none') {
       throw new Error('Access denied');
@@ -53,6 +58,10 @@ const server = new Server({
   async onChange({ context }) {
     if (!context.user.canEdit) {
       throw new Error('Read-only access');
+    }
+    if (e2eDebug) {
+      // eslint-disable-next-line no-console
+      console.error('[e2e:hocuspocus] change', { documentName: context.documentName, userId: context.user?.id });
     }
   },
   
