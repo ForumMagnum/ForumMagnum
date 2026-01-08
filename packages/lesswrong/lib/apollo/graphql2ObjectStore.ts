@@ -59,6 +59,7 @@ function canonicalJsonString(value: JsonValue): string {
 function getDisambiguatedKey(store: Graphql2ObjectStore, baseId: string): string {
   const current = store.disambiguationCounterById.get(baseId) ?? 0;
   let n = current;
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const key = `${baseId}:{${n}}`;
     if (!store.objects.has(key)) {
@@ -119,10 +120,7 @@ function extractInner(
  *
  * `delta` contains only the newly-added objects from this call (append-only).
  */
-export function extractToObjectStoreAndSubstitute(
-  value: JsonValue,
-  store: Graphql2ObjectStore,
-): { substituted: JsonValue; delta: Record<string, JsonObject> } {
+export function extractToObjectStoreAndSubstitute(value: JsonValue, store: Graphql2ObjectStore): { substituted: JsonValue; delta: Record<string, JsonObject> } {
   const delta: Record<string, JsonObject> = {};
   const substituted = extractInner(value, store, delta);
   return { substituted, delta };

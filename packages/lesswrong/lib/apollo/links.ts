@@ -28,7 +28,7 @@ export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext
  * Http link is used for client side rendering
  */
 export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
-  const uri = baseUrl + "graphql2";
+  const uri = baseUrl + "api/streamGraphql";
 
   const batchKey = (operation: Operation) => {
     // The default part is copied from https://github.com/apollographql/apollo-client/blob/main/src/link/batch-http/batchHttpLink.ts#L192-L206

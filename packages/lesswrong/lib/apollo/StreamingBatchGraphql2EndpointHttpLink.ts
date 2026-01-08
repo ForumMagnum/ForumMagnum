@@ -25,7 +25,7 @@ type RequestEntry = {
   complete: Array<() => void>;
 };
 
-function readJsonArrayStreamObjects(
+async function readJsonArrayStreamObjects(
   response: Response,
   onLine: (obj: any) => void,
 ): Promise<void> {
@@ -44,7 +44,8 @@ function readJsonArrayStreamObjects(
   const decoder = new TextDecoder("utf-8");
   let buffer = "";
 
-  const pump = async () => {
+  try {
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
@@ -66,15 +67,11 @@ function readJsonArrayStreamObjects(
       const parsed = parseJsonArrayStreamLine(remaining);
       if (parsed !== undefined) onLine(parsed);
     }
-  };
-
-  return pump().finally(() => {
-    try {
-      reader.releaseLock();
-    } catch {
-      // ignore
-    }
-  });
+  } catch(e) {
+    // ignore
+  } finally {
+    reader.releaseLock();
+  }
 }
 
 function parseJsonArrayStreamLine(line: string): any | undefined {
@@ -86,21 +83,19 @@ function parseJsonArrayStreamLine(line: string): any | undefined {
   return JSON.parse(withoutTrailingComma);
 }
 
-export declare namespace StreamingBatchGraphql2EndpointHttpLink {
-  interface ContextOptions extends BaseHttpLink.ContextOptions {}
+interface StreamingGraphQLHttpLinkContextOptions extends BaseHttpLink.ContextOptions {}
 
-  interface Options extends BaseHttpLink.Shared.Options {
-    uri?: string;
-    batchInterval?: number;
-    batchDebounce?: boolean;
-    batchMax?: number;
-    batchKey?: (operation: Operation) => string;
-    fetch?: typeof fetch;
-    print?: typeof defaultPrinter;
-    includeExtensions?: boolean;
-    preserveHeaderCase?: boolean;
-    includeUnusedVariables?: boolean;
-  }
+interface StreamingGraphQLHttpLinkOptions extends BaseHttpLink.Shared.Options {
+  uri?: string;
+  batchInterval?: number;
+  batchDebounce?: boolean;
+  batchMax?: number;
+  batchKey?: (operation: Operation) => string;
+  fetch?: typeof fetch;
+  print?: typeof defaultPrinter;
+  includeExtensions?: boolean;
+  preserveHeaderCase?: boolean;
+  includeUnusedVariables?: boolean;
 }
 
 /**
@@ -127,11 +122,11 @@ export class StreamingBatchGraphql2EndpointHttpLink extends ApolloLink {
   private batchesByKey = new Map<string, Set<RequestEntry>>();
   private scheduledBatchTimerByKey = new Map<string, ReturnType<typeof setTimeout>>();
 
-  constructor(options: StreamingBatchGraphql2EndpointHttpLink.Options = {}) {
+  constructor(options: StreamingGraphQLHttpLinkOptions = {}) {
     super();
 
     const {
-      uri = "/graphql2",
+      uri = "/api/streamGraphql",
       fetch: preferredFetch,
       print = defaultPrinter,
       includeExtensions,
@@ -278,18 +273,12 @@ export class StreamingBatchGraphql2EndpointHttpLink extends ApolloLink {
     httpOptions.headers["content-type"] = "application/json; charset=utf-8";
 
     if (httpOptions.method === "GET") {
-      const error = new Error("graphql2 does not support GET requests");
+      const error = new Error("streamGraphql does not support GET requests");
       entries.forEach((e) => e.error.forEach((fn) => fn(error)));
       return;
     }
 
-    httpOptions.body = [
-      "[\n",
-      ...optsAndBody.flatMap(({ body }, i) =>
-        i === 0 ? [JSON.stringify(body) + "\n"] : [",\n", JSON.stringify(body) + "\n"],
-      ),
-      "]\n",
-    ].join("");
+    httpOptions.body = JSON.stringify(optsAndBody.flatMap(({ body }) => body));
 
     let controller: AbortController | undefined;
     if (!httpOptions.signal && typeof AbortController !== "undefined") {

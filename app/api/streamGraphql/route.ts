@@ -4,27 +4,13 @@ import { inspect } from "util";
 import { formatError } from "apollo-errors";
 
 import { getExecutableSchema } from "@/server/vulcan-lib/apollo-server/initGraphQL";
-import {
-  configureSentryScope,
-  getContextFromReqAndRes,
-} from "@/server/vulcan-lib/apollo-server/context";
-import {
-  asyncLocalStorage,
-  closePerfMetric,
-  openPerfMetric,
-} from "@/server/perfMetrics";
+import { configureSentryScope, getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
+import { asyncLocalStorage, closePerfMetric, openPerfMetric } from "@/server/perfMetrics";
 import { captureException, getSentry } from "@/lib/sentryWrapper";
 import { getClientIP } from "@/server/utils/getClientIP";
-import {
-  fmCrosspostBaseUrlSetting,
-  performanceMetricLoggingEnabled,
-} from "@/lib/instanceSettings";
+import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from "@/lib/instanceSettings";
 import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
-import {
-  createGraphql2ObjectStore,
-  extractToObjectStoreAndSubstitute,
-  type JsonValue,
-} from "@/lib/apollo/graphql2ObjectStore";
+import { createGraphql2ObjectStore, extractToObjectStoreAndSubstitute } from "@/lib/apollo/graphql2ObjectStore";
 
 type GraphqlHttpRequestBody = {
   operationName?: string | null;
@@ -33,7 +19,7 @@ type GraphqlHttpRequestBody = {
   extensions?: Record<string, unknown> | null;
 };
 
-// TODO: decide whether we want to always filter all of these out on /graphql2 requests
+// TODO: decide whether we want to always filter all of these out on /api/streamingGraphql requests
 const NOISY_ERROR_MESSAGES = new Set([
   "app.operation_not_allowed",
   "app.missing_document",
@@ -65,48 +51,47 @@ function isCrossSiteRequest(request: NextRequest) {
   }
 }
 
-function formatGraphQLError(err: GraphQLError): GraphQLFormattedError {
+function formatGraphQLError(err: any): any {
   captureException(err);
-
-  const formatted = err.toJSON();
-  const { message, ...properties } = formatted;
-  if (!NOISY_ERROR_MESSAGES.has(message)) {
-    // eslint-disable-next-line no-console
-    console.error(`[GraphQLError: ${message}]`, inspect(properties, { depth: null }), err);
-  }
-
-  // ApolloServer includes stack traces; mimic that shape for parity.
-  const stack =
-    err.originalError?.stack ??
-    err.stack ??
-    undefined;
-
-  const withStack: GraphQLFormattedError = {
-    ...formatted,
-    extensions: {
-      ...(formatted.extensions ?? {}),
-      exception: {
-        ...(typeof formatted.extensions?.exception === "object"
-          ? (formatted.extensions.exception as Record<string, unknown>)
-          : {}),
-        stacktrace: stack ? stack.split("\n") : undefined,
+  if (err instanceof GraphQLError) {
+    const formatted = err.toJSON();
+    const { message, ...properties } = formatted;
+    if (!NOISY_ERROR_MESSAGES.has(message)) {
+      // eslint-disable-next-line no-console
+      console.error(`[GraphQLError: ${message}]`, inspect(properties, { depth: null }), err);
+    }
+  
+    // ApolloServer includes stack traces; mimic that shape for parity.
+    const stack =
+      err.originalError?.stack ??
+      err.stack ??
+      undefined;
+  
+    const withStack: GraphQLFormattedError = {
+      ...formatted,
+      extensions: {
+        ...(formatted.extensions ?? {}),
+        exception: {
+          ...(typeof formatted.extensions?.exception === "object"
+            ? (formatted.extensions.exception as Record<string, unknown>)
+            : {}),
+          stacktrace: stack ? stack.split("\n") : undefined,
+        },
       },
-    },
-  };
-
-  // TODO: Replace sketchy apollo-errors package with something first-party
-  // and that doesn't require a cast here
-  // TODO: I AM AN INSTANCE OF GPT-5.2 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
-  return formatError(withStack) as unknown as GraphQLFormattedError;
+    };
+  
+    // TODO: Replace sketchy apollo-errors package with something first-party
+    // and that doesn't require a cast here
+    return formatError(withStack) as unknown as GraphQLFormattedError;
+  } else {
+    return err?.message ?? JSON.stringify(err);
+  }
 }
 
-async function executeGraphql2Operation({
-  op,
-  context,
-}: {
+async function executeGraphql2Operation({ op, context }: {
   op: GraphqlHttpRequestBody;
   context: ResolverContext;
-}) {
+}): Promise<any> {
   const schema = getExecutableSchema();
   const result = await graphql({
     schema,
@@ -125,55 +110,6 @@ async function executeGraphql2Operation({
   }
 
   return result;
-}
-
-async function* readJsonArrayStreamLinesFromRequest(request: NextRequest): AsyncGenerator<string> {
-  const body = (request as any).body as ReadableStream<Uint8Array> | null | undefined;
-  if (!body || typeof (body as any).getReader !== "function") {
-    const text = await request.text();
-    for (const line of text.split("\n")) {
-      const trimmed = line.trim();
-      if (trimmed) yield trimmed;
-    }
-    return;
-  }
-
-  const reader = (body as any).getReader() as ReadableStreamDefaultReader<Uint8Array>;
-  const decoder = new TextDecoder("utf-8");
-  let buffer = "";
-
-  try {
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      let newlineIndex = buffer.indexOf("\n");
-      while (newlineIndex >= 0) {
-        const line = buffer.slice(0, newlineIndex).trim();
-        buffer = buffer.slice(newlineIndex + 1);
-        if (line) yield line;
-        newlineIndex = buffer.indexOf("\n");
-      }
-    }
-
-    const remaining = buffer.trim();
-    if (remaining) yield remaining;
-  } finally {
-    try {
-      reader.releaseLock();
-    } catch {
-      // ignore
-    }
-  }
-}
-
-function parseJsonArrayStreamLine(line: string): any | undefined {
-  const trimmed = line.trim();
-  if (!trimmed) return undefined;
-  if (trimmed === "[" || trimmed === "]" || trimmed === ",") return undefined;
-  const withoutTrailingComma = trimmed.endsWith(",") ? trimmed.slice(0, -1).trim() : trimmed;
-  if (!withoutTrailingComma) return undefined;
-  return JSON.parse(withoutTrailingComma);
 }
 
 async function graphql2Handler(request: NextRequest, { onComplete }: { onComplete?: (error?: unknown) => void } = {}) {
@@ -222,49 +158,36 @@ async function graphql2Handler(request: NextRequest, { onComplete }: { onComplet
         }
       };
 
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       void (async () => {
         try {
-          for await (const line of readJsonArrayStreamLinesFromRequest(request)) {
+          const requestQueries = await request.json();
+          for (const query of requestQueries) {
             if (cancelled) break;
-
-            let op: GraphqlHttpRequestBody;
-            try {
-              const parsed = parseJsonArrayStreamLine(line);
-              if (!parsed) {
-                continue;
-              }
-              op = parsed as GraphqlHttpRequestBody;
-            } catch (error) {
-              captureException(error);
-              const index = nextIndex++;
-              enqueueLine({ index, result: { errors: [{ message: "Invalid JSON request line" }] } });
-              continue;
-            }
 
             const index = nextIndex++;
             inFlight += 1;
-            void executeGraphql2Operation({ op, context })
-              .then((result) => {
-                const { substituted, delta } = extractToObjectStoreAndSubstitute(
-                  result as unknown as JsonValue,
-                  objectStore,
-                );
+            (async () => {
+              try {
+                const result = await executeGraphql2Operation({ op: query, context });
+                const { substituted, delta } = extractToObjectStoreAndSubstitute(result, objectStore);
                 enqueueLine(
                   Object.keys(delta).length
                     ? { index, result: substituted, storeDelta: delta }
                     : { index, result: substituted },
                 );
-              })
-              .catch((error) => {
+              } catch(error) {
                 captureException(error);
+                console.log(error);
                 enqueueLine({ index, result: { errors: [{ message: "Internal server error" }] } });
-              })
-              .finally(() => {
+              } finally {
                 inFlight -= 1;
                 maybeClose();
-              });
+              }
+            })();
           }
         } catch (error) {
+          console.error(error);
           captureException(error);
         } finally {
           requestDone = true;
@@ -282,9 +205,9 @@ async function graphql2Handler(request: NextRequest, { onComplete }: { onComplet
     // Status code doesn't matter; errors are in the response body.
     status: 200,
     headers: {
-      // Next.js compression uses a whitelist of compressible MIME types; `application/x-ndjson`
-      // is often not recognized. We still stream newline-delimited JSON objects, but advertise
-      // as JSON to enable compression.
+      // None: Next.js compression uses a whitelist of compressible MIME types;
+      // we need to be careful with the content-type response header or we'll
+      // get uncnompressed responses
       "Content-Type": "application/json; charset=utf-8",
     },
   });
@@ -334,8 +257,13 @@ async function sharedHandler(request: NextRequest) {
   });
 }
 
+// GraphQL requests can be GET or POST. By convention, GET requests are for
+// batches containing only read-queries and POST requests are for requests
+// containing mutations, but this is only a convention and not enforced.
+//
+// OPTIONS requests are for preflighting cross-site requests for
+// crossposting-related purposes.
 export function GET(request: NextRequest) {
-  // For parity with /graphql route behavior in Next/Apollo integration.
   return sharedHandler(request);
 }
 
