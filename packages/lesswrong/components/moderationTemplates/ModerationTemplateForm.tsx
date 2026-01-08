@@ -199,6 +199,17 @@ export const ModerationTemplatesForm = ({
         </form.Field>
       </div>
 
+      <div className={classes.fieldWrapper}>
+        <form.Field name="groupLabel">
+          {(field) => (
+            <MuiTextField
+              field={field}
+              label="Group label"
+            />
+          )}
+        </form.Field>
+      </div>
+
       {formType === 'edit' && (
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">

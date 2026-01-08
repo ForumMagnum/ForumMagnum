@@ -246,31 +246,27 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
     }
   };
 
-  // insofar as these stay hardcoded (maybe worth creating a "moderationTemplate group-label" on the backend?), I think it's better for them to be names than IDs because it's easier to review and update, and if someone is editing one it's not obvious they should stay in the same groupings anyway.
-
-  // (probably should add a "group" field to moderationTemplates)
-  const hardcodedGroups: Record<string, string[]> = {
-    "Offboard": [
-      'Bad fit first post, unlikely to get better',
-      'Multiple LLM rejections',
-      'This isn\'t gonna work out',
-    ],
-    "Quality Warning": [
-      'Read Sequence Highlights First',
-      'Read Sequences Highlights',
-      'Your Submissions Aren\'t Finding Traction',
-      'Semi-Automated Quality (low average)',
-      'Semi-automoderated quality warning (downvoted)',
-    ],
-  }
-
   const allTemplatesGrouped: Record<string, string[]> = templates ? (() => {
-    const hardcodedTemplateNames = new Set(Object.values(hardcodedGroups).flat());
-    const otherTemplates = templates.filter(template => !hardcodedTemplateNames.has(template.name));
-    return {
-      ...hardcodedGroups,
-      "Other": otherTemplates.map(template => template.name),
-    };
+    const grouped: Record<string, string[]> = {};
+    const templatesWithoutGroup: string[] = [];
+    
+    templates.forEach(template => {
+      const groupLabel = template.groupLabel;
+      if (groupLabel) {
+        if (!grouped[groupLabel]) {
+          grouped[groupLabel] = [];
+        }
+        grouped[groupLabel].push(template.name);
+      } else {
+        templatesWithoutGroup.push(template.name);
+      }
+    });
+    
+    if (templatesWithoutGroup.length > 0) {
+      grouped["Other"] = templatesWithoutGroup;
+    }
+    
+    return grouped;
   })() : {};
 
   return <div>

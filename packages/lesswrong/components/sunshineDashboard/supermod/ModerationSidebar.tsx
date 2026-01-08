@@ -82,30 +82,6 @@ const ModerationSidebar = ({
 
   return (
     <div className={classes.root}>
-      {/* <div className={classes.section}>
-        <ModeratorNotes user={user} currentUser={currentUser} />
-      </div>
-
-      {dispatch && (
-        <div className={classes.section}>
-          <div className={classes.sectionTitle}>Outstanding Moderator Actions</div>
-          <div className={classes.userModActions}>
-            {user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)).map(action => (
-              <div key={action._id} className={classes.modActionItem}>
-                <SupermodModeratorActionItem user={user} moderatorAction={action} dispatch={dispatch} />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className={classes.section}>
-        <div className={classNames(classes.sectionTitle, classes.noBottomMargin)}>Rate Limits</div>
-        <div className={classes.userModActions}>
-          <UserRateLimitItem user={user} />
-        </div>
-      </div> */}
-
       <div className={classes.section}>
         <div className={classes.sectionTitle}>User Messages</div>
         <div className={classes.userMessages}>
