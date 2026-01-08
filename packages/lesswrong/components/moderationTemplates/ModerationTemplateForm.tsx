@@ -89,6 +89,7 @@ export const ModerationTemplatesForm = ({
     ...defaultValues,
     collectionName: defaultValues.collectionName ?? 'Rejections',
     name: defaultValues.name ?? '',
+    groupLabel: defaultValues.groupLabel ?? undefined,
   };
 
   const form = useForm({
