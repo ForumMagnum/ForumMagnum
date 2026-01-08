@@ -1,5 +1,3 @@
-import { ThemeType } from '@/themes/themeType';
-
 /**
  * Typeahead popover container styles
  */

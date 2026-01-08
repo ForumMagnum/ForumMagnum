@@ -54,7 +54,7 @@ const styles = defineStyles('LexicalTableOfContentsPlugin', (theme: ThemeType) =
       width: 4,
       right: 240,
       marginTop: 5,
-      backgroundColor: theme.palette.grey[350],
+      backgroundColor: theme.palette.grey[300],
       borderRadius: 2,
     },
   },
