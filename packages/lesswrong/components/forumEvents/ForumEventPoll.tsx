@@ -34,7 +34,7 @@ const NUM_TICKS = 21;
 const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
 
 /**
- * Examples: "3 days", "1 day, 12 hours" (because <2 days), "3 hours", "1 hours, 12 mins"
+ * Examples: "3 days", "1 day, 12 hours" (because <2 days), "3 hours", "1 hour, 12 mins"
  */
 function formatRemainingTime(remainingMs: number): string {
   if (remainingMs <= 0) return "closed";
@@ -53,18 +53,42 @@ function formatRemainingTime(remainingMs: number): string {
   return `${seconds}s`;
 }
 
-function VotingDeadline({ endDate }: { endDate: Date | string }) {
-  const end = useMemo(() => new Date(endDate).getTime(), [endDate]);
-  const [remainingMs, setRemainingMs] = useState(() => end - Date.now());
+function PollSubtitle({
+  endDate,
+  voteCount,
+  hasVoted,
+  onViewResults,
+  buttonClassName,
+}: {
+  endDate: Date | string | null;
+  voteCount: number;
+  hasVoted: boolean;
+  onViewResults: () => void;
+  buttonClassName?: string;
+}) {
+  const end = useMemo(() => endDate ? new Date(endDate).getTime() : null, [endDate]);
+  const [remainingMs, setRemainingMs] = useState(() => end ? end - Date.now() : Infinity);
 
   useEffect(() => {
+    if (!end) return;
     const interval = Math.max(1000, Math.floor((end - Date.now()) / 120));
     const timer = setInterval(() => setRemainingMs(end - Date.now()), interval);
     return () => clearInterval(timer);
   }, [end]);
 
-  if (remainingMs <= 0) return <>Voting has closed</>;
-  return <>Voting closes in {formatRemainingTime(remainingMs)}</>;
+  const votingOpen = !end || remainingMs > 0;
+
+  return <>
+    {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"}${votingOpen ? " so far" : ""}. `}
+    {end && (remainingMs > 0
+      ? <>Voting closes in {formatRemainingTime(remainingMs)}. </>
+      : <>Voting has closed. </>
+    )}
+    {votingOpen && (hasVoted ? "Change" : "Place") + " your vote or "}
+    <button className={buttonClassName} onClick={onViewResults}>
+      {votingOpen ? "view results." : "View results."}
+    </button>
+  </>;
 }
 
 const styles = (theme: ThemeType) => ({
@@ -840,14 +864,13 @@ export const ForumEventPoll = ({
           <DeferRender ssr={false}>
             {!hideViewResults && (
               <div className={classes.votePrompt}>
-                {!resultsVisible ? <>
-                  {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"}${votingOpen ? " so far" : ""}. `}
-                  {event?.endDate && <><VotingDeadline endDate={event.endDate} />. </>}
-                  {votingOpen && (hasVoted ? "Change" : "Place") + " your vote or "}
-                  <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
-                    {votingOpen ? "view results." : "View results."}
-                  </button>
-                </> : <button
+                {!resultsVisible ? <PollSubtitle
+                  endDate={event?.endDate ?? null}
+                  voteCount={voteCount}
+                  hasVoted={hasVoted}
+                  onViewResults={() => setResultsVisible(true)}
+                  buttonClassName={classes.viewResultsButton}
+                /> : <button
                   className={classNames(classes.viewResultsButton, classes.hideResultsButton)}
                   onClick={() => setResultsVisible(false)}
                 >
