@@ -42,19 +42,29 @@ async function preprocessPollEndDates(
     return originalContentsData;
   }
 
-  // Collect all poll IDs to batch-fetch ForumEvents
-  const pollIds: string[] = [];
+  // Fetch ForumEvents for polls without endDate in props (backwards compatibility for old polls)
+  const pollIdsNeedingLookup: string[] = [];
   pollElements.each((_, el) => {
     const id = $(el).attr('data-internal-id');
-    if (id) pollIds.push(id);
+    const propsStr = $(el).attr('data-props');
+    if (id && propsStr) {
+      try {
+        const props = JSON.parse(propsStr);
+        if (!props.endDate && !props.durationEdited) {
+          pollIdsNeedingLookup.push(id);
+        }
+      } catch { /* ignore parse errors, will be handled below */ }
+    }
   });
 
-  // Fetch existing ForumEvents for these polls
-  const existingEvents = await context.loaders.ForumEvents.loadMany(pollIds);
+  // Fetch existing ForumEvents for old polls missing endDate in html
+  const existingEvents = pollIdsNeedingLookup.length > 0
+    ? await context.loaders.ForumEvents.loadMany(pollIdsNeedingLookup)
+    : [];
   const eventsByPollId = new Map<string, DbForumEvent>();
   existingEvents.forEach((event, index) => {
     if (event && !(event instanceof Error)) {
-      eventsByPollId.set(pollIds[index], event);
+      eventsByPollId.set(pollIdsNeedingLookup[index], event);
     }
   });
 
@@ -82,25 +92,16 @@ async function preprocessPollEndDates(
         return;
       }
 
-      // Compute endDate based on current state
       let newEndDate: string | undefined;
 
-      if (props.durationEdited) {
-        // User edited duration - compute new endDate from now + duration
-        const duration = props.duration || { days: 7, hours: 0, minutes: 0 };
-        const endDateMs = Date.now() +
-          ((duration.days || 0) * ONE_DAY_MS) +
-          ((duration.hours || 0) * ONE_HOUR_MS) +
-          ((duration.minutes || 0) * ONE_MINUTE_MS);
-        newEndDate = new Date(endDateMs).toISOString();
-      } else if (props.endDate) {
-        // Already has endDate in props - keep it
+      if (props.endDate && !props.durationEdited) {
+        // Already has endDate in props: keep it
         newEndDate = props.endDate;
-      } else if (existingEndDate) {
-        // Old poll without endDate in HTML but has ForumEvent endDate
+      } else if (existingEndDate && !props.durationEdited) {
+        // Old poll without endDate in HTML but has ForumEvent endDate: adopt ForumEvent endDate
         newEndDate = existingEndDate.toISOString();
       } else {
-        // First publish - compute from duration
+        // First publish or user edited duration: compute from now + duration
         const duration = props.duration || { days: 7, hours: 0, minutes: 0 };
         const endDateMs = Date.now() +
           ((duration.days || 0) * ONE_DAY_MS) +
@@ -109,7 +110,7 @@ async function preprocessPollEndDates(
         newEndDate = new Date(endDateMs).toISOString();
       }
 
-      // Update props with endDate and clear durationEdited flag
+      // Update props with endDate and remove durationEdited flag
       props.endDate = newEndDate;
       delete props.durationEdited;
       $el.attr('data-props', JSON.stringify(props));

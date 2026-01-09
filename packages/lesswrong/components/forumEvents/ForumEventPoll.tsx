@@ -33,6 +33,9 @@ const DEFAULT_STACK_IMAGES = 20;
 const NUM_TICKS = 21;
 const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
 
+/**
+ * Examples: "3 days", "1 day, 12 hours" (because <2 days), "3 hours", "1 hours, 12 mins"
+ */
 function formatRemainingTime(remainingMs: number): string {
   if (remainingMs <= 0) return "closed";
 
@@ -55,8 +58,7 @@ function VotingDeadline({ endDate }: { endDate: Date | string }) {
   const [remainingMs, setRemainingMs] = useState(() => end - Date.now());
 
   useEffect(() => {
-    const initial = end - Date.now();
-    const interval = initial < 2 * 60 * 1000 ? 1000 : initial < 2 * 60 * 60 * 1000 ? 30000 : 60000;
+    const interval = Math.max(1000, Math.floor((end - Date.now()) / 120));
     const timer = setInterval(() => setRemainingMs(end - Date.now()), interval);
     return () => clearInterval(timer);
   }, [end]);

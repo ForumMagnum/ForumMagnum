@@ -10,7 +10,7 @@ type PollProps = {
   disagreeWording: string;
   colorScheme: { darkColor: string; lightColor: string; bannerTextColor: string };
   duration: { days: number; hours: number; minutes: number };
-  /** Set by server when post is published. Used to compute remaining time. */
+  /** Set by server when post is published. */
   endDate?: string;
   /** Set by CKEditor when user edits duration on a published poll. Signals server to update endDate. */
   durationEdited?: boolean;
