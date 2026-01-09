@@ -172,7 +172,7 @@ export const ChaptersViews = new CollectionViewSet('Chapters', {
 **Key Concepts**:
 - MUST use `gql` from `@/lib/generated/gql-codegen` (NOT from `graphql-tag` or `@apollo/client`)
 - Use `useQuery` from `@/lib/crud/useQuery` (wrapper around Apollo's useQuery)
-- Run `yarn generate` after modifying schemas, resolvers, GraphQL definitions, or fragments
+- Run `yarn generate` after modifying schemas, database indexes, resolvers, GraphQL definitions, or fragments
 - Query results are fully typed based on the generated types.  Do not use `as any` or any other type casts to work around type errors that seem to be caused by missing generated types.
 - Style note: define queries at the top level of the component file they're used in, not nested inside the component function.  Exception: when the same query is used in multiple files, define it in a separate file.
 

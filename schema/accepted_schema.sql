@@ -2146,6 +2146,9 @@ CREATE INDEX IF NOT EXISTS "idx_Posts_status_isFuture_draft_unlisted_authorIsUnr
   "commentCount"
 );
 
+-- Index "idx_Posts_lastCommentedAt"
+CREATE INDEX IF NOT EXISTS "idx_Posts_lastCommentedAt" ON "Posts" USING btree ("lastCommentedAt");
+
 -- Index "idx_posts_recentDiscussionThreadsList"
 CREATE INDEX IF NOT EXISTS "idx_posts_recentDiscussionThreadsList" ON "Posts" USING btree (
   "status",
