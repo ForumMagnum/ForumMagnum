@@ -127,9 +127,9 @@ export default class PollPlugin extends Plugin {
           class: POLL_CLASS,
           "data-internal-id": id,
           style: `
-            --forum-event-background: ${colorScheme.darkColor};
+            --forum-event-background: ${colorScheme.lightColor};
             --forum-event-banner-text: ${colorScheme.bannerTextColor};
-            --forum-event-foreground: ${colorScheme.lightColor};
+            --forum-event-foreground: ${colorScheme.bannerTextColor};
           `
         });
 
@@ -206,9 +206,9 @@ export default class PollPlugin extends Plugin {
         if (colorScheme) {
           viewWriter.setStyle(
             {
-              '--forum-event-background': colorScheme.darkColor,
+              '--forum-event-background': colorScheme.lightColor,
               '--forum-event-banner-text': colorScheme.bannerTextColor,
-              '--forum-event-foreground': colorScheme.lightColor
+              '--forum-event-foreground': colorScheme.bannerTextColor
             },
             pollViewElement
           );

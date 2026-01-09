@@ -7,7 +7,7 @@
 .ck.ck-poll-form {
 	border-radius: 6px;
 	border: 0.5px solid #E1E1E1;
-	background: var(--palette-grey-200);
+	background: var(--palette-panelBackground-default);
 	box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.10);
 	padding: 12px;
 	display: flex;
@@ -40,8 +40,6 @@
 	border-radius: 4px;
 	opacity: 0.8;
 	background: var(--palette-grey-200);
-  min-width: 225px;
-  max-width: 490px;
 	width: 100%;
 	padding: 8px;
 	font-size: 13px;
