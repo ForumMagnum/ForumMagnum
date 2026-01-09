@@ -344,7 +344,7 @@ const FooterTagList = ({
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
   // have reviewedByUserId set to anything.
-  const showAutoClassifiedIcon = !post.curatedDate && post.reviewedByUserId && post.reviewedByUserId === adminAccountSetting.get()?._id;
+  const showAutoClassifiedIcon = !post.curatedDate && !!post.reviewedByUserId && post.reviewedByUserId === adminAccountSetting.get()?._id;
 
   let postType = post.curatedDate
     ? <MaybeLink to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
