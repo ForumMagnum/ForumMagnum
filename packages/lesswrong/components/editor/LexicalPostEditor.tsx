@@ -103,31 +103,6 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: '1.1rem',
     lineHeight: 1.7,
-    '& .lwSuggestionInsertion': {
-      backgroundColor: 'rgba(0, 180, 0, 0.10)',
-      textDecoration: 'underline',
-      textDecorationColor: 'rgba(0, 150, 0, 0.8)',
-      textUnderlineOffset: '2px',
-    },
-    '& .lwSuggestionDeletion': {
-      backgroundColor: 'rgba(220, 0, 0, 0.08)',
-      textDecoration: 'line-through',
-      textDecorationColor: 'rgba(180, 0, 0, 0.85)',
-    },
-    '& .lwSuggestionInsertionBlock': {
-      borderLeft: '3px solid rgba(0, 150, 0, 0.85)',
-      backgroundColor: 'rgba(0, 180, 0, 0.06)',
-      paddingLeft: 10,
-      borderRadius: 4,
-      margin: '6px 0',
-    },
-    '& .lwSuggestionDeletionBlock': {
-      borderLeft: '3px solid rgba(180, 0, 0, 0.85)',
-      backgroundColor: 'rgba(220, 0, 0, 0.05)',
-      paddingLeft: 10,
-      borderRadius: 4,
-      margin: '6px 0',
-    },
   },
   editorInner: {
     position: 'relative',
@@ -842,9 +817,6 @@ const LexicalPostEditor = ({
               <div className="editor-shell">
                 <Editor
                   collaborationConfig={collaborationConfig ?? undefined}
-                  accessLevel={accessLevel}
-                  currentUserId={localUserId}
-                  currentUserName={localUserName}
                 />
               </div>
               <Settings />

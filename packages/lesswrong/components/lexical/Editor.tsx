@@ -103,9 +103,6 @@ import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import ClaimsPlugin from '../editor/lexicalPlugins/claims/ClaimsPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
-import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
-import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
-import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   editorContainer: {
@@ -114,31 +111,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    '& .lwSuggestionInsertion': {
-      backgroundColor: 'rgba(0, 180, 0, 0.10)',
-      textDecoration: 'underline',
-      textDecorationColor: 'rgba(0, 150, 0, 0.8)',
-      textUnderlineOffset: '2px',
-    },
-    '& .lwSuggestionDeletion': {
-      backgroundColor: 'rgba(220, 0, 0, 0.08)',
-      textDecoration: 'line-through',
-      textDecorationColor: 'rgba(180, 0, 0, 0.85)',
-    },
-    '& .lwSuggestionInsertionBlock': {
-      borderLeft: '3px solid rgba(0, 150, 0, 0.85)',
-      backgroundColor: 'rgba(0, 180, 0, 0.06)',
-      paddingLeft: 10,
-      borderRadius: 4,
-      margin: '6px 0',
-    },
-    '& .lwSuggestionDeletionBlock': {
-      borderLeft: '3px solid rgba(180, 0, 0, 0.85)',
-      backgroundColor: 'rgba(220, 0, 0, 0.05)',
-      paddingLeft: 10,
-      borderRadius: 4,
-      margin: '6px 0',
-    },
   },
   treeView: {
     borderRadius: 0,
@@ -175,18 +147,10 @@ const COLLAB_DOC_ID = 'main';
 export interface EditorProps {
   /** Collaboration config - if provided, enables real-time collaboration */
   collaborationConfig?: CollaborationConfig;
-  /** Collaborative editor access level for permission-gating suggestions */
-  accessLevel?: CollaborativeEditingAccessLevel;
-  /** Current user identity (used to attribute suggestions). Falls back to collaborationConfig.user when present. */
-  currentUserId?: string;
-  currentUserName?: string;
 }
 
 export default function Editor({
   collaborationConfig,
-  accessLevel,
-  currentUserId,
-  currentUserName,
 }: EditorProps): JSX.Element {
   const classes = useStyles(styles);
   const {historyState} = useSharedHistoryContext();
@@ -228,12 +192,7 @@ export default function Editor({
       listStrictIndent,
     },
   } = useSettings();
-  
-  const effectiveUserId = collaborationConfig?.user.id ?? currentUserId ?? 'local';
-  const effectiveUserName = collaborationConfig?.user.name ?? currentUserName ?? 'User';
-  const canSuggest = accessLevel ? accessLevelCan(accessLevel, 'comment') : true;
-  const canEditSuggestions = accessLevel ? accessLevelCan(accessLevel, 'edit') : true;
-  
+
   // Enable collaboration if config is provided OR if the setting is enabled
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isEditable = useLexicalEditable();
@@ -488,12 +447,6 @@ export default function Editor({
             <SpoilersPlugin />
             <ClaimsPlugin />
             <RemoveRedirectPlugin />
-            <SuggestedEditsPlugin
-              canSuggest={canSuggest}
-              canEdit={canEditSuggestions}
-              currentUserId={effectiveUserId}
-              currentUserName={effectiveUserName}
-            />
             <LLMAutocompletePlugin />
             {floatingAnchorElem && (
               <>
