@@ -3,13 +3,17 @@ import { z } from 'zod';
 import { cheerioParse } from '@/server/utils/htmlUtil';
 import { createForumEvent, updateForumEvent } from '../collections/forumEvents/mutations';
 
-// Duplicate of ckEditor/src/ckeditor5-poll/poll.ts
+// Duplicate of ckEditor/src/ckeditor5-poll/constants.ts
 type PollProps = {
   question: string;
   agreeWording: string;
   disagreeWording: string;
-  colorScheme: { darkColor: string; lightColor: string; bannerTextColor: string }
+  colorScheme: { darkColor: string; lightColor: string; bannerTextColor: string };
   duration: { days: number; hours: number; minutes: number };
+  /** Set by server when post is published. Used to compute remaining time. */
+  endDate?: string;
+  /** Set by CKEditor when user edits duration on a published poll. Signals server to update endDate. */
+  durationEdited?: boolean;
 };
 
 const PollPropsSchema = z.object({
@@ -26,6 +30,8 @@ const PollPropsSchema = z.object({
     hours: z.number().min(0),
     minutes: z.number().min(0),
   }),
+  endDate: z.string().optional(),
+  durationEdited: z.boolean().optional(),
 });
 
 const ONE_MINUTE_MS = 60 * 1000;
@@ -43,6 +49,7 @@ async function upsertPoll({
   disagreeWording,
   colorScheme,
   duration,
+  endDate: propsEndDate,
 }: {
   _id: string;
   existingPoll?: DbForumEvent;
@@ -54,8 +61,24 @@ async function upsertPoll({
   );
 
   const parentIsDraft = comment ? comment.draft : post.draft;
-  // Poll timer starts when the post/comment is published. Don't update the end date after that.
-  const endDate = existingPoll?.endDate ? existingPoll.endDate : (parentIsDraft ? null : endDateFromDuration);
+
+  // Determine endDate:
+  // 1. If draft, no endDate
+  // 2. If propsEndDate exists in HTML (injected by preprocessing), use it
+  // 3. Otherwise fall back to existing poll's endDate or compute from duration
+  let endDate: Date | null;
+  if (parentIsDraft) {
+    endDate = null;
+  } else if (propsEndDate) {
+    // Use the endDate from HTML props (injected by preprocessing step)
+    endDate = new Date(propsEndDate);
+  } else if (existingPoll?.endDate) {
+    // Preserve existing endDate (old poll without endDate in HTML)
+    endDate = existingPoll.endDate;
+  } else {
+    // First publish without preprocessing (shouldn't happen with new code)
+    endDate = endDateFromDuration;
+  }
 
   const dataPayload = {
     eventFormat: "POLL" as const,

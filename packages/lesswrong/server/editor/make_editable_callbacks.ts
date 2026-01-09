@@ -12,6 +12,116 @@ import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
 import { createRevision } from '../collections/revisions/mutations'
 import { buildRevision } from './conversionUtils'
 import { updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from '../callbacks/revisionCallbacks'
+import { cheerioParse } from '../utils/htmlUtil'
+
+const ONE_MINUTE_MS = 60 * 1000;
+const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
+const ONE_DAY_MS = 24 * ONE_HOUR_MS;
+
+/**
+ * Preprocess poll endDates in CKEditor markup before building the revision.
+ * This injects `endDate` into poll props so that:
+ * - On first publish: endDate = now + duration
+ * - On edit with durationEdited flag: endDate = now + new duration
+ * - Otherwise: preserve existing endDate from the HTML or ForumEvent
+ */
+async function preprocessPollEndDates(
+  originalContentsData: string,
+  isDraft: boolean,
+  context: ResolverContext
+): Promise<string> {
+  // Only process CKEditor markup that might contain polls
+  if (!originalContentsData.includes('ck-poll')) {
+    return originalContentsData;
+  }
+
+  const $ = cheerioParse(originalContentsData);
+  const pollElements = $('.ck-poll[data-internal-id]');
+
+  if (pollElements.length === 0) {
+    return originalContentsData;
+  }
+
+  // Collect all poll IDs to batch-fetch ForumEvents
+  const pollIds: string[] = [];
+  pollElements.each((_, el) => {
+    const id = $(el).attr('data-internal-id');
+    if (id) pollIds.push(id);
+  });
+
+  // Fetch existing ForumEvents for these polls
+  const existingEvents = await context.loaders.ForumEvents.loadMany(pollIds);
+  const eventsByPollId = new Map<string, DbForumEvent>();
+  existingEvents.forEach((event, index) => {
+    if (event && !(event instanceof Error)) {
+      eventsByPollId.set(pollIds[index], event);
+    }
+  });
+
+  let modified = false;
+
+  pollElements.each((_, el) => {
+    const $el = $(el);
+    const pollId = $el.attr('data-internal-id');
+    const propsStr = $el.attr('data-props');
+    if (!pollId || !propsStr) return;
+
+    try {
+      const props = JSON.parse(propsStr);
+      const existingEvent = eventsByPollId.get(pollId);
+      const existingEndDate = existingEvent?.endDate;
+
+      // Drafts should not have endDate
+      if (isDraft) {
+        if (props.endDate) {
+          delete props.endDate;
+          delete props.durationEdited;
+          $el.attr('data-props', JSON.stringify(props));
+          modified = true;
+        }
+        return;
+      }
+
+      // Compute endDate based on current state
+      let newEndDate: string | undefined;
+
+      if (props.durationEdited) {
+        // User edited duration - compute new endDate from now + duration
+        const duration = props.duration || { days: 7, hours: 0, minutes: 0 };
+        const endDateMs = Date.now() +
+          ((duration.days || 0) * ONE_DAY_MS) +
+          ((duration.hours || 0) * ONE_HOUR_MS) +
+          ((duration.minutes || 0) * ONE_MINUTE_MS);
+        newEndDate = new Date(endDateMs).toISOString();
+      } else if (props.endDate) {
+        // Already has endDate in props - keep it
+        newEndDate = props.endDate;
+      } else if (existingEndDate) {
+        // Old poll without endDate in HTML but has ForumEvent endDate
+        newEndDate = existingEndDate.toISOString();
+      } else {
+        // First publish - compute from duration
+        const duration = props.duration || { days: 7, hours: 0, minutes: 0 };
+        const endDateMs = Date.now() +
+          ((duration.days || 0) * ONE_DAY_MS) +
+          ((duration.hours || 0) * ONE_HOUR_MS) +
+          ((duration.minutes || 0) * ONE_MINUTE_MS);
+        newEndDate = new Date(endDateMs).toISOString();
+      }
+
+      // Update props with endDate and clear durationEdited flag
+      props.endDate = newEndDate;
+      delete props.durationEdited;
+      $el.attr('data-props', JSON.stringify(props));
+      modified = true;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(`Failed to preprocess poll ${pollId}:`, e);
+    }
+  });
+
+  return modified ? $.html() : originalContentsData;
+}
 
 interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString> {
   doc: CreateInputsByCollectionName[N]['data'];
@@ -112,7 +222,16 @@ async function createInitialRevision<N extends CollectionNameString>(
   const editableField = (doc as AnyBecauseHard)[fieldName] as EditableFieldInsertion | undefined;
   if (editableField?.originalContents) {
     if (!currentUser) { throw Error("Can't create document without current user") }
-    const originalContents: DbRevision["originalContents"] = editableField.originalContents
+    let originalContents: DbRevision["originalContents"] = editableField.originalContents;
+
+    // Preprocess poll endDates for posts/comments content field
+    if (fieldName === 'contents' && (collectionName === 'Posts' || collectionName === 'Comments') &&
+        originalContents.type === 'ckEditorMarkup') {
+      const isDraft = !!(doc as AnyBecauseHard).draft;
+      const preprocessedData = await preprocessPollEndDates(originalContents.data, isDraft, context);
+      originalContents = { ...originalContents, data: preprocessedData };
+    }
+
     const commitMessage = editableField.commitMessage ?? null;
     const googleDocMetadata = editableField.googleDocMetadata;
     const revision = await buildRevision({
@@ -194,8 +313,17 @@ async function createUpdateRevision<N extends CollectionNameString>(
       })
       : null;
 
+    // Get original contents and preprocess for poll endDates
+    let originalContents: DbRevision["originalContents"] = (newDocument as AnyBecauseHard)[fieldName].originalContents;
+    if (originalContents && fieldName === 'contents' && (collectionName === 'Posts' || collectionName === 'Comments') &&
+        originalContents.type === 'ckEditorMarkup') {
+      const isDraft = !!(newDocument as AnyBecauseHard).draft;
+      const preprocessedData = await preprocessPollEndDates(originalContents.data, isDraft, context);
+      originalContents = { type: originalContents.type, data: preprocessedData };
+    }
+
     const revision = await buildRevision({
-      originalContents: (newDocument as AnyBecauseHard)[fieldName].originalContents,
+      originalContents,
       dataWithDiscardedSuggestions,
       currentUser,
       context,

@@ -33,6 +33,35 @@ const DEFAULT_STACK_IMAGES = 20;
 const NUM_TICKS = 21;
 const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
 
+/**
+ * Format the remaining time until a poll closes for display.
+ * Shows exact time down to seconds for debugging purposes.
+ */
+function formatVotingDeadline(endDate: Date | string | null | undefined): string | null {
+  if (!endDate) return null;
+
+  const end = new Date(endDate);
+  const now = new Date();
+  const remainingMs = end.getTime() - now.getTime();
+
+  if (remainingMs <= 0) {
+    return null; // Voting closed - handled elsewhere
+  }
+
+  const days = Math.floor(remainingMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((remainingMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
+
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  parts.push(`${seconds}s`);
+
+  return `Voting closes in ${parts.join(' ')}`;
+}
+
 const styles = (theme: ThemeType) => ({
   root: {
     textAlign: 'center',
@@ -248,6 +277,9 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "normal",
     maxWidth: SLIDER_MAX_WIDTH,
     margin: "auto"
+  },
+  votingDeadline: {
+    opacity: 0.8,
   },
   sliderLabels: {
     display: 'flex',
@@ -808,6 +840,9 @@ export const ForumEventPoll = ({
               <div className={classes.votePrompt}>
                 {!resultsVisible ? <>
                   {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"}${votingOpen ? " so far" : ""}. `}
+                  {votingOpen && event?.endDate && (
+                    <span className={classes.votingDeadline}>{formatVotingDeadline(event.endDate)}. </span>
+                  )}
                   {votingOpen ? (
                     hasVoted ? "Click and drag your avatar to change your vote, or " : "Place your vote or "
                   ) : (
