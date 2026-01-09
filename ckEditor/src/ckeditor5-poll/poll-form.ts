@@ -41,11 +41,11 @@ function computeRemainingDuration(endDateStr: string): { days: number; hours: nu
 }
 
 export const POLL_COLOR_SCHEMES: PollProps['colorScheme'][] = [
-  { darkColor: '#d0d0d0', lightColor: '#f5f5f5', bannerTextColor: '#000000'},
-  { darkColor: '#fbdccf', lightColor: '#fef2ee', bannerTextColor: '#d94300'},
-  { darkColor: '#cce5e8', lightColor: '#edf6f7', bannerTextColor: '#007584'},
-  { darkColor: '#cddde6', lightColor: '#eef5f6', bannerTextColor: '#004a83'},
-  { darkColor: '#cfe6d3', lightColor: '#eef6f0', bannerTextColor: '#007311'},
+  { darkColor: '#007584', lightColor: '#edf6f7', bannerTextColor: '#007584'},
+  { darkColor: '#000000', lightColor: '#f5f5f5', bannerTextColor: '#000000'},
+  { darkColor: '#d94300', lightColor: '#fef2ee', bannerTextColor: '#d94300'},
+  { darkColor: '#004a83', lightColor: '#eef5f6', bannerTextColor: '#004a83'},
+  { darkColor: '#007311', lightColor: '#eef6f0', bannerTextColor: '#007311'},
 ]
 
 class MainFormView extends View {

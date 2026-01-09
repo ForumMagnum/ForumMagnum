@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     width: "100%",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 24,
+    padding: "24px 0px",
     borderRadius: theme.borderRadius.default,
     marginBottom: 40,
     scrollMarginTop: '100px',
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 24,
     borderRadius: theme.borderRadius.default,
     background: "var(--forum-event-background)",
-    border: "1px solid var(--forum-event-banner-text)",
+    border: "1px solid color-mix(in srgb, var(--forum-event-banner-text) 30%, var(--forum-event-background))",
     '& .ForumEventPoll-question': {
       fontSize: 24,
     },
@@ -53,6 +53,26 @@ const styles = (theme: ThemeType) => ({
 
 // TODO make this a field on forum events
 const announcementPostUrl = '/posts/9ad4C4YknLM5fGG4v/announcing-animal-welfare-vs-global-health-debate-week-oct-7'
+
+// Map old poll colors to new equivalents
+const OLD_TO_NEW_COLOR_MAP: Record<string, { darkColor: string; lightColor: string; bannerTextColor: string }> = {
+  // Old deep blue -> new blue
+  '#06005C': { darkColor: '#004a83', lightColor: '#eef5f6', bannerTextColor: '#004a83' },
+  // Old dark green -> new green
+  '#1D2A17': { darkColor: '#007311', lightColor: '#eef6f0', bannerTextColor: '#007311' },
+  // Old brown/orange -> new orange
+  '#7B3402': { darkColor: '#d94300', lightColor: '#fef2ee', bannerTextColor: '#d94300' },
+  // Old beige/cream -> new gray
+  '#F3F3E1': { darkColor: '#000000', lightColor: '#f5f5f5', bannerTextColor: '#000000' },
+};
+
+function mapLegacyColors(darkColor: string, lightColor: string, bannerTextColor: string) {
+  const mapped = OLD_TO_NEW_COLOR_MAP[darkColor.toUpperCase()];
+  if (mapped) {
+    return mapped;
+  }
+  return { darkColor, lightColor, bannerTextColor };
+}
 
 /**
  * This is used on the post page to display the current forum event's poll,
@@ -90,7 +110,9 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
     return null;
   }
 
-  const {bannerImageId, darkColor, lightColor, bannerTextColor} = event;
+  const {bannerImageId, darkColor: rawDarkColor, lightColor: rawLightColor, bannerTextColor: rawBannerTextColor} = event;
+  // TODO remove before merging and replace with a migration
+  const {darkColor, lightColor, bannerTextColor} = mapLegacyColors(rawDarkColor, rawLightColor, rawBannerTextColor);
 
   const pollAreaStyle = {
     "--forum-event-background": lightColor,
