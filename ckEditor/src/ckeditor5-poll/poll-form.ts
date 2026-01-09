@@ -460,7 +460,6 @@ class MainFormView extends View {
 
                 const newDuration = { days, hours, minutes };
 
-                // Set durationEdited flag if we're editing a published poll
                 const newProps: PollProps = {
                     ...props,
                     duration: newDuration,

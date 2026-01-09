@@ -70,13 +70,12 @@ async function upsertPoll({
   if (parentIsDraft) {
     endDate = null;
   } else if (propsEndDate) {
-    // Use the endDate from HTML props (injected by preprocessing step)
     endDate = new Date(propsEndDate);
   } else if (existingPoll?.endDate) {
     // Preserve existing endDate (old poll without endDate in HTML)
     endDate = existingPoll.endDate;
   } else {
-    // First publish without preprocessing (shouldn't happen with new code)
+    // First publish without preprocessing (shouldn't happen except for old/malformed data)
     endDate = endDateFromDuration;
   }
 
