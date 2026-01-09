@@ -267,6 +267,7 @@ async function createInitialRevision<N extends CollectionNameString>(
       ...(!normalized && {
         [fieldName]: {
           ...editableField,
+          originalContents,
           html, version, userId, editedAt, wordCount,
           updateType: 'initial'
         },
@@ -366,6 +367,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
       ...(!normalized && {
         [fieldName]: {
           ...editableField,
+          originalContents,
           html, version, userId, editedAt, wordCount
         },
       }),
