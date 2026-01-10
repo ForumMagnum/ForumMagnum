@@ -159,21 +159,19 @@ export const createManifoldMarket = async (question: string, descriptionMarkdown
 
 
 async function refreshMarketInfoInCache(marketId: string, year: number, context: ResolverContext): Promise<void> {
-  await getLockOrAbort(`manifoldMarketInfo_${marketId}`, async () => {
-    // Update the market-info cache for a Manifold prediction market. In order to
-    // avoid thundering-herd issues, we update the cache item timestamp first (and
-    // check that it changed by a minimum amount) before we send the API request
-    // to Manifold.
-    const previousTimestamp = await context.repos.manifoldProbabilitiesCachesRepo.updateMarketInfoCacheTimestamp(marketId);
-    if (previousTimestamp && (new Date().getTime() - previousTimestamp.getTime() < 5_000)) {
-      return;
-    }
-  
-    const marketInfo = await postGetMarketInfoFromManifold(marketId, year);
-    if (marketInfo) {
-      await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(marketId, marketInfo);
-    }
-  });
+  // Update the market-info cache for a Manifold prediction market. In order to
+  // avoid thundering-herd issues, we update the cache item timestamp first (and
+  // check that it changed by a minimum amount) before we send the API request
+  // to Manifold.
+  const previousTimestamp = await context.repos.manifoldProbabilitiesCachesRepo.updateMarketInfoCacheTimestamp(marketId);
+  if (previousTimestamp && (new Date().getTime() - previousTimestamp.getTime() < 5_000)) {
+    return;
+  }
+
+  const marketInfo = await postGetMarketInfoFromManifold(marketId, year);
+  if (marketInfo) {
+    await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(marketId, marketInfo);
+  }
 }
 
 export const getPostMarketInfo = async (post: DbPost, context: ResolverContext): Promise<AnnualReviewMarketInfo | undefined>  => {
