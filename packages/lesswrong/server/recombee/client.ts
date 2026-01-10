@@ -420,24 +420,20 @@ const helpers = {
     const attributionId = recResponse.recommId;
     const ttlMs = recombeeCacheTtlMsSetting.get();
 
-    const recsToInsert: MongoBulkWriteOperations<DbRecommendationsCache> = recResponse.recomms.map((rec) => ({
-      insertOne: {
-        document: {
-          _id: randomId(),
-          userId,
-          postId: rec.id,
-          source: 'recombee',
-          scenario,
-          attributionId,
-          ttlMs,
-          createdAt,
-          schemaVersion: 1,
-          legacyData: null,
-        }
-      }
-    }));
-
-    backgroundTask(context.RecommendationsCaches.rawCollection().bulkWrite(recsToInsert));
+    context.RecommendationsCaches.rawInsertMany(
+      recResponse.recomms.map((rec) => ({
+        _id: randomId(),
+        userId,
+        postId: rec.id,
+        source: 'recombee',
+        scenario,
+        attributionId,
+        ttlMs,
+        createdAt,
+        schemaVersion: 1,
+        legacyData: null,
+      }))
+    );
   },
 
   async getCachedRecommendations({ recRequest, scenario, batch, skipCache, context }: GetCachedRecommendationsArgs): Promise<RecResponse[]> {
