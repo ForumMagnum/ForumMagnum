@@ -1141,7 +1141,7 @@ export async function updateCommentHideKarma(newPost: DbPost, oldPost: DbPost, c
   if (!comments.length) return
   const commentIds = comments.map(c=>c._id);
   await Comments.rawUpdateMany(
-    {$id: {$in: commentIds}},
+    {_id: {$in: commentIds}},
     {$set: {hideKarma: newPost.hideCommentKarma}}
   );
 }

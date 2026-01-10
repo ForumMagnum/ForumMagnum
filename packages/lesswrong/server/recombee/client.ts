@@ -420,7 +420,7 @@ const helpers = {
     const attributionId = recResponse.recommId;
     const ttlMs = recombeeCacheTtlMsSetting.get();
 
-    context.RecommendationsCaches.rawInsertMany(
+    backgroundTask(context.RecommendationsCaches.rawInsertMany(
       recResponse.recomms.map((rec) => ({
         _id: randomId(),
         userId,
@@ -433,7 +433,7 @@ const helpers = {
         schemaVersion: 1,
         legacyData: null,
       }))
-    );
+    ));
   },
 
   async getCachedRecommendations({ recRequest, scenario, batch, skipCache, context }: GetCachedRecommendationsArgs): Promise<RecResponse[]> {
