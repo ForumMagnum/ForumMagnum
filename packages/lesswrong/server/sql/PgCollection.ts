@@ -179,6 +179,7 @@ class PgCollectionClass<
     data: InsertionRecord<ObjectsByCollectionName[N]>[],
     options?: MongoInsertOptions<ObjectsByCollectionName[N]>,
   ): Promise<void> {
+    if (!data.length) return;
     const insert = new InsertQuery(this.getTable(), data, options);
     await this.executeWriteQuery(insert, {data, options});
   }
