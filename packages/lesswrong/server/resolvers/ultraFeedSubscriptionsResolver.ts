@@ -5,7 +5,6 @@ import { randomId } from '@/lib/random';
 import { buildDistinctLinearThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { FilterSettings } from '@/lib/filterSettings';
 import { FeedPostMetaInfo, FeedCommentMetaInfo, UltraFeedResolverType, FeedItemSourceType } from '@/components/ultraFeed/ultraFeedTypes';
-import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import { backgroundTask } from '../utils/backgroundTask';
 import { 
   loadMultipleEntitiesById, 
@@ -22,6 +21,7 @@ import type {
 } from '../ultraFeed/ultraFeedRankingTypes';
 import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
 import { insertTimeMarkers, SubscribedFeedEntryType } from '../ultraFeed/feedTimeMarkers';
+import UltraFeedEvents from '../collections/ultraFeedEvents/collection';
 
 interface SubscribedFeedDateCutoffs {
   initialCommentCandidateLookbackDays: number;
@@ -443,7 +443,7 @@ export const ultraFeedSubscriptionsQueries = {
       }
     });
     if (eventsToCreate.length > 0) {
-      backgroundTask(bulkRawInsert('UltraFeedEvents', eventsToCreate as DbUltraFeedEvent[]));
+      backgroundTask(UltraFeedEvents.rawInsertMany(eventsToCreate as DbUltraFeedEvent[]));
     }
 
     const baseResults: UltraFeedResolverType[] = pageItems.map(item => {
