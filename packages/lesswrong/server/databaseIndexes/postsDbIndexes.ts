@@ -168,6 +168,7 @@ export function getDbIndexesOnPosts() {
     commentCount: 1,
   }
   indexSet.addIndex("Posts", postCommentedViewFields);
+  indexSet.addIndex("Posts", { lastCommentedAt: -1 });
   indexSet.addIndex("Posts",
     augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
     { name: "posts.recentDiscussionThreadsList", }
