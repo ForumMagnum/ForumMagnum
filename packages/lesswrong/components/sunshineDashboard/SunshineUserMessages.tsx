@@ -82,8 +82,6 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginBottom: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit,
     borderBottom: theme.palette.border.extraFaint,
-    // border: theme.palette.border.normal,
-    // borderRadius: theme.spacing.unit/2,
   },
   expandablePreview: {
     maxHeight: 100,
@@ -246,9 +244,9 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
     }
   };
 
-  const allTemplatesGrouped: Record<string, string[]> = templates ? (() => {
-    const grouped: Record<string, string[]> = {};
-    const templatesWithoutGroup: string[] = [];
+  const allTemplatesGrouped: Record<string, NonNullable<typeof templates>[0][]> = templates ? (() => {
+    const grouped: Record<string, NonNullable<typeof templates>[0][]> = {};
+    const templatesWithoutGroup: NonNullable<typeof templates>[0][] = [];
     
     templates.forEach(template => {
       const groupLabel = template.groupLabel;
@@ -256,9 +254,9 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
         if (!grouped[groupLabel]) {
           grouped[groupLabel] = [];
         }
-        grouped[groupLabel].push(template.name);
+        grouped[groupLabel].push(template);
       } else {
-        templatesWithoutGroup.push(template.name);
+        templatesWithoutGroup.push(template);
       }
     });
     
@@ -316,16 +314,12 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
     )}
     {templates && templates.length > 0 && (
       <div className={classes.templateList}>
-        {Object.entries(allTemplatesGrouped).map(([group, templateNames]) => (
+        {Object.entries(allTemplatesGrouped).map(([group, templatesInGroup]) => (
           <div key={group} className={classes.templateGroup}>
             <h3>{group}</h3>
-            {templateNames.map(templateName => {
-              const template = templates.find(template => template.name === templateName);
-              if (!template) return null;
-              return (
+            {templatesInGroup.map(template => (
               <ModerationTemplateSunshineItem key={template._id} template={template} onTemplateClick={handleTemplateClick} />
-              )
-            })}
+            ))}
           </div>
         ))}
       </div>

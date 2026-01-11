@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -51,8 +51,18 @@ const ModeratorNotes = ({
 }) => {
   const classes = useStyles(styles);
   const [notes, setNotes] = useState(user.sunshineNotes);
+  const notesRef = useRef(notes);
+  const userRef = useRef(user);
 
   const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
+
+  useEffect(() => {
+    notesRef.current = notes;
+  }, [notes]);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     if (user.sunshineNotes) {
@@ -61,17 +71,17 @@ const ModeratorNotes = ({
   }, [user._id, user.sunshineNotes]);
 
   const handleNotes = useCallback(() => {
-    if (notes !== user.sunshineNotes) {
+    if (notesRef.current !== userRef.current.sunshineNotes) {
       void updateUser({
         variables: {
-          selector: { _id: user._id },
+          selector: { _id: userRef.current._id },
           data: {
-            sunshineNotes: notes,
+            sunshineNotes: notesRef.current,
           },
         },
       });
     }
-  }, [user._id, user.sunshineNotes, notes, updateUser]);
+  }, [updateUser]);
 
   const modNoteSignature = useMemo(() => getSignature(currentUser.displayName), [currentUser.displayName]);
 

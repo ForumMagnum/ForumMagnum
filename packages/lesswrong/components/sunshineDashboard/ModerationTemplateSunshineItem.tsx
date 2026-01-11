@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWTooltip from '../common/LWTooltip';
-import MetaInfo from '../common/MetaInfo';
 import { ModerationTemplatesForm } from '../moderationTemplates/ModerationTemplateForm';
 import BasicFormStyles from '../form-components/BasicFormStyles';
 import { ContentItemBody } from '../contents/ContentItemBody';
@@ -9,8 +8,6 @@ import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
 import DeferRender from '../common/DeferRender';
 import Row from '../common/Row';
-import PopperCard from '../common/PopperCard';
-import { Card } from '@/components/widgets/Paper';
 import ContentStyles from '../common/ContentStyles';
 import ForumIcon from '../common/ForumIcon';
 
@@ -130,4 +127,3 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick}: {
     </LWTooltip>
   );
 };
-
