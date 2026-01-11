@@ -6,6 +6,7 @@ import keyBy from "lodash/keyBy";
 import { captureException } from "@/lib/sentryWrapper";
 import ManifoldProbabilitiesCaches from "@/server/collections/manifoldProbabilitiesCaches/collection";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import { getLockOrAbort } from "@/server/utils/advisoryLockUtil";
 
 // Information about a market, but without bets or comments
 export type LiteMarket = {
@@ -157,7 +158,7 @@ export const createManifoldMarket = async (question: string, descriptionMarkdown
 
 
 
-async function refreshMarketInfoInCache(marketId: string, year: number, context: ResolverContext) {
+async function refreshMarketInfoInCache(marketId: string, year: number, context: ResolverContext): Promise<void> {
   // Update the market-info cache for a Manifold prediction market. In order to
   // avoid thundering-herd issues, we update the cache item timestamp first (and
   // check that it changed by a minimum amount) before we send the API request
@@ -168,9 +169,9 @@ async function refreshMarketInfoInCache(marketId: string, year: number, context:
   }
 
   const marketInfo = await postGetMarketInfoFromManifold(marketId, year);
-  if (!marketInfo) return null;
-
-  await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(marketId, marketInfo);
+  if (marketInfo) {
+    await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(marketId, marketInfo);
+  }
 }
 
 export const getPostMarketInfo = async (post: DbPost, context: ResolverContext): Promise<AnnualReviewMarketInfo | undefined>  => {
