@@ -65,6 +65,12 @@ import PlaygroundEditorTheme from '../lexical/themes/PlaygroundEditorTheme';
 import { ToolbarContext } from '../lexical/context/ToolbarContext';
 import Settings from '../lexical/Settings';
 import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
+import {
+  SuggestEditsExtension,
+  setSuggestEditsConfig,
+  setEnabled as setSuggestEditsEnabled,
+  type SuggestEditsConfig,
+} from '../lexical/plugins/SuggestEditsPlugin/SuggestEditsExtension';
 
 // URL regex for auto-linking
 const URL_REGEX = /((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
@@ -770,6 +776,42 @@ const LexicalPostEditor = ({
     onReady?.();
   }, [onReady]);
 
+  // Build suggest edits config based on access level
+  // - 'edit' permission: can edit directly and suggest
+  // - 'comment' permission: can only suggest (not edit directly)
+  // - undefined/other: default to editing mode with full access
+  const localUserId = currentUser?._id ?? clientId ?? 'anonymous';
+  const localUserName = currentUser?.displayName ?? 'Anonymous';
+  const suggestEditsConfig: Partial<SuggestEditsConfig> | undefined = useMemo(() => {
+    if (!shouldEnableCollaboration) {
+      return undefined; // No suggesting mode for non-collaborative editors
+    }
+
+    const canEdit = accessLevel === 'edit' || accessLevel === undefined;
+    const canSuggest = accessLevel === 'comment' || accessLevel === 'edit';
+
+    console.log({ accessLevel })
+
+    return {
+      initialMode: canEdit ? 'editing' : 'suggesting',
+      canEdit,
+      canSuggest,
+      authorId: localUserId,
+      authorName: localUserName,
+    };
+  }, [shouldEnableCollaboration, accessLevel, localUserId, localUserName]);
+
+  // Configure suggest edits when enabled
+  useEffect(() => {
+    if (suggestEditsConfig) {
+      console.log('suggestEditsConfig', suggestEditsConfig);
+      setSuggestEditsConfig(suggestEditsConfig);
+      setSuggestEditsEnabled(true);
+    }
+    return () => {
+      setSuggestEditsEnabled(false);
+    };
+  }, [suggestEditsConfig]);
 
   const app = useMemo(
     () =>
@@ -780,8 +822,10 @@ const LexicalPostEditor = ({
         namespace: 'Playground',
         nodes: PlaygroundNodes,
         theme: PlaygroundEditorTheme,
+        // Include SuggestEditsExtension when suggesting mode is enabled
+        dependencies: suggestEditsConfig ? [SuggestEditsExtension] : [],
       }),
-    [],
+    [suggestEditsConfig],
   );
 
   // Show loading state while fetching collaboration auth
@@ -800,13 +844,6 @@ const LexicalPostEditor = ({
     // eslint-disable-next-line no-console
     console.error('[LexicalPostEditor] Failed to get collaboration auth:', authError);
   }
-
-  // Whether collaboration is actually active (auth succeeded)
-  const isCollaborative = !!collaborationConfig;
-  
-  const localUserId = currentUser?._id ?? clientId ?? 'anonymous';
-  const localUserName = currentUser?.displayName ?? 'Anonymous';
-
 
   return (
     <LexicalCollaboration>

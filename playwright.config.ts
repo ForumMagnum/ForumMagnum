@@ -30,9 +30,12 @@ const getWebServers = () => {
       // NOTE: we assume fly/hocuspocusServer already has dependencies installed locally.
       // (It is a separate project with its own node_modules.)
       command: `cd fly/hocuspocusServer && yarn build && E2E=true PORT=${HOCUSPOCUS_PORT} DATABASE_URL=${PLAYWRIGHT_DB_URL} HOCUSPOCUS_JWT_SECRET=${HOCUSPOCUS_JWT_SECRET} node dist/index.js`,
-      port: HOCUSPOCUS_PORT,
+      // Important: use an HTTP healthcheck rather than only checking that the port is open.
+      // Otherwise Playwright can incorrectly treat a crashed/incorrect process as "available",
+      // leading to ws://localhost:${HOCUSPOCUS_PORT} connection refused during the test.
+      url: `http://localhost:${HOCUSPOCUS_PORT}/health`,
       reuseExistingServer: true,
-      stdout: "ignore",
+      stdout: "pipe",
       stderr: "pipe",
     });
   }
@@ -41,12 +44,9 @@ const getWebServers = () => {
     command: ENABLE_HOCUSPOCUS
       ? `PORT=3456 E2E=true PG_URL=${PLAYWRIGHT_DB_URL} HOCUSPOCUS_URL=${HOCUSPOCUS_URL} HOCUSPOCUS_JWT_SECRET=${HOCUSPOCUS_JWT_SECRET} yarn next dev --turbopack`
       : `PORT=3456 E2E=true PG_URL=${PLAYWRIGHT_DB_URL} yarn next dev --turbopack`,
-    // Use a port check rather than a URL check. Next dev can take time to become HTTP-ready
-    // (and may respond slowly during compilation), but the port being bound is enough to
-    // avoid attempting to start a second instance and failing with EADDRINUSE.
-    port: 3456,
+    url: "http://localhost:3456",
     reuseExistingServer: true,
-    stdout: "ignore",
+    stdout: ENABLE_HOCUSPOCUS ? "pipe" : "ignore",
     stderr: "pipe",
   });
 

@@ -69,11 +69,16 @@ const server = new Server({
     if (request.url === '/health') {
       response.writeHead(200, { 'Content-Type': 'text/plain' });
       response.end('OK');
-      return;
+      // Prevent Hocuspocus' default request handler from also writing a response.
+      // Hocuspocus treats a falsy thrown value as "handled".
+      // See: Server.requestHandler in @hocuspocus/server.
+      throw null;
     }
     
     response.writeHead(200, { 'Content-Type': 'text/plain' });
     response.end('Hocuspocus Server');
+    // Prevent Hocuspocus' default request handler from also writing a response.
+    throw null;
   },
 });
 

@@ -589,6 +589,27 @@
   background: rgba(255, 212, 0, 0.7);
   border-bottom: 2px solid rgba(255, 212, 0, 0.7);
 }
+
+/* Suggested Edits Styles */
+.suggestion-insertion {
+  background-color: rgba(72, 187, 120, 0.2);
+  border-bottom: 2px solid rgba(72, 187, 120, 0.6);
+  text-decoration-color: rgba(72, 187, 120, 0.6);
+}
+.suggestion-insertion.selected {
+  background-color: rgba(72, 187, 120, 0.4);
+}
+.suggestion-deletion {
+  background-color: rgba(245, 101, 101, 0.2);
+  text-decoration: line-through;
+  text-decoration-color: rgba(245, 101, 101, 0.8);
+  color: rgba(0, 0, 0, 0.6);
+  cursor: default;
+}
+.suggestion-deletion.selected {
+  background-color: rgba(245, 101, 101, 0.4);
+}
+
 .PlaygroundEditorTheme__embedBlock {
   user-select: none;
 }
