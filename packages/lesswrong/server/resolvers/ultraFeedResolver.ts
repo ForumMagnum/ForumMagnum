@@ -568,7 +568,7 @@ const calculateFetchLimits = (
 } => {
   const totalWeight = Object.values(sourceWeights).reduce((sum: number, weight) => sum + weight, 0);
   
-  const recombeePostWeight = sourceWeights['recombee-lesswrong-custom'] ?? 0;
+  const recombeePostWeight = sourceWeights['recombee-lesswrong-ultrafeed'] ?? 0;
   const hackerNewsPostWeight = sourceWeights['hacker-news'] ?? 0;
   const subscribedPostWeight = sourceWeights['subscriptionsPosts'] ?? 0;
   const bookmarkWeight = sourceWeights['bookmarks'] ?? 0;
