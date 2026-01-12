@@ -144,11 +144,11 @@ function InnerEditorFormComponent<S, R>({
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
   const appendToEditorContext = useContext(AppendToEditorContext);
+  const registerAppendToEditor = appendToEditorContext?.registerAppendToEditor;
   
 
   useEffect(() => {
-    if (!appendToEditorContext) return;
-    const { registerAppendToEditor } = appendToEditorContext;
+    if (!registerAppendToEditor) return;
     if (editorRef.current) {
       registerAppendToEditor((html: string) => {
         const ckEditorReference = editorRef.current?.state?.ckEditorReference;
@@ -162,7 +162,7 @@ function InnerEditorFormComponent<S, R>({
     return () => {
       registerAppendToEditor(() => {});
     };
-  }, [!!editorRef.current, appendToEditorContext]);
+  }, [registerAppendToEditor]);
   
   const { captureEvent } = useTracking()
 
