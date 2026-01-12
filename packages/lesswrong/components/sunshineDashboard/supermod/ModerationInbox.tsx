@@ -21,6 +21,7 @@ import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
 import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardContext';
+import ModerationPostSidebar from './ModerationPostSidebar';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -76,6 +77,10 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     flex: 1,
     overflow: 'hidden',
     borderRight: theme.palette.border.normal,
+  },
+  postDetailPanel: {
+    flex: 2,
+    overflow: 'hidden',
   },
   loading: {
     display: 'flex',
@@ -350,6 +355,15 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
             />
           )}
         </div>
+        {isPostsTab && !openedUser && (
+          <div className={classes.postDetailPanel}>
+            <ModerationPostSidebar
+              post={focusedPost}
+              currentUser={currentUser}
+              dispatch={dispatch}
+            />
+          </div>
+        )}
       </div>
     </div>
     </CoreTagsKeyboardProvider>
