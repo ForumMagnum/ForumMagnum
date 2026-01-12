@@ -802,6 +802,7 @@ interface DbModerationTemplate extends DbObject {
   contents_latest: string | null
   createdAt: Date
   deleted: boolean
+  groupLabel: string | null
   legacyData: any | null
   name: string
   order: number

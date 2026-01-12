@@ -7,7 +7,17 @@ import { isHomeRoute } from '@/lib/routeChecks';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { SolsticeSeasonBanner } from '../seasonal/solsticeSeason/SolsticeSeasonBanner';
+import { Inkhaven2026Banner } from '../seasonal/Inkhaven2026Banner';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
+
+// Inkhaven Cohort #2 banner active period
+const INKHAVEN_2026_START = new Date('2026-01-10T00:00:00-08:00');
+const INKHAVEN_2026_END = new Date('2026-02-01T00:00:00-08:00');
+
+function isInkhaven2026Active(): boolean {
+  const now = new Date();
+  return now >= INKHAVEN_2026_START && now < INKHAVEN_2026_END;
+}
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -89,7 +99,13 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
 
   // TODO: clean up related code in FundraisingThermometer when we disable/remove solstice season.
   // let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
-  const homePageImage = defaultImage;
+  
+  // Show Inkhaven Cohort #2 banner on homepage during active period
+  let homePageImage = defaultImage;
+  if (isInkhaven2026Active() && standaloneNavigation && isHomePage) {
+    homePageImage = <Inkhaven2026Banner />;
+  }
+  
   // if (reviewIsActive() && standaloneNavigation && isHomePage) {
   //   homePageImage = <AnnualReviewSidebarBanner />
   // }

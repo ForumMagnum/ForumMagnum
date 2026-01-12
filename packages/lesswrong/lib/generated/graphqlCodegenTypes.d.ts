@@ -1493,6 +1493,7 @@ type CreateMessageInput = {
 type CreateModerationTemplateDataInput = {
   collectionName: ModerationTemplateType;
   contents?: InputMaybe<CreateRevisionDataInput>;
+  groupLabel?: InputMaybe<Scalars['String']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   name: Scalars['String']['input'];
   order?: InputMaybe<Scalars['Float']['input']>;
@@ -3277,6 +3278,7 @@ type ModerationTemplate = {
   contents_latest?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   deleted: Scalars['Boolean']['output'];
+  groupLabel?: Maybe<Scalars['String']['output']>;
   legacyData?: Maybe<Scalars['JSON']['output']>;
   name: Scalars['String']['output'];
   order: Scalars['Float']['output'];
@@ -11774,6 +11776,7 @@ type UpdateModerationTemplateDataInput = {
   collectionName?: InputMaybe<ModerationTemplateType>;
   contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
+  groupLabel?: InputMaybe<Scalars['String']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   order?: InputMaybe<Scalars['Float']['input']>;
@@ -21626,6 +21629,25 @@ type multiConversationSunshineUserMessagesQueryQueryVariables = Exact<{
 
 type multiConversationSunshineUserMessagesQueryQuery = multiConversationSunshineUserMessagesQueryQuery_Query;
 
+type multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type multiModerationTemplateSunshineUserMessagesQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type multiModerationTemplateSunshineUserMessagesQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiModerationTemplateSunshineUserMessagesQueryQuery = multiModerationTemplateSunshineUserMessagesQueryQuery_Query;
+
 type multiUserRateLimitUserRateLimitItemQueryQuery_userRateLimits_MultiUserRateLimitOutput_results_UserRateLimit = (
   { __typename?: 'UserRateLimit' }
   & UserRateLimitDisplay
@@ -21905,24 +21927,6 @@ type multiPostAutoClassifiedInboxQueryQueryVariables = Exact<{
 
 type multiPostAutoClassifiedInboxQueryQuery = multiPostAutoClassifiedInboxQueryQuery_Query;
 
-type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & SunshineUsersList
-);
-
-type updateUserModerationSidebarMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModerationSidebarMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserModerationSidebarMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModerationSidebarMutation_updateUser_UserOutput | null };
-
-
-type updateUserModerationSidebarMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserModerationSidebarMutation = updateUserModerationSidebarMutation_Mutation;
-
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21998,6 +22002,24 @@ type performVoteTagRelModeratorCoreTagsChecklistMutationVariables = Exact<{
 
 
 type performVoteTagRelModeratorCoreTagsChecklistMutation = performVoteTagRelModeratorCoreTagsChecklistMutation_Mutation;
+
+type updateUserModeratorNotesMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserModeratorNotesMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModeratorNotesMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserModeratorNotesMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModeratorNotesMutation_updateUser_UserOutput | null };
+
+
+type updateUserModeratorNotesMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserModeratorNotesMutation = updateUserModeratorNotesMutation_Mutation;
 
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
@@ -25358,7 +25380,7 @@ type ModerationTemplateFragment_ModerationTemplate_contents_Revision = (
   & RevisionEdit
 );
 
-type ModerationTemplateFragment = { __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType, order: number, deleted: boolean, contents: ModerationTemplateFragment_ModerationTemplate_contents_Revision | null };
+type ModerationTemplateFragment = { __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType, order: number, groupLabel: string | null, deleted: boolean, contents: ModerationTemplateFragment_ModerationTemplate_contents_Revision | null };
 
 type ModeratorActionDisplay_ModeratorAction_user_User = (
   { __typename?: 'User' }

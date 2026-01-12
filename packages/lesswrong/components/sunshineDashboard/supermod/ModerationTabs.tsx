@@ -8,6 +8,8 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     display: 'flex',
+    overflowX: 'auto',
+    overflowY: 'hidden',
     borderBottom: theme.palette.border.normal,
     backgroundColor: theme.palette.background.paper,
     position: 'sticky',
@@ -17,6 +19,7 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
   tab: {
     padding: '12px 8px',
     cursor: 'pointer',
+    flexShrink: 0,
     fontSize: 14,
     fontWeight: 500,
     color: theme.palette.grey[700],
@@ -94,4 +97,3 @@ const ModerationTabs = ({
 };
 
 export default ModerationTabs;
-
