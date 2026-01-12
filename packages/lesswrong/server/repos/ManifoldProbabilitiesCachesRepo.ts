@@ -2,14 +2,15 @@ import { AnnualReviewMarketInfo } from "../../lib/collections/posts/annualReview
 import ManifoldProbabilitiesCaches from "../../server/collections/manifoldProbabilitiesCaches/collection";
 import { randomId } from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
+import { ITask } from 'pg-promise';
 
 class ManifoldProbabilitiesCachesRepo extends AbstractRepo<"ManifoldProbabilitiesCaches"> {
   constructor() {
     super(ManifoldProbabilitiesCaches);
   }
 
-  async updateMarketInfoCacheTimestamp (marketId: string): Promise<Date|null> {
-    const result = await this.getRawDb().oneOrNone(`
+  async updateMarketInfoCacheTimestamp (task: ITask<any>, marketId: string): Promise<Date|null> {
+    const result = await task.oneOrNone(`
       UPDATE "ManifoldProbabilitiesCaches"
       SET "lastUpdated" = NOW()
       WHERE "marketId"=$(marketId)
