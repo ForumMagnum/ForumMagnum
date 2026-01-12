@@ -45,8 +45,6 @@ import { FootnoteContentNode } from '@/components/editor/lexicalPlugins/footnote
 import { FootnoteItemNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode';
 import { FootnoteReferenceNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteReferenceNode';
 import { FootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
-import { SuggestionInsertionNode } from '../plugins/SuggestEditsPlugin/nodes/SuggestionInsertionNode';
-import { SuggestionDeletionNode } from '../plugins/SuggestEditsPlugin/nodes/SuggestionDeletionNode';
 
 const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   HeadingNode,
@@ -91,8 +89,6 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   FootnoteBackLinkNode,
   SpoilerNode,
   ClaimNode,
-  SuggestionInsertionNode,
-  SuggestionDeletionNode,
 ];
 
 export default PlaygroundNodes;

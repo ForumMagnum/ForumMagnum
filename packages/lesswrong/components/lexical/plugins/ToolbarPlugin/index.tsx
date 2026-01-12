@@ -154,7 +154,6 @@ import {
   formatParagraph,
   formatQuote,
 } from './utils';
-import { SuggestEditsModeToggle } from '../SuggestEditsPlugin/components/SuggestEditsModeToggle';
 
 import {
   toolbar,
@@ -1541,8 +1540,6 @@ export default function ToolbarPlugin({
         editor={activeEditor}
         isRTL={toolbarState.isRTL}
       />
-      <SuggestEditsModeToggle disabled={!isEditable} />
-
       {modal}
     </div>
   );
