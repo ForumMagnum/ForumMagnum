@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { checkScheduledPosts } from '@/server/posts/cron';
 import { runRSSImport } from '@/server/rss-integration/cron';
-import { getLockOrAbort } from '@/server/utils/advisoryLockUtil';
+import { getSessionLockOrAbort } from '@/server/utils/advisoryLockUtil';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     checkScheduledPosts(),
     
     // Add new RSS posts
-    await getLockOrAbort('runRSSImport', runRSSImport)
+    await getSessionLockOrAbort('runRSSImport', runRSSImport)
   ]);
 
   return new Response('OK', { status: 200 });

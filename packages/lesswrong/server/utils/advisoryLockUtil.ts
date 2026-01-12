@@ -2,7 +2,17 @@ import { captureException } from "@/lib/sentryWrapper";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { cyrb53Rand } from '@/server/perfMetrics';
 
-export function getLockOrAbort(lockName: string, callback: () => Promise<void>) {
+/**
+ * WARNING: this is not safe to use in most regular production code,
+ * because it causes connection pinning in RDS proxy (which in turn
+ * can cause function instances to become totally connection starved).
+ * This does require some additional things to happen, like having
+ * a pretty substantial number of advisory locks taken out concurrently
+ * from an individual function instance (i.e. as many as the number of
+ * connections available to each function instance), but that can happen
+ * with surprising ease if you have any accidental N+1s or something.
+ */
+export function getSessionLockOrAbort(lockName: string, callback: () => Promise<void>) {
   const db = getSqlClientOrThrow();
   const lockId = Math.floor(cyrb53Rand(lockName) * 1e15);
 
