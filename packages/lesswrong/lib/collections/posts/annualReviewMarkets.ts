@@ -171,7 +171,7 @@ async function refreshMarketInfoInCache(marketId: string, year: number, context:
   
     const marketInfo = await postGetMarketInfoFromManifold(marketId, year);
     if (marketInfo) {
-      await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(marketId, marketInfo);
+      await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(task, marketId, marketInfo);
     }
   });
 }
