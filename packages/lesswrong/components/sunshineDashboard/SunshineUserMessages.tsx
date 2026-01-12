@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -16,6 +16,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import LWTooltip from '../common/LWTooltip';
 import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
+import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -106,24 +107,22 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   },
 }));
 
-export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}: {
-  user: SunshineUsersList,
-  currentUser: UsersCurrent,
-  showExpandablePreview?: boolean,
-}) => {
+interface SunshineUserMessagesProps {
+  user: SunshineUsersList;
+  currentUser: UsersCurrent;
+  showExpandablePreview?: boolean;
+}
+
+const SunshineUserMessagesInner = ({user, currentUser, showExpandablePreview}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
   
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
-  const appendToEditorRef = useRef<((html: string) => void) | null>(null);
 
   const { captureEvent } = useTracking()
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: true });
-
-  const handleAppendToEditorReady = useCallback((appendFn: (html: string) => void) => {
-    appendToEditorRef.current = appendFn;
-  }, []);
+  const { appendToEditor } = useAppendToEditor();
 
   // When a conversation is created/found, sync it to state
   useEffect(() => {
@@ -174,19 +173,13 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
         templateId: template._id,
         displayName: user.displayName,
       });
-    } else if (appendToEditorRef.current && template.contents?.html) {
-      // If editor is ready, append directly
+    } else if (template.contents?.html) {
+      // Append to editor via context
       const processedHtml = getDraftMessageHtml({
         html: template.contents.html,
         displayName: user.displayName,
       });
-      appendToEditorRef.current(processedHtml);
-    } else {
-      // Fallback to template queries (will replace content)
-      setTemplateQueries({
-        templateId: template._id,
-        displayName: user.displayName,
-      });
+      appendToEditor(processedHtml);
     }
   };
 
@@ -249,7 +242,6 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
         <MessagesNewForm 
           conversationId={embeddedConversationId} 
           templateQueries={templateQueries}
-          onAppendToEditorReady={handleAppendToEditorReady}
           successEvent={(newMessage) => {
             captureEvent('messageSent', {
               conversationId: newMessage.conversationId,
@@ -279,5 +271,11 @@ export const SunshineUserMessages = ({user, currentUser, showExpandablePreview}:
     
   </div>;
 }
+
+export const SunshineUserMessages = (props: SunshineUserMessagesProps) => (
+  <AppendToEditorProvider>
+    <SunshineUserMessagesInner {...props} />
+  </AppendToEditorProvider>
+);
 
 export default SunshineUserMessages;

@@ -288,5 +288,3 @@ export default registerComponent('UsersReviewInfoCard', UsersReviewInfoCard, {
     withErrorBoundary,
   ],
 });
-
-

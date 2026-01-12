@@ -11,6 +11,7 @@ import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isCollaborative, PostCategory } from '../../lib/collections/posts/helpers';
 import { AutosaveEditorStateContext, DynamicTableOfContentsContext } from '../common/sharedContexts';
+import { AppendToEditorContext } from './AppendToEditorContext';
 import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
@@ -71,13 +72,11 @@ interface EditorFormComponentProps<S, R> {
   addOnSubmitCallback: (fn: EditorSubmitCallback) => () => void;
   addOnSuccessCallback: (fn: EditorSuccessCallback<R>) => () => void;
   getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
-  externalEditorRef?: React.MutableRefObject<Editor | null>;
 }
 
 export function useEditorFormCallbacks<R>() {
   const onSubmitCallback = useRef<EditorSubmitCallback | null>(null);
   const onSuccessCallback = useRef<EditorSuccessCallback<R> | null>(null);
-  const editorRef = useRef<Editor | null>(null);
 
   const addOnSubmitCallback = (cb: EditorSubmitCallback) => {
     onSubmitCallback.current = cb;
@@ -93,22 +92,11 @@ export function useEditorFormCallbacks<R>() {
     };
   };
 
-  const appendToEditor = useCallback((html: string) => {
-    const ckEditorReference = editorRef.current?.state?.ckEditorReference;
-    if (ckEditorReference) {
-      const currentData = ckEditorReference.getData() || '';
-      const separator = currentData.trim() ? '<p><br></p>' : '';
-      ckEditorReference.data.set(currentData + separator + html);
-    }
-  }, []);
-
   return {
     onSubmitCallback,
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback,
-    editorRef,
-    appendToEditor,
   };
 };
 
@@ -148,7 +136,6 @@ function InnerEditorFormComponent<S, R>({
   addOnSubmitCallback,
   addOnSuccessCallback,
   getLocalStorageId,
-  externalEditorRef,
 }: EditorFormComponentProps<S, R>) {
   const classes = useStyles(definedStyles);
   const { flash } = useMessages();
@@ -156,12 +143,27 @@ function InnerEditorFormComponent<S, R>({
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
+  const appendToEditorContext = useContext(AppendToEditorContext);
+  
+
   useEffect(() => {
-    if (externalEditorRef) {
-      externalEditorRef.current = editorRef.current;
+    if (!appendToEditorContext) return;
+    const { registerAppendToEditor } = appendToEditorContext;
+    if (editorRef.current) {
+      registerAppendToEditor((html: string) => {
+        const ckEditorReference = editorRef.current?.state?.ckEditorReference;
+        if (ckEditorReference) {
+          const currentData = ckEditorReference.getData() || '';
+          const separator = currentData.trim() ? '<p><br></p>' : '';
+          ckEditorReference.data.set(currentData + separator + html);
+        }
+      });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [externalEditorRef, !!editorRef.current]);
+    return () => {
+      registerAppendToEditor(() => {});
+    };
+  }, [!!editorRef.current, appendToEditorContext]);
+  
   const { captureEvent } = useTracking()
 
   const localStorageIdGenerator = getLocalStorageId ?? getDefaultLocalStorageIdGenerator(collectionName);

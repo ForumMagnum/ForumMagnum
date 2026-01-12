@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
@@ -124,7 +124,6 @@ const InnerMessagesNewForm = ({
   templateQueries,
   conversationId,
   onSuccess,
-  onAppendToEditorReady,
 }: {
   isMinimalist: boolean;
   submitLabel?: React.ReactNode;
@@ -141,7 +140,6 @@ const InnerMessagesNewForm = ({
   templateQueries?: TemplateQueryStrings;
   conversationId: string;
   onSuccess: (doc: messageListFragment) => void;
-  onAppendToEditorReady?: (appendFn: (html: string) => void) => void;
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -155,16 +153,7 @@ const InnerMessagesNewForm = ({
     onSuccessCallback,
     addOnSubmitCallback,
     addOnSuccessCallback,
-    editorRef,
-    appendToEditor,
   } = useEditorFormCallbacks<messageListFragment>();
-
-  useEffect(() => {
-    if (editorRef.current && onAppendToEditorReady) {
-      onAppendToEditorReady(appendToEditor);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [!!editorRef.current, onAppendToEditorReady, appendToEditor]);
 
   const [create] = useMutation(messageListFragmentMutation);
 
@@ -230,7 +219,6 @@ const InnerMessagesNewForm = ({
                 commentStyles={true}
                 hideControls={true}
                 getLocalStorageId={() => ({id: conversationId, verify: false})}
-                externalEditorRef={editorRef}
               />
             )}
           </form.Field>
@@ -261,7 +249,6 @@ export const MessagesNewForm = ({
   submitLabel,
   sendEmail = true,
   formStyle="default",
-  onAppendToEditorReady,
 }: {
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
@@ -269,7 +256,6 @@ export const MessagesNewForm = ({
   submitLabel?: string,
   sendEmail?: boolean;
   formStyle?: FormDisplayMode;
-  onAppendToEditorReady?: (appendFn: (html: string) => void) => void;
 }) => {
   const classes = useStyles(styles);
   
@@ -308,7 +294,6 @@ export const MessagesNewForm = ({
         templateQueries={templateQueries}
         conversationId={conversationId}
         onSuccess={(newMessage) => successEvent(newMessage)}
-        onAppendToEditorReady={onAppendToEditorReady}
       />
     </div>
   );
