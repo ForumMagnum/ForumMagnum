@@ -45,17 +45,15 @@ const ModerationUserInfoColumn = ({
   posts,
   comments,
   dispatch,
+  currentUser,
 }: {
   user: SunshineUsersList;
   posts: SunshinePostsList[];
   comments: CommentsListWithParentMetadata[];
   dispatch: React.ActionDispatch<[action: InboxAction]>;
+  currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
-  if (!currentUser) {
-    return null;
-  }
   const { fresh: freshModeratorActions } = partitionModeratorActions(user);
   const likelyReviewTrigger = [...new Set(freshModeratorActions.map(action => getPrimaryDisplayedModeratorAction(action.type)))].reverse().at(0);
 

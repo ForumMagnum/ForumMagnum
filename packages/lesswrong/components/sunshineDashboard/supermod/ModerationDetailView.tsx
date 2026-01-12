@@ -47,6 +47,7 @@ const ModerationDetailView = ({
   runningLlmCheckId,
   dispatch,
   state,
+  currentUser,
 }: {
   user: SunshineUsersList;
   posts: SunshinePostsList[];
@@ -55,6 +56,7 @@ const ModerationDetailView = ({
   runningLlmCheckId: string | null;
   dispatch: React.ActionDispatch<[action: InboxAction]>;
   state: InboxState;
+  currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
 
@@ -76,6 +78,7 @@ const ModerationDetailView = ({
             posts={posts}
             comments={comments}
             dispatch={dispatch}
+            currentUser={currentUser}
           />
           <div className={classes.undoQueueColumn}>
             <ModerationUndoHistory
@@ -100,6 +103,7 @@ const ModerationDetailView = ({
         <div className={classes.sidebarColumn}>
           <ModerationSidebar
             user={user}
+            currentUser={currentUser}
           />
         </div>
       </div>

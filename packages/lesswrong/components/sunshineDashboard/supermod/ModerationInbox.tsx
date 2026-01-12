@@ -331,6 +331,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
         <div className={classes.leftPanel}>
           {openedUser ? (
             <ModerationDetailView 
+              currentUser={currentUser}
               user={openedUser}
               posts={userPosts}
               comments={userComments}
