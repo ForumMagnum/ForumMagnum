@@ -12,7 +12,7 @@ import withErrorBoundary from '@/components/common/withErrorBoundary';
 
 // Inkhaven Cohort #2 banner active period
 const INKHAVEN_2026_START = new Date('2026-01-10T00:00:00-08:00');
-const INKHAVEN_2026_END = new Date('2026-01-22T00:00:00-08:00');
+const INKHAVEN_2026_END = new Date('2026-02-01T00:00:00-08:00');
 
 function isInkhaven2026Active(): boolean {
   const now = new Date();
