@@ -47,7 +47,7 @@ const ConversationsListWithReadStatusQuery = gql(`
 `);
 
 const MAX_WIDTH = 1100;
-const CONVERSATION_INNER_MAX_WIDTH = 720;
+const CONVERSATION_INNER_MAX_WIDTH = 640;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -149,7 +149,6 @@ const styles = (theme: ThemeType) => ({
     flex: "1 1 auto",
   },
   columnHeader: {
-    borderBottom: theme.palette.border.grey200,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -161,14 +160,16 @@ const styles = (theme: ThemeType) => ({
     padding: "12px 12px 11px 16px",
   },
   headerContentWrapper: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
     maxWidth: CONVERSATION_INNER_MAX_WIDTH,
     width: "100%",
   },
   headerText: {
     overflow: "hidden",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[1000],
+    fontSize: "1.4rem",
+    fontWeight: 600,
+    marginTop: 20,
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 1,
@@ -254,6 +255,14 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
     color: theme.palette.grey[500],
   },
+  headerActions: {
+    position: "absolute",
+    right: 12,
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    top: 74,
+  }
 });
 
 const FriendlyInbox = ({
@@ -457,10 +466,8 @@ const FriendlyInbox = ({
         >
           {!!selectedConversation && (
             <>
-              <div className={classes.columnHeader}>
-                <div className={classes.headerContentWrapper}>
-                  <div className={classes.headerText}>{title}</div>
-                  {isAdmin && (
+              <div className={classes.headerActions}>
+                {isAdmin && (
                     <SectionFooterCheckbox
                       label={<ForumIcon className={classes.sendEmailCheckboxIcon} icon="Envelope" />}
                       value={sendEmail}
@@ -469,14 +476,18 @@ const FriendlyInbox = ({
                     />
                   )}
                   <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
-                </div>
               </div>
               <div className={classes.conversation} ref={selectedConversationRef}>
-                <div className={classes.conversationInner}>
+                <div className={classes.headerContentWrapper}>
                   <Link to="/inbox" className={classes.backButton}>
                     Go back to Inbox
                   </Link>
+                  <div className={classes.headerText}>
+                    {title}
+                  </div>
                   <ConversationDetails conversation={selectedConversation} hideOptions />
+                </div>
+                <div className={classes.conversationInner}>
                   <ConversationContents
                     currentUserId={currentUserId}
                     conversation={selectedConversation}

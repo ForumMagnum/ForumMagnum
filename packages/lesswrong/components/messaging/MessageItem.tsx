@@ -40,7 +40,6 @@ const styles = (theme: ThemeType) => ({
     }
   },
   rootWithoutImages: {
-    maxWidth: '90%',
     width: 'fit-content',
     [theme.breakpoints.down('xs')]: {
       maxWidth: "80%",
@@ -75,7 +74,7 @@ const styles = (theme: ThemeType) => ({
   backgroundIsCurrent: {
     backgroundColor: theme.palette.grey[700],
     color: theme.palette.inverseGreyAlpha(.87),
-    '& *, & li::marker': {
+    '&& *, & li::marker': {
       color: theme.palette.inverseGreyAlpha(.87),
     },
     "&$highlighted": {
