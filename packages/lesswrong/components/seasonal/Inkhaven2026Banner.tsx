@@ -128,7 +128,7 @@ export const Inkhaven2026Banner = () => {
             loading="lazy"
             className={classes.image}
             publicId="benitopace_in_an_orb_a_cute_little_mouse_is_sitting_in_its_hot__f27fefa8-6325-448c-befb-04655b8c940e_mvhgw0"
-            darkPublicId="benitopace_in_an_orb_a_cute_little_mouse_is_sitting_in_its_hot__f27fefa8-6325-448c-befb-04655b8c940e_mvhgw0"
+            darkPublicId="e172921e-982f-4fde-a30d-35837955acb6_l1fdhw"
           />
           <div className={classes.gradientOverlayDown} />
           <div className={classes.gradientOverlayLeft} />
