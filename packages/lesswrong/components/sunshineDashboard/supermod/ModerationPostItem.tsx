@@ -118,7 +118,7 @@ const ModerationPostItem = ({
       </div>
       <div className={classes.contentInfo}>
         <div className={classes.postTitle}>
-          {post.title}
+          {post.draft ? `[Draft] ${post.title}` : post.title}
         </div>
         {contentPreview && (
           <div className={classes.postContents}>
@@ -131,4 +131,3 @@ const ModerationPostItem = ({
 };
 
 export default ModerationPostItem;
-

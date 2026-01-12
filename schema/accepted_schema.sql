@@ -1234,6 +1234,7 @@ CREATE TABLE "ModerationTemplates" (
   "name" TEXT NOT NULL,
   "collectionName" TEXT NOT NULL,
   "order" DOUBLE PRECISION NOT NULL DEFAULT 10,
+  "groupLabel" TEXT,
   "deleted" BOOL NOT NULL DEFAULT FALSE
 );
 

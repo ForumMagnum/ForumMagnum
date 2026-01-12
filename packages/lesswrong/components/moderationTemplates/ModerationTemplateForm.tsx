@@ -13,7 +13,7 @@ import { getUpdatedFieldValues } from "@/components/tanstack-form-components/hel
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client/react";
+import { useMutation, MutationHookOptions } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const ModerationTemplateFragmentUpdateMutation = gql(`
@@ -47,9 +47,13 @@ const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) =>
 export const ModerationTemplatesForm = ({
   initialData,
   onSuccess,
+  onCancel,
+  refetchQueries,
 }: {
   initialData?: UpdateModerationTemplateDataInput & { _id: string; collectionName: TemplateType };
   onSuccess?: (doc: ModerationTemplateFragment) => void;
+  onCancel?: () => void;
+  refetchQueries?: MutationHookOptions['refetchQueries'];
 }) => {
   const classes = useStyles(formStyles);
 
@@ -62,9 +66,13 @@ export const ModerationTemplatesForm = ({
     addOnSuccessCallback
   } = useEditorFormCallbacks<ModerationTemplateFragment>();
 
-  const [create] = useMutation(ModerationTemplateFragmentMutation);
+  const [create] = useMutation(ModerationTemplateFragmentMutation, {
+    refetchQueries,
+  });
 
-  const [mutate] = useMutation(ModerationTemplateFragmentUpdateMutation);
+  const [mutate] = useMutation(ModerationTemplateFragmentUpdateMutation, {
+    refetchQueries,
+  });
 
   const newFormDefaults = formType === 'new'
   ? { order: 10 }
@@ -81,6 +89,7 @@ export const ModerationTemplatesForm = ({
     ...defaultValues,
     collectionName: defaultValues.collectionName ?? 'Rejections',
     name: defaultValues.name ?? '',
+    groupLabel: defaultValues.groupLabel ?? undefined,
   };
 
   const form = useForm({
@@ -191,6 +200,17 @@ export const ModerationTemplatesForm = ({
         </form.Field>
       </div>
 
+      <div className={classes.fieldWrapper}>
+        <form.Field name="groupLabel">
+          {(field) => (
+            <MuiTextField
+              field={field}
+              label="Group label"
+            />
+          )}
+        </form.Field>
+      </div>
+
       {formType === 'edit' && (
         <div className={classes.fieldWrapper}>
           <form.Field name="deleted">
@@ -207,13 +227,16 @@ export const ModerationTemplatesForm = ({
       <div className="form-submit">
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
-            <Button
-              type="submit"
-              disabled={!canSubmit || isSubmitting}
-              className={classNames("primary-form-submit-button", classes.submitButton)}
-            >
-              Submit
-            </Button>
+            <>
+              {onCancel && <Button onClick={onCancel}>Cancel</Button>}
+              <Button
+                type="submit"
+                disabled={!canSubmit || isSubmitting}
+                className={classNames("primary-form-submit-button", classes.submitButton)}
+              >
+                Submit
+              </Button>
+            </>
           )}
         </form.Subscribe>
       </div>
