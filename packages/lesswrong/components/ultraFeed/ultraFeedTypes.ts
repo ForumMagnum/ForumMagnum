@@ -49,7 +49,7 @@ export type RankedItemMetadata =
       position: number;
     };
 
-export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptionsPosts' ] as const;
+export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-ultrafeed', 'bookmarks', 'subscriptionsPosts' ] as const;
 export const feedCommentSourceTypesArray = ['quicktakes', 'recentComments', 'subscriptionsComments', 'bookmarks'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
 export const allFeedItemSourceTypes = [
