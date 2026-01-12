@@ -5,7 +5,7 @@ import { usesCurationEmailsCron } from '@/lib/betas';
 import { dispatchPendingEvents } from '@/server/debouncer';
 import { checkAndSendUpcomingEventEmails } from '@/server/eventReminders';
 import { updateScoreActiveDocuments } from '@/server/votingCron';
-import { getSessionLockOrAbort } from '@/server/utils/advisoryLockUtil';
+import { getLockOrAbort } from '@/server/utils/advisoryLockUtil';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -20,21 +20,21 @@ export async function GET(request: NextRequest) {
 
   // Send curation emails
   if (!isTestServer && usesCurationEmailsCron()) {
-    tasks.push(getSessionLockOrAbort('sendCurationEmails', sendCurationEmails));
+    tasks.push(getLockOrAbort('sendCurationEmails', sendCurationEmails));
   }
 
   // Debounced event handler
   if (!isTestServer) {
-    tasks.push(getSessionLockOrAbort('dispatchPendingEvents', dispatchPendingEvents));
+    tasks.push(getLockOrAbort('dispatchPendingEvents', dispatchPendingEvents));
   }
 
   // Check upcoming event emails
   if (!isTestServer) {
-    await getSessionLockOrAbort('checkAndSendUpcomingEventEmails', checkAndSendUpcomingEventEmails);
+    await getLockOrAbort('checkAndSendUpcomingEventEmails', checkAndSendUpcomingEventEmails);
   }
 
   // Update score active documents (runs regardless of test server setting)
-  await getSessionLockOrAbort('updateScoreActiveDocuments', updateScoreActiveDocuments);
+  await getLockOrAbort('updateScoreActiveDocuments', updateScoreActiveDocuments);
 
   // Execute all tasks in parallel
   await Promise.all(tasks);

@@ -1,18 +1,21 @@
 import { captureException } from "@/lib/sentryWrapper";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { cyrb53Rand } from '@/server/perfMetrics';
+import type { ITask } from "pg-promise";
 
 /**
- * WARNING: this is not safe to use in most regular production code,
- * because it causes connection pinning in RDS proxy (which in turn
- * can cause function instances to become totally connection starved).
- * This does require some additional things to happen, like having
- * a pretty substantial number of advisory locks taken out concurrently
- * from an individual function instance (i.e. as many as the number of
- * connections available to each function instance), but that can happen
- * with surprising ease if you have any accidental N+1s or something.
+ * Try to get an advisory lock. If successful, runs `callback` with a task that
+ * holds that lock.
+ * NOTE: This consumes one connection from the connection pool, until
+ * `callback()` is finished. This means that if you take a lot of locks at once,
+ * you can't guarantee that the connection pool will have any other connections
+ * left, besides the one you got as a callback. So in order to use this safely,
+ * you need to guarantee either (1) the number of simultaneous calls to
+ * getLockOrAbort is smaller than the connection pool size, or (2) queries
+ * performed inside of `callback` use only the connection that was provided
+ * as an argument to the callback.
  */
-export function getSessionLockOrAbort(lockName: string, callback: () => Promise<void>) {
+export function getLockOrAbort(lockName: string, callback: (task: ITask<any>) => Promise<void>) {
   const db = getSqlClientOrThrow();
   const lockId = Math.floor(cyrb53Rand(lockName) * 1e15);
 
@@ -25,7 +28,7 @@ export function getSessionLockOrAbort(lockName: string, callback: () => Promise<
         captureException(new Error(`Lock could not be acquired for job ${lockName}`));
         return;
       }
-      return await callback();
+      return await callback(task);
     } finally {
       await task.any(`SELECT pg_advisory_unlock($1)`, [lockId]);
     }
