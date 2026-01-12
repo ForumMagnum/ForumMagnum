@@ -80,7 +80,6 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick}: {
 
   if (edit) {
     return (
-      <DeferRender ssr={false}>
         <div className={classNames(classes.editContainer, {[classes.deleted]: template.deleted, [classes.highlighted]: hash === `#${template._id}`})}>
           <Row>
             <h3>{template.name}{template.deleted && <> [Deleted]</>}</h3>
@@ -93,7 +92,6 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick}: {
             />
           </BasicFormStyles>
         </div>
-      </DeferRender>
     );
   }
 

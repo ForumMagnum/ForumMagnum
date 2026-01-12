@@ -49,21 +49,13 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
 
 const ModerationSidebar = ({
   user,
-  currentUser: currentUserProp,
-  dispatch,
+  currentUser,
 }: {
   user: SunshineUsersList;
-  currentUser?: UsersCurrent;
-  dispatch?: React.Dispatch<InboxAction>;
+  currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
-  const currentUserFromHook = useCurrentUser();
-  const currentUser = currentUserProp ?? currentUserFromHook;
   const [showNewTemplateModal, setShowNewTemplateModal] = useState(false);
-
-  if (!currentUser) {
-    return null;
-  }
 
   if (!user) {
     return (
