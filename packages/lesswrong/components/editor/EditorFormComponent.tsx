@@ -93,14 +93,14 @@ export function useEditorFormCallbacks<R>() {
     };
   };
 
-  const appendToEditor = (html: string) => {
+  const appendToEditor = useCallback((html: string) => {
     const ckEditorReference = editorRef.current?.state?.ckEditorReference;
     if (ckEditorReference) {
       const currentData = ckEditorReference.getData() || '';
       const separator = currentData.trim() ? '<p><br></p>' : '';
       ckEditorReference.data.set(currentData + separator + html);
     }
-  };
+  }, []);
 
   return {
     onSubmitCallback,
