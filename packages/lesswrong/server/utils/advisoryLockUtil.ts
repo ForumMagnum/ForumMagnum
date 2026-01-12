@@ -2,7 +2,12 @@ import { captureException } from "@/lib/sentryWrapper";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { cyrb53Rand } from '@/server/perfMetrics';
 
-export function getLockOrAbort(lockName: string, callback: () => Promise<void>) {
+/**
+ * WARNING: this is not safe to use in most regular production code,
+ * because it causes connection pinning in RDS proxy (which in turn
+ * can cause function instances to become totally connection starved).
+ */
+export function getSessionLockOrAbort(lockName: string, callback: () => Promise<void>) {
   const db = getSqlClientOrThrow();
   const lockId = Math.floor(cyrb53Rand(lockName) * 1e15);
 

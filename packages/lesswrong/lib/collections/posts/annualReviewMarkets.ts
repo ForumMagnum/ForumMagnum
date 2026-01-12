@@ -4,9 +4,6 @@ import { getWithCustomLoader, loadByIds } from "../../loaders";
 import { filterNonnull } from "../../utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
 import { captureException } from "@/lib/sentryWrapper";
-import ManifoldProbabilitiesCaches from "@/server/collections/manifoldProbabilitiesCaches/collection";
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
-import { getLockOrAbort } from "@/server/utils/advisoryLockUtil";
 
 // Information about a market, but without bets or comments
 export type LiteMarket = {
@@ -163,8 +160,11 @@ async function refreshMarketInfoInCache(marketId: string, year: number, context:
   // avoid thundering-herd issues, we update the cache item timestamp first (and
   // check that it changed by a minimum amount) before we send the API request
   // to Manifold.
-  const previousTimestamp = await context.repos.manifoldProbabilitiesCachesRepo.updateMarketInfoCacheTimestamp(marketId);
-  if (previousTimestamp && (new Date().getTime() - previousTimestamp.getTime() < 5_000)) {
+  const { shouldRefresh } = await context.repos.manifoldProbabilitiesCachesRepo.tryClaimRefreshSlot(
+    marketId,
+    5_000,
+  );
+  if (!shouldRefresh) {
     return;
   }
 
