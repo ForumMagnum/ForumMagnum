@@ -73,7 +73,7 @@ export const up = async ({db}: MigrationContext) => {
   await addField(db, ManifoldProbabilitiesCaches, "url");
 
   for (const { marketId, marketInfo } of filteredUpdateMarketInfo) {
-    await context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(marketId, marketInfo);
+    await db.task(task => context.repos.manifoldProbabilitiesCachesRepo.upsertMarketInfoInCache(task, marketId, marketInfo));
   }
 }
 
