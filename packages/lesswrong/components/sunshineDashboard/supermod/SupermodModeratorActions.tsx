@@ -97,7 +97,7 @@ const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, di
             Limit
           </div>
         )}
-        <UserRateLimitItem userId={user._id} user={user} />
+        <UserRateLimitItem userId={user._id} />
       </div>
       {showRateLimitForm && (
         <div className={classes.rateLimitForm}>
