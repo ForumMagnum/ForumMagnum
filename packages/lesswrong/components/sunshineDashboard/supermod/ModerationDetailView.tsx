@@ -77,7 +77,6 @@ const ModerationDetailView = ({
             user={user}
             posts={posts}
             comments={comments}
-            dispatch={dispatch}
             currentUser={currentUser}
           />
           <div className={classes.undoQueueColumn}>
@@ -104,6 +103,7 @@ const ModerationDetailView = ({
           <ModerationSidebar
             user={user}
             currentUser={currentUser}
+            dispatch={dispatch}
           />
         </div>
       </div>

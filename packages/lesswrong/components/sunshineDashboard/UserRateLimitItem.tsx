@@ -1,4 +1,3 @@
-import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
@@ -14,7 +13,6 @@ import { FormComponentDatePicker } from '../form-components/FormComponentDateTim
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import Error404 from "../common/Error404";
-import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
@@ -79,6 +77,13 @@ const styles = defineStyles('UserRateLimitItem', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'flex-end',
     gap: 6,
+  },
+  rateLimitButton: {
+    border: theme.palette.border.slightlyFaint,
+    borderRadius: 3,
+    padding: '4px 8px',
+    minHeight: 'unset',
+    lineHeight: 'inherit',
   },
   rateLimitForm: {
     [theme.breakpoints.up('md')]: {
@@ -146,47 +151,7 @@ const INTERVAL_UNITS = {
   weeks: "weeks",
 };
 
-const COMMENTS_THREE_PER_DAY = 'comments_3_per_day';
-const COMMENTS_ONE_PER_DAY = 'comments_1_per_day';
-const COMMENTS_ONE_PER_THREE_DAYS = 'comments_1_per_3_days';
-const POSTS_ONE_PER_WEEK = 'posts_1_per_week';
-
 type RateLimitInput = Pick<DbUserRateLimit, 'userId' | 'type' | 'intervalLength' | 'intervalUnit' | 'actionsPerInterval' | 'endedAt'>;
-
-const DEFAULT_RATE_LIMITS: Record<string, (userId: string) => RateLimitInput> = {
-  [COMMENTS_THREE_PER_DAY]: (userId: string) => ({
-    userId,
-    type: 'allComments',
-    intervalLength: 1,
-    intervalUnit: 'days',
-    actionsPerInterval: 3,
-    endedAt: moment().add(3, 'weeks').toDate()
-  }),
-  [COMMENTS_ONE_PER_DAY]: (userId: string) => ({
-    userId,
-    type: 'allComments',
-    intervalLength: 1,
-    intervalUnit: 'days',
-    actionsPerInterval: 1,
-    endedAt: moment().add(3, 'weeks').toDate()
-  }),
-  [COMMENTS_ONE_PER_THREE_DAYS]: (userId: string) => ({
-    userId,
-    type: 'allComments',
-    intervalLength: 3,
-    intervalUnit: 'days',
-    actionsPerInterval: 1,
-    endedAt: moment().add(3, 'weeks').toDate()
-  }),
-  [POSTS_ONE_PER_WEEK]: (userId: string) => ({
-    userId,
-    type: 'allPosts',
-    intervalLength: 1,
-    intervalUnit: 'weeks',
-    actionsPerInterval: 1,
-    endedAt: moment().add(6, 'weeks').toDate()
-  })
-};
 
 const getIntervalDescription = (rateLimit: UserRateLimitDisplay) => {
   const { intervalLength, intervalUnit } = rateLimit;
@@ -401,7 +366,6 @@ export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
 
   const userId = props.userId ?? props.user._id;
 
-  const [createNewRateLimit, setCreateNewRateLimit] = useState(false);
   const [editingExistingRateLimitId, setEditingExistingRateLimitId] = useState<string>();
 
   const { data, refetch } = useQuery(UserRateLimitDisplayMultiQuery, {
@@ -416,21 +380,7 @@ export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
 
   const existingRateLimits = data?.userRateLimits?.results ?? props.user?.userRateLimits;
 
-  const [create] = useMutation(UserRateLimitMutationFragmentCreateMutation);
-
   const [mutate] = useMutation(UserRateLimitMutationFragmentUpdateMutation);
-
-  const createRateLimit = async (rateLimitName: string) => {
-    if (rateLimitName === 'custom') {
-      setCreateNewRateLimit(true);
-    } else {
-      const newRateLimit = DEFAULT_RATE_LIMITS[rateLimitName](userId);
-      await create({
-        variables: { data: newRateLimit }
-      });
-      await refetch();
-    }
-  };
 
   const endExistingRateLimit = async (rateLimitId: string) => {
     await mutate({
@@ -442,7 +392,14 @@ export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
     await refetch();
   }
 
-  const prefilledCustomFormProps = DEFAULT_RATE_LIMITS[COMMENTS_THREE_PER_DAY](userId);
+  const prefilledCustomFormProps: RateLimitInput = {
+    userId,
+    type: 'allComments',
+    intervalLength: 1,
+    intervalUnit: 'days',
+    actionsPerInterval: 3,
+    endedAt: moment().add(3, 'weeks').toDate()
+  };
 
   if (!existingRateLimits) {
     return <Loading />;
@@ -452,39 +409,14 @@ export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
   const existingOrDefaultValue = existingRateLimit ? { initialData: withDateFields(existingRateLimit, ['endedAt']) } : { prefilledProps: prefilledCustomFormProps };
 
   return <div>
-    {/** Doesn't have both a comment and post rate limit */}
-    {existingRateLimits.length < 2 && <div className={classes.setRateLimit}>
-      <span>{'Set Rate Limit: '}</span>
-      <Select
-        value=''
-        onChange={(e) => createRateLimit(e.target.value)}
-        className={classes.newRateLimit}
-      >
-        <MenuItem value={COMMENTS_THREE_PER_DAY}>
-          Comments (3 per day for 3 weeks)
-        </MenuItem>
-        <MenuItem value={COMMENTS_ONE_PER_DAY}>
-          Comments (1 per day for 3 weeks)
-        </MenuItem>
-        <MenuItem value={COMMENTS_ONE_PER_THREE_DAYS}>
-          Comments (1 per 3 days for 3 weeks)
-        </MenuItem>
-        <MenuItem value={POSTS_ONE_PER_WEEK}>
-          Posts (1 per week for 6 weeks)
-        </MenuItem>
-        <MenuItem value='custom'>Custom</MenuItem>
-      </Select>
-    </div>}
-    {(createNewRateLimit || editingExistingRateLimitId) && <div className={classes.rateLimitForm}>
+    {editingExistingRateLimitId && <div className={classes.rateLimitForm}>
       <UserRateLimitsForm
         {...existingOrDefaultValue}
         onSuccess={async () => {
           await refetch();
-          setCreateNewRateLimit(false);
           setEditingExistingRateLimitId(undefined);
         }}
         onCancel={() => {
-          setCreateNewRateLimit(false);
           setEditingExistingRateLimitId(undefined);
         }}
       />
@@ -507,6 +439,3 @@ export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
 }
 
 export default registerComponent('UserRateLimitItem', UserRateLimitItem);
-
-
-

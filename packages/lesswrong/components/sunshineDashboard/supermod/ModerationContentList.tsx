@@ -90,4 +90,3 @@ const ModerationContentList = ({
 };
 
 export default ModerationContentList;
-
