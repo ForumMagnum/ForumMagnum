@@ -289,7 +289,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
 
   const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
 
-  // Fetch user's posts and comments when a user is opened
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
   return (
