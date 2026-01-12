@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import SunshineUserMessages, { ModerationTemplatesListQuery } from '../SunshineUserMessages';
-import { useCurrentUser } from '@/components/common/withUser';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import LWDialog from '@/components/common/LWDialog';
 import { ModerationTemplatesForm } from '@/components/moderationTemplates/ModerationTemplateForm';
 import SupermodModeratorActions from './SupermodModeratorActions';
 import type { InboxAction } from './inboxReducer';

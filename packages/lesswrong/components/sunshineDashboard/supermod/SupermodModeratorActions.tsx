@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationPermissionButtons from './ModerationPermissionButtons';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
-import UserRateLimitItem, { UserRateLimitsForm } from '../UserRateLimitItem';
+import UserRateLimitItem, { UserRateLimitsForm, UserRateLimitDisplayMultiQuery } from '../UserRateLimitItem';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import type { InboxAction } from './inboxReducer';
 import moment from 'moment';
@@ -109,6 +109,7 @@ const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, di
             onCancel={() => {
               setShowRateLimitForm(false);
             }}
+            refetchQueries={[UserRateLimitDisplayMultiQuery]}
           />
         </div>
       )}
