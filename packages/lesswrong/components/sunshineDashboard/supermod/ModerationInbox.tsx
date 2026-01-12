@@ -77,25 +77,6 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     overflow: 'hidden',
     borderRight: theme.palette.border.normal,
   },
-  sidebar: {
-    width: 400,
-    overflow: 'hidden',
-    borderLeft: theme.palette.border.normal,
-    backgroundColor: theme.palette.background.paper,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  sidebarWide: {
-    width: 800,
-  },
-  sidebarTop: {
-    flex: '0 0 70%',
-    overflow: 'auto',
-  },
-  sidebarBottom: {
-    flex: '0 0 30%',
-    overflow: 'auto',
-  },
   loading: {
     display: 'flex',
     alignItems: 'center',

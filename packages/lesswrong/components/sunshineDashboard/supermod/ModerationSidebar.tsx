@@ -38,11 +38,6 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   userMessages: {
     overflow: 'auto',
   },
-  userModActions: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-  },
   newTemplateButton: {
     marginTop: 'auto',
     flexShrink: 0,

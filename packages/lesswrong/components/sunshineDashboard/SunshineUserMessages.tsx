@@ -40,10 +40,6 @@ export const ModerationTemplatesListQuery = gql(`
 `);
 
 const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
-  row: {
-    display: "flex",
-    alignItems: "center"
-  },
   icon: {
     height: 13,
     width: 13,
@@ -83,21 +79,6 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     paddingBottom: theme.spacing.unit,
     borderBottom: theme.palette.border.extraFaint,
   },
-  expandablePreview: {
-    maxHeight: 100,
-    overflow: 'hidden',
-    position: 'relative',
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: 30,
-      background: `linear-gradient(to bottom, ${theme.palette.inverseGreyAlpha(0)}, ${theme.palette.background.pageActiveAreaBackground})`,
-      pointerEvents: 'none',
-    },
-  },
   templateList: {
     marginTop: theme.spacing.unit * 4,
     opacity: 0.5,
@@ -107,14 +88,6 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
       opacity: 1,
     },
   },
-  templateItem: {
-    cursor: "pointer",
-    padding: theme.spacing.unit / 2,
-    marginBottom: theme.spacing.unit / 2,
-    "&:hover": {
-      backgroundColor: theme.palette.greyAlpha(0.1),
-    },
-  },
   templateGroup: {
     marginBottom: theme.spacing.unit * 2,
     display: 'flex',
@@ -122,27 +95,6 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     '& h3': {
       marginBottom: theme.spacing.unit,
     },
-  },
-  allTemplatesSection: {
-    marginTop: theme.spacing.unit * 4,
-  },
-  allTemplatesHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    cursor: 'pointer',
-    padding: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
-    '&:hover': {
-      backgroundColor: theme.palette.greyAlpha(0.1),
-    },
-  },
-  allTemplatesTitle: {
-    flex: 1,
-    fontWeight: 500,
-  },
-  allTemplatesContent: {
-    display: 'flex',
-    flexDirection: 'column',
   },
   messagePrompt: {
     padding: theme.spacing.unit,
