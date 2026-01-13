@@ -30,6 +30,9 @@ export const routeTrie = {
         "curation": {
           "hasPage": true
         },
+        "debugDatabaseIndexes": {
+          "hasPage": true
+        },
         "debugHeaders": {
           "hasRoute": true
         },
@@ -73,6 +76,7 @@ export const routeTrie = {
       "lowerCase": {
         "commentembeddings": "commentEmbeddings",
         "curation": "curation",
+        "debugdatabaseindexes": "debugDatabaseIndexes",
         "debugheaders": "debugHeaders",
         "emailsender": "emailSender",
         "llmconversations": "llmConversations",

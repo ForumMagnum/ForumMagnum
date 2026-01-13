@@ -77,6 +77,22 @@ const schema = {
       },
     },
   },
+  groupLabel: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      inputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["admins", "sunshineRegiment"],
+      canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   deleted: {
     database: {
       type: "BOOL",

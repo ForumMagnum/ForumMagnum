@@ -133,7 +133,7 @@ const splitZeroAndNonZeroTerms = (terms: Array<{ name: string; value: number }>)
 const sourceLabels: Record<FeedItemSourceType, string> = {
   'subscriptionsPosts': 'you follow the author',
   'subscriptionsComments': 'comments by authors you follow',
-  'recombee-lesswrong-custom': 'personalized AI-recommendation based on your reads and votes',
+  'recombee-lesswrong-ultrafeed': 'personalized AI-recommendation based on your reads and votes',
   'hacker-news': 'recently published post',
   'bookmarks': 'you bookmarked this',
   'quicktakes': 'recent Quick Take',
@@ -142,7 +142,7 @@ const sourceLabels: Record<FeedItemSourceType, string> = {
 };
 
 const sourceTooltips: Partial<Record<FeedItemSourceType, string>> = {
-  'recombee-lesswrong-custom': 'LessWrong uses Recombee, trained on your reads and votes',
+  'recombee-lesswrong-ultrafeed': 'LessWrong uses Recombee, trained on your reads and votes',
   'bookmarks': 'Bookmarks are inserted periodically into your feed to remind you about them, you can turn this off in the settings',
 };
 
@@ -346,7 +346,7 @@ export const PostScoreBreakdownContent = ({ breakdown, sources, metaInfo }: { br
   const { settings } = useUltraFeedSettings();
   const { terms, typeMultiplier, total } = breakdown;
   
-  const isRecombeeOrSubscription = sources?.includes('recombee-lesswrong-custom') || sources?.includes('subscriptionsPosts');
+  const isRecombeeOrSubscription = sources?.includes('recombee-lesswrong-ultrafeed') || sources?.includes('subscriptionsPosts');
   const karmaBonusLabel = isRecombeeOrSubscription ? "Karma Bonus (timeless)" : "Karma Bonus (time-decaying)";
   
   const allTerms = [
