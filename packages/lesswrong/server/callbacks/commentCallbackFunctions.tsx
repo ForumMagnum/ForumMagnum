@@ -725,7 +725,7 @@ export async function commentsNewOperations(comment: CreateCommentDataInput, _: 
         comment.postId,
         {$set: {
           lastCommentedAt,
-          lastCommentReplyAt,
+          ...(lastCommentReplyAt ? {lastCommentReplyAt} : null),
         }},
       )
 
