@@ -21,8 +21,7 @@ import {
   LexicalCommand,
   TextNode,
 } from 'lexical';
-import _ from 'lodash';
-import {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   PermanentUserData,
   Snapshot,

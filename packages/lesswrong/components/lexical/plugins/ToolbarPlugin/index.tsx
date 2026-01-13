@@ -62,7 +62,6 @@ import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CalendarIcon } from '../../icons/CalendarIcon';
 import { FontFamilyIcon } from '../../icons/FontFamilyIcon';
 import { PencilFillIcon } from '../../icons/PencilFillIcon';
-import { TOGGLE_SUGGESTION_MODE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions';
 // import {
 //   getCodeLanguageOptions as getCodeLanguageOptionsShiki,
 //   getCodeThemeOptions as getCodeThemeOptionsShiki,
@@ -1084,19 +1083,6 @@ export default function ToolbarPlugin({
         className={classes.toolbarItem}
         aria-label="Redo">
         <ArrowClockwiseIcon className={classes.formatIcon} />
-      </button>
-      <Divider />
-      <button
-        disabled={!isEditable}
-        onClick={() => {
-          editor.dispatchCommand(TOGGLE_SUGGESTION_MODE_COMMAND, undefined);
-          setIsSuggestionMode(!isSuggestionMode);
-        }}
-        title={isSuggestionMode ? 'Exit Suggestion Mode' : 'Enter Suggestion Mode'}
-        type="button"
-        className={classNames(classes.toolbarItemSpaced, { [classes.toolbarItemActive]: isSuggestionMode })}
-        aria-label={isSuggestionMode ? 'Exit Suggestion Mode' : 'Enter Suggestion Mode'}>
-        <PencilFillIcon className={classNames(classes.formatIcon, { [classes.activeIcon]: isSuggestionMode })} />
       </button>
       <Divider />
       {toolbarState.blockType in blockTypeToBlockName &&
