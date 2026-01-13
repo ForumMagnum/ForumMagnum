@@ -157,40 +157,81 @@ import {
 } from './utils';
 
 import {
-  toolbar,
   toolbarItem,
-  toolbarItemSpaced,
-  toolbarItemActive,
-  toolbarItemText,
-  toolbarItemIcon,
   formatIcon,
-  toolbarDivider,
-  codeLanguage,
-  blockControls,
-  blockControlsDropdownText,
 } from '../../styles/toolbarStyles';
 
 const styles = defineStyles('LexicalToolbarPlugin', (theme: ThemeType) => ({
-  toolbar: toolbar(theme),
+  toolbar: {
+    display: 'flex',
+    marginBottom: 1,
+    background: theme.palette.background.pageActiveAreaBackground,
+    padding: 4,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    verticalAlign: 'middle',
+    overflow: 'auto',
+    height: 36,
+    position: 'sticky' as const,
+    top: 0,
+    zIndex: 2,
+    overflowY: 'hidden' as const,
+  },
   toolbarItem: toolbarItem(theme),
   toolbarItemSpaced: {
     ...toolbarItem(theme),
-    ...toolbarItemSpaced(),
+    marginRight: 2,
   },
-  toolbarItemActive: toolbarItemActive(theme),
-  toolbarItemText: toolbarItemText(theme),
-  toolbarItemIcon: toolbarItemIcon(),
+  toolbarItemActive: {
+    backgroundColor: theme.palette.greyAlpha(0.1),
+    '& i': {
+      opacity: 1,
+    },
+  },
+  toolbarItemText: {
+    display: 'flex',
+    lineHeight: '20px',
+    verticalAlign: 'middle',
+    fontSize: 14,
+    color: theme.palette.grey[600],
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    height: 20,
+    textAlign: 'left' as const,
+    paddingRight: 10,
+  },
+  toolbarItemIcon: {
+    display: 'flex',
+    width: 20,
+    height: 20,
+    userSelect: 'none' as const,
+    marginRight: 8,
+    lineHeight: '16px',
+    backgroundSize: 'contain',
+  },
   formatIcon: formatIcon(),
-  toolbarDivider: toolbarDivider(theme),
+  toolbarDivider: {
+    width: 1,
+    backgroundColor: theme.palette.grey[200],
+    margin: '0 4px',
+  },
   codeLanguage: {
     ...toolbarItem(theme),
-    ...codeLanguage(),
+    width: 150,
   },
   blockControls: {
     ...toolbarItem(theme),
-    ...blockControls(),
+    display: 'flex',
+    alignItems: 'center',
   },
-  blockControlsDropdownText: blockControlsDropdownText(),
+  blockControlsDropdownText: {
+    width: '7em',
+    textAlign: 'left' as const,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap' as const,
+    display: 'inline-block',
+  },
   blockTypeIcon: {
     display: 'flex',
     width: 20,
@@ -1062,7 +1103,7 @@ export default function ToolbarPlugin({
 
   return (
     <div className={classes.toolbar}>
-      <button
+      {/* <button
         disabled={!toolbarState.canUndo || !isEditable}
         onClick={(e) =>
           dispatchToolbarCommand(UNDO_COMMAND, undefined, isKeyboardInput(e))
@@ -1084,7 +1125,7 @@ export default function ToolbarPlugin({
         aria-label="Redo">
         <ArrowClockwiseIcon className={classes.formatIcon} />
       </button>
-      <Divider />
+      <Divider /> */}
       {toolbarState.blockType in blockTypeToBlockName &&
         activeEditor === editor && (
           <>
@@ -1178,7 +1219,7 @@ export default function ToolbarPlugin({
         </>
       ) : (
         <>
-          <FontDropDown
+          {/* <FontDropDown
             disabled={!isEditable}
             style={'font-family'}
             value={toolbarState.fontFamily}
@@ -1192,7 +1233,7 @@ export default function ToolbarPlugin({
             editor={activeEditor}
             disabled={!isEditable}
           />
-          <Divider />
+          <Divider /> */}
           <button
             disabled={!isEditable}
             onClick={(e) =>
@@ -1248,7 +1289,7 @@ export default function ToolbarPlugin({
             type="button">
             <LinkIcon className={classNames(classes.formatIcon, { [classes.activeIcon]: toolbarState.isLink })} />
           </button>
-          <DropdownColorPicker
+          {/* <DropdownColorPicker
             disabled={!isEditable}
             buttonClassName={classNames(classes.toolbarItem, 'color-picker')}
             buttonAriaLabel="Formatting text color"
@@ -1265,13 +1306,14 @@ export default function ToolbarPlugin({
             color={toolbarState.bgColor}
             onChange={onBgColorSelect}
             title="bg color"
-          />
+          /> */}
           <DropDown
             disabled={!isEditable}
             buttonClassName={classes.toolbarItemSpaced}
             buttonLabel=""
             buttonAriaLabel="Formatting options for additional text styles"
-            buttonIcon={<DropdownMoreIcon className={classes.blockTypeIcon} />}>
+            buttonIcon={<DropdownMoreIcon className={classes.blockTypeIcon} />}
+          >
             <DropDownItem
               onClick={(e) =>
                 dispatchFormatTextCommand('lowercase', isKeyboardInput(e))
@@ -1535,13 +1577,13 @@ export default function ToolbarPlugin({
           )}
         </>
       )}
-      <Divider />
+      {/* <Divider />
       <ElementFormatDropdown
         disabled={!isEditable}
         value={toolbarState.elementFormat}
         editor={activeEditor}
         isRTL={toolbarState.isRTL}
-      />
+      /> */}
       {modal}
     </div>
   );

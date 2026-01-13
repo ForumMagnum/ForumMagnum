@@ -53,9 +53,6 @@ import {
 import { CollapsibleSectionContainerNode } from './lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode';
 import { CollapsibleSectionTitleNode } from './lexicalPlugins/collapsibleSections/CollapsibleSectionTitleNode';
 import { CollapsibleSectionContentNode } from './lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode';
-import ImagesPlugin from './lexicalPlugins/images/ImagesPlugin';
-import { ImageNode } from './lexicalPlugins/images/ImageNode';
-import { DragDropPaste } from './lexicalPlugins/dragDropPaste/DragDropPaste';
 import Editor from '../lexical/Editor';
 import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
 import { SharedHistoryContext } from '../lexical/context/SharedHistoryContext';
@@ -742,7 +739,6 @@ const LexicalPostEditor = ({
       TableNode,
       TableCellNode,
       TableRowNode,
-      ImageNode,
       // Footnote nodes
       FootnoteReferenceNode,
       FootnoteSectionNode,

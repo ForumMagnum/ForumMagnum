@@ -14,6 +14,7 @@ import {ReactNode, useEffect, useRef} from 'react';
 import {createPortal} from 'react-dom';
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import ForumIcon from '@/components/common/ForumIcon';
 
 const styles = defineStyles('LexicalModal', (theme: ThemeType) => ({
   overlay: {
@@ -48,6 +49,7 @@ const styles = defineStyles('LexicalModal', (theme: ThemeType) => ({
     margin: 0,
     paddingBottom: 10,
     borderBottom: `1px solid ${theme.palette.grey[310]}`,
+    ...theme.typography.commentStyle,
   },
   closeButton: {
     border: 0,
@@ -57,14 +59,18 @@ const styles = defineStyles('LexicalModal', (theme: ThemeType) => ({
     justifyContent: 'center',
     alignItems: 'center',
     display: 'flex',
-    width: 30,
-    height: 30,
+    width: 24,
+    height: 24,
     textAlign: 'center',
     cursor: 'pointer',
     backgroundColor: theme.palette.grey[200],
     '&:hover': {
       backgroundColor: theme.palette.grey[300],
     },
+  },
+  closeButtonIcon: {
+    width: 20,
+    height: 20,
   },
   content: {
     paddingTop: 20,
@@ -136,7 +142,7 @@ function PortalImpl({
           aria-label="Close modal"
           type="button"
           onClick={onClose}>
-          X
+          <ForumIcon icon="Close" className={classes.closeButtonIcon} />
         </button>
         <div className={classes.content}>{children}</div>
       </div>

@@ -53,6 +53,10 @@ import Button from '../../ui/Button';
 import {DialogActions, DialogButtonsList} from '../../ui/Dialog';
 import FileInput from '../../ui/FileInput';
 import TextInput from '../../ui/TextInput';
+import {
+  uploadToCloudinary,
+  ImageUploadError,
+} from '../../utils/cloudinaryUpload';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -99,32 +103,81 @@ export function InsertImageUriDialogBody({
 
 export function InsertImageUploadedDialogBody({
   onClick,
+  onError,
 }: {
   onClick: (payload: InsertImagePayload) => void;
+  onError?: (error: Error) => void;
 }) {
-  const [src, setSrc] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [altText, setAltText] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const isDisabled = src === '';
+  const isDisabled = !selectedFile || isUploading;
 
-  const loadImage = (files: FileList | null) => {
-    const reader = new FileReader();
-    reader.onload = function () {
-      if (typeof reader.result === 'string') {
-        setSrc(reader.result);
+  const handleFileSelect = (files: FileList | null) => {
+    setUploadError(null);
+    if (files && files[0]) {
+      setSelectedFile(files[0]);
+      if (!altText) {
+        setAltText(files[0].name);
       }
-      return '';
-    };
-    if (files !== null) {
-      reader.readAsDataURL(files[0]);
     }
   };
+
+  const handleConfirm = async () => {
+    if (!selectedFile) return;
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    abortControllerRef.current = new AbortController();
+
+    try {
+      const result = await uploadToCloudinary(selectedFile, {
+        signal: abortControllerRef.current.signal,
+      });
+
+      onClick({
+        altText,
+        src: result.secure_url,
+        width: result.width,
+        height: result.height,
+      });
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
+
+      const errorMessage = error instanceof ImageUploadError && error.isUserFacing
+        ? error.message
+        : 'Failed to upload image. Please try again.';
+      
+      setUploadError(errorMessage);
+      
+      if (onError && error instanceof Error) {
+        onError(error);
+      }
+    } finally {
+      setIsUploading(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <>
       <FileInput
         label="Image Upload"
-        onChange={loadImage}
+        onChange={handleFileSelect}
         accept="image/*"
         data-test-id="image-modal-file-upload"
       />
@@ -135,12 +188,17 @@ export function InsertImageUploadedDialogBody({
         value={altText}
         data-test-id="image-modal-alt-text-input"
       />
+      {uploadError && (
+        <div style={{color: 'red', marginTop: '8px', fontSize: '14px'}}>
+          {uploadError}
+        </div>
+      )}
       <DialogActions>
         <Button
           data-test-id="image-modal-file-upload-btn"
           disabled={isDisabled}
-          onClick={() => onClick({altText, src})}>
-          Confirm
+          onClick={handleConfirm}>
+          {isUploading ? 'Uploading...' : 'Confirm'}
         </Button>
       </DialogActions>
     </>
@@ -150,9 +208,11 @@ export function InsertImageUploadedDialogBody({
 export function InsertImageDialog({
   activeEditor,
   onClose,
+  onError,
 }: {
   activeEditor: LexicalEditor;
   onClose: () => void;
+  onError?: (error: Error) => void;
 }): JSX.Element {
   const [mode, setMode] = useState<null | 'url' | 'file'>(null);
   const hasModifier = useRef(false);
@@ -190,7 +250,9 @@ export function InsertImageDialog({
         </DialogButtonsList>
       )}
       {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
-      {mode === 'file' && <InsertImageUploadedDialogBody onClick={onClick} />}
+      {mode === 'file' && (
+        <InsertImageUploadedDialogBody onClick={onClick} onError={onError} />
+      )}
     </>
   );
 }

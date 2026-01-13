@@ -24,11 +24,12 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 import {focusNearestDescendant, isKeyboardInput} from '../utils/focusUtils';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';
-import { chevronDown } from '../styles/toolbarStyles';
+import ForumIcon from '@/components/common/ForumIcon';
 
 const styles = defineStyles('LexicalDropDown', (theme: ThemeType) => ({
   chevronDown: {
-    ...chevronDown(),
+    display: 'flex',
+    userSelect: 'none' as const,
     backgroundColor: 'transparent',
     backgroundSize: 'contain',
     height: 8,
@@ -393,7 +394,7 @@ export default function DropDown({
         {buttonLabel && (
           <span className="text dropdown-button-text">{buttonLabel}</span>
         )}
-        {!hideChevron && <ChevronDownIcon className={classes.chevronDown} />}
+        {!hideChevron && <ForumIcon icon="ThickChevronDown" className={classes.chevronDown} />}
       </button>
 
       {showDropDown &&

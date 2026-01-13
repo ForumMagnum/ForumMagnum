@@ -90,7 +90,8 @@ export const sharedSettings = {
     cloudName: "lesswrong-2-0",
     uploadPresetBanner: "navcjwf7",
     uploadPresetGridImage: "tz0mgw2s",
-    uploadPresetSocialPreview: "nn5tppry"
+    uploadPresetSocialPreview: "nn5tppry",
+    uploadPresetEditor: "lexical_client_upload",
   },
   googleMaps: {
     apiKey: "AIzaSyA3C48rl26gynG3qIuNuS-3Bh_Zz9jFXkY"

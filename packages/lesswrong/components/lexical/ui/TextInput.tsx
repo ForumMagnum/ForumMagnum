@@ -24,6 +24,7 @@ const styles = defineStyles('LexicalTextInput', (theme: ThemeType) => ({
     display: 'flex',
     flex: 1,
     color: theme.palette.grey[680],
+    ...theme.typography.commentStyle,
   },
   input: {
     display: 'flex',
@@ -36,6 +37,10 @@ const styles = defineStyles('LexicalTextInput', (theme: ThemeType) => ({
     fontSize: 16,
     borderRadius: 5,
     minWidth: 0,
+    "&:focus": {
+      // We have a global style that sets border: 0 on `input:focus`, which causes annoying layout shifts
+      border: `1px solid ${theme.palette.grey[550]}`,
+    },
   },
 }));
 
