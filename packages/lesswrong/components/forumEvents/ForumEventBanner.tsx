@@ -26,8 +26,8 @@ export const ForumEventBanner = () => {
 
   // Define background color with a CSS variable to be accessed in the styles
   const style = {
-    "--forum-event-background": darkColor,
-    "--forum-event-foreground": lightColor,
+    "--forum-event-background": lightColor,
+    "--forum-event-foreground": darkColor,
     "--forum-event-banner-text": bannerTextColor
   } as CSSProperties;
 
