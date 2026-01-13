@@ -3774,8 +3774,8 @@ WITH
 WHERE
   "suggestForAlignmentUserIds" IS DISTINCT FROM '{}';
 
--- CustomIndex "idx_Comments_postId_postedAt_no_parent"
-CREATE INDEX IF NOT EXISTS "idx_Comments_postId_postedAt_no_parent" ON "Comments" ("postId", "postedAt")
+-- CustomIndex "idx_Comments_postId_postedAt_with_parent"
+CREATE INDEX IF NOT EXISTS "idx_Comments_postId_postedAt_with_parent" ON "Comments" ("postId", "postedAt")
 WHERE
   "parentCommentId" IS NOT NULL;
 
