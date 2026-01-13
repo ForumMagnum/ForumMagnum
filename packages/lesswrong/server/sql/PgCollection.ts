@@ -23,7 +23,7 @@ export type DbTarget = "read" | "write" | "noTransaction";
 type ExecuteQueryData<T extends DbObject> = {
   selector: MongoSelector<T> | string;
   projection: MongoProjection<T>;
-  data: T | InsertionRecord<T>;
+  data: T | InsertionRecord<T> | Array<InsertionRecord<T>>;
   modifier: MongoModifier;
   fieldOrSpec: MongoIndexFieldOrKey<T>;
   pipeline: MongoAggregationPipeline<T>;
@@ -173,6 +173,15 @@ class PgCollectionClass<
     const insert = new InsertQuery(this.getTable(), data, options, {returnInserted: true});
     const result = await this.executeWriteQuery(insert, {data, options});
     return result[0]._id;
+  }
+  
+  async rawInsertMany(
+    data: InsertionRecord<ObjectsByCollectionName[N]>[],
+    options?: MongoInsertOptions<ObjectsByCollectionName[N]>,
+  ): Promise<void> {
+    if (!data.length) return;
+    const insert = new InsertQuery(this.getTable(), data, options);
+    await this.executeWriteQuery(insert, {data, options});
   }
 
   private async upsert(

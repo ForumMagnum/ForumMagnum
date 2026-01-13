@@ -66,7 +66,6 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
 
   return (
     <DropdownMenu className={classes.root} >
-      <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
       <EditPostDropdownItem post={post} />
       <ResyncRssDropdownItem post={post} closeMenu={closeMenu} />
       {isBookUI() && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
@@ -90,6 +89,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <ApproveNewUserDropdownItem post={post} />
       <SuggestAlignmentPostDropdownItem post={post}/>
       <MoveToAlignmentPostDropdownItem post={post}/>
+      <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
     </DropdownMenu>
   );
 }

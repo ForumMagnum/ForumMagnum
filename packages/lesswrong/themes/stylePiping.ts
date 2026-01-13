@@ -721,7 +721,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '& p': {
           marginTop: "1em",
           marginBottom: "1em",
-          '&:first-of-type': {
+          '&:first-child': {
             marginTop: 0,
           }
         },
