@@ -684,3 +684,91 @@
   background-repeat: no-repeat;
   background-size: contain;
 }
+
+/* Suggestion mode styles (track changes) */
+.Lexical__Suggestion {
+  /* Reset default mark styling */
+  background-color: transparent;
+  color: inherit;
+}
+
+/* Insert suggestion - green styling with underline */
+.suggestion-insert {
+  background-color: light-dark(rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.25));
+  text-decoration: underline;
+  text-decoration-color: light-dark(rgb(34, 197, 94), rgb(74, 222, 128));
+  text-underline-offset: 2px;
+}
+
+/* Delete suggestion - red styling with strikethrough */
+.suggestion-delete {
+  background-color: light-dark(rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.25));
+  text-decoration: line-through;
+  text-decoration-color: light-dark(rgb(239, 68, 68), rgb(248, 113, 113));
+}
+
+/* Property/format change suggestion - blue styling with dotted underline */
+.suggestion-property-change {
+  background-color: light-dark(rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.2));
+  text-decoration: underline dotted;
+  text-decoration-color: light-dark(rgb(59, 130, 246), rgb(96, 165, 250));
+  text-underline-offset: 2px;
+}
+
+/* Style change suggestion - similar to property change */
+.suggestion-style-change {
+  background-color: light-dark(rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.2));
+  text-decoration: underline dotted;
+  text-decoration-color: light-dark(rgb(59, 130, 246), rgb(96, 165, 250));
+  text-underline-offset: 2px;
+}
+
+/* Link change suggestion - purple styling */
+.suggestion-link-change {
+  background-color: light-dark(rgba(147, 51, 234, 0.15), rgba(147, 51, 234, 0.2));
+  text-decoration: underline dotted;
+  text-decoration-color: light-dark(rgb(147, 51, 234), rgb(168, 85, 247));
+  text-underline-offset: 2px;
+}
+
+/* Clear formatting suggestion */
+.suggestion-clear-formatting {
+  background-color: light-dark(rgba(251, 146, 60, 0.15), rgba(251, 146, 60, 0.2));
+  text-decoration: underline dotted;
+  text-decoration-color: light-dark(rgb(251, 146, 60), rgb(253, 186, 116));
+  text-underline-offset: 2px;
+}
+
+/* Split and join markers - minimal styling (often empty nodes) */
+.suggestion-split,
+.suggestion-join {
+  background-color: light-dark(rgba(156, 163, 175, 0.2), rgba(156, 163, 175, 0.25));
+}
+
+/* Block-level change markers */
+.suggestion-indent-change,
+.suggestion-align-change,
+.suggestion-block-type-change {
+  background-color: light-dark(rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.15));
+}
+
+/* Image change suggestion */
+.suggestion-image-change {
+  outline: 2px dashed light-dark(rgb(59, 130, 246), rgb(96, 165, 250));
+  outline-offset: 2px;
+}
+
+/* Table operation suggestions */
+.suggestion-insert-table,
+.suggestion-insert-table-row,
+.suggestion-insert-table-column,
+.suggestion-duplicate-table-row,
+.suggestion-duplicate-table-column {
+  background-color: light-dark(rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.2));
+}
+
+.suggestion-delete-table,
+.suggestion-delete-table-row,
+.suggestion-delete-table-column {
+  background-color: light-dark(rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.2));
+}

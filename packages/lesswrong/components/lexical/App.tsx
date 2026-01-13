@@ -185,7 +185,7 @@ const styles = defineStyles('LexicalApp', (theme: ThemeType) => ({
 }));
 
 import {isDevPlayground} from './appSettings';
-import {buildHTMLConfig} from './buildHTMLConfig';
+// import {buildHTMLConfig} from './buildHTMLConfig';
 import {FlashMessageContext} from './context/FlashMessageContext';
 import {SettingsContext, useSettings} from './context/SettingsContext';
 import {SharedHistoryContext} from './context/SharedHistoryContext';
@@ -293,7 +293,7 @@ function App(): JSX.Element {
           : emptyEditor
             ? undefined
             : $prepopulatedRichText,
-        html: buildHTMLConfig(),
+        // html: buildHTMLConfig(),
         name: '@lexical/playground',
         namespace: 'Playground',
         nodes: PlaygroundNodes,

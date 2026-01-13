@@ -1,0 +1,64 @@
+.Lexical__table {
+	border-collapse: collapse;
+	border-spacing: 0;
+	border-style: unset;
+	overflow-y: scroll;
+	table-layout: fixed;
+	margin: 0;
+	inline-size: fit-content;
+}
+
+.Lexical__tableWrapper {
+	margin-block-start: 1.25rem;
+	inline-size: fit-content;
+
+	--margin-from-sides-in-rem: 3rem;
+
+	max-inline-size: calc(100vw - var(--margin-from-sides-in-rem));
+	position: relative;
+	inset-block-start: 0;
+	inset-inline-start: 50%;
+	transform: translateX(-50%);
+	overflow: auto;
+	scrollbar-width: auto !important;
+
+	[contenteditable='true'] & {
+		margin-block-end: 1.65rem;
+	}
+}
+
+.Lexical__tableSelection *::selection {
+	background-color: transparent !important;
+	color: var(--text-norm);
+}
+
+.Lexical__tableSelected {
+	outline: 2px solid rgb(60 132 244);
+}
+
+.Lexical__tableCell {
+	border: 1px solid var(--border-weak);
+	min-inline-size: 75px;
+	vertical-align: top;
+	text-align: start;
+	padding-block: 6px;
+	padding-inline: 8px;
+	position: relative;
+	outline: none;
+	max-inline-size: none;
+}
+
+.Lexical__tableCellHeader {
+	background-color: var(--background-weak);
+	border-color: var(--border-weak);
+	text-align: start;
+}
+
+.Lexical__tableCellSelected {
+	background-color: #c9dbf0 !important;
+}
+
+.Lexical__tableCellEditing {
+	box-shadow: 0 0 5px rgb(0 0 0 / 0.4);
+	border-radius: 3px;
+}
