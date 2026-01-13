@@ -4,6 +4,10 @@ export type PollProps = {
 	question: string;
 	agreeWording: string;
 	disagreeWording: string;
-  colorScheme: { darkColor: string; lightColor: string; bannerTextColor: string }
+	colorScheme: { darkColor: string; lightColor: string; bannerTextColor: string };
 	duration: { days: number; hours: number; minutes: number };
+	/** Set by server when post is published. */
+	endDate?: string;
+	/** Set by CKEditor when user edits duration on a published poll. Signals server to update endDate. */
+	durationEdited?: boolean;
 };

@@ -24,6 +24,22 @@ import { PollProps } from "./constants";
 
 export const DEFAULT_POLL_DURATION = { days: 7, hours: 0, minutes: 0 };
 
+/**
+ * Compute remaining duration from endDate to now.
+ * Returns { days, hours, minutes } clamped to 0 if expired.
+ */
+function computeRemainingDuration(endDateStr: string): { days: number; hours: number; minutes: number } {
+  const endDate = new Date(endDateStr);
+  const now = new Date();
+  const remainingMs = Math.max(0, endDate.getTime() - now.getTime());
+
+  const days = Math.floor(remainingMs / (24 * 60 * 60 * 1000));
+  const hours = Math.floor((remainingMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+  const minutes = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
+
+  return { days, hours, minutes };
+}
+
 export const POLL_COLOR_SCHEMES: PollProps['colorScheme'][] = [
   { darkColor: '#06005C', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
   { darkColor: '#1D2A17', lightColor: '#FFFFFF', bannerTextColor: '#FFFFFF'},
@@ -46,6 +62,7 @@ class MainFormView extends View {
   keystrokes: KeystrokeHandler
   _focusCycler: FocusCycler
   locale: Locale
+  isPublished: boolean = false
 
   constructor(locale: Locale, editor: Editor) {
     super(locale);
@@ -213,6 +230,7 @@ class MainFormView extends View {
 
   onClose() {
     this.questionView.element.classList.remove('ck-poll-error');
+    this.isPublished = false;
   }
 
   render() {
@@ -442,7 +460,13 @@ class MainFormView extends View {
 
                 const newDuration = { days, hours, minutes };
 
-                writer.setAttribute("props", { ...props, duration: newDuration }, selectedElement);
+                const newProps: PollProps = {
+                    ...props,
+                    duration: newDuration,
+                    ...(this.isPublished ? { durationEdited: true } : {})
+                };
+
+                writer.setAttribute("props", newProps, selectedElement);
             });
         });
 
@@ -539,11 +563,16 @@ export default class PollForm extends Plugin {
       this.formView.agreeWordingView.element.value = pollProps.agreeWording || '';
       this.formView.disagreeWordingView.element.value = pollProps.disagreeWording || '';
 
-      // Update duration inputs
-      const duration = pollProps.duration || DEFAULT_POLL_DURATION; // Use default if missing
-      this.formView.daysInputView.value = duration.days.toString();
-      this.formView.hoursInputView.value = duration.hours.toString();
-      this.formView.minutesInputView.value = duration.minutes.toString();
+      // Compute display duration: use remaining time if published, otherwise original duration
+      let displayDuration = pollProps.duration || DEFAULT_POLL_DURATION;
+      this.formView.isPublished = !!pollProps.endDate;
+      if (pollProps.endDate) {
+        displayDuration = computeRemainingDuration(pollProps.endDate);
+      }
+
+      this.formView.daysInputView.value = displayDuration.days.toString();
+      this.formView.hoursInputView.value = displayDuration.hours.toString();
+      this.formView.minutesInputView.value = displayDuration.minutes.toString();
 
       // Update color button selection state
       const currentColorScheme = pollProps.colorScheme;
@@ -573,18 +602,23 @@ export default class PollForm extends Plugin {
     this.formView.agreeWordingView.element.value = pollProps.agreeWording || '';
     this.formView.disagreeWordingView.element.value = pollProps.disagreeWording || '';
 
-    // Initialize duration inputs
-    const duration = pollProps.duration || DEFAULT_POLL_DURATION; // Use default if missing
-    this.formView.daysInputView.value = duration.days.toString();
-    this.formView.hoursInputView.value = duration.hours.toString();
-    this.formView.minutesInputView.value = duration.minutes.toString();
+    // Compute display duration: use remaining time if published, otherwise original duration
+    let displayDuration = pollProps.duration || DEFAULT_POLL_DURATION;
+    this.formView.isPublished = !!pollProps.endDate;
+    if (pollProps.endDate) {
+      displayDuration = computeRemainingDuration(pollProps.endDate);
+    }
+
+    this.formView.daysInputView.value = displayDuration.days.toString();
+    this.formView.hoursInputView.value = displayDuration.hours.toString();
+    this.formView.minutesInputView.value = displayDuration.minutes.toString();
 
     // Initialize color button selection state
     const currentColorScheme = pollProps.colorScheme;
     const currentIndex = POLL_COLOR_SCHEMES.findIndex(cs =>
         cs.darkColor === currentColorScheme?.darkColor && cs.lightColor === currentColorScheme?.lightColor
     );
-     this.formView.colorSchemeButtons.forEach((btn, btnIndex) => {
+    this.formView.colorSchemeButtons.forEach((btn, btnIndex) => {
         btn.isOn = (currentIndex === btnIndex);
     });
   }

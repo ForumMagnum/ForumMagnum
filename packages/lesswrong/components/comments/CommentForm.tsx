@@ -1,5 +1,6 @@
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
+import { useApolloClient } from "@apollo/client";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
@@ -284,6 +285,7 @@ export const CommentForm = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
+  const apolloClient = useApolloClient();
 
   const formType = initialData ? 'edit' : 'new';
 
@@ -343,6 +345,11 @@ export const CommentForm = ({
           });
           result = data?.updateComment.data;
         }
+
+        // Invalidate ForumEvents cache so polls show updated endDate
+        apolloClient.cache.evict({ fieldName: 'forumEvent' });
+        apolloClient.cache.evict({ fieldName: 'forumEvents' });
+        apolloClient.cache.gc();
 
         onSuccessCallback.current?.(result);
 
