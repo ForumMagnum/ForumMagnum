@@ -93,8 +93,8 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
   const {bannerImageId, darkColor, lightColor, bannerTextColor} = event;
 
   const pollAreaStyle = {
-    "--forum-event-background": lightColor,
-    "--forum-event-foreground": darkColor,
+    "--forum-event-background": darkColor,
+    "--forum-event-foreground": lightColor,
     "--forum-event-banner-text": bannerTextColor,
   } as CSSProperties;
 

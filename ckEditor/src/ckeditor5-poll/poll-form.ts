@@ -40,13 +40,24 @@ function computeRemainingDuration(endDateStr: string): { days: number; hours: nu
   return { days, hours, minutes };
 }
 
-export const POLL_COLOR_SCHEMES: PollProps['colorScheme'][] = [
-  { darkColor: '#007584', lightColor: '#edf6f7', bannerTextColor: '#007584'},
-  { darkColor: '#000000', lightColor: '#f5f5f5', bannerTextColor: '#000000'},
-  { darkColor: '#d94300', lightColor: '#fef2ee', bannerTextColor: '#d94300'},
-  { darkColor: '#004a83', lightColor: '#eef5f6', bannerTextColor: '#004a83'},
-  { darkColor: '#007311', lightColor: '#eef6f0', bannerTextColor: '#007311'},
-]
+// Color schemes use clear names internally; mapped to DB field names (darkColor/lightColor) when saving
+type ColorScheme = { backgroundColor: string; foregroundColor: string; bannerTextColor: string };
+
+export const POLL_COLOR_SCHEMES: ColorScheme[] = [
+  { backgroundColor: '#edf6f7', foregroundColor: '#007584', bannerTextColor: '#007584'},
+  { backgroundColor: '#f5f5f5', foregroundColor: '#000000', bannerTextColor: '#000000'},
+  { backgroundColor: '#fef2ee', foregroundColor: '#d94300', bannerTextColor: '#d94300'},
+  { backgroundColor: '#eef5f6', foregroundColor: '#004a83', bannerTextColor: '#004a83'},
+  { backgroundColor: '#eef6f0', foregroundColor: '#007311', bannerTextColor: '#007311'},
+];
+
+export function toDbColorScheme(cs: ColorScheme): PollProps['colorScheme'] {
+  return { darkColor: cs.backgroundColor, lightColor: cs.foregroundColor, bannerTextColor: cs.bannerTextColor };
+}
+
+function fromDbColorScheme(cs: PollProps['colorScheme']): ColorScheme {
+  return { backgroundColor: cs.darkColor, foregroundColor: cs.lightColor, bannerTextColor: cs.bannerTextColor };
+}
 
 class MainFormView extends View {
   editor: Editor
@@ -393,8 +404,8 @@ class MainFormView extends View {
         // on the first render when applying the `isOn` class to the current selection
         setTimeout(() => {
           // Apply dynamic background color
-          buttonView.element.style.setProperty("--poll-dark", colorScheme.darkColor);
-          buttonView.element.style.setProperty("--poll-light", colorScheme.lightColor);
+          buttonView.element.style.setProperty("--poll-background", colorScheme.backgroundColor);
+          buttonView.element.style.setProperty("--poll-foreground", colorScheme.foregroundColor);
           buttonView.element.style.setProperty("--poll-text", colorScheme.bannerTextColor);
           // Add class on initial render
           buttonView.element.classList.add('ck-color-selector-button');
@@ -409,7 +420,7 @@ class MainFormView extends View {
 
         model.change((writer: Writer) => {
           const props = this.selectedElement.getAttribute("props") as PollProps;
-          const newColorScheme = POLL_COLOR_SCHEMES[index];
+          const newColorScheme = toDbColorScheme(POLL_COLOR_SCHEMES[index]);
 
           writer.setAttribute("props", {...props, colorScheme: newColorScheme}, this.selectedElement);
 
@@ -582,9 +593,9 @@ export default class PollForm extends Plugin {
       this.formView.minutesInputView.value = displayDuration.minutes.toString();
 
       // Update color button selection state
-      const currentColorScheme = pollProps.colorScheme;
+      const currentColorScheme = pollProps.colorScheme ? fromDbColorScheme(pollProps.colorScheme) : null;
       const currentIndex = POLL_COLOR_SCHEMES.findIndex(cs =>
-          cs.darkColor === currentColorScheme?.darkColor && cs.lightColor === currentColorScheme?.lightColor
+          cs.backgroundColor === currentColorScheme?.backgroundColor && cs.foregroundColor === currentColorScheme?.foregroundColor
       );
       this.formView.colorSchemeButtons.forEach((btn, btnIndex) => {
           btn.isOn = (currentIndex === btnIndex);
@@ -621,9 +632,9 @@ export default class PollForm extends Plugin {
     this.formView.minutesInputView.value = displayDuration.minutes.toString();
 
     // Initialize color button selection state
-    const currentColorScheme = pollProps.colorScheme;
+    const currentColorScheme = pollProps.colorScheme ? fromDbColorScheme(pollProps.colorScheme) : null;
     const currentIndex = POLL_COLOR_SCHEMES.findIndex(cs =>
-        cs.darkColor === currentColorScheme?.darkColor && cs.lightColor === currentColorScheme?.lightColor
+        cs.backgroundColor === currentColorScheme?.backgroundColor && cs.foregroundColor === currentColorScheme?.foregroundColor
     );
     this.formView.colorSchemeButtons.forEach((btn, btnIndex) => {
         btn.isOn = (currentIndex === btnIndex);

@@ -101,15 +101,15 @@
 
 .ck-reset_all .ck-color-selector-button {
   border-radius: 50% !important;
-  border: 2px solid var(--poll-dark);
-  background-color: var(--poll-light);
+  border: 2px solid var(--poll-foreground);
+  background-color: var(--poll-background);
   box-sizing: border-box;
   cursor: pointer;
   box-shadow: none !important;
 }
 
 .ck-reset_all .ck-color-selector-button.ck-on {
-  border: 3px solid var(--poll-dark);
+  border: 3px solid var(--poll-foreground);
 }
 
 .ck-reset_all .ck-duration-input {

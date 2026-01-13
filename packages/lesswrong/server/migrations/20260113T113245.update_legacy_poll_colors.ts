@@ -1,13 +1,16 @@
-// Update legacy poll colors to the new color scheme
+// Update legacy poll colors to the new color scheme.
+// NOTE: The naming is confusing but intentional for backwards compatibility.
+// darkColor is used as the background (now light colors), lightColor is used as foreground (now dark colors).
+
 const OLD_TO_NEW_COLOR_MAP: Record<string, { darkColor: string; lightColor: string; bannerTextColor: string }> = {
-  // Old deep blue -> new blue
-  '#06005C': { darkColor: '#004a83', lightColor: '#eef5f6', bannerTextColor: '#004a83' },
+  // Old deep blue -> new blue (light bg in darkColor, dark fg in lightColor)
+  '#06005C': { darkColor: '#eef5f6', lightColor: '#004a83', bannerTextColor: '#004a83' },
   // Old dark green -> new green
-  '#1D2A17': { darkColor: '#007311', lightColor: '#eef6f0', bannerTextColor: '#007311' },
+  '#1D2A17': { darkColor: '#eef6f0', lightColor: '#007311', bannerTextColor: '#007311' },
   // Old brown/orange -> new orange
-  '#7B3402': { darkColor: '#d94300', lightColor: '#fef2ee', bannerTextColor: '#d94300' },
+  '#7B3402': { darkColor: '#fef2ee', lightColor: '#d94300', bannerTextColor: '#d94300' },
   // Old beige/cream -> new gray
-  '#F3F3E1': { darkColor: '#000000', lightColor: '#f5f5f5', bannerTextColor: '#000000' },
+  '#F3F3E1': { darkColor: '#f5f5f5', lightColor: '#000000', bannerTextColor: '#000000' },
 };
 
 export const up = async ({db}: MigrationContext) => {

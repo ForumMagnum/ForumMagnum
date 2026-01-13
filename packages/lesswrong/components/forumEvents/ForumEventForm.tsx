@@ -236,9 +236,9 @@ const InnerForumEventForm = ({
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field name="lightColor">
+        <form.Field name="darkColor">
           {(field) => (
-            <LWTooltip title={`Used as the background of the banner. "Background color" ("lightColor" in the schema) and "Foreground color" ("darkColor") should be roughly inverses of each other.`} placement="left-start" inlineBlock={false}>
+            <LWTooltip title={`Used as the background of the banner. "Background color" ("darkColor" in the schema) and "Foreground color" ("lightColor") should be roughly inverses of each other.`} placement="left-start" inlineBlock={false}>
               <FormComponentColorPicker
                 field={field}
                 label="Background color"
@@ -249,9 +249,9 @@ const InnerForumEventForm = ({
       </div>
 
       <div className={classes.fieldWrapper}>
-        <form.Field name="darkColor">
+        <form.Field name="lightColor">
           {(field) => (
-            <LWTooltip title={`Used as a foreground or text color. "Background color" ("lightColor" in the schema) and "Foreground color" ("darkColor") should be roughly inverses of each other.`} placement="left-start" inlineBlock={false}>
+            <LWTooltip title={`Used as a foreground or text color. "Background color" ("darkColor" in the schema) and "Foreground color" ("lightColor") should be roughly inverses of each other.`} placement="left-start" inlineBlock={false}>
               <FormComponentColorPicker
                 field={field}
                 label="Foreground color"
@@ -264,7 +264,7 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="bannerTextColor">
           {(field) => (
-            <LWTooltip title={`Used as an alternative to 'Foreground color' in places that require high contrast.`} placement="left-start" inlineBlock={false}>
+            <LWTooltip title={`Color of the text on the main banner, and for some event types the text in the header (e.g. "Effective Altruism Forum"). For many events its ok to leave this as white, it may be useful to set for events where the primary background color is light.`} placement="left-start" inlineBlock={false}>
               <FormComponentColorPicker
                 field={field}
                 label="Banner text color"

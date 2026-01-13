@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'center',
     color: "var(--forum-event-banner-text)",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: "0px 16px 15px 24px",
+    padding: "0px 8px 15px 8px",
     margin: "0 auto",
     maxWidth: "100%",
   },
