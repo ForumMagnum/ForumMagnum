@@ -1630,6 +1630,7 @@ CREATE TABLE "Posts" (
   "title" VARCHAR(500) NOT NULL,
   "viewCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "lastCommentedAt" TIMESTAMPTZ NOT NULL,
+  "lastCommentReplyAt" TIMESTAMPTZ,
   "clickCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "deletedDraft" BOOL NOT NULL DEFAULT FALSE,
   "status" DOUBLE PRECISION NOT NULL,
@@ -3772,6 +3773,11 @@ WITH
   (deduplicate_items = TRUE)
 WHERE
   "suggestForAlignmentUserIds" IS DISTINCT FROM '{}';
+
+-- CustomIndex "idx_Comments_postId_postedAt_with_parent"
+CREATE INDEX IF NOT EXISTS "idx_Comments_postId_postedAt_with_parent" ON "Comments" ("postId", "postedAt")
+WHERE
+  "parentCommentId" IS NOT NULL;
 
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);

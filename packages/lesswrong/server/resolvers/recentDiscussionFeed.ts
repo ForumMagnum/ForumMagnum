@@ -1,8 +1,9 @@
 import { mergeFeedQueries, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
 import { Posts } from '../../server/collections/posts/collection';
+import { Comments } from '../collections/comments/collection';
 import { Tags } from '../../server/collections/tags/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { viewFieldAllowAny } from '@/lib/utils/viewConstants';
 import { EA_FORUM_COMMUNITY_TOPIC_ID, EA_FORUM_TRANSLATION_TOPIC_ID } from '@/lib/collections/tags/helpers';
 import gql from 'graphql-tag';
@@ -32,7 +33,8 @@ export const recentDiscussionFeedGraphQLTypeDefs = gql`
   type RecentDiscussionFeedEntryType {
     type: String!
     postCommented: Post
-    shortformCommented: Post
+    newQuickTake: Comment
+    quickTakeCommented: Post
     tagDiscussed: Tag
     tagRevised: Revision
   }
@@ -48,11 +50,14 @@ export const recentDiscussionFeedGraphQLTypeDefs = gql`
 
 export const recentDiscussionFeedGraphQLQueries = {
   RecentDiscussionFeed: async (_root: void, args: any, context: ResolverContext) => {
-    const {limit, cutoff, offset, af, sessionId, ...rest} = args;
+    const {limit, cutoff, offset, af, sessionId} = args;
     type SortKeyType = Date;
     const {currentUser} = context;
 
-    const shouldSuggestMeetupSubscription = currentUser && !currentUser.nearbyEventsNotifications && !currentUser.hideMeetupsPoke; //TODO: Check some more fields
+    const shouldSuggestMeetupSubscription = isLWorAF &&
+      currentUser &&
+      !currentUser.nearbyEventsNotifications &&
+      !currentUser.hideMeetupsPoke; //TODO: Check some more fields
 
     const postCommentedEventsCriteria = {$or: [{isEvent: false}, {globalEvent: true}, {commentCount: {$gt: 0}}]}
 
@@ -106,16 +111,31 @@ export const recentDiscussionFeedGraphQLQueries = {
             ],
           },
         }),
-        // Shortform/quick take commented
+        // New quick take
         viewBasedSubquery({
-          type: "shortformCommented",
-          collection: Posts,
-          sortField: "lastCommentedAt",
+          type: "newQuickTake",
+          collection: Comments,
+          sortField: "postedAt",
           context,
-          includeDefaultSelector: false,
+          includeDefaultSelector: true,
           selector: {
-            ...postSelector,
+            baseScore: {$gt:0},
             shortform: {$eq: true},
+            parentCommentId: {$exists: false},
+            descendentCount: {$eq: 0},
+          },
+        }),
+        // Quick take commented
+        viewBasedSubquery({
+          type: "quickTakeCommented",
+          collection: Posts,
+          sortField: "lastCommentReplyAt",
+          context,
+          includeDefaultSelector: true,
+          selector: {
+            baseScore: {$gt:0},
+            shortform: {$eq: true},
+            lastCommentReplyAt: {$exists: true},
           },
         }),
         // Tags with discussion comments
