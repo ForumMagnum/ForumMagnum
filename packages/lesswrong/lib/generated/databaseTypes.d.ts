@@ -1029,6 +1029,7 @@ interface DbPost extends DbObject {
   isFuture: boolean
   joinEventLink: string | null
   lastCommentPromotedAt: Date | null
+  lastCommentReplyAt: Date | null
   lastCommentedAt: Date
   legacy: boolean
   legacyData: any | null

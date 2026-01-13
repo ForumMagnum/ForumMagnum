@@ -154,7 +154,7 @@ export default class PollPlugin extends Plugin {
         });
 
         const disagreeLabel = viewWriter.createContainerElement("div", {
-          class: [`${POLL_CLASS}-label`, `${POLL_CLASS}-disagree`]
+          class: `${POLL_CLASS}-label ${POLL_CLASS}-disagree`
         });
         viewWriter.insert(
           viewWriter.createPositionAt(disagreeLabel, 0),
@@ -162,7 +162,7 @@ export default class PollPlugin extends Plugin {
         );
 
         const agreeLabel = viewWriter.createContainerElement("div", {
-           class: [`${POLL_CLASS}-label`, `${POLL_CLASS}-agree`]
+          class: `${POLL_CLASS}-label ${POLL_CLASS}-agree`
         });
         viewWriter.insert(
           viewWriter.createPositionAt(agreeLabel, 0),
