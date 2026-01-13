@@ -8,22 +8,17 @@ import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { makeCloudinaryImageUrl } from "../common/CloudinaryImage2";
 import ForumEventPoll, { getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
-import { useConcreteThemeOptions } from "../themes/useTheme";
 import { useCurrentUser } from "../common/withUser";
-import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     width: "100%",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 24,
+    padding: "24px 0px",
     borderRadius: theme.borderRadius.default,
     marginBottom: 40,
     scrollMarginTop: '100px',
-  },
-  rootEmbedded: {
-    padding: 6
   },
   heading: {
     fontSize: 24,
@@ -45,6 +40,8 @@ const styles = (theme: ThemeType) => ({
   pollArea: {
     paddingTop: 24,
     borderRadius: theme.borderRadius.default,
+    background: "var(--forum-event-background)",
+    border: "1px solid color-mix(in srgb, var(--forum-event-banner-text) 30%, var(--forum-event-background))",
     '& .ForumEventPoll-question': {
       fontSize: 24,
     },
@@ -80,7 +77,6 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
 
   const currentUser = useCurrentUser()
   const hasVoted = getForumEventVoteForUser(event, currentUser) !== null
-  const themeOptions = useConcreteThemeOptions()
 
   const {document: post} = useSingle({
     collectionName: "Posts",
@@ -100,7 +96,6 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
     "--forum-event-background": darkColor,
     "--forum-event-foreground": lightColor,
     "--forum-event-banner-text": bannerTextColor,
-    background: "var(--forum-event-background)",
   } as CSSProperties;
 
   if (bannerImageId) {
@@ -115,15 +110,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
   }
   return (
     <AnalyticsContext pageSectionContext="forumEventPostPagePollSection">
-      <div
-        className={classNames(classes.root, { [classes.rootEmbedded]: !event.isGlobal })}
-        style={
-          themeOptions.name === "dark"
-            ? { background: darkColor, color: lightColor }
-            : { background: lightColor, color: darkColor }
-        }
-        {...divProps}
-      >
+      <div className={classes.root} {...divProps}>
         {event.isGlobal && (
           <>
             <h2 className={classes.heading}>{!hasVoted ? "Have you voted yet?" : "Did this post change your mind?"}</h2>
