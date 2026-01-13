@@ -28,6 +28,7 @@ const EARecentDiscussionNewQuickTake = ({
   refetch: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const excerptLines = (quickTake.descendentCount ?? 0) > 1 ? 3 : 20;
   return (
     <EARecentDiscussionItem
       icon="CommentFilled"
@@ -44,7 +45,7 @@ const EARecentDiscussionNewQuickTake = ({
         comment={quickTake}
         nestingLevel={1}
         truncated={false}
-        excerptLines={(quickTake.descendentCount ?? 0) > 1 ? 3 : 20}
+        excerptLines={excerptLines}
         className={classes.body}
       />
     </EARecentDiscussionItem>

@@ -129,7 +129,7 @@ export function getDbIndexesOnComments() {
   `);
 
   void indexSet.addCustomPgIndex(`
-    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_postId_postedAt_no_parent"
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_postId_postedAt_with_parent"
     ON "Comments" ("postId", "postedAt")
     WHERE "parentCommentId" IS NOT NULL;
   `);

@@ -93,7 +93,7 @@ const RecentDiscussionFeed = ({
                   <EARecentDiscussionQuickTakeCommented
                     post={post}
                     comments={post.recentQuickTakeComments}
-                    expandAllThreads={expandAllThreads}
+                    expandAllThreads={expandAll}
                     refetch={refetch}
                   />
                 )
