@@ -18,6 +18,13 @@ import { userIsAdmin } from "../vulcan-users/permissions";
 import { IRPossibleVoteCounts } from "./instantRunoff";
 import { userIsBanned } from "../collections/users/helpers";
 
+
+/**
+ * Master switch to disable all Giving Season code paths.
+ * Note: You'll need to update dates, event definitions, and other constants to fully bring it back online.
+ */
+export const GIVING_SEASON_ENABLED = false;
+
 export const GIVING_SEASON_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement";
 export const ELECTION_INFO_HREF = "/posts/RzdKnBYe3jumrZxkB/giving-season-2025-announcement#November_24th_to_December_7th_";
 export const ELECTION_LEARN_MORE_HREF = "/posts/93KvQDDQfaZEBTP7t/donation-election-fund-rewards-and-matching";
@@ -208,6 +215,9 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
   }, [defaultEvent]);
   useOnNavigate(onNavigate);
 
+  // Skip all queries when giving season is disabled
+  const skipQueries = !GIVING_SEASON_ENABLED;
+
   const {data: donationTotalData} = useQuery(gql`
     query GivingSeason2025DonationTotal {
       GivingSeason2025DonationTotal
@@ -215,7 +225,7 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
   `, {
     pollInterval: 60 * 1000, // Poll once per minute
     ssr: true,
-    skip: !isEAForum || (!isHomePage && !isVotingPortalPage),
+    skip: skipQueries || !isEAForum || (!isHomePage && !isVotingPortalPage),
   });
   const amountRaised = Math.round(donationTotalData?.GivingSeason2025DonationTotal ?? 0);
 
@@ -225,7 +235,7 @@ export const GivingSeasonContext = ({children}: {children: ReactNode}) => {
     }
   `, {
     ssr: true,
-    skip: !isEAForum || !isHomePage,
+    skip: skipQueries || !isEAForum || !isHomePage,
   });
 
   const value = useMemo(() => ({

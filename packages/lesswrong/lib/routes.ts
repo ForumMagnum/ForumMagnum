@@ -174,6 +174,7 @@ import MarginalFundingPage from '@/components/forumEvents/givingSeason/MarginalF
 import VotingPortalPage from '@/components/forumEvents/givingSeason/VotingPortalPage';
 import AdminElectionCandidates from '@/components/forumEvents/givingSeason/AdminElectionCandidates';
 import EditElectionCandidate from '@/components/forumEvents/givingSeason/EditElectionCandidate';
+import { GIVING_SEASON_ENABLED } from '@/lib/givingSeason';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -1068,13 +1069,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       fullscreen: true,
       noFooter: true,
     },
-    {
+    ...(GIVING_SEASON_ENABLED ? [{
       name: 'VotingPortal',
       path: '/voting-portal',
       component: VotingPortalPage,
       title: 'Vote in the Donation Election',
       noFooter: true,
-    },
+    }] : []),
     {
       name: 'ElectionCandidates',
       path: '/admin/election-candidates',
