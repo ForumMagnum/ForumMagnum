@@ -13,7 +13,7 @@ import { compact } from "@apollo/client/utilities/internal";
 import { maybe } from "@apollo/client/utilities/internal/globals";
 import { Observable } from "rxjs";
 
-import { substituteFromObjectStore, type JsonObject, type JsonValue } from "./graphql2ObjectStore";
+import { substituteFromObjectStore, type JsonObject, type JsonValue } from "./graphqlDeduplicatedObjectStore";
 
 const backupFetch = maybe(() => fetch);
 
@@ -102,7 +102,7 @@ interface StreamingGraphQLHttpLinkOptions extends BaseHttpLink.Shared.Options {
  * Browser-only link: we **do not** attempt request-body streaming (not reliable across browsers).
  * We still stream responses and deliver each operation as soon as its `{index,result}` line arrives.
  */
-export class StreamingBatchGraphql2EndpointHttpLink extends ApolloLink {
+export class StreamingGraphqlHttpLink extends ApolloLink {
   private readonly uri: string;
   private readonly preferredFetch?: typeof fetch;
   private readonly print: typeof defaultPrinter;

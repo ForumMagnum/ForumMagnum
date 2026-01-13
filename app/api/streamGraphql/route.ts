@@ -10,7 +10,7 @@ import { captureException, getSentry } from "@/lib/sentryWrapper";
 import { getClientIP } from "@/server/utils/getClientIP";
 import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from "@/lib/instanceSettings";
 import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
-import { createGraphql2ObjectStore, extractToObjectStoreAndSubstitute } from "@/lib/apollo/graphql2ObjectStore";
+import { createGraphqlDeduplicatedObjectStore, extractToObjectStoreAndSubstitute } from "@/lib/apollo/graphqlDeduplicatedObjectStore";
 
 type GraphqlHttpRequestBody = {
   operationName?: string | null;
@@ -88,7 +88,7 @@ function formatGraphQLError(err: any): any {
   }
 }
 
-async function executeGraphql2Operation({ op, context }: {
+async function executeGraphqlOperation({ op, context }: {
   op: GraphqlHttpRequestBody;
   context: ResolverContext;
 }): Promise<any> {
@@ -112,7 +112,7 @@ async function executeGraphql2Operation({ op, context }: {
   return result;
 }
 
-async function graphql2Handler(request: NextRequest, { onComplete }: { onComplete?: (error?: unknown) => void } = {}) {
+async function graphqlStreamingHandler(request: NextRequest, { onComplete }: { onComplete?: (error?: unknown) => void } = {}) {
   const context = await getContextFromReqAndRes({ req: request, isSSR: false });
   const Sentry = getSentry();
   if (Sentry) {
@@ -122,7 +122,7 @@ async function graphql2Handler(request: NextRequest, { onComplete }: { onComplet
 
   const encoder = new TextEncoder();
   let cancelled = false;
-  const objectStore = createGraphql2ObjectStore();
+  const objectStore = createGraphqlDeduplicatedObjectStore();
 
   const stream = new ReadableStream<Uint8Array>({
     start(controller) {
@@ -169,7 +169,7 @@ async function graphql2Handler(request: NextRequest, { onComplete }: { onComplet
             inFlight += 1;
             (async () => {
               try {
-                const result = await executeGraphql2Operation({ op: query, context });
+                const result = await executeGraphqlOperation({ op: query, context });
                 const { substituted, delta } = extractToObjectStoreAndSubstitute(result, objectStore);
                 enqueueLine(
                   Object.keys(delta).length
@@ -178,6 +178,7 @@ async function graphql2Handler(request: NextRequest, { onComplete }: { onComplet
                 );
               } catch(error) {
                 captureException(error);
+                // eslint-disable-next-line no-console
                 console.log(error);
                 enqueueLine({ index, result: { errors: [{ message: "Internal server error" }] } });
               } finally {
@@ -187,6 +188,7 @@ async function graphql2Handler(request: NextRequest, { onComplete }: { onComplet
             })();
           }
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.error(error);
           captureException(error);
         } finally {
@@ -215,7 +217,7 @@ async function graphql2Handler(request: NextRequest, { onComplete }: { onComplet
 
 async function sharedHandler(request: NextRequest) {
   if (!performanceMetricLoggingEnabled.get()) {
-    const res = await graphql2Handler(request);
+    const res = await graphqlStreamingHandler(request);
 
     if (isCrossSiteRequest(request)) {
       setCorsHeaders(res);
@@ -234,7 +236,7 @@ async function sharedHandler(request: NextRequest) {
   return asyncLocalStorage.run({ requestPerfMetric: perfMetric }, async () => {
     let res: Response;
     try {
-      res = await graphql2Handler(request, {
+      res = await graphqlStreamingHandler(request, {
         onComplete: () => {
           const Sentry = getSentry();
           const userId = Sentry?.getIsolationScope().getUser()?.id;

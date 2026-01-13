@@ -19,7 +19,7 @@ export interface Graphql2ObjectStore {
   disambiguationCounterById: Map<string, number>;
 }
 
-export function createGraphql2ObjectStore(): Graphql2ObjectStore {
+export function createGraphqlDeduplicatedObjectStore(): Graphql2ObjectStore {
   return {
     objects: new Map(),
     canonicalJsonByKey: new Map(),

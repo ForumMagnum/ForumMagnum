@@ -6,7 +6,7 @@ import { graphqlBatchMaxSetting } from '../instanceSettings';
 import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
 import { crosspostUserAgent } from "./constants";
 import { getSiteUrl } from "../vulcan-lib/utils";
-import { StreamingBatchGraphql2EndpointHttpLink } from "./StreamingBatchGraphql2EndpointHttpLink";
+import { StreamingGraphqlHttpLink } from "./StreamingGraphqlHttpLink";
 
 /**
  * "Links" are Apollo's way of defining the source to read our data from, and they need to
@@ -62,7 +62,7 @@ export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
       },
     })
     : globalThis.fetch;
-  return new StreamingBatchGraphql2EndpointHttpLink({
+  return new StreamingGraphqlHttpLink({
     uri,
     credentials: isSameSiteRequest ? 'same-origin' : 'omit',
     batchMax: isServer ? 1 : graphqlBatchMaxSetting.get(),

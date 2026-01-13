@@ -139,7 +139,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       maxAge: 315360000,
       path: "/",
     });
-  }, []);
+  }, [setCookie]);
 
 
   const [loginMutation] = useMutation(gql(`
