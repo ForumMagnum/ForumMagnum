@@ -675,9 +675,9 @@ interface LexicalPostEditorProps {
  * Content is stored as HTML for compatibility with existing content.
  */
 const LexicalPostEditor = ({
-  // data = '',
-  // placeholder = 'Start writing...',
-  // onChange,
+  data = '',
+  placeholder = 'Start writing...',
+  onChange,
   onReady,
   // commentEditor = false,
   postId = null,
@@ -686,6 +686,14 @@ const LexicalPostEditor = ({
   const classes = useStyles(lexicalStyles);
   const currentUser = useCurrentUser();
   const clientId = useClientId();
+  const initialHtmlRef = useRef<string | null>(null);
+  const lastPostIdRef = useRef<string | null>(null);
+  if (lastPostIdRef.current !== postId) {
+    lastPostIdRef.current = postId;
+    initialHtmlRef.current = data;
+  } else if (initialHtmlRef.current === null) {
+    initialHtmlRef.current = data;
+  }
   
   // Store internal IDs extracted from the original HTML for preservation during export
   // const internalIdsRef = useRef<InternalIdMap>(new Map());
@@ -800,7 +808,13 @@ const LexicalPostEditor = ({
           <TableContext>
             <ToolbarContext>
               <div className="editor-shell">
-                <Editor collaborationConfig={collaborationConfig ?? undefined} />
+                <Editor
+                  key={postId ?? 'lexical-new'}
+                  collaborationConfig={collaborationConfig ?? undefined}
+                  initialHtml={initialHtmlRef.current ?? ''}
+                  onChangeHtml={onChange}
+                  placeholder={placeholder}
+                />
               </div>
               <Settings />
               {/* {isDevPlayground ? <DocsPlugin /> : null}

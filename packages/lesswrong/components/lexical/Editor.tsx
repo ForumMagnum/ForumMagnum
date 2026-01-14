@@ -15,6 +15,7 @@ import {CharacterLimitPlugin} from '@lexical/react/LexicalCharacterLimitPlugin';
 import {CheckListPlugin} from '@lexical/react/LexicalCheckListPlugin';
 import {ClearEditorPlugin} from '@lexical/react/LexicalClearEditorPlugin';
 import {ClickableLinkPlugin} from '@lexical/react/LexicalClickableLinkPlugin';
+import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
 import {
   CollaborationPlugin,
   CollaborationPluginV2__EXPERIMENTAL,
@@ -32,8 +33,11 @@ import {TabIndentationPlugin} from '@lexical/react/LexicalTabIndentationPlugin';
 import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
 import {CAN_USE_DOM} from '@lexical/utils';
-import {useEffect, useLayoutEffect, useMemo, useState} from 'react';
+import {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Doc} from 'yjs';
+import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
+import {$getRoot, $insertNodes} from 'lexical';
+import { CodeBlockPlugin } from '../editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 
 import {
   createWebsocketProvider,
@@ -139,13 +143,23 @@ const COLLAB_DOC_ID = 'main';
 export interface EditorProps {
   /** Collaboration config - if provided, enables real-time collaboration */
   collaborationConfig?: CollaborationConfig;
+  /** Initial HTML content to load into the editor (only used when NOT in collaborative mode) */
+  initialHtml?: string;
+  /** Called on any editor change with the current HTML representation */
+  onChangeHtml?: (html: string) => void;
+  /** Placeholder override (otherwise uses built-in placeholder based on settings/collab mode) */
+  placeholder?: string;
 }
 
 export default function Editor({
   collaborationConfig,
+  initialHtml,
+  onChangeHtml,
+  placeholder: placeholderOverride,
 }: EditorProps): JSX.Element {
   const classes = useStyles(styles);
   const {historyState} = useSharedHistoryContext();
+  const hasLoadedInitialHtmlRef = useRef(false);
   
   // Track when collaboration config is ready (set synchronously, not in useEffect)
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
@@ -188,11 +202,11 @@ export default function Editor({
   // Enable collaboration if config is provided OR if the setting is enabled
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isEditable = useLexicalEditable();
-  const placeholder = isCollab
+  const placeholder = placeholderOverride ?? (isCollab
     ? 'Enter some collaborative rich text...'
     : isRichText
       ? 'Enter some rich text...'
-      : 'Enter some plain text...';
+      : 'Enter some plain text...');
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
   const [isSmallWidthViewport, setIsSmallWidthViewport] =
@@ -224,6 +238,23 @@ export default function Editor({
     };
   }, [isSmallWidthViewport]);
 
+  // Load initial HTML exactly once, and only when not using collaboration.
+  useEffect(() => {
+    if (!initialHtml) return;
+    if (isCollab) return;
+    if (hasLoadedInitialHtmlRef.current) return;
+    hasLoadedInitialHtmlRef.current = true;
+
+    editor.update(() => {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(initialHtml, 'text/html');
+      const nodes = $generateNodesFromDOM(editor, dom);
+      const root = $getRoot();
+      root.clear();
+      $insertNodes(nodes);
+    });
+  }, [editor, initialHtml, isCollab]);
+
   return (
     <>
       {isRichText && (
@@ -249,6 +280,7 @@ export default function Editor({
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <DragDropPaste />
         <AutoFocusPlugin />
+        <CodeBlockPlugin editor={editor} />
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
         <ComponentPickerPlugin />
@@ -301,6 +333,16 @@ export default function Editor({
               }
               ErrorBoundary={LexicalErrorBoundary}
             />
+            {onChangeHtml && (
+              <OnChangePlugin
+                onChange={(editorState) => {
+                  editorState.read(() => {
+                    const html = $generateHtmlFromNodes(editor, null);
+                    onChangeHtml(html);
+                  });
+                }}
+              />
+            )}
             <MarkdownShortcutPlugin />
             {/* {isCodeHighlighted &&
               (isCodeShiki ? (

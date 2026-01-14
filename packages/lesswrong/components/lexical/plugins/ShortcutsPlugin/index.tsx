@@ -23,6 +23,7 @@ import {Dispatch, useEffect} from 'react';
 import {useToolbarState} from '../../context/ToolbarContext';
 import {sanitizeUrl} from '../../utils/url';
 import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
+import { INSERT_CODE_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 import {
   clearFormatting,
   formatBulletList,
@@ -118,7 +119,7 @@ export default function ShortcutsPlugin({
       } else if (isSuperscript(event)) {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'superscript');
       } else if (isInsertCodeBlock(event)) {
-        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
+        editor.dispatchCommand(INSERT_CODE_BLOCK_COMMAND, undefined);
       } else if (isIncreaseFontSize(event)) {
         updateFontSize(
           editor,

@@ -15,6 +15,7 @@ import {
   getCodeLanguageOptions as getCodeLanguageOptionsPrism,
   normalizeCodeLanguage as normalizeCodeLanguagePrism,
 } from '@lexical/code';
+import { INSERT_CODE_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 
 // Icon imports
 import { ArrowCounterclockwiseIcon } from '../../icons/ArrowCounterclockwiseIcon';
@@ -1270,8 +1271,8 @@ export default function ToolbarPlugin({
           {canViewerSeeInsertCodeButton && (
             <button
               disabled={!isEditable}
-              onClick={(e) =>
-                dispatchFormatTextCommand('code', isKeyboardInput(e))
+              onClick={() =>
+                activeEditor.dispatchCommand(INSERT_CODE_BLOCK_COMMAND, undefined)
               }
               className={classNames(classes.toolbarItemSpaced, { [classes.toolbarItemActive]: toolbarState.isCode })}
               title={`Insert code block (${SHORTCUTS.INSERT_CODE_BLOCK})`}
