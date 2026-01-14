@@ -185,7 +185,7 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
         fe."startDate",
         fe."endDate",
         fe."publicData",
-        CASE
+        array_remove(CASE
           WHEN fe."commentId" IS NOT NULL THEN ARRAY[c."userId"]
           ELSE ARRAY[p."userId"] || COALESCE(
             (SELECT array_agg(co->>'userId')
@@ -193,7 +193,7 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
              WHERE (co->>'confirmed')::boolean = true),
             ARRAY[]::text[]
           )
-        END as "creatorUserIds"
+        END, NULL) as "creatorUserIds"
       FROM "ForumEvents" fe
       LEFT JOIN "Comments" c ON fe."commentId" = c."_id"
       LEFT JOIN "Posts" p ON COALESCE(fe."postId", c."postId") = p."_id"
@@ -227,7 +227,7 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
         COALESCE(fe."postId", c."postId") as "derivedPostId",
         fe."commentId",
         fe."publicData",
-        CASE
+        array_remove(CASE
           WHEN fe."commentId" IS NOT NULL THEN ARRAY[c."userId"]
           ELSE ARRAY[p."userId"] || COALESCE(
             (SELECT array_agg(co->>'userId')
@@ -235,7 +235,7 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
              WHERE (co->>'confirmed')::boolean = true),
             ARRAY[]::text[]
           )
-        END as "creatorUserIds"
+        END, NULL) as "creatorUserIds"
       FROM "ForumEvents" fe
       LEFT JOIN "Comments" c ON fe."commentId" = c."_id"
       LEFT JOIN "Posts" p ON COALESCE(fe."postId", c."postId") = p."_id"
