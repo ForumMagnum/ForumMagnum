@@ -1944,6 +1944,24 @@ const schema = {
       ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
     },
   },
+  notificationPollClosingSoon: {
+    database: {
+      type: "JSONB",
+      defaultValue: bothChannelsEnabledNotificationTypeSettings,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+  },
+  notificationPollClosed: {
+    database: {
+      type: "JSONB",
+      defaultValue: defaultNotificationTypeSettings,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+  },
   notificationDialogueMessages: {
     database: {
       type: "JSONB",

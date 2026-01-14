@@ -865,6 +865,28 @@ const UsersForm = ({
           </form.Field>
         </div>
 
+        <div className={classes.fieldWrapper}>
+          <form.Field name="notificationPollClosingSoon">
+            {(field) => (
+              <NotificationTypeSettingsWidget
+                field={field}
+                label="A poll is closing soon"
+              />
+            )}
+          </form.Field>
+        </div>
+
+        <div className={classes.fieldWrapper}>
+          <form.Field name="notificationPollClosed">
+            {(field) => (
+              <NotificationTypeSettingsWidget
+                field={field}
+                label="A poll has closed"
+              />
+            )}
+          </form.Field>
+        </div>
+
         <HighlightableField name="karmaChangeNotifierSettings">
         <div className={classes.fieldWrapper}>
           <form.Field name="karmaChangeNotifierSettings">

@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, useEffect, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
@@ -77,6 +77,17 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
 
   const currentUser = useCurrentUser()
   const hasVoted = getForumEventVoteForUser(event, currentUser) !== null
+  const pollRef = useRef<HTMLDivElement>(null);
+  const { query } = useLocation();
+
+  // Scroll to poll if pollId query param matches this event
+  useEffect(() => {
+    if (query.pollId && event?._id === query.pollId && pollRef.current) {
+      const yOffset = -80;
+      const y = pollRef.current.getBoundingClientRect().top + window.scrollY + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }, [query.pollId, event?._id]);
 
   const {document: post} = useSingle({
     collectionName: "Posts",
@@ -110,7 +121,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
   }
   return (
     <AnalyticsContext pageSectionContext="forumEventPostPagePollSection">
-      <div className={classes.root} {...divProps}>
+      <div ref={pollRef} id={`poll-${event._id}`} className={classes.root} {...divProps}>
         {event.isGlobal && (
           <>
             <h2 className={classes.heading}>{!hasVoted ? "Have you voted yet?" : "Did this post change your mind?"}</h2>

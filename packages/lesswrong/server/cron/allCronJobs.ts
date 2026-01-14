@@ -23,6 +23,7 @@ import { permanentlyDeleteUsersCron } from "@/server/users/permanentDeletion";
 import { updateScoreActiveDocumentsCron, updateScoreInactiveDocumentsCron } from "@/server/votingCron";
 import { getAllPostgresViews } from "../postgresView";
 import { keywordAlertsCron } from "../keywordAlerts/keywordAlertsCron";
+import { pollNotificationsCron } from "../polls/pollNotificationsCron";
 
 export const allCronJobs: (CronJobSpec|null)[] = [
   cronClearOldCronHistories,
@@ -50,5 +51,6 @@ export const allCronJobs: (CronJobSpec|null)[] = [
   updateScoreActiveDocumentsCron,
   updateScoreInactiveDocumentsCron,
   keywordAlertsCron,
+  pollNotificationsCron,
   ...getAllPostgresViews().map((view) => view.getCronJob()),
 ];
