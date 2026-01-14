@@ -36,10 +36,21 @@ import {PageBreakNode} from './PageBreakNode';
 import {PollNode} from './PollNode';
 import {SpecialTextNode} from './SpecialTextNode';
 import {StickyNode} from './StickyNode';
-import {TweetNode} from './TweetNode';
-import {YouTubeNode} from './YouTubeNode';
+// import {TweetNode} from '../embeds/TwitterEmbed/TweetNode';
+import {YouTubeNode} from '../embeds/YouTubeEmbed/YouTubeNode';
+import {MetaculusNode} from '../embeds/MetaculusEmbed/MetaculusNode';
+import {ThoughtsaverNode} from '../embeds/ThoughtsaverEmbed/ThoughtsaverNode';
+import {ManifoldNode} from '../embeds/ManifoldEmbed/ManifoldNode';
+import {NeuronpediaNode} from '../embeds/NeuronpediaEmbed/NeuronpediaNode';
+import {StrawpollNode} from '../embeds/StrawpollEmbed/StrawpollNode';
+import {MetaforecastNode} from '../embeds/MetaforecastEmbed/MetaforecastNode';
+import {OWIDNode} from '../embeds/OWIDEmbed/OWIDNode';
+import {EstimakerNode} from '../embeds/EstimakerEmbed/EstimakerNode';
+import {ViewpointsNode} from '../embeds/ViewpointsEmbed/ViewpointsNode';
+import {CalendlyNode} from '../embeds/CalendlyEmbed/CalendlyNode';
+import {LWArtifactsNode} from '../embeds/LWArtifactsEmbed/LWArtifactsNode';
 import { SpoilerNode } from '@/components/editor/lexicalPlugins/spoilers/SpoilerNode';
-import { ClaimNode } from '@/components/editor/lexicalPlugins/claims/ClaimNode';
+import { ClaimNode } from '../embeds/ElicitEmbed/ClaimNode';
 import { FootnoteBackLinkNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteBackLinkNode';
 import { FootnoteContentNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteContentNode';
 import { FootnoteItemNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode';
@@ -70,8 +81,19 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   AutocompleteNode,
   KeywordNode,
   HorizontalRuleNode,
-  TweetNode,
+  // TweetNode,
   YouTubeNode,
+  MetaculusNode,
+  ThoughtsaverNode,
+  ManifoldNode,
+  NeuronpediaNode,
+  StrawpollNode,
+  MetaforecastNode,
+  OWIDNode,
+  EstimakerNode,
+  ViewpointsNode,
+  CalendlyNode,
+  LWArtifactsNode,
   FigmaNode,
   MarkNode,
   CollapsibleContainerNode,
@@ -82,6 +104,8 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   LayoutItemNode,
   SpecialTextNode,
   DateTimeNode,
+
+  // Custom plugin nodes
   FootnoteReferenceNode,
   FootnoteSectionNode,
   FootnoteItemNode,

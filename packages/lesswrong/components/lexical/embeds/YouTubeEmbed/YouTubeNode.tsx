@@ -1,3 +1,4 @@
+'use client';
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -67,13 +68,37 @@ export type SerializedYouTubeNode = Spread<
   SerializedDecoratorBlockNode
 >;
 
+function getYouTubeIdFromUrl(url: string | null): string | null {
+  if (!url) {
+    return null;
+  }
+  const match =
+    /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/.exec(url);
+  const id = match ? (match?.[2].length === 11 ? match[2] : null) : null;
+  return id ?? null;
+}
+
 function $convertYoutubeElement(
   domNode: HTMLElement,
 ): null | DOMConversionOutput {
-  const videoID = domNode.getAttribute('data-lexical-youtube');
-  if (videoID) {
-    const node = $createYouTubeNode(videoID);
-    return {node};
+  const lexicalId = domNode.getAttribute('data-lexical-youtube');
+  if (lexicalId) {
+    return {node: $createYouTubeNode(lexicalId)};
+  }
+  const oembedUrl = domNode.getAttribute('data-oembed-url');
+  const oembedId = getYouTubeIdFromUrl(oembedUrl);
+  if (oembedId) {
+    return {node: $createYouTubeNode(oembedId)};
+  }
+  const urlAttr = domNode.getAttribute('url');
+  const urlId = getYouTubeIdFromUrl(urlAttr);
+  if (urlId) {
+    return {node: $createYouTubeNode(urlId)};
+  }
+  const src = domNode.getAttribute('src');
+  const srcId = getYouTubeIdFromUrl(src);
+  if (srcId) {
+    return {node: $createYouTubeNode(srcId)};
   }
   return null;
 }
@@ -129,7 +154,40 @@ export class YouTubeNode extends DecoratorBlockNode {
   static importDOM(): DOMConversionMap | null {
     return {
       iframe: (domNode: HTMLElement) => {
-        if (!domNode.hasAttribute('data-lexical-youtube')) {
+        if (
+          !domNode.hasAttribute('data-lexical-youtube') &&
+          !getYouTubeIdFromUrl(domNode.getAttribute('src'))
+        ) {
+          return null;
+        }
+        return {
+          conversion: $convertYoutubeElement,
+          priority: 1,
+        };
+      },
+      div: (domNode: HTMLElement) => {
+        if (
+          !domNode.hasAttribute('data-oembed-url') &&
+          !domNode.querySelector('iframe')
+        ) {
+          return null;
+        }
+        return {
+          conversion: $convertYoutubeElement,
+          priority: 1,
+        };
+      },
+      figure: (domNode: HTMLElement) => {
+        if (!domNode.querySelector('[data-oembed-url], iframe, oembed')) {
+          return null;
+        }
+        return {
+          conversion: $convertYoutubeElement,
+          priority: 1,
+        };
+      },
+      oembed: (domNode: HTMLElement) => {
+        if (!domNode.getAttribute('url')) {
           return null;
         }
         return {

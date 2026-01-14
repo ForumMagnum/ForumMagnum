@@ -88,15 +88,26 @@ import TableOfContentsPlugin from './plugins/TableOfContentsPlugin';
 import TableScrollShadowPlugin from './plugins/TableScrollShadowPlugin';
 import ToolbarPlugin from './plugins/ToolbarPlugin';
 // import TreeViewPlugin from './plugins/TreeViewPlugin';
-import TwitterPlugin from './plugins/TwitterPlugin';
+// import TwitterPlugin from './embeds/TwitterEmbed/TwitterPlugin';
 import {VersionsPlugin} from './plugins/VersionsPlugin';
-import YouTubePlugin from './plugins/YouTubePlugin';
+import YouTubePlugin from './embeds/YouTubeEmbed/YouTubePlugin';
+import MetaculusPlugin from './embeds/MetaculusEmbed/MetaculusPlugin';
+import ThoughtsaverPlugin from './embeds/ThoughtsaverEmbed/ThoughtsaverPlugin';
+import ManifoldPlugin from './embeds/ManifoldEmbed/ManifoldPlugin';
+import NeuronpediaPlugin from './embeds/NeuronpediaEmbed/NeuronpediaPlugin';
+import StrawpollPlugin from './embeds/StrawpollEmbed/StrawpollPlugin';
+import MetaforecastPlugin from './embeds/MetaforecastEmbed/MetaforecastPlugin';
+import OWIDPlugin from './embeds/OWIDEmbed/OWIDPlugin';
+import EstimakerPlugin from './embeds/EstimakerEmbed/EstimakerPlugin';
+import ViewpointsPlugin from './embeds/ViewpointsEmbed/ViewpointsPlugin';
+import CalendlyPlugin from './embeds/CalendlyEmbed/CalendlyPlugin';
+import LWArtifactsPlugin from './embeds/LWArtifactsEmbed/LWArtifactsPlugin';
 import ContentEditable from './ui/ContentEditable';
 import { FootnotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import { MentionPlugin } from '../editor/lexicalPlugins/mentions/MentionPlugin';
 import { getLexicalMentionFeeds } from '../editor/lexicalPlugins/mentions/lexicalMentionsConfig';
 import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
-import ClaimsPlugin from '../editor/lexicalPlugins/claims/ClaimsPlugin';
+import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
 
@@ -364,8 +375,19 @@ export default function Editor({
             <ImagesPlugin />
             <LinkPlugin hasLinkAttributes={hasLinkAttributes} />
             <PollPlugin />
-            <TwitterPlugin />
+            {/* <TwitterPlugin /> */}
             <YouTubePlugin />
+            <MetaculusPlugin />
+            <ThoughtsaverPlugin />
+            <ManifoldPlugin />
+            <NeuronpediaPlugin />
+            <StrawpollPlugin />
+            <MetaforecastPlugin />
+            <OWIDPlugin />
+            <EstimakerPlugin />
+            <ViewpointsPlugin />
+            <CalendlyPlugin />
+            <LWArtifactsPlugin />
             <FigmaPlugin />
             <ClickableLinkPlugin disabled={isEditable} />
             <HorizontalRulePlugin />

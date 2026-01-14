@@ -177,6 +177,13 @@ const lwartifactsPreviewStyles = (_theme: ThemeType) => ({
       height: 525,
       border: 'none'
     }
+  },
+  '& div.lwartifacts-preview': {
+    '& iframe': {
+      width: '100%',
+      height: 525,
+      border: 'none'
+    }
   }
 })
 

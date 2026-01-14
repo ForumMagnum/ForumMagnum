@@ -48,7 +48,7 @@ import {
   EquationNode,
 } from '../../nodes/EquationNode';
 import {$createImageNode, $isImageNode, ImageNode} from '../../nodes/ImageNode';
-import {$createTweetNode, $isTweetNode, TweetNode} from '../../nodes/TweetNode';
+// import {$createTweetNode, $isTweetNode, TweetNode} from '../../embeds/TwitterEmbed/TweetNode';
 import emojiList from '../../utils/emoji-list';
 
 export const HR: ElementTransformer = {
@@ -131,23 +131,23 @@ export const EQUATION: TextMatchTransformer = {
   type: 'text-match',
 };
 
-export const TWEET: ElementTransformer = {
-  dependencies: [TweetNode],
-  export: (node) => {
-    if (!$isTweetNode(node)) {
-      return null;
-    }
-
-    return `<tweet id="${node.getId()}" />`;
-  },
-  regExp: /<tweet id="([^"]+?)"\s?\/>\s?$/,
-  replace: (textNode, _1, match) => {
-    const [, id] = match;
-    const tweetNode = $createTweetNode(id);
-    textNode.replace(tweetNode);
-  },
-  type: 'element',
-};
+// export const TWEET: ElementTransformer = {
+//   dependencies: [TweetNode],
+//   export: (node) => {
+//     if (!$isTweetNode(node)) {
+//       return null;
+//     }
+//
+//     return `<tweet id="${node.getId()}" />`;
+//   },
+//   regExp: /<tweet id="([^"]+?)"\s?\/>\s?$/,
+//   replace: (textNode, _1, match) => {
+//     const [, id] = match;
+//     const tweetNode = $createTweetNode(id);
+//     textNode.replace(tweetNode);
+//   },
+//   type: 'element',
+// };
 
 // Very primitive table setup
 const TABLE_ROW_REG_EXP = /^(?:\|)(.+)(?:\|)\s?$/;
@@ -313,7 +313,7 @@ export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
   IMAGE,
   EMOJI,
   EQUATION,
-  TWEET,
+  // TWEET,
   CHECK_LIST,
   ...ELEMENT_TRANSFORMERS,
   ...MULTILINE_ELEMENT_TRANSFORMERS,

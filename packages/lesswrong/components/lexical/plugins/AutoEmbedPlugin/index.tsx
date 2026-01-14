@@ -25,10 +25,21 @@ import useModal from '../../hooks/useModal';
 import Button from '../../ui/Button';
 import {DialogActions} from '../../ui/Dialog';
 import {INSERT_FIGMA_COMMAND} from '../FigmaPlugin';
-import {INSERT_TWEET_COMMAND} from '../TwitterPlugin';
-import {INSERT_YOUTUBE_COMMAND} from '../YouTubePlugin';
+// import {INSERT_TWEET_COMMAND} from '../../embeds/TwitterEmbed/TwitterPlugin';
+import {INSERT_YOUTUBE_COMMAND} from '../../embeds/YouTubeEmbed/YouTubePlugin';
+import {INSERT_METACULUS_COMMAND} from '../../embeds/MetaculusEmbed/MetaculusPlugin';
+import {INSERT_THOUGHTSAVER_COMMAND} from '../../embeds/ThoughtsaverEmbed/ThoughtsaverPlugin';
+import {INSERT_MANIFOLD_COMMAND} from '../../embeds/ManifoldEmbed/ManifoldPlugin';
+import {INSERT_NEURONPEDIA_COMMAND} from '../../embeds/NeuronpediaEmbed/NeuronpediaPlugin';
+import {INSERT_STRAWPOLL_COMMAND} from '../../embeds/StrawpollEmbed/StrawpollPlugin';
+import {INSERT_METAFORECAST_COMMAND} from '../../embeds/MetaforecastEmbed/MetaforecastPlugin';
+import {INSERT_OWID_COMMAND} from '../../embeds/OWIDEmbed/OWIDPlugin';
+import {INSERT_ESTIMAKER_COMMAND} from '../../embeds/EstimakerEmbed/EstimakerPlugin';
+import {INSERT_VIEWPOINTS_COMMAND} from '../../embeds/ViewpointsEmbed/ViewpointsPlugin';
+import {INSERT_CALENDLY_COMMAND} from '../../embeds/CalendlyEmbed/CalendlyPlugin';
+import {INSERT_LWARTIFACTS_COMMAND} from '../../embeds/LWArtifactsEmbed/LWArtifactsPlugin';
 import { YoutubeIcon } from '../../icons/YoutubeIcon';
-import { XIcon } from '../../icons/XIcon';
+// import { XIcon } from '../../icons/XIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import {
@@ -100,6 +111,8 @@ export const YoutubeEmbedConfig: PlaygroundEmbedConfig = {
   type: 'youtube-video',
 };
 
+/*
+/*
 export const TwitterEmbedConfig: PlaygroundEmbedConfig = {
   // e.g. Tweet or Google Map.
   contentName: 'X(Tweet)',
@@ -136,6 +149,317 @@ export const TwitterEmbedConfig: PlaygroundEmbedConfig = {
 
   type: 'tweet',
 };
+*/
+
+export const MetaculusEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'Metaculus',
+
+  exampleUrl: 'https://www.metaculus.com/questions/12345',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_METACULUS_COMMAND, result.id);
+  },
+
+  keywords: ['metaculus', 'forecast', 'prediction'],
+
+  parseUrl: (text: string) => {
+    const match =
+      /^https?:\/\/(www\.)?metaculus\.com\/questions\/(\d+)/.exec(text);
+
+    if (match != null) {
+      return {
+        id: match[2],
+        url: match[0],
+      };
+    }
+
+    return null;
+  },
+
+  type: 'metaculus',
+};
+
+export const ThoughtsaverEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'Thoughtsaver',
+
+  exampleUrl: 'https://app.thoughtsaver.com/embed/...',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_THOUGHTSAVER_COMMAND, result.id);
+  },
+
+  keywords: ['thoughtsaver', 'flashcards'],
+
+  parseUrl: (text: string) => {
+    const match =
+      /^https?:\/\/app\.thoughtsaver\.com\/embed\/([a-zA-Z0-9?&_=-]*)/.exec(
+        text,
+      );
+
+    if (match != null) {
+      return {
+        id: match[1],
+        url: match[0],
+      };
+    }
+
+    return null;
+  },
+
+  type: 'thoughtsaver',
+};
+
+export const ManifoldEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'Manifold',
+
+  exampleUrl: 'https://manifold.markets/user/market-slug',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_MANIFOLD_COMMAND, result.id);
+  },
+
+  keywords: ['manifold', 'market', 'prediction'],
+
+  parseUrl: (text: string) => {
+    const match =
+      /^(?:https?:\/\/)?(?:www\.)?manifold\.markets\/(?:embed\/)?([^?#]+)/.exec(
+        text,
+      );
+
+    if (match != null) {
+      return {
+        id: match[1],
+        url: text.startsWith('http') ? text : `https://${match[0]}`,
+      };
+    }
+
+    return null;
+  },
+
+  type: 'manifold',
+};
+
+export const NeuronpediaEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'Neuronpedia',
+
+  exampleUrl: 'https://neuronpedia.org/...&embed=true',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_NEURONPEDIA_COMMAND, result.id);
+  },
+
+  keywords: ['neuronpedia', 'embed'],
+
+  parseUrl: (text: string) => {
+    if (!/neuronpedia\.org/.test(text)) {
+      return null;
+    }
+    if (!/embed=true/.test(text)) {
+      return null;
+    }
+    return {
+      id: text,
+      url: text,
+    };
+  },
+
+  type: 'neuronpedia',
+};
+
+export const StrawpollEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'StrawPoll',
+
+  exampleUrl: 'https://strawpoll.com/polls/...',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_STRAWPOLL_COMMAND, result.id);
+  },
+
+  keywords: ['strawpoll', 'poll'],
+
+  parseUrl: (text: string) => {
+    const match =
+      /^https?:\/\/strawpoll\.com\/(polls\/)?([\w-]+)\/?$/.exec(text);
+
+    if (match != null) {
+      return {
+        id: match[2],
+        url: match[0],
+      };
+    }
+
+    return null;
+  },
+
+  type: 'strawpoll',
+};
+
+export const MetaforecastEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'Metaforecast',
+
+  exampleUrl: 'https://metaforecast.org/questions/...',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_METAFORECAST_COMMAND, result.id);
+  },
+
+  keywords: ['metaforecast', 'forecast'],
+
+  parseUrl: (text: string) => {
+    const match =
+      /^https?:\/\/metaforecast\.org\/questions\/([\w-]+)\/?$/.exec(text);
+
+    if (match != null) {
+      return {
+        id: match[1],
+        url: match[0],
+      };
+    }
+
+    return null;
+  },
+
+  type: 'metaforecast',
+};
+
+export const OWIDEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'Our World In Data',
+
+  exampleUrl: 'https://ourworldindata.org/grapher/...',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_OWID_COMMAND, result.id);
+  },
+
+  keywords: ['our world in data', 'owid', 'grapher'],
+
+  parseUrl: (text: string) => {
+    const match =
+      /^https?:\/\/ourworldindata\.org\/grapher\/([\w-]+)/.exec(text);
+
+    if (match != null) {
+      return {
+        id: match[1],
+        url: match[0],
+      };
+    }
+
+    return null;
+  },
+
+  type: 'owid',
+};
+
+export const EstimakerEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'Estimaker',
+
+  exampleUrl: 'https://estimaker.app/_/...',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_ESTIMAKER_COMMAND, result.id);
+  },
+
+  keywords: ['estimaker'],
+
+  parseUrl: (text: string) => {
+    const match = /^https?:\/\/estimaker\.app\/_\/[\w-]+/.exec(text);
+
+    if (match != null) {
+      return {
+        id: match[0],
+        url: match[0],
+      };
+    }
+
+    return null;
+  },
+
+  type: 'estimaker',
+};
+
+export const ViewpointsEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'Viewpoints',
+
+  exampleUrl: 'https://viewpoints.xyz/polls/...',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_VIEWPOINTS_COMMAND, result.id);
+  },
+
+  keywords: ['viewpoints', 'poll'],
+
+  parseUrl: (text: string) => {
+    const match =
+      /^https?:\/\/viewpoints\.xyz\/polls\/([\w-]+)\/?$/.exec(text);
+
+    if (match != null) {
+      return {
+        id: match[1],
+        url: match[0],
+      };
+    }
+
+    return null;
+  },
+
+  type: 'viewpoints',
+};
+
+export const CalendlyEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'Calendly',
+
+  exampleUrl: 'https://calendly.com/your-org/meeting',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_CALENDLY_COMMAND, result.id);
+  },
+
+  keywords: ['calendly', 'schedule'],
+
+  parseUrl: (text: string) => {
+    const match =
+      /^https?:\/\/calendly\.com\/[\w-]+(\/[\w-]+)?\/?$/.exec(text);
+
+    if (match != null) {
+      return {
+        id: match[0],
+        url: match[0],
+      };
+    }
+
+    return null;
+  },
+
+  type: 'calendly',
+};
+
+export const LWArtifactsEmbedConfig: PlaygroundEmbedConfig = {
+  contentName: 'LW Artifacts',
+
+  exampleUrl: 'https://lwartifacts.vercel.app/artifacts/...',
+
+  insertNode: (editor: LexicalEditor, result: EmbedMatchResult) => {
+    editor.dispatchCommand(INSERT_LWARTIFACTS_COMMAND, result.id);
+  },
+
+  keywords: ['lwartifacts', 'lw artifacts'],
+
+  parseUrl: (text: string) => {
+    const match =
+      /^https?:\/\/lwartifacts\.vercel\.app\/artifacts\/([\w-]+)/.exec(text);
+
+    if (match != null) {
+      return {
+        id: `lwartifacts.vercel.app/artifacts/${match[1]}`,
+        url: match[0],
+      };
+    }
+
+    return null;
+  },
+
+  type: 'lwartifacts',
+};
 
 // export const FigmaEmbedConfig: PlaygroundEmbedConfig = {
 //   contentName: 'Figma Document',
@@ -171,8 +495,19 @@ export const TwitterEmbedConfig: PlaygroundEmbedConfig = {
 // };
 
 export const EmbedConfigs = [
-  TwitterEmbedConfig,
+  // TwitterEmbedConfig,
   YoutubeEmbedConfig,
+  MetaculusEmbedConfig,
+  ThoughtsaverEmbedConfig,
+  ManifoldEmbedConfig,
+  NeuronpediaEmbedConfig,
+  StrawpollEmbedConfig,
+  MetaforecastEmbedConfig,
+  OWIDEmbedConfig,
+  EstimakerEmbedConfig,
+  ViewpointsEmbedConfig,
+  CalendlyEmbedConfig,
+  LWArtifactsEmbedConfig,
   // FigmaEmbedConfig,
 ];
 
@@ -265,7 +600,7 @@ export function AutoEmbedDialog({
       debounce((inputText: string) => {
         const urlMatch = URL_MATCHER.exec(inputText);
         if (embedConfig != null && inputText != null && urlMatch != null) {
-          Promise.resolve(embedConfig.parseUrl(inputText)).then(
+          void Promise.resolve(embedConfig.parseUrl(inputText)).then(
             (parseResult) => {
               setEmbedResult(parseResult);
             },
