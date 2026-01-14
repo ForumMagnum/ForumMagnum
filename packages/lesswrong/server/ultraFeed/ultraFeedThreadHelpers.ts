@@ -13,7 +13,7 @@ const MAX_DEPTH = 50;
 const MAX_TOTAL_PATHS = 1000;
 
 // Boost multiplier for comments that are reviews
-const REVIEW_COMMENT_BOOST = 2.0;
+const REVIEW_COMMENT_BOOST = 10.0;
 
 import { UltraFeedResolverSettings, CommentScoringSettings, ThreadInterestModelSettings } from '../../components/ultraFeed/ultraFeedSettingsTypes';
 import { 
