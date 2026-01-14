@@ -96,7 +96,7 @@ export const CurationPage = ({classes}: {
           </div>
     </SingleColumnSection>
     {<div className={classes.curated}>
-        <SunshineCuratedSuggestionsList limit={50} atBottom setCurationPost={setPost}/>
+        <SunshineCuratedSuggestionsList limit={50} setCurationPost={setPost}/>
     </div>}
   </div>;
 }
