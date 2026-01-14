@@ -534,6 +534,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               c.shortform,
               c."postedAt",
               c."descendentCount",
+              c."reviewingForReview",
               CASE 
                 WHEN c.shortform IS TRUE THEN 'quicktakes'
                 WHEN sa."authorId" IS NOT NULL THEN 'subscriptionsComments'
@@ -605,6 +606,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c.shortform,
           c."postedAt",
           c."descendentCount",
+          c."reviewingForReview",
           c."primarySource",
           c."fromSubscribedUser",
           c."isInitialCandidate",
@@ -653,6 +655,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         lastViewed: comment.lastViewed ?? null,
         lastInteracted: comment.lastInteracted ?? null,
         isRead: !!comment.isRead,
+        reviewingForReview: comment.reviewingForReview ?? null,
       };
     });
   }

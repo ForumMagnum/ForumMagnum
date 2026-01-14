@@ -12,6 +12,9 @@
 const MAX_DEPTH = 50;
 const MAX_TOTAL_PATHS = 1000;
 
+// Boost multiplier for comments that are reviews
+const REVIEW_COMMENT_BOOST = 2.0;
+
 import { UltraFeedResolverSettings, CommentScoringSettings, ThreadInterestModelSettings } from '../../components/ultraFeed/ultraFeedSettingsTypes';
 import { 
   PreDisplayFeedComment, 
@@ -202,6 +205,10 @@ function calculateCommentScore(
   
   if (comment.authorId && subscribedToUserIds.has(comment.authorId)) {
     boost *= settings.commentSubscribedAuthorMultiplier; 
+  }
+
+  if (comment.reviewingForReview) {
+    boost *= REVIEW_COMMENT_BOOST;
   }
 
   const boostedScore = decayedScore * boost;
