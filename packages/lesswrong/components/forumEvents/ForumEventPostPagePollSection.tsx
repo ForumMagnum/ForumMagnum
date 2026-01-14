@@ -1,14 +1,17 @@
-import React, { CSSProperties, useEffect, useRef } from "react";
+import React, { CSSProperties, useCallback, useEffect, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
-import { useLocation } from "../../lib/routeUtil";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
-import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { makeCloudinaryImageUrl } from "../common/CloudinaryImage2";
 import ForumEventPoll, { getForumEventVoteForUser } from "./ForumEventPoll";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
+import ForumIcon from "../common/ForumIcon";
+import classNames from "classnames";
+import { useMessages } from "../common/withMessages";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,6 +22,28 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     marginBottom: 40,
     scrollMarginTop: '100px',
+  },
+  linkIconWrapper: {
+    position: "absolute",
+    top: 3,
+    right: 1,
+    cursor: "pointer",
+    padding: 8,
+    "&:hover $linkIcon": {
+      color: theme.palette.primary.main,
+    },
+  },
+  linkIcon: {
+    "--icon-size": "15.6px",
+    display: "block",
+    opacity: 0.8,
+    color: theme.palette.icon.dim,
+    cursor: "pointer",
+  },
+  linkIconHighlighted: {
+    strokeWidth: "0.7px",
+    stroke: "currentColor",
+    color: theme.palette.primary.main,
   },
   heading: {
     fontSize: 24,
@@ -38,6 +63,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   pollArea: {
+    position: "relative",
     paddingTop: 24,
     borderRadius: theme.borderRadius.default,
     background: "var(--forum-event-background)",
@@ -64,7 +90,10 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
   forumEventId?: string,
   classes: ClassesType<typeof styles>,
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const {params} = useLocation();
+  const {params, pathname} = useLocation();
+  const navigate = useNavigate();
+  const { flash } = useMessages();
+  const { captureEvent } = useTracking();
 
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
   const { document: eventFromId } = useSingle({
@@ -95,6 +124,23 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
     documentId: params._id,
     skip: !!forumEventId || !hasForumEvents || !params._id || !event?.tagId || event.eventFormat !== "POLL",
   });
+
+  const isLinkedPoll = query.pollId === event?._id;
+
+  const handleLinkClick = useCallback(async () => {
+    if (!event) return;
+
+    captureEvent("pollLinkClicked", { pollId: event._id });
+
+    // Navigate to new URL
+    navigate({ pathname, search: `?pollId=${event._id}` });
+
+    // Also copy to clipboard and flash message
+    const url = new URL(window.location.href);
+    url.searchParams.set("pollId", event._id);
+    await navigator.clipboard.writeText(url.toString());
+    flash("Link copied to clipboard");
+  }, [event, captureEvent, flash, navigate, pathname]);
 
   // Only show this section for forum events that have a poll
   if ((!event || event.eventFormat !== "POLL") || (event.isGlobal && !post)) {
@@ -139,6 +185,12 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
           </>
         )}
         <div className={classes.pollArea} style={pollAreaStyle}>
+          <div className={classes.linkIconWrapper} onClick={handleLinkClick}>
+            <ForumIcon
+              icon="Link"
+              className={classNames(classes.linkIcon, { [classes.linkIconHighlighted]: isLinkedPoll })}
+            />
+          </div>
           <ForumEventPoll postId={postId} forumEventId={forumEventId} hideViewResults={event.isGlobal} />
         </div>
       </div>

@@ -1,23 +1,10 @@
 import { addField, dropField } from "./meta/utils";
 import Users from "../collections/users/collection";
-import {
-  bothChannelsEnabledNotificationTypeSettings,
-  defaultNotificationTypeSettings,
-} from "@/lib/collections/users/notificationFieldHelpers";
 
+// TODO check this is populated correctly on existing users
 export const up = async ({db}: MigrationContext) => {
   await addField(db, Users, "notificationPollClosingSoon");
   await addField(db, Users, "notificationPollClosed");
-
-  // Backfill existing users with the correct defaults
-  await Users.rawUpdateMany(
-    { notificationPollClosingSoon: null },
-    { $set: { notificationPollClosingSoon: bothChannelsEnabledNotificationTypeSettings } }
-  );
-  await Users.rawUpdateMany(
-    { notificationPollClosed: null },
-    { $set: { notificationPollClosed: defaultNotificationTypeSettings } }
-  );
 }
 
 export const down = async ({db}: MigrationContext) => {
