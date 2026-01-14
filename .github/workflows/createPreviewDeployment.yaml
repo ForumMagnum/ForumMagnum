@@ -1,0 +1,74 @@
+name: Create Preview Deployment
+# Creates a Vercel preview deployment when a PR targeting master is opened,
+# if no deployment already exists for the HEAD commit.
+
+on:
+  pull_request:
+    types: [opened]
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  check-and-deploy:
+    runs-on: ubuntu-latest
+    # Only run for PRs targeting master, from repo members (not external contributors)
+    if: >-
+      github.base_ref == 'master' &&
+      contains(fromJson('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Check for existing Vercel deployment
+        id: check-deployment
+        run: |
+          COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
+          echo "Checking for existing deployment for commit: $COMMIT_SHA"
+          
+          # Use vercel list to check for deployments with this commit SHA
+          DEPLOYMENTS=$(vercel list --meta githubCommitSha=$COMMIT_SHA --token=${{ secrets.VERCEL_ACCESS_TOKEN }} 2>/dev/null || echo "")
+          
+          # Check if we got any results (header line + at least one deployment)
+          LINE_COUNT=$(echo "$DEPLOYMENTS" | wc -l)
+          
+          if [ "$LINE_COUNT" -gt 1 ]; then
+            echo "✓ Deployment already exists for this commit - skipping"
+            echo "deployment_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "No deployment found for this commit - will create one"
+            echo "deployment_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy to Vercel
+        if: steps.check-deployment.outputs.deployment_exists != 'true'
+        id: deploy
+        run: |
+          DEPLOYMENT_URL=$(vercel deploy --yes --token=${{ secrets.VERCEL_ACCESS_TOKEN }})
+          echo "url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $DEPLOYMENT_URL"
+
+      - name: Comment on PR with deployment URL
+        if: steps.check-deployment.outputs.deployment_exists != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deploymentUrl = '${{ steps.deploy.outputs.url }}';
+            const body = `🚀 **Preview Deployment Created**\n\nA preview deployment was created via GitHub Actions.\n\n**Preview URL:** ${deploymentUrl}`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+

@@ -1,16 +1,23 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useSubscribedLocation } from '@/lib/routeUtil';
-import { getReviewPhase, reviewResultsPostPath } from '@/lib/reviewUtils';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { Link } from '@/lib/reactRouterWrapper';
-import ReviewVotingCanvas from "@/components/review/ReviewVotingCanvas";
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import { isHomeRoute } from '@/lib/routeChecks';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { SolsticeSeasonBanner } from '../seasonal/solsticeSeason/SolsticeSeasonBanner';
+import { Inkhaven2026Banner } from '../seasonal/Inkhaven2026Banner';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
+
+// Inkhaven Cohort #2 banner active period
+const INKHAVEN_2026_START = new Date('2026-01-10T00:00:00-08:00');
+const INKHAVEN_2026_END = new Date('2026-02-01T00:00:00-08:00');
+
+function isInkhaven2026Active(): boolean {
+  const now = new Date();
+  return now >= INKHAVEN_2026_START && now < INKHAVEN_2026_END;
+}
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   root: {
@@ -30,14 +37,6 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
       right: '0px',
     }
   },
-  reviewResultsImage: {
-    position: 'absolute',
-    width: '57vw',
-    maxWidth: '1000px',
-    top: '-70px',
-    right: '-334px',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
-  },
   imageColumn: {
     position: 'absolute',
     top: 0,
@@ -47,64 +46,7 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
-  },
-  reviewVotingCanvas: {
-    position: 'absolute',
-    width: '57vw',
-    height: '100vh',
-    '& img': {
-      width: '100%',
-      height: '100vh',
-      position: 'relative',
-      right: -40,
-      objectFit: 'cover',
-    },
-    maxWidth: '1000px',
-    top: '-57px',
-    right: '-334px',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
-    
-    [theme.breakpoints.up(2000)]: {
-      right: '0px',
-    }
-  },
-  votingResultsLink: {
-    position: 'relative',
-    zIndex: theme.zIndexes.reviewVotingCanvas,
-    top: 715,
-    right: 250,
-    width: 200,
-    opacity: .6,
-    textAlign: 'center',
-    display: 'block',
-    '&:hover': {
-      opacity: .4,
-    },
-    [theme.breakpoints.down(1600)]: {
-      right: 100,
-      top: 690
-    },
-    [theme.breakpoints.down(1400)]: {
-      right: 35,
-      top: 650
-    },
-    '& h1': {
-      ...theme.typography.headerStyle,
-      fontSize: '2.8rem',
-      lineHeight: '2.6rem',
-      fontWeight: 600,
-      marginTop: 20,
-      marginBottom: 0,
-    },
-    '& h3': {
-      ...theme.typography.commentStyle,
-      fontSize: '1.4rem',
-      lineHeight: '1.2',
-      marginTop: 16,
-      marginBottom: 6,
-      fontStyle: 'italic',
-      opacity: .5,
-    }
+    overflowX: 'clip',
   },
   showSolsticeButton: {
     position: 'fixed',
@@ -155,37 +97,31 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
     />
   </div> : null
 
-  const reviewCompleteImage = <div>
-      <Link className={classes.votingResultsLink} to={reviewResultsPostPath}>
-        <h1>Thank YOU for Voting!</h1>
-        <h3>View Results</h3>
-      </Link>
-      <CloudinaryImage2
-        loading="lazy"
-        className={classes.reviewResultsImage}
-        publicId="happyWizard_mmmnjx"
-        darkPublicId={"happyWizard_mmmnjx"}
-      />
-  </div>
+  // TODO: clean up related code in FundraisingThermometer when we disable/remove solstice season.
+  // let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
   
-  let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
-  if (getReviewPhase() === 'VOTING') homePageImage = <ReviewVotingCanvas />
-  if (getReviewPhase() === 'RESULTS') homePageImage = reviewCompleteImage
+  // Show Inkhaven Cohort #2 banner on homepage during active period
+  let homePageImage = defaultImage;
+  if (isInkhaven2026Active() && standaloneNavigation && isHomePage) {
+    homePageImage = <Inkhaven2026Banner />;
+  }
+  
+  // if (reviewIsActive() && standaloneNavigation && isHomePage) {
+  //   homePageImage = <AnnualReviewSidebarBanner />
+  // }
 
-  const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
-
-  const now = new Date();
+  // const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
 
   return <div className={classes.root}>
     {homePageImage}
-    {showSolsticeButton && (
+    {/* {showSolsticeButton && (
       <button
         className={classes.showSolsticeButton}
         onClick={() => setCookie(HIDE_SOLSTICE_GLOBE_COOKIE, "false")}
       >
         Show Solstice Season
       </button>
-    )}
+    )} */}
   </div>;
 }
 

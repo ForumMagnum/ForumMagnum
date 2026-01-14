@@ -445,9 +445,9 @@ export default function SolsticeSeasonBannerInner() {
             Visit a megameetup at a major city, or host a small gathering for your friends the night of the 21st.
           </p>
           <div className={classes.buttonContainer}>
-            <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer"  className={classNames(classes.eventButton)}>
-              <span>Berkeley <span className={classes.hideOnMediumScreens}>
-                Megameetup</span></span><span className={classes.date}>Dec 6</span>
+            <Link to="https://waypoint.lighthaven.space/solstice-season" target="_blank" rel="noopener noreferrer" className={classNames(classes.eventButton)}>
+              <span>Lighthaven <br /><span className={classes.hideOnMediumScreens}>
+                Solstice Season</span></span><span className={classes.date}>Dec</span>
             </Link>
             <Link to="https://rationalistmegameetup.com/" target="_blank" rel="noopener noreferrer" className={classNames(classes.eventButton)}>
               <span>New York <span className={classes.hideOnMediumScreens}>Megameetup</span></span><span className={classes.date}>Dec 20</span>

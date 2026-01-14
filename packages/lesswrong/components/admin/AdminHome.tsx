@@ -79,6 +79,7 @@ const AdminHome = ({ classes }: {
         {hasForumEvents() &&
           <li><Link className={classes.link} to="/adminForumEvents">Forum events</Link></li>
         }
+        <li><Link className={classes.link} to="/admin/emailSender">Email Sender</Link></li>
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>
         <li><Link className={classes.link} to="/admin/synonyms">Search Synonyms</Link></li>
@@ -97,6 +98,7 @@ const AdminHome = ({ classes }: {
         <li><Link className={classes.link} to="/imageUpload">Image Upload Test</Link></li>
         <li><Link className={classes.link} to="/admin/recommendationsSample">Recommendations Explorer</Link></li>
         <li><Link className={classes.link} to="/admin/onboarding">View onboarding flow</Link> (for testing purposes - this will not make any changes to your account)</li>
+        <li><Link className={classes.link} to="/admin/debugDatabaseIndexes">Debug database indexes</Link></li>
       </ul>
 
       <h3>Server Information</h3>

@@ -26,8 +26,10 @@ export type InboxState = {
   users: SunshineUsersList[];
   // The local copy of posts (mutated when actions complete)
   posts: SunshinePostsList[];
+  // The local copy of auto-classified posts (mutated when actions complete)
+  classifiedPosts: SunshinePostsList[];
   // Current active tab
-  activeTab: ReviewGroup | 'all' | 'posts';
+  activeTab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts';
   // Focused user in inbox view
   focusedUserId: string | null;
   // Opened user in detail view
@@ -40,12 +42,14 @@ export type InboxState = {
   undoQueue: UndoHistoryItem[];
   // History - expired actions that can't be undone - only for users
   history: HistoryItem[];
+  // Document ID for which an LLM detection check is currently running
+  runningLlmCheckId: string | null;
 };
 
 export type InboxAction =
   | { type: 'OPEN_USER'; userId: string; }
   | { type: 'CLOSE_DETAIL'; }
-  | { type: 'CHANGE_TAB'; tab: ReviewGroup | 'all' | 'posts'; }
+  | { type: 'CHANGE_TAB'; tab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts'; }
   | { type: 'NEXT_USER'; }
   | { type: 'PREV_USER'; }
   | { type: 'NEXT_POST'; }
@@ -62,7 +66,8 @@ export type InboxAction =
   | { type: 'UPDATE_POST'; postId: string; fields: Partial<SunshinePostsList>; }
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
-  | { type: 'EXPIRE_UNDO_ITEM'; userId: string; };
+  | { type: 'EXPIRE_UNDO_ITEM'; userId: string; }
+  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
 
 
 
@@ -83,6 +88,7 @@ export function getVisibleTabsInOrder(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
   totalUsers: number,
   totalPosts: number,
+  totalClassifiedPosts: number,
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [];
@@ -95,6 +101,7 @@ export function getVisibleTabsInOrder(
   
   tabs.push({ group: 'all', count: totalUsers });
   tabs.push({ group: 'posts', count: totalPosts });
+  tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
   
   return tabs;
 }
@@ -206,6 +213,17 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         };
       }
 
+      // Switching to classified posts tab
+      if (action.tab === 'classifiedPosts') {
+        return {
+          ...state,
+          activeTab: 'classifiedPosts',
+          focusedPostId: state.classifiedPosts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
       // Switching to a user tab
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, action.tab);
@@ -221,8 +239,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'NEXT_USER': {
-      // Don't navigate users when on posts tab
-      if (state.activeTab === 'posts') return state;
+      // Don't navigate users when on posts tab or classified posts tab
+      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts') return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
@@ -243,8 +261,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'PREV_USER': {
-      // Don't navigate users when on posts tab
-      if (state.activeTab === 'posts') return state;
+      // Don't navigate users when on posts tab or classified posts tab
+      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts') return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
@@ -268,7 +286,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.openedUserId) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length);
 
       if (visibleTabs.length === 0) return state;
 
@@ -298,6 +316,17 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         };
       }
 
+      // If switching to classified posts tab
+      if (nextTab === 'classifiedPosts') {
+        return {
+          ...state,
+          activeTab: 'classifiedPosts',
+          focusedPostId: state.classifiedPosts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
       // Switching to a user tab
       const filteredGroups = getFilteredGroups(groupedUsers, nextTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
@@ -315,7 +344,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.openedUserId) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length);
 
       if (visibleTabs.length === 0) return state;
 
@@ -345,6 +374,17 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         };
       }
 
+      // If switching to classified posts tab
+      if (prevTab === 'classifiedPosts') {
+        return {
+          ...state,
+          activeTab: 'classifiedPosts',
+          focusedPostId: state.classifiedPosts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
       // Switching to a user tab
       const filteredGroups = getFilteredGroups(groupedUsers, prevTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
@@ -363,28 +403,35 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         ? { ...post, ...action.fields }
         : post
       );
+      const updatedClassifiedPosts = state.classifiedPosts.map(post => post._id === action.postId
+        ? { ...post, ...action.fields }
+        : post
+      );
       return {
         ...state,
         posts: updatedPosts,
+        classifiedPosts: updatedClassifiedPosts,
       };
     }
 
     case 'NEXT_POST': {
-      if (state.posts.length === 0) return state;
+      const currentPosts = state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts;
+      if (currentPosts.length === 0) return state;
 
-      const currentIndex = state.posts.findIndex(p => p._id === state.focusedPostId);
-      const nextIndex = (currentIndex + 1) % state.posts.length;
-      const nextPostId = state.posts[nextIndex]._id;
+      const currentIndex = currentPosts.findIndex(p => p._id === state.focusedPostId);
+      const nextIndex = (currentIndex + 1) % currentPosts.length;
+      const nextPostId = currentPosts[nextIndex]._id;
 
       return { ...state, focusedPostId: nextPostId };
     }
 
     case 'PREV_POST': {
-      if (state.posts.length === 0) return state;
+      const currentPosts = state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts;
+      if (currentPosts.length === 0) return state;
 
-      const currentIndex = state.posts.findIndex(p => p._id === state.focusedPostId);
-      const prevIndex = currentIndex <= 0 ? state.posts.length - 1 : currentIndex - 1;
-      const prevPostId = state.posts[prevIndex]._id;
+      const currentIndex = currentPosts.findIndex(p => p._id === state.focusedPostId);
+      const prevIndex = currentIndex <= 0 ? currentPosts.length - 1 : currentIndex - 1;
+      const prevPostId = currentPosts[prevIndex]._id;
 
       return { ...state, focusedPostId: prevPostId };
     }
@@ -398,22 +445,28 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
     case 'REMOVE_POST': {
       const newPosts = state.posts.filter(p => p._id !== action.postId);
+      const newClassifiedPosts = state.classifiedPosts.filter(p => p._id !== action.postId);
 
-      if (newPosts.length === 0) {
+      const currentPosts = state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts;
+      const newCurrentPosts = state.activeTab === 'classifiedPosts' ? newClassifiedPosts : newPosts;
+
+      if (newCurrentPosts.length === 0) {
         return {
           ...state,
-          posts: [],
+          posts: newPosts,
+          classifiedPosts: newClassifiedPosts,
           focusedPostId: null,
         };
       }
 
-      const currentIndex = state.posts.findIndex(p => p._id === state.focusedPostId);
-      const nextIndex = currentIndex >= newPosts.length ? 0 : Math.max(0, currentIndex);
-      const nextPostId = newPosts[nextIndex]._id;
+      const currentIndex = currentPosts.findIndex(p => p._id === state.focusedPostId);
+      const nextIndex = currentIndex >= newCurrentPosts.length ? 0 : Math.max(0, currentIndex);
+      const nextPostId = newCurrentPosts[nextIndex]._id;
 
       return {
         ...state,
         posts: newPosts,
+        classifiedPosts: newClassifiedPosts,
         focusedPostId: nextPostId,
       };
     }
@@ -432,8 +485,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         };
       }
 
-      // If we're on posts tab, just remove the user without changing focus
-      if (state.activeTab === 'posts') {
+      // If we're on posts tab or classified posts tab, just remove the user without changing focus
+      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts') {
         return {
           ...state,
           users: newUsers,
@@ -516,6 +569,13 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         focusedUserId: null,
         openedUserId: null,
         focusedContentIndex: 0,
+      };
+    }
+
+    case 'SET_LLM_CHECK_RUNNING': {
+      return {
+        ...state,
+        runningLlmCheckId: action.documentId,
       };
     }
 

@@ -29,7 +29,7 @@ const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   }
 }))
 
-function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList}) {
+function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|SunshinePostsList}) {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 

@@ -4,15 +4,16 @@ import classNames from 'classnames';
 import FormatDate from '@/components/common/FormatDate';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
+import ReplayIcon from '@/lib/vendor/@material-ui/icons/src/Replay';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { truncate } from '@/lib/editor/ellipsize';
 import RejectContentButton from '../RejectContentButton';
 import { useDialog } from '@/components/common/withDialog';
-import { DialogContent } from '@/components/widgets/DialogContent';
-import LWDialog from '@/components/common/LWDialog';
-import { highlightHtmlWithLlmDetectionScores } from '../helpers';
+import LLMScoreDialog from '../LLMScoreDialog';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import HoverOver from '@/components/common/HoverOver';
+import type { InboxAction } from './inboxReducer';
+import { useRerunLlmCheck } from './useRerunLlmCheck';
 
 const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   root: {
@@ -37,14 +38,13 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   icon: {
     height: 14,
     width: 14,
-    marginRight: 8,
     color: theme.palette.grey[500],
     flexShrink: 0,
   },
   karma: {
     fontSize: 13,
     marginRight: 12,
-    minWidth: 32,
+    minWidth: 20,
     textAlign: 'right',
     flexShrink: 0,
     fontWeight: 500,
@@ -61,13 +61,13 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   postedAt: {
     fontSize: 13,
     color: theme.palette.grey[600],
-    marginRight: 12,
+    marginRight: 4,
     minWidth: 24,
     flexShrink: 0,
   },
   contentPreview: {
     flex: 1,
-    minWidth: 0,
+    minWidth: 100,
     overflow: 'hidden',
     marginRight: 12,
   },
@@ -145,7 +145,7 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: 4,
     flexShrink: 0,
-    maxWidth: 140,
+    maxWidth: 168,
   },
   rejectionTopRow: {
     display: 'flex',
@@ -161,9 +161,42 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     maxWidth: 300,
   },
+  rerunButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '2px 6px',
+    borderRadius: 3,
+    fontSize: 11,
+    fontWeight: 500,
+    backgroundColor: theme.palette.grey[200],
+    color: theme.palette.grey[700],
+    cursor: 'pointer',
+    transition: 'background-color 0.1s ease',
+    border: 'none',
+    whiteSpace: 'nowrap',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[300],
+    },
+    '&:disabled': {
+      opacity: 0.5,
+      cursor: 'not-allowed',
+    },
+  },
+  rerunIcon: {
+    width: 12,
+    height: 12,
+  },
+  rerunIconSpinning: {
+    animation: '$spin 1s linear infinite',
+  },
+  '@keyframes spin': {
+    from: { transform: 'rotate(0deg)' },
+    to: { transform: 'rotate(360deg)' },
+  },
 }));
 
-type ContentItem = SunshinePostsList | CommentsListWithParentMetadata;
+type ContentItem = SunshinePostsList | SunshineCommentsList;
 
 const isPost = (item: ContentItem): item is SunshinePostsList => {
   return 'title' in item && item.title !== null;
@@ -172,11 +205,15 @@ const isPost = (item: ContentItem): item is SunshinePostsList => {
 const ModerationContentItem = ({
   item,
   isFocused,
+  isRunningLlmCheck,
   onOpen,
+  dispatch,
 }: {
   item: ContentItem;
   isFocused: boolean;
+  isRunningLlmCheck: boolean;
   onOpen: () => void;
+  dispatch: React.Dispatch<InboxAction>;
 }) => {
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
@@ -184,42 +221,59 @@ const ModerationContentItem = ({
   const karma = item.baseScore ?? 0;
   const karmaClass = karma < 0 ? classes.karmaNegative : karma < 3 ? classes.karmaLow : classes.karmaPositive;
 
-  const post = isPost(item);
+  const itemIsPost = isPost(item);
   const contentHtml = item.contents?.html ?? '';
   const contentText = htmlToTextDefault(contentHtml);
   const truncatedText = truncate(contentText, 100, 'characters');
 
-  const contentWrapper = post 
+  const contentWrapper = itemIsPost 
     ? { collectionName: 'Posts' as const, document: item }
     : { collectionName: 'Comments' as const, document: item };
 
   const automatedContentEvaluations = 'automatedContentEvaluations' in item ? item.automatedContentEvaluations : null;
+  const score = automatedContentEvaluations?.pangramScore;
+  const maxScore = automatedContentEvaluations?.pangramMaxScore;
+
+  // Show the rerun button when there's no ACE or when ACE is missing the Pangram score
+  const showRerunButton = !automatedContentEvaluations || automatedContentEvaluations.pangramScore === null;
+
+  const collectionName = itemIsPost ? 'Posts' as const : 'Comments' as const;
+  const { handleRerunLlmCheck } = useRerunLlmCheck(
+    item._id,
+    collectionName,
+    dispatch
+  );
+
+  const onRerunClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    void handleRerunLlmCheck();
+  }, [handleRerunLlmCheck]);
 
   const handleLLMScoreClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (!automatedContentEvaluations) return;
-    const highlightedHtml = highlightHtmlWithLlmDetectionScores(
-      contentHtml,
-      automatedContentEvaluations.sentenceScores || []
-    );
 
     openDialog({
       name: 'LLMScoreDialog',
       contents: ({ onClose }) => (
-        <LWDialog open={true} onClose={onClose}>
-          <DialogContent>
-            <div>
-              <p>LLM Score: {automatedContentEvaluations.score}</p>
-              <p>Post with highlighted sentences:</p>
-              <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
-            </div>
-          </DialogContent>
-        </LWDialog>
+        <LLMScoreDialog
+          onClose={onClose}
+          documentId={item._id}
+          automatedContentEvaluations={automatedContentEvaluations}
+          contentHtml={contentHtml}
+          contentType={itemIsPost ? 'Post' : 'Comment'}
+        />
       ),
     });
-  }, [automatedContentEvaluations, contentHtml, openDialog]);
+  }, [automatedContentEvaluations, contentHtml, openDialog, itemIsPost, item._id]);
 
-  const score = automatedContentEvaluations?.score;
+  const evaluationBadge = typeof score === 'number' ? (
+    <HoverOver title={<p>Average: {score.toFixed(2)}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</p>}>
+      <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
+        LLM: {score.toFixed(2)}
+      </span>
+    </HoverOver>
+  ) : null;
 
   const rejectedReasonText = item.rejectedReason 
     ? truncate(htmlToTextDefault(item.rejectedReason), 80, 'characters')
@@ -232,7 +286,7 @@ const ModerationContentItem = ({
       })}
       onClick={onOpen}
     >
-      {post ? (
+      {itemIsPost ? (
         <DescriptionIcon className={classes.icon} />
       ) : (
         <MessageIcon className={classes.icon} />
@@ -247,8 +301,8 @@ const ModerationContentItem = ({
       </div>
 
       <div className={classes.contentPreview}>
-        {post && (
-          <div className={classes.title}>{item.title}</div>
+        {itemIsPost && (
+          <div className={classes.title}>{item.draft ? `[Draft] ${item.title}` : item.title}</div>
         )}
         <div className={classes.text}>{truncatedText}</div>
       </div>
@@ -271,11 +325,7 @@ const ModerationContentItem = ({
                 {score && score >= 0.5 ? 'Autorejected' : 'Rejected'}
               </div>
             </HoverOver>
-            {typeof score === 'number' && (
-              <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
-                LLM: {score.toFixed(2)}
-              </span>
-            )}
+            {evaluationBadge}
           </div>
           <div className={classes.rejectionReasonPreview}>{rejectedReasonText}</div>
         </div>
@@ -283,12 +333,20 @@ const ModerationContentItem = ({
 
       {!item.rejected && automatedContentEvaluations && (
         <div className={classes.automatedEvaluations}>
-          {typeof score === 'number' && (
-            <span className={classes.evaluationBadge} onClick={handleLLMScoreClick}>
-              LLM: {score.toFixed(2)}
-            </span>
-          )}
+          {evaluationBadge}
         </div>
+      )}
+
+      {!item.rejected && showRerunButton && (
+        <button
+          className={classes.rerunButton}
+          onClick={onRerunClick}
+          disabled={isRunningLlmCheck}
+          title={automatedContentEvaluations ? "Re-run LLM check (score missing)" : "Run LLM check"}
+        >
+          <ReplayIcon className={classNames(classes.rerunIcon, { [classes.rerunIconSpinning]: isRunningLlmCheck })} />
+          {isRunningLlmCheck ? 'Checking...' : 'LLM'}
+        </button>
       )}
 
       {!item.rejected && item.authorIsUnreviewed && (
@@ -302,4 +360,3 @@ const ModerationContentItem = ({
 };
 
 export default ModerationContentItem;
-

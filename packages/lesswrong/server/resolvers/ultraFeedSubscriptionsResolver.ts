@@ -1,10 +1,10 @@
 import gql from 'graphql-tag';
+import moment from 'moment-timezone';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { randomId } from '@/lib/random';
 import { buildDistinctLinearThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { FilterSettings } from '@/lib/filterSettings';
-import { FeedPostMetaInfo, FeedCommentMetaInfo } from '@/components/ultraFeed/ultraFeedTypes';
-import { bulkRawInsert } from '../manualMigrations/migrationUtils';
+import { FeedPostMetaInfo, FeedCommentMetaInfo, UltraFeedResolverType, FeedItemSourceType } from '@/components/ultraFeed/ultraFeedTypes';
 import { backgroundTask } from '../utils/backgroundTask';
 import { 
   loadMultipleEntitiesById, 
@@ -19,8 +19,9 @@ import {
 import type {
   MappablePreparedThread,
 } from '../ultraFeed/ultraFeedRankingTypes';
-
-type SubscribedFeedEntryType = 'feedPost' | 'feedCommentThread' | 'feedSubscriptionSuggestions';
+import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
+import { insertTimeMarkers, SubscribedFeedEntryType } from '../ultraFeed/feedTimeMarkers';
+import UltraFeedEvents from '../collections/ultraFeedEvents/collection';
 
 interface SubscribedFeedDateCutoffs {
   initialCommentCandidateLookbackDays: number;
@@ -154,12 +155,17 @@ function addRankingMetadata<T extends {
 
 export const ultraFeedSubscriptionsQueries = {
   UltraFeedSubscriptions: async (_root: void, args: UltraFeedSubscriptionsArgs, context: ResolverContext) => {
+    
+    const startTime = Date.now();
     const { currentUser } = context;
     if (!currentUser) throw new Error('Must be logged in to fetch UltraFeedSubscriptions.');
 
     const limit = args.limit ?? 20;
     const offset = args.offset ?? 0;
     const hideRead = !!(args.settings?.subscriptionsFeedSettings?.hideRead);
+    
+    const userTimezone = currentUser.lastUsedTimezone;
+    const timezoneOffset = userTimezone ? -moment.tz(userTimezone).utcOffset() : 0;
 
     const postsRepo = context.repos.posts;
     const commentsRepo = context.repos.comments;
@@ -310,19 +316,25 @@ export const ultraFeedSubscriptionsQueries = {
 
           const hourStart = new Date(hourStr);
           const hourEnd = new Date(hourStart.getTime() + (60 * 60 * 1000));
-          const targetsInSlice = loadedComments.filter(c => c.postedAt >= hourStart && c.postedAt < hourEnd && c.userId && c.userId !== currentUser._id);
+          
+          // When showing a comment thread at 3:00, we only want to include comments up to 3:00 and not "acausally" include later comments.
+          // Previously we did and it results in duplicate and confusing items.
+          const commentsUpToThisHour = loadedComments.filter(c => c.postedAt <= hourEnd);
+          if (commentsUpToThisHour.length === 0) continue;
+          
+          const targetsInSlice = commentsUpToThisHour.filter(c => c.postedAt >= hourStart && c.postedAt < hourEnd && c.userId && c.userId !== currentUser._id);
           const latestInSlice = targetsInSlice.length > 0 ? new Date(Math.max(...targetsInSlice.map(c => c.postedAt.getTime()))) : null;
-          const overallLatest = loadedComments.length > 0 ? new Date(Math.max(...loadedComments.map(c => c.postedAt.getTime()))) : null;
-          const sortDate = latestInSlice ?? overallLatest ?? loadedComments[loadedComments.length - 1].postedAt;
+          const overallLatest = commentsUpToThisHour.length > 0 ? new Date(Math.max(...commentsUpToThisHour.map(c => c.postedAt.getTime()))) : null;
+          const sortDate = latestInSlice ?? overallLatest ?? commentsUpToThisHour[commentsUpToThisHour.length - 1].postedAt;
 
-          const firstComment = loadedComments[0];
+          const firstComment = commentsUpToThisHour[0];
           const postId = firstComment.postId;
           const post = postId ? postsById.get(postId) : undefined;
 
           const isParentPostRead = postId ? (postReadStatuses.get(postId) ?? false) : false;
 
           const commentMetaInfos: Record<string, FeedCommentMetaInfo> = {};
-          loadedComments.forEach(c => {
+          commentsUpToThisHour.forEach(c => {
             const src = commentDataById.get(c._id);
             commentMetaInfos[c._id] = {
               sources: ['subscriptionsComments'] as const,
@@ -340,11 +352,11 @@ export const ultraFeedSubscriptionsQueries = {
             };
           });
 
-          const threadStableId = generateThreadHash(loadedComments.map(c => c._id));
+          const threadStableId = generateThreadHash(commentsUpToThisHour.map(c => c._id));
 
           // If hideRead is enabled, skip threads where all comments by subscribed authors are read
           if (hideRead) {
-            const allCommentsRead = loadedComments
+            const allCommentsRead = commentsUpToThisHour
               .filter((c: DbComment) => commentDataById.get(c._id)?.fromSubscribedUser)
               .every((c: DbComment) => {
                 const { fromSubscribedUser, lastViewed, lastInteracted } = commentDataById.get(c._id) ?? {};
@@ -361,7 +373,7 @@ export const ultraFeedSubscriptionsQueries = {
             sortDate,
             data: {
               _id: `${threadStableId}_${hourStr}`,
-              comments: loadedComments,
+              comments: commentsUpToThisHour,
               commentMetaInfos,
               postSources: ['subscriptionsComments'],
               post,
@@ -379,6 +391,7 @@ export const ultraFeedSubscriptionsQueries = {
     const pageStart = offset ?? 0;
     const pageEnd = pageStart + (limit ?? 20);
     const pageCore = feedItemsWithMetadata.slice(pageStart, pageEnd);
+    
     const pageItems: typeof feedItemsWithMetadata = [];
     // Insert a suggestions entry after every N feed items
     for (let i = 0; i < pageCore.length; i++) {
@@ -430,32 +443,55 @@ export const ultraFeedSubscriptionsQueries = {
       }
     });
     if (eventsToCreate.length > 0) {
-      backgroundTask(bulkRawInsert('UltraFeedEvents', eventsToCreate as DbUltraFeedEvent[]));
+      backgroundTask(UltraFeedEvents.rawInsertMany(eventsToCreate as DbUltraFeedEvent[]));
     }
 
-    const results = pageItems.map(item => {
+    const baseResults: UltraFeedResolverType[] = pageItems.map(item => {
       if (item.type === 'feedPost' && item.data.post) {
-        return { type: 'feedPost', feedPost: { _id: item.data.post._id, post: item.data.post, postMetaInfo: item.data.postMetaInfo } };
+        const postMetaInfo: FeedPostMetaInfo = item.data.postMetaInfo ?? {
+          sources: ['subscriptionsPosts'],
+          highlight: false,
+          displayStatus: 'expanded',
+        };
+        return { type: 'feedPost', feedPost: { _id: item.data.post._id, post: item.data.post, postMetaInfo } };
       }
       if (item.type === 'feedCommentThread') {
-        return { type: 'feedCommentThread', feedCommentThread: item.data };
+        return { 
+          type: 'feedCommentThread',
+          feedCommentThread: {
+            ...item.data,
+            comments: item.data.comments ?? [],
+            commentMetaInfos: item.data.commentMetaInfos ?? {},
+            postSources: item.data.postSources as FeedItemSourceType[] | undefined,
+          },
+        };
       }
       return { 
         type: 'feedSubscriptionSuggestions', 
         feedSubscriptionSuggestions: { 
           _id: `subscription-suggestions-${offset}`,
-          suggestedUsers 
+          suggestedUsers: suggestedUsers ?? [],
         } 
       };
     });
+
+    const results = insertTimeMarkers(pageItems, baseResults, timezoneOffset, args.cutoff);
 
     const nextCutoff = pageItems.length > 0 ? pageItems[pageItems.length - 1].sortDate : null;
 
     // Compute endOffset based on core items only (exclude suggestion entries)
     const response = createUltraFeedResponse(results, offset ?? 0, null, nextCutoff);
     const trueEndOffset = pageStart + pageCore.length;
+    
+    const executionTime = Date.now() - startTime;
+    serverCaptureEvent('subscribedFeedPerformance', {
+      subscribedFeedResolverTotalExecutionTime: executionTime,
+      offset: offset ?? 0,
+      userId: currentUser._id,
+      resultCount: results.length,
+      feedType: 'Following',
+    });
+    
     return { ...response, endOffset: trueEndOffset };
   },
 };
-
-

@@ -16,6 +16,7 @@ import { createConversation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { VOTING_DISABLED } from '../../lib/collections/moderatorActions/constants';
+import { createAutomatedContentEvaluation, rerunLlmCheck } from '../collections/automatedContentEvaluations/helpers';
 
 export const moderationGqlTypeDefs = gql`
   type ModeratorIPAddressInfo {
@@ -37,6 +38,8 @@ export const moderationGqlTypeDefs = gql`
     unlockThread(commentId: String!): Boolean!
     rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
     approveUserCurrentContentOnly(userId: String!): Boolean!
+    rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+    runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   }
 `
 
@@ -248,7 +251,66 @@ export const moderationGqlMutations = {
     }, context);
 
     return true;
-  }
+  },
+  async rerunLlmCheck(_root: void, args: { documentId: string, collectionName: ContentCollectionName }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can rerun LLM detection checks");
+    }
+
+    const { documentId, collectionName } = args;
+    return await rerunLlmCheck(documentId, collectionName, context);
+  },
+  async runLlmCheckForDocument(_root: void, args: { documentId: string, collectionName: ContentCollectionName }, context: ResolverContext) {
+    const { currentUser, Posts, Comments, Revisions, AutomatedContentEvaluations } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can run LLM checks");
+    }
+
+    const { documentId, collectionName } = args;
+
+    let contentsLatest: string | null = null;
+
+    if (collectionName === "Posts") {
+      const post = await Posts.findOne({ _id: documentId });
+      if (!post) {
+        throw new Error("Post not found");
+      }
+      contentsLatest = post.contents_latest;
+    } else {
+      const comment = await Comments.findOne({ _id: documentId });
+      if (!comment) {
+        throw new Error("Comment not found");
+      }
+      contentsLatest = comment.contents_latest;
+    }
+  
+    // Get the latest published revision
+    const revision = contentsLatest
+      ? await Revisions.findOne({ _id: contentsLatest })
+      : null;
+  
+    if (!revision) {
+      throw new Error(`No published revision found for ${collectionName === "Posts" ? "post" : "comment"}`);
+    }
+  
+    const existingAce = await AutomatedContentEvaluations.findOne({ revisionId: revision._id });
+    if (existingAce) {
+      throw new Error(`An automated content evaluation already exists for this ${collectionName === "Posts" ? "post" : "comment"}. Use rerunLlmCheck to update it.`);
+    }
+  
+    const aceId = await createAutomatedContentEvaluation(revision, context, { autoreject: false });
+    if (!aceId) {
+      throw new Error("Failed to create automated content evaluation");
+    }
+  
+    const ace = await AutomatedContentEvaluations.findOne({ _id: aceId });
+    if (!ace) {
+      throw new Error("Failed to fetch created automated content evaluation");
+    }
+
+    return ace;
+  },
 }
 
 export const moderationGqlQueries = {
@@ -257,16 +319,16 @@ export const moderationGqlQueries = {
     const { ipAddress } = args;
     if (!currentUser || !currentUser.isAdmin)
       throw new Error("Only admins can see IP address information");
-    
+
     const loginEvents = await LWEvents.find({
       name: "login",
       "properties.ip": ipAddress,
     }, {limit: 100}).fetch();
-    
+
     const userIds = uniq(loginEvents.map(loginEvent => loginEvent.userId));
     return {
       ip: ipAddress,
       userIds,
     };
-  }
+  },
 }

@@ -12,6 +12,27 @@ function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbPost>) {
 
 export function getDbIndexesOnPosts() {
   const indexSet = new DatabaseIndexSet();
+  // RK added this to optimize the query for fetchCandidatePosts in reviewPredictionResolvers
+  indexSet.addIndex("Posts",
+    {
+      manifoldReviewMarketId: 1,
+      postedAt: 1,
+    },
+    {
+      name: "posts.manifold_predictions_optimized",
+      partialFilterExpression: {
+        status: postStatuses.STATUS_APPROVED,
+        draft: false,
+        shortform: false,
+        unlisted: false,
+        isEvent: false,
+        manifoldReviewMarketId: { $exists: true }
+      }
+    }
+  );
+  // Manifold market id for joins and lookups
+  indexSet.addIndex("Posts", { manifoldReviewMarketId: 1 }, { name: "posts.manifoldReviewMarketId" });
+
 
   // This index is currently unused on LW.
   // indexSet.add("Posts",
@@ -147,6 +168,7 @@ export function getDbIndexesOnPosts() {
     commentCount: 1,
   }
   indexSet.addIndex("Posts", postCommentedViewFields);
+  indexSet.addIndex("Posts", { lastCommentedAt: -1 });
   indexSet.addIndex("Posts",
     augmentForDefaultView({ lastCommentedAt:-1, baseScore:1, hideFrontpageComments:1 }),
     { name: "posts.recentDiscussionThreadsList", }

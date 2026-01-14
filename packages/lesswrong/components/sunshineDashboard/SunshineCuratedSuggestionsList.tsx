@@ -127,6 +127,10 @@ const SunshineCuratedSuggestionsList = ({ limit = 7, atBottom, classes, setCurat
     setHasDrafts(hasDrafts);
   }
 
+  if (currentUser?.hideSunshineSidebar) {
+    return null
+  }
+
   if (!shouldShow(!!atBottom, timeForCuration, currentUser, hasDrafts)) {
     return null
   }

@@ -70,6 +70,7 @@ describe('Moderation Inbox Reducer', () => {
       const state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
@@ -77,6 +78,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
@@ -98,6 +100,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user3',
         openedUserId: null,
@@ -105,6 +108,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       // Next from last user should wrap to first
@@ -122,6 +126,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
@@ -129,6 +134,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       // Prev from first user should wrap to last
@@ -148,6 +154,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
@@ -155,6 +162,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       // Start at newContent (highest priority)
@@ -186,6 +194,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
@@ -193,6 +202,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       // Start at newContent (highest priority)
@@ -220,6 +230,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user2',
         openedUserId: null,
@@ -227,6 +238,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -247,6 +259,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
@@ -254,6 +267,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -272,6 +286,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: 'user1',
         openedUserId: null,
@@ -279,6 +294,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -301,6 +317,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user2',
@@ -308,6 +325,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -328,6 +346,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
@@ -335,6 +354,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -354,6 +374,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
@@ -361,6 +382,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -382,6 +404,7 @@ describe('Moderation Inbox Reducer', () => {
       let state: InboxState = {
         users,
         posts: [],
+        classifiedPosts: [],
         activeTab: 'newContent',
         focusedUserId: null,
         openedUserId: 'user1',
@@ -389,6 +412,7 @@ describe('Moderation Inbox Reducer', () => {
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
 
       // Try to change tabs

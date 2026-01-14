@@ -22,6 +22,7 @@ interface Query {
   unreadNotificationCounts: NotificationCounts;
   NotificationDisplays: NotificationDisplaysResult | null;
   Lightcone2024FundraiserStripeAmounts: Array<number> | null;
+  Lightcone2025FundraiserAirtableAmounts: number;
   PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData | null;
   petrov2024checkIfNuked: boolean | null;
   PetrovDayCheckIfIncoming: PetrovDayCheckIfIncomingData | null;
@@ -47,7 +48,6 @@ interface Query {
   PostsWithApprovedJargon: PostsWithApprovedJargonResult | null;
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
-  SubscribedFeed: SubscribedFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
   SubforumMagicFeed: SubforumMagicFeedQueryResults;
   SubforumTopFeed: SubforumTopFeedQueryResults;
@@ -79,6 +79,10 @@ interface Query {
   RevisionsDiff: string | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
+  getBookWordCount: number | null;
+  getSequenceStats: SequenceStats | null;
+  reviewPredictionPosts: Array<Post>;
+  adminEmailPreviewAudience: AdminEmailAudiencePreview;
   advisorRequest: SingleAdvisorRequestOutput | null;
   advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
@@ -268,6 +272,8 @@ interface Mutation {
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
   approveUserCurrentContentOnly: boolean;
+  rerunLlmCheck: AutomatedContentEvaluation;
+  runLlmCheckForDocument: AutomatedContentEvaluation;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -291,6 +297,8 @@ interface Mutation {
   increasePostViewCount: number | null;
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
+  adminSendTestEmail: AdminSendTestEmailResult;
+  adminSendBulkEmail: AdminSendBulkEmailResult;
   createAdvisorRequest: AdvisorRequestOutput | null;
   updateAdvisorRequest: AdvisorRequestOutput | null;
   createBook: BookOutput | null;
@@ -538,6 +546,21 @@ interface RecommendationSettingsInput {
   frontpage: RecommendationAlgorithmSettingsInput;
   frontpageEA: RecommendationAlgorithmSettingsInput;
   recommendationspage: RecommendationAlgorithmSettingsInput;
+}
+
+interface MailgunValidationResult {
+  email: string | null;
+  status: string | null;
+  validatedAt: Date | null;
+  httpStatus: number | null;
+  error: string | null;
+  isValid: boolean | null;
+  risk: string | null;
+  reason: string | null;
+  didYouMean: string | null;
+  isDisposableAddress: boolean | null;
+  isRoleAddress: boolean | null;
+  sourceUserId: string | null;
 }
 
 interface RecommendResumeSequence {
@@ -960,25 +983,6 @@ interface RecentDiscussionFeedEntry {
   tagRevised: Revision | null;
 }
 
-interface SubscribedPostAndComments {
-  _id: string;
-  post: Post;
-  comments: Array<Comment> | null;
-  expandCommentIds: Array<string> | null;
-  postIsFromSubscribedUser: boolean;
-}
-
-interface SubscribedFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubscribedFeedEntry> | null;
-}
-
-interface SubscribedFeedEntry {
-  type: SubscribedFeedEntryType;
-  postCommented: SubscribedPostAndComments | null;
-}
-
 interface TagHistoryFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
@@ -1279,6 +1283,12 @@ interface FeedSubscriptionSuggestions {
   suggestedUsers: Array<User>;
 }
 
+interface FeedMarker {
+  _id: string;
+  markerType: string;
+  timestamp: Date;
+}
+
 interface UltraFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
@@ -1292,6 +1302,7 @@ interface UltraFeedEntry {
   feedPost: FeedPost | null;
   feedSpotlight: FeedSpotlightItem | null;
   feedSubscriptionSuggestions: FeedSubscriptionSuggestions | null;
+  feedMarker: FeedMarker | null;
 }
 
 interface ElicitQuestionPredictionCreator {
@@ -1299,6 +1310,76 @@ interface ElicitQuestionPredictionCreator {
   displayName: string;
   isQuestionCreator: boolean;
   sourceUserId: string | null;
+}
+
+interface SequenceStats {
+  totalWordCount: number | null;
+  totalReadTime: number | null;
+}
+
+interface AdminEmailAudienceFilterInput {
+  verifiedEmailOnly: boolean;
+  requireMailgunValid: boolean;
+  excludeUnsubscribed: boolean;
+  excludeDeleted: boolean;
+  onlyAdmins: boolean;
+  maxMailgunRisk?: MailgunRiskLevel | null;
+  includeUnknownRisk: boolean;
+}
+
+interface AdminEmailPreviewAudienceInput {
+  filter: AdminEmailAudienceFilterInput;
+}
+
+interface AdminSendTestEmailInput {
+  userId: string;
+  subject: string;
+  from?: string | null;
+  html?: string | null;
+  text?: string | null;
+}
+
+interface AdminSendBulkEmailInput {
+  filter: AdminEmailAudienceFilterInput;
+  subject: string;
+  from?: string | null;
+  html?: string | null;
+  text?: string | null;
+  maxRecipients?: number | null;
+  batchSize?: number | null;
+  concurrency?: number | null;
+  runId?: string | null;
+}
+
+interface AdminEmailAudienceRow {
+  userId: string;
+  email: string;
+}
+
+interface AdminEmailAudiencePreview {
+  totalCount: number;
+  sample: Array<AdminEmailAudienceRow>;
+}
+
+interface AdminSendTestEmailResult {
+  ok: boolean;
+  status: number | null;
+  email: string;
+  unsubscribeUrl: string;
+}
+
+interface AdminSendBulkEmailError {
+  batch: number;
+  status: number | null;
+}
+
+interface AdminSendBulkEmailResult {
+  ok: boolean;
+  runId: string;
+  processed: number;
+  batches: number;
+  errors: Array<AdminSendBulkEmailError>;
+  lastAfterUserId: string | null;
 }
 
 interface AdvisorRequest {
@@ -1397,11 +1478,22 @@ interface AutomatedContentEvaluation {
   aiChoice: string | null;
   aiReasoning: string | null;
   aiCoT: string | null;
+  pangramScore: number | null;
+  pangramMaxScore: number | null;
+  pangramPrediction: string | null;
+  pangramWindowScores: Array<PangramWindowScore> | null;
 }
 
 interface SentenceScore {
   sentence: string;
   score: number;
+}
+
+interface PangramWindowScore {
+  text: string;
+  score: number;
+  startIndex: number;
+  endIndex: number;
 }
 
 interface Ban {
@@ -1864,6 +1956,7 @@ interface Comment {
   afBaseScore: number | null;
   afExtendedScore: any;
   afVoteCount: number | null;
+  automatedContentEvaluations: AutomatedContentEvaluation | null;
 }
 
 interface SingleCommentInput {
@@ -3526,6 +3619,7 @@ interface ModerationTemplate {
   name: string;
   collectionName: ModerationTemplateType;
   order: number;
+  groupLabel: string | null;
   deleted: boolean;
 }
 
@@ -4243,6 +4337,8 @@ interface PostDefaultViewInput {
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  requiredUnnominated?: boolean | null;
+  requiredFrontpage?: boolean | null;
 }
 
 interface PostsUserPostsInput {
@@ -4412,6 +4508,8 @@ interface PostsTimeframeInput {
   timeField?: string | null;
   curatedAfter?: string | null;
   limit?: number | null;
+  requiredUnnominated?: boolean | null;
+  requiredFrontpage?: boolean | null;
 }
 
 interface PostsDailyInput {
@@ -5244,6 +5342,29 @@ interface PostsSunshineNewPostsInput {
   curatedAfter?: string | null;
 }
 
+interface PostsSunshineAutoClassifiedPostsInput {
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: any;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
 interface PostsSunshineNewUsersPostsInput {
   postIds?: Array<string> | null;
   notPostIds?: Array<string> | null;
@@ -5716,6 +5837,7 @@ interface PostSelector {
   postsWithBannedUsers: PostsPostsWithBannedUsersInput | null;
   communityResourcePosts: PostsCommunityResourcePostsInput | null;
   sunshineNewPosts: PostsSunshineNewPostsInput | null;
+  sunshineAutoClassifiedPosts: PostsSunshineAutoClassifiedPostsInput | null;
   sunshineNewUsersPosts: PostsSunshineNewUsersPostsInput | null;
   sunshineCuratedSuggestions: PostsSunshineCuratedSuggestionsInput | null;
   hasEverDialogued: PostsHasEverDialoguedInput | null;
@@ -7466,6 +7588,7 @@ interface User {
   rateLimitNextAbleToComment: any;
   rateLimitNextAbleToPost: any;
   recentKarmaInfo: any;
+  mailgunValidation: MailgunValidationResult | null;
   hideSunshineSidebar: boolean | null;
   inactiveSurveyEmailSentAt: Date | null;
   userSurveyEmailSentAt: Date | null;
@@ -8346,6 +8469,7 @@ interface CreateModerationTemplateDataInput {
   name: string;
   collectionName: ModerationTemplateType;
   order?: number | null;
+  groupLabel?: string | null;
 }
 
 interface CreateModerationTemplateInput {
@@ -8358,6 +8482,7 @@ interface UpdateModerationTemplateDataInput {
   name?: string | null;
   collectionName?: ModerationTemplateType | null;
   order?: number | null;
+  groupLabel?: string | null;
   deleted?: boolean | null;
 }
 
@@ -9778,6 +9903,7 @@ interface GraphQLTypeMap {
   PostMetadataOutput: PostMetadataOutput;
   RecommendationAlgorithmSettingsInput: RecommendationAlgorithmSettingsInput;
   RecommendationSettingsInput: RecommendationSettingsInput;
+  MailgunValidationResult: MailgunValidationResult;
   RecommendResumeSequence: RecommendResumeSequence;
   CommentCountTag: CommentCountTag;
   TopCommentedTagUser: TopCommentedTagUser;
@@ -9846,9 +9972,6 @@ interface GraphQLTypeMap {
   AllTagsActivityFeedEntry: AllTagsActivityFeedEntry;
   RecentDiscussionFeedQueryResults: RecentDiscussionFeedQueryResults;
   RecentDiscussionFeedEntry: RecentDiscussionFeedEntry;
-  SubscribedPostAndComments: SubscribedPostAndComments;
-  SubscribedFeedQueryResults: SubscribedFeedQueryResults;
-  SubscribedFeedEntry: SubscribedFeedEntry;
   TagHistoryFeedQueryResults: TagHistoryFeedQueryResults;
   TagHistoryFeedEntry: TagHistoryFeedEntry;
   SubforumMagicFeedQueryResults: SubforumMagicFeedQueryResults;
@@ -9891,9 +10014,20 @@ interface GraphQLTypeMap {
   FeedCommentThread: FeedCommentThread;
   FeedSpotlightItem: FeedSpotlightItem;
   FeedSubscriptionSuggestions: FeedSubscriptionSuggestions;
+  FeedMarker: FeedMarker;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
+  SequenceStats: SequenceStats;
+  AdminEmailAudienceFilterInput: AdminEmailAudienceFilterInput;
+  AdminEmailPreviewAudienceInput: AdminEmailPreviewAudienceInput;
+  AdminSendTestEmailInput: AdminSendTestEmailInput;
+  AdminSendBulkEmailInput: AdminSendBulkEmailInput;
+  AdminEmailAudienceRow: AdminEmailAudienceRow;
+  AdminEmailAudiencePreview: AdminEmailAudiencePreview;
+  AdminSendTestEmailResult: AdminSendTestEmailResult;
+  AdminSendBulkEmailError: AdminSendBulkEmailError;
+  AdminSendBulkEmailResult: AdminSendBulkEmailResult;
   AdvisorRequest: AdvisorRequest;
   SingleAdvisorRequestInput: SingleAdvisorRequestInput;
   SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
@@ -9910,6 +10044,7 @@ interface GraphQLTypeMap {
   MultiArbitalTagContentRelOutput: MultiArbitalTagContentRelOutput;
   AutomatedContentEvaluation: AutomatedContentEvaluation;
   SentenceScore: SentenceScore;
+  PangramWindowScore: PangramWindowScore;
   Ban: Ban;
   SingleBanInput: SingleBanInput;
   SingleBanOutput: SingleBanOutput;
@@ -10298,6 +10433,7 @@ interface GraphQLTypeMap {
   PostsPostsWithBannedUsersInput: PostsPostsWithBannedUsersInput;
   PostsCommunityResourcePostsInput: PostsCommunityResourcePostsInput;
   PostsSunshineNewPostsInput: PostsSunshineNewPostsInput;
+  PostsSunshineAutoClassifiedPostsInput: PostsSunshineAutoClassifiedPostsInput;
   PostsSunshineNewUsersPostsInput: PostsSunshineNewUsersPostsInput;
   PostsSunshineCuratedSuggestionsInput: PostsSunshineCuratedSuggestionsInput;
   PostsHasEverDialoguedInput: PostsHasEverDialoguedInput;
@@ -10826,6 +10962,7 @@ interface CreateInputsByCollectionName {
   LlmConversations: never;
   LlmMessages: never;
   LoginTokens: never;
+  MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
@@ -10918,6 +11055,7 @@ interface UpdateInputsByCollectionName {
   LegacyData: never;
   LlmMessages: never;
   LoginTokens: never;
+  MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   PageCache: never;

@@ -65,7 +65,7 @@ export type NavigateFunction = ReturnType<typeof useNavigate>
  */
 export const useNavigate = () => {
   const { history } = useContext(NavigationContext)!;
-  return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean, skipRouter?: boolean}) => {
+  return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean, skipRouter?: boolean, scroll?: boolean}) => {
     if (locationDescriptor === -1) {
       history.back();
     } else if (locationDescriptor === 1) {
@@ -74,6 +74,7 @@ export const useNavigate = () => {
       const updatedLocationDescriptor = getUpdatedLocationDescriptor(window.location, locationDescriptor);
       const normalizedLocation = createPath(updatedLocationDescriptor);
       const normalizedOldLocation = createPath(window.location);
+      const scrollOptions = options?.scroll === false ? { scroll: false } : undefined;
 
       if (options?.openInNewTab) {
         window.open(normalizedLocation, '_blank')?.focus();
@@ -91,23 +92,13 @@ export const useNavigate = () => {
         } else {
           window.history.pushState(null, '', normalizedLocation);
         }
-
-        const hashChanged = updatedLocationDescriptor.hash !== window.location.hash;
-
-        if (hashChanged) {
-          const base = new URL(window.location.href).origin;
-          const oldURL = new URL(createPath(window.location), base).toString();
-          const newURL = new URL(normalizedLocation, base).toString();
-          const hashChangeEvent = new HashChangeEvent('hashchange', { oldURL, newURL });
-          window.dispatchEvent(hashChangeEvent);
-        }
       } else if (options?.replace) {
         if (normalizedLocation !== normalizedOldLocation) {
-          history.replace(normalizedLocation);
+          history.replace(normalizedLocation, scrollOptions);
         }
       } else {
         if (normalizedLocation !== normalizedOldLocation) {
-          history.push(normalizedLocation);
+          history.push(normalizedLocation, scrollOptions);
         }
       }
     }

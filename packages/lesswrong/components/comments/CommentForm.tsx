@@ -7,7 +7,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
-import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { getCommentEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
@@ -502,7 +502,7 @@ export const CommentForm = ({
                     verify: false,
                   };
                 }}
-                hintText={isFriendlyUI() ? "Write a new comment..." : getDefaultEditorPlaceholder()}
+                hintText={getCommentEditorPlaceholder()}
                 fieldName="contents"
                 collectionName="Comments"
                 commentEditor={true}

@@ -195,7 +195,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
       defaultSort = "needsPreliminaryVote";
       break;
     case 'REVIEWS':
-      defaultSort = "reviewVoteScoreHighKarma"
+      defaultSort = "needsReview"
       break;
     case 'VOTING':
       defaultSort = "needsFinalVote";
@@ -385,7 +385,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
       <div className={classes.votingPageHeader}>
         {/* <p>This page shows all posts that passed the nomination round. <br/>Use it to help prioritize your reviewing and update your votes.</p> */}
         <p>Currently sorted by: <b>{sortingInfo[sortPosts].title}</b><em>.<br/>{sortingInfo[sortPosts].description}</em></p> 
-        <p>If this page is intimidating, just go to the <Link to={`/quickReview/${reviewYear}`}>Quick Review</Link> page.</p>
+        {reviewPhase !== 'NOMINATIONS' && <p>If this page is intimidating, just go to the <Link to={`/quickReview/${reviewYear}`}>Quick Review</Link> page.</p>}
       </div>
         <div className={classes.tagListContainer}>
           <PostsTagsList

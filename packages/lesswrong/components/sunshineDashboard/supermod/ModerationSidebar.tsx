@@ -1,24 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useMutation } from '@apollo/client/react';
-import { gql } from '@/lib/generated/gql-codegen';
-import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import SunshineUserMessages from '../SunshineUserMessages';
-import { getSignature } from '@/lib/collections/users/helpers';
-import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
-import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
-import UserRateLimitItem from '../UserRateLimitItem';
-import classNames from 'classnames';
-
-const SunshineUsersListUpdateMutation = gql(`
-  mutation updateUserModerationSidebar($selector: SelectorInput!, $data: UpdateUserDataInput!) {
-    updateUser(selector: $selector, data: $data) {
-      data {
-        ...SunshineUsersList
-      }
-    }
-  }
-`);
+import SunshineUserMessages, { ModerationTemplatesListQuery } from '../SunshineUserMessages';
+import { useCurrentUser } from '@/components/common/withUser';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import LWDialog from '@/components/common/LWDialog';
+import { ModerationTemplatesForm } from '@/components/moderationTemplates/ModerationTemplateForm';
+import type { InboxAction } from './inboxReducer';
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
@@ -48,25 +35,15 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     letterSpacing: '0.5px',
     flexShrink: 0,
   },
-  noBottomMargin: {
-    marginBottom: 'unset',
-  },
-  notes: {
-    border: theme.palette.border.faint,
-    borderRadius: 4,
-    padding: 8,
-    maxHeight: 200,
-    overflow: 'auto',
-  },
-  userModActions: {
-    overflow: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-  },
-  modActionItem: {},
   userMessages: {
     overflow: 'auto',
+  },
+  newTemplateButton: {
+    marginTop: 'auto',
+    flexShrink: 0,
+  },
+  dialogContent: {
+    padding: 20,
   },
 }));
 
@@ -78,52 +55,7 @@ const ModerationSidebar = ({
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
-  const [notes, setNotes] = useState(user.sunshineNotes);
-
-  const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
-
-  useEffect(() => {
-    if (user.sunshineNotes) {
-      setNotes(user.sunshineNotes);
-    }
-  }, [user._id, user.sunshineNotes]);
-
-  const handleNotes = useCallback(() => {
-    if (notes !== user.sunshineNotes) {
-      void updateUser({
-        variables: {
-          selector: { _id: user._id },
-          data: {
-            sunshineNotes: notes,
-          },
-        },
-      });
-    }
-  }, [user._id, user.sunshineNotes, notes, updateUser]);
-
-  const modNoteSignature = useMemo(() => getSignature(currentUser.displayName), [currentUser.displayName]);
-
-  const signAndDate = useCallback((sunshineNotes: string) => {
-    if (!sunshineNotes.match(modNoteSignature)) {
-      const padding = !sunshineNotes ? ": " : ": \n\n"
-      return modNoteSignature + padding + sunshineNotes
-    }
-    return sunshineNotes
-  }, [modNoteSignature]);
-
-  const addSignature = useCallback(() => {
-    const signedNotes = signAndDate(notes ?? '');
-    if (signedNotes !== notes) {
-      setNotes(signedNotes);
-    }
-  }, [notes, signAndDate]);
-
-  useEffect(() => {
-    return () => {
-      handleNotes();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [showNewTemplateModal, setShowNewTemplateModal] = useState(false);
 
   if (!user) {
     return (
@@ -138,47 +70,41 @@ const ModerationSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.section}>
-        <div className={classes.sectionTitle}>Moderator Notes</div>
-        <div className={classes.notes}>
-          <Input
-            value={notes ?? ''}
-            fullWidth
-            onChange={(e) => setNotes(e.target.value)}
-            onBlur={handleNotes}
-            onClick={addSignature}
-            disableUnderline
-            placeholder="Notes for other moderators"
-            multiline
-            rows={6}
-          />
-        </div>
-      </div>
-
-      <div className={classes.section}>
-        <div className={classes.sectionTitle}>Outstanding Moderator Actions</div>
-        <div className={classes.userModActions}>
-          {user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)).map(action => (
-            <div key={action._id} className={classes.modActionItem}>
-              <ModeratorActionItem user={user} moderatorAction={action} comments={[]} posts={[]} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className={classes.section}>
-        <div className={classNames(classes.sectionTitle, classes.noBottomMargin)}>Rate Limits</div>
-        <div className={classes.userModActions}>
-          <UserRateLimitItem user={user} />
-        </div>
-      </div>
-
-      <div className={classes.section}>
         <div className={classes.sectionTitle}>User Messages</div>
         <div className={classes.userMessages}>
           {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
           <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} showExpandablePreview />
         </div>
       </div>
+
+      <div className={classes.newTemplateButton}>
+        <Button onClick={() => setShowNewTemplateModal(true)}>
+          NEW MOD TEMPLATE
+        </Button>
+      </div>
+
+      <LWDialog
+        open={showNewTemplateModal}
+        onClose={() => setShowNewTemplateModal(false)}
+        title="New Moderation Template"
+      >
+        <div className={classes.dialogContent}>
+          <ModerationTemplatesForm
+            onSuccess={() => {
+              setShowNewTemplateModal(false);
+            }}
+            onCancel={() => setShowNewTemplateModal(false)}
+            refetchQueries={[{
+              query: ModerationTemplatesListQuery,
+              variables: {
+                selector: { moderationTemplatesList: { collectionName: "Messages" } },
+                limit: 50,
+                enableTotal: false,
+              },
+            }]}
+          />
+        </div>
+      </LWDialog>
     </div>
   );
 };

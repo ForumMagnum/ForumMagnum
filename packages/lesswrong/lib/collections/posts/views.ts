@@ -1,11 +1,11 @@
 import moment from 'moment';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from './karmaInflation';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { isAF, isEAForum, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
+import { adminAccountSetting, isAF, isEAForum, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
-import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
+import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, reviewExcludedPostIds, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
@@ -203,6 +203,13 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
     }
   }
   
+  if (terms.requiredUnnominated) {
+    params.selector.positiveReviewVoteCount = { $lt: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }
+  }
+  if (terms.requiredFrontpage) {
+    params.selector.frontpageDate = {$exists: true}
+  }
+
   if (terms.after || terms.before) {
     let postedAt: any = {};
 
@@ -1040,6 +1047,23 @@ function sunshineNewPosts() {
   }
 }
 
+function sunshineAutoClassifiedPosts() {
+  const adminTeamAccountId = adminAccountSetting.get()?._id;
+  if (!adminTeamAccountId) {
+    throw new Error('Admin team account ID is not set');
+  }
+  return {
+    selector: {
+      reviewedByUserId: adminTeamAccountId,
+    },
+    options: {
+      sort: {
+        frontpageDate: -1,
+      }
+    }
+  };
+}
+
 function sunshineNewUsersPosts(terms: PostsViewTerms) {
   return {
     selector: {
@@ -1065,11 +1089,13 @@ function sunshineNewUsersPosts(terms: PostsViewTerms) {
 
 function sunshineCuratedSuggestions(terms: PostsViewTerms) {
   const audio = terms.audioOnly ? {podcastEpisodeId: {$exists: true}} : {}
+  const sixtyDaysAgo = new Date(Date.now() - (60 * 24 * 60 * 60 * 1000));
   return {
     selector: {
       ...audio,
       suggestForCuratedUserIds: {$exists:true, $ne: []},
-      reviewForCuratedUserId: {$exists:false}
+      reviewForCuratedUserId: {$exists:false},
+      postedAt: {$gt: sixtyDaysAgo}
     },
     options: {
       sort: {
@@ -1205,7 +1231,8 @@ function nominatablePostsByVote(terms: PostsViewTerms, _: ApolloClient, context?
       userId: {$ne: context?.currentUser?._id,},
       ...frontpageFilter,
       ...nominationFilter,
-      isEvent: false
+      isEvent: false,
+      _id: { $nin: reviewExcludedPostIds }
     },
     options: {
       sort: {
@@ -1215,8 +1242,6 @@ function nominatablePostsByVote(terms: PostsViewTerms, _: ApolloClient, context?
   }
 }
 
-// Exclude IDs that should not be included, e.g. were republished and postedAt date isn't actually in current review
-const reviewExcludedPostIds = ['MquvZCGWyYinsN49c'];
 
 // Nominations for the (≤)2020 review are determined by the number of votes
 function reviewVoting(terms: PostsViewTerms) {
@@ -1268,7 +1293,8 @@ function reviewQuickPage(terms: PostsViewTerms) {
     selector: {
       reviewCount: 0,
       positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD },
-      reviewVoteScoreAllKarma: { $gte: QUICK_REVIEW_SCORE_THRESHOLD }
+      reviewVoteScoreAllKarma: { $gte: QUICK_REVIEW_SCORE_THRESHOLD },
+      _id: { $nin: reviewExcludedPostIds }
     },
     options: {
       sort: {
@@ -1369,6 +1395,7 @@ export const PostsViews = new CollectionViewSet('Posts', {
   postsWithBannedUsers,
   communityResourcePosts,
   sunshineNewPosts,
+  sunshineAutoClassifiedPosts,
   sunshineNewUsersPosts,
   sunshineCuratedSuggestions,
   hasEverDialogued,

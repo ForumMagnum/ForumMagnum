@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { truncate } from "../../lib/editor/ellipsize";
-import { useClickableCell } from "../common/useClickableCell";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import UsersProfileImage from "../users/UsersProfileImage";
 import FormatDate from "../common/FormatDate";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import { useLocation } from "../../lib/routeUtil";
+import qs from "qs";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -94,8 +95,22 @@ const FriendlyConversationItem = ({
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) => {
   const isSelected = selectedConversationId === conversation._id;
+  const { location, query } = useLocation();
 
-  const { onClick } = useClickableCell({ onClick: () => setSelectedConversationId(conversation._id) });
+  const onClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Handle ctrl/cmd+click to open in new tab
+    if (e.metaKey || e.ctrlKey) {
+      const newQuery = { ...query, conversation: conversation._id };
+      const search = qs.stringify(newQuery);
+      const url = `${location.pathname}?${search}`;
+      window.open(url, "_blank");
+    } else {
+      setSelectedConversationId(conversation._id);
+    }
+  }, [query, location.pathname, conversation._id, setSelectedConversationId]);
 
   if (!conversation) return null;
 

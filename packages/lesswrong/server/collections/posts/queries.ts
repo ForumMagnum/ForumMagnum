@@ -50,6 +50,8 @@ export const graphqlPostQueryTypeDefs = gql`
     before: String
     timeField: String
     curatedAfter: String
+    requiredUnnominated: Boolean
+    requiredFrontpage: Boolean
   }
   
   input PostsUserPostsInput {
@@ -219,6 +221,8 @@ export const graphqlPostQueryTypeDefs = gql`
     timeField: String
     curatedAfter: String
     limit: Int
+    requiredUnnominated: Boolean
+    requiredFrontpage: Boolean
   }
   
   input PostsDailyInput {
@@ -1051,6 +1055,29 @@ export const graphqlPostQueryTypeDefs = gql`
     curatedAfter: String
   }
   
+  input PostsSunshineAutoClassifiedPostsInput {
+    postIds: [String!]
+    notPostIds: [String!]
+    groupId: String
+    af: Boolean
+    question: Boolean
+    authorIsUnreviewed: Boolean
+    exactPostIds: [String!]
+    hideCommunity: Boolean
+    karmaThreshold: Int
+    excludeEvents: Boolean
+    userId: String
+    includeRelatedQuestions: String
+    filter: String
+    view: String
+    filterSettings: JSON
+    sortedBy: String
+    after: String
+    before: String
+    timeField: String
+    curatedAfter: String
+  }
+  
   input PostsSunshineNewUsersPostsInput {
     postIds: [String!]
     notPostIds: [String!]
@@ -1523,6 +1550,7 @@ export const graphqlPostQueryTypeDefs = gql`
     postsWithBannedUsers: PostsPostsWithBannedUsersInput
     communityResourcePosts: PostsCommunityResourcePostsInput
     sunshineNewPosts: PostsSunshineNewPostsInput
+    sunshineAutoClassifiedPosts: PostsSunshineAutoClassifiedPostsInput
     sunshineNewUsersPosts: PostsSunshineNewUsersPostsInput
     sunshineCuratedSuggestions: PostsSunshineCuratedSuggestionsInput
     hasEverDialogued: PostsHasEverDialoguedInput

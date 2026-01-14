@@ -705,6 +705,14 @@ export const ckEditorStyles = (theme: ThemeType) => {
       },
       '--ck-spacing-standard': `${theme.spacing.unit}px`,
       '&.ck-content': {
+        // As of v46, ckeditor applies some default styles via these css variables.
+        // We have our own styles and don't want them, so just set them back to initial.
+        '--ck-content-font-family': 'initial',
+        '--ck-content-font-size': 'initial',
+        '--ck-content-font-color': 'initial',
+        '--ck-content-line-height': 'initial',
+        '--ck-content-word-break': 'initial',
+
         marginLeft: -theme.spacing.unit,
         '--ck-focus-outer-shadow-geometry': "none",
         '--ck-focus-ring': theme.palette.border.transparent,
@@ -713,7 +721,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '& p': {
           marginTop: "1em",
           marginBottom: "1em",
-          '&:first-of-type': {
+          '&:first-child': {
             marginTop: 0,
           }
         },
@@ -804,6 +812,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
       "--ck-color-comment-marker": theme.palette.editor.commentMarker,
       "--ck-color-comment-marker-active": theme.palette.editor.commentMarkerActive,
       '--ck-color-widget-editable-focus-background': theme.palette.panelBackground.default,
+      "--ck-comment-content-font-color": theme.palette.text.maxIntensity,
     }
   }
 }

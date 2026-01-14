@@ -463,6 +463,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
     showBottomBorder,
     showDismissButton,
     showArchiveButton,
+    showCommentsIcon,
     onDismiss,
     onArchive,
     hasUnreadComments,
@@ -605,7 +606,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
                   {!resumeReading && <PostActionsButton post={post} autoPlace />}
                 </div>}
 
-                {!resumeReading && <div className={classes.commentsIcon}>
+                {!resumeReading && showCommentsIcon && <div className={classes.commentsIcon}>
                   <PostsItemComments
                     small={false}
                     commentCount={commentCount}

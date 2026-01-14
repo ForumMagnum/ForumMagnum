@@ -8,6 +8,8 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     display: 'flex',
+    overflowX: 'auto',
+    overflowY: 'hidden',
     borderBottom: theme.palette.border.normal,
     backgroundColor: theme.palette.background.paper,
     position: 'sticky',
@@ -15,8 +17,9 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
     zIndex: 2,
   },
   tab: {
-    padding: '12px 16px',
+    padding: '12px 8px',
     cursor: 'pointer',
+    flexShrink: 0,
     fontSize: 14,
     fontWeight: 500,
     color: theme.palette.grey[700],
@@ -27,6 +30,12 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[50],
       color: theme.palette.grey[900],
     },
+  },
+  firstTab: {
+    paddingLeft: '16px',
+  },
+  lastTab: {
+    paddingRight: '16px',
   },
   activeTab: {
     color: theme.palette.primary.main,
@@ -48,7 +57,7 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
 }));
 
 export type TabInfo = {
-  group: ReviewGroup | 'all' | 'posts';
+  group: ReviewGroup | 'all' | 'posts' | 'classifiedPosts';
   count: number;
 };
 
@@ -58,18 +67,20 @@ const ModerationTabs = ({
   onTabChange,
 }: {
   tabs: TabInfo[];
-  activeTab: ReviewGroup | 'all' | 'posts';
-  onTabChange: (tab: ReviewGroup | 'all' | 'posts') => void;
+  activeTab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts';
+  onTabChange: (tab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts') => void;
 }) => {
   const classes = useStyles(styles);
 
   return (
     <div className={classes.root}>
-      {tabs.map((tab) => (
+      {tabs.map((tab, index) => (
         <div
           key={tab.group}
           className={classNames(classes.tab, {
             [classes.activeTab]: activeTab === tab.group,
+            [classes.firstTab]: index === 0,
+            [classes.lastTab]: index === tabs.length - 1,
           })}
           onClick={() => onTabChange(tab.group)}
         >
@@ -86,4 +97,3 @@ const ModerationTabs = ({
 };
 
 export default ModerationTabs;
-

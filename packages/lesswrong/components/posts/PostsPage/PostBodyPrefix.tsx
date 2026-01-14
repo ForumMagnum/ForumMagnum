@@ -12,9 +12,8 @@ import AlignmentPendingApprovalMessage from "../../alignment-forum/AlignmentPend
 import LinkPostMessage from "../LinkPostMessage";
 import PostsRevisionMessage from "./PostsRevisionMessage";
 import LWTooltip from "../../common/LWTooltip";
-import { ContentItemBody } from "../../contents/ContentItemBody";
-import ContentStyles from "../../common/ContentStyles";
 import PostPageReviewButton from "./PostPageReviewButton";
+import RejectionNotice from "./RejectionNotice";
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/components/posts/PostsPage/constants';
 
 const getShortformDraftMessage = () => isFriendlyUI()
@@ -39,13 +38,6 @@ const styles = (theme: ThemeType) => ({
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
-  rejectionNotice: {
-    ...theme.typography.contentNotice,
-    ...theme.typography.postStyle,
-    maxWidth: 600,
-    opacity: .75,
-    marginBottom: 40
-  },
   infoIcon: {
     width: 16,
     height: 16,
@@ -63,7 +55,7 @@ const getForumNewUserProcessingTime = () => forumSelect({
 })
 
 const PostBodyPrefix = ({post, query, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|SunshinePostsList,
   query?: any,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -83,12 +75,7 @@ const PostBodyPrefix = ({post, query, classes}: {
       </>
     </div>}
 
-    {post.rejected && <div className={classes.rejectionNotice}>
-      <p>This post was rejected{post.rejectedReason && " for the following reason(s):"}</p>
-      <ContentStyles contentType="postHighlight">
-        <ContentItemBody dangerouslySetInnerHTML={{__html: post.rejectedReason || "" }}/>
-      </ContentStyles>
-    </div>}
+    {post.rejected && <RejectionNotice rejectedReason={post.rejectedReason}/>}
     {!post.rejected && post.authorIsUnreviewed && !post.draft && <div className={classes.contentNotice}>
       {currentUser?._id === post.userId
         ? "Because this is your first post, this post is awaiting moderator approval."

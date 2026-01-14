@@ -65,6 +65,12 @@ const styles = defineStyles('ModerationPostSidebar', (theme: ThemeType) => ({
     alignItems: 'center',
     gap: 4,
   },
+  buttonActive: {
+    backgroundColor: theme.palette.grey[300],
+    '&:hover': {
+      backgroundColor: theme.palette.grey[400],
+    },
+  },
   buttonIcon: {
     width: 14,
     marginRight: 4,
@@ -117,7 +123,8 @@ const ModerationPostSidebar = ({
   }
 
   const prediction = post.frontpageClassification;
-  const autoFrontpage = post.autoFrontpage;
+  const isFrontpaged = !!post.frontpageDate;
+
   const lastManualUserFlag = post.user?.moderatorActions?.find(
     action => action.type === MANUAL_FLAG_ALERT
   );
@@ -148,25 +155,21 @@ const ModerationPostSidebar = ({
         )}
 
         <div className={classes.buttonRow}>
-          <Button onClick={markAsPersonal} className={classes.button}>
+          <Button
+            onClick={markAsPersonal}
+            className={classNames(classes.button, { [classes.buttonActive]: !isFrontpaged })}
+          >
             <PersonIcon className={classes.buttonIcon} />
             Personal
-            {autoFrontpage === "hide" && (
-              <span className={classes.robotIcon}>
-                <ForumIcon icon="Robot" />
-              </span>
-            )}
             <KeystrokeDisplay keystroke="P" withMargin />
           </Button>
           {post.submitToFrontpage && (
-            <Button onClick={markAsFrontpage} className={classes.button}>
+            <Button
+              onClick={markAsFrontpage}
+              className={classNames(classes.button, { [classes.buttonActive]: isFrontpaged })}
+            >
               <HomeIcon className={classes.buttonIcon} />
               Frontpage
-              {autoFrontpage === "show" && (
-                <span className={classes.robotIcon}>
-                  <ForumIcon icon="Robot" />
-                </span>
-              )}
               <KeystrokeDisplay keystroke="F" withMargin />
             </Button>
           )}
@@ -187,7 +190,7 @@ const ModerationPostSidebar = ({
         </div>
       </div>
 
-      <div className={classes.postWrapper}>
+      <div className={classes.postWrapper} key={post._id}>
         <PostsPageWrapper documentId={post._id} sequenceId={null} embedded />
       </div>
     </div>

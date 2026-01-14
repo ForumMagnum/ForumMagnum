@@ -8,12 +8,14 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       display: "block",
     },
+    width: 13,
   },
   sidebarInlineReactMobileLine: {
     width: 4,
+    left: 9,
+
     height: 24,
     position: "relative",
-    left: 9,
     borderTopLeftRadius: 4,
     borderBottomLeftRadius: 4,
   },

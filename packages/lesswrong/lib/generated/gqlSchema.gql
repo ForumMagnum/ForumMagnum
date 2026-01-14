@@ -177,6 +177,21 @@ input RecommendationSettingsInput {
   recommendationspage: RecommendationAlgorithmSettingsInput!
 }
 
+type MailgunValidationResult {
+  email: String
+  status: String
+  validatedAt: Date
+  httpStatus: Int
+  error: String
+  isValid: Boolean
+  risk: String
+  reason: String
+  didYouMean: String
+  isDisposableAddress: Boolean
+  isRoleAddress: Boolean
+  sourceUserId: String
+}
+
 type RecommendResumeSequence {
   sequence: Sequence
   collection: Collection
@@ -566,6 +581,7 @@ extend type Query {
 
 extend type Query {
   Lightcone2024FundraiserStripeAmounts: [Int!]
+  Lightcone2025FundraiserAirtableAmounts: Int!
 }
 
 type PetrovDay2024CheckNumberOfIncomingData {
@@ -829,33 +845,6 @@ type RecentDiscussionFeedEntry {
 
 extend type Query {
   RecentDiscussionFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): RecentDiscussionFeedQueryResults!
-}
-
-type SubscribedPostAndComments {
-  _id: String!
-  post: Post!
-  comments: [Comment!]
-  expandCommentIds: [String!]
-  postIsFromSubscribedUser: Boolean!
-}
-
-type SubscribedFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubscribedFeedEntry!]
-}
-
-enum SubscribedFeedEntryType {
-  postCommented
-}
-
-type SubscribedFeedEntry {
-  type: SubscribedFeedEntryType!
-  postCommented: SubscribedPostAndComments
-}
-
-extend type Query {
-  SubscribedFeed(limit: Int, cutoff: Date, offset: Int, af: Boolean): SubscribedFeedQueryResults!
 }
 
 type TagHistoryFeedQueryResults {
@@ -1287,6 +1276,8 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
   rejectContentAndRemoveUserFromQueue(userId: String!, documentId: String!, collectionName: ContentCollectionName!, rejectedReason: String!, messageContent: String): Boolean!
   approveUserCurrentContentOnly(userId: String!): Boolean!
+  rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+  runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
 }
 
 extend type Mutation {
@@ -1434,6 +1425,12 @@ type FeedSubscriptionSuggestions {
   suggestedUsers: [User!]!
 }
 
+type FeedMarker {
+  _id: String!
+  markerType: String!
+  timestamp: Date!
+}
+
 type UltraFeedQueryResults {
   cutoff: Date
   endOffset: Int!
@@ -1446,6 +1443,7 @@ enum UltraFeedEntryType {
   feedPost
   feedSpotlight
   feedSubscriptionSuggestions
+  feedMarker
 }
 
 type UltraFeedEntry {
@@ -1454,6 +1452,7 @@ type UltraFeedEntry {
   feedPost: FeedPost
   feedSpotlight: FeedSpotlightItem
   feedSubscriptionSuggestions: FeedSubscriptionSuggestions
+  feedMarker: FeedMarker
 }
 
 extend type Query {
@@ -1477,6 +1476,103 @@ type ElicitQuestionPredictionCreator {
   displayName: String!
   isQuestionCreator: Boolean!
   sourceUserId: String
+}
+
+extend type Query {
+  getBookWordCount(bookId: String!): Float
+}
+
+type SequenceStats {
+  totalWordCount: Float
+  totalReadTime: Float
+}
+
+extend type Query {
+  getSequenceStats(sequenceId: String!): SequenceStats
+}
+
+extend type Query {
+  reviewPredictionPosts(year: Int!, limit: Int = 50): [Post!]!
+}
+
+enum MailgunRiskLevel {
+  low
+  medium
+  high
+}
+
+input AdminEmailAudienceFilterInput {
+  verifiedEmailOnly: Boolean!
+  requireMailgunValid: Boolean!
+  excludeUnsubscribed: Boolean!
+  excludeDeleted: Boolean!
+  onlyAdmins: Boolean!
+  maxMailgunRisk: MailgunRiskLevel
+  includeUnknownRisk: Boolean!
+}
+
+input AdminEmailPreviewAudienceInput {
+  filter: AdminEmailAudienceFilterInput!
+}
+
+input AdminSendTestEmailInput {
+  userId: String!
+  subject: String!
+  from: String
+  html: String
+  text: String
+}
+
+input AdminSendBulkEmailInput {
+  filter: AdminEmailAudienceFilterInput!
+  subject: String!
+  from: String
+  html: String
+  text: String
+  maxRecipients: Int
+  batchSize: Int
+  concurrency: Int
+  runId: String
+}
+
+type AdminEmailAudienceRow {
+  userId: String!
+  email: String!
+}
+
+type AdminEmailAudiencePreview {
+  totalCount: Int!
+  sample: [AdminEmailAudienceRow!]!
+}
+
+type AdminSendTestEmailResult {
+  ok: Boolean!
+  status: Int
+  email: String!
+  unsubscribeUrl: String!
+}
+
+type AdminSendBulkEmailError {
+  batch: Int!
+  status: Int
+}
+
+type AdminSendBulkEmailResult {
+  ok: Boolean!
+  runId: String!
+  processed: Int!
+  batches: Int!
+  errors: [AdminSendBulkEmailError!]!
+  lastAfterUserId: String
+}
+
+extend type Query {
+  adminEmailPreviewAudience(input: AdminEmailPreviewAudienceInput!): AdminEmailAudiencePreview!
+}
+
+extend type Mutation {
+  adminSendTestEmail(input: AdminSendTestEmailInput!): AdminSendTestEmailResult!
+  adminSendBulkEmail(input: AdminSendBulkEmailInput!): AdminSendBulkEmailResult!
 }
 
 type AdvisorRequest {
@@ -1585,11 +1681,22 @@ type AutomatedContentEvaluation {
   aiChoice: String
   aiReasoning: String
   aiCoT: String
+  pangramScore: Float
+  pangramMaxScore: Float
+  pangramPrediction: String
+  pangramWindowScores: [PangramWindowScore!]
 }
 
 type SentenceScore {
   sentence: String!
   score: Float!
+}
+
+type PangramWindowScore {
+  text: String!
+  score: Float!
+  startIndex: Int!
+  endIndex: Int!
 }
 
 type Ban {
@@ -2092,6 +2199,7 @@ type Comment {
   afBaseScore: Float
   afExtendedScore: JSON
   afVoteCount: Float
+  automatedContentEvaluations: AutomatedContentEvaluation
 }
 
 enum TagCommentType {
@@ -3886,6 +3994,7 @@ type ModerationTemplate {
   name: String!
   collectionName: ModerationTemplateType!
   order: Float!
+  groupLabel: String
   deleted: Boolean!
 }
 
@@ -4702,6 +4811,8 @@ input PostDefaultViewInput {
   before: String
   timeField: String
   curatedAfter: String
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsUserPostsInput {
@@ -4871,6 +4982,8 @@ input PostsTimeframeInput {
   timeField: String
   curatedAfter: String
   limit: Int
+  requiredUnnominated: Boolean
+  requiredFrontpage: Boolean
 }
 
 input PostsDailyInput {
@@ -5703,6 +5816,29 @@ input PostsSunshineNewPostsInput {
   curatedAfter: String
 }
 
+input PostsSunshineAutoClassifiedPostsInput {
+  postIds: [String!]
+  notPostIds: [String!]
+  groupId: String
+  af: Boolean
+  question: Boolean
+  authorIsUnreviewed: Boolean
+  exactPostIds: [String!]
+  hideCommunity: Boolean
+  karmaThreshold: Int
+  excludeEvents: Boolean
+  userId: String
+  includeRelatedQuestions: String
+  filter: String
+  view: String
+  filterSettings: JSON
+  sortedBy: String
+  after: String
+  before: String
+  timeField: String
+  curatedAfter: String
+}
+
 input PostsSunshineNewUsersPostsInput {
   postIds: [String!]
   notPostIds: [String!]
@@ -6175,6 +6311,7 @@ input PostSelector {
   postsWithBannedUsers: PostsPostsWithBannedUsersInput
   communityResourcePosts: PostsCommunityResourcePostsInput
   sunshineNewPosts: PostsSunshineNewPostsInput
+  sunshineAutoClassifiedPosts: PostsSunshineAutoClassifiedPostsInput
   sunshineNewUsersPosts: PostsSunshineNewUsersPostsInput
   sunshineCuratedSuggestions: PostsSunshineCuratedSuggestionsInput
   hasEverDialogued: PostsHasEverDialoguedInput
@@ -8080,6 +8217,7 @@ type User {
   rateLimitNextAbleToComment(postId: String): JSON
   rateLimitNextAbleToPost(eventForm: Boolean): JSON
   recentKarmaInfo: JSON
+  mailgunValidation: MailgunValidationResult
   hideSunshineSidebar: Boolean
   inactiveSurveyEmailSentAt: Date
   userSurveyEmailSentAt: Date
@@ -9117,6 +9255,7 @@ input CreateModerationTemplateDataInput {
   name: String!
   collectionName: ModerationTemplateType!
   order: Float
+  groupLabel: String
 }
 
 input CreateModerationTemplateInput {
@@ -9129,6 +9268,7 @@ input UpdateModerationTemplateDataInput {
   name: String
   collectionName: ModerationTemplateType
   order: Float
+  groupLabel: String
   deleted: Boolean
 }
 

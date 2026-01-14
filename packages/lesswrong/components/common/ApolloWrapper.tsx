@@ -1,4 +1,4 @@
-import React, { use, useCallback } from 'react';
+import React, { use, useCallback, useMemo } from 'react';
 import { headerLink, createErrorLink, createHttpLink } from "@/lib/apollo/links";
 import { isServer } from "@/lib/executionEnvironment";
 import { getSiteUrl } from "@/lib/vulcan-lib/utils";
@@ -17,10 +17,10 @@ import { disableFragmentWarnings } from "graphql-tag";
 // Disabling the warnings should basically be harmless as long as they're still enabled in the codegen context.
 disableFragmentWarnings();
 
-async function makeApolloClientForServer({ loginToken, searchParams }: {
+const makeApolloClientForServer = async ({ loginToken, searchParams }: {
   loginToken: string|null,
-  searchParams: Record<string, string>,
-}): Promise<ApolloClient> {
+  searchParams: Record<string,string>,
+}): Promise<ApolloClient> => {
   if (!isServer) {
     throw new Error("Not server");
   }
@@ -64,10 +64,10 @@ function makeApolloClientForClient({ loginToken }: {
   return client;
 }
 
-export function ApolloWrapper({ loginToken, searchParams, children }: React.PropsWithChildren<{
+export const ApolloWrapper = ({ loginToken, searchParams, children }: React.PropsWithChildren<{
   loginToken: string|null,
   searchParams: Record<string, string>,
-}>) {
+}>) => {
   // Either this is an SSR context, in which case constructing an apollo client
   // involves an async function call because of dynamic imports, or this is in
   // a client context, in which case construting an apollo client can be done
@@ -77,21 +77,54 @@ export function ApolloWrapper({ loginToken, searchParams, children }: React.Prop
   // if it was client code, which fails at compile time (but it doesn't bundle
   // it this way if it's imported dynamically).
   if (isServer) {
-    const client = use(makeApolloClientForServer({ loginToken, searchParams }));
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const makeClient = useCallback(() => client, [client]);
     return (
-      <ApolloNextAppProvider makeClient={makeClient}>
+      <ApolloWrapperServer loginToken={loginToken} searchParams={searchParams}>
         {children}
-      </ApolloNextAppProvider>
+      </ApolloWrapperServer>
     );
   } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const makeClient = useCallback(() => makeApolloClientForClient({ loginToken }), [loginToken]);
     return (
-      <ApolloNextAppProvider makeClient={makeClient}>
+      <ApolloWrapperClient loginToken={loginToken} searchParams={searchParams}>
         {children}
-      </ApolloNextAppProvider>
+      </ApolloWrapperClient>
     );
   }
 }
+
+
+const ApolloWrapperClient = ({ loginToken, searchParams, children }: React.PropsWithChildren<{
+  loginToken: string|null,
+  searchParams: Record<string, string>,
+}>) => {
+  const makeClient = useCallback(() => makeApolloClientForClient({ loginToken }), [loginToken]);
+  return (
+    <ApolloNextAppProvider makeClient={makeClient}>
+      {children}
+    </ApolloNextAppProvider>
+  );
+}
+
+const ApolloWrapperServer = React.memo(({ loginToken, searchParams, children }: React.PropsWithChildren<{
+  loginToken: string|null,
+  searchParams: Record<string, string>,
+}>) => {
+  // Construct an apollo-client for use in SSR. This is split into two
+  // components, one of which creates a promise and one of which calls use()
+  // on the promise, because otherwise we get double-construction (and doubling
+  // of context-setup-related queries and CPU usage).
+  const apolloClientPromise = makeApolloClientForServer({ loginToken, searchParams });
+  return <ApolloWrapperServerAsync clientPromise={apolloClientPromise}>
+    {children}
+  </ApolloWrapperServerAsync>
+})
+
+const ApolloWrapperServerAsync = React.memo(({ clientPromise, children }: {
+  clientPromise: Promise<ApolloClient>
+  children: React.ReactNode
+}) => {
+  const client = use(clientPromise);
+  const makeClient = useCallback(() => client, [client]);
+  return <ApolloNextAppProvider makeClient={makeClient}>
+    {children}
+  </ApolloNextAppProvider>
+});

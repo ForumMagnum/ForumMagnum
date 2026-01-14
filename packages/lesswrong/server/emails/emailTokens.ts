@@ -11,6 +11,7 @@ import type { EmailTokenResult } from '@/components/users/EmailTokenResult';
 import { userEmailAddressIsVerified } from '@/lib/collections/users/helpers';
 import UsersRepo from '../repos/UsersRepo';
 import { createPasswordHash, validatePassword } from '../vulcan-lib/apollo-server/passwordHelpers';
+import { invalidateLoginTokensFor } from '../vulcan-lib/apollo-server/authentication';
 
 type emailTokenResultComponents = {
   EmailTokenResult: typeof EmailTokenResult,
@@ -156,6 +157,7 @@ export const emailTokenTypesByName = {
       if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
 
       await new UsersRepo().resetPassword(user._id, await createPasswordHash(password));
+      await invalidateLoginTokensFor(user._id);
       return {message: "Your new password has been set. Try logging in again." };
     },
     resultComponentName: "EmailTokenResult",

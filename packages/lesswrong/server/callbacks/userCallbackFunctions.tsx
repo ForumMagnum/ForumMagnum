@@ -43,6 +43,7 @@ import { emailTokenTypesByName } from "../emails/emailTokens";
 import { backgroundTask } from "../utils/backgroundTask";
 import { persistentDisplayedModeratorActions, reviewTriggerModeratorActions } from "@/lib/collections/moderatorActions/constants";
 import { updateModeratorAction } from "../collections/moderatorActions/mutations";
+import { invalidateLoginTokensFor } from "../vulcan-lib/apollo-server/authentication";
 
 
 async function sendWelcomeMessageTo(userId: string) {
@@ -153,15 +154,11 @@ async function sendVerificationEmail(user: DbUser) {
 
 const utils = {
   enforceDisplayNameRateLimit: async ({userToUpdate, currentUser}: {userToUpdate: DbUser, currentUser: DbUser}, context: ResolverContext) => {
-    const { repos } = context;
-  
     if (userIsAdminOrMod(currentUser)) return;
   
     if (!userOwns(currentUser, userToUpdate)) {
       throw new Error(`You do not have permission to update this user`)
     }
-  
-    if (!isEAForum()) return;
   
     const sinceDaysAgo = sinceDaysAgoSetting.get();
     const MS_PER_DAY = 24*60*60*1000;
@@ -665,9 +662,8 @@ export async function updatingPostAudio(newUser: DbUser, oldUser: DbUser) {
   }
 }
 
+
 export async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser, context: ResolverContext) {
-  const { Users } = context;
-  
   // if the user is setting up their profile and their username changes from that form,
   // we don't want this action to count toward their one username change
   const isSettingUsername = oldUser.usernameUnset && !user.usernameUnset
@@ -684,7 +680,7 @@ export function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser, cont
   const previousUserWasBanned = !!(previousBanDate && new Date(previousBanDate) > now)
   
   if (updatedUserIsBanned && !previousUserWasBanned) {
-    backgroundTask(context.repos.users.clearLoginTokens(user._id));
+    backgroundTask(invalidateLoginTokensFor(user._id));
   }
 }
 

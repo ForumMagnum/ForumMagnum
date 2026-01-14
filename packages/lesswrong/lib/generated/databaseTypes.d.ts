@@ -57,6 +57,10 @@ interface DbAutomatedContentEvaluation extends DbObject {
   aiCoT: string | null
   aiReasoning: string | null
   createdAt: Date
+  pangramMaxScore: number | null
+  pangramPrediction: "AI" | "Human" | "Mixed" | null
+  pangramScore: number | null
+  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; }[] | null
   revisionId: string
   score: number | null
   sentenceScores: { sentence: string; score: number; }[] | null
@@ -723,6 +727,26 @@ interface DbLoginToken extends DbObject {
   userId: string
 }
 
+type MailgunValidationsCollection = PgCollection<"MailgunValidations">;
+
+interface DbMailgunValidation extends DbObject {
+  __collectionName?: "MailgunValidations"
+  createdAt: Date
+  didYouMean: string | null
+  email: string
+  error: string | null
+  httpStatus: number | null
+  isDisposableAddress: boolean | null
+  isRoleAddress: boolean | null
+  isValid: boolean | null
+  reason: string | null
+  result: any | null
+  risk: string | null
+  sourceUserId: string | null
+  status: string
+  validatedAt: Date
+}
+
 type ManifoldProbabilitiesCachesCollection = PgCollection<"ManifoldProbabilitiesCaches">;
 
 interface DbManifoldProbabilitiesCache extends DbObject {
@@ -778,6 +802,7 @@ interface DbModerationTemplate extends DbObject {
   contents_latest: string | null
   createdAt: Date
   deleted: boolean
+  groupLabel: string | null
   legacyData: any | null
   name: string
   order: number
@@ -2357,6 +2382,7 @@ interface CollectionsByName {
   LlmMessages: LlmMessagesCollection
   Localgroups: LocalgroupsCollection
   LoginTokens: LoginTokensCollection
+  MailgunValidations: MailgunValidationsCollection
   ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
@@ -2452,6 +2478,7 @@ interface ObjectsByCollectionName {
   LlmMessages: DbLlmMessage
   Localgroups: DbLocalgroup
   LoginTokens: DbLoginToken
+  MailgunValidations: DbMailgunValidation
   ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
   Migrations: DbMigration
@@ -2547,6 +2574,7 @@ interface ObjectsByTypeName {
   LlmMessage: DbLlmMessage
   Localgroup: DbLocalgroup
   LoginToken: DbLoginToken
+  MailgunValidation: DbMailgunValidation
   ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage
   Migration: DbMigration

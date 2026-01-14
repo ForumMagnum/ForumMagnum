@@ -44,6 +44,7 @@ export const ModerationTemplateItem = ({classes, template}: {
           <ModerationTemplatesForm
             initialData={template}
             onSuccess={() => setEdit(false)}
+            onCancel={() => setEdit(false)}
           />
         </BasicFormStyles>
       : <div>

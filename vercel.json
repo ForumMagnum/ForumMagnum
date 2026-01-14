@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
     "deploymentEnabled": {
-      "lw-deploy": false
+      "master": false
     }
   },
   "crons": [{
@@ -35,5 +35,8 @@
   }, {
     "path": "/api/cron/update-missing-post-embeddings",
     "schedule": "0 1 * * *"
+  }, {
+    "path": "/api/cron/update-review-vote-totals",
+    "schedule": "0 2 * * *"
   }]
 }

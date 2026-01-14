@@ -425,35 +425,10 @@ export const annualReviewAnnouncementPostPathSetting = new PublicInstanceSetting
 
 export const annualReviewVotingResultsPostPath = new PublicInstanceSetting<string>('annualReview.votingResultsPostPath', "", "optional");
 
-export const reviewWinnersCoverArtIds = new PublicInstanceSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {}, "optional");
-
-export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & {
-  leftHeightPct?: number;
-  middleHeightPct?: number;
-  rightHeightPct?: number;
-};
-
-export interface ReviewSectionInfo {
-  title?: string;
-  imgUrl: string;
-  order: number;
-  coords: CoordinateInfo;
-  tag: string | null;
-}
-
-export interface ReviewYearGroupInfo {
-  title?: string;
-  imgUrl: string;
-  coords: CoordinateInfo;
-}
-
-export const reviewWinnerSectionsInfo = new PublicInstanceSetting<Record<ReviewWinnerCategory, ReviewSectionInfo> | null>('annualReview.reviewWinnerSectionsInfo', null, "optional");
-export const reviewWinnerYearGroupsInfo = new PublicInstanceSetting<Record<ReviewYear, ReviewYearGroupInfo> | null>('annualReview.reviewWinnerYearGroupsInfo', null, "optional");
-
-
 export const moderationEmail = new PublicInstanceSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET", "optional");
 
 type AccountInfo = {
+  _id: string;
   username: string;
   email: string;
 };
@@ -504,7 +479,6 @@ export const userIdsWithAccessToLlmChat = new PublicInstanceSetting<string[]>('l
 
 export const textReplacementsSetting = new PublicInstanceSetting<Record<string, string>>('textReplacements', {}, "optional");
 
-export const lightconeFundraiserUnsyncedAmount = new PublicInstanceSetting<number>('lightconeFundraiser.unsyncedAmount', 0, "optional");
 export const lightconeFundraiserPaymentLinkId = new PublicInstanceSetting<string>('lightconeFundraiser.paymentLinkId', '', "optional");
 export const lightconeFundraiserThermometerBgUrl = new PublicInstanceSetting<string>('lightconeFundraiser.thermometerBgUrl', '', "optional");
 export const lightconeFundraiserThermometerGoalAmount = new PublicInstanceSetting<number>('lightconeFundraiser.thermometerGoalAmount', 0, "optional");

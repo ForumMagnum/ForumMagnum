@@ -106,7 +106,7 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recentComments': 20,
   'quicktakes': 15,
   'subscriptionsComments': 15,
-  'recombee-lesswrong-custom': 30,
+  'recombee-lesswrong-ultrafeed': 30,
   'hacker-news': 20,
   'subscriptionsPosts': 15,
   'spotlights': 5,
@@ -170,7 +170,7 @@ export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
     commentScoring: DEFAULT_COMMENT_SCORING_SETTINGS,
     threadInterestModel: DEFAULT_THREAD_INTEREST_MODEL_SETTINGS,
     unifiedScoring: DEFAULT_UNIFIED_SCORING_SETTINGS,
-    subscriptionsFeedSettings: { hideRead: true },
+    subscriptionsFeedSettings: { hideRead: false },
   },
 };
 
@@ -186,7 +186,7 @@ export const getDefaultSettingsForDevice = (device: DeviceKind): UltraFeedSettin
       commentScoring: { ...DEFAULT_COMMENT_SCORING_SETTINGS },
       threadInterestModel: { ...DEFAULT_THREAD_INTEREST_MODEL_SETTINGS },
       unifiedScoring: { ...DEFAULT_UNIFIED_SCORING_SETTINGS },
-      subscriptionsFeedSettings: { hideRead: true },
+      subscriptionsFeedSettings: { hideRead: false },
     },
   };
 };
@@ -225,7 +225,7 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
     description: "Recent comments, prioritized karma and previous engagement with the threads or posts they're on"
   },
   {
-    key: 'recombee-lesswrong-custom',
+    key: 'recombee-lesswrong-ultrafeed',
     label: "Personalized Post Recs",
     description: "Tailored for you based on your reading and voting history."
   },

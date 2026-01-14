@@ -9,14 +9,11 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
 import ModerationDetailView from './ModerationDetailView';
-import ModerationSidebar from './ModerationSidebar';
-import ModerationPostSidebar from './ModerationPostSidebar';
+import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
-import ModerationUndoHistory from './ModerationUndoHistory';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
-import classNames from 'classnames';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type ReviewGroup } from './groupings';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import type { TabInfo } from './ModerationTabs';
@@ -24,6 +21,7 @@ import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
 import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardContext';
+import ModerationPostSidebar from './ModerationPostSidebar';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -47,11 +45,23 @@ const SunshinePostsListMultiQuery = gql(`
   }
 `);
 
+const SunshineAutoClassifiedPostsListMultiQuery = gql(`
+  query multiPostAutoClassifiedInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshinePostsList
+      }
+      totalCount
+    }
+  }
+`);
+
 const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   root: {
     width: '100%',
     height: '100vh',
     display: 'flex',
+    flexDirection: 'column',
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     overflow: 'hidden',
     position: 'fixed',
@@ -61,30 +71,16 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     flex: 1,
     display: 'flex',
     overflow: 'hidden',
+    minHeight: 0,
   },
   leftPanel: {
     flex: 1,
     overflow: 'hidden',
     borderRight: theme.palette.border.normal,
   },
-  sidebar: {
-    width: 400,
+  postDetailPanel: {
+    flex: 2,
     overflow: 'hidden',
-    borderLeft: theme.palette.border.normal,
-    backgroundColor: theme.palette.background.paper,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  sidebarWide: {
-    width: 800,
-  },
-  sidebarTop: {
-    flex: '0 0 70%',
-    overflow: 'auto',
-  },
-  sidebarBottom: {
-    flex: '0 0 30%',
-    overflow: 'auto',
   },
   loading: {
     display: 'flex',
@@ -94,9 +90,10 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUserId, currentUser }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
+  classifiedPosts: SunshinePostsList[];
   initialOpenedUserId: string | null;
   currentUser: UsersCurrent;
 }) => {
@@ -106,12 +103,13 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [] },
+    { users: [], posts: [], classifiedPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
-      if (users.length === 0 && posts.length === 0) {
+      if (users.length === 0 && posts.length === 0 && classifiedPosts.length === 0) {
         return {
           users: [],
           posts: [],
+          classifiedPosts: [],
           activeTab: 'all',
           focusedUserId: null,
           openedUserId: null,
@@ -119,11 +117,12 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
           focusedContentIndex: 0,
           undoQueue: [],
           history: [],
+          runningLlmCheckId: null,
         };
       }
 
       const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length, posts.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length, posts.length, classifiedPosts.length);
 
       // Find first non-empty tab
       const firstNonEmptyTab = visibleTabs.find(tab => tab.count > 0);
@@ -133,6 +132,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
         return {
           users,
           posts,
+          classifiedPosts,
           activeTab: 'posts',
           focusedUserId: null,
           openedUserId: null,
@@ -140,6 +140,23 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
           focusedContentIndex: 0,
           undoQueue: [],
           history: [],
+          runningLlmCheckId: null,
+        };
+      }
+
+      if (firstTab === 'classifiedPosts') {
+        return {
+          users,
+          posts,
+          classifiedPosts,
+          activeTab: 'classifiedPosts',
+          focusedUserId: null,
+          openedUserId: null,
+          focusedPostId: classifiedPosts[0]?._id ?? null,
+          focusedContentIndex: 0,
+          undoQueue: [],
+          history: [],
+          runningLlmCheckId: null,
         };
       }
 
@@ -149,6 +166,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
       return {
         users,
         posts,
+        classifiedPosts,
         activeTab: firstTab,
         focusedUserId: orderedUsers[0]?._id ?? null,
         openedUserId: initialOpenedUserId,
@@ -156,6 +174,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
         focusedContentIndex: 0,
         undoQueue: [],
         history: [],
+        runningLlmCheckId: null,
       };
     }
   );
@@ -196,8 +215,8 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
   const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
 
   const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length]);
+    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length);
+  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -214,8 +233,9 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
 
   const focusedPost = useMemo(() => {
     if (!state.focusedPostId) return null;
-    return state.posts.find(p => p._id === state.focusedPostId) ?? null;
-  }, [state.focusedPostId, state.posts]);
+    const allPosts = [...state.posts, ...state.classifiedPosts];
+    return allPosts.find(p => p._id === state.focusedPostId) ?? null;
+  }, [state.focusedPostId, state.posts, state.classifiedPosts]);
 
   const handleOpenUser = useCallback((userId: string) => dispatch({ type: 'OPEN_USER', userId }), []);
 
@@ -231,7 +251,7 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
 
   const handlePrevPost = useCallback(() => dispatch({ type: 'PREV_POST' }), []);
 
-  const handleTabChange = useCallback((newTab: ReviewGroup | 'all' | 'posts') => dispatch({ type: 'CHANGE_TAB', tab: newTab }), []);
+  const handleTabChange = useCallback((newTab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts') => dispatch({ type: 'CHANGE_TAB', tab: newTab }), []);
 
   const handleNextTab = useCallback(() => dispatch({ type: 'NEXT_TAB' }), []);
 
@@ -267,7 +287,9 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
     }
   }, [state.openedUserId, state.focusedUserId, allOrderedUsers]);
 
-  const isPostsTab = state.activeTab === 'posts';
+  const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
+
+  const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
   return (
     <CoreTagsKeyboardProvider>
@@ -309,14 +331,19 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
         <div className={classes.leftPanel}>
           {openedUser ? (
             <ModerationDetailView 
+              currentUser={currentUser}
               user={openedUser}
+              posts={userPosts}
+              comments={userComments}
               focusedContentIndex={state.focusedContentIndex}
+              runningLlmCheckId={state.runningLlmCheckId}
               dispatch={dispatch}
+              state={state}
             />
           ) : (
             <ModerationInboxList
               userGroups={filteredGroups}
-              posts={state.posts}
+              posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
               focusedUserId={state.focusedUserId}
               focusedPostId={state.focusedPostId}
               onFocusUser={handleOpenUser}
@@ -328,31 +355,15 @@ const ModerationInboxInner = ({ users, posts, initialOpenedUserId, currentUser }
             />
           )}
         </div>
-        <div className={classNames(classes.sidebar, { [classes.sidebarWide]: isPostsTab })}>
-          {isPostsTab ? (
+        {isPostsTab && !openedUser && (
+          <div className={classes.postDetailPanel}>
             <ModerationPostSidebar
               post={focusedPost}
               currentUser={currentUser}
               dispatch={dispatch}
             />
-          ) : (
-            <>
-              <div className={classes.sidebarTop}>
-                {sidebarUser && <ModerationSidebar
-                  user={sidebarUser}
-                  currentUser={currentUser}
-                />}
-              </div>
-              <div className={classes.sidebarBottom}>
-                <ModerationUndoHistory
-                  undoQueue={state.undoQueue}
-                  history={state.history}
-                  dispatch={dispatch}
-                />
-              </div>
-            </>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
     </CoreTagsKeyboardProvider>
@@ -382,19 +393,30 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const { data: classifiedPostsData, loading: classifiedPostsLoading } = useQuery(SunshineAutoClassifiedPostsListMultiQuery, {
+    variables: {
+      selector: { sunshineAutoClassifiedPosts: {} },
+      limit: 100,
+      enableTotal: true,
+    },
+    fetchPolicy: 'cache-and-network',
+  });
+
   // This is just to pre-fetch the core tags so that they're available when you open the posts tab
   useCoreTags();
 
   const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
   const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
+  const classifiedPosts = useMemo(() => classifiedPostsData?.posts?.results ?? [], [classifiedPostsData]);
 
   useHydrateModerationPostCache(posts);
+  useHydrateModerationPostCache(classifiedPosts);
 
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;
   }
 
-  if ((usersLoading && !usersData) || (postsLoading && !postsData)) {
+  if ((usersLoading && !usersData) || (postsLoading && !postsData) || (classifiedPostsLoading && !classifiedPostsData)) {
     return (
       <div className={classes.loading}>
         <Loading />
@@ -407,6 +429,7 @@ const ModerationInbox = () => {
   return <ModerationInboxInner
     users={users}
     posts={posts}
+    classifiedPosts={classifiedPosts}
     initialOpenedUserId={initialOpenedUserId}
     currentUser={currentUser}
   />;

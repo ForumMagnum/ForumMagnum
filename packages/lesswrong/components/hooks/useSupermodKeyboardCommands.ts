@@ -9,22 +9,10 @@ function specialKeyPressed(event: KeyboardEvent) {
   return event.metaKey || event.ctrlKey || event.altKey;
 }
 
-function matchesKeystroke(event: KeyboardEvent, keystroke: string, allowWithSpecialKeys: string[]): boolean {
-  const key = event.key;
-
-  // Check if this is a key that's allowed with special keys
-  if (allowWithSpecialKeys.includes(key)) {
-    if (key === 'Escape') {
-      return keystroke === 'esc';
-    }
-    const normalizedKeystroke = keystroke.toLowerCase();
-    const normalizedKey = key.toLowerCase();
-    return normalizedKeystroke === normalizedKey;
-  }
-
-  // Special case for Escape
-  if (key === 'Escape') {
-    return keystroke === 'esc';
+function matchesKeystroke(event: KeyboardEvent, keystroke: string): boolean {
+  // Special case for Escape since commands may use 'esc' or 'Escape'
+  if (event.key === 'Escape') {
+    return keystroke === 'esc' || keystroke.toLowerCase() === 'escape';
   }
 
   try {
@@ -86,7 +74,7 @@ export function useSupermodKeyboardCommands({
 
         // Try to match and execute commands
         for (const command of commands) {
-          if (matchesKeystroke(event, command.keystroke, allowWithSpecialKeys)) {
+          if (matchesKeystroke(event, command.keystroke)) {
             if (command.isDisabled()) {
               return;
             }

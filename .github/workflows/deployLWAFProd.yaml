@@ -5,7 +5,7 @@ name: Deploy LW / AF Prod
 concurrency: deploy-lw-prod
 on:
   push:
-    branches: [ lw-deploy ]
+    branches: [ master ]
 jobs:
   migrate:
     runs-on: ubuntu-latest
@@ -16,12 +16,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Pull Vercel Environment Information
-      if: github.ref == 'refs/heads/lw-deploy'
+      if: github.ref == 'refs/heads/master'
       run: |
         npm install --global vercel@latest
         vercel env pull --yes --environment=production --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Run Migrations
-      if: github.ref == 'refs/heads/lw-deploy'
+      if: github.ref == 'refs/heads/master'
       uses: ./.github/actions/runLWMigrations
       with:
         mode: prod
@@ -34,12 +34,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Pull Vercel Environment Information
-      if: github.ref == 'refs/heads/lw-deploy'
+      if: github.ref == 'refs/heads/master'
       run: |
         npm install --global vercel@latest
         vercel env pull --yes --environment=production --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Upload ckEditor bundle
-      if: github.ref == 'refs/heads/lw-deploy'
+      if: github.ref == 'refs/heads/master'
       uses: ./.github/actions/uploadLWCkEditorBundle
       with:
         mode: prod

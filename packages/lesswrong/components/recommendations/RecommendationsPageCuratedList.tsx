@@ -40,7 +40,7 @@ const RecommendationsPageCuratedList = ({classes}: {
           </AnalyticsContext>
         </SingleColumnSection>}
         {hasCuratedPostsSetting.get() && currentUser?.isAdmin && <div className={classes.curated}>
-          <SunshineCuratedSuggestionsList limit={50} atBottom/>
+          <SunshineCuratedSuggestionsList limit={50}/>
         </div>}
       </AnalyticsContext>
     </div>

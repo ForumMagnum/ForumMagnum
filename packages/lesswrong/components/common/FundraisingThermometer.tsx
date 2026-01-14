@@ -1,5 +1,5 @@
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserThermometerGoal2Amount, lightconeFundraiserThermometerGoal3Amount } from '@/lib/instanceSettings';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -13,11 +13,11 @@ import LWTooltip from "./LWTooltip";
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
-  'https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,w_1530,h_200,c_limit/v1735085464/Fundraiser_2_wttlis.png';
+  'https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto,w_1920/v1766549552/image_10_xzmrxb.webp';
 
 // Third thermometer background image:
 const lightconeFundraiserThermometerBgUrl3 =
-  'https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,w_1530,h_200,c_limit/v1736822993/wgfexpdeikepryhu1und_uz6lap.png';
+  'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1768345544/science-mice_o0jbr4.png';
 
 interface FundraisingThermometerProps {
   onPost?: boolean;
@@ -149,7 +149,6 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.body2.fontFamily,
     fontSize: '1.2rem',
     paddingBottom: 6,
-    textShadow: `0px 0px 20px ${theme.palette.background.default}, 0px 0px 30px ${theme.palette.background.default}, 0px 0px 40px ${theme.palette.background.default}, 0px 0px 50px ${theme.palette.background.default}`,
     alignItems: 'flex-end',
     backdropFilter: 'blur(3px)',
     [theme.breakpoints.down('xs')]: {
@@ -274,10 +273,10 @@ const styles = (theme: ThemeType) => ({
       left: '-100%',
     },
     '72%': {
-      left: '-200%',
+      left: '-100%',
     },
     '100%': {
-      left: '-200%',
+      left: '-100%',
     }
   },
 
@@ -323,6 +322,7 @@ const styles = (theme: ThemeType) => ({
 const FundraisingThermometer: React.FC<
   FundraisingThermometerProps & { classes: ClassesType<typeof styles> }
 > = ({ classes, onPost = false }) => {
+
   // First, second, and third goal amounts
   const goal1 = lightconeFundraiserThermometerGoalAmount.get();
   const goal2 = lightconeFundraiserThermometerGoal2Amount.get();
@@ -346,7 +346,7 @@ const FundraisingThermometer: React.FC<
   const displayedStageNumber = currentAmount < goal1 ? 1 : currentAmount < goal2 ? 2 : 3;
 
   // End at 23:59 AoE (UTC-12) on Jan 13th
-  const fundraiserEndDate = new Date('2025-01-14T11:59:00Z');
+  const fundraiserEndDate = new Date('2026-01-14T11:59:00Z');
   const currentTime = useCurrentTime();
   const timeRemainingMs = fundraiserEndDate.getTime() - currentTime.getTime();
   const fundraiserEnded = timeRemainingMs <= 0;
@@ -478,7 +478,16 @@ const FundraisingThermometer: React.FC<
 
       <DeferRender ssr={false}>
         {isClient && !fundraiserEnded && ReactDOM.createPortal(
-          <div className={classNames(classes.countdownOverlay, showCountdown && classes.countdownVisible)}>
+          <div
+            className={classNames(classes.countdownOverlay, showCountdown && classes.countdownVisible)}
+            // On mobile we can occasionally paint before the JSS style node is inserted (maybe itself a bug),
+            // which causes a brief flash of unstyled text which fades out. This ensures it starts hidden
+            // even if the stylesheet isn't attached yet.
+            style={{
+              opacity: showCountdown ? 1 : 0,
+              visibility: showCountdown ? 'visible' : 'hidden',
+            }}
+          >
             <div className={classes.countdownText}>
               <div>Dawn of</div>
               <div>The Final Push</div>

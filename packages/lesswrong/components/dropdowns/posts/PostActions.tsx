@@ -27,6 +27,7 @@ import SharePostSubmenu from "./SharePostSubmenu";
 import { PostSubscriptionsDropdownItem } from "./PostSubscriptionsDropdownItem";
 import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownItem";
 import HideFrontPageButton from './HideFrontpagePostDropdownItem';
+import LLMScoreDropdownItem from "./LLMScoreDropdownItem";
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -88,6 +89,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <ApproveNewUserDropdownItem post={post} />
       <SuggestAlignmentPostDropdownItem post={post}/>
       <MoveToAlignmentPostDropdownItem post={post}/>
+      <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
     </DropdownMenu>
   );
 }

@@ -524,6 +524,9 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
       } as UpdateUserDataInput, selector: { _id: sourceUserId }
     }, createAnonymousContext())
   }
+
+  // eslint-disable-next-line no-console
+  console.log("Done merging accounts")
 }
 
 

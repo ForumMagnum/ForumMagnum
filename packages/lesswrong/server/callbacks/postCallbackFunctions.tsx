@@ -54,6 +54,7 @@ import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
 import CurationEmails from "../collections/curationEmails/collection";
+import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
 
 
 /**
@@ -166,7 +167,8 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = await import("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
-  await triggerReviewIfNeeded(post.userId, 'publishedPost', context)
+  await triggerReviewIfNeeded(post.userId, 'publishedPost', context);
+  await maybeAutoFrontpagePost(post._id, context);
 }
 
 const utils = {
@@ -1135,17 +1137,13 @@ export async function updateCommentHideKarma(newPost: DbPost, oldPost: DbPost, c
 
   if (newPost.hideCommentKarma === oldPost.hideCommentKarma) return
 
-  const comments = Comments.find({postId: newPost._id})
-  if (!(await comments.count())) return
-  const updates = (await comments.fetch()).map(comment => ({
-    updateOne: {
-      filter: {
-        _id: comment._id,
-      },
-      update: {$set: {hideKarma: newPost.hideCommentKarma}}
-    }
-  }))
-  await Comments.rawCollection().bulkWrite(updates)
+  const comments = await Comments.find({postId: newPost._id}).fetch();
+  if (!comments.length) return
+  const commentIds = comments.map(c=>c._id);
+  await Comments.rawUpdateMany(
+    {_id: {$in: commentIds}},
+    {$set: {hideKarma: newPost.hideCommentKarma}}
+  );
 }
 
 // For posts without comments, update lastCommentedAt to match postedAt
@@ -1162,11 +1160,17 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
 }
 
 export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost, context: ResolverContext) {
-  const shouldEvaluate = isLW() && !post.draft && oldPost.draft && !context.currentUser?.reviewedByUserId;
+  const shouldEvaluate = isLW() && !post.draft && oldPost.draft;
+  // For now, only autoreject above threshold for unreviewed users.
+  // Might remove this later after we've had Pangram for a bit longer,
+  // or make the thresholds configurable, or the behavior itself depend
+  // on a user's review state, i.e. have LLM-y posts by reviewed users
+  // trigger a custom moderator action instead of rejecting.
+  const shouldAutoreject = !context.currentUser?.reviewedByUserId;
   if (shouldEvaluate) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
-      await createAutomatedContentEvaluation(revision, context);
+      await createAutomatedContentEvaluation(revision, context, { autoreject: shouldAutoreject });
     }
   }
 }

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/instanceSettings';
+import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYearGroupsInfo, reviewWinnerSectionsInfo } from '@/lib/reviewWinnerSections';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -16,7 +16,7 @@ import qs from "qs";
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { getSpotlightUrl } from '@/lib/collections/spotlights/helpers';
-import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, publishedReviewYears } from '@/lib/reviewUtils';
+import { ReviewYear, ReviewWinnerCategory, reviewWinnerCategories, BEST_OF_LESSWRONG_PUBLISH_YEAR, PublishedReviewYear, PredictedReviewYear, publishedReviewYears, predictedReviewYears } from '@/lib/reviewUtils';
 import SectionTitle from "../common/SectionTitle";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
@@ -25,7 +25,9 @@ import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import PredictedTopPostsList from "../review/PredictedTopPostsList";
 import { useItemsRead } from '../hooks/useRecordPostView';
+import Divider from '../common/Divider';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 export type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -598,6 +600,10 @@ const styles = defineStyles("TopPostsPage", (theme: ThemeType) => ({
   tallPlaceholder: {
     height: "100vh",
   },
+  predictedYear: {
+    color: theme.palette.review.winner,
+    opacity: 0.55,
+  },
 }));
 
 function sortReviewWinners<T extends { reviewWinner: { curatedOrder: number | null, reviewRanking: number } | null }>(reviewWinners: T[]) {
@@ -694,8 +700,6 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
 
 const TopPostsPage = () => {
   const classes = useStyles(styles);
-  const location = useLocation();
-  const { query } = location;
 
   const screenWidth = useWindowWidth(2000);
   /** 
@@ -766,13 +770,8 @@ const TopPostsPage = () => {
     />;
   }
 
-  const sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
-  const yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
-
-  if (!sectionsInfo)
-    throw new Error('Failed to load reviewWinnerSectionsInfo (image data) from public settings');
-  if (!yearGroupsInfo)
-    throw new Error('Failed to load reviewWinnerYearGroupsInfo (image data) from public settings');
+  const sectionsInfo = reviewWinnerSectionsInfo;
+  const yearGroupsInfo = reviewWinnerYearGroupsInfo;
 
   const sectionGrid = Object.entries(sectionsInfo).sort(([, a], [, b]) => a.order - b.order).map(([id, { title, imgUrl, coords }], index) => {
     const posts = sortedReviewWinners.filter(post => post.reviewWinner?.category === id);
@@ -807,7 +806,7 @@ const TopPostsPage = () => {
   );
 }
 
-type YearSelectorState = PublishedReviewYear|'all'
+type YearSelectorState = PublishedReviewYear|PredictedReviewYear|'all'
 type CategorySelectorState = ReviewWinnerCategory|'all'
 
 function getInitialYear(yearQuery?: string): YearSelectorState {
@@ -818,7 +817,7 @@ function getInitialYear(yearQuery?: string): YearSelectorState {
     return 'all'
   }
   const yearQueryInt = parseInt(yearQuery);
-  if (publishedReviewYears.has(yearQueryInt)) {
+  if (publishedReviewYears.has(yearQueryInt) || predictedReviewYears.has(yearQueryInt)) {
     return yearQueryInt
   }
   return BEST_OF_LESSWRONG_PUBLISH_YEAR
@@ -827,8 +826,8 @@ function getInitialYear(yearQuery?: string): YearSelectorState {
 function TopSpotlightsSection({ reviewWinnersWithPosts }: {
   reviewWinnersWithPosts: PostsTopItemInfo[]
 }) {
-  const sectionsInfo: Record<ReviewWinnerCategory, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get()!;
-  const yearGroupsInfo: Record<ReviewYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get()!;
+  const sectionsInfo = reviewWinnerSectionsInfo;
+  const yearGroupsInfo = reviewWinnerYearGroupsInfo;
   const classes = useStyles(styles);
   const location = useLocation();
   const navigate = useNavigate();
@@ -932,12 +931,23 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
             <a
               onClick={(ev) => handleSetYear(ev, y)}
               href={getYearLink(y)}
-              className={classNames(classes.year, y === year && classes.yearIsSelected)} key={y}
+              className={classNames(classes.year, y === year && classes.yearIsSelected)}
             >
               {y}
             </a>
           </LWTooltip>
         })}
+        {[...predictedReviewYears].map((y) => (
+          <LWTooltip key={y} title={`Predictions for ${y}`} placement="top">
+            <a
+              onClick={(ev) => handleSetYear(ev, y)}
+              href={getYearLink(y)}
+              className={classNames(classes.year, y === year && classes.yearIsSelected, classes.predictedYear)}
+            >
+              {y}
+            </a>
+          </LWTooltip>
+        ))}
         <LWTooltip key="all" title={`${reviewWinnersWithPosts.length} posts`} inlineBlock={false}>
           <a
             onClick={(ev) => handleSetYear(ev, 'all')}
@@ -948,7 +958,7 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
           </a>
         </LWTooltip>
       </div>
-      <div className={classes.categorySelector}>
+      {typeof year === 'number' && predictedReviewYears.has(year) ? <Divider /> : <div className={classes.categorySelector}>
         {categories.map((t) => {
           const postsCount = year === 'all' ? reviewWinnersWithPosts.filter(post => post.reviewWinner?.category === t).length : reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
           return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
@@ -973,8 +983,8 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
             All
           </a>
         </LWTooltip>
-      </div>
-      <div className={classes.spotlightCheckmarkRow}>
+      </div>}
+      {sortedPosts && sortedPosts.length > 0 && <div className={classes.spotlightCheckmarkRow}>
         {sortedPosts && sortedPosts.map((post) => {
           const isRead = (post._id in itemsRead.postsRead) ? itemsRead.postsRead[post._id] : post.isRead;
           const spotlight = post.spotlight!;
@@ -995,22 +1005,27 @@ function TopSpotlightsSection({ reviewWinnersWithPosts }: {
             />
           </LWTooltip>
         })}
-      </div>
-      <div style={{ maxWidth: SECTION_WIDTH }}>
+      </div>}
+      {typeof year === 'number' && predictedReviewYears.has(year)
+        ? <div style={{ maxWidth: SECTION_WIDTH }}>
+            <PredictedTopPostsList year={year} />
+          </div>
+        : <div style={{ maxWidth: SECTION_WIDTH }}>
         {!sortedPosts && <div className={classes.tallPlaceholder}><Loading/></div>}
         {sortedPosts && sortedPosts.map((post) => {
           const isRead = (post._id in itemsRead.postsRead) ? itemsRead.postsRead[post._id] : post.isRead;
+          const rank = (post.reviewWinner?.reviewRanking ?? 0) + 1;
           return post.spotlight && <div
             key={post._id}
             className={classNames(classes.spotlightItem, unreadIsGray && !isRead && classes.spotlightIsNotRead )}
           >
-            <LWTooltip title={`Ranked #${post.reviewWinner?.reviewRanking} in ${post.reviewWinner?.reviewYear}`}>
-              <div className={classes.spotlightRanking}>#{(post.reviewWinner?.reviewRanking ?? 0) + 1}</div>
+            <LWTooltip title={`Ranked #${rank} in ${post.reviewWinner?.reviewYear}`}>
+              <div className={classes.spotlightRanking}>#{rank}</div>
             </LWTooltip>
             <SpotlightItem spotlight={post.spotlight} showSubtitle={false} />
           </div>
         })}
-      </div>
+      </div>}
     </div>
   </AnalyticsContext>
 }
@@ -1091,7 +1106,7 @@ function getPostGridTemplateDimensions({ postGridRows, postGridColumns }: PostGr
   };
 }
 
-const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates, "_id" | "reviewWinnerArtId">, leftBookOffset: number, dpr: Dpr) => {
+const getCroppedUrl = (url: string, splashCoordinates: CoordinateInfo, leftBookOffset: number, dpr: Dpr) => {
   let coordinatePosition: CoordinatePosition | undefined = BOOK_OFFSETS_TO_COORDINATE_POSITIONS[leftBookOffset];
   if (!coordinatePosition) {
     // eslint-disable-next-line no-console

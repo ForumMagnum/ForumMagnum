@@ -12,6 +12,7 @@ import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan
 
 const denyAll: CheckAccessFunction<CollectionNameString> = async () => false;
 export const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
+const adminOnly: CheckAccessFunction<CollectionNameString> = async (currentUser) => userIsAdmin(currentUser);
 
 const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
@@ -416,6 +417,7 @@ const accessFilters = {
   LoginTokens: denyAll,
   LWEvents: lweventCheckAccess,
   ManifoldProbabilitiesCaches: allowAccess,
+  MailgunValidations: adminOnly,
   Messages: messageCheckAccess,
   Migrations: allowAccess,
   ModerationTemplates: allowAccess,

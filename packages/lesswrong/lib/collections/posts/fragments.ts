@@ -550,6 +550,7 @@ export const PostsPage = gql(`
     contents {
       ...RevisionDisplay
     }
+    sideComments
     myEditorAccess
   }
 `)
@@ -557,7 +558,7 @@ export const PostsPage = gql(`
 export const PostsEdit = gql(`
   fragment PostsEdit on Post {
     ...PostsDetails
-    ...PostSideComments
+    sideComments
     myEditorAccess
     version
     coauthorUserIds
@@ -756,31 +757,6 @@ export const PostWithDialogueMessage = gql(`
   }
 `)
 
-/**
- * Note that the side comments cache isn't actually used by the client. We
- * include it in this fragment though as it means that it will be fetched with
- * a join by the SQL resolver which allows us to avoid a database round-trip in
- * the code resolver for `sideComments`.
- *
- * The order of the fields is very important. The cache is permission gated via
- * `sqlPostProcess` to prevent it from being sent to the client, but it needs to
- * be accessible to the code resolver for `sideComments`. GraphQL resolves the
- * fields _in the order_ that they are defined in the fragment. The cache must
- * be specified after the main field otherwise it will be removed by its
- * permission gate. (There's no sensitive data in the cache so technically this
- * isn't the end of the word, but it is a _big_ field that we don't want to
- * waste bandwidth on).
- */
-export const PostSideComments = gql(`
-  fragment PostSideComments on Post {
-    _id
-    sideComments
-    sideCommentsCache {
-      ...SideCommentCacheMinimumInfo
-    }
-  }
-`)
-
 export const PostWithGeneratedSummary = gql(`
   fragment PostWithGeneratedSummary on Post {
     _id
@@ -814,7 +790,10 @@ export const PostsBestOfList = gql(`
 
 export const PostsRSSFeed = gql(`
   fragment PostsRSSFeed on Post {
-    ...PostsPage
+    ...PostsDetails
+    contents {
+      ...RevisionDisplay
+    }
     scoreExceeded2Date
     scoreExceeded30Date
     scoreExceeded45Date
@@ -882,5 +861,14 @@ export const SuggestAlignmentPost = gql(`
       _id
       displayName
     }
+  }
+`)
+
+export const ChapterPostSlim = gql(`
+  fragment ChapterPostSlim on Post {
+    _id
+    title
+    slug
+    isRead
   }
 `)

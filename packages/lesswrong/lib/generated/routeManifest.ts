@@ -30,8 +30,14 @@ export const routeTrie = {
         "curation": {
           "hasPage": true
         },
+        "debugDatabaseIndexes": {
+          "hasPage": true
+        },
         "debugHeaders": {
           "hasRoute": true
+        },
+        "emailSender": {
+          "hasPage": true
         },
         "llmConversations": {
           "hasPage": true
@@ -70,7 +76,9 @@ export const routeTrie = {
       "lowerCase": {
         "commentembeddings": "commentEmbeddings",
         "curation": "curation",
+        "debugdatabaseindexes": "debugDatabaseIndexes",
         "debugheaders": "debugHeaders",
+        "emailsender": "emailSender",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
         "moderation": "moderation",
@@ -137,6 +145,9 @@ export const routeTrie = {
             "update-promoted-spotlight-item": {
               "hasRoute": true
             },
+            "update-review-vote-totals": {
+              "hasRoute": true
+            },
             "update-user-activities": {
               "hasRoute": true
             }
@@ -151,6 +162,7 @@ export const routeTrie = {
             "update-analytics-collections": "update-analytics-collections",
             "update-missing-post-embeddings": "update-missing-post-embeddings",
             "update-promoted-spotlight-item": "update-promoted-spotlight-item",
+            "update-review-vote-totals": "update-review-vote-totals",
             "update-user-activities": "update-user-activities"
           }
         },
@@ -401,11 +413,15 @@ export const routeTrie = {
         },
         "notificationEmailPreview": {
           "hasPage": true
+        },
+        "query-waterfall": {
+          "hasPage": true
         }
       },
       "lowerCase": {
         "emailhistory": "emailHistory",
-        "notificationemailpreview": "notificationEmailPreview"
+        "notificationemailpreview": "notificationEmailPreview",
+        "query-waterfall": "query-waterfall"
       }
     },
     "dialogues": {

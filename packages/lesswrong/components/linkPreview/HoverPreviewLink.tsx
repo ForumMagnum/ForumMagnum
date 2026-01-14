@@ -78,7 +78,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
         if (PreviewComponent) {
           return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={previewComponentName} onsite>
             <NoSideItems>
-              <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} id={id ?? ''} noPrefetch={noPrefetch} className={className}>
+              <PreviewComponent href={destinationUrl} originalHref={href} targetLocation={parsedUrl} id={id ?? ''} noPrefetch={noPrefetch} className={className}>
                 {children}
               </PreviewComponent>
             </NoSideItems>

@@ -7,7 +7,7 @@ import {
   karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
-import { userOwns, userIsAdmin, userHasntChangedName, userIsMemberOf } from "../../vulcan-users/permissions";
+import { userOwns, userIsAdmin, userIsMemberOf } from "../../vulcan-users/permissions";
 import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
@@ -29,6 +29,7 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
 import { getWithLoader, loadByIds } from "@/lib/loaders";
@@ -73,7 +74,7 @@ const ownsOrIsMod = (user: DbUser | null, document: any) => {
 };
 
 const canUpdateName = (user: DbUser | null) => {
-  return isEAForum() ? userIsMemberOf(user, 'members') : userHasntChangedName(user);
+  return userIsMemberOf(user, 'members');
 };
 
 const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
@@ -446,7 +447,7 @@ const schema = {
     },
   },
   /**
-   Used for tracking changes of displayName
+   * Used for tracking changes of displayName
    */
   previousDisplayName: {
     database: {
@@ -4175,6 +4176,44 @@ const schema = {
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
         return getRecentKarmaInfo(user._id, context);
+      },
+    },
+  },
+  mailgunValidation: {
+    graphql: {
+      outputType: "MailgunValidationResult",
+      canRead: ["admins"],
+      resolver: async (user: DbUser, _args: unknown, context: ResolverContext) => {
+        const { currentUser } = context;
+        if (!currentUser || !userIsAdmin(currentUser)) return null;
+
+        const email = user.email?.trim().toLowerCase();
+        if (!email) return null;
+
+        const db = getSqlClientOrThrow();
+        return db.oneOrNone(
+          `
+            -- Users.mailgunValidation
+            SELECT
+              mv.email,
+              mv.status,
+              mv."validatedAt",
+              mv."httpStatus",
+              mv.error,
+              mv."isValid",
+              mv.risk,
+              mv.reason,
+              mv."didYouMean",
+              mv."isDisposableAddress",
+              mv."isRoleAddress",
+              mv."sourceUserId"
+            FROM "MailgunValidations" mv
+            WHERE lower(mv.email) = $1
+            ORDER BY mv."validatedAt" DESC
+            LIMIT 1
+          `,
+          [email],
+        );
       },
     },
   },

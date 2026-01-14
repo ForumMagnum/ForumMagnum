@@ -49,7 +49,7 @@ export type RankedItemMetadata =
       position: number;
     };
 
-export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-custom', 'bookmarks', 'subscriptionsPosts' ] as const;
+export const feedPostSourceTypesArray = [ 'hacker-news', 'recombee-lesswrong-ultrafeed', 'bookmarks', 'subscriptionsPosts' ] as const;
 export const feedCommentSourceTypesArray = ['quicktakes', 'recentComments', 'subscriptionsComments', 'bookmarks'] as const;
 export const feedSpotlightSourceTypesArray = ['spotlights'] as const;
 export const allFeedItemSourceTypes = [
@@ -67,7 +67,7 @@ export type FeedSpotlightSourceType = typeof feedSpotlightSourceTypesArray[numbe
 export type FeedItemSourceType = FeedPostSourceType | FeedCommentSourceType | FeedSpotlightSourceType;
 
 // Define render types
-export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight", "feedSubscriptionSuggestions"] as const;
+export const feedItemRenderTypes = ["feedCommentThread", "feedPost", "feedSpotlight", "feedSubscriptionSuggestions", "feedMarker"] as const;
 export type FeedItemRenderType = typeof feedItemRenderTypes[number];
 
 export type FeedItemType = FeedItemRenderType | "feedComment";
@@ -198,7 +198,18 @@ export interface FeedSubscriptionSuggestionsResolverType {
   suggestedUsers: DbUser[];
 }
 
-export type FeedItemResolverType = FeedPostResolverType | FeedCommentsThreadResolverType | FeedSpotlightResolverType | FeedSubscriptionSuggestionsResolverType;
+export interface FeedMarkerResolverType {
+  _id: string;
+  markerType: string;
+  timestamp: Date;
+}
+
+export type FeedItemResolverType =
+  | FeedPostResolverType
+  | FeedCommentsThreadResolverType
+  | FeedSpotlightResolverType
+  | FeedSubscriptionSuggestionsResolverType
+  | FeedMarkerResolverType;
 
 export type UserOrClientId =
   | { type: 'user'; id: string }
@@ -210,6 +221,7 @@ export interface UltraFeedResolverType {
   feedCommentThread?: FeedCommentsThreadResolverType;
   feedSpotlight?: FeedSpotlightResolverType;
   feedSubscriptionSuggestions?: FeedSubscriptionSuggestionsResolverType;
+  feedMarker?: FeedMarkerResolverType;
 }
 
 export interface DisplayFeedCommentThread {

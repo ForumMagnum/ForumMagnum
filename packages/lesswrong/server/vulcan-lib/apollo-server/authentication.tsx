@@ -156,10 +156,10 @@ export const loginDataGraphQLMutations = {
   async logout(root: void, args: {}, context: ResolverContext) {
     const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
-    for (const cookieName in ["loginToken", "meteor_login_token"]) {
+    for (const cookieName of ["loginToken", "meteor_login_token"]) {
       const cookieValue = cookieStore.get(cookieName)?.value
       if (cookieValue) {
-        await invalidateLoginToken(cookieValue);
+        await invalidateLoginToken(hashLoginToken(cookieValue));
         await clearCookie(cookieName);
       }
     }
@@ -272,7 +272,7 @@ async function insertHashedLoginToken(userId: string, hashedToken: string) {
 async function invalidateLoginToken(token: string) {
   const now = new Date();
   await LoginTokens.rawUpdateMany(
-    {hashLoginToken: token},
+    {hashedToken: token},
     {$set: {
       loggedOutAt: now
     }}

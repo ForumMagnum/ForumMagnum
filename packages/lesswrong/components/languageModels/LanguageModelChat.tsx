@@ -27,6 +27,7 @@ import LWTooltip from '../common/LWTooltip';
 import ForumIcon from '../common/ForumIcon';
 import { MenuItem } from '../common/Menus';
 import Loading from '../vulcan-core/Loading';
+import { makeEditorConfig } from '../editor/editorConfigs';
 
 const styles = defineStyles('LanguageModelChat', (theme: ThemeType) => ({
   root: {
@@ -263,10 +264,10 @@ const LLMInputTextbox = ({onSubmit}: {
   const editorRef = useRef<Editor | null>(null);
 
   // TODO: we probably want to come back to this and enable cloud services for image uploading
-  const editorConfig = {
+  const editorConfig = makeEditorConfig({
     placeholder: 'Type here.  Ctrl/Cmd + Enter to submit to Claude 3.5. ',
     mention: mentionPluginConfiguration,
-  };
+  });
 
   const submitEditorContentAndClear = useCallback(() => {
     const currentEditorContent = editorRef.current?.getData();
