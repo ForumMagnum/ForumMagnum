@@ -12,7 +12,9 @@ function pathnameMatchesRoutePath(pathname: string, routePath: string) {
 
 export const isHomeRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/') && !isAF();
 
-export const isSunshineSidebarRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/');
+export const isSunshineSidebarRoute = (pathname: string) => {
+  return pathnameMatchesRoutePath(pathname, '/') || pathname.startsWith('/admin');
+};
 
 export const isStandaloneRoute = (pathname: string) => ['/crosspostLogin', '/groups-map'].some(route => pathnameMatchesRoutePath(pathname, route));
 
