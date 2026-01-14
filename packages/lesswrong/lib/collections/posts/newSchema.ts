@@ -2289,6 +2289,7 @@ const schema = {
       },
     },
   },
+  /** @deprecated */
   coauthorStatuses: {
     database: {
       type: "JSONB[]",

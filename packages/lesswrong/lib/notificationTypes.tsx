@@ -989,6 +989,56 @@ export const NewPingbackNotification = createNotificationType({
   ),
 })
 
+export const PollClosingSoonNotification = createNotificationType({
+  name: "pollClosingSoon",
+  userSettingField: "notificationPollClosingSoon",
+  async getMessage({extraData}: GetMessageProps) {
+    const isCreator = extraData?.isCreator;
+    const pollQuestion = extraData?.pollQuestion || "a poll";
+    return isCreator
+      ? `Your poll closes soon: "${pollQuestion}"`
+      : `A poll you voted on closes soon: "${pollQuestion}"`;
+  },
+  getIcon() {
+    return <ForumIcon icon="Bell" style={iconStyles} />
+  },
+  getLink({extraData}) {
+    return extraData?.link || "#";
+  },
+  Display: ({notification: {link, extraData}}) => {
+    const isCreator = extraData?.isCreator;
+    const pollQuestion = extraData?.pollQuestion || "a poll";
+    return isCreator
+      ? <>Your poll closes soon: <Link to={link}>"{pollQuestion}"</Link></>
+      : <>A poll you voted on closes soon: <Link to={link}>"{pollQuestion}"</Link></>;
+  },
+})
+
+export const PollClosedNotification = createNotificationType({
+  name: "pollClosed",
+  userSettingField: "notificationPollClosed",
+  async getMessage({extraData}: GetMessageProps) {
+    const isCreator = extraData?.isCreator;
+    const pollQuestion = extraData?.pollQuestion || "a poll";
+    return isCreator
+      ? `Your poll has closed: "${pollQuestion}"`
+      : `A poll you voted on has closed: "${pollQuestion}"`;
+  },
+  getIcon() {
+    return <ForumIcon icon="Bell" style={iconStyles} />
+  },
+  getLink({extraData}) {
+    return extraData?.link || "#";
+  },
+  Display: ({notification: {link, extraData}}) => {
+    const isCreator = extraData?.isCreator;
+    const pollQuestion = extraData?.pollQuestion || "a poll";
+    return isCreator
+      ? <>Your poll has closed: <Link to={link}>"{pollQuestion}"</Link></>
+      : <>A poll you voted on has closed: <Link to={link}>"{pollQuestion}"</Link></>;
+  },
+})
+
 const notificationTypesArray: NotificationType[] = [
   NewPostNotification,
   NewUserCommentNotification,
@@ -1031,6 +1081,8 @@ const notificationTypesArray: NotificationType[] = [
   KeywordAlertNotification,
   NewMentionNotification,
   NewPingbackNotification,
+  PollClosingSoonNotification,
+  PollClosedNotification,
 ];
 const notificationTypes: Record<string,NotificationType> = keyBy(notificationTypesArray, n=>n.name);
 

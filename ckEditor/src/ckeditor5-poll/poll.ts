@@ -11,7 +11,7 @@ import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
 import { DowncastWriter } from "@ckeditor/ckeditor5-engine";
 
 const DEFAULT_PROPS: PollProps = {
-  question: "Ask a question",
+  question: "Write a statement",
   agreeWording: "agree",
   disagreeWording: "disagree",
   colorScheme: toDbColorScheme(POLL_COLOR_SCHEMES[0]),

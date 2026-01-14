@@ -360,7 +360,7 @@ const InnerForumEventForm = ({
                   verify: true,
                 };
               }}
-              hintText="Write the poll question as plain text (no headings), footnotes will appear as tooltips on the frontpage"
+              hintText="Write the poll statement as plain text (no headings), footnotes will appear as tooltips on the frontpage"
               fieldName="pollQuestion"
               collectionName="ForumEvents"
               commentEditor={true}
