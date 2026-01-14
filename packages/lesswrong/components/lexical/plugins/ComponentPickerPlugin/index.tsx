@@ -41,7 +41,7 @@ import useModal from '../../hooks/useModal';
 import {EmbedConfigs} from '../AutoEmbedPlugin';
 import {INSERT_COLLAPSIBLE_COMMAND} from '../CollapsiblePlugin';
 import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
-import {InsertEquationDialog} from '../EquationsPlugin';
+import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 // import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin';
 import {INSERT_IMAGE_COMMAND, InsertImageDialog} from '../ImagesPlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
@@ -367,9 +367,13 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <PlusSlashMinusIcon style={iconStyle} />,
       keywords: ['equation', 'latex', 'math'],
       onSelect: () =>
-        showModal('Insert Equation', (onClose) => (
-          <InsertEquationDialog activeEditor={editor} onClose={onClose} />
-        )),
+        editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: true }),
+    }),
+    new ComponentPickerOption('Display Equation', {
+      icon: <PlusSlashMinusIcon style={iconStyle} />,
+      keywords: ['display', 'equation', 'latex', 'math', 'block'],
+      onSelect: () =>
+        editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: false }),
     }),
     // new ComponentPickerOption('GIF', {
     //   icon: <FiletypeGifIcon style={iconStyle} />,

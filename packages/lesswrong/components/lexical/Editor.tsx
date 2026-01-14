@@ -63,7 +63,7 @@ import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import EmojisPlugin from './plugins/EmojisPlugin';
-import EquationsPlugin from './plugins/EquationsPlugin';
+import { MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
 // import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
 import FloatingLinkEditorPlugin from './plugins/FloatingLinkEditorPlugin';
@@ -391,7 +391,7 @@ export default function Editor({
             <FigmaPlugin />
             <ClickableLinkPlugin disabled={isEditable} />
             <HorizontalRulePlugin />
-            <EquationsPlugin />
+            <MathPlugin />
             {/* <ExcalidrawPlugin /> */}
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />

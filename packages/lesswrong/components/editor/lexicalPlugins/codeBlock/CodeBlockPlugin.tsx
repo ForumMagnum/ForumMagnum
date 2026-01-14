@@ -10,6 +10,7 @@ import {
   COMMAND_PRIORITY_EDITOR,
   createCommand,
   KEY_DOWN_COMMAND,
+  $isRootNode,
   type LexicalCommand,
   type LexicalEditor,
 } from "lexical";
@@ -31,6 +32,9 @@ function tryConvertTripleBackticksToCodeBlockInUpdateContext(): boolean {
   }
 
   const anchorNode = selection.anchor.getNode();
+  if ($isRootNode(anchorNode)) {
+    return false;
+  }
   const block = anchorNode.getTopLevelElementOrThrow();
   const text = block.getTextContent();
   // Allow optional language (```js, ```python, etc)

@@ -138,7 +138,7 @@ import {sanitizeUrl} from '../../utils/url';
 import {EmbedConfigs} from '../AutoEmbedPlugin';
 import {INSERT_COLLAPSIBLE_COMMAND} from '../CollapsiblePlugin';
 import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
-import {InsertEquationDialog} from '../EquationsPlugin';
+import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 // import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin';
 import {
   INSERT_IMAGE_COMMAND,
@@ -1510,12 +1510,7 @@ export default function ToolbarPlugin({
 
                 <DropDownItem
                   onClick={() => {
-                    showModal('Insert Equation', (onClose) => (
-                      <InsertEquationDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
+                    dispatchToolbarCommand(OPEN_MATH_EDITOR_COMMAND, { inline: true });
                   }}
                   >
                   <PlusSlashMinusIcon className={classes.dropdownIcon} />

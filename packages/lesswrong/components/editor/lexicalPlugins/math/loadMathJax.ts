@@ -37,6 +37,7 @@ function wait(ms: number): Promise<void> {
 }
 
 let loadingStarted = false;
+const MATHJAX_SCRIPT_SELECTOR = 'script[data-mathjax-cdn="true"]';
 
 /**
  * Load MathJax if it hasn't been loaded yet.
@@ -48,12 +49,12 @@ export function loadMathJax(): void {
   loadingStarted = true;
 
   // If MathJax is already loaded and ready, nothing to do
-  if (typeof MathJax !== 'undefined' && MathJax.tex2chtmlPromise) {
+  if (window.MathJax?.tex2chtmlPromise) {
     return;
   }
   
-  // If MathJax config doesn't exist, set it up and load the script
-  if (typeof MathJax === 'undefined') {
+  // Ensure MathJax config exists
+  if (!window.MathJax) {
     window.MathJax = {
       loader: { load: ['[tex]/colorv2'] },
       options: {
@@ -76,10 +77,14 @@ export function loadMathJax(): void {
         }
       }
     };
+  }
 
+  // Always ensure the script tag exists if MathJax isn't ready yet.
+  if (!document.querySelector(MATHJAX_SCRIPT_SELECTOR)) {
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3.1.2/es5/tex-mml-chtml.js';
     script.async = true;
+    script.setAttribute('data-mathjax-cdn', 'true');
     document.head.appendChild(script);
   }
 }
@@ -96,9 +101,14 @@ export async function renderEquation(
 ): Promise<void> {
   // Ensure loading has started
   loadMathJax();
+  const mathJaxInstance = window.MathJax;
   
   // Check if MathJax is ready
-  if (typeof MathJax === 'undefined' || !isMathJaxVersion3(MathJax.version) || !MathJax.tex2chtmlPromise) {
+  if (
+    !mathJaxInstance ||
+    !isMathJaxVersion3(mathJaxInstance.version) ||
+    !mathJaxInstance.tex2chtmlPromise
+  ) {
     if (pastAttempts > MAX_WAITING_PERIODS) {
       // MathJax failed to load, show raw equation
       element.textContent = display ? `\\[${equation}\\]` : `\\(${equation}\\)`;
@@ -110,7 +120,7 @@ export async function renderEquation(
   }
 
   try {
-    const node = await MathJax.tex2chtmlPromise(equation, {
+    const node = await mathJaxInstance.tex2chtmlPromise(equation, {
       em: 22,
       ex: 11,
       display,
@@ -121,8 +131,8 @@ export async function renderEquation(
 
     // Ensure MathJax styles are in the document
     const existingSheet = document.querySelector('#MJX-CHTML-styles');
-    if (!existingSheet && MathJax.chtmlStylesheet) {
-      const newSheet = MathJax.chtmlStylesheet();
+    if (!existingSheet && mathJaxInstance.chtmlStylesheet) {
+      const newSheet = mathJaxInstance.chtmlStylesheet();
       document.head.appendChild(newSheet);
     }
   } catch (error) {

@@ -48,6 +48,8 @@ export const SHORTCUTS = Object.freeze({
   ITALIC: IS_APPLE ? '⌘+I' : 'Ctrl+I',
   UNDERLINE: IS_APPLE ? '⌘+U' : 'Ctrl+U',
   INSERT_LINK: IS_APPLE ? '⌘+K' : 'Ctrl+K',
+  INSERT_INLINE_MATH: IS_APPLE ? '⌘+4' : 'Ctrl+4',
+  INSERT_DISPLAY_MATH: IS_APPLE ? '⌘+M' : 'Ctrl+M',
 });
 
 const CONTROL_OR_META = {ctrlKey: !IS_APPLE, metaKey: IS_APPLE};
@@ -210,6 +212,19 @@ export function isInsertCodeBlock(event: KeyboardEvent): boolean {
     code === 'KeyC' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
+}
+
+export function isInsertInlineMath(event: KeyboardEvent): boolean {
+  const {code} = event;
+  return (
+    (code === 'Digit4' || code === 'Numpad4') &&
+    isModifierMatch(event, CONTROL_OR_META)
+  );
+}
+
+export function isInsertDisplayMath(event: KeyboardEvent): boolean {
+  const {code} = event;
+  return code === 'KeyM' && isModifierMatch(event, CONTROL_OR_META);
 }
 
 export function isIncreaseFontSize(event: KeyboardEvent): boolean {

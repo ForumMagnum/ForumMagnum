@@ -77,7 +77,7 @@ interface MathEditorPanelProps {
   initialEquation?: string;
   isInline: boolean;
   anchorRect: DOMRect | null;
-  onSubmit: (equation: string) => void;
+  onSubmit: (equation: string, inline: boolean) => void;
   onCancel: () => void;
 }
 
@@ -112,8 +112,11 @@ function MathEditorPanel({
   // Focus input when panel opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
+      const timeoutId = window.setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
   }, [isOpen]);
 
@@ -152,7 +155,7 @@ function MathEditorPanel({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (equation.trim()) {
-        onSubmit(equation);
+        onSubmit(equation, isInline);
       }
     } else if (e.key === 'Escape') {
       e.preventDefault();
@@ -160,21 +163,21 @@ function MathEditorPanel({
     } else if (e.key === 'Tab') {
       e.preventDefault();
       if (equation.trim()) {
-        onSubmit(equation);
+        onSubmit(equation, isInline);
       }
     }
-  }, [equation, onSubmit, onCancel]);
+  }, [equation, isInline, onSubmit, onCancel]);
 
   const handleOverlayClick = useCallback((e: React.MouseEvent) => {
     // Only close if clicking the overlay itself, not the panel
     if (e.target === e.currentTarget) {
       if (equation.trim()) {
-        onSubmit(equation);
+        onSubmit(equation, isInline);
       } else {
         onCancel();
       }
     }
-  }, [equation, onSubmit, onCancel]);
+  }, [equation, isInline, onSubmit, onCancel]);
 
   if (!isOpen || !anchorRect) {
     return null;

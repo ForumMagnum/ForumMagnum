@@ -54,10 +54,13 @@ export class MathNode extends DecoratorNode<React.ReactElement> {
     writable.__equation = equation;
   }
 
+  setInline(inline: boolean): void {
+    const writable = this.getWritable();
+    writable.__inline = inline;
+  }
+
   isInline(): boolean {
-    // Always return true for cursor navigation purposes
-    // Display math is styled as block but treated as inline by Lexical
-    return true;
+    return this.__inline;
   }
 
   isDisplayMode(): boolean {
@@ -65,11 +68,10 @@ export class MathNode extends DecoratorNode<React.ReactElement> {
   }
 
   createDOM(): HTMLElement {
-    // Always use span for proper cursor navigation
-    const element = document.createElement('span');
+    const element = document.createElement(this.__inline ? 'span' : 'div');
     element.className = 'math-tex';
     if (!this.__inline) {
-      // Style as block but keep as inline element for Lexical
+      // Style as block element
       element.style.display = 'block';
       element.style.textAlign = 'center';
       element.style.margin = '1em 0';

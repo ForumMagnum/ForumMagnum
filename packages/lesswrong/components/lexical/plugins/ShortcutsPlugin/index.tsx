@@ -24,6 +24,7 @@ import {useToolbarState} from '../../context/ToolbarContext';
 import {sanitizeUrl} from '../../utils/url';
 import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
 import { INSERT_CODE_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
+import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import {
   clearFormatting,
   formatBulletList,
@@ -52,6 +53,8 @@ import {
   isIncreaseFontSize,
   isIndent,
   isInsertCodeBlock,
+  isInsertDisplayMath,
+  isInsertInlineMath,
   isInsertLink,
   isJustifyAlign,
   isLeftAlign,
@@ -120,6 +123,10 @@ export default function ShortcutsPlugin({
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'superscript');
       } else if (isInsertCodeBlock(event)) {
         editor.dispatchCommand(INSERT_CODE_BLOCK_COMMAND, undefined);
+      } else if (isInsertInlineMath(event)) {
+        editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: true });
+      } else if (isInsertDisplayMath(event)) {
+        editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: false });
       } else if (isIncreaseFontSize(event)) {
         updateFontSize(
           editor,

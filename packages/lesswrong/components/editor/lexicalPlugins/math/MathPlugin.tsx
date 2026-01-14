@@ -10,7 +10,13 @@ import {
   LexicalCommand,
   TextNode,
   $getNodeByKey,
+  $getNearestNodeFromDOMNode,
+  $createParagraphNode,
+  $isRootNode,
+  RootNode,
 } from 'lexical';
+import { $isCodeNode } from '@lexical/code';
+import { $isLinkNode } from '@lexical/link';
 import { mergeRegister } from '@lexical/utils';
 import { MathNode, $createMathNode, $isMathNode } from './MathNode';
 import MathEditorPanel from './MathEditorPanel';
@@ -94,6 +100,37 @@ interface MathEditorState {
   editingNodeKey: string | null;
 }
 
+function shouldAutoConvertMath(textNode: TextNode): boolean {
+  if (textNode.isTextEntity?.()) {
+    return false;
+  }
+  let parent = textNode.getParent();
+  while (parent) {
+    if ($isCodeNode(parent) || $isLinkNode(parent)) {
+      return false;
+    }
+    parent = parent.getParent();
+  }
+  return true;
+}
+
+function ensureTrailingParagraphAfterMath(rootNode: RootNode) {
+  const lastChild = rootNode.getLastChild();
+  if (!$isMathNode(lastChild)) {
+    return;
+  }
+  const paragraph = $createParagraphNode();
+  rootNode.append(paragraph);
+
+  const selection = $getSelection();
+  if (selection && $isRangeSelection(selection)) {
+    const anchorNode = selection.anchor.getNode();
+    if ($isRootNode(anchorNode)) {
+      paragraph.selectEnd();
+    }
+  }
+}
+
 /**
  * MathPlugin provides LaTeX math equation support for the Lexical editor.
  * 
@@ -129,7 +166,10 @@ export function MathPlugin(): React.ReactElement {
   }, [editor]);
 
   const openEditor = useCallback((inline: boolean, existingEquation: string = '', nodeKey: string | null = null) => {
-    const rect = getSelectionRect();
+    const rect =
+      getSelectionRect() ??
+      editor.getRootElement()?.getBoundingClientRect() ??
+      null;
     setEditorState({
       isOpen: true,
       isInline: inline,
@@ -137,7 +177,7 @@ export function MathPlugin(): React.ReactElement {
       anchorRect: rect,
       editingNodeKey: nodeKey,
     });
-  }, []);
+  }, [editor]);
 
   const closeEditor = useCallback(() => {
     setEditorState(prev => ({
@@ -148,7 +188,7 @@ export function MathPlugin(): React.ReactElement {
     editor.focus();
   }, [editor]);
 
-  const handleSubmit = useCallback((equation: string) => {
+  const handleSubmit = useCallback((equation: string, inline: boolean) => {
     if (!equation.trim()) {
       closeEditor();
       return;
@@ -160,19 +200,28 @@ export function MathPlugin(): React.ReactElement {
         const node = $getNodeByKey(editorState.editingNodeKey);
         if ($isMathNode(node)) {
           node.setEquation(equation);
+          node.setInline(inline);
         }
       } else {
         // Inserting new node
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
-          const mathNode = $createMathNode(equation, editorState.isInline);
+          const mathNode = $createMathNode(equation, inline);
           selection.insertNodes([mathNode]);
+          if (!inline) {
+            const rootNode = mathNode.getParent();
+            if (rootNode && $isRootNode(rootNode) && !mathNode.getNextSibling()) {
+              const paragraph = $createParagraphNode();
+              rootNode.append(paragraph);
+              paragraph.selectEnd();
+            }
+          }
         }
       }
     });
 
     closeEditor();
-  }, [editor, editorState.editingNodeKey, editorState.isInline, closeEditor]);
+  }, [editor, editorState.editingNodeKey, closeEditor]);
 
   useEffect(() => {
     return mergeRegister(
@@ -257,10 +306,14 @@ export function MathPlugin(): React.ReactElement {
         
         // Check for complete LaTeX expressions with delimiters
         const extracted = extractDelimiters(text);
-        if (extracted) {
-          const mathNode = $createMathNode(extracted.equation, !extracted.display);
-          textNode.replace(mathNode);
+        if (!extracted || !shouldAutoConvertMath(textNode)) {
+          return;
         }
+        const mathNode = $createMathNode(extracted.equation, !extracted.display);
+        textNode.replace(mathNode);
+      }),
+      editor.registerNodeTransform(RootNode, (rootNode: RootNode) => {
+        ensureTrailingParagraphAfterMath(rootNode);
       })
     );
   }, [editor, openEditor]);
@@ -279,25 +332,18 @@ export function MathPlugin(): React.ReactElement {
         event.preventDefault();
         event.stopPropagation();
         
-        // Find the corresponding Lexical node
-        editor.getEditorState().read(() => {
-          // Get all math nodes and find which one was clicked
-          editor.getEditorState()._nodeMap.forEach((node, key) => {
-            if ($isMathNode(node)) {
-              // Check if this node's DOM element contains the clicked element
-              const element = editor.getElementByKey(key);
-              if (element && element.contains(target)) {
-                const rect = mathPreview.getBoundingClientRect();
-                setEditorState({
-                  isOpen: true,
-                  isInline: !node.isDisplayMode(),
-                  initialEquation: node.getEquation(),
-                  anchorRect: rect,
-                  editingNodeKey: key,
-                });
-              }
-            }
-          });
+        editor.update(() => {
+          const node = $getNearestNodeFromDOMNode(target);
+          if ($isMathNode(node)) {
+            const rect = mathPreview.getBoundingClientRect();
+            setEditorState({
+              isOpen: true,
+              isInline: !node.isDisplayMode(),
+              initialEquation: node.getEquation(),
+              anchorRect: rect,
+              editingNodeKey: node.getKey(),
+            });
+          }
         });
       }
     };
@@ -320,6 +366,3 @@ export function MathPlugin(): React.ReactElement {
   );
 }
 
-// Re-export MathNode to ensure consistent class instance across imports
-// (prevents HMR issues where different modules get different class instances)
-export { MathNode } from './MathNode';

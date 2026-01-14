@@ -43,10 +43,10 @@ import {
 } from 'lexical';
 
 import {
-  $createEquationNode,
-  $isEquationNode,
-  EquationNode,
-} from '../../nodes/EquationNode';
+  $createMathNode,
+  $isMathNode,
+  MathNode,
+} from '@/components/editor/lexicalPlugins/math/MathNode';
 import {$createImageNode, $isImageNode, ImageNode} from '../../nodes/ImageNode';
 // import {$createTweetNode, $isTweetNode, TweetNode} from '../../embeds/TwitterEmbed/TweetNode';
 import emojiList from '../../utils/emoji-list';
@@ -112,9 +112,9 @@ export const EMOJI: TextMatchTransformer = {
 };
 
 export const EQUATION: TextMatchTransformer = {
-  dependencies: [EquationNode],
+  dependencies: [MathNode],
   export: (node) => {
-    if (!$isEquationNode(node)) {
+    if (!$isMathNode(node)) {
       return null;
     }
 
@@ -124,7 +124,7 @@ export const EQUATION: TextMatchTransformer = {
   regExp: /\$([^$]+?)\$$/,
   replace: (textNode, match) => {
     const [, equation] = match;
-    const equationNode = $createEquationNode(equation, true);
+    const equationNode = $createMathNode(equation, true);
     textNode.replace(equationNode);
   },
   trigger: '$',
