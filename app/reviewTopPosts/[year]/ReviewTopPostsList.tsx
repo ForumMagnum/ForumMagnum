@@ -169,10 +169,10 @@ const ReviewTopPostsList = () => {
                 {post.reviewers.length > 0 ? (
                   <span className={classes.reviewers}>
                     {post.reviewers.map((r, i) => (
-                      <>
-                      <Link to={`/posts/${post._id}/${post.slug}?commentId=${r.reviewId}`} key={r.user._id}>{r.user.displayName}</Link>
-                       { i < post.reviewers.length - 1 && <br/> }
-                      </>
+                      <React.Fragment key={r.user._id}>
+                        <Link to={`/posts/${post._id}/${post.slug}?commentId=${r.reviewId}`}>{r.user.displayName}</Link>
+                        { i < post.reviewers.length - 1 && <br/> }
+                      </React.Fragment>
                     ))}
                   </span>
                 ) : null}
