@@ -187,12 +187,7 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
         fe."publicData",
         array_remove(CASE
           WHEN fe."commentId" IS NOT NULL THEN ARRAY[c."userId"]
-          ELSE ARRAY[p."userId"] || COALESCE(
-            (SELECT array_agg(co->>'userId')
-             FROM jsonb_array_elements(p."coauthorStatuses") co
-             WHERE (co->>'confirmed')::boolean = true),
-            ARRAY[]::text[]
-          )
+          ELSE ARRAY[p."userId"] || COALESCE(p."coauthorUserIds", ARRAY[]::text[])
         END, NULL) as "creatorUserIds"
       FROM "ForumEvents" fe
       LEFT JOIN "Comments" c ON fe."commentId" = c."_id"
@@ -229,12 +224,7 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
         fe."publicData",
         array_remove(CASE
           WHEN fe."commentId" IS NOT NULL THEN ARRAY[c."userId"]
-          ELSE ARRAY[p."userId"] || COALESCE(
-            (SELECT array_agg(co->>'userId')
-             FROM jsonb_array_elements(p."coauthorStatuses") co
-             WHERE (co->>'confirmed')::boolean = true),
-            ARRAY[]::text[]
-          )
+          ELSE ARRAY[p."userId"] || COALESCE(p."coauthorUserIds", ARRAY[]::text[])
         END, NULL) as "creatorUserIds"
       FROM "ForumEvents" fe
       LEFT JOIN "Comments" c ON fe."commentId" = c."_id"
