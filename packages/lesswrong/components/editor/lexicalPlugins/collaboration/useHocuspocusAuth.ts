@@ -1,6 +1,6 @@
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { useLocation } from "@/lib/routeUtil";
+import { useSubscribedLocation } from "@/lib/routeUtil";
 
 const HocuspocusAuthQuery = gql(`
   query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -30,8 +30,8 @@ export function useHocuspocusAuth(postId: string | null, skip = false): {
   error: Error | null;
 } {
   // Get the sharing key from URL params
-  const { query } = useLocation();
-  const linkSharingKey = query.key ?? null;
+  const { query } = useSubscribedLocation();
+  const linkSharingKey = typeof query.key === 'string' ? query.key : null;
   
   const { data, loading, error } = useQuery(HocuspocusAuthQuery, {
     variables: { postId: postId!, linkSharingKey },

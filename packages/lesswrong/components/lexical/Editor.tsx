@@ -32,7 +32,7 @@ import {TabIndentationPlugin} from '@lexical/react/LexicalTabIndentationPlugin';
 import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
 import {CAN_USE_DOM} from '@lexical/utils';
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useLayoutEffect, useMemo, useState} from 'react';
 import {Doc} from 'yjs';
 
 import {
@@ -151,7 +151,7 @@ export default function Editor({
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
   
   // Set up collaboration config before rendering collaboration plugins
-  useEffect(() => {
+  useLayoutEffect(() => {
     setCollaborationConfig(collaborationConfig ?? null);
     setIsCollabConfigReady(!!collaborationConfig);
     return () => {
@@ -280,6 +280,7 @@ export default function Editor({
                 </>
               ) : (
                 <CollaborationPlugin
+                  key={collaborationConfig.token}
                   id={COLLAB_DOC_ID}
                   providerFactory={createWebsocketProvider}
                   // shouldBootstrap={!skipCollaborationInit}
