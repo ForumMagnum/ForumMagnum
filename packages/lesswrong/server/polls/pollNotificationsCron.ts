@@ -3,8 +3,7 @@ import { addCronJob } from "../cron/cronUtil";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import ForumEventsRepo from "../repos/ForumEventsRepo";
-import { getPollUrl } from "@/lib/collections/forumEvents/helpers";
-import { htmlToTextDefault } from "@/lib/htmlToText";
+import { getPollUrl, stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import { Notifications } from "../collections/notifications/collection";
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
@@ -23,7 +22,7 @@ async function getPollQuestion(context: ResolverContext, forumEventId: string): 
   const revision = await context.loaders.Revisions.load(forumEvent.pollQuestion_latest);
   if (!revision?.html) return "Poll";
 
-  return htmlToTextDefault(revision.html).trim() || "Poll";
+  return stripFootnotes(revision.html) || "Poll";
 }
 
 async function getUsersAlreadyNotified(pollId: string, notificationType: string): Promise<Set<string>> {
