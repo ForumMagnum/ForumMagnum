@@ -25,6 +25,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {focusNearestDescendant, isKeyboardInput} from '../utils/focusUtils';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';
 import ForumIcon from '@/components/common/ForumIcon';
+import classNames from 'classnames';
 
 const styles = defineStyles('LexicalDropDown', (theme: ThemeType) => ({
   chevronDown: {
@@ -130,14 +131,51 @@ const DropDownContext = React.createContext<DropDownContextType | null>(null);
 
 const dropDownPadding = 4;
 
+export function DropDownItemIconTextContainer({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const classes = useStyles(styles);
+  return <div className={classNames(classes.iconTextContainer, className)}>{children}</div>;
+}
+
+export function DropDownItemText({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const classes = useStyles(styles);
+  return <span className={classNames(classes.text, className)}>{children}</span>;
+}
+
+export function DropDownItemShortcut({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const classes = useStyles(styles);
+  return <span className={classNames(classes.shortcut, className)}>{children}</span>;
+}
+
 export function DropDownItem({
   children,
   className,
+  wide = false,
+  active = false,
   onClick,
   title,
 }: {
   children: React.ReactNode;
-  className: string;
+  className?: string;
+  wide?: boolean;
+  active?: boolean;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   title?: string;
 }) {
@@ -158,23 +196,14 @@ export function DropDownItem({
     }
   }, [ref, registerItem]);
 
-  // Map class names to JSS classes
-  const classNameMap: Record<string, string> = {
-    'item': classes.item,
-    'wide': classes.itemWide,
-    'icon-text-container': classes.iconTextContainer,
-    'shortcut': classes.shortcut,
-    'active': classes.active,
-    'text': classes.text,
-    'icon': classes.icon,
-    'dropdown-item-active': classes.dropdownItemActive,
-  };
-  
-  const mappedClassName = className.split(' ').map(c => classNameMap[c] || c).join(' ');
-
   return (
     <button
-      className={mappedClassName}
+      className={classNames(
+        classes.item,
+        wide && classes.itemWide,
+        active && classes.dropdownItemActive,
+        className,
+      )}
       onClick={onClick}
       ref={ref}
       title={title}

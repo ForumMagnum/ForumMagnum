@@ -71,7 +71,11 @@ const styles = defineStyles('LexicalTableActionMenuPlugin', (theme: ThemeType) =
 
 import useModal from '../../hooks/useModal';
 import ColorPicker from '../../ui/ColorPicker';
-import DropDown, {DropDownItem} from '../../ui/DropDown';
+import DropDown, {
+  DropDownItem,
+  DropDownItemIconTextContainer,
+  DropDownItemText,
+} from '../../ui/DropDown';
 
 function computeSelectionCount(selection: TableSelection): {
   columns: number;
@@ -517,7 +521,6 @@ function TableActionMenu({
   }
 
   return createPortal(
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
       className="dropdown"
       ref={dropDownRef}
@@ -554,31 +557,31 @@ function TableActionMenu({
           onClick={() => {
             formatVerticalAlign('top');
           }}
-          className="item wide">
-          <div className="icon-text-container">
+          wide>
+          <DropDownItemIconTextContainer>
             <VerticalTopIcon className={classes.dropdownIcon} />
-            <span className="text">Top Align</span>
-          </div>
+            <DropDownItemText>Top Align</DropDownItemText>
+          </DropDownItemIconTextContainer>
         </DropDownItem>
         <DropDownItem
           onClick={() => {
             formatVerticalAlign('middle');
           }}
-          className="item wide">
-          <div className="icon-text-container">
+          wide>
+          <DropDownItemIconTextContainer>
             <VerticalMiddleIcon className={classes.dropdownIcon} />
-            <span className="text">Middle Align</span>
-          </div>
+            <DropDownItemText>Middle Align</DropDownItemText>
+          </DropDownItemIconTextContainer>
         </DropDownItem>
         <DropDownItem
           onClick={() => {
             formatVerticalAlign('bottom');
           }}
-          className="item wide">
-          <div className="icon-text-container">
+          wide>
+          <DropDownItemIconTextContainer>
             <VerticalBottomIcon className={classes.dropdownIcon} />
-            <span className="text">Bottom Align</span>
-          </div>
+            <DropDownItemText>Bottom Align</DropDownItemText>
+          </DropDownItemIconTextContainer>
         </DropDownItem>
       </DropDown>
       <button

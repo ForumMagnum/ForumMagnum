@@ -125,7 +125,12 @@ import {
 } from '../../context/ToolbarContext';
 import useModal from '../../hooks/useModal';
 import {$createStickyNode} from '../../nodes/StickyNode';
-import DropDown, {DropDownItem} from '../../ui/DropDown';
+import DropDown, {
+  DropDownItem,
+  DropDownItemIconTextContainer,
+  DropDownItemShortcut,
+  DropDownItemText,
+} from '../../ui/DropDown';
 import DropdownColorPicker from '../../ui/DropdownColorPicker';
 import {isKeyboardInput} from '../../utils/focusUtils';
 import {getSelectedNode} from '../../utils/getSelectedNode';
@@ -395,14 +400,6 @@ const ELEMENT_FORMAT_OPTIONS: {
   },
 };
 
-function dropDownActiveClass(active: boolean) {
-  if (active) {
-    return 'active dropdown-item-active';
-  } else {
-    return '';
-  }
-}
-
 function BlockFormatDropDown({
   editor,
   blockType,
@@ -440,87 +437,94 @@ function BlockFormatDropDown({
       buttonLabel={blockTypeToBlockName[blockType]}
       buttonAriaLabel="Formatting options for text style">
       <DropDownItem
-        className={
-          'item wide ' + dropDownActiveClass(blockType === 'paragraph')
-        }
+        wide
+        active={blockType === 'paragraph'}
         onClick={() => formatParagraph(editor)}>
-        <div className="icon-text-container">
+        <DropDownItemIconTextContainer>
           <TextParagraphIcon className={classes.dropdownIcon} />
-          <span className="text">Normal</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.NORMAL}</span>
+          <DropDownItemText>Normal</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.NORMAL}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
-        className={'item wide ' + dropDownActiveClass(blockType === 'h1')}
+        wide
+        active={blockType === 'h1'}
         onClick={() => formatHeading(editor, blockType, 'h1')}>
-        <div className="icon-text-container">
+        <DropDownItemIconTextContainer>
           <TypeH1Icon className={classes.dropdownIcon} />
-          <span className="text">Heading 1</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.HEADING1}</span>
+          <DropDownItemText>Heading 1</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.HEADING1}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
-        className={'item wide ' + dropDownActiveClass(blockType === 'h2')}
+        wide
+        active={blockType === 'h2'}
         onClick={() => formatHeading(editor, blockType, 'h2')}>
-        <div className="icon-text-container">
+        <DropDownItemIconTextContainer>
           <TypeH2Icon className={classes.dropdownIcon} />
-          <span className="text">Heading 2</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.HEADING2}</span>
+          <DropDownItemText>Heading 2</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.HEADING2}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
-        className={'item wide ' + dropDownActiveClass(blockType === 'h3')}
+        wide
+        active={blockType === 'h3'}
         onClick={() => formatHeading(editor, blockType, 'h3')}>
-        <div className="icon-text-container">
+        <DropDownItemIconTextContainer>
           <TypeH3Icon className={classes.dropdownIcon} />
-          <span className="text">Heading 3</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.HEADING3}</span>
+          <DropDownItemText>Heading 3</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.HEADING3}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
-        className={'item wide ' + dropDownActiveClass(blockType === 'number')}
+        wide
+        active={blockType === 'number'}
         onClick={() => formatNumberedList(editor, blockType)}>
-        <div className="icon-text-container">
+        <DropDownItemIconTextContainer>
           <ListOlIcon className={classes.dropdownIcon} />
-          <span className="text">Numbered List</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.NUMBERED_LIST}</span>
+          <DropDownItemText>Numbered List</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.NUMBERED_LIST}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
-        className={'item wide ' + dropDownActiveClass(blockType === 'bullet')}
+        wide
+        active={blockType === 'bullet'}
         onClick={() => formatBulletList(editor, blockType)}>
-        <div className="icon-text-container">
+        <DropDownItemIconTextContainer>
           <ListUlIcon className={classes.dropdownIcon} />
-          <span className="text">Bullet List</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.BULLET_LIST}</span>
+          <DropDownItemText>Bullet List</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.BULLET_LIST}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
-        className={'item wide ' + dropDownActiveClass(blockType === 'check')}
+        wide
+        active={blockType === 'check'}
         onClick={() => formatCheckList(editor, blockType)}>
-        <div className="icon-text-container">
+        <DropDownItemIconTextContainer>
           <SquareCheckIcon className={classes.dropdownIcon} />
-          <span className="text">Check List</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.CHECK_LIST}</span>
+          <DropDownItemText>Check List</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.CHECK_LIST}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
-        className={'item wide ' + dropDownActiveClass(blockType === 'quote')}
+        wide
+        active={blockType === 'quote'}
         onClick={() => formatQuote(editor, blockType)}>
-        <div className="icon-text-container">
+        <DropDownItemIconTextContainer>
           <ChatSquareQuoteIcon className={classes.dropdownIcon} />
-          <span className="text">Quote</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.QUOTE}</span>
+          <DropDownItemText>Quote</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.QUOTE}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
-        className={'item wide ' + dropDownActiveClass(blockType === 'code')}
+        wide
+        active={blockType === 'code'}
         onClick={() => formatCode(editor, blockType)}>
-        <div className="icon-text-container">
+        <DropDownItemIconTextContainer>
           <CodeIcon className={classes.dropdownIcon} />
-          <span className="text">Code Block</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.CODE_BLOCK}</span>
+          <DropDownItemText>Code Block</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.CODE_BLOCK}</DropDownItemShortcut>
       </DropDownItem>
     </DropDown>
   );
@@ -573,12 +577,10 @@ function FontDropDown({
       {(style === 'font-family' ? FONT_FAMILY_OPTIONS : FONT_SIZE_OPTIONS).map(
         ([option, text]) => (
           <DropDownItem
-            className={`item ${dropDownActiveClass(value === option)} ${
-              style === 'font-size' ? 'fontsize-item' : ''
-            }`}
+            active={value === option}
             onClick={() => handleClick(option)}
             key={option}>
-            <span className="text">{text}</span>
+            <DropDownItemText>{text}</DropDownItemText>
           </DropDownItem>
         ),
       )}
@@ -621,100 +623,100 @@ function ElementFormatDropdown({
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
         }}
-        className="item wide">
-        <div className="icon-text-container">
+        wide>
+        <DropDownItemIconTextContainer>
           <TextLeftIcon className={classes.dropdownIcon} />
-          <span className="text">Left Align</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.LEFT_ALIGN}</span>
+          <DropDownItemText>Left Align</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.LEFT_ALIGN}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
         }}
-        className="item wide">
-        <div className="icon-text-container">
+        wide>
+        <DropDownItemIconTextContainer>
           <TextCenterIcon className={classes.dropdownIcon} />
-          <span className="text">Center Align</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.CENTER_ALIGN}</span>
+          <DropDownItemText>Center Align</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.CENTER_ALIGN}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
         }}
-        className="item wide">
-        <div className="icon-text-container">
+        wide>
+        <DropDownItemIconTextContainer>
           <TextRightIcon className={classes.dropdownIcon} />
-          <span className="text">Right Align</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.RIGHT_ALIGN}</span>
+          <DropDownItemText>Right Align</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.RIGHT_ALIGN}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'justify');
         }}
-        className="item wide">
-        <div className="icon-text-container">
+        wide>
+        <DropDownItemIconTextContainer>
           <JustifyIcon className={classes.dropdownIcon} />
-          <span className="text">Justify Align</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.JUSTIFY_ALIGN}</span>
+          <DropDownItemText>Justify Align</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.JUSTIFY_ALIGN}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'start');
         }}
-        className="item wide">
+        wide>
         {isRTL ? (
           <TextRightIcon className={classes.dropdownIcon} />
         ) : (
           <TextLeftIcon className={classes.dropdownIcon} />
         )}
-        <span className="text">Start Align</span>
+        <DropDownItemText>Start Align</DropDownItemText>
       </DropDownItem>
       <DropDownItem
         onClick={() => {
           editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'end');
         }}
-        className="item wide">
+        wide>
         {isRTL ? (
           <TextLeftIcon className={classes.dropdownIcon} />
         ) : (
           <TextRightIcon className={classes.dropdownIcon} />
         )}
-        <span className="text">End Align</span>
+        <DropDownItemText>End Align</DropDownItemText>
       </DropDownItem>
       <Divider />
       <DropDownItem
         onClick={() => {
           editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
         }}
-        className="item wide">
-        <div className="icon-text-container">
+        wide>
+        <DropDownItemIconTextContainer>
           {isRTL ? (
             <IndentIcon className={classes.dropdownIcon} />
           ) : (
             <OutdentIcon className={classes.dropdownIcon} />
           )}
-          <span className="text">Outdent</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.OUTDENT}</span>
+          <DropDownItemText>Outdent</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.OUTDENT}</DropDownItemShortcut>
       </DropDownItem>
       <DropDownItem
         onClick={() => {
           editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
         }}
-        className="item wide">
-        <div className="icon-text-container">
+        wide>
+        <DropDownItemIconTextContainer>
           {isRTL ? (
             <OutdentIcon className={classes.dropdownIcon} />
           ) : (
             <IndentIcon className={classes.dropdownIcon} />
           )}
-          <span className="text">Indent</span>
-        </div>
-        <span className="shortcut">{SHORTCUTS.INDENT}</span>
+          <DropDownItemText>Indent</DropDownItemText>
+        </DropDownItemIconTextContainer>
+        <DropDownItemShortcut>{SHORTCUTS.INDENT}</DropDownItemShortcut>
       </DropDownItem>
     </DropDown>
   );
@@ -1156,12 +1158,10 @@ export default function ToolbarPlugin({
               {CODE_LANGUAGE_OPTIONS_PRISM.map(([value, name]) => {
                 return (
                   <DropDownItem
-                    className={`item ${dropDownActiveClass(
-                      value === toolbarState.codeLanguage,
-                    )}`}
+                    active={value === toolbarState.codeLanguage}
                     onClick={() => onCodeLanguageSelect(value)}
                     key={value}>
-                    <span className="text">{name}</span>
+                    <DropDownItemText>{name}</DropDownItemText>
                   </DropDownItem>
                 );
               })}
@@ -1319,116 +1319,109 @@ export default function ToolbarPlugin({
               onClick={(e) =>
                 dispatchFormatTextCommand('lowercase', isKeyboardInput(e))
               }
-              className={
-                'item wide ' + dropDownActiveClass(toolbarState.isLowercase)
-              }
+              wide
+              active={toolbarState.isLowercase}
               title="Lowercase"
               aria-label="Format text to lowercase">
-              <div className="icon-text-container">
+              <DropDownItemIconTextContainer>
                 <TypeLowercaseIcon className={classes.dropdownIcon} />
-                <span className="text">Lowercase</span>
-              </div>
-              <span className="shortcut">{SHORTCUTS.LOWERCASE}</span>
+                <DropDownItemText>Lowercase</DropDownItemText>
+              </DropDownItemIconTextContainer>
+              <DropDownItemShortcut>{SHORTCUTS.LOWERCASE}</DropDownItemShortcut>
             </DropDownItem>
             <DropDownItem
               onClick={(e) =>
                 dispatchFormatTextCommand('uppercase', isKeyboardInput(e))
               }
-              className={
-                'item wide ' + dropDownActiveClass(toolbarState.isUppercase)
-              }
+              wide
+              active={toolbarState.isUppercase}
               title="Uppercase"
               aria-label="Format text to uppercase">
-              <div className="icon-text-container">
+              <DropDownItemIconTextContainer>
                 <TypeUppercaseIcon className={classes.dropdownIcon} />
-                <span className="text">Uppercase</span>
-              </div>
-              <span className="shortcut">{SHORTCUTS.UPPERCASE}</span>
+                <DropDownItemText>Uppercase</DropDownItemText>
+              </DropDownItemIconTextContainer>
+              <DropDownItemShortcut>{SHORTCUTS.UPPERCASE}</DropDownItemShortcut>
             </DropDownItem>
             <DropDownItem
               onClick={(e) =>
                 dispatchFormatTextCommand('capitalize', isKeyboardInput(e))
               }
-              className={
-                'item wide ' + dropDownActiveClass(toolbarState.isCapitalize)
-              }
+              wide
+              active={toolbarState.isCapitalize}
               title="Capitalize"
               aria-label="Format text to capitalize">
-              <div className="icon-text-container">
+              <DropDownItemIconTextContainer>
                 <TypeCapitalizeIcon className={classes.dropdownIcon} />
-                <span className="text">Capitalize</span>
-              </div>
-              <span className="shortcut">{SHORTCUTS.CAPITALIZE}</span>
+                <DropDownItemText>Capitalize</DropDownItemText>
+              </DropDownItemIconTextContainer>
+              <DropDownItemShortcut>{SHORTCUTS.CAPITALIZE}</DropDownItemShortcut>
             </DropDownItem>
             <DropDownItem
               onClick={(e) =>
                 dispatchFormatTextCommand('strikethrough', isKeyboardInput(e))
               }
-              className={
-                'item wide ' + dropDownActiveClass(toolbarState.isStrikethrough)
-              }
+              wide
+              active={toolbarState.isStrikethrough}
               title="Strikethrough"
               aria-label="Format text with a strikethrough">
-              <div className="icon-text-container">
+              <DropDownItemIconTextContainer>
                 <TypeStrikethroughIcon className={classes.dropdownIcon} />
-                <span className="text">Strikethrough</span>
-              </div>
-              <span className="shortcut">{SHORTCUTS.STRIKETHROUGH}</span>
+                <DropDownItemText>Strikethrough</DropDownItemText>
+              </DropDownItemIconTextContainer>
+              <DropDownItemShortcut>{SHORTCUTS.STRIKETHROUGH}</DropDownItemShortcut>
             </DropDownItem>
             <DropDownItem
               onClick={(e) =>
                 dispatchFormatTextCommand('subscript', isKeyboardInput(e))
               }
-              className={
-                'item wide ' + dropDownActiveClass(toolbarState.isSubscript)
-              }
+              wide
+              active={toolbarState.isSubscript}
               title="Subscript"
               aria-label="Format text with a subscript">
-              <div className="icon-text-container">
+              <DropDownItemIconTextContainer>
                 <TypeSubscriptIcon className={classes.dropdownIcon} />
-                <span className="text">Subscript</span>
-              </div>
-              <span className="shortcut">{SHORTCUTS.SUBSCRIPT}</span>
+                <DropDownItemText>Subscript</DropDownItemText>
+              </DropDownItemIconTextContainer>
+              <DropDownItemShortcut>{SHORTCUTS.SUBSCRIPT}</DropDownItemShortcut>
             </DropDownItem>
             <DropDownItem
               onClick={(e) =>
                 dispatchFormatTextCommand('superscript', isKeyboardInput(e))
               }
-              className={
-                'item wide ' + dropDownActiveClass(toolbarState.isSuperscript)
-              }
+              wide
+              active={toolbarState.isSuperscript}
               title="Superscript"
               aria-label="Format text with a superscript">
-              <div className="icon-text-container">
+              <DropDownItemIconTextContainer>
                 <TypeSuperscriptIcon className={classes.dropdownIcon} />
-                <span className="text">Superscript</span>
-              </div>
-              <span className="shortcut">{SHORTCUTS.SUPERSCRIPT}</span>
+                <DropDownItemText>Superscript</DropDownItemText>
+              </DropDownItemIconTextContainer>
+              <DropDownItemShortcut>{SHORTCUTS.SUPERSCRIPT}</DropDownItemShortcut>
             </DropDownItem>
             <DropDownItem
               onClick={(e) =>
                 dispatchFormatTextCommand('highlight', isKeyboardInput(e))
               }
-              className={
-                'item wide ' + dropDownActiveClass(toolbarState.isHighlight)
-              }
+              wide
+              active={toolbarState.isHighlight}
               title="Highlight"
               aria-label="Format text with a highlight">
-              <div className="icon-text-container">
+              <DropDownItemIconTextContainer>
                 <HighlighterIcon className={classes.dropdownIcon} />
-                <span className="text">Highlight</span>
-              </div>
+                <DropDownItemText>Highlight</DropDownItemText>
+              </DropDownItemIconTextContainer>
             </DropDownItem>
             <DropDownItem
               onClick={(e) => clearFormatting(activeEditor, isKeyboardInput(e))}
-              className="item wide"
+              wide
               title="Clear text formatting"
               aria-label="Clear all text formatting">
-              <div className="icon-text-container">
+              <DropDownItemIconTextContainer>
                 <TrashIcon className={classes.dropdownIcon} />
-                <span className="text">Clear Formatting</span>
-              </div>
-              <span className="shortcut">{SHORTCUTS.CLEAR_FORMATTING}</span>
+                <DropDownItemText>Clear Formatting</DropDownItemText>
+              </DropDownItemIconTextContainer>
+              <DropDownItemShortcut>{SHORTCUTS.CLEAR_FORMATTING}</DropDownItemShortcut>
             </DropDownItem>
           </DropDown>
           {canViewerSeeInsertDropdown && (
@@ -1444,15 +1437,15 @@ export default function ToolbarPlugin({
                   onClick={() =>
                     dispatchToolbarCommand(INSERT_HORIZONTAL_RULE_COMMAND)
                   }
-                  className="item">
+                  >
                   <HorizontalRuleIcon className={classes.dropdownIcon} />
-                  <span className="text">Horizontal Rule</span>
+                  <DropDownItemText>Horizontal Rule</DropDownItemText>
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => dispatchToolbarCommand(INSERT_PAGE_BREAK)}
-                  className="item">
+                  >
                   <ScissorsIcon className={classes.dropdownIcon} />
-                  <span className="text">Page Break</span>
+                  <DropDownItemText>Page Break</DropDownItemText>
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {
@@ -1463,9 +1456,9 @@ export default function ToolbarPlugin({
                       />
                     ));
                   }}
-                  className="item">
+                  >
                   <FileImageIcon className={classes.dropdownIcon} />
-                  <span className="text">Image</span>
+                  <DropDownItemText>Image</DropDownItemText>
                 </DropDownItem>
                 {/* <DropDownItem
                   onClick={() =>
@@ -1484,9 +1477,9 @@ export default function ToolbarPlugin({
                       />
                     ));
                   }}
-                  className="item">
+                  >
                   <TableIcon className={classes.dropdownIcon} />
-                  <span className="text">Table</span>
+                  <DropDownItemText>Table</DropDownItemText>
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {
@@ -1497,9 +1490,9 @@ export default function ToolbarPlugin({
                       />
                     ));
                   }}
-                  className="item">
+                  >
                   <CardChecklistIcon className={classes.dropdownIcon} />
-                  <span className="text">Poll</span>
+                  <DropDownItemText>Poll</DropDownItemText>
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {
@@ -1510,9 +1503,9 @@ export default function ToolbarPlugin({
                       />
                     ));
                   }}
-                  className="item">
+                  >
                   <ThreeColumnsIcon className={classes.dropdownIcon} />
-                  <span className="text">Columns Layout</span>
+                  <DropDownItemText>Columns Layout</DropDownItemText>
                 </DropDownItem>
 
                 <DropDownItem
@@ -1524,9 +1517,9 @@ export default function ToolbarPlugin({
                       />
                     ));
                   }}
-                  className="item">
+                  >
                   <PlusSlashMinusIcon className={classes.dropdownIcon} />
-                  <span className="text">Equation</span>
+                  <DropDownItemText>Equation</DropDownItemText>
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {
@@ -1537,17 +1530,17 @@ export default function ToolbarPlugin({
                       root.append(stickyNode);
                     });
                   }}
-                  className="item">
+                  >
                   <StickyIcon className={classes.dropdownIcon} />
-                  <span className="text">Sticky Note</span>
+                  <DropDownItemText>Sticky Note</DropDownItemText>
                 </DropDownItem>
                 <DropDownItem
                   onClick={() =>
                     dispatchToolbarCommand(INSERT_COLLAPSIBLE_COMMAND)
                   }
-                  className="item">
+                  >
                   <CaretRightFillIcon className={classes.dropdownIcon} />
-                  <span className="text">Collapsible container</span>
+                  <DropDownItemText>Collapsible container</DropDownItemText>
                 </DropDownItem>
                 <DropDownItem
                   onClick={() => {
@@ -1555,9 +1548,9 @@ export default function ToolbarPlugin({
                     dateTime.setHours(0, 0, 0, 0);
                     dispatchToolbarCommand(INSERT_DATETIME_COMMAND, {dateTime});
                   }}
-                  className="item">
+                  >
                   <CalendarIcon className={classes.dropdownIcon} />
-                  <span className="text">Date</span>
+                  <DropDownItemText>Date</DropDownItemText>
                 </DropDownItem>
                 {EmbedConfigs.map((embedConfig) => (
                   <DropDownItem
@@ -1568,9 +1561,9 @@ export default function ToolbarPlugin({
                         embedConfig.type,
                       )
                     }
-                    className="item">
+                    >
                     {embedConfig.icon}
-                    <span className="text">{embedConfig.contentName}</span>
+                    <DropDownItemText>{embedConfig.contentName}</DropDownItemText>
                   </DropDownItem>
                 ))}
               </DropDown>

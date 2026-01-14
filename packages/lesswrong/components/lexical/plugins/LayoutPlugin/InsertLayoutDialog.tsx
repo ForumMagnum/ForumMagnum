@@ -15,7 +15,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 
 import Button from '../../ui/Button';
-import DropDown, {DropDownItem} from '../../ui/DropDown';
+import DropDown, {DropDownItem, DropDownItemText} from '../../ui/DropDown';
 import {INSERT_LAYOUT_COMMAND} from './LayoutPlugin';
 import { toolbarItem } from '../../styles/toolbarStyles';
 
@@ -60,9 +60,8 @@ export default function InsertLayoutDialog({
         {LAYOUTS.map(({label, value}) => (
           <DropDownItem
             key={value}
-            className="item"
             onClick={() => setLayout(value)}>
-            <span className="text">{label}</span>
+            <DropDownItemText>{label}</DropDownItemText>
           </DropDownItem>
         ))}
       </DropDown>

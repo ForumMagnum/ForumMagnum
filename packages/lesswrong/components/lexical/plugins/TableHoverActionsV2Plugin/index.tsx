@@ -166,7 +166,7 @@ function getClosestTopCellPosition(
 
   for (const cell of Array.from(firstRow.cells)) {
     const rect = cell.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
+    const centerX = rect.left + (rect.width / 2);
     const delta = Math.abs(centerX - clientX);
     if (delta < smallestDelta) {
       smallestDelta = delta;
@@ -306,7 +306,7 @@ function TableHoverActionsV2({
         hoveredLeftCellRef.current = null;
       } else {
         const {top, height} = hoveredCell.getBoundingClientRect();
-        const centerY = top + height / 2;
+        const centerY = top + (height / 2);
         hoveredLeftCellRef.current = hoveredCell;
         leftVirtualRef.current.getBoundingClientRect = () =>
           new DOMRect(tableRect.left, centerY, 0, 0);
@@ -474,12 +474,10 @@ function TableHoverActionsV2({
           buttonIcon={<FilterLeftIcon className={classes.indicatorIcon} />}
           hideChevron={true}>
           <DropDownItem
-            className="item"
             onClick={() => handleSortColumn('desc')}>
             Sort Ascending
           </DropDownItem>
           <DropDownItem
-            className="item"
             onClick={() => handleSortColumn('asc')}>
             Sort Descending
           </DropDownItem>
