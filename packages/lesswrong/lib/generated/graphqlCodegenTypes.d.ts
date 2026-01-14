@@ -6196,6 +6196,7 @@ type PostSelector = {
   reviewQuickPage?: InputMaybe<PostsReviewQuickPageInput>;
   reviewRecentDiscussionThreadsList2018?: InputMaybe<PostsReviewRecentDiscussionThreadsList2018Input>;
   reviewRecentDiscussionThreadsList2019?: InputMaybe<PostsReviewRecentDiscussionThreadsList2019Input>;
+  reviewTopNominations?: InputMaybe<PostsReviewTopNominationsInput>;
   reviewVoting?: InputMaybe<PostsReviewVotingInput>;
   reviews2018?: InputMaybe<PostsReviews2018Input>;
   reviews2019?: InputMaybe<PostsReviews2019Input>;
@@ -7184,6 +7185,10 @@ type PostsReviewRecentDiscussionThreadsList2019Input = {
   view?: InputMaybe<Scalars['String']['input']>;
 };
 
+type PostsReviewTopNominationsInput = {
+  reviewYear?: InputMaybe<Scalars['Int']['input']>;
+};
+
 type PostsReviewVotingInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   after?: InputMaybe<Scalars['String']['input']>;
@@ -7747,6 +7752,7 @@ type Query = {
   RecombeeHybridPosts?: Maybe<RecombeeHybridPostsResult>;
   RecombeeLatestPosts?: Maybe<RecombeeLatestPostsResult>;
   Recommendations?: Maybe<Array<Post>>;
+  ReviewTopPostsWithReviews: ReviewTopPostsWithReviewsResult;
   RevisionsDiff?: Maybe<Scalars['String']['output']>;
   RssPostChanges: RssPostChangeInfo;
   SearchSynonyms: Array<Scalars['String']['output']>;
@@ -8119,6 +8125,12 @@ type QueryRecombeeLatestPostsArgs = {
 type QueryRecommendationsArgs = {
   algorithm?: InputMaybe<Scalars['JSON']['input']>;
   count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QueryReviewTopPostsWithReviewsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  reviewYear: Scalars['Int']['input'];
 };
 
 
@@ -9498,6 +9510,12 @@ type ReportSelector = {
 
 type ReportsAdminClaimedReportsInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ReviewTopPostsWithReviewsResult = {
+  __typename?: 'ReviewTopPostsWithReviewsResult';
+  posts: Array<Post>;
+  reviews: Array<Comment>;
 };
 
 type ReviewVote = {
@@ -13165,6 +13183,27 @@ type multiModeratorCommentsQueryQueryVariables = Exact<{
 
 
 type multiModeratorCommentsQueryQuery = multiModeratorCommentsQueryQuery_Query;
+
+type ReviewTopPostsWithReviewsQueryQuery_ReviewTopPostsWithReviews_ReviewTopPostsWithReviewsResult_posts_Post_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+
+type ReviewTopPostsWithReviewsQueryQuery_ReviewTopPostsWithReviews_ReviewTopPostsWithReviewsResult_posts_Post = { __typename?: 'Post', _id: string, slug: string, title: string, user: ReviewTopPostsWithReviewsQueryQuery_ReviewTopPostsWithReviews_ReviewTopPostsWithReviewsResult_posts_Post_user_User | null };
+
+type ReviewTopPostsWithReviewsQueryQuery_ReviewTopPostsWithReviews_ReviewTopPostsWithReviewsResult_reviews_Comment_user_User = { __typename?: 'User', _id: string, displayName: string, slug: string };
+
+type ReviewTopPostsWithReviewsQueryQuery_ReviewTopPostsWithReviews_ReviewTopPostsWithReviewsResult_reviews_Comment = { __typename?: 'Comment', _id: string, postId: string | null, baseScore: number | null, user: ReviewTopPostsWithReviewsQueryQuery_ReviewTopPostsWithReviews_ReviewTopPostsWithReviewsResult_reviews_Comment_user_User | null };
+
+type ReviewTopPostsWithReviewsQueryQuery_ReviewTopPostsWithReviews_ReviewTopPostsWithReviewsResult = { __typename?: 'ReviewTopPostsWithReviewsResult', posts: Array<ReviewTopPostsWithReviewsQueryQuery_ReviewTopPostsWithReviews_ReviewTopPostsWithReviewsResult_posts_Post>, reviews: Array<ReviewTopPostsWithReviewsQueryQuery_ReviewTopPostsWithReviews_ReviewTopPostsWithReviewsResult_reviews_Comment> };
+
+type ReviewTopPostsWithReviewsQueryQuery_Query = { __typename?: 'Query', ReviewTopPostsWithReviews: ReviewTopPostsWithReviewsQueryQuery_ReviewTopPostsWithReviews_ReviewTopPostsWithReviewsResult };
+
+
+type ReviewTopPostsWithReviewsQueryQueryVariables = Exact<{
+  reviewYear: Scalars['Int']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type ReviewTopPostsWithReviewsQueryQuery = ReviewTopPostsWithReviewsQueryQuery_Query;
 
 type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 

@@ -1351,6 +1351,25 @@ function currentOpenThread(terms: PostsViewTerms) {
   }
 }
 
+function reviewTopNominations(terms: PostsViewTerms) {
+  if (!terms.reviewYear) {
+    throw new Error("reviewYear is required for reviewTopNominations view");
+  }
+  return {
+    selector: {
+      postedAt: {
+        $gte: moment.utc(`${terms.reviewYear}-01-01`).toDate(),
+        $lt: moment.utc(`${terms.reviewYear + 1}-01-01`).toDate()
+      },
+      positiveReviewVoteCount: { $gte: 1 },
+      _id: { $nin: reviewExcludedPostIds }
+    },
+    options: {
+      sort: { reviewVoteScoreHighKarma: -1 }
+    }
+  }
+}
+
 export const PostsViews = new CollectionViewSet('Posts', {
   userPosts,
   magic,
@@ -1413,4 +1432,5 @@ export const PostsViews = new CollectionViewSet('Posts', {
   reviewFinalVoting,
   alignmentSuggestedPosts,
   currentOpenThread,
+  reviewTopNominations,
 }, defaultView);

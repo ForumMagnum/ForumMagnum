@@ -1506,6 +1506,10 @@ export const graphqlPostQueryTypeDefs = gql`
     curatedAfter: String
   }
   
+  input PostsReviewTopNominationsInput {
+    reviewYear: Int
+  }
+  
   input PostSelector  {
     default: PostDefaultViewInput
     userPosts: PostsUserPostsInput
@@ -1569,6 +1573,7 @@ export const graphqlPostQueryTypeDefs = gql`
     myBookmarkedPosts: PostsMyBookmarkedPostsInput
     alignmentSuggestedPosts: PostsAlignmentSuggestedPostsInput
     currentOpenThread: PostsCurrentOpenThreadInput
+    reviewTopNominations: PostsReviewTopNominationsInput
   }
   
   input MultiPostInput {
