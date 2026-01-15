@@ -695,17 +695,6 @@ export const ultraFeedGraphQLQueries = {
               sessionId
             )
           : Promise.resolve<FeedCommentsThread[]>([]),
-        reviewCommentFetchLimit > 0
-          ? getUltraFeedReviewCommentThreads(
-              context,
-              reviewCommentFetchLimit,
-              parsedSettings,
-              ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
-              ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
-              ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays,
-              sessionId
-            )
-          : Promise.resolve<FeedCommentsThread[]>([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve<FeedSpotlight[]>([]),
         bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve<PreparedBookmarkItem[]>([]),
         engagementStatsListPromise
