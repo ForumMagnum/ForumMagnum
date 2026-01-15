@@ -136,7 +136,7 @@ import {isKeyboardInput} from '../../utils/focusUtils';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {sanitizeUrl} from '../../utils/url';
 import {EmbedConfigs} from '../AutoEmbedPlugin';
-import {INSERT_COLLAPSIBLE_COMMAND} from '../CollapsiblePlugin';
+import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
@@ -1587,7 +1587,7 @@ export default function ToolbarPlugin({
                 </DropDownItem>
                 <DropDownItem
                   onClick={() =>
-                    dispatchToolbarCommand(INSERT_COLLAPSIBLE_COMMAND)
+                    dispatchToolbarCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND)
                   }
                   >
                   <CaretRightFillIcon className={classes.dropdownIcon} />

@@ -39,7 +39,7 @@ import * as ReactDOM from 'react-dom';
 import useModal from '../../hooks/useModal';
 // import catTypingGif from '../../images/cat-typing.gif';
 import {EmbedConfigs} from '../AutoEmbedPlugin';
-import {INSERT_COLLAPSIBLE_COMMAND} from '../CollapsiblePlugin';
+import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 // import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin';
@@ -396,7 +396,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <CaretRightFillIcon style={iconStyle} />,
       keywords: ['collapse', 'collapsible', 'toggle'],
       onSelect: () =>
-        editor.dispatchCommand(INSERT_COLLAPSIBLE_COMMAND, undefined),
+        editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined),
     }),
     new ComponentPickerOption('Columns Layout', {
       icon: <ThreeColumnsIcon style={iconStyle} />,

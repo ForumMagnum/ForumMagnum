@@ -21,6 +21,7 @@ import {
   KEY_ARROW_UP_COMMAND,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
+  INSERT_PARAGRAPH_COMMAND,
   createCommand,
   LexicalCommand,
   TextNode,
@@ -28,8 +29,9 @@ import {
   LexicalNode,
   CLICK_COMMAND,
   ElementNode,
+  $isParagraphNode,
 } from 'lexical';
-import { mergeRegister } from '@lexical/utils';
+import { mergeRegister, $insertNodeToNearestRoot } from '@lexical/utils';
 import {
   CollapsibleSectionContainerNode,
   $createCollapsibleSectionContainerNode,
@@ -57,7 +59,7 @@ export const TOGGLE_COLLAPSIBLE_SECTION_COMMAND: LexicalCommand<string> = create
  * Creates a complete collapsible section structure with title and content nodes.
  */
 function $createCollapsibleSection(): CollapsibleSectionContainerNode {
-  const container = $createCollapsibleSectionContainerNode(true);
+  const container = $createCollapsibleSectionContainerNode(true, false);
   const title = $createCollapsibleSectionTitleNode();
   const content = $createCollapsibleSectionContentNode();
   
@@ -252,7 +254,7 @@ export function CollapsibleSectionsPlugin(): null {
             if (!$isRangeSelection(selection)) return;
 
             const collapsibleSection = $createCollapsibleSection();
-            selection.insertNodes([collapsibleSection]);
+            $insertNodeToNearestRoot(collapsibleSection);
             
             // Place cursor in the title
             const title = $findTitleInCollapsible(collapsibleSection);
@@ -290,7 +292,8 @@ export function CollapsibleSectionsPlugin(): null {
           const target = event.target as HTMLElement;
           
           // Check if clicked on title bar (but not on text content)
-          if (target.classList.contains('detailsBlockTitle')) {
+          const titleElement = target.closest('.detailsBlockTitle');
+          if (titleElement && target === titleElement) {
             // Don't toggle if clicking on actual text content inside
             const windowSelection = window.getSelection();
             if (windowSelection && windowSelection.toString().length > 0) {
@@ -323,24 +326,22 @@ export function CollapsibleSectionsPlugin(): null {
         COMMAND_PRIORITY_LOW
       ),
 
-      // Handle Enter key in title - move to content
+      // Handle Enter in title - move to content (and open if needed)
       editor.registerCommand(
-        KEY_ENTER_COMMAND,
-        (event) => {
+        INSERT_PARAGRAPH_COMMAND,
+        () => {
           const selection = $getSelection();
-          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+          if (!$isRangeSelection(selection)) {
             return false;
           }
 
           const anchorNode = selection.anchor.getNode();
-          
-          // Check if we're in a collapsible title
           if ($isInCollapsibleTitle(anchorNode)) {
             const collapsible = $findCollapsibleParent(anchorNode);
             if (collapsible) {
-              event?.preventDefault();
-              
-              // Move cursor to start of content
+              if (!collapsible.getIsOpen()) {
+                collapsible.toggleOpen();
+              }
               const content = $findContentInCollapsible(collapsible);
               if (content) {
                 const firstChild = content.getFirstChild();
@@ -351,6 +352,22 @@ export function CollapsibleSectionsPlugin(): null {
               return true;
             }
           }
+
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      // Handle Enter key in title - move to content
+      editor.registerCommand(
+        KEY_ENTER_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+            return false;
+          }
+
+          const anchorNode = selection.anchor.getNode();
           
           // Check if we're in collapsible content
           if ($isInCollapsibleContent(anchorNode)) {
@@ -450,6 +467,26 @@ export function CollapsibleSectionsPlugin(): null {
         KEY_ARROW_RIGHT_COMMAND,
         (event) => {
           const selection = $getSelection();
+
+          if ($isRangeSelection(selection) && selection.isCollapsed()) {
+            const anchorNode = selection.anchor.getNode();
+            const container = $findCollapsibleParent(anchorNode);
+            if (container) {
+              const parent = container.getParent();
+              if (parent && parent.getLastChild() === container) {
+                const lastDescendant = container.getLastDescendant();
+                if (
+                  lastDescendant &&
+                  selection.anchor.key === lastDescendant.getKey() &&
+                  $isAtEndOfNode(anchorNode, selection.anchor.offset)
+                ) {
+                  event?.preventDefault();
+                  container.insertAfter($createParagraphNode());
+                  return true;
+                }
+              }
+            }
+          }
           
           // Handle when collapsible section is already selected (NodeSelection)
           if ($isNodeSelection(selection)) {
@@ -513,6 +550,30 @@ export function CollapsibleSectionsPlugin(): null {
         KEY_ARROW_LEFT_COMMAND,
         (event) => {
           const selection = $getSelection();
+
+          if ($isRangeSelection(selection) && selection.isCollapsed()) {
+            const anchorNode = selection.anchor.getNode();
+            try {
+              const container = $findCollapsibleParent(anchorNode);
+              if (container) {
+                const parent = container.getParent();
+                const firstDescendant = container.getFirstDescendant();
+                if (
+                  parent &&
+                  parent.getFirstChild() === container &&
+                  firstDescendant &&
+                  selection.anchor.key === firstDescendant.getKey() &&
+                  selection.anchor.offset === 0
+                ) {
+                  event?.preventDefault();
+                  container.insertBefore($createParagraphNode());
+                  return true;
+                }
+              }
+            } catch {
+              // Ignore invalid structure
+            }
+          }
           
           // Handle when collapsible section is already selected (NodeSelection)
           if ($isNodeSelection(selection)) {
@@ -580,6 +641,30 @@ export function CollapsibleSectionsPlugin(): null {
         KEY_ARROW_UP_COMMAND,
         (event) => {
           const selection = $getSelection();
+
+          if ($isRangeSelection(selection) && selection.isCollapsed()) {
+            const anchorNode = selection.anchor.getNode();
+            try {
+              const container = $findCollapsibleParent(anchorNode);
+              if (container) {
+                const parent = container.getParent();
+                const firstDescendant = container.getFirstDescendant();
+                if (
+                  parent &&
+                  parent.getFirstChild() === container &&
+                  firstDescendant &&
+                  selection.anchor.key === firstDescendant.getKey() &&
+                  selection.anchor.offset === 0
+                ) {
+                  event?.preventDefault();
+                  container.insertBefore($createParagraphNode());
+                  return true;
+                }
+              }
+            } catch {
+              // Ignore invalid structure
+            }
+          }
           
           // Handle when collapsible section is already selected (NodeSelection)
           if ($isNodeSelection(selection)) {
@@ -631,6 +716,26 @@ export function CollapsibleSectionsPlugin(): null {
         KEY_ARROW_DOWN_COMMAND,
         (event) => {
           const selection = $getSelection();
+
+          if ($isRangeSelection(selection) && selection.isCollapsed()) {
+            const anchorNode = selection.anchor.getNode();
+            const container = $findCollapsibleParent(anchorNode);
+            if (container) {
+              const parent = container.getParent();
+              if (parent && parent.getLastChild() === container) {
+                const lastDescendant = container.getLastDescendant();
+                if (
+                  lastDescendant &&
+                  selection.anchor.key === lastDescendant.getKey() &&
+                  $isAtEndOfNode(anchorNode, selection.anchor.offset)
+                ) {
+                  event?.preventDefault();
+                  container.insertAfter($createParagraphNode());
+                  return true;
+                }
+              }
+            }
+          }
           
           // Handle when collapsible section is already selected (NodeSelection)
           if ($isNodeSelection(selection)) {
@@ -816,22 +921,21 @@ export function CollapsibleSectionsPlugin(): null {
       editor.registerNodeTransform(TextNode, (node) => {
         if (!$isTextNode(node)) return;
 
-        const textContent = node.getTextContent();
+        const parent = node.getParent();
+        if (!parent || !$isParagraphNode(parent)) return;
+
+        // Only transform if this paragraph contains just this text node
+        if (parent.getChildrenSize() !== 1) return;
+
+        const textContent = parent.getTextContent();
         
         // Check for autoformat patterns
-        const isDetailsTag = textContent === '<details>' || textContent === '<details> ';
-        const isPlusPattern = textContent === '+++' || textContent === '+++ ';
+        const isDetailsTag = textContent === '<details>';
+        const isPlusPattern = textContent === '+++';
         
         if (isDetailsTag || isPlusPattern) {
-          const parent = node.getParent();
-          if (!parent) return;
-
           // Don't transform if already in a collapsible section
           if ($findCollapsibleParent(node)) return;
-
-          // Only transform if this is the first/only text in the paragraph
-          const previousSibling = node.getPreviousSibling();
-          if (previousSibling) return;
 
           // Create collapsible section
           const collapsibleSection = $createCollapsibleSection();
@@ -850,19 +954,41 @@ export function CollapsibleSectionsPlugin(): null {
         }
       }),
 
+      // Enforce structure: Title must be inside container
+      editor.registerNodeTransform(CollapsibleSectionTitleNode, (node) => {
+        const parent = node.getParent();
+        if (!$isCollapsibleSectionContainerNode(parent)) {
+          node.replace($createParagraphNode().append(...node.getChildren()));
+          return;
+        }
+      }),
+
+      // Enforce structure: Content must be inside container
+      editor.registerNodeTransform(CollapsibleSectionContentNode, (node) => {
+        const parent = node.getParent();
+        if (!$isCollapsibleSectionContainerNode(parent)) {
+          const children = node.getChildren();
+          for (const child of children) {
+            node.insertBefore(child);
+          }
+          node.remove();
+        }
+      }),
+
       // Node transform to fix invalid collapsible sections (missing title or content)
       editor.registerNodeTransform(CollapsibleSectionContainerNode, (node) => {
         const title = $findTitleInCollapsible(node);
         const content = $findContentInCollapsible(node);
         
-        // If missing either title or content, the structure is invalid - delete the section
-        if (!title || !content) {
-          // Move any remaining content out before deleting
-          const children = node.getChildren();
+        const children = node.getChildren();
+        const hasValidStructure =
+          children.length === 2 &&
+          title === children[0] &&
+          content === children[1];
+
+        if (!title || !content || !hasValidStructure) {
           for (const child of children) {
-            if (!$isCollapsibleSectionTitleNode(child) && !$isCollapsibleSectionContentNode(child)) {
-              node.insertBefore(child);
-            }
+            node.insertBefore(child);
           }
           node.remove();
           return;

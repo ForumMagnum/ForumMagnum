@@ -15,6 +15,7 @@ import {
 export type SerializedCollapsibleSectionContainerNode = Spread<
   {
     isOpen: boolean;
+    openOnExport: boolean;
   },
   SerializedElementNode
 >;
@@ -38,18 +39,24 @@ const COLLAPSIBLE_CLOSED_CLASS = 'detailsBlockClosed';
  */
 export class CollapsibleSectionContainerNode extends ElementNode {
   __isOpen: boolean;
+  __openOnExport: boolean;
 
   static getType(): string {
     return 'collapsible-section-container';
   }
 
   static clone(node: CollapsibleSectionContainerNode): CollapsibleSectionContainerNode {
-    return new CollapsibleSectionContainerNode(node.__isOpen, node.__key);
+    return new CollapsibleSectionContainerNode(
+      node.__isOpen,
+      node.__openOnExport,
+      node.__key
+    );
   }
 
-  constructor(isOpen: boolean = true, key?: NodeKey) {
+  constructor(isOpen: boolean = true, openOnExport: boolean = false, key?: NodeKey) {
     super(key);
     this.__isOpen = isOpen;
+    this.__openOnExport = openOnExport;
   }
 
   getIsOpen(): boolean {
@@ -64,6 +71,15 @@ export class CollapsibleSectionContainerNode extends ElementNode {
   toggleOpen(): void {
     const writable = this.getWritable();
     writable.__isOpen = !writable.__isOpen;
+  }
+
+  getOpenOnExport(): boolean {
+    return this.__openOnExport;
+  }
+
+  setOpenOnExport(openOnExport: boolean): void {
+    const writable = this.getWritable();
+    writable.__openOnExport = openOnExport;
   }
 
   createDOM(): HTMLElement {
@@ -93,8 +109,9 @@ export class CollapsibleSectionContainerNode extends ElementNode {
     // Export as <details> element for the data representation
     const details = document.createElement('details');
     details.className = COLLAPSIBLE_CONTAINER_CLASS;
-    // Default to open so readers can see content
-    details.setAttribute('open', '');
+    if (this.__openOnExport) {
+      details.setAttribute('open', '');
+    }
     return { element: details };
   }
 
@@ -137,11 +154,15 @@ export class CollapsibleSectionContainerNode extends ElementNode {
       type: 'collapsible-section-container',
       version: 1,
       isOpen: this.__isOpen,
+      openOnExport: this.__openOnExport,
     };
   }
 
   static importJSON(serializedNode: SerializedCollapsibleSectionContainerNode): CollapsibleSectionContainerNode {
-    return $createCollapsibleSectionContainerNode(serializedNode.isOpen);
+    return $createCollapsibleSectionContainerNode(
+      serializedNode.isOpen,
+      serializedNode.openOnExport ?? false
+    );
   }
 
   // Collapsible sections can contain any block-level content
@@ -164,13 +185,24 @@ export class CollapsibleSectionContainerNode extends ElementNode {
 }
 
 function convertCollapsibleContainerElement(domNode: HTMLElement): DOMConversionOutput {
-  const isOpen = domNode.hasAttribute('open') || !domNode.classList.contains(COLLAPSIBLE_CLOSED_CLASS);
-  const node = $createCollapsibleSectionContainerNode(isOpen);
+  const tagName = domNode.tagName.toLowerCase();
+  if (tagName === 'details') {
+    const openOnExport = domNode.hasAttribute('open');
+    // Default to open in the editor for better UX even if closed on export
+    const node = $createCollapsibleSectionContainerNode(true, openOnExport);
+    return { node };
+  }
+
+  const isOpen = !domNode.classList.contains(COLLAPSIBLE_CLOSED_CLASS);
+  const node = $createCollapsibleSectionContainerNode(isOpen, false);
   return { node };
 }
 
-export function $createCollapsibleSectionContainerNode(isOpen: boolean = true): CollapsibleSectionContainerNode {
-  return new CollapsibleSectionContainerNode(isOpen);
+export function $createCollapsibleSectionContainerNode(
+  isOpen: boolean = true,
+  openOnExport: boolean = false
+): CollapsibleSectionContainerNode {
+  return new CollapsibleSectionContainerNode(isOpen, openOnExport);
 }
 
 export function $isCollapsibleSectionContainerNode(

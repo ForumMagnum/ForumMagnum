@@ -54,7 +54,7 @@ import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPrismPlugin from './plugins/CodeHighlightPrismPlugin';
 // import CodeHighlightShikiPlugin from './plugins/CodeHighlightShikiPlugin';
-import CollapsiblePlugin from './plugins/CollapsiblePlugin';
+import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import CommentPlugin from './plugins/CommentPlugin';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
@@ -395,7 +395,7 @@ export default function Editor({
             {/* <ExcalidrawPlugin /> */}
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />
-            <CollapsiblePlugin />
+            <CollapsibleSectionsPlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
             <FootnotesPlugin />

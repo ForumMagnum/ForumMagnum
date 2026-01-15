@@ -18,9 +18,9 @@ import {HorizontalRuleNode} from '@lexical/react/LexicalHorizontalRuleNode';
 import {HeadingNode, QuoteNode} from '@lexical/rich-text';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
 
-import {CollapsibleContainerNode} from '../plugins/CollapsiblePlugin/CollapsibleContainerNode';
-import {CollapsibleContentNode} from '../plugins/CollapsiblePlugin/CollapsibleContentNode';
-import {CollapsibleTitleNode} from '../plugins/CollapsiblePlugin/CollapsibleTitleNode';
+import { CollapsibleSectionContainerNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode';
+import { CollapsibleSectionContentNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode';
+import { CollapsibleSectionTitleNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionTitleNode';
 import {AutocompleteNode} from './AutocompleteNode';
 import {DateTimeNode} from './DateTimeNode/DateTimeNode';
 import {EmojiNode} from './EmojiNode';
@@ -96,9 +96,9 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   LWArtifactsNode,
   FigmaNode,
   MarkNode,
-  CollapsibleContainerNode,
-  CollapsibleContentNode,
-  CollapsibleTitleNode,
+  CollapsibleSectionContainerNode,
+  CollapsibleSectionContentNode,
+  CollapsibleSectionTitleNode,
   PageBreakNode,
   LayoutContainerNode,
   LayoutItemNode,
