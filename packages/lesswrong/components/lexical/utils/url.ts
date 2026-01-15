@@ -14,6 +14,43 @@ const SUPPORTED_URL_PROTOCOLS = new Set([
   'tel:',
 ]);
 
+const EMAIL_REGEX = /[^@]+@[^.]+\.[^\n\r\f]+$/;
+const HAS_PROTOCOL_REGEX = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
+
+function tryToFixUrl(oldUrl: string, newUrl: string): string {
+  try {
+    new URL(newUrl);
+    return newUrl;
+  } catch {
+    return oldUrl;
+  }
+}
+
+// Normalize user-entered URLs by adding missing protocols or mailto:
+export function normalizeUrl(url: string): string {
+  const trimmed = url.trim();
+  if (!trimmed) {
+    return trimmed;
+  }
+
+  try {
+    new URL(trimmed);
+    return trimmed;
+  } catch {
+    if (EMAIL_REGEX.test(trimmed)) {
+      return tryToFixUrl(trimmed, `mailto:${trimmed}`);
+    }
+    if (trimmed.startsWith('/') || trimmed.startsWith('#') || trimmed.startsWith('?')) {
+      return trimmed;
+    }
+    if (!HAS_PROTOCOL_REGEX.test(trimmed)) {
+      return tryToFixUrl(trimmed, `https://${trimmed}`);
+    }
+  }
+
+  return trimmed;
+}
+
 export function sanitizeUrl(url: string): string {
   try {
     const parsedUrl = new URL(url);

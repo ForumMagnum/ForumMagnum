@@ -108,6 +108,11 @@ import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
+import {
+  preprocessHtmlForImport,
+  restoreInternalIds,
+  InternalIdMap,
+} from '../editor/lexicalPlugins/links/InternalBlockLinksPlugin';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   editorContainer: {
@@ -224,6 +229,7 @@ export default function Editor({
   const classes = useStyles(styles);
   const {historyState} = useSharedHistoryContext();
   const hasLoadedInitialHtmlRef = useRef(false);
+  const internalIdsRef = useRef<InternalIdMap>(new Map());
   
   // Track when collaboration config is ready (set synchronously, not in useEffect)
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
@@ -310,8 +316,10 @@ export default function Editor({
     hasLoadedInitialHtmlRef.current = true;
 
     editor.update(() => {
+      const { html, internalIds } = preprocessHtmlForImport(initialHtml);
+      internalIdsRef.current = internalIds;
       const parser = new DOMParser();
-      const dom = parser.parseFromString(initialHtml, 'text/html');
+      const dom = parser.parseFromString(html, 'text/html');
       const nodes = $generateNodesFromDOM(editor, dom);
       const root = $getRoot();
       root.clear();
@@ -402,7 +410,11 @@ export default function Editor({
                 onChange={(editorState) => {
                   editorState.read(() => {
                     const html = $generateHtmlFromNodes(editor, null);
-                    onChangeHtml(html);
+                    const restoredHtml = restoreInternalIds(
+                      html,
+                      internalIdsRef.current
+                    );
+                    onChangeHtml(restoredHtml);
                   });
                 }}
               />

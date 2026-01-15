@@ -37,7 +37,7 @@ import {createPortal} from 'react-dom';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
-import {sanitizeUrl} from '../../utils/url';
+import {normalizeUrl, sanitizeUrl} from '../../utils/url';
 import { PencilFillIcon } from '../../icons/PencilFillIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import { SuccessAltIcon } from '../../icons/SuccessAltIcon';
@@ -349,7 +349,7 @@ function FloatingLinkEditor({
         editor.update(() => {
           editor.dispatchCommand(
             TOGGLE_LINK_COMMAND,
-            sanitizeUrl(editedLinkUrl),
+            sanitizeUrl(normalizeUrl(editedLinkUrl)),
           );
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
@@ -412,7 +412,7 @@ function FloatingLinkEditor({
       ) : (
         <div className={classes.linkView}>
           <a
-            href={sanitizeUrl(linkUrl)}
+            href={sanitizeUrl(normalizeUrl(linkUrl))}
             target="_blank"
             rel="noopener noreferrer">
             {linkUrl}

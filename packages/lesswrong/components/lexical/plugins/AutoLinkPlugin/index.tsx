@@ -12,6 +12,7 @@ import {
   AutoLinkPlugin,
   createLinkMatcherWithRegExp,
 } from '@lexical/react/LexicalAutoLinkPlugin';
+import { normalizeUrl } from '../../utils/url';
 
 
 const URL_REGEX =
@@ -22,10 +23,10 @@ const EMAIL_REGEX =
 
 const MATCHERS = [
   createLinkMatcherWithRegExp(URL_REGEX, (text) => {
-    return text.startsWith('http') ? text : `https://${text}`;
+    return normalizeUrl(text);
   }),
   createLinkMatcherWithRegExp(EMAIL_REGEX, (text) => {
-    return `mailto:${text}`;
+    return normalizeUrl(text);
   }),
 ];
 
