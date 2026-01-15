@@ -42,7 +42,7 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     flexShrink: 0,
     cursor: 'pointer',
   },
-  dialogContent: {
+  modTemplateForm: {
     marginTop: 16,
     paddingLeft: 12,
     paddingRight: 0,
@@ -96,7 +96,7 @@ const ModerationSidebar = ({
           NEW MOD TEMPLATE
         </div>
         {showNewTemplateModal && (
-          <div className={classes.dialogContent}>
+          <div className={classes.modTemplateForm}>
             <ModerationTemplatesForm
               onSuccess={() => {
                 setShowNewTemplateModal(false);

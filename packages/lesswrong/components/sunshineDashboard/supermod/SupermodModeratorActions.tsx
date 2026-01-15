@@ -2,10 +2,23 @@ import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationPermissionButtons from './ModerationPermissionButtons';
 import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
-import UserRateLimitItem, { UserRateLimitsForm, UserRateLimitDisplayMultiQuery } from '../UserRateLimitItem';
+import { UserRateLimitsList } from '../UserRateLimitsList';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import type { InboxAction } from './inboxReducer';
 import moment from 'moment';
+import { gql } from '@/lib/generated/gql-codegen';
+import { UserRateLimitsForm } from '../UserRateLimitsForm';
+
+const SunshineUsersListMultiQuery = gql(`
+  query multiUserSupermodModeratorActionsQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SunshineUsersList
+      }
+      totalCount
+    }
+  }
+`);
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   modActionsRow: {
@@ -62,10 +75,6 @@ const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, di
   const activeModeratorActions = user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)) ?? [];
   const [showRateLimitForm, setShowRateLimitForm] = useState(false);
 
-  // TODO: I AM AN INSTANCE OF SupermodModeratorActions AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
-  const existingRateLimits = (user as any).userRateLimits as Array<UserRateLimitDisplay> | null | undefined;
-  const canCreateNewRateLimit = !existingRateLimits || existingRateLimits.length < 2;
-
   const prefilledCustomFormProps = {
     userId: user._id,
     type: 'allComments' as const,
@@ -86,18 +95,12 @@ const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, di
         </div>
       <div className={classes.rateLimitSection}>
         <ModerationPermissionButtons user={user} dispatch={dispatch} />
-        {canCreateNewRateLimit && (
-          <div
-            className={classes.rateLimitButton}
-            onClick={(e) => {
-              e.preventDefault();
-              setShowRateLimitForm(true);
-            }}
-          >
-            Limit
-          </div>
-        )}
-        <UserRateLimitItem userId={user._id} />
+        <div
+          className={classes.rateLimitButton}
+          onClick={() => setShowRateLimitForm(true)}
+        >
+          Limit
+        </div>
       </div>
       {showRateLimitForm && (
         <div className={classes.rateLimitForm}>
@@ -109,10 +112,10 @@ const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, di
             onCancel={() => {
               setShowRateLimitForm(false);
             }}
-            refetchQueries={[UserRateLimitDisplayMultiQuery]}
           />
         </div>
       )}
+      {user.userRateLimits && <UserRateLimitsList rateLimits={user.userRateLimits} />}
     </div>
   );
 }

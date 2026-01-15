@@ -17,11 +17,11 @@ import Loading from "../vulcan-core/Loading";
 import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
 import { withDateFields } from '@/lib/utils/dateUtils';
-import { useMutation, MutationHookOptions } from "@apollo/client/react";
+import { useMutation } from "@apollo/client/react";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 
-export const UserRateLimitDisplayMultiQuery = gql(`
+const UserRateLimitDisplayMultiQuery = gql(`
   query multiUserRateLimitUserRateLimitItemQuery($selector: UserRateLimitSelector, $limit: Int, $enableTotal: Boolean) {
     userRateLimits(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
@@ -77,6 +77,13 @@ const styles = defineStyles('UserRateLimitItem', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'flex-end',
     gap: 6,
+  },
+  rateLimitButton: {
+    border: theme.palette.border.slightlyFaint,
+    borderRadius: 3,
+    padding: '4px 8px',
+    minHeight: 'unset',
+    lineHeight: 'inherit',
   },
   rateLimitForm: {
     [theme.breakpoints.up('md')]: {
@@ -184,7 +191,6 @@ type EditableUserRateLimit = Required<Omit<{
 type EditableUserRateLimitFormData = {
   onSuccess: (doc: UserRateLimitDisplay) => void;
   onCancel: () => void;
-  refetchQueries?: MutationHookOptions['refetchQueries'];
 } & (
   | {
     initialData: EditableUserRateLimit;
@@ -201,18 +207,13 @@ export const UserRateLimitsForm = ({
   prefilledProps,
   onSuccess,
   onCancel,
-  refetchQueries,
 }: EditableUserRateLimitFormData) => {
   const classes = useStyles(formStyles);
   const formType = initialData ? 'edit' : 'new';
 
-  const [create] = useMutation(UserRateLimitDisplayMutation, {
-    refetchQueries: refetchQueries,
-  });
+  const [create] = useMutation(UserRateLimitDisplayMutation);
 
-  const [mutate] = useMutation(UserRateLimitDisplayUpdateMutation, {
-    refetchQueries: refetchQueries,
-  });
+  const [mutate] = useMutation(UserRateLimitDisplayUpdateMutation);
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
 
