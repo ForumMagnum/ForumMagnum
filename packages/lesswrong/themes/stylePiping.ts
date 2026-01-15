@@ -343,7 +343,6 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     content: '"▼"',
     cursor: "pointer",
     fontSize: theme.isFriendlyUI ? 12 : 14,
-    paddingRight: 4,
     position: "absolute",
     left: theme.isFriendlyUI ? 0 : 8,
   },

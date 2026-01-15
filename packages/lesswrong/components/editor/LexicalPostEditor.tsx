@@ -237,53 +237,6 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
         backgroundColor: theme.palette.primary.main,
       },
     },
-    // Collapsible section styles
-    '& .detailsBlock': {
-      margin: '1em 0',
-      border: `1px solid ${theme.palette.grey[300]}`,
-      borderRadius: 4,
-      overflow: 'hidden',
-    },
-    '& .detailsBlockEdit': {
-      // In editing mode, we use a div instead of details for better cursor control
-    },
-    '& .detailsBlockTitle': {
-      padding: '0.75em 1em',
-      backgroundColor: theme.palette.grey[100],
-      fontWeight: 600,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5em',
-      '&::before': {
-        content: '"▼"',
-        fontSize: '0.75em',
-        transition: 'transform 0.2s ease',
-      },
-      '& p': {
-        margin: 0,
-        flex: 1,
-      },
-    },
-    '& .detailsBlockClosed .detailsBlockTitle::before': {
-      transform: 'rotate(-90deg)',
-    },
-    '& .detailsBlockContent': {
-      padding: '0.75em 1em',
-      '& > p:first-child': {
-        marginTop: 0,
-      },
-      '& > p:last-child': {
-        marginBottom: 0,
-      },
-    },
-    '& .detailsBlockClosed .detailsBlockContent': {
-      display: 'none',
-    },
-    '& .detailsBlock.detailsBlockSelected': {
-      outline: `2px solid ${theme.palette.primary.main}`,
-      outlineOffset: 2,
-    },
   },
   editorInputComment: {
     minHeight: 100,

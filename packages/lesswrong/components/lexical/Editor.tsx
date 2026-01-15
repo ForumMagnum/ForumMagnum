@@ -116,6 +116,61 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+    '& .detailsBlock': {
+      margin: '1em 0',
+      border: `1px solid ${theme.palette.grey[300]}`,
+      borderRadius: 4,
+      overflow: 'hidden',
+    },
+    '& .detailsBlockEdit': {
+      // In editing mode, we use a div instead of details for better cursor control
+    },
+    '& .detailsBlockTitle': {
+      backgroundColor: theme.palette.grey[100],
+      fontWeight: 600,
+      cursor: 'default',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5em',
+      position: 'relative',
+      '&::before': {
+        content: '"▼"',
+        fontSize: '0.75em',
+        transition: 'transform 0.2s ease',
+        cursor: 'pointer',
+      },
+      '& p': {
+        margin: 0,
+        flex: 1,
+        cursor: 'text',
+      },
+    },
+    '& .detailsBlockClosed .detailsBlockContent': {
+      display: 'none',
+    },
+    '& .detailsBlockClosed .detailsBlockTitle::before': {
+      transform: 'rotate(-90deg)',
+    },
+    '& .detailsBlockContent': {
+      padding: '0.75em 1em',
+      '& > p:first-child': {
+        marginTop: 0,
+      },
+      '& > p:last-child': {
+        marginBottom: 0,
+      },
+    },
+    '& .detailsBlock.detailsBlockSelected': {
+      outline: `2px solid ${theme.palette.primary.main}`,
+      outlineOffset: 2,
+    },
+    '& .detailsBlockTitle.detailsBlockTitleEmpty::after': {
+      content: '"Collapsible Section Title"',
+      color: theme.palette.grey[500],
+      position: 'absolute',
+      top: 8,
+      left: 24,
+    },
   },
   treeView: {
     borderRadius: 0,

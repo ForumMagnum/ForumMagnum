@@ -217,6 +217,7 @@ function $selectCollapsibleSection(container: CollapsibleSectionContainerNode): 
 }
 
 const SELECTED_CLASS = 'detailsBlockSelected';
+const EMPTY_TITLE_CLASS = 'detailsBlockTitleEmpty';
 
 /**
  * Plugin for collapsible sections (details/summary blocks).
@@ -293,7 +294,16 @@ export function CollapsibleSectionsPlugin(): null {
           
           // Check if clicked on title bar (but not on text content)
           const titleElement = target.closest('.detailsBlockTitle');
-          if (titleElement && target === titleElement) {
+          if (titleElement) {
+            const clickedInText = !!target.closest('p');
+            if (clickedInText) {
+              return false;
+            }
+            const rect = titleElement.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            if (clickX > 24) {
+              return false;
+            }
             // Don't toggle if clicking on actual text content inside
             const windowSelection = window.getSelection();
             if (windowSelection && windowSelection.toString().length > 0) {
@@ -1032,9 +1042,13 @@ export function CollapsibleSectionsPlugin(): null {
           
           const collapsibleElements = rootElement.querySelectorAll('.detailsBlock');
           
-          // Remove selected class from all
+          // Remove selected/empty classes from all
           collapsibleElements.forEach((el) => {
             el.classList.remove(SELECTED_CLASS);
+            const titleElement = el.querySelector('.detailsBlockTitle');
+            if (titleElement) {
+              titleElement.classList.remove(EMPTY_TITLE_CLASS);
+            }
           });
           
           // Add selected class to selected collapsible sections
@@ -1049,6 +1063,18 @@ export function CollapsibleSectionsPlugin(): null {
               }
             }
           }
+
+          // Add empty-title class to title elements with no visible text
+          collapsibleElements.forEach((el) => {
+            const titleElement = el.querySelector('.detailsBlockTitle');
+            if (!titleElement) {
+              return;
+            }
+            const titleText = titleElement.textContent?.trim() ?? '';
+            if (titleText.length === 0) {
+              titleElement.classList.add(EMPTY_TITLE_CLASS);
+            }
+          });
         });
       })
     );
