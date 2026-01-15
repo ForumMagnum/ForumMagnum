@@ -25,6 +25,7 @@ import {sanitizeUrl} from '../../utils/url';
 import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
 import { INSERT_CODE_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
+import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import {
   clearFormatting,
   formatBulletList,
@@ -56,6 +57,7 @@ import {
   isInsertDisplayMath,
   isInsertInlineMath,
   isInsertLink,
+  isInsertFootnote,
   isJustifyAlign,
   isLeftAlign,
   isLowercase,
@@ -147,6 +149,8 @@ export default function ShortcutsPlugin({
         editor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
       } else if (isAddComment(event)) {
         editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
+      } else if (isInsertFootnote(event)) {
+        editor.dispatchCommand(INSERT_FOOTNOTE_COMMAND, {});
       } else {
         // No match for any of the event handlers
         return false;

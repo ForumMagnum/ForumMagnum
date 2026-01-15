@@ -37,6 +37,8 @@ import {
 } from '@lexical/table';
 import {
   $createTextNode,
+  $createParagraphNode,
+  $getRoot,
   $isParagraphNode,
   $isTextNode,
   LexicalNode,
@@ -47,6 +49,30 @@ import {
   $isMathNode,
   MathNode,
 } from '@/components/editor/lexicalPlugins/math/MathNode';
+import { generateFootnoteId } from '@/components/editor/lexicalPlugins/footnotes/constants';
+import {
+  $createFootnoteBackLinkNode,
+  FootnoteBackLinkNode,
+} from '@/components/editor/lexicalPlugins/footnotes/FootnoteBackLinkNode';
+import {
+  $createFootnoteContentNode,
+  FootnoteContentNode,
+} from '@/components/editor/lexicalPlugins/footnotes/FootnoteContentNode';
+import {
+  $createFootnoteItemNode,
+  $isFootnoteItemNode,
+  FootnoteItemNode,
+} from '@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode';
+import {
+  $createFootnoteReferenceNode,
+  $isFootnoteReferenceNode,
+  FootnoteReferenceNode,
+} from '@/components/editor/lexicalPlugins/footnotes/FootnoteReferenceNode';
+import {
+  $createFootnoteSectionNode,
+  $isFootnoteSectionNode,
+  FootnoteSectionNode,
+} from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
 import {$createImageNode, $isImageNode, ImageNode} from '../../nodes/ImageNode';
 // import {$createTweetNode, $isTweetNode, TweetNode} from '../../embeds/TwitterEmbed/TweetNode';
 import emojiList from '../../utils/emoji-list';
@@ -128,6 +154,98 @@ export const EQUATION: TextMatchTransformer = {
     textNode.replace(equationNode);
   },
   trigger: '$',
+  type: 'text-match',
+};
+
+function $getFootnoteSection(): FootnoteSectionNode | null {
+  const root = $getRoot();
+  const children = root.getChildren();
+  for (const child of children) {
+    if ($isFootnoteSectionNode(child)) {
+      return child;
+    }
+  }
+  return null;
+}
+
+function $getFootnoteItems(section: FootnoteSectionNode): FootnoteItemNode[] {
+  const items: FootnoteItemNode[] = [];
+  for (const child of section.getChildren()) {
+    if ($isFootnoteItemNode(child)) {
+      items.push(child);
+    }
+  }
+  return items;
+}
+
+function $getFootnoteItemByIndex(
+  section: FootnoteSectionNode,
+  index: number,
+): FootnoteItemNode | null {
+  const items = $getFootnoteItems(section);
+  return items.find((item) => item.getFootnoteIndex() === index) ?? null;
+}
+
+export const FOOTNOTE: TextMatchTransformer = {
+  dependencies: [
+    FootnoteReferenceNode,
+    FootnoteSectionNode,
+    FootnoteItemNode,
+    FootnoteContentNode,
+    FootnoteBackLinkNode,
+  ],
+  export: (node) => {
+    if (!$isFootnoteReferenceNode(node)) {
+      return null;
+    }
+    return `[^${node.getFootnoteIndex()}]`;
+  },
+  importRegExp: /\[\^([0-9]+)\]/,
+  regExp: /\[\^([0-9]+)\]$/,
+  replace: (textNode, match) => {
+    const index = Number.parseInt(match[1], 10);
+    if (!Number.isFinite(index) || index < 1) {
+      return;
+    }
+
+    let section = $getFootnoteSection();
+    if (!section) {
+      if (index !== 1) {
+        return;
+      }
+      section = $createFootnoteSectionNode();
+      $getRoot().append(section);
+    }
+
+    const items = $getFootnoteItems(section);
+    const maxAllowedIndex = items.length + 1;
+    if (index > maxAllowedIndex) {
+      return;
+    }
+
+    let footnoteId: string;
+    if (index === maxAllowedIndex) {
+      footnoteId = generateFootnoteId();
+      const footnoteItem = $createFootnoteItemNode(footnoteId, index);
+      const footnoteBackLink = $createFootnoteBackLinkNode(footnoteId);
+      const footnoteContent = $createFootnoteContentNode();
+      const paragraph = $createParagraphNode();
+      footnoteContent.append(paragraph);
+      footnoteItem.append(footnoteBackLink);
+      footnoteItem.append(footnoteContent);
+      section.append(footnoteItem);
+    } else {
+      const existingItem = $getFootnoteItemByIndex(section, index);
+      if (!existingItem) {
+        return;
+      }
+      footnoteId = existingItem.getFootnoteId();
+    }
+
+    const referenceNode = $createFootnoteReferenceNode(footnoteId, index);
+    textNode.replace(referenceNode);
+  },
+  trigger: ']',
   type: 'text-match',
 };
 
@@ -312,6 +430,7 @@ export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
   HR,
   IMAGE,
   EMOJI,
+  FOOTNOTE,
   EQUATION,
   // TWEET,
   CHECK_LIST,

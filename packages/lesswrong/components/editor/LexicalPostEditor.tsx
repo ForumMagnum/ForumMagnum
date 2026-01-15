@@ -113,6 +113,7 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
       fontSize: '0.9em',
       listStyle: 'none',
       padding: 0,
+      counterReset: 'footnote-counter',
     },
     '& .footnote-item': {
       display: 'flex',
@@ -122,6 +123,13 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
       padding: '0.5em',
       backgroundColor: theme.palette.grey[50],
       borderRadius: 4,
+      counterIncrement: 'footnote-counter',
+      '&::before': {
+        content: 'counter(footnote-counter) ". "',
+        flexShrink: 0,
+        minWidth: '1.5em',
+        textAlign: 'right',
+      },
     },
     '& .footnote-content': {
       flex: 1,

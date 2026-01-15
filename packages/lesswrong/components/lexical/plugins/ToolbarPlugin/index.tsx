@@ -139,6 +139,7 @@ import {EmbedConfigs} from '../AutoEmbedPlugin';
 import {INSERT_COLLAPSIBLE_COMMAND} from '../CollapsiblePlugin';
 import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
+import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/footnotes/FootnotesPlugin';
 // import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin';
 import {
   INSERT_IMAGE_COMMAND,
@@ -161,6 +162,8 @@ import {
   formatParagraph,
   formatQuote,
 } from './utils';
+import { $isFootnoteItemNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode';
+import { $isFootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
 
 import {
   toolbarItem,
@@ -752,6 +755,9 @@ export default function ToolbarPlugin({
   const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(
     null,
   );
+  const [footnoteItems, setFootnoteItems] = useState<
+    Array<{id: string; index: number}>
+  >([]);
   const [modal, showModal] = useModal();
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const [isSuggestionMode, setIsSuggestionMode] = useState(false);
@@ -956,6 +962,36 @@ export default function ToolbarPlugin({
         }
       }
     }
+
+    const root = $getRoot();
+    const rootChildren = root.getChildren();
+    const section = rootChildren.find($isFootnoteSectionNode);
+    const nextFootnoteItems: Array<{id: string; index: number}> = [];
+    if (section && $isFootnoteSectionNode(section)) {
+      for (const child of section.getChildren()) {
+        if ($isFootnoteItemNode(child)) {
+          nextFootnoteItems.push({
+            id: child.getFootnoteId(),
+            index: child.getFootnoteIndex(),
+          });
+        }
+      }
+    }
+    nextFootnoteItems.sort((a, b) => a.index - b.index);
+    setFootnoteItems((prev) => {
+      if (prev.length !== nextFootnoteItems.length) {
+        return nextFootnoteItems;
+      }
+      for (let i = 0; i < prev.length; i += 1) {
+        if (
+          prev[i].id !== nextFootnoteItems[i].id ||
+          prev[i].index !== nextFootnoteItems[i].index
+        ) {
+          return nextFootnoteItems;
+        }
+      }
+      return prev;
+    });
   }, [
     activeEditor,
     editor,
@@ -1441,6 +1477,26 @@ export default function ToolbarPlugin({
                   <HorizontalRuleIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Horizontal Rule</DropDownItemText>
                 </DropDownItem>
+                <DropDownItem
+                  onClick={() => dispatchToolbarCommand(INSERT_FOOTNOTE_COMMAND)}
+                  >
+                  <TypeSuperscriptIcon className={classes.dropdownIcon} />
+                  <DropDownItemText>Footnote</DropDownItemText>
+                  <DropDownItemShortcut>{SHORTCUTS.FOOTNOTE}</DropDownItemShortcut>
+                </DropDownItem>
+                {footnoteItems.map((item) => (
+                  <DropDownItem
+                    key={`footnote-insert-${item.id}`}
+                    onClick={() =>
+                      dispatchToolbarCommand(INSERT_FOOTNOTE_COMMAND, {
+                        footnoteIndex: item.index,
+                      })
+                    }
+                    >
+                    <TypeSuperscriptIcon className={classes.dropdownIcon} />
+                    <DropDownItemText>{`Insert footnote ${item.index}`}</DropDownItemText>
+                  </DropDownItem>
+                ))}
                 <DropDownItem
                   onClick={() => dispatchToolbarCommand(INSERT_PAGE_BREAK)}
                   >

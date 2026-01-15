@@ -22,6 +22,7 @@ export const SHORTCUTS = Object.freeze({
   CODE_BLOCK: IS_APPLE ? '⌘+Opt+C' : 'Ctrl+Alt+C',
   QUOTE: IS_APPLE ? '⌃+Shift+Q' : 'Ctrl+Shift+Q',
   ADD_COMMENT: IS_APPLE ? '⌘+Opt+M' : 'Ctrl+Alt+M',
+  FOOTNOTE: IS_APPLE ? '⌘+Opt+F' : 'Ctrl+Alt+F',
 
   // (Ctrl|⌘) + Shift + <key> shortcuts
   INCREASE_FONT_SIZE: IS_APPLE ? '⌘+Shift+.' : 'Ctrl+Shift+.',
@@ -257,6 +258,14 @@ export function isAddComment(event: KeyboardEvent): boolean {
   const {code} = event;
   return (
     code === 'KeyM' &&
+    isModifierMatch(event, {...CONTROL_OR_META, altKey: true})
+  );
+}
+
+export function isInsertFootnote(event: KeyboardEvent): boolean {
+  const {code} = event;
+  return (
+    code === 'KeyF' &&
     isModifierMatch(event, {...CONTROL_OR_META, altKey: true})
   );
 }

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getRoot,
   $getSelection,
   $isRangeSelection,
+  $isNodeSelection,
   $createParagraphNode,
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_LOW,
@@ -258,6 +259,27 @@ function $isFootnoteEmpty(footnoteItem: FootnoteItemNode): boolean {
   return true;
 }
 
+function $getSelectedFootnoteItem(): FootnoteItemNode | null {
+  const selection = $getSelection();
+  if (!selection) {
+    return null;
+  }
+  const nodes = selection.getNodes();
+  for (const node of nodes) {
+    if ($isFootnoteItemNode(node)) {
+      return node;
+    }
+    let parent = node.getParent();
+    while (parent) {
+      if ($isFootnoteItemNode(parent)) {
+        return parent;
+      }
+      parent = parent.getParent();
+    }
+  }
+  return null;
+}
+
 /**
  * FootnotesPlugin provides footnote functionality for the Lexical editor.
  * 
@@ -270,10 +292,27 @@ function $isFootnoteEmpty(footnoteItem: FootnoteItemNode): boolean {
  */
 export function FootnotesPlugin(): null {
   const [editor] = useLexicalComposerContext();
+  const lastReferenceOrderRef = useRef<string | null>(null);
 
   // Register the INSERT_FOOTNOTE_COMMAND handler
   useEffect(() => {
     return mergeRegister(
+      editor.registerUpdateListener(({ editorState }) => {
+        editorState.read(() => {
+          const references = $getFootnoteReferences();
+          const referenceOrder = references.map((ref) => ref.getFootnoteId()).join('|');
+          if (referenceOrder === lastReferenceOrderRef.current) {
+            return;
+          }
+          lastReferenceOrderRef.current = referenceOrder;
+          if (!referenceOrder) {
+            return;
+          }
+          editor.update(() => {
+            $reorderFootnotes();
+          });
+        });
+      }),
       editor.registerCommand(
         INSERT_FOOTNOTE_COMMAND,
         (payload) => {
@@ -345,6 +384,17 @@ export function FootnotesPlugin(): null {
         KEY_BACKSPACE_COMMAND,
         (event) => {
           const selection = $getSelection();
+          if ($isNodeSelection(selection)) {
+            const footnoteItem = $getSelectedFootnoteItem();
+            if (footnoteItem) {
+              event?.preventDefault();
+              editor.update(() => {
+                $removeFootnote(footnoteItem);
+              });
+              return true;
+            }
+            return false;
+          }
           if (!$isRangeSelection(selection)) {
             return false;
           }
@@ -383,8 +433,18 @@ export function FootnotesPlugin(): null {
       // Handle delete key for footnote section
       editor.registerCommand(
         KEY_DELETE_COMMAND,
-        () => {
+        (event) => {
           const selection = $getSelection();
+          if ($isNodeSelection(selection)) {
+            const footnoteItem = $getSelectedFootnoteItem();
+            if (footnoteItem) {
+              event?.preventDefault();
+              editor.update(() => {
+                $removeFootnote(footnoteItem);
+              });
+              return true;
+            }
+          }
           if (!$isRangeSelection(selection)) {
             return false;
           }
@@ -408,7 +468,22 @@ export function FootnotesPlugin(): null {
           return false;
         },
         COMMAND_PRIORITY_LOW
-      )
+      ),
+
+      editor.registerMutationListener(FootnoteReferenceNode, (mutations) => {
+        let shouldReorder = false;
+        for (const mutation of mutations.values()) {
+          if (mutation === 'created' || mutation === 'destroyed') {
+            shouldReorder = true;
+            break;
+          }
+        }
+        if (shouldReorder) {
+          editor.update(() => {
+            $reorderFootnotes();
+          });
+        }
+      })
     );
   }, [editor]);
 

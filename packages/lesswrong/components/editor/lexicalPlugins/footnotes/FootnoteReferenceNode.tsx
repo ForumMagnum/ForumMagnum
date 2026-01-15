@@ -1,20 +1,24 @@
 import {
-  DecoratorNode,
+  $applyNodeReplacement,
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
+  EditorConfig,
   LexicalNode,
   NodeKey,
-  SerializedLexicalNode,
+  SerializedTextNode,
   Spread,
+  TextNode,
 } from 'lexical';
 import { FOOTNOTE_ATTRIBUTES, FOOTNOTE_CLASSES } from './constants';
-import React, { JSX } from 'react';
 
-export interface SerializedFootnoteReferenceNode extends SerializedLexicalNode {
-  footnoteId: string;
-  footnoteIndex: number;
-}
+export type SerializedFootnoteReferenceNode = Spread<
+  {
+    footnoteId: string;
+    footnoteIndex: number;
+  },
+  SerializedTextNode
+>;
 
 /**
  * FootnoteReferenceNode represents an inline footnote citation that appears
@@ -22,7 +26,7 @@ export interface SerializedFootnoteReferenceNode extends SerializedLexicalNode {
  * 
  * It links to the corresponding FootnoteItemNode at the bottom of the document.
  */
-export class FootnoteReferenceNode extends DecoratorNode<JSX.Element> {
+export class FootnoteReferenceNode extends TextNode {
   __footnoteId: string;
   __footnoteIndex: number;
 
@@ -39,7 +43,7 @@ export class FootnoteReferenceNode extends DecoratorNode<JSX.Element> {
   }
 
   constructor(footnoteId: string, footnoteIndex: number, key?: NodeKey) {
-    super(key);
+    super(`[${footnoteIndex}]`, key);
     this.__footnoteId = footnoteId;
     this.__footnoteIndex = footnoteIndex;
   }
@@ -55,9 +59,10 @@ export class FootnoteReferenceNode extends DecoratorNode<JSX.Element> {
   setFootnoteIndex(index: number): void {
     const writable = this.getWritable();
     writable.__footnoteIndex = index;
+    writable.__text = `[${index}]`;
   }
 
-  createDOM(): HTMLElement {
+  createDOM(_config: EditorConfig): HTMLElement {
     const span = document.createElement('span');
     span.className = FOOTNOTE_CLASSES.footnoteReference;
     span.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteReference, '');
@@ -65,16 +70,38 @@ export class FootnoteReferenceNode extends DecoratorNode<JSX.Element> {
     span.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteIndex, String(this.__footnoteIndex));
     span.setAttribute('role', 'doc-noteref');
     span.id = `fnref${this.__footnoteId}`;
+    span.spellcheck = false;
+
+    const sup = document.createElement('sup');
+    const anchor = document.createElement('a');
+    anchor.href = `#fn${this.__footnoteId}`;
+    anchor.textContent = this.getTextContent();
+    anchor.addEventListener('click', (event) => {
+      event.preventDefault();
+      const footnoteElement = document.getElementById(`fn${this.__footnoteId}`);
+      if (footnoteElement) {
+        footnoteElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+    sup.appendChild(anchor);
+    span.appendChild(sup);
     return span;
   }
 
-  updateDOM(prevNode: FootnoteReferenceNode, dom: HTMLElement): boolean {
+  updateDOM(prevNode: FootnoteReferenceNode, dom: HTMLElement, _config: EditorConfig): boolean {
     if (prevNode.__footnoteIndex !== this.__footnoteIndex) {
       dom.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteIndex, String(this.__footnoteIndex));
-      // Update the text content
       const link = dom.querySelector('a');
       if (link) {
         link.textContent = `[${this.__footnoteIndex}]`;
+      }
+    }
+    if (prevNode.__footnoteId !== this.__footnoteId) {
+      dom.setAttribute(FOOTNOTE_ATTRIBUTES.footnoteId, this.__footnoteId);
+      dom.id = `fnref${this.__footnoteId}`;
+      const link = dom.querySelector('a');
+      if (link) {
+        link.setAttribute('href', `#fn${this.__footnoteId}`);
       }
     }
     return false;
@@ -116,8 +143,7 @@ export class FootnoteReferenceNode extends DecoratorNode<JSX.Element> {
 
   exportJSON(): SerializedFootnoteReferenceNode {
     return {
-      type: 'footnote-reference',
-      version: 1,
+      ...super.exportJSON(),
       footnoteId: this.__footnoteId,
       footnoteIndex: this.__footnoteIndex,
     };
@@ -127,21 +153,15 @@ export class FootnoteReferenceNode extends DecoratorNode<JSX.Element> {
     return $createFootnoteReferenceNode(
       serializedNode.footnoteId,
       serializedNode.footnoteIndex
-    );
+    ).updateFromJSON(serializedNode);
   }
 
   isInline(): boolean {
     return true;
   }
-
-  decorate(): JSX.Element {
-    return (
-      <FootnoteReferenceComponent
-        footnoteId={this.__footnoteId}
-        footnoteIndex={this.__footnoteIndex}
-        nodeKey={this.__key}
-      />
-    );
+  
+  isTextEntity(): true {
+    return true;
   }
 }
 
@@ -166,43 +186,12 @@ export function $createFootnoteReferenceNode(
   footnoteId: string,
   footnoteIndex: number
 ): FootnoteReferenceNode {
-  return new FootnoteReferenceNode(footnoteId, footnoteIndex);
+  return $applyNodeReplacement(new FootnoteReferenceNode(footnoteId, footnoteIndex));
 }
 
 export function $isFootnoteReferenceNode(
   node: LexicalNode | null | undefined
 ): node is FootnoteReferenceNode {
   return node instanceof FootnoteReferenceNode;
-}
-
-interface FootnoteReferenceComponentProps {
-  footnoteId: string;
-  footnoteIndex: number;
-  nodeKey: string;
-}
-
-function FootnoteReferenceComponent({
-  footnoteId,
-  footnoteIndex,
-}: FootnoteReferenceComponentProps): JSX.Element {
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const footnoteElement = document.getElementById(`fn${footnoteId}`);
-    if (footnoteElement) {
-      footnoteElement.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  return (
-    <sup>
-      <a
-        href={`#fn${footnoteId}`}
-        onClick={handleClick}
-        style={{ cursor: 'pointer' }}
-      >
-        [{footnoteIndex}]
-      </a>
-    </sup>
-  );
 }
 
