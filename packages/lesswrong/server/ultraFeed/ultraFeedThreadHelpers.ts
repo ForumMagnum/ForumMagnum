@@ -570,15 +570,47 @@ export async function getUltraFeedCommentThreads(
     return [];
   }
 
-  const commentsRepo = context.repos.comments;
-  const ultraFeedEventsRepo = context.repos.ultraFeedEvents;
-
-  const rawCommentsDataPromise = commentsRepo.getCommentsForFeed(
+  const rawCommentsData = await context.repos.comments.getCommentsForFeed(
     userIdOrClientId, 
     1000, 
     initialCandidateLookbackDays, 
     commentServedEventRecencyHours
   );
+
+  return prepareThreadsForDisplay({
+    context,
+    userIdOrClientId,
+    settings,
+    threadEngagementLookbackDays,
+    sessionId,
+    limit,
+    rawCommentsData,
+    logPrefix: 'Comment threads',
+  });
+} 
+
+async function prepareThreadsForDisplay({
+  context,
+  userIdOrClientId,
+  settings,
+  threadEngagementLookbackDays,
+  sessionId,
+  limit,
+  rawCommentsData,
+  logPrefix,
+}: {
+  context: ResolverContext;
+  userIdOrClientId: string;
+  settings: UltraFeedResolverSettings;
+  threadEngagementLookbackDays: number;
+  sessionId?: string;
+  limit: number;
+  rawCommentsData: FeedCommentFromDb[];
+  logPrefix: string;
+}): Promise<PreparedFeedCommentsThread[]> {
+  const commentsRepo = context.repos.comments;
+  const ultraFeedEventsRepo = context.repos.ultraFeedEvents;
+
   const engagementStatsPromise = commentsRepo.getThreadEngagementStatsForRecentlyActiveThreads(
     userIdOrClientId,
     threadEngagementLookbackDays
@@ -598,12 +630,10 @@ export async function getUltraFeedCommentThreads(
     : Promise.resolve(new Set<string>());
 
   const [
-    rawCommentsData,
     engagementStatsList,
     subscribedToUserIdsList,
     servedCommentIdsInSession
   ] = await Promise.all([
-    rawCommentsDataPromise,
     engagementStatsPromise,
     subscribedToUserIdsPromise,
     servedInSessionPromise
@@ -612,21 +642,16 @@ export async function getUltraFeedCommentThreads(
   const subscribedToUserIds = new Set(subscribedToUserIdsList);
   const engagementStatsMap = new Map(engagementStatsList.map(stats => [stats.threadTopLevelId, stats]));
 
-  // --- Score Individual Comments ---
-  const individualCommentScoringSettings = settings.commentScoring; // Pass the nested object
+  const individualCommentScoringSettings = settings.commentScoring;
   const scoredComments = scoreComments(rawCommentsData, individualCommentScoringSettings, subscribedToUserIds);
 
-  // --- Build and Score Threads --- 
   const threadProcessingSettings = {
     commentScoring: settings.commentScoring,
     threadInterestModel: settings.threadInterestModel,
   };
   const allScoredThreads = buildAndScoreThreads(scoredComments, threadProcessingSettings, engagementStatsMap); 
-
-  // --- Select Best Threads --- 
   const finalRankedThreads = selectBestThreads(allScoredThreads); 
 
-  // --- Filter out non-viable threads ---
   const nonViableReasons = {
     zeroOrNegativeScore: 0,
     allCommentsViewed: 0,
@@ -636,13 +661,11 @@ export async function getUltraFeedCommentThreads(
   const viableThreads = finalRankedThreads.filter(rankedThreadInfo => {
     const thread = rankedThreadInfo.thread;
     
-    // Exclude threads with zero or negative scores
     if (rankedThreadInfo.score <= 0) {
       nonViableReasons.zeroOrNegativeScore++;
       return false;
     }
     
-    // Exclude threads where ALL comments have been viewed or interacted with
     const hasUnviewedComment = thread.some(comment => 
       !comment.lastViewed && !comment.lastInteracted
     );
@@ -651,7 +674,6 @@ export async function getUltraFeedCommentThreads(
       return false;
     }
     
-    // Exclude threads where ALL comments have already been served in this session
     if (sessionId && servedCommentIdsInSession.size > 0) {
       const hasUnservedComment = thread.some(comment => 
         !servedCommentIdsInSession.has(comment.commentId)
@@ -668,7 +690,7 @@ export async function getUltraFeedCommentThreads(
   const totalThreads = finalRankedThreads.length;
   const nonViableCount = totalThreads - viableThreads.length;
   ultraFeedLog(
-    `Comment threads - total: ${totalThreads}, viable: ${viableThreads.length}, ` +
+    `${logPrefix} - total: ${totalThreads}, viable: ${viableThreads.length}, ` +
     `non-viable: ${nonViableCount} (score≤0: ${nonViableReasons.zeroOrNegativeScore}, ` +
     `viewed: ${nonViableReasons.allCommentsViewed}, served: ${nonViableReasons.allCommentsServedInSession}), ` +
     `limit: ${limit}`
@@ -682,7 +704,41 @@ export async function getUltraFeedCommentThreads(
   const returnedCommentIds = displayThreads.flatMap(thread => 
     thread.comments.map(comment => comment.commentId.substring(0, 3))
   );
-  ultraFeedLog(`Returning comments (first 3 chars): [${returnedCommentIds.join(', ')}]`);
+  ultraFeedLog(`Returning ${logPrefix.toLowerCase()} (first 3 chars): [${returnedCommentIds.join(', ')}]`);
 
   return displayThreads;
-} 
+}
+
+export async function getUltraFeedReviewCommentThreads(
+  context: ResolverContext,
+  limit = 20,
+  settings: UltraFeedResolverSettings,
+  initialCandidateLookbackDays: number,
+  commentServedEventRecencyHours: number,
+  threadEngagementLookbackDays: number,
+  sessionId?: string
+): Promise<PreparedFeedCommentsThread[]> {
+  const userIdOrClientId = context.userId ?? context.clientId;
+  if (!userIdOrClientId) {
+    return [];
+  }
+
+  const rawCommentsData = await context.repos.comments.getReviewCommentsForFeed(
+    userIdOrClientId,
+    600,
+    '2024',
+    initialCandidateLookbackDays,
+    commentServedEventRecencyHours
+  );
+
+  return prepareThreadsForDisplay({
+    context,
+    userIdOrClientId,
+    settings,
+    threadEngagementLookbackDays,
+    sessionId,
+    limit,
+    rawCommentsData,
+    logPrefix: 'Review comment threads',
+  });
+}

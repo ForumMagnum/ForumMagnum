@@ -661,6 +661,181 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   }
 
   /**
+   * Get review comments (reviewingForReview = reviewYear) for the UltraFeed.
+   * This intentionally fetches review comments directly to ensure they are not filtered out by other sources.
+   */
+  async getReviewCommentsForFeed(
+    userIdOrClientId: string,
+    maxTotalComments = 500,
+    reviewYear = '2024',
+    initialCandidateLookbackDays: number,
+    commentServedEventRecencyHours: number,
+  ): Promise<FeedCommentFromDb[]> {
+    const initialCandidateLimit = 400;
+
+    const getUniversalCommentFilterClause = (alias: string) => `
+      ${alias}.deleted IS NOT TRUE
+      AND ${alias}.retracted IS NOT TRUE
+      AND ${alias}."postId" IS NOT NULL
+      AND ${getViewableCommentsSelector(alias)}
+    `;
+
+    const feedCommentsData: FeedCommentFromDb[] = await this.getRawDb().manyOrNone(`
+      -- CommentsRepo.getReviewCommentsForFeed
+      WITH "SubscribedAuthorIds" AS (
+          SELECT DISTINCT "documentId" AS "authorId"
+          FROM "Subscriptions"
+          WHERE "userId" = $(userIdOrClientId)
+            AND "collectionName" = 'Users'
+            AND "state" = 'subscribed'
+            AND "type" IN ('newActivityForFeed', 'newPosts', 'newComments')
+            AND deleted IS NOT TRUE
+      ),
+      "InitialCandidates" AS (
+          SELECT
+              c._id AS "commentId",
+              c."postId",
+              COALESCE(c."topLevelCommentId", c._id) AS "threadTopLevelId",
+              c."postedAt",
+              c.shortform,
+              c."userId" AS "authorId"
+          FROM "Comments" c
+          INNER JOIN "Posts" p ON c."postId" = p._id
+          WHERE
+              ${getUniversalCommentFilterClause('c')}
+              AND c."userId" != $(userIdOrClientId)
+              AND c."reviewingForReview" = $(reviewYear)
+              AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
+              AND p.draft IS NOT TRUE
+          ORDER BY c."postedAt" DESC
+          LIMIT $(initialCandidateLimit)
+      ),
+      "CandidateThreadTopLevelIds" AS (
+          SELECT DISTINCT "threadTopLevelId" FROM "InitialCandidates"
+      ),
+      "AllRelevantComments" AS (
+          SELECT
+              c._id,
+              c."postId",
+              c."userId" AS "authorId",
+              c."baseScore",
+              c."topLevelCommentId",
+              c."parentCommentId",
+              c.shortform,
+              c."postedAt",
+              c."descendentCount",
+              c."reviewingForReview",
+              'reviewComments' AS "primarySource",
+              CASE WHEN sa."authorId" IS NOT NULL THEN TRUE ELSE FALSE END AS "fromSubscribedUser",
+              (ic."commentId" IS NOT NULL) AS "isInitialCandidate"
+          FROM "Comments" c
+          JOIN "CandidateThreadTopLevelIds" ct
+              ON c."topLevelCommentId" = ct."threadTopLevelId"
+              OR (c._id = ct."threadTopLevelId" AND c."topLevelCommentId" IS NULL)
+          LEFT JOIN "SubscribedAuthorIds" sa ON c."userId" = sa."authorId"
+          LEFT JOIN "InitialCandidates" ic ON c._id = ic."commentId"
+          WHERE
+              ${getUniversalCommentFilterClause('c')}
+      ),
+      "ReadStatusViews" AS (
+        SELECT
+          c._id AS "documentId",
+          rs."lastUpdated" AS "createdAt",
+          'viewed' AS "eventType"
+        FROM "AllRelevantComments" c
+        JOIN "ReadStatuses" rs ON c."postId" = rs."postId"
+        WHERE rs."userId" = $(userIdOrClientId)
+          AND rs."isRead" IS TRUE
+          AND c."postedAt" < rs."lastUpdated"
+      ),
+      "UsersEvents" AS (
+        SELECT * FROM (
+          SELECT
+            ue."documentId",
+            ue."createdAt",
+            ue."eventType"
+          FROM "UltraFeedEvents" ue
+          WHERE ue."collectionName" = 'Comments'
+            AND "userId" = $(userIdOrClientId)
+            AND (ue."eventType" <> 'served' OR ue."createdAt" > current_timestamp - INTERVAL '1 hour' * $(commentServedEventRecencyHoursParam))
+            AND ue."documentId" IN (SELECT _id FROM "AllRelevantComments")
+          
+          UNION ALL
+          
+          SELECT * FROM "ReadStatusViews"
+        ) AS CombinedEvents
+        ORDER BY (CASE WHEN "eventType" = 'served' THEN 1 ELSE 0 END) ASC
+        LIMIT 5000
+      ),
+      "CommentEvents" AS (
+          SELECT
+              ce."documentId",
+              MAX(CASE WHEN ce."eventType" = 'viewed' THEN ce."createdAt" ELSE NULL END) AS "lastViewed",
+              MAX(CASE WHEN ce."eventType" <> 'viewed' AND ce."eventType" <> 'served' THEN ce."createdAt" ELSE NULL END) AS "lastInteracted",
+              MAX(CASE WHEN ce."eventType" = 'served' THEN ce."createdAt" ELSE NULL END) AS "lastServed"
+         FROM "UsersEvents" ce
+          GROUP BY ce."documentId"
+      )
+      SELECT
+          c._id AS "commentId",
+          c."postId",
+          c."authorId",
+          c."baseScore",
+          COALESCE(c."topLevelCommentId", c._id) AS "topLevelCommentId",
+          c."parentCommentId",
+          c.shortform,
+          c."postedAt",
+          c."descendentCount",
+          c."reviewingForReview",
+          c."primarySource",
+          c."fromSubscribedUser",
+          c."isInitialCandidate",
+          ce."lastServed",
+          ce."lastViewed",
+          ce."lastInteracted",
+          (ce."lastViewed" IS NOT NULL OR ce."lastInteracted" IS NOT NULL) AS "isRead"
+      FROM "AllRelevantComments" c
+      LEFT JOIN "CommentEvents" ce ON c._id = ce."documentId"
+      ORDER BY COALESCE(c."topLevelCommentId", c._id), c."postedAt"
+      LIMIT $(maxTotalComments)
+    `, { 
+      userIdOrClientId, 
+      initialCandidateLimit, 
+      maxTotalComments,
+      reviewYear,
+      initialCandidateLookbackDaysParam: initialCandidateLookbackDays,
+      commentServedEventRecencyHoursParam: commentServedEventRecencyHours,
+    });
+
+    const uniqueMap = new Map(feedCommentsData.map(c => [c.commentId, c]));
+    const deduplicatedComments = Array.from(uniqueMap.values());
+
+    return deduplicatedComments.map((comment): FeedCommentFromDb => {
+      const sources: string[] = [comment.primarySource ?? 'reviewComments'];
+      return {
+        commentId: comment.commentId,
+        authorId: comment.authorId,
+        topLevelCommentId: comment.topLevelCommentId,
+        parentCommentId: comment.parentCommentId ?? null,
+        postId: comment.postId,
+        baseScore: comment.baseScore,
+        shortform: comment.shortform ?? null,
+        postedAt: comment.postedAt,
+        descendentCount: comment.descendentCount,
+        sources,
+        primarySource: comment.primarySource,
+        isInitialCandidate: comment.isInitialCandidate,
+        fromSubscribedUser: !!comment.fromSubscribedUser,
+        lastServed: null,
+        lastViewed: comment.lastViewed ?? null,
+        lastInteracted: comment.lastInteracted ?? null,
+        isRead: !!comment.isRead,
+        reviewingForReview: comment.reviewingForReview ?? null,
+      };
+    });
+  }
+
+  /**
    * Fetches consolidated engagement statistics for recently active comment threads.
    */
   async getThreadEngagementStatsForRecentlyActiveThreads(

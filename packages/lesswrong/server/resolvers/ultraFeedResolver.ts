@@ -13,7 +13,7 @@ import {
 } from "@/components/ultraFeed/ultraFeedTypes";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import gql from 'graphql-tag';
-import { getUltraFeedCommentThreads, generateThreadHash } from '@/server/ultraFeed/ultraFeedThreadHelpers';
+import { getUltraFeedCommentThreads, generateThreadHash, getUltraFeedReviewCommentThreads } from '@/server/ultraFeed/ultraFeedThreadHelpers';
 import { DEFAULT_SETTINGS as DEFAULT_ULTRAFEED_SETTINGS, UltraFeedResolverSettings } from '@/components/ultraFeed/ultraFeedSettingsTypes';
 import { getUltraFeedPostThreads } from '@/server/ultraFeed/ultraFeedPostHelpers';
 import { getUltraFeedBookmarks, PreparedBookmarkItem } from '../ultraFeed/ultraFeedBookmarkHelpers';
@@ -562,6 +562,7 @@ const calculateFetchLimits = (
   hackerNewsPostFetchLimit: number;
   subscribedPostFetchLimit: number;
   commentFetchLimit: number;
+  reviewCommentFetchLimit: number;
   spotlightFetchLimit: number;
   bookmarkFetchLimit: number;
   bufferMultiplier: number;
@@ -572,13 +573,17 @@ const calculateFetchLimits = (
   const hackerNewsPostWeight = sourceWeights['hacker-news'] ?? 0;
   const subscribedPostWeight = sourceWeights['subscriptionsPosts'] ?? 0;
   const bookmarkWeight = sourceWeights['bookmarks'] ?? 0;
+  const reviewCommentWeight = sourceWeights['reviewComments'] ?? 0;
   const totalCommentWeight = feedCommentSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
+  const nonReviewCommentWeight = totalCommentWeight - reviewCommentWeight;
   const totalSpotlightWeight = feedSpotlightSourceTypesArray.reduce((sum: number, type: FeedItemSourceType) => sum + (sourceWeights[type] || 0), 0);
 
-  const baseCommentFetchLimit = Math.ceil(totalLimit * (totalCommentWeight / totalWeight) * bufferMultiplier);
+  const baseCommentFetchLimit = Math.ceil(totalLimit * (nonReviewCommentWeight / totalWeight) * bufferMultiplier);
+  const baseReviewCommentFetchLimit = Math.ceil(totalLimit * (reviewCommentWeight / totalWeight) * bufferMultiplier);
   
   // Scale up comment fetch limit based on offset to reduce repetition in subsequent calls: grows incrementally with each call, capped at 200
   const commentFetchLimit = Math.min(baseCommentFetchLimit + Math.round(offset / 2), 200);
+  const reviewCommentFetchLimit = Math.min(baseReviewCommentFetchLimit + Math.round(offset / 2), 200);
   
   if (offset > 0 && commentFetchLimit > baseCommentFetchLimit) {
     ultraFeedLog(`Scaled up comment fetch limit: ${baseCommentFetchLimit} → ${commentFetchLimit} (base from limit=${totalLimit}, offset=${offset})`);
@@ -590,6 +595,7 @@ const calculateFetchLimits = (
     hackerNewsPostFetchLimit: Math.ceil(totalLimit * (hackerNewsPostWeight / totalWeight) * latestAndSubscribedPostMultiplier),
     subscribedPostFetchLimit: Math.ceil(totalLimit * (subscribedPostWeight / totalWeight) * latestAndSubscribedPostMultiplier),
     commentFetchLimit,
+    reviewCommentFetchLimit,
     spotlightFetchLimit: Math.ceil(totalLimit * (totalSpotlightWeight / totalWeight) * bufferMultiplier),
     bookmarkFetchLimit: Math.ceil(totalLimit * (bookmarkWeight / totalWeight) * bufferMultiplier),
     bufferMultiplier
@@ -627,7 +633,7 @@ export const ultraFeedGraphQLQueries = {
     try {
       const spotlightsRepo = context.repos.spotlights;
 
-      const { totalWeight, recombeePostFetchLimit, hackerNewsPostFetchLimit, subscribedPostFetchLimit, commentFetchLimit, spotlightFetchLimit, bookmarkFetchLimit } = calculateFetchLimits(sourceWeights, limit, offset);
+      const { totalWeight, recombeePostFetchLimit, hackerNewsPostFetchLimit, subscribedPostFetchLimit, commentFetchLimit, reviewCommentFetchLimit, spotlightFetchLimit, bookmarkFetchLimit } = calculateFetchLimits(sourceWeights, limit, offset);
 
       if (totalWeight <= 0) {
         // eslint-disable-next-line no-console
@@ -644,6 +650,7 @@ export const ultraFeedGraphQLQueries = {
         subscribedPostFetchLimit,
         latestAndSubscribedPostLimit,
         commentFetchLimit,
+        reviewCommentFetchLimit,
         spotlightFetchLimit,
         bookmarkFetchLimit,
       });
@@ -656,7 +663,7 @@ export const ultraFeedGraphQLQueries = {
           )
         : Promise.resolve<ThreadEngagementStats[]>([]);
 
-      const [combinedPostItems, commentThreadsItemsResult, spotlightItemsResult, bookmarkItemsResult, engagementStatsList] = await Promise.all([
+      const [combinedPostItems, commentThreadsItemsResult, reviewCommentThreadsResult, spotlightItemsResult, bookmarkItemsResult, engagementStatsList] = await Promise.all([
         (recombeePostFetchLimit + latestAndSubscribedPostLimit > 0) 
           ? getUltraFeedPostThreads( 
               context, 
@@ -677,6 +684,28 @@ export const ultraFeedGraphQLQueries = {
               sessionId
             ) 
           : Promise.resolve<FeedCommentsThread[]>([]),
+        reviewCommentFetchLimit > 0
+          ? getUltraFeedReviewCommentThreads(
+              context,
+              reviewCommentFetchLimit,
+              parsedSettings,
+              ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
+              ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
+              ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays,
+              sessionId
+            )
+          : Promise.resolve<FeedCommentsThread[]>([]),
+        reviewCommentFetchLimit > 0
+          ? getUltraFeedReviewCommentThreads(
+              context,
+              reviewCommentFetchLimit,
+              parsedSettings,
+              ULTRA_FEED_DATE_CUTOFFS.initialCommentCandidateLookbackDays,
+              ULTRA_FEED_DATE_CUTOFFS.commentServedEventRecencyHours,
+              ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays,
+              sessionId
+            )
+          : Promise.resolve<FeedCommentsThread[]>([]),
         spotlightFetchLimit > 0 ? spotlightsRepo.getUltraFeedSpotlights(context, spotlightFetchLimit) : Promise.resolve<FeedSpotlight[]>([]),
         bookmarkFetchLimit > 0 ? getUltraFeedBookmarks(context, bookmarkFetchLimit) : Promise.resolve<PreparedBookmarkItem[]>([]),
         engagementStatsListPromise
@@ -685,6 +714,7 @@ export const ultraFeedGraphQLQueries = {
       ultraFeedLog('Fetch results returned:', {
         postsReturned: combinedPostItems.length,
         commentThreadsReturned: commentThreadsItemsResult.length,
+        reviewCommentThreadsReturned: reviewCommentThreadsResult.length,
         spotlightsReturned: spotlightItemsResult.length,
         bookmarksReturned: bookmarkItemsResult.length,
         engagementStatsReturned: engagementStatsList.length,
@@ -692,9 +722,14 @@ export const ultraFeedGraphQLQueries = {
       
       const engagementStatsMap = new Map(engagementStatsList.map(stats => [stats.threadTopLevelId, stats]));
 
+      const allCommentThreads = [
+        ...commentThreadsItemsResult,
+        ...reviewCommentThreadsResult,
+      ];
+
       const rankableItems = convertFetchedItemsToRankable(
         combinedPostItems,
-        commentThreadsItemsResult,
+        allCommentThreads,
         spotlightItemsResult,
         bookmarkItemsResult,
         engagementStatsMap,
@@ -747,7 +782,7 @@ export const ultraFeedGraphQLQueries = {
       const sampledItemsRanked = mapRankedIdsToSampledItems(
         rankedItemsWithMetadata,
         combinedPostItems,
-        commentThreadsItemsResult,
+        allCommentThreads,
         spotlightItemsResult,
         bookmarkItemsResult
       );

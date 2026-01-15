@@ -106,6 +106,7 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recentComments': 20,
   'quicktakes': 15,
   'subscriptionsComments': 15,
+  'reviewComments': 30,
   'recombee-lesswrong-ultrafeed': 30,
   'hacker-news': 20,
   'subscriptionsPosts': 15,
@@ -223,6 +224,11 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
     key: 'recentComments',
     label: "Recent Comments",
     description: "Recent comments, prioritized karma and previous engagement with the threads or posts they're on"
+  },
+  {
+    key: 'reviewComments',
+    label: "Review Comments",
+    description: "Comments marked for 2024 reviews that are still recent."
   },
   {
     key: 'recombee-lesswrong-ultrafeed',
