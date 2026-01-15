@@ -85,7 +85,6 @@ export default function ExcalidrawComponent({
   );
   const imageContainerRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const captionButtonRef = useRef<HTMLButtonElement | null>(null);
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
@@ -250,14 +249,10 @@ export default function ExcalidrawComponent({
           )}
           {(isSelected || isResizing) && isEditable && (
             <ImageResizer
-              buttonRef={captionButtonRef}
-              showCaption={true}
-              setShowCaption={() => null}
               imageRef={imageContainerRef}
               editor={editor}
               onResizeStart={onResizeStart}
               onResizeEnd={onResizeEnd}
-              captionsEnabled={true}
             />
           )}
         </button>

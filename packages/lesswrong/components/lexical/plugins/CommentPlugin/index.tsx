@@ -457,6 +457,14 @@ export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
 );
 
+export type InsertInlineCommentAtPayload = {
+  rect: DOMRect;
+};
+
+export const INSERT_INLINE_COMMENT_AT_COMMAND: LexicalCommand<InsertInlineCommentAtPayload> = createCommand(
+  'INSERT_INLINE_COMMENT_AT_COMMAND',
+);
+
 export type InsertInlineThreadPayload = {
   threadId: string;
   initialContent: string;
@@ -623,6 +631,7 @@ function CommentInputBox({
   editor,
   cancelAddComment,
   submitAddComment,
+  anchorRect,
 }: {
   cancelAddComment: () => void;
   editor: LexicalEditor;
@@ -632,6 +641,7 @@ function CommentInputBox({
     thread?: Thread,
     selection?: RangeSelection | null,
   ) => void;
+  anchorRect: DOMRect | null;
 }) {
   const classes = useStyles(styles);
   const [content, setContent] = useState('');
@@ -648,6 +658,31 @@ function CommentInputBox({
   const author = useCollabAuthorName();
 
   const updateLocation = useCallback(() => {
+    if (anchorRect) {
+      const boxElem = boxRef.current;
+      if (boxElem !== null) {
+        const {left, width, bottom} = anchorRect;
+        let correctedLeft = left + (width / 2) - 125;
+        if (correctedLeft < 10) {
+          correctedLeft = 10;
+        }
+        boxElem.style.left = `${correctedLeft}px`;
+        boxElem.style.top = `${
+          bottom +
+          20 +
+          (window.pageYOffset || document.documentElement.scrollTop)
+        }px`;
+      }
+      const {container} = selectionState;
+      const elements: Array<HTMLSpanElement> = selectionState.elements;
+      for (let i = elements.length - 1; i >= 0; i--) {
+        const elem = elements[i];
+        container.removeChild(elem);
+        elements.pop();
+      }
+      return;
+    }
+
     editor.getEditorState().read(() => {
       const selection = $getSelection();
 
@@ -709,7 +744,7 @@ function CommentInputBox({
         }
       }
     });
-  }, [editor, selectionState]);
+  }, [anchorRect, editor, selectionState]);
 
   useLayoutEffect(() => {
     updateLocation();
@@ -1188,6 +1223,9 @@ export default function CommentPlugin({
   const [activeAnchorKey, setActiveAnchorKey] = useState<NodeKey | null>();
   const [activeIDs, setActiveIDs] = useState<Array<string>>([]);
   const [showCommentInput, setShowCommentInput] = useState(false);
+  const [commentAnchorRect, setCommentAnchorRect] = useState<DOMRect | null>(
+    null,
+  );
   const [showComments, setShowComments] = useState(false);
   const {yjsDocMap} = collabContext;
 
@@ -1206,6 +1244,7 @@ export default function CommentPlugin({
         selection.dirty = true;
       }
     });
+    setCommentAnchorRect(null);
     setShowCommentInput(false);
   }, [editor]);
 
@@ -1266,6 +1305,7 @@ export default function CommentPlugin({
           }
         });
         setShowCommentInput(false);
+        setCommentAnchorRect(null);
       }
     },
     [commentStore, editor],
@@ -1398,6 +1438,20 @@ export default function CommentPlugin({
           if (domSelection !== null) {
             domSelection.removeAllRanges();
           }
+          setCommentAnchorRect(null);
+          setShowCommentInput(true);
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand(
+        INSERT_INLINE_COMMENT_AT_COMMAND,
+        (payload) => {
+          const domSelection = getDOMSelection(editor._window);
+          if (domSelection !== null) {
+            domSelection.removeAllRanges();
+          }
+          setCommentAnchorRect(payload.rect);
           setShowCommentInput(true);
           return true;
         },
@@ -1511,6 +1565,7 @@ export default function CommentPlugin({
             editor={editor}
             cancelAddComment={cancelAddComment}
             submitAddComment={submitAddComment}
+            anchorRect={commentAnchorRect}
           />,
           document.body,
         )}

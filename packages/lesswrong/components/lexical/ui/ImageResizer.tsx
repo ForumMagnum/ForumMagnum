@@ -16,26 +16,6 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 
 const styles = defineStyles('LexicalImageResizer', (theme: ThemeType) => ({
-  captionButton: {
-    display: 'block',
-    position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
-    width: '30%',
-    padding: 10,
-    margin: '0 auto',
-    border: `1px solid ${theme.palette.inverseGreyAlpha(0.3)}`,
-    borderRadius: 5,
-    backgroundColor: theme.palette.greyAlpha(0.5),
-    minWidth: 100,
-    color: theme.palette.grey[0],
-    cursor: 'pointer',
-    userSelect: 'none',
-    '&:hover': {
-      backgroundColor: 'rgba(60, 132, 244, 0.5)',
-    },
-  },
   resizer: {
     display: 'block',
     width: 7,
@@ -100,23 +80,15 @@ const Direction = {
 export default function ImageResizer({
   onResizeStart,
   onResizeEnd,
-  buttonRef,
   imageRef,
   maxWidth,
   editor,
-  showCaption,
-  setShowCaption,
-  captionsEnabled,
 }: {
   editor: LexicalEditor;
-  buttonRef: {current: null | HTMLButtonElement};
   imageRef: {current: null | HTMLElement};
   maxWidth?: number;
   onResizeEnd: (width: 'inherit' | number, height: 'inherit' | number) => void;
   onResizeStart: () => void;
-  setShowCaption: (show: boolean) => void;
-  showCaption: boolean;
-  captionsEnabled: boolean;
 }): JSX.Element {
   const controlWrapperRef = useRef<HTMLDivElement>(null);
   const userSelect = useRef({
@@ -329,16 +301,6 @@ export default function ImageResizer({
 
   return (
     <div ref={controlWrapperRef}>
-      {!showCaption && captionsEnabled && (
-        <button
-          className={classes.captionButton}
-          ref={buttonRef}
-          onClick={() => {
-            setShowCaption(!showCaption);
-          }}>
-          Add Caption
-        </button>
-      )}
       <div
         className={classNames(classes.resizer, classes.resizerN)}
         onPointerDown={(event) => {

@@ -60,7 +60,10 @@ export interface ImagePayload {
   maxWidth?: number;
   showCaption?: boolean;
   src: string;
+  srcset?: string | null;
   width?: number;
+  widthPercent?: number | null;
+  isCkFigure?: boolean;
   captionsEnabled?: boolean;
 }
 
@@ -80,7 +83,8 @@ function $convertImageElement(domNode: Node): null | DOMConversionOutput {
     return null;
   }
   const {alt: altText, width, height} = img;
-  const node = $createImageNode({altText, height, src, width});
+  const srcset = img.getAttribute('srcset');
+  const node = $createImageNode({altText, height, src, width, srcset});
   return {node};
 }
 
@@ -105,7 +109,10 @@ export type SerializedImageNode = Spread<
     maxWidth: number;
     showCaption: boolean;
     src: string;
+    srcset?: string | null;
     width?: number;
+    widthPercent?: number | null;
+    isCkFigure?: boolean;
   },
   SerializedLexicalNode
 >;
@@ -118,6 +125,9 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __maxWidth: number;
   __showCaption: boolean;
   __caption: LexicalEditor;
+  __srcset: string | null;
+  __widthPercent: number | null;
+  __isCkFigure: boolean;
   // Captions cannot yet be used within editor cells
   __captionsEnabled: boolean;
 
@@ -134,19 +144,35 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__height,
       node.__showCaption,
       node.__caption,
+      node.__srcset,
+      node.__widthPercent,
+      node.__isCkFigure,
       node.__captionsEnabled,
       node.__key,
     );
   }
 
   static importJSON(serializedNode: SerializedImageNode): ImageNode {
-    const {altText, height, width, maxWidth, src, showCaption} = serializedNode;
+    const {
+      altText,
+      height,
+      width,
+      maxWidth,
+      src,
+      showCaption,
+      srcset,
+      widthPercent,
+      isCkFigure,
+    } = serializedNode;
     return $createImageNode({
       altText,
       height,
       maxWidth,
       showCaption,
       src,
+      srcset,
+      widthPercent,
+      isCkFigure,
       width,
     }).updateFromJSON(serializedNode);
   }
@@ -167,12 +193,23 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const imgElement = document.createElement('img');
     imgElement.setAttribute('src', this.__src);
     imgElement.setAttribute('alt', this.__altText);
-    imgElement.setAttribute('width', this.__width.toString());
-    imgElement.setAttribute('height', this.__height.toString());
+    if (typeof this.__width === 'number') {
+      imgElement.setAttribute('width', this.__width.toString());
+    }
+    if (typeof this.__height === 'number') {
+      imgElement.setAttribute('height', this.__height.toString());
+    }
+    if (this.__srcset) {
+      imgElement.setAttribute('srcset', this.__srcset);
+    }
 
+    const shouldUseFigure =
+      this.__showCaption || this.__isCkFigure || this.__widthPercent !== null;
+
+    let captionHtml: string | null = null;
     if (this.__showCaption && this.__caption) {
       const captionEditor = this.__caption;
-      const captionHtml = captionEditor.read(() => {
+      captionHtml = captionEditor.read(() => {
         if ($isCaptionEditorEmpty()) {
           return null;
         }
@@ -193,16 +230,23 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         }
         return $generateHtmlFromNodes(captionEditor, selection);
       });
+    }
+
+    if (shouldUseFigure) {
+      const figureElement = document.createElement('figure');
+      const classNames = ['image'];
+      if (this.__widthPercent !== null) {
+        classNames.push('image_resized');
+        figureElement.setAttribute('style', `width:${this.__widthPercent}%`);
+      }
+      figureElement.setAttribute('class', classNames.join(' '));
+      figureElement.appendChild(imgElement);
       if (captionHtml) {
-        const figureElement = document.createElement('figure');
         const figcaptionElement = document.createElement('figcaption');
         figcaptionElement.innerHTML = captionHtml;
-
-        figureElement.appendChild(imgElement);
         figureElement.appendChild(figcaptionElement);
-
-        return {element: figureElement};
       }
+      return {element: figureElement};
     }
 
     return {element: imgElement};
@@ -220,6 +264,16 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
             after: (childNodes) => {
               const imageNodes = childNodes.filter($isImageNode);
               const figcaption = node.querySelector('figcaption');
+              const figureElement = node as HTMLElement;
+              const figureClassList = figureElement.classList;
+              const hasCkImageClass = figureClassList.contains('image');
+              const widthPercentMatch = figureElement
+                .getAttribute('style')
+                ?.match(/width:\s*([0-9.]+)%/i);
+              const widthPercent = widthPercentMatch
+                ? Number(widthPercentMatch[1])
+                : null;
+
               if (figcaption) {
                 for (const imgNode of imageNodes) {
                   imgNode.setShowCaption(true);
@@ -235,6 +289,14 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
                     },
                     {tag: SKIP_DOM_SELECTION_TAG},
                   );
+                }
+              }
+              for (const imgNode of imageNodes) {
+                if (hasCkImageClass) {
+                  imgNode.setIsCkFigure(true);
+                }
+                if (widthPercent !== null && !Number.isNaN(widthPercent)) {
+                  imgNode.setWidthPercent(widthPercent);
                 }
               }
               return imageNodes;
@@ -259,6 +321,9 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     height?: 'inherit' | number,
     showCaption?: boolean,
     caption?: LexicalEditor,
+    srcset?: string | null,
+    widthPercent?: number | null,
+    isCkFigure?: boolean,
     captionsEnabled?: boolean,
     key?: NodeKey,
   ) {
@@ -284,6 +349,9 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
           KeywordNode,
         ],
       });
+    this.__srcset = srcset ?? null;
+    this.__widthPercent = widthPercent ?? null;
+    this.__isCkFigure = isCkFigure ?? false;
     this.__captionsEnabled = captionsEnabled || captionsEnabled === undefined;
   }
 
@@ -296,7 +364,10 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       maxWidth: this.__maxWidth,
       showCaption: this.__showCaption,
       src: this.getSrc(),
+      srcset: this.__srcset,
       width: this.__width === 'inherit' ? 0 : this.__width,
+      widthPercent: this.__widthPercent,
+      isCkFigure: this.__isCkFigure,
     };
   }
 
@@ -307,11 +378,32 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     const writable = this.getWritable();
     writable.__width = width;
     writable.__height = height;
+    writable.__widthPercent = null;
   }
 
   setShowCaption(showCaption: boolean): void {
     const writable = this.getWritable();
     writable.__showCaption = showCaption;
+  }
+
+  setAltText(altText: string): void {
+    const writable = this.getWritable();
+    writable.__altText = altText;
+  }
+
+  setSrcset(srcset: string | null): void {
+    const writable = this.getWritable();
+    writable.__srcset = srcset;
+  }
+
+  setWidthPercent(widthPercent: number | null): void {
+    const writable = this.getWritable();
+    writable.__widthPercent = widthPercent;
+  }
+
+  setIsCkFigure(isCkFigure: boolean): void {
+    const writable = this.getWritable();
+    writable.__isCkFigure = isCkFigure;
   }
 
   // View
@@ -338,6 +430,18 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return this.__altText;
   }
 
+  getSrcset(): string | null {
+    return this.__srcset;
+  }
+
+  getWidthPercent(): number | null {
+    return this.__widthPercent;
+  }
+
+  getIsCkFigure(): boolean {
+    return this.__isCkFigure;
+  }
+
   decorate(): JSX.Element {
     return (
       <ImageComponent
@@ -350,6 +454,8 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
         showCaption={this.__showCaption}
         caption={this.__caption}
         captionsEnabled={this.__captionsEnabled}
+        srcSet={this.__srcset}
+        widthPercent={this.__widthPercent}
         resizable={true}
       />
     );
@@ -362,9 +468,12 @@ export function $createImageNode({
   maxWidth = 500,
   captionsEnabled,
   src,
+  srcset,
   width,
+  widthPercent,
   showCaption,
   caption,
+  isCkFigure,
   key,
 }: ImagePayload): ImageNode {
   return $applyNodeReplacement(
@@ -376,6 +485,9 @@ export function $createImageNode({
       height,
       showCaption,
       caption,
+      srcset,
+      widthPercent,
+      isCkFigure,
       captionsEnabled,
       key,
     ),

@@ -48,10 +48,12 @@ import {
 } from 'react';
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 import {createWebsocketProvider} from '../collaboration';
 import {useSettings} from '../context/SettingsContext';
 import {useSharedHistoryContext} from '../context/SharedHistoryContext';
 import brokenImage from '../images/image-broken.svg';
+import useModal from '../hooks/useModal';
 import EmojisPlugin from '../plugins/EmojisPlugin';
 import KeywordsPlugin from '../plugins/KeywordsPlugin';
 import LinkPlugin from '../plugins/LinkPlugin';
@@ -59,9 +61,65 @@ import MentionsPlugin from '../plugins/MentionsPlugin';
 import TreeViewPlugin from '../plugins/TreeViewPlugin';
 import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
+import Button from '../ui/Button';
+import TextInput from '../ui/TextInput';
+import {DialogActions} from '../ui/Dialog';
+import { ChatLeftTextIcon } from '../icons/ChatLeftTextIcon';
+import { ChatSquareQuoteIcon } from '../icons/ChatSquareQuoteIcon';
+import { FileEarmarkTextIcon } from '../icons/FileEarmarkTextIcon';
 import {$isCaptionEditorEmpty, $isImageNode} from './ImageNode';
+import { INSERT_INLINE_COMMENT_AT_COMMAND } from '../plugins/CommentPlugin';
 
 const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
+  imageContainer: {
+    position: 'relative',
+    display: 'block',
+    width: '100%',
+    textAlign: 'center',
+  },
+  imageWrapper: {
+    display: 'inline-block',
+    position: 'relative',
+  },
+  toolbar: {
+    position: 'absolute',
+    top: -40,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    gap: 6,
+    backgroundColor: theme.palette.grey[0],
+    padding: '4px 6px',
+    borderRadius: 8,
+    boxShadow: `0px 5px 10px ${theme.palette.greyAlpha(0.3)}`,
+    zIndex: 5,
+    userSelect: 'none',
+  },
+  toolbarButton: {
+    border: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    background: 'none',
+    borderRadius: 6,
+    padding: '4px 6px',
+    cursor: 'pointer',
+    color: theme.palette.grey[700],
+    '&:hover:not([disabled])': {
+      backgroundColor: theme.palette.grey[200],
+    },
+    '&:disabled': {
+      cursor: 'not-allowed',
+      opacity: 0.5,
+    },
+  },
+  toolbarButtonActive: {
+    backgroundColor: theme.palette.grey[200],
+  },
+  toolbarIcon: {
+    width: 16,
+    height: 16,
+  },
   contentEditable: {
     minHeight: 20,
     border: 0,
@@ -79,6 +137,7 @@ const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
     wordBreak: 'break-word',
     overflowWrap: 'break-word',
     boxSizing: 'border-box',
+    textAlign: 'center',
   },
   placeholder: {
     fontSize: 12,
@@ -92,23 +151,21 @@ const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     display: 'inline-block',
     pointerEvents: 'none',
+    textAlign: 'center',
+    width: 'calc(100% - 20px)',
   },
   resizing: {
     touchAction: 'none',
   },
   captionContainer: {
     display: 'block',
-    position: 'absolute',
-    bottom: 4,
-    left: 0,
-    right: 0,
+    position: 'relative',
     padding: 0,
-    margin: 0,
+    marginTop: 8,
     borderTop: `1px solid ${theme.palette.grey[0]}`,
     backgroundColor: theme.palette.inverseGreyAlpha(0.9),
     minWidth: 100,
     color: theme.palette.grey[1000],
-    overflow: 'hidden',
     boxSizing: 'border-box',
     maxWidth: '100%',
     wordWrap: 'break-word',
@@ -183,9 +240,11 @@ function LazyImage({
   className,
   imageRef,
   src,
+  srcSet,
   width,
   height,
   maxWidth,
+  widthPercent,
   onError,
 }: {
   altText: string;
@@ -194,7 +253,9 @@ function LazyImage({
   imageRef: {current: null | HTMLImageElement};
   maxWidth: number;
   src: string;
+  srcSet?: string | null;
   width: 'inherit' | number;
+  widthPercent?: number | null;
   onError: () => void;
 }): JSX.Element {
   const isSVGImage = isSVG(src);
@@ -249,12 +310,18 @@ function LazyImage({
     };
   };
 
-  const imageStyle = calculateDimensions();
+  const imageStyle: React.CSSProperties = calculateDimensions();
+  if (widthPercent !== undefined && widthPercent !== null) {
+    imageStyle.width = `${widthPercent}%`;
+    imageStyle.height = 'auto';
+    imageStyle.maxWidth = '100%';
+  }
 
   return (
     <img
       className={className || undefined}
       src={src}
+      srcSet={srcSet ?? undefined}
       alt={altText}
       ref={imageRef}
       style={imageStyle}
@@ -281,6 +348,37 @@ function BrokenImage(): JSX.Element {
 
 function noop() {}
 
+function ImageAltTextDialog({
+  initialValue,
+  onConfirm,
+}: {
+  initialValue: string;
+  onConfirm: (altText: string) => void;
+}) {
+  const [altText, setAltText] = useState(initialValue);
+  const isDisabled = altText.trim().length === 0;
+
+  return (
+    <>
+      <TextInput
+        label="Alt Text"
+        placeholder="Describe the image"
+        onChange={setAltText}
+        value={altText}
+      />
+      <DialogActions>
+        <Button
+          disabled={isDisabled}
+          onClick={() => {
+            onConfirm(altText.trim());
+          }}>
+          Save
+        </Button>
+      </DialogActions>
+    </>
+  );
+}
+
 export default function ImageComponent({
   src,
   altText,
@@ -288,6 +386,8 @@ export default function ImageComponent({
   width,
   height,
   maxWidth,
+  widthPercent,
+  srcSet,
   resizable,
   showCaption,
   caption,
@@ -301,12 +401,13 @@ export default function ImageComponent({
   resizable: boolean;
   showCaption: boolean;
   src: string;
+  srcSet?: string | null;
   width: 'inherit' | number;
+  widthPercent?: number | null;
   captionsEnabled: boolean;
 }): JSX.Element {
   const classes = useStyles(styles);
   const imageRef = useRef<null | HTMLImageElement>(null);
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [isSelected, setSelected, clearSelection] =
     useLexicalNodeSelection(nodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
@@ -315,6 +416,7 @@ export default function ImageComponent({
   const activeEditorRef = useRef<LexicalEditor | null>(null);
   const [isLoadError, setIsLoadError] = useState<boolean>(false);
   const isEditable = useLexicalEditable();
+  const [modal, showModal] = useModal();
   const isInNodeSelection = useMemo(
     () =>
       isSelected &&
@@ -328,7 +430,6 @@ export default function ImageComponent({
   const $onEnter = useCallback(
     (event: KeyboardEvent) => {
       const latestSelection = $getSelection();
-      const buttonElem = buttonRef.current;
       if (
         $isNodeSelection(latestSelection) &&
         latestSelection.has(nodeKey) &&
@@ -340,13 +441,6 @@ export default function ImageComponent({
           event.preventDefault();
           caption.focus();
           return true;
-        } else if (
-          buttonElem !== null &&
-          buttonElem !== document.activeElement
-        ) {
-          event.preventDefault();
-          buttonElem.focus();
-          return true;
         }
       }
       return false;
@@ -356,10 +450,7 @@ export default function ImageComponent({
 
   const $onEscape = useCallback(
     (event: KeyboardEvent) => {
-      if (
-        activeEditorRef.current === caption ||
-        buttonRef.current === event.target
-      ) {
+      if (activeEditorRef.current === caption) {
         $setSelection(null);
         editor.update(() => {
           setSelected(true);
@@ -485,6 +576,11 @@ export default function ImageComponent({
         }
       }
     });
+    if (show && editor.isEditable()) {
+      setTimeout(() => {
+        caption.focus();
+      }, 0);
+    }
   };
 
   const onResizeEnd = (
@@ -515,32 +611,102 @@ export default function ImageComponent({
 
   const draggable = isInNodeSelection && !isResizing;
   const isFocused = (isSelected || isResizing) && isEditable;
+  const showToolbar = isFocused && !isResizing && isEditable;
+  const isCaptionButtonActive = showCaption && captionsEnabled;
+
+  const openAltTextModal = () => {
+    showModal('Image Alt Text', (onClose) => (
+      <ImageAltTextDialog
+        initialValue={altText}
+        onConfirm={(nextAltText) => {
+          editor.update(() => {
+            const node = $getNodeByKey(nodeKey);
+            if ($isImageNode(node)) {
+              node.setAltText(nextAltText);
+            }
+          });
+          onClose();
+        }}
+      />
+    ));
+  };
+
+  const openCommentInput = () => {
+    const imageElement = imageRef.current;
+    if (!imageElement) {
+      return;
+    }
+    const rect = imageElement.getBoundingClientRect();
+    editor.dispatchCommand(INSERT_INLINE_COMMENT_AT_COMMAND, {rect});
+  };
   return (
     <Suspense fallback={null}>
       <>
-        <div draggable={draggable} className={isResizing ? classes.resizing : undefined}>
-          {isLoadError ? (
-            <BrokenImage />
-          ) : (
-            <LazyImage
-              className={
-                isFocused
-                  ? `focused ${isInNodeSelection ? 'draggable' : ''}`
-                  : null
-              }
-              src={src}
-              altText={altText}
-              imageRef={imageRef}
-              width={width}
-              height={height}
-              maxWidth={maxWidth}
-              onError={() => setIsLoadError(true)}
-            />
+        {modal}
+        <div className={classes.imageContainer}>
+          {showToolbar && (
+            <div className={classes.toolbar}>
+              <button
+                type="button"
+                className={classes.toolbarButton}
+                onClick={openAltTextModal}
+                title="Edit image alt text">
+                <FileEarmarkTextIcon className={classes.toolbarIcon} />
+                Alt
+              </button>
+              <button
+                type="button"
+                className={classes.toolbarButton}
+                onClick={openCommentInput}
+                title="Add comment">
+                <ChatLeftTextIcon className={classes.toolbarIcon} />
+                Comment
+              </button>
+              <button
+                type="button"
+                className={classNames(
+                  classes.toolbarButton,
+                  { [classes.toolbarButtonActive]: isCaptionButtonActive },
+                )}
+                onClick={() => setShowCaption(!showCaption)}
+                disabled={!captionsEnabled}
+                title={showCaption ? 'Hide caption' : 'Show caption'}>
+                <ChatSquareQuoteIcon className={classes.toolbarIcon} />
+                Caption
+              </button>
+            </div>
           )}
+          <div
+            draggable={draggable}
+            className={classNames(
+              classes.imageWrapper,
+              { [classes.resizing]: isResizing },
+            )}>
+            {isLoadError ? (
+              <BrokenImage />
+            ) : (
+              <LazyImage
+                className={
+                  isFocused
+                    ? `focused ${isInNodeSelection ? 'draggable' : ''}`
+                    : null
+                }
+                src={src}
+                srcSet={srcSet ?? undefined}
+                altText={altText}
+                imageRef={imageRef}
+                width={width}
+                height={height}
+                maxWidth={maxWidth}
+                widthPercent={widthPercent ?? undefined}
+                onError={() => setIsLoadError(true)}
+              />
+            )}
+          </div>
         </div>
 
         {showCaption && (
-          <div className={classes.captionContainer}>
+          <div className={classNames(classes.captionContainer, 'image-caption-container')}>
             <LexicalNestedComposer initialEditor={caption}>
               <DisableCaptionOnBlur setShowCaption={setShowCaption} />
               <MentionsPlugin />
@@ -560,7 +726,7 @@ export default function ImageComponent({
               <RichTextPlugin
                 contentEditable={
                   <ContentEditable
-                    placeholder="Enter a caption..."
+                    placeholder="Enter image caption"
                     placeholderClassName={classes.placeholder}
                     className={classes.contentEditable}
                   />
@@ -573,15 +739,11 @@ export default function ImageComponent({
         )}
         {resizable && isInNodeSelection && isFocused && (
           <ImageResizer
-            showCaption={showCaption}
-            setShowCaption={setShowCaption}
             editor={editor}
-            buttonRef={buttonRef}
             imageRef={imageRef}
             maxWidth={maxWidth}
             onResizeStart={onResizeStart}
             onResizeEnd={onResizeEnd}
-            captionsEnabled={!isLoadError && captionsEnabled}
           />
         )}
       </>
