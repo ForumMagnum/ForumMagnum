@@ -104,8 +104,6 @@ import CalendlyPlugin from './embeds/CalendlyEmbed/CalendlyPlugin';
 import LWArtifactsPlugin from './embeds/LWArtifactsEmbed/LWArtifactsPlugin';
 import ContentEditable from './ui/ContentEditable';
 import { FootnotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnotesPlugin';
-import { MentionPlugin } from '../editor/lexicalPlugins/mentions/MentionPlugin';
-import { getLexicalMentionFeeds } from '../editor/lexicalPlugins/mentions/lexicalMentionsConfig';
 import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
@@ -400,7 +398,6 @@ export default function Editor({
             <LayoutPlugin />
             <FootnotesPlugin />
             <MentionsPlugin />
-            <MentionPlugin feeds={getLexicalMentionFeeds()} />
             <SpoilersPlugin />
             <ClaimsPlugin />
             <RemoveRedirectPlugin />

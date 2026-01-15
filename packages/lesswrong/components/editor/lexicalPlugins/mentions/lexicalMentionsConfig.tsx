@@ -7,11 +7,25 @@ import { userMentionQueryString } from '../../../../lib/pingback';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { filterNonnull } from '../../../../lib/utils/typeGuardUtils';
 import { getSiteUrl } from '../../../../lib/vulcan-lib/utils';
-import type { MentionFeed } from './MentionPlugin';
 import type { MentionItem } from './MentionDropdown';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
 
 const MARKER = "@";
+
+export interface MentionFeed {
+  /** The marker character that triggers this feed (e.g., '@', '#') */
+  marker: string;
+  /** 
+   * Feed data - can be:
+   * - A static array of items
+   * - A function that returns items (sync or async)
+   */
+  feed: MentionItem[] | ((query: string) => MentionItem[] | Promise<MentionItem[]>);
+  /** Minimum characters after marker before showing suggestions (default: 0) */
+  minimumCharacters?: number;
+  /** Custom item renderer */
+  itemRenderer?: (item: MentionItem) => React.ReactNode;
+}
 
 const styles = defineStyles('LexicalMentionItem', (theme: ThemeType) => ({
   item: {

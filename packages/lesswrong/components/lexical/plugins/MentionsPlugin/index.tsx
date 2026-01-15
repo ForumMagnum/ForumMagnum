@@ -8,20 +8,19 @@
 
 import React, { type JSX } from 'react';
 
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   LexicalTypeaheadMenuPlugin,
   MenuOption,
-  MenuTextMatch,
+  type MenuTextMatch,
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
-import {TextNode} from 'lexical';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import { $createTextNode, $getSelection, $isRangeSelection, $isTextNode, TextNode } from 'lexical';
+import { $createLinkNode, $isLinkNode, type LinkNode } from '@lexical/link';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import * as ReactDOM from 'react-dom';
 
-import {$createMentionNode} from '../../nodes/MentionNode';
-import ForumIcon from '@/components/common/ForumIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import {
@@ -31,563 +30,171 @@ import {
   typeaheadItem,
   typeaheadItemText,
 } from '../../styles/typeaheadStyles';
+import {
+  getLexicalMentionFeeds,
+  type MentionFeed,
+} from '@/components/editor/lexicalPlugins/mentions/lexicalMentionsConfig';
+import type { MentionItem } from '@/components/editor/lexicalPlugins/mentions/MentionDropdown';
+import { userMentionQuery, userMentionValue } from '@/lib/pingback';
 
 const styles = defineStyles('LexicalMentions', (theme: ThemeType) => ({
-  popover: typeaheadPopover(theme),
-  list: typeaheadList(theme),
+  popover: {
+    ...typeaheadPopover(theme),
+    minWidth: 220,
+    maxWidth: 420,
+  },
+  list: {
+    ...typeaheadList(theme),
+    width: '100%',
+    maxHeight: 280,
+    overflowY: 'auto',
+  },
   listItem: typeaheadListItem(theme),
-  item: typeaheadItem(theme),
+  item: {
+    ...typeaheadItem(theme),
+    width: '100%',
+  },
   text: typeaheadItemText(),
+  itemContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2px',
+  },
+  itemLabel: {
+    fontSize: '14px',
+    color: theme.palette.text.normal,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  itemDescription: {
+    fontSize: '12px',
+    color: theme.palette.grey[600],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
 }));
 
-const PUNCTUATION =
-  '\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%\'"~=<>_:;';
-const NAME = '\\b[A-Z][^\\s' + PUNCTUATION + ']';
+const MAX_MENTION_LENGTH = 20;
+const FEED_DEBOUNCE_MS = 100;
+const DEFAULT_SUGGESTION_LIMIT = 10;
 
-const DocumentMentionsRegex = {
-  NAME,
-  PUNCTUATION,
-};
+let cachedUnicodePropertySupport: boolean | null = null;
 
-const PUNC = DocumentMentionsRegex.PUNCTUATION;
-
-const TRIGGERS = ['@'].join('');
-
-// Chars we expect to see in a mention (non-space, non-punctuation).
-const VALID_CHARS = '[^' + TRIGGERS + PUNC + '\\s]';
-
-// Non-standard series of chars. Each series must be preceded and followed by
-// a valid char.
-const VALID_JOINS =
-  '(?:' +
-  '\\.[ |$]|' + // E.g. "r. " in "Mr. Smith"
-  ' |' + // E.g. " " in "Josh Duck"
-  '[' +
-  PUNC +
-  ']|' + // E.g. "-' in "Salier-Hellendag"
-  ')';
-
-const LENGTH_LIMIT = 75;
-
-const AtSignMentionsRegex = new RegExp(
-  '(^|\\s|\\()(' +
-    '[' +
-    TRIGGERS +
-    ']' +
-    '((?:' +
-    VALID_CHARS +
-    VALID_JOINS +
-    '){0,' +
-    LENGTH_LIMIT +
-    '})' +
-    ')$',
-);
-
-// 50 is the longest alias length limit.
-const ALIAS_LENGTH_LIMIT = 50;
-
-// Regex used to match alias.
-const AtSignMentionsRegexAliasRegex = new RegExp(
-  '(^|\\s|\\()(' +
-    '[' +
-    TRIGGERS +
-    ']' +
-    '((?:' +
-    VALID_CHARS +
-    '){0,' +
-    ALIAS_LENGTH_LIMIT +
-    '})' +
-    ')$',
-);
-
-// At most, 5 suggestions are shown in the popup.
-const SUGGESTION_LIST_LENGTH_LIMIT = 5;
-
-const mentionsCache = new Map();
-
-const dummyMentionsData = [
-  'Aayla Secura',
-  'Adi Gallia',
-  'Admiral Dodd Rancit',
-  'Admiral Firmus Piett',
-  'Admiral Gial Ackbar',
-  'Admiral Ozzel',
-  'Admiral Raddus',
-  'Admiral Terrinald Screed',
-  'Admiral Trench',
-  'Admiral U.O. Statura',
-  'Agen Kolar',
-  'Agent Kallus',
-  'Aiolin and Morit Astarte',
-  'Aks Moe',
-  'Almec',
-  'Alton Kastle',
-  'Amee',
-  'AP-5',
-  'Armitage Hux',
-  'Artoo',
-  'Arvel Crynyd',
-  'Asajj Ventress',
-  'Aurra Sing',
-  'AZI-3',
-  'Bala-Tik',
-  'Barada',
-  'Bargwill Tomder',
-  'Baron Papanoida',
-  'Barriss Offee',
-  'Baze Malbus',
-  'Bazine Netal',
-  'BB-8',
-  'BB-9E',
-  'Ben Quadinaros',
-  'Berch Teller',
-  'Beru Lars',
-  'Bib Fortuna',
-  'Biggs Darklighter',
-  'Black Krrsantan',
-  'Bo-Katan Kryze',
-  'Boba Fett',
-  'Bobbajo',
-  'Bodhi Rook',
-  'Borvo the Hutt',
-  'Boss Nass',
-  'Bossk',
-  'Breha Antilles-Organa',
-  'Bren Derlin',
-  'Brendol Hux',
-  'BT-1',
-  'C-3PO',
-  'C1-10P',
-  'Cad Bane',
-  'Caluan Ematt',
-  'Captain Gregor',
-  'Captain Phasma',
-  'Captain Quarsh Panaka',
-  'Captain Rex',
-  'Carlist Rieekan',
-  'Casca Panzoro',
-  'Cassian Andor',
-  'Cassio Tagge',
-  'Cham Syndulla',
-  'Che Amanwe Papanoida',
-  'Chewbacca',
-  'Chi Eekway Papanoida',
-  'Chief Chirpa',
-  'Chirrut Îmwe',
-  'Ciena Ree',
-  'Cin Drallig',
-  'Clegg Holdfast',
-  'Cliegg Lars',
-  'Coleman Kcaj',
-  'Coleman Trebor',
-  'Colonel Kaplan',
-  'Commander Bly',
-  'Commander Cody (CC-2224)',
-  'Commander Fil (CC-3714)',
-  'Commander Fox',
-  'Commander Gree',
-  'Commander Jet',
-  'Commander Wolffe',
-  'Conan Antonio Motti',
-  'Conder Kyl',
-  'Constable Zuvio',
-  'Cordé',
-  'Cpatain Typho',
-  'Crix Madine',
-  'Cut Lawquane',
-  'Dak Ralter',
-  'Dapp',
-  'Darth Bane',
-  'Darth Maul',
-  'Darth Tyranus',
-  'Daultay Dofine',
-  'Del Meeko',
-  'Delian Mors',
-  'Dengar',
-  'Depa Billaba',
-  'Derek Klivian',
-  'Dexter Jettster',
-  'Dineé Ellberger',
-  'DJ',
-  'Doctor Aphra',
-  'Doctor Evazan',
-  'Dogma',
-  'Dormé',
-  'Dr. Cylo',
-  'Droidbait',
-  'Droopy McCool',
-  'Dryden Vos',
-  'Dud Bolt',
-  'Ebe E. Endocott',
-  'Echuu Shen-Jon',
-  'Eeth Koth',
-  'Eighth Brother',
-  'Eirtaé',
-  'Eli Vanto',
-  'Ellé',
-  'Ello Asty',
-  'Embo',
-  'Eneb Ray',
-  'Enfys Nest',
-  'EV-9D9',
-  'Evaan Verlaine',
-  'Even Piell',
-  'Ezra Bridger',
-  'Faro Argyus',
-  'Feral',
-  'Fifth Brother',
-  'Finis Valorum',
-  'Finn',
-  'Fives',
-  'FN-1824',
-  'FN-2003',
-  'Fodesinbeed Annodue',
-  'Fulcrum',
-  'FX-7',
-  'GA-97',
-  'Galen Erso',
-  'Gallius Rax',
-  'Garazeb "Zeb" Orrelios',
-  'Gardulla the Hutt',
-  'Garrick Versio',
-  'Garven Dreis',
-  'Gavyn Sykes',
-  'Gideon Hask',
-  'Gizor Dellso',
-  'Gonk droid',
-  'Grand Inquisitor',
-  'Greeata Jendowanian',
-  'Greedo',
-  'Greer Sonnel',
-  'Grievous',
-  'Grummgar',
-  'Gungi',
-  'Hammerhead',
-  'Han Solo',
-  'Harter Kalonia',
-  'Has Obbit',
-  'Hera Syndulla',
-  'Hevy',
-  'Hondo Ohnaka',
-  'Huyang',
-  'Iden Versio',
-  'IG-88',
-  'Ima-Gun Di',
-  'Inquisitors',
-  'Inspector Thanoth',
-  'Jabba',
-  'Jacen Syndulla',
-  'Jan Dodonna',
-  'Jango Fett',
-  'Janus Greejatus',
-  'Jar Jar Binks',
-  'Jas Emari',
-  'Jaxxon',
-  'Jek Tono Porkins',
-  'Jeremoch Colton',
-  'Jira',
-  'Jobal Naberrie',
-  'Jocasta Nu',
-  'Joclad Danva',
-  'Joh Yowza',
-  'Jom Barell',
-  'Joph Seastriker',
-  'Jova Tarkin',
-  'Jubnuk',
-  'Jyn Erso',
-  'K-2SO',
-  'Kanan Jarrus',
-  'Karbin',
-  'Karina the Great',
-  'Kes Dameron',
-  'Ketsu Onyo',
-  'Ki-Adi-Mundi',
-  'King Katuunko',
-  'Kit Fisto',
-  'Kitster Banai',
-  'Klaatu',
-  'Klik-Klak',
-  'Korr Sella',
-  'Kylo Ren',
-  'L3-37',
-  'Lama Su',
-  'Lando Calrissian',
-  'Lanever Villecham',
-  'Leia Organa',
-  'Letta Turmond',
-  'Lieutenant Kaydel Ko Connix',
-  'Lieutenant Thire',
-  'Lobot',
-  'Logray',
-  'Lok Durd',
-  'Longo Two-Guns',
-  'Lor San Tekka',
-  'Lorth Needa',
-  'Lott Dod',
-  'Luke Skywalker',
-  'Lumat',
-  'Luminara Unduli',
-  'Lux Bonteri',
-  'Lyn Me',
-  'Lyra Erso',
-  'Mace Windu',
-  'Malakili',
-  'Mama the Hutt',
-  'Mars Guo',
-  'Mas Amedda',
-  'Mawhonic',
-  'Max Rebo',
-  'Maximilian Veers',
-  'Maz Kanata',
-  'ME-8D9',
-  'Meena Tills',
-  'Mercurial Swift',
-  'Mina Bonteri',
-  'Miraj Scintel',
-  'Mister Bones',
-  'Mod Terrik',
-  'Moden Canady',
-  'Mon Mothma',
-  'Moradmin Bast',
-  'Moralo Eval',
-  'Morley',
-  'Mother Talzin',
-  'Nahdar Vebb',
-  'Nahdonnis Praji',
-  'Nien Nunb',
-  'Niima the Hutt',
-  'Nines',
-  'Norra Wexley',
-  'Nute Gunray',
-  'Nuvo Vindi',
-  'Obi-Wan Kenobi',
-  'Odd Ball',
-  'Ody Mandrell',
-  'Omi',
-  'Onaconda Farr',
-  'Oola',
-  'OOM-9',
-  'Oppo Rancisis',
-  'Orn Free Taa',
-  'Oro Dassyne',
-  'Orrimarko',
-  'Osi Sobeck',
-  'Owen Lars',
-  'Pablo-Jill',
-  'Padmé Amidala',
-  'Pagetti Rook',
-  'Paige Tico',
-  'Paploo',
-  'Petty Officer Thanisson',
-  'Pharl McQuarrie',
-  'Plo Koon',
-  'Po Nudo',
-  'Poe Dameron',
-  'Poggle the Lesser',
-  'Pong Krell',
-  'Pooja Naberrie',
-  'PZ-4CO',
-  'Quarrie',
-  'Quay Tolsite',
-  'Queen Apailana',
-  'Queen Jamillia',
-  'Queen Neeyutnee',
-  'Qui-Gon Jinn',
-  'Quiggold',
-  'Quinlan Vos',
-  'R2-D2',
-  'R2-KT',
-  'R3-S6',
-  'R4-P17',
-  'R5-D4',
-  'RA-7',
-  'Rabé',
-  'Rako Hardeen',
-  'Ransolm Casterfo',
-  'Rappertunie',
-  'Ratts Tyerell',
-  'Raymus Antilles',
-  'Ree-Yees',
-  'Reeve Panzoro',
-  'Rey',
-  'Ric Olié',
-  'Riff Tamson',
-  'Riley',
-  'Rinnriyin Di',
-  'Rio Durant',
-  'Rogue Squadron',
-  'Romba',
-  'Roos Tarpals',
-  'Rose Tico',
-  'Rotta the Hutt',
-  'Rukh',
-  'Rune Haako',
-  'Rush Clovis',
-  'Ruwee Naberrie',
-  'Ryoo Naberrie',
-  'Sabé',
-  'Sabine Wren',
-  'Saché',
-  'Saelt-Marae',
-  'Saesee Tiin',
-  'Salacious B. Crumb',
-  'San Hill',
-  'Sana Starros',
-  'Sarco Plank',
-  'Sarkli',
-  'Satine Kryze',
-  'Savage Opress',
-  'Sebulba',
-  'Senator Organa',
-  'Sergeant Kreel',
-  'Seventh Sister',
-  'Shaak Ti',
-  'Shara Bey',
-  'Shmi Skywalker',
-  'Shu Mai',
-  'Sidon Ithano',
-  'Sifo-Dyas',
-  'Sim Aloo',
-  'Siniir Rath Velus',
-  'Sio Bibble',
-  'Sixth Brother',
-  'Slowen Lo',
-  'Sly Moore',
-  'Snaggletooth',
-  'Snap Wexley',
-  'Snoke',
-  'Sola Naberrie',
-  'Sora Bulq',
-  'Strono Tuggs',
-  'Sy Snootles',
-  'Tallissan Lintra',
-  'Tarfful',
-  'Tasu Leech',
-  'Taun We',
-  'TC-14',
-  'Tee Watt Kaa',
-  'Teebo',
-  'Teedo',
-  'Teemto Pagalies',
-  'Temiri Blagg',
-  'Tessek',
-  'Tey How',
-  'Thane Kyrell',
-  'The Bendu',
-  'The Smuggler',
-  'Thrawn',
-  'Tiaan Jerjerrod',
-  'Tion Medon',
-  'Tobias Beckett',
-  'Tulon Voidgazer',
-  'Tup',
-  'U9-C4',
-  'Unkar Plutt',
-  'Val Beckett',
-  'Vanden Willard',
-  'Vice Admiral Amilyn Holdo',
-  'Vober Dand',
-  'WAC-47',
-  'Wag Too',
-  'Wald',
-  'Walrus Man',
-  'Warok',
-  'Wat Tambor',
-  'Watto',
-  'Wedge Antilles',
-  'Wes Janson',
-  'Wicket W. Warrick',
-  'Wilhuff Tarkin',
-  'Wollivan',
-  'Wuher',
-  'Wullf Yularen',
-  'Xamuel Lennox',
-  'Yaddle',
-  'Yarael Poof',
-  'Yoda',
-  'Zam Wesell',
-  'Zev Senesca',
-  'Ziro the Hutt',
-  'Zuckuss',
-];
-
-const dummyLookupService = {
-  search(string: string, callback: (results: Array<string>) => void): void {
-    setTimeout(() => {
-      const results = dummyMentionsData.filter((mention) =>
-        mention.toLowerCase().includes(string.toLowerCase()),
-      );
-      callback(results);
-    }, 500);
-  },
-};
-
-function useMentionLookupService(mentionString: string | null) {
-  const [results, setResults] = useState<Array<string>>([]);
-
-  useEffect(() => {
-    const cachedResults = mentionsCache.get(mentionString);
-
-    if (mentionString == null) {
-      setResults([]);
-      return;
-    }
-
-    if (cachedResults === null) {
-      return;
-    } else if (cachedResults !== undefined) {
-      setResults(cachedResults);
-      return;
-    }
-
-    mentionsCache.set(mentionString, null);
-    dummyLookupService.search(mentionString, (newResults) => {
-      mentionsCache.set(mentionString, newResults);
-      setResults(newResults);
-    });
-  }, [mentionString]);
-
-  return results;
+function supportsUnicodePropertyEscapes(): boolean {
+  if (cachedUnicodePropertySupport != null) {
+    return cachedUnicodePropertySupport;
+  }
+  try {
+    void new RegExp('\\p{Ps}', 'u');
+    cachedUnicodePropertySupport = true;
+  } catch {
+    cachedUnicodePropertySupport = false;
+  }
+  return cachedUnicodePropertySupport;
 }
 
-function checkForAtSignMentions(
-  text: string,
-  minMatchLength: number,
-): MenuTextMatch | null {
-  let match = AtSignMentionsRegex.exec(text);
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
-  if (match === null) {
-    match = AtSignMentionsRegexAliasRegex.exec(text);
-  }
-  if (match !== null) {
-    // The strategy ignores leading whitespace but we need to know it's
-    // length to add it to the leadOffset
-    const maybeLeadingWhitespace = match[1];
+function createMentionRegExp(marker: string, minimumCharacters: number): RegExp {
+  const numberOfCharacters = `{${minimumCharacters},${MAX_MENTION_LENGTH}}`;
+  const openAfterCharacters = supportsUnicodePropertyEscapes()
+    ? '\\p{Ps}\\p{Pi}"\''
+    : '\\(\\[{"\'';
+  const pattern = `(?:^|[ ${openAfterCharacters}])([${escapeRegex(marker)}])(.${numberOfCharacters})$`;
+  return new RegExp(pattern, 'u');
+}
 
-    const matchingString = match[3];
-    if (matchingString.length >= minMatchLength) {
-      return {
-        leadOffset: match.index + maybeLeadingWhitespace.length,
-        matchingString,
-        replaceableString: match[2],
-      };
+type MentionMatch = {
+  match: MenuTextMatch;
+  feed: MentionFeed;
+};
+
+function getMentionMatch(text: string, feeds: MentionFeed[]): MentionMatch | null {
+  let bestMatch: MentionMatch | null = null;
+  let bestPosition = -1;
+
+  for (const feed of feeds) {
+    const marker = feed.marker;
+    if (marker.length !== 1) {
+      continue;
     }
+    const markerPosition = text.lastIndexOf(marker);
+    if (markerPosition < 0) {
+      continue;
+    }
+
+    const splitStart = markerPosition === 0 ? 0 : markerPosition - 1;
+    const textToTest = text.substring(splitStart);
+    const regExp = createMentionRegExp(marker, feed.minimumCharacters ?? 0);
+    const match = textToTest.match(regExp);
+    if (!match) {
+      continue;
+    }
+
+    const matchingString = match[2] ?? '';
+    const replaceableString = `${match[1]}${matchingString}`;
+    const matchData: MenuTextMatch = {
+      leadOffset: markerPosition,
+      matchingString,
+      replaceableString,
+    };
+
+    if (markerPosition >= bestPosition) {
+      bestPosition = markerPosition;
+      bestMatch = { match: matchData, feed };
+    }
+  }
+
+  return bestMatch;
+}
+
+function findNearestLinkNode(node: TextNode): LinkNode | null {
+  let current = node.getParent();
+  while (current) {
+    if ($isLinkNode(current)) {
+      return current;
+    }
+    current = current.getParent();
   }
   return null;
 }
 
-function getPossibleQueryMatch(text: string): MenuTextMatch | null {
-  return checkForAtSignMentions(text, 1);
+function isMentionLink(url: string): boolean {
+  try {
+    const parsedUrl = typeof window !== 'undefined'
+      ? new URL(url, window.location.origin)
+      : new URL(url, 'https://example.invalid');
+    return parsedUrl.searchParams.get(userMentionQuery) === userMentionValue;
+  } catch {
+    return false;
+  }
+}
+
+function isSelectionInsideMentionLink(): boolean {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection)) {
+    return false;
+  }
+  const anchorNode = selection.anchor.getNode();
+  if (!$isTextNode(anchorNode)) {
+    return false;
+  }
+  const linkNode = findNearestLinkNode(anchorNode);
+  return !!linkNode && isMentionLink(linkNode.getURL());
 }
 
 class MentionTypeaheadOption extends MenuOption {
-  name: string;
-  picture: JSX.Element;
+  item: MentionItem;
+  marker: string;
 
-  constructor(name: string, picture: JSX.Element) {
-    super(name);
-    this.name = name;
-    this.picture = picture;
+  constructor(item: MentionItem, marker: string) {
+    super(item.id);
+    this.item = item;
+    this.marker = marker;
   }
 }
 
@@ -598,6 +205,7 @@ function MentionsTypeaheadMenuItem({
   onMouseEnter,
   option,
   classes,
+  content,
 }: {
   index: number;
   isSelected: boolean;
@@ -605,6 +213,7 @@ function MentionsTypeaheadMenuItem({
   onMouseEnter: () => void;
   option: MentionTypeaheadOption;
   classes: Record<string, string>;
+  content: React.ReactNode;
 }) {
   return (
     <li
@@ -617,32 +226,84 @@ function MentionsTypeaheadMenuItem({
       id={'typeahead-item-' + index}
       onMouseEnter={onMouseEnter}
       onClick={onClick}>
-      {option.picture}
-      <span className={classes.text}>{option.name}</span>
+      {content}
     </li>
   );
 }
 
-export default function NewMentionsPlugin(): JSX.Element | null {
+function useMentionLookupService(
+  mentionString: string | null,
+  activeFeed: MentionFeed | null,
+  dropdownLimit: number
+) {
+  const [results, setResults] = useState<MentionItem[]>([]);
+  const lastRequestIdRef = useRef(0);
+
+  useEffect(() => {
+    if (!mentionString || !activeFeed) {
+      setResults([]);
+      return;
+    }
+
+    const requestId = ++lastRequestIdRef.current;
+    const { feed } = activeFeed;
+    const timeoutId = window.setTimeout(() => {
+      const fetchResults = async () => {
+        try {
+          let items: MentionItem[];
+          if (typeof feed === 'function') {
+            const response = feed(mentionString);
+            items = response instanceof Promise ? await response : response;
+          } else {
+            items = feed.filter(item => {
+              const searchText = (item.label || item.id).toLowerCase();
+              return searchText.includes(mentionString.toLowerCase());
+            });
+          }
+
+          if (requestId !== lastRequestIdRef.current) {
+            return;
+          }
+          setResults(items.slice(0, dropdownLimit));
+        } catch {
+          if (requestId === lastRequestIdRef.current) {
+            setResults([]);
+          }
+        }
+      };
+
+      void fetchResults();
+    }, FEED_DEBOUNCE_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [mentionString, activeFeed, dropdownLimit]);
+
+  return results;
+}
+
+export default function MentionsPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
+  const feeds = useMemo(() => getLexicalMentionFeeds(), []);
 
   const [queryString, setQueryString] = useState<string | null>(null);
+  const [activeFeed, setActiveFeed] = useState<MentionFeed | null>(null);
+  const activeFeedRef = useRef<MentionFeed | null>(null);
 
-  const results = useMentionLookupService(queryString);
+  const results = useMentionLookupService(
+    queryString,
+    activeFeed,
+    DEFAULT_SUGGESTION_LIMIT
+  );
 
   const checkForSlashTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     minLength: 0,
   });
 
   const options = useMemo(
-    () =>
-      results
-        .map(
-          (result) =>
-            new MentionTypeaheadOption(result, <ForumIcon icon="User" style={{ display: 'flex', width: 20, height: 20, marginRight: 8, opacity: 0.6 }} />),
-        )
-        .slice(0, SUGGESTION_LIST_LENGTH_LIMIT),
-    [results],
+    () => results.map((item) => new MentionTypeaheadOption(item, activeFeed?.marker ?? '@')),
+    [results, activeFeed]
   );
 
   const onSelectOption = useCallback(
@@ -652,26 +313,68 @@ export default function NewMentionsPlugin(): JSX.Element | null {
       closeMenu: () => void,
     ) => {
       editor.update(() => {
-        const mentionNode = $createMentionNode(selectedOption.name);
-        if (nodeToReplace) {
-          nodeToReplace.replace(mentionNode);
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection)) {
+          return;
         }
-        mentionNode.select();
-        closeMenu();
+        const anchorNode = selection.anchor.getNode();
+        const format = $isTextNode(anchorNode) ? anchorNode.getFormat() : 0;
+        const style = $isTextNode(anchorNode) ? anchorNode.getStyle() : '';
+
+        const mentionText = selectedOption.item.text || selectedOption.item.id;
+        const linkNode = $createLinkNode(selectedOption.item.link);
+        const mentionTextNode = $createTextNode(mentionText);
+        mentionTextNode.setFormat(format);
+        mentionTextNode.setStyle(style);
+        linkNode.append(mentionTextNode);
+
+        const spaceNode = $createTextNode(' ');
+        spaceNode.setFormat(format);
+        spaceNode.setStyle(style);
+
+        if (nodeToReplace) {
+          nodeToReplace.replace(linkNode);
+          linkNode.insertAfter(spaceNode);
+        } else {
+          selection.insertNodes([linkNode, spaceNode]);
+        }
+
+        spaceNode.select();
       });
+
+      closeMenu();
     },
     [editor],
   );
 
   const checkForMentionMatch = useCallback(
-    (text: string) => {
+    (text: string): MenuTextMatch | null => {
       const slashMatch = checkForSlashTriggerMatch(text, editor);
       if (slashMatch !== null) {
+        if (activeFeedRef.current) {
+          activeFeedRef.current = null;
+          setActiveFeed(null);
+        }
         return null;
       }
-      return getPossibleQueryMatch(text);
+
+      if (editor.getEditorState().read(() => isSelectionInsideMentionLink())) {
+        if (activeFeedRef.current) {
+          activeFeedRef.current = null;
+          setActiveFeed(null);
+        }
+        return null;
+      }
+
+      const match = getMentionMatch(text, feeds);
+      const nextFeed = match?.feed ?? null;
+      if (activeFeedRef.current !== nextFeed) {
+        activeFeedRef.current = nextFeed;
+        setActiveFeed(nextFeed);
+      }
+      return match?.match ?? null;
     },
-    [checkForSlashTriggerMatch, editor],
+    [checkForSlashTriggerMatch, editor, feeds],
   );
 
   const classes = useStyles(styles);
@@ -684,28 +387,44 @@ export default function NewMentionsPlugin(): JSX.Element | null {
       options={options}
       menuRenderFn={(
         anchorElementRef,
-        {selectedIndex, selectOptionAndCleanUp, setHighlightedIndex},
+        { selectedIndex, selectOptionAndCleanUp, setHighlightedIndex },
       ) =>
-        anchorElementRef.current && results.length
+        anchorElementRef.current && options.length
           ? ReactDOM.createPortal(
               <div className={classes.popover}>
                 <ul className={classes.list}>
-                  {options.map((option, i: number) => (
-                    <MentionsTypeaheadMenuItem
-                      index={i}
-                      isSelected={selectedIndex === i}
-                      onClick={() => {
-                        setHighlightedIndex(i);
-                        selectOptionAndCleanUp(option);
-                      }}
-                      onMouseEnter={() => {
-                        setHighlightedIndex(i);
-                      }}
-                      key={option.key}
-                      option={option}
-                      classes={classes}
-                    />
-                  ))}
+                  {options.map((option, i: number) => {
+                    const item = option.item;
+                    const customRenderer = activeFeed?.itemRenderer;
+                    const content = customRenderer ? (
+                      customRenderer(item)
+                    ) : (
+                      <div className={classes.itemContent}>
+                        <div className={classes.itemLabel}>{item.label || item.id}</div>
+                        {item.description && (
+                          <div className={classes.itemDescription}>{item.description}</div>
+                        )}
+                      </div>
+                    );
+
+                    return (
+                      <MentionsTypeaheadMenuItem
+                        index={i}
+                        isSelected={selectedIndex === i}
+                        onClick={() => {
+                          setHighlightedIndex(i);
+                          selectOptionAndCleanUp(option);
+                        }}
+                        onMouseEnter={() => {
+                          setHighlightedIndex(i);
+                        }}
+                        key={option.key}
+                        option={option}
+                        classes={classes}
+                        content={content}
+                      />
+                    );
+                  })}
                 </ul>
               </div>,
               anchorElementRef.current,
@@ -715,3 +434,4 @@ export default function NewMentionsPlugin(): JSX.Element | null {
     />
   );
 }
+
