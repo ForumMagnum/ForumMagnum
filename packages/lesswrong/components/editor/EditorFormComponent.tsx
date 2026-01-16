@@ -390,8 +390,6 @@ function InnerEditorFormComponent<S, R>({
     // websocket and saved that way.
     if (!isCollabEditor) {
       if (!isBlank(newContents)) {
-        // eslint-disable-next-line no-console
-        console.log('[DEBUG] Setting hasUnsavedData = true (content changed)');
         hasUnsavedDataRef.current.hasUnsavedData = true;
       }
     }
@@ -431,11 +429,7 @@ function InnerEditorFormComponent<S, R>({
 
   useEffect(() => {
     const unloadEventListener = (ev: BeforeUnloadEvent) => {
-      // eslint-disable-next-line no-console
-      console.log('[DEBUG] beforeunload fired, hasUnsavedData =', hasUnsavedDataRef?.current?.hasUnsavedData);
       if (hasUnsavedDataRef?.current?.hasUnsavedData) {
-        // eslint-disable-next-line no-console
-        console.log('[DEBUG] BLOCKING navigation due to unsaved data');
         ev.preventDefault();
         ev.returnValue = 'Are you sure you want to close?';
         return ev.returnValue
@@ -480,7 +474,6 @@ function InnerEditorFormComponent<S, R>({
       });
       const cleanupSuccessForm = addOnSuccessCallback((result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => {
         getLocalStorageHandlers(currentEditorType).reset();
-        hasUnsavedDataRef.current.hasUnsavedData = false;
         // If we're autosaving (noReload: true), don't clear the editor!  Also no point in clearing it if we're getting redirected anyways
         if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload) && !isCollabEditor) {
 
@@ -516,6 +509,7 @@ function InnerEditorFormComponent<S, R>({
             autosave: false,
           });
         }
+        hasUnsavedDataRef.current.hasUnsavedData = false;
         return result;
       });
       return () => {
