@@ -5,7 +5,7 @@ import { cookies, headers } from "next/headers";
 import { readFile } from "fs/promises";
 
 import RouteRoot from "@/components/layout/RouteRoot";
-import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import { getUser } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
@@ -13,8 +13,7 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import CopyDropIndexSqlButton from "./CopyDropIndexSqlButton";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), {
-    title: "Debug Database Indexes",
+  return merge({}, await getDefaultMetadata(), getPageTitleFields("Debug Database Indexes"), {
     robots: { index: false },
   });
 }
