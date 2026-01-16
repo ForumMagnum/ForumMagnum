@@ -26,9 +26,7 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontSize: 16,
   },
-  group: {
-
-  },
+  group: {},
   newContent: {
     background: theme.palette.panelBackground.sunshineNewContentGroup,
   },
