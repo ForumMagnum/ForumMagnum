@@ -6,20 +6,6 @@ import { UserRateLimitsList } from '../UserRateLimitsList';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import type { InboxAction } from './inboxReducer';
 import moment from 'moment';
-import { gql } from '@/lib/generated/gql-codegen';
-import { UserRateLimitsForm } from '../UserRateLimitsForm';
-
-const SunshineUsersListMultiQuery = gql(`
-  query multiUserSupermodModeratorActionsQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
-    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...SunshineUsersList
-      }
-      totalCount
-    }
-  }
-`);
-
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   modActionsRow: {
     display: 'flex',
