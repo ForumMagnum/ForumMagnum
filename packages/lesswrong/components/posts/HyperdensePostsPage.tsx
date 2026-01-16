@@ -2,14 +2,19 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { decodeIntlError } from '@/lib/vulcan-lib/utils';
+import FormattedMessage from '@/lib/vulcan-i18n/message';
 import HyperdensePostCard from './HyperdensePostCard';
 import PostsLoading from './PostsLoading';
 import { usePostsList } from './usePostsList';
 import LoadMore from '../common/LoadMore';
 import SectionFooter from '../common/SectionFooter';
-import Loading from '../vulcan-core/Loading';
 import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
 import classNames from 'classnames';
+
+const Error = ({error}: any) => <div>
+  <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
+</div>;
 
 const styles = defineStyles('HyperdensePostsPage', (theme: ThemeType) => ({
   container: {
@@ -48,6 +53,7 @@ const HyperdensePostsPage = () => {
   const {
     orderedResults,
     loading,
+    error,
     loadMore,
     loadMoreProps,
     maybeMorePosts,
@@ -88,6 +94,7 @@ const HyperdensePostsPage = () => {
 
   return (
     <div className={classes.container}>
+      {error && <Error error={decodeIntlError(error)}/>}
       <div className={classes.grid}>
         {posts.map((post) => (
           <div key={post._id} className={classes.cardWrapper}>
@@ -116,4 +123,3 @@ const HyperdensePostsPage = () => {
 };
 
 export default HyperdensePostsPage;
-
