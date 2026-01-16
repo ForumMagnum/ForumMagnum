@@ -10,7 +10,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, hasProminentLogoSetting, lightconeFundraiserActive, lightconeFundraiserPostId } from '@/lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, hasProminentLogoSetting } from '@/lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { useLocation } from '../../lib/routeUtil';
@@ -31,7 +31,7 @@ import SiteLogo from "../ea-forum/SiteLogo";
 import MessagesMenuButton from "../messaging/MessagesMenuButton";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { isHomeRoute } from '@/lib/routeChecks';
-import { forumSelect, isLW } from '@/lib/forumTypeUtils';
+import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from "../notifications/NotificationsMenu";
 import { IsLlmChatSidebarOpenContext } from './Layout';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
@@ -311,20 +311,6 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     "& .headroom--unfixed": {
       position: "fixed !important",
     },
-  },
-  lightconeFundraiserHeaderItem: {
-    color: theme.palette.review.winner,
-    fontFamily: theme.typography.headerStyle.fontFamily,
-    fontSize: '1.4rem',
-    marginLeft: theme.spacing.unit,
-  },
-  lightconeFundraiserHeaderItemSmall: {
-    color: theme.palette.review.winner,
-    fontFamily: theme.typography.headerStyle.fontFamily,
-    fontSize: '1.4rem',
-    fontWeight: 600,
-    marginLeft: theme.spacing.unit,
-    marginBottom: 1.5,
   },
   reserveSpaceForLlmChatSidebar: {
     [theme.breakpoints.up("lg")]: {
@@ -641,9 +627,6 @@ const Header = ({
                         {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                         {forumHeaderTitleSetting.get()}
                       </Link>
-                      {isLW() && lightconeFundraiserActive.get() && <div className={classes.lightconeFundraiserHeaderItem}>
-                        <Link to={`/posts/${lightconeFundraiserPostId.get()}`}> is fundraising!</Link>
-                      </div>}
                     </div>
                     <HeaderSubtitle />
                   </div>

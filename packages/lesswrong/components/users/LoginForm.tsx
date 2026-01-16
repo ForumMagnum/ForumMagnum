@@ -15,6 +15,7 @@ import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
+import useCookies from '@/lib/vendor/react-cookie/useCookies.tsx';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -127,6 +128,19 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   const { flash } = useMessages();
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
   const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(hasSubscribeToCuratedCheckbox)
+  const [_, setCookie] = useCookies(["loginToken"]);
+
+  const saveLoginToken = useCallback((token: string) => {
+    // The graphql request with a "login" or "signup" mutation returns a login
+    // token in the graphql response. It will also use a header to set a cookie,
+    // but only if using the non-streaming graphql API, so we have to convert
+    // the token into a cookie ourselves.
+    setCookie("loginToken", token, {
+      maxAge: 315360000,
+      path: "/",
+    });
+  }, [setCookie]);
+
 
   const [loginMutation] = useMutation(gql(`
     mutation login($username: String, $password: String) {
@@ -169,6 +183,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
         showError(error);
       }
       if (data?.login?.token) {
+        saveLoginToken(data.login.token);
         location.reload()
       }
     } else if (currentAction === 'signup') {
@@ -184,6 +199,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
         showError(error);
       }
       if (data?.signup?.token) {
+        saveLoginToken(data.signup.token);
         location.reload()
       }
     } else if (currentAction === 'pwReset') {

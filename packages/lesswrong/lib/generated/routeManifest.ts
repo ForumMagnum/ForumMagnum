@@ -201,6 +201,9 @@ export const routeTrie = {
         "sendLlmChat": {
           "hasRoute": true
         },
+        "streamGraphql": {
+          "hasRoute": true
+        },
         "v2": {
           "staticChildren": {
             "crosspost": {
@@ -256,6 +259,7 @@ export const routeTrie = {
         "registerclientid": "registerClientId",
         "search": "search",
         "sendllmchat": "sendLlmChat",
+        "streamgraphql": "streamGraphql",
         "v2": "v2"
       }
     },

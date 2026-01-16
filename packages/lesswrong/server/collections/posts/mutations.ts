@@ -39,11 +39,21 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
 
   await postsUndraftRateLimit(document, previewDocument, user, context);
 
-  // Prevent users from editing or re-drafting rejected posts to hide them
-  // Also, if the user doesn't have posting permissions, don't let them edit posts at all
+  // If the user doesn't have posting permissions, don't let them edit posts at all
   // This prevents them from publishing previously-made draft posts, etc.
-  if ((userOwns(user, document) && document.rejected) || !userCanPost(user)) {
+  if (!userCanPost(user)) {
     return false;
+  }
+
+  // For rejected posts owned by the user, allow redrafting.
+  // Technically this lets someone edit the contents if they do it in the same operation,
+  // but that's more annoying to prevent and I don't expect too many cases of that.
+  // (Also it only matters when doing moderation.)
+  if (userOwns(user, document) && document.rejected) {
+    const isRedrafting = !document.draft && previewDocument.draft;
+    if (!isRedrafting) {
+      return false;
+    }
   }
 
   if (userCanDo(user, 'posts.alignment.move.all') ||

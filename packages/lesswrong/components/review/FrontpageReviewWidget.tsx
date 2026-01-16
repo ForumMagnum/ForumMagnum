@@ -247,6 +247,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
   // These should be calculated at render
   const currentDate = moment.utc()
   const activeRange = getReviewPhase(reviewYear)
+  const isBeforeReviewPhase = activeRange === "NOMINATIONS"
+  const isBeforeVotingPhase = activeRange === "REVIEWS" || activeRange === "NOMINATIONS"
 
   const nominationsTooltip = <div>
       <div>Cast initial votes for the {reviewYear} Review.</div>
@@ -260,7 +262,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     </div>
 
   const reviewTooltip = <>
-      <div>Review posts for the {reviewYear} Review (Opens {nominationEndDate.format('MMM Do')})</div>
+      <div>Review posts for the {reviewYear} Review {isBeforeReviewPhase ? `(Opens ${nominationEndDate.format('MMM Do')})` : ''}</div>
       <ul>
         <li>Write reviews of posts nominated for the {reviewYear} Review</li>
         <li>Only posts with at least one review are eligible for the final vote</li>
@@ -269,7 +271,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     </>
 
   const voteTooltip = <>
-      <div>Cast your final votes for the {reviewYear} Review. (Opens {reviewEndDate.format('MMM Do')})</div>
+      <div>Cast your final votes for the {reviewYear} Review. {isBeforeVotingPhase ? `(Opens ${reviewEndDate.format('MMM Do')})` : ''}</div>
       <ul>
         <li>Look over nominated posts and vote on them</li>
         <li>Any user registered before {reviewYear} can vote in the review</li>
@@ -463,5 +465,3 @@ const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, end
 }
 
 export default registerComponent('FrontpageReviewWidget', FrontpageReviewWidget, {styles});
-
-

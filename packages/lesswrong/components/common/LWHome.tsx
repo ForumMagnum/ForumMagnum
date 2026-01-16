@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, lightconeFundraiserActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
+import { showReviewOnFrontPageIfActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -23,7 +23,6 @@ import DeferRender from './DeferRender';
 
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
-import FundraisingThermometer from './FundraisingThermometer';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const getStructuredData = () => ({
@@ -66,10 +65,7 @@ const LWHome = () => {
             </SuspenseWrapper>
           </SingleColumnSection>}
         </>}
-        {lightconeFundraiserActive.get() && <SingleColumnSection>
-          <FundraisingThermometer />
-        </SingleColumnSection>}
-        {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && !lightconeFundraiserActive.get() && <SingleColumnSection>
+        {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
           <DismissibleSpotlightItem loadingStyle="placeholder" />
         </SingleColumnSection>}
         <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>

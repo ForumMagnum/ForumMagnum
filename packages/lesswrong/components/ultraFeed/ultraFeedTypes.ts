@@ -132,6 +132,7 @@ export interface FeedCommentFromDb {
   descendentCount?: number;
   fromSubscribedUser?: boolean;
   isRead?: boolean;
+  reviewingForReview: string | null;
 }
 
 export interface PreDisplayFeedComment {
