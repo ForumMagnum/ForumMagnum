@@ -389,11 +389,11 @@ export const UserRateLimitsForm = ({
 };
 
 type UserRateLimitItemProps = {
-  showForm: boolean;
+  showForm?: boolean;
   userId: string;
   user?: undefined;
 } | {
-  showForm: boolean;
+  showForm?: boolean;
   userId?: undefined;
   user: SunshineUsersList;
 };
