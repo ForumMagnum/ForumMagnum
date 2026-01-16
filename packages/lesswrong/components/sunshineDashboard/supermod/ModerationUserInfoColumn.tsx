@@ -25,13 +25,6 @@ const styles = defineStyles('ModerationUserInfoColumn', (theme: ThemeType) => ({
     gap: 8,
     flex: 1,
   },
-  modActionsRow: {
-    display: 'flex',
-    gap: 16,
-    alignItems: 'flex-start',
-  },
-  modActionItem: {},
-  rateLimitSection: {},
 }));
 
 const ModerationUserInfoColumn = ({
