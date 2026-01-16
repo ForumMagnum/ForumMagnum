@@ -67,7 +67,7 @@ const ModerationSidebar = ({
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
-  const [showNewTemplateModal, setShowNewTemplateModal] = useState(false);
+  const [showNewTemplateForm, setShowNewTemplateForm] = useState(false);
 
   if (!user) {
     return (
@@ -92,16 +92,16 @@ const ModerationSidebar = ({
           {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
           <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} showExpandablePreview />
         </div>
-        <div className={classes.newTemplateButton} onClick={() => setShowNewTemplateModal(true)}>
+        <div className={classes.newTemplateButton} onClick={() => setShowNewTemplateForm(true)}>
           NEW MOD TEMPLATE
         </div>
-        {showNewTemplateModal && (
+        {showNewTemplateForm && (
           <div className={classes.modTemplateForm}>
             <ModerationTemplatesForm
               onSuccess={() => {
-                setShowNewTemplateModal(false);
+                setShowNewTemplateForm(false);
               }}
-              onCancel={() => setShowNewTemplateModal(false)}
+              onCancel={() => setShowNewTemplateForm(false)}
               refetchQueries={[{
                 query: ModerationTemplatesListQuery,
                 variables: {
