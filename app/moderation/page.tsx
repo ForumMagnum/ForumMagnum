@@ -1,5 +1,5 @@
 import React from "react";
-import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
@@ -8,8 +8,7 @@ import { unstable_cache } from 'next/cache';
 import ModerationPageContent from "./ModerationPageContent";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), {
-    title: 'Moderation Log',
+  return merge({}, await getDefaultMetadata(), getPageTitleFields('Moderation Log'), {
     robots: { index: false },
   });
 }
