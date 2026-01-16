@@ -22,6 +22,7 @@ import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateMode
 import { useCoreTags } from '@/components/tagging/useCoreTags';
 import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardContext';
 import ModerationPostSidebar from './ModerationPostSidebar';
+import ModerationUndoHistory from './ModerationUndoHistory';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -77,6 +78,20 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     flex: 1,
     overflow: 'hidden',
     borderRight: theme.palette.border.normal,
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  undoQueueSection: {
+    width: 300,
+    flexShrink: 0,
+    borderRight: theme.palette.border.normal,
+    height: '100%',
+    overflow: 'auto',
+  },
+  inboxListContainer: {
+    flex: 1,
+    overflow: 'hidden',
+    minWidth: 0,
   },
   postDetailPanel: {
     flex: 2,
@@ -341,18 +356,31 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
               state={state}
             />
           ) : (
-            <ModerationInboxList
-              userGroups={filteredGroups}
-              posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
-              focusedUserId={state.focusedUserId}
-              focusedPostId={state.focusedPostId}
-              onFocusUser={handleOpenUser}
-              onOpenUser={handleOpenUser}
-              onFocusPost={handleFocusPost}
-              visibleTabs={visibleTabs}
-              activeTab={state.activeTab}
-              onTabChange={handleTabChange}
-            />
+            <>
+              {(state.undoQueue.length > 0 || state.history.length > 0) && (
+                <div className={classes.undoQueueSection}>
+                  <ModerationUndoHistory
+                    undoQueue={state.undoQueue}
+                    history={state.history}
+                    dispatch={dispatch}
+                  />
+                </div>
+              )}
+              <div className={classes.inboxListContainer}>
+                <ModerationInboxList
+                  userGroups={filteredGroups}
+                  posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
+                  focusedUserId={state.focusedUserId}
+                  focusedPostId={state.focusedPostId}
+                  onFocusUser={handleOpenUser}
+                  onOpenUser={handleOpenUser}
+                  onFocusPost={handleFocusPost}
+                  visibleTabs={visibleTabs}
+                  activeTab={state.activeTab}
+                  onTabChange={handleTabChange}
+                />
+              </div>
+            </>
           )}
         </div>
         {isPostsTab && !openedUser && (
