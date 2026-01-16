@@ -121,6 +121,7 @@ dependency-graph.svg
 
 tsconfig.tsbuildinfo
 tsconfig-client.tsbuildinfo
+tsconfig-server.tsbuildinfo
 
 # NextJS
 next-env.d.ts
