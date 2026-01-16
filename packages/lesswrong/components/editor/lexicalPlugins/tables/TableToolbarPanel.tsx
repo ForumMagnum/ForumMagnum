@@ -201,7 +201,7 @@ function TableGridIcon({
   maskRect?: TableIconHighlight;
 }): React.ReactElement {
   const maskId = useId();
-  const baseStrokeOpacity = 0.35;
+  const baseStrokeOpacity = 0.6;
 
   return (
     <svg className={className} viewBox="0 0 18 18" aria-hidden="true">
