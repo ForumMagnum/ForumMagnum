@@ -1,40 +1,33 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userIsMemberOf } from '../../lib/vulcan-users/permissions';
-import classNames from 'classnames';
 import { useAdminToggle } from './useAdminToggle';
+import ToggleSwitch from '../common/ToggleSwitch';
+import Cookies from 'universal-cookie';
+
+const PREFER_NEW_SITE_COOKIE = 'prefer_ea_forum_v3';
 
 const styles = (theme: ThemeType) => ({
-  toggle: {
+  root: {
     position: 'fixed',
     left: 20,
     bottom: 20,
-    display: 'flex',
-    alignItems: 'center',
-    height: 36,
-    width: 118,
-    backgroundColor: theme.palette.buttons.alwaysPrimary,
-    color: theme.palette.text.alwaysWhite,
-    fontSize: 13,
-    fontFamily: theme.typography.fontFamily,
-    fontWeight: 600,
-    padding: '0 18px',
-    borderRadius: 18,
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: 8,
     boxShadow: theme.palette.boxShadow.eaCard,
-    cursor: 'pointer',
+    padding: '12px 16px',
     zIndex: theme.zIndexes.intercomButton,
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-    },
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
     [theme.breakpoints.down('md')]: {
       left: 10,
       bottom: 58,
-      height: 26,
-      width: 92,
+      padding: '8px 12px',
       fontSize: 11,
-      padding: '0 12px',
-      borderRadius: 13,
     },
     [theme.breakpoints.down('xs')]: {
       display: 'none'
@@ -43,71 +36,74 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-  toggleOff: {
-    backgroundColor: theme.palette.grey[400],
-    '&:hover': {
-      backgroundColor: theme.palette.grey[500],
-    }
+  row: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '12px',
   },
-  toggleDisabled: {
-    cursor: 'default',
+  label: {
+    color: theme.palette.text.primary,
+    fontWeight: 500,
   },
-  onText: {
-    textAlign: 'left',
-  },
-  offText: {
-    flexGrow: 1,
-    textAlign: 'right',
-  },
-  toggleDot: {
-    position: 'absolute',
-    left: 87,
-    height: 26,
-    width: 26,
-    backgroundColor: theme.palette.text.alwaysWhite,
-    borderRadius: '50%',
-    // transition: 'left .2s ease',
-    [theme.breakpoints.down('md')]: {
-      left: 70,
-      height: 18,
-      width: 18,
-    }
-  },
-  toggleDotOff: {
-    left: 5,
-    [theme.breakpoints.down('md')]: {
-      left: 4
-    }
-  }
 });
 
 export const AdminToggle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser()
-  const {loading, toggleOn, toggleOff} = useAdminToggle()
-  
-  if (!currentUser) return null
+  const currentUser = useCurrentUser();
+  const {loading, toggleOn, toggleOff} = useAdminToggle();
 
-  if (currentUser.isAdmin) {
-    return <div
-      className={classNames(classes.toggle, {[classes.toggleDisabled]: loading})}
-      onClick={loading ? undefined : toggleOff}
-    >
-      <div className={classes.onText}>Admin on</div>
-      <div className={classes.toggleDot}></div>
-    </div>
-  } else if (!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins")) {
-    return <div
-      className={classNames(classes.toggle, classes.toggleOff, {[classes.toggleDisabled]: loading})}
-      onClick={loading ? undefined : toggleOn}
-    >
-      <div className={classes.offText}>Admin off</div>
-      <div className={classNames(classes.toggleDot, classes.toggleDotOff)}></div>
-    </div>
-  }
+  const [preferNewSite, setPreferNewSite] = useState(() => {
+    const cookies = new Cookies();
+    return cookies.get(PREFER_NEW_SITE_COOKIE) === 'true';
+  });
+
+  const handlePreferNewSiteChange = useCallback((value: boolean) => {
+    const cookies = new Cookies();
+    if (value) {
+      cookies.set(PREFER_NEW_SITE_COOKIE, 'true', { path: '/' });
+    } else {
+      cookies.remove(PREFER_NEW_SITE_COOKIE, { path: '/' });
+    }
+    setPreferNewSite(value);
+  }, []);
+
+  const handleAdminToggle = useCallback((value: boolean) => {
+    if (loading) return;
+    if (value) {
+      toggleOn?.();
+    } else {
+      toggleOff?.();
+    }
+  }, [loading, toggleOn, toggleOff]);
+
+  const isRealAdmin = userIsMemberOf(currentUser, "realAdmins");
   
-  return null
+  if (!currentUser || !isRealAdmin) return null;
+
+  const isAdminOn = currentUser.isAdmin;
+
+  return (
+    <div className={classes.root}>
+      <div className={classes.row}>
+        <span className={classes.label}>Admin</span>
+        <ToggleSwitch 
+          value={isAdminOn} 
+          setValue={handleAdminToggle}
+          smallVersion
+        />
+      </div>
+      <div className={classes.row}>
+        <span className={classes.label}>Prefer new site</span>
+        <ToggleSwitch 
+          value={preferNewSite} 
+          setValue={handlePreferNewSiteChange}
+          smallVersion
+        />
+      </div>
+    </div>
+  );
 }
 
 export default registerComponent('AdminToggle', AdminToggle, {styles});
