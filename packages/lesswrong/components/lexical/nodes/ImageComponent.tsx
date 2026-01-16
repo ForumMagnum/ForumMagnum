@@ -81,6 +81,9 @@ const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
     display: 'inline-block',
     position: 'relative',
   },
+  imageWrapperFocused: {
+    boxShadow: `0 0 0 1px ${theme.palette.lexicalEditor.focusRing}`,
+  },
   toolbar: {
     position: 'absolute',
     top: -40,
@@ -88,6 +91,9 @@ const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
     transform: 'translateX(-50%)',
     display: 'flex',
     gap: 6,
+    flexWrap: 'nowrap',
+    whiteSpace: 'nowrap',
+    width: 'max-content',
     backgroundColor: theme.palette.grey[0],
     padding: '4px 6px',
     borderRadius: 8,
@@ -104,6 +110,8 @@ const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
     borderRadius: 6,
     padding: '4px 6px',
     cursor: 'pointer',
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
     color: theme.palette.grey[700],
     '&:hover:not([disabled])': {
       backgroundColor: theme.palette.grey[200],
@@ -680,7 +688,10 @@ export default function ImageComponent({
             draggable={draggable}
             className={classNames(
               classes.imageWrapper,
-              { [classes.resizing]: isResizing },
+              {
+                [classes.resizing]: isResizing,
+                [classes.imageWrapperFocused]: isFocused,
+              },
             )}>
             {isLoadError ? (
               <BrokenImage />
@@ -700,6 +711,15 @@ export default function ImageComponent({
                 maxWidth={maxWidth}
                 widthPercent={widthPercent ?? undefined}
                 onError={() => setIsLoadError(true)}
+              />
+            )}
+            {resizable && isInNodeSelection && isFocused && (
+              <ImageResizer
+                editor={editor}
+                imageRef={imageRef}
+                maxWidth={maxWidth}
+                onResizeStart={onResizeStart}
+                onResizeEnd={onResizeEnd}
               />
             )}
           </div>
@@ -736,15 +756,6 @@ export default function ImageComponent({
               {showNestedEditorTreeView === true ? <TreeViewPlugin /> : null}
             </LexicalNestedComposer>
           </div>
-        )}
-        {resizable && isInNodeSelection && isFocused && (
-          <ImageResizer
-            editor={editor}
-            imageRef={imageRef}
-            maxWidth={maxWidth}
-            onResizeStart={onResizeStart}
-            onResizeEnd={onResizeEnd}
-          />
         )}
       </>
     </Suspense>

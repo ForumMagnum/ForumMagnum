@@ -16,6 +16,11 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 
 const styles = defineStyles('LexicalImageResizer', (theme: ThemeType) => ({
+  controlWrapper: {
+    position: 'absolute',
+    inset: 0,
+    pointerEvents: 'none',
+  },
   resizer: {
     display: 'block',
     width: 7,
@@ -23,6 +28,7 @@ const styles = defineStyles('LexicalImageResizer', (theme: ThemeType) => ({
     position: 'absolute',
     backgroundColor: 'rgb(60, 132, 244)',
     border: `1px solid ${theme.palette.grey[0]}`,
+    pointerEvents: 'auto',
   },
   resizerN: {
     top: -6,
@@ -40,7 +46,7 @@ const styles = defineStyles('LexicalImageResizer', (theme: ThemeType) => ({
     cursor: 'e-resize',
   },
   resizerSE: {
-    bottom: -2,
+    bottom: -6,
     right: -6,
     cursor: 'nwse-resize',
   },
@@ -50,7 +56,7 @@ const styles = defineStyles('LexicalImageResizer', (theme: ThemeType) => ({
     cursor: 's-resize',
   },
   resizerSW: {
-    bottom: -2,
+    bottom: -6,
     left: -6,
     cursor: 'sw-resize',
   },
@@ -300,23 +306,11 @@ export default function ImageResizer({
   const classes = useStyles(styles);
 
   return (
-    <div ref={controlWrapperRef}>
-      <div
-        className={classNames(classes.resizer, classes.resizerN)}
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.north);
-        }}
-      />
+    <div ref={controlWrapperRef} className={classes.controlWrapper}>
       <div
         className={classNames(classes.resizer, classes.resizerNE)}
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.north | Direction.east);
-        }}
-      />
-      <div
-        className={classNames(classes.resizer, classes.resizerE)}
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.east);
         }}
       />
       <div
@@ -326,21 +320,9 @@ export default function ImageResizer({
         }}
       />
       <div
-        className={classNames(classes.resizer, classes.resizerS)}
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.south);
-        }}
-      />
-      <div
         className={classNames(classes.resizer, classes.resizerSW)}
         onPointerDown={(event) => {
           handlePointerDown(event, Direction.south | Direction.west);
-        }}
-      />
-      <div
-        className={classNames(classes.resizer, classes.resizerW)}
-        onPointerDown={(event) => {
-          handlePointerDown(event, Direction.west);
         }}
       />
       <div

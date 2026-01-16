@@ -85,14 +85,14 @@ const styles = defineStyles('LexicalApp', (theme: ThemeType) => ({
       display: 'inline-block',
       position: 'relative',
       userSelect: 'none',
-      overflow: 'hidden',
+      overflow: 'visible',
     },
     '& .editor-image img': {
       maxWidth: '100%',
       cursor: 'default',
     },
     '& .editor-image img.focused': {
-      outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
+      outline: 'none',
       userSelect: 'none',
     },
     '& .editor-image img.focused.draggable': {
