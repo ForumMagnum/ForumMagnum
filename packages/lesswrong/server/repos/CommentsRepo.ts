@@ -516,7 +516,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
               AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
-          ORDER BY c."postedAt" DESC
+          ORDER BY 
+              (CASE WHEN c."reviewingForReview" = '2024' THEN 0 ELSE 1 END),
+              c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
       ),
       "CandidateThreadTopLevelIds" AS (
