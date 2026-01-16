@@ -5,6 +5,8 @@ import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
+import { M } from '@breejs/later';
+import classNames from 'classnames';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   modActionsRow: {
@@ -29,7 +31,7 @@ const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
   },
   rateLimitForm: {
     padding: 10
-  },
+  }
 }));
 
 const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, dispatch: React.ActionDispatch<[action: InboxAction]>}) => {
@@ -55,11 +57,9 @@ const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, di
           Limits
         </div>
       </div>
-      {showRateLimitForm && (
-        <div className={classes.rateLimitForm}>
-          <UserRateLimitItem userId={user._id} />
-        </div>
-      )}
+      <div className={classNames({ [classes.rateLimitForm]: showRateLimitForm })}>
+        <UserRateLimitItem userId={user._id} showForm={showRateLimitForm} />
+      </div>
     </div>
   );
 }
