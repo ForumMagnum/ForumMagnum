@@ -9,7 +9,7 @@ import { classifyHost } from './routeUtil';
 import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
 import { getUrlClass } from '@/server/utils/getUrlClass';
-import { isRouteOwnedByNewSite } from './stranglerFig';
+import { isRouteOwnedByEAForumV3 } from './stranglerFig';
 
 export type LinkProps = {
   to?: HashLinkProps['to']|null
@@ -33,7 +33,7 @@ const isLinkValid = (props: LinkProps): props is HashLinkProps => {
   return typeof props.to === "string" || typeof props.to === "object";
 };
 
-export const Link = ({eventProps, ...props}: LinkProps) => {
+export const Link = ({eventProps, onClick, ...props}: LinkProps) => {
   const { captureEvent } = useTracking({
     eventType: "linkClicked",
     eventProps: {
@@ -41,9 +41,22 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
       ...(eventProps ?? {}),
     },
   });
-  const handleClick = (e: AnyBecauseTodo) => {
+  const handleMouseDown = (e: AnyBecauseTodo) => {
     captureEvent(undefined, {buttonPressed: e.button})
     props.onMouseDown && props.onMouseDown(e)
+  }
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    onClick?.(e as AnyBecauseTodo);
+    if (e.defaultPrevented) return;
+
+    // STRANGLER FIG: Check on click if route is owned by new site
+    const {to} = props;
+    const href = typeof to === 'string' ? to : ((to as {pathname?: string} | null)?.pathname ?? '/');
+    if (isRouteOwnedByEAForumV3(href)) {
+      e.preventDefault();
+      window.location.href = href;
+    }
   }
 
   if (!isLinkValid(props)) {
@@ -53,17 +66,11 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
   }
 
   const {to, ...otherProps} = props;
-  const href = typeof to === 'string' ? to : (to as {pathname?: string})?.pathname ?? '/';
-  
-  // STRANGLER FIG: Full page navigation for routes owned by new site
-  if (isRouteOwnedByNewSite(href)) {
-    return <a href={href} {...otherProps} onMouseDown={handleClick}/>
-  }
-  
+
   if (to && typeof to === 'string' && isOffsiteLink(to)) {
-    return <a href={to} {...otherProps} onMouseDown={handleClick}/>
+    return <a href={to} {...otherProps} onClick={handleClick} onMouseDown={handleMouseDown}/>
   } else {
-    return <HashLink {...props} onMouseDown={handleClick}/>
+    return <HashLink {...props} onClick={handleClick} onMouseDown={handleMouseDown}/>
   }
 }
 
