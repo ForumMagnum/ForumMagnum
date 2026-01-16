@@ -52,6 +52,8 @@ export const useSubscribedLocation = (): RouterLocation => {
   return useContext(SubscribeLocationContext)!;
 }
 
+import { isRouteOwnedByNewSite } from './stranglerFig';
+
 export type NavigateFunction = ReturnType<typeof useNavigate>
 /**
  * React Hook which returns an acessor-object for page navigation. Contains one
@@ -71,10 +73,26 @@ export const useNavigate = () => {
         locationDescriptor :
         history.createHref(locationDescriptor);
       window.open(href, '_blank')?.focus();
-    } else if (options?.replace) {
-      history.replace(locationDescriptor);
     } else {
-      history.push(locationDescriptor);
+      const href = typeof locationDescriptor === 'string' ?
+        locationDescriptor :
+        history.createHref(locationDescriptor);
+      
+      // STRANGLER FIG: Full page navigation for routes owned by new site
+      if (isRouteOwnedByNewSite(href)) {
+        if (options?.replace) {
+          window.location.replace(href);
+        } else {
+          window.location.href = href;
+        }
+        return;
+      }
+      
+      if (options?.replace) {
+        history.replace(locationDescriptor);
+      } else {
+        history.push(locationDescriptor);
+      }
     }
   }, [history]);
 }

@@ -9,6 +9,7 @@ import { classifyHost } from './routeUtil';
 import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import { isRouteOwnedByNewSite } from './stranglerFig';
 
 export type LinkProps = {
   to?: HashLinkProps['to']|null
@@ -52,6 +53,13 @@ export const Link = ({eventProps, ...props}: LinkProps) => {
   }
 
   const {to, ...otherProps} = props;
+  const href = typeof to === 'string' ? to : (to as {pathname?: string})?.pathname ?? '/';
+  
+  // STRANGLER FIG: Full page navigation for routes owned by new site
+  if (isRouteOwnedByNewSite(href)) {
+    return <a href={href} {...otherProps} onMouseDown={handleClick}/>
+  }
+  
   if (to && typeof to === 'string' && isOffsiteLink(to)) {
     return <a href={to} {...otherProps} onMouseDown={handleClick}/>
   } else {
