@@ -57,6 +57,13 @@ const SupermodModeratorActions = ({user, dispatch}: {user: SunshineUsersList, di
           Limits
         </div>
       </div>
+      {/* 
+        TODO: rework rate limits into a nicer UI and/or get rid of them completely
+      since we don't use them a ton. 
+
+        For now, we're only showing the options for it when we've toggled the button here.
+        (but, still rendering the list of existing rate limits whether you've expanded it or not)
+      */}
       <div className={classNames({ [classes.rateLimitForm]: showRateLimitForm })}>
         <UserRateLimitItem userId={user._id} showForm={showRateLimitForm} />
       </div>
