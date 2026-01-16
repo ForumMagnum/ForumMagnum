@@ -25,6 +25,7 @@ import {
 import {$createHeadingNode, $createQuoteNode} from '@lexical/rich-text';
 import {$setBlocksType} from '@lexical/selection';
 import {INSERT_TABLE_COMMAND} from '@lexical/table';
+import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
 import {
   $createParagraphNode,
   $getSelection,
@@ -47,7 +48,6 @@ import {INSERT_IMAGE_COMMAND, InsertImageDialog} from '../ImagesPlugin';
 import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
 import {InsertPollDialog} from '../PollPlugin';
-import {InsertTableDialog} from '../TablePlugin';
 
 import { TableIcon } from '../../icons/TableIcon';
 import { TextParagraphIcon } from '../../icons/TextParagraphIcon';
@@ -238,9 +238,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <TableIcon style={iconStyle} />,
       keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
       onSelect: () =>
-        showModal('Insert Table', (onClose) => (
-          <InsertTableDialog activeEditor={editor} onClose={onClose} />
-        )),
+        editor.dispatchCommand(OPEN_TABLE_SELECTOR_COMMAND, null),
     }),
     new ComponentPickerOption('Numbered List', {
       icon: <ListOlIcon style={iconStyle} />,

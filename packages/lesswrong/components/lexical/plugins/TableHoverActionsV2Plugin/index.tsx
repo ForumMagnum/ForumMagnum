@@ -52,6 +52,7 @@ const styles = defineStyles('LexicalTableHoverActionsV2', (theme: ThemeType) => 
     boxShadow: `0 1px 3px ${theme.palette.greyAlpha(0.12)}`,
     boxSizing: 'border-box',
     height: 18,
+    padding: 0,
     pointerEvents: 'auto',
     transition: 'opacity 80ms ease',
     width: 18,

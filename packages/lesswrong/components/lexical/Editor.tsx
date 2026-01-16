@@ -38,6 +38,7 @@ import {Doc} from 'yjs';
 import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
 import {$getRoot, $insertNodes} from 'lexical';
 import { CodeBlockPlugin } from '../editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
+import TablesPlugin from '../editor/lexicalPlugins/tables/TablesPlugin';
 
 import {
   createWebsocketProvider,
@@ -435,6 +436,7 @@ export default function Editor({
               hasHorizontalScroll={tableHorizontalScroll}
               hasNestedTables={hasNestedTables}
             />
+            <TablesPlugin />
             <TableCellResizer />
             <TableScrollShadowPlugin />
             <ImagesPlugin />

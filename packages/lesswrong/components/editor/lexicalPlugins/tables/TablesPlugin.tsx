@@ -31,13 +31,14 @@ import {
   $createTableNodeWithDimensions,
   $getTableNodeFromLexicalNodeOrThrow,
   $computeTableMapSkipCellCheck,
+  $getTableCellNodeRect,
 } from '@lexical/table';
 import { mergeRegister, $findMatchingParent } from '@lexical/utils';
 import TableDimensionSelector from './TableDimensionSelector';
 import TableToolbarPanel, { TableToolbarActions, MergeCellCapabilities } from './TableToolbarPanel';
 
 // Command to open the table dimension selector
-export const OPEN_TABLE_SELECTOR_COMMAND: LexicalCommand<DOMRect> = createCommand(
+export const OPEN_TABLE_SELECTOR_COMMAND: LexicalCommand<DOMRect | null> = createCommand(
   'OPEN_TABLE_SELECTOR_COMMAND'
 );
 
@@ -107,6 +108,68 @@ function getAdjacentCell(
   return mapEntry.cell;
 }
 
+function findCellCoordinates(
+  tableMap: Array<Array<{ cell: TableCellNode; startRow: number; startColumn: number }>>,
+  cellNode: TableCellNode
+): { rowIndex: number; colIndex: number } | null {
+  for (let row = 0; row < tableMap.length; row++) {
+    for (let col = 0; col < tableMap[row].length; col++) {
+      if (tableMap[row][col].cell === cellNode) {
+        return { rowIndex: row, colIndex: col };
+      }
+    }
+  }
+  return null;
+}
+
+function getMergeTargetCell(
+  tableMap: Array<Array<{ cell: TableCellNode; startRow: number; startColumn: number }>>,
+  cellNode: TableCellNode,
+  direction: 'up' | 'down' | 'left' | 'right'
+): TableCellNode | null {
+  const coords = findCellCoordinates(tableMap, cellNode);
+  if (!coords) return null;
+
+  const adjacentCell = getAdjacentCell(tableMap, coords.rowIndex, coords.colIndex, direction);
+  if (!adjacentCell) return null;
+
+  const cellRect = $getTableCellNodeRect(cellNode);
+  const adjacentRect = $getTableCellNodeRect(adjacentCell);
+  if (!cellRect || !adjacentRect) return null;
+
+  if (direction === 'left' || direction === 'right') {
+    const isSameRowBand =
+      cellRect.rowIndex === adjacentRect.rowIndex &&
+      cellRect.rowSpan === adjacentRect.rowSpan;
+    if (!isSameRowBand) return null;
+
+    if (
+      (direction === 'right' &&
+        adjacentRect.columnIndex !== cellRect.columnIndex + cellRect.colSpan) ||
+      (direction === 'left' &&
+        cellRect.columnIndex !== adjacentRect.columnIndex + adjacentRect.colSpan)
+    ) {
+      return null;
+    }
+  } else {
+    const isSameColumnBand =
+      cellRect.columnIndex === adjacentRect.columnIndex &&
+      cellRect.colSpan === adjacentRect.colSpan;
+    if (!isSameColumnBand) return null;
+
+    if (
+      (direction === 'down' &&
+        adjacentRect.rowIndex !== cellRect.rowIndex + cellRect.rowSpan) ||
+      (direction === 'up' &&
+        cellRect.rowIndex !== adjacentRect.rowIndex + adjacentRect.rowSpan)
+    ) {
+      return null;
+    }
+  }
+
+  return adjacentCell;
+}
+
 /**
  * TablesPlugin provides enhanced table functionality for the Lexical editor.
  */
@@ -128,7 +191,8 @@ export function TablesPlugin(): React.ReactElement {
       canMergeRight: false,
       canMergeDown: false,
       canMergeLeft: false,
-      canSplit: false,
+      canSplitVertically: false,
+      canSplitHorizontally: false,
     },
     hasMultipleCellsSelected: false,
     hasHeaderRow: false,
@@ -143,12 +207,33 @@ export function TablesPlugin(): React.ReactElement {
   }, [editor]);
 
   // Handle opening the dimension selector
-  const openDimensionSelector = useCallback((anchorRect: DOMRect) => {
+  const openDimensionSelector = useCallback((anchorRect: DOMRect | null) => {
+    let resolvedRect = anchorRect;
+    if (!resolvedRect && typeof window !== 'undefined') {
+      const rootElement = editor.getRootElement();
+      if (rootElement) {
+        const rootRect = rootElement.getBoundingClientRect();
+        resolvedRect = DOMRect.fromRect({
+          x: rootRect.left + (rootRect.width / 2),
+          y: rootRect.top + 8,
+          width: 0,
+          height: 0,
+        });
+      } else {
+        resolvedRect = DOMRect.fromRect({
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+          width: 0,
+          height: 0,
+        });
+      }
+    }
+
     setDimensionSelector({
       isOpen: true,
-      anchorRect,
+      anchorRect: resolvedRect,
     });
-  }, []);
+  }, [editor]);
 
   const closeDimensionSelector = useCallback(() => {
     setDimensionSelector({
@@ -192,38 +277,21 @@ export function TablesPlugin(): React.ReactElement {
       canMergeRight: false,
       canMergeDown: false,
       canMergeLeft: false,
-      canSplit: false,
+      canSplitVertically: false,
+      canSplitHorizontally: false,
     };
     
-    // Check if cell can be split (has colspan or rowspan > 1)
-    capabilities.canSplit = cellNode.getColSpan() > 1 || cellNode.getRowSpan() > 1;
+    // Check if cell can be split
+    capabilities.canSplitVertically = cellNode.getColSpan() > 1;
+    capabilities.canSplitHorizontally = cellNode.getRowSpan() > 1;
     
     // Get table map to check adjacents
     const [tableMap] = $computeTableMapSkipCellCheck(tableNode, cellNode, cellNode);
-    
-    // Find the cell's position in the map
-    let cellRowIndex = -1;
-    let cellColIndex = -1;
-    for (let row = 0; row < tableMap.length; row++) {
-      for (let col = 0; col < tableMap[row].length; col++) {
-        if (tableMap[row][col].cell === cellNode) {
-          cellRowIndex = row;
-          cellColIndex = col;
-          break;
-        }
-      }
-      if (cellRowIndex >= 0) break;
-    }
-    
-    if (cellRowIndex < 0 || cellColIndex < 0) {
-      return capabilities;
-    }
-    
-    // Check each direction
-    capabilities.canMergeUp = getAdjacentCell(tableMap, cellRowIndex, cellColIndex, 'up') !== null;
-    capabilities.canMergeDown = getAdjacentCell(tableMap, cellRowIndex, cellColIndex, 'down') !== null;
-    capabilities.canMergeLeft = getAdjacentCell(tableMap, cellRowIndex, cellColIndex, 'left') !== null;
-    capabilities.canMergeRight = getAdjacentCell(tableMap, cellRowIndex, cellColIndex, 'right') !== null;
+
+    capabilities.canMergeUp = getMergeTargetCell(tableMap, cellNode, 'up') !== null;
+    capabilities.canMergeDown = getMergeTargetCell(tableMap, cellNode, 'down') !== null;
+    capabilities.canMergeLeft = getMergeTargetCell(tableMap, cellNode, 'left') !== null;
+    capabilities.canMergeRight = getMergeTargetCell(tableMap, cellNode, 'right') !== null;
     
     return capabilities;
   }, []);
@@ -262,7 +330,8 @@ export function TablesPlugin(): React.ReactElement {
           canMergeRight: false,
           canMergeDown: false,
           canMergeLeft: false,
-          canSplit: false,
+          canSplitVertically: false,
+          canSplitHorizontally: false,
         };
 
     return {
@@ -271,6 +340,44 @@ export function TablesPlugin(): React.ReactElement {
       mergeCapabilities,
     };
   }, [getMergeCapabilities]);
+
+  const syncToolbarState = useCallback((
+    tableNode: TableNode,
+    cellNode: TableCellNode | null,
+    tableElement: HTMLTableElement,
+    hasMultipleCellsSelected: boolean
+  ) => {
+    const state = getTableState(tableNode, cellNode);
+    setToolbar(prev => {
+      const nextState: TableToolbarState = {
+        isOpen: true,
+        tableElement,
+        tableKey: tableNode.getKey(),
+        cellKey: cellNode?.getKey() ?? null,
+        mergeCapabilities: state.mergeCapabilities ?? prev.mergeCapabilities,
+        hasMultipleCellsSelected,
+        hasHeaderRow: state.hasHeaderRow ?? prev.hasHeaderRow,
+        hasHeaderColumn: state.hasHeaderColumn ?? prev.hasHeaderColumn,
+      };
+
+      const isSame =
+        prev.isOpen === nextState.isOpen &&
+        prev.tableElement === nextState.tableElement &&
+        prev.tableKey === nextState.tableKey &&
+        prev.cellKey === nextState.cellKey &&
+        prev.hasMultipleCellsSelected === nextState.hasMultipleCellsSelected &&
+        prev.hasHeaderRow === nextState.hasHeaderRow &&
+        prev.hasHeaderColumn === nextState.hasHeaderColumn &&
+        prev.mergeCapabilities.canMergeUp === nextState.mergeCapabilities.canMergeUp &&
+        prev.mergeCapabilities.canMergeRight === nextState.mergeCapabilities.canMergeRight &&
+        prev.mergeCapabilities.canMergeDown === nextState.mergeCapabilities.canMergeDown &&
+        prev.mergeCapabilities.canMergeLeft === nextState.mergeCapabilities.canMergeLeft &&
+        prev.mergeCapabilities.canSplitVertically === nextState.mergeCapabilities.canSplitVertically &&
+        prev.mergeCapabilities.canSplitHorizontally === nextState.mergeCapabilities.canSplitHorizontally;
+
+      return isSame ? prev : nextState;
+    });
+  }, [getTableState]);
 
   // Open toolbar for a table
   const openToolbar = useCallback((
@@ -306,26 +413,9 @@ export function TablesPlugin(): React.ReactElement {
         hasMultipleCellsSelected = selectedCells.length > 1;
       }
       
-      const state = getTableState(tableNode, cellNode);
-      
-      setToolbar({
-        isOpen: true,
-        tableElement,
-        tableKey,
-        cellKey: cellNode?.getKey() ?? null,
-        mergeCapabilities: state.mergeCapabilities ?? {
-          canMergeUp: false,
-          canMergeRight: false,
-          canMergeDown: false,
-          canMergeLeft: false,
-          canSplit: false,
-        },
-        hasMultipleCellsSelected,
-        hasHeaderRow: state.hasHeaderRow ?? false,
-        hasHeaderColumn: state.hasHeaderColumn ?? false,
-      });
+      syncToolbarState(tableNode, cellNode, tableElement, hasMultipleCellsSelected);
     });
-  }, [editor, getTableState]);
+  }, [editor, syncToolbarState]);
 
   const closeToolbar = useCallback(() => {
     setToolbar(prev => ({
@@ -346,24 +436,7 @@ export function TablesPlugin(): React.ReactElement {
       
       const tableNode = $getTableNodeFromLexicalNodeOrThrow(cellNode);
       const [tableMap] = $computeTableMapSkipCellCheck(tableNode, cellNode, cellNode);
-      
-      // Find the cell's position
-      let cellRowIndex = -1;
-      let cellColIndex = -1;
-      for (let row = 0; row < tableMap.length; row++) {
-        for (let col = 0; col < tableMap[row].length; col++) {
-          if (tableMap[row][col].cell === cellNode) {
-            cellRowIndex = row;
-            cellColIndex = col;
-            break;
-          }
-        }
-        if (cellRowIndex >= 0) break;
-      }
-      
-      if (cellRowIndex < 0 || cellColIndex < 0) return;
-      
-      const adjacentCell = getAdjacentCell(tableMap, cellRowIndex, cellColIndex, direction);
+      const adjacentCell = getMergeTargetCell(tableMap, cellNode, direction);
       if (!adjacentCell) return;
       
       // Merge the two cells
@@ -371,7 +444,6 @@ export function TablesPlugin(): React.ReactElement {
     });
   }, [editor]);
 
-  // Toolbar actions
   const toolbarActions: TableToolbarActions = {
     insertColumnLeft: useCallback(() => {
       editor.update(() => {
@@ -619,44 +691,39 @@ export function TablesPlugin(): React.ReactElement {
     };
   }, [editor, toolbar.isOpen, openToolbar, closeToolbar]);
 
-  // Update toolbar when selection changes (close if outside table, update hasMultipleCellsSelected)
+  // Update toolbar when selection changes (close if outside table, sync state)
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
       editorState.read(() => {
-        if (!toolbar.isOpen || !toolbar.tableKey) return;
-        
         const selection = $getSelection();
         if (!$isRangeSelection(selection) && !$isTableSelection(selection)) {
-          closeToolbar();
+          if (toolbar.isOpen) {
+            closeToolbar();
+          }
           return;
         }
-        
-        if ($isRangeSelection(selection)) {
-          const tableNode = $findMatchingParent(selection.anchor.getNode(), $isTableNode);
-          if (!tableNode || tableNode.getKey() !== toolbar.tableKey) {
+
+        const anchorNode = selection.anchor.getNode();
+        const tableNode = $findMatchingParent(anchorNode, $isTableNode);
+        if (!tableNode) {
+          if (toolbar.isOpen) {
             closeToolbar();
-            return;
           }
+          return;
         }
-        
-        // Update hasMultipleCellsSelected based on current selection
-        let hasMultipleCellsSelected = false;
-        if ($isTableSelection(selection)) {
-          const selectedNodes = selection.getNodes();
-          const selectedCells = selectedNodes.filter($isTableCellNode);
-          hasMultipleCellsSelected = selectedCells.length > 1;
-        }
-        
-        // Only update if the value changed
-        if (hasMultipleCellsSelected !== toolbar.hasMultipleCellsSelected) {
-          setToolbar(prev => ({
-            ...prev,
-            hasMultipleCellsSelected,
-          }));
-        }
+
+        const tableElement = editor.getElementByKey(tableNode.getKey()) as HTMLTableElement | null;
+        if (!tableElement) return;
+
+        const cellNode = $getTableCellNodeFromLexicalNode(anchorNode);
+        const hasMultipleCellsSelected = $isTableSelection(selection)
+          ? selection.getNodes().filter($isTableCellNode).length > 1
+          : false;
+
+        syncToolbarState(tableNode, cellNode, tableElement, hasMultipleCellsSelected);
       });
     });
-  }, [editor, toolbar.isOpen, toolbar.tableKey, toolbar.hasMultipleCellsSelected, closeToolbar]);
+  }, [editor, toolbar.isOpen, closeToolbar, syncToolbarState]);
 
   return (
     <>

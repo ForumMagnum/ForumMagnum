@@ -55,6 +55,7 @@ import { HorizontalRuleIcon } from '../../icons/HorizontalRuleIcon';
 import { ScissorsIcon } from '../../icons/ScissorsIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
 import { TableIcon } from '../../icons/TableIcon';
+import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
 import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
 import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
@@ -150,7 +151,6 @@ import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
 import {InsertPollDialog} from '../PollPlugin';
 import {SHORTCUTS} from '../ShortcutsPlugin/shortcuts';
-import {InsertTableDialog} from '../TablePlugin';
 import FontSize, {parseFontSizeForToolbar} from './fontSize';
 import {
   clearFormatting,
@@ -1525,15 +1525,11 @@ export default function ToolbarPlugin({
                   <span className="text">Excalidraw</span>
                 </DropDownItem> */}
                 <DropDownItem
-                  onClick={() => {
-                    showModal('Insert Table', (onClose) => (
-                      <InsertTableDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
+                  onClick={(event) => {
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    activeEditor.dispatchCommand(OPEN_TABLE_SELECTOR_COMMAND, rect);
                   }}
-                  >
+                >
                   <TableIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Table</DropDownItemText>
                 </DropDownItem>

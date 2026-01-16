@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useCallback, useState, useRef, useEffect } from 'react';
+import React, { useCallback, useState, useRef, useEffect, useId } from 'react';
 import { createPortal } from 'react-dom';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
+import ToggleSwitch from '../../../common/ToggleSwitch';
 
 const styles = defineStyles('TableToolbarPanel', (theme: ThemeType) => ({
   toolbar: {
@@ -159,9 +160,6 @@ const styles = defineStyles('TableToolbarPanel', (theme: ThemeType) => ({
   },
   dropdownItemDanger: {
     color: theme.palette.error.main,
-    '&:hover': {
-      backgroundColor: theme.palette.error.light,
-    },
   },
   dropdownDivider: {
     height: 1,
@@ -173,17 +171,109 @@ const styles = defineStyles('TableToolbarPanel', (theme: ThemeType) => ({
     textAlign: 'center',
     flexShrink: 0,
   },
+  tableIcon: {
+    width: 16,
+    height: 16,
+    display: 'block',
+  },
   dropdownItemText: {
     flex: 1,
   },
+  dropdownToggle: {
+    marginLeft: 'auto',
+  },
 }));
+
+type TableIconHighlight = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+function TableGridIcon({
+  className,
+  highlightRect,
+  maskRect,
+}: {
+  className?: string;
+  highlightRect?: TableIconHighlight;
+  maskRect?: TableIconHighlight;
+}): React.ReactElement {
+  const maskId = useId();
+  const baseStrokeOpacity = 0.35;
+
+  return (
+    <svg className={className} viewBox="0 0 18 18" aria-hidden="true">
+      {maskRect ? (
+        <mask id={maskId} maskUnits="userSpaceOnUse">
+          <rect x="0" y="0" width="18" height="18" fill="white" />
+          <rect
+            x={maskRect.x}
+            y={maskRect.y}
+            width={maskRect.width}
+            height={maskRect.height}
+            fill="black"
+            rx="1"
+            ry="1"
+          />
+        </mask>
+      ) : null}
+      <g mask={maskRect ? `url(#${maskId})` : undefined}>
+        <rect
+          x="1"
+          y="1"
+          width="16"
+          height="16"
+          rx="1"
+          ry="1"
+          stroke="currentColor"
+          fill="none"
+          strokeWidth="1"
+          strokeOpacity={baseStrokeOpacity}
+        />
+        <line x1="6" y1="1" x2="6" y2="17" stroke="currentColor" strokeWidth="1" strokeOpacity={baseStrokeOpacity} />
+        <line x1="12" y1="1" x2="12" y2="17" stroke="currentColor" strokeWidth="1" strokeOpacity={baseStrokeOpacity} />
+        <line x1="1" y1="6" x2="17" y2="6" stroke="currentColor" strokeWidth="1" strokeOpacity={baseStrokeOpacity} />
+        <line x1="1" y1="12" x2="17" y2="12" stroke="currentColor" strokeWidth="1" strokeOpacity={baseStrokeOpacity} />
+      </g>
+      {highlightRect ? (
+        <rect
+          x={highlightRect.x}
+          y={highlightRect.y}
+          width={highlightRect.width}
+          height={highlightRect.height}
+          stroke="currentColor"
+          fill="none"
+          strokeWidth="2"
+          rx="1"
+          ry="1"
+        />
+      ) : null}
+    </svg>
+  );
+}
+
+function ColumnIcon({ className }: { className?: string }): React.ReactElement {
+  return <TableGridIcon className={className} highlightRect={{ x: 6, y: 1, width: 6, height: 16 }} />;
+}
+
+function RowIcon({ className }: { className?: string }): React.ReactElement {
+  return <TableGridIcon className={className} highlightRect={{ x: 1, y: 6, width: 16, height: 6 }} />;
+}
+
+function MergeIcon({ className }: { className?: string }): React.ReactElement {
+  const mergeRect = { x: 6, y: 6, width: 11, height: 11 };
+  return <TableGridIcon className={className} highlightRect={mergeRect} maskRect={mergeRect} />;
+}
 
 export interface MergeCellCapabilities {
   canMergeUp: boolean;
   canMergeRight: boolean;
   canMergeDown: boolean;
   canMergeLeft: boolean;
-  canSplit: boolean;
+  canSplitVertically: boolean;
+  canSplitHorizontally: boolean;
 }
 
 export interface TableToolbarActions {
@@ -220,7 +310,7 @@ interface TableToolbarPanelProps {
   hasHeaderColumn: boolean;
 }
 
-type DropdownType = 'column' | 'row' | 'merge' | 'table' | null;
+type DropdownType = 'column' | 'row' | 'merge' | null;
 
 interface ToolbarPosition {
   left: number;
@@ -333,12 +423,6 @@ function TableToolbarPanel({
     setActiveDropdown(null);
   }, []);
 
-  const handleActionAndClose = useCallback((action: () => void) => {
-    action();
-    setActiveDropdown(null);
-    onClose();
-  }, [onClose]);
-
   const handleMergeMainClick = useCallback(() => {
     if (hasMultipleCellsSelected) {
       actions.mergeSelectedCells();
@@ -379,10 +463,9 @@ function TableToolbarPanel({
       buttonRect = getMergeButtonRect();
     } else {
       // Map dropdown type to button index
-      const buttonIndexMap: Record<'column' | 'row' | 'table', number> = {
+      const buttonIndexMap: Record<'column' | 'row', number> = {
         column: 0,
         row: 1,
-        table: 4, // After the split button (which has 2 buttons) + divider
       };
       buttonRect = getButtonRect(buttonIndexMap[activeDropdown]);
     }
@@ -409,6 +492,25 @@ function TableToolbarPanel({
             <button
               type="button"
               className={classes.dropdownItem}
+              onClick={() => actions.toggleHeaderColumn()}
+            >
+              <span className={classes.dropdownItemText}>Header column</span>
+              <span
+                className={classes.dropdownToggle}
+                onClick={(event) => event.stopPropagation()}
+                onMouseDown={(event) => event.stopPropagation()}
+              >
+                <ToggleSwitch
+                  value={hasHeaderColumn}
+                  setValue={() => actions.toggleHeaderColumn()}
+                  smallVersion
+                />
+              </span>
+            </button>
+            <div className={classes.dropdownDivider} />
+            <button
+              type="button"
+              className={classes.dropdownItem}
               onClick={() => handleAction(actions.insertColumnLeft)}
             >
               <span className={classes.icon}>←</span>
@@ -422,7 +524,6 @@ function TableToolbarPanel({
               <span className={classes.icon}>→</span>
               <span className={classes.dropdownItemText}>Insert column right</span>
             </button>
-            <div className={classes.dropdownDivider} />
             <button
               type="button"
               className={classNames(classes.dropdownItem, classes.dropdownItemDanger)}
@@ -435,6 +536,25 @@ function TableToolbarPanel({
         )}
         {activeDropdown === 'row' && (
           <>
+            <button
+              type="button"
+              className={classes.dropdownItem}
+              onClick={() => actions.toggleHeaderRow()}
+            >
+              <span className={classes.dropdownItemText}>Header row</span>
+              <span
+                className={classes.dropdownToggle}
+                onClick={(event) => event.stopPropagation()}
+                onMouseDown={(event) => event.stopPropagation()}
+              >
+                <ToggleSwitch
+                  value={hasHeaderRow}
+                  setValue={() => actions.toggleHeaderRow()}
+                  smallVersion
+                />
+              </span>
+            </button>
+            <div className={classes.dropdownDivider} />
             <button
               type="button"
               className={classes.dropdownItem}
@@ -451,7 +571,6 @@ function TableToolbarPanel({
               <span className={classes.icon}>↓</span>
               <span className={classes.dropdownItemText}>Insert row below</span>
             </button>
-            <div className={classes.dropdownDivider} />
             <button
               type="button"
               className={classNames(classes.dropdownItem, classes.dropdownItemDanger)}
@@ -505,48 +624,17 @@ function TableToolbarPanel({
               type="button"
               className={classes.dropdownItem}
               onClick={() => handleAction(actions.splitCellVertically)}
-              disabled={!mergeCapabilities.canSplit}
+              disabled={!mergeCapabilities.canSplitVertically}
             >
-              <span className={classes.icon}>⫿</span>
               <span className={classes.dropdownItemText}>Split cell vertically</span>
             </button>
             <button
               type="button"
               className={classes.dropdownItem}
               onClick={() => handleAction(actions.splitCellHorizontally)}
-              disabled={!mergeCapabilities.canSplit}
+              disabled={!mergeCapabilities.canSplitHorizontally}
             >
-              <span className={classes.icon}>⫻</span>
               <span className={classes.dropdownItemText}>Split cell horizontally</span>
-            </button>
-          </>
-        )}
-        {activeDropdown === 'table' && (
-          <>
-            <button
-              type="button"
-              className={classes.dropdownItem}
-              onClick={() => handleAction(actions.toggleHeaderRow)}
-            >
-              <span className={classes.icon}>{hasHeaderRow ? '☑' : '☐'}</span>
-              <span className={classes.dropdownItemText}>Header row</span>
-            </button>
-            <button
-              type="button"
-              className={classes.dropdownItem}
-              onClick={() => handleAction(actions.toggleHeaderColumn)}
-            >
-              <span className={classes.icon}>{hasHeaderColumn ? '☑' : '☐'}</span>
-              <span className={classes.dropdownItemText}>Header column</span>
-            </button>
-            <div className={classes.dropdownDivider} />
-            <button
-              type="button"
-              className={classNames(classes.dropdownItem, classes.dropdownItemDanger)}
-              onClick={() => handleActionAndClose(actions.deleteTable)}
-            >
-              <span className={classes.icon}>🗑</span>
-              <span className={classes.dropdownItemText}>Delete table</span>
             </button>
           </>
         )}
@@ -566,7 +654,7 @@ function TableToolbarPanel({
         onClick={() => toggleDropdown('column')}
         title="Column"
       >
-        <span>▯</span>
+        <ColumnIcon className={classes.tableIcon} />
         <span className={classes.dropdownArrow}>▼</span>
       </button>
       
@@ -579,7 +667,7 @@ function TableToolbarPanel({
         onClick={() => toggleDropdown('row')}
         title="Row"
       >
-        <span>▭</span>
+        <RowIcon className={classes.tableIcon} />
         <span className={classes.dropdownArrow}>▼</span>
       </button>
       
@@ -591,7 +679,7 @@ function TableToolbarPanel({
           onClick={handleMergeMainClick}
           title={hasMultipleCellsSelected ? "Merge selected cells" : "Merge cells"}
         >
-          <span>⊞</span>
+          <MergeIcon className={classes.tableIcon} />
         </button>
         <div className={classes.splitButtonDivider} />
         <button
@@ -605,21 +693,6 @@ function TableToolbarPanel({
           <span>▼</span>
         </button>
       </div>
-      
-      <div className={classes.divider} />
-      
-      {/* Table properties */}
-      <button
-        type="button"
-        className={classNames(classes.toolbarButton, classes.toolbarButtonWithDropdown, {
-          [classes.toolbarButtonActive]: activeDropdown === 'table',
-        })}
-        onClick={() => toggleDropdown('table')}
-        title="Table properties"
-      >
-        <span>⊞</span>
-        <span className={classes.dropdownArrow}>▼</span>
-      </button>
       
       {renderDropdown()}
     </div>,
