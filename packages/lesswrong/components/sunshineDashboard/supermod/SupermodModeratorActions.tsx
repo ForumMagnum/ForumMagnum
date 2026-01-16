@@ -5,7 +5,6 @@ import ModeratorActionItem from '../ModeratorUserInfo/ModeratorActionItem';
 import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
 import type { InboxAction } from './inboxReducer';
 import UserRateLimitItem from '../UserRateLimitItem';
-import { M } from '@breejs/later';
 import classNames from 'classnames';
 
 const styles = defineStyles('SupermodModeratorActions', (theme: ThemeType) => ({
