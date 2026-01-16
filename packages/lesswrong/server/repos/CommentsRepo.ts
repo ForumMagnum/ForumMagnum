@@ -11,6 +11,7 @@ import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
+import { REVIEW_YEAR } from "@/lib/reviewUtils";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -517,7 +518,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               AND p.draft IS NOT TRUE
               AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
           ORDER BY 
-              (CASE WHEN c."reviewingForReview" = '2024' THEN 0 ELSE 1 END),
+              (CASE WHEN c."reviewingForReview" = $(reviewYear) THEN 0 ELSE 1 END),
               c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
       ),
@@ -627,6 +628,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       initialCandidateLookbackDaysParam: initialCandidateLookbackDays,
       commentServedEventRecencyHoursParam: commentServedEventRecencyHours,
       restrictCandidatesToSubscribed,
+      reviewYear: REVIEW_YEAR.toString(),
     });
 
     // Safety check for duplicates from the database query
