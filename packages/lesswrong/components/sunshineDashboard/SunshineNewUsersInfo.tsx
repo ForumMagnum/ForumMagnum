@@ -239,5 +239,3 @@ export default registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
     withErrorBoundary,
   ]
 });
-
-
