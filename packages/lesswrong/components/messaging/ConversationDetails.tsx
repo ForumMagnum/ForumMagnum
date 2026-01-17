@@ -10,8 +10,8 @@ import UsersName from "../users/UsersName";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
+    marginTop: theme.spacing.unit,
+    marginBottom: theme.spacing.unit*3,
     display: "flex",
     justifyContent: "space-between",
     flexWrap: "wrap",
@@ -55,5 +55,3 @@ const ConversationDetails = ({conversation, hideOptions = false, classes}: {
 }
 
 export default registerComponent('ConversationDetails', ConversationDetails, {styles});
-
-
