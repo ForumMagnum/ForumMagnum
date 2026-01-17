@@ -6,33 +6,28 @@
  *
  */
 
-import type {LexicalCommand, LexicalEditor, NodeKey} from 'lexical';
+import type {LexicalCommand, NodeKey} from 'lexical';
 import React, { type JSX } from 'react';
 
-import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
-import {CollaborationPlugin} from '@lexical/react/LexicalCollaborationPlugin';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
-import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
-import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
-import {LexicalNestedComposer} from '@lexical/react/LexicalNestedComposer';
-import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
 import {useLexicalNodeSelection} from '@lexical/react/useLexicalNodeSelection';
 import {mergeRegister} from '@lexical/utils';
 import {
   $getNodeByKey,
-  $getRoot,
   $getSelection,
   $isNodeSelection,
   $isRangeSelection,
+  $isTextNode,
   $setSelection,
-  BLUR_COMMAND,
   CLICK_COMMAND,
   COMMAND_PRIORITY_EDITOR,
+  COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
   createCommand,
   DRAGSTART_COMMAND,
+  KEY_BACKSPACE_COMMAND,
+  KEY_DELETE_COMMAND,
   KEY_ENTER_COMMAND,
   KEY_ESCAPE_COMMAND,
   SELECTION_CHANGE_COMMAND,
@@ -49,17 +44,8 @@ import {
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import {createWebsocketProvider} from '../collaboration';
-import {useSettings} from '../context/SettingsContext';
-import {useSharedHistoryContext} from '../context/SharedHistoryContext';
 import brokenImage from '../images/image-broken.svg';
 import useModal from '../hooks/useModal';
-import EmojisPlugin from '../plugins/EmojisPlugin';
-import KeywordsPlugin from '../plugins/KeywordsPlugin';
-import LinkPlugin from '../plugins/LinkPlugin';
-import MentionsPlugin from '../plugins/MentionsPlugin';
-import TreeViewPlugin from '../plugins/TreeViewPlugin';
-import ContentEditable from '../ui/ContentEditable';
 import ImageResizer from '../ui/ImageResizer';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
@@ -67,7 +53,7 @@ import {DialogActions} from '../ui/Dialog';
 import { ChatLeftTextIcon } from '../icons/ChatLeftTextIcon';
 import { ChatSquareQuoteIcon } from '../icons/ChatSquareQuoteIcon';
 import { FileEarmarkTextIcon } from '../icons/FileEarmarkTextIcon';
-import {$isCaptionEditorEmpty, $isImageNode} from './ImageNode';
+import {$isImageNode} from './ImageNode';
 import { INSERT_INLINE_COMMENT_AT_COMMAND } from '../plugins/CommentPlugin';
 
 const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
@@ -128,59 +114,8 @@ const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
     width: 16,
     height: 16,
   },
-  contentEditable: {
-    minHeight: 20,
-    border: 0,
-    resize: 'none',
-    cursor: 'text',
-    caretColor: theme.palette.grey[1000],
-    display: 'block',
-    position: 'relative',
-    outline: 0,
-    padding: 10,
-    userSelect: 'text',
-    fontSize: 12,
-    width: '100%',
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
-    overflowWrap: 'break-word',
-    boxSizing: 'border-box',
-    textAlign: 'center',
-  },
-  placeholder: {
-    fontSize: 12,
-    color: theme.palette.grey[500],
-    overflow: 'hidden',
-    position: 'absolute',
-    textOverflow: 'ellipsis',
-    top: 10,
-    left: 10,
-    userSelect: 'none',
-    whiteSpace: 'nowrap',
-    display: 'inline-block',
-    pointerEvents: 'none',
-    textAlign: 'center',
-    width: 'calc(100% - 20px)',
-  },
   resizing: {
     touchAction: 'none',
-  },
-  captionContainer: {
-    display: 'block',
-    position: 'relative',
-    padding: 0,
-    marginTop: 8,
-    borderTop: `1px solid ${theme.palette.grey[0]}`,
-    backgroundColor: theme.palette.inverseGreyAlpha(0.9),
-    minWidth: 100,
-    color: theme.palette.grey[1000],
-    boxSizing: 'border-box',
-    maxWidth: '100%',
-    wordWrap: 'break-word',
-    '& .tree-view-output': {
-      margin: 0,
-      borderRadius: 0,
-    },
   },
 }));
 
@@ -192,27 +127,6 @@ const imageCache = new Map<string, Promise<ImageStatus> | ImageStatus>();
 
 export const RIGHT_CLICK_IMAGE_COMMAND: LexicalCommand<MouseEvent> =
   createCommand('RIGHT_CLICK_IMAGE_COMMAND');
-
-function DisableCaptionOnBlur({
-  setShowCaption,
-}: {
-  setShowCaption: (show: boolean) => void;
-}) {
-  const [editor] = useLexicalComposerContext();
-  useEffect(() =>
-    editor.registerCommand(
-      BLUR_COMMAND,
-      () => {
-        if ($isCaptionEditorEmpty()) {
-          setShowCaption(false);
-        }
-        return false;
-      },
-      COMMAND_PRIORITY_EDITOR,
-    ),
-  );
-  return null;
-}
 
 function useSuspenseImage(src: string): ImageStatus {
   let cached = imageCache.get(src);
@@ -390,7 +304,7 @@ function ImageAltTextDialog({
 export default function ImageComponent({
   src,
   altText,
-  nodeKey,
+  imageNodeKey,
   width,
   height,
   maxWidth,
@@ -398,14 +312,12 @@ export default function ImageComponent({
   srcSet,
   resizable,
   showCaption,
-  caption,
   captionsEnabled,
 }: {
   altText: string;
-  caption: LexicalEditor;
   height: 'inherit' | number;
   maxWidth: number;
-  nodeKey: NodeKey;
+  imageNodeKey: NodeKey;
   resizable: boolean;
   showCaption: boolean;
   src: string;
@@ -417,11 +329,9 @@ export default function ImageComponent({
   const classes = useStyles(styles);
   const imageRef = useRef<null | HTMLImageElement>(null);
   const [isSelected, setSelected, clearSelection] =
-    useLexicalNodeSelection(nodeKey);
+    useLexicalNodeSelection(imageNodeKey);
   const [isResizing, setIsResizing] = useState<boolean>(false);
-  const {isCollabActive} = useCollaborationContext();
   const [editor] = useLexicalComposerContext();
-  const activeEditorRef = useRef<LexicalEditor | null>(null);
   const [isLoadError, setIsLoadError] = useState<boolean>(false);
   const isEditable = useLexicalEditable();
   const [modal, showModal] = useModal();
@@ -430,9 +340,9 @@ export default function ImageComponent({
       isSelected &&
       editor.getEditorState().read(() => {
         const selection = $getSelection();
-        return $isNodeSelection(selection) && selection.has(nodeKey);
+        return $isNodeSelection(selection) && selection.has(imageNodeKey);
       }),
-    [editor, isSelected, nodeKey],
+    [editor, isSelected, imageNodeKey],
   );
 
   const $onEnter = useCallback(
@@ -440,38 +350,53 @@ export default function ImageComponent({
       const latestSelection = $getSelection();
       if (
         $isNodeSelection(latestSelection) &&
-        latestSelection.has(nodeKey) &&
+        latestSelection.has(imageNodeKey) &&
         latestSelection.getNodes().length === 1
       ) {
         if (showCaption) {
-          // Move focus into nested editor
-          $setSelection(null);
           event.preventDefault();
-          caption.focus();
+          editor.update(() => {
+            const node = $getNodeByKey(imageNodeKey);
+            if ($isImageNode(node)) {
+              const captionNode = node.getCaptionNode();
+              if (captionNode) {
+                captionNode.selectEnd();
+              }
+            }
+          });
           return true;
         }
       }
       return false;
     },
-    [caption, nodeKey, showCaption],
+    [editor, imageNodeKey, showCaption],
   );
 
   const $onEscape = useCallback(
     (event: KeyboardEvent) => {
-      if (activeEditorRef.current === caption) {
-        $setSelection(null);
-        editor.update(() => {
-          setSelected(true);
-          const parentRootElement = editor.getRootElement();
-          if (parentRootElement !== null) {
-            parentRootElement.focus();
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const node = $getNodeByKey(imageNodeKey);
+        if ($isImageNode(node)) {
+          const captionNode = node.getCaptionNode();
+          const anchorNode = selection.anchor.getNode();
+          if (captionNode && captionNode.isParentOf(anchorNode)) {
+            editor.update(() => {
+              $setSelection(null);
+              setSelected(true);
+              const parentRootElement = editor.getRootElement();
+              if (parentRootElement !== null) {
+                parentRootElement.focus();
+              }
+            });
+            event.preventDefault();
+            return true;
           }
-        });
-        return true;
+        }
       }
       return false;
     },
-    [caption, editor, setSelected],
+    [editor, imageNodeKey, setSelected],
   );
 
   const onClick = useCallback(
@@ -513,15 +438,116 @@ export default function ImageComponent({
     [editor],
   );
 
+  const maybeHideEmptyCaption = useCallback(() => {
+    editor.getEditorState().read(() => {
+      const node = $getNodeByKey(imageNodeKey);
+      if (!$isImageNode(node)) {
+        return;
+      }
+      const captionNode = node.getCaptionNode();
+      if (!captionNode || !captionNode.isEmpty()) {
+        return;
+      }
+      const selection = $getSelection();
+      const isSelectionInCaption =
+        $isRangeSelection(selection) &&
+        captionNode.isParentOf(selection.anchor.getNode());
+      if (!isSelectionInCaption) {
+        editor.update(() => {
+          const writableNode = $getNodeByKey(imageNodeKey);
+          if ($isImageNode(writableNode)) {
+            writableNode.setShowCaption(false);
+          }
+        });
+      }
+    });
+  }, [editor, imageNodeKey]);
+
   useEffect(() => {
     return mergeRegister(
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
-        (_, activeEditor) => {
-          activeEditorRef.current = activeEditor;
+        () => {
+          maybeHideEmptyCaption();
           return false;
         },
         COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        KEY_BACKSPACE_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          const node = $getNodeByKey(imageNodeKey);
+          if (!$isImageNode(node)) {
+            return false;
+          }
+          if ($isRangeSelection(selection) && !selection.isCollapsed()) {
+            const selectedNodes = selection.getNodes();
+            if (selectedNodes.some((selected) => $isImageNode(selected))) {
+              event.preventDefault();
+              node.remove();
+              return true;
+            }
+            const captionNode = node.getCaptionNode();
+            if (
+              captionNode &&
+              captionNode.isParentOf(selection.anchor.getNode()) &&
+              captionNode.isParentOf(selection.focus.getNode())
+            ) {
+              const captionText = captionNode.getTextContent();
+              if (selection.getTextContent() === captionText) {
+                event.preventDefault();
+                node.remove();
+                return true;
+              }
+            }
+            return false;
+          }
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+            return false;
+          }
+          const captionNode = node.getCaptionNode();
+          if (!captionNode) {
+            return false;
+          }
+          const anchorNode = selection.anchor.getNode();
+          if (!captionNode.isParentOf(anchorNode)) {
+            return false;
+          }
+          const isAtStart =
+            selection.anchor.offset === 0 &&
+            ($isTextNode(anchorNode)
+              ? anchorNode.getPreviousSibling() === null
+              : anchorNode.getPreviousSibling() === null);
+          if (!isAtStart) {
+            return false;
+          }
+          event.preventDefault();
+          node.remove();
+          return true;
+        },
+        COMMAND_PRIORITY_HIGH,
+      ),
+      editor.registerCommand(
+        KEY_DELETE_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          if (!$isRangeSelection(selection) || selection.isCollapsed()) {
+            return false;
+          }
+          const node = $getNodeByKey(imageNodeKey);
+          if (!$isImageNode(node)) {
+            return false;
+          }
+          const selectedNodes = selection.getNodes();
+          if (selectedNodes.some((selected) => $isImageNode(selected))) {
+            event.preventDefault();
+            node.remove();
+            return true;
+          }
+          return false;
+        },
+        COMMAND_PRIORITY_HIGH,
       ),
       editor.registerCommand(
         DRAGSTART_COMMAND,
@@ -537,7 +563,7 @@ export default function ImageComponent({
         COMMAND_PRIORITY_LOW,
       ),
     );
-  }, [editor]);
+  }, [editor, imageNodeKey, maybeHideEmptyCaption]);
   useEffect(() => {
     let rootCleanup = noop;
     return mergeRegister(
@@ -572,24 +598,20 @@ export default function ImageComponent({
 
   const setShowCaption = (show: boolean) => {
     editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
+      const node = $getNodeByKey(imageNodeKey);
       if ($isImageNode(node)) {
         node.setShowCaption(show);
         if (show) {
-          node.__caption.update(() => {
-            if (!$getSelection()) {
-              $getRoot().selectEnd();
-            }
-          });
+          const captionNode = node.getCaptionNode();
+          captionNode?.selectEnd();
         }
       }
     });
     if (show && editor.isEditable()) {
-      setTimeout(() => {
-        caption.focus();
-      }, 0);
+      editor.getRootElement()?.focus();
     }
   };
+
 
   const onResizeEnd = (
     nextWidth: 'inherit' | number,
@@ -601,7 +623,7 @@ export default function ImageComponent({
     }, 200);
 
     editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
+      const node = $getNodeByKey(imageNodeKey);
       if ($isImageNode(node)) {
         node.setWidthAndHeight(nextWidth, nextHeight);
       }
@@ -611,11 +633,6 @@ export default function ImageComponent({
   const onResizeStart = () => {
     setIsResizing(true);
   };
-
-  const {historyState} = useSharedHistoryContext();
-  const {
-    settings: {showNestedEditorTreeView},
-  } = useSettings();
 
   const draggable = isInNodeSelection && !isResizing;
   const isFocused = (isSelected || isResizing) && isEditable;
@@ -628,7 +645,7 @@ export default function ImageComponent({
         initialValue={altText}
         onConfirm={(nextAltText) => {
           editor.update(() => {
-            const node = $getNodeByKey(nodeKey);
+            const node = $getNodeByKey(imageNodeKey);
             if ($isImageNode(node)) {
               node.setAltText(nextAltText);
             }
@@ -724,39 +741,6 @@ export default function ImageComponent({
             )}
           </div>
         </div>
-
-        {showCaption && (
-          <div className={classNames(classes.captionContainer, 'image-caption-container')}>
-            <LexicalNestedComposer initialEditor={caption}>
-              <DisableCaptionOnBlur setShowCaption={setShowCaption} />
-              <MentionsPlugin />
-              <LinkPlugin />
-              <EmojisPlugin />
-              <HashtagPlugin />
-              <KeywordsPlugin />
-              {isCollabActive ? (
-                <CollaborationPlugin
-                  id={`caption-${nodeKey}`}
-                  providerFactory={createWebsocketProvider}
-                  shouldBootstrap={true}
-                />
-              ) : (
-                <HistoryPlugin externalHistoryState={historyState} />
-              )}
-              <RichTextPlugin
-                contentEditable={
-                  <ContentEditable
-                    placeholder="Enter image caption"
-                    placeholderClassName={classes.placeholder}
-                    className={classes.contentEditable}
-                  />
-                }
-                ErrorBoundary={LexicalErrorBoundary}
-              />
-              {showNestedEditorTreeView === true ? <TreeViewPlugin /> : null}
-            </LexicalNestedComposer>
-          </div>
-        )}
       </>
     </Suspense>
   );

@@ -116,6 +116,7 @@ import {
   SKIP_SELECTION_FOCUS_TAG,
   TextFormatType,
   UNDO_COMMAND,
+  getDOMSelection,
 } from 'lexical';
 import {Dispatch, useCallback, useEffect, useState} from 'react';
 
@@ -840,7 +841,14 @@ export default function ToolbarPlugin({
           ),
         );
       } else {
-        updateToolbarState('isImageCaption', false);
+        const nativeSelection = getDOMSelection(activeEditor._window);
+        const anchorNode = nativeSelection?.anchorNode;
+        const anchorElement =
+          anchorNode instanceof Element ? anchorNode : anchorNode?.parentElement;
+        updateToolbarState(
+          'isImageCaption',
+          !!anchorElement?.closest('.image-caption-container'),
+        );
       }
 
       const anchorNode = selection.anchor.getNode();

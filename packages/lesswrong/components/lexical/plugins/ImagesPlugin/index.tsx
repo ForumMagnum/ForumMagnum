@@ -20,12 +20,16 @@ import {
   $wrapNodeInElement,
   mergeRegister,
 } from '@lexical/utils';
+import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
 import {
   $createParagraphNode,
   $createRangeSelection,
+  $getEditor,
+  $getNodeByKey,
   $getSelection,
   $insertNodes,
   $isNodeSelection,
+  $isParagraphNode,
   $isRootOrShadowRoot,
   $setSelection,
   COMMAND_PRIORITY_EDITOR,
@@ -45,7 +49,12 @@ import {useEffect, useRef, useState} from 'react';
 
 import {
   $createImageNode,
+  $createImageCaptionNode,
+  $createImageRenderNode,
+  $isImageCaptionNode,
   $isImageNode,
+  $isImageRenderNode,
+  ImageCaptionNode,
   ImageNode,
   ImagePayload,
 } from '../../nodes/ImageNode';
@@ -278,6 +287,15 @@ export default function ImagesPlugin({
           if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
             $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
           }
+          const parent = imageNode.getParent();
+          if (
+            parent &&
+            $isRootOrShadowRoot(parent) &&
+            imageNode.getNextSibling() === null
+          ) {
+            const trailingParagraph = $createParagraphNode();
+            imageNode.insertAfter(trailingParagraph);
+          }
 
           return true;
         },
@@ -304,10 +322,102 @@ export default function ImagesPlugin({
         },
         COMMAND_PRIORITY_HIGH,
       ),
+      editor.registerNodeTransform(ImageNode, (node) =>
+        enforceImageNodeStructure(node),
+      ),
+      editor.registerMutationListener(ImageCaptionNode, (mutations) => {
+        editor.getEditorState().read(() => {
+          for (const [nodeKey] of mutations) {
+            const captionNode = $getNodeByKey(nodeKey);
+            if ($isImageCaptionNode(captionNode)) {
+              const element = editor.getElementByKey(nodeKey);
+              if (element) {
+                element.setAttribute(
+                  'data-empty',
+                  captionNode.isEmpty() ? 'true' : 'false',
+                );
+              }
+            }
+          }
+        });
+      }),
     );
   }, [captionsEnabled, editor]);
 
   return null;
+}
+
+/**
+ * Normalize image nodes after any update.
+ *
+ * Ensures the image node has a stable internal structure:
+ * - Exactly one render child, always first.
+ * - At most one caption child when showCaption is enabled.
+ * - Removes any unexpected children.
+ * - Unwraps the image from a paragraph when it is the only child.
+ * - Ensures a trailing paragraph exists when the image is the last root child.
+ */
+function enforceImageNodeStructure(node: ImageNode): void {
+  let renderNode: ReturnType<typeof $createImageRenderNode> | null = null;
+  const captionNodes: Array<ReturnType<typeof $createImageCaptionNode>> = [];
+  for (const child of node.getChildren()) {
+    if ($isImageRenderNode(child)) {
+      if (!renderNode) {
+        renderNode = child;
+      } else {
+        child.remove();
+      }
+    } else if ($isImageCaptionNode(child)) {
+      captionNodes.push(child);
+    } else {
+      child.remove();
+    }
+  }
+
+  if (!renderNode) {
+    renderNode = $createImageRenderNode();
+    const firstChild = node.getFirstChild();
+    if (firstChild) {
+      firstChild.insertBefore(renderNode);
+    } else {
+      node.append(renderNode);
+    }
+  } else if (node.getFirstChild() !== renderNode) {
+    renderNode.remove();
+    node.splice(0, 0, [renderNode]);
+  }
+
+  if (captionNodes.length > 0 && !node.getShowCaption()) {
+    node.setShowCaption(true);
+  }
+
+  if (node.getShowCaption()) {
+    let captionNode = captionNodes[0] ?? null;
+    for (let i = 1; i < captionNodes.length; i += 1) {
+      captionNodes[i].remove();
+    }
+    if (!captionNode) {
+      captionNode = $createImageCaptionNode();
+      node.append(captionNode);
+    }
+    if (captionNode.getChildrenSize() === 0) {
+      captionNode.append($createParagraphNode());
+    }
+  } else {
+    for (const captionNode of captionNodes) {
+      captionNode.remove();
+    }
+  }
+
+  const nodeParent = node.getParent();
+  if ($isParagraphNode(nodeParent) && nodeParent.getChildrenSize() === 1) {
+    nodeParent.replace(node);
+  }
+
+  const parent = node.getParent();
+  if (parent && $isRootOrShadowRoot(parent) && node.getNextSibling() === null) {
+    node.insertAfter($createParagraphNode());
+  }
 }
 
 const TRANSPARENT_IMAGE =
@@ -329,18 +439,32 @@ function $onDragStart(event: DragEvent): boolean {
     img.src = TRANSPARENT_IMAGE;
   }
   dataTransfer.setDragImage(img, 0, 0);
+
+  const editor = $getEditor();
+  const selection = $getSelection();
+  const dragHtml =
+    selection !== null
+      ? editor.getEditorState().read(() =>
+          $generateHtmlFromNodes(editor, selection),
+        )
+      : null;
+
   dataTransfer.setData(
     'application/x-lexical-drag',
     JSON.stringify({
       data: {
-        altText: node.__altText,
-        caption: node.__caption,
-        height: node.__height,
+        altText: node.getAltText(),
+        height: node.getHeight(),
         key: node.getKey(),
-        maxWidth: node.__maxWidth,
-        showCaption: node.__showCaption,
-        src: node.__src,
-        width: node.__width,
+        maxWidth: node.getMaxWidth(),
+        showCaption: node.getShowCaption(),
+        src: node.getSrc(),
+        srcset: node.getSrcset(),
+        width: node.getWidth(),
+        widthPercent: node.getWidthPercent(),
+        isCkFigure: node.getIsCkFigure(),
+        captionsEnabled: node.getCaptionsEnabled(),
+        html: dragHtml,
       },
       type: 'image',
     }),
@@ -383,7 +507,13 @@ function $onDrop(event: DragEvent, editor: LexicalEditor): boolean {
       rangeSelection.applyDOMRange(range);
     }
     $setSelection(rangeSelection);
-    editor.dispatchCommand(INSERT_IMAGE_COMMAND, data);
+    if (data.html && typeof DOMParser !== 'undefined') {
+      const dom = new DOMParser().parseFromString(data.html, 'text/html');
+      const nodes = $generateNodesFromDOM(editor, dom);
+      $insertNodes(nodes);
+    } else {
+      editor.dispatchCommand(INSERT_IMAGE_COMMAND, data);
+    }
     if (existingLink) {
       editor.dispatchCommand(TOGGLE_LINK_COMMAND, existingLink.getURL());
     }
@@ -425,7 +555,7 @@ function canDropImage(event: DragEvent): boolean {
   const target = event.target;
   return !!(
     isHTMLElement(target) &&
-    !target.closest('code, span.editor-image') &&
+    !target.closest('code, figure.editor-image') &&
     isHTMLElement(target.parentElement) &&
     target.parentElement.closest('div.ContentEditable__root')
   );

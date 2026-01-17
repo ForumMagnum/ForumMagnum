@@ -27,7 +27,7 @@ import {EmojiNode} from './EmojiNode';
 import { MathNode } from '@/components/editor/lexicalPlugins/math/MathNode';
 // import {ExcalidrawNode} from './ExcalidrawNode';
 import {FigmaNode} from './FigmaNode';
-import {ImageNode} from './ImageNode';
+import {ImageCaptionNode, ImageNode, ImageRenderNode} from './ImageNode';
 import {KeywordNode} from './KeywordNode';
 import {LayoutContainerNode} from './LayoutContainerNode';
 import {LayoutItemNode} from './LayoutItemNode';
@@ -74,6 +74,8 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   PollNode,
   StickyNode,
   ImageNode,
+  ImageRenderNode,
+  ImageCaptionNode,
   MentionNode,
   EmojiNode,
   // ExcalidrawNode,
