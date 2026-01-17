@@ -766,6 +766,15 @@ export const routeTrie = {
         }
       }
     },
+    "reviewTopPosts": {
+      "dynamicChild": {
+        "paramName": "year",
+        "child": {
+          "hasPage": true
+        }
+      },
+      "hasPage": true
+    },
     "reviewVoting": {
       "dynamicChild": {
         "paramName": "year",
@@ -1036,6 +1045,7 @@ export const routeTrie = {
     "resendverificationemail": "resendVerificationEmail",
     "resetpassword": "resetPassword",
     "reviewadmin": "reviewAdmin",
+    "reviewtopposts": "reviewTopPosts",
     "reviewvoting": "reviewVoting",
     "reviews": "reviews",
     "revisions": "revisions",

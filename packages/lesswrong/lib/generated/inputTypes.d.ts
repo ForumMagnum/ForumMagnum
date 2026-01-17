@@ -35,6 +35,7 @@ interface Query {
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
+  ReviewTopPostsWithReviews: ReviewTopPostsWithReviewsResult;
   DigestHighlights: DigestHighlightsResult | null;
   DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
@@ -858,6 +859,11 @@ interface UserReadHistoryResult {
 
 interface PostsUserCommentedOnResult {
   posts: Array<Post> | null;
+}
+
+interface ReviewTopPostsWithReviewsResult {
+  posts: Array<Post>;
+  reviews: Array<Comment>;
 }
 
 interface PostReviewFilter {
@@ -5793,6 +5799,10 @@ interface PostsCurrentOpenThreadInput {
   curatedAfter?: string | null;
 }
 
+interface PostsReviewTopNominationsInput {
+  reviewYear?: number | null;
+}
+
 interface PostSelector {
   default: PostDefaultViewInput | null;
   userPosts: PostsUserPostsInput | null;
@@ -5856,6 +5866,7 @@ interface PostSelector {
   myBookmarkedPosts: PostsMyBookmarkedPostsInput | null;
   alignmentSuggestedPosts: PostsAlignmentSuggestedPostsInput | null;
   currentOpenThread: PostsCurrentOpenThreadInput | null;
+  reviewTopNominations: PostsReviewTopNominationsInput | null;
 }
 
 interface MultiPostInput {
@@ -9948,6 +9959,7 @@ interface GraphQLTypeMap {
   GivingSeasonHeart: GivingSeasonHeart;
   UserReadHistoryResult: UserReadHistoryResult;
   PostsUserCommentedOnResult: PostsUserCommentedOnResult;
+  ReviewTopPostsWithReviewsResult: ReviewTopPostsWithReviewsResult;
   PostReviewFilter: PostReviewFilter;
   PostReviewSort: PostReviewSort;
   DigestPlannerPost: DigestPlannerPost;
@@ -10452,6 +10464,7 @@ interface GraphQLTypeMap {
   PostsMyBookmarkedPostsInput: PostsMyBookmarkedPostsInput;
   PostsAlignmentSuggestedPostsInput: PostsAlignmentSuggestedPostsInput;
   PostsCurrentOpenThreadInput: PostsCurrentOpenThreadInput;
+  PostsReviewTopNominationsInput: PostsReviewTopNominationsInput;
   PostSelector: PostSelector;
   MultiPostInput: MultiPostInput;
   MultiPostOutput: MultiPostOutput;

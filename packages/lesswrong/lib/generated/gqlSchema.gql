@@ -638,6 +638,7 @@ extend type Query {
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
+  ReviewTopPostsWithReviews(reviewYear: Int!, limit: Int): ReviewTopPostsWithReviewsResult!
 }
 
 extend type Mutation {
@@ -650,6 +651,11 @@ type UserReadHistoryResult {
 
 type PostsUserCommentedOnResult {
   posts: [Post!]
+}
+
+type ReviewTopPostsWithReviewsResult {
+  posts: [Post!]!
+  reviews: [Comment!]!
 }
 
 input PostReviewFilter {
@@ -6267,6 +6273,10 @@ input PostsCurrentOpenThreadInput {
   curatedAfter: String
 }
 
+input PostsReviewTopNominationsInput {
+  reviewYear: Int
+}
+
 input PostSelector {
   default: PostDefaultViewInput
   userPosts: PostsUserPostsInput
@@ -6330,6 +6340,7 @@ input PostSelector {
   myBookmarkedPosts: PostsMyBookmarkedPostsInput
   alignmentSuggestedPosts: PostsAlignmentSuggestedPostsInput
   currentOpenThread: PostsCurrentOpenThreadInput
+  reviewTopNominations: PostsReviewTopNominationsInput
 }
 
 input MultiPostInput {

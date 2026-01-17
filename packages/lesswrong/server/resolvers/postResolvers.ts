@@ -19,6 +19,8 @@ import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
+import moment from 'moment';
+import { reviewExcludedPostIds } from '@/lib/reviewUtils';
 
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
@@ -299,6 +301,31 @@ export const postGqlQueries = {
     const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', posts, context)
     return { posts: filteredPosts }  
   },
+  async ReviewTopPostsWithReviews(root: void, { reviewYear, limit }: { reviewYear: number, limit?: number }, context: ResolverContext) {
+    const { Posts, Comments, currentUser } = context
+    const posts = await Posts.find({
+      postedAt: {
+        $gte: moment.utc(`${reviewYear}-01-01`).toDate(),
+        $lt: moment.utc(`${reviewYear + 1}-01-01`).toDate()
+      },
+      positiveReviewVoteCount: { $gte: 1 },
+      _id: { $nin: reviewExcludedPostIds }
+    }, {
+      sort: { reviewVoteScoreHighKarma: -1 },
+      limit: limit ?? 50,
+    }).fetch()
+    const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', posts, context)
+    const postIds = filteredPosts.map(p => p._id)
+    const reviews = await Comments.find({
+      postId: { $in: postIds },
+      reviewingForReview: { $ne: null },
+      deleted: false,
+    }, {
+      sort: { baseScore: -1 },
+    }).fetch()
+    const filteredReviews = await accessFilterMultiple(currentUser, 'Comments', reviews, context)
+    return { posts: filteredPosts, reviews: filteredReviews }
+  },
   ...DigestHighlightsQuery,
   ...DigestPostsThisWeekQuery,
   ...CuratedAndPopularThisWeekQuery,
@@ -465,6 +492,7 @@ export const postGqlTypeDefs = gql`
 
     HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
     HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
+    ReviewTopPostsWithReviews(reviewYear: Int!, limit: Int): ReviewTopPostsWithReviewsResult!
   }
 
   extend type Mutation {
@@ -476,6 +504,10 @@ export const postGqlTypeDefs = gql`
   }
   type PostsUserCommentedOnResult {
     posts: [Post!]
+  }
+  type ReviewTopPostsWithReviewsResult {
+    posts: [Post!]!
+    reviews: [Comment!]!
   }
 
   input PostReviewFilter {

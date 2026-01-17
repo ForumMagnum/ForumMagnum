@@ -16,6 +16,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 type Documents = {
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.LocalgroupMetadataDocument,
     "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n": typeof types.multiModeratorCommentsQueryDocument,
+    "\n  query ReviewTopPostsWithReviewsQuery($reviewYear: Int!, $limit: Int) {\n    ReviewTopPostsWithReviews(reviewYear: $reviewYear, limit: $limit) {\n      posts {\n        _id\n        slug\n        title\n        user {\n          _id\n          displayName\n          slug\n        }\n      }\n      reviews {\n        _id\n        postId\n        baseScore\n        user {\n          _id\n          displayName\n          slug\n        }\n      }\n    }\n  }\n": typeof types.ReviewTopPostsWithReviewsQueryDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n        bannerImageId\n        gridImageId\n        noindex\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.SequenceMetadataDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": typeof types.AdminMetadataQueryDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": typeof types.SearchSynonymsDocument,
@@ -938,6 +939,7 @@ type Documents = {
 const documents: Documents = {
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.LocalgroupMetadataDocument,
     "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n": types.multiModeratorCommentsQueryDocument,
+    "\n  query ReviewTopPostsWithReviewsQuery($reviewYear: Int!, $limit: Int) {\n    ReviewTopPostsWithReviews(reviewYear: $reviewYear, limit: $limit) {\n      posts {\n        _id\n        slug\n        title\n        user {\n          _id\n          displayName\n          slug\n        }\n      }\n      reviews {\n        _id\n        postId\n        baseScore\n        user {\n          _id\n          displayName\n          slug\n        }\n      }\n    }\n  }\n": types.ReviewTopPostsWithReviewsQueryDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n        bannerImageId\n        gridImageId\n        noindex\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.SequenceMetadataDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": types.AdminMetadataQueryDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": types.SearchSynonymsDocument,
@@ -1880,6 +1882,10 @@ export function gql(source: "\n  query LocalgroupMetadata($groupId: String) {\n 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n"): (typeof documents)["\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query ReviewTopPostsWithReviewsQuery($reviewYear: Int!, $limit: Int) {\n    ReviewTopPostsWithReviews(reviewYear: $reviewYear, limit: $limit) {\n      posts {\n        _id\n        slug\n        title\n        user {\n          _id\n          displayName\n          slug\n        }\n      }\n      reviews {\n        _id\n        postId\n        baseScore\n        user {\n          _id\n          displayName\n          slug\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query ReviewTopPostsWithReviewsQuery($reviewYear: Int!, $limit: Int) {\n    ReviewTopPostsWithReviews(reviewYear: $reviewYear, limit: $limit) {\n      posts {\n        _id\n        slug\n        title\n        user {\n          _id\n          displayName\n          slug\n        }\n      }\n      reviews {\n        _id\n        postId\n        baseScore\n        user {\n          _id\n          displayName\n          slug\n        }\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
