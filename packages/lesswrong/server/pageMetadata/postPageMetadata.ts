@@ -89,11 +89,13 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
         client.query({
           query: PostMetadataQuery,
           variables: { postId },
+          errorPolicy: 'all',
         }),
         commentId
           ? client.query({
               query: CommentPermalinkMetadataQuery,
               variables: { commentId },
+              errorPolicy: 'all',
             })
           : { data: null },
       ]);

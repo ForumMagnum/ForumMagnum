@@ -105,41 +105,39 @@ jobs:
       PG_URL: postgres://postgres:password@localhost:5433/postgres
       E2E: true
     steps:
-      - name: Skip while broken
-        if: ${{ false }}
-        run: exit 0
-    # - name: Checkout code
-    #   uses: actions/checkout@v4
-    # - name: Setup Environment
-    #   uses: ./.github/actions/setupEnvironment
-    # - name: Setup database
-    #   run: |
-    #     psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
-    #     psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
-    # - name: Install browsers
-    #   run: yarn playwright install ${{ matrix.project }} --with-deps
-    # - name: Build project
-    #   run: yarn next build
-    # - name: Run playwright tests
-    #   run: yarn playwright test --project ${{ matrix.project }}
-    # - name: Upload playwright report
-    #   if: failure()
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: Playwright report ${{ matrix.project }}
-    #     path: playwright-report
-    # - name: Upload playwright test results
-    #   if: failure()
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: Playwright test results ${{ matrix.project }}
-    #     path: test-results
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - name: Setup database
+      run: |
+        psql $PG_URL -f schema/accepted_schema.sql
+        psql $PG_URL -f playwright/fixtures.sql
+    - name: Install browsers
+      run: yarn playwright install ${{ matrix.project }} --with-deps
+    - name: Build project
+      run: yarn next build
+    - name: Run playwright tests
+      run: yarn playwright test --project ${{ matrix.project }}
+    - name: Upload playwright report
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Playwright report ${{ matrix.project }}
+        path: playwright-report
+    - name: Upload playwright test results
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Playwright test results ${{ matrix.project }}
+        path: test-results
 
   runCrosspostTests:
     # Pin Ubuntu to 22.04 to avoid a problem installing browser dependencies.
     # This can probably be changed back to ubuntu-latest in the future when the
     # bugs are ironed out.
     runs-on: ubuntu-22.04
+    if: ${{ false }}
     strategy:
       fail-fast: false
     services:

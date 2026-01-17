@@ -31,7 +31,7 @@ test("can create and edit events in group", async ({page, context}) => {
 
   // Submitting the new event navigates to the event page
   await page.waitForURL("/events/**/test-event-title**");
-  await expect(page.getByText(title)).toBeVisible();
+  await expect(page.getByText(title).first()).toBeVisible();
 
   // Login as the second organizer, who should also be able to edit the event
   await loginUser(context, organizerUserB);
@@ -45,5 +45,5 @@ test("can create and edit events in group", async ({page, context}) => {
 
   // Submitting the new event navigates to the event page
   await page.waitForURL("/events/**/test-event-title**");
-  await expect(page.getByText(newBody)).toBeVisible();
+  await expect(page.getByText(newBody, { exact: true })).toBeVisible();
 });
