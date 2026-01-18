@@ -290,6 +290,18 @@ export const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
+  // Styles here should roughly match the image in ForumEventFrontpageBanner as the
+  // two images need to merge together seemlessly
+  eventImage: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: "100%",
+    height: "100%",
+    minWidth: "500px",
+    objectFit: "cover",
+    objectPosition: "top",
+  },
 });
 
 const VOTING_PORTAL_PRIMARY_COLOR = requireCssVar("palette", "givingSeason", "votingPortalPrimary");
@@ -496,6 +508,10 @@ const Header = ({
 
   const headerStyle: CSSProperties = {}
   const bannerImageId = currentForumEvent?.bannerImageId
+  const showBannerImage = hasForumEvents &&
+    isHomePage &&
+    !!bannerImageId &&
+    currentForumEvent?.eventFormat !== "BASIC";
   // If we're explicitly given a backgroundColor, that overrides any event header
   if (backgroundColor) {
     headerStyle.backgroundColor = backgroundColor
@@ -506,17 +522,9 @@ const Header = ({
     headerStyle.background = "transparent";
     headerStyle.transition = "background ease 0.2s";
     (headerStyle as any)["--header-text-color"] = givingSeason.selectedEvent.color;
-  } else if (hasForumEvents && isHomePage && bannerImageId && currentForumEvent?.eventFormat !== "BASIC") {
+  } else if (showBannerImage) {
     // On EAF, forum events with polls or stickers also update the home page header background and text
-    const darkColor = currentForumEvent.darkColor;
-    const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
-      c: "fill",
-      dpr: "auto",
-      q: "auto",
-      f: "auto",
-      g: "north",
-    })})${darkColor ? `, ${darkColor}` : ''}`;
-    headerStyle.background = background;
+    headerStyle.background = currentForumEvent.darkColor ?? "transparent";
     (headerStyle as any)["--header-text-color"] = currentForumEvent.bannerTextColor ?? undefined;
     (headerStyle as any)["--header-contrast-color"] = currentForumEvent.darkColor ?? undefined;
   }
@@ -545,6 +553,18 @@ const Header = ({
             )}
             style={headerStyle}
           >
+            {showBannerImage &&
+              <img
+                src={makeCloudinaryImageUrl(bannerImageId, {
+                  c: "fill",
+                  dpr: "auto",
+                  q: "auto",
+                  f: "auto",
+                  g: "north",
+                })}
+                className={classes.eventImage}
+              />
+            }
             <Toolbar disableGutters={isFriendlyUI}>
               {navigationMenuButton}
               <Typography className={classes.title} variant="title">
