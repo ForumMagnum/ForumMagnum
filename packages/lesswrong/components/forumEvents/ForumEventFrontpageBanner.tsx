@@ -211,8 +211,10 @@ const styles = (theme: ThemeType) => ({
     top: -HEADER_HEIGHT,
     right: 0,
     width: '100%',
+    minWidth: "500px",
     height: `calc(100% + ${HEADER_HEIGHT}px)`,
     objectFit: "cover",
+    objectPosition: "top",
   },
   imageWithGradient: {
     right: "-10%",
@@ -388,7 +390,7 @@ const ForumEventFrontpageBannerWithStickers = ({classes}: {
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithStickers">
       <div className={classes.root}>
-        <ForumEventStickers />
+        <ForumEventStickers noMobileOverlay />
         <div className={classNames(classes.contentBasic, classes.contentWithStickers)}>
           <div className={classes.titleWithStickers}>{title}</div>
           <Description forumEvent={currentForumEvent} classes={classes} />
