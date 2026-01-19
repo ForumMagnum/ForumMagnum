@@ -228,7 +228,6 @@ const SunshineUserMessagesInner = ({user, currentUser, showExpandablePreview}: S
                   </MetaInfo>
                 })}
               </span>
-              <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
               <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
                 <ForumIcon icon="Link" className={classes.linkIcon} />
               </Link> 
