@@ -131,9 +131,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     );
   }, [user, posts, comments]);
 
-  console.log('moder user.moderatorActions', user.moderatorActions?.map(a => a.type));
-  console.log('moder highlightedTemplateNames', highlightedTemplateNames);
-
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
