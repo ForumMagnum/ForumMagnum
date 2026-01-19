@@ -114,8 +114,7 @@ const UsersMenu = ({classes}: {
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
   const {toggleOn, toggleOff} = useAdminToggle();
-  const {preferNewSite, setPreferNewSite} = useEAForumV3();
-  const isRealAdmin = userIsMemberOf(currentUser, "realAdmins");
+  const {preferNewSite, setPreferNewSite, showNewSiteToggle} = useEAForumV3();
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
@@ -416,13 +415,13 @@ const UsersMenu = ({classes}: {
                   onClick={toggleOff}
                 />
               </div>}
-              {!currentUser.isAdmin && isRealAdmin && <div className={classes.adminToggleItem}>
+              {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
                 <DropdownItem
                   title={preferredHeadingCase("Re-enable Admin Powers")}
                   onClick={toggleOn}
                 />
               </div>}
-              {isRealAdmin && <div className={classes.adminToggleItem}>
+              {showNewSiteToggle && <div className={classes.adminToggleItem}>
                 <DropdownItem
                   title={preferredHeadingCase(preferNewSite ? "Prefer Old Site" : "Prefer New Site")}
                   onClick={() => setPreferNewSite(!preferNewSite)}
