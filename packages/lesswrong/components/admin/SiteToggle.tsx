@@ -83,4 +83,4 @@ export const SiteToggle = ({classes}: {
   );
 }
 
-export default registerComponent('AdminToggle', SiteToggle, {styles});
+export default registerComponent('SiteToggle', SiteToggle, {styles});
