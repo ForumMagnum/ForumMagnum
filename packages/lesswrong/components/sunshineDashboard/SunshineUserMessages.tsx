@@ -234,6 +234,9 @@ const SunshineUserMessagesInner = ({user, currentUser, showExpandablePreview}: S
               </Link> 
             </div>
           </LWTooltip>
+          {isExpanded && (
+            <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
+          )}
         </div>
       );
     })}
