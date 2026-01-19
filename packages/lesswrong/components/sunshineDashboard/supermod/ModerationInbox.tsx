@@ -94,7 +94,7 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     minWidth: 0,
   },
   postDetailPanel: {
-    flex: 2,
+    flex: 1,
     overflow: 'hidden',
   },
   loading: {
