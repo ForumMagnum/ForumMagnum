@@ -127,15 +127,19 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     <PostsItem2MetaInfo className={classNames(classes.postedAt, {
       [classes.isNew ?? ""]: classes.isNew && isEmphasized,
     })}>
-      <TimeTag dateTime={dateToDisplay}>
+      <TimeTag
+        dateTime={dateToDisplay}
+        className={classNames(curatedDateToDisplay && classes.xsHide)}
+      >
         {timeFromNow}
         {ago}
       </TimeTag>
       {curatedDateToDisplay && (
-        <span className={classes.xsHide}>
-          {" · "}
+        <span>
+          <span className={classes.xsHide}> · </span>
           <TimeTag dateTime={curatedDateToDisplay}>
-            Curated {curatedTimeFromNow}
+            <span className={classes.xsHide}>Curated </span>
+            {curatedTimeFromNow}
             {ago}
           </TimeTag>
         </span>
