@@ -40,12 +40,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AdminToggle = ({classes}: {
+export const SiteToggle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {loading, toggleOn, toggleOff} = useAdminToggle();
-  const {preferNewSite, setPreferNewSite} = useEAForumV3();
+  const {preferNewSite, setPreferNewSite, showNewSiteToggle} = useEAForumV3();
   const isRealAdmin = userIsMemberOf(currentUser, "realAdmins");
 
   const handleAdminToggle = useCallback((value: boolean) => {
@@ -57,33 +57,30 @@ export const AdminToggle = ({classes}: {
     }
   }, [loading, toggleOn, toggleOff]);
 
-  if (!currentUser || !isRealAdmin) return null;
+  const showAdminToggle = isRealAdmin && currentUser;
 
-  const isAdminOn = currentUser.isAdmin;
+  if (!showAdminToggle && !showNewSiteToggle) return null;
 
   return (
     <div className={classes.root}>
-      <div className={classes.row}>
+      {showAdminToggle && <div className={classes.row}>
         <span className={classes.label}>Admin</span>
         <ToggleSwitch
-          value={isAdminOn}
+          value={currentUser.isAdmin}
           setValue={handleAdminToggle}
           smallVersion
         />
-      </div>
-      <div className={classes.row}>
+      </div>}
+      {showNewSiteToggle && <div className={classes.row}>
         <span className={classes.label}>Prefer new site</span>
         <ToggleSwitch
           value={preferNewSite}
           setValue={setPreferNewSite}
           smallVersion
         />
-      </div>
+      </div>}
     </div>
   );
 }
 
-export default registerComponent('AdminToggle', AdminToggle, {styles});
-
-
-
+export default registerComponent('AdminToggle', SiteToggle, {styles});
