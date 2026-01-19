@@ -10,11 +10,14 @@ export interface TemplateHighlightContext {
 type HighlightRule = (ctx: TemplateHighlightContext) => boolean;
 
 const TEMPLATE_HIGHLIGHT_RULES: Record<string, HighlightRule> = {
-  "Lotsa DMs": ({ moderatorActions }) =>
-    moderatorActions.some(a => a.active && (a.type === FLAGGED_FOR_N_DMS || a.type === AUTO_BLOCKED_FROM_SENDING_DMS)),
-
+  "Lotsa DMs": ({ moderatorActions }) => {
+    const flaggedForNDMs = moderatorActions.filter(a => a.type === FLAGGED_FOR_N_DMS);
+    const autoBlockedFromSendingDMs = moderatorActions.filter(a => a.type === AUTO_BLOCKED_FROM_SENDING_DMS);
+    return flaggedForNDMs.length >= 1 || autoBlockedFromSendingDMs.length >= 1;
+  },
   "This isn't gonna work out": ({ moderatorActions }) => {
-    return moderatorActions.filter(a => a.type === SENT_MODERATOR_MESSAGE).length >= 2;
+    const moderatorMessages = moderatorActions.filter(a => a.type === SENT_MODERATOR_MESSAGE);
+    return moderatorMessages.length >= 2;
   },
   "Multiple LLM rejections": ({ moderatorActions, posts }) => {
     const moderatorMessages = moderatorActions.filter(a => a.type === SENT_MODERATOR_MESSAGE);
