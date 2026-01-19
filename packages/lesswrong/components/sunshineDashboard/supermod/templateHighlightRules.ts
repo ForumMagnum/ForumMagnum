@@ -11,8 +11,8 @@ type HighlightRule = (ctx: TemplateHighlightContext) => boolean;
 
 const TEMPLATE_HIGHLIGHT_RULES: Record<string, HighlightRule> = {
   "Lotsa DMs": ({ moderatorActions }) => {
-    const flaggedForNDMs = moderatorActions.filter(a => a.type === FLAGGED_FOR_N_DMS);
-    const autoBlockedFromSendingDMs = moderatorActions.filter(a => a.type === AUTO_BLOCKED_FROM_SENDING_DMS);
+    const flaggedForNDMs = moderatorActions.filter(a => a.active && a.type === FLAGGED_FOR_N_DMS);
+    const autoBlockedFromSendingDMs = moderatorActions.filter(a => a.active && a.type === AUTO_BLOCKED_FROM_SENDING_DMS);
     return flaggedForNDMs.length >= 1 || autoBlockedFromSendingDMs.length >= 1;
   },
   "This isn't gonna work out": ({ moderatorActions }) => {
