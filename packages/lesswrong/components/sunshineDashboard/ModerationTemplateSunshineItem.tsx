@@ -51,6 +51,13 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   highlighted: {
     border: theme.palette.border.intense
   },
+  suggested: {
+    backgroundColor: theme.palette.primary.light,
+    fontWeight: 600,
+    marginBottom: 1,
+    marginTop: 1,
+    borderRadius: 4,
+  },
   hovercard: {
     padding: 16,
     maxWidth: 400,
@@ -70,9 +77,10 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
   },
 }));
 
-export const ModerationTemplateSunshineItem = ({template, onTemplateClick}: {
+export const ModerationTemplateSunshineItem = ({template, onTemplateClick, highlighted}: {
   template: ModerationTemplateFragment,
   onTemplateClick: (template: ModerationTemplateFragment) => void,
+  highlighted?: boolean,
 }) => {
   const classes = useStyles(styles);
   const [edit, setEdit] = useState<boolean>(false);
@@ -108,7 +116,7 @@ export const ModerationTemplateSunshineItem = ({template, onTemplateClick}: {
       }
     >
       <div
-        className={classes.templateItem}
+        className={classNames(classes.templateItem, { [classes.suggested]: highlighted })}
         onClick={() => onTemplateClick(template)}
       >
         <span className={classes.templateName}>{template.name}</span>

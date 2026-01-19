@@ -64,6 +64,8 @@ const ModerationDetailView = ({
     new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime()
   ), [posts, comments]);
 
+  console.log('moderatorActions for user:', user.displayName, user.moderatorActions?.map(a => a.type));
+
   const focusedContent = useMemo(() => 
     allContent[focusedContentIndex] || null,
     [allContent, focusedContentIndex]
@@ -103,6 +105,8 @@ const ModerationDetailView = ({
           <ModerationSidebar
             user={user}
             currentUser={currentUser}
+            posts={posts}
+            comments={comments}
             dispatch={dispatch}
           />
         </div>
