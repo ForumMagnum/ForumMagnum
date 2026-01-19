@@ -52,11 +52,15 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
     border: theme.palette.border.intense
   },
   suggested: {
-    backgroundColor: theme.palette.primary.light,
+    backgroundColor: theme.palette.grey[900],
+    color: theme.palette.grey[100],
     fontWeight: 600,
     marginBottom: 1,
     marginTop: 1,
     borderRadius: 4,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[800],
+    },
   },
   hovercard: {
     padding: 16,
