@@ -106,7 +106,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     </LWTooltip>
   }
 
-  const dateToDisplay = useCuratedDate
+  const dateToDisplay = useCuratedDate && !isFriendlyUI
     ? post.curatedDate || post.postedAt
     : post.postedAt;
   const timeFromNow = formatRelative(new Date(dateToDisplay), now);
