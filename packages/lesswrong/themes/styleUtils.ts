@@ -14,12 +14,15 @@ export const prettyScrollbars = (theme: ThemeType) => ({
   'scrollbar-gutter': 'auto',
   '&::-webkit-scrollbar': {
     background: 'transparent',
+    width: '6px',
   },
   '&::-webkit-scrollbar-track': {
     background: 'transparent',
   },
   '&::-webkit-scrollbar-thumb': {
     background: `${theme.palette.greyAlpha(0.5)}`,
-    borderRadius: '2px',
+    border: '1px solid transparent',
+    backgroundClip: 'padding-box',
+    borderRadius: '5px',
   },
 })
