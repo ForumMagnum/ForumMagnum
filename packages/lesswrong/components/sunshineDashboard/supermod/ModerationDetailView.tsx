@@ -6,6 +6,7 @@ import type { InboxAction, InboxState } from './inboxReducer';
 import ModerationSidebar from './ModerationSidebar';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
+import { prettyScrollbars } from '@/themes/styleUtils';
 
 const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   root: {
@@ -27,11 +28,11 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     minWidth: 0,
     borderRight: theme.palette.border.normal,
     height: 'calc(100vh - 64px)',
-    overflow: 'scroll',
+    ...prettyScrollbars(theme),
   },
   sidebarColumn: {
     height: 'calc(100vh - 64px)',
-    overflow: 'scroll',
+    ...prettyScrollbars(theme),
   },
   undoQueueColumn: {
     marginTop: 'auto',
