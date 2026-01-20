@@ -957,6 +957,7 @@ export default function SuggestedEditsPlugin({
     const authorId = getSuggestionAuthorId(currentUser, clientId);
     if (!authorId) return false;
     if (!text) return false;
+
     const moveOutOfInsertMarkKey = editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
@@ -975,31 +976,34 @@ export default function SuggestedEditsPlugin({
       if (!markNode.getIDs().includes(toSuggestionMarkId(suggestionId, 'insert'))) return null;
       return isSelectionAtStartOfMark(normalizedSelection, markNode) ? markNode.getKey() : null;
     });
-  const leadingEdgeData = editor.getEditorState().read(() => {
-    const selection = $getSelection();
-    if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
-    const normalizedSelection = normalizeSelectionOffsetsReadOnly(selection);
-    if (!normalizedSelection) return null;
-    const nextInsertMark = getNextInsertSuggestionMarkFromSelection(
-      normalizedSelection,
-      suggestionStore,
-      authorId,
-    );
-    return nextInsertMark
-      ? { markKey: nextInsertMark.markNode.getKey(), suggestionId: nextInsertMark.suggestionId }
-      : null;
-  });
-    const currentSelectionSnapshot = editor.getEditorState().read(() =>
-      snapshotSelection($getSelection()),
-    );
+
+    const leadingEdgeData = editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
+      const normalizedSelection = normalizeSelectionOffsetsReadOnly(selection);
+      if (!normalizedSelection) return null;
+      const nextInsertMark = getNextInsertSuggestionMarkFromSelection(
+        normalizedSelection,
+        suggestionStore,
+        authorId,
+      );
+      return nextInsertMark
+        ? { markKey: nextInsertMark.markNode.getKey(), suggestionId: nextInsertMark.suggestionId }
+        : null;
+    });
+
+    const currentSelectionSnapshot = editor.getEditorState().read(() => snapshotSelection($getSelection()));
+
     const canUseFallback =
       !!currentSelectionSnapshot &&
       !!lastInsertSelectionRef.current &&
       selectionSnapshotsEqual(currentSelectionSnapshot, lastInsertSelectionRef.current);
+
     const isReplace = editor.getEditorState().read(() => {
       const selection = $getSelection();
       return $isRangeSelection(selection) ? !isSafeCollapsedSelection(selection) : false;
     });
+
     const replaceInsertSuggestionId = editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
@@ -1011,6 +1015,7 @@ export default function SuggestedEditsPlugin({
       const markNode = getMarkNodeForSuggestionFromSelection(selection, suggestionId, 'insert');
       return markNode ? suggestionId : null;
     });
+
     const replaceContinuationSuggestionId = editor.getEditorState().read(() => {
       const fallbackId = lastReplaceSuggestionIdRef.current;
       if (!fallbackId) return null;
@@ -1022,17 +1027,19 @@ export default function SuggestedEditsPlugin({
       const markNode = getMarkNodeForSuggestionFromSelection(selection, fallbackId, 'insert');
       return markNode ? fallbackId : null;
     });
+
     const type: SuggestionType =
       replaceInsertSuggestionId || replaceContinuationSuggestionId
         ? 'replace'
         : isReplace
           ? 'replace'
           : 'insert';
-  const existingInsertSuggestionId = (() => {
+
+    const existingInsertSuggestionId = (() => {
       if (replaceInsertSuggestionId) return replaceInsertSuggestionId;
       if (replaceContinuationSuggestionId) return replaceContinuationSuggestionId;
       if (type !== 'insert') return null;
-    if (moveOutOfInsertMarkKey || leadingEdgeData) return null;
+      if (moveOutOfInsertMarkKey || leadingEdgeData) return null;
       if (!currentSelectionSnapshot) return null;
       const selectionSuggestionId = editor.getEditorState().read(() =>
         getSelectionSuggestionId(),
@@ -1043,27 +1050,29 @@ export default function SuggestedEditsPlugin({
       if (suggestion.authorId !== authorId) return null;
       return selectionSuggestionId;
     })();
-  const mergeSuggestionId = moveOutOfInsertMarkKey
-    ? null
-    : leadingEdgeData
-      ? leadingEdgeData.suggestionId
-      : existingInsertSuggestionId ?? getMergeableSuggestionId(type) ?? (() => {
-      if (type !== 'insert') return null;
-      const fallbackId = lastInsertSuggestionIdRef.current;
-      if (!fallbackId) return null;
-      const suggestion = suggestionStore.getSuggestion(fallbackId);
-      if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'insert') return null;
-      if (suggestion.authorId !== authorId) return null;
-      const canMergeWithFallback =
-        canUseFallback ||
-        editor.getEditorState().read(() => {
-          const selection = $getSelection();
-          if (!$isRangeSelection(selection) || !selection.isCollapsed()) return false;
-          return !!getMarkNodeForSuggestionFromSelection(selection, fallbackId, 'insert');
-        });
-      if (!canMergeWithFallback) return null;
-      return fallbackId;
-    })();
+
+    const mergeSuggestionId = moveOutOfInsertMarkKey
+      ? null
+      : leadingEdgeData
+        ? leadingEdgeData.suggestionId
+        : existingInsertSuggestionId ?? getMergeableSuggestionId(type) ?? (() => {
+          if (type !== 'insert') return null;
+          const fallbackId = lastInsertSuggestionIdRef.current;
+          if (!fallbackId) return null;
+          const suggestion = suggestionStore.getSuggestion(fallbackId);
+          if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'insert') return null;
+          if (suggestion.authorId !== authorId) return null;
+          const canMergeWithFallback =
+            canUseFallback ||
+            editor.getEditorState().read(() => {
+              const selection = $getSelection();
+              if (!$isRangeSelection(selection) || !selection.isCollapsed()) return false;
+              return !!getMarkNodeForSuggestionFromSelection(selection, fallbackId, 'insert');
+            });
+          if (!canMergeWithFallback) return null;
+          return fallbackId;
+        })();
+
     const record = mergeSuggestionId ? null : createSuggestionRecord(type);
     if (!mergeSuggestionId && !record) return false;
     const suggestionId = mergeSuggestionId ?? record!.id;
@@ -1072,24 +1081,24 @@ export default function SuggestedEditsPlugin({
     let didCreateThread = false;
     let updatedSuggestionText: string | null = null;
     let didInsertText = false;
-  editor.update(() => {
+    editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       ensureTextNodeForEmptySelection(selection);
-    if (leadingEdgeData) {
-      const markNode = $getNodeByKey(leadingEdgeData.markKey);
-      if ($isMarkNode(markNode)) {
-        const firstText = getFirstTextDescendant(markNode);
-        if (firstText) {
-          const insertSelection = $createRangeSelection();
-          insertSelection.setTextNodeRange(firstText, 0, firstText, 0);
-          $setSelection(insertSelection);
+      if (leadingEdgeData) {
+        const markNode = $getNodeByKey(leadingEdgeData.markKey);
+        if ($isMarkNode(markNode)) {
+          const firstText = getFirstTextDescendant(markNode);
+          if (firstText) {
+            const insertSelection = $createRangeSelection();
+            insertSelection.setTextNodeRange(firstText, 0, firstText, 0);
+            $setSelection(insertSelection);
+          }
         }
       }
-    }
-    const moveOutKey = moveOutOfInsertMarkKey;
-    if (moveOutKey) {
-      const markNode = $getNodeByKey(moveOutKey);
+      const moveOutKey = moveOutOfInsertMarkKey;
+      if (moveOutKey) {
+        const markNode = $getNodeByKey(moveOutKey);
         if ($isMarkNode(markNode)) {
           const insertNode = $createTextNode(text);
           markNode.insertBefore(insertNode);
