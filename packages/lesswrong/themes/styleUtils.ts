@@ -6,11 +6,11 @@ export const hideScrollBars = {
   },
 }
 
-export const prettyScrollbars = {
+export const prettyScrollbars = (theme: ThemeType) => ({
   overflow: 'auto',
   '-ms-overflow-style': 'auto',  /* Internet Explorer 10+ */
   'scrollbar-width': 'thin',  /* Firefox */
-  'scrollbar-color': 'light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.5)) transparent',
+  'scrollbar-color': theme.palette.greyAlpha(0.5),
   'scrollbar-gutter': 'auto',
   '&::-webkit-scrollbar': {
     background: 'transparent',
@@ -19,7 +19,7 @@ export const prettyScrollbars = {
     background: 'transparent',
   },
   '&::-webkit-scrollbar-thumb': {
-    background: 'light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.5))',
+    background: theme.palette.greyAlpha(0.5),
     borderRadius: '2px',
   },
-}
+})
