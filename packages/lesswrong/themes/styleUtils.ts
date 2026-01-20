@@ -10,7 +10,7 @@ export const prettyScrollbars = (theme: ThemeType) => ({
   overflow: 'auto',
   '-ms-overflow-style': 'auto',  /* Internet Explorer 10+ */
   'scrollbar-width': 'thin',  /* Firefox */
-  'scrollbar-color': theme.palette.greyAlpha(0.5),
+  'scrollbar-color': `${theme.palette.greyAlpha(0.5)} transparent`,
   'scrollbar-gutter': 'auto',
   '&::-webkit-scrollbar': {
     background: 'transparent',
@@ -19,7 +19,7 @@ export const prettyScrollbars = (theme: ThemeType) => ({
     background: 'transparent',
   },
   '&::-webkit-scrollbar-thumb': {
-    background: theme.palette.greyAlpha(0.5),
+    background: `${theme.palette.greyAlpha(0.5)}`,
     borderRadius: '2px',
   },
 })
