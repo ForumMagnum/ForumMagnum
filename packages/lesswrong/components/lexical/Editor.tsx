@@ -57,6 +57,7 @@ import CodeHighlightPrismPlugin from './plugins/CodeHighlightPrismPlugin';
 // import CodeHighlightShikiPlugin from './plugins/CodeHighlightShikiPlugin';
 import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import CommentPlugin from './plugins/CommentPlugin';
+import SuggestedEditsPlugin from './plugins/SuggestedEditsPlugin';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DateTimePlugin from './plugins/DateTimePlugin';
@@ -114,6 +115,7 @@ import {
   restoreInternalIds,
   InternalIdMap,
 } from '../editor/lexicalPlugins/links/InternalBlockLinksPlugin';
+import { type CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   editorContainer: {
@@ -202,6 +204,43 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       top: 8,
       left: 24,
     },
+    // Suggested edits styling overrides.
+    '& .PlaygroundEditorTheme__mark[data-suggestion-id]': {
+      backgroundColor: 'transparent',
+      boxShadow: 'none',
+      textDecoration: 'none',
+      borderBottom: 'none',
+    },
+    '& .PlaygroundEditorTheme__mark.selected[data-suggestion-id]': {
+      backgroundColor: 'transparent',
+      boxShadow: 'none',
+      borderBottom: 'none',
+    },
+    '& .PlaygroundEditorTheme__mark[data-suggestion-id] *': {
+      backgroundColor: 'transparent',
+      boxShadow: 'none',
+      borderBottom: 'none',
+    },
+    '& .PlaygroundEditorTheme__mark.lexical-suggestion-insert': {
+      backgroundColor: theme.palette.primary.light,
+      borderRadius: 2,
+      padding: '0 1px',
+    },
+    '& .PlaygroundEditorTheme__mark.lexical-suggestion-delete': {
+      backgroundColor: theme.palette.error.light,
+      borderRadius: 2,
+      padding: '0 1px',
+      textDecoration: 'line-through',
+      color: theme.palette.error.dark,
+    },
+    '& .PlaygroundEditorTheme__mark.selected.lexical-suggestion-insert': {
+      backgroundColor: theme.palette.primary.light,
+      borderBottom: 'none',
+    },
+    '& .PlaygroundEditorTheme__mark.selected.lexical-suggestion-delete': {
+      backgroundColor: theme.palette.error.light,
+      borderBottom: 'none',
+    },
   },
   treeView: {
     borderRadius: 0,
@@ -238,6 +277,8 @@ const COLLAB_DOC_ID = 'main';
 export interface EditorProps {
   /** Collaboration config - if provided, enables real-time collaboration */
   collaborationConfig?: CollaborationConfig;
+  /** Collaborative editor access level for suggested edits permissions */
+  accessLevel?: CollaborativeEditingAccessLevel;
   /** Initial HTML content to load into the editor (only used when NOT in collaborative mode) */
   initialHtml?: string;
   /** Called on any editor change with the current HTML representation */
@@ -248,6 +289,7 @@ export interface EditorProps {
 
 export default function Editor({
   collaborationConfig,
+  accessLevel,
   initialHtml,
   onChangeHtml,
   placeholder: placeholderOverride,
@@ -395,6 +437,10 @@ export default function Editor({
             providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
           />
         )}
+        <SuggestedEditsPlugin
+          accessLevel={accessLevel}
+          providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
+        />
         {isRichText ? (
           <>
             {isCollabConfigReady && collaborationConfig ? (

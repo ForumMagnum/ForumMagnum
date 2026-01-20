@@ -610,7 +610,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         commentEditor={commentEditor}
         postId={documentId}
         collaborative={this.props.isCollaborative}
-        // accessLevel={this.props.accessLevel}
+        accessLevel={this.props.accessLevel}
       />
     </div>
   }

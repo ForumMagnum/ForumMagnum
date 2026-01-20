@@ -143,7 +143,7 @@ const PostCollaborationEditor = ({ classes }: {
             commentEditor={false}
             postId={post._id}
             collaborative
-            // accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+            accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
           />
           <PostVersionHistoryButton
             post={post}

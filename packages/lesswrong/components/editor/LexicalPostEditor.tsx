@@ -9,6 +9,7 @@ import { useClientId } from '../hooks/useClientId';
 import type { CollaborationConfig } from '../lexical/collaboration';
 import { useHocuspocusAuth } from './lexicalPlugins/collaboration/useHocuspocusAuth'
 import Editor from '../lexical/Editor';
+import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
 import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
 import { SharedHistoryContext } from '../lexical/context/SharedHistoryContext';
 import { TableContext } from '../lexical/plugins/TablePlugin';
@@ -265,6 +266,8 @@ interface LexicalPostEditorProps {
   postId?: string | null;
   /** Whether to enable collaborative editing (requires postId) */
   collaborative?: boolean;
+  /** Collaborative editor access level for suggested edits permissions */
+  accessLevel?: CollaborativeEditingAccessLevel;
 }
 
 const LexicalPostEditor = ({
@@ -274,6 +277,7 @@ const LexicalPostEditor = ({
   onReady,
   postId = null,
   collaborative = false,
+  accessLevel,
 }: LexicalPostEditorProps) => {
   const classes = useStyles(lexicalStyles);
   const currentUser = useCurrentUser();
@@ -361,6 +365,7 @@ const LexicalPostEditor = ({
                 <Editor
                   key={postId ?? 'lexical-new'}
                   collaborationConfig={collaborationConfig ?? undefined}
+                  accessLevel={accessLevel}
                   initialHtml={initialHtmlRef.current ?? ''}
                   onChangeHtml={onChange}
                   placeholder={placeholder}

@@ -15,7 +15,7 @@ import type {
   RangeSelection,
 } from 'lexical';
 import React, { type JSX } from 'react';
-import type {Doc} from 'yjs';
+import { Doc, Map as YMap } from 'yjs';
 
 import {
   $createMarkNode,
@@ -40,10 +40,12 @@ import {$isRootTextContentEmpty, $rootTextContent} from '@lexical/text';
 import {mergeRegister, registerNestedElementResolver} from '@lexical/utils';
 import {
   $addUpdateTag,
+  $createRangeSelection,
   $getNodeByKey,
   $getSelection,
   $isRangeSelection,
   $isTextNode,
+  $setSelection,
   CLEAR_EDITOR_COMMAND,
   COLLABORATION_TAG,
   COMMAND_PRIORITY_EDITOR,
@@ -83,6 +85,12 @@ import { ChatLeftTextIcon } from '../../icons/ChatLeftTextIcon';
 import { CommentsIcon } from '../../icons/CommentsIcon';
 import { SendIcon } from '../../icons/SendIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
+
+const SUGGESTION_ID_PREFIX = 'suggestion:';
+
+function isSuggestionMarkId(id: string): boolean {
+  return id.startsWith(SUGGESTION_ID_PREFIX);
+}
 
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   addCommentBox: {
@@ -465,10 +473,19 @@ export const INSERT_INLINE_COMMENT_AT_COMMAND: LexicalCommand<InsertInlineCommen
   'INSERT_INLINE_COMMENT_AT_COMMAND',
 );
 
+type SelectionSnapshot = {
+  anchorKey: NodeKey;
+  anchorOffset: number;
+  focusKey: NodeKey;
+  focusOffset: number;
+};
+
 export type InsertInlineThreadPayload = {
   threadId: string;
   initialContent: string;
   quote?: string;
+  isSuggestion?: boolean;
+  selectionSnapshot?: SelectionSnapshot;
 };
 
 export const INSERT_INLINE_THREAD_COMMAND: LexicalCommand<InsertInlineThreadPayload> = createCommand(
@@ -480,6 +497,19 @@ export type UpdateInlineThreadPayload = {
   quote?: string;
   firstCommentContent?: string;
 };
+
+function createRangeSelectionFromSnapshot(
+  snapshot: SelectionSnapshot,
+): RangeSelection | null {
+  const anchorNode = $getNodeByKey(snapshot.anchorKey);
+  const focusNode = $getNodeByKey(snapshot.focusKey);
+  if (!$isTextNode(anchorNode) || !$isTextNode(focusNode)) return null;
+  const anchorOffset = Math.min(snapshot.anchorOffset, anchorNode.getTextContentSize());
+  const focusOffset = Math.min(snapshot.focusOffset, focusNode.getTextContentSize());
+  const range = $createRangeSelection();
+  range.setTextNodeRange(anchorNode, anchorOffset, focusNode, focusOffset);
+  return range;
+}
 
 export const UPDATE_INLINE_THREAD_COMMAND: LexicalCommand<UpdateInlineThreadPayload> = createCommand(
   'UPDATE_INLINE_THREAD_COMMAND',
@@ -971,6 +1001,8 @@ function CommentsPanelListComment({
 function CommentsPanelList({
   activeIDs,
   comments,
+  suggestionStates,
+  suggestionThreadIdsRef,
   deleteCommentOrThread,
   listRef,
   submitAddComment,
@@ -978,6 +1010,8 @@ function CommentsPanelList({
 }: {
   activeIDs: Array<string>;
   comments: Comments;
+  suggestionStates: Map<string, string>;
+  suggestionThreadIdsRef: React.MutableRefObject<Set<string>>;
   deleteCommentOrThread: (
     commentOrThread: Comment | Thread,
     thread?: Thread,
@@ -1020,10 +1054,17 @@ function CommentsPanelList({
       {comments.map((commentOrThread) => {
         const id = commentOrThread.id;
         if (commentOrThread.type === 'thread') {
-          const isSuggestionThread =
+          const hasSuggestionMark =
             typeof document !== 'undefined' &&
             document.querySelector(`[data-suggestion-id="${id}"]`) !== null;
-
+          const suggestionState = suggestionStates.get(id);
+          const isSuggestionThread =
+            suggestionThreadIdsRef.current.has(id) ||
+            suggestionState !== undefined ||
+            hasSuggestionMark;
+          if (isSuggestionThread && !hasSuggestionMark) {
+            return null;
+          }
           const handleClickThread = () => {
             const markNodeKeys = markNodeMap.get(id);
             if (
@@ -1067,7 +1108,7 @@ function CommentsPanelList({
                   {'> '}
                   <span>{commentOrThread.quote}</span>
                 </blockquote>
-                {isSuggestionThread ? (
+                {isSuggestionThread && hasSuggestionMark ? (
                   <div
                     className={classes.suggestionThreadActions}
                     onMouseDown={(e) => {
@@ -1085,9 +1126,6 @@ function CommentsPanelList({
                           suggestionId: id,
                           action: 'accept',
                         });
-                        if (ok) {
-                          editor.dispatchCommand(HIDE_THREAD_COMMAND, { threadId: id });
-                        }
                       }}
                     >
                       Accept
@@ -1098,9 +1136,6 @@ function CommentsPanelList({
                           suggestionId: id,
                           action: 'reject',
                         });
-                        if (ok) {
-                          editor.dispatchCommand(HIDE_THREAD_COMMAND, { threadId: id });
-                        }
                       }}
                     >
                       Reject
@@ -1163,9 +1198,13 @@ function CommentsPanel({
   comments,
   submitAddComment,
   markNodeMap,
+  suggestionStates,
+  suggestionThreadIdsRef,
 }: {
   activeIDs: Array<string>;
   comments: Comments;
+  suggestionStates: Map<string, string>;
+  suggestionThreadIdsRef: React.MutableRefObject<Set<string>>;
   deleteCommentOrThread: (
     commentOrThread: Comment | Thread,
     thread?: Thread,
@@ -1190,6 +1229,8 @@ function CommentsPanel({
         <CommentsPanelList
           activeIDs={activeIDs}
           comments={comments}
+          suggestionStates={suggestionStates}
+          suggestionThreadIdsRef={suggestionThreadIdsRef}
           deleteCommentOrThread={deleteCommentOrThread}
           listRef={listRef}
           submitAddComment={submitAddComment}
@@ -1227,7 +1268,20 @@ export default function CommentPlugin({
     null,
   );
   const [showComments, setShowComments] = useState(false);
+  const [suggestionStates, setSuggestionStates] = useState<Map<string, string>>(
+    new Map(),
+  );
+  const [suggestionMarkVersion, setSuggestionMarkVersion] = useState(0);
+  const suggestionThreadIdsRef = useRef<Set<string>>(new Set());
   const {yjsDocMap} = collabContext;
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const ids = Array.from(document.querySelectorAll('[data-suggestion-id]'))
+      .map((elem) => elem.getAttribute('data-suggestion-id'))
+      .filter((id): id is string => !!id);
+    if (ids.length === 0) return;
+    ids.forEach((id) => suggestionThreadIdsRef.current.add(id));
+  }, [suggestionMarkVersion]);
 
   useEffect(() => {
     if (providerFactory) {
@@ -1235,6 +1289,41 @@ export default function CommentPlugin({
       return commentStore.registerCollaboration(provider);
     }
   }, [commentStore, providerFactory, yjsDocMap]);
+
+  useEffect(() => {
+    let doc = yjsDocMap.get('suggestions');
+    if (!doc) {
+      doc = new Doc();
+      yjsDocMap.set('suggestions', doc);
+    }
+    // The YJS types explicitly use `any` as well.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const suggestionsMap = doc.get('suggestions', YMap) as YMap<any>;
+
+    const syncSuggestions = () => {
+      const next = new Map<string, string>();
+      suggestionsMap.forEach((value, key) => {
+        if (value instanceof YMap && typeof key === 'string') {
+          const state = value.get('state');
+          if (typeof state === 'string') {
+            next.set(key, state);
+            suggestionThreadIdsRef.current.add(key);
+          }
+        }
+      });
+      setSuggestionStates(next);
+    };
+
+    syncSuggestions();
+    const observer = () => {
+      syncSuggestions();
+    };
+    suggestionsMap.observeDeep(observer);
+
+    return () => {
+      suggestionsMap.unobserveDeep(observer);
+    };
+  }, [yjsDocMap]);
 
   const cancelAddComment = useCallback(() => {
     editor.update(() => {
@@ -1356,9 +1445,11 @@ export default function CommentPlugin({
       editor.registerMutationListener(
         MarkNode,
         (mutations) => {
+          let suggestionMarkChanged = false;
           editor.getEditorState().read(() => {
             for (const [key, mutation] of mutations) {
               const node: null | MarkNode = $getNodeByKey(key);
+              const previousIds = markNodeKeysToIDs.get(key) ?? [];
               let ids: NodeKey[] = [];
 
               if (mutation === 'destroyed') {
@@ -1367,8 +1458,18 @@ export default function CommentPlugin({
                 ids = node.getIDs();
               }
 
+              if (
+                previousIds.some(isSuggestionMarkId) ||
+                ids.some(isSuggestionMarkId)
+              ) {
+                suggestionMarkChanged = true;
+              }
+
               for (let i = 0; i < ids.length; i++) {
                 const id = ids[i];
+                if (isSuggestionMarkId(id)) {
+                  continue;
+                }
                 let markNodeKeys = markNodeMap.get(id);
                 markNodeKeysToIDs.set(key, ids);
 
@@ -1391,6 +1492,9 @@ export default function CommentPlugin({
               }
             }
           });
+          if (suggestionMarkChanged) {
+            setSuggestionMarkVersion((value) => value + 1);
+          }
         },
         {skipInitialization: false},
       ),
@@ -1409,7 +1513,8 @@ export default function CommentPlugin({
                 selection.anchor.offset,
               );
               if (commentIDs !== null) {
-                setActiveIDs(commentIDs);
+                const filtered = commentIDs.filter((id) => !isSuggestionMarkId(id));
+                setActiveIDs(filtered);
                 hasActiveIds = true;
               }
               if (!selection.isCollapsed()) {
@@ -1460,12 +1565,24 @@ export default function CommentPlugin({
       editor.registerCommand(
         INSERT_INLINE_THREAD_COMMAND,
         (payload) => {
-          const selection = $getSelection();
+          let selection = $getSelection();
+          if (payload.selectionSnapshot) {
+            const snapshotSelection = createRangeSelectionFromSnapshot(
+              payload.selectionSnapshot,
+            );
+            if (snapshotSelection) {
+              $setSelection(snapshotSelection);
+              selection = snapshotSelection;
+            }
+          }
           if (!$isRangeSelection(selection)) return false;
           if (selection.isCollapsed()) return false;
 
           const quote = payload.quote ?? selection.getTextContent();
           const threadId = payload.threadId;
+          if (payload.isSuggestion) {
+            suggestionThreadIdsRef.current.add(threadId);
+          }
 
           const existing = commentStore
             .getComments()
@@ -1597,6 +1714,8 @@ export default function CommentPlugin({
             deleteCommentOrThread={deleteCommentOrThread}
             activeIDs={activeIDs}
             markNodeMap={markNodeMap}
+            suggestionStates={suggestionStates}
+            suggestionThreadIdsRef={suggestionThreadIdsRef}
           />,
           document.body,
         )}
