@@ -6,7 +6,7 @@ export const hideScrollBars = {
   },
 }
 
-export const beautifyScrollBars = {
+export const prettyScrollbars = {
   overflow: 'auto',
   '-ms-overflow-style': 'auto',  /* Internet Explorer 10+ */
   'scrollbar-width': 'thin',  /* Firefox */
