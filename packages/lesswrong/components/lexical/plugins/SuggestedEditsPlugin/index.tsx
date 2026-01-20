@@ -5,10 +5,13 @@ import React, { type JSX, useCallback, useEffect, useMemo, useRef, useState } fr
 import {
   $addUpdateTag,
   $createRangeSelection,
+  $createParagraphNode,
+  $createTextNode,
   $getRoot,
   $getSelection,
   $getNodeByKey,
   $isElementNode,
+  $isRootNode,
   $isRangeSelection,
   $isTextNode,
   $setSelection,
@@ -327,14 +330,6 @@ function moveSelectionToEndOfMarkNode(markNode: MarkNode): void {
   selection.setTextNodeRange(lastChild, offset, lastChild, offset);
 }
 
-function moveSelectionToStartOfMarkNode(markNode: MarkNode): void {
-  const selection = $getSelection();
-  if (!$isRangeSelection(selection)) return;
-  const firstChild = markNode.getFirstChild();
-  if (!$isTextNode(firstChild)) return;
-  selection.setTextNodeRange(firstChild, 0, firstChild, 0);
-}
-
 function moveSelectionBeforeNode(node: LexicalNode): void {
   const selection = $getSelection();
   if (!$isRangeSelection(selection)) return;
@@ -351,7 +346,66 @@ function moveSelectionBeforeNode(node: LexicalNode): void {
     selection.setTextNodeRange(previous, offset, previous, offset);
     return;
   }
-  selection.setTextNodeRange(firstText, 0, firstText, 0);
+  const beforeNode = $createTextNode('');
+  node.insertBefore(beforeNode);
+  selection.setTextNodeRange(beforeNode, 0, beforeNode, 0);
+}
+
+function ensureTextNodeForEmptySelection(selection: ReturnType<typeof $createRangeSelection>): void {
+  const anchorNode = selection.anchor.getNode();
+  if ($isRootNode(anchorNode)) {
+    const paragraph = $createParagraphNode();
+    const textNode = $createTextNode('');
+    paragraph.append(textNode);
+    anchorNode.append(paragraph);
+    selection.setTextNodeRange(textNode, 0, textNode, 0);
+    return;
+  }
+  if ($isElementNode(anchorNode) && anchorNode.getChildrenSize() === 0) {
+    const textNode = $createTextNode('');
+    anchorNode.append(textNode);
+    selection.setTextNodeRange(textNode, 0, textNode, 0);
+    return;
+  }
+  const focusNode = selection.focus.getNode();
+  if ($isElementNode(focusNode) && focusNode.getChildrenSize() === 0) {
+    const textNode = $createTextNode('');
+    focusNode.append(textNode);
+    selection.setTextNodeRange(textNode, 0, textNode, 0);
+  }
+}
+
+function getNextInsertSuggestionMarkFromSelection(
+  selection: ReturnType<typeof $createRangeSelection>,
+  suggestionStore: SuggestionStore,
+  authorId: string,
+): { markNode: MarkNode; suggestionId: string } | null {
+  if (!selection.isCollapsed()) return null;
+  const anchorNode = selection.anchor.getNode();
+  if (!$isTextNode(anchorNode)) return null;
+  let nextSibling: ReturnType<typeof anchorNode.getNextSibling> | null = null;
+  const anchorMark = getParentMarkNode(anchorNode);
+  if (anchorMark) {
+    const hasInsertSuggestion = anchorMark
+      .getIDs()
+      .some((id) => parseSuggestionMarkId(id)?.kind === 'insert');
+    if (hasInsertSuggestion) return null;
+    const lastText = getLastTextDescendant(anchorMark);
+    if (lastText !== anchorNode) return null;
+    if (selection.anchor.offset !== anchorNode.getTextContentSize()) return null;
+    nextSibling = anchorMark.getNextSibling();
+  } else {
+    if (selection.anchor.offset !== anchorNode.getTextContentSize()) return null;
+    nextSibling = anchorNode.getNextSibling();
+  }
+  if (!$isMarkNode(nextSibling)) return null;
+  const suggestionId = getSuggestionIdFromMarkIDs(nextSibling.getIDs());
+  if (!suggestionId) return null;
+  const suggestion = suggestionStore.getSuggestion(suggestionId);
+  if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'insert') return null;
+  if (suggestion.authorId !== authorId) return null;
+  if (!nextSibling.getIDs().includes(toSuggestionMarkId(suggestionId, 'insert'))) return null;
+  return { markNode: nextSibling, suggestionId };
 }
 
 function isSelectionAtStartOfMark(
@@ -763,6 +817,25 @@ function normalizeSelectionOffsets(
   return range;
 }
 
+function normalizeSelectionOffsetsReadOnly(
+  selection: ReturnType<typeof $createRangeSelection>,
+): ReturnType<typeof $createRangeSelection> | null {
+  if (selection.isCollapsed()) {
+    const preferEnd = selection.anchor.offset > 0;
+    const resolved = resolvePointToTextNode(selection.anchor, preferEnd);
+    if (!resolved) return null;
+    const range = $createRangeSelection();
+    range.setTextNodeRange(resolved.node, resolved.offset, resolved.node, resolved.offset);
+    return range;
+  }
+  const anchor = resolvePointToTextNode(selection.anchor, false);
+  const focus = resolvePointToTextNode(selection.focus, true);
+  if (!anchor || !focus) return null;
+  const range = $createRangeSelection();
+  range.setTextNodeRange(anchor.node, anchor.offset, focus.node, focus.offset);
+  return range;
+}
+
 function isSafeCollapsedSelection(
   selection: ReturnType<typeof $createRangeSelection>,
 ): boolean {
@@ -829,7 +902,9 @@ export default function SuggestedEditsPlugin({
   const markNodeMap = useMemo<Map<string, Set<string>>>(() => new Map(), []);
   const decoratedKeysRef = useRef<Set<string>>(new Set());
   const lastInsertSuggestionIdRef = useRef<string | null>(null);
+  const lastReplaceSuggestionIdRef = useRef<string | null>(null);
   const lastInsertSelectionRef = useRef<SelectionSnapshot | null>(null);
+  const lastThreadTextRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
     if (providerFactory) {
@@ -882,6 +957,38 @@ export default function SuggestedEditsPlugin({
     const authorId = getSuggestionAuthorId(currentUser, clientId);
     if (!authorId) return false;
     if (!text) return false;
+    const moveOutOfInsertMarkKey = editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
+      const normalizedSelection = normalizeSelectionOffsetsReadOnly(selection);
+      if (!normalizedSelection) return null;
+      const parentMark = getParentMarkNode(normalizedSelection.anchor.getNode());
+      const suggestionId = parentMark ? getSuggestionIdFromMarkIDs(parentMark.getIDs()) : null;
+      if (!suggestionId) return null;
+      const suggestion = suggestionStore.getSuggestion(suggestionId);
+      if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'insert') return null;
+      if (suggestion.authorId !== authorId) return null;
+      const markNode =
+        parentMark ??
+        getMarkNodeForSuggestionFromSelection(normalizedSelection, suggestionId, 'insert');
+      if (!markNode) return null;
+      if (!markNode.getIDs().includes(toSuggestionMarkId(suggestionId, 'insert'))) return null;
+      return isSelectionAtStartOfMark(normalizedSelection, markNode) ? markNode.getKey() : null;
+    });
+  const leadingEdgeData = editor.getEditorState().read(() => {
+    const selection = $getSelection();
+    if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
+    const normalizedSelection = normalizeSelectionOffsetsReadOnly(selection);
+    if (!normalizedSelection) return null;
+    const nextInsertMark = getNextInsertSuggestionMarkFromSelection(
+      normalizedSelection,
+      suggestionStore,
+      authorId,
+    );
+    return nextInsertMark
+      ? { markKey: nextInsertMark.markNode.getKey(), suggestionId: nextInsertMark.suggestionId }
+      : null;
+  });
     const currentSelectionSnapshot = editor.getEditorState().read(() =>
       snapshotSelection($getSelection()),
     );
@@ -904,10 +1011,28 @@ export default function SuggestedEditsPlugin({
       const markNode = getMarkNodeForSuggestionFromSelection(selection, suggestionId, 'insert');
       return markNode ? suggestionId : null;
     });
-    const type: SuggestionType = replaceInsertSuggestionId ? 'replace' : isReplace ? 'replace' : 'insert';
-    const existingInsertSuggestionId = (() => {
+    const replaceContinuationSuggestionId = editor.getEditorState().read(() => {
+      const fallbackId = lastReplaceSuggestionIdRef.current;
+      if (!fallbackId) return null;
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
+      const suggestion = suggestionStore.getSuggestion(fallbackId);
+      if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'replace') return null;
+      if (suggestion.authorId !== authorId) return null;
+      const markNode = getMarkNodeForSuggestionFromSelection(selection, fallbackId, 'insert');
+      return markNode ? fallbackId : null;
+    });
+    const type: SuggestionType =
+      replaceInsertSuggestionId || replaceContinuationSuggestionId
+        ? 'replace'
+        : isReplace
+          ? 'replace'
+          : 'insert';
+  const existingInsertSuggestionId = (() => {
       if (replaceInsertSuggestionId) return replaceInsertSuggestionId;
+      if (replaceContinuationSuggestionId) return replaceContinuationSuggestionId;
       if (type !== 'insert') return null;
+    if (moveOutOfInsertMarkKey || leadingEdgeData) return null;
       if (!currentSelectionSnapshot) return null;
       const selectionSuggestionId = editor.getEditorState().read(() =>
         getSelectionSuggestionId(),
@@ -918,7 +1043,11 @@ export default function SuggestedEditsPlugin({
       if (suggestion.authorId !== authorId) return null;
       return selectionSuggestionId;
     })();
-    const mergeSuggestionId = existingInsertSuggestionId ?? getMergeableSuggestionId(type) ?? (() => {
+  const mergeSuggestionId = moveOutOfInsertMarkKey
+    ? null
+    : leadingEdgeData
+      ? leadingEdgeData.suggestionId
+      : existingInsertSuggestionId ?? getMergeableSuggestionId(type) ?? (() => {
       if (type !== 'insert') return null;
       const fallbackId = lastInsertSuggestionIdRef.current;
       if (!fallbackId) return null;
@@ -943,12 +1072,93 @@ export default function SuggestedEditsPlugin({
     let didCreateThread = false;
     let updatedSuggestionText: string | null = null;
     let didInsertText = false;
-    editor.update(() => {
+  editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
+      ensureTextNodeForEmptySelection(selection);
+    if (leadingEdgeData) {
+      const markNode = $getNodeByKey(leadingEdgeData.markKey);
+      if ($isMarkNode(markNode)) {
+        const firstText = getFirstTextDescendant(markNode);
+        if (firstText) {
+          const insertSelection = $createRangeSelection();
+          insertSelection.setTextNodeRange(firstText, 0, firstText, 0);
+          $setSelection(insertSelection);
+        }
+      }
+    }
+    const moveOutKey = moveOutOfInsertMarkKey;
+    if (moveOutKey) {
+      const markNode = $getNodeByKey(moveOutKey);
+        if ($isMarkNode(markNode)) {
+          const insertNode = $createTextNode(text);
+          markNode.insertBefore(insertNode);
+          const insertSelection = $createRangeSelection();
+          insertSelection.setTextNodeRange(insertNode, text.length, insertNode, text.length);
+          $setSelection(insertSelection);
+          didInsertText = true;
+          const range = markInsertedText(text);
+          if (!range) return;
+          applySuggestionMark(range, suggestionId, 'insert');
+          mergeAdjacentMarkNodesForId(toSuggestionMarkId(suggestionId, 'insert'), range);
+          const parentElement = getClosestNonMarkElement(range.anchor.getNode());
+          if (parentElement) {
+            mergeAdjacentMarkNodesInParent(parentElement);
+          }
+          const nextMarkNode =
+            getParentMarkNode(range.anchor.getNode()) ??
+            getMarkNodeForSuggestionFromRange(range, suggestionId, 'insert') ??
+            getMarkNodeForSuggestionFromSelection($getSelection(), suggestionId, 'insert');
+          if (nextMarkNode) {
+            const mergedMarkNode = mergeAdjacentMarkNodes(nextMarkNode);
+            updatedSuggestionText = mergedMarkNode.getTextContent();
+            moveSelectionToEndOfMarkNode(mergedMarkNode);
+          }
+          if (!updatedSuggestionText) {
+            updatedSuggestionText = getSuggestionTextFromMarkNodeMap(suggestionId, markNodeMap);
+          }
+          if (!updatedSuggestionText) {
+            updatedSuggestionText = getSuggestionTextFromEditorState(suggestionId, 'insert');
+          }
+          if (shouldCreateThread && !didCreateThread) {
+            const threadRange = nextMarkNode
+              ? getRangeSelectionForMarkNode(nextMarkNode) ?? range
+              : range;
+            $setSelection(threadRange);
+            createSuggestionThreadForSelection(
+              editor,
+              threadRange,
+              {
+                threadId: suggestionId,
+                initialContent: isReplace ? 'Suggested replacement' : 'Suggested edit',
+                quote: text,
+                isSuggestion: true,
+              },
+              updatedSuggestionText,
+            );
+            didCreateThread = true;
+          }
+          lastInsertSelectionRef.current = snapshotSelection($getSelection());
+          return;
+        }
+      }
       const rangeSelection = normalizeSelectionOffsets(selection);
       if (!rangeSelection) return;
       if (existingInsertSuggestionId && rangeSelection.isCollapsed()) {
+        const shouldMoveSelectionToEnd = (() => {
+          const markNode = getMarkNodeForSuggestionFromSelection(
+            rangeSelection,
+            existingInsertSuggestionId,
+            'insert',
+          );
+          if (!markNode) return false;
+          const lastText = getLastTextDescendant(markNode);
+          if (!lastText) return false;
+          return (
+            rangeSelection.anchor.getNode() === lastText &&
+            rangeSelection.anchor.offset === lastText.getTextContentSize()
+          );
+        })();
         const anchorNode = rangeSelection.anchor.getNode();
         if ($isTextNode(anchorNode)) {
           const atEnd = rangeSelection.anchor.offset === anchorNode.getTextContentSize();
@@ -983,7 +1193,9 @@ export default function SuggestedEditsPlugin({
           if (markNode) {
             const mergedMarkNode = mergeAdjacentMarkNodes(markNode);
             updatedSuggestionText = mergedMarkNode.getTextContent();
-            moveSelectionToEndOfMarkNode(mergedMarkNode);
+            if (shouldMoveSelectionToEnd) {
+              moveSelectionToEndOfMarkNode(mergedMarkNode);
+            }
           }
           if (!updatedSuggestionText) {
             updatedSuggestionText = getSuggestionTextFromMarkNodeMap(
@@ -1054,7 +1266,9 @@ export default function SuggestedEditsPlugin({
       if (markNode) {
         const mergedMarkNode = mergeAdjacentMarkNodes(markNode);
         updatedSuggestionText = mergedMarkNode.getTextContent();
-        moveSelectionToEndOfMarkNode(mergedMarkNode);
+        if (shouldCreateThread) {
+          moveSelectionToEndOfMarkNode(mergedMarkNode);
+        }
       }
       if (!updatedSuggestionText) {
         updatedSuggestionText = getSuggestionTextFromMarkNodeMap(suggestionId, markNodeMap);
@@ -1094,6 +1308,9 @@ export default function SuggestedEditsPlugin({
     }
     if (didInsertText) {
       lastInsertSuggestionIdRef.current = suggestionId;
+      if (type === 'replace') {
+        lastReplaceSuggestionIdRef.current = suggestionId;
+      }
     }
     return true;
   }, [
@@ -1111,15 +1328,52 @@ export default function SuggestedEditsPlugin({
     if (!suggestMode) return false;
     const authorId = getSuggestionAuthorId(currentUser, clientId);
     if (!authorId) return false;
+    const replaceDeleteMarkKey = editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
+      const suggestionId = getSelectionSuggestionId();
+      if (!suggestionId) return null;
+      const suggestion = suggestionStore.getSuggestion(suggestionId);
+      if (!suggestion || suggestion.type !== 'replace' || suggestion.state !== 'open') return null;
+      const markNode = getMarkNodeForSuggestionFromSelection(selection, suggestionId, 'delete');
+      return markNode ? markNode.getKey() : null;
+    });
+    if (replaceDeleteMarkKey) {
+      editor.update(() => {
+        const markNode = $getNodeByKey(replaceDeleteMarkKey);
+        if (!$isMarkNode(markNode)) return;
+        if (isBackward) {
+          moveSelectionBeforeNode(markNode);
+        } else {
+          moveSelectionToEndOfMarkNode(markNode);
+        }
+      });
+      return true;
+    }
     const bypassSuggestionId = editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection) || !selection.isCollapsed()) return false;
       const suggestionId = getSelectionSuggestionId();
       if (!suggestionId) return false;
       const suggestion = suggestionStore.getSuggestion(suggestionId);
-      return suggestion?.type === 'insert' && suggestion.authorId === authorId
-        ? suggestionId
-        : null;
+      if (suggestion?.type !== 'insert' || suggestion.authorId !== authorId) return null;
+      const normalizedSelection = normalizeSelectionOffsetsReadOnly(selection);
+      const markNode =
+        (normalizedSelection &&
+          getMarkNodeForSuggestionFromSelection(normalizedSelection, suggestionId, 'insert')) ??
+        getMarkNodeForSuggestionFromSelection(selection, suggestionId, 'insert');
+      if (normalizedSelection) {
+        const nextInsertMark = getNextInsertSuggestionMarkFromSelection(
+          normalizedSelection,
+          suggestionStore,
+          authorId,
+        );
+        if (nextInsertMark && nextInsertMark.suggestionId === suggestionId) return null;
+      }
+      if (markNode && normalizedSelection && isSelectionAtStartOfMark(normalizedSelection, markNode)) {
+        return null;
+      }
+      return suggestionId;
     });
     if (bypassSuggestionId) {
       queueMicrotask(() => {
@@ -1481,12 +1735,14 @@ export default function SuggestedEditsPlugin({
       }, { skipInitialization: false }),
       editor.registerUpdateListener(({ editorState }) => {
         let normalizedSelection: SelectionSnapshot | null = null;
+        const pendingThreadUpdates: Array<{ suggestionId: string; text: string }> = [];
         editorState.read(() => {
           const selection = $getSelection();
           if (!$isRangeSelection(selection)) {
             setActiveSuggestionId(null);
             setActionAnchorRect(null);
             lastInsertSuggestionIdRef.current = null;
+            lastReplaceSuggestionIdRef.current = null;
             lastInsertSelectionRef.current = null;
             return;
           }
@@ -1522,6 +1778,22 @@ export default function SuggestedEditsPlugin({
             if (suggestion?.type === 'insert') {
               lastInsertSuggestionIdRef.current = suggestionId;
             }
+            if (suggestion?.type === 'replace') {
+              const markNode = getMarkNodeForSuggestionFromSelection(
+                selection,
+                suggestionId,
+                'insert',
+              );
+              if (markNode) {
+                lastReplaceSuggestionIdRef.current = suggestionId;
+              } else {
+                lastReplaceSuggestionIdRef.current = null;
+              }
+            } else {
+              lastReplaceSuggestionIdRef.current = null;
+            }
+          } else {
+            lastReplaceSuggestionIdRef.current = null;
           }
 
           const domSelection = getDOMSelection(editor._window);
@@ -1532,10 +1804,35 @@ export default function SuggestedEditsPlugin({
               setActionAnchorRect(rect);
             }
           }
+
+          const suggestions = suggestionStore.getSuggestions();
+          suggestions.forEach((suggestion, suggestionId) => {
+            if (suggestion.state !== 'open') return;
+            let text: string | null = null;
+            if (suggestion.type === 'insert') {
+              text = getSuggestionTextFromEditorState(suggestionId, 'insert');
+            } else if (suggestion.type === 'delete') {
+              text = getSuggestionTextFromEditorState(suggestionId, 'delete');
+            } else if (suggestion.type === 'replace') {
+              text =
+                getSuggestionTextFromEditorState(suggestionId, 'insert') ??
+                getSuggestionTextFromEditorState(suggestionId, 'delete');
+            }
+            if (!text) return;
+            const lastText = lastThreadTextRef.current.get(suggestionId);
+            if (lastText === text) return;
+            lastThreadTextRef.current.set(suggestionId, text);
+            pendingThreadUpdates.push({ suggestionId, text });
+          });
         });
         if (normalizedSelection) {
           editor.update(() => {
             restoreSelectionFromSnapshot(normalizedSelection!);
+          });
+        }
+        if (pendingThreadUpdates.length > 0) {
+          pendingThreadUpdates.forEach(({ suggestionId, text }) => {
+            updateSuggestionThread(editor, suggestionId, text);
           });
         }
       }),
