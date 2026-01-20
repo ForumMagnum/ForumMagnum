@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
@@ -17,6 +17,7 @@ import LWTooltip from '../common/LWTooltip';
 import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
+import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -110,12 +111,26 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
 interface SunshineUserMessagesProps {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
+  posts?: SunshinePostsList[];
+  comments?: SunshineCommentsList[];
   showExpandablePreview?: boolean;
 }
 
-const SunshineUserMessagesInner = ({user, currentUser, showExpandablePreview}: SunshineUserMessagesProps) => {
+const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpandablePreview}: SunshineUserMessagesProps) => {
   const classes = useStyles(styles);
   
+  const highlightedTemplateNames = useMemo(() => {
+    if (!posts || !comments) return new Set<string>();
+    return getHighlightedTemplateNames(
+      {
+        user,
+        moderatorActions: user.moderatorActions ?? [],
+      },
+      posts,
+      comments
+    );
+  }, [user, posts, comments]);
+
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
   const [expandedConversationId, setExpandedConversationId] = useState<string | undefined>();
@@ -265,7 +280,7 @@ const SunshineUserMessagesInner = ({user, currentUser, showExpandablePreview}: S
           <div key={group} className={classes.templateGroup}>
             <h3>{group}</h3>
             {templatesInGroup.map(template => (
-              <ModerationTemplateSunshineItem key={template._id} template={template} onTemplateClick={handleTemplateClick} />
+              <ModerationTemplateSunshineItem key={template._id} template={template} onTemplateClick={handleTemplateClick} highlighted={highlightedTemplateNames.has(template.name)} />
             ))}
           </div>
         ))}

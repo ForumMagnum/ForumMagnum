@@ -60,10 +60,14 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
 const ModerationSidebar = ({
   user,
   currentUser,
+  posts,
+  comments,
   dispatch,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
+  posts: SunshinePostsList[];
+  comments: SunshineCommentsList[];
   dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
@@ -90,7 +94,7 @@ const ModerationSidebar = ({
 
         <div className={classes.userMessages}>
           {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
-          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} showExpandablePreview />
+          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} posts={posts} comments={comments} showExpandablePreview />
         </div>
         <div className={classes.newTemplateButton} onClick={() => setShowNewTemplateForm(true)}>
           NEW MOD TEMPLATE

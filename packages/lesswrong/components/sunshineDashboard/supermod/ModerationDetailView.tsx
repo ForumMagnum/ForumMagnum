@@ -103,6 +103,8 @@ const ModerationDetailView = ({
           <ModerationSidebar
             user={user}
             currentUser={currentUser}
+            posts={posts}
+            comments={comments}
             dispatch={dispatch}
           />
         </div>
