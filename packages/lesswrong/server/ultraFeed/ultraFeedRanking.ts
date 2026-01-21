@@ -138,7 +138,7 @@ function scorePost(
   // TODO: Not yet implemented - will be calculated from user's tag reading history when available
   const topicAffinityBonus = 0;
 
-  const isRecombeePost = post.sources.includes('recombee-lesswrong-custom');
+  const isRecombeePost = post.sources.includes('recombee-lesswrong-ultrafeed');
   const isSubscriptionPost = post.sources.includes('subscriptionsPosts');
   
   let karmaBonus = 0;

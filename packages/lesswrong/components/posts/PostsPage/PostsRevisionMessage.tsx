@@ -15,7 +15,7 @@ interface PostsRevisionMessageFragment {
 }
 
 const PostsRevisionMessage = ({post, classes}: {
-  post: PostsRevisionMessageFragment|PostsList,
+  post: PostsRevisionMessageFragment|PostsList|SunshinePostsList,
   classes: ClassesType<typeof styles>,
 }) => {
   if (!post.contents )

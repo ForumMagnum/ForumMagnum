@@ -23,7 +23,6 @@ import DuplicateEventDropdownItem from "./DuplicateEventDropdownItem";
 import PostAnalyticsDropdownItem from "./PostAnalyticsDropdownItem";
 import ExcludeFromRecommendationsDropdownItem from "./ExcludeFromRecommendationsDropdownItem";
 import ApproveNewUserDropdownItem from "./ApproveNewUserDropdownItem";
-import SharePostSubmenu from "./SharePostSubmenu";
 import { PostSubscriptionsDropdownItem } from "./PostSubscriptionsDropdownItem";
 import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownItem";
 import HideFrontPageButton from './HideFrontpagePostDropdownItem';
@@ -66,10 +65,8 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
 
   return (
     <DropdownMenu className={classes.root} >
-      <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
       <EditPostDropdownItem post={post} />
       <ResyncRssDropdownItem post={post} closeMenu={closeMenu} />
-      {isBookUI() && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
       <PostSubscriptionsDropdownItem post={post} />
@@ -90,6 +87,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <ApproveNewUserDropdownItem post={post} />
       <SuggestAlignmentPostDropdownItem post={post}/>
       <MoveToAlignmentPostDropdownItem post={post}/>
+      <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
     </DropdownMenu>
   );
 }

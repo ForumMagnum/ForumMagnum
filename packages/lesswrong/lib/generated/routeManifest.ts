@@ -30,6 +30,9 @@ export const routeTrie = {
         "curation": {
           "hasPage": true
         },
+        "debugDatabaseIndexes": {
+          "hasPage": true
+        },
         "debugHeaders": {
           "hasRoute": true
         },
@@ -73,6 +76,7 @@ export const routeTrie = {
       "lowerCase": {
         "commentembeddings": "commentEmbeddings",
         "curation": "curation",
+        "debugdatabaseindexes": "debugDatabaseIndexes",
         "debugheaders": "debugHeaders",
         "emailsender": "emailSender",
         "llmconversations": "llmConversations",
@@ -197,6 +201,9 @@ export const routeTrie = {
         "sendLlmChat": {
           "hasRoute": true
         },
+        "streamGraphql": {
+          "hasRoute": true
+        },
         "v2": {
           "staticChildren": {
             "crosspost": {
@@ -252,6 +259,7 @@ export const routeTrie = {
         "registerclientid": "registerClientId",
         "search": "search",
         "sendllmchat": "sendLlmChat",
+        "streamgraphql": "streamGraphql",
         "v2": "v2"
       }
     },

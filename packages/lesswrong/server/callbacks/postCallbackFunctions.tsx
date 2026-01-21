@@ -1137,17 +1137,13 @@ export async function updateCommentHideKarma(newPost: DbPost, oldPost: DbPost, c
 
   if (newPost.hideCommentKarma === oldPost.hideCommentKarma) return
 
-  const comments = Comments.find({postId: newPost._id})
-  if (!(await comments.count())) return
-  const updates = (await comments.fetch()).map(comment => ({
-    updateOne: {
-      filter: {
-        _id: comment._id,
-      },
-      update: {$set: {hideKarma: newPost.hideCommentKarma}}
-    }
-  }))
-  await Comments.rawCollection().bulkWrite(updates)
+  const comments = await Comments.find({postId: newPost._id}).fetch();
+  if (!comments.length) return
+  const commentIds = comments.map(c=>c._id);
+  await Comments.rawUpdateMany(
+    {_id: {$in: commentIds}},
+    {$set: {hideKarma: newPost.hideCommentKarma}}
+  );
 }
 
 // For posts without comments, update lastCommentedAt to match postedAt

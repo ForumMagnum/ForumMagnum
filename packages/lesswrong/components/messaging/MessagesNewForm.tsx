@@ -121,6 +121,7 @@ const InnerMessagesNewForm = ({
   submitLabel = "Submit",
   sendEmail = true,
   prefilledProps,
+  templateQueries,
   conversationId,
   onSuccess,
 }: {
@@ -136,6 +137,7 @@ const InnerMessagesNewForm = ({
       };
     };
   };
+  templateQueries?: TemplateQueryStrings;
   conversationId: string;
   onSuccess: (doc: messageListFragment) => void;
 }) => {
@@ -150,7 +152,7 @@ const InnerMessagesNewForm = ({
     onSubmitCallback,
     onSuccessCallback,
     addOnSubmitCallback,
-    addOnSuccessCallback
+    addOnSuccessCallback,
   } = useEditorFormCallbacks<messageListFragment>();
 
   const [create] = useMutation(messageListFragmentMutation);
@@ -186,6 +188,7 @@ const InnerMessagesNewForm = ({
       }
     },
   });
+
 
   const handleSubmit = useCallback(() => form.handleSubmit(), [form]);
   const formRef = useFormSubmitOnCmdEnter(handleSubmit);
@@ -288,6 +291,7 @@ export const MessagesNewForm = ({
             },
           },
         }}
+        templateQueries={templateQueries}
         conversationId={conversationId}
         onSuccess={(newMessage) => successEvent(newMessage)}
       />
@@ -296,5 +300,3 @@ export const MessagesNewForm = ({
 };
 
 export default MessagesNewForm;
-
-

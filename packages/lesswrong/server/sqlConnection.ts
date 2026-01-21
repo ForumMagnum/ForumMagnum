@@ -173,6 +173,11 @@ const logIfSlow = async <T>(
   if (logAllQueries) {
     // eslint-disable-next-line no-console
     console.log(`Running Postgres query #${queryID}: ${getDescription()}`);
+    
+    if (process.env.QUERY_STACK_TRACES === 'true') {
+      // eslint-disable-next-line no-console
+      console.log(new Error().stack);
+    }
   }
 
   const startTime = new Date().getTime();

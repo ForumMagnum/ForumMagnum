@@ -25,7 +25,6 @@ import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
 import { backgroundTask } from "../utils/backgroundTask";
 import { serverCaptureEvent } from "../analytics/serverAnalyticsWriter";
-import { bulkRawInsert } from '../manualMigrations/migrationUtils';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import {
   loadMultipleEntitiesById,
@@ -39,6 +38,7 @@ import {
   convertFetchedItemsToRankable,
   mapRankedIdsToSampledItems,
 } from '../ultraFeed/ultraFeedRankingConverters';
+import UltraFeedEvents from "../collections/ultraFeedEvents/collection";
 
 const ultraFeedLog = loggerConstructor('ultrafeed');
 
@@ -568,7 +568,7 @@ const calculateFetchLimits = (
 } => {
   const totalWeight = Object.values(sourceWeights).reduce((sum: number, weight) => sum + weight, 0);
   
-  const recombeePostWeight = sourceWeights['recombee-lesswrong-custom'] ?? 0;
+  const recombeePostWeight = sourceWeights['recombee-lesswrong-ultrafeed'] ?? 0;
   const hackerNewsPostWeight = sourceWeights['hacker-news'] ?? 0;
   const subscribedPostWeight = sourceWeights['subscriptionsPosts'] ?? 0;
   const bookmarkWeight = sourceWeights['bookmarks'] ?? 0;
@@ -807,7 +807,7 @@ export const ultraFeedGraphQLQueries = {
         const currentOffset = offset ?? 0; 
         const eventsToCreate = createUltraFeedEvents(results, userOrClientId, sessionId, currentOffset);
         if (eventsToCreate.length > 0) {
-          backgroundTask(bulkRawInsert('UltraFeedEvents', eventsToCreate as DbUltraFeedEvent[]));
+          backgroundTask(UltraFeedEvents.rawInsertMany(eventsToCreate as DbUltraFeedEvent[]));
         }
       }
 

@@ -1,21 +1,27 @@
 import React, { useCallback, useRef } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CommentsNode from '@/components/comments/CommentsNode';
-import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import { ContentItem, isPost } from './helpers';
 import ForumIcon from '@/components/common/ForumIcon';
+import { Link } from '@/lib/reactRouterWrapper';
+import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import PostBodyPrefix from '@/components/posts/PostsPage/PostBodyPrefix';
+import ContentStyles from '@/components/common/ContentStyles';
+import { ContentItemBody } from '@/components/contents/ContentItemBody';
 
 const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
-    height: 'calc(100vh - 178px)',
-    width: 800,
-    flexShrink: 0,
+    flex: 1,
+    minWidth: 0,
     position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
   },
   contentWrapper: {
     overflowY: 'auto',
-    height: 'calc(100% - 58px)',
+    flex: 1,
+    minHeight: 0,
   },
   empty: {
     padding: 40,
@@ -45,6 +51,28 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
       boxShadow: theme.palette.boxShadow.lwCard,
     },
   },
+  commentsNode: {
+    marginLeft: -1,
+    marginRight: -1,
+    marginTop: -1,
+    marginBottom: -1,
+    overflow: 'hidden',
+  },
+  postContent: {
+    padding: 16,
+    borderLeft: `1px solid ${theme.palette.grey[300]}`,
+  },
+  postTitle: {
+    display: 'block',
+    ...theme.typography.headerStyle,
+    fontSize: 38,
+    marginBottom: 12
+  },
+  draftNotice: {
+    fontSize: 20,
+    color: theme.palette.grey[700],
+    marginBottom: 4,
+  }
 }));
 const ModerationContentDetail = ({
   item,
@@ -81,8 +109,22 @@ const ModerationContentDetail = ({
     <div className={classes.root}>
       <div className={classes.contentWrapper} ref={contentWrapperRef}>
         {post
-          ? <PostsPageWrapper documentId={item._id} sequenceId={null} embedded/>
-          : <CommentsNode treeOptions={{showPostTitle: true}} comment={item} forceUnTruncated forceUnCollapsed/>}
+          ? <div className={classes.postContent}>
+            {item.draft && <div className={classes.draftNotice}>[Draft]</div>}
+            <Link to={postGetPageUrl(item)} className={classes.postTitle}>
+              {item.title}
+            </Link>
+            <PostBodyPrefix post={item} />
+            <ContentStyles contentType="postHighlight">
+              <ContentItemBody
+                dangerouslySetInnerHTML={{__html: item.contents?.html ?? ''}}
+              />
+            </ContentStyles>
+          </div>
+          : <div className={classes.commentsNode}>
+            <CommentsNode treeOptions={{showPostTitle: true}} comment={item} forceUnTruncated forceUnCollapsed/>
+            </div>
+          }
       </div>
       {post && (
         <button 
@@ -98,4 +140,3 @@ const ModerationContentDetail = ({
 };
 
 export default ModerationContentDetail;
-

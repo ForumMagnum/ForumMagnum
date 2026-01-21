@@ -11,6 +11,7 @@ import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isCollaborative, PostCategory } from '../../lib/collections/posts/helpers';
 import { AutosaveEditorStateContext, DynamicTableOfContentsContext } from '../common/sharedContexts';
+import { AppendToEditorContext } from './AppendToEditorContext';
 import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
@@ -142,6 +143,27 @@ function InnerEditorFormComponent<S, R>({
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
   const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
+  const appendToEditorContext = useContext(AppendToEditorContext);
+  const registerAppendToEditor = appendToEditorContext?.registerAppendToEditor;
+  
+
+  useEffect(() => {
+    if (!registerAppendToEditor) return;
+    if (editorRef.current) {
+      registerAppendToEditor((html: string) => {
+        const ckEditorReference = editorRef.current?.state?.ckEditorReference;
+        if (ckEditorReference) {
+          const currentData = ckEditorReference.getData() || '';
+          const separator = currentData.trim() ? '<p><br></p>' : '';
+          ckEditorReference.data.set(currentData + separator + html);
+        }
+      });
+    }
+    return () => {
+      registerAppendToEditor(() => {});
+    };
+  }, [registerAppendToEditor]);
+  
   const { captureEvent } = useTracking()
 
   const localStorageIdGenerator = getLocalStorageId ?? getDefaultLocalStorageIdGenerator(collectionName);

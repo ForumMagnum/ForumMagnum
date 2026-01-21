@@ -1,5 +1,4 @@
-import { NotificationsViews } from "@/lib/collections/notifications/views";
-import { getDefaultViewSelector } from "@/lib/utils/viewUtils";
+import { defaultNotificationsView } from "@/lib/collections/notifications/views";
 import Notifications from "@/server/collections/notifications/collection";
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import { isFriendlyUI } from "@/themes/forumTheme";
@@ -8,11 +7,11 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function GET(req: NextRequest) {
   const currentUser = await getUserFromReq(req);
   if (!currentUser) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response('{"error":"Unauthorized"}', { status: 401 });
   }
 
   const selector = {
-    ...getDefaultViewSelector(NotificationsViews),
+    ...defaultNotificationsView({view: "default"}).selector,
     userId: currentUser._id,
   };
 

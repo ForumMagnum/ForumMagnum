@@ -4001,6 +4001,7 @@ type ModerationTemplate {
   name: String!
   collectionName: ModerationTemplateType!
   order: Float!
+  groupLabel: String
   deleted: Boolean!
 }
 
@@ -9266,6 +9267,7 @@ input CreateModerationTemplateDataInput {
   name: String!
   collectionName: ModerationTemplateType!
   order: Float
+  groupLabel: String
 }
 
 input CreateModerationTemplateInput {
@@ -9278,6 +9280,7 @@ input UpdateModerationTemplateDataInput {
   name: String
   collectionName: ModerationTemplateType
   order: Float
+  groupLabel: String
   deleted: Boolean
 }
 

@@ -38,14 +38,13 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   icon: {
     height: 14,
     width: 14,
-    marginRight: 8,
     color: theme.palette.grey[500],
     flexShrink: 0,
   },
   karma: {
     fontSize: 13,
     marginRight: 12,
-    minWidth: 32,
+    minWidth: 20,
     textAlign: 'right',
     flexShrink: 0,
     fontWeight: 500,
@@ -62,13 +61,13 @@ const styles = defineStyles('ModerationContentItem', (theme: ThemeType) => ({
   postedAt: {
     fontSize: 13,
     color: theme.palette.grey[600],
-    marginRight: 12,
+    marginRight: 4,
     minWidth: 24,
     flexShrink: 0,
   },
   contentPreview: {
     flex: 1,
-    minWidth: 220,
+    minWidth: 100,
     overflow: 'hidden',
     marginRight: 12,
   },
@@ -303,7 +302,7 @@ const ModerationContentItem = ({
 
       <div className={classes.contentPreview}>
         {itemIsPost && (
-          <div className={classes.title}>{item.title}</div>
+          <div className={classes.title}>{item.draft ? `[Draft] ${item.title}` : item.title}</div>
         )}
         <div className={classes.text}>{truncatedText}</div>
       </div>
@@ -361,4 +360,3 @@ const ModerationContentItem = ({
 };
 
 export default ModerationContentItem;
-

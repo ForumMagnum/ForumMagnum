@@ -9,14 +9,11 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
 import ModerationDetailView from './ModerationDetailView';
-import ModerationSidebar from './ModerationSidebar';
-import ModerationPostSidebar from './ModerationPostSidebar';
+import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
-import ModerationUndoHistory from './ModerationUndoHistory';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
-import classNames from 'classnames';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type ReviewGroup } from './groupings';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import type { TabInfo } from './ModerationTabs';
@@ -24,6 +21,8 @@ import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
 import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardContext';
+import ModerationPostSidebar from './ModerationPostSidebar';
+import ModerationUndoHistory from './ModerationUndoHistory';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -63,6 +62,7 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     width: '100%',
     height: '100vh',
     display: 'flex',
+    flexDirection: 'column',
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     overflow: 'hidden',
     position: 'fixed',
@@ -72,30 +72,30 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     flex: 1,
     display: 'flex',
     overflow: 'hidden',
+    minHeight: 0,
   },
   leftPanel: {
     flex: 1,
     overflow: 'hidden',
     borderRight: theme.palette.border.normal,
-  },
-  sidebar: {
-    width: 400,
-    overflow: 'hidden',
-    borderLeft: theme.palette.border.normal,
-    backgroundColor: theme.palette.background.paper,
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
   },
-  sidebarWide: {
-    width: 800,
-  },
-  sidebarTop: {
-    flex: '0 0 70%',
+  undoQueueSection: {
+    width: 300,
+    flexShrink: 0,
+    borderRight: theme.palette.border.normal,
+    height: '100%',
     overflow: 'auto',
   },
-  sidebarBottom: {
-    flex: '0 0 30%',
-    overflow: 'auto',
+  inboxListContainer: {
+    flex: 1,
+    overflow: 'hidden',
+    minWidth: 0,
+  },
+  postDetailPanel: {
+    flex: 1,
+    overflow: 'hidden',
   },
   loading: {
     display: 'flex',
@@ -304,6 +304,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
 
   const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
 
+  const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
+
   return (
     <CoreTagsKeyboardProvider>
     <div className={classes.root}>
@@ -344,52 +346,52 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
         <div className={classes.leftPanel}>
           {openedUser ? (
             <ModerationDetailView 
+              currentUser={currentUser}
               user={openedUser}
+              posts={userPosts}
+              comments={userComments}
               focusedContentIndex={state.focusedContentIndex}
               runningLlmCheckId={state.runningLlmCheckId}
               dispatch={dispatch}
-            />
-          ) : (
-            <ModerationInboxList
-              userGroups={filteredGroups}
-              posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
-              focusedUserId={state.focusedUserId}
-              focusedPostId={state.focusedPostId}
-              onFocusUser={handleOpenUser}
-              onOpenUser={handleOpenUser}
-              onFocusPost={handleFocusPost}
-              visibleTabs={visibleTabs}
-              activeTab={state.activeTab}
-              onTabChange={handleTabChange}
-            />
-          )}
-        </div>
-        <div className={classNames(classes.sidebar, { [classes.sidebarWide]: isPostsTab })}>
-          {isPostsTab ? (
-            <ModerationPostSidebar
-              post={focusedPost}
-              currentUser={currentUser}
-              dispatch={dispatch}
+              state={state}
             />
           ) : (
             <>
-              <div className={classes.sidebarTop}>
-                {sidebarUser && <ModerationSidebar
-                  user={sidebarUser}
-                  currentUser={currentUser}
-                  dispatch={dispatch}
-                />}
-              </div>
-              <div className={classes.sidebarBottom}>
-                <ModerationUndoHistory
-                  undoQueue={state.undoQueue}
-                  history={state.history}
-                  dispatch={dispatch}
+              {(state.undoQueue.length > 0 || state.history.length > 0) && (
+                <div className={classes.undoQueueSection}>
+                  <ModerationUndoHistory
+                    undoQueue={state.undoQueue}
+                    history={state.history}
+                    dispatch={dispatch}
+                  />
+                </div>
+              )}
+              <div className={classes.inboxListContainer}>
+                <ModerationInboxList
+                  userGroups={filteredGroups}
+                  posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
+                  focusedUserId={state.focusedUserId}
+                  focusedPostId={state.focusedPostId}
+                  onFocusUser={handleOpenUser}
+                  onOpenUser={handleOpenUser}
+                  onFocusPost={handleFocusPost}
+                  visibleTabs={visibleTabs}
+                  activeTab={state.activeTab}
+                  onTabChange={handleTabChange}
                 />
               </div>
             </>
           )}
         </div>
+        {isPostsTab && !openedUser && (
+          <div className={classes.postDetailPanel}>
+            <ModerationPostSidebar
+              post={focusedPost}
+              currentUser={currentUser}
+              dispatch={dispatch}
+            />
+          </div>
+        )}
       </div>
     </div>
     </CoreTagsKeyboardProvider>

@@ -3626,6 +3626,7 @@ interface ModerationTemplate {
   name: string;
   collectionName: ModerationTemplateType;
   order: number;
+  groupLabel: string | null;
   deleted: boolean;
 }
 
@@ -8480,6 +8481,7 @@ interface CreateModerationTemplateDataInput {
   name: string;
   collectionName: ModerationTemplateType;
   order?: number | null;
+  groupLabel?: string | null;
 }
 
 interface CreateModerationTemplateInput {
@@ -8492,6 +8494,7 @@ interface UpdateModerationTemplateDataInput {
   name?: string | null;
   collectionName?: ModerationTemplateType | null;
   order?: number | null;
+  groupLabel?: string | null;
   deleted?: boolean | null;
 }
 

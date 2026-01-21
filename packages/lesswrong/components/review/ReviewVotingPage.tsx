@@ -128,7 +128,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
   const { view, limit, ...selectorTerms } = {
     view: reviewPhase === "VOTING" ? "reviewFinalVoting" : "reviewVoting",
     before: `${reviewYear + 1}-01-01`,
-    reviewPhase: reviewPhase,
+    ...(reviewPhase === "VOTING" ? {} : {reviewPhase}),
     after: `${reviewYear}-01-01`,
     limit: 600,
   };
@@ -195,7 +195,7 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
       defaultSort = "needsPreliminaryVote";
       break;
     case 'REVIEWS':
-      defaultSort = "reviewVoteScoreHighKarma"
+      defaultSort = "needsReview"
       break;
     case 'VOTING':
       defaultSort = "needsFinalVote";
@@ -454,5 +454,3 @@ const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: 
 }
 
 export default registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});
-
-

@@ -389,15 +389,18 @@ export const UserRateLimitsForm = ({
 };
 
 type UserRateLimitItemProps = {
+  showForm?: boolean;
   userId: string;
   user?: undefined;
 } | {
+  showForm?: boolean;
   userId?: undefined;
   user: SunshineUsersList;
 };
 
 export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
   const classes = useStyles(styles);
+  const { showForm } = props;
 
   const userId = props.userId ?? props.user._id;
 
@@ -453,42 +456,44 @@ export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
 
   return <div>
     {/** Doesn't have both a comment and post rate limit */}
-    {existingRateLimits.length < 2 && <div className={classes.setRateLimit}>
-      <span>{'Set Rate Limit: '}</span>
-      <Select
-        value=''
-        onChange={(e) => createRateLimit(e.target.value)}
-        className={classes.newRateLimit}
-      >
-        <MenuItem value={COMMENTS_THREE_PER_DAY}>
-          Comments (3 per day for 3 weeks)
-        </MenuItem>
-        <MenuItem value={COMMENTS_ONE_PER_DAY}>
-          Comments (1 per day for 3 weeks)
-        </MenuItem>
-        <MenuItem value={COMMENTS_ONE_PER_THREE_DAYS}>
-          Comments (1 per 3 days for 3 weeks)
-        </MenuItem>
-        <MenuItem value={POSTS_ONE_PER_WEEK}>
-          Posts (1 per week for 6 weeks)
-        </MenuItem>
-        <MenuItem value='custom'>Custom</MenuItem>
-      </Select>
-    </div>}
-    {(createNewRateLimit || editingExistingRateLimitId) && <div className={classes.rateLimitForm}>
-      <UserRateLimitsForm
-        {...existingOrDefaultValue}
-        onSuccess={async () => {
-          await refetch();
-          setCreateNewRateLimit(false);
-          setEditingExistingRateLimitId(undefined);
-        }}
-        onCancel={() => {
-          setCreateNewRateLimit(false);
-          setEditingExistingRateLimitId(undefined);
-        }}
-      />
-    </div>}
+    {showForm && <>
+      {existingRateLimits.length < 2 && <div className={classes.setRateLimit}>
+        <span>{'Set Rate Limit: '}</span>
+        <Select
+          value=''
+          onChange={(e) => createRateLimit(e.target.value)}
+          className={classes.newRateLimit}
+        >
+          <MenuItem value={COMMENTS_THREE_PER_DAY}>
+            Comments (3 per day for 3 weeks)
+          </MenuItem>
+          <MenuItem value={COMMENTS_ONE_PER_DAY}>
+            Comments (1 per day for 3 weeks)
+          </MenuItem>
+          <MenuItem value={COMMENTS_ONE_PER_THREE_DAYS}>
+            Comments (1 per 3 days for 3 weeks)
+          </MenuItem>
+          <MenuItem value={POSTS_ONE_PER_WEEK}>
+            Posts (1 per week for 6 weeks)
+          </MenuItem>
+          <MenuItem value='custom'>Custom</MenuItem>
+        </Select>
+      </div>}
+      {(createNewRateLimit || editingExistingRateLimitId) && <div className={classes.rateLimitForm}>
+        <UserRateLimitsForm
+          {...existingOrDefaultValue}
+          onSuccess={async () => {
+            await refetch();
+            setCreateNewRateLimit(false);
+            setEditingExistingRateLimitId(undefined);
+          }}
+          onCancel={() => {
+            setCreateNewRateLimit(false);
+            setEditingExistingRateLimitId(undefined);
+          }}
+        />
+      </div>}
+    </>}
     {existingRateLimits.length > 0 && existingRateLimits.map(existingRateLimit =>
       <div key={`user-rate-limit-${existingRateLimit._id}`} className={classes.existingRateLimitInfo}>
         Rate Limit ({getRateLimitDescription(existingRateLimit)})
@@ -507,6 +512,3 @@ export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
 }
 
 export default registerComponent('UserRateLimitItem', UserRateLimitItem);
-
-
-

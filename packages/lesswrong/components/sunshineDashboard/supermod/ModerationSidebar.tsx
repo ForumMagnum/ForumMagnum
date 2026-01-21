@@ -1,30 +1,13 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useMutation } from '@apollo/client/react';
-import { gql } from '@/lib/generated/gql-codegen';
-import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import SunshineUserMessages from '../SunshineUserMessages';
-import { getSignature } from '@/lib/collections/users/helpers';
-import SupermodModeratorActionItem from './SupermodModeratorActionItem';
-import { persistentDisplayedModeratorActions } from '@/lib/collections/moderatorActions/constants';
+import SunshineUserMessages, { ModerationTemplatesListQuery } from '../SunshineUserMessages';
+import { ModerationTemplatesForm } from '@/components/moderationTemplates/ModerationTemplateForm';
+import SupermodModeratorActions from './SupermodModeratorActions';
 import type { InboxAction } from './inboxReducer';
-import UserRateLimitItem from '../UserRateLimitItem';
-import classNames from 'classnames';
-
-const SunshineUsersListUpdateMutation = gql(`
-  mutation updateUserModerationSidebar($selector: SelectorInput!, $data: UpdateUserDataInput!) {
-    updateUser(selector: $selector, data: $data) {
-      data {
-        ...SunshineUsersList
-      }
-    }
-  }
-`);
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
-    padding: 20,
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
@@ -36,97 +19,59 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     marginTop: 40,
   },
   section: {
-    marginBottom: 12,
+    backgroundColor: theme.palette.background.paper,
+    padding: 12,
     flexShrink: 0,
     overflow: 'hidden',
+    '&:not(:last-child)': {
+      borderBottom: theme.palette.border.normal,
+    },
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: 600,
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
-    marginBottom: 8,
     letterSpacing: '0.5px',
     flexShrink: 0,
   },
-  noBottomMargin: {
-    marginBottom: 'unset',
-  },
-  notes: {
-    border: theme.palette.border.faint,
-    borderRadius: 4,
-    padding: 8,
-    maxHeight: 200,
-    overflow: 'auto',
-  },
-  userModActions: {
-    overflow: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-  },
-  modActionItem: {},
   userMessages: {
     overflow: 'auto',
+  },
+  newTemplateButton: {
+    flexShrink: 0,
+    cursor: 'pointer',
+  },
+  modTemplateForm: {
+    marginTop: 16,
+    paddingLeft: 12,
+    paddingRight: 0,
+    marginLeft: -6,
+    marginRight: -6,
+    border: theme.palette.border.normal,
+    borderRadius: 4,
+    backgroundColor: theme.palette.background.paper,
+    '& .vulcan-form': {
+      marginTop: -16
+    },
   },
 }));
 
 const ModerationSidebar = ({
   user,
   currentUser,
+  posts,
+  comments,
   dispatch,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
-  dispatch: React.Dispatch<InboxAction>;
+  posts: SunshinePostsList[];
+  comments: SunshineCommentsList[];
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
-  const [notes, setNotes] = useState(user.sunshineNotes);
-
-  const [updateUser] = useMutation(SunshineUsersListUpdateMutation);
-
-  useEffect(() => {
-    if (user.sunshineNotes) {
-      setNotes(user.sunshineNotes);
-    }
-  }, [user._id, user.sunshineNotes]);
-
-  const handleNotes = useCallback(() => {
-    if (notes !== user.sunshineNotes) {
-      void updateUser({
-        variables: {
-          selector: { _id: user._id },
-          data: {
-            sunshineNotes: notes,
-          },
-        },
-      });
-    }
-  }, [user._id, user.sunshineNotes, notes, updateUser]);
-
-  const modNoteSignature = useMemo(() => getSignature(currentUser.displayName), [currentUser.displayName]);
-
-  const signAndDate = useCallback((sunshineNotes: string) => {
-    if (!sunshineNotes.match(modNoteSignature)) {
-      const padding = !sunshineNotes ? ": " : ": \n\n"
-      return modNoteSignature + padding + sunshineNotes
-    }
-    return sunshineNotes
-  }, [modNoteSignature]);
-
-  const addSignature = useCallback(() => {
-    const signedNotes = signAndDate(notes ?? '');
-    if (signedNotes !== notes) {
-      setNotes(signedNotes);
-    }
-  }, [notes, signAndDate]);
-
-  useEffect(() => {
-    return () => {
-      handleNotes();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [showNewTemplateForm, setShowNewTemplateForm] = useState(false);
 
   if (!user) {
     return (
@@ -141,46 +86,37 @@ const ModerationSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.section}>
-        <div className={classes.sectionTitle}>Moderator Notes</div>
-        <div className={classes.notes}>
-          <Input
-            value={notes ?? ''}
-            fullWidth
-            onChange={(e) => setNotes(e.target.value)}
-            onBlur={handleNotes}
-            onClick={addSignature}
-            disableUnderline
-            placeholder="Notes for other moderators"
-            multiline
-            rows={6}
-          />
-        </div>
+        <div className={classes.sectionTitle}>Moderator Actions</div>
+        <SupermodModeratorActions user={user} dispatch={dispatch} />
       </div>
-
-      <div className={classes.section}>
-        <div className={classes.sectionTitle}>Outstanding Moderator Actions</div>
-        <div className={classes.userModActions}>
-          {user.moderatorActions?.filter(action => action.active && persistentDisplayedModeratorActions.has(action.type)).map(action => (
-            <div key={action._id} className={classes.modActionItem}>
-              <SupermodModeratorActionItem user={user} moderatorAction={action} dispatch={dispatch} />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className={classes.section}>
-        <div className={classNames(classes.sectionTitle, classes.noBottomMargin)}>Rate Limits</div>
-        <div className={classes.userModActions}>
-          <UserRateLimitItem user={user} />
-        </div>
-      </div>
-
       <div className={classes.section}>
         <div className={classes.sectionTitle}>User Messages</div>
+
         <div className={classes.userMessages}>
           {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
-          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} showExpandablePreview />
+          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} posts={posts} comments={comments} showExpandablePreview />
         </div>
+        <div className={classes.newTemplateButton} onClick={() => setShowNewTemplateForm(true)}>
+          NEW MOD TEMPLATE
+        </div>
+        {showNewTemplateForm && (
+          <div className={classes.modTemplateForm}>
+            <ModerationTemplatesForm
+              onSuccess={() => {
+                setShowNewTemplateForm(false);
+              }}
+              onCancel={() => setShowNewTemplateForm(false)}
+              refetchQueries={[{
+                query: ModerationTemplatesListQuery,
+                variables: {
+                  selector: { moderationTemplatesList: { collectionName: "Messages" } },
+                  limit: 50,
+                  enableTotal: false,
+                },
+              }]}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
