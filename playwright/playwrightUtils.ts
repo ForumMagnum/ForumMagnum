@@ -111,12 +111,14 @@ type CreateNewUserOptions = Partial<{
   database: Database,
   isAdmin: boolean,
   karma: number,
+  hideSunshineSidebar: boolean,
 }>;
 
 export const createNewUser = async ({
   database = db,
   isAdmin = false,
   karma = 0,
+  hideSunshineSidebar = false,
 }: CreateNewUserOptions = {}): Promise<PlaywrightUser> => {
   const user = createNewUserDetails();
   const {_id, username, email, slug, displayName, password} = user;
@@ -140,9 +142,10 @@ export const createNewUser = async ({
       "karma",
       "usernameUnset",
       "acceptedTos",
-      "services"
-    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE, $10::JSONB)
-  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma, services]);
+      "services",
+      "hideSunshineSidebar"
+    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE, $10::JSONB, $11)
+  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma, services, hideSunshineSidebar]);
 
   return user;
 }

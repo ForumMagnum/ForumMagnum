@@ -34,6 +34,7 @@ import {
   LexicalEditor,
   LexicalNode,
   TextNode,
+  RangeSelection,
 } from 'lexical';
 import {
   $getMarkIDs,
@@ -105,30 +106,23 @@ type SuggestionAuthor = {
   name: string;
 };
 
-function getSuggestionAuthor(
+function useCurrentAuthor(
   currentUser: ReturnType<typeof useCurrentUser>,
   clientId: string | undefined,
-): SuggestionAuthor | null {
+): SuggestionAuthor {
   if (currentUser?._id) {
     return {
       id: currentUser._id,
       name: currentUser.displayName ?? 'Anonymous',
     };
   }
-  if (clientId) {
-    return {
-      id: clientId,
-      name: 'Anonymous',
-    };
+  if (!clientId) {
+    throw new Error('SuggestedEditsPlugin requires a clientId to record anonymous suggestions.');
   }
-  return null;
-}
-
-function getSuggestionAuthorId(
-  currentUser: ReturnType<typeof useCurrentUser>,
-  clientId: string | undefined,
-): string | null {
-  return getSuggestionAuthor(currentUser, clientId)?.id ?? null;
+  return {
+    id: clientId,
+    name: 'Anonymous',
+  };
 }
 
 function toSuggestionMarkId(id: string, kind: SuggestionMarkKind): string {
@@ -406,6 +400,426 @@ function getNextInsertSuggestionMarkFromSelection(
   if (suggestion.authorId !== authorId) return null;
   if (!nextSibling.getIDs().includes(toSuggestionMarkId(suggestionId, 'insert'))) return null;
   return { markNode: nextSibling, suggestionId };
+}
+
+type LeadingEdgeData = {
+  markKey: string;
+  suggestionId: string;
+};
+
+type InsertSelectionContext = {
+  selection: ReturnType<typeof $getSelection> | null;
+  normalizedSelection: ReturnType<typeof $createRangeSelection> | null;
+  selectionSuggestionId: string | null;
+  isCollapsed: boolean;
+  moveOutOfInsertMarkKey: string | null;
+  leadingEdgeData: LeadingEdgeData | null;
+  isReplaceSelection: boolean;
+  replaceInsertSuggestionId: string | null;
+  replaceContinuationSuggestionId: string | null;
+};
+
+function getCurrentSelectionSnapshot(editor: LexicalEditor): SelectionSnapshot | null {
+  return editor.getEditorState().read(() => snapshotSelection($getSelection()));
+}
+
+function getReplaceSuggestionId(selection: RangeSelection, suggestionStore: SuggestionStore, suggestionId: string, authorId: string): string | null {
+  const suggestion = suggestionStore.getSuggestion(suggestionId);
+  const isOpenReplaceSuggestion = suggestion && suggestion.state === 'open' && suggestion.type === 'replace' && suggestion.authorId === authorId;
+  if (!isOpenReplaceSuggestion) return null;
+
+  const markNode = getMarkNodeForSuggestionFromSelection(
+    selection,
+    suggestionId,
+    'insert',
+  );
+  if (!markNode) return null;
+
+  return suggestionId;
+}
+
+function getInsertSelectionContext(
+  editor: LexicalEditor,
+  suggestionStore: SuggestionStore,
+  authorId: string,
+  lastReplaceSuggestionId: string | null,
+): InsertSelectionContext {
+  return editor.getEditorState().read(() => {
+    const selection = $getSelection();
+    if (!$isRangeSelection(selection)) {
+      return {
+        selection: null,
+        normalizedSelection: null,
+        selectionSuggestionId: null,
+        isCollapsed: false,
+        moveOutOfInsertMarkKey: null,
+        leadingEdgeData: null,
+        isReplaceSelection: false,
+        replaceInsertSuggestionId: null,
+        replaceContinuationSuggestionId: null,
+      };
+    }
+
+    const isCollapsed = selection.isCollapsed();
+    const normalizedSelection = normalizeSelectionOffsetsReadOnly(selection);
+    const selectionSuggestionId = getSelectionSuggestionId();
+    const isReplaceSelection = !isSafeCollapsedSelection(selection);
+
+    let moveOutOfInsertMarkKey: string | null = null;
+    if (isCollapsed && normalizedSelection) {
+      const parentMark = getParentMarkNode(normalizedSelection.anchor.getNode());
+      const suggestionId = parentMark ? getSuggestionIdFromMarkIDs(parentMark.getIDs()) : null;
+      if (suggestionId) {
+        const suggestion = suggestionStore.getSuggestion(suggestionId);
+        if (
+          suggestion &&
+          suggestion.state === 'open' &&
+          suggestion.type === 'insert' &&
+          suggestion.authorId === authorId
+        ) {
+          const markNode =
+            parentMark ??
+            getMarkNodeForSuggestionFromSelection(normalizedSelection, suggestionId, 'insert');
+          if (
+            markNode &&
+            markNode.getIDs().includes(toSuggestionMarkId(suggestionId, 'insert')) &&
+            isSelectionAtStartOfMark(normalizedSelection, markNode)
+          ) {
+            moveOutOfInsertMarkKey = markNode.getKey();
+          }
+        }
+      }
+    }
+
+    let leadingEdgeData: LeadingEdgeData | null = null;
+    if (normalizedSelection) {
+      const nextInsertMark = getNextInsertSuggestionMarkFromSelection(
+        normalizedSelection,
+        suggestionStore,
+        authorId,
+      );
+      if (nextInsertMark) {
+        leadingEdgeData = {
+          markKey: nextInsertMark.markNode.getKey(),
+          suggestionId: nextInsertMark.suggestionId,
+        };
+      }
+    }
+
+    let replaceInsertSuggestionId: string | null = null;
+    if (isCollapsed && selectionSuggestionId) {
+      replaceInsertSuggestionId = getReplaceSuggestionId(selection, suggestionStore, selectionSuggestionId, authorId);
+    }
+
+    let replaceContinuationSuggestionId: string | null = null;
+    if (isCollapsed && lastReplaceSuggestionId) {
+      replaceContinuationSuggestionId = getReplaceSuggestionId(selection, suggestionStore, lastReplaceSuggestionId, authorId);
+    }
+
+    return {
+      selection,
+      normalizedSelection,
+      selectionSuggestionId,
+      isCollapsed,
+      moveOutOfInsertMarkKey,
+      leadingEdgeData,
+      isReplaceSelection,
+      replaceInsertSuggestionId,
+      replaceContinuationSuggestionId,
+    };
+  });
+}
+
+function getExistingInsertSuggestionId(params: {
+  suggestionStore: SuggestionStore;
+  authorId: string;
+  type: SuggestionType;
+  moveOutOfInsertMarkKey: string | null;
+  leadingEdgeData: LeadingEdgeData | null;
+  currentSelectionSnapshot: SelectionSnapshot | null;
+  replaceInsertSuggestionId: string | null;
+  replaceContinuationSuggestionId: string | null;
+  selectionSuggestionId: string | null;
+}): string | null {
+  const {
+    suggestionStore,
+    authorId,
+    type,
+    moveOutOfInsertMarkKey,
+    leadingEdgeData,
+    currentSelectionSnapshot,
+    replaceInsertSuggestionId,
+    replaceContinuationSuggestionId,
+    selectionSuggestionId,
+  } = params;
+  if (replaceInsertSuggestionId) return replaceInsertSuggestionId;
+  if (replaceContinuationSuggestionId) return replaceContinuationSuggestionId;
+  if (type !== 'insert') return null;
+  if (moveOutOfInsertMarkKey || leadingEdgeData) return null;
+  if (!currentSelectionSnapshot) return null;
+  if (!selectionSuggestionId) return null;
+  const suggestion = suggestionStore.getSuggestion(selectionSuggestionId);
+  if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'insert') return null;
+  if (suggestion.authorId !== authorId) return null;
+  return selectionSuggestionId;
+}
+
+function shouldMoveSelectionToEndForInsert(
+  rangeSelection: ReturnType<typeof $createRangeSelection>,
+  suggestionId: string,
+): boolean {
+  const markNode = getMarkNodeForSuggestionFromSelection(rangeSelection, suggestionId, 'insert');
+  if (!markNode) return false;
+  const lastText = getLastTextDescendant(markNode);
+  if (!lastText) return false;
+  return (
+    rangeSelection.anchor.getNode() === lastText &&
+    rangeSelection.anchor.offset === lastText.getTextContentSize()
+  );
+}
+
+type ApplyInsertSuggestionEditsParams = {
+  editor: LexicalEditor;
+  range: ReturnType<typeof $createRangeSelection>;
+  suggestionId: string;
+  markNodeMap: Map<string, Set<string>>;
+  text: string;
+  isReplace: boolean;
+  shouldCreateThread: boolean;
+  moveSelectionToEnd: boolean;
+  updatedSuggestionText: string | null;
+};
+
+type ApplyInsertSuggestionEditsResult = {
+  updatedSuggestionText: string | null;
+};
+
+function applyInsertSuggestionEdits({
+  editor,
+  range,
+  suggestionId,
+  markNodeMap,
+  text,
+  isReplace,
+  shouldCreateThread,
+  moveSelectionToEnd,
+  updatedSuggestionText,
+}: ApplyInsertSuggestionEditsParams): ApplyInsertSuggestionEditsResult {
+  applySuggestionMark(range, suggestionId, 'insert');
+  mergeAdjacentMarkNodesForId(toSuggestionMarkId(suggestionId, 'insert'), range);
+  const parentElement = getClosestNonMarkElement(range.anchor.getNode());
+  if (parentElement) {
+    mergeAdjacentMarkNodesInParent(parentElement);
+  }
+  const markNode =
+    getParentMarkNode(range.anchor.getNode()) ??
+    getMarkNodeForSuggestionFromRange(range, suggestionId, 'insert') ??
+    getMarkNodeForSuggestionFromSelection($getSelection(), suggestionId, 'insert');
+  if (markNode) {
+    const mergedMarkNode = mergeAdjacentMarkNodes(markNode);
+    updatedSuggestionText = mergedMarkNode.getTextContent();
+    if (moveSelectionToEnd) {
+      moveSelectionToEndOfMarkNode(mergedMarkNode);
+    }
+  }
+  if (!updatedSuggestionText) {
+    updatedSuggestionText = getSuggestionTextFromMarkNodeMap(suggestionId, markNodeMap);
+  }
+  if (!updatedSuggestionText) {
+    updatedSuggestionText = getSuggestionTextFromEditorState(suggestionId, 'insert');
+  }
+  if (shouldCreateThread) {
+    const threadRange = markNode ? getRangeSelectionForMarkNode(markNode) ?? range : range;
+    $setSelection(threadRange);
+    createSuggestionThreadForSelection(
+      editor,
+      threadRange,
+      {
+        threadId: suggestionId,
+        initialContent: isReplace ? 'Suggested replacement' : 'Suggested edit',
+        quote: text,
+        isSuggestion: true,
+      },
+      updatedSuggestionText,
+    );
+  }
+
+  return { updatedSuggestionText };
+}
+
+type InsertUpdateState = {
+  didInsertText: boolean;
+  updatedSuggestionText: string | null;
+};
+
+function applyLeadingEdgeSelection(leadingEdgeData: LeadingEdgeData | null): void {
+  if (!leadingEdgeData) return;
+  const markNode = $getNodeByKey(leadingEdgeData.markKey);
+  if (!$isMarkNode(markNode)) return;
+  const firstText = getFirstTextDescendant(markNode);
+  if (!firstText) return;
+  const insertSelection = $createRangeSelection();
+  insertSelection.setTextNodeRange(firstText, 0, firstText, 0);
+  $setSelection(insertSelection);
+}
+
+function applyMoveOutInsert(params: {
+  moveOutKey: string | null;
+  editor: LexicalEditor;
+  suggestionId: string;
+  markNodeMap: Map<string, Set<string>>;
+  text: string;
+  isReplace: boolean;
+  shouldCreateThread: boolean;
+  state: InsertUpdateState;
+}): InsertUpdateState | null {
+  const {
+    moveOutKey,
+    editor,
+    suggestionId,
+    markNodeMap,
+    text,
+    isReplace,
+    shouldCreateThread,
+    state,
+  } = params;
+  if (!moveOutKey) return null;
+  const markNode = $getNodeByKey(moveOutKey);
+  if (!$isMarkNode(markNode)) return null;
+  const insertNode = $createTextNode(text);
+  markNode.insertBefore(insertNode);
+  const insertSelection = $createRangeSelection();
+  insertSelection.setTextNodeRange(insertNode, text.length, insertNode, text.length);
+  $setSelection(insertSelection);
+  const range = markInsertedText(text);
+  if (!range) return null;
+  state.didInsertText = true;
+  const result = applyInsertSuggestionEdits({
+    editor,
+    range,
+    suggestionId,
+    markNodeMap,
+    text,
+    isReplace,
+    shouldCreateThread,
+    moveSelectionToEnd: true,
+    updatedSuggestionText: state.updatedSuggestionText,
+  });
+  return {
+    didInsertText: state.didInsertText,
+    updatedSuggestionText: result.updatedSuggestionText,
+  };
+}
+
+function applyMergeExistingInsert(params: {
+  rangeSelection: ReturnType<typeof $createRangeSelection>;
+  editor: LexicalEditor;
+  existingInsertSuggestionId: string | null;
+  markNodeMap: Map<string, Set<string>>;
+  text: string;
+  isReplace: boolean;
+  shouldCreateThread: boolean;
+  state: InsertUpdateState;
+}): InsertUpdateState | null {
+  const {
+    rangeSelection,
+    editor,
+    existingInsertSuggestionId,
+    markNodeMap,
+    text,
+    isReplace,
+    shouldCreateThread,
+    state,
+  } = params;
+  if (!existingInsertSuggestionId || !rangeSelection.isCollapsed()) return null;
+  const shouldMoveSelectionToEnd = shouldMoveSelectionToEndForInsert(
+    rangeSelection,
+    existingInsertSuggestionId,
+  );
+  const anchorNode = rangeSelection.anchor.getNode();
+  if ($isTextNode(anchorNode)) {
+    const atEnd = rangeSelection.anchor.offset === anchorNode.getTextContentSize();
+    const nextSibling = anchorNode.getNextSibling();
+    if (
+      atEnd &&
+      $isMarkNode(nextSibling) &&
+      nextSibling.getIDs().includes(toSuggestionMarkId(existingInsertSuggestionId, 'insert'))
+    ) {
+      moveSelectionToEndOfMarkNode(nextSibling);
+    }
+  }
+  rangeSelection.insertText(text);
+  const range = markInsertedText(text);
+  if (!range) return null;
+  state.didInsertText = true;
+  const result = applyInsertSuggestionEdits({
+    editor,
+    range,
+    suggestionId: existingInsertSuggestionId,
+    markNodeMap,
+    text,
+    isReplace,
+    shouldCreateThread,
+    moveSelectionToEnd: shouldMoveSelectionToEnd,
+    updatedSuggestionText: state.updatedSuggestionText,
+  });
+  return {
+    didInsertText: state.didInsertText,
+    updatedSuggestionText: result.updatedSuggestionText,
+  };
+}
+
+function applyDefaultInsert(params: {
+  rangeSelection: ReturnType<typeof $createRangeSelection>;
+  editor: LexicalEditor;
+  suggestionId: string;
+  markNodeMap: Map<string, Set<string>>;
+  text: string;
+  isReplace: boolean;
+  shouldCreateThread: boolean;
+  state: InsertUpdateState;
+}): InsertUpdateState | null {
+  const {
+    rangeSelection,
+    editor,
+    suggestionId,
+    markNodeMap,
+    text,
+    isReplace,
+    shouldCreateThread,
+    state,
+  } = params;
+  if (!rangeSelection.isCollapsed()) {
+    applySuggestionMark(rangeSelection, suggestionId, 'delete');
+    const endPoint = rangeSelection.isBackward() ? rangeSelection.anchor : rangeSelection.focus;
+    const endNode = endPoint.getNode();
+    if ($isTextNode(endNode)) {
+      rangeSelection.setTextNodeRange(endNode, endPoint.offset, endNode, endPoint.offset);
+    }
+  }
+  const selectionForInsert = $getSelection();
+  if (!$isRangeSelection(selectionForInsert)) return null;
+  const normalizedSelectionForInsert = normalizeSelectionOffsets(selectionForInsert);
+  if (!normalizedSelectionForInsert) return null;
+  normalizedSelectionForInsert.insertText(text);
+  state.didInsertText = true;
+  const range = markInsertedText(text);
+  if (!range) return null;
+  const result = applyInsertSuggestionEdits({
+    editor,
+    range,
+    suggestionId,
+    markNodeMap,
+    text,
+    isReplace,
+    shouldCreateThread,
+    moveSelectionToEnd: shouldCreateThread,
+    updatedSuggestionText: state.updatedSuggestionText,
+  });
+  return {
+    didInsertText: state.didInsertText,
+    updatedSuggestionText: result.updatedSuggestionText,
+  };
 }
 
 function isSelectionAtStartOfMark(
@@ -734,15 +1148,6 @@ function snapshotSelection(selection: ReturnType<typeof $getSelection>): Selecti
   };
 }
 
-function selectionSnapshotsEqual(a: SelectionSnapshot, b: SelectionSnapshot): boolean {
-  return (
-    a.anchorKey === b.anchorKey &&
-    a.anchorOffset === b.anchorOffset &&
-    a.focusKey === b.focusKey &&
-    a.focusOffset === b.focusOffset
-  );
-}
-
 function restoreSelectionFromSnapshot(snapshot: SelectionSnapshot): void {
   const anchorNode = $getNodeByKey(snapshot.anchorKey);
   const focusNode = $getNodeByKey(snapshot.focusKey);
@@ -892,6 +1297,9 @@ export default function SuggestedEditsPlugin({
   const [editor] = useLexicalComposerContext();
   const currentUser = useCurrentUser();
   const clientId = useClientId();
+  const author = useCurrentAuthor(currentUser, clientId);
+  const authorId = author.id;
+  const authorName = author.name;
   const collabContext = useCollaborationContext();
   const { yjsDocMap } = collabContext;
   const suggestionStore = useMemo(() => new SuggestionStore(editor), [editor]);
@@ -901,9 +1309,7 @@ export default function SuggestedEditsPlugin({
   const [actionAnchorRect, setActionAnchorRect] = useState<DOMRect | null>(null);
   const markNodeMap = useMemo<Map<string, Set<string>>>(() => new Map(), []);
   const decoratedKeysRef = useRef<Set<string>>(new Set());
-  const lastInsertSuggestionIdRef = useRef<string | null>(null);
   const lastReplaceSuggestionIdRef = useRef<string | null>(null);
-  const lastInsertSelectionRef = useRef<SelectionSnapshot | null>(null);
   const lastThreadTextRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
@@ -924,109 +1330,47 @@ export default function SuggestedEditsPlugin({
     if (canAccept) return true;
     const suggestion = suggestionStore.getSuggestion(suggestionId);
     if (!suggestion) return false;
-    const authorId = getSuggestionAuthorId(currentUser, clientId);
     return suggestion.authorId === authorId;
-  }, [canAccept, clientId, currentUser, suggestionStore]);
+  }, [authorId, canAccept, suggestionStore]);
 
-  const getMergeableSuggestionId = useCallback((type: SuggestionType): string | null => {
-    const suggestionId = editor.getEditorState().read(() => getSelectionSuggestionId());
+  const getMergeableSuggestionId = useCallback((
+    type: SuggestionType,
+    selectionSuggestionId?: string | null,
+  ): string | null => {
+    const suggestionId = selectionSuggestionId ?? editor.getEditorState().read(() => getSelectionSuggestionId());
     if (!suggestionId) return null;
+
     const suggestion = suggestionStore.getSuggestion(suggestionId);
-    if (!suggestion) return null;
-    if (suggestion.state !== 'open') return null;
-    if (suggestion.type !== type) return null;
-    const authorId = getSuggestionAuthorId(currentUser, clientId);
-    if (!authorId || suggestion.authorId !== authorId) return null;
+    if (!suggestion || suggestion.state !== 'open' || suggestion.type !== type) return null;
+
+    if (suggestion.authorId !== authorId) return null;
+
     return suggestionId;
-  }, [clientId, currentUser, editor, suggestionStore]);
+  }, [authorId, editor, suggestionStore]);
 
   const createSuggestionRecord = useCallback((type: SuggestionType) => {
-    const author = getSuggestionAuthor(currentUser, clientId);
-    if (!author) return null;
     const record = suggestionStore.createSuggestion({
-      authorId: author.id,
-      authorName: author.name,
+      authorId,
+      authorName,
       state: 'open',
       type,
     });
     return record;
-  }, [clientId, currentUser, suggestionStore]);
+  }, [authorId, authorName, suggestionStore]);
 
   const handleInsertText = useCallback((text: string) => {
     if (!suggestMode) return false;
-    const authorId = getSuggestionAuthorId(currentUser, clientId);
-    if (!authorId) return false;
     if (!text) return false;
 
-    const moveOutOfInsertMarkKey = editor.getEditorState().read(() => {
-      const selection = $getSelection();
-      if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
-      const normalizedSelection = normalizeSelectionOffsetsReadOnly(selection);
-      if (!normalizedSelection) return null;
-      const parentMark = getParentMarkNode(normalizedSelection.anchor.getNode());
-      const suggestionId = parentMark ? getSuggestionIdFromMarkIDs(parentMark.getIDs()) : null;
-      if (!suggestionId) return null;
-      const suggestion = suggestionStore.getSuggestion(suggestionId);
-      if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'insert') return null;
-      if (suggestion.authorId !== authorId) return null;
-      const markNode =
-        parentMark ??
-        getMarkNodeForSuggestionFromSelection(normalizedSelection, suggestionId, 'insert');
-      if (!markNode) return null;
-      if (!markNode.getIDs().includes(toSuggestionMarkId(suggestionId, 'insert'))) return null;
-      return isSelectionAtStartOfMark(normalizedSelection, markNode) ? markNode.getKey() : null;
-    });
+    const selectionContext = getInsertSelectionContext(
+      editor,
+      suggestionStore,
+      authorId,
+      lastReplaceSuggestionIdRef.current,
+    );
 
-    const leadingEdgeData = editor.getEditorState().read(() => {
-      const selection = $getSelection();
-      if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
-      const normalizedSelection = normalizeSelectionOffsetsReadOnly(selection);
-      if (!normalizedSelection) return null;
-      const nextInsertMark = getNextInsertSuggestionMarkFromSelection(
-        normalizedSelection,
-        suggestionStore,
-        authorId,
-      );
-      return nextInsertMark
-        ? { markKey: nextInsertMark.markNode.getKey(), suggestionId: nextInsertMark.suggestionId }
-        : null;
-    });
-
-    const currentSelectionSnapshot = editor.getEditorState().read(() => snapshotSelection($getSelection()));
-
-    const canUseFallback =
-      !!currentSelectionSnapshot &&
-      !!lastInsertSelectionRef.current &&
-      selectionSnapshotsEqual(currentSelectionSnapshot, lastInsertSelectionRef.current);
-
-    const isReplace = editor.getEditorState().read(() => {
-      const selection = $getSelection();
-      return $isRangeSelection(selection) ? !isSafeCollapsedSelection(selection) : false;
-    });
-
-    const replaceInsertSuggestionId = editor.getEditorState().read(() => {
-      const selection = $getSelection();
-      if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
-      const suggestionId = getSelectionSuggestionId();
-      if (!suggestionId) return null;
-      const suggestion = suggestionStore.getSuggestion(suggestionId);
-      if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'replace') return null;
-      if (suggestion.authorId !== authorId) return null;
-      const markNode = getMarkNodeForSuggestionFromSelection(selection, suggestionId, 'insert');
-      return markNode ? suggestionId : null;
-    });
-
-    const replaceContinuationSuggestionId = editor.getEditorState().read(() => {
-      const fallbackId = lastReplaceSuggestionIdRef.current;
-      if (!fallbackId) return null;
-      const selection = $getSelection();
-      if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
-      const suggestion = suggestionStore.getSuggestion(fallbackId);
-      if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'replace') return null;
-      if (suggestion.authorId !== authorId) return null;
-      const markNode = getMarkNodeForSuggestionFromSelection(selection, fallbackId, 'insert');
-      return markNode ? fallbackId : null;
-    });
+    const { moveOutOfInsertMarkKey, leadingEdgeData, selectionSuggestionId, replaceInsertSuggestionId, replaceContinuationSuggestionId, isReplaceSelection: isReplace } = selectionContext;
+    const currentSelectionSnapshot = getCurrentSelectionSnapshot(editor);
 
     const type: SuggestionType =
       replaceInsertSuggestionId || replaceContinuationSuggestionId
@@ -1035,273 +1379,83 @@ export default function SuggestedEditsPlugin({
           ? 'replace'
           : 'insert';
 
-    const existingInsertSuggestionId = (() => {
-      if (replaceInsertSuggestionId) return replaceInsertSuggestionId;
-      if (replaceContinuationSuggestionId) return replaceContinuationSuggestionId;
-      if (type !== 'insert') return null;
-      if (moveOutOfInsertMarkKey || leadingEdgeData) return null;
-      if (!currentSelectionSnapshot) return null;
-      const selectionSuggestionId = editor.getEditorState().read(() =>
-        getSelectionSuggestionId(),
-      );
-      if (!selectionSuggestionId) return null;
-      const suggestion = suggestionStore.getSuggestion(selectionSuggestionId);
-      if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'insert') return null;
-      if (suggestion.authorId !== authorId) return null;
-      return selectionSuggestionId;
-    })();
+    const existingInsertSuggestionId = getExistingInsertSuggestionId({
+      suggestionStore,
+      authorId,
+      type,
+      moveOutOfInsertMarkKey,
+      leadingEdgeData,
+      currentSelectionSnapshot,
+      replaceInsertSuggestionId,
+      replaceContinuationSuggestionId,
+      selectionSuggestionId,
+    });
+    
+    const mergeableSuggestionId = getMergeableSuggestionId(type, selectionSuggestionId);
 
     const mergeSuggestionId = moveOutOfInsertMarkKey
       ? null
-      : leadingEdgeData
-        ? leadingEdgeData.suggestionId
-        : existingInsertSuggestionId ?? getMergeableSuggestionId(type) ?? (() => {
-          if (type !== 'insert') return null;
-          const fallbackId = lastInsertSuggestionIdRef.current;
-          if (!fallbackId) return null;
-          const suggestion = suggestionStore.getSuggestion(fallbackId);
-          if (!suggestion || suggestion.state !== 'open' || suggestion.type !== 'insert') return null;
-          if (suggestion.authorId !== authorId) return null;
-          const canMergeWithFallback =
-            canUseFallback ||
-            editor.getEditorState().read(() => {
-              const selection = $getSelection();
-              if (!$isRangeSelection(selection) || !selection.isCollapsed()) return false;
-              return !!getMarkNodeForSuggestionFromSelection(selection, fallbackId, 'insert');
-            });
-          if (!canMergeWithFallback) return null;
-          return fallbackId;
-        })();
+      : (leadingEdgeData?.suggestionId
+        ?? existingInsertSuggestionId
+        ?? mergeableSuggestionId);
 
     const record = mergeSuggestionId ? null : createSuggestionRecord(type);
     if (!mergeSuggestionId && !record) return false;
     const suggestionId = mergeSuggestionId ?? record!.id;
     const shouldCreateThread = !mergeSuggestionId;
 
-    let didCreateThread = false;
     let updatedSuggestionText: string | null = null;
     let didInsertText = false;
     editor.update(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection)) return;
       ensureTextNodeForEmptySelection(selection);
-      if (leadingEdgeData) {
-        const markNode = $getNodeByKey(leadingEdgeData.markKey);
-        if ($isMarkNode(markNode)) {
-          const firstText = getFirstTextDescendant(markNode);
-          if (firstText) {
-            const insertSelection = $createRangeSelection();
-            insertSelection.setTextNodeRange(firstText, 0, firstText, 0);
-            $setSelection(insertSelection);
-          }
-        }
-      }
-      const moveOutKey = moveOutOfInsertMarkKey;
-      if (moveOutKey) {
-        const markNode = $getNodeByKey(moveOutKey);
-        if ($isMarkNode(markNode)) {
-          const insertNode = $createTextNode(text);
-          markNode.insertBefore(insertNode);
-          const insertSelection = $createRangeSelection();
-          insertSelection.setTextNodeRange(insertNode, text.length, insertNode, text.length);
-          $setSelection(insertSelection);
-          didInsertText = true;
-          const range = markInsertedText(text);
-          if (!range) return;
-          applySuggestionMark(range, suggestionId, 'insert');
-          mergeAdjacentMarkNodesForId(toSuggestionMarkId(suggestionId, 'insert'), range);
-          const parentElement = getClosestNonMarkElement(range.anchor.getNode());
-          if (parentElement) {
-            mergeAdjacentMarkNodesInParent(parentElement);
-          }
-          const nextMarkNode =
-            getParentMarkNode(range.anchor.getNode()) ??
-            getMarkNodeForSuggestionFromRange(range, suggestionId, 'insert') ??
-            getMarkNodeForSuggestionFromSelection($getSelection(), suggestionId, 'insert');
-          if (nextMarkNode) {
-            const mergedMarkNode = mergeAdjacentMarkNodes(nextMarkNode);
-            updatedSuggestionText = mergedMarkNode.getTextContent();
-            moveSelectionToEndOfMarkNode(mergedMarkNode);
-          }
-          if (!updatedSuggestionText) {
-            updatedSuggestionText = getSuggestionTextFromMarkNodeMap(suggestionId, markNodeMap);
-          }
-          if (!updatedSuggestionText) {
-            updatedSuggestionText = getSuggestionTextFromEditorState(suggestionId, 'insert');
-          }
-          if (shouldCreateThread && !didCreateThread) {
-            const threadRange = nextMarkNode
-              ? getRangeSelectionForMarkNode(nextMarkNode) ?? range
-              : range;
-            $setSelection(threadRange);
-            createSuggestionThreadForSelection(
-              editor,
-              threadRange,
-              {
-                threadId: suggestionId,
-                initialContent: isReplace ? 'Suggested replacement' : 'Suggested edit',
-                quote: text,
-                isSuggestion: true,
-              },
-              updatedSuggestionText,
-            );
-            didCreateThread = true;
-          }
-          lastInsertSelectionRef.current = snapshotSelection($getSelection());
-          return;
-        }
-      }
-      const rangeSelection = normalizeSelectionOffsets(selection);
-      if (!rangeSelection) return;
-      if (existingInsertSuggestionId && rangeSelection.isCollapsed()) {
-        const shouldMoveSelectionToEnd = (() => {
-          const markNode = getMarkNodeForSuggestionFromSelection(
-            rangeSelection,
-            existingInsertSuggestionId,
-            'insert',
-          );
-          if (!markNode) return false;
-          const lastText = getLastTextDescendant(markNode);
-          if (!lastText) return false;
-          return (
-            rangeSelection.anchor.getNode() === lastText &&
-            rangeSelection.anchor.offset === lastText.getTextContentSize()
-          );
-        })();
-        const anchorNode = rangeSelection.anchor.getNode();
-        if ($isTextNode(anchorNode)) {
-          const atEnd = rangeSelection.anchor.offset === anchorNode.getTextContentSize();
-          const nextSibling = anchorNode.getNextSibling();
-          if (
-            atEnd &&
-            $isMarkNode(nextSibling) &&
-            nextSibling
-              .getIDs()
-              .includes(toSuggestionMarkId(existingInsertSuggestionId, 'insert'))
-          ) {
-            moveSelectionToEndOfMarkNode(nextSibling);
-          }
-        }
-        rangeSelection.insertText(text);
-        didInsertText = true;
-        const range = markInsertedText(text);
-        if (range) {
-          applySuggestionMark(range, existingInsertSuggestionId, 'insert');
-          mergeAdjacentMarkNodesForId(
-            toSuggestionMarkId(existingInsertSuggestionId, 'insert'),
-            range,
-          );
-          const parentElement = getClosestNonMarkElement(range.anchor.getNode());
-          if (parentElement) {
-            mergeAdjacentMarkNodesInParent(parentElement);
-          }
-          const markNode =
-            getParentMarkNode(range.anchor.getNode()) ??
-            getMarkNodeForSuggestionFromRange(range, existingInsertSuggestionId, 'insert') ??
-            getMarkNodeForSuggestionFromSelection($getSelection(), existingInsertSuggestionId, 'insert');
-          if (markNode) {
-            const mergedMarkNode = mergeAdjacentMarkNodes(markNode);
-            updatedSuggestionText = mergedMarkNode.getTextContent();
-            if (shouldMoveSelectionToEnd) {
-              moveSelectionToEndOfMarkNode(mergedMarkNode);
-            }
-          }
-          if (!updatedSuggestionText) {
-            updatedSuggestionText = getSuggestionTextFromMarkNodeMap(
-              existingInsertSuggestionId,
-              markNodeMap,
-            );
-          }
-          if (!updatedSuggestionText) {
-            updatedSuggestionText = getSuggestionTextFromEditorState(
-              existingInsertSuggestionId,
-              'insert',
-            );
-          }
-          if (shouldCreateThread && !didCreateThread) {
-            const threadRange = markNode
-              ? getRangeSelectionForMarkNode(markNode) ?? range
-              : range;
-            $setSelection(threadRange);
-            createSuggestionThreadForSelection(
-              editor,
-              threadRange,
-              {
-                threadId: suggestionId,
-                initialContent: isReplace ? 'Suggested replacement' : 'Suggested edit',
-                quote: text,
-                isSuggestion: true,
-              },
-              updatedSuggestionText,
-            );
-            didCreateThread = true;
-          }
-        }
-        lastInsertSelectionRef.current = snapshotSelection($getSelection());
+      applyLeadingEdgeSelection(leadingEdgeData);
+
+      const sharedApplyInsertProps = {
+        editor,
+        markNodeMap,
+        text,
+        isReplace,
+        shouldCreateThread,
+        state: { didInsertText, updatedSuggestionText },
+      };
+
+      const moveOutState = applyMoveOutInsert({
+        moveOutKey: moveOutOfInsertMarkKey,
+        suggestionId,
+        ...sharedApplyInsertProps,
+      });
+
+      if (moveOutState) {
+        ({ didInsertText, updatedSuggestionText } = moveOutState);
         return;
       }
+
+      const rangeSelection = normalizeSelectionOffsets(selection);
+      if (!rangeSelection) return;
+
+      const mergeState = applyMergeExistingInsert({
+        rangeSelection,
+        existingInsertSuggestionId,
+        ...sharedApplyInsertProps,
+      });
+      if (mergeState) {
+        ({ didInsertText, updatedSuggestionText } = mergeState);
+        return;
+      }
+
       if (record) {
         suggestionStore.addSuggestion(record);
       }
-      if (!rangeSelection.isCollapsed()) {
-        applySuggestionMark(rangeSelection, suggestionId, 'delete');
-        const endPoint = rangeSelection.isBackward()
-          ? rangeSelection.anchor
-          : rangeSelection.focus;
-        const endNode = endPoint.getNode();
-        if ($isTextNode(endNode)) {
-          rangeSelection.setTextNodeRange(endNode, endPoint.offset, endNode, endPoint.offset);
-        }
+      const defaultState = applyDefaultInsert({
+        rangeSelection,
+        suggestionId,
+        ...sharedApplyInsertProps,
+      });
+      if (defaultState) {
+        ({ didInsertText, updatedSuggestionText } = defaultState);
       }
-
-      const selectionForInsert = $getSelection();
-      if (!$isRangeSelection(selectionForInsert)) return;
-      const normalizedSelectionForInsert = normalizeSelectionOffsets(selectionForInsert);
-      if (!normalizedSelectionForInsert) return;
-      normalizedSelectionForInsert.insertText(text);
-      didInsertText = true;
-      const range = markInsertedText(text);
-      if (!range) return;
-      applySuggestionMark(range, suggestionId, 'insert');
-      mergeAdjacentMarkNodesForId(toSuggestionMarkId(suggestionId, 'insert'), range);
-      const parentElement = getClosestNonMarkElement(range.anchor.getNode());
-      if (parentElement) {
-        mergeAdjacentMarkNodesInParent(parentElement);
-      }
-      const markNode =
-        getParentMarkNode(range.anchor.getNode()) ??
-        getMarkNodeForSuggestionFromRange(range, suggestionId, 'insert') ??
-        getMarkNodeForSuggestionFromSelection($getSelection(), suggestionId, 'insert');
-      if (markNode) {
-        const mergedMarkNode = mergeAdjacentMarkNodes(markNode);
-        updatedSuggestionText = mergedMarkNode.getTextContent();
-        if (shouldCreateThread) {
-          moveSelectionToEndOfMarkNode(mergedMarkNode);
-        }
-      }
-      if (!updatedSuggestionText) {
-        updatedSuggestionText = getSuggestionTextFromMarkNodeMap(suggestionId, markNodeMap);
-      }
-      if (!updatedSuggestionText) {
-        updatedSuggestionText = getSuggestionTextFromEditorState(suggestionId, 'insert');
-      }
-      if (shouldCreateThread && !didCreateThread) {
-        const threadRange = markNode ? getRangeSelectionForMarkNode(markNode) ?? range : range;
-        $setSelection(threadRange);
-        createSuggestionThreadForSelection(
-          editor,
-          threadRange,
-          {
-            threadId: suggestionId,
-            initialContent: isReplace ? 'Suggested replacement' : 'Suggested edit',
-            quote: text,
-            isSuggestion: true,
-          },
-          updatedSuggestionText,
-        );
-        didCreateThread = true;
-      }
-      lastInsertSelectionRef.current = snapshotSelection($getSelection());
     });
 
     if (!shouldCreateThread) {
@@ -1315,17 +1469,13 @@ export default function SuggestedEditsPlugin({
         updateSuggestionThread(editor, suggestionId, nextSuggestionText);
       });
     }
-    if (didInsertText) {
-      lastInsertSuggestionIdRef.current = suggestionId;
-      if (type === 'replace') {
-        lastReplaceSuggestionIdRef.current = suggestionId;
-      }
+    if (didInsertText && type === 'replace') {
+      lastReplaceSuggestionIdRef.current = suggestionId;
     }
     return true;
   }, [
-    clientId,
+    authorId,
     createSuggestionRecord,
-    currentUser,
     editor,
     getMergeableSuggestionId,
     markNodeMap,
@@ -1335,8 +1485,6 @@ export default function SuggestedEditsPlugin({
 
   const handleDelete = useCallback((isBackward: boolean) => {
     if (!suggestMode) return false;
-    const authorId = getSuggestionAuthorId(currentUser, clientId);
-    if (!authorId) return false;
     const replaceDeleteMarkKey = editor.getEditorState().read(() => {
       const selection = $getSelection();
       if (!$isRangeSelection(selection) || !selection.isCollapsed()) return null;
@@ -1400,7 +1548,6 @@ export default function SuggestedEditsPlugin({
     const suggestionId = mergeSuggestionId ?? record!.id;
     const shouldCreateThread = !mergeSuggestionId;
 
-    let didCreateThread = false;
     let updatedSuggestionText: string | null = null;
     editor.update(() => {
       const selection = $getSelection();
@@ -1447,7 +1594,7 @@ export default function SuggestedEditsPlugin({
         updatedSuggestionText = mergedMarkNode.getTextContent();
         selectionMarkNode = mergedMarkNode;
       }
-      if (shouldCreateThread && !didCreateThread) {
+      if (shouldCreateThread) {
         const threadRange = selectionMarkNode
           ? getRangeSelectionForMarkNode(selectionMarkNode) ?? rangeSelection
           : rangeSelection;
@@ -1463,7 +1610,6 @@ export default function SuggestedEditsPlugin({
           },
           updatedSuggestionText ?? selectedText,
         );
-        didCreateThread = true;
       }
       if (selectionMarkNode) {
         if (isBackward) {
@@ -1487,7 +1633,7 @@ export default function SuggestedEditsPlugin({
       });
     }
     return true;
-  }, [clientId, createSuggestionRecord, currentUser, editor, getMergeableSuggestionId, suggestMode, suggestionStore]);
+  }, [authorId, createSuggestionRecord, editor, getMergeableSuggestionId, suggestMode, suggestionStore]);
 
   const resolveSuggestion = useCallback((suggestionId: string, action: 'accept' | 'reject') => {
     const suggestion = suggestionStore.getSuggestion(suggestionId);
@@ -1750,9 +1896,7 @@ export default function SuggestedEditsPlugin({
           if (!$isRangeSelection(selection)) {
             setActiveSuggestionId(null);
             setActionAnchorRect(null);
-            lastInsertSuggestionIdRef.current = null;
             lastReplaceSuggestionIdRef.current = null;
-            lastInsertSelectionRef.current = null;
             return;
           }
           const anchorNode = $getNodeByKey(selection.anchor.key);
@@ -1784,9 +1928,6 @@ export default function SuggestedEditsPlugin({
           setActiveSuggestionId(suggestionId);
           if (suggestionId) {
             const suggestion = suggestionStore.getSuggestion(suggestionId);
-            if (suggestion?.type === 'insert') {
-              lastInsertSuggestionIdRef.current = suggestionId;
-            }
             if (suggestion?.type === 'replace') {
               const markNode = getMarkNodeForSuggestionFromSelection(
                 selection,
