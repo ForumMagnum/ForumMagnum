@@ -351,11 +351,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
         Advanced Review
       </Link>
     </LWTooltip>
-    <LWTooltip title="Write a detailed review, exploring nominated posts more comprehensively.">
-      <Link to={`/newPost?tagId=${longformReviewTagId}`} className={classNames(classes.actionButton, classes.actionButtonSecondaryCTA)}>
-        Longform Review
-      </Link>
-    </LWTooltip>
     <LWTooltip title="Find a top unreviewed post, and review it">
       <Link to={`/quickReview/${reviewYear}`} className={classes.actionButtonCTA}>
         Quick Review
