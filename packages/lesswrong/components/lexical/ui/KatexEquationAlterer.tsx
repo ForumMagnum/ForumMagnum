@@ -74,7 +74,7 @@ export default function KatexEquationAlterer({
   return (
     <>
       <div className={classes.defaultRow}>
-        Inline
+        {'Inline '}
         <input type="checkbox" checked={inline} onChange={onCheckboxChange} />
       </div>
       <div className={classes.defaultRow}>Equation </div>

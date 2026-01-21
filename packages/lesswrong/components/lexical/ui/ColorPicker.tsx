@@ -165,7 +165,7 @@ export default function ColorPicker({
     const newHsv = {
       ...selfColor.hsv,
       s: (x / WIDTH) * 100,
-      v: 100 - (y / HEIGHT) * 100,
+      v: 100 - ((y / HEIGHT) * 100),
     };
     const newColor = transformColor('hsv', newHsv);
     setSelfColor(newColor);
@@ -257,8 +257,8 @@ function MoveWrapper({className, style, onChange, children}: MoveWrapperProps) {
       const {current: div} = divRef;
       const {width, height, left, top} = div.getBoundingClientRect();
       const zoom = calculateZoomLevel(div);
-      const x = clamp(e.clientX / zoom - left, width, 0);
-      const y = clamp(e.clientY / zoom - top, height, 0);
+      const x = clamp((e.clientX / zoom) - left, width, 0);
+      const y = clamp((e.clientY / zoom) - top, height, 0);
 
       onChange({x, y});
     }
@@ -377,10 +377,10 @@ function rgb2hsv({r, g, b}: RGB): HSV {
 
   const h = d
     ? (max === r
-        ? (g - b) / d + (g < b ? 6 : 0)
+        ? ((g - b) / d) + (g < b ? 6 : 0)
         : max === g
-          ? 2 + (b - r) / d
-          : 4 + (r - g) / d) * 60
+          ? 2 + ((b - r) / d)
+          : 4 + ((r - g) / d)) * 60
     : 0;
   const s = max ? (d / max) * 100 : 0;
   const v = max * 100;
@@ -393,10 +393,10 @@ function hsv2rgb({h, s, v}: HSV): RGB {
   v /= 100;
 
   const i = ~~(h / 60);
-  const f = h / 60 - i;
+  const f = (h / 60) - i;
   const p = v * (1 - s);
-  const q = v * (1 - s * f);
-  const t = v * (1 - s * (1 - f));
+  const q = v * (1 - (s * f));
+  const t = v * (1 - (s * (1 - f)));
   const index = i % 6;
 
   const r = Math.round([v, q, p, p, t, v][index] * 255);

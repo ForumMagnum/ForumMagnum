@@ -237,7 +237,7 @@ export default function ImageResizer({
       const zoom = calculateZoomLevel(image);
       // Corner cursor
       if (isHorizontal && isVertical) {
-        let diff = Math.floor(positioning.startX - event.clientX / zoom);
+        let diff = Math.floor(positioning.startX - (event.clientX / zoom));
         diff = positioning.direction & Direction.east ? -diff : diff;
 
         const width = clamp(
@@ -252,7 +252,7 @@ export default function ImageResizer({
         positioning.currentHeight = height;
         positioning.currentWidth = width;
       } else if (isVertical) {
-        let diff = Math.floor(positioning.startY - event.clientY / zoom);
+        let diff = Math.floor(positioning.startY - (event.clientY / zoom));
         diff = positioning.direction & Direction.south ? -diff : diff;
 
         const height = clamp(
@@ -264,7 +264,7 @@ export default function ImageResizer({
         image.style.height = `${height}px`;
         positioning.currentHeight = height;
       } else {
-        let diff = Math.floor(positioning.startX - event.clientX / zoom);
+        let diff = Math.floor(positioning.startX - (event.clientX / zoom));
         diff = positioning.direction & Direction.east ? -diff : diff;
 
         const width = clamp(

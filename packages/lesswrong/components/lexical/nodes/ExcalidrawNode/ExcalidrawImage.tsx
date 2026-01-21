@@ -7,15 +7,13 @@
  */
 
 // @ts-ignore - @excalidraw/excalidraw types not installed yet
-import type {
-  ExcalidrawElement,
-  NonDeleted,
-} from '@excalidraw/excalidraw/element/types';
+import type { ExcalidrawElement, NonDeleted } from '@excalidraw/excalidraw/element/types';
 // @ts-ignore - @excalidraw/excalidraw types not installed yet
 import type {AppState, BinaryFiles} from '@excalidraw/excalidraw/types';
 import React, { type JSX } from 'react';
 
 // @ts-ignore - @excalidraw/excalidraw not installed yet
+// eslint-disable-next-line import/no-unresolved
 import {exportToSvg} from '@excalidraw/excalidraw';
 
 import {useEffect, useState} from 'react';
@@ -112,7 +110,7 @@ export default function ExcalidrawImage({
 
       setSvg(svg);
     };
-    setContent();
+    void setContent();
   }, [elements, files, appState]);
 
   const containerStyle: React.CSSProperties = {};

@@ -10,13 +10,9 @@ import type {LexicalEditor} from 'lexical';
 import React, { type JSX } from 'react';
 
 import {$createCodeNode, $isCodeNode} from '@lexical/code';
-import {
-  editorStateFromSerializedDocument,
-  exportFile,
-  importFile,
-  SerializedDocument,
-  serializedDocumentFromEditorState,
-} from '@lexical/file';
+// @ts-ignore
+// eslint-disable-next-line import/no-unresolved
+import { editorStateFromSerializedDocument, exportFile, importFile, SerializedDocument, serializedDocumentFromEditorState } from '@lexical/file';
 import {
   $convertFromMarkdownString,
   $convertToMarkdownString,
@@ -181,7 +177,7 @@ export default function ActionsPlugin({
     if (INITIAL_SETTINGS.isCollab) {
       return;
     }
-    docFromHash(window.location.hash).then((doc) => {
+    void docFromHash(window.location.hash).then((doc) => {
       if (doc && doc.source === 'Playground') {
         editor.setEditorState(editorStateFromSerializedDocument(editor, doc));
         editor.dispatchCommand(CLEAR_HISTORY_COMMAND, undefined);
@@ -216,7 +212,7 @@ export default function ActionsPlugin({
           !tags.has(HISTORIC_TAG) &&
           !tags.has(COLLABORATION_TAG)
         ) {
-          validateEditorState(editor);
+          void validateEditorState(editor);
         }
         editor.getEditorState().read(() => {
           const root = $getRoot();
@@ -336,7 +332,7 @@ export default function ActionsPlugin({
         onClick={() => {
           // Send latest editor state to commenting validation server
           if (isEditable) {
-            sendEditorState(editor);
+            void sendEditorState(editor);
           }
           editor.setEditable(!editor.isEditable());
         }}

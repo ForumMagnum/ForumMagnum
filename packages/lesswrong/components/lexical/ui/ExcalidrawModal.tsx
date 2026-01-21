@@ -15,6 +15,7 @@ type ExcalidrawInitialDataState = { elements?: unknown[] };
 import React, { type JSX } from 'react';
 
 // @ts-ignore - @excalidraw/excalidraw not installed yet
+// eslint-disable-next-line import/no-unresolved
 import {Excalidraw} from '@excalidraw/excalidraw';
 import {isDOMNode} from 'lexical';
 
@@ -79,6 +80,39 @@ const styles = defineStyles('LexicalExcalidrawModal', (theme: ThemeType) => ({
     textAlign: 'center',
   },
 }));
+
+function ShowDiscardDialog({ setDiscardModalOpen, onClose }: {
+  setDiscardModalOpen: (value: boolean) => void,
+  onClose: () => void,
+}) {
+  const classes = useStyles(styles);
+
+  return (
+    <Modal
+      title="Discard"
+      onClose={() => {
+        setDiscardModalOpen(false);
+      }}
+      closeOnClickOutside={false}>
+      Are you sure you want to discard the changes?
+      <div className={classes.discardModal}>
+        <Button
+          onClick={() => {
+            setDiscardModalOpen(false);
+            onClose();
+          }}>
+          Discard
+        </Button>{' '}
+        <Button
+          onClick={() => {
+            setDiscardModalOpen(false);
+          }}>
+          Cancel
+        </Button>
+      </div>
+    </Modal>
+  );
+}
 
 export type ExcalidrawInitialElements = ExcalidrawInitialDataState['elements'];
 
@@ -215,34 +249,6 @@ export default function ExcalidrawModal({
     setDiscardModalOpen(true);
   };
 
-  function ShowDiscardDialog(): JSX.Element {
-    return (
-      <Modal
-        title="Discard"
-        onClose={() => {
-          setDiscardModalOpen(false);
-        }}
-        closeOnClickOutside={false}>
-        Are you sure you want to discard the changes?
-        <div className={classes.discardModal}>
-          <Button
-            onClick={() => {
-              setDiscardModalOpen(false);
-              onClose();
-            }}>
-            Discard
-          </Button>{' '}
-          <Button
-            onClick={() => {
-              setDiscardModalOpen(false);
-            }}>
-            Cancel
-          </Button>
-        </div>
-      </Modal>
-    );
-  }
-
   if (isShown === false) {
     return null;
   }
@@ -263,7 +269,7 @@ export default function ExcalidrawModal({
         ref={excaliDrawModelRef}
         tabIndex={-1}>
         <div className={classes.row}>
-          {discardModalOpen && <ShowDiscardDialog />}
+          {discardModalOpen && <ShowDiscardDialog setDiscardModalOpen={setDiscardModalOpen} onClose={onClose} />}
           <Excalidraw
             onChange={onChange}
             excalidrawAPI={setExcalidrawAPI}

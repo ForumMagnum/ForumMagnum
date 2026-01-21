@@ -22,6 +22,7 @@ export default (() => {
         INITIAL_SETTINGS[param as keyof Settings] = Boolean(value);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (_error) {
+        // eslint-disable-next-line no-console
         console.warn(`Unable to parse query parameter "${param}"`);
       }
     }

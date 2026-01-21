@@ -63,7 +63,6 @@ function StrawpollComponent({
           }}
           frameBorder="0"
           allowFullScreen
-          allowTransparency
         >
           Loading...
         </iframe>

@@ -6,6 +6,8 @@
  *
  */
 
+// @ts-ignore - haven't installed @lexical/file as a dependency; might remove this entire plugin later, TBD.
+// eslint-disable-next-line import/no-unresolved
 import {SerializedDocument} from '@lexical/file';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

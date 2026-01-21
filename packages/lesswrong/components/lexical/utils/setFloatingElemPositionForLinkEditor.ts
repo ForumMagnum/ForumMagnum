@@ -31,7 +31,7 @@ export function setFloatingElemPositionForLinkEditor(
   let left = targetRect.left - horizontalOffset;
 
   if (top < editorScrollerRect.top) {
-    top += floatingElemRect.height + targetRect.height + verticalGap * 2;
+    top += floatingElemRect.height + targetRect.height + (verticalGap * 2);
   }
 
   if (left + floatingElemRect.width > editorScrollerRect.right) {

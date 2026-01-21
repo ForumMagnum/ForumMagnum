@@ -44,9 +44,8 @@ export default function Settings(): JSX.Element {
   } = useSettings();
   useEffect(() => {
     if (INITIAL_SETTINGS.disableBeforeInput && CAN_USE_BEFORE_INPUT) {
-      console.error(
-        `Legacy events are enabled (disableBeforeInput) but CAN_USE_BEFORE_INPUT is true`,
-      );
+      // eslint-disable-next-line no-console
+      console.error(`Legacy events are enabled (disableBeforeInput) but CAN_USE_BEFORE_INPUT is true`,);
     }
   }, []);
   const [showSettings, setShowSettings] = useState(false);

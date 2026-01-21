@@ -156,7 +156,7 @@ export class FootnoteReferenceNode extends TextNode {
     ).updateFromJSON(serializedNode);
   }
 
-  isInline(): boolean {
+  isInline(): true {
     return true;
   }
   

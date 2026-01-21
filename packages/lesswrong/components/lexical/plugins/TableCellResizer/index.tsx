@@ -399,14 +399,14 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
           cursor: 'row-resize',
           height: `${zoneWidth}px`,
           left: `${window.scrollX + left}px`,
-          top: `${window.scrollY + top + height - zoneWidth / 2}px`,
+          top: `${window.scrollY + top + height - (zoneWidth / 2)}px`,
           width: `${width}px`,
         },
         right: {
           backgroundColor: 'none',
           cursor: 'col-resize',
           height: `${height}px`,
-          left: `${window.scrollX + left + width - zoneWidth / 2}px`,
+          left: `${window.scrollX + left + width - (zoneWidth / 2)}px`,
           top: `${window.scrollY + top}px`,
           width: `${zoneWidth}px`,
         },
@@ -420,14 +420,14 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
             window.scrollX + tableRect.left
           }px`;
           styles[draggingDirection].top = `${
-            window.scrollY + pointerCurrentPos.y / zoom
+            window.scrollY + (pointerCurrentPos.y / zoom)
           }px`;
           styles[draggingDirection].height = '3px';
           styles[draggingDirection].width = `${tableRect.width}px`;
         } else {
           styles[draggingDirection].top = `${window.scrollY + tableRect.top}px`;
           styles[draggingDirection].left = `${
-            window.scrollX + pointerCurrentPos.x / zoom
+            window.scrollX + (pointerCurrentPos.x / zoom)
           }px`;
           styles[draggingDirection].width = '3px';
           styles[draggingDirection].height = `${tableRect.height}px`;
@@ -438,7 +438,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
       } else if (!draggingDirection && hoveredDirection === 'right') {
         const halfZoneWidth = zoneWidth / 2;
         const highlightWidth = 2;
-        const highlightStart = halfZoneWidth - highlightWidth / 2;
+        const highlightStart = halfZoneWidth - (highlightWidth / 2);
         styles.right.background = `linear-gradient(90deg, transparent ${highlightStart}px, ${ACTIVE_RESIZER_COLOR} ${highlightStart}px, ${ACTIVE_RESIZER_COLOR} ${
           highlightStart + highlightWidth
         }px, transparent ${highlightStart + highlightWidth}px)`;

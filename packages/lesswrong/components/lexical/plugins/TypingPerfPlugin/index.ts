@@ -66,7 +66,7 @@ export default function TypingPerfPlugin(): JSX.Element | null {
       timerId = setTimeout(() => {
         const total = log.reduce((a, b) => a + b, 0);
         const reportedText =
-          'Typing Perf: ' + Math.round((total / log.length) * 100) / 100 + 'ms';
+          'Typing Perf: ' + Math.round(((total / log.length) * 100) / 100) + 'ms';
         report(reportedText);
         log = [];
       }, 2000);

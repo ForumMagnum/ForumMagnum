@@ -44,7 +44,8 @@ import {
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import brokenImage from '../images/image-broken.svg';
+// import brokenImage from '../images/image-broken.svg';
+import { ImageBrokenIcon } from '../icons/ImageBrokenIcon';
 import useModal from '../hooks/useModal';
 import ImageResizer from '../ui/ImageResizer';
 import Button from '../ui/Button';
@@ -190,7 +191,7 @@ function LazyImage({
   }, [status.error, onError]);
 
   if (status.error) {
-    return <BrokenImage />;
+    return <ImageBrokenIcon />;
   }
 
   // Calculate final dimensions with proper scaling
@@ -253,20 +254,20 @@ function LazyImage({
   );
 }
 
-function BrokenImage(): JSX.Element {
-  return (
-    <img
-      src={brokenImage}
-      style={{
-        height: 200,
-        opacity: 0.2,
-        width: 200,
-      }}
-      draggable="false"
-      alt="Broken image"
-    />
-  );
-}
+// function BrokenImage(): JSX.Element {
+//   return (
+//     <img
+//       src={brokenImage}
+//       style={{
+//         height: 200,
+//         opacity: 0.2,
+//         width: 200,
+//       }}
+//       draggable="false"
+//       alt="Broken image"
+//     />
+//   );
+// }
 
 function noop() {}
 
@@ -711,7 +712,7 @@ export default function ImageComponent({
               },
             )}>
             {isLoadError ? (
-              <BrokenImage />
+              <ImageBrokenIcon />
             ) : (
               <LazyImage
                 className={

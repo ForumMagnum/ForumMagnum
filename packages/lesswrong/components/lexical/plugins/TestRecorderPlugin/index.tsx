@@ -33,6 +33,7 @@ const copy = (text: string | null) => {
     // eslint-disable-next-line no-console
     console.log(result);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
   }
   document.body?.removeChild(textArea);

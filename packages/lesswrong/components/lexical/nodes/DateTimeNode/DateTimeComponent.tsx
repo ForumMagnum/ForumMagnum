@@ -60,6 +60,7 @@ const styles = defineStyles('LexicalDateTimeComponent', (theme: ThemeType) => ({
   },
 }));
 
+// eslint-disable-next-line babel/new-cap
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 export default function DateTimeComponent({

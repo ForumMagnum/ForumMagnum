@@ -5,6 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
+
+// @ts-nocheck - haven't installed prettier as a dependency; might remove this entire plugin later, TBD.
+/* eslint-disable import/no-unresolved */
+
+
 import {$isCodeNode} from '@lexical/code';
 import {$getNearestNodeFromDOMNode, LexicalEditor} from 'lexical';
 import {Options} from 'prettier';
@@ -147,6 +152,7 @@ export function PrettierButton({lang, editor, getCodeDOMNode, menuItemClassName}
       setSyntaxError(error.message);
       setTipsVisible(true);
     } else {
+      // eslint-disable-next-line no-console
       console.error('Unexpected error: ', error);
     }
   }

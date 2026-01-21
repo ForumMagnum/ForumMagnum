@@ -4,6 +4,7 @@ import React, { useEffect, useCallback, useRef } from 'react';
 import { CollaborationPlugin as LexicalCollaborationPlugin } from '@lexical/react/LexicalCollaborationPlugin';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import * as Y from 'yjs';
+import { Provider } from '@lexical/yjs';
 
 // Generate a random color for the user's cursor
 function getRandomColor(): string {
@@ -126,7 +127,8 @@ export function CollaborationPlugin({
       });
       
       providerRef.current = provider;
-      return provider;
+      // HocusPocus's provider has a slightly different awareness type - it's both nullable (unfortunate) and also less specific around some user state fields.
+      return provider as unknown as Provider;
     },
     []
   );

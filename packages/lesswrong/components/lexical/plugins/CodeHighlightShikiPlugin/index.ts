@@ -8,6 +8,8 @@
 
 import React, { type JSX } from 'react';
 
+// @ts-ignore - haven't installed code-shiki as a dependency; might remove this entire plugin later, TBD.
+// eslint-disable-next-line import/no-unresolved
 import {registerCodeHighlighting} from '@lexical/code-shiki';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useEffect} from 'react';

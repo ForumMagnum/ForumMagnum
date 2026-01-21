@@ -209,6 +209,5 @@ function unwrapSpoiler(spoilerNode: SpoilerNode): void {
   spoilerNode.remove();
 }
 
-export { SpoilerNode, $createSpoilerNode, $isSpoilerNode };
 export default SpoilersPlugin;
 

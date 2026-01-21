@@ -6,7 +6,7 @@
  *
  */
 
-import type {JSX, Ref, RefObject} from 'react';
+import React, { type JSX, type Ref, type RefObject } from 'react';
 
 import {isHTMLElement} from 'lexical';
 import {ChangeEvent, forwardRef} from 'react';

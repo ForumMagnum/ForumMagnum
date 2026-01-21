@@ -264,10 +264,8 @@ export default function StickyComponent({
       positioning.isDragging &&
       rootElementRect !== null
     ) {
-      positioning.x =
-        event.pageX / zoom - positioning.offsetX - rootElementRect.left;
-      positioning.y =
-        event.pageY / zoom - positioning.offsetY - rootElementRect.top;
+      positioning.x = (event.pageX / zoom) - positioning.offsetX - rootElementRect.left;
+      positioning.y = (event.pageY / zoom) - positioning.offsetY - rootElementRect.top;
       positionSticky(stickyContainer, positioning);
     }
   };
@@ -328,8 +326,8 @@ export default function StickyComponent({
           if (stickContainer !== null) {
             const {top, left} = stickContainer.getBoundingClientRect();
             const zoom = calculateZoomLevel(stickContainer);
-            positioning.offsetX = event.clientX / zoom - left;
-            positioning.offsetY = event.clientY / zoom - top;
+            positioning.offsetX = (event.clientX / zoom) - left;
+            positioning.offsetY = (event.clientY / zoom) - top;
             positioning.isDragging = true;
             stickContainer.classList.add(classes.dragging);
             document.addEventListener('pointermove', handlePointerMove);

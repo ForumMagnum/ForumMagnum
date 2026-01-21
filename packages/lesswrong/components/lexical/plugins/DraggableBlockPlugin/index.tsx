@@ -108,6 +108,7 @@ export default function DraggableBlockPlugin({
   }
 
   return (
+    // eslint-disable-next-line react/jsx-pascal-case
     <DraggableBlockPlugin_EXPERIMENTAL
       anchorElem={anchorElem}
       menuRef={menuRef}

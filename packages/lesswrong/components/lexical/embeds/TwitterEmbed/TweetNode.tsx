@@ -102,7 +102,7 @@ function TweetComponent({
           script.onerror = onError as OnErrorEventHandler;
         }
       } else {
-        createTweet();
+        void createTweet();
       }
 
       if (previousTweetIDRef) {
