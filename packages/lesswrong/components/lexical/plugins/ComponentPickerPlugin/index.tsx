@@ -30,7 +30,6 @@ import {
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
-  FORMAT_ELEMENT_COMMAND,
   LexicalEditor,
   TextNode,
 } from 'lexical';
@@ -67,10 +66,6 @@ import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
-import { TextLeftIcon } from '../../icons/TextLeftIcon';
-import { TextCenterIcon } from '../../icons/TextCenterIcon';
-import { TextRightIcon } from '../../icons/TextRightIcon';
-import { JustifyIcon } from '../../icons/JustifyIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import {
@@ -198,12 +193,6 @@ const headingIcons = {
   3: TypeH3Icon,
 } as const;
 
-const alignmentIcons = {
-  left: TextLeftIcon,
-  center: TextCenterIcon,
-  right: TextRightIcon,
-  justify: JustifyIcon,
-} as const;
 
 function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
   return [
@@ -404,17 +393,6 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
           <InsertLayoutDialog activeEditor={editor} onClose={onClose} />
         )),
     }),
-    ...(['left', 'center', 'right', 'justify'] as const).map(
-      (alignment) => {
-        const AlignIcon = alignmentIcons[alignment];
-        return new ComponentPickerOption(`Align ${alignment}`, {
-          icon: <AlignIcon style={iconStyle} />,
-          keywords: ['align', 'justify', alignment],
-          onSelect: () =>
-            editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment),
-        });
-      }
-    ),
   ];
 }
 

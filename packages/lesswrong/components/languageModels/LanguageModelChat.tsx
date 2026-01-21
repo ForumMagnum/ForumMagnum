@@ -13,6 +13,7 @@ import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useEditorCommands } from '../editor/EditorCommandsContext';
+import { useCurrentUser } from '../common/withUser';
 import Button from '@/lib/vendor/@material-ui/core/src/Button/Button';
 import Input from '@/lib/vendor/@material-ui/core/src/Input/Input';
 import { PromptContextOptions, RAG_MODE_SET, RagModeType } from './schema';
@@ -28,6 +29,8 @@ import ForumIcon from '../common/ForumIcon';
 import { MenuItem } from '../common/Menus';
 import Loading from '../vulcan-core/Loading';
 import { makeEditorConfig } from '../editor/editorConfigs';
+import LexicalPostEditor from '../editor/LexicalPostEditor';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const styles = defineStyles('LanguageModelChat', (theme: ThemeType) => ({
   root: {
@@ -259,6 +262,8 @@ const LLMInputTextbox = ({onSubmit}: {
   onSubmit: (message: string) => void,
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const isAdmin = userIsAdmin(currentUser);
   const [currentMessage, setCurrentMessage] = useState('');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<Editor | null>(null);
@@ -270,15 +275,16 @@ const LLMInputTextbox = ({onSubmit}: {
   });
 
   const submitEditorContentAndClear = useCallback(() => {
-    const currentEditorContent = editorRef.current?.getData();
+    const currentEditorContent = isAdmin ? currentMessage : editorRef.current?.getData();
     currentEditorContent && void onSubmit(currentEditorContent);
     setCurrentMessage('');
-  }, [onSubmit]);
+  }, [currentMessage, isAdmin, onSubmit]);
 
   // We need to pipe through the `conversationId` and do all of this eventListener setup/teardown like this because
   // otherwise messages get submitted to whatever conversation was "current" when the editor was initially loaded
   // Running this useEffect whenever either the conversationId or onSubmit changes ensures we remove and re-attach a fresh event listener with the correct "targets"
   useEffect(() => {
+    if (isAdmin) return;
     const currentEditorRefValue = ckEditorRef.current;
 
     const options = { capture: true };
@@ -301,7 +307,7 @@ const LLMInputTextbox = ({onSubmit}: {
         internalEditorRefInstance.removeEventListener('keydown', handleKeyDown, options);
       }
     }
-  }, [onSubmit, submitEditorContentAndClear]);
+  }, [isAdmin, onSubmit, submitEditorContentAndClear]);
 
   const submitButton = <div className={classes.editorButtons}>
     <Button
@@ -316,32 +322,51 @@ const LLMInputTextbox = ({onSubmit}: {
 
   // TODO: styling and debouncing
   return <ContentStyles className={classes.inputTextbox} contentType='comment'>
-    <div className={classes.editor}>
-      <CKEditor
-        data={currentMessage}
-        ref={ckEditorRef}
-        editor={getCkCommentEditor()}
-        isCollaborative={false}
-        onChange={(_event, editor: Editor) => {
-          // debouncedValidateEditor(editor.model.document)
-          // If transitioning from empty to nonempty or nonempty to empty,
-          // bypass throttling. These cases don't have the performance
-          // implications that motivated having throttling in the first place,
-          // and this prevents a timing bug with form-clearing on submit.
-          setCurrentMessage(editor.getData());
+    <div
+      className={classes.editor}
+      onKeyDown={(event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+          event.stopPropagation();
+          event.preventDefault();
+          submitEditorContentAndClear();
+        }
+      }}
+    >
+      {isAdmin ? (
+        <LexicalPostEditor
+          data={currentMessage}
+          placeholder="Type here.  Ctrl/Cmd + Enter to submit to Claude 3.5. "
+          onChange={setCurrentMessage}
+          onReady={() => {}}
+          commentEditor
+        />
+      ) : (
+        <CKEditor
+          data={currentMessage}
+          ref={ckEditorRef}
+          editor={getCkCommentEditor()}
+          isCollaborative={false}
+          onChange={(_event, editor: Editor) => {
+            // debouncedValidateEditor(editor.model.document)
+            // If transitioning from empty to nonempty or nonempty to empty,
+            // bypass throttling. These cases don't have the performance
+            // implications that motivated having throttling in the first place,
+            // and this prevents a timing bug with form-clearing on submit.
+            setCurrentMessage(editor.getData());
 
-          // if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
-          //   throttledSetCkEditor.cancel();
-          //   setCurrentMessage(editor.getData());
-          // } else {
-          //   throttledSetCkEditor(() => editor.getData())
-          // }
-        }}
-        onReady={(editor) => {
-          editorRef.current = editor;
-        }}
-        config={editorConfig}
-      />
+            // if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
+            //   throttledSetCkEditor.cancel();
+            //   setCurrentMessage(editor.getData());
+            // } else {
+            //   throttledSetCkEditor(() => editor.getData())
+            // }
+          }}
+          onReady={(editor) => {
+            editorRef.current = editor;
+          }}
+          config={editorConfig}
+        />
+      )}
     </div>
     {submitButton}
   </ContentStyles>

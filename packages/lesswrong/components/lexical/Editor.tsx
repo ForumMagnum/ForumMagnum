@@ -242,6 +242,11 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       borderBottom: 'none',
     },
   },
+  editorContainerComment: {
+    background: 'transparent',
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
   treeView: {
     borderRadius: 0,
   },
@@ -259,6 +264,10 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     zIndex: 0,
     resize: 'vertical',
   },
+  editorScrollerComment: {
+    minHeight: 'var(--lexical-comment-min-height, 60px)',
+    resize: 'none',
+  },
   editor: {
     flex: 'auto',
     maxWidth: '100%',
@@ -266,7 +275,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     resize: 'vertical',
     zIndex: -1,
   },
-}), { allowNonThemeColors: true });
+}));
 
 const COLLAB_DOC_ID = 'main';
 
@@ -285,6 +294,8 @@ export interface EditorProps {
   onChangeHtml?: (html: string) => void;
   /** Placeholder override (otherwise uses built-in placeholder based on settings/collab mode) */
   placeholder?: string;
+  /** Render editor in compact comment mode */
+  commentEditor?: boolean;
 }
 
 export default function Editor({
@@ -293,6 +304,7 @@ export default function Editor({
   initialHtml,
   onChangeHtml,
   placeholder: placeholderOverride,
+  commentEditor = false,
 }: EditorProps): JSX.Element {
   const classes = useStyles(styles);
   const {historyState} = useSharedHistoryContext();
@@ -339,6 +351,9 @@ export default function Editor({
 
   // Enable collaboration if config is provided OR if the setting is enabled
   const isCollab = isCollabSetting || !!collaborationConfig;
+  const isCommentEditor = commentEditor;
+  const hasInitialHtml = Boolean(initialHtml && initialHtml.trim().length > 0);
+  const shouldBootstrap = isCollab && hasInitialHtml;
   const isEditable = useLexicalEditable();
   const placeholder = placeholderOverride ?? (isCollab
     ? 'Enter some collaborative rich text...'
@@ -376,15 +391,17 @@ export default function Editor({
     };
   }, [isSmallWidthViewport]);
 
-  // Load initial HTML exactly once, and only when not using collaboration.
+  // Load initial HTML exactly once. When collaboration is enabled, load it only
+  // if we intend to bootstrap the shared doc from existing content.
   useEffect(() => {
-    if (!initialHtml) return;
-    if (isCollab) return;
+    if (!hasInitialHtml) return;
+    if (isCollab && !shouldBootstrap) return;
     if (hasLoadedInitialHtmlRef.current) return;
     hasLoadedInitialHtmlRef.current = true;
+    const initialHtmlString = initialHtml ?? '';
 
     editor.update(() => {
-      const { html, internalIds } = preprocessHtmlForImport(initialHtml);
+      const { html, internalIds } = preprocessHtmlForImport(initialHtmlString);
       internalIdsRef.current = internalIds;
       const parser = new DOMParser();
       const dom = parser.parseFromString(html, 'text/html');
@@ -393,7 +410,7 @@ export default function Editor({
       root.clear();
       $insertNodes(nodes);
     });
-  }, [editor, initialHtml, isCollab]);
+  }, [editor, hasInitialHtml, initialHtml, isCollab, shouldBootstrap]);
 
   return (
     <>
@@ -403,6 +420,7 @@ export default function Editor({
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
           setIsLinkEditMode={setIsLinkEditMode}
+          isVisible={false}
         />
       )}
       {isRichText && (
@@ -414,12 +432,13 @@ export default function Editor({
       <div
         className={classNames(
           classes.editorContainer,
+          isCommentEditor && classes.editorContainerComment,
           showTreeView && classes.treeView,
           !isRichText && classes.plainText
         )}>
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <DragDropPaste />
-        <AutoFocusPlugin />
+        {!isCommentEditor && <AutoFocusPlugin />}
         <CodeBlockPlugin editor={editor} />
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
@@ -432,15 +451,17 @@ export default function Editor({
         {/* <SpeechToTextPlugin /> */}
         <AutoLinkPlugin />
         <DateTimePlugin />
-        {!(isCollab && useCollabV2) && (
+        {!isCommentEditor && !(isCollab && useCollabV2) && (
           <CommentPlugin
             providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
           />
         )}
-        <SuggestedEditsPlugin
-          accessLevel={accessLevel}
-          providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
-        />
+        {!isCommentEditor && (
+          <SuggestedEditsPlugin
+            accessLevel={accessLevel}
+            providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
+          />
+        )}
         {isRichText ? (
           <>
             {isCollabConfigReady && collaborationConfig ? (
@@ -448,8 +469,7 @@ export default function Editor({
                 <>
                   <CollabV2
                     id={COLLAB_DOC_ID}
-                    // shouldBootstrap={!skipCollaborationInit}
-                    shouldBootstrap={false}
+                    shouldBootstrap={shouldBootstrap}
                     username={collaborationConfig.user.name}
                   />
                   <VersionsPlugin id={COLLAB_DOC_ID} />
@@ -459,8 +479,7 @@ export default function Editor({
                   key={collaborationConfig.token}
                   id={COLLAB_DOC_ID}
                   providerFactory={createWebsocketProvider}
-                  // shouldBootstrap={!skipCollaborationInit}
-                  shouldBootstrap={false}
+                  shouldBootstrap={shouldBootstrap}
                   username={collaborationConfig.user.name}
                 />
               )
@@ -469,9 +488,17 @@ export default function Editor({
             )}
             <RichTextPlugin
               contentEditable={
-                <div className={classes.editorScroller}>
+                <div
+                  className={classNames(
+                    classes.editorScroller,
+                    isCommentEditor && classes.editorScrollerComment,
+                  )}
+                >
                   <div className={classes.editor} ref={onRef}>
-                    <ContentEditable placeholder={placeholder} />
+                    <ContentEditable
+                      placeholder={placeholder}
+                      variant={isCommentEditor ? 'comment' : undefined}
+                    />
                   </div>
                 </div>
               }
@@ -557,12 +584,14 @@ export default function Editor({
             )}
             {floatingAnchorElem && !isSmallWidthViewport && (
               <>
-                <DraggableBlockPlugin anchorElem={floatingAnchorElem} />
+                {!isCommentEditor && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
                 <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
                 <TableHoverActionsV2Plugin anchorElem={floatingAnchorElem} />
                 <FloatingTextFormatToolbarPlugin
                   anchorElem={floatingAnchorElem}
                   setIsLinkEditMode={setIsLinkEditMode}
+                  variant={isCommentEditor ? 'comment' : 'post'}
+                  showInlineCommentButton={isCollab && !isCommentEditor}
                 />
               </>
             )}

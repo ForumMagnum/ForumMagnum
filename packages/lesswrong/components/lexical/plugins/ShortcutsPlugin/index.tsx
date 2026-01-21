@@ -10,7 +10,6 @@ import {TOGGLE_LINK_COMMAND} from '@lexical/link';
 import {HeadingTagType} from '@lexical/rich-text';
 import {
   COMMAND_PRIORITY_NORMAL,
-  FORMAT_ELEMENT_COMMAND,
   FORMAT_TEXT_COMMAND,
   INDENT_CONTENT_COMMAND,
   isModifierMatch,
@@ -41,7 +40,6 @@ import {
 import {
   isAddComment,
   isCapitalize,
-  isCenterAlign,
   isClearFormatting,
   isDecreaseFontSize,
   isFormatBulletList,
@@ -58,11 +56,8 @@ import {
   isInsertInlineMath,
   isInsertLink,
   isInsertFootnote,
-  isJustifyAlign,
-  isLeftAlign,
   isLowercase,
   isOutdent,
-  isRightAlign,
   isStrikeThrough,
   isSubscript,
   isSuperscript,
@@ -111,14 +106,6 @@ export default function ShortcutsPlugin({
         editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
       } else if (isOutdent(event)) {
         editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
-      } else if (isCenterAlign(event)) {
-        editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
-      } else if (isLeftAlign(event)) {
-        editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
-      } else if (isRightAlign(event)) {
-        editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
-      } else if (isJustifyAlign(event)) {
-        editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'justify');
       } else if (isSubscript(event)) {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'subscript');
       } else if (isSuperscript(event)) {

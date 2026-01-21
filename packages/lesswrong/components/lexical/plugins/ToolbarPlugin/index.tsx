@@ -59,6 +59,8 @@ import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/
 import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
 import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
+import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
+import { CkMathIcon } from '../../icons/CkMathIcon';
 import { StickyIcon } from '../../icons/StickyIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CalendarIcon } from '../../icons/CalendarIcon';
@@ -186,6 +188,9 @@ const styles = defineStyles('LexicalToolbarPlugin', (theme: ThemeType) => ({
     top: 0,
     zIndex: 2,
     overflowY: 'hidden' as const,
+  },
+  toolbarHidden: {
+    display: 'none',
   },
   toolbarItem: toolbarItem(theme),
   toolbarItemSpaced: {
@@ -746,11 +751,13 @@ export default function ToolbarPlugin({
   activeEditor,
   setActiveEditor,
   setIsLinkEditMode,
+  isVisible = true,
 }: {
   editor: LexicalEditor;
   activeEditor: LexicalEditor;
   setActiveEditor: Dispatch<LexicalEditor>;
   setIsLinkEditMode: Dispatch<boolean>;
+  isVisible?: boolean;
 }): JSX.Element {
   const classes = useStyles(styles);
   const [selectedElementKey, setSelectedElementKey] = useState<NodeKey | null>(
@@ -1149,7 +1156,7 @@ export default function ToolbarPlugin({
   const canViewerSeeInsertCodeButton = !toolbarState.isImageCaption;
 
   return (
-    <div className={classes.toolbar}>
+    <div className={classNames(classes.toolbar, { [classes.toolbarHidden]: !isVisible })}>
       {/* <button
         disabled={!toolbarState.canUndo || !isEditable}
         onClick={(e) =>
@@ -1488,7 +1495,7 @@ export default function ToolbarPlugin({
                 <DropDownItem
                   onClick={() => dispatchToolbarCommand(INSERT_FOOTNOTE_COMMAND)}
                   >
-                  <TypeSuperscriptIcon className={classes.dropdownIcon} />
+                <CkFootnoteIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Footnote</DropDownItemText>
                   <DropDownItemShortcut>{SHORTCUTS.FOOTNOTE}</DropDownItemShortcut>
                 </DropDownItem>
@@ -1501,7 +1508,7 @@ export default function ToolbarPlugin({
                       })
                     }
                     >
-                    <TypeSuperscriptIcon className={classes.dropdownIcon} />
+                    <CkFootnoteIcon className={classes.dropdownIcon} />
                     <DropDownItemText>{`Insert footnote ${item.index}`}</DropDownItemText>
                   </DropDownItem>
                 ))}
@@ -1573,7 +1580,7 @@ export default function ToolbarPlugin({
                     dispatchToolbarCommand(OPEN_MATH_EDITOR_COMMAND, { inline: true });
                   }}
                   >
-                  <PlusSlashMinusIcon className={classes.dropdownIcon} />
+                  <CkMathIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Equation</DropDownItemText>
                 </DropDownItem>
                 <DropDownItem

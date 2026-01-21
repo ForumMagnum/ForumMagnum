@@ -24,6 +24,7 @@ import PostVersionHistoryButton from './PostVersionHistory';
 import { gql } from '@/lib/generated/gql-codegen';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import LexicalPostEditor from './LexicalPostEditor';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -47,6 +48,7 @@ const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const isAdmin = userIsAdmin(currentUser);
 
   const { query: { postId, key } } = useLocation();
 
@@ -124,27 +126,31 @@ const PostCollaborationEditor = ({ classes }: {
       </div>*/}
       <ContentStyles className={classes.editor} contentType="post">
         <DeferRender ssr={false}>
-          {/* <CKPostEditor
-            documentId={postId}
-            collectionName="Posts"
-            fieldName="contents"
-            formType="edit"
-            userId={currentUser?._id}
-            isCollaborative={true}
-            accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
-            document={post}
-            onReady={()=>{}}
-          /> */}
-          <LexicalPostEditor
-            data={''}
-            placeholder="Start writing..."
-            onChange={() => {}}
-            onReady={() => {}}
-            commentEditor={false}
-            postId={post._id}
-            collaborative
-            accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
-          />
+          {isAdmin ? (
+            <LexicalPostEditor
+              data={''}
+              placeholder="Start writing..."
+              onChange={() => {}}
+              onReady={() => {}}
+              commentEditor={false}
+              postId={post._id}
+              collaborative
+              accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+            />
+          ) : (
+            <CKPostEditor
+              data={''}
+              documentId={postId}
+              collectionName="Posts"
+              fieldName="contents"
+              formType="edit"
+              userId={currentUser?._id}
+              isCollaborative={true}
+              accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+              document={post}
+              onReady={()=>{}}
+            />
+          )}
           <PostVersionHistoryButton
             post={post}
             postId={postId}

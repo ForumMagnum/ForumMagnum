@@ -8,6 +8,7 @@ import debounce from 'lodash/debounce';
 import { isClient } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
@@ -201,6 +202,7 @@ export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'mark
 
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
+  if (user && userIsAdmin(user)) return "lexical"
   return "ckEditorMarkup"
 }
 

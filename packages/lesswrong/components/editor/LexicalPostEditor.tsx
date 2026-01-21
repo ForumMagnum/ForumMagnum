@@ -277,6 +277,7 @@ const LexicalPostEditor = ({
   onReady,
   postId = null,
   collaborative = false,
+  commentEditor = false,
   accessLevel,
 }: LexicalPostEditorProps) => {
   const classes = useStyles(lexicalStyles);
@@ -284,6 +285,8 @@ const LexicalPostEditor = ({
   const clientId = useClientId();
   const initialHtmlRef = useRef<string | null>(null);
   const lastPostIdRef = useRef<string | null>(null);
+  const lastEmittedHtmlRef = useRef<string | null>(null);
+  const [editorVersion, setEditorVersion] = React.useState(0);
   if (lastPostIdRef.current !== postId) {
     lastPostIdRef.current = postId;
     initialHtmlRef.current = data;
@@ -324,6 +327,20 @@ const LexicalPostEditor = ({
     onReady?.();
   }, [onReady]);
 
+  useEffect(() => {
+    if (collaborative) return;
+    const lastEmitted = lastEmittedHtmlRef.current;
+    if (lastEmitted !== null && data === lastEmitted) return;
+    if ((initialHtmlRef.current ?? '') === data) return;
+    initialHtmlRef.current = data;
+    setEditorVersion((prev) => prev + 1);
+  }, [collaborative, data]);
+
+  const handleChange = React.useCallback((html: string) => {
+    lastEmittedHtmlRef.current = html;
+    onChange(html);
+  }, [onChange]);
+
   const app = useMemo(
     () =>
       defineExtension({
@@ -363,15 +380,16 @@ const LexicalPostEditor = ({
             <ToolbarContext>
               <div className="editor-shell">
                 <Editor
-                  key={postId ?? 'lexical-new'}
+                  key={`${postId ?? 'lexical-new'}-${editorVersion}`}
                   collaborationConfig={collaborationConfig ?? undefined}
                   accessLevel={accessLevel}
                   initialHtml={initialHtmlRef.current ?? ''}
-                  onChangeHtml={onChange}
+                  onChangeHtml={handleChange}
                   placeholder={placeholder}
+                  commentEditor={commentEditor}
                 />
               </div>
-              <Settings />
+              {!commentEditor && <Settings />}
               {/* {isDevPlayground ? <DocsPlugin /> : null}
               {isDevPlayground ? <PasteLogPlugin /> : null}
               {isDevPlayground ? <TestRecorderPlugin /> : null}
