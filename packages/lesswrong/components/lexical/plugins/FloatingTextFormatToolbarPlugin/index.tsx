@@ -170,7 +170,7 @@ const styles = defineStyles('LexicalFloatingTextFormatToolbar', (theme: ThemeTyp
     margin: '0 4px',
   },
   insertComment: {
-    
+    marginTop: 2,
   },
   insertCommentText: {
     color: theme.palette.grey[600],
