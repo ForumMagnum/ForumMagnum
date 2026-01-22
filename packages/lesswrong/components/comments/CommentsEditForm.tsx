@@ -7,6 +7,7 @@ import Loading from "../vulcan-core/Loading";
 
 const CommentsEditForm = ({
   comment,
+  submitCallback,
   successCallback,
   cancelCallback,
   prefilledProps,
@@ -14,6 +15,7 @@ const CommentsEditForm = ({
   className,
 }: {
   comment: CommentsList | CommentsListWithParentMetadata,
+  submitCallback?: any,
   successCallback?: any,
   cancelCallback?: any,
   prefilledProps?: AnyBecauseTodo
@@ -36,6 +38,7 @@ const CommentsEditForm = ({
       <CommentForm
         initialData={editableComment}
         prefilledProps={prefilledProps}
+        onSubmit={submitCallback}
         onSuccess={successCallback}
         onCancel={cancelCallback}
         submitLabel={comment.draft ? "Publish" : "Save"}

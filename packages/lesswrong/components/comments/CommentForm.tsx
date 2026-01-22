@@ -4,7 +4,7 @@ import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
@@ -321,12 +321,12 @@ export const CommentForm = ({
       draft: false,
     },
     onSubmit: async ({ formApi, meta }) => {
-      await onSubmitCallback.current?.();
-      onSubmit?.();
-
-      const { draft } = meta;
-
       try {
+        await onSubmitCallback.current?.();
+        onSubmit?.();
+
+        const { draft } = meta;
+
         let result: CommentsList;
 
         if (formType === 'new') {
@@ -356,6 +356,15 @@ export const CommentForm = ({
       }
     },
   });
+
+  useEffect(() => {
+    if (prefilledProps?.forumEventMetadata) {
+      form.setFieldValue(
+        "forumEventMetadata",
+        prefilledProps.forumEventMetadata
+      );
+    }
+  }, [form, prefilledProps?.forumEventMetadata]);
 
   const formRef = useFormSubmitOnCmdEnter(() => form.handleSubmit());
 

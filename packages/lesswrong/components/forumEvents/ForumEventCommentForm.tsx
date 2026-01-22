@@ -114,6 +114,7 @@ const ForumEventCommentForm = ({
   cancelCallback,
   successCallback,
   setEmoji,
+  currentEmoji,
   anchorEl,
   title,
   subtitle,
@@ -131,6 +132,7 @@ const ForumEventCommentForm = ({
   cancelCallback: () => Promise<void> | void;
   successCallback: () => Promise<void> | void;
   setEmoji?: (emoji: string) => void;
+  currentEmoji?: string | null,
   title: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   subtitle: ((post: PostsMinimumInfo, comment: ShortformComments | null) => React.ReactNode) | React.ReactNode;
   successMessage?: string;
@@ -145,7 +147,15 @@ const ForumEventCommentForm = ({
   const { flash } = useMessages();
   const updatePopperRef = useRef<(() => Promise<Partial<State>>) | undefined>(undefined);
 
-  const onSubmit = useCallback(async () => {
+  const onSubmit = useCallback(() => {
+    if (hasEmoji && !currentEmoji) {
+      const message = "Please select an emoji";
+      flash(message);
+      throw new Error(message);
+    }
+  }, [flash, hasEmoji, currentEmoji]);
+
+  const onSuccess = useCallback(async () => {
     await successCallback();
     flash(successMessage)
   }, [successCallback, flash, successMessage])
@@ -202,9 +212,10 @@ const ForumEventCommentForm = ({
                 post={post}
                 enableGuidelines={false}
                 hideControls
+                submitCallback={onSubmit}
                 cancelCallback={() => cancelCallback()}
                 cancelLabel={cancelLabel}
-                successCallback={onSubmit}
+                successCallback={onSuccess}
                 prefilledProps={prefilledProps}
                 className={classes.commentForm}
               />
