@@ -204,6 +204,12 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       top: 8,
       left: 24,
     },
+    '& .footnote-content': {
+      flex: 1,
+      '& p': {
+        margin: 0,
+      },
+    },
     // Suggested edits styling overrides.
     '& .PlaygroundEditorTheme__mark[data-suggestion-id]': {
       backgroundColor: 'transparent',

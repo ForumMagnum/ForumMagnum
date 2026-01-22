@@ -354,6 +354,7 @@ function TextFormatFloatingToolbar({
 
   const boldButton = (
     <button
+      key="bold"
       type="button"
       onClick={() => {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
@@ -367,6 +368,7 @@ function TextFormatFloatingToolbar({
 
   const italicButton = (
     <button
+      key="italic"
       type="button"
       onClick={() => {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
@@ -380,6 +382,7 @@ function TextFormatFloatingToolbar({
 
   const strikethroughButton = (
     <button
+      key="strikethrough"
       type="button"
       onClick={() => {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
@@ -393,6 +396,7 @@ function TextFormatFloatingToolbar({
 
   const linkButton = (
     <button
+      key="link"
       type="button"
       onClick={insertLink}
       className={classNames(classes.popupItem, classes.spaced, { [classes.active]: isLink })}
@@ -404,6 +408,7 @@ function TextFormatFloatingToolbar({
 
   const quoteButton = (
     <button
+      key="quote"
       type="button"
       onClick={() => {
         formatQuote(editor, blockType);
@@ -417,6 +422,7 @@ function TextFormatFloatingToolbar({
 
   const bulletListButton = (
     <button
+      key="bullet"
       type="button"
       onClick={() => {
         formatBulletList(editor, blockType);
@@ -430,6 +436,7 @@ function TextFormatFloatingToolbar({
 
   const numberedListButton = (
     <button
+      key="numbered"
       type="button"
       onClick={() => {
         formatNumberedList(editor, blockType);
@@ -443,6 +450,7 @@ function TextFormatFloatingToolbar({
 
   const codeButton = (
     <button
+      key="code"
       type="button"
       onClick={() => {
         formatCode(editor, blockType);
@@ -456,6 +464,7 @@ function TextFormatFloatingToolbar({
 
   const mathButton = (
     <button
+      key="math"
       type="button"
       onClick={() => {
         editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: true });
@@ -469,6 +478,7 @@ function TextFormatFloatingToolbar({
 
   const footnoteButton = (
     <button
+      key="footnote"
       type="button"
       onClick={() => {
         editor.dispatchCommand(INSERT_FOOTNOTE_COMMAND, {});
@@ -482,6 +492,7 @@ function TextFormatFloatingToolbar({
 
   const commentButton = (
     <button
+      key="comment"
       type="button"
       onClick={insertComment}
       className={classNames(classes.popupItem, classes.spaced, classes.insertComment)}
@@ -495,6 +506,7 @@ function TextFormatFloatingToolbar({
 
   const headingSelect = (
     <select
+      key="heading"
       value={headingValue}
       onChange={handleHeadingChange}
       className={classNames(classes.selectPopupItem, classes.spaced)}
@@ -508,6 +520,7 @@ function TextFormatFloatingToolbar({
 
   const collapsibleSectionButton = (
     <button
+      key="collapsible"
       type="button"
       onClick={() => {
         editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined);

@@ -87,7 +87,6 @@ const theme: EditorThemeClasses = {
   },
   mark: 'PlaygroundEditorTheme__mark',
   markOverlap: 'PlaygroundEditorTheme__markOverlap',
-  paragraph: 'PlaygroundEditorTheme__paragraph',
   quote: 'PlaygroundEditorTheme__quote',
   specialText: 'PlaygroundEditorTheme__specialText',
   tab: 'PlaygroundEditorTheme__tabNode',
