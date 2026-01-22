@@ -354,7 +354,7 @@ export default function Editor({
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isCommentEditor = commentEditor;
   const hasInitialHtml = Boolean(initialHtml && initialHtml.trim().length > 0);
-  const shouldBootstrap = isCollab && hasInitialHtml;
+  const shouldBootstrap = isCollab && hasInitialHtml && !collaborationConfig;
   const isEditable = useLexicalEditable();
   const placeholder = placeholderOverride ?? (isCollab
     ? 'Enter some collaborative rich text...'
@@ -392,8 +392,10 @@ export default function Editor({
     };
   }, [isSmallWidthViewport]);
 
-  // Load initial HTML exactly once. When collaboration is enabled, load it only
-  // if we intend to bootstrap the shared doc from existing content.
+  // Load initial HTML exactly once. When collaboration uses a shared provider,
+  // skip local bootstrapping to avoid duplicating content on reconnect.
+  // TODO: this means we currently don't bootstrap collaborative documents
+  // from existing content, and need to build a safe mechanism to do that.
   useEffect(() => {
     if (!hasInitialHtml) return;
     if (isCollab && !shouldBootstrap) return;
