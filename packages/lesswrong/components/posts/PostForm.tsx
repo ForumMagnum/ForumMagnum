@@ -14,6 +14,7 @@ import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useState } from "react";
+import { useApolloClient } from "@apollo/client";
 import { useCurrentUser } from "../common/withUser";
 import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
 import { EditTitle } from "../editor/EditTitle";
@@ -113,6 +114,7 @@ const PostForm = ({
 }) => {
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
+  const apolloClient = useApolloClient();
   const [editorType, setEditorType] = useState<string>();
 
   // TODO: maybe this is just an edit form?
@@ -177,6 +179,11 @@ const PostForm = ({
           });
           result = data?.updatePost.data;
         }
+
+        // Invalidate ForumEvents cache so polls show updated endDate
+        apolloClient.cache.evict({ fieldName: 'forumEvent' });
+        apolloClient.cache.evict({ fieldName: 'forumEvents' });
+        apolloClient.cache.gc();
 
         onSuccessCallback.current?.(result, meta);
         onSuccessCallbackCustomHighlight.current?.(result, meta);

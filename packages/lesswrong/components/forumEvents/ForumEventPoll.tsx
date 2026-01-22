@@ -33,6 +33,65 @@ const DEFAULT_STACK_IMAGES = 20;
 const NUM_TICKS = 21;
 const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
 
+/**
+ * Examples: "3 days", "1 day, 12 hours" (because <2 days), "3 hours", "1 hour, 12 mins"
+ */
+function formatRemainingTime(remainingMs: number): string {
+  if (remainingMs <= 0) return "closed";
+
+  const days = Math.floor(remainingMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((remainingMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
+
+  if (days >= 2) return `${days} days`;
+  if (days >= 1) return `${days} day, ${hours} hour${hours !== 1 ? 's' : ''}`;
+  if (hours >= 2) return `${hours} hours`;
+  if (hours >= 1) return `${hours} hour, ${minutes} min${minutes !== 1 ? 's' : ''}`;
+  if (minutes >= 2) return `${minutes} mins`;
+  if (minutes >= 1) return `${minutes} min, ${seconds}s`;
+  return `${seconds}s`;
+}
+
+function PollSubtitle({
+  endDate,
+  voteCount,
+  hasVoted,
+  onViewResults,
+  buttonClassName,
+}: {
+  endDate: Date | string | null;
+  voteCount: number;
+  hasVoted: boolean;
+  onViewResults: () => void;
+  buttonClassName?: string;
+}) {
+  const end = useMemo(() => endDate ? new Date(endDate).getTime() : null, [endDate]);
+  const [remainingMs, setRemainingMs] = useState(() => end ? end - Date.now() : Infinity);
+
+  useEffect(() => {
+    if (!end) return;
+    // Examples: 2 mins left, will count down in 1s increments. 2 hours left, will count down in 1 min increments
+    const interval = Math.max(1000, Math.floor((end - Date.now()) / 120));
+    const timer = setInterval(() => setRemainingMs(end - Date.now()), interval);
+    return () => clearInterval(timer);
+  }, [end]);
+
+  const votingOpen = !end || remainingMs > 0;
+
+  return <>
+    {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"}${votingOpen ? " so far" : ""}. `}
+    {end && (remainingMs > 0
+      ? <>Voting closes in {formatRemainingTime(remainingMs)}. </>
+      : <>Voting has closed. </>
+    )}
+    {votingOpen && (hasVoted ? "Change" : "Place") + " your vote or "}
+    <button className={buttonClassName} onClick={onViewResults}>
+      {votingOpen ? "view results." : "View results."}
+    </button>
+  </>;
+}
+
 const styles = (theme: ThemeType) => ({
   root: {
     textAlign: 'center',
@@ -806,17 +865,13 @@ export const ForumEventPoll = ({
           <DeferRender ssr={false}>
             {!hideViewResults && (
               <div className={classes.votePrompt}>
-                {!resultsVisible ? <>
-                  {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"}${votingOpen ? " so far" : ""}. `}
-                  {votingOpen ? (
-                    hasVoted ? "Click and drag your avatar to change your vote, or " : "Place your vote or "
-                  ) : (
-                    "Voting has now closed, "
-                  )}
-                  <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
-                    view results.
-                  </button>
-                </> : <button
+                {!resultsVisible ? <PollSubtitle
+                  endDate={event?.endDate ?? null}
+                  voteCount={voteCount}
+                  hasVoted={hasVoted}
+                  onViewResults={() => setResultsVisible(true)}
+                  buttonClassName={classes.viewResultsButton}
+                /> : <button
                   className={classNames(classes.viewResultsButton, classes.hideResultsButton)}
                   onClick={() => setResultsVisible(false)}
                 >
