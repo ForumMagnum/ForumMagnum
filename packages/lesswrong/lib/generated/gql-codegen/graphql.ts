@@ -6199,6 +6199,7 @@ export type PostSelector = {
   reviewQuickPage?: InputMaybe<PostsReviewQuickPageInput>;
   reviewRecentDiscussionThreadsList2018?: InputMaybe<PostsReviewRecentDiscussionThreadsList2018Input>;
   reviewRecentDiscussionThreadsList2019?: InputMaybe<PostsReviewRecentDiscussionThreadsList2019Input>;
+  reviewTopNominations?: InputMaybe<PostsReviewTopNominationsInput>;
   reviewVoting?: InputMaybe<PostsReviewVotingInput>;
   reviews2018?: InputMaybe<PostsReviews2018Input>;
   reviews2019?: InputMaybe<PostsReviews2019Input>;
@@ -7187,6 +7188,10 @@ export type PostsReviewRecentDiscussionThreadsList2019Input = {
   view?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type PostsReviewTopNominationsInput = {
+  reviewYear?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type PostsReviewVotingInput = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   after?: InputMaybe<Scalars['String']['input']>;
@@ -7750,6 +7755,7 @@ export type Query = {
   RecombeeHybridPosts: Maybe<RecombeeHybridPostsResult>;
   RecombeeLatestPosts: Maybe<RecombeeLatestPostsResult>;
   Recommendations: Maybe<Array<Post>>;
+  ReviewTopPostsWithReviews: ReviewTopPostsWithReviewsResult;
   RevisionsDiff: Maybe<Scalars['String']['output']>;
   RssPostChanges: RssPostChangeInfo;
   SearchSynonyms: Array<Scalars['String']['output']>;
@@ -8122,6 +8128,12 @@ export type QueryRecombeeLatestPostsArgs = {
 export type QueryRecommendationsArgs = {
   algorithm?: InputMaybe<Scalars['JSON']['input']>;
   count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryReviewTopPostsWithReviewsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  reviewYear: Scalars['Int']['input'];
 };
 
 
@@ -9501,6 +9513,12 @@ export type ReportSelector = {
 
 export type ReportsAdminClaimedReportsInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ReviewTopPostsWithReviewsResult = {
+  __typename?: 'ReviewTopPostsWithReviewsResult';
+  posts: Array<Post>;
+  reviews: Array<Comment>;
 };
 
 export type ReviewVote = {
@@ -13152,6 +13170,14 @@ export type multiModeratorCommentsQueryQuery = { __typename?: 'Query', comments:
       { __typename?: 'Comment' }
       & ShortformComments
     )> } | null };
+
+export type ReviewTopPostsWithReviewsQueryQueryVariables = Exact<{
+  reviewYear: Scalars['Int']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type ReviewTopPostsWithReviewsQueryQuery = { __typename?: 'Query', ReviewTopPostsWithReviews: { __typename?: 'ReviewTopPostsWithReviewsResult', posts: Array<{ __typename?: 'Post', _id: string, slug: string, title: string, user: { __typename?: 'User', _id: string, displayName: string, slug: string } | null }>, reviews: Array<{ __typename?: 'Comment', _id: string, postId: string | null, baseScore: number | null, user: { __typename?: 'User', _id: string, displayName: string, slug: string } | null }> } };
 
 export type SequenceMetadataQueryVariables = Exact<{
   sequenceId?: InputMaybe<Scalars['String']['input']>;
@@ -22574,6 +22600,7 @@ export const RemoveForumEventVoteDocument = {"kind":"Document","definitions":[{"
 export const RemoveGivingSeasonHeartDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveGivingSeasonHeart"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"electionName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"RemoveGivingSeasonHeart"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"electionName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"electionName"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"x"}},{"kind":"Field","name":{"kind":"Name","value":"y"}},{"kind":"Field","name":{"kind":"Name","value":"theta"}}]}}]}}]} as unknown as DocumentNode<RemoveGivingSeasonHeartMutation, RemoveGivingSeasonHeartMutationVariables>;
 export const RerunLlmCheckHookDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RerunLlmCheckHook"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"collectionName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ContentCollectionName"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rerunLlmCheck"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}},{"kind":"Argument","name":{"kind":"Name","value":"collectionName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"collectionName"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"AutomatedContentEvaluationsFragment"}}]}}]}},AutomatedContentEvaluationsFragmentFragmentDef]} as unknown as DocumentNode<RerunLlmCheckHookMutation, RerunLlmCheckHookMutationVariables>;
 export const ReviewPredictionPostsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ReviewPredictionPosts"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"year"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"reviewPredictionPosts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"year"},"value":{"kind":"Variable","name":{"kind":"Name","value":"year"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}},{"kind":"Field","name":{"kind":"Name","value":"annualReviewMarketProbability"}},{"kind":"Field","name":{"kind":"Name","value":"annualReviewMarketUrl"}}]}}]}},PostsListWithVotesFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostPodcastEpisodeFragmentDef]} as unknown as DocumentNode<ReviewPredictionPostsQuery, ReviewPredictionPostsQueryVariables>;
+export const ReviewTopPostsWithReviewsQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ReviewTopPostsWithReviewsQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"reviewYear"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ReviewTopPostsWithReviews"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"reviewYear"},"value":{"kind":"Variable","name":{"kind":"Name","value":"reviewYear"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"posts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"postId"}},{"kind":"Field","name":{"kind":"Name","value":"baseScore"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}}]}}]}}]}}]}}]} as unknown as DocumentNode<ReviewTopPostsWithReviewsQueryQuery, ReviewTopPostsWithReviewsQueryQueryVariables>;
 export const ReviewVotingExpandedPostDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ReviewVotingExpandedPost"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsList"}}]}}]}}]}},PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef]} as unknown as DocumentNode<ReviewVotingExpandedPostQuery, ReviewVotingExpandedPostQueryVariables>;
 export const ReviewWinnerAllDoc = {"kind":"Document","definitions":[ReviewWinnerAllFragmentDef,ReviewWinnerArtImagesFragmentDef,SplashArtCoordinatesEditFragmentDef,SplashArtCoordinatesFragmentDef]} as unknown as DocumentNode<ReviewWinnerAll, unknown>;
 export const ReviewWinnerAnnouncementDoc = {"kind":"Document","definitions":[ReviewWinnerAnnouncementFragmentDef]} as unknown as DocumentNode<ReviewWinnerAnnouncement, unknown>;
