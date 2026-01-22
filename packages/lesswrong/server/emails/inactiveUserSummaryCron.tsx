@@ -32,7 +32,7 @@ const sendInactiveUserSummaryEmail = async (
   {fetchActivitySince, ...user}: DbUser & {fetchActivitySince: Date},
   dryRun = false,
 ) => {
-  if (!hasInactiveSummaryEmail || !user.email) {
+  if ((!hasInactiveSummaryEmail && !dryRun) || !user.email) {
     return;
   }
 
@@ -147,7 +147,7 @@ export const sendInactiveUserSummaryEmails = async (
   limit = 250,
   dryRun = false,
 ) => {
-  if (!hasInactiveSummaryEmail) {
+  if (!hasInactiveSummaryEmail && !dryRun) {
     return {skipReason: "inactiveSummaryEmailDisabled", limit, dryRun};
   }
 
