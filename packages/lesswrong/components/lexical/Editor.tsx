@@ -255,7 +255,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     borderTopRightRadius: 10,
   },
   editorScroller: {
-    minHeight: 150,
+    minHeight: 'var(--lexical-editor-min-height, 150px)',
     maxWidth: '100%',
     border: 0,
     display: 'flex',
@@ -273,7 +273,8 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     maxWidth: '100%',
     position: 'relative',
     resize: 'vertical',
-    zIndex: -1,
+    minHeight: '100%',
+    zIndex: 0,
   },
 }));
 
@@ -433,7 +434,7 @@ export default function Editor({
         className={classNames(
           classes.editorContainer,
           isCommentEditor && classes.editorContainerComment,
-          showTreeView && classes.treeView,
+          // showTreeView && classes.treeView,
           !isRichText && classes.plainText
         )}>
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}

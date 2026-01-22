@@ -21,6 +21,7 @@ const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
     position: 'relative',
     outline: 0,
     minHeight: 150,
+    height: '100%',
     '@media (max-width: 1025px)': {
       paddingLeft: 8,
       paddingRight: 8,

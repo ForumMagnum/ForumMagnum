@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useMemo } from 'react';
 import { LexicalCollaboration } from '@lexical/react/LexicalCollaborationContext';
 import { defineExtension } from 'lexical';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { useClientId } from '../hooks/useClientId';
 import type { CollaborationConfig } from '../lexical/collaboration';
@@ -25,6 +26,9 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: '1.1rem',
     lineHeight: 1.7,
+  },
+  editorShell: {
+    '--lexical-editor-min-height': '400px',
   },
   editorInner: {
     position: 'relative',
@@ -378,7 +382,7 @@ const LexicalPostEditor = ({
         <SharedHistoryContext>
           <TableContext>
             <ToolbarContext>
-              <div className="editor-shell">
+              <div className={classNames(!commentEditor && classes.editorShell)}>
                 <Editor
                   key={`${postId ?? 'lexical-new'}-${editorVersion}`}
                   collaborationConfig={collaborationConfig ?? undefined}
@@ -389,7 +393,7 @@ const LexicalPostEditor = ({
                   commentEditor={commentEditor}
                 />
               </div>
-              {!commentEditor && <Settings />}
+              {/* {!commentEditor && <Settings />} */}
               {/* {isDevPlayground ? <DocsPlugin /> : null}
               {isDevPlayground ? <PasteLogPlugin /> : null}
               {isDevPlayground ? <TestRecorderPlugin /> : null}
