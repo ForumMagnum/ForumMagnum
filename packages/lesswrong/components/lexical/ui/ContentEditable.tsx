@@ -22,6 +22,9 @@ const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
     outline: 0,
     minHeight: 150,
     height: '100%',
+    '& hr': {
+      height: 'auto',
+    },
   },
   rootComment: {
     fontSize: 14,

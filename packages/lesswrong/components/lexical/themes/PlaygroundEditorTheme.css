@@ -617,7 +617,6 @@
   content: '';
   display: block;
   height: 2px;
-  background-color: #ccc;
   line-height: 2px;
 }
 .PlaygroundEditorTheme__hr.PlaygroundEditorTheme__hrSelected {
