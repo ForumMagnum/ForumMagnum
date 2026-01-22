@@ -7,6 +7,7 @@ import {
   $getSelection,
   $isRangeSelection,
   $isNodeSelection,
+  $isTextNode,
   $createParagraphNode,
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_LOW,
@@ -115,6 +116,21 @@ function insertFootnoteReferenceAtSelection(
       footnoteItem.append(footnoteBackLink);
       footnoteItem.append(footnoteContent);
       section.append(footnoteItem);
+    }
+
+    if (!selection.isCollapsed()) {
+      const endPoint = selection.isBackward()
+        ? selection.anchor
+        : selection.focus;
+      const endNode = endPoint.getNode();
+      if ($isTextNode(endNode)) {
+        selection.setTextNodeRange(
+          endNode,
+          endPoint.offset,
+          endNode,
+          endPoint.offset,
+        );
+      }
     }
 
     // Insert the reference at the current cursor position
