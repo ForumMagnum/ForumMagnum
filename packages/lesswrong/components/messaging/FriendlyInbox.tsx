@@ -47,6 +47,7 @@ const ConversationsListWithReadStatusQuery = gql(`
 `);
 
 const MAX_WIDTH = 1100;
+const CONVERSATION_INNER_MAX_WIDTH = 640;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -135,15 +136,22 @@ const styles = (theme: ThemeType) => ({
     flex: "1 1 auto",
     display: "flex",
     flexDirection: "column",
+    alignItems: "center",
     [theme.breakpoints.down('xs')]: {
       padding: "0px 24px",
     },
   },
+  conversationInner: {
+    maxWidth: CONVERSATION_INNER_MAX_WIDTH,
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    flex: "1 1 auto",
+  },
   columnHeader: {
-    borderBottom: theme.palette.border.grey200,
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
     fontSize: "1.4rem",
@@ -151,8 +159,17 @@ const styles = (theme: ThemeType) => ({
     // IMO with the icons we have it looks more centered with 11px padding on the bottom
     padding: "12px 12px 11px 16px",
   },
+  headerContentWrapper: {
+    maxWidth: CONVERSATION_INNER_MAX_WIDTH,
+    width: "100%",
+  },
   headerText: {
     overflow: "hidden",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[1000],
+    fontSize: "1.4rem",
+    fontWeight: 600,
+    marginTop: 20,
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 1,
@@ -238,6 +255,14 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
     color: theme.palette.grey[500],
   },
+  headerActions: {
+    position: "absolute",
+    right: 12,
+    display: "flex",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    top: 74,
+  }
 });
 
 const FriendlyInbox = ({
@@ -441,29 +466,35 @@ const FriendlyInbox = ({
         >
           {!!selectedConversation && (
             <>
-              <div className={classes.columnHeader}>
-                <div className={classes.headerText}>{title}</div>
+              <div className={classes.headerActions}>
                 {isAdmin && (
-                  <SectionFooterCheckbox
-                    label={<ForumIcon className={classes.sendEmailCheckboxIcon} icon="Envelope" />}
-                    value={sendEmail}
-                    onClick={() => setSendEmail(!sendEmail)}
-                    tooltip="Send email notifications for new messages"
-                  />
-                )}
-                <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
+                    <SectionFooterCheckbox
+                      label={<ForumIcon className={classes.sendEmailCheckboxIcon} icon="Envelope" />}
+                      value={sendEmail}
+                      onClick={() => setSendEmail(!sendEmail)}
+                      tooltip="Send email notifications for new messages"
+                    />
+                  )}
+                  <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
               </div>
               <div className={classes.conversation} ref={selectedConversationRef}>
-                <Link to="/inbox" className={classes.backButton}>
-                  Go back to Inbox
-                </Link>
-                <ConversationDetails conversation={selectedConversation} hideOptions />
-                <ConversationContents
-                  currentUserId={currentUserId}
-                  conversation={selectedConversation}
-                  scrollRef={selectedConversationRef}
-                  sendEmail={sendEmail}
-                />
+                <div className={classes.headerContentWrapper}>
+                  <Link to="/inbox" className={classes.backButton}>
+                    Go back to Inbox
+                  </Link>
+                  <div className={classes.headerText}>
+                    {title}
+                  </div>
+                  <ConversationDetails conversation={selectedConversation} hideOptions />
+                </div>
+                <div className={classes.conversationInner}>
+                  <ConversationContents
+                    currentUserId={currentUserId}
+                    conversation={selectedConversation}
+                    scrollRef={selectedConversationRef}
+                    sendEmail={sendEmail}
+                  />
+                </div>
               </div>
             </>
           )}
@@ -488,5 +519,3 @@ const FriendlyInbox = ({
 };
 
 export default registerComponent("FriendlyInbox", FriendlyInbox, { styles });
-
-
