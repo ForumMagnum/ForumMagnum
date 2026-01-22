@@ -185,7 +185,7 @@ function deleteEmptyFootnoteOnBackspace(
   if ($isFootnoteEmpty(footnoteItem)) {
     event?.preventDefault();
     editor.update(() => {
-      $removeFootnote(footnoteItem!);
+      $removeFootnote(footnoteItem);
     });
     return true;
   }

@@ -1446,19 +1446,6 @@ export default function ToolbarPlugin({
               <DropDownItemShortcut>{SHORTCUTS.SUPERSCRIPT}</DropDownItemShortcut>
             </DropDownItem>
             <DropDownItem
-              onClick={(e) =>
-                dispatchFormatTextCommand('highlight', isKeyboardInput(e))
-              }
-              wide
-              active={toolbarState.isHighlight}
-              title="Highlight"
-              aria-label="Format text with a highlight">
-              <DropDownItemIconTextContainer>
-                <HighlighterIcon className={classes.dropdownIcon} />
-                <DropDownItemText>Highlight</DropDownItemText>
-              </DropDownItemIconTextContainer>
-            </DropDownItem>
-            <DropDownItem
               onClick={(e) => clearFormatting(activeEditor, isKeyboardInput(e))}
               wide
               title="Clear text formatting"

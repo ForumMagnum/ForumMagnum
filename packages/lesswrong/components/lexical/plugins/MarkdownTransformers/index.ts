@@ -425,6 +425,8 @@ const mapToTableCells = (textContent: string): Array<TableCellNode> | null => {
   return match[1].split('|').map((text) => $createTableCell(text));
 };
 
+const TEXT_FORMAT_TRANSFORMERS_WITHOUT_HIGHLIGHT = TEXT_FORMAT_TRANSFORMERS.filter((transformer) => !transformer.format.includes('highlight'));
+
 export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
   TABLE,
   HR,
@@ -436,6 +438,6 @@ export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
   CHECK_LIST,
   ...ELEMENT_TRANSFORMERS,
   ...MULTILINE_ELEMENT_TRANSFORMERS,
-  ...TEXT_FORMAT_TRANSFORMERS,
+  ...TEXT_FORMAT_TRANSFORMERS_WITHOUT_HIGHLIGHT,
   ...TEXT_MATCH_TRANSFORMERS,
 ];
