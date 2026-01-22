@@ -6,6 +6,7 @@ export const typeaheadPopover = (theme: ThemeType) => ({
   boxShadow: `0px 5px 10px ${theme.palette.greyAlpha(0.3)}`,
   borderRadius: 8,
   position: 'relative' as const,
+  zIndex: 1,
 });
 
 /**

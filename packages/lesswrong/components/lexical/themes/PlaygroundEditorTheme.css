@@ -45,9 +45,6 @@
 .PlaygroundEditorTheme__textBold {
   font-weight: bold;
 }
-.PlaygroundEditorTheme__paragraph mark {
-  background-color: unset;
-}
 .PlaygroundEditorTheme__textHighlight {
   background: rgba(255, 212, 0, 0.14);
   border-bottom: 2px solid rgba(255, 212, 0, 0.3);
@@ -572,9 +569,10 @@
   color: #dd4a68;
 }
 .PlaygroundEditorTheme__mark {
-  background: rgba(255, 212, 0, 0.14);
+  background: rgba(255, 212, 0, 0.3);
   border-bottom: 2px solid rgba(255, 212, 0, 0.3);
   padding-bottom: 2px;
+  color: inherit;
 }
 .PlaygroundEditorTheme__markOverlap {
   background: rgba(255, 212, 0, 0.3);

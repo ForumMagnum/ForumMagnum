@@ -212,8 +212,8 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   },
   showCommentsButton: {
     position: 'fixed',
-    top: 10,
-    right: 10,
+    top: 70,
+    right: 6,
     backgroundColor: theme.palette.grey[300],
     borderRadius: 10,
     '@media (max-width: 600px)': {
@@ -239,10 +239,9 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     right: 0,
     width: 300,
     height: 'calc(100% - 88px)',
-    top: 88,
-    backgroundColor: theme.palette.grey[0],
+    top: 118,
+    backgroundColor: theme.palette.grey[100],
     borderTopLeftRadius: 10,
-    boxShadow: `0 0 10px ${theme.palette.greyAlpha(0.1)}`,
     animation: '$showComments 0.2s ease',
     zIndex: 25,
   },

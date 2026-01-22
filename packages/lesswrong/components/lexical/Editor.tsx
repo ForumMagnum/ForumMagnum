@@ -276,6 +276,15 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     minHeight: '100%',
     zIndex: 0,
   },
+  cursorsContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    pointerEvents: 'none',
+    zIndex: 0,
+  },
 }));
 
 const COLLAB_DOC_ID = 'main';
@@ -368,6 +377,7 @@ export default function Editor({
   const [editor] = useLexicalComposerContext();
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
+  const cursorsContainerRef = useRef<HTMLDivElement>(null);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
@@ -474,6 +484,7 @@ export default function Editor({
                     id={COLLAB_DOC_ID}
                     shouldBootstrap={shouldBootstrap}
                     username={collaborationConfig.user.name}
+                    cursorsContainerRef={cursorsContainerRef}
                   />
                   <VersionsPlugin id={COLLAB_DOC_ID} />
                 </>
@@ -484,6 +495,7 @@ export default function Editor({
                   providerFactory={createWebsocketProvider}
                   shouldBootstrap={shouldBootstrap}
                   username={collaborationConfig.user.name}
+                  cursorsContainerRef={cursorsContainerRef}
                 />
               )
             ) : (
@@ -498,6 +510,10 @@ export default function Editor({
                   )}
                 >
                   <div className={classes.editor} ref={onRef}>
+                    <div
+                      ref={cursorsContainerRef}
+                      className={classes.cursorsContainer}
+                    />
                     <ContentEditable
                       placeholder={placeholder}
                       variant={isCommentEditor ? 'comment' : undefined}
@@ -633,10 +649,12 @@ function CollabV2({
   id,
   shouldBootstrap,
   username,
+  cursorsContainerRef,
 }: {
   id: string;
   shouldBootstrap: boolean;
   username?: string;
+  cursorsContainerRef: React.RefObject<HTMLDivElement | null>;
 }) {
   // VersionsPlugin needs GC disabled.
   const doc = useMemo(() => new Doc({gc: false}), []);
@@ -653,6 +671,7 @@ function CollabV2({
       provider={provider}
       __shouldBootstrapUnsafe={shouldBootstrap}
       username={username}
+      cursorsContainerRef={cursorsContainerRef}
     />
   );
 }
