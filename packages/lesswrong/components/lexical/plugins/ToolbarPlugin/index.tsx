@@ -18,8 +18,8 @@ import {
 import { INSERT_CODE_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 
 // Icon imports
-import { ArrowCounterclockwiseIcon } from '../../icons/ArrowCounterclockwiseIcon';
-import { ArrowClockwiseIcon } from '../../icons/ArrowClockwiseIcon';
+// import { ArrowCounterclockwiseIcon } from '../../icons/ArrowCounterclockwiseIcon';
+// import { ArrowClockwiseIcon } from '../../icons/ArrowClockwiseIcon';
 import { TextParagraphIcon } from '../../icons/TextParagraphIcon';
 import { TypeH1Icon } from '../../icons/TypeH1Icon';
 import { TypeH2Icon } from '../../icons/TypeH2Icon';
@@ -39,8 +39,8 @@ import { TypeBoldIcon } from '../../icons/TypeBoldIcon';
 import { TypeItalicIcon } from '../../icons/TypeItalicIcon';
 import { TypeUnderlineIcon } from '../../icons/TypeUnderlineIcon';
 import { LinkIcon } from '../../icons/LinkIcon';
-import { FontColorIcon } from '../../icons/FontColorIcon';
-import { BgColorIcon } from '../../icons/BgColorIcon';
+// import { FontColorIcon } from '../../icons/FontColorIcon';
+// import { BgColorIcon } from '../../icons/BgColorIcon';
 import { DropdownMoreIcon } from '../../icons/DropdownMoreIcon';
 import { TypeLowercaseIcon } from '../../icons/TypeLowercaseIcon';
 import { TypeUppercaseIcon } from '../../icons/TypeUppercaseIcon';
@@ -56,16 +56,16 @@ import { ScissorsIcon } from '../../icons/ScissorsIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
 import { TableIcon } from '../../icons/TableIcon';
 import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
-import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
-import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
-import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
+// import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
+// import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
+// import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
 import { CkMathIcon } from '../../icons/CkMathIcon';
 import { StickyIcon } from '../../icons/StickyIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CalendarIcon } from '../../icons/CalendarIcon';
 import { FontFamilyIcon } from '../../icons/FontFamilyIcon';
-import { PencilFillIcon } from '../../icons/PencilFillIcon';
+// import { PencilFillIcon } from '../../icons/PencilFillIcon';
 // import {
 //   getCodeLanguageOptions as getCodeLanguageOptionsShiki,
 //   getCodeThemeOptions as getCodeThemeOptionsShiki,
@@ -135,10 +135,10 @@ import DropDown, {
   DropDownItemShortcut,
   DropDownItemText,
 } from '../../ui/DropDown';
-import DropdownColorPicker from '../../ui/DropdownColorPicker';
+// import DropdownColorPicker from '../../ui/DropdownColorPicker';
 import {isKeyboardInput} from '../../utils/focusUtils';
 import {getSelectedNode} from '../../utils/getSelectedNode';
-import {sanitizeUrl} from '../../utils/url';
+// import {sanitizeUrl} from '../../utils/url';
 import {EmbedConfigs} from '../AutoEmbedPlugin';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
@@ -150,15 +150,15 @@ import {
   InsertImageDialog,
   InsertImagePayload,
 } from '../ImagesPlugin';
-import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
+// import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
-import {InsertPollDialog} from '../PollPlugin';
+// import {InsertPollDialog} from '../PollPlugin';
 import {SHORTCUTS} from '../ShortcutsPlugin/shortcuts';
-import FontSize, {parseFontSizeForToolbar} from './fontSize';
+// import FontSize, {parseFontSizeForToolbar} from './fontSize';
 import {
   clearFormatting,
   formatBulletList,
-  formatCheckList,
+  // formatCheckList,
   formatCode,
   formatHeading,
   formatNumberedList,
@@ -269,7 +269,6 @@ const styles = defineStyles('LexicalToolbarPlugin', (theme: ThemeType) => ({
   },
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const rootTypeToRootName = {
   root: 'Root',
   table: 'Table',
@@ -505,7 +504,7 @@ function BlockFormatDropDown({
         </DropDownItemIconTextContainer>
         <DropDownItemShortcut>{SHORTCUTS.BULLET_LIST}</DropDownItemShortcut>
       </DropDownItem>
-      <DropDownItem
+      {/* <DropDownItem
         wide
         active={blockType === 'check'}
         onClick={() => formatCheckList(editor, blockType)}>
@@ -514,7 +513,7 @@ function BlockFormatDropDown({
           <DropDownItemText>Check List</DropDownItemText>
         </DropDownItemIconTextContainer>
         <DropDownItemShortcut>{SHORTCUTS.CHECK_LIST}</DropDownItemShortcut>
-      </DropDownItem>
+      </DropDownItem> */}
       <DropDownItem
         wide
         active={blockType === 'quote'}
@@ -1544,7 +1543,7 @@ export default function ToolbarPlugin({
                   <TableIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Table</DropDownItemText>
                 </DropDownItem>
-                <DropDownItem
+                {/* <DropDownItem
                   onClick={() => {
                     showModal('Insert Poll', (onClose) => (
                       <InsertPollDialog
@@ -1556,8 +1555,8 @@ export default function ToolbarPlugin({
                   >
                   <CardChecklistIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Poll</DropDownItemText>
-                </DropDownItem>
-                <DropDownItem
+                </DropDownItem> */}
+                {/* <DropDownItem
                   onClick={() => {
                     showModal('Insert Columns Layout', (onClose) => (
                       <InsertLayoutDialog
@@ -1569,7 +1568,7 @@ export default function ToolbarPlugin({
                   >
                   <ThreeColumnsIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Columns Layout</DropDownItemText>
-                </DropDownItem>
+                </DropDownItem> */}
 
                 <DropDownItem
                   onClick={() => {

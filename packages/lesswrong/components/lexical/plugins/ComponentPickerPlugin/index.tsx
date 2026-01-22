@@ -10,7 +10,7 @@ import React, { type JSX } from 'react';
 
 import {$createCodeNode} from '@lexical/code';
 import {
-  INSERT_CHECK_LIST_COMMAND,
+  // INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
 } from '@lexical/list';
@@ -44,9 +44,9 @@ import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
 // import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin';
 import {INSERT_IMAGE_COMMAND, InsertImageDialog} from '../ImagesPlugin';
-import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
+// import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
 import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
-import {InsertPollDialog} from '../PollPlugin';
+// import {InsertPollDialog} from '../PollPlugin';
 
 import { TableIcon } from '../../icons/TableIcon';
 import { TextParagraphIcon } from '../../icons/TextParagraphIcon';
@@ -55,7 +55,7 @@ import { TypeH2Icon } from '../../icons/TypeH2Icon';
 import { TypeH3Icon } from '../../icons/TypeH3Icon';
 import { ListOlIcon } from '../../icons/ListOlIcon';
 import { ListUlIcon } from '../../icons/ListUlIcon';
-import { SquareCheckIcon } from '../../icons/SquareCheckIcon';
+// import { SquareCheckIcon } from '../../icons/SquareCheckIcon';
 import { ChatSquareQuoteIcon } from '../../icons/ChatSquareQuoteIcon';
 import { CodeIcon } from '../../icons/CodeIcon';
 import { HorizontalRuleIcon } from '../../icons/HorizontalRuleIcon';
@@ -65,7 +65,7 @@ import { CalendarIcon } from '../../icons/CalendarIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
-import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
+// import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import {
@@ -241,12 +241,12 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       onSelect: () =>
         editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
     }),
-    new ComponentPickerOption('Check List', {
-      icon: <SquareCheckIcon style={iconStyle} />,
-      keywords: ['check list', 'todo list'],
-      onSelect: () =>
-        editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
-    }),
+    // new ComponentPickerOption('Check List', {
+    //   icon: <SquareCheckIcon style={iconStyle} />,
+    //   keywords: ['check list', 'todo list'],
+    //   onSelect: () =>
+    //     editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
+    // }),
     new ComponentPickerOption('Quote', {
       icon: <ChatSquareQuoteIcon style={iconStyle} />,
       keywords: ['block quote'],
@@ -295,14 +295,14 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
     //   onSelect: () =>
     //     editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined),
     // }),
-    new ComponentPickerOption('Poll', {
-      icon: <CardChecklistIcon style={iconStyle} />,
-      keywords: ['poll', 'vote'],
-      onSelect: () =>
-        showModal('Insert Poll', (onClose) => (
-          <InsertPollDialog activeEditor={editor} onClose={onClose} />
-        )),
-    }),
+    // new ComponentPickerOption('Poll', {
+    //   icon: <CardChecklistIcon style={iconStyle} />,
+    //   keywords: ['poll', 'vote'],
+    //   onSelect: () =>
+    //     showModal('Insert Poll', (onClose) => (
+    //       <InsertPollDialog activeEditor={editor} onClose={onClose} />
+    //     )),
+    // }),
     ...EmbedConfigs.map(
       (embedConfig) =>
         new ComponentPickerOption(`Embed ${embedConfig.contentName}`, {
@@ -312,44 +312,44 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
             editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type),
         }),
     ),
-    new ComponentPickerOption('Date', {
-      icon: <CalendarIcon style={iconStyle} />,
-      keywords: ['date', 'calendar', 'time'],
-      onSelect: () => {
-        const dateTime = new Date();
-        dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-        editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-      },
-    }),
-    new ComponentPickerOption('Today', {
-      icon: <CalendarIcon style={iconStyle} />,
-      keywords: ['date', 'calendar', 'time', 'today'],
-      onSelect: () => {
-        const dateTime = new Date();
-        dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-        editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-      },
-    }),
-    new ComponentPickerOption('Tomorrow', {
-      icon: <CalendarIcon style={iconStyle} />,
-      keywords: ['date', 'calendar', 'time', 'tomorrow'],
-      onSelect: () => {
-        const dateTime = new Date();
-        dateTime.setDate(dateTime.getDate() + 1);
-        dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-        editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-      },
-    }),
-    new ComponentPickerOption('Yesterday', {
-      icon: <CalendarIcon style={iconStyle} />,
-      keywords: ['date', 'calendar', 'time', 'yesterday'],
-      onSelect: () => {
-        const dateTime = new Date();
-        dateTime.setDate(dateTime.getDate() - 1);
-        dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-        editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-      },
-    }),
+    // new ComponentPickerOption('Date', {
+    //   icon: <CalendarIcon style={iconStyle} />,
+    //   keywords: ['date', 'calendar', 'time'],
+    //   onSelect: () => {
+    //     const dateTime = new Date();
+    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
+    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
+    //   },
+    // }),
+    // new ComponentPickerOption('Today', {
+    //   icon: <CalendarIcon style={iconStyle} />,
+    //   keywords: ['date', 'calendar', 'time', 'today'],
+    //   onSelect: () => {
+    //     const dateTime = new Date();
+    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
+    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
+    //   },
+    // }),
+    // new ComponentPickerOption('Tomorrow', {
+    //   icon: <CalendarIcon style={iconStyle} />,
+    //   keywords: ['date', 'calendar', 'time', 'tomorrow'],
+    //   onSelect: () => {
+    //     const dateTime = new Date();
+    //     dateTime.setDate(dateTime.getDate() + 1);
+    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
+    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
+    //   },
+    // }),
+    // new ComponentPickerOption('Yesterday', {
+    //   icon: <CalendarIcon style={iconStyle} />,
+    //   keywords: ['date', 'calendar', 'time', 'yesterday'],
+    //   onSelect: () => {
+    //     const dateTime = new Date();
+    //     dateTime.setDate(dateTime.getDate() - 1);
+    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
+    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
+    //   },
+    // }),
     new ComponentPickerOption('Equation', {
       icon: <PlusSlashMinusIcon style={iconStyle} />,
       keywords: ['equation', 'latex', 'math'],
@@ -385,14 +385,14 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       onSelect: () =>
         editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined),
     }),
-    new ComponentPickerOption('Columns Layout', {
-      icon: <ThreeColumnsIcon style={iconStyle} />,
-      keywords: ['columns', 'layout', 'grid'],
-      onSelect: () =>
-        showModal('Insert Columns Layout', (onClose) => (
-          <InsertLayoutDialog activeEditor={editor} onClose={onClose} />
-        )),
-    }),
+    // new ComponentPickerOption('Columns Layout', {
+    //   icon: <ThreeColumnsIcon style={iconStyle} />,
+    //   keywords: ['columns', 'layout', 'grid'],
+    //   onSelect: () =>
+    //     showModal('Insert Columns Layout', (onClose) => (
+    //       <InsertLayoutDialog activeEditor={editor} onClose={onClose} />
+    //     )),
+    // }),
   ];
 }
 
