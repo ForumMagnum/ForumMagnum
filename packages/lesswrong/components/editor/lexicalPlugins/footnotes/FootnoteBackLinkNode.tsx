@@ -104,7 +104,7 @@ export class FootnoteBackLinkNode extends DecoratorNode<JSX.Element> {
   }
 
   isKeyboardSelectable(): boolean {
-    return true;
+    return false;
   }
 
   decorate(): JSX.Element {

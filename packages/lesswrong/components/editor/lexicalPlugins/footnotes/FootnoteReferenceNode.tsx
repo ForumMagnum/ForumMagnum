@@ -163,6 +163,14 @@ export class FootnoteReferenceNode extends TextNode {
   isTextEntity(): true {
     return true;
   }
+
+  canInsertTextBefore(): boolean {
+    return false;
+  }
+
+  canInsertTextAfter(): boolean {
+    return false;
+  }
 }
 
 function convertFootnoteReferenceElement(domNode: HTMLElement): DOMConversionOutput | null {
@@ -186,7 +194,9 @@ export function $createFootnoteReferenceNode(
   footnoteId: string,
   footnoteIndex: number
 ): FootnoteReferenceNode {
-  return $applyNodeReplacement(new FootnoteReferenceNode(footnoteId, footnoteIndex));
+  const node = new FootnoteReferenceNode(footnoteId, footnoteIndex);
+  node.setMode('token').toggleDirectionless();
+  return $applyNodeReplacement(node);
 }
 
 export function $isFootnoteReferenceNode(

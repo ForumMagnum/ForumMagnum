@@ -8,7 +8,9 @@ import {
   $isRangeSelection,
   $isNodeSelection,
   $isTextNode,
+  $isElementNode,
   $createParagraphNode,
+  $addUpdateTag,
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_LOW,
   COMMAND_PRIORITY_HIGH,
@@ -19,15 +21,17 @@ import {
   PASTE_COMMAND,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
+  SELECTION_CHANGE_COMMAND,
   EditorState,
+  HISTORY_MERGE_TAG,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 
 import { generateFootnoteId } from './constants';
-import { FootnoteReferenceNode, $createFootnoteReferenceNode } from './FootnoteReferenceNode';
+import { FootnoteReferenceNode, $createFootnoteReferenceNode, $isFootnoteReferenceNode } from './FootnoteReferenceNode';
 import { $createFootnoteSectionNode, $isFootnoteSectionNode } from './FootnoteSectionNode';
 import { FootnoteItemNode, $createFootnoteItemNode, $isFootnoteItemNode } from './FootnoteItemNode';
-import { $createFootnoteContentNode } from './FootnoteContentNode';
+import { $createFootnoteContentNode, $isFootnoteContentNode } from './FootnoteContentNode';
 import { $createFootnoteBackLinkNode } from './FootnoteBackLinkNode';
 
 import { $getFootnoteItems, $getNextFootnoteIndex, $getFootnoteSection, $reorderFootnotes, $getSelectedFootnoteItem, $removeFootnote, $isFootnoteEmpty, $getFootnoteReferences, $shouldCheckForFootnoteReorder } from './helpers';
@@ -36,6 +40,8 @@ import { insertGoogleDocsFootnotesOnPaste } from './googleDocsFootnoteNormalizer
 export const INSERT_FOOTNOTE_COMMAND: LexicalCommand<{ footnoteIndex?: number }> = createCommand(
   'INSERT_FOOTNOTE_COMMAND'
 );
+
+const HISTORY_MERGE = { tag: HISTORY_MERGE_TAG };
 
 function reorderFootnotesWhenReferenceOrderChanges(
   editor: LexicalEditor,
@@ -61,8 +67,9 @@ function reorderFootnotesWhenReferenceOrderChanges(
       return;
     }
     editor.update(() => {
+      $addUpdateTag(HISTORY_MERGE_TAG);
       $reorderFootnotes();
-    });
+    }, HISTORY_MERGE);
   });
 }
 
@@ -231,22 +238,94 @@ function deleteFootnoteItemOrSectionOnDelete(
   return false;
 }
 
-function reorderFootnotesAfterReferenceMutations(
-  editor: LexicalEditor,
-  mutations: Map<string, 'created' | 'destroyed' | 'updated'>
-): void {
-  let shouldReorder = false;
-  for (const mutation of mutations.values()) {
-    if (mutation === 'created' || mutation === 'destroyed') {
-      shouldReorder = true;
-      break;
+function preventBackLinkSelection(editor: LexicalEditor): boolean {
+  let didPrevent = false;
+  editor.update(() => {
+    const selection = $getSelection();
+    if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+      return;
     }
+    const anchorNode = selection.anchor.getNode();
+    if (!$isFootnoteItemNode(anchorNode)) {
+      return;
+    }
+    if (selection.anchor.offset > 1) {
+      return;
+    }
+    const footnoteContent = anchorNode
+      .getChildren()
+      .find((child) => $isFootnoteContentNode(child));
+    if (!footnoteContent) {
+      return;
+    }
+    const firstChild = footnoteContent.getFirstChild();
+    if (firstChild) {
+      firstChild.selectStart();
+    } else {
+      footnoteContent.selectStart();
+    }
+    didPrevent = true;
+  });
+  return didPrevent;
+}
+
+type FootnoteReferenceDirection = 'before' | 'after';
+
+function getFootnoteReferenceAdjacentToCursor(
+  selection: ReturnType<typeof $getSelection>,
+  direction: FootnoteReferenceDirection
+): FootnoteReferenceNode | null {
+  if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+    return null;
   }
-  if (shouldReorder) {
-    editor.update(() => {
-      $reorderFootnotes();
-    });
+  const anchorNode = selection.anchor.getNode();
+  if ($isFootnoteReferenceNode(anchorNode)) {
+    return anchorNode;
   }
+  if ($isTextNode(anchorNode)) {
+    if (direction === 'before' && selection.anchor.offset === 0) {
+      const previousSibling = anchorNode.getPreviousSibling();
+      return $isFootnoteReferenceNode(previousSibling) ? previousSibling : null;
+    }
+    if (
+      direction === 'after' &&
+      selection.anchor.offset === anchorNode.getTextContentSize()
+    ) {
+      const nextSibling = anchorNode.getNextSibling();
+      return $isFootnoteReferenceNode(nextSibling) ? nextSibling : null;
+    }
+    return null;
+  }
+  if ($isElementNode(anchorNode)) {
+    const index = direction === 'before'
+      ? selection.anchor.offset - 1
+      : selection.anchor.offset;
+    if (index < 0) {
+      return null;
+    }
+    const sibling = anchorNode.getChildAtIndex(index);
+    return $isFootnoteReferenceNode(sibling) ? sibling : null;
+  }
+  return null;
+}
+
+function deleteFootnoteReferenceAdjacentToCursor(
+  editor: LexicalEditor,
+  event: KeyboardEvent | null,
+  direction: FootnoteReferenceDirection
+): boolean {
+  let didDelete = false;
+  editor.update(() => {
+    const selection = $getSelection();
+    const reference = getFootnoteReferenceAdjacentToCursor(selection, direction);
+    if (!reference) {
+      return;
+    }
+    event?.preventDefault();
+    reference.remove();
+    didDelete = true;
+  });
+  return didDelete;
 }
 
 
@@ -256,7 +335,10 @@ export function FootnotesPlugin(): null {
 
   useEffect(() => {
     return mergeRegister(
-      editor.registerUpdateListener(({ editorState, dirtyElements, dirtyLeaves }) => {
+      editor.registerUpdateListener(({ editorState, dirtyElements, dirtyLeaves, tags }) => {
+        if (tags.has('collaboration')) {
+          return;
+        }
         reorderFootnotesWhenReferenceOrderChanges(
           editor,
           lastReferenceOrderRef,
@@ -280,19 +362,34 @@ export function FootnotesPlugin(): null {
       
       editor.registerCommand(
         KEY_BACKSPACE_COMMAND,
-        (event) => deleteEmptyFootnoteOnBackspace(editor, event),
-        COMMAND_PRIORITY_LOW
+        (event) => {
+          if (deleteFootnoteReferenceAdjacentToCursor(editor, event, 'before')) {
+            return true;
+          }
+          return deleteEmptyFootnoteOnBackspace(editor, event);
+        },
+        COMMAND_PRIORITY_HIGH
       ),
       
       editor.registerCommand(
         KEY_DELETE_COMMAND,
-        (event) => deleteFootnoteItemOrSectionOnDelete(editor, event),
+        (event) => {
+          if (deleteFootnoteReferenceAdjacentToCursor(editor, event, 'after')) {
+            return true;
+          }
+          return deleteFootnoteItemOrSectionOnDelete(editor, event);
+        },
+        COMMAND_PRIORITY_HIGH
+      ),
+      
+      editor.registerCommand(
+        SELECTION_CHANGE_COMMAND,
+        () => {
+          return preventBackLinkSelection(editor);
+        },
         COMMAND_PRIORITY_LOW
       ),
 
-      editor.registerMutationListener(FootnoteReferenceNode, (mutations) => {
-        reorderFootnotesAfterReferenceMutations(editor, mutations);
-      })
     );
   }, [editor]);
 

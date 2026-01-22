@@ -124,6 +124,10 @@ export class FootnoteItemNode extends ElementNode {
   canBeEmpty(): boolean {
     return false;
   }
+
+  canInsertTextBefore(): boolean {
+    return false;
+  }
 }
 
 function convertFootnoteItemElement(domNode: HTMLElement): DOMConversionOutput | null {
