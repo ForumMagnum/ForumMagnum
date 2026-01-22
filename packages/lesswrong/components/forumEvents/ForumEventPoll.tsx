@@ -71,6 +71,7 @@ function PollSubtitle({
 
   useEffect(() => {
     if (!end) return;
+    // Examples: 2 mins left, will count down in 1s increments. 2 hours left, will count down in 1 min increments
     const interval = Math.max(1000, Math.floor((end - Date.now()) / 120));
     const timer = setInterval(() => setRemainingMs(end - Date.now()), interval);
     return () => clearInterval(timer);
