@@ -26,9 +26,6 @@ const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
       paddingLeft: 8,
       paddingRight: 8,
     },
-    '& p': {
-      margin: '1em 0',
-    },
   },
   rootComment: {
     fontSize: 14,
