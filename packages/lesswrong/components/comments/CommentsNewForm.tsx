@@ -92,6 +92,8 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+type CommentSubmitCallback = () => void;
+
 export type CommentSuccessCallback = (
   comment: CommentsList,
 ) => void | Promise<void>;
@@ -119,6 +121,7 @@ export type CommentsNewFormProps = {
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
   parentComment?: CommentsList,
+  submitCallback?: CommentSubmitCallback,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   interactionType: CommentInteractionType,
@@ -145,6 +148,7 @@ const CommentsNewForm = ({
   tag,
   tagCommentType="DISCUSSION",
   parentComment,
+  submitCallback,
   successCallback,
   interactionType,
   cancelCallback,
@@ -375,6 +379,7 @@ const CommentsNewForm = ({
               onSuccess={wrappedSuccessCallback}
               onCancel={wrappedCancelCallback}
               onSubmit={() => {
+                submitCallback?.();
                 setLoading(true);
                 commentSubmitStartTimeRef.current = Date.now()
                 captureEvent("wrappedSubmitCallbackStarted")
