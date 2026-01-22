@@ -6,6 +6,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import EditCommentDropdownItem from "./EditCommentDropdownItem";
 import ReportCommentDropdownItem from "./ReportCommentDropdownItem";
 import DeleteCommentDropdownItem from "./DeleteCommentDropdownItem";
+import EditDeleteReasonDropdownItem from "./EditDeleteReasonDropdownItem";
 import RetractCommentDropdownItem from "./RetractCommentDropdownItem";
 import BanUserFromAllPostsDropdownItem from "./BanUserFromAllPostsDropdownItem";
 import DropdownDivider from "../DropdownDivider";
@@ -77,6 +78,7 @@ const CommentActions = ({comment, post, tag, showEdit}: {
       <MoveToAnswersDropdownItem comment={comment} post={postDetails} />
       <ShortformFrontpageDropdownItem comment={comment} />
       <DeleteCommentDropdownItem comment={comment} post={postDetails} tag={tag} />
+      <EditDeleteReasonDropdownItem comment={comment} post={postDetails} tag={tag} />
       <RetractCommentDropdownItem comment={comment} />
       <LockThreadDropdownItem comment={comment} />
       <BanUserFromPostDropdownItem comment={comment} post={postDetails} />
