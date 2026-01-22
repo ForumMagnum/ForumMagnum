@@ -627,7 +627,7 @@ function PlainTextEditor({
       <div className={classes.commentInputBoxEditorContainer}>
         <PlainTextPlugin
           contentEditable={
-            <ContentEditable placeholder={placeholder} className={className} />
+            <ContentEditable placeholder={placeholder} className={className} variant="comment" />
           }
           ErrorBoundary={LexicalErrorBoundary}
         />
