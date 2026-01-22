@@ -116,6 +116,7 @@ import {
   InternalIdMap,
 } from '../editor/lexicalPlugins/links/InternalBlockLinksPlugin';
 import { type CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   editorContainer: {
@@ -378,8 +379,7 @@ export default function Editor({
       : 'Enter some plain text...');
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
-  const [isSmallWidthViewport, setIsSmallWidthViewport] =
-    useState<boolean>(false);
+  const isSmallWidthViewport = !useIsAboveBreakpoint('md', true);
   const [editor] = useLexicalComposerContext();
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
@@ -390,23 +390,6 @@ export default function Editor({
       setFloatingAnchorElem(_floatingAnchorElem);
     }
   };
-
-  useEffect(() => {
-    const updateViewPortWidth = () => {
-      const isNextSmallWidthViewport =
-        CAN_USE_DOM && window.matchMedia('(max-width: 1025px)').matches;
-
-      if (isNextSmallWidthViewport !== isSmallWidthViewport) {
-        setIsSmallWidthViewport(isNextSmallWidthViewport);
-      }
-    };
-    updateViewPortWidth();
-    window.addEventListener('resize', updateViewPortWidth);
-
-    return () => {
-      window.removeEventListener('resize', updateViewPortWidth);
-    };
-  }, [isSmallWidthViewport]);
 
   // Load initial HTML exactly once. When collaboration uses a shared provider,
   // skip local bootstrapping to avoid duplicating content on reconnect.

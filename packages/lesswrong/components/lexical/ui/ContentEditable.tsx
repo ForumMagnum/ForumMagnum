@@ -22,10 +22,6 @@ const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
     outline: 0,
     minHeight: 150,
     height: '100%',
-    '@media (max-width: 1025px)': {
-      paddingLeft: 8,
-      paddingRight: 8,
-    },
   },
   rootComment: {
     fontSize: 14,
@@ -45,10 +41,6 @@ const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     display: 'inline-block',
     pointerEvents: 'none',
-    '@media (max-width: 1025px)': {
-      left: 8,
-      right: 8,
-    },
   },
   placeholderComment: {
     fontSize: 14,
