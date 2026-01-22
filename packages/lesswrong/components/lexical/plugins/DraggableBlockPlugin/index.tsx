@@ -24,13 +24,21 @@ const styles = defineStyles('LexicalDraggableBlockPlugin', (theme: ThemeType) =>
     cursor: 'grab',
     opacity: 0,
     position: 'absolute',
-    left: 0,
-    top: 0,
+    left: -42,
+    top: -2,
     willChange: 'transform, opacity',
     display: 'flex',
     alignItems: 'center',
     gap: 2,
     transition: 'transform 140ms ease-in-out, opacity 160ms ease-in-out',
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: -8,
+      bottom: -8,
+      right: -4,
+      width: 8,
+    },
     '&:active': {
       cursor: 'grabbing',
     },
@@ -86,7 +94,9 @@ export default function DraggableBlockPlugin({
     null,
   );
 
-  function insertBlock(e: React.MouseEvent) {
+  function insertBlock(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
     if (!draggableElement || !editor) {
       return;
     }
@@ -116,6 +126,7 @@ export default function DraggableBlockPlugin({
       menuComponent={
         <div ref={menuRef} className={classNames(classes.menu, 'draggable-block-menu')}>
           <button
+            type="button"
             title="Click to add below"
             className={classes.addButton}
             onClick={insertBlock}>

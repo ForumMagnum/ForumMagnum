@@ -159,7 +159,7 @@ function FloatingLinkEditor({
   const editorRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [linkUrl, setLinkUrl] = useState('');
-  const [editedLinkUrl, setEditedLinkUrl] = useState('https://');
+  const [editedLinkUrl, setEditedLinkUrl] = useState('');
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
@@ -287,8 +287,9 @@ function FloatingLinkEditor({
       editor.registerCommand(
         KEY_ESCAPE_COMMAND,
         () => {
-          if (isLink) {
+          if (isLink || isLinkEditMode) {
             setIsLink(false);
+            setIsLinkEditMode(false);
             return true;
           }
           return false;
@@ -296,7 +297,7 @@ function FloatingLinkEditor({
         COMMAND_PRIORITY_HIGH,
       ),
     );
-  }, [editor, $updateLinkEditor, setIsLink, isLink]);
+  }, [editor, $updateLinkEditor, setIsLink, isLink, isLinkEditMode, setIsLinkEditMode]);
 
   useEffect(() => {
     editor.getEditorState().read(() => {
@@ -316,7 +317,7 @@ function FloatingLinkEditor({
       return;
     }
     const handleBlur = (event: FocusEvent) => {
-      if (!editorElement.contains(event.relatedTarget as Element) && isLink) {
+      if (!editorElement.contains(event.relatedTarget as Element) && (isLink || isLinkEditMode)) {
         setIsLink(false);
         setIsLinkEditMode(false);
       }
@@ -325,7 +326,7 @@ function FloatingLinkEditor({
     return () => {
       editorElement.removeEventListener('focusout', handleBlur);
     };
-  }, [editorRef, setIsLink, setIsLinkEditMode, isLink]);
+  }, [editorRef, setIsLink, setIsLinkEditMode, isLink, isLinkEditMode]);
 
   const monitorInputInteraction = (
     event: React.KeyboardEvent<HTMLInputElement>,
@@ -345,7 +346,7 @@ function FloatingLinkEditor({
   ) => {
     event.preventDefault();
     if (lastSelection !== null) {
-      if (linkUrl !== '') {
+      if (editedLinkUrl.trim() !== '') {
         editor.update(() => {
           editor.dispatchCommand(
             TOGGLE_LINK_COMMAND,
@@ -365,14 +366,14 @@ function FloatingLinkEditor({
           }
         });
       }
-      setEditedLinkUrl('https://');
+      setEditedLinkUrl('');
       setIsLinkEditMode(false);
     }
   };
 
   return (
     <div ref={editorRef} className={classes.linkEditor}>
-      {!isLink ? null : isLinkEditMode ? (
+      {!isLink && !isLinkEditMode ? null : isLinkEditMode ? (
         <>
           <input
             ref={inputRef}

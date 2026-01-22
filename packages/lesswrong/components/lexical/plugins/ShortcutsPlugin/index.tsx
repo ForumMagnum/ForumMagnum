@@ -20,7 +20,6 @@ import {
 import {Dispatch, useEffect} from 'react';
 
 import {useToolbarState} from '../../context/ToolbarContext';
-import {sanitizeUrl} from '../../utils/url';
 import {INSERT_INLINE_COMMAND} from '../CommentPlugin';
 import { INSERT_CODE_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
@@ -131,9 +130,7 @@ export default function ShortcutsPlugin({
       } else if (isClearFormatting(event)) {
         clearFormatting(editor);
       } else if (isInsertLink(event)) {
-        const url = toolbarState.isLink ? null : sanitizeUrl('https://');
-        setIsLinkEditMode(!toolbarState.isLink);
-        editor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
+        setIsLinkEditMode(true);
       } else if (isAddComment(event)) {
         editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
       } else if (isInsertFootnote(event)) {

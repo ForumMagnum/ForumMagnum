@@ -1111,10 +1111,6 @@ export default function ToolbarPlugin({
   const insertLink = useCallback(() => {
     if (!toolbarState.isLink) {
       setIsLinkEditMode(true);
-      activeEditor.dispatchCommand(
-        TOGGLE_LINK_COMMAND,
-        sanitizeUrl('https://'),
-      );
     } else {
       setIsLinkEditMode(false);
       activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, null);

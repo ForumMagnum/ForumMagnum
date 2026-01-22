@@ -17,11 +17,9 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
   root: {
     border: 0,
-    fontSize: 15,
     display: 'block',
     position: 'relative',
     outline: 0,
-    padding: '8px 46px 40px',
     minHeight: 150,
     '@media (max-width: 1025px)': {
       paddingLeft: 8,
