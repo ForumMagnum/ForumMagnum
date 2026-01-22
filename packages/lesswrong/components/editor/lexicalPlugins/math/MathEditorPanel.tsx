@@ -33,26 +33,28 @@ const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
     padding: '8px 12px',
     fontFamily: 'monospace',
     fontSize: '14px',
-    color: '#fff',
-    backgroundColor: '#4F4F4F',
+    '&&': {
+      color: theme.palette.grey[100],
+    },
+    backgroundColor: theme.palette.grey[800],
     border: 'none',
     borderRadius: '4px',
     outline: 'none',
-    boxShadow: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
+    boxShadow: `0 10px 20px ${theme.palette.greyAlpha(0.19)}, 0 6px 6px ${theme.palette.greyAlpha(0.23)}`,
     resize: 'none',
     overflow: 'hidden',
     '&:focus': {
       outline: 'none',
     },
     '&::placeholder': {
-      color: 'rgba(255,255,255,0.5)',
+      color: theme.palette.inverseGreyAlpha(0.5),
     },
   },
   preview: {
     padding: '8px 16px',
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: '8px',
-    boxShadow: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
+    boxShadow: `0 10px 20px ${theme.palette.greyAlpha(0.19)}, 0 6px 6px ${theme.palette.greyAlpha(0.23)}`,
     border: `1px solid ${theme.palette.grey[300]}`,
     minWidth: '50px',
     minHeight: '24px',
@@ -61,7 +63,7 @@ const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
     justifyContent: 'center',
     '& mjx-merror': {
       fontSize: '14px',
-      color: '#e64a19',
+      color: theme.palette.error.light,
       backgroundColor: 'transparent',
     },
   },
@@ -70,7 +72,7 @@ const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginTop: '4px',
   },
-}), { allowNonThemeColors: true });
+}));
 
 interface MathEditorPanelProps {
   isOpen: boolean;
