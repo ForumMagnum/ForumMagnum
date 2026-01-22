@@ -45,7 +45,8 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const result = useSuspenseQueryApollo(query, {
       ...options,
-      skip: isSkipped
+      skip: isSkipped,
+      errorPolicy: 'all',
     });
 
     if (debugSuspenseBoundaries && !isSkipped) {

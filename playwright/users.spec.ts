@@ -5,9 +5,10 @@ test("admins can ban users and remove their content", async ({page, context}) =>
   const post = await createNewPost();
 
   // Non-admin user should be able to see post and it's author
+  await page.goto("/");
   const nonAdmin = await loginNewUser(context);
   await page.goto(post.postPageUrl);
-  await expect(page.getByText(post.title)).toBeVisible();
+  await expect(page.getByText(post.title).first()).toBeVisible();
   const authorPage = `/users/${post.author.slug}`;
   await page.goto(authorPage);
   await expect(page.getByText(post.author.displayName).first()).toBeVisible();
