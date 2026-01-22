@@ -233,6 +233,9 @@ export const formatQuote = (editor: LexicalEditor, blockType: string) => {
       const selection = $getSelection();
       $setBlocksType(selection, () => $createQuoteNode());
     });
+  } else {
+    // I hope this doesn't have any unintended effects?  I don't think you can have complicated nested block types inside of block quotes...
+    formatParagraph(editor);
   }
 };
 
