@@ -455,7 +455,7 @@ export async function buildRevisionWithUser({ originalContents, user, isAdmin, d
 
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin })
+  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin || originalContents.type !== "html" })
   const wordCount = await dataToWordCount(readerVisibleData, type, context)
 
   return {
