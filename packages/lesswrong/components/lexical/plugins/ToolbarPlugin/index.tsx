@@ -128,7 +128,7 @@ import {
   useToolbarState,
 } from '../../context/ToolbarContext';
 import useModal from '../../hooks/useModal';
-import {$createStickyNode} from '../../nodes/StickyNode';
+// import {$createStickyNode} from '../../nodes/StickyNode';
 import DropDown, {
   DropDownItem,
   DropDownItemIconTextContainer,
@@ -1565,7 +1565,7 @@ export default function ToolbarPlugin({
                   <CkMathIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Equation</DropDownItemText>
                 </DropDownItem>
-                <DropDownItem
+                {/* <DropDownItem
                   onClick={() => {
                     editor.update(() => {
                       $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
@@ -1577,7 +1577,7 @@ export default function ToolbarPlugin({
                   >
                   <StickyIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Sticky Note</DropDownItemText>
-                </DropDownItem>
+                </DropDownItem> */}
                 <DropDownItem
                   onClick={() =>
                     dispatchToolbarCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND)

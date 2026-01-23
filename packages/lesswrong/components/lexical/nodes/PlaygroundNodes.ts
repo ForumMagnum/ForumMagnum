@@ -35,7 +35,7 @@ import {MentionNode} from './MentionNode';
 import {PageBreakNode} from './PageBreakNode';
 import {PollNode} from './PollNode';
 import {SpecialTextNode} from './SpecialTextNode';
-import {StickyNode} from './StickyNode';
+// import {StickyNode} from './StickyNode';
 // import {TweetNode} from '../embeds/TwitterEmbed/TweetNode';
 import {YouTubeNode} from '../embeds/YouTubeEmbed/YouTubeNode';
 import {MetaculusNode} from '../embeds/MetaculusEmbed/MetaculusNode';
@@ -72,7 +72,7 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   LinkNode,
   OverflowNode,
   PollNode,
-  StickyNode,
+  // StickyNode,
   ImageNode,
   ImageRenderNode,
   ImageCaptionNode,
