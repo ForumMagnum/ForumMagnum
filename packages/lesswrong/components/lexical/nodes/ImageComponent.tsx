@@ -68,6 +68,11 @@ const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
     display: 'inline-block',
     position: 'relative',
   },
+  imageElement: {
+    height: 'auto',
+    maxWidth: '100%',
+    minWidth: '100%',
+  },
   imageWrapperFocused: {
     boxShadow: `0 0 0 1px ${theme.palette.lexicalEditor.focusRing}`,
   },
@@ -165,20 +170,16 @@ function LazyImage({
   src,
   srcSet,
   width,
-  height,
   maxWidth,
-  widthPercent,
   onError,
 }: {
   altText: string;
   className: string | null;
-  height: 'inherit' | number;
   imageRef: {current: null | HTMLImageElement};
   maxWidth: number;
   src: string;
   srcSet?: string | null;
   width: 'inherit' | number;
-  widthPercent?: number | null;
   onError: () => void;
 }): JSX.Element {
   const isSVGImage = isSVG(src);
@@ -194,51 +195,12 @@ function LazyImage({
     return <ImageBrokenIcon />;
   }
 
-  // Calculate final dimensions with proper scaling
-  const calculateDimensions = () => {
-    if (!isSVGImage) {
-      return {
-        height,
-        maxWidth,
-        width,
-      };
-    }
-
-    // Use natural dimensions if available, otherwise fallback to defaults
-    const naturalWidth = status.width;
-    const naturalHeight = status.height;
-
-    let finalWidth = naturalWidth;
-    let finalHeight = naturalHeight;
-
-    // Scale down if width exceeds maxWidth while maintaining aspect ratio
-    if (finalWidth > maxWidth) {
-      const scale = maxWidth / finalWidth;
-      finalWidth = maxWidth;
-      finalHeight = Math.round(finalHeight * scale);
-    }
-
-    // Scale down if height exceeds maxHeight while maintaining aspect ratio
-    const maxHeight = 500;
-    if (finalHeight > maxHeight) {
-      const scale = maxHeight / finalHeight;
-      finalHeight = maxHeight;
-      finalWidth = Math.round(finalWidth * scale);
-    }
-
-    return {
-      height: finalHeight,
-      maxWidth,
-      width: finalWidth,
-    };
-  };
-
-  const imageStyle: React.CSSProperties = calculateDimensions();
-  if (widthPercent !== undefined && widthPercent !== null) {
-    imageStyle.width = `${widthPercent}%`;
-    imageStyle.height = 'auto';
-    imageStyle.maxWidth = '100%';
-  }
+  const widthAttribute =
+    typeof width === 'number'
+      ? width
+      : isSVGImage
+        ? Math.min(status.width, maxWidth)
+        : undefined;
 
   return (
     <img
@@ -247,7 +209,7 @@ function LazyImage({
       srcSet={srcSet ?? undefined}
       alt={altText}
       ref={imageRef}
-      style={imageStyle}
+      width={widthAttribute}
       onError={onError}
       draggable="false"
     />
@@ -615,8 +577,7 @@ export default function ImageComponent({
 
 
   const onResizeEnd = (
-    nextWidth: 'inherit' | number,
-    nextHeight: 'inherit' | number,
+    nextWidthPercent: number | null,
   ) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
@@ -626,7 +587,7 @@ export default function ImageComponent({
     editor.update(() => {
       const node = $getNodeByKey(imageNodeKey);
       if ($isImageNode(node)) {
-        node.setWidthAndHeight(nextWidth, nextHeight);
+        node.setWidthPercent(nextWidthPercent);
       }
     });
   };
@@ -639,6 +600,22 @@ export default function ImageComponent({
   const isFocused = (isSelected || isResizing) && isEditable;
   const showToolbar = isFocused && !isResizing && isEditable;
   const isCaptionButtonActive = showCaption && captionsEnabled;
+
+  useEffect(() => {
+    const imageElement = imageRef.current;
+    if (!imageElement) {
+      return;
+    }
+    const figureElement = imageElement.closest('figure');
+    if (!figureElement) {
+      return;
+    }
+    if (widthPercent !== undefined && widthPercent !== null) {
+      figureElement.style.width = `${widthPercent}%`;
+    } else {
+      figureElement.style.removeProperty('width');
+    }
+  }, [widthPercent]);
 
   const openAltTextModal = () => {
     showModal('Image Alt Text', (onClose) => (
@@ -715,19 +692,18 @@ export default function ImageComponent({
               <ImageBrokenIcon />
             ) : (
               <LazyImage
-                className={
+                className={classNames(
+                  classes.imageElement,
                   isFocused
                     ? `focused ${isInNodeSelection ? 'draggable' : ''}`
-                    : null
-                }
+                    : null,
+                )}
                 src={src}
                 srcSet={srcSet ?? undefined}
                 altText={altText}
                 imageRef={imageRef}
                 width={width}
-                height={height}
                 maxWidth={maxWidth}
-                widthPercent={widthPercent ?? undefined}
                 onError={() => setIsLoadError(true)}
               />
             )}
@@ -735,7 +711,6 @@ export default function ImageComponent({
               <ImageResizer
                 editor={editor}
                 imageRef={imageRef}
-                maxWidth={maxWidth}
                 onResizeStart={onResizeStart}
                 onResizeEnd={onResizeEnd}
               />

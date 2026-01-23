@@ -334,9 +334,6 @@ export class ImageNode extends ElementNode {
     if (typeof this.__width === 'number') {
       imgElement.setAttribute('width', this.__width.toString());
     }
-    if (typeof this.__height === 'number') {
-      imgElement.setAttribute('height', this.__height.toString());
-    }
     if (this.__srcset) {
       imgElement.setAttribute('srcset', this.__srcset);
     }

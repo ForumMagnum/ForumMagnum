@@ -166,10 +166,7 @@ export default function ExcalidrawComponent({
     setIsResizing(true);
   };
 
-  const onResizeEnd = (
-    nextWidth: 'inherit' | number,
-    nextHeight: 'inherit' | number,
-  ) => {
+  const onResizeEnd = (_nextWidthPercent: number | null) => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
       setIsResizing(false);
@@ -179,8 +176,16 @@ export default function ExcalidrawComponent({
       const node = $getNodeByKey(nodeKey);
 
       if ($isExcalidrawNode(node)) {
-        node.setWidth(nextWidth);
-        node.setHeight(nextHeight);
+        const container = imageContainerRef.current;
+        if (container) {
+          const {width: nextWidth, height: nextHeight} =
+            container.getBoundingClientRect();
+          node.setWidth(Math.round(nextWidth));
+          node.setHeight(Math.round(nextHeight));
+        } else {
+          node.setWidth('inherit');
+          node.setHeight('inherit');
+        }
       }
     });
   };

@@ -87,13 +87,11 @@ export default function ImageResizer({
   onResizeStart,
   onResizeEnd,
   imageRef,
-  maxWidth,
   editor,
 }: {
   editor: LexicalEditor;
   imageRef: {current: null | HTMLElement};
-  maxWidth?: number;
-  onResizeEnd: (width: 'inherit' | number, height: 'inherit' | number) => void;
+  onResizeEnd: (widthPercent: number | null) => void;
   onResizeStart: () => void;
 }): JSX.Element {
   const controlWrapperRef = useRef<HTMLDivElement>(null);
@@ -102,8 +100,8 @@ export default function ImageResizer({
     value: 'default',
   });
   const positioningRef = useRef<{
-    currentHeight: 'inherit' | number;
-    currentWidth: 'inherit' | number;
+    currentHeight: number;
+    currentWidth: number;
     direction: number;
     isResizing: boolean;
     ratio: number;
@@ -124,9 +122,8 @@ export default function ImageResizer({
   });
   const editorRootElement = editor.getRootElement();
   // Find max width, accounting for editor padding.
-  const maxWidthContainer = maxWidth
-    ? maxWidth
-    : editorRootElement !== null
+  const maxWidthContainer =
+    editorRootElement !== null
       ? editorRootElement.getBoundingClientRect().width - 20
       : 100;
   const maxHeightContainer =
@@ -196,9 +193,10 @@ export default function ImageResizer({
     }
 
     const image = imageRef.current;
+    const resizeTarget = image?.closest('figure') ?? image;
     const controlWrapper = controlWrapperRef.current;
 
-    if (image !== null && controlWrapper !== null) {
+    if (image !== null && resizeTarget !== null && controlWrapper !== null) {
       event.preventDefault();
       const {width, height} = image.getBoundingClientRect();
       const zoom = calculateZoomLevel(image);
@@ -217,8 +215,12 @@ export default function ImageResizer({
       onResizeStart();
 
       controlWrapper.classList.add('image-control-wrapper--resizing');
-      image.style.height = `${height}px`;
-      image.style.width = `${width}px`;
+      const startWidthPercent = clamp(
+        (width / maxWidthContainer) * 100,
+        (minWidth / maxWidthContainer) * 100,
+        100,
+      );
+      resizeTarget.style.width = `${startWidthPercent}%`;
 
       document.addEventListener('pointermove', handlePointerMove);
       document.addEventListener('pointerup', handlePointerUp);
@@ -226,6 +228,7 @@ export default function ImageResizer({
   };
   const handlePointerMove = (event: PointerEvent) => {
     const image = imageRef.current;
+    const resizeTarget = image?.closest('figure') ?? image;
     const positioning = positioningRef.current;
 
     const isHorizontal =
@@ -233,7 +236,7 @@ export default function ImageResizer({
     const isVertical =
       positioning.direction & (Direction.south | Direction.north);
 
-    if (image !== null && positioning.isResizing) {
+    if (image !== null && resizeTarget !== null && positioning.isResizing) {
       const zoom = calculateZoomLevel(image);
       // Corner cursor
       if (isHorizontal && isVertical) {
@@ -247,8 +250,12 @@ export default function ImageResizer({
         );
 
         const height = width / positioning.ratio;
-        image.style.width = `${width}px`;
-        image.style.height = `${height}px`;
+        const widthPercent = clamp(
+          (width / maxWidthContainer) * 100,
+          (minWidth / maxWidthContainer) * 100,
+          100,
+        );
+        resizeTarget.style.width = `${widthPercent}%`;
         positioning.currentHeight = height;
         positioning.currentWidth = width;
       } else if (isVertical) {
@@ -261,8 +268,15 @@ export default function ImageResizer({
           maxHeightContainer,
         );
 
-        image.style.height = `${height}px`;
+        const width = height * positioning.ratio;
+        const widthPercent = clamp(
+          (width / maxWidthContainer) * 100,
+          (minWidth / maxWidthContainer) * 100,
+          100,
+        );
+        resizeTarget.style.width = `${widthPercent}%`;
         positioning.currentHeight = height;
+        positioning.currentWidth = width;
       } else {
         let diff = Math.floor(positioning.startX - (event.clientX / zoom));
         diff = positioning.direction & Direction.east ? -diff : diff;
@@ -273,7 +287,12 @@ export default function ImageResizer({
           maxWidthContainer,
         );
 
-        image.style.width = `${width}px`;
+        const widthPercent = clamp(
+          (width / maxWidthContainer) * 100,
+          (minWidth / maxWidthContainer) * 100,
+          100,
+        );
+        resizeTarget.style.width = `${widthPercent}%`;
         positioning.currentWidth = width;
       }
     }
@@ -284,7 +303,6 @@ export default function ImageResizer({
     const controlWrapper = controlWrapperRef.current;
     if (image !== null && controlWrapper !== null && positioning.isResizing) {
       const width = positioning.currentWidth;
-      const height = positioning.currentHeight;
       positioning.startWidth = 0;
       positioning.startHeight = 0;
       positioning.ratio = 0;
@@ -297,7 +315,16 @@ export default function ImageResizer({
       controlWrapper.classList.remove('image-control-wrapper--resizing');
 
       setEndCursor();
-      onResizeEnd(width, height);
+      
+      const widthPercent = maxWidthContainer > 0
+        ? (width / maxWidthContainer) * 100
+        : null;
+      
+      const clampedWidthPercent = widthPercent !== null
+        ? clamp(widthPercent, (minWidth / maxWidthContainer) * 100, 100)
+        : null;
+
+      onResizeEnd(clampedWidthPercent);
 
       document.removeEventListener('pointermove', handlePointerMove);
       document.removeEventListener('pointerup', handlePointerUp);
