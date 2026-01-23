@@ -34,7 +34,6 @@ import {
 import {useCallback, useEffect, useState} from 'react';
 
 import {INITIAL_SETTINGS} from '../../appSettings';
-import useFlashMessage from '../../hooks/useFlashMessage';
 import useModal from '../../hooks/useModal';
 import Button from '../../ui/Button';
 import {docFromHash, docToHash} from '../../utils/docSerialization';
@@ -111,6 +110,7 @@ const styles = defineStyles('LexicalActionsPlugin', (theme: ThemeType) => ({
 //   SUPPORT_SPEECH_RECOGNITION,
 // } from '../SpeechToTextPlugin';
 import {SHOW_VERSIONS_COMMAND} from '../VersionsPlugin';
+import { useMessages } from '@/components/common/withMessages';
 
 async function sendEditorState(editor: LexicalEditor): Promise<void> {
   const stringifiedEditorState = JSON.stringify(editor.getEditorState());
@@ -171,7 +171,7 @@ export default function ActionsPlugin({
   const [connected, setConnected] = useState(false);
   const [isEditorEmpty, setIsEditorEmpty] = useState(true);
   const [modal, showModal] = useModal();
-  const showFlashMessage = useFlashMessage();
+  const { flash: showFlashMessage } = useMessages();
   const {isCollabActive} = useCollaborationContext();
   useEffect(() => {
     if (INITIAL_SETTINGS.isCollab) {
