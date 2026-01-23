@@ -94,6 +94,7 @@ export const collectionNameToTypeName = {
   UserTagRels: 'UserTagRel',
   Users: 'User',
   Votes: 'Vote',
+  YjsDocuments: 'YjsDocument',
 } as const;
 
 export const typeNameToCollectionName = {
@@ -190,6 +191,7 @@ export const typeNameToCollectionName = {
   UserTagRel: 'UserTagRels',
   User: 'Users',
   Vote: 'Votes',
+  YjsDocument: 'YjsDocuments',
 } as const;
 
 export const tableNameToCollectionName = {
@@ -286,6 +288,7 @@ export const tableNameToCollectionName = {
   usertagrels: 'UserTagRels',
   users: 'Users',
   votes: 'Votes',
+  yjsdocuments: 'YjsDocuments',
   ...((isAnyTest && !isIntegrationTest) ? {
     testcollection: 'TestCollection',
     testcollection2: 'TestCollection2',

@@ -41,6 +41,8 @@ function getBaseTypeInstance(type: DatabaseBaseType, foreignKey?: DatabaseFieldS
       return new JsonType();
     case 'TIMESTAMPTZ':
       return new DateType();
+    case 'BYTEA':
+      return new BinaryType();
     default:
       throw new Error(`Invalid type: ${type}`);
   }
@@ -164,6 +166,12 @@ export class FloatType extends Type {
 export class DateType extends Type {
   toString() {
     return "TIMESTAMPTZ";
+  }
+}
+
+export class BinaryType extends Type {
+  toString() {
+    return "BYTEA";
   }
 }
 

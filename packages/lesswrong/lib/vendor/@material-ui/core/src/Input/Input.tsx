@@ -7,7 +7,9 @@ import { StandardProps } from '..';
 import { InputBaseProps } from '../InputBase/InputBase';
 import { defineStyles, useStyles, useStylesNonProxy } from '@/components/hooks/useStyles';
 
-export interface InputProps extends StandardProps<InputBaseProps, InputClassKey> {}
+export interface InputProps extends StandardProps<InputBaseProps, InputClassKey> {
+  ref?: React.Ref<HTMLInputElement>;
+}
 
 export type InputClassKey =
   | 'root'

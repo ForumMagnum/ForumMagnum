@@ -125,3 +125,6 @@ tsconfig-server.tsbuildinfo
 
 # NextJS
 next-env.d.ts
+
+# Fly
+fly/hocuspocusServer/dist/

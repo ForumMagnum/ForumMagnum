@@ -2339,6 +2339,17 @@ interface DbVote extends DbObject {
   votedAt: Date
 }
 
+type YjsDocumentsCollection = PgCollection<"YjsDocuments">;
+
+interface DbYjsDocument extends DbObject {
+  __collectionName?: "YjsDocuments"
+  createdAt: Date
+  documentId: string
+  updatedAt: Date
+  yjsState: Uint8Array
+  yjsStateVector: Uint8Array
+}
+
 interface CollectionsByName {
   AdvisorRequests: AdvisorRequestsCollection
   ArbitalCaches: ArbitalCachesCollection
@@ -2433,6 +2444,7 @@ interface CollectionsByName {
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
+  YjsDocuments: YjsDocumentsCollection
 }
 
 interface ObjectsByCollectionName {
@@ -2529,6 +2541,7 @@ interface ObjectsByCollectionName {
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote
+  YjsDocuments: DbYjsDocument
 }
 
 interface ObjectsByTypeName {
@@ -2625,5 +2638,6 @@ interface ObjectsByTypeName {
   UserTagRel: DbUserTagRel
   User: DbUser
   Vote: DbVote
+  YjsDocument: DbYjsDocument
 }
 

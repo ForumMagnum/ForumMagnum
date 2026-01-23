@@ -823,8 +823,22 @@ const TestComponent = () => {
 If an element has multiple classes or conditional classes, combine them them with the `classNames` function.
 If a component needs HoCs or memoization applied, use `export default registerComponent("TestComponent", TestComponent, {})`, but only wrap components this way if an HoC or memoization is used.
 The registerComponent wrapper can take a {styles} option, in which case it calls defineStyles and useStyles in an HoC and passes the result as a prop named `classes`. This method is deprecated; when writing new components you should use `defineStyles` and `useStyles` directly.
+Do not use inline the `style` attribute on JSX elements for styling purposes unless you need to do something dynamic that would be deeply impractical to implement with jss classes.
 
-Colors are defined as part of the theme, as `theme.palette.colorName`; see `packages/lesswrong/themes/defaultPalette.ts`. If you use a palette color, it will be automatically inverted in dark mode. If you use a color that does not come from the palette, use either `light-dark(lightModeColor,darkModeColor)`, or, if the component is used in an always-light or always-dark component so that it doesn't need to be inverted, add `allowNonThemeColors:true` as an option in the second argument of `defineStyles`.
+Colors are defined as part of the theme, as `theme.palette.colorName`; see `packages/lesswrong/themes/defaultPalette.ts`. If you use a palette color, it will be automatically inverted in dark mode.  Whenever possible, prefer to use existing colors defined in our palette.  For greyscale, use the methods defined in `defaultShadePalette`:
+```
+  const greyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
+  const inverseGreyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
+  return {
+    // ...
+    greyAlpha,
+    inverseGreyAlpha,
+    boxShadowColor: (alpha: number) => greyAlpha(alpha),
+    greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
+```
+Those are available via `theme.palette`.
+
+If you for some reason need to use a color that does not come from the palette, use either `light-dark(lightModeColor,darkModeColor)`, or, if the component is used in an always-light or always-dark component so that it doesn't need to be inverted, add `allowNonThemeColors:true` as an option in the second argument of `defineStyles`.
 
 `theme.spacing.unit` is deprecated and has the value 8.
 
@@ -861,6 +875,7 @@ Strongly prefer to avoid writing classes to encapsulate functionality.  Write to
 Strongly prefer to avoid declaring inline functions that capture scope; declare them at the top of the module and pass in all the necessary dependencies.
 If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
 Prefer interfaces to types where possible.
+Do not create barrel import/export files.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 

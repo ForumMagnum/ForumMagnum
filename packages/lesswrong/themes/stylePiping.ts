@@ -177,6 +177,13 @@ const lwartifactsPreviewStyles = (_theme: ThemeType) => ({
       height: 525,
       border: 'none'
     }
+  },
+  '& div.lwartifacts-preview': {
+    '& iframe': {
+      width: '100%',
+      height: 525,
+      border: 'none'
+    }
   }
 })
 
@@ -336,7 +343,6 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     content: '"▼"',
     cursor: "pointer",
     fontSize: theme.isFriendlyUI ? 12 : 14,
-    paddingRight: 4,
     position: "absolute",
     left: theme.isFriendlyUI ? 0 : 8,
   },

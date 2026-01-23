@@ -20,6 +20,13 @@ runs:
         path: node_modules
         key: forum-env-cache-${{ hashFiles('yarn.lock') }}
 
+    - name: Cache hocuspocus server node modules
+      id: cache-hocuspocus-server-node-modules
+      uses: actions/cache@v4
+      with:
+        path: fly/hocuspocusServer/node_modules
+        key: forum-hocuspocus-server-env-cache-${{ hashFiles('fly/hocuspocusServer/yarn.lock') }}
+
     - name: Setup node-gyp
       shell: bash
       run: yarn global add node-gyp
@@ -28,6 +35,11 @@ runs:
       if: steps.cache-node-modules.outputs.cache-hit != 'true'
       shell: bash
       run: yarn install --frozen-lockfile
+
+    - name: Install hocuspocus server dependencies
+      if: steps.cache-hocuspocus-server-node-modules.outputs.cache-hit != 'true'
+      shell: bash
+      run: yarn install --frozen-lockfile --cwd fly/hocuspocusServer
 
     - name: Verify dependencies were installed
       shell: bash

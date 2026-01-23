@@ -8,12 +8,14 @@ import debounce from 'lodash/debounce';
 import { isClient } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
 import ContentStyles from "../common/ContentStyles";
 import CKCommentEditor from "./CKCommentEditor";
 import CKPostEditor from "./CKPostEditor";
+import LexicalPostEditor from "./LexicalPostEditor";
 import WarningBanner from "../common/WarningBanner";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
@@ -184,7 +186,7 @@ const autosaveInterval = 3000; //milliseconds
 const validationInterval = 500; //milliseconds
 export const getCkEditorName = () => isEAForum() ? 'EA Forum Docs' : 'LessWrong Docs'
 
-export type EditorTypeString = "html"|"markdown"|"ckEditorMarkup";
+export type EditorTypeString = "html"|"markdown"|"ckEditorMarkup"|"lexical";
 export type LegacyEditorTypeString = EditorTypeString|"draftJS";
 
 export const getEditorTypeToDisplayMap = (): Record<LegacyEditorTypeString,{name: string, postfix?: string}> => ({
@@ -192,13 +194,15 @@ export const getEditorTypeToDisplayMap = (): Record<LegacyEditorTypeString,{name
   ckEditorMarkup: {name: getCkEditorName()},
   markdown: {name: 'Markdown'},
   draftJS: {name: "DraftJS"},
+  lexical: {name: 'Lexical', postfix: '[Experimental]'},
 });
 
 export const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
-export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown']
+export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'lexical']
 
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
+  if (user && userIsAdmin(user)) return "lexical"
   return "ckEditorMarkup"
 }
 
@@ -390,6 +394,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     switch(this.props.value.type) {
       case "markdown":
       case "html":
+      case "lexical":
         data = this.props.value.value;
         break
       case "ckEditorMarkup":
@@ -437,6 +442,15 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           contents: {type: editorType, value},
           autosave: true,
         })
+        break;
+      }
+      case "lexical": {
+        if (this.props.value.value === value)
+          return;
+        this.props.onChange({
+          contents: {type: editorType, value},
+          autosave: true,
+        });
         break;
       }
     }
@@ -495,6 +509,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         return this.renderPlaintextEditor(contents)
       case "html":
         return this.renderPlaintextEditor(contents)
+      case "lexical":
+        return this.renderLexicalEditor(contents)
     }
   }
 
@@ -577,6 +593,28 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           : <PostOrCommentEditor key="ck-default" { ...editorProps } />}
       </div>
     }
+  }
+
+  renderLexicalEditor = (contents: EditorContents) => {
+    const { _classes: classes, placeholder, commentEditor, documentId } = this.props;
+    const value = (typeof contents?.value === 'string') ? contents.value : "";
+
+    return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
+      <LexicalPostEditor
+        data={value}
+        placeholder={placeholder}
+        onChange={(newValue: string) => {
+          this.setContents("lexical", newValue);
+        }}
+        onReady={() => {
+          // Lexical editor is ready
+        }}
+        commentEditor={commentEditor}
+        postId={documentId}
+        collaborative={this.props.isCollaborative}
+        accessLevel={this.props.accessLevel}
+      />
+    </div>
   }
 
   /**

@@ -177,6 +177,7 @@ import { createElicitQuestionGqlMutation, updateElicitQuestionGqlMutation, graph
 import { createForumEventGqlMutation, updateForumEventGqlMutation, graphqlForumEventTypeDefs } from "@/server/collections/forumEvents/mutations";
 import { createJargonTermGqlMutation, updateJargonTermGqlMutation, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
 import { createLWEventGqlMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
+import { graphqlYjsDocumentQueryTypeDefs, yjsDocumentGqlFieldResolvers } from "@/server/collections/yjsDocuments/queries";
 import { updateLlmConversationGqlMutation, graphqlLlmConversationTypeDefs } from "@/server/collections/llmConversations/mutations";
 import { createLocalgroupGqlMutation, updateLocalgroupGqlMutation, graphqlLocalgroupTypeDefs } from "@/server/collections/localgroups/mutations";
 import { createMessageGqlMutation, updateMessageGqlMutation, graphqlMessageTypeDefs } from "@/server/collections/messages/mutations";
@@ -414,6 +415,7 @@ export const getTypeDefs = () => gql`
   ${graphqlUserTagRelQueryTypeDefs}
   ${graphqlUserQueryTypeDefs}
   ${graphqlVoteQueryTypeDefs}
+  ${graphqlYjsDocumentQueryTypeDefs}
   ## CRUD Mutation and input typedefs
   ${graphqlAdvisorRequestTypeDefs}
   ${graphqlBookTypeDefs}
@@ -801,6 +803,7 @@ const getResolvers = () => ({
   ...userTagRelGqlFieldResolvers,
   ...userGqlFieldResolvers,
   ...voteGqlFieldResolvers,
+  ...yjsDocumentGqlFieldResolvers,
 } satisfies {
   JSON: typeof GraphQLJSON,
   Date: typeof GraphQLDate,
