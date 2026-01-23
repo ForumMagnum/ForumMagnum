@@ -8,9 +8,9 @@ import {
   $isRangeSelection,
   $isNodeSelection,
   $isTextNode,
-  $isElementNode,
   $createParagraphNode,
   $addUpdateTag,
+  $getAdjacentNode,
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_LOW,
   COMMAND_PRIORITY_HIGH,
@@ -282,31 +282,11 @@ function getFootnoteReferenceAdjacentToCursor(
   if ($isFootnoteReferenceNode(anchorNode)) {
     return anchorNode;
   }
-  if ($isTextNode(anchorNode)) {
-    if (direction === 'before' && selection.anchor.offset === 0) {
-      const previousSibling = anchorNode.getPreviousSibling();
-      return $isFootnoteReferenceNode(previousSibling) ? previousSibling : null;
-    }
-    if (
-      direction === 'after' &&
-      selection.anchor.offset === anchorNode.getTextContentSize()
-    ) {
-      const nextSibling = anchorNode.getNextSibling();
-      return $isFootnoteReferenceNode(nextSibling) ? nextSibling : null;
-    }
-    return null;
-  }
-  if ($isElementNode(anchorNode)) {
-    const index = direction === 'before'
-      ? selection.anchor.offset - 1
-      : selection.anchor.offset;
-    if (index < 0) {
-      return null;
-    }
-    const sibling = anchorNode.getChildAtIndex(index);
-    return $isFootnoteReferenceNode(sibling) ? sibling : null;
-  }
-  return null;
+  const adjacentNode = $getAdjacentNode(
+    selection.anchor,
+    direction === 'before'
+  );
+  return $isFootnoteReferenceNode(adjacentNode) ? adjacentNode : null;
 }
 
 function deleteFootnoteReferenceAdjacentToCursor(
@@ -314,18 +294,21 @@ function deleteFootnoteReferenceAdjacentToCursor(
   event: KeyboardEvent | null,
   direction: FootnoteReferenceDirection
 ): boolean {
-  let didDelete = false;
+  // Read selection directly in the command handler context, not inside editor.update().
+  // Reading inside editor.update() would cause the selection to be read after
+  // the target had already been deleted, which means that if there was a single character
+  // between the cursor and the footnote, it would incorrectly delete the footnote as well
+  // as the character.
+  const selection = $getSelection();
+  const reference = getFootnoteReferenceAdjacentToCursor(selection, direction);
+  if (!reference) {
+    return false;
+  }
+  event?.preventDefault();
   editor.update(() => {
-    const selection = $getSelection();
-    const reference = getFootnoteReferenceAdjacentToCursor(selection, direction);
-    if (!reference) {
-      return;
-    }
-    event?.preventDefault();
     reference.remove();
-    didDelete = true;
   });
-  return didDelete;
+  return true;
 }
 
 
