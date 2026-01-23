@@ -5,6 +5,7 @@ import {
   LexicalNode,
   SerializedElementNode,
   $createParagraphNode,
+  $isParagraphNode,
   $isElementNode,
   RangeSelection,
   EditorConfig,
@@ -78,8 +79,12 @@ export class SpoilerNode extends ElementNode {
 
   // Insert paragraph if empty
   collapseAtStart(selection: RangeSelection): boolean {
-    const paragraph = $createParagraphNode();
     const children = this.getChildren();
+    if (children.length === 1 && $isParagraphNode(children[0])) {
+      this.replace(children[0]);
+      return true;
+    }
+    const paragraph = $createParagraphNode();
     children.forEach((child) => paragraph.append(child));
     this.replace(paragraph);
     return true;
