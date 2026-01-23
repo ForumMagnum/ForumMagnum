@@ -355,8 +355,8 @@ const LexicalPostEditor = ({
             TableCellNode,
             (editor, target) => {
               const output = target.exportDOM(editor);
-              if (output.element) {
-                (output.element as HTMLElement).style = '';
+              if (output.element && 'style' in output.element) {
+                output.element.style = '';
               }
               return output;
             }
