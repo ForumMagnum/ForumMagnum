@@ -173,11 +173,11 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     flex: 1,
   },
   commentInputBoxButtonPrimary: {
-    backgroundColor: 'rgb(66, 135, 245)',
+    backgroundColor: theme.palette.lexicalEditor.commentInputBoxButtonBackground,
     fontWeight: 'bold',
     color: theme.palette.grey[0],
     '&:hover': {
-      backgroundColor: 'rgb(53, 114, 211)',
+      backgroundColor: theme.palette.lexicalEditor.commentInputBoxButtonHoverBackground,
     },
     '&:disabled': {
       backgroundColor: theme.palette.grey[200],
@@ -207,7 +207,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     padding: '9px 10px 10px 9px',
     minHeight: 80,
     '&:focus': {
-      outline: '1px solid rgb(66, 135, 245)',
+      outline: `1px solid ${theme.palette.lexicalEditor.commentInputBoxButtonBackground}`,
     },
   },
   showCommentsButton: {
@@ -399,7 +399,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     margin: '0px 10px 0 10px',
     '& span': {
       color: theme.palette.grey[900],
-      backgroundColor: 'rgba(255, 212, 0, 0.4)',
+      backgroundColor: theme.palette.lexicalEditor.threadQuoteBackground,
       padding: 1,
       lineHeight: 1.4,
       display: 'inline',

@@ -43,7 +43,9 @@ export function CopyButton({editor, getCodeDOMNode, menuItemClassName}: Props) {
     setCopyCompleted(false);
   }, 1000);
 
-  async function handleClick(): Promise<void> {
+  async function handleClick(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
+    e.preventDefault();
+    e.stopPropagation();
     const codeDOMNode = getCodeDOMNode();
 
     if (!codeDOMNode) {
@@ -74,7 +76,7 @@ export function CopyButton({editor, getCodeDOMNode, menuItemClassName}: Props) {
   }
 
   return (
-    <button className={menuItemClassName} onClick={handleClick} aria-label="copy">
+    <button type="button" className={menuItemClassName} onClick={handleClick} aria-label="copy">
       {isCopyCompleted ? (
         <SuccessIcon className={classes.icon} />
       ) : (

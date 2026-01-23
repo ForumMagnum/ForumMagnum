@@ -83,7 +83,7 @@ import ShortcutsPlugin from './plugins/ShortcutsPlugin';
 // import SpecialTextPlugin from './plugins/SpecialTextPlugin';
 // import SpeechToTextPlugin from './plugins/SpeechToTextPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
-import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
+// import TableCellActionMenuPlugin from './plugins/TableActionMenuPlugin';
 import TableCellResizer from './plugins/TableCellResizer';
 import TableHoverActionsV2Plugin from './plugins/TableHoverActionsV2Plugin';
 import TableOfContentsPlugin from './plugins/TableOfContentsPlugin';
@@ -584,10 +584,10 @@ export default function Editor({
                   isLinkEditMode={isLinkEditMode}
                   setIsLinkEditMode={setIsLinkEditMode}
                 />
-                <TableCellActionMenuPlugin
+                {/* <TableCellActionMenuPlugin
                   anchorElem={floatingAnchorElem}
                   cellMerge={true}
-                />
+                /> */}
               </>
             )}
             {floatingAnchorElem && !isSmallWidthViewport && (

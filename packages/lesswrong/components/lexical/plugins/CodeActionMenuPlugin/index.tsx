@@ -63,7 +63,7 @@ const styles = defineStyles('LexicalCodeActionMenuPlugin', (theme: ThemeType) =>
       opacity: 0.9,
     },
     '&:active': {
-      backgroundColor: 'rgba(223, 232, 250)',
+      backgroundColor: theme.palette.lexicalEditor.codeActionMenuBackground,
       border: `1px solid ${theme.palette.greyAlpha(0.45)}`,
     },
   },

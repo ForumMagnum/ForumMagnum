@@ -616,6 +616,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     mentionFocus: "rgb(180, 213, 255)",
     // Coral/orange color for keywords
     keyword: "rgb(241, 118, 94)",
+    // Blues for comment input box button background
+    commentInputBoxButtonBackground: "rgb(66, 135, 245)",
+    commentInputBoxButtonHoverBackground: "rgb(53, 114, 211)",
+    threadQuoteBackground: "rgba(255, 212, 0, 0.4)",
+    codeActionMenuBackground: "rgb(223, 232, 250)",
+    tableCellResizerHover: "#adf",
   },
   blockquoteHighlight: {
     commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",

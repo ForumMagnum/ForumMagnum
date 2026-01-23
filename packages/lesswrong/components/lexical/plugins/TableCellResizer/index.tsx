@@ -46,7 +46,7 @@ const styles = defineStyles('LexicalTableCellResizer', (theme: ThemeType) => ({
     position: 'absolute',
     touchAction: 'none',
     '@media (pointer: coarse)': {
-      backgroundColor: '#adf',
+      backgroundColor: theme.palette.lexicalEditor.tableCellResizerHover,
       mixBlendMode: 'color',
     },
   },

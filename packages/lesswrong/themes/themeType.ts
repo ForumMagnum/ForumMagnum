@@ -574,14 +574,15 @@ declare global {
     lexicalEditor: {
       modalOverlay: ColorString,
       equationText: ColorString,
-      /** Blue hover background for edit buttons */
       editButtonHover: ColorString,
-      /** Blue focus ring for selections */
       focusRing: ColorString,
-      /** Light blue shadow for mention focus */
       mentionFocus: ColorString,
-      /** Coral/orange color for keywords */
       keyword: ColorString,
+      commentInputBoxButtonBackground: ColorString,
+      commentInputBoxButtonHoverBackground: ColorString,
+      threadQuoteBackground: ColorString,
+      codeActionMenuBackground: ColorString,
+      tableCellResizerHover: ColorString,
     },
     blockquoteHighlight: {
       commentHovered: ColorString,

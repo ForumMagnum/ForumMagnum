@@ -26,7 +26,7 @@ const styles = defineStyles('LexicalImageResizer', (theme: ThemeType) => ({
     width: 7,
     height: 7,
     position: 'absolute',
-    backgroundColor: 'rgb(60, 132, 244)',
+    backgroundColor: theme.palette.lexicalEditor.focusRing,
     border: `1px solid ${theme.palette.grey[0]}`,
     pointerEvents: 'auto',
   },
