@@ -27,8 +27,6 @@ const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
     },
   },
   rootComment: {
-    fontSize: 14,
-    padding: '8px 12px',
     minHeight: 'var(--lexical-comment-min-height, 60px)',
   },
   placeholder: {

@@ -259,7 +259,7 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     display: 'inline-block',
     pointerEvents: 'none',
   },
-}), { allowNonThemeColors: true });
+}));
 
 interface LexicalPostEditorProps {
   data?: string;
