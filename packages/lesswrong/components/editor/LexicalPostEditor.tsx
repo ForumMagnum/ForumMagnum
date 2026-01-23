@@ -18,6 +18,7 @@ import PlaygroundNodes from '../lexical/nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from '../lexical/themes/PlaygroundEditorTheme';
 import { ToolbarContext } from '../lexical/context/ToolbarContext';
 import Settings from '../lexical/Settings';
+import { TableCellNode } from '@lexical/table';
 
 
 const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
@@ -349,7 +350,18 @@ const LexicalPostEditor = ({
     () =>
       defineExtension({
         $initialEditorState: null,
-        // html: buildHTMLConfig(),
+        html: {
+          export: new Map([[
+            TableCellNode,
+            (editor, target) => {
+              const output = target.exportDOM(editor);
+              if (output.element) {
+                (output.element as HTMLElement).style = '';
+              }
+              return output;
+            }
+          ]])
+        },
         name: '@lexical/playground',
         namespace: 'Playground',
         nodes: PlaygroundNodes,
