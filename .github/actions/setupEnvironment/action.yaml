@@ -36,6 +36,11 @@ runs:
       shell: bash
       run: yarn install --frozen-lockfile
 
+    - name: Install hocuspocus server dependencies
+      if: steps.cache-hocuspocus-server-node-modules.outputs.cache-hit != 'true'
+      shell: bash
+      run: yarn install --frozen-lockfile --cwd fly/hocuspocusServer
+
     - name: Verify dependencies were installed
       shell: bash
       run: test -d node_modules
