@@ -18,7 +18,7 @@ runs:
       uses: actions/cache@v4
       with:
         path: node_modules
-        key: forum-env-cache-${{ hashFiles('yarn.lock') }}
+        key: forum-env-cache-${{ hashFiles('yarn.lock', 'fly/hocuspocusServer/yarn.lock') }}
 
     - name: Setup node-gyp
       shell: bash
