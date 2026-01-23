@@ -38,7 +38,7 @@ import * as ReactDOM from 'react-dom';
 
 import useModal from '../../hooks/useModal';
 // import catTypingGif from '../../images/cat-typing.gif';
-import {EmbedConfigs} from '../AutoEmbedPlugin';
+// import {EmbedConfigs} from '../AutoEmbedPlugin';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
@@ -303,15 +303,15 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
     //       <InsertPollDialog activeEditor={editor} onClose={onClose} />
     //     )),
     // }),
-    ...EmbedConfigs.map(
-      (embedConfig) =>
-        new ComponentPickerOption(`Embed ${embedConfig.contentName}`, {
-          icon: embedConfig.icon,
-          keywords: [...embedConfig.keywords, 'embed'],
-          onSelect: () =>
-            editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type),
-        }),
-    ),
+    // ...EmbedConfigs.map(
+    //   (embedConfig) =>
+    //     new ComponentPickerOption(`Embed ${embedConfig.contentName}`, {
+    //       icon: embedConfig.icon,
+    //       keywords: [...embedConfig.keywords, 'embed'],
+    //       onSelect: () =>
+    //         editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type),
+    //     }),
+    // ),
     // new ComponentPickerOption('Date', {
     //   icon: <CalendarIcon style={iconStyle} />,
     //   keywords: ['date', 'calendar', 'time'],
