@@ -29,7 +29,7 @@ import ForumIcon from '../common/ForumIcon';
 import { MenuItem } from '../common/Menus';
 import Loading from '../vulcan-core/Loading';
 import { makeEditorConfig } from '../editor/editorConfigs';
-import LexicalPostEditor from '../editor/LexicalPostEditor';
+import LexicalEditor from '../editor/LexicalEditor';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const styles = defineStyles('LanguageModelChat', (theme: ThemeType) => ({
@@ -333,7 +333,7 @@ const LLMInputTextbox = ({onSubmit}: {
       }}
     >
       {isAdmin ? (
-        <LexicalPostEditor
+        <LexicalEditor
           data={currentMessage}
           placeholder="Type here.  Ctrl/Cmd + Enter to submit to Claude 3.5. "
           onChange={setCurrentMessage}

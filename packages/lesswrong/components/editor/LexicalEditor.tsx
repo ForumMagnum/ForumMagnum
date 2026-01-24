@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import { LexicalCollaboration } from '@lexical/react/LexicalCollaborationContext';
 import { defineExtension } from 'lexical';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
+import WarningBanner from '../common/WarningBanner';
 import { useClientId } from '../hooks/useClientId';
 import type { CollaborationConfig } from '../lexical/collaboration';
 import { useHocuspocusAuth } from './lexicalPlugins/collaboration/useHocuspocusAuth'
@@ -261,49 +262,53 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
   },
 }));
 
-interface LexicalPostEditorProps {
+interface LexicalEditorProps {
   data?: string;
   placeholder?: string;
   onChange: (html: string) => void;
   onReady?: () => void;
   commentEditor?: boolean;
-  /** Post ID for enabling collaborative editing. If not provided, collaboration is disabled. */
-  postId?: string | null;
-  /** Whether to enable collaborative editing (requires postId) */
-  collaborative?: boolean;
+  /** Collection name to determine whether collaboration is supported. */
+  collectionName?: CollectionNameString;
+  /** Document ID for collaborative editing. When provided for Posts, the editor always uses
+   * collaborative mode for consistency, even if not sharing with others. */
+  documentId?: string | null;
   /** Collaborative editor access level for suggested edits permissions */
   accessLevel?: CollaborativeEditingAccessLevel;
 }
 
-const LexicalPostEditor = ({
+const LexicalEditor = ({
   data = '',
   placeholder = 'Start writing...',
   onChange,
   onReady,
-  postId = null,
-  collaborative = false,
+  collectionName,
+  documentId = null,
   commentEditor = false,
   accessLevel,
-}: LexicalPostEditorProps) => {
+}: LexicalEditorProps) => {
   const classes = useStyles(lexicalStyles);
   const currentUser = useCurrentUser();
   const clientId = useClientId();
   const initialHtmlRef = useRef<string | null>(null);
-  const lastPostIdRef = useRef<string | null>(null);
+  const lastDocumentIdRef = useRef<string | null>(null);
   const lastEmittedHtmlRef = useRef<string | null>(null);
-  const [editorVersion, setEditorVersion] = React.useState(0);
-  if (lastPostIdRef.current !== postId) {
-    lastPostIdRef.current = postId;
+  const [editorVersion, setEditorVersion] = useState(0);
+  const [collaborationWarning, setCollaborationWarning] = useState<string | null>(null);
+
+  if (lastDocumentIdRef.current !== documentId) {
+    lastDocumentIdRef.current = documentId;
     initialHtmlRef.current = data;
   } else if (initialHtmlRef.current === null) {
     initialHtmlRef.current = data;
   }
 
-  // Fetch Hocuspocus auth if collaboration is enabled
-  // Anonymous users can collaborate if they have a clientId (from cookie)
-  const shouldEnableCollaboration = collaborative && !!postId;
+  // Always enable collaboration for posts (when documentId is available).
+  // This ensures we always use Yjs for consistency, even when not sharing with others.
+  // Anonymous users can collaborate if they have a clientId (from cookie).
+  const shouldEnableCollaboration = collectionName === 'Posts' && !!documentId;
   const { auth: hocuspocusAuth, loading: authLoading, error: authError } = useHocuspocusAuth(
-    postId,
+    documentId,
     !shouldEnableCollaboration
   );
 
@@ -317,7 +322,7 @@ const LexicalPostEditor = ({
     const userName = currentUser?.displayName ?? 'Anonymous';
     
     return {
-      postId: postId!,
+      postId: documentId!,
       token: hocuspocusAuth.token,
       wsUrl: hocuspocusAuth.wsUrl,
       documentName: hocuspocusAuth.documentName,
@@ -325,23 +330,28 @@ const LexicalPostEditor = ({
         id: userId,
         name: userName,
       },
+      onError: (error) => {
+        setCollaborationWarning(error.message);
+      },
     };
-  }, [shouldEnableCollaboration, hocuspocusAuth, currentUser, clientId, postId]);
+  }, [shouldEnableCollaboration, hocuspocusAuth, currentUser, clientId, documentId]);
 
   useEffect(() => {
     onReady?.();
   }, [onReady]);
 
+  // Handle external data changes when not in collaborative mode (e.g., comments).
+  // In collaborative mode, the Yjs document is the source of truth.
   useEffect(() => {
-    if (collaborative) return;
+    if (shouldEnableCollaboration) return;
     const lastEmitted = lastEmittedHtmlRef.current;
     if (lastEmitted !== null && data === lastEmitted) return;
     if ((initialHtmlRef.current ?? '') === data) return;
     initialHtmlRef.current = data;
     setEditorVersion((prev) => prev + 1);
-  }, [collaborative, data]);
+  }, [shouldEnableCollaboration, data]);
 
-  const handleChange = React.useCallback((html: string) => {
+  const handleChange = useCallback((html: string) => {
     lastEmittedHtmlRef.current = html;
     onChange(html);
   }, [onChange]);
@@ -382,10 +392,19 @@ const LexicalPostEditor = ({
     );
   }
 
-  // Log auth errors but continue without collaboration
-  if (authError) {
+  // Fail closed if collaboration is required but auth is missing or failed.
+  if (shouldEnableCollaboration && !authLoading && !hocuspocusAuth) {
     // eslint-disable-next-line no-console
-    console.error('[LexicalPostEditor] Failed to get collaboration auth:', authError);
+    console.error('[LexicalEditor] Failed to get collaboration auth:', authError);
+    return (
+      <div className={classes.editorContainer}>
+        <div className={classes.editorInner}>
+          <WarningBanner
+            message="Unable to start collaborative editing. Please refresh, or message us on Intercom if this persists."
+          />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -394,9 +413,12 @@ const LexicalPostEditor = ({
         <SharedHistoryContext>
           <TableContext>
             <ToolbarContext>
+              {collaborationWarning && shouldEnableCollaboration && (
+                <WarningBanner message={collaborationWarning} />
+              )}
               <div className={classNames(!commentEditor && classes.editorShell)}>
                 <Editor
-                  key={`${postId ?? 'lexical-new'}-${editorVersion}`}
+                  key={`${documentId ?? 'lexical-new'}-${editorVersion}`}
                   collaborationConfig={collaborationConfig ?? undefined}
                   accessLevel={accessLevel}
                   initialHtml={initialHtmlRef.current ?? ''}
@@ -419,5 +441,5 @@ const LexicalPostEditor = ({
   );
 };
 
-export default LexicalPostEditor;
+export default LexicalEditor;
 

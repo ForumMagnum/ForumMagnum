@@ -21,7 +21,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import KeystrokeDisplay from './supermod/KeystrokeDisplay';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { makeEditorConfig } from '../editor/editorConfigs';
-import LexicalPostEditor from '../editor/LexicalPostEditor';
+import LexicalEditor from '../editor/LexicalEditor';
 import { focusLexicalEditor } from '../editor/focusLexicalEditor';
 
 const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
@@ -604,7 +604,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
 
       <ContentStyles contentType='comment'>
         {isAdmin ? (
-          <LexicalPostEditor
+          <LexicalEditor
             key={lexicalEditorVersion}
             data={rejectedReason}
             placeholder="Enter rejection reason..."

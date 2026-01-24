@@ -15,7 +15,7 @@ import {checkEditorValid} from './validation'
 import ContentStyles from "../common/ContentStyles";
 import CKCommentEditor from "./CKCommentEditor";
 import CKPostEditor from "./CKPostEditor";
-import LexicalPostEditor from "./LexicalPostEditor";
+import LexicalEditor from "./LexicalEditor";
 import WarningBanner from "../common/WarningBanner";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
@@ -596,11 +596,11 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   renderLexicalEditor = (contents: EditorContents) => {
-    const { _classes: classes, placeholder, commentEditor, documentId } = this.props;
+    const { _classes: classes, placeholder, commentEditor, documentId, collectionName } = this.props;
     const value = (typeof contents?.value === 'string') ? contents.value : "";
 
     return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
-      <LexicalPostEditor
+      <LexicalEditor
         data={value}
         placeholder={placeholder}
         onChange={(newValue: string) => {
@@ -610,8 +610,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           // Lexical editor is ready
         }}
         commentEditor={commentEditor}
-        postId={documentId}
-        collaborative={this.props.isCollaborative}
+        documentId={documentId}
+        collectionName={collectionName}
         accessLevel={this.props.accessLevel}
       />
     </div>

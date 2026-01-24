@@ -23,7 +23,7 @@ import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
 import PostVersionHistoryButton from './PostVersionHistory';
 import { gql } from '@/lib/generated/gql-codegen';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
-import LexicalPostEditor from './LexicalPostEditor';
+import LexicalEditor from './LexicalEditor';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const styles = (theme: ThemeType) => ({
@@ -127,14 +127,14 @@ const PostCollaborationEditor = ({ classes }: {
       <ContentStyles className={classes.editor} contentType="post">
         <DeferRender ssr={false}>
           {isAdmin ? (
-            <LexicalPostEditor
+            <LexicalEditor
               data={''}
               placeholder="Start writing..."
               onChange={() => {}}
               onReady={() => {}}
               commentEditor={false}
-              postId={post._id}
-              collaborative
+              documentId={post._id}
+              collectionName="Posts"
               accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
             />
           ) : (
