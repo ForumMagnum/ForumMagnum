@@ -29,7 +29,7 @@ import ForumIcon from '../common/ForumIcon';
 import { MenuItem } from '../common/Menus';
 import Loading from '../vulcan-core/Loading';
 import { makeEditorConfig } from '../editor/editorConfigs';
-import LexicalEditor from '../editor/LexicalPostEditor';
+import LexicalEditor from '../editor/LexicalEditor';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const styles = defineStyles('LanguageModelChat', (theme: ThemeType) => ({

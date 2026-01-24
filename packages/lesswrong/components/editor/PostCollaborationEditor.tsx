@@ -23,7 +23,7 @@ import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
 import PostVersionHistoryButton from './PostVersionHistory';
 import { gql } from '@/lib/generated/gql-codegen';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
-import LexicalEditor from './LexicalPostEditor';
+import LexicalEditor from './LexicalEditor';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const styles = (theme: ThemeType) => ({

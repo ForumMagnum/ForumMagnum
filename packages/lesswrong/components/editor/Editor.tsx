@@ -15,7 +15,7 @@ import {checkEditorValid} from './validation'
 import ContentStyles from "../common/ContentStyles";
 import CKCommentEditor from "./CKCommentEditor";
 import CKPostEditor from "./CKPostEditor";
-import LexicalEditor from "./LexicalPostEditor";
+import LexicalEditor from "./LexicalEditor";
 import WarningBanner from "../common/WarningBanner";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";

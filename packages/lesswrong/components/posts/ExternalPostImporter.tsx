@@ -15,7 +15,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { makeEditorConfig } from '../editor/editorConfigs';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import LexicalEditor from '../editor/LexicalPostEditor';
+import LexicalEditor from '../editor/LexicalEditor';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {
