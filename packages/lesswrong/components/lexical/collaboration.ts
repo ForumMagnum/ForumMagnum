@@ -46,7 +46,7 @@ const INDEXEDDB_VERSION = 'v1';
 /**
  * Get the versioned IndexedDB key for a document.
  */
-export function getIndexedDbKey(documentName: string): string {
+function getIndexedDbKey(documentName: string): string {
   return `${documentName}-${INDEXEDDB_VERSION}`;
 }
 
@@ -55,7 +55,7 @@ export function getIndexedDbKey(documentName: string): string {
  * Call this when the editor unmounts to prevent memory leaks.
  * Note: This stops syncing but does not clear the stored data.
  */
-export function cleanupPersistence(documentName: string): void {
+function cleanupPersistence(documentName: string): void {
   const indexedDbKey = getIndexedDbKey(documentName);
   const persistence = persistenceInstances.get(indexedDbKey);
   if (persistence) {
@@ -98,7 +98,7 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
   let indexedDbReady = false;
   if (id === 'main') {
     cleanupPersistence(documentName);
-    
+
     const indexedDbKey = getIndexedDbKey(documentName);
     const persistence = new IndexeddbPersistence(indexedDbKey, doc);
     persistenceInstances.set(indexedDbKey, persistence);
