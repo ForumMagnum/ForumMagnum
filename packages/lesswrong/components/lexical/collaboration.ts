@@ -42,6 +42,7 @@ const persistenceInstances = new Map<string, IndexeddbPersistence>();
 // Version suffix for IndexedDB keys - increment when making breaking changes
 // to invalidate stale data from previous versions
 const INDEXEDDB_VERSION = 'v1';
+const INDEXEDDB_READY_TIMEOUT_MS = 3000;
 
 /**
  * Get the versioned IndexedDB key for a document.
@@ -62,6 +63,54 @@ function cleanupPersistence(documentName: string): void {
     void persistence.destroy();
     persistenceInstances.delete(indexedDbKey);
   }
+}
+
+/**
+ * Sets up IndexedDB persistence for a document.
+ * Returns a promise that resolves when persistence is synced (or failed/timed out).
+ */
+function setupPersistence(
+  documentName: string,
+  doc: Doc,
+  config: CollaborationConfig
+): Promise<void> {
+  cleanupPersistence(documentName);
+
+  return new Promise<void>((resolve) => {
+    const indexedDbKey = getIndexedDbKey(documentName);
+    const persistence = new IndexeddbPersistence(indexedDbKey, doc);
+    persistenceInstances.set(indexedDbKey, persistence);
+
+    let isComplete = false;
+    const complete = () => {
+      if (isComplete) return;
+      isComplete = true;
+      resolve();
+    };
+
+    const timeoutId = setTimeout(() => {
+      // eslint-disable-next-line no-console
+      console.warn('[Collaboration] IndexedDB persistence timed out; continuing without it.');
+      config.onError?.(new Error('IndexedDB persistence timed out. Continuing without offline support.'));
+      complete();
+    }, INDEXEDDB_READY_TIMEOUT_MS);
+
+    persistence.on('synced', () => {
+      clearTimeout(timeoutId);
+      complete();
+    });
+
+    persistence.on('error', (error: Error) => {
+      // eslint-disable-next-line no-console
+      console.error('[Collaboration] IndexedDB persistence error:', error);
+      config.onError?.(new Error('IndexedDB persistence failed. Continuing without offline support.'));
+      // Try to clear bad data, then proceed
+      void persistence.clearData().finally(() => {
+        clearTimeout(timeoutId);
+        complete();
+      });
+    });
+  });
 }
 
 // parent dom -> child doc
@@ -92,35 +141,12 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
   // The main editor typically uses 'main' as the id.
   const documentName = id === 'main' ? config.documentName : `${config.documentName}/${id}`;
 
-  // Set up IndexedDB persistence for offline support.
-  // This persists the Y.Doc to IndexedDB so edits survive page refreshes.
-  // Only enable for main documents to avoid excessive storage for nested editors.
-  let indexedDbReady = false;
-  if (id === 'main') {
-    cleanupPersistence(documentName);
-
-    const indexedDbKey = getIndexedDbKey(documentName);
-    const persistence = new IndexeddbPersistence(indexedDbKey, doc);
-    persistenceInstances.set(indexedDbKey, persistence);
-    
-    persistence.on('synced', () => {
-      indexedDbReady = true;
-    });
-    
-    // Handle errors - if IndexedDB has corrupt/incompatible data, clear it and continue
-    persistence.on('error', (error: Error) => {
-      // eslint-disable-next-line no-console
-      console.error('[Collaboration] IndexedDB persistence error:', error);
-      void persistence.clearData().then(() => {
-        indexedDbReady = true;
-      }).catch(() => {
-        indexedDbReady = true;
-      });
-    });
-  } else {
-    // Skip IndexedDB for nested editors (comments, suggestions, etc.)
-    indexedDbReady = true;
-  }
+  // Initialize persistence if needed.
+  // For 'main', we wait for IndexedDB to sync (or fail) before connecting.
+  // For others, we proceed immediately.
+  const readyPromise = id === 'main' 
+    ? setupPersistence(documentName, doc, config)
+    : Promise.resolve();
 
   // Track whether this is the first sync (for bootstrap detection)
   let hasReceivedFirstSync = false;
@@ -150,30 +176,10 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
   // This ensures local offline changes are loaded before we sync with the server,
   // so the bootstrap check sees any locally-persisted content.
   const originalConnect = provider.connect.bind(provider);
-  let connectPending = false;
   
   provider.connect = async () => {
-    if (indexedDbReady) {
-      await originalConnect();
-    } else {
-      connectPending = true;
-      // Wait for IndexedDB to be ready, then connect
-      await new Promise<void>((resolve) => {
-        const checkReady = () => {
-          if (indexedDbReady) {
-            if (connectPending) {
-              connectPending = false;
-              void originalConnect().then(resolve);
-            } else {
-              resolve();
-            }
-          } else {
-            setTimeout(checkReady, 10);
-          }
-        };
-        checkReady();
-      });
-    }
+    await readyPromise;
+    await originalConnect();
   };
 
   // HocuspocusProvider uses 'document' property, but Lexical's code expects 'doc'

@@ -6,6 +6,7 @@ import { defineExtension } from 'lexical';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
+import WarningBanner from '../common/WarningBanner';
 import { useClientId } from '../hooks/useClientId';
 import type { CollaborationConfig } from '../lexical/collaboration';
 import { useHocuspocusAuth } from './lexicalPlugins/collaboration/useHocuspocusAuth'
@@ -261,48 +262,53 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
   },
 }));
 
-interface LexicalPostEditorProps {
+interface LexicalEditorProps {
   data?: string;
   placeholder?: string;
   onChange: (html: string) => void;
   onReady?: () => void;
   commentEditor?: boolean;
-  /** Post ID for collaborative editing. When provided, the editor always uses 
+  /** Collection name to determine whether collaboration is supported. */
+  collectionName?: CollectionNameString;
+  /** Document ID for collaborative editing. When provided for Posts, the editor always uses
    * collaborative mode (Yjs) for consistency, even if not sharing with others. */
-  postId?: string | null;
+  documentId?: string | null;
   /** Collaborative editor access level for suggested edits permissions */
   accessLevel?: CollaborativeEditingAccessLevel;
 }
 
-const LexicalPostEditor = ({
+const LexicalEditor = ({
   data = '',
   placeholder = 'Start writing...',
   onChange,
   onReady,
-  postId = null,
+  collectionName,
+  documentId = null,
   commentEditor = false,
   accessLevel,
-}: LexicalPostEditorProps) => {
+}: LexicalEditorProps) => {
   const classes = useStyles(lexicalStyles);
   const currentUser = useCurrentUser();
   const clientId = useClientId();
   const initialHtmlRef = useRef<string | null>(null);
-  const lastPostIdRef = useRef<string | null>(null);
+  const lastDocumentIdRef = useRef<string | null>(null);
   const lastEmittedHtmlRef = useRef<string | null>(null);
   const [editorVersion, setEditorVersion] = React.useState(0);
-  if (lastPostIdRef.current !== postId) {
-    lastPostIdRef.current = postId;
+  const [collaborationWarning, setCollaborationWarning] = React.useState<string | null>(null);
+
+  if (lastDocumentIdRef.current !== documentId) {
+    lastDocumentIdRef.current = documentId;
     initialHtmlRef.current = data;
   } else if (initialHtmlRef.current === null) {
     initialHtmlRef.current = data;
   }
 
-  // Always enable collaboration for posts (when postId is available).
+  // Always enable collaboration for posts (when documentId is available).
   // This ensures we always use Yjs for consistency, even when not sharing with others.
   // Anonymous users can collaborate if they have a clientId (from cookie).
-  const shouldEnableCollaboration = !!postId;
+  const shouldEnableCollaboration = collectionName === 'Posts' && !!documentId;
   const { auth: hocuspocusAuth, loading: authLoading, error: authError } = useHocuspocusAuth(
-    postId,
+    documentId,
     !shouldEnableCollaboration
   );
 
@@ -316,7 +322,7 @@ const LexicalPostEditor = ({
     const userName = currentUser?.displayName ?? 'Anonymous';
     
     return {
-      postId: postId!,
+      postId: documentId!,
       token: hocuspocusAuth.token,
       wsUrl: hocuspocusAuth.wsUrl,
       documentName: hocuspocusAuth.documentName,
@@ -324,8 +330,11 @@ const LexicalPostEditor = ({
         id: userId,
         name: userName,
       },
+      onError: (error) => {
+        setCollaborationWarning(error.message);
+      },
     };
-  }, [shouldEnableCollaboration, hocuspocusAuth, currentUser, clientId, postId]);
+  }, [shouldEnableCollaboration, hocuspocusAuth, currentUser, clientId, documentId]);
 
   useEffect(() => {
     onReady?.();
@@ -383,10 +392,19 @@ const LexicalPostEditor = ({
     );
   }
 
-  // Log auth errors but continue without collaboration
-  if (authError) {
+  // Fail closed if collaboration is required but auth is missing or failed.
+  if (shouldEnableCollaboration && !authLoading && !hocuspocusAuth) {
     // eslint-disable-next-line no-console
-    console.error('[LexicalPostEditor] Failed to get collaboration auth:', authError);
+    console.error('[LexicalEditor] Failed to get collaboration auth:', authError);
+    return (
+      <div className={classes.editorContainer}>
+        <div className={classes.editorInner}>
+          <WarningBanner
+            message="Unable to start collaborative editing. Please refresh, or message us on Intercom if this persists."
+          />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -395,9 +413,12 @@ const LexicalPostEditor = ({
         <SharedHistoryContext>
           <TableContext>
             <ToolbarContext>
+              {collaborationWarning && shouldEnableCollaboration && (
+                <WarningBanner message={collaborationWarning} />
+              )}
               <div className={classNames(!commentEditor && classes.editorShell)}>
                 <Editor
-                  key={`${postId ?? 'lexical-new'}-${editorVersion}`}
+                  key={`${documentId ?? 'lexical-new'}-${editorVersion}`}
                   collaborationConfig={collaborationConfig ?? undefined}
                   accessLevel={accessLevel}
                   initialHtml={initialHtmlRef.current ?? ''}
@@ -420,5 +441,5 @@ const LexicalPostEditor = ({
   );
 };
 
-export default LexicalPostEditor;
+export default LexicalEditor;
 

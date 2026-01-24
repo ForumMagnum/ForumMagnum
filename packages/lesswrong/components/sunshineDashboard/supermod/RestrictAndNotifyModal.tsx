@@ -24,7 +24,7 @@ import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { makeEditorConfig } from '@/components/editor/editorConfigs';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import LexicalPostEditor from '@/components/editor/LexicalPostEditor';
+import LexicalEditor from '@/components/editor/LexicalPostEditor';
 import { focusLexicalEditor } from '@/components/editor/focusLexicalEditor';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
@@ -344,7 +344,7 @@ const RestrictAndNotifyModal = ({
         <div className={classes.editorContainer} ref={editorContainerRef}>
           <ContentStyles contentType='comment'>
             {isAdmin ? (
-              <LexicalPostEditor
+              <LexicalEditor
                 key={lexicalEditorVersion}
                 data={messageContent}
                 placeholder="Edit message to user..."

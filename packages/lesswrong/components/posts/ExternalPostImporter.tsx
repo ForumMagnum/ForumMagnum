@@ -15,7 +15,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { makeEditorConfig } from '../editor/editorConfigs';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import LexicalPostEditor from '../editor/LexicalPostEditor';
+import LexicalEditor from '../editor/LexicalPostEditor';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -169,7 +169,7 @@ const ImportedPostEditor = ({
     <div className={classes.editorContainer}>
       <ContentStyles contentType="post">
         {isAdmin ? (
-          <LexicalPostEditor
+          <LexicalEditor
             data={editorValue}
             placeholder="Edit the imported post..."
             onChange={setEditorValue}
@@ -219,7 +219,7 @@ const CommentEditor = ({
     <div className={classes.commentEditorContainer}>
       <ContentStyles contentType="comment">
         {isAdmin ? (
-          <LexicalPostEditor
+          <LexicalEditor
             data={commentValue}
             placeholder="Write a review about the imported post..."
             onChange={setCommentValue}
