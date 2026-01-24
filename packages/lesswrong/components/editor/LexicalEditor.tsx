@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import { LexicalCollaboration } from '@lexical/react/LexicalCollaborationContext';
 import { defineExtension } from 'lexical';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -271,7 +271,7 @@ interface LexicalEditorProps {
   /** Collection name to determine whether collaboration is supported. */
   collectionName?: CollectionNameString;
   /** Document ID for collaborative editing. When provided for Posts, the editor always uses
-   * collaborative mode (Yjs) for consistency, even if not sharing with others. */
+   * collaborative mode for consistency, even if not sharing with others. */
   documentId?: string | null;
   /** Collaborative editor access level for suggested edits permissions */
   accessLevel?: CollaborativeEditingAccessLevel;
@@ -293,8 +293,8 @@ const LexicalEditor = ({
   const initialHtmlRef = useRef<string | null>(null);
   const lastDocumentIdRef = useRef<string | null>(null);
   const lastEmittedHtmlRef = useRef<string | null>(null);
-  const [editorVersion, setEditorVersion] = React.useState(0);
-  const [collaborationWarning, setCollaborationWarning] = React.useState<string | null>(null);
+  const [editorVersion, setEditorVersion] = useState(0);
+  const [collaborationWarning, setCollaborationWarning] = useState<string | null>(null);
 
   if (lastDocumentIdRef.current !== documentId) {
     lastDocumentIdRef.current = documentId;
@@ -340,7 +340,7 @@ const LexicalEditor = ({
     onReady?.();
   }, [onReady]);
 
-  // Handle external data changes when NOT in collaborative mode (e.g., comments).
+  // Handle external data changes when not in collaborative mode (e.g., comments).
   // In collaborative mode, the Yjs document is the source of truth.
   useEffect(() => {
     if (shouldEnableCollaboration) return;
@@ -351,7 +351,7 @@ const LexicalEditor = ({
     setEditorVersion((prev) => prev + 1);
   }, [shouldEnableCollaboration, data]);
 
-  const handleChange = React.useCallback((html: string) => {
+  const handleChange = useCallback((html: string) => {
     lastEmittedHtmlRef.current = html;
     onChange(html);
   }, [onChange]);
