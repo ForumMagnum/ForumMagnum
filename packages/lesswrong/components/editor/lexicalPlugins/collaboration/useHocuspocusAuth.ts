@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useSubscribedLocation } from "@/lib/routeUtil";
@@ -39,27 +40,20 @@ export function useHocuspocusAuth(postId: string | null, skip = false): {
     ssr: false, // Don't fetch during SSR - collaboration is client-only
   });
 
-  if (loading) {
-    return { auth: null, loading: true, error: null };
-  }
+  // Memoize the auth object to prevent unnecessary re-renders downstream.
+  // Without this, every render would create a new auth object reference,
+  // causing useMemo dependencies in parent components to recalculate.
+  const auth = useMemo(() => {
+    if (loading || error) return null;
+    const authData = data?.HocuspocusAuth;
+    if (!authData) return null;
+    return {
+      token: authData.token,
+      wsUrl: authData.wsUrl,
+      documentName: authData.documentName,
+    };
+  }, [loading, error, data?.HocuspocusAuth]);
 
-  if (error) {
-    return { auth: null, loading: false, error };
-  }
-
-  const auth = data?.HocuspocusAuth;
-  if (!auth) {
-    return { auth: null, loading: false, error: null };
-  }
-
-  return {
-    auth: {
-      token: auth.token,
-      wsUrl: auth.wsUrl,
-      documentName: auth.documentName,
-    },
-    loading: false,
-    error: null,
-  };
+  return { auth, loading, error: error ?? null };
 }
 

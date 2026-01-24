@@ -134,7 +134,6 @@ const PostCollaborationEditor = ({ classes }: {
               onReady={() => {}}
               commentEditor={false}
               postId={post._id}
-              collaborative
               accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
             />
           ) : (

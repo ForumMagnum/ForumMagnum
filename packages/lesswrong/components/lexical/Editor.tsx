@@ -33,8 +33,9 @@ import {TabIndentationPlugin} from '@lexical/react/LexicalTabIndentationPlugin';
 import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
 import {CAN_USE_DOM} from '@lexical/utils';
-import {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Doc} from 'yjs';
+import * as Y from 'yjs';
 import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
 import {$getRoot, $insertNodes} from 'lexical';
 import { CodeBlockPlugin } from '../editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
@@ -315,6 +316,23 @@ export interface EditorProps {
   commentEditor?: boolean;
 }
 
+/**
+ * Check if a Y.Doc's Lexical content is empty.
+ */
+function isYjsDocEmpty(doc: Doc): boolean {
+  // We use doc.share to check if 'root' exists without creating it,
+  // because creating it prematurely can conflict with Lexical's CollaborationPlugin.
+  const root = doc.share.get('root');
+  if (!root || !(root instanceof Y.XmlFragment) || root.length === 0) return true;
+  if (root.length > 1) return false;
+  
+  const firstChild = root.get(0);
+  if (firstChild instanceof Y.XmlElement && firstChild.nodeName === 'paragraph') {
+    return firstChild.length === 0;
+  }
+  return false;
+}
+
 export default function Editor({
   collaborationConfig,
   accessLevel,
@@ -327,19 +345,70 @@ export default function Editor({
   const {historyState} = useSharedHistoryContext();
   const hasLoadedInitialHtmlRef = useRef(false);
   const internalIdsRef = useRef<InternalIdMap>(new Map());
+  const [editor] = useLexicalComposerContext();
   
   // Track when collaboration config is ready (set synchronously, not in useEffect)
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
   
-  // Set up collaboration config before rendering collaboration plugins
+  // Store initialHtml in a ref so the onSynced callback can access the latest value
+  const initialHtmlRef = useRef(initialHtml);
+  initialHtmlRef.current = initialHtml;
+  
+  // Callback for handling the first sync with the collaboration server.
+  // If the Yjs document is empty and we have initial HTML, bootstrap from it.
+  const handleCollaborationSync = useCallback((doc: Doc, isFirstSync: boolean) => {
+    if (!isFirstSync) return;
+    
+    const htmlToBootstrap = initialHtmlRef.current;
+    if (!htmlToBootstrap?.trim()) return;
+    if (!isYjsDocEmpty(doc)) return;
+    
+    // Use a Yjs map to prevent duplicate bootstrapping if multiple clients connect simultaneously.
+    // The first client to set 'bootstrapped' wins. Only really matters if a user has a non-collaborative
+    // document open in multiple tabs, or something.
+    const meta = doc.getMap('_lfm_meta');
+    if (meta.get('bootstrapped')) return;
+    
+    meta.set('bootstrapped', Date.now());
+    
+    editor.update(() => {
+      const { html, internalIds } = preprocessHtmlForImport(htmlToBootstrap);
+      internalIdsRef.current = internalIds;
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(html, 'text/html');
+      const nodes = $generateNodesFromDOM(editor, dom);
+      const root = $getRoot();
+      root.clear();
+      $insertNodes(nodes);
+    });
+  }, [editor]);
+  
+  // Set up collaboration config before rendering collaboration plugins.
+  // Merge in our onSynced handler for bootstrap detection.
   useLayoutEffect(() => {
-    setCollaborationConfig(collaborationConfig ?? null);
+    if (collaborationConfig) {
+      const configWithSyncHandler: CollaborationConfig = {
+        ...collaborationConfig,
+        onSynced: (doc, isFirstSync) => {
+          handleCollaborationSync(doc, isFirstSync);
+          collaborationConfig.onSynced?.(doc, isFirstSync);
+        },
+      };
+      setCollaborationConfig(configWithSyncHandler);
+    } else {
+      setCollaborationConfig(null);
+    }
     setIsCollabConfigReady(!!collaborationConfig);
     return () => {
+      // Note: We intentionally do not clean up IndexedDB persistence here.
+      // The persistence should survive component remounts to properly support
+      // offline editing. It will be cleaned up when:
+      // 1. A new persistence is created for the same document (in createWebsocketProviderWithDoc)
+      // 2. The page unloads
       setCollaborationConfig(null);
       setIsCollabConfigReady(false);
     };
-  }, [collaborationConfig]);
+  }, [collaborationConfig, handleCollaborationSync]);
   const {
     settings: {
       isCodeHighlighted,
@@ -370,7 +439,6 @@ export default function Editor({
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isCommentEditor = commentEditor;
   const hasInitialHtml = Boolean(initialHtml && initialHtml.trim().length > 0);
-  const shouldBootstrap = isCollab && hasInitialHtml && !collaborationConfig;
   const isEditable = useLexicalEditable();
   const placeholder = placeholderOverride ?? (isCollab
     ? 'Enter some collaborative rich text...'
@@ -380,7 +448,6 @@ export default function Editor({
   const [floatingAnchorElem, setFloatingAnchorElem] =
     useState<HTMLDivElement | null>(null);
   const isSmallWidthViewport = !useIsAboveBreakpoint('md', true);
-  const [editor] = useLexicalComposerContext();
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
@@ -391,13 +458,11 @@ export default function Editor({
     }
   };
 
-  // Load initial HTML exactly once. When collaboration uses a shared provider,
-  // skip local bootstrapping to avoid duplicating content on reconnect.
-  // TODO: this means we currently don't bootstrap collaborative documents
-  // from existing content, and need to build a safe mechanism to do that.
+  // Load initial HTML for non-collaborative mode only.
+  // In collaborative mode, bootstrapping is handled by handleCollaborationSync after onSynced.
   useEffect(() => {
     if (!hasInitialHtml) return;
-    if (isCollab && !shouldBootstrap) return;
+    if (isCollab) return;
     if (hasLoadedInitialHtmlRef.current) return;
     hasLoadedInitialHtmlRef.current = true;
     const initialHtmlString = initialHtml ?? '';
@@ -412,7 +477,7 @@ export default function Editor({
       root.clear();
       $insertNodes(nodes);
     });
-  }, [editor, hasInitialHtml, initialHtml, isCollab, shouldBootstrap]);
+  }, [editor, hasInitialHtml, initialHtml, isCollab]);
 
   return (
     <>
@@ -471,7 +536,7 @@ export default function Editor({
                 <>
                   <CollabV2
                     id={COLLAB_DOC_ID}
-                    shouldBootstrap={shouldBootstrap}
+                    shouldBootstrap={false}
                     username={collaborationConfig.user.name}
                     cursorsContainerRef={cursorsContainerRef}
                   />
@@ -482,7 +547,7 @@ export default function Editor({
                   key={collaborationConfig.token}
                   id={COLLAB_DOC_ID}
                   providerFactory={createWebsocketProvider}
-                  shouldBootstrap={shouldBootstrap}
+                  shouldBootstrap={false}
                   username={collaborationConfig.user.name}
                   cursorsContainerRef={cursorsContainerRef}
                 />

@@ -267,10 +267,9 @@ interface LexicalPostEditorProps {
   onChange: (html: string) => void;
   onReady?: () => void;
   commentEditor?: boolean;
-  /** Post ID for enabling collaborative editing. If not provided, collaboration is disabled. */
+  /** Post ID for collaborative editing. When provided, the editor always uses 
+   * collaborative mode (Yjs) for consistency, even if not sharing with others. */
   postId?: string | null;
-  /** Whether to enable collaborative editing (requires postId) */
-  collaborative?: boolean;
   /** Collaborative editor access level for suggested edits permissions */
   accessLevel?: CollaborativeEditingAccessLevel;
 }
@@ -281,7 +280,6 @@ const LexicalPostEditor = ({
   onChange,
   onReady,
   postId = null,
-  collaborative = false,
   commentEditor = false,
   accessLevel,
 }: LexicalPostEditorProps) => {
@@ -299,9 +297,10 @@ const LexicalPostEditor = ({
     initialHtmlRef.current = data;
   }
 
-  // Fetch Hocuspocus auth if collaboration is enabled
-  // Anonymous users can collaborate if they have a clientId (from cookie)
-  const shouldEnableCollaboration = collaborative && !!postId;
+  // Always enable collaboration for posts (when postId is available).
+  // This ensures we always use Yjs for consistency, even when not sharing with others.
+  // Anonymous users can collaborate if they have a clientId (from cookie).
+  const shouldEnableCollaboration = !!postId;
   const { auth: hocuspocusAuth, loading: authLoading, error: authError } = useHocuspocusAuth(
     postId,
     !shouldEnableCollaboration
@@ -332,14 +331,16 @@ const LexicalPostEditor = ({
     onReady?.();
   }, [onReady]);
 
+  // Handle external data changes when NOT in collaborative mode (e.g., comments).
+  // In collaborative mode, the Yjs document is the source of truth.
   useEffect(() => {
-    if (collaborative) return;
+    if (shouldEnableCollaboration) return;
     const lastEmitted = lastEmittedHtmlRef.current;
     if (lastEmitted !== null && data === lastEmitted) return;
     if ((initialHtmlRef.current ?? '') === data) return;
     initialHtmlRef.current = data;
     setEditorVersion((prev) => prev + 1);
-  }, [collaborative, data]);
+  }, [shouldEnableCollaboration, data]);
 
   const handleChange = React.useCallback((html: string) => {
     lastEmittedHtmlRef.current = html;
