@@ -1,6 +1,7 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { documentIsNotDeleted, userIsAdminOrMod, userOwns } from "../../vulcan-users/permissions";
 import {
+  accessFilterMultiple,
   arrayOfForeignKeysOnCreate,
   generateIdResolverMulti,
   generateIdResolverSingle,
@@ -493,13 +494,14 @@ const schema = {
     graphql: {
       outputType: "[Comment]",
       canRead: ["guests"],
-      resolver: async (comment, args, context) => {
-        const { Comments } = context;
+      resolver: async (comment, _args, context) => {
+        const { Comments, currentUser } = context;
         const params = viewTermsToQuery("Comments", {
           view: "shortformLatestChildren",
           topLevelCommentId: comment._id,
         });
-        return await Comments.find(params.selector, params.options).fetch();
+        const comments = await Comments.find(params.selector, params.options).fetch();
+        return await accessFilterMultiple(currentUser, "Comments", comments, context);
       },
     },
   },
