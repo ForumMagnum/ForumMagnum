@@ -329,15 +329,15 @@ export const redirects = [
     permanent: true
   }, {
     source: "/nominations",
-    destination: "/reviewVoting/2023",
+    destination: "/reviewVoting/2024",
     permanent: true
   }, {
     source: "/reviews",
-    destination: "/reviews/2023",
+    destination: "/reviews/2024",
     permanent: true
   }, {
     source: "/reviewAdmin",
-    destination: "/reviewAdmin/2023",
+    destination: "/reviewAdmin/2024",
     permanent: true
   }, {
     source: "/user/:slug/overview",
