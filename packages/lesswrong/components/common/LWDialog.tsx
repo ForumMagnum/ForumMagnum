@@ -94,10 +94,19 @@ const LWDialog = ({open, fullScreen, title, maxWidth='sm', fullWidth, disableBac
     {backdrop!=="none" && openRecently && <Backdrop visible={open} style={backdrop}/>}
     {everOpened && (open || keepMounted) && createPortal(
       <div>
-        <ClickAwayListener onClickAway={() => {
-          if (!disableBackdropClick)
-            onClose?.();
-        }}>
+        <ClickAwayListener
+          onClickAway={() => {
+            if (!disableBackdropClick)
+              onClose?.();
+          }}
+          // ckEditor renders things like its toolbar and link insertion form
+          // directly into document.body, so trying to click on one of them
+          // while in the context of having an open dialog with clickaway handling
+          // will cause the dialog to immediately close, which is not what we want.
+          // So ignore clicks on these classes for the purpose of deciding whether
+          // to close the dialog.
+          ignoreClasses=".ck-body-wrapper, .ck-balloon-panel"
+        >
           <div className={classNames(
             classes.dialogWrapper, className, {
               [classes.hidden]: !open,
