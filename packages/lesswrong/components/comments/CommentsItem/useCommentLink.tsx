@@ -7,6 +7,7 @@ import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
 import { isSpecialClick } from "@/lib/utils/eventUtils";
+import { useMatchSSR } from "@/components/common/DeferRender";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,
@@ -94,7 +95,7 @@ export const useCommentLink = ({
  */
 export const useCommentLinkState = () => {
   const { query, hash } = useSubscribedLocation();
-  const { matchSSR } = useContext(EnvironmentOverrideContext);
+  const matchSSR = useMatchSSR();
 
   const queryId = query.commentId
   const hashId = matchSSR ? '' : hash.slice(1)

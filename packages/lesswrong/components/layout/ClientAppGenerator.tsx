@@ -195,18 +195,8 @@ export const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
 }) => {
   const [envOverride, setEnvOverride] = useState<EnvironmentOverride>(ssrMetadata ? {
     ...ssrMetadata,
-    matchSSR: true
-  } : { matchSSR: false });
+  } : {});
   const [_isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    if (envOverride.matchSSR === false) return;
-
-    startTransition(() => {
-      setEnvOverride({matchSSR: false});
-    });
-
-  }, [envOverride.matchSSR]);
 
   return <EnvironmentOverrideContext.Provider value={envOverride}>
     {children}
