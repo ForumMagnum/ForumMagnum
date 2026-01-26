@@ -8,7 +8,7 @@ import type { DocumentNode, OperationDefinitionNode } from 'graphql';
 import { print } from "graphql";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import jsonStringifyDeterministic from "json-stringify-deterministic";
-import { useSsrQueryCache } from "./ssrQueryCache";
+import { SsrQueryCache, useSsrQueryCache } from "./ssrQueryCache";
 import { useSSRResolverContext } from "./ssrResolverContext";
 import { addTypenameToDocument } from "@apollo/client/utilities";
 import { escapeInlineScriptJson, useInjectHTML } from "@/components/hooks/useInjectHTML";
