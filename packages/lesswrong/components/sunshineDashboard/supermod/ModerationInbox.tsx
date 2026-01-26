@@ -357,7 +357,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
             />
           ) : (
             <>
-              {(state.undoQueue.length > 0 || state.history.length > 0) && (
+              {!isPostsTab && (
                 <div className={classes.undoQueueSection}>
                   <ModerationUndoHistory
                     undoQueue={state.undoQueue}

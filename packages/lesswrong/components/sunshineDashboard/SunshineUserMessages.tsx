@@ -232,23 +232,21 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
       const isExpanded = expandedConversationId === conversation._id;
       return (
         <div key={conversation._id} className={classes.conversationItem}>
-          <LWTooltip tooltip={false} placement="left" title={ <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />}>
-            <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
-              <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
-              <span>
-                Conversation with{" "} 
-                {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
-                  return <MetaInfo key={`${conversation._id}${participant._id}`}>
-                    <UsersName simple user={participant}/>
-                  </MetaInfo>
-                })}
-              </span>
-              <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
-              <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
-                <ForumIcon icon="Link" className={classes.linkIcon} />
-              </Link> 
-            </div>
-          </LWTooltip>
+          <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
+            <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
+            <span>
+              Conversation with{" "} 
+              {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
+                return <MetaInfo key={`${conversation._id}${participant._id}`}>
+                  <UsersName simple user={participant}/>
+                </MetaInfo>
+              })}
+            </span>
+            <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
+            <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
+              <ForumIcon icon="Link" className={classes.linkIcon} />
+            </Link> 
+          </div>
           {isExpanded && (
             <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
           )}

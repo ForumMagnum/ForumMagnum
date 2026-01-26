@@ -14,6 +14,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
+    width: '100%',
   },
   contentSection: {
     display: 'grid',

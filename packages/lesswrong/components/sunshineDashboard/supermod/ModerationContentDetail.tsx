@@ -52,11 +52,12 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
     },
   },
   commentsNode: {
-    marginLeft: -1,
-    marginRight: -1,
-    marginTop: -1,
-    marginBottom: -1,
     overflow: 'hidden',
+    '& .comments-node': {
+      borderTop: 'unset',
+      borderLeft: 'unset',
+      borderRight: 'unset',
+    }
   },
   postContent: {
     padding: 16,
