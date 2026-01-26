@@ -357,15 +357,13 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
             />
           ) : (
             <>
-              {(state.undoQueue.length > 0 || state.history.length > 0) && (
-                <div className={classes.undoQueueSection}>
-                  <ModerationUndoHistory
-                    undoQueue={state.undoQueue}
-                    history={state.history}
-                    dispatch={dispatch}
-                  />
-                </div>
-              )}
+              <div className={classes.undoQueueSection}>
+                <ModerationUndoHistory
+                  undoQueue={state.undoQueue}
+                  history={state.history}
+                  dispatch={dispatch}
+                />
+              </div>
               <div className={classes.inboxListContainer}>
                 <ModerationInboxList
                   userGroups={filteredGroups}
