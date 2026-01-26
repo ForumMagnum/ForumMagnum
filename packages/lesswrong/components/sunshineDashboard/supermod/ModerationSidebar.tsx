@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import SunshineUserMessages, { ModerationTemplatesListQuery } from '../SunshineUserMessages';
-import { useCurrentUser } from '@/components/common/withUser';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import LWDialog from '@/components/common/LWDialog';
 import { ModerationTemplatesForm } from '@/components/moderationTemplates/ModerationTemplateForm';
+import SupermodModeratorActions from './SupermodModeratorActions';
 import type { InboxAction } from './inboxReducer';
 
 const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
-    padding: 20,
     display: 'flex',
     flexDirection: 'column',
     overflow: 'auto',
@@ -22,16 +19,19 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     marginTop: 40,
   },
   section: {
-    marginBottom: 12,
+    backgroundColor: theme.palette.background.paper,
+    padding: 12,
     flexShrink: 0,
     overflow: 'hidden',
+    '&:not(:last-child)': {
+      borderBottom: theme.palette.border.normal,
+    },
   },
   sectionTitle: {
     fontSize: 12,
     fontWeight: 600,
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
-    marginBottom: 8,
     letterSpacing: '0.5px',
     flexShrink: 0,
   },
@@ -39,23 +39,39 @@ const styles = defineStyles('ModerationSidebar', (theme: ThemeType) => ({
     overflow: 'auto',
   },
   newTemplateButton: {
-    marginTop: 'auto',
     flexShrink: 0,
+    cursor: 'pointer',
   },
-  dialogContent: {
-    padding: 20,
+  modTemplateForm: {
+    marginTop: 16,
+    paddingLeft: 12,
+    paddingRight: 0,
+    marginLeft: -6,
+    marginRight: -6,
+    border: theme.palette.border.normal,
+    borderRadius: 4,
+    backgroundColor: theme.palette.background.paper,
+    '& .vulcan-form': {
+      marginTop: -16
+    },
   },
 }));
 
 const ModerationSidebar = ({
   user,
   currentUser,
+  posts,
+  comments,
+  dispatch,
 }: {
   user: SunshineUsersList;
   currentUser: UsersCurrent;
+  posts: SunshinePostsList[];
+  comments: SunshineCommentsList[];
+  dispatch: React.ActionDispatch<[action: InboxAction]>;
 }) => {
   const classes = useStyles(styles);
-  const [showNewTemplateModal, setShowNewTemplateModal] = useState(false);
+  const [showNewTemplateForm, setShowNewTemplateForm] = useState(false);
 
   if (!user) {
     return (
@@ -70,41 +86,38 @@ const ModerationSidebar = ({
   return (
     <div className={classes.root}>
       <div className={classes.section}>
+        <div className={classes.sectionTitle}>Moderator Actions</div>
+        <SupermodModeratorActions user={user} dispatch={dispatch} />
+      </div>
+      <div className={classes.section}>
         <div className={classes.sectionTitle}>User Messages</div>
+
         <div className={classes.userMessages}>
           {/* TODO: maybe "expand" should actually open a model with the contents, since expanding a conversation inline is kind of annoying with the "no overflow" thing */}
-          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} showExpandablePreview />
+          <SunshineUserMessages key={user._id} user={user} currentUser={currentUser} posts={posts} comments={comments} showExpandablePreview />
         </div>
-      </div>
-
-      <div className={classes.newTemplateButton}>
-        <Button onClick={() => setShowNewTemplateModal(true)}>
+        <div className={classes.newTemplateButton} onClick={() => setShowNewTemplateForm(true)}>
           NEW MOD TEMPLATE
-        </Button>
-      </div>
-
-      <LWDialog
-        open={showNewTemplateModal}
-        onClose={() => setShowNewTemplateModal(false)}
-        title="New Moderation Template"
-      >
-        <div className={classes.dialogContent}>
-          <ModerationTemplatesForm
-            onSuccess={() => {
-              setShowNewTemplateModal(false);
-            }}
-            onCancel={() => setShowNewTemplateModal(false)}
-            refetchQueries={[{
-              query: ModerationTemplatesListQuery,
-              variables: {
-                selector: { moderationTemplatesList: { collectionName: "Messages" } },
-                limit: 50,
-                enableTotal: false,
-              },
-            }]}
-          />
         </div>
-      </LWDialog>
+        {showNewTemplateForm && (
+          <div className={classes.modTemplateForm}>
+            <ModerationTemplatesForm
+              onSuccess={() => {
+                setShowNewTemplateForm(false);
+              }}
+              onCancel={() => setShowNewTemplateForm(false)}
+              refetchQueries={[{
+                query: ModerationTemplatesListQuery,
+                variables: {
+                  selector: { moderationTemplatesList: { collectionName: "Messages" } },
+                  limit: 50,
+                  enableTotal: false,
+                },
+              }]}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

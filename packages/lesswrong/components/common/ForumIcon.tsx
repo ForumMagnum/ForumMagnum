@@ -139,6 +139,8 @@ import MuiPostIcon from "@/lib/vendor/@material-ui/icons/src/Description";
 import MuiCommentIcon from "@/lib/vendor/@material-ui/icons/src/Message";
 import MuiSnoozeIcon from "@/lib/vendor/@material-ui/icons/src/Snooze";
 import MuiFlagIcon from "@/lib/vendor/@material-ui/icons/src/Flag";
+import MuiDeleteIcon from "@/lib/vendor/@material-ui/icons/src/Delete";
+import MuiOpenInNewIcon from "@/lib/vendor/@material-ui/icons/src/OpenInNew";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -329,7 +331,9 @@ export type ForumIconName =
   "Post" |
   "ModDashboardComment" |
   "Snooze" |
-  "Flag";
+  "Flag" |
+  "Delete" |
+  "OpenInNew";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -474,6 +478,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ModDashboardComment: MuiCommentIcon,
     Snooze: MuiSnoozeIcon,
     Flag: MuiFlagIcon,
+    Delete: MuiDeleteIcon,
+    OpenInNew: MuiOpenInNewIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -617,6 +623,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ModDashboardComment: CommentIcon,
     Snooze: MuiSnoozeIcon,
     Flag: FlagIcon,
+    Delete: MuiDeleteIcon,
+    OpenInNew: MuiOpenInNewIcon,
   },
 };
 

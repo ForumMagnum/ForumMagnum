@@ -638,6 +638,7 @@ extend type Query {
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
+  HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
 }
 
 extend type Mutation {
@@ -701,6 +702,12 @@ type HomepageCommunityEventMarkersResult {
 
 type HomepageCommunityEventPostsResult {
   posts: [Post!]!
+}
+
+type HocuspocusAuth {
+  token: String!
+  wsUrl: String!
+  documentName: String!
 }
 
 type DigestHighlightsResult {
@@ -8414,6 +8421,11 @@ type MultiVoteOutput {
 extend type Query {
   vote(input: SingleVoteInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleVoteOutput
   votes(input: MultiVoteInput @deprecated(reason: "Use the selector field instead"), selector: VoteSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiVoteOutput
+}
+
+type YjsDocument {
+  _id: String!
+  createdAt: Date!
 }
 
 input CreateAdvisorRequestDataInput {

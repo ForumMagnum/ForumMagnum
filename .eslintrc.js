@@ -50,7 +50,7 @@ module.exports = {
     "allowImportExportEverywhere": true,
     "ecmaVersion": 6,
     "sourceType": "module",
-    "project": "./tsconfig.json",
+    "project": "./tsconfig-shared.json",
   },
   "rules": {
     "babel/generator-star-spacing": 0,

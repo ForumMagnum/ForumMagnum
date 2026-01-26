@@ -1,0 +1,57 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ *
+ */
+ .PlaygroundEditorTheme__tableSelection *::selection {
+  background-color: transparent;
+}
+.PlaygroundEditorTheme__tableSelected {
+  outline: 2px solid rgb(60, 132, 244);
+}
+.PlaygroundEditorTheme__tableCell {
+  border: 1px solid #bbb;
+  width: 75px;
+  vertical-align: top;
+  text-align: start;
+  padding: 6px 8px;
+  position: relative;
+  outline: none;
+}
+/*
+  A firefox workaround to allow scrolling of overflowing table cell
+  ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1904159
+*/
+.PlaygroundEditorTheme__tableCell > * {
+  overflow: inherit;
+}
+.PlaygroundEditorTheme__tableCellResizer {
+  position: absolute;
+  right: -4px;
+  height: 100%;
+  width: 8px;
+  cursor: ew-resize;
+  z-index: 10;
+  top: 0;
+}
+.PlaygroundEditorTheme__tableCellHeader {
+  background-color: #f2f3f5;
+  text-align: start;
+}
+.PlaygroundEditorTheme__tableCellSelected {
+  caret-color: transparent;
+}
+.PlaygroundEditorTheme__tableCellSelected::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: highlight;
+  mix-blend-mode: multiply;
+  content: '';
+  pointer-events: none;
+}

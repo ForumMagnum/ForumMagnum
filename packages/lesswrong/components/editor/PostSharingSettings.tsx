@@ -135,8 +135,8 @@ export const PostSharingSettings = ({ field, post, formType, editorType }: PostS
     if (!derivedEditorType) {
       flash("Edit the document first to enable sharing");
       return;
-    } else if (derivedEditorType !== "ckEditorMarkup") {
-      flash(`Change the editor type to ${getCkEditorName} to enable sharing`);
+    } else if (derivedEditorType !== "ckEditorMarkup" && derivedEditorType !== "lexical") {
+      flash(`Change the editor type to ${getCkEditorName()} to enable sharing`);
       return;
     }
     

@@ -13,7 +13,7 @@ const dbTypesFileHeader = generatedFileHeader+`//
 //
 `
 
-type GeneratedBaseTypescriptType = 'string' | 'boolean' | 'number' | 'any' | 'Date';
+type GeneratedBaseTypescriptType = 'string' | 'boolean' | 'number' | 'any' | 'Date' | 'Uint8Array';
 type GeneratedArrayTypescriptType = `Array<${GeneratedBaseTypescriptType}>`;
 
 function databaseTypeToTypescriptType(databaseType: DatabaseBaseType | `${DatabaseBaseType}[]`): GeneratedBaseTypescriptType | GeneratedArrayTypescriptType {
@@ -44,6 +44,8 @@ function databaseTypeToTypescriptType(databaseType: DatabaseBaseType | `${Databa
       return 'any';
     case 'TIMESTAMPTZ':
       return 'Date';
+    case 'BYTEA':
+      return 'Uint8Array';
     default:
       throw new Error(`Unrecognized database type: ${databaseType}`);
   }

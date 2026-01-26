@@ -1,14 +1,12 @@
 import React from "react";
 import ReviewAdminDashboard from '@/components/review/ReviewAdminDashboard';
-import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), {
-    title: 'Review Admin Dashboard',
-  });
+  return merge({}, await getDefaultMetadata(), getPageTitleFields('Review Admin Dashboard'));
 }
 
 export default function Page() {

@@ -1,0 +1,25 @@
+{
+  "name": "hocuspocusserver",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@hocuspocus/extension-logger": "^3.4.3",
+    "@hocuspocus/server": "^3.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.0",
+    "yjs": "^13.6.28"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.15.21",
+    "@types/pg": "^8.15.4",
+    "typescript": "^5.8.3"
+  }
+}

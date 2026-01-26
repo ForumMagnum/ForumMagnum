@@ -11,6 +11,7 @@ import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
+import { REVIEW_YEAR } from "@/lib/reviewUtils";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -516,7 +517,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
               AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
-          ORDER BY c."postedAt" DESC
+          ORDER BY 
+              (CASE WHEN c."reviewingForReview" = $(reviewYear) THEN 0 ELSE 1 END),
+              c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
       ),
       "CandidateThreadTopLevelIds" AS (
@@ -534,6 +537,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               c.shortform,
               c."postedAt",
               c."descendentCount",
+              c."reviewingForReview",
               CASE 
                 WHEN c.shortform IS TRUE THEN 'quicktakes'
                 WHEN sa."authorId" IS NOT NULL THEN 'subscriptionsComments'
@@ -605,6 +609,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c.shortform,
           c."postedAt",
           c."descendentCount",
+          c."reviewingForReview",
           c."primarySource",
           c."fromSubscribedUser",
           c."isInitialCandidate",
@@ -623,6 +628,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       initialCandidateLookbackDaysParam: initialCandidateLookbackDays,
       commentServedEventRecencyHoursParam: commentServedEventRecencyHours,
       restrictCandidatesToSubscribed,
+      reviewYear: REVIEW_YEAR.toString(),
     });
 
     // Safety check for duplicates from the database query
@@ -653,6 +659,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         lastViewed: comment.lastViewed ?? null,
         lastInteracted: comment.lastInteracted ?? null,
         isRead: !!comment.isRead,
+        reviewingForReview: comment.reviewingForReview ?? null,
       };
     });
   }

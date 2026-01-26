@@ -65,8 +65,7 @@ const styles = defineStyles('ModerationContentDetail', (theme: ThemeType) => ({
   postTitle: {
     display: 'block',
     ...theme.typography.headerStyle,
-    fontSize: 32,
-    fontWeight: 600,
+    fontSize: 38,
     marginBottom: 12
   },
   draftNotice: {

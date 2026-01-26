@@ -399,6 +399,7 @@ export const sanitize = function(s: string): string {
         'ck-poll',
         'detailsBlockContent',
         'calendly-preview',
+        'lwartifacts-preview',
         'conditionallyVisibleBlock',
         'defaultVisible',
         'defaultHidden',

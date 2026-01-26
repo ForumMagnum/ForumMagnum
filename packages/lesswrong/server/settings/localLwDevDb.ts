@@ -52,14 +52,14 @@ export const localLwDevDb = merge({
     feeds: [
       {
         name: "forum-classic",
-        label: "Latest",
+        label: "Recent",
         description: "The classic LessWrong frontpage algorithm that combines karma with time discounting, plus any tag-based weighting if applied.",
         showToLoggedOut: true
       },
       {
         name: "recombee-hybrid",
         label: "Enriched",
-        description: "An equal mix of Latest and Recommended.",
+        description: "An equal mix of Recent and Recommended.",
         showSparkleIcon: true,
         defaultTab: true,
         showToLoggedOut: true

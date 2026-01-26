@@ -35,6 +35,7 @@ interface Query {
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
+  HocuspocusAuth: HocuspocusAuth | null;
   DigestHighlights: DigestHighlightsResult | null;
   DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
@@ -909,6 +910,12 @@ interface HomepageCommunityEventMarkersResult {
 
 interface HomepageCommunityEventPostsResult {
   posts: Array<Post>;
+}
+
+interface HocuspocusAuth {
+  token: string;
+  wsUrl: string;
+  documentName: string;
 }
 
 interface DigestHighlightsResult {
@@ -7723,6 +7730,11 @@ interface MultiVoteOutput {
   totalCount: number | null;
 }
 
+interface YjsDocument {
+  _id: string;
+  createdAt: Date;
+}
+
 interface CreateAdvisorRequestDataInput {
   legacyData?: any;
   userId: string;
@@ -9957,6 +9969,7 @@ interface GraphQLTypeMap {
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
   HomepageCommunityEventPostsResult: HomepageCommunityEventPostsResult;
+  HocuspocusAuth: HocuspocusAuth;
   DigestHighlightsResult: DigestHighlightsResult;
   DigestPostsThisWeekResult: DigestPostsThisWeekResult;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
@@ -10676,6 +10689,7 @@ interface GraphQLTypeMap {
   VoteSelector: VoteSelector;
   MultiVoteInput: MultiVoteInput;
   MultiVoteOutput: MultiVoteOutput;
+  YjsDocument: YjsDocument;
   CreateAdvisorRequestDataInput: CreateAdvisorRequestDataInput;
   CreateAdvisorRequestInput: CreateAdvisorRequestInput;
   UpdateAdvisorRequestDataInput: UpdateAdvisorRequestDataInput;
@@ -10987,6 +11001,7 @@ interface CreateInputsByCollectionName {
   TypingIndicators: never;
   UserActivities: never;
   Votes: never;
+  YjsDocuments: never;
 }
 
 interface UpdateInputsByCollectionName {
@@ -11083,4 +11098,5 @@ interface UpdateInputsByCollectionName {
   UltraFeedEvents: never;
   UserActivities: never;
   Votes: never;
+  YjsDocuments: never;
 }
