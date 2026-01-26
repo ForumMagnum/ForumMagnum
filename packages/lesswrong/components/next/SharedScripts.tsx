@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 
 import { getEmbeddedStyleLoaderScript } from "@/components/hooks/embedStyles";
+import { getSsrInjectedGraphqlLoaderScript } from "@/components/hooks/ssrInjectedGraphql";
 import { toEmbeddableJson } from "@/lib/utils/jsonUtils";
 import { getInstanceSettings } from "@/lib/getInstanceSettings";
 import { globalExternalStylesheets } from "@/themes/globalStyles/externalStyles";
@@ -15,6 +16,7 @@ const SharedScriptsInner = () => {
       {globalExternalStylesheets.map(stylesheet => <link key={stylesheet} rel="stylesheet" type="text/css" href={stylesheet}/>)}
       <script dangerouslySetInnerHTML={{__html: `window.publicInstanceSettings = ${toEmbeddableJson(publicInstanceSettings)}`}}/>
       <script dangerouslySetInnerHTML={{__html: getEmbeddedStyleLoaderScript()}}/>
+      <script dangerouslySetInnerHTML={{__html: getSsrInjectedGraphqlLoaderScript()}}/>
       
       <meta httpEquiv='delegate-ch' content='sec-ch-dpr https://res.cloudinary.com;' />
       <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>

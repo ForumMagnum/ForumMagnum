@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { type OperationVariables } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
-import { useQuery as useQueryApollo } from "@apollo/client/react";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { Kind } from "graphql";
 import { apolloSSRFlag } from "@/lib/helpers";
 import isEqual from "lodash/isEqual";
 import { useStabilizedCallbackAsync } from "./useDebouncedCallback";
+
+// Safe to import because it's imported only for its type
+// eslint-disable-next-line no-restricted-imports
+import { useQuery as useQueryApollo } from "@apollo/client/react";
 
 export type LoadMoreCallback = () => Promise<unknown> | void;
 

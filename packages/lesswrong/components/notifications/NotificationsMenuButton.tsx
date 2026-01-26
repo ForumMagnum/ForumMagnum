@@ -13,7 +13,6 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from "../common/ForumIcon";
 import LWClickAwayListener from "../common/LWClickAwayListener";
-import { useReadQuery } from '@apollo/client/react';
 import { useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { styles } from './notificationsMenuButtonStyles';

@@ -1,4 +1,4 @@
-import { useContext, createContext, useRef } from "react";
+import React, { useContext, createContext, useRef } from "react";
 import { useServerInsertedHTML } from "next/navigation";
 
 type InjectedHTMLContextType = {

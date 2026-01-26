@@ -3,7 +3,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useCurrentUserId } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
-import { type QueryRef, useApolloClient, useBackgroundQuery, useReadQuery } from '@apollo/client/react';
+import { type QueryRef, useApolloClient } from '@apollo/client/react';
 import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import type { ResultOf } from '@graphql-typed-document-node/core';
@@ -12,6 +12,7 @@ import { useIdlenessDetection } from './useIdlenessDetection';
 import { usePageVisibility } from './usePageVisibility';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 import { useIsMounted } from './useIsMounted';
+import { useBackgroundQuery, useReadQuery } from '@/lib/crud/useQuery';
 
 export type NotificationCountsResult = {
   checkedAt: Date,
