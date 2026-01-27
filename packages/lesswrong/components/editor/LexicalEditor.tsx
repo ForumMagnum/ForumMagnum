@@ -329,7 +329,14 @@ const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExpo
   }
   const output = target.exportDOM(editor);
   if (output.element instanceof HTMLElement) {
-    const lineCount = Math.max(1, target.getTextContent().split('\n').length);
+    const textContent = target.getTextContent();
+    const lines = textContent.split('\n');
+    const lastLineIndex = lines.length - 1;
+    // Avoid an extra gutter line when the code ends with a single trailing newline, which is itself stripped from the exported html.
+    // Otherwise, we get the appearance of an empty newline at the end of the codeblock, but also a vertical scrollbar.
+    const trailingLineCountAdjustment = lines[lastLineIndex] === '' ? 1 : 0;
+    const adjustedLineCount = Math.max(1, lines.length - trailingLineCountAdjustment);
+    const lineCount = adjustedLineCount;
     output.element.setAttribute('data-gutter', formatCodeGutter(lineCount));
   }
   return output;
