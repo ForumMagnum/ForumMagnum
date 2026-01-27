@@ -408,7 +408,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& pre': {
     ...theme.typography.codeblock
   },
-  '& pre.PlaygroundEditorTheme__code, & pre[data-highlight-language]': {
+  '& pre.code-block, & pre[data-highlight-language]': {
     backgroundColor: theme.palette.grey[100],
     fontFamily: theme.typography.code.fontFamily,
     display: 'block',
@@ -420,7 +420,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
     position: 'relative',
     tabSize: 2,
   },
-  '& pre.PlaygroundEditorTheme__code::before, & pre[data-highlight-language]::before': {
+  '& pre.code-block::before, & pre[data-highlight-language]::before': {
     content: 'attr(data-gutter)',
     position: 'absolute',
     backgroundColor: theme.palette.grey[200],
@@ -436,37 +436,37 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& code': {
     ...theme.typography.code
   },
-  '& .PlaygroundEditorTheme__tokenComment': {
+  '& .code-token-comment': {
     color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
   },
-  '& .PlaygroundEditorTheme__tokenDeleted': {
+  '& .code-token-deleted': {
     borderImage: theme.palette.lexicalEditor.codeHighlight.tokenDeleted,
   },
-  '& .PlaygroundEditorTheme__tokenInserted': {
+  '& .code-token-inserted': {
     borderImage: theme.palette.lexicalEditor.codeHighlight.tokenInserted,
   },
-  '& .PlaygroundEditorTheme__tokenUnchanged': {
+  '& .code-token-unchanged': {
     borderImage: theme.palette.lexicalEditor.codeHighlight.tokenUnchanged,
   },
-  '& .PlaygroundEditorTheme__tokenPunctuation': {
+  '& .code-token-punctuation': {
     color: theme.palette.lexicalEditor.codeHighlight.tokenPunctuation,
   },
-  '& .PlaygroundEditorTheme__tokenProperty': {
+  '& .code-token-property': {
     color: theme.palette.lexicalEditor.codeHighlight.tokenProperty,
   },
-  '& .PlaygroundEditorTheme__tokenSelector': {
+  '& .code-token-selector': {
     color: theme.palette.lexicalEditor.codeHighlight.tokenSelector,
   },
-  '& .PlaygroundEditorTheme__tokenOperator': {
+  '& .code-token-operator': {
     color: theme.palette.lexicalEditor.codeHighlight.tokenOperator,
   },
-  '& .PlaygroundEditorTheme__tokenAttr': {
+  '& .code-token-attr': {
     color: theme.palette.lexicalEditor.codeHighlight.tokenAttr,
   },
-  '& .PlaygroundEditorTheme__tokenVariable': {
+  '& .code-token-variable': {
     color: theme.palette.lexicalEditor.codeHighlight.tokenVariable,
   },
-  '& .PlaygroundEditorTheme__tokenFunction': {
+  '& .code-token-function': {
     color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
   },
   '& blockquote': {

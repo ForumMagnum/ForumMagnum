@@ -130,7 +130,7 @@ function TableHoverActionsContainer({
         if (
           parentElement &&
           parentElement.classList.contains(
-            'PlaygroundEditorTheme__tableScrollableWrapper',
+            'table-scrollable-wrapper',
           )
         ) {
           tableHasScroll =

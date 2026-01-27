@@ -126,7 +126,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    '& .PlaygroundEditorTheme__code': {
+    '& .code-block': {
       backgroundColor: theme.palette.grey[100],
       fontFamily: theme.typography.code.fontFamily,
       display: 'block',
@@ -138,7 +138,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       position: 'relative',
       tabSize: 2,
     },
-    '& .PlaygroundEditorTheme__code::before': {
+    '& .code-block::before': {
       content: 'attr(data-gutter)',
       position: 'absolute',
       backgroundColor: theme.palette.grey[200],
@@ -151,37 +151,37 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       textAlign: 'right',
       minWidth: 25,
     },
-    '& .PlaygroundEditorTheme__tokenComment': {
+    '& .code-token-comment': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
     },
-    '& .PlaygroundEditorTheme__tokenDeleted': {
+    '& .code-token-deleted': {
       borderImage: theme.palette.lexicalEditor.codeHighlight.tokenDeleted,
     },
-    '& .PlaygroundEditorTheme__tokenInserted': {
+    '& .code-token-inserted': {
       borderImage: theme.palette.lexicalEditor.codeHighlight.tokenInserted,
     },
-    '& .PlaygroundEditorTheme__tokenUnchanged': {
+    '& .code-token-unchanged': {
       borderImage: theme.palette.lexicalEditor.codeHighlight.tokenUnchanged,
     },
-    '& .PlaygroundEditorTheme__tokenPunctuation': {
+    '& .code-token-punctuation': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenPunctuation,
     },
-    '& .PlaygroundEditorTheme__tokenProperty': {
+    '& .code-token-property': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenProperty,
     },
-    '& .PlaygroundEditorTheme__tokenSelector': {
+    '& .code-token-selector': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenSelector,
     },
-    '& .PlaygroundEditorTheme__tokenOperator': {
+    '& .code-token-operator': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenOperator,
     },
-    '& .PlaygroundEditorTheme__tokenAttr': {
+    '& .code-token-attr': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenAttr,
     },
-    '& .PlaygroundEditorTheme__tokenVariable': {
+    '& .code-token-variable': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenVariable,
     },
-    '& .PlaygroundEditorTheme__tokenFunction': {
+    '& .code-token-function': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
     },
     '& .image-caption-container': {
@@ -271,39 +271,39 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       },
     },
     // Suggested edits styling overrides.
-    '& .PlaygroundEditorTheme__mark[data-suggestion-id]': {
+    '& .editor-mark[data-suggestion-id]': {
       backgroundColor: 'transparent',
       boxShadow: 'none',
       textDecoration: 'none',
       borderBottom: 'none',
     },
-    '& .PlaygroundEditorTheme__mark.selected[data-suggestion-id]': {
+    '& .editor-mark.selected[data-suggestion-id]': {
       backgroundColor: 'transparent',
       boxShadow: 'none',
       borderBottom: 'none',
     },
-    '& .PlaygroundEditorTheme__mark[data-suggestion-id] *': {
+    '& .editor-mark[data-suggestion-id] *': {
       backgroundColor: 'transparent',
       boxShadow: 'none',
       borderBottom: 'none',
     },
-    '& .PlaygroundEditorTheme__mark.lexical-suggestion-insert': {
+    '& .editor-mark.lexical-suggestion-insert': {
       backgroundColor: theme.palette.primary.light,
       borderRadius: 2,
       padding: '0 1px',
     },
-    '& .PlaygroundEditorTheme__mark.lexical-suggestion-delete': {
+    '& .editor-mark.lexical-suggestion-delete': {
       backgroundColor: theme.palette.error.light,
       borderRadius: 2,
       padding: '0 1px',
       textDecoration: 'line-through',
       color: theme.palette.error.dark,
     },
-    '& .PlaygroundEditorTheme__mark.selected.lexical-suggestion-insert': {
+    '& .editor-mark.selected.lexical-suggestion-insert': {
       backgroundColor: theme.palette.primary.light,
       borderBottom: 'none',
     },
-    '& .PlaygroundEditorTheme__mark.selected.lexical-suggestion-delete': {
+    '& .editor-mark.selected.lexical-suggestion-delete': {
       backgroundColor: theme.palette.error.light,
       borderBottom: 'none',
     },

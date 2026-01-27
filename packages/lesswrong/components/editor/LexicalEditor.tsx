@@ -235,7 +235,7 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
       backgroundColor: theme.palette.panelBackground.default,
     },
     // Selected cell highlighting (class applied by Lexical via theme.tableCellSelected)
-    '& td.editor-table-cell-selected, & th.editor-table-cell-selected': {
+    '& td.table-cell-selected, & th.table-cell-selected': {
       backgroundColor: theme.palette.primary.light,
     },
     // Table resize handles (if using column resize)
