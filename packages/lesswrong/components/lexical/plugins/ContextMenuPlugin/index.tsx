@@ -149,9 +149,9 @@ export default function ContextMenuPlugin(): JSX.Element {
 
   return (
     <NodeContextMenuPlugin
-      className="PlaygroundEditorTheme__contextMenu"
-      itemClassName="PlaygroundEditorTheme__contextMenuItem"
-      separatorClassName="PlaygroundEditorTheme__contextMenuSeparator"
+      className="editor-context-menu"
+      itemClassName="editor-context-menu-item"
+      separatorClassName="editor-context-menu-separator"
       items={items}
     />
   );

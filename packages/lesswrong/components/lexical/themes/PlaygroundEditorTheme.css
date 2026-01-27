@@ -6,13 +6,13 @@
  *
  *
  */
- .PlaygroundEditorTheme__tableSelection *::selection {
+.table-selection *::selection {
   background-color: transparent;
 }
-.PlaygroundEditorTheme__tableSelected {
+.table-selected {
   outline: 2px solid rgb(60, 132, 244);
 }
-.PlaygroundEditorTheme__tableCell {
+.table-cell {
   border: 1px solid #bbb;
   width: 75px;
   vertical-align: top;
@@ -25,10 +25,10 @@
   A firefox workaround to allow scrolling of overflowing table cell
   ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1904159
 */
-.PlaygroundEditorTheme__tableCell > * {
+.table-cell > * {
   overflow: inherit;
 }
-.PlaygroundEditorTheme__tableCellResizer {
+.table-cell-resizer {
   position: absolute;
   right: -4px;
   height: 100%;
@@ -37,14 +37,14 @@
   z-index: 10;
   top: 0;
 }
-.PlaygroundEditorTheme__tableCellHeader {
+.table-cell-header {
   background-color: #f2f3f5;
   text-align: start;
 }
-.PlaygroundEditorTheme__tableCellSelected {
+.table-cell-selected {
   caret-color: transparent;
 }
-.PlaygroundEditorTheme__tableCellSelected::after {
+.table-cell-selected::after {
   position: absolute;
   left: 0;
   right: 0;

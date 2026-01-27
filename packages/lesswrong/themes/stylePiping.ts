@@ -408,8 +408,66 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& pre': {
     ...theme.typography.codeblock
   },
+  '& pre.code-block, & pre[data-highlight-language]': {
+    backgroundColor: theme.palette.grey[100],
+    fontFamily: theme.typography.code.fontFamily,
+    display: 'block',
+    padding: '8px 8px 8px 36px',
+    lineHeight: 1.53,
+    fontSize: 13,
+    margin: '8px 0',
+    overflowX: 'auto',
+    position: 'relative',
+    tabSize: 2,
+  },
+  '& pre.code-block::before, & pre[data-highlight-language]::before': {
+    content: 'attr(data-gutter)',
+    position: 'absolute',
+    backgroundColor: theme.palette.grey[200],
+    left: 0,
+    top: 0,
+    borderRight: `1px solid ${theme.palette.grey[300]}`,
+    padding: 8,
+    color: theme.palette.grey[600],
+    whiteSpace: 'pre-wrap',
+    textAlign: 'right',
+    minWidth: 25,
+  },
   '& code': {
     ...theme.typography.code
+  },
+  '& .code-token-comment': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
+  },
+  '& .code-token-deleted': {
+    borderImage: theme.palette.lexicalEditor.codeHighlight.tokenDeleted,
+  },
+  '& .code-token-inserted': {
+    borderImage: theme.palette.lexicalEditor.codeHighlight.tokenInserted,
+  },
+  '& .code-token-unchanged': {
+    borderImage: theme.palette.lexicalEditor.codeHighlight.tokenUnchanged,
+  },
+  '& .code-token-punctuation': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenPunctuation,
+  },
+  '& .code-token-property': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenProperty,
+  },
+  '& .code-token-selector': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenSelector,
+  },
+  '& .code-token-operator': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenOperator,
+  },
+  '& .code-token-attr': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenAttr,
+  },
+  '& .code-token-variable': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenVariable,
+  },
+  '& .code-token-function': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
   },
   '& blockquote': {
     ...theme.typography.blockquote,

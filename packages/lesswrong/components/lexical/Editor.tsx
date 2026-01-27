@@ -126,6 +126,64 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+    '& .code-block': {
+      backgroundColor: theme.palette.grey[100],
+      fontFamily: theme.typography.code.fontFamily,
+      display: 'block',
+      padding: '8px 8px 8px 36px',
+      lineHeight: 1.53,
+      fontSize: 13,
+      margin: '8px 0',
+      overflowX: 'auto',
+      position: 'relative',
+      tabSize: 2,
+    },
+    '& .code-block::before': {
+      content: 'attr(data-gutter)',
+      position: 'absolute',
+      backgroundColor: theme.palette.grey[200],
+      left: 0,
+      top: 0,
+      borderRight: `1px solid ${theme.palette.grey[300]}`,
+      padding: 8,
+      color: theme.palette.grey[600],
+      whiteSpace: 'pre-wrap',
+      textAlign: 'right',
+      minWidth: 25,
+    },
+    '& .code-token-comment': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
+    },
+    '& .code-token-deleted': {
+      borderImage: theme.palette.lexicalEditor.codeHighlight.tokenDeleted,
+    },
+    '& .code-token-inserted': {
+      borderImage: theme.palette.lexicalEditor.codeHighlight.tokenInserted,
+    },
+    '& .code-token-unchanged': {
+      borderImage: theme.palette.lexicalEditor.codeHighlight.tokenUnchanged,
+    },
+    '& .code-token-punctuation': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenPunctuation,
+    },
+    '& .code-token-property': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenProperty,
+    },
+    '& .code-token-selector': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenSelector,
+    },
+    '& .code-token-operator': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenOperator,
+    },
+    '& .code-token-attr': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenAttr,
+    },
+    '& .code-token-variable': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenVariable,
+    },
+    '& .code-token-function': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
+    },
     '& .image-caption-container': {
       display: 'block',
       position: 'relative',
@@ -213,39 +271,39 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       },
     },
     // Suggested edits styling overrides.
-    '& .PlaygroundEditorTheme__mark[data-suggestion-id]': {
+    '& .editor-mark[data-suggestion-id]': {
       backgroundColor: 'transparent',
       boxShadow: 'none',
       textDecoration: 'none',
       borderBottom: 'none',
     },
-    '& .PlaygroundEditorTheme__mark.selected[data-suggestion-id]': {
+    '& .editor-mark.selected[data-suggestion-id]': {
       backgroundColor: 'transparent',
       boxShadow: 'none',
       borderBottom: 'none',
     },
-    '& .PlaygroundEditorTheme__mark[data-suggestion-id] *': {
+    '& .editor-mark[data-suggestion-id] *': {
       backgroundColor: 'transparent',
       boxShadow: 'none',
       borderBottom: 'none',
     },
-    '& .PlaygroundEditorTheme__mark.lexical-suggestion-insert': {
+    '& .editor-mark.lexical-suggestion-insert': {
       backgroundColor: theme.palette.primary.light,
       borderRadius: 2,
       padding: '0 1px',
     },
-    '& .PlaygroundEditorTheme__mark.lexical-suggestion-delete': {
+    '& .editor-mark.lexical-suggestion-delete': {
       backgroundColor: theme.palette.error.light,
       borderRadius: 2,
       padding: '0 1px',
       textDecoration: 'line-through',
       color: theme.palette.error.dark,
     },
-    '& .PlaygroundEditorTheme__mark.selected.lexical-suggestion-insert': {
+    '& .editor-mark.selected.lexical-suggestion-insert': {
       backgroundColor: theme.palette.primary.light,
       borderBottom: 'none',
     },
-    '& .PlaygroundEditorTheme__mark.selected.lexical-suggestion-delete': {
+    '& .editor-mark.selected.lexical-suggestion-delete': {
       backgroundColor: theme.palette.error.light,
       borderBottom: 'none',
     },
