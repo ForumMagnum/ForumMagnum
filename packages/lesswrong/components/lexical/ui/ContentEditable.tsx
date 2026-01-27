@@ -32,15 +32,14 @@ const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
   placeholder: {
     fontSize: 15,
     color: theme.palette.grey[550],
-    overflow: 'hidden',
     position: 'absolute',
-    textOverflow: 'ellipsis',
     top: 0,
     left: 0,
     right: 28,
     userSelect: 'none',
-    whiteSpace: 'nowrap',
-    display: 'inline-block',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+    display: 'block',
     pointerEvents: 'none',
   },
   placeholderComment: {
