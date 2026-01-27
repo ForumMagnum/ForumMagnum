@@ -13,10 +13,7 @@ export type SSRMetadata = {
   timezone: string;
 }
 
-export type EnvironmentOverride = Partial<SSRMetadata> & {
-  matchSSR: boolean;
-}
-export const EnvironmentOverrideContext = React.createContext<EnvironmentOverride>({matchSSR: true});
+export const EnvironmentOverrideContext = React.createContext<Partial<SSRMetadata>>({});
 
 // useCurrentTime: If we're rehydrating a server-side render, returns the
 // time the SSR was prepared. If we're preparing an SSR, returns the time the

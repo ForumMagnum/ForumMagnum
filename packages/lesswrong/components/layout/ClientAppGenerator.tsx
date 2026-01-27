@@ -6,7 +6,7 @@ import '@/client/publicSettings';
 import React, { use, useEffect, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
-import { SSRMetadata, EnvironmentOverride, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
+import { SSRMetadata, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/vulcan-core/appContext';
 import { parsePath } from '@/lib/vulcan-lib/routes';
@@ -193,20 +193,9 @@ export const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
   ssrMetadata: SSRMetadata
   children: React.ReactNode
 }) => {
-  const [envOverride, setEnvOverride] = useState<EnvironmentOverride>(ssrMetadata ? {
+  const [envOverride, setEnvOverride] = useState<Partial<SSRMetadata>>(ssrMetadata ? {
     ...ssrMetadata,
-    matchSSR: true
-  } : { matchSSR: false });
-  const [_isPending, startTransition] = useTransition();
-
-  useEffect(() => {
-    if (envOverride.matchSSR === false) return;
-
-    startTransition(() => {
-      setEnvOverride({matchSSR: false});
-    });
-
-  }, [envOverride.matchSSR]);
+  } : {});
 
   return <EnvironmentOverrideContext.Provider value={envOverride}>
     {children}

@@ -8,7 +8,7 @@ import classNames from "classnames";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
-import { useReadQuery } from "@apollo/client/react";
+import { useReadQuery } from "@/lib/crud/useQuery";
 import { useStyles } from "../hooks/useStyles";
 
 const MessagesMenuButton = ({className}: {
