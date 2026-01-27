@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { componentWithChildren } from '@/lib/utils/componentsWithChildren';
 import { Helmet } from "@/components/layout/Helmet";
