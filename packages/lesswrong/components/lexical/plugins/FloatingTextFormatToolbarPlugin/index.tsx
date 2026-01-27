@@ -73,7 +73,12 @@ const styles = defineStyles('LexicalFloatingTextFormatToolbar', (theme: ThemeTyp
     boxShadow: `0px 5px 10px ${theme.palette.greyAlpha(0.3)}`,
     borderRadius: 8,
     transition: 'opacity 0.5s',
-    height: 35,
+    minHeight: 35,
+    height: 'auto',
+    width: 'max-content',
+    maxWidth: '100%',
+    flexWrap: 'wrap',
+    boxSizing: 'border-box',
     willChange: 'transform',
   },
   popupItem: {
@@ -171,16 +176,23 @@ const styles = defineStyles('LexicalFloatingTextFormatToolbar', (theme: ThemeTyp
   },
   insertComment: {
     marginTop: 2,
+    minWidth: 'fit-content',
   },
   insertCommentText: {
     color: theme.palette.grey[600],
     fontSize: 12,
     marginLeft: 4,
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   shortcut: {
     color: theme.palette.grey[400],
     fontSize: 12,
     marginLeft: 4,
+    [theme.breakpoints.down('md')]: {
+      display: 'none',
+    },
   },
 }));
 

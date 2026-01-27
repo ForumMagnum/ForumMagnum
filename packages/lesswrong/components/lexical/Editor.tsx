@@ -720,14 +720,14 @@ export default function Editor({
                 {!isCommentEditor && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
                 <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
                 <TableHoverActionsV2Plugin anchorElem={floatingAnchorElem} />
-                <FloatingTextFormatToolbarPlugin
-                  anchorElem={floatingAnchorElem}
-                  setIsLinkEditMode={setIsLinkEditMode}
-                  variant={isCommentEditor ? 'comment' : 'post'}
-                  showInlineCommentButton={isCollab && !isCommentEditor}
-                />
               </>
             )}
+            {floatingAnchorElem && <FloatingTextFormatToolbarPlugin
+              anchorElem={floatingAnchorElem}
+              setIsLinkEditMode={setIsLinkEditMode}
+              variant={isCommentEditor ? 'comment' : 'post'}
+              showInlineCommentButton={isCollab && !isCommentEditor}
+            />}
           </>
         ) : (
           <>
