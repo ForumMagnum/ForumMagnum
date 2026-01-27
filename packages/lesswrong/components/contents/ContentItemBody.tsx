@@ -20,6 +20,7 @@ import { captureException } from '@/lib/sentryWrapper';
 import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
 import { useAbstractThemeOptions } from '../themes/useTheme';
+import { ContentCodeBlockWithMenu } from './ContentCodeBlockWithMenu';
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   themeName: UserThemeSetting,
@@ -95,14 +96,18 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
     bodyRef,
   };
   
-  return <div className={className} ref={bodyRef}>
-    {parsedHtml.childNodes.map((child,i) => <ContentItemBodyInner
-      key={i}
-      parsedHtml={child}
-      passedThroughProps={passedThroughProps}
-      root={true}
-    />)}
-  </div>
+  return (
+    <div className={className} ref={bodyRef}>
+      {parsedHtml.childNodes.map((child, i) => (
+        <ContentItemBodyInner
+          key={i}
+          parsedHtml={child}
+          passedThroughProps={passedThroughProps}
+          root={true}
+        />
+      ))}
+    </div>
+  );
 }
 
 const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
@@ -233,6 +238,14 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         } else {
           attribs.id = attribs['data-internal-id'];
         }
+      }
+
+      if (TagName === 'pre' && classNames.includes('code-block')) {
+        return (
+          <ContentCodeBlockWithMenu attribs={attribs} classNames={classNames}>
+            {result}
+          </ContentCodeBlockWithMenu>
+        );
       }
 
       if (root && ['p','div','table'].includes(TagName)) {

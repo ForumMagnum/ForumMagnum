@@ -11,85 +11,38 @@ import React, { type JSX } from 'react';
 import {
   $isCodeNode,
   CodeNode,
-  getLanguageFriendlyName,
-  normalizeCodeLang,
 } from '@lexical/code';
-import classNames from 'classnames';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$getNearestNodeFromDOMNode, isHTMLElement} from 'lexical';
+import {
+  $getNearestNodeFromDOMNode,
+  $getSelection,
+  $setSelection,
+  isHTMLElement,
+} from 'lexical';
 import {useEffect, useRef, useState} from 'react';
 
 import {createPortal} from 'react-dom';
 
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { CodeActionMenu, type CodeActionMenuPosition } from './CodeActionMenu';
 import {CopyButton} from './components/CopyButton';
 // import {canBePrettier, PrettierButton} from './components/PrettierButton';
 import {useDebounce} from './utils';
 
-const styles = defineStyles('LexicalCodeActionMenuPlugin', (theme: ThemeType) => ({
-  container: {
-    height: 35.8,
-    fontSize: 10,
-    color: theme.palette.greyAlpha(0.5),
-    position: 'absolute',
-    display: 'flex',
-    alignItems: 'center',
-    flexDirection: 'row',
-    userSelect: 'none',
-  },
-  highlightLanguage: {
-    marginRight: 4,
-  },
-  menuItem: {
-    border: '1px solid transparent',
-    borderRadius: 4,
-    padding: 4,
-    background: 'none',
-    cursor: 'pointer',
-    flexShrink: 0,
-    display: 'flex',
-    alignItems: 'center',
-    color: theme.palette.greyAlpha(0.5),
-    textTransform: 'uppercase',
-    '& i.format': {
-      height: 16,
-      width: 16,
-      opacity: 0.6,
-      display: 'flex',
-      color: theme.palette.greyAlpha(0.5),
-      backgroundSize: 'contain',
-    },
-    '&:hover': {
-      border: `1px solid ${theme.palette.greyAlpha(0.3)}`,
-      opacity: 0.9,
-    },
-    '&:active': {
-      backgroundColor: theme.palette.lexicalEditor.codeActionMenuBackground,
-      border: `1px solid ${theme.palette.greyAlpha(0.45)}`,
-    },
-  },
-}));
-
 const CODE_PADDING = 8;
 
-interface Position {
-  top: string;
-  right: string;
-}
 
 function CodeActionMenuContainer({
   anchorElem,
 }: {
   anchorElem: HTMLElement;
 }): JSX.Element {
-  const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
 
   const [lang, setLang] = useState('');
   const [isShown, setShown] = useState<boolean>(false);
   const [shouldListenMouseMove, setShouldListenMouseMove] =
     useState<boolean>(false);
-  const [position, setPosition] = useState<Position>({
+  const [position, setPosition] = useState<CodeActionMenuPosition>({
     right: '0',
     top: '0',
   });
@@ -182,27 +135,45 @@ function CodeActionMenuContainer({
     );
   }, [editor]);
 
-  const normalizedLang = normalizeCodeLang(lang);
-  const codeFriendlyName = getLanguageFriendlyName(lang);
+  const getCodeText = (): string => {
+    const codeDOMNode = getCodeDOMNode();
+    if (!codeDOMNode) {
+      return '';
+    }
+
+    let content = '';
+    editor.update(() => {
+      const codeNode = $getNearestNodeFromDOMNode(codeDOMNode);
+      if ($isCodeNode(codeNode)) {
+        content = codeNode.getTextContent();
+      }
+
+      const selection = $getSelection();
+      $setSelection(selection);
+    });
+
+    return content;
+  };
 
   return (
     <>
-      {isShown ? (
-        <div
-          className={classNames(classes.container, 'code-action-menu-container')}
-          style={{...position}}
-        >
-          <div className={classes.highlightLanguage}>{codeFriendlyName}</div>
-          <CopyButton editor={editor} getCodeDOMNode={getCodeDOMNode} menuItemClassName={classes.menuItem} />
-          {/* {canBePrettier(normalizedLang) ? (
-            <PrettierButton
-              editor={editor}
-              getCodeDOMNode={getCodeDOMNode}
-              lang={normalizedLang}
-            />
-          ) : null} */}
-        </div>
-      ) : null}
+      <CodeActionMenu
+        isShown={isShown}
+        language={lang}
+        position={position}
+        renderMenuItems={(menuItemClassName) => (
+          <>
+            <CopyButton getCodeText={getCodeText} menuItemClassName={menuItemClassName} />
+            {/* {canBePrettier(normalizedLang) ? (
+              <PrettierButton
+                editor={editor}
+                getCodeDOMNode={getCodeDOMNode}
+                lang={normalizedLang}
+              />
+            ) : null} */}
+          </>
+        )}
+      />
     </>
   );
 }
