@@ -14,6 +14,7 @@ import {
   getLanguageFriendlyName,
   normalizeCodeLang,
 } from '@lexical/code';
+import classNames from 'classnames';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$getNearestNodeFromDOMNode, isHTMLElement} from 'lexical';
 import {useEffect, useRef, useState} from 'react';
@@ -187,7 +188,10 @@ function CodeActionMenuContainer({
   return (
     <>
       {isShown ? (
-        <div className={classes.container} style={{...position}}>
+        <div
+          className={classNames(classes.container, 'code-action-menu-container')}
+          style={{...position}}
+        >
           <div className={classes.highlightLanguage}>{codeFriendlyName}</div>
           <CopyButton editor={editor} getCodeDOMNode={getCodeDOMNode} menuItemClassName={classes.menuItem} />
           {/* {canBePrettier(normalizedLang) ? (
