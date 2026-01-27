@@ -126,6 +126,64 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+    '& .PlaygroundEditorTheme__code': {
+      backgroundColor: theme.palette.grey[100],
+      fontFamily: theme.typography.code.fontFamily,
+      display: 'block',
+      padding: '8px 8px 8px 36px',
+      lineHeight: 1.53,
+      fontSize: 13,
+      margin: '8px 0',
+      overflowX: 'auto',
+      position: 'relative',
+      tabSize: 2,
+    },
+    '& .PlaygroundEditorTheme__code::before': {
+      content: 'attr(data-gutter)',
+      position: 'absolute',
+      backgroundColor: theme.palette.grey[200],
+      left: 0,
+      top: 0,
+      borderRight: `1px solid ${theme.palette.grey[300]}`,
+      padding: 8,
+      color: theme.palette.grey[600],
+      whiteSpace: 'pre-wrap',
+      textAlign: 'right',
+      minWidth: 25,
+    },
+    '& .PlaygroundEditorTheme__tokenComment': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
+    },
+    '& .PlaygroundEditorTheme__tokenDeleted': {
+      borderImage: theme.palette.lexicalEditor.codeHighlight.tokenDeleted,
+    },
+    '& .PlaygroundEditorTheme__tokenInserted': {
+      borderImage: theme.palette.lexicalEditor.codeHighlight.tokenInserted,
+    },
+    '& .PlaygroundEditorTheme__tokenUnchanged': {
+      borderImage: theme.palette.lexicalEditor.codeHighlight.tokenUnchanged,
+    },
+    '& .PlaygroundEditorTheme__tokenPunctuation': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenPunctuation,
+    },
+    '& .PlaygroundEditorTheme__tokenProperty': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenProperty,
+    },
+    '& .PlaygroundEditorTheme__tokenSelector': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenSelector,
+    },
+    '& .PlaygroundEditorTheme__tokenOperator': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenOperator,
+    },
+    '& .PlaygroundEditorTheme__tokenAttr': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenAttr,
+    },
+    '& .PlaygroundEditorTheme__tokenVariable': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenVariable,
+    },
+    '& .PlaygroundEditorTheme__tokenFunction': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
+    },
     '& .image-caption-container': {
       display: 'block',
       position: 'relative',

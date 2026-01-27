@@ -2,7 +2,13 @@
 
 import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import { LexicalCollaboration } from '@lexical/react/LexicalCollaborationContext';
-import { defineExtension } from 'lexical';
+import {
+  defineExtension,
+  type DOMExportOutput,
+  type DOMExportOutputMap,
+  type LexicalEditor as LexicalEditorType,
+  type LexicalNode,
+} from 'lexical';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
@@ -20,6 +26,7 @@ import PlaygroundEditorTheme from '../lexical/themes/PlaygroundEditorTheme';
 import { ToolbarContext } from '../lexical/context/ToolbarContext';
 import Settings from '../lexical/Settings';
 import { TableCellNode } from '@lexical/table';
+import { CodeHighlightNode, CodeNode } from '@lexical/code';
 
 
 const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
@@ -277,6 +284,57 @@ interface LexicalEditorProps {
   accessLevel?: CollaborativeEditingAccessLevel;
 }
 
+const getCodeHighlightClassName = (highlightType: string | null | undefined) => {
+  if (!highlightType) {
+    return undefined;
+  }
+  return PlaygroundEditorTheme.codeHighlight?.[highlightType];
+};
+
+const exportCodeHighlightNode = (_editor: LexicalEditorType, target: LexicalNode): DOMExportOutput => {
+  if (!(target instanceof CodeHighlightNode)) {
+    return { element: null };
+  }
+  const text = target.getTextContent();
+  const highlightType = target.getHighlightType();
+  const className = getCodeHighlightClassName(highlightType);
+  if (!className) {
+    return { element: document.createTextNode(text) };
+  }
+  const span = document.createElement('span');
+  span.className = className;
+  span.textContent = text;
+  return { element: span };
+};
+
+const exportTableCellNode = (editor: LexicalEditorType, target: LexicalNode): DOMExportOutput => {
+  if (!(target instanceof TableCellNode)) {
+    return { element: null };
+  }
+  const output = target.exportDOM(editor);
+  if (output.element && 'style' in output.element) {
+    output.element.style = '';
+  }
+  return output;
+};
+
+const formatCodeGutter = (lineCount: number) => {
+  const lines = Array.from({ length: lineCount }, (_, index) => String(index + 1));
+  return lines.join('\n');
+};
+
+const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExportOutput => {
+  if (!(target instanceof CodeNode)) {
+    return { element: null };
+  }
+  const output = target.exportDOM(editor);
+  if (output.element instanceof HTMLElement) {
+    const lineCount = Math.max(1, target.getTextContent().split('\n').length);
+    output.element.setAttribute('data-gutter', formatCodeGutter(lineCount));
+  }
+  return output;
+};
+
 const LexicalEditor = ({
   data = '',
   placeholder = 'Start writing...',
@@ -357,27 +415,24 @@ const LexicalEditor = ({
   }, [onChange]);
 
   const app = useMemo(
-    () =>
-      defineExtension({
+    () => {
+      const domExportMap: DOMExportOutputMap = new Map();
+      domExportMap.set(TableCellNode, exportTableCellNode);
+      domExportMap.set(CodeNode, exportCodeNode);
+      domExportMap.set(CodeHighlightNode, exportCodeHighlightNode);
+
+      return defineExtension({
         $initialEditorState: null,
         html: {
-          export: new Map([[
-            TableCellNode,
-            (editor, target) => {
-              const output = target.exportDOM(editor);
-              if (output.element && 'style' in output.element) {
-                output.element.style = '';
-              }
-              return output;
-            }
-          ]])
+          export: domExportMap,
         },
         name: '@lexical/playground',
         namespace: 'Playground',
         nodes: PlaygroundNodes,
         theme: PlaygroundEditorTheme,
         dependencies: [],
-      }),
+      });
+    },
     [],
   );
 
