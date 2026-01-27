@@ -48,7 +48,7 @@ import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
 import HomepageCommunityMap from "./seasonal/HomepageMap/HomepageCommunityMap";
-import AdminToggle from "./admin/AdminToggle";
+import SiteToggle from "./admin/SiteToggle";
 import SunshineSidebar from "./sunshineDashboard/SunshineSidebar";
 import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
 import ForumEventBanner from "./forumEvents/ForumEventBanner";
@@ -431,7 +431,7 @@ const Layout = ({currentUser, children}: {
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
               }
               )}>
-                {isFriendlyUI && !isWrapped && <AdminToggle />}
+                {isFriendlyUI && !isWrapped && <SiteToggle />}
                 {standaloneNavigation &&
                   <MaybeStickyWrapper sticky={friendlyHomeLayout}>
                     <DeferRender ssr={true} clientTiming='mobile-aware'>
