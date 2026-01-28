@@ -835,6 +835,7 @@ const UltraFeedPostDialog = ({
                 <BookmarkButton 
                   documentId={displayPost._id} 
                   collectionName="Posts" 
+                  initial={displayPost.isBookmarked}
                   className={classes.bookmarkButton} 
                   placement="bottom-start" 
                 />

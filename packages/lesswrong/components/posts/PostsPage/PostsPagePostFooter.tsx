@@ -115,7 +115,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
             </AnalyticsContext>
           </div>
           {isFriendlyUI() && <div className={classes.secondaryInfoRight}>
-            <BookmarkButton documentId={post._id} collectionName="Posts" className={classes.bookmarkButton} placement='bottom-start' />
+            <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked} className={classes.bookmarkButton} placement='bottom-start' />
             <SharePostButton post={post} />
             <span className={classes.actions}>
               <AnalyticsContext pageElementContext="tripleDotMenu">

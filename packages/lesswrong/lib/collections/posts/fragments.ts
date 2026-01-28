@@ -320,6 +320,7 @@ export const PostsList = gql(`
       wordCount
       version
     }
+    isBookmarked
     fmCrosspost {
       isCrosspost
       hostedHere
@@ -405,6 +406,7 @@ export const PostsDetails = gql(`
     # Voting
     currentUserVote
     currentUserExtendedVote
+    isBookmarked
     
     # RSS metadata
     feedLink
@@ -666,6 +668,7 @@ export const SunshinePostsList = gql(`
 
     currentUserVote
     currentUserExtendedVote
+    isBookmarked
     fmCrosspost {
       isCrosspost
       hostedHere

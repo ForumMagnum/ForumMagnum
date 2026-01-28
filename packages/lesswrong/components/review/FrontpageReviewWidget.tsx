@@ -388,6 +388,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
         reviewYear: reviewYear,
         limit: 3,
       }}
+      alwaysShowLoadMore
     >
       {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && nominationPhaseButtons}  
 

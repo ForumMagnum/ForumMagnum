@@ -484,6 +484,7 @@ const UltraFeedItemFooterCore = ({
               <BookmarkButton
                 documentId={bookmarkProps.documentId}
                 collectionName={collectionName}
+                initial={document.isBookmarked}
                 className={classNames(classes.bookmarkButton, { [classes.bookmarkButtonHighlighted]: bookmarkProps.highlighted })}
               />
             </div>

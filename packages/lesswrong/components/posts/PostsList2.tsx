@@ -52,7 +52,9 @@ const PostsList2 = (props: PostsList2Props & {noSuspenseBoundary?: boolean}) => 
         showFinalBottomBorder={props.showFinalBottomBorder}
         viewType={"list"}
         loadMore={props.alwaysShowLoadMore}
-      />
+      >
+        {props.children}
+      </PostsLoading>
     }>
       <PostsListLoaded {...props}/>
     </SuspenseWrapper>
