@@ -767,7 +767,6 @@ export default function ToolbarPlugin({
   >([]);
   const [modal, showModal] = useModal();
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
-  const [isSuggestionMode, setIsSuggestionMode] = useState(false);
   const {toolbarState, updateToolbarState} = useToolbarState();
 
   const dispatchToolbarCommand = <T extends LexicalCommand<unknown>>(

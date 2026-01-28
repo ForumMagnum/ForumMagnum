@@ -58,7 +58,6 @@ import CodeHighlightPrismPlugin from './plugins/CodeHighlightPrismPlugin';
 // import CodeHighlightShikiPlugin from './plugins/CodeHighlightShikiPlugin';
 import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import CommentPlugin from './plugins/CommentPlugin';
-import SuggestedEditsPlugin from './plugins/SuggestedEditsPlugin';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DateTimePlugin from './plugins/DateTimePlugin';
@@ -270,43 +269,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       '& p': {
         margin: 0,
       },
-    },
-    // Suggested edits styling overrides.
-    '& .editor-mark[data-suggestion-id]': {
-      backgroundColor: 'transparent',
-      boxShadow: 'none',
-      textDecoration: 'none',
-      borderBottom: 'none',
-    },
-    '& .editor-mark.selected[data-suggestion-id]': {
-      backgroundColor: 'transparent',
-      boxShadow: 'none',
-      borderBottom: 'none',
-    },
-    '& .editor-mark[data-suggestion-id] *': {
-      backgroundColor: 'transparent',
-      boxShadow: 'none',
-      borderBottom: 'none',
-    },
-    '& .editor-mark.lexical-suggestion-insert': {
-      backgroundColor: theme.palette.primary.light,
-      borderRadius: 2,
-      padding: '0 1px',
-    },
-    '& .editor-mark.lexical-suggestion-delete': {
-      backgroundColor: theme.palette.error.light,
-      borderRadius: 2,
-      padding: '0 1px',
-      textDecoration: 'line-through',
-      color: theme.palette.error.dark,
-    },
-    '& .editor-mark.selected.lexical-suggestion-insert': {
-      backgroundColor: theme.palette.primary.light,
-      borderBottom: 'none',
-    },
-    '& .editor-mark.selected.lexical-suggestion-delete': {
-      backgroundColor: theme.palette.error.light,
-      borderBottom: 'none',
     },
   },
   editorContainerComment: {
@@ -580,12 +542,6 @@ export default function Editor({
         <DateTimePlugin />
         {!isCommentEditor && !(isCollab && useCollabV2) && (
           <CommentPlugin
-            providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
-          />
-        )}
-        {!isCommentEditor && (
-          <SuggestedEditsPlugin
-            accessLevel={accessLevel}
             providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
           />
         )}
