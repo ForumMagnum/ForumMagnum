@@ -123,6 +123,23 @@ export async function getLastReadStatus(post: DbPost, context: ResolverContext) 
   return readStatus[0];
 }
 
+async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
+  const { currentUser, Bookmarks } = context;
+  if (!currentUser) return false;
+
+  const bookmarks = await getWithLoader(
+    context,
+    Bookmarks,
+    `bookmarksByUser:${currentUser._id}:Posts`,
+    { userId: currentUser._id, collectionName: "Posts", active: true },
+    "documentId",
+    documentId,
+    { limit: 1 }
+  );
+
+  return bookmarks.length > 0;
+}
+
 export const sideCommentCacheVersion = 1;
 export interface SideCommentsCache {
   version: number;
@@ -4398,6 +4415,15 @@ const schema = {
           sort: { createdAt: -1 },
         })
       }
+    }
+  },
+  isBookmarked: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (post, args, context) => {
+        return await getIsBookmarked(post._id, context);
+      },
     }
   },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,

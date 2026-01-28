@@ -31,15 +31,17 @@ export interface UseBookmarkResult {
 
 export const useBookmark = (
   documentId: string,
-  collectionName: BookmarkableCollectionName
+  collectionName: BookmarkableCollectionName,
+  initial?: boolean
 ): UseBookmarkResult => {
   const currentUserId = useCurrentUserId();
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
+  const shouldUseInitial = typeof initial === "boolean";
 
-  const TOGGLE_BOOKMARK_MUTATION = gql(`
-    mutation ToggleBookmarkMutation($input: ToggleBookmarkInput!) {
-      toggleBookmark(input: $input) {
+  const SET_BOOKMARK_MUTATION = gql(`
+    mutation SetIsBookmarkedMutation($input: SetIsBookmarkedInput!) {
+      setIsBookmarked(input: $input) {
         data {
           ...BookmarksMinimumInfoFragment
         }
@@ -47,7 +49,7 @@ export const useBookmark = (
     }
   `);
 
-  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(initial ?? false);
 
   const { data, loading: multiLoading } = useQuery(BookmarksMinimumInfoMultiQuery, {
     variables: {
@@ -55,7 +57,7 @@ export const useBookmark = (
       limit: 1,
       enableTotal: false,
     },
-    skip: !currentUserId || !collectionName,
+    skip: !currentUserId || !collectionName || shouldUseInitial,
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
   });
@@ -63,16 +65,21 @@ export const useBookmark = (
   const bookmarkDocs = data?.bookmarks?.results;
 
   useEffect(() => {
+    if (shouldUseInitial) {
+      setIsBookmarked(initial ?? false);
+      return;
+    }
+
     const bookmarkIsActive = !!(bookmarkDocs && bookmarkDocs.length > 0 && bookmarkDocs[0].active);
     setIsBookmarked(bookmarkIsActive);
-  }, [bookmarkDocs]);
+  }, [bookmarkDocs, initial, shouldUseInitial]);
 
-  const [toggleBookmarkMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
-    TOGGLE_BOOKMARK_MUTATION,
+  const [setBookmarkMutation, { loading: mutationLoading, error: mutationError }] = useMutation(
+    SET_BOOKMARK_MUTATION,
     {
       onError: (error) => {
         // eslint-disable-next-line no-console
-        console.error("Error toggling bookmark:", error);
+        console.error("Error setting bookmark:", error);
       },
     }
   );
@@ -95,16 +102,16 @@ export const useBookmark = (
 
     captureEvent("bookmarkToggle", { documentId, collectionName, bookmarked: !previousState });
 
-    toggleBookmarkMutation({
+    setBookmarkMutation({
       variables: {
-        input: { documentId, collectionName },
+        input: { documentId, collectionName, isBookmarked: !previousState },
       },
     }).catch(() => {
       // Revert optimistic update on error
       setIsBookmarked(previousState);
     });
 
-  }, [currentUserId, documentId, collectionName, isBookmarked, mutationLoading, openDialog, toggleBookmarkMutation, captureEvent]);
+  }, [currentUserId, documentId, collectionName, isBookmarked, mutationLoading, openDialog, setBookmarkMutation, captureEvent]);
 
   const loading = multiLoading || mutationLoading;
   const icon: ForumIconName = isBookmarked ? "Bookmark" : "BookmarkBorder";

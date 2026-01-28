@@ -19,6 +19,7 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
 import { CommentsViews } from "./views";
+import { getWithLoader } from "../../loaders";
 
 function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
@@ -44,6 +45,23 @@ async function isParentPostKarmaHidden(comment: DbComment, context: ResolverCont
 
 function canReadUser(user: DbUser | null, comment: DbComment) {
   return isEAForum() ? documentIsNotDeleted(user, comment) : true;
+}
+
+async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
+  const { currentUser, Bookmarks } = context;
+  if (!currentUser) return false;
+
+  const bookmarks = await getWithLoader(
+    context,
+    Bookmarks,
+    `bookmarksByUser:${currentUser._id}:Comments`,
+    { userId: currentUser._id, collectionName: "Comments", active: true },
+    "documentId",
+    documentId,
+    { limit: 1 }
+  );
+
+  return bookmarks.length > 0;
 }
 
 const schema = {
@@ -1368,6 +1386,15 @@ const schema = {
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "originalDialogueId" }),
     },
+  },
+  isBookmarked: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (comment, args, context) => {
+        return await getIsBookmarked(comment._id, context);
+      },
+    }
   },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
