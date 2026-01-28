@@ -17,6 +17,7 @@ import { useClientId } from '../hooks/useClientId';
 import type { CollaborationConfig } from '../lexical/collaboration';
 import { useHocuspocusAuth } from './lexicalPlugins/collaboration/useHocuspocusAuth'
 import Editor from '../lexical/Editor';
+import { LexicalEditorContext } from './LexicalEditorContext';
 import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
 import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
 import { SharedHistoryContext } from '../lexical/context/SharedHistoryContext';
@@ -368,10 +369,16 @@ const LexicalEditor = ({
     initialHtmlRef.current = data;
   }
 
+  const isPostEditor = collectionName === 'Posts';
+  const editorContextValue = useMemo(() => ({
+    collectionName,
+    isPostEditor,
+  }), [collectionName, isPostEditor]);
+
   // Always enable collaboration for posts (when documentId is available).
   // This ensures we always use Yjs for consistency, even when not sharing with others.
   // Anonymous users can collaborate if they have a clientId (from cookie).
-  const shouldEnableCollaboration = collectionName === 'Posts' && !!documentId;
+  const shouldEnableCollaboration = isPostEditor && !!documentId;
   const { auth: hocuspocusAuth, loading: authLoading, error: authError } = useHocuspocusAuth(
     documentId,
     !shouldEnableCollaboration
@@ -470,6 +477,7 @@ const LexicalEditor = ({
   }
 
   return (
+    <LexicalEditorContext.Provider value={editorContextValue}>
     <LexicalCollaboration>
       <LexicalExtensionComposer extension={app} contentEditable={null}>
         <SharedHistoryContext>
@@ -500,6 +508,7 @@ const LexicalEditor = ({
         </SharedHistoryContext>
       </LexicalExtensionComposer>
     </LexicalCollaboration>
+    </LexicalEditorContext.Provider>
   );
 };
 
