@@ -6,7 +6,7 @@ import { useNotifyMe } from "../../hooks/useNotifyMe";
 import ForumIcon from "../../common/ForumIcon";
 import Loading from "../../vulcan-core/Loading";
 
-const styles = defineStyles("MarginalFundingSubscribeButton", (theme) => ({
+const styles = defineStyles("SequenceEventSubscribeButton", (theme) => ({
   loading: {
     transform: "translateY(-6px)",
     "& > *": {
@@ -15,7 +15,7 @@ const styles = defineStyles("MarginalFundingSubscribeButton", (theme) => ({
   },
 }));
 
-export const MarginalFundingSubscribeButton = ({sequence, className}: {
+export const SequenceEventSubscribeButton = ({sequence, className}: {
   sequence: SequencesPageWithChaptersFragment,
   className?: string,
 }) => {
@@ -48,6 +48,6 @@ export const MarginalFundingSubscribeButton = ({sequence, className}: {
 }
 
 export default registerComponent(
-  "MarginalFundingSubscribeButton",
-  MarginalFundingSubscribeButton,
+  "SequenceEventSubscribeButton",
+  SequenceEventSubscribeButton,
 );

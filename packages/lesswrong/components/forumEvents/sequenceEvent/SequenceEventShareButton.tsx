@@ -14,7 +14,7 @@ import SocialMediaIcon from "../../icons/SocialMediaIcon";
 import DropdownDivider from "../../dropdowns/DropdownDivider";
 import LWClickAwayListener from "../../common/LWClickAwayListener";
 
-const styles = defineStyles("MarginalFundingShareButton", (theme) => ({
+const styles = defineStyles("SequenceEventShareButton", (theme) => ({
   icon: {
     width: 20,
     height: 20,
@@ -22,7 +22,7 @@ const styles = defineStyles("MarginalFundingShareButton", (theme) => ({
   },
 }));
 
-export const MarginalFundingShareButton = ({className}: {
+export const SequenceEventShareButton = ({className}: {
   className?: string,
 }) => {
   const {flash} = useMessages();
@@ -128,6 +128,6 @@ export const MarginalFundingShareButton = ({className}: {
 }
 
 export default registerComponent(
-  "MarginalFundingShareButton",
-  MarginalFundingShareButton,
+  "SequenceEventShareButton",
+  SequenceEventShareButton,
 );

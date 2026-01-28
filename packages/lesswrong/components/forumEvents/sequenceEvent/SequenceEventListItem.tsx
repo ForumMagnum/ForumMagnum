@@ -7,7 +7,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import UsersName from "../../users/UsersName";
 import classNames from "classnames";
 
-const styles = defineStyles("MarginalFundingListItem", (theme) => ({
+const styles = defineStyles("SequenceEventListItem", (theme) => ({
   root: {
     display: "contents",
     cursor: "pointer",
@@ -18,13 +18,13 @@ const styles = defineStyles("MarginalFundingListItem", (theme) => ({
     "@media (pointer:fine)": {
       "&:hover": {
         color: theme.palette.givingSeason.primary,
-        "& .MarginalFundingListItem-read": {
+        "& .SequenceEventListItem-read": {
           background: `${theme.palette.givingSeason.cardHover} !important`,
         },
-        "& .MarginalFundingListItem-unread": {
+        "& .SequenceEventListItem-unread": {
           background: `${theme.palette.givingSeason.cardHover} !important`,
         },
-        "& .MarginalFundingListItem-org": {
+        "& .SequenceEventListItem-org": {
           borderColor: theme.palette.givingSeason.primary,
         },
       },
@@ -89,7 +89,7 @@ const styles = defineStyles("MarginalFundingListItem", (theme) => ({
   },
 }))
 
-export const MarginalFundingListItem = ({post}: {post: PostsListWithVotes}) => {
+export const SequenceEventListItem = ({post}: {post: PostsListWithVotes}) => {
   const href = postGetPageUrl(post);
   const {onClick} = useClickableCell({href});
   const classes = useStyles(styles);
@@ -140,4 +140,4 @@ export const MarginalFundingListItem = ({post}: {post: PostsListWithVotes}) => {
   );
 }
 
-export default registerComponent('MarginalFundingListItem', MarginalFundingListItem);
+export default registerComponent('SequenceEventListItem', SequenceEventListItem);
