@@ -5,6 +5,7 @@ import { htmlToTextDefault } from '@/lib/htmlToText';
 import { preferredHeadingCase } from '@/themes/forumTheme';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useEffectOnce } from '../hooks/useEffectOnce';
 
 const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
   root: {
@@ -98,21 +99,19 @@ type LocalStorageCheckProps = {
 
 const LocalStorageCheck = (props: LocalStorageCheckProps) => {
   const {getLocalStorageHandlers, getNewPostLocalStorageHandlers} = props;
-  const [localStorageChecked, setLocalStorageChecked] = useState(false);
   const [restorableState, setRestorableState] = useState<{restorableState: RestorableState|null, newPostRestorableState: RestorableState|null} | null>(null);
   const currentUser = useCurrentUser();
   
-  useEffect(() => {
-    if (!localStorageChecked) {
-      setLocalStorageChecked(true);
-      const restorableState = getRestorableState(currentUser, getLocalStorageHandlers);
-      const newPostRestorableState = getRestorableState(currentUser, getNewPostLocalStorageHandlers);
+  useEffectOnce(() => {
+    const restorableState = getRestorableState(currentUser, getLocalStorageHandlers);
+    const newPostRestorableState = getRestorableState(currentUser, getNewPostLocalStorageHandlers);
+    if (restorableState || newPostRestorableState) {
       setRestorableState({
         restorableState,
         newPostRestorableState,
       });
     }
-  }, [localStorageChecked, getLocalStorageHandlers, getNewPostLocalStorageHandlers, currentUser]);
+  });
 
   const restorableDocument = restorableState?.restorableState?.savedDocument ?? null;
   const newPostRestorableDocument = restorableState?.newPostRestorableState?.savedDocument ?? null;
