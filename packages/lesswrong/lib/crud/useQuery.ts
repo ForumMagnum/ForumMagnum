@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, use, useContext, useMemo, useRef, useSyncExternalStore } from "react";
+import React, { createContext, use, useContext, useMemo, useRef, useState, useSyncExternalStore } from "react";
 // eslint-disable-next-line no-restricted-imports
 import { useQuery as useQueryApollo, useSuspenseQuery as useSuspenseQueryApollo, useReadQuery as useReadQueryApollo, useBackgroundQuery as useBackgroundQueryApollo, useApolloClient, type SuspenseQueryHookFetchPolicy } from "@apollo/client/react";
 import { debugSuspenseBoundaries, NamedSuspenseBoundary } from "@/components/common/SuspenseWrapper";
@@ -54,7 +54,7 @@ function useHydrationWaitForInjectedKey(injectedKey: string, shouldWait: boolean
 
     const api = (globalThis as unknown as Window).__lwSsrGql;
     if (!api) return null;
-    if (api.get(injectedKey)) return null;
+    if (api.get(injectedKey) !== undefined) return null;
 
     // Wait briefly for the injected <script> tag to execute.
     return new Promise<void>((resolve) => {
@@ -71,11 +71,17 @@ function useHydrationWaitForInjectedKey(injectedKey: string, shouldWait: boolean
       // Safety valve: if something goes wrong with injection, don't hang hydration forever.
       setTimeout(finish, 3000);
       // Re-check in case it arrived between `get()` and `subscribe()`.
-      if (api.get(injectedKey)) {
+      if (api.get(injectedKey) !== undefined) {
         finish();
       }
     });
-  }, [injectedKey, isHydrationRender, shouldWait]);
+  // This does not depend on injectedKey because if the query or its variables change during
+  // hydration (eg, an SSR mismatch), that would cause us to create a second promise, and then
+  // we'd be inconsistent in what promise we pass to use() and everything would break. This
+  // happened in the case where the latest-posts list sometimes had an SSR mismatch about whether
+  // to be Recent or Enriched.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHydrationRender, shouldWait]);
 
   if (promise) {
     use(promise);
