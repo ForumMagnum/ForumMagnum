@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 import { FeedType } from './ultraFeedTypes';
 
 interface UltraFeedContextType {
@@ -20,9 +20,10 @@ export const UltraFeedContextProvider = ({
   feedType?: FeedType;
 }) => {
   const [showScoreBreakdown, setShowScoreBreakdown] = useState(false);
+  const context = useMemo(() => ({ openInNewTab, feedType, showScoreBreakdown, setShowScoreBreakdown }), [openInNewTab, feedType, showScoreBreakdown]);
   
   return (
-    <UltraFeedContext.Provider value={{ openInNewTab, feedType, showScoreBreakdown, setShowScoreBreakdown }}>
+    <UltraFeedContext.Provider value={context}>
       {children}
     </UltraFeedContext.Provider>
   );
