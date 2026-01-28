@@ -42,7 +42,7 @@ export const ContentCodeBlockWithMenu = ({
   children: React.ReactNode;
 }) => {
   const [isShown, setShown] = useState(false);
-  const preRef = useRef<HTMLPreElement | null>(null);
+  const codeBlockRef = useRef<HTMLSpanElement | null>(null);
   const language = getCodeBlockLanguage(attribs, classNames);
   const position: CodeActionMenuPosition = {
     top: '0',
@@ -62,16 +62,23 @@ export const ContentCodeBlockWithMenu = ({
     originalOnMouseLeave?.(event);
   };
 
-  const getCodeText = () => preRef.current?.textContent ?? '';
+  const getCodeText = () => {
+    const node = codeBlockRef.current;
+    if (!node) {
+      return '';
+    }
+    return node.innerText || node.textContent || '';
+  };
 
   return (
     <pre
       {...attribs}
-      ref={preRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {children}
+      <span ref={codeBlockRef}>
+        {children}
+      </span>
       <CodeActionMenu
         isShown={isShown}
         language={language}
