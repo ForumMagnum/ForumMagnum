@@ -3,7 +3,6 @@ import { registerComponent } from "@/lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "../../hooks/useStyles";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useMessages } from "../../common/withMessages";
-import { makeAbsolute } from "@/lib/vulcan-lib/utils";
 import { isMobile } from "@/lib/utils/isMobile";
 import { Paper } from "../../widgets/Paper";
 import ForumIcon from "../../common/ForumIcon";
@@ -14,7 +13,7 @@ import SocialMediaIcon from "../../icons/SocialMediaIcon";
 import DropdownDivider from "../../dropdowns/DropdownDivider";
 import LWClickAwayListener from "../../common/LWClickAwayListener";
 
-const styles = defineStyles("MarginalFundingShareButton", (theme) => ({
+const styles = defineStyles("SequenceEventShareButton", (theme) => ({
   icon: {
     width: 20,
     height: 20,
@@ -22,7 +21,9 @@ const styles = defineStyles("MarginalFundingShareButton", (theme) => ({
   },
 }));
 
-export const MarginalFundingShareButton = ({className}: {
+export const SequenceEventShareButton = ({shareTitle, sharingUrl, className}: {
+  shareTitle: string,
+  sharingUrl: (source: string) => string,
   className?: string,
 }) => {
   const {flash} = useMessages();
@@ -30,15 +31,11 @@ export const MarginalFundingShareButton = ({className}: {
   const [shareIsOpen, setShareIsOpen] = useState(false);
   const {captureEvent} = useTracking()
 
-  const sharingUrl = useCallback((source: string) => {
-    return makeAbsolute(`/marginal-funding?utm_campaign=marginal_funding&utm_source=${source}`);
-  }, []);
-
   const onShare = useCallback(() => {
-    captureEvent("marginalFundingShareClick");
+    captureEvent("shareClick");
     if (isMobile() && !!navigator.canShare) {
       const sharingOptions = {
-        title: "Marginal Funding | EA Forum",
+        title: `${shareTitle} | EA Forum`,
         url: sharingUrl("link"),
       };
       if (navigator.canShare(sharingOptions)) {
@@ -47,32 +44,31 @@ export const MarginalFundingShareButton = ({className}: {
       }
     }
     setShareIsOpen((isOpen) => !isOpen);
-  }, [captureEvent, sharingUrl]);
+  }, [captureEvent, shareTitle, sharingUrl]);
 
   const onCloseShare = useCallback(() => setShareIsOpen(false), []);
 
   const copyLink = useCallback(() => {
-    captureEvent("shareMarginalFunding", {option: "copyLink"})
+    captureEvent("share", {option: "copyLink"})
     void navigator.clipboard?.writeText(sharingUrl("link"));
     flash("Link copied to clipboard");
   }, [captureEvent, flash, sharingUrl]);
 
   const shareToX = useCallback(() => {
-    captureEvent("shareMarginalFunding", {option: "x"});
-    const tweetText = `Marginal Funding Week ${sharingUrl("x")}`;
+    captureEvent("share", {option: "x"});
+    const tweetText = `${shareTitle} ${sharingUrl("x")}`;
     const destinationUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     window.open(destinationUrl, "_blank");
-  }, [captureEvent, sharingUrl]);
+  }, [captureEvent, shareTitle, sharingUrl]);
 
   const shareToFacebook = useCallback(() => {
-    captureEvent("shareMarginalFunding", {option: "facebook"});
-    const linkTitle = "Marginal Funding Week";
-    const destinationUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(sharingUrl("facebook"))}&t=${encodeURIComponent(linkTitle)}`;
+    captureEvent("share", {option: "facebook"});
+    const destinationUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(sharingUrl("facebook"))}&t=${encodeURIComponent(shareTitle)}`;
     window.open(destinationUrl, "_blank");
-  }, [captureEvent, sharingUrl]);
+  }, [captureEvent, shareTitle, sharingUrl]);
 
   const shareToLinkedIn = useCallback(() => {
-    captureEvent("shareMarginalFunding", {option: "linkedIn"});
+    captureEvent("share", {option: "linkedIn"});
     const destinationUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sharingUrl("linkedin"))}`;
     window.open(destinationUrl, "_blank");
   }, [captureEvent, sharingUrl]);
@@ -128,6 +124,6 @@ export const MarginalFundingShareButton = ({className}: {
 }
 
 export default registerComponent(
-  "MarginalFundingShareButton",
-  MarginalFundingShareButton,
+  "SequenceEventShareButton",
+  SequenceEventShareButton,
 );
