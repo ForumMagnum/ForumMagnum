@@ -445,5 +445,9 @@ const clientWriteEvents = async (events: AnyBecauseTodo[]) => {
 
   const dataJson = JSON.stringify({ events, now: new Date(), });
   const dataBuffer = new TextEncoder().encode(dataJson);
+
+  // Suppress Sentry error log spam from bots or very old browsers where navigator.sendBeacon is undefined.
+  if (!navigator.sendBeacon) return;
+
   navigator.sendBeacon("/analyticsEvent", dataBuffer);
 };
