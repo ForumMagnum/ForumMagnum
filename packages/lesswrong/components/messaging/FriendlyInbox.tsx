@@ -353,7 +353,7 @@ const FriendlyInbox = ({
         },
       },
     });
-  }, [conversationsData, conversationsVariables, client.cache]);
+  }, [conversationsData, conversationsVariables, client?.cache]);
 
   const onOpenConversation = useCallback(async (conversationId: string) => {
     updateConversationCache(conversationId);
