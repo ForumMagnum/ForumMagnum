@@ -6,7 +6,7 @@ import * as _ from 'underscore';
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
 import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
-import { SCALING_SEQUENCE_ID } from '@/components/forumEvents/ScalingSequencePage';
+import { SCALING_SEQUENCE_ID } from '@/lib/collections/forumEvents/helpers';
 
 export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
 

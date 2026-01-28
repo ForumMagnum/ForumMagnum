@@ -2,10 +2,9 @@ import React, { useCallback } from "react";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { makeAbsolute } from "@/lib/vulcan-lib/utils";
+import { SCALING_SEQUENCE_ID } from "@/lib/collections/forumEvents/helpers";
 import SequenceEventPage from "./sequenceEvent/SequenceEventPage";
 import HeadTags from "@/components/common/HeadTags";
-
-export const SCALING_SEQUENCE_ID = "gBjPorwZHRArNSQ5w"; // TODO
 
 export const ScalingSequencePage = () => {
   const sharingUrl = useCallback((source: string) => {

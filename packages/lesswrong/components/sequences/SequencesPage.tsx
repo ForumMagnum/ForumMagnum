@@ -31,7 +31,7 @@ import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
-import { SCALING_SEQUENCE_ID } from '../forumEvents/ScalingSequencePage';
+import { SCALING_SEQUENCE_ID } from '@/lib/collections/forumEvents/helpers';
 import PermanentRedirect from '../common/PermanentRedirect';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
