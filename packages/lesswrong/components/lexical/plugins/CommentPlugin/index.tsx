@@ -65,6 +65,7 @@ import {
 } from 'react';
 import {createPortal} from 'react-dom';
 
+import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContext';
 import {
   Comment,
   Comments,
@@ -1252,6 +1253,7 @@ export default function CommentPlugin({
   providerFactory?: (id: string, yjsDocMap: Map<string, Doc>) => Provider;
 }): JSX.Element {
   const classes = useStyles(styles);
+  const { isPostEditor } = useLexicalEditorContext();
   const collabContext = useCollaborationContext();
   const [editor] = useLexicalComposerContext();
   const commentStore = useMemo(() => new CommentStore(editor), [editor]);
@@ -1696,7 +1698,7 @@ export default function CommentPlugin({
           />,
           document.body,
         )}
-      {createPortal(
+      {isPostEditor && createPortal(
         <Button
           className={classNames(classes.showCommentsButton, { [classes.showCommentsButtonActive]: showComments })}
           onClick={() => setShowComments(!showComments)}
@@ -1705,7 +1707,7 @@ export default function CommentPlugin({
         </Button>,
         document.body,
       )}
-      {showComments &&
+      {showComments && isPostEditor &&
         createPortal(
           <CommentsPanel
             comments={comments}

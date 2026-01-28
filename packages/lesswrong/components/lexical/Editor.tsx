@@ -81,6 +81,7 @@ import MentionsPlugin from './plugins/MentionsPlugin';
 import PageBreakPlugin from './plugins/PageBreakPlugin';
 import PollPlugin from './plugins/PollPlugin';
 import ShortcutsPlugin from './plugins/ShortcutsPlugin';
+import SubmitOnCmdEnterPlugin from './plugins/SubmitOnCmdEnterPlugin';
 // import SpecialTextPlugin from './plugins/SpecialTextPlugin';
 // import SpeechToTextPlugin from './plugins/SpeechToTextPlugin';
 import TabFocusPlugin from './plugins/TabFocusPlugin';
@@ -554,6 +555,7 @@ export default function Editor({
           setIsLinkEditMode={setIsLinkEditMode}
         />
       )}
+      <SubmitOnCmdEnterPlugin />
       <div
         className={classNames(
           classes.editorContainer,
@@ -718,14 +720,14 @@ export default function Editor({
                 {!isCommentEditor && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
                 <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
                 <TableHoverActionsV2Plugin anchorElem={floatingAnchorElem} />
-                <FloatingTextFormatToolbarPlugin
-                  anchorElem={floatingAnchorElem}
-                  setIsLinkEditMode={setIsLinkEditMode}
-                  variant={isCommentEditor ? 'comment' : 'post'}
-                  showInlineCommentButton={isCollab && !isCommentEditor}
-                />
               </>
             )}
+            {floatingAnchorElem && <FloatingTextFormatToolbarPlugin
+              anchorElem={floatingAnchorElem}
+              setIsLinkEditMode={setIsLinkEditMode}
+              variant={isCommentEditor ? 'comment' : 'post'}
+              showInlineCommentButton={isCollab && !isCommentEditor}
+            />}
           </>
         ) : (
           <>

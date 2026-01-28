@@ -49,6 +49,7 @@ import { useCollaborationContext } from '@lexical/react/LexicalCollaborationCont
 import classNames from 'classnames';
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContext';
 import Button from '@/components/lexical/ui/Button';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useClientId } from '@/components/hooks/useClientId';
@@ -1294,6 +1295,7 @@ export default function SuggestedEditsPlugin({
   providerFactory,
 }: SuggestedEditsPluginProps): JSX.Element | null {
   const classes = useStyles(styles);
+  const { isPostEditor } = useLexicalEditorContext();
   const [editor] = useLexicalComposerContext();
   const currentUser = useCurrentUser();
   const clientId = useClientId();
@@ -2030,19 +2032,21 @@ export default function SuggestedEditsPlugin({
 
   return (
     <>
-      <div className={classes.suggestionToggle}>
-        <button
-          type="button"
-          className={classNames(classes.suggestionToggleButton, {
-            [classes.suggestionToggleActive]: suggestMode,
-          })}
-          onClick={toggleSuggestionMode}
-        >
-          <span className={classes.suggestionBadge}>
-            {suggestMode ? 'Suggesting' : 'Editing'}
-          </span>
-        </button>
-      </div>
+      {isPostEditor && (
+        <div className={classes.suggestionToggle}>
+          <button
+            type="button"
+            className={classNames(classes.suggestionToggleButton, {
+              [classes.suggestionToggleActive]: suggestMode,
+            })}
+            onClick={toggleSuggestionMode}
+          >
+            <span className={classes.suggestionBadge}>
+              {suggestMode ? 'Suggesting' : 'Editing'}
+            </span>
+          </button>
+        </div>
+      )}
       {showActions && activeSuggestion && (
         <div
           className={classes.suggestionActions}

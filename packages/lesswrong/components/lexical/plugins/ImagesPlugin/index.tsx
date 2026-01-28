@@ -41,8 +41,12 @@ import {
   DROP_COMMAND,
   getDOMSelectionFromTarget,
   isHTMLElement,
+  LexicalNode,
   LexicalCommand,
   LexicalEditor,
+  NodeKey,
+  ParagraphNode,
+  TextNode,
 } from 'lexical';
 import {useEffect, useRef, useState} from 'react';
 
@@ -69,8 +73,48 @@ import {
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
-export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> =
-  createCommand('INSERT_IMAGE_COMMAND');
+export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> = createCommand('INSERT_IMAGE_COMMAND');
+
+function findCaptionAncestor(node: LexicalNode | null): ImageCaptionNode | null {
+  let current: LexicalNode | null = node;
+  while (current) {
+    if ($isImageCaptionNode(current)) {
+      return current;
+    }
+    current = current.getParent();
+  }
+  return null;
+}
+
+function updateCaptionEmptyAttribute(
+  editor: LexicalEditor,
+  captionNode: ImageCaptionNode,
+): void {
+  const element = editor.getElementByKey(captionNode.getKey());
+  if (element) {
+    element.setAttribute('data-empty', captionNode.isEmpty() ? 'true' : 'false');
+  }
+}
+
+function updateCaptionEmptyFromMutations(
+  editor: LexicalEditor,
+  mutations: Map<NodeKey, 'created' | 'updated' | 'destroyed'>,
+): void {
+  editor.getEditorState().read(() => {
+    for (const [nodeKey, mutation] of mutations) {
+      if (mutation === 'destroyed') {
+        continue;
+      }
+      const node = $getNodeByKey(nodeKey);
+      if (node) {
+        const captionNode = findCaptionAncestor(node);
+        if (captionNode) {
+          updateCaptionEmptyAttribute(editor, captionNode);
+        }
+      }
+    }
+  });
+}
 
 export function InsertImageUriDialogBody({
   onClick,
@@ -330,16 +374,16 @@ export default function ImagesPlugin({
           for (const [nodeKey] of mutations) {
             const captionNode = $getNodeByKey(nodeKey);
             if ($isImageCaptionNode(captionNode)) {
-              const element = editor.getElementByKey(nodeKey);
-              if (element) {
-                element.setAttribute(
-                  'data-empty',
-                  captionNode.isEmpty() ? 'true' : 'false',
-                );
-              }
+              updateCaptionEmptyAttribute(editor, captionNode);
             }
           }
         });
+      }),
+      editor.registerMutationListener(TextNode, (mutations) => {
+        updateCaptionEmptyFromMutations(editor, mutations);
+      }),
+      editor.registerMutationListener(ParagraphNode, (mutations) => {
+        updateCaptionEmptyFromMutations(editor, mutations);
       }),
     );
   }, [captionsEnabled, editor]);

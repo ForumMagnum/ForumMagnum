@@ -5,14 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  *
  */
-import {$isCodeNode} from '@lexical/code';
-import {
-  $getNearestNodeFromDOMNode,
-  $getSelection,
-  $setSelection,
-  LexicalEditor,
-} from 'lexical';
-
 import React, {useState} from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ClipboardIcon } from '../../../../icons/ClipboardIcon';
@@ -30,12 +22,11 @@ const styles = defineStyles('LexicalCopyButton', (theme: ThemeType) => ({
 }));
 
 interface Props {
-  editor: LexicalEditor;
-  getCodeDOMNode: () => HTMLElement | null;
+  getCodeText: () => string;
   menuItemClassName?: string;
 }
 
-export function CopyButton({editor, getCodeDOMNode, menuItemClassName}: Props) {
+export function CopyButton({getCodeText, menuItemClassName}: Props) {
   const classes = useStyles(styles);
   const [isCopyCompleted, setCopyCompleted] = useState<boolean>(false);
 
@@ -46,24 +37,7 @@ export function CopyButton({editor, getCodeDOMNode, menuItemClassName}: Props) {
   async function handleClick(e: React.MouseEvent<HTMLButtonElement>): Promise<void> {
     e.preventDefault();
     e.stopPropagation();
-    const codeDOMNode = getCodeDOMNode();
-
-    if (!codeDOMNode) {
-      return;
-    }
-
-    let content = '';
-
-    editor.update(() => {
-      const codeNode = $getNearestNodeFromDOMNode(codeDOMNode);
-
-      if ($isCodeNode(codeNode)) {
-        content = codeNode.getTextContent();
-      }
-
-      const selection = $getSelection();
-      $setSelection(selection);
-    });
+    const content = getCodeText();
 
     try {
       await navigator.clipboard.writeText(content);

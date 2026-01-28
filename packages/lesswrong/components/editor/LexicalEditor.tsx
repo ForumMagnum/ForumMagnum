@@ -17,6 +17,7 @@ import { useClientId } from '../hooks/useClientId';
 import type { CollaborationConfig } from '../lexical/collaboration';
 import { useHocuspocusAuth } from './lexicalPlugins/collaboration/useHocuspocusAuth'
 import Editor from '../lexical/Editor';
+import { LexicalEditorContext } from './LexicalEditorContext';
 import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
 import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
 import { SharedHistoryContext } from '../lexical/context/SharedHistoryContext';
@@ -329,7 +330,14 @@ const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExpo
   }
   const output = target.exportDOM(editor);
   if (output.element instanceof HTMLElement) {
-    const lineCount = Math.max(1, target.getTextContent().split('\n').length);
+    const textContent = target.getTextContent();
+    const lines = textContent.split('\n');
+    const lastLineIndex = lines.length - 1;
+    // Avoid an extra gutter line when the code ends with a single trailing newline, which is itself stripped from the exported html.
+    // Otherwise, we get the appearance of an empty newline at the end of the codeblock, but also a vertical scrollbar.
+    const trailingLineCountAdjustment = lines[lastLineIndex] === '' ? 1 : 0;
+    const adjustedLineCount = Math.max(1, lines.length - trailingLineCountAdjustment);
+    const lineCount = adjustedLineCount;
     output.element.setAttribute('data-gutter', formatCodeGutter(lineCount));
   }
   return output;
@@ -361,10 +369,16 @@ const LexicalEditor = ({
     initialHtmlRef.current = data;
   }
 
+  const isPostEditor = collectionName === 'Posts';
+  const editorContextValue = useMemo(() => ({
+    collectionName,
+    isPostEditor,
+  }), [collectionName, isPostEditor]);
+
   // Always enable collaboration for posts (when documentId is available).
   // This ensures we always use Yjs for consistency, even when not sharing with others.
   // Anonymous users can collaborate if they have a clientId (from cookie).
-  const shouldEnableCollaboration = collectionName === 'Posts' && !!documentId;
+  const shouldEnableCollaboration = isPostEditor && !!documentId;
   const { auth: hocuspocusAuth, loading: authLoading, error: authError } = useHocuspocusAuth(
     documentId,
     !shouldEnableCollaboration
@@ -463,6 +477,7 @@ const LexicalEditor = ({
   }
 
   return (
+    <LexicalEditorContext.Provider value={editorContextValue}>
     <LexicalCollaboration>
       <LexicalExtensionComposer extension={app} contentEditable={null}>
         <SharedHistoryContext>
@@ -493,6 +508,7 @@ const LexicalEditor = ({
         </SharedHistoryContext>
       </LexicalExtensionComposer>
     </LexicalCollaboration>
+    </LexicalEditorContext.Provider>
   );
 };
 
