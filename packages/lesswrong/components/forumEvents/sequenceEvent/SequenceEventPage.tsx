@@ -2,23 +2,18 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import { defineStyles, useStyles } from "../../hooks/useStyles";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
-import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
+import { useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "../../common/withUser";
 import { useItemsRead } from "../../hooks/useRecordPostView";
 import { useSingle } from "@/lib/crud/withSingle";
 import { Link } from "@/lib/reactRouterWrapper";
-import {
-  MARGINAL_FUNDING_SEQUENCE_ID,
-  MARGINAL_FUNDING_SPOTIFY_URL,
-  SINGLE_COLUMN_BREAKPOINT,
-} from "@/lib/givingSeason";
+import { SINGLE_COLUMN_BREAKPOINT } from "@/lib/givingSeason";
 import orderBy from "lodash/orderBy";
 import classNames from "classnames";
 import SequenceEventSubscribeButton from "./SequenceEventSubscribeButton";
 import SequenceEventShareButton from "./SequenceEventShareButton";
 import SequenceEventListItem from "./SequenceEventListItem";
 import SequenceEventCard from "./SequenceEventCard";
-import HeadTags from "@/components/common/HeadTags";
 import ForumIcon from "../../common/ForumIcon";
 import Loading from "../../vulcan-core/Loading";
 
@@ -141,14 +136,19 @@ const styles = defineStyles("SequenceEventPage", (theme) => ({
   },
 }));
 
-export const SequenceEventPage = () => {
+export const SequenceEventPage = ({sequenceId, shareTitle, listenUrl, sharingUrl}: {
+  sequenceId: string,
+  shareTitle: string,
+  listenUrl?: string,
+  sharingUrl: (source: string) => string,
+}) => {
   const currentUser = useCurrentUser();
-  const {captureEvent} = useTracking()
+  const {captureEvent} = useTracking();
 
   const {document: sequence, refetch} = useSingle({
     collectionName: "Sequences",
     fragmentName: "SequencesPageWithChaptersFragment",
-    documentId: MARGINAL_FUNDING_SEQUENCE_ID,
+    documentId: sequenceId,
     fetchPolicy: "network-only"
   });
 
@@ -164,11 +164,11 @@ export const SequenceEventPage = () => {
   }, [postsRead, sequence, refetch]);
 
   const onListen = useCallback(() => {
-    captureEvent("marginalFundingListenClick");
+    captureEvent("listenClick");
   }, [captureEvent]);
 
   const onEdit = useCallback(() => {
-    captureEvent("marginalFundingEditClick");
+    captureEvent("editClick");
   }, [captureEvent]);
 
   const [cardPosts, listPosts] = useMemo(() => {
@@ -195,59 +195,56 @@ export const SequenceEventPage = () => {
     );
   }
   return (
-    <AnalyticsContext pageContext="marginalFunding">
-      <HeadTags
-        title="Marginal funding"
-        description="What will effective charities actually do with your money?"
-        image="https://res.cloudinary.com/cea/image/upload/v1763462529/SocialPreview/og-marginal-funding.jpg"
-      />
-      <main className={classes.root}>
-        <div className={classes.container}>
-          <div className={classes.grid}>
-            <div className={classes.header}>
-              <div className={classes.options}>
-                {MARGINAL_FUNDING_SPOTIFY_URL && <Link
-                  to={MARGINAL_FUNDING_SPOTIFY_URL}
-                  onClick={onListen}
+    <main className={classes.root}>
+      <div className={classes.container}>
+        <div className={classes.grid}>
+          <div className={classes.header}>
+            <div className={classes.options}>
+              {listenUrl && <Link
+                to={listenUrl}
+                onClick={onListen}
+                className={classes.option}
+              >
+                <ForumIcon icon="VolumeUp" /> Listen to the posts
+              </Link>}
+              <SequenceEventSubscribeButton
+                sequence={sequence}
+                className={classes.option}
+              />
+              <SequenceEventShareButton
+                shareTitle={shareTitle}
+                sharingUrl={sharingUrl}
+                className={classes.option}
+              />
+              {currentUser?.isAdmin &&
+                <Link
+                  to={sequenceGetPageUrl({_id: sequenceId})}
+                  onClick={onEdit}
                   className={classes.option}
                 >
-                  <ForumIcon icon="VolumeUp" /> Listen to the posts
-                </Link>}
-                <SequenceEventSubscribeButton
-                  sequence={sequence}
-                  className={classes.option}
-                />
-                <SequenceEventShareButton className={classes.option} />
-                {currentUser?.isAdmin &&
-                  <Link
-                    to={sequenceGetPageUrl({_id: MARGINAL_FUNDING_SEQUENCE_ID})}
-                    onClick={onEdit}
-                    className={classes.option}
-                  >
-                    <ForumIcon icon="Pencil" /> Edit
-                  </Link>
-                }
-              </div>
-              <div className={classes.title}>{sequence.title}</div>
-              {sequence.contents?.html &&
-                <div
-                  dangerouslySetInnerHTML={{__html: sequence.contents.html}}
-                  className={classes.description}
-                />
+                  <ForumIcon icon="Pencil" /> Edit
+                </Link>
               }
             </div>
-            {cardPosts.map((post) => (
-              <SequenceEventCard post={post} key={post._id} />
-            ))}
+            <div className={classes.title}>{sequence.title}</div>
+            {sequence.contents?.html &&
+              <div
+                dangerouslySetInnerHTML={{__html: sequence.contents.html}}
+                className={classes.description}
+              />
+            }
           </div>
-          <div className={classes.list}>
-            {listPosts.map((post) => (
-              <SequenceEventListItem post={post} key={post._id} />
-            ))}
-          </div>
+          {cardPosts.map((post) => (
+            <SequenceEventCard post={post} key={post._id} />
+          ))}
         </div>
-      </main>
-    </AnalyticsContext>
+        <div className={classes.list}>
+          {listPosts.map((post) => (
+            <SequenceEventListItem post={post} key={post._id} />
+          ))}
+        </div>
+      </div>
+    </main>
   );
 }
 

@@ -26,7 +26,7 @@ export const SequenceEventSubscribeButton = ({sequence, className}: {
     onSubscribe: subscribe,
   } = useNotifyMe({document: sequence});
   const onSubscribe = useCallback(async (ev: MouseEvent<HTMLButtonElement>) => {
-    captureEvent("marginalFundingSubscribeClick");
+    captureEvent("subscribeClick");
     setSubscribing(true);
     try {
       await subscribe?.(ev);
