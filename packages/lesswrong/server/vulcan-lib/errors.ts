@@ -9,8 +9,12 @@ An error should have:
 - data: data/values to give more context to the error
 
 */
-export function throwError(error: { id: string; data?: Record<string, AnyBecauseTodo> }): never {
+export function throwError(error: {
+  id: string;
+  noSentryCapture?: boolean;
+  data?: Record<string, AnyBecauseTodo>
+}): never {
   const { id } = error;
-  throw new GraphQLError(id)
+  throw new GraphQLError(id, { extensions: { noSentryCapture: !!error.noSentryCapture } })
   // throw new Error(`${error.id}: ${error.data}`);
 };

@@ -10,7 +10,7 @@ import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '@/
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { throwError } from "@/server/vulcan-lib/errors";
 import { captureException } from "@/lib/sentryWrapper";
-import { Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
+import { GraphQLError, Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
 import isEqual from "lodash/isEqual";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
@@ -160,7 +160,10 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       maxAllowedSkip !== null &&
       terms.offset > maxAllowedSkip
     ) {
-      throw new Error("Exceeded maximum value for skip");
+      throwError({
+        id: "Exceeded maximum value for skip",
+        noSentryCapture: context.isGreaterWrong,
+      });
     }
 
     // get currentUser and Users collection from context
@@ -325,6 +328,9 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       } else {
         throwError({
           id: 'app.missing_document',
+          // Don't log not-found errors in Sentry if the request is from GreaterWrong because
+          // it periodically retries deleted IDs it saw in the past
+          noSentryCapture: context.isGreaterWrong,
           data: { documentId, selector, collectionName: collection.collectionName },
         });
       }
@@ -340,10 +346,12 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
         if (reasonDenied.reason) {
           throwError({
             id: reasonDenied.reason,
+            noSentryCapture: context.isGreaterWrong,
           });
         } else {
           throwError({
             id: 'app.operation_not_allowed',
+            noSentryCapture: context.isGreaterWrong,
             data: {documentId, operationName: `${typeName}.read.single`}
           });
         }
