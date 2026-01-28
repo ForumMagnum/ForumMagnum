@@ -1,6 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, { useEffect, useCallback } from 'react';
-import { useIsInView, useTracking } from "../../lib/analyticsEvents";
+import React, { useEffect, useCallback, useRef, useState } from 'react';
+import { useSubscribeIsInView, useTracking } from "../../lib/analyticsEvents";
+import { useStabilizedCallback } from '../hooks/useDebouncedCallback';
 
 const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children, skip}: {
   eventType?: string,
@@ -9,29 +10,26 @@ const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children,
   children?: React.ReactNode,
   skip?: boolean,
 }) => {
-  const { setNode, entry } = useIsInView(observerProps)
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const captureInViewEvent = useCallback(
     useTracking({ eventType: eventType || "inViewEvent", eventProps: {...eventProps, ...observerProps}}).captureEvent,
     // absolutely no reason for eventType or props to change for InView tracker once created, easiest way to prevent rerender because of object props
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [])
-
-  useEffect(() => {
-    if (!skip && !!entry) {
+  const wrappedCaptureInViewEvent = useStabilizedCallback((entry: IntersectionObserverEntry) => {
+    if (!skip) {
       const {time, isIntersecting, intersectionRatio} = entry
       captureInViewEvent(undefined, {time, isIntersecting, intersectionRatio})
     }
-  }, [entry, captureInViewEvent, skip])
+  })
 
-  return (
-    <span ref={setNode}>
-      { children }
-    </span>
-  )
+  const { nodeRef } = useSubscribeIsInView(observerProps, wrappedCaptureInViewEvent)
+
+  return <span ref={nodeRef}>
+    { children }
+  </span>
 }
 
-export default registerComponent('AnalyticsInViewTracker', AnalyticsInViewTracker);
+export default AnalyticsInViewTracker;
 
 
