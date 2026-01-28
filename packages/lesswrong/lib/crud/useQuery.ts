@@ -47,7 +47,12 @@ function useIsHydrationRender(): boolean {
 function useHydrationWaitForInjectedKey(injectedKey: string, shouldWait: boolean) {
   const isHydrationRender = useIsHydrationRender();
 
-  const promise = useMemo(() => {
+  // This is a useState rather than a useMemo, ie does not change with injectedKey, because if
+  // the query or its variables change during hydration (eg, an SSR mismatch), that would cause
+  // us to create a second promise, and then we'd be inconsistent in what promise we pass to
+  // use() and everything would break. This happened in the case where the latest-posts list
+  // sometimes had an SSR mismatch about whether to be Recent or Enriched.
+  const [promise] = useState(() => {
     if (!shouldWait) return null;
     if (!isHydrationRender) return null;
     if (typeof globalThis === "undefined") return null;
@@ -75,15 +80,9 @@ function useHydrationWaitForInjectedKey(injectedKey: string, shouldWait: boolean
         finish();
       }
     });
-  // This does not depend on injectedKey because if the query or its variables change during
-  // hydration (eg, an SSR mismatch), that would cause us to create a second promise, and then
-  // we'd be inconsistent in what promise we pass to use() and everything would break. This
-  // happened in the case where the latest-posts list sometimes had an SSR mismatch about whether
-  // to be Recent or Enriched.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHydrationRender, shouldWait]);
+  });
 
-  if (promise) {
+  if (promise && isHydrationRender && shouldWait) {
     use(promise);
   }
 }
