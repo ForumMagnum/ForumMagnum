@@ -17,10 +17,10 @@ const styles = defineStyles("SequenceEventCard", (theme) => ({
     cursor: "pointer",
     "@media (pointer:fine)": {
       "&:hover": {
-        background: `${theme.palette.givingSeason.cardHover} !important`,
-        color: theme.palette.givingSeason.primary,
+        background: "var(--sequence-hover) !important",
+        color: "var(--sequence-theme)",
         "& .SequenceEventCard-org": {
-          borderColor: theme.palette.givingSeason.primary,
+          borderColor: "var(--sequence-theme)",
         },
         "& .SequenceEventCard-image": {
           transform: "scale(1.02)",
@@ -32,7 +32,7 @@ const styles = defineStyles("SequenceEventCard", (theme) => ({
     },
   },
   read: {
-    background: theme.palette.givingSeason.primary,
+    background: "var(--sequence-theme)",
   },
   unread: {
     background: theme.palette.text.alwaysWhite,

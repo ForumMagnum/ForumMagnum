@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { CSSProperties, useCallback, useEffect, useMemo } from "react";
 import { defineStyles, useStyles } from "../../hooks/useStyles";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
@@ -51,7 +51,7 @@ const styles = defineStyles("SequenceEventPage", (theme) => ({
     },
   },
   header: {
-    background: theme.palette.givingSeason.primary,
+    background: "var(--sequence-theme)",
     gridColumn: "1 / 3",
     display: "flex",
     flexDirection: "column",
@@ -136,11 +136,20 @@ const styles = defineStyles("SequenceEventPage", (theme) => ({
   },
 }));
 
-export const SequenceEventPage = ({sequenceId, shareTitle, listenUrl, sharingUrl}: {
+export const SequenceEventPage = ({
+  sequenceId,
+  shareTitle,
+  listenUrl,
+  sharingUrl,
+  themeColor,
+  hoverColor,
+}: {
   sequenceId: string,
   shareTitle: string,
   listenUrl?: string,
   sharingUrl: (source: string) => string,
+  themeColor: string,
+  hoverColor: string,
 }) => {
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking();
@@ -195,7 +204,13 @@ export const SequenceEventPage = ({sequenceId, shareTitle, listenUrl, sharingUrl
     );
   }
   return (
-    <main className={classes.root}>
+    <main
+      style={{
+        "--sequence-theme": themeColor,
+        "--sequence-hover": hoverColor,
+      } as CSSProperties}
+      className={classes.root}
+    >
       <div className={classes.container}>
         <div className={classes.grid}>
           <div className={classes.header}>

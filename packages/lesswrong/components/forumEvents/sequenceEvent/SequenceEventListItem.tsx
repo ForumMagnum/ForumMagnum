@@ -17,21 +17,21 @@ const styles = defineStyles("SequenceEventListItem", (theme) => ({
     },
     "@media (pointer:fine)": {
       "&:hover": {
-        color: theme.palette.givingSeason.primary,
+        color: "var(--sequence-theme)",
         "& .SequenceEventListItem-read": {
-          background: `${theme.palette.givingSeason.cardHover} !important`,
+          background: "var(--sequence-hover) !important",
         },
         "& .SequenceEventListItem-unread": {
-          background: `${theme.palette.givingSeason.cardHover} !important`,
+          background: "var(--sequence-hover) !important",
         },
         "& .SequenceEventListItem-org": {
-          borderColor: theme.palette.givingSeason.primary,
+          borderColor: "var(--sequence-theme)",
         },
       },
     },
   },
   read: {
-    background: theme.palette.givingSeason.primary,
+    background: "var(--sequence-theme)",
   },
   unread: {
     background: theme.palette.text.alwaysWhite,
