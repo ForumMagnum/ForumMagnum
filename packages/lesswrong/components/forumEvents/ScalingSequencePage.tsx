@@ -5,6 +5,8 @@ import { makeAbsolute } from "@/lib/vulcan-lib/utils";
 import SequenceEventPage from "./sequenceEvent/SequenceEventPage";
 import HeadTags from "@/components/common/HeadTags";
 
+export const SCALING_SEQUENCE_ID = "gBjPorwZHRArNSQ5w"; // TODO
+
 export const ScalingSequencePage = () => {
   const sharingUrl = useCallback((source: string) => {
     return makeAbsolute(
@@ -20,7 +22,7 @@ export const ScalingSequencePage = () => {
       />
       <SequenceEventPage
         shareTitle="The Scaling Sequence"
-        sequenceId="gBjPorwZHRArNSQ5w"
+        sequenceId={SCALING_SEQUENCE_ID}
         listenUrl="https://open.spotify.com/playlist/2wEYoo2FtV7OQQA0pATewT?si=XET3lr9aT9S-PFOGDvW6Kw"
         sharingUrl={sharingUrl}
         themeColor="#b8a0ff"
