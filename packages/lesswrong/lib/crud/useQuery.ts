@@ -44,47 +44,49 @@ function useIsHydrationRender(): boolean {
   );
 }
 
+const waitForInjectionsPromises: Record<string, Promise<void> | null> = {};
+function waitForInjection(injectedKey: string): Promise<void> | null {
+  if (waitForInjectionsPromises[injectedKey]) {
+    return waitForInjectionsPromises[injectedKey];
+  }
+  if (typeof globalThis === "undefined") return null;
+
+  const api = (globalThis as unknown as Window).__lwSsrGql;
+  if (!api) return null;
+  if (api.get(injectedKey) !== undefined) {
+    return null;
+  }
+
+  waitForInjectionsPromises[injectedKey] = new Promise<void>((resolve) => {
+    let doneRef = {done: false};
+    let unsubscribe: (() => void) | undefined;
+    const finish = () => {
+      if (doneRef.done) return;
+      doneRef.done = true;
+      if (unsubscribe) unsubscribe();
+      resolve();
+    };
+
+    unsubscribe = api.subscribe(injectedKey, () => {
+      finish();
+    });
+    // Safety valve: if something goes wrong with injection, don't hang hydration forever.
+    setTimeout(finish, 3000);
+    // Re-check in case it arrived between `get()` and `subscribe()`.
+    if (api.get(injectedKey) !== undefined) {
+      finish();
+    }
+  });
+  return waitForInjectionsPromises[injectedKey];
+}
+
 function useHydrationWaitForInjectedKey(injectedKey: string, shouldWait: boolean) {
   const isHydrationRender = useIsHydrationRender();
-
-  const promise = useMemo(() => {
-    if (!shouldWait) return null;
-    if (!isHydrationRender) return null;
-    if (typeof globalThis === "undefined") return null;
-
-    const api = (globalThis as unknown as Window).__lwSsrGql;
-    if (!api) return null;
-    if (api.get(injectedKey) !== undefined) return null;
-
-    // Wait briefly for the injected <script> tag to execute.
-    return new Promise<void>((resolve) => {
-      let done = false;
-      let unsubscribe: (() => void) | undefined;
-      const finish = () => {
-        if (done) return;
-        done = true;
-        if (unsubscribe) unsubscribe();
-        resolve();
-      };
-
-      unsubscribe = api.subscribe(injectedKey, finish);
-      // Safety valve: if something goes wrong with injection, don't hang hydration forever.
-      setTimeout(finish, 3000);
-      // Re-check in case it arrived between `get()` and `subscribe()`.
-      if (api.get(injectedKey) !== undefined) {
-        finish();
-      }
-    });
-  // This does not depend on injectedKey because if the query or its variables change during
-  // hydration (eg, an SSR mismatch), that would cause us to create a second promise, and then
-  // we'd be inconsistent in what promise we pass to use() and everything would break. This
-  // happened in the case where the latest-posts list sometimes had an SSR mismatch about whether
-  // to be Recent or Enriched.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHydrationRender, shouldWait]);
-
-  if (promise) {
-    use(promise);
+  if (isHydrationRender && shouldWait) {
+    const promise = waitForInjection(injectedKey);
+    if (promise) {
+      use(promise);
+    }
   }
 }
 
@@ -240,7 +242,6 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
       : undefined;
 
     if (shouldUseInjected) {
-      //console.log(`Retrieved injected query result for ${getOperationName(query)}`)
       apolloClient.writeQuery({
         query,
         variables,
@@ -253,7 +254,7 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
       // normal fetchPolicy semantics (modulo the short `prioritizeCacheValues`
       // window right after hydration).
       if (injectedStore) {
-        delete injectedStore[injectedKey];
+        //delete injectedStore[injectedKey];
         // If we've consumed the last injected query payload, we can also clear
         // the shared dedupe store to avoid unbounded growth in long-lived tabs.
         // JB: Commented out because I don't think this is actually safe (there may still be suspended components coming that will rely on this store)
@@ -325,7 +326,7 @@ export const useSuspenseQuery: typeof useSuspenseQueryApollo = ((query: any, opt
     });
 
     if (injectedStore) {
-      delete injectedStore[injectedKey];
+      //delete injectedStore[injectedKey];
       // Note: we intentionally do not clear `__LW_SSR_GQL_STORE_MAP__` here,
       // because more injected queries may arrive later and reference it.
     }
@@ -437,7 +438,7 @@ export const useBackgroundQuery: typeof useBackgroundQueryApollo = ((query: any,
       });
 
       if (injectedStore) {
-        delete injectedStore[injectedKey];
+        //delete injectedStore[injectedKey];
         // Note: we intentionally do not clear `__LW_SSR_GQL_STORE_MAP__` here,
         // because more injected queries may arrive later and reference it.
       }
