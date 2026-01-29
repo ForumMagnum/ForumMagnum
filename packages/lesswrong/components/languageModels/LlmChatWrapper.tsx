@@ -134,8 +134,10 @@ interface LlmChatContextType {
 
 export const LlmChatContext = React.createContext<LlmChatContextType|null>(null);
 
-export const useLlmChat = (): LlmChatContextType|null => {
-  return React.useContext(LlmChatContext);
+export const useLlmChat = (): LlmChatContextType => {
+  const context = React.useContext(LlmChatContext);
+  if (!context) throw new Error("LLM chat is not enabled for this user");
+  return context;
 }
 
 const LlmChatWrapper = ({children}: {

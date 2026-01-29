@@ -86,9 +86,7 @@ const SidebarLanguageModelChat = ({onClose}: {
   onClose: () => void,
 }) => {
   const classes = useStyles(styles);
-  const chatApi = useLlmChat();
-  if (!chatApi) return null;
-  const { currentConversation } = chatApi;
+  const { currentConversation } = useLlmChat();
 
   const title = currentConversation?.title ?? PLACEHOLDER_TITLE;
 

@@ -30,12 +30,12 @@ import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
 import ReviewVotingWidget from "../../review/ReviewVotingWidget";
 import LWHelpIcon from "../../common/LWHelpIcon";
 import CoreTagIcon from "../../tagging/CoreTagIcon";
-import RejectedReasonDisplay from "../../sunshineDashboard/RejectedReasonDisplay";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
-import pick from 'lodash/pick';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import dynamic from 'next/dynamic';
 
+const RejectedReasonDisplay = dynamic(() => import("../../sunshineDashboard/RejectedReasonDisplay"));
 
 const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   root: {

@@ -19,9 +19,9 @@ import { captureException } from '@/lib/sentryWrapper';
 import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
 import { useAbstractThemeOptions } from '../themes/useTheme';
-import { ContentCodeBlockWithMenu } from './ContentCodeBlockWithMenu';
-
 import dynamic from 'next/dynamic';
+
+const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
 const ForumEventPostPagePollSection = dynamic(() => import('@/components/forumEvents/ForumEventPostPagePollSection'));
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {

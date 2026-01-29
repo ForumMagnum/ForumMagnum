@@ -6,7 +6,7 @@ import { captureException } from '@/lib/sentryWrapper';
 import type TurndownService from 'turndown';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
-import { sanitize } from '../../lib/vulcan-lib/utils';
+import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import escape from 'lodash/escape';
 import { getMarkdownIt } from '@/lib/utils/markdownItPlugins';

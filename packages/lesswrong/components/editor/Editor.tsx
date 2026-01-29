@@ -13,8 +13,6 @@ import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingI
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
 import ContentStyles from "../common/ContentStyles";
-import CKCommentEditor from "./CKCommentEditor";
-import CKPostEditor from "./CKPostEditor";
 import WarningBanner from "../common/WarningBanner";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
@@ -22,6 +20,8 @@ import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
 import dynamic from 'next/dynamic';
 
+const CKCommentEditor = dynamic(() => import("./CKCommentEditor"));
+const CKPostEditor = dynamic(() => import("./CKPostEditor"));
 const LexicalEditor = dynamic(() => import("./LexicalEditor"));
 
 const getPostEditorHeight = () => isEAForum() ? 250 : 400;

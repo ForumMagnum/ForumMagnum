@@ -619,7 +619,6 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
             editor={CommentEditor}
             data={rejectedReason}
             config={editorConfig}
-            isCollaborative={false}
             onReady={(editor: Editor) => {
               setEditor(editor);
             }}
