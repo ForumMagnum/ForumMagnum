@@ -326,7 +326,7 @@ export function useSubscribeIsInView<T extends HTMLElement>(
 
     if (nodeRef.current) currentObserver.observe(nodeRef.current)
     return () => currentObserver.disconnect()
-  }, [nodeRef, rootMargin, threshold])
+  }, [nodeRef, rootMargin, threshold, onEntry])
 
   return { nodeRef }
 }
