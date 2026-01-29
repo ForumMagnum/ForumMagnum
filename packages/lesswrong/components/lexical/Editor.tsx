@@ -111,6 +111,9 @@ import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
+import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
+import { EditorUserMode } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
+import { TOGGLE_SUGGESTION_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
 import {
   preprocessHtmlForImport,
   restoreInternalIds,
@@ -282,6 +285,31 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   plainText: {
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
+  },
+  suggestionModeToggle: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginBottom: 6,
+  },
+  suggestionModeButton: {
+    border: 0,
+    borderRadius: 6,
+    padding: '6px 10px',
+    cursor: 'pointer',
+    background: theme.palette.grey[200],
+    color: theme.palette.grey[900],
+    fontSize: 12,
+    fontWeight: 600,
+    '&:hover': {
+      background: theme.palette.grey[300],
+    },
+  },
+  suggestionModeButtonActive: {
+    background: theme.palette.primary.main,
+    color: theme.palette.grey[0],
+    '&:hover': {
+      background: theme.palette.primary.dark,
+    },
   },
   editorScroller: {
     minHeight: 'var(--lexical-editor-min-height, 150px)',
@@ -472,6 +500,13 @@ export default function Editor({
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
+  const [isSuggestionMode, setIsSuggestionMode] = useState(false);
+  const handleUserModeChange = useCallback((mode: EditorUserMode) => {
+    setIsSuggestionMode(mode === EditorUserMode.Suggest);
+  }, []);
+  const handleToggleSuggestionMode = useCallback(() => {
+    editor.dispatchCommand(TOGGLE_SUGGESTION_MODE_COMMAND, undefined);
+  }, [editor]);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
@@ -502,6 +537,20 @@ export default function Editor({
 
   return (
     <>
+      {isRichText && (
+        <div className={classes.suggestionModeToggle}>
+          <button
+            type="button"
+            className={classNames(
+              classes.suggestionModeButton,
+              isSuggestionMode && classes.suggestionModeButtonActive,
+            )}
+            onClick={handleToggleSuggestionMode}
+          >
+            {isSuggestionMode ? 'Suggesting' : 'Editing'}
+          </button>
+        </div>
+      )}
       {isRichText && (
         <ToolbarPlugin
           editor={editor}
@@ -545,6 +594,10 @@ export default function Editor({
             providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
           />
         )}
+        <SuggestedEditsPlugin
+          isSuggestionMode={isSuggestionMode}
+          onUserModeChange={handleUserModeChange}
+        />
         {isRichText ? (
           <>
             {isCollabConfigReady && collaborationConfig ? (
@@ -587,6 +640,7 @@ export default function Editor({
                     <ContentEditable
                       placeholder={placeholder}
                       variant={isCommentEditor ? 'comment' : undefined}
+                      isSuggestionMode={isSuggestionMode}
                     />
                   </div>
                 </div>
@@ -688,7 +742,7 @@ export default function Editor({
         ) : (
           <>
             <PlainTextPlugin
-              contentEditable={<ContentEditable placeholder={placeholder} />}
+              contentEditable={<ContentEditable placeholder={placeholder} isSuggestionMode={isSuggestionMode} />}
               ErrorBoundary={LexicalErrorBoundary}
             />
             <HistoryPlugin externalHistoryState={historyState} />
