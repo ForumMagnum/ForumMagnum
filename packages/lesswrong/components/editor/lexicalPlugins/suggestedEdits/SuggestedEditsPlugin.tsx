@@ -10,9 +10,15 @@ import { SuggestionModePlugin } from './SuggestionModePlugin';
 import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext';
 import { createComment, createThread, type Thread } from '@/components/lexical/commenting';
 
+const SUGGESTION_SUMMARY_KIND: Thread['comments'][number]['commentKind'] = 'suggestionSummary';
+
+const hasChildComments = (thread: Thread): boolean => thread.comments.some((comment) => comment.commentKind !== SUGGESTION_SUMMARY_KIND);
+
 const getSuggestionThreadInfo = (thread: Thread): SuggestionThreadInfo => ({
   id: thread.id,
   markID: thread.markID ?? thread.id,
+  status: thread.status,
+  hasChildComments: hasChildComments(thread),
 });
 
 const createSuggestionSummaryComment = (summary: string): ReturnType<typeof createComment> => {
@@ -54,8 +60,18 @@ export default function SuggestedEditsPlugin({
         commentStore.updateThreadStatus(threadId, 'open');
         return true;
       },
-      rejectSuggestion: async (threadId) => {
-        commentStore.updateThreadStatus(threadId, 'rejected');
+      setThreadStatus: async (threadId, status) => {
+        commentStore.updateThreadStatus(threadId, status);
+        return true;
+      },
+      deleteSuggestionThread: async (threadId) => {
+        const thread = commentStore.getComments().find(
+          (comment): comment is Thread => comment.type === 'thread' && comment.id === threadId,
+        );
+        if (!thread) {
+          return false;
+        }
+        commentStore.deleteCommentOrThread(thread);
         return true;
       },
     };

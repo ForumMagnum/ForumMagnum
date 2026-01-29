@@ -1,5 +1,5 @@
 import type { ElementNode, LexicalNode, RangeSelection, TextNode } from 'lexical'
-import { $addUpdateTag, $isDecoratorNode, $isElementNode, $isRootOrShadowRoot, $isTextNode } from 'lexical'
+import { $isDecoratorNode, $isElementNode, $isRootOrShadowRoot, $isTextNode } from 'lexical'
 import { SuggestionTypesThatAffectWholeParent, SuggestionTypesThatCanBeEmpty, type SuggestionProperties, type SuggestionType } from './Types'
 import { $isImageNode } from '@/components/editor/lexicalPlugins/suggestions/stubs/Image/ImageNode'
 import type { ProtonNode } from './ProtonNode'
@@ -10,7 +10,6 @@ import type { TableCellNode, TableRowNode } from '@lexical/table'
 import { $isTableNode } from '@lexical/table'
 import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
 import { $isCodeNode } from '@lexical/code'
-import { ResolveSuggestionsUpdateTag } from './removeSuggestionNodeAndResolveIfNeeded'
 import { $isNonInlineLeafElement } from '@/lib/vendor/proton/isNonInlineLeafElement'
 import type { ListItemNode } from '@lexical/list'
 import { $isListItemNode } from '@lexical/list'
@@ -329,7 +328,6 @@ export function $joinNonInlineLeafElements(element: ElementNode, elementToJoin: 
     if ($isSuggestionNode(child)) {
       const type = child.getSuggestionTypeOrThrow()
       if (SuggestionTypesThatAffectWholeParent.includes(type)) {
-        $addUpdateTag(ResolveSuggestionsUpdateTag)
         continue
       }
     }

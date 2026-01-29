@@ -20,8 +20,8 @@ import {
   KEY_TAB_COMMAND,
   OUTDENT_CONTENT_COMMAND,
   PASTE_COMMAND,
-  REDO_COMMAND,
   SELECTION_INSERT_CLIPBOARD_NODES_COMMAND,
+  REDO_COMMAND,
   UNDO_COMMAND,
 } from 'lexical'
 import React, { useEffect, useRef, useState } from 'react'
@@ -79,11 +79,15 @@ import { $setBlocksTypeAsSuggestion } from './setBlocksTypeAsSuggestion'
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode'
 import { $insertDividerAsSuggestion } from './insertDividerAsSuggestion'
 import { $clearFormattingAsSuggestion } from './clearFormattingAsSuggestion'
-import { ResolveSuggestionsUpdateTag } from './removeSuggestionNodeAndResolveIfNeeded'
 import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggestion'
 import { useNotifications } from '@/lib/vendor/proton/notifications'
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import { eventFiles } from '@lexical/rich-text'
+import {
+  $setSuggestionResolutionMarker,
+  SuggestionResolutionNode,
+  type SuggestionResolutionStatus,
+} from './SuggestionResolutionNode'
 
 const LIST_TRANSFORMERS = [UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]
 
@@ -198,33 +202,72 @@ export function SuggestionModePlugin({
   }, [controller, editor, markNodeMap, suggestionModeLogger])
 
   useEffect(() => {
-    const resolveOrUnresolveThreadsWhereRequired = (reAddedNodes: ProtonNode[], removedNodes: ProtonNode[]) => {
+    const syncOpenSuggestionThreads = (
+      openSuggestionIDs: Set<string>,
+      resolvedSuggestionStatuses: Map<string, SuggestionResolutionStatus>,
+    ) => {
       controller
         .getAllThreads()
         .then((threads) => {
-          for (const added of reAddedNodes) {
-            const suggestionID = added.getSuggestionIdOrThrow()
-            const thread = threads.find((thread) => thread.markID === suggestionID)
+          const threadByMarkId = new Map(threads.map((thread) => [thread.markID, thread]))
+
+          for (const suggestionID of openSuggestionIDs) {
+            const thread = threadByMarkId.get(suggestionID)
             if (!thread) {
+              const summary = generateSuggestionSummary(editor, markNodeMap, suggestionID)
+              const content = JSON.stringify(summary)
+              const summaryType = summary[0]?.type ?? 'insert'
+              suggestionModeLogger.info(`Creating thread for suggestion ${suggestionID} based on editor state`)
+              controller.createSuggestionThread(suggestionID, content, summaryType).catch(reportError)
               continue
             }
-            suggestionModeLogger.info(`Reopening thread ${thread.id} for suggestion ${suggestionID} after undo/redo`)
-            controller.reopenSuggestion(thread.id).catch(reportError)
+            if (thread.status !== 'open') {
+              suggestionModeLogger.info(`Reopening thread ${thread.id} for suggestion ${suggestionID} based on editor state`)
+              controller.reopenSuggestion(thread.id).catch(reportError)
+            }
           }
-          for (const removed of removedNodes) {
-            const suggestionID = removed.getSuggestionIdOrThrow()
-            const thread = threads.find((thread) => thread.markID === suggestionID)
-            if (!thread) {
+
+          for (const [suggestionID, status] of resolvedSuggestionStatuses.entries()) {
+            if (openSuggestionIDs.has(suggestionID)) {
               continue
             }
-            suggestionModeLogger.info(`Rejecting thread ${thread.id} for suggestion ${suggestionID} after undo/redo`)
-            controller.rejectSuggestion(thread.id).catch(reportError)
+            const thread = threadByMarkId.get(suggestionID)
+            if (!thread) {
+              const summaryContent = JSON.stringify([{ type: 'insert', content: '' }])
+              controller.createSuggestionThread(suggestionID, summaryContent, 'insert').then((created) => {
+                if (created) {
+                  controller.setThreadStatus(created.id, status).catch(reportError)
+                }
+              }).catch(reportError)
+              continue
+            }
+            if (thread.status !== status) {
+              controller.setThreadStatus(thread.id, status).catch(reportError)
+            }
+          }
+
+          for (const thread of threads) {
+            if (openSuggestionIDs.has(thread.markID)) {
+              continue
+            }
+            if (resolvedSuggestionStatuses.has(thread.markID)) {
+              continue
+            }
+            if (thread.status === 'open' || thread.status === undefined) {
+              if (thread.hasChildComments) {
+                suggestionModeLogger.info(`Archiving thread ${thread.id} with comments and no matching suggestion`)
+                controller.setThreadStatus(thread.id, 'archived').catch(reportError)
+              } else {
+                suggestionModeLogger.info(`Deleting open thread ${thread.id} with no matching suggestion in editor`)
+                controller.deleteSuggestionThread(thread.id).catch(reportError)
+              }
+            }
           }
         })
         .catch(reportError)
     }
 
-    const debouncedHandle = debounce(resolveOrUnresolveThreadsWhereRequired, 250)
+    const debouncedSync = debounce(syncOpenSuggestionThreads, 250)
 
     return mergeRegister(
       editor.registerCommand(
@@ -256,7 +299,11 @@ export function SuggestionModePlugin({
           if (!editor.isEditable()) {
             return false
           }
-          return $acceptSuggestion(suggestionID)
+          const handled = $acceptSuggestion(suggestionID)
+          if (handled) {
+            $setSuggestionResolutionMarker(suggestionID, 'accepted')
+          }
+          return handled
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
@@ -266,54 +313,30 @@ export function SuggestionModePlugin({
           if (!editor.isEditable()) {
             return false
           }
-          return $rejectSuggestion(suggestionID)
+          const handled = $rejectSuggestion(suggestionID)
+          if (handled) {
+            $setSuggestionResolutionMarker(suggestionID, 'rejected')
+          }
+          return handled
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
       editor.registerUpdateListener(
         /**
-         * On undo/redo, we go through the dirtied elements to see if any suggestion
-         * nodes were removed or re-added because of undo/redo, so that we can reject
-         * or re-open their respective suggestion threads.
+         * Keep open suggestion threads in sync with suggestion nodes present in the editor.
          */
-        function handleUndoRedo({ editorState, prevEditorState, dirtyElements, tags }) {
-          const isUndoOrRedoUpdate = tags.has('historic') || tags.has(ResolveSuggestionsUpdateTag)
-          if (!isUndoOrRedoUpdate) {
-            return
-          }
-
-          const reAddedNodes: ProtonNode[] = []
-          const removedNodes: ProtonNode[] = []
-
-          const allCurrentSuggestionNodes = editorState.read(() => $nodesOfType(ProtonNode).filter($isSuggestionNode))
-
-          // We go through every dirty element and check which
-          // suggestion nodes were re-added or removed
-          for (const [key] of dirtyElements) {
-            const current = editorState.read(() => $getNodeByKey(key))
-            const prev = prevEditorState.read(() => $getNodeByKey(key))
-
-            if (!$isSuggestionNode(current) && !$isSuggestionNode(prev)) {
-              continue
+        function syncSuggestionThreadsFromEditor({ editorState }) {
+          const { openSuggestionIDs, resolvedSuggestionStatuses } = editorState.read(() => {
+            const nodes = $nodesOfType(ProtonNode).filter($isSuggestionNode)
+            const openIds = new Set(nodes.map((node) => node.getSuggestionIdOrThrow()))
+            const resolutionNodes = $nodesOfType(SuggestionResolutionNode)
+            const resolved = new Map<string, SuggestionResolutionStatus>()
+            for (const node of resolutionNodes) {
+              resolved.set(node.getSuggestionId(), node.getStatus())
             }
-
-            const isReAdded = !!current && !prev
-            const isRemoved = !current && !!prev
-
-            if (isReAdded) {
-              reAddedNodes.push(current as ProtonNode)
-            } else if (isRemoved) {
-              const suggestionID = (prev as ProtonNode).getSuggestionIdOrThrow()
-              const currentSuggestionNodesForID = allCurrentSuggestionNodes.filter(
-                (node) => node.getSuggestionIdOrThrow() === suggestionID,
-              )
-              if (currentSuggestionNodesForID.length === 0) {
-                removedNodes.push(prev as ProtonNode)
-              }
-            }
-          }
-
-          debouncedHandle(reAddedNodes, removedNodes)
+            return { openSuggestionIDs: openIds, resolvedSuggestionStatuses: resolved }
+          })
+          debouncedSync(openSuggestionIDs, resolvedSuggestionStatuses)
         },
       ),
       editor.registerNodeTransform(ProtonNode, function cleanupEmptySuggestionNodes(node) {
@@ -331,7 +354,7 @@ export function SuggestionModePlugin({
         }
       }),
     )
-  }, [controller, editor, isSuggestionMode, onUserModeChange, suggestionModeLogger])
+  }, [controller, editor, isSuggestionMode, markNodeMap, onUserModeChange, suggestionModeLogger])
 
   useEffect(() => {
     if (!isSuggestionMode) {

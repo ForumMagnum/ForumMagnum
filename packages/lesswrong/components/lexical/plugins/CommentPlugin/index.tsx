@@ -515,13 +515,17 @@ const parseSuggestionSummary = (summary: string): string => {
 const acceptSuggestionThread = (editor: LexicalEditor, commentStore: CommentStore, thread: Thread) => {
   const suggestionId = getSuggestionThreadId(thread);
   editor.dispatchCommand(ACCEPT_SUGGESTION_COMMAND, suggestionId);
-  commentStore.updateThreadStatus(thread.id, 'accepted');
+  commentStore.updateThread(thread.id, {
+    status: 'accepted',
+  });
 };
 
 const rejectSuggestionThread = (editor: LexicalEditor, commentStore: CommentStore, thread: Thread) => {
   const suggestionId = getSuggestionThreadId(thread);
   editor.dispatchCommand(REJECT_SUGGESTION_COMMAND, suggestionId);
-  commentStore.updateThreadStatus(thread.id, 'rejected');
+  commentStore.updateThread(thread.id, {
+    status: 'rejected',
+  });
 };
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
@@ -1113,6 +1117,9 @@ function CommentsPanelList({
             ? parseSuggestionSummary(suggestionSummaryComment.content)
             : null;
           const suggestionStatus = commentOrThread.status ?? 'open';
+          if (suggestionStatus === 'archived') {
+            return null;
+          }
           const threadMarkId = isSuggestion ? getSuggestionThreadId(commentOrThread) : id;
           const threadComments = isSuggestion
             ? commentOrThread.comments.filter(
@@ -1209,7 +1216,11 @@ function CommentsPanelList({
                       </div>
                     ) : (
                       <div className={classes.suggestionStatus}>
-                        {suggestionStatus === 'accepted' ? 'Accepted' : 'Rejected'}
+                        {suggestionStatus === 'accepted'
+                          ? 'Accepted'
+                          : suggestionStatus === 'rejected'
+                            ? 'Rejected'
+                            : 'Archived'}
                       </div>
                     )}
                   </div>

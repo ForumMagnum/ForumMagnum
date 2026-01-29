@@ -29,7 +29,7 @@ export type Comment = {
   type: 'comment';
 };
 
-export type ThreadStatus = 'open' | 'accepted' | 'rejected';
+export type ThreadStatus = 'open' | 'accepted' | 'rejected' | 'archived';
 
 export type ThreadType = 'comment' | 'suggestion';
 

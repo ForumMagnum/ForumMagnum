@@ -30,6 +30,8 @@ export type SuggestionSummaryType =
 export type SuggestionThreadInfo = {
   id: string;
   markID: string;
+  status?: 'open' | 'accepted' | 'rejected' | 'archived';
+  hasChildComments?: boolean;
 };
 
 export interface SuggestionThreadController {
@@ -40,5 +42,9 @@ export interface SuggestionThreadController {
     suggestionType: SuggestionSummaryType,
   ): Promise<SuggestionThreadInfo | undefined>;
   reopenSuggestion(threadId: string): Promise<boolean>;
-  rejectSuggestion(threadId: string): Promise<boolean>;
+  setThreadStatus(
+    threadId: string,
+    status: 'open' | 'accepted' | 'rejected' | 'archived',
+  ): Promise<boolean>;
+  deleteSuggestionThread(threadId: string): Promise<boolean>;
 }
