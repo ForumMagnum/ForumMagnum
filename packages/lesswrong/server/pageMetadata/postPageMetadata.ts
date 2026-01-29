@@ -121,7 +121,6 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       const descriptionFields = getMetadataDescriptionFields(description);
       const imagesFields = getMetadataImagesFields(socialPreviewImageUrl);
       
-      console.log('getCitationTags(post)', getCitationTags(post));
       const postMetadata = {
         openGraph: {
           url: ogUrl,
