@@ -1,26 +1,33 @@
 import React, { useCallback, ChangeEvent, RefObject } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useStyles } from "@/components/hooks/useStyles";
 
 // These styles are also used by `EAOnboardingSelect`
-export const styles = (theme: ThemeType) => ({
-  root: {
-    width: "100%",
-    padding: "16px",
-    borderRadius: theme.borderRadius.default,
-    background: theme.palette.panelBackground.loginInput,
-    color: `${theme.palette.grey[1000]} !important`,
-    fontSize: 14,
-    fontWeight: 500,
-    border: "none",
-    resize: "none",
-    "&::placeholder": {
-      color: theme.palette.grey[600],
-    },
-    "&:hover, &:focus": {
-      background: theme.palette.panelBackground.loginInputHovered,
-    },
+export const rootStyles = (theme: ThemeType) => ({
+  width: "100%",
+  padding: "16px",
+  borderRadius: theme.borderRadius.default,
+  background: theme.palette.panelBackground.loginInput,
+  color: `${theme.palette.grey[1000]} !important`,
+  fontSize: 14,
+  fontWeight: 500,
+  border: "none",
+  resize: "none",
+  "&::placeholder": {
+    color: theme.palette.grey[600],
   },
+  "&:hover, &:focus": {
+    background: theme.palette.panelBackground.loginInputHovered,
+  },
+});
+
+const styles = defineStyles("EAOnboardingInput", (theme: ThemeType) => ({
+  root: {
+    ...rootStyles(theme),
+  },
+}), {
+  stylePriority: -1,
 });
 
 const EAOnboardingInput = ({
@@ -32,7 +39,6 @@ const EAOnboardingInput = ({
   inputRef,
   disabled,
   className,
-  classes,
 }: {
   value: string,
   setValue: (value: string) => void,
@@ -42,8 +48,8 @@ const EAOnboardingInput = ({
   inputRef?: RefObject<HTMLInputElement|null> | RefObject<HTMLTextAreaElement|null>,
   disabled?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const onChange = useCallback((
     ev: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>,
   ) => {
@@ -63,10 +69,4 @@ const EAOnboardingInput = ({
   );
 }
 
-export default registerComponent(
-  "EAOnboardingInput",
-  EAOnboardingInput,
-  {styles, stylePriority: -1},
-);
-
-
+export default EAOnboardingInput;

@@ -1,12 +1,13 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { TooltipSpan } from './FMTooltip';
 import MetaInfo from "./MetaInfo";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SettingsColumn", (theme: ThemeType) => ({
   selectionList: {
     marginRight: theme.spacing.unit*2,
     [theme.breakpoints.down('xs')]: {
@@ -46,19 +47,19 @@ const styles = (theme: ThemeType) => ({
       },
     }
   },
-});
+}));
 
 interface Props {
   type: string;
   title: string;
   options: Partial<Record<string, SettingsOption | string>>;
   currentOption: string;
-  classes: ClassesType<typeof styles>;
   setSetting: (type: string, newSetting: any) => void;
   nofollow?: boolean;
 }
 
-const SettingsColumn = ({type, title, options, currentOption, classes, setSetting, nofollow}: Props) => {
+const SettingsColumn = ({type, title, options, currentOption, setSetting, nofollow}: Props) => {
+  const classes = useStyles(styles);
   return <div className={classes.selectionList}>
     <MetaInfo className={classes.selectionTitle}>
       {title}
@@ -89,6 +90,6 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
   </div>
 }
 
-export default registerComponent('SettingsColumn', SettingsColumn, {styles});
+export default SettingsColumn;
 
 

@@ -3,7 +3,6 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { useNavigate } from '../../lib/routeUtil';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
@@ -441,7 +440,7 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
   </LWDialog>
 }
 
-export default registerComponent('GroupFormDialog', GroupFormDialog);
+export default GroupFormDialog;
 
 
 

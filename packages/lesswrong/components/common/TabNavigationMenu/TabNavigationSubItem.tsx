@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { iconWidth } from './TabNavigationItem'
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const iconPadding = (theme: ThemeType) =>
   theme.isFriendlyUI ? theme.spacing.unit / 2 : iconWidth + (theme.spacing.unit * 2);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TabNavigationSubItem", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     display: "block",
@@ -31,18 +32,18 @@ const styles = (theme: ThemeType) => ({
     },
     boxSizing: "content-box"
   }
-})
+}))
 
-const TabNavigationSubItem = ({children, classes, className}: {
+const TabNavigationSubItem = ({children, className}: {
   children?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
+  const classes = useStyles(styles);
   return <div className={classNames(classes.root, className)}>
     {children}
   </div>
 }
 
-export default registerComponent('TabNavigationSubItem', TabNavigationSubItem, {styles});
+export default TabNavigationSubItem;
 
 

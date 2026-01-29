@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import SwapVert from '@/lib/vendor/@material-ui/icons/src/SwapVert';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SortButton", (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[600],
@@ -22,15 +23,15 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     color: theme.palette.grey[600],
   },
-})
+}))
 
-const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
-  classes: ClassesType<typeof styles>,
+const SortButton = ({className, onClick, showIcon=true, label=""}: {
   className?: string,
   onClick?: any,
   label?: React.JSX.Element|string,
   showIcon?: boolean
 }) => {
+  const classes = useStyles(styles);
   if (label) {
     return <span className={classes.iconWithLabelGroup} onClick={onClick}>
       {showIcon && <SwapVert className={classNames(classes.icon, classes.iconWithLabel, className)}/>}
@@ -40,6 +41,6 @@ const SortButton = ({classes, className, onClick, showIcon=true, label=""}: {
   return <SwapVert className={classNames(classes.icon, className)} onClick={onClick}/>
 }
 
-export default registerComponent('SortButton', SortButton, {styles});
+export default SortButton;
 
 

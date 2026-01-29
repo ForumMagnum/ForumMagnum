@@ -2,7 +2,6 @@ import React from 'react';
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isLWorAF, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -11,7 +10,8 @@ import Loading from "../vulcan-core/Loading";
 import Divider from "../common/Divider";
 import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
 import CommentWithReplies from "./CommentWithReplies";
-
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
 const CommentWithRepliesFragmentQuery = gql(`
   query CommentPermalink($documentId: String) {
@@ -23,7 +23,7 @@ const CommentWithRepliesFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentPermalink", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -48,19 +48,18 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
     marginRight: 10
   },
-})
+}))
 
 const CommentPermalink = ({
   documentId,
   post,
   silentLoading=false,
-  classes
 }: {
   documentId: string,
   post?: PostsBase,
   silentLoading?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const hasInContextComments = commentPermalinkStyleSetting.get() === 'in-context'
 
   const { data, loading, error, refetch } = useQuery(CommentWithRepliesFragmentQuery, {
@@ -143,7 +142,7 @@ const CommentPermalink = ({
   );
 }
 
-export default registerComponent("CommentPermalink", CommentPermalink, { styles });
+export default CommentPermalink;
 
 
 

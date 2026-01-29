@@ -1,15 +1,16 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
 import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import { useDismissable } from "../hooks/useDismissable";
 import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from "../../lib/cookies/cookies";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
 /**
  * Styles are shared with `NewTagInfoBox`
  */
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("NewPostHowToGuides", (theme: ThemeType) => ({
   root: {
     width: 280,
     margin: "60px 20px 0 -60px",
@@ -55,7 +56,7 @@ export const styles = (theme: ThemeType) => ({
       textDecoration: 'underline',
     },
   },
-});
+}));
 
 type HowToGuide = {
   icon: ForumIconName,
@@ -76,9 +77,8 @@ const guides: HowToGuide[] = [
   },
 ];
 
-export const NewPostHowToGuides = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const NewPostHowToGuides = () => {
+  const classes = useStyles(styles);
   const {dismissed, dismiss} = useDismissable(HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE);
   if (dismissed) {
     return null;
@@ -104,10 +104,6 @@ export const NewPostHowToGuides = ({classes}: {
   );
 }
 
-export default registerComponent(
-  "NewPostHowToGuides",
-  NewPostHowToGuides,
-  {styles},
-);
+export default NewPostHowToGuides;
 
 

@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
@@ -47,6 +46,6 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
 
 };
 
-export default registerComponent('CommentsViews', CommentsViews);
+export default CommentsViews;
 
 

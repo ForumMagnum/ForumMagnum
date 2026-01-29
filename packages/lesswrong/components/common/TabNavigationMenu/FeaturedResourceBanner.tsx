@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
@@ -13,6 +12,8 @@ import { Typography } from "../Typography";
 import SimpleDivider from "../../widgets/SimpleDivider";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const FeaturedResourcesFragmentMultiQuery = gql(`
   query multiFeaturedResourceFeaturedResourceBannerQuery($selector: FeaturedResourceSelector, $limit: Int, $enableTotal: Boolean) {
@@ -25,7 +26,7 @@ const FeaturedResourcesFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FeaturedResourceBanner", (theme: ThemeType) => ({
   card: {
     margin: '1.5em 0 1em 1em',
     padding: '2em',
@@ -75,12 +76,12 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.primary.main,
     },
   }
-});
+}));
 
-const LinkButton = ({ resource, classes }: {
-  classes: ClassesType<typeof styles>,
+const LinkButton = ({ resource }: {
   resource: FeaturedResourcesFragment,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: resource.ctaUrl}});
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     captureEvent(undefined, {buttonPressed: e.button});
@@ -93,10 +94,10 @@ const LinkButton = ({ resource, classes }: {
   </a>;
 };
 
-const FeaturedResourceBanner = ({terms, classes}: {
+const FeaturedResourceBanner = ({terms}: {
   terms: FeaturedResourcesViewTerms,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_FEATURED_RESOURCE_COOKIE])
   const [resource, setResource] = useState<FeaturedResourcesFragment | undefined>(undefined)
   const { view } = terms;
@@ -146,13 +147,11 @@ const FeaturedResourceBanner = ({terms, classes}: {
       <Typography variant="body2" className={classes.body}>
         {resource.body}
       </Typography>
-      {resource.ctaUrl && resource.ctaText && <LinkButton resource={resource} classes={classes} />}
+      {resource.ctaUrl && resource.ctaText && <LinkButton resource={resource} />}
     </Card>
   </AnalyticsContext>
 }
 
-export default registerComponent(
-  'FeaturedResourceBanner', FeaturedResourceBanner, { styles }
-);
+export default FeaturedResourceBanner;
 
 

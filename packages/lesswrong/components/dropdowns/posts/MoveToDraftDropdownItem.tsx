@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useCallback } from 'react';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
@@ -44,9 +43,6 @@ const MoveToDraftDropdownItem = ({ post }: {
   }
 }
 
-export default registerComponent(
-  'MoveToDraftDropdownItem',
-  MoveToDraftDropdownItem,
-);
+export default MoveToDraftDropdownItem;
 
 

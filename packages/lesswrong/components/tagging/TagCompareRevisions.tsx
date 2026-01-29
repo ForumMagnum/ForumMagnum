@@ -1,7 +1,5 @@
 "use client";
-
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from './useTag';
 import { useLocation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -86,7 +84,7 @@ const TagCompareRevisions = () => {
   </SingleColumnSection>
 }
 
-export default registerComponent("TagCompareRevisions", TagCompareRevisions);
+export default TagCompareRevisions;
 
 
 

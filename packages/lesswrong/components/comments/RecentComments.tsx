@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import CommentsNode from "./CommentsNode";
@@ -7,8 +6,10 @@ import LoadMore from "../common/LoadMore";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { CommentsListWithParentMetadataMultiQuery } from './queries';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) =>  ({
+const styles = defineStyles("RecentComments", (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
       marginRight: theme.spacing.unit*4,
@@ -17,16 +18,16 @@ const styles = (theme: ThemeType) =>  ({
   verticalHeightSpacer: {
     minHeight: "100vh",
   },
-})
+}))
 
-const RecentComments = ({classes, selector, limit, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
-  classes: ClassesType<typeof styles>,
+const RecentComments = ({selector, limit, truncated=false, showPinnedOnProfile=false, noResultsMessage="No Comments Found"}: {
   selector: CommentSelector,
   limit?: number,
   truncated?: boolean,
   showPinnedOnProfile?: boolean,
   noResultsMessage?: string,
 }) => {
+  const classes = useStyles(styles);
   const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
     variables: {
       selector,
@@ -71,7 +72,7 @@ const RecentComments = ({classes, selector, limit, truncated=false, showPinnedOn
   </div>
 }
 
-export default registerComponent('RecentComments', RecentComments, {styles});
+export default RecentComments;
 
 
 

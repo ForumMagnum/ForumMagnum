@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { htmlToTextDefault } from "../../lib/htmlToText";
@@ -18,8 +17,10 @@ import UsersName from "../users/UsersName";
 import CommentsItemDate from "./CommentsItem/CommentsItemDate";
 import SmallSideVote from "../votes/SmallSideVote";
 import CommentBody from "./CommentsItem/CommentBody";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWPopularComment", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -103,12 +104,12 @@ const styles = (theme: ThemeType) => ({
     fontSize: 12,
     transform: "rotate(90deg)"
   },
-});
+}));
 
-const useParentCommentLinkAndTooltip = ({ comment, classes }: {
+const useParentCommentLinkAndTooltip = ({ comment }: {
   comment: CommentsListWithParentMetadata,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { eventHandlers, hover, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "popularCommentParentTooltip",
@@ -163,10 +164,10 @@ const useParentCommentLinkAndTooltip = ({ comment, classes }: {
   return { parentCommentTooltip, parentCommentLink };
 };
 
-const PopularCommentPostLink = ({ post, classes }: {
+const PopularCommentPostLink = ({ post }: {
   post: NonNullable<Pick<CommentsListWithParentMetadata, "post">["post"]>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { isRead } = useRecordPostView(post);
   return (
     <div className={classes.postTitle}>
@@ -183,10 +184,10 @@ const PopularCommentPostLink = ({ post, classes }: {
   );
 };
 
-const LWPopularComment = ({comment, classes}: {
+const LWPopularComment = ({comment}: {
   comment: CommentsListWithParentMetadata,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
   const [expanded, setExpanded] = useState(false);
@@ -203,7 +204,7 @@ const LWPopularComment = ({comment, classes}: {
     }
   }, [expanded, onClickCallback]);
 
-  const { parentCommentLink, parentCommentTooltip } = useParentCommentLinkAndTooltip({ comment, classes });
+  const { parentCommentLink, parentCommentTooltip } = useParentCommentLinkAndTooltip({ comment });
 
   const username = <UsersName user={comment.user} className={classes.username} />;
 
@@ -220,10 +221,7 @@ const LWPopularComment = ({comment, classes}: {
   );
 
   const postLink = comment.post && (
-    <PopularCommentPostLink
-      post={comment.post}
-      classes={classes}
-    />
+    <PopularCommentPostLink post={comment.post} />
   );
   
   const commentBody = (
@@ -257,10 +255,6 @@ const LWPopularComment = ({comment, classes}: {
   );
 }
 
-export default registerComponent(
-  "LWPopularComment",
-  LWPopularComment,
-  {styles},
-);
+export default LWPopularComment;
 
 

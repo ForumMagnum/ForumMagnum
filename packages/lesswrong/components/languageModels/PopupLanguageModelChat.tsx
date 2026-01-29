@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useLlmChat } from './LlmChatWrapper';
@@ -10,8 +9,10 @@ import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { LanguageModelChat } from './LanguageModelChat';
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PopupLanguageModelChat", (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     width: 500,
@@ -78,14 +79,14 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 8,
     paddingBottom: 12,
   },
-});
+}));
 
 const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
 
-const PopupLanguageModelChat = ({onClose, classes}: {
+const PopupLanguageModelChat = ({onClose}: {
   onClose: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { currentConversation } = useLlmChat();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE, LLM_CHAT_EXPANDED]);
   const expanded = cookies[LLM_CHAT_EXPANDED] === "true";
@@ -124,6 +125,6 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   </Card>
 }
 
-export default registerComponent('PopupLanguageModelChat', PopupLanguageModelChat, {styles});
+export default PopupLanguageModelChat;
 
 

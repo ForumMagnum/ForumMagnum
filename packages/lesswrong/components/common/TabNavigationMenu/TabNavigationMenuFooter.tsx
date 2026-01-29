@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
@@ -7,8 +6,10 @@ import getMenuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import TabNavigationFooterItem from "./TabNavigationFooterItem";
 import { ICON_ONLY_NAVIGATION_BREAKPOINT } from './NavigationStandalone';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TabNavigationMenuFooter", (theme: ThemeType) => ({
   wrapper: {
     [theme.breakpoints.up(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
       display: "none"
@@ -29,11 +30,10 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.mobileNavFooter,
     flexDirection: "row",
   }
-})
+}))
 
-const TabNavigationMenuFooter = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const TabNavigationMenuFooter = () => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.wrapper}>
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
@@ -54,8 +54,6 @@ const TabNavigationMenuFooter = ({classes}: {
   )
 };
 
-export default registerComponent(
-  'TabNavigationMenuFooter', TabNavigationMenuFooter, {styles}
-);
+export default TabNavigationMenuFooter;
 
 

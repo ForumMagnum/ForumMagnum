@@ -1,7 +1,5 @@
 "use client";
-
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
@@ -24,7 +22,7 @@ const RandomTagPage = () => {
   </SingleColumnSection>
 }
 
-export default registerComponent('RandomTagPage', RandomTagPage);
+export default RandomTagPage;
 
 
 

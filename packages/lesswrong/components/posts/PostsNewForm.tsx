@@ -6,7 +6,6 @@ import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { isAF } from '../../lib/instanceSettings';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { hasAuthorModeration } from '@/lib/betas';
 import { useMutation } from "@apollo/client/react";
@@ -311,6 +310,6 @@ const PostsNewForm = () => {
   }
 }
 
-export default registerComponent('PostsNewForm', PostsNewForm);
+export default PostsNewForm;
 
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { useApolloClient, useMutation } from "@apollo/client/react";
 import { useCurrentUser } from '../../common/withUser';
@@ -10,6 +9,8 @@ import Undo from '@/lib/vendor/@material-ui/icons/src/Undo';
 import DropdownItem from "../DropdownItem";
 import OmegaIcon from "../../icons/OmegaIcon";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentMoveToAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -21,7 +22,7 @@ const CommentsListUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("MoveToAlignmentCommentDropdownItem", (theme: ThemeType) => ({
   iconRoot: {
     position: "relative",
     width:24,
@@ -41,13 +42,13 @@ const styles = (theme: ThemeType) => ({
     width: 20,
     color: theme.palette.text.maxIntensity,
   }
-})
+}));
 
-const MoveToAlignmentCommentDropdownItem = ({comment, post, classes}: {
+const MoveToAlignmentCommentDropdownItem = ({comment, post}: {
   comment: CommentsList,
   post?: PostsBase,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const client = useApolloClient();
   const {flash} = useMessages();
@@ -116,8 +117,6 @@ const MoveToAlignmentCommentDropdownItem = ({comment, post, classes}: {
   );
 }
 
-export default registerComponent(
-  'MoveToAlignmentCommentDropdownItem', MoveToAlignmentCommentDropdownItem, {styles}
-);
+export default MoveToAlignmentCommentDropdownItem;
 
 

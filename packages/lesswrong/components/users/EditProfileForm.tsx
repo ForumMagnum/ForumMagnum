@@ -7,7 +7,6 @@ import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
 import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -618,6 +617,4 @@ const EditProfileForm = () => {
 }
 
 
-export default registerComponent('EditProfileForm', EditProfileForm);
-
-
+export default EditProfileForm;

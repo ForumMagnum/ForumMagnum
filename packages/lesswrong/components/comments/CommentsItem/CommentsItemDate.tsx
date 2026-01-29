@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
 import { isLWorAF } from '../../../lib/instanceSettings';
@@ -129,7 +128,7 @@ const CommentDateTooltip = ({comment}: {
   }
 }
 
-export default registerComponent('CommentsItemDate', CommentsItemDate);
+export default CommentsItemDate;
 
 
 

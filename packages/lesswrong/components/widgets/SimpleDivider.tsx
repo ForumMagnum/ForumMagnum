@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 
@@ -25,7 +24,4 @@ export const SimpleDivider = ({className}: {
   return <hr className={classNames(classes.root, className)} />;
 }
 
-export default registerComponent('SimpleDivider', SimpleDivider);
-
-
-
+export default SimpleDivider;

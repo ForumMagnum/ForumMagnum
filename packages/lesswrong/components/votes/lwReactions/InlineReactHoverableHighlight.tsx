@@ -1,5 +1,4 @@
 import React, { useContext, useRef } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { QuoteLocator, NamesAttachedReactionsList } from '@/lib/voting/namesAttachedReactions';
 import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import classNames from 'classnames';

@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useCallback } from 'react';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 
@@ -23,6 +22,4 @@ const AnalyticsTracker = ({eventType, eventProps, children, captureOnClick=true,
   )
 };
 
-export default registerComponent('AnalyticsTracker', AnalyticsTracker);
-
-
+export default AnalyticsTracker;

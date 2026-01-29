@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import { Card } from "@/components/widgets/Paper";
@@ -8,8 +7,10 @@ import HoverOver from "../common/HoverOver";
 import UsersName from "../users/UsersName";
 import ContentStyles from "../common/ContentStyles";
 import ContentItemTruncated from "../common/ContentItemTruncated";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CollectionsTooltip", (theme: ThemeType) => ({
   root: {
     padding: 16,
     width: FRIENDLY_HOVER_OVER_WIDTH,
@@ -34,13 +35,13 @@ const styles = (theme: ThemeType) => ({
     marginTop: 10,
     marginBottom: 10,
   },
-});
+}));
 
-const CollectionsTooltip = ({collection, children, classes}: {
+const CollectionsTooltip = ({collection, children}: {
   collection: CollectionsBestOfFragment,
   children?: ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return (
     <HoverOver
       title={
@@ -77,10 +78,6 @@ const CollectionsTooltip = ({collection, children, classes}: {
   );
 }
 
-export default registerComponent(
-  "CollectionsTooltip",
-  CollectionsTooltip,
-  {styles},
-);
+export default CollectionsTooltip;
 
 

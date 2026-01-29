@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useCurrentUser } from "@/components/common/withUser";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import SingleColumnSection from "@/components/common/SingleColumnSection";
@@ -653,6 +652,6 @@ const EmailSenderPage = () => {
   </SingleColumnSection>;
 };
 
-export default registerComponent("EmailSenderPage", EmailSenderPage);
+export default EmailSenderPage;
 
 

@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import FriendlyInbox from "./FriendlyInbox";
@@ -38,6 +37,6 @@ const InboxWrapper = () => {
   />
 }
 
-export default registerComponent('InboxWrapper', InboxWrapper);
+export default InboxWrapper;
 
 

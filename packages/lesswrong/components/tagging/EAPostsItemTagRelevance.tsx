@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useVoteButtonsDisabled } from "../votes/useVoteButtonsDisabled";
 import { useDialog } from "../common/withDialog";
@@ -10,8 +9,10 @@ import classNames from "classnames";
 import LoginPopup from "../users/LoginPopup";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("EAPostsItemTagRelevance", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -36,7 +37,7 @@ export const styles = (theme: ThemeType) => ({
   downvoted: {
     color: theme.palette.error.main,
   },
-});
+}));
 
 /**
  * This component contains a new redesign of the posts item tag relevance vote.
@@ -44,10 +45,10 @@ export const styles = (theme: ThemeType) => ({
  * votes yet, but most of the logic is in place. Once the design is finished, this
  * is a drop-in replacement for `PostsItemTagRelevance` in `EAPostsItem`.
  */
-const EAPostsItemTagRelevance = ({tagRel, classes}: {
+const EAPostsItemTagRelevance = ({tagRel}: {
   tagRel: WithVoteTagRel,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {openDialog} = useDialog();
   const {flash} = useMessages();
   const {captureEvent} = useTracking();
@@ -114,10 +115,4 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
   );
 }
 
-export default registerComponent(
-  "EAPostsItemTagRelevance",
-  EAPostsItemTagRelevance,
-  {styles},
-);
-
-
+export default EAPostsItemTagRelevance;
