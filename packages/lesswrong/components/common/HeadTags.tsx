@@ -54,12 +54,8 @@ const HeadTags = ({
         }
 
         <Helmet key={pathname} name="meta">
-          {/* default */}
-          <meta charSet='utf-8'/>
           {/* done in default */}
           <meta name='description' content={description}/>
-          {/* default */}
-          <meta name='viewport' content='width=device-width, initial-scale=1'/>
 
           {/* The twitter:card meta tag is in apollo-ssr/components/Head.tsx
             * instead of here because it involves a user-agent sniffing hack :( */}
