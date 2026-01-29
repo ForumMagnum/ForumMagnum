@@ -181,6 +181,21 @@ export const routeTrie = {
         "notificationEvents": {
           "hasRoute": true
         },
+        "preview": {
+          "staticChildren": {
+            "post": {
+              "dynamicChild": {
+                "paramName": "_id",
+                "child": {
+                  "hasRoute": true
+                }
+              }
+            }
+          },
+          "lowerCase": {
+            "post": "post"
+          }
+        },
         "quit": {
           "hasRoute": true
         },
@@ -255,6 +270,7 @@ export const routeTrie = {
         "health": "health",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
+        "preview": "preview",
         "quit": "quit",
         "registerclientid": "registerClientId",
         "search": "search",

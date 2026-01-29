@@ -13153,6 +13153,22 @@ type YjsDocument = {
   createdAt: Scalars['Date']['output'];
 };
 
+type PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', html: string | null };
+
+type PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, socialPreviewImageAutoUrl: string | null, contents: PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+
+type PostMetadataForPreviewImageQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post | null };
+
+type PostMetadataForPreviewImageQuery_Query = { __typename?: 'Query', post: PostMetadataForPreviewImageQuery_post_SinglePostOutput | null };
+
+
+type PostMetadataForPreviewImageQueryVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostMetadataForPreviewImageQuery = PostMetadataForPreviewImageQuery_Query;
+
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = { __typename?: 'Localgroup', _id: string, name: string, bannerImageId: string | null, contents: LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision | null };

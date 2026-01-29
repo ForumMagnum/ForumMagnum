@@ -14,6 +14,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  query PostMetadataForPreviewImage($postId: String) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        title\n        socialPreviewImageAutoUrl\n        contents {\n          html\n        }\n      }\n    }\n  }\n": typeof types.PostMetadataForPreviewImageDocument,
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.LocalgroupMetadataDocument,
     "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n": typeof types.multiModeratorCommentsQueryDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n        bannerImageId\n        gridImageId\n        noindex\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.SequenceMetadataDocument,
@@ -937,6 +938,7 @@ type Documents = {
     "\n  query CommentsForEmbeddings($selector: CommentSelector) {\n    comments(selector: $selector) {\n      results {\n        _id\n        postedAt\n        contents {\n          _id\n          html\n        }\n        user {\n          _id\n          displayName\n          username\n          fullName\n        }\n        post {\n          _id\n          title\n        }\n      }\n    }\n  }\n": typeof types.CommentsForEmbeddingsDocument,
 };
 const documents: Documents = {
+    "\n  query PostMetadataForPreviewImage($postId: String) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        title\n        socialPreviewImageAutoUrl\n        contents {\n          html\n        }\n      }\n    }\n  }\n": types.PostMetadataForPreviewImageDocument,
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.LocalgroupMetadataDocument,
     "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n": types.multiModeratorCommentsQueryDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n        bannerImageId\n        gridImageId\n        noindex\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.SequenceMetadataDocument,
@@ -1874,6 +1876,10 @@ const documents: Documents = {
  */
 export function gql(source: string): unknown;
 
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query PostMetadataForPreviewImage($postId: String) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        title\n        socialPreviewImageAutoUrl\n        contents {\n          html\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostMetadataForPreviewImage($postId: String) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        title\n        socialPreviewImageAutoUrl\n        contents {\n          html\n        }\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
