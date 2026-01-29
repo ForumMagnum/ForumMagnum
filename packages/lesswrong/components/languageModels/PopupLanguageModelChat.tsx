@@ -86,7 +86,9 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const { currentConversation } = useLlmChat();
+  const chatApi = useLlmChat();
+  if (!chatApi) return null;
+  const { currentConversation } = chatApi;
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE, LLM_CHAT_EXPANDED]);
   const expanded = cookies[LLM_CHAT_EXPANDED] === "true";
 

@@ -15,12 +15,14 @@ import {checkEditorValid} from './validation'
 import ContentStyles from "../common/ContentStyles";
 import CKCommentEditor from "./CKCommentEditor";
 import CKPostEditor from "./CKPostEditor";
-import LexicalEditor from "./LexicalEditor";
 import WarningBanner from "../common/WarningBanner";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
+import dynamic from 'next/dynamic';
+
+const LexicalEditor = dynamic(() => import("./LexicalEditor"));
 
 const getPostEditorHeight = () => isEAForum() ? 250 : 400;
 const getQuestionEditorHeight = () => isEAForum() ? 150 : 400;

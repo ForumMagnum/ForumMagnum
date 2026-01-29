@@ -8,7 +8,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import LWTooltip from "../common/LWTooltip";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
-import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '../../lib/wrapCkEditor';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import LWDialog from '../common/LWDialog';
@@ -21,8 +20,11 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import KeystrokeDisplay from './supermod/KeystrokeDisplay';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { makeEditorConfig } from '../editor/editorConfigs';
-import LexicalEditor from '../editor/LexicalEditor';
 import { focusLexicalEditor } from '../editor/focusLexicalEditor';
+import dynamic from 'next/dynamic';
+
+const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
+const CKEditor  = dynamic(() => import('@/lib/vendor/ckeditor5-react/ckeditor'));
 
 const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
   dialogContent: {
