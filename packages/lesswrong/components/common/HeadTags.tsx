@@ -11,15 +11,11 @@ const HeadTags = ({
   canonicalUrl: canonicalUrlProp,
   description: descriptionProp,
   title: titleProp,
-  image,
-  useSmallImage=false,
 }: {
   ogUrl?: string,
   canonicalUrl?: string,
   description?: string|null,
   title?: string,
-  image?: string|null,
-  useSmallImage?: boolean,
 }) => {
     const { pathname } = useSubscribedLocation();
     const routeMetadata = useRouteMetadata().metadata;
@@ -60,7 +56,6 @@ const HeadTags = ({
           {/* The twitter:card meta tag is in apollo-ssr/components/Head.tsx
             * instead of here because it involves a user-agent sniffing hack :( */}
           
-          {image && <meta name='twitter:image:src' content={image}/>}
           { /* <meta name='twitter:title' content={title}/> */ }
           {/* done in default */}
           <meta name='twitter:description' content={description}/>
@@ -70,7 +65,6 @@ const HeadTags = ({
           <meta property='og:type' content='article'/>
           {/* done in default */}
           <meta property='og:url' content={ogUrl}/>
-          {image && <meta property='og:image' content={image}/>}
           { /* <meta property='og:title' content={title}/> */ }
           {/* done in default */}
           <meta property='og:description' content={description}/>

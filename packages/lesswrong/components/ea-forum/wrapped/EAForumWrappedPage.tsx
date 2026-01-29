@@ -58,6 +58,23 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     year,
   });
 
+  /*
+  ea-forum-look-here This <HeadTags> needs to be converted into generateMetadata
+  on a route, but the route doesn't exist yet
+    <HeadTags
+      title={`${year} EA Forum Wrapped`}
+      image={makeCloudinaryImageUrl("wrapped-2024/2024_wrapped", {
+        dpr: "auto",
+        ar: "16:9",
+        w: "1200",
+        c: "fill",
+        g: "center",
+        q: "auto",
+        f: "auto",
+      })}
+    />
+  */
+
   const isLoggedOut = !currentUser;
   const userCreatedAt = moment(currentUser?.createdAt);
   const endOfYear = moment(`${year}-12-31`, "YYYY-MM-DD");
@@ -65,18 +82,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   return (
     <AnalyticsContext pageContext="eaYearWrapped" reviewYear={String(year)}>
       <main className={classes.root}>
-        <HeadTags
-          title={`${year} EA Forum Wrapped`}
-          image={makeCloudinaryImageUrl("wrapped-2024/2024_wrapped", {
-            dpr: "auto",
-            ar: "16:9",
-            w: "1200",
-            c: "fill",
-            g: "center",
-            q: "auto",
-            f: "auto",
-          })}
-        />
         {isLoggedOut &&
           <WrappedSection pageSectionContext="loggedOut">
             <WrappedHeading>
