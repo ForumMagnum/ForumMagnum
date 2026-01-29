@@ -391,7 +391,7 @@ const TagSubforumPage2 = ({classes}: {
       tagId={tag._id}
       sortedBy={query.sortedBy || "relevance"}
     >
-      <HeadTags description={headTagDescription} noIndex={tag.noindex} />
+      <HeadTags description={headTagDescription} />
       <StructuredData generate={() => getTagStructuredData(tag)}/>
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
       <SubforumLayout

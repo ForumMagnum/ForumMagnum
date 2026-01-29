@@ -13,7 +13,6 @@ const HeadTags = ({
   title: titleProp,
   image,
   useSmallImage=false,
-  noIndex,
 }: {
   ogUrl?: string,
   canonicalUrl?: string,
@@ -21,7 +20,6 @@ const HeadTags = ({
   title?: string,
   image?: string|null,
   useSmallImage?: boolean,
-  noIndex?: boolean,
 }) => {
     const { pathname } = useSubscribedLocation();
     const routeMetadata = useRouteMetadata().metadata;
@@ -84,10 +82,6 @@ const HeadTags = ({
           {/* done */}
           <meta httpEquiv='delegate-ch' content='sec-ch-dpr https://res.cloudinary.com;' />
 
-          {/* done in default */}
-          {/* FIXME: Routes table has a "noIndex" option for a few routes, which has probably not been transferred into nextjs */}
-          {/*(noIndex || routeMetadata?.noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />*/}
-          {(noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />}
           {/* done in default */}
           <link rel='canonical' href={canonicalUrl}/>
           {/* done */}
