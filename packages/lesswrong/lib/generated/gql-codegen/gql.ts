@@ -613,8 +613,6 @@ type Documents = {
     "\n  query getTagOrLensSectionPreview($slug: String!, $hash: String) {\n    TagPreview(slug: $slug, hash: $hash) {\n      tag {\n        ...TagSectionPreviewFragment\n      }\n      lens {\n        ...MultiDocumentContentDisplay\n      }\n      summaries {\n        ...MultiDocumentContentDisplay\n      }\n    }\n  }\n": typeof types.getTagOrLensSectionPreviewDocument,
     "\n  query getTagPreview($selector: TagSelector, $limit: Int) {\n    tags(selector: $selector, limit: $limit) {\n      results {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.getTagPreviewDocument,
     "\n  query getTagSectionPreview($selector: TagSelector, $limit: Int, $hash: String) {\n    tags(selector: $selector, limit: $limit) {\n      results {\n        ...TagSectionPreviewFragment\n      }\n    }\n  }\n": typeof types.getTagSectionPreviewDocument,
-    "\n  query LocalgroupPageTitle($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n": typeof types.LocalgroupPageTitleDocument,
-    "\n  query PostsPageHeaderTitle($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsBase\n      }\n    }\n  }\n": typeof types.PostsPageHeaderTitleDocument,
     "\n  query SequencesPageTitle($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": typeof types.SequencesPageTitleDocument,
     "\n  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserUserPageTitleQueryDocument,
     "\n  query SingleCommentForFeedback($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UltraFeedComment\n      }\n    }\n  }\n": typeof types.SingleCommentForFeedbackDocument,
@@ -1536,8 +1534,6 @@ const documents: Documents = {
     "\n  query getTagOrLensSectionPreview($slug: String!, $hash: String) {\n    TagPreview(slug: $slug, hash: $hash) {\n      tag {\n        ...TagSectionPreviewFragment\n      }\n      lens {\n        ...MultiDocumentContentDisplay\n      }\n      summaries {\n        ...MultiDocumentContentDisplay\n      }\n    }\n  }\n": types.getTagOrLensSectionPreviewDocument,
     "\n  query getTagPreview($selector: TagSelector, $limit: Int) {\n    tags(selector: $selector, limit: $limit) {\n      results {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.getTagPreviewDocument,
     "\n  query getTagSectionPreview($selector: TagSelector, $limit: Int, $hash: String) {\n    tags(selector: $selector, limit: $limit) {\n      results {\n        ...TagSectionPreviewFragment\n      }\n    }\n  }\n": types.getTagSectionPreviewDocument,
-    "\n  query LocalgroupPageTitle($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n": types.LocalgroupPageTitleDocument,
-    "\n  query PostsPageHeaderTitle($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsBase\n      }\n    }\n  }\n": types.PostsPageHeaderTitleDocument,
     "\n  query SequencesPageTitle($documentId: String) {\n    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...SequencesPageTitleFragment\n      }\n    }\n  }\n": types.SequencesPageTitleDocument,
     "\n  query multiUserUserPageTitleQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": types.multiUserUserPageTitleQueryDocument,
     "\n  query SingleCommentForFeedback($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UltraFeedComment\n      }\n    }\n  }\n": types.SingleCommentForFeedbackDocument,
@@ -4270,14 +4266,6 @@ export function gql(source: "\n  query getTagPreview($selector: TagSelector, $li
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query getTagSectionPreview($selector: TagSelector, $limit: Int, $hash: String) {\n    tags(selector: $selector, limit: $limit) {\n      results {\n        ...TagSectionPreviewFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query getTagSectionPreview($selector: TagSelector, $limit: Int, $hash: String) {\n    tags(selector: $selector, limit: $limit) {\n      results {\n        ...TagSectionPreviewFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query LocalgroupPageTitle($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n"): (typeof documents)["\n  query LocalgroupPageTitle($documentId: String) {\n    localgroup(input: { selector: { documentId: $documentId } }, allowNull: true) {\n      result {\n        ...localGroupsBase\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query PostsPageHeaderTitle($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsBase\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostsPageHeaderTitle($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsBase\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
