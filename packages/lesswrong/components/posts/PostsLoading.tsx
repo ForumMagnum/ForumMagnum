@@ -13,11 +13,13 @@ const PostsLoading = ({
   loadMore,
   showFinalBottomBorder,
   viewType = "list",
+  children
 }: {
   placeholderCount?: number,
   loadMore?: boolean,
   showFinalBottomBorder?: boolean
   viewType?: PostsListViewType,
+  children?: React.ReactNode,
 }) => {
   if (!placeholderCount) {
     return <Loading />;
@@ -38,8 +40,9 @@ const PostsLoading = ({
           key={i}
           showBottomBorder={showFinalBottomBorder || i+1<placeholderCount}
         />)}
-      {loadMore && <SectionFooter>
-        <LoadMorePlaceholder sectionFooterStyles/>
+      {!!(loadMore || children) && <SectionFooter>
+        {loadMore && <LoadMorePlaceholder sectionFooterStyles/>}
+        {children}
       </SectionFooter>}
     </>
   }

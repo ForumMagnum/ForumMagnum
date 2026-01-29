@@ -40,6 +40,7 @@ export const CommentsList = gql(`
     }
     currentUserVote
     currentUserExtendedVote
+    isBookmarked
     baseScore
     extendedScore
     score
