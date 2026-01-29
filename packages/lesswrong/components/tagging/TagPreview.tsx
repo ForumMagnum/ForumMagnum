@@ -1,5 +1,4 @@
 import React, { Fragment, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPageUtils';
@@ -369,8 +368,4 @@ const TagPreviewTitle = ({tag}: {
   </div>
 }
 
-export default registerComponent("TagPreview", TagPreview);
-
-
-
-
+export default TagPreview;

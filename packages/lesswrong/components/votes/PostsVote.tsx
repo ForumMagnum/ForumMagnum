@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
 import PostsVoteDefault from "./PostsVoteDefault";
 import { postBottomVotingComponents } from '@/lib/voting/votingSystemComponents';
@@ -33,6 +32,4 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
     );
 }
 
-export default registerComponent('PostsVote', PostsVote);
-
-
+export default PostsVote;

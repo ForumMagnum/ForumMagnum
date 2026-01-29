@@ -18,10 +18,4 @@ const DropdownDivider = ({className, classes}: {
   );
 }
 
-export default registerComponent(
-  "DropdownDivider",
-  DropdownDivider,
-  {styles},
-);
-
-
+export default registerComponent("DropdownDivider", DropdownDivider, {styles});

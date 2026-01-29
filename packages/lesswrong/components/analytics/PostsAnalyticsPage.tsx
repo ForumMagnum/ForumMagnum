@@ -1,8 +1,6 @@
 "use client";
-
 import React from "react";
 import { useLocation } from "../../lib/routeUtil";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { canUserEditPostMetadata, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
@@ -21,6 +19,7 @@ import LoginForm from "../users/LoginForm";
 import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import { maybeDate } from "@/lib/utils/dateUtils";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
 const PostsPageQuery = gql(`
   query PostsAnalyticsPage($documentId: String) {
@@ -46,7 +45,7 @@ function readableReadingTime (seconds?: number) {
   return secondsPart
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsAnalyticsPage", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down("sm")]: {
@@ -105,9 +104,10 @@ const styles = (theme: ThemeType) => ({
   statPlaceholder: {
     width: 60,
   },
-});
+}));
 
-const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const PostsAnalyticsPage = () => {
+  const classes = useStyles(styles);
   const { query } = useLocation();
 
   const { error, data } = useQuery(PostsPageQuery, {
@@ -233,6 +233,4 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType<typeof styles> }
   );
 };
 
-export default registerComponent("PostsAnalyticsPage", PostsAnalyticsPage, { styles });
-
-
+export default PostsAnalyticsPage;

@@ -86,8 +86,6 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
   );
 };
 
-export default registerComponent(
-  'DialoguesSectionFrontpageSettings', DialoguesSectionFrontpageSettings, { styles }
-);
+export default registerComponent('DialoguesSectionFrontpageSettings', DialoguesSectionFrontpageSettings, { styles });
 
 

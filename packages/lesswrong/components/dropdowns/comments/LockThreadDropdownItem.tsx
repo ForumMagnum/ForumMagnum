@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useDialog } from '../../common/withDialog';
 import { useMutation } from "@apollo/client/react";
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
@@ -61,8 +60,4 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   );
 }
 
-export default registerComponent(
-  'LockThreadDropdownItem', LockThreadDropdownItem,
-);
-
-
+export default LockThreadDropdownItem;

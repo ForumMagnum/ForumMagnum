@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const headerStyles = (theme: ThemeType) => ({
+const styles = defineStyles("FormGroupHeader", (theme: ThemeType) => ({
   formSectionHeading: {
     cursor: "pointer",
     display:"flex",
@@ -20,15 +21,15 @@ const headerStyles = (theme: ThemeType) => ({
     fontSize: "1.25rem",
     fontWeight: theme.isFriendlyUI ? 600 : undefined,
   },
-});
+}));
 
-const FormGroupHeaderInner = ({ toggle, collapsed, label, classes }: {
+const FormGroupHeaderInner = ({ toggle, collapsed, label }: {
   toggle: () => void
   collapsed: boolean
   label?: string
-  classes: ClassesType<typeof headerStyles>
-}) => (
-  <div className={classNames(classes.formSectionHeading, {
+}) => {
+  const classes = useStyles(styles);
+  return <div className={classNames(classes.formSectionHeading, {
     [classes.formSectionHeadingExpanded]: !collapsed
   })} onClick={toggle}>
     <h3 className={classes.formSectionHeadingTitle}>{label}</h3>
@@ -40,11 +41,9 @@ const FormGroupHeaderInner = ({ toggle, collapsed, label, classes }: {
       )}
     </span>
   </div>
-);
+};
 
-export const FormGroupHeader = registerComponent('FormGroupHeader', FormGroupHeaderInner, {
-  styles: headerStyles
-});
+export const FormGroupHeader = FormGroupHeaderInner;
 
 export const IconRight = ({ width = 24, height = 24 }) => (
   <svg

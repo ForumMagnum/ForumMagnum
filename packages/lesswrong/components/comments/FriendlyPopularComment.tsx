@@ -1,5 +1,4 @@
 import React, { FC, useCallback, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ExpandedDate } from "../common/FormatDate";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -15,8 +14,10 @@ import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
 import SmallSideVote from "../votes/SmallSideVote";
 import CommentBody from "./CommentsItem/CommentBody";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FriendlyPopularComment", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -92,13 +93,13 @@ const styles = (theme: ThemeType) => ({
       // },
     // },
   },
-});
+}));
 
 const PopularCommentTitle: FC<{
   comment: CommentsListWithParentMetadata,
   post: NonNullable<Pick<CommentsListWithParentMetadata, "post">["post"]>,
-  classes: ClassesType<typeof styles>,
-}> = ({comment, post, classes}) => {
+}> = ({comment, post}) => {
+  const classes = useStyles(styles);
   const {isRead} = useRecordPostView(post);
   return (
     <div className={classes.row}>
@@ -122,10 +123,10 @@ const PopularCommentTitle: FC<{
   );
 }
 
-const FriendlyPopularComment = ({comment, classes}: {
+const FriendlyPopularComment = ({comment}: {
   comment: CommentsListWithParentMetadata,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {captureEvent} = useTracking();
   const [expanded, setExpanded] = useState(false);
 
@@ -149,7 +150,6 @@ const FriendlyPopularComment = ({comment, classes}: {
           <PopularCommentTitle
             post={comment.post}
             comment={comment}
-            classes={classes}
           />
         }
         <InteractionWrapper className={classNames(classes.row, classes.wrap)}>
@@ -185,10 +185,6 @@ const FriendlyPopularComment = ({comment, classes}: {
   );
 }
 
-export default registerComponent(
-  "FriendlyPopularComment",
-  FriendlyPopularComment,
-  {styles},
-);
+export default FriendlyPopularComment;
 
 

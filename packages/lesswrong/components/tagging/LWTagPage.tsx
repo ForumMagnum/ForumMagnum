@@ -10,7 +10,6 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
@@ -1091,8 +1090,4 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
   </HoveredReactionContextProvider>
 }
 
-export default registerComponent("LWTagPage", LWTagPage);
-
-
-
-
+export default LWTagPage;

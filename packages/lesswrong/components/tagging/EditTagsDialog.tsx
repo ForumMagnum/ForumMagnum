@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -20,6 +19,6 @@ const EditTagsDialog = ({post, onClose }: {
   </LWDialog>
 }
 
-export default registerComponent('EditTagsDialog', EditTagsDialog);
+export default EditTagsDialog;
 
 

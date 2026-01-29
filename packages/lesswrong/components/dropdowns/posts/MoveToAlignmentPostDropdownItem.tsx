@@ -49,9 +49,4 @@ const MoveToAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
     );
 }
 
-export default registerComponent(
-  "MoveToAlignmentPostDropdownItem",
-  MoveToAlignmentPostDropdownItem,
-);
-
-
+export default MoveToAlignmentPostDropdownItem;

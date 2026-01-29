@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
 
@@ -35,6 +34,6 @@ const UrlHintText = () => {
   </>;
 }
 
-export default registerComponent("UrlHintText", UrlHintText);
+export default UrlHintText;
 
 

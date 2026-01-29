@@ -9,6 +9,8 @@ import PostsItem from "../posts/PostsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const BookmarksWithDocumentFragmentMultiQuery = gql(`
   query multiBookmarkBookmarksListQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,7 +23,7 @@ const BookmarksWithDocumentFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("BookmarksList", (theme: ThemeType) => ({
   empty: {
     color: theme.palette.grey[600],
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -30,14 +32,14 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "1.6em",
     marginBottom: 40,
   },
-});
+}));
 
-const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, classes}: {
+const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false}: {
   showMessageIfEmpty?: boolean,
   limit?: number,
   hideLoadMore?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(BookmarksWithDocumentFragmentMultiQuery, {
     variables: {
@@ -77,8 +79,5 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
 }
 
 export default registerComponent('BookmarksList', BookmarksList, {
-  styles,
   hocs: [withErrorBoundary]
 });
-
-

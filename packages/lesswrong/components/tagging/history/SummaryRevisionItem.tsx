@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { tagHistoryStyles } from './TagHistoryPage';
 import SingleLineFeedEvent from "../../common/SingleLineFeedEvent";
@@ -65,7 +64,4 @@ const SummaryRevisionItem = ({tag, collapsed, revision}: {
   </SingleLineFeedEvent>
 }
 
-export default registerComponent('SummaryRevisionItem', SummaryRevisionItem);
-
-
-
+export default SummaryRevisionItem;

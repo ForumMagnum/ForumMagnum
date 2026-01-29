@@ -1,6 +1,5 @@
 "use client";
 
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { getUserFromResults } from '../users/UsersProfile';
@@ -14,6 +13,7 @@ import { NetworkStatus } from "@apollo/client";
 import { useQuery } from '@/lib/crud/useQuery';
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentUserCommentsRepliesQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -37,15 +37,16 @@ const UsersProfileMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) =>  ({
+const styles = defineStyles("UserCommentsReplies", (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
       marginRight: theme.spacing.unit*4,
     }
   }
-})
+}));
 
-const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const UserCommentsReplies = () => {
+  const classes = useStyles(styles);
   const { params } = useLocation();
   const slug = slugify(params.slug);
 
@@ -105,6 +106,6 @@ const UserCommentsReplies = ({ classes }: { classes: ClassesType<typeof styles> 
   )
 };
 
-export default registerComponent('UserCommentsReplies', UserCommentsReplies, { styles });
+export default UserCommentsReplies;
 
 

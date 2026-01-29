@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
 import classNames from 'classnames';
@@ -238,4 +237,4 @@ const SeeLessFeedback = ({ onUndo, onFeedbackChange }: SeeLessFeedbackProps) => 
   );
 };
 
-export default registerComponent('SeeLessFeedback', SeeLessFeedback); 
+export default SeeLessFeedback; 

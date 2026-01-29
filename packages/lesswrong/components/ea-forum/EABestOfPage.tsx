@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -15,6 +14,8 @@ import PostsAudioCard from "../posts/PostsAudioCard";
 import PostsVideoCard from "../posts/PostsVideoCard";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useStyles } from "../hooks/useStyles";
+import { defineStyles } from "../hooks/defineStyles";
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostsListWithVotesQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -63,7 +64,7 @@ const PostsBestOfListMultiQuery = gql(`
 const MAX_WIDTH = 1500;
 const MD_WIDTH = 1000;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EABestOfPage", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "row",
@@ -146,6 +147,8 @@ const styles = (theme: ThemeType) => ({
   postsItem: {
     maxWidth: "unset",
   },
+}), {
+  stylePriority: 2,
 });
 
 const featuredCollectionsCollectionIds = [
@@ -190,7 +193,8 @@ const allCollectionIds = [...featuredCollectionsCollectionIds];
 
 export const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
-const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const EABestOfPage = () => {
+  const classes = useStyles(styles);
   const currentCuratedPostCount = useCurrentCuratedPostCount();
 
   const { data, loading } = useQuery(PostsBestOfListMultiQuery, {
@@ -368,10 +372,6 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-export default registerComponent(
-  "EABestOfPage",
-  EABestOfPage,
-  {styles, stylePriority: 2},
-);
+export default EABestOfPage;
 
 

@@ -7,7 +7,6 @@ import classNames from 'classnames';
 import React from 'react';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useNavigate } from '../../lib/routeUtil';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -162,7 +161,7 @@ export const EditPaymentInfoPage = () => {
   </ContentStyles>;
 }
 
-export default registerComponent('EditPaymentInfoPage', EditPaymentInfoPage);
+export default EditPaymentInfoPage;
 
 
 

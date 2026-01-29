@@ -1,14 +1,15 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 export const HIGHLIGHT_DURATION = 3
 
 export const CONDENSED_MARGIN_BOTTOM = 4
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
   node: {
     border: theme.palette.border.commentBorder,
     borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
@@ -130,6 +131,8 @@ const styles = (theme: ThemeType) => ({
       backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
     },
   },
+}), {
+  stylePriority: -1,
 });
 
 const CommentFrame = ({
@@ -149,7 +152,6 @@ const CommentFrame = ({
   showPinnedOnProfile,
   children,
   className,
-  classes
 }: {
   comment: CommentsList,
   treeOptions: CommentTreeOptions,
@@ -169,8 +171,8 @@ const CommentFrame = ({
   
   children: React.ReactNode,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
   const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
   
@@ -203,7 +205,7 @@ const CommentFrame = ({
   </div>
 }
 
-const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof styles>): string => {
+const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<(typeof styles)["styles"]>): string => {
   return classNames(
     (nestingLevel === 1)   && classes.commentsNodeRoot,
     (nestingLevel === 1)   && "comments-node-root" ,
@@ -221,7 +223,4 @@ const nestingLevelToClass = (nestingLevel: number, classes: ClassesType<typeof s
   );
 }
 
-
-export default registerComponent('CommentFrame', CommentFrame, {styles, stylePriority: -1});
-
-
+export default CommentFrame;

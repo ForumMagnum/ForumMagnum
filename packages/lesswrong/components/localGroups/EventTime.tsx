@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
@@ -81,7 +80,4 @@ const EventTime = ({post, dense=false}: {
   }
 };
 
-export default registerComponent('EventTime', EventTime);
-
-
-
+export default EventTime;

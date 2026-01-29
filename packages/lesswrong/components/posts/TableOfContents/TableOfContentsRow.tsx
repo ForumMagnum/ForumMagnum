@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -164,6 +163,6 @@ const TableOfContentsRow = ({
   </div>
 }
 
-export default registerComponent("TableOfContentsRow", TableOfContentsRow);
+export default TableOfContentsRow;
 
 

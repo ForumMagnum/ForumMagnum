@@ -188,8 +188,6 @@ const EAHomeHandbook = ({ classes, documentId }: {
   </React.Fragment>
 }
 
-export default registerComponent(
-  'EAHomeHandbook', EAHomeHandbook, {styles},
-);
+export default registerComponent('EAHomeHandbook', EAHomeHandbook, {styles});
 
 

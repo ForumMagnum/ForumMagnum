@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { EditorContents } from '../../editor/Editor';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import TableOfContents from "./TableOfContents";
@@ -48,7 +47,7 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   </div>;
 }
 
-export default registerComponent('DynamicTableOfContents', DynamicTableOfContents);
+export default DynamicTableOfContents;
 
 
 

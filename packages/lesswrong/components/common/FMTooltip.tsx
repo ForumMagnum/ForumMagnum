@@ -1,5 +1,4 @@
 import React, { Ref, useCallback, useEffect, useRef, useState } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { AnalyticsProps } from '@/lib/analyticsEvents';
 import { useHover } from './withHover';

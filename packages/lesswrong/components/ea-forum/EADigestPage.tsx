@@ -332,10 +332,6 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-export default registerComponent(
-  "EADigestPage",
-  EADigestPage,
-  {styles},
-);
+export default registerComponent("EADigestPage", EADigestPage, {styles});
 
 

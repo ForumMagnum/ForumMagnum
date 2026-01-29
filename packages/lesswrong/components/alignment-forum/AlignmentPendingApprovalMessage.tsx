@@ -1,20 +1,21 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isAF } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AlignmentPendingApprovalMessage", (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
-})
+}))
 
-const AlignmentPendingApprovalMessage = ({post, classes}: {
+const AlignmentPendingApprovalMessage = ({post}: {
   post: PostsBase,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   if (!currentUser) return null
   
@@ -39,6 +40,6 @@ const AlignmentPendingApprovalMessage = ({post, classes}: {
   }
 }
 
-export default registerComponent('AlignmentPendingApprovalMessage', AlignmentPendingApprovalMessage, {styles});
+export default AlignmentPendingApprovalMessage;
 
 

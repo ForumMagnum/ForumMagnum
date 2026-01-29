@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
@@ -27,6 +26,8 @@ import CuratedPostsList from "../recommendations/CuratedPostsList";
 import StickiedPosts from "../ea-forum/StickiedPosts";
 import PostsListViewToggle from "../posts/PostsListViewToggle";
 import SurveyPostsItem from "../surveys/SurveyPostsItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const getTitleWrapperStyles = () => isLWorAF() ? {
   marginBottom: 8
@@ -37,7 +38,7 @@ const getTitleWrapperStyles = () => isLWorAF() ? {
   alignItems: "center"
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("HomeLatestPosts", (theme: ThemeType) => ({
   titleWrapper: getTitleWrapperStyles(),
   title: {
     ...sectionTitleStyle(theme),
@@ -67,7 +68,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     gap: "6px",
   },
-});
+}));
 
 const getLatestPostsName = () => isFriendlyUI() ? 'New & upvoted' : 'Latest Posts'
 
@@ -110,7 +111,8 @@ const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings =>
   };
 }
 
-const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HomeLatestPosts = () => {
+  const classes = useStyles(styles);
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
 
@@ -240,6 +242,6 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-export default registerComponent('HomeLatestPosts', HomeLatestPosts, {styles});
+export default HomeLatestPosts;
 
 

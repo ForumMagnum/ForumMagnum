@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { Link } from '../../../lib/reactRouterWrapper';
@@ -50,9 +49,7 @@ const CommentShortformIcon = ({comment, post, simple, iconClassName}: {
   )
 }
 
-export default registerComponent(
-  'CommentShortformIcon', CommentShortformIcon
-);
+export default CommentShortformIcon;
 
 
 

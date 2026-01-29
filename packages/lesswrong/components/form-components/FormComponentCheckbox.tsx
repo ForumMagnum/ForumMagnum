@@ -1,6 +1,5 @@
 import React from 'react';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
@@ -65,6 +64,6 @@ const FormComponentCheckbox = ({
   );
 }
 
-export default registerComponent('FormComponentCheckbox', FormComponentCheckbox);
+export default FormComponentCheckbox;
 
 

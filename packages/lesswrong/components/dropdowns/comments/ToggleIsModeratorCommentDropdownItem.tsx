@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
@@ -66,8 +65,6 @@ const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}
   );
 }
 
-export default registerComponent(
-  "ToggleIsModeratorCommentDropdownItem", ToggleIsModeratorCommentDropdownItem,
-);
+export default ToggleIsModeratorCommentDropdownItem;
 
 

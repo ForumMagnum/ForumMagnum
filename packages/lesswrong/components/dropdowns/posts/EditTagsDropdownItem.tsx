@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useDialog } from "../../common/withDialog";
 
 import { taggingNamePluralCapitalSetting } from "../../../lib/instanceSettings";
@@ -29,9 +28,6 @@ const EditTagsDropdownItem = ({post, closeMenu}: {
   );
 }
 
-export default registerComponent(
-  "EditTagsDropdownItem",
-  EditTagsDropdownItem,
-);
+export default EditTagsDropdownItem;
 
 

@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { preferredHeadingCase } from '@/themes/forumTheme';
 import { Typography } from "../common/Typography";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const MembersOfGroupFragmentMultiQuery = gql(`
   query multiSubscriptionLocalGroupSubscribersQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -18,7 +19,7 @@ const MembersOfGroupFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LocalGroupSubscribers", (theme: ThemeType) => ({
   title: {
     marginTop: 24,
   },
@@ -26,12 +27,12 @@ const styles = (theme: ThemeType) => ({
   },
   subscriber: {
   },
-})
+}))
 
-const LocalGroupSubscribers = ({groupId, classes}: {
+const LocalGroupSubscribers = ({groupId}: {
   groupId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(MembersOfGroupFragmentMultiQuery, {
     variables: {
       selector: { membersOfGroup: { documentId: groupId } },
@@ -62,7 +63,4 @@ const LocalGroupSubscribers = ({groupId, classes}: {
   </div>
 }
 
-export default registerComponent('LocalGroupSubscribers', LocalGroupSubscribers, {styles});
-
-
-
+export default LocalGroupSubscribers;

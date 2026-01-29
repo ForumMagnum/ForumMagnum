@@ -1,5 +1,4 @@
 import React, { CSSProperties } from 'react';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TableOfContentsDivider", (theme: ThemeType) => ({
@@ -21,7 +20,7 @@ const TableOfContentsDivider = ({ scaleStyling }: {
   return <div className={classes.divider} style={scaleStyling}/>
 }
 
-export default registerComponent('TableOfContentsDivider', TableOfContentsDivider);
+export default TableOfContentsDivider;
 
 
 

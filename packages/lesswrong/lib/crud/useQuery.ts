@@ -16,6 +16,9 @@ import { extractToObjectStoreAndSubstitute, substituteFromObjectStore, type Json
 
 export const EnableSuspenseContext = createContext(false);
 
+const noOp = () => {};
+const doubleNoOp = () => noOp;
+
 export type UseQueryOptions = {
   fetchPolicy: SuspenseQueryHookFetchPolicy,
   ssr?: boolean,
@@ -34,14 +37,30 @@ declare global {
   }
 }
 
-function useIsHydrationRender(): boolean {
-  // During SSR and the client hydration render pass, React uses getServerSnapshot().
-  // After hydration, React uses getSnapshot().
-  return useSyncExternalStore(
-    () => () => {},
-    () => false,
-    () => true,
+/**
+ * Detect whether we are doing a "hydration render", ie, we're rendering a
+ * component that was in the SSR, and this is either the first render or all
+ * previous renders suspended.
+ *
+ * The way this works is a hack: `useSyncExternalStore` takes three arguments,
+ * a subscribe function (which we ignore), a client-side getter, and a
+ * server-side-or-hydration getter. We want to detect which of these two
+ * functions was called. But, we also need them to return the same value,
+ * because returning different values will trigger a spurious rerender; so,
+ * both functions return `true`, and communicate the actual result through
+ * side effects.
+ */
+function useIsHydrationWithNoRerender(): boolean {
+  const isHydrationRef = useRef(false);
+  isHydrationRef.current = false;
+
+  const _ignored = useSyncExternalStore(
+    doubleNoOp,
+    () => { isHydrationRef.current = false; return true; },
+    () => { isHydrationRef.current = true; return true; },
   );
+
+  return isHydrationRef.current;
 }
 
 const waitForInjectionsPromises: Record<string, Promise<void> | null> = {};
@@ -81,7 +100,7 @@ function waitForInjection(injectedKey: string): Promise<void> | null {
 }
 
 function useHydrationWaitForInjectedKey(injectedKey: string, shouldWait: boolean) {
-  const isHydrationRender = useIsHydrationRender();
+  const isHydrationRender = useIsHydrationWithNoRerender();
   if (isHydrationRender && shouldWait) {
     const promise = waitForInjection(injectedKey);
     if (promise) {

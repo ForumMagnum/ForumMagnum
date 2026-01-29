@@ -1,6 +1,4 @@
 'use client';
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import React from 'react';
 import { isLWorAF } from '../../lib/instanceSettings';
@@ -20,7 +18,7 @@ const PostsSingle = () => {
   return <PostsPageWrapper documentId={params._id} sequenceId={null} version={version} />
 };
 
-export default registerComponent('PostsSingle', PostsSingle);
+export default PostsSingle;
 
 
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userOwns, userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import DropdownItem from "../DropdownItem";
@@ -28,10 +27,4 @@ const EditCommentDropdownItem = ({comment, showEdit}: {
   );
 };
 
-export default registerComponent(
-  'EditCommentDropdownItem',
-  EditCommentDropdownItem,
-);
-
-
-
+export default EditCommentDropdownItem;

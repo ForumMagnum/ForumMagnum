@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { Ref } from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useLocation } from '../../../lib/routeUtil';
@@ -6,10 +5,12 @@ import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
 import { TooltipRef } from '../FMTooltip';
 import TabNavigationSubItem from "./TabNavigationSubItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const smallIconSize = 23
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TabNavigationFooterItem", (theme: ThemeType) => ({
   selected: {
     '& $icon': {
       opacity: 1,
@@ -68,14 +69,14 @@ const styles = (theme: ThemeType) => ({
       top: -1,
     }
   },
-})
+}))
 
 type TabNavigationFooterItemProps = {
   tab: MenuTabRegular,
-  classes: ClassesType<typeof styles>,
 }
 
-const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) => {
+const TabNavigationFooterItem = ({tab}: TabNavigationFooterItemProps) => {
+  const classes = useStyles(styles);
   const { pathname } = useLocation()
   // React router links don't handle external URLs, so use a
   // normal HTML a tag if the URL is external
@@ -117,8 +118,6 @@ const TabNavigationFooterItem = ({tab, classes}: TabNavigationFooterItemProps) =
   </TooltipRef>
 }
 
-export default registerComponent(
-  'TabNavigationFooterItem', TabNavigationFooterItem, {styles}
-);
+export default TabNavigationFooterItem;
 
 

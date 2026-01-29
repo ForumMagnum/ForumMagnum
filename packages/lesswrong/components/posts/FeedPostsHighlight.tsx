@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import React, { FC, useState, useCallback, useEffect } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -12,6 +11,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsExpandedHighlightQuery = gql(`
   query FeedPostsHighlight($documentId: String) {
@@ -23,7 +24,7 @@ const PostsExpandedHighlightQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FeedPostsHighlight", (theme: ThemeType) => ({
   root: {
     '& .read-more-button': {
       opacity: 0.7,
@@ -43,7 +44,7 @@ const styles = (theme: ThemeType) => ({
     maxHeight: 600,
     overflow: "hidden",
   },
-})
+}))
 
 const TruncatedSuffix: FC<{
   post: PostsList,
@@ -63,7 +64,6 @@ const FeedPostHighlightBody = ({
   setExpanded,
   expandedLoading,
   expandedDocument,
-  classes,
 }: {
   post: PostsList,
   maxCollapsedLengthWords: number,
@@ -71,8 +71,8 @@ const FeedPostHighlightBody = ({
   setExpanded: (value: boolean) => void,
   expandedLoading: boolean,
   expandedDocument?: PostsExpandedHighlight,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { htmlHighlight = "", wordCount = 0 } = post.contents ?? {};
 
   const { recordPostView } = useRecordPostView(post); 
@@ -92,8 +92,8 @@ const FeedPostHighlightBody = ({
   const rawWordCount = wordCount ?? 0;
   const readMoreId = `feed-post-read-more-${post._id}`;
 
-  const styles = html.match(/<style[\s\S]*?<\/style>/g) ?? ""
-  const suffix = expanded ? undefined : `... <span id="${readMoreId}" class="read-more-button">(read more)</span>${styles}`
+  const styleNodes = html.match(/<style[\s\S]*?<\/style>/g) ?? ""
+  const suffix = expanded ? undefined : `... <span id="${readMoreId}" class="read-more-button">(read more)</span>${styleNodes}`
 
   useEffect(() => {
     const readMoreButton = document.getElementById(readMoreId);
@@ -125,7 +125,6 @@ const FeedPostsHighlight = ({post, ...rest}: {
   maxCollapsedLengthWords: number,
   initiallyExpanded?: boolean,
   forceSeeMore?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -148,4 +147,4 @@ const FeedPostsHighlight = ({post, ...rest}: {
   );
 }
 
-export default registerComponent('FeedPostsHighlight', FeedPostsHighlight, {styles});
+export default FeedPostsHighlight;

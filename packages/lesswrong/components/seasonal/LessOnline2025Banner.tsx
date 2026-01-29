@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
@@ -134,7 +133,7 @@ export const LessOnline2025Banner = ({priceIncreaseDate}: {priceIncreaseDate: Da
   );
 }
 
-export default registerComponent('LessOnline2025Banner', LessOnline2025Banner);
+export default LessOnline2025Banner;
 
 
 

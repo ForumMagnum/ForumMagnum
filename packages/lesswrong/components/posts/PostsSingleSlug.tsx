@@ -1,6 +1,4 @@
 "use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostBySlug } from './usePost';
@@ -21,6 +19,6 @@ const PostsSingleSlug = () => {
   }
 };
 
-export default registerComponent('PostsSingleSlug', PostsSingleSlug);
+export default PostsSingleSlug;
 
 

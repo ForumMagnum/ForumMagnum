@@ -1,23 +1,22 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq'
 import moment from 'moment';
 import DebateResponseBlock, { DebateResponseWithReplies } from './DebateResponseBlock';
 import DeferRender from '../common/DeferRender';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("DebateBody", (theme: ThemeType) => ({
   root: {
-
   },
-});
+}));
 
-export const DebateBody = ({ debateResponses, post, classes }: {
+export const DebateBody = ({ debateResponses, post }: {
   debateResponses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const orderedParticipantList = filterNonnull(uniq(debateResponses.map(({ comment }) => comment.userId)));
 
   return (<DeferRender ssr={false}>
@@ -63,6 +62,6 @@ export const DebateBody = ({ debateResponses, post, classes }: {
   </DeferRender>);
 }
 
-export default registerComponent('DebateBody', DebateBody, {styles});
+export default DebateBody;
 
 

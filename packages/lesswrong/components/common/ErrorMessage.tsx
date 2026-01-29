@@ -1,18 +1,19 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Typography } from "./Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ErrorMessage", (theme: ThemeType) => ({
   errorText: {
     color: theme.palette.error.main,
     textAlign: "center",
   }
-})
+}))
 
-const ErrorMessage = ({message, classes}: {
+const ErrorMessage = ({message}: {
   message: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return <Typography
     className={classes.errorText}
     variant="body1"
@@ -29,6 +30,6 @@ const ErrorMessage = ({message, classes}: {
   </Typography>
 }
 
-export default registerComponent("ErrorMessage", ErrorMessage, {styles});
+export default ErrorMessage;
 
 

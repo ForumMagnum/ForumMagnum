@@ -9,7 +9,6 @@ import isEmpty from "lodash/isEmpty";
 import range from "lodash/range";
 import AnalyticsGraph, { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import { slugify } from "@/lib/utils/slugify";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -21,6 +20,8 @@ import AnalyticsPostItem from "./AnalyticsPostItem";
 import AnalyticsPostItemSkeleton from "./AnalyticsPostItemSkeleton";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersMinimumInfoMultiQuery = gql(`
   query multiUserAuthorAnalyticsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -42,7 +43,7 @@ export const gridColumns = (titleWidth: number) =>
     titleWidth
   )}%`;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AuthorAnalyticsPage", (theme: ThemeType) => ({
   root: {
     width: 800,
     maxWidth: "100%",
@@ -170,11 +171,10 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-});
+}));
 
-const AuthorAnalyticsPage = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const AuthorAnalyticsPage = () => {
+  const classes = useStyles(styles);
   const { params, query, location } = useLocation();
   const navigate = useNavigate();
   const slug = slugify(params.slug);
@@ -364,6 +364,6 @@ const AuthorAnalyticsPage = ({ classes }: {
   );
 };
 
-export default registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPage, { styles });
+export default AuthorAnalyticsPage;
 
 

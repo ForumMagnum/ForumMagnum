@@ -1,6 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
-
 import { useCurrentUser } from "../../common/withUser";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
@@ -46,9 +44,4 @@ const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  "ShortformDropdownItem",
-  ShortformDropdownItem,
-);
-
-
+export default ShortformDropdownItem;
