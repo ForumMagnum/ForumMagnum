@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
@@ -61,7 +60,7 @@ const NotificationEmailPreviewPage = () => {
   );
 }
 
-export default registerComponent("NotificationEmailPreviewPage", NotificationEmailPreviewPage);
+export default NotificationEmailPreviewPage;
 
 
 

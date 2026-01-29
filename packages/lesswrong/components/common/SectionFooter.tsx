@@ -1,8 +1,9 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Typography } from "./Typography";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
 export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) => ({
   '& > *': {
@@ -22,7 +23,7 @@ export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) =
   }
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SectionFooter", (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "flex-end",
@@ -45,19 +46,18 @@ const styles = (theme: ThemeType) => ({
       }
       : {}),
   }
-})
+}))
 
-const SectionFooter = ({ children, className, classes }: {
+const SectionFooter = ({ children, className }: {
   children: React.ReactNode,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return (
     <Typography variant="body2" className={classNames(classes.root, className)}>
       { children }
     </Typography>
   )
 }
-export default registerComponent('SectionFooter', SectionFooter, {styles});
 
-
+export default SectionFooter;

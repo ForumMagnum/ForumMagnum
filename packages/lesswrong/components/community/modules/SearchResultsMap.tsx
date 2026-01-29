@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
@@ -169,7 +168,7 @@ type SearchResultsMapProps = {
 }
 const ConnectedSearchResultsMap: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMap)
 
-export const RawSearchResultsMap = registerComponent("RawSearchResultsMap", SearchResultsMap);
-export default registerComponent("SearchResultsMap", ConnectedSearchResultsMap);
+export const RawSearchResultsMap = SearchResultsMap;
+export default ConnectedSearchResultsMap;
 
 

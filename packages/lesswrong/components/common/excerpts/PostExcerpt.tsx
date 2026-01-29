@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -60,7 +59,4 @@ const PostExcerpt = ({
   );
 }
 
-export default registerComponent(
-  "PostExcerpt",
-  PostExcerpt,
-);
+export default PostExcerpt;

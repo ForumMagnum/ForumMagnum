@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import type { ToCData } from '../../../lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -90,6 +89,6 @@ const NavigationDrawer = ({open, handleClose, toc}: {
   </Drawer>
 }
 
-export default registerComponent('NavigationDrawer', NavigationDrawer);
+export default NavigationDrawer;
 
 

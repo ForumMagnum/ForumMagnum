@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
@@ -80,8 +79,6 @@ const MoveToAnswersDropdownItem = ({comment, post}: {
   );
 }
 
-export default registerComponent(
-  'MoveToAnswersDropdownItem', MoveToAnswersDropdownItem,
-);
+export default MoveToAnswersDropdownItem;
 
 

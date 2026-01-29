@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { PermissionsPostMinimumInfo as PostPermissionsMinimumInfo, userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { moderationEmail } from '@/lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import CalendarDate from "../common/CalendarDate";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CantCommentExplanation", (theme: ThemeType) => ({
   root: {
     padding: "1em 0",
   },
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.link.dim,
     }
   },
-});
+}));
 
 const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostPermissionsMinimumInfo, postAuthor: PostsAuthors['user']|null): React.JSX.Element => {
   if (!user) {
@@ -52,10 +53,10 @@ const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostP
   return <>You cannot comment at this time</>
 }
 
-const CantCommentExplanation = ({post, classes}: {
+const CantCommentExplanation = ({post}: {
   post: PostPermissionsMinimumInfo,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const author = post.user ?? null;
   const email = moderationEmail.get()
@@ -72,8 +73,4 @@ const CantCommentExplanation = ({post, classes}: {
   );
 }
 
-export default registerComponent(
-  'CantCommentExplanation', CantCommentExplanation, {styles}
-);
-
-
+export default CantCommentExplanation;

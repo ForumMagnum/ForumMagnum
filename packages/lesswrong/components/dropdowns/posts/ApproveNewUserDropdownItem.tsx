@@ -1,6 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
-
 import { useCurrentUser } from "../../common/withUser";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
@@ -50,9 +48,6 @@ const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  "ApproveNewUserDropdownItem",
-  ApproveNewUserDropdownItem,
-);
+export default ApproveNewUserDropdownItem;
 
 

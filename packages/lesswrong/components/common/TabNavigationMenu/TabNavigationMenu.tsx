@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { useCurrentUserId } from '../withUser';
 import TabNavigationItem, { iconWidth } from './TabNavigationItem'
@@ -10,12 +9,13 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import EventsList from './EventsList';
 import { SubscribeWidget } from '../SubscribeWidget';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 export const TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH = 64
 
-const styles = (theme: ThemeType) => {
-  return {
+const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
     root: {
       display: "flex",
       flexDirection: "column",
@@ -64,15 +64,13 @@ const styles = (theme: ThemeType) => {
           marginTop: theme.spacing.unit * 1.5,
         }),
     },
-  }
-}
+}));
 
 type TabNavigationMenuProps = {
   onClickSection?: (e?: React.BaseSyntheticEvent) => void,
   transparentBackground?: boolean,
   noTopMargin?: boolean,
   iconOnlyNavigationEnabled?: boolean,
-  classes: ClassesType<typeof styles>,
 }
 
 const TabNavigationMenu = ({
@@ -80,8 +78,8 @@ const TabNavigationMenu = ({
   transparentBackground,
   noTopMargin,
   iconOnlyNavigationEnabled,
-  classes,
 }: TabNavigationMenuProps) => {
+  const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
   const { captureEvent } = useTracking()
   const iconOnly = !!iconOnlyNavigationEnabled;
@@ -140,8 +138,6 @@ const TabNavigationMenu = ({
     </AnalyticsContext>  )
 };
 
-export default registerComponent<TabNavigationMenuProps>(
-  'TabNavigationMenu', TabNavigationMenu, {styles}
-);
+export default TabNavigationMenu;
 
 

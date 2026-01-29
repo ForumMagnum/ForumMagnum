@@ -1,12 +1,13 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { cloudinaryCloudNameSetting, eventBannerDesktopImageSetting, eventBannerLinkSetting, eventBannerMobileImageSetting } from '@/lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const bannerHeight = 250
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EventBanner", (theme: ThemeType) => ({
   link: {
     '&:hover': {
       opacity: 'unset'
@@ -22,11 +23,10 @@ const styles = (theme: ThemeType) => ({
       marginLeft: -8,
     },
   }
-});
+}));
 
-const EventBanner = ({ classes }: {
-  classes: ClassesType<typeof styles>;
-}) => {
+const EventBanner = () => {
+  const classes = useStyles(styles);
   const mobileImageId = eventBannerMobileImageSetting.get()
   const desktopImageId = eventBannerDesktopImageSetting.get()
   const featuredPost = eventBannerLinkSetting.get()
@@ -45,8 +45,6 @@ const EventBanner = ({ classes }: {
   </SingleColumnSection>
 }
 
-export default registerComponent(
-  'EventBanner', EventBanner, {styles},
-);
+export default EventBanner;
 
 

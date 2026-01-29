@@ -1,7 +1,6 @@
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
@@ -511,4 +510,4 @@ export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
   </div>;
 }
 
-export default registerComponent('UserRateLimitItem', UserRateLimitItem);
+export default UserRateLimitItem;

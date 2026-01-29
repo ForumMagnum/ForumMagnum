@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { useLocation } from '@/lib/routeUtil';
@@ -131,7 +130,7 @@ const PathInfo = ({tag, lens}: {
   </div>
 }
 
-export default registerComponent('PathInfo', PathInfo);
+export default PathInfo;
 
 
 

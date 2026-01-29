@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isAF } from '../../lib/instanceSettings';
 import LWTooltip from "../common/LWTooltip";
@@ -20,6 +19,6 @@ const AlignmentCrosspostLink = ({post}: {
   }
 }
 
-export default registerComponent('AlignmentCrosspostLink', AlignmentCrosspostLink);
+export default AlignmentCrosspostLink;
 
 

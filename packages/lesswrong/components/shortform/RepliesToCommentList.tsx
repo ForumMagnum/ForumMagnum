@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments } from "../../lib/utils/unflatten";
 import CommentsList from "../comments/CommentsList";
 import Loading from "../vulcan-core/Loading";
@@ -59,8 +58,4 @@ const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: 
   />
 }
 
-
-export default registerComponent('RepliesToCommentList', RepliesToCommentList);
-
-
-
+export default RepliesToCommentList;

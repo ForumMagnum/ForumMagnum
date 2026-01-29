@@ -1,7 +1,6 @@
 // Copied from: https://raw.githubusercontent.com/codeep/react-recaptcha-v3/master/src/ReCaptcha.js
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { registerComponent } from '../../lib/vulcan-lib/components'
 import { reCaptchaSiteKeySetting } from '@/lib/instanceSettings';
 import { isClient } from '../../lib/executionEnvironment';
 
@@ -104,7 +103,7 @@ class ReCaptchaInner extends Component<ReCaptchaProps,ReCaptchaState> {
 (ReCaptchaInner as any).propTypes = propTypes;
 (ReCaptchaInner as any).defaultProps = defaultProps;
 
-export default registerComponent("ReCaptcha", ReCaptchaInner);
+export default ReCaptchaInner;
 
 
 

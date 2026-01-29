@@ -6,7 +6,6 @@ import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
@@ -226,6 +225,4 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
   )
 }
 
-export default registerComponent('TagFlagEditAndNewForm', TagFlagEditAndNewForm);
-
-
+export default TagFlagEditAndNewForm;

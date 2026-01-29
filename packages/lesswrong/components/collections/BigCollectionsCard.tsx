@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
@@ -6,8 +5,10 @@ import CloudinaryImage from "../common/CloudinaryImage";
 import LinkCard from "../common/LinkCard";
 import UsersName from "../users/UsersName";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("BigCollectionsCard", (theme: ThemeType) => ({
   root: {
     width:"100%",
     background: theme.palette.panelBackground.default,
@@ -69,13 +70,13 @@ const styles = (theme: ThemeType) => ({
       }
     }
   }
-})
+}))
 
-const BigCollectionsCard = ({ collection, url, classes }: {
+const BigCollectionsCard = ({ collection, url }: {
   collection: CoreReadingCollection,
   url: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const cardContentStyle = {borderTopColor: collection.color}
 
   return <LinkCard className={classes.root} to={url}>
@@ -98,8 +99,6 @@ const BigCollectionsCard = ({ collection, url, classes }: {
   </LinkCard>
 }
 
-export default registerComponent(
-  "BigCollectionsCard", BigCollectionsCard, { styles }
-);
+export default BigCollectionsCard;
 
 

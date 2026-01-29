@@ -3,7 +3,6 @@ import { DialogContent } from "@/components/widgets/DialogContent";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
@@ -123,7 +122,7 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
   )
 }
 
-export default registerComponent('ReportForm', ReportForm);
+export default ReportForm;
 
 
 

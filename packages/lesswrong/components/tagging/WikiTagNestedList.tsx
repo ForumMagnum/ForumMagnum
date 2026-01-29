@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import ConceptItem from "./ConceptItem";
 
@@ -66,8 +65,4 @@ const WikiTagNestedList = ({
   );
 }
 
-export default registerComponent('WikiTagNestedList', WikiTagNestedList);
-
-
-
-
+export default WikiTagNestedList;

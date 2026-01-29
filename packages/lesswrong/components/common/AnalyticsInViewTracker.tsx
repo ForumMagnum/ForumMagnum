@@ -1,5 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, { useEffect, useCallback, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import { useSubscribeIsInView, useTracking } from "../../lib/analyticsEvents";
 import { useStabilizedCallback } from '../hooks/useDebouncedCallback';
 

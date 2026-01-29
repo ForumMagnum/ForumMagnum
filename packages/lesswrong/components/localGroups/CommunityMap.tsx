@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
@@ -16,6 +15,8 @@ import StyledMapPopup from "./StyledMapPopup";
 import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const UsersMapEntryMultiQuery = gql(`
   query multiUserCommunityMapQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -52,7 +53,7 @@ const PostsListMultiQuery = gql(`
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommunityMap", (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: 440,
@@ -100,18 +101,17 @@ const styles = (theme: ThemeType) => ({
   filters: {
     width: 100
   }
-});
+}));
 
 // Make these variables have file-scope references to avoid rerending the scripts or map
 export const defaultCenter = {lat: 39.5, lng: -43.636047}
-const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, classes, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend }: {
+const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindows = [], center = defaultCenter, zoom = 2, className = '', showGroupsByDefault, showUsersByDefault, showHideMap = false, hideLegend }: {
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
   initialOpenWindows: Array<string>,
   center?: {lat: number, lng: number},
   zoom: number,
-  classes: ClassesType<typeof styles>,
   className?: string,
   showUsersByDefault?: boolean,
   showGroupsByDefault?: boolean,
@@ -119,6 +119,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   hideLegend?: boolean,
   petrovButton?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const { query } = useLocation()
   const groupQueryTerms: LocalgroupsViewTerms = groupTerms || {view: "all", filters: query?.filters || [], includeInactive: query?.includeInactive === 'true'}
 
@@ -233,22 +234,22 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   </div>
 }
 
-const personalMapMarkerStyles = (theme: ThemeType) => ({
+const personalMapMarkerStyles = defineStyles("PersonalMapLocationMarkers", (theme: ThemeType) => ({
   icon: {
     height: 20,
     width: 20,
     fill: theme.palette.individual,
     opacity: 0.8
   }
-})
+}))
 
-const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openWindows, classes}: {
+const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openWindows}: {
   users: Array<UsersMapEntry>,
   handleClick: (userId: string) => void,
   handleClose: (userId: string) => void,
   openWindows: any,
-  classes: ClassesType<typeof personalMapMarkerStyles>,
 }) => {
+  const classes = useStyles(personalMapMarkerStyles);
   const mapLocations = filterNonnull(users.map(user => {
     const location = user.mapLocationLatLng
     if (!location) return null
@@ -293,9 +294,7 @@ const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openW
   </React.Fragment>
 }
 
-export const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMarkers", PersonalMapLocationMarkersInner, {
-  styles: personalMapMarkerStyles
-});
+export const PersonalMapLocationMarkersTypes = PersonalMapLocationMarkersInner;
 
 const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: {
   events: Array<PostsList>,
@@ -335,8 +334,4 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: 
   })}</>
 }
 
-
-
-export default registerComponent("CommunityMap", CommunityMap, { styles });
-
-
+export default CommunityMap;

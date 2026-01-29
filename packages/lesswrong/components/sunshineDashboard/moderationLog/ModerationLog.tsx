@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { Link } from '../../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../../common/withUser';
@@ -20,6 +19,7 @@ import TableOfContents from "../../posts/TableOfContents/TableOfContents";
 import { gql } from '@/lib/generated/gql-codegen';
 import { NetworkStatus } from '@apollo/client';
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const DeletedCommentsModerationLogQuery = gql(`
   query DeletedCommentsModerationLogQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -83,7 +83,7 @@ const shouldShowEndUserModerationToNonMods = () => forumSelect({
   default: true,
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ModerationLog", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
   },
@@ -107,7 +107,7 @@ const styles = (theme: ThemeType) => ({
       marginBottom: "0.5em",
     },
   }
-})
+}))
 
 const DateDisplay = ({column, document}: {
   column: Column;
@@ -299,9 +299,8 @@ const sectionData = {
   ],
 };
 
-const ModerationLog = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const ModerationLog = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const shouldShowEndUserModeration = (currentUser && isMod(currentUser)) || shouldShowEndUserModerationToNonMods();
 
@@ -450,6 +449,6 @@ const ModerationLog = ({classes}: {
   )
 }
 
-export default registerComponent('ModerationLog', ModerationLog, {styles});
+export default ModerationLog;
 
 

@@ -1,6 +1,4 @@
 "use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import PostsPageWrapper from "./PostsPage/PostsPageWrapper";
@@ -21,4 +19,4 @@ const PostsSingleRoute = ({ _id }: PostsSingleRouteProps) => {
   }
 };
 
-export default registerComponent('PostsSingleRoute', PostsSingleRoute);
+export default PostsSingleRoute;

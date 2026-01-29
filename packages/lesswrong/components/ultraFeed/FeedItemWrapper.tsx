@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 
 const styles = defineStyles('FeedItemWrapper', (theme: ThemeType) => ({
@@ -26,8 +25,4 @@ const FeedItemWrapper = ({children}: {
   );
 };
 
-export default registerComponent('FeedItemWrapper', FeedItemWrapper);
-
-
-
- 
+export default FeedItemWrapper;

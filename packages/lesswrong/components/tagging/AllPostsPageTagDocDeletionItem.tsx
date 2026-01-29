@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -44,7 +43,7 @@ const DocumentTitle = ({tag, documentDeletion}: {
 
   if (type === 'lens') {
     const titleText = `${docFields?.tabTitle} (${docFields?.tabSubtitle})`;
-    const maybeLink = netChange === 'restored'
+    const maybeLink = (netChange === 'restored' && docFields?.slug)
       ? <TagsTooltip tagSlug={docFields?.slug} noPrefetch previewPostCount={0}>
           {/* TODO: link styling? */}
           <Link to={tagGetUrl(tag, { lens: docFields?.slug })}>{titleText}</Link>
@@ -83,6 +82,6 @@ export const AllPostsPageTagDocDeletionItem = ({tag, documentDeletion}: {
   </div>;
 }
 
-export default registerComponent('AllPostsPageTagDocDeletionItem', AllPostsPageTagDocDeletionItem);
+export default AllPostsPageTagDocDeletionItem;
 
 

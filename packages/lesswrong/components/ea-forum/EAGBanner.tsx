@@ -192,10 +192,6 @@ const EAGBanner = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-export default registerComponent(
-  "EAGBanner",
-  EAGBanner,
-  {styles},
-);
+export default registerComponent("EAGBanner", EAGBanner, {styles});
 
 

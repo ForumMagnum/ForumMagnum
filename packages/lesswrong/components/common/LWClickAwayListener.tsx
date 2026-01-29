@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from 'react';
 import ClickAwayListener, { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 
 /**
  * Wrapped to ensure that "onClick" is the default mouse event.
@@ -24,6 +23,6 @@ const LWClickAwayListener = ({onClickAway, children}: {
   );
 }
 
-export default registerComponent('LWClickAwayListener', LWClickAwayListener);
+export default LWClickAwayListener;
 
 

@@ -32,6 +32,8 @@ import { StructuredData } from '@/components/common/StructuredData';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UserTagRelDetailsMultiQuery = gql(`
   query multiUserTagRelTagSubforumPage2Query($selector: UserTagRelSelector, $limit: Int, $enableTotal: Boolean) {
@@ -65,7 +67,7 @@ const UserTagRelDetailsMutation = gql(`
   }
 `);
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("TagSubforumPage2", (theme: ThemeType) => ({
   tabRow: {
     display: 'flex',
     alignItems: 'center',
@@ -151,15 +153,14 @@ export const styles = (theme: ThemeType) => ({
   tableOfContentsWrapper: {
     padding: 24,
   },
-});
+}));
 
 const subforumTabs = ["posts", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
 const defaultTab: SubforumTab = "posts"
 
-const TagSubforumPage2 = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const TagSubforumPage2 = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const navigate = useNavigate();
@@ -406,6 +407,4 @@ const TagSubforumPage2 = ({classes}: {
   );
 }
 
-export default registerComponent("TagSubforumPage2", TagSubforumPage2, {styles});
-
-
+export default TagSubforumPage2;

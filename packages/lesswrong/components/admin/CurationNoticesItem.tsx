@@ -2,7 +2,6 @@ import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { CurationNoticesForm } from './CurationNoticesForm';
@@ -10,6 +9,8 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import BasicFormStyles from "../form-components/BasicFormStyles";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostCurationNoticesItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -41,7 +42,7 @@ const CommentsListMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CurationNoticesItem", (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,
     borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
@@ -115,12 +116,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     cursor: "not-allowed",
   }
-});
+}));
 
-export const CurationNoticesItem = ({curationNotice, classes}: {
+export const CurationNoticesItem = ({curationNotice}: {
   curationNotice: CurationNoticesFragment,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const [edit, setEdit] = useState<boolean>(false)
@@ -218,7 +219,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   </div>
 }
 
-export default registerComponent('CurationNoticesItem', CurationNoticesItem, {styles});
+export default CurationNoticesItem;
 
 
 

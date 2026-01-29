@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace, calculateTruncationStatus } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
@@ -389,8 +388,4 @@ const FeedContentBody = ({
   );
 };
 
-export default registerComponent('FeedContentBody', FeedContentBody);
-
-
-
-
+export default FeedContentBody;

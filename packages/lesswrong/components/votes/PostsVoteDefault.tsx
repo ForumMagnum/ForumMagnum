@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
@@ -9,8 +8,10 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsVoteDefault", (theme: ThemeType) => ({
   voteBlock: {
     width: 50,
   },
@@ -83,22 +84,21 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 0,
     paddingTop: theme.isFriendlyUI ? 12 : 0
   },
-});
+}));
 
 const PostsVoteDefault = ({
   post,
   useHorizontalLayout,
   votingSystem,
   isFooter,
-  classes,
 }: {
   post: PostsWithVotes,
   /** if true, display the vote arrows to the left & right of the score */
   useHorizontalLayout?: boolean,
   votingSystem?: VotingSystem<PostsWithVotes>,
   isFooter?: boolean,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(post, "Posts", votingSystem);
 
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
@@ -190,10 +190,6 @@ const PostsVoteDefault = ({
   );
 }
 
-export default registerComponent(
-  "PostsVoteDefault",
-  PostsVoteDefault,
-  {styles},
-);
+export default PostsVoteDefault;
 
 

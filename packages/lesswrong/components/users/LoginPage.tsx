@@ -1,7 +1,5 @@
 "use client";
-
 import React, { useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -40,6 +38,4 @@ const LoginPage = () => {
   }
 }
 
-export default registerComponent('LoginPage', LoginPage);
-
-
+export default LoginPage;

@@ -1,15 +1,16 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const bannerHeight = 250
 const mobileImageId = 'Banner/Smallpox_Eradication_Day-17.png'
 const desktopImageId = 'Banner/Smallpox_Eradication_Day-16.png'
 const featuredPost = '/posts/jk7A3NMdbxp65kcJJ/500-million-but-not-a-single-one-more'
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles("SmallpoxBanner", (_theme: ThemeType) => ({
   link: {
     '&:hover': {
       opacity: 'unset'
@@ -20,11 +21,10 @@ const styles = (_theme: ThemeType) => ({
     width: '100%',
     objectFit: 'cover',
   }
-});
+}));
 
-const SmallpoxBanner = ({ classes }: {
-  classes: ClassesType<typeof styles>;
-}) => {
+const SmallpoxBanner = () => {
+  const classes = useStyles(styles);
   const mobileImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${mobileImageId}`
   const desktopImage = `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/w_${SECTION_WIDTH},h_${bannerHeight}/${desktopImageId}`
 
@@ -39,8 +39,6 @@ const SmallpoxBanner = ({ classes }: {
   </SingleColumnSection>
 }
 
-export default registerComponent(
-  'SmallpoxBanner', SmallpoxBanner, {styles},
-);
+export default SmallpoxBanner;
 
 
