@@ -14,6 +14,7 @@ import {
   type LexicalCommand,
   type LexicalEditor,
 } from "lexical";
+import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/BlockTypePlugin';
 import { useEffect } from "react";
 
 /**
@@ -52,6 +53,9 @@ function tryConvertTripleBackticksToCodeBlockInUpdateContext(): boolean {
 }
 
 function insertCodeBlock(editor: LexicalEditor): void {
+  if (editor.dispatchCommand(SET_BLOCK_TYPE_COMMAND, 'code')) {
+    return;
+  }
   editor.update(() => {
     let selection = $getSelection();
     if (!selection) return;
@@ -94,6 +98,9 @@ export function registerCodeBlockPlugin(editor: LexicalEditor): () => void {
           event.ctrlKey ||
           event.metaKey
         ) {
+          return false;
+        }
+        if (editor.dispatchCommand(SET_BLOCK_TYPE_COMMAND, 'code')) {
           return false;
         }
         const didConvert = tryConvertTripleBackticksToCodeBlockInUpdateContext();

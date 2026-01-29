@@ -17,6 +17,7 @@ import {
 import { $setBlocksType } from '@lexical/selection';
 import { mergeRegister } from '@lexical/utils';
 import { SpoilerNode, $createSpoilerNode, $isSpoilerNode } from './SpoilerNode';
+import { useNotifications } from '@/lib/vendor/proton/notifications';
 
 export const INSERT_SPOILER_COMMAND: LexicalCommand<void> = createCommand('INSERT_SPOILER_COMMAND');
 export const TOGGLE_SPOILER_COMMAND: LexicalCommand<void> = createCommand('TOGGLE_SPOILER_COMMAND');
@@ -29,8 +30,9 @@ export const TOGGLE_SPOILER_COMMAND: LexicalCommand<void> = createCommand('TOGGL
  * - Auto-format: type ">!" at start of line to create spoiler
  * - Press Enter in empty spoiler block to exit
  */
-export function SpoilersPlugin(): null {
+export function SpoilersPlugin({ isSuggestionMode }: { isSuggestionMode?: boolean }): null {
   const [editor] = useLexicalComposerContext();
+  const { createNotification } = useNotifications();
 
   useEffect(() => {
     // Register the SpoilerNode if not already registered
@@ -43,6 +45,13 @@ export function SpoilersPlugin(): null {
       editor.registerCommand(
         INSERT_SPOILER_COMMAND,
         () => {
+          if (isSuggestionMode) {
+            createNotification?.({
+              text: 'Spoiler blocks are not supported in suggestion mode',
+              type: 'warning',
+            });
+            return true;
+          }
           editor.update(() => {
             const selection = $getSelection();
             if (!$isRangeSelection(selection)) return;
@@ -63,6 +72,13 @@ export function SpoilersPlugin(): null {
       editor.registerCommand(
         TOGGLE_SPOILER_COMMAND,
         () => {
+          if (isSuggestionMode) {
+            createNotification?.({
+              text: 'Spoiler blocks are not supported in suggestion mode',
+              type: 'warning',
+            });
+            return true;
+          }
           editor.update(() => {
             const selection = $getSelection();
             if (!$isRangeSelection(selection)) return;

@@ -712,7 +712,7 @@ export default function Editor({
             <LayoutPlugin />
             <FootnotesPlugin />
             <MentionsPlugin />
-            <SpoilersPlugin />
+            <SpoilersPlugin isSuggestionMode={isSuggestionMode} />
             <ClaimsPlugin />
             <RemoveRedirectPlugin />
             <LLMAutocompletePlugin />
