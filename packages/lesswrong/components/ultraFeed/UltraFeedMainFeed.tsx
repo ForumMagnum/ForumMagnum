@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { UltraFeedContextProvider } from './UltraFeedContextProvider';
 import { MixedTypeFeed } from '../common/MixedTypeFeed';
 import { UltraFeedQuery } from '../common/feeds/feedQueries';
@@ -43,30 +43,31 @@ const UltraFeedMainFeed = ({
   const classes = useStyles(styles);
   const [internalSessionId] = useState<string>(() => randomId());
   const actualSessionId = sessionId ?? internalSessionId;
-  const [hasResults, setHasResults] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
+  const [showEmptyState, setShowEmptyState] = useState(false);
 
   const handleLoadingStateChange = useCallback((results: Array<{type: string, [key: string]: unknown}>, loading: boolean) => {
-    setHasResults(results.length > 0);
-    setIsLoading(loading);
+    setShowEmptyState(!loading && results.length === 0);
   }, []);
 
-  const showEmptyState = !isLoading && !hasResults;
+
+  const variables = useMemo(() => ({
+    sessionId: actualSessionId,
+    settings: JSON.stringify(settings.resolverSettings),
+  }), [actualSessionId, settings]);
+
+  const renderers = useMemo(() => createUltraFeedRenderers({ settings }), [settings]);
 
   return (
     <UltraFeedContextProvider feedType="ultraFeed">
       <MixedTypeFeed
         query={UltraFeedQuery}
-        variables={{
-          sessionId: actualSessionId,
-          settings: JSON.stringify(settings.resolverSettings),
-        }}
+        variables={variables}
         firstPageSize={firstPageSize}
         pageSize={pageSize}
         refetchRef={refetchRef}
         loadMoreDistanceProp={loadMoreDistanceProp}
         fetchPolicy={fetchPolicy}
-        renderers={createUltraFeedRenderers({ settings })}
+        renderers={renderers}
         onLoadingStateChange={handleLoadingStateChange}
         pausePagination={!isActive}
       />
