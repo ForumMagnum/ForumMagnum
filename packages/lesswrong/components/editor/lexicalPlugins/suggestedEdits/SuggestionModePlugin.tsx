@@ -377,6 +377,8 @@ export function SuggestionModePlugin({
       editor.registerCommand(
         SET_SELECTION_STYLE_PROPERTY_COMMAND,
         ({ property, value }) => {
+          // Intended for inline CSS styles (font-size, color, etc.). Our UI
+          // doesn't currently dispatch this, but the handler is ready.
           return $patchStyleAsSuggestion(property, value, addCreatedIDtoSet, suggestionModeLogger)
         },
         COMMAND_PRIORITY_CRITICAL,
@@ -757,6 +759,8 @@ export function SuggestionModePlugin({
       editor.registerCommand(
         CLEAR_FORMATTING_COMMAND,
         () => {
+          // Intended for "clear formatting" actions in a formatting UI.
+          // Our UI doesn't currently dispatch this.
           return $clearFormattingAsSuggestion(addCreatedIDtoSet)
         },
         COMMAND_PRIORITY_CRITICAL,
