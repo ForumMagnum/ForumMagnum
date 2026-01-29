@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
   },
   root: {
-    marginBottom:theme.spacing.unit*1.5,
+    marginBottom:theme.spacing.unit*2,
   },
   rootWithImages: {
     maxWidth: '95%',
@@ -40,7 +40,6 @@ const styles = (theme: ThemeType) => ({
     }
   },
   rootWithoutImages: {
-    maxWidth: '60%',
     width: 'fit-content',
     [theme.breakpoints.down('xs')]: {
       maxWidth: "80%",
@@ -61,11 +60,11 @@ const styles = (theme: ThemeType) => ({
     "&$highlighted": {
       backgroundColor: theme.palette.grey[500],
     },
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
-    borderRadius:5,
+    paddingTop: theme.spacing.unit*1.5,
+    paddingBottom: theme.spacing.unit*1.5,
+    paddingLeft: theme.spacing.unit*2,
+    paddingRight: theme.spacing.unit*2,
+    borderRadius: 8,
     wordWrap: "break-word",
     overflowWrap: "break-word",
     whiteSpace: "normal",
@@ -75,7 +74,7 @@ const styles = (theme: ThemeType) => ({
   backgroundIsCurrent: {
     backgroundColor: theme.palette.grey[700],
     color: theme.palette.inverseGreyAlpha(.87),
-    '& *, & li::marker': {
+    '&& *, & li::marker': {
       color: theme.palette.inverseGreyAlpha(.87),
     },
     "&$highlighted": {
@@ -232,6 +231,3 @@ const MessageItem = ({message, highlight=false, showFullWidth=false, classes}: {
 export default registerComponent('MessageItem', MessageItem, {
   styles, hocs: [withErrorBoundary]
 });
-
-
-
