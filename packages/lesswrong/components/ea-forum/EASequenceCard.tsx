@@ -1,5 +1,4 @@
 import React, { ReactNode, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { isEAForum } from "../../lib/instanceSettings";
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
@@ -58,9 +57,6 @@ const EASequenceCard = ({sequence, className}: {
   );
 };
 
-export default registerComponent(
-  "EASequenceCard",
-  EASequenceCard,
-);
+export default EASequenceCard;
 
 

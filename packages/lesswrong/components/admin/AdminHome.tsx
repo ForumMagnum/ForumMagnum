@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -11,9 +10,10 @@ import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 import SingleColumnSection from "../common/SingleColumnSection";
 import AdminMetadata from "./AdminMetadata";
 import Loading from "../vulcan-core/Loading";
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
-// Also used in ModerationLog
-export const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AdminHome", (theme: ThemeType) => ({
   adminHomeOrModerationLogPage: {
     fontFamily: theme.typography.fontFamily,
   
@@ -38,11 +38,10 @@ export const styles = (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
-});
+}));
 
-const AdminHome = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const AdminHome = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {refreshDbSettings, isRefreshingDbSettings} = useRefreshDbSettings();
   
@@ -107,6 +106,6 @@ const AdminHome = ({ classes }: {
   </SingleColumnSection>
 }
 
-export default registerComponent('AdminHome', AdminHome, {styles});
+export default AdminHome;
 
 

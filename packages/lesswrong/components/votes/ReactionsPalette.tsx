@@ -1,5 +1,4 @@
 import React, {useRef, useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { EmojiReactName, QuoteLocator, UserVoteOnSingleReaction, VoteOnReactionType } from '../../lib/voting/namesAttachedReactions';
 import { namesAttachedReactions, NamesAttachedReactionType } from '../../lib/voting/reactions';
 import classNames from 'classnames';
@@ -352,9 +351,5 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote}: {
   </div>
 }
 
-export default registerComponent('ReactionsPalette', ReactionsPalette);
-
-
-
-
+export default ReactionsPalette;
 

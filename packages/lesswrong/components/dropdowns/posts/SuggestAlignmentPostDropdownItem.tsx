@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanSuggestPostForAlignment } from '../../../lib/alignment-forum/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { isLWorAF } from '../../../lib/instanceSettings';
@@ -64,9 +63,5 @@ const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  'SuggestAlignmentPostDropdownItem',
-  SuggestAlignmentPostDropdownItem,
-);
-
+export default SuggestAlignmentPostDropdownItem;
 

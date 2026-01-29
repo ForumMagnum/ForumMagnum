@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useItemsRead } from "../../hooks/useRecordPostView";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
 import DropdownItem from "../DropdownItem";
@@ -34,9 +33,6 @@ const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  "MarkAsReadDropdownItem",
-  MarkAsReadDropdownItem,
-);
+export default MarkAsReadDropdownItem;
 
 

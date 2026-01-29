@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Paper } from '../widgets/Paper';
@@ -166,6 +165,6 @@ function useDelayedHide(open: boolean, delay: number): boolean {
   return delayedHide;
 }
 
-export default registerComponent('LWDialog', LWDialog);
+export default LWDialog;
 
 

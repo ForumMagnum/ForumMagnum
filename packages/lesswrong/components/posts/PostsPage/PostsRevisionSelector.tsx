@@ -1,12 +1,13 @@
 import React, { useState, useCallback } from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import { Menu } from '@/components/widgets/Menu';
 import moment from '../../../lib/moment-timezone';
 import { TooltipSpan } from '@/components/common/FMTooltip';
 import PostsRevisionsList from "./PostsRevisionsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsRevisionSelector", (theme: ThemeType) => ({
   icon: {
     verticalAlign: 'text-top',
     fontSize: 'inherit',
@@ -17,13 +18,13 @@ const styles = (theme: ThemeType) => ({
   button: {
     cursor: 'pointer'
   }
-})
+}))
 
-const PostsRevisionSelector = ({ post, format, classes }: {
+const PostsRevisionSelector = ({ post, format }: {
   post: PostsBase,
   format: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   
   const openMenu = useCallback((event: React.MouseEvent<HTMLElement>) => {
@@ -56,6 +57,6 @@ const PostsRevisionSelector = ({ post, format, classes }: {
   </React.Fragment>
 }
 
-export default registerComponent('PostsRevisionSelector', PostsRevisionSelector, {styles});
+export default PostsRevisionSelector;
 
 

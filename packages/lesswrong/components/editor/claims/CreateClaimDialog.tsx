@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { CreateClaimDialogProps } from './claimsConfigType';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
@@ -91,7 +90,7 @@ const CreateClaimDialog = ({initialTitle, onSubmit, onCancel, onClose}: CreateCl
   </LWDialog>
 }
 
-export default registerComponent('CreateClaimDialog', CreateClaimDialog);
+export default CreateClaimDialog;
 
 
 

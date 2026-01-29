@@ -1,6 +1,5 @@
 "use client";
 
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import CommunityMap from "./CommunityMap";
@@ -27,6 +26,6 @@ const GroupsMap = () => {
   />
 }
 
-export default registerComponent('GroupsMap', GroupsMap);
+export default GroupsMap;
 
 

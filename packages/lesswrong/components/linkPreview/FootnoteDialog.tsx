@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import ContentStyles from "../common/ContentStyles";
 import LWDialog from "../common/LWDialog";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FootnoteDialog", (theme: ThemeType) => ({
   dialogPaper: {
     marginTop: 48,
     marginBottom: 100,
@@ -20,13 +21,13 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-})
+}))
 
-const FootnoteDialog = ({ footnoteHTML, onClose, classes }: {
+const FootnoteDialog = ({ footnoteHTML, onClose }: {
   footnoteHTML: string,
   onClose: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   return <LWDialog open onClose={onClose} paperClassName={classes.dialogPaper}>
     <ContentStyles contentType="postHighlight" className={classes.content}>
       <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
@@ -35,7 +36,7 @@ const FootnoteDialog = ({ footnoteHTML, onClose, classes }: {
 }
 
 
-export default registerComponent('FootnoteDialog', FootnoteDialog, {styles});
+export default FootnoteDialog;
 
 
 

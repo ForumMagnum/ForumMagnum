@@ -1,21 +1,22 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from "popper.js"
 import type { AnalyticsProps } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import LWTooltip from "./LWTooltip";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
 export const FRIENDLY_THIN_HOVER_OVER_WIDTH = 270;
 export const FRIENDLY_HOVER_OVER_WIDTH = 340;
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("FriendlyHoverOver", (theme: ThemeType) => ({
   root: {
     background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
     border: `1px solid ${theme.palette.grey[120]}`,
     boxShadow: theme.palette.boxShadow.eaCard,
   },
-});
+}), {stylePriority: -1});
 
 export type FriendlyHoverOverProps = {
   /**
@@ -35,7 +36,6 @@ export type FriendlyHoverOverProps = {
   onHide?: () => void,
   children: ReactNode,
   forceOpen?: boolean,
-  classes: ClassesType<typeof styles>,
 }
 
 /**
@@ -57,8 +57,8 @@ const FriendlyHoverOver = ({
   onHide,
   children,
   forceOpen,
-  classes,
 }: FriendlyHoverOverProps) => {
+  const classes = useStyles(styles);
   return (
     <LWTooltip
       title={title}
@@ -81,10 +81,4 @@ const FriendlyHoverOver = ({
   );
 }
 
-export default registerComponent(
-  "FriendlyHoverOver",
-  FriendlyHoverOver,
-  {styles, stylePriority: -1},
-);
-
-
+export default FriendlyHoverOver;

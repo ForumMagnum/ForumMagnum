@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useContinueReading } from '../recommendations/withContinueReading';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import SectionTitle from "../common/SectionTitle";
@@ -24,7 +23,7 @@ export const BookmarksTab = () => {
   </AnalyticsContext>
 }
 
-export default registerComponent('BookmarksTab', BookmarksTab);
+export default BookmarksTab;
 
 
 

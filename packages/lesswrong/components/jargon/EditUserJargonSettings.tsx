@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { JARGON_LLM_MODEL } from '@/lib/collections/jargonTerms/constants';
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = () => ({
+const styles = defineStyles("EditUserJargonSettings", () => ({
   checkboxContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -16,11 +17,10 @@ const styles = () => ({
     marginRight: 2,
     padding: 8,
   },
-});
+}));
 
-export const EditUserJargonSettings = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const EditUserJargonSettings = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   return <>
@@ -48,6 +48,6 @@ export const EditUserJargonSettings = ({classes}: {
   </>;
 }
 
-export default registerComponent('EditUserJargonSettings', EditUserJargonSettings, {styles});
+export default EditUserJargonSettings;
 
 

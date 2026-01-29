@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
-import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
 import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
@@ -22,12 +20,18 @@ import PopperCard from "../common/PopperCard";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NotificationsPopover", (theme: ThemeType) => ({
   root: {
-    ...popoverStyles(theme).root,
+    background: theme.palette.grey[0],
+    borderRadius: theme.borderRadius.default,
+    border: `1px solid ${theme.palette.grey[120]}`,
+    boxShadow: theme.palette.boxShadow.eaCard,
+
     fontFamily: theme.palette.fonts.sansSerifStack,
     position: "relative",
     padding: 16,
@@ -97,7 +101,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     height: 350,
   },
-});
+}));
 
 const getSettingsNudge = (batchingFrequency: KarmaChangeUpdateFrequency) => {
   switch (batchingFrequency) {
@@ -114,13 +118,12 @@ const NotificationsPopover = ({
   karmaChanges,
   onOpenNotificationsPopover,
   closePopover,
-  classes,
 }: {
   karmaChanges?: UserKarmaChanges['karmaChanges'] | null,
   onOpenNotificationsPopover?: () => void,
   closePopover?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [markingAsRead, setMarkingAsRead] = useState(false);
   const [limit, setLimit] = useState(defaultLimit);
@@ -322,10 +325,6 @@ const NotificationsPopover = ({
   );
 }
 
-export default registerComponent(
-  "NotificationsPopover",
-  NotificationsPopover,
-  {styles},
-);
+export default NotificationsPopover;
 
 

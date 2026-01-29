@@ -9,7 +9,6 @@ import { useJargonCounts } from '@/components/hooks/useJargonCounts';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useLocalStorageState } from '../hooks/useLocalStorageState';
 import { removeJargonDot } from './GlossarySidebar';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { JargonTermForm } from './JargonTermForm';
 import { EditablePost } from '@/lib/collections/posts/helpers';
 import LoadMore from "../common/LoadMore";
@@ -23,6 +22,8 @@ import ForumIcon from "../common/ForumIcon";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { defaultExampleAltTerm, defaultExampleDefinition, defaultExamplePost, defaultExampleTerm, defaultGlossaryPrompt, JARGON_LLM_MODEL } from '@/lib/collections/jargonTerms/constants';
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
 const JargonTermsMultiQuery = gql(`
   query multiJargonTermGlossaryEditFormQuery($selector: JargonTermSelector, $limit: Int, $enableTotal: Boolean) {
@@ -76,7 +77,7 @@ export const defaultExampleGlossary: { glossaryItems: ExampleJargonGlossaryEntry
 };
 
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("GlossaryEditForm", (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     marginTop: -8,
@@ -276,7 +277,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 1,
     color: theme.palette.grey[500]
   }
-});
+}));
 
 /*
   Returns the number of rows that are effectively visible in the glossary, to determine whether to show the "Expand" button.
@@ -291,11 +292,11 @@ const getRowCount = (showDeletedTerms: boolean, nonDeletedTerms: JargonTerms[], 
   return rowCount;
 }
 
-export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
-  classes: ClassesType<typeof styles>,
+export const GlossaryEditForm = ({ document, showTitle = true }: {
   document: Pick<EditablePost, '_id' | 'generateDraftJargon' | 'contents' | 'userId' | 'draft'>,
   showTitle?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const [updatePost] = useMutation(PostsEditUpdateMutation);
 
   const updatePostAutoGenerate = (autoGenerate: boolean) => {
@@ -611,7 +612,4 @@ export const GlossaryEditForm = ({ classes, document, showTitle = true }: {
   </div>;
 }
 
-export default registerComponent('GlossaryEditForm', GlossaryEditForm, {styles});
-
-
-
+export default GlossaryEditForm;

@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useContext } from 'react';
 import moment from 'moment-timezone';
 import { useTimezone } from '../common/withTimezone';
@@ -60,6 +59,6 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   }
 };
 
-export default registerComponent('FormatDate', FormatDate);
+export default FormatDate;
 
 

@@ -1,6 +1,5 @@
 import React from "react";
 import { Helmet } from "@/components/layout/Helmet";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 
 /**
  * This component adds citation meta tags for use by sites such as Google Scholar.
@@ -38,6 +37,6 @@ const CitationTags = ({title, author, coauthors, date}: {
   );
 }
 
-export default registerComponent("CitationTags", CitationTags);
+export default CitationTags;
 
 

@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
@@ -50,4 +49,4 @@ export function useOnNavigate(fn: (change: LocationChange) => void) {
   }, [fn]);
 }
 
-export default registerComponent("NavigationEventSender", NavigationEventSender);
+export default NavigationEventSender;

@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import CalendarDate from "../common/CalendarDate";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
@@ -66,7 +65,7 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   )}</>
 }
 
-export default registerComponent("LastVisitList", LastVisitList);
+export default LastVisitList;
 
 
 

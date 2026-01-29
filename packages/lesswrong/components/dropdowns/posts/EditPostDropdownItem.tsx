@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers";
 import { userIsPodcaster } from "../../../lib/vulcan-users/permissions";
 import { userIsSharedOn } from "../../../lib/collections/users/helpers";
@@ -28,9 +27,6 @@ const EditPostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  "EditPostDropdownItem",
-  EditPostDropdownItem,
-);
+export default EditPostDropdownItem;
 
 

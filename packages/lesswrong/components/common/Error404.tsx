@@ -1,6 +1,5 @@
 "use client";
 
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import SingleColumnSection from "./SingleColumnSection";
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -24,6 +23,4 @@ const Error404 = () => {
   );
 };
 
-export default registerComponent('Error404', Error404);
-
-
+export default Error404;

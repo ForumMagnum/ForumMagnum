@@ -83,10 +83,6 @@ export const NotifyMeToggleDropdownItem = (
   );
 }
 
-export default registerComponent(
-  "NotifyMeToggleDropdownItem",
-  NotifyMeToggleDropdownItem,
-  {styles},
-);
+export default registerComponent("NotifyMeToggleDropdownItem", NotifyMeToggleDropdownItem, {styles});
 
 

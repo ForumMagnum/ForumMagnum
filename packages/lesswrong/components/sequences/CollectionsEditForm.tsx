@@ -3,7 +3,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
@@ -236,7 +235,7 @@ const CollectionsEditForm = ({ initialData, successCallback, cancelCallback }: {
   )
 }
 
-export default registerComponent('CollectionsEditForm', CollectionsEditForm);
+export default CollectionsEditForm;
 
 
 
