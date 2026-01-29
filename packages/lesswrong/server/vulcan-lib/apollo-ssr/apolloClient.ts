@@ -1,10 +1,11 @@
 import { ApolloClient, ApolloLink, InMemoryCache, Observable, Operation, FetchResult } from '@apollo/client';
-import { createSchemaLink, createHttpLink, createErrorLink } from '../../../lib/apollo/links';
+import { createHttpLink, createErrorLink } from '../../../lib/apollo/links';
 import { fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";
 import { type DocumentNode, type GraphQLSchema, execute, print } from 'graphql';
 import stringify from 'json-stringify-deterministic';
 import { SwrCache } from '@/lib/utils/swrCache';
 import { createAnonymousContext } from '../createContexts';
+import { createSchemaLink } from '@/server/rendering/ssrApolloClient';
 
 // This client is used to prefetch data server side (necessary for SSR)
 // It is recreated on every request.
