@@ -1,4 +1,5 @@
 import React, { useState, MouseEvent, useEffect, useCallback } from "react";
+import type { ApolloCache } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
@@ -8,6 +9,7 @@ import { useTracking } from "@/lib/analyticsEvents";
 import type { ForumIconName } from "@/components/common/ForumIcon";
 import { BookmarkableCollectionName } from "@/lib/collections/bookmarks/constants";
 import LoginPopup from "../users/LoginPopup";
+import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
 
 const BookmarksMinimumInfoMultiQuery = gql(`
   query multiBookmarkuseBookmarkQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
@@ -81,6 +83,12 @@ export const useBookmark = (
         // eslint-disable-next-line no-console
         console.error("Error setting bookmark:", error);
       },
+      update: (cache, _result, options) => {
+        const nextIsBookmarked = options?.variables?.input?.isBookmarked;
+        if (typeof nextIsBookmarked !== "boolean") return;
+
+        updateIsBookmarkedCache(cache, collectionName, documentId, nextIsBookmarked);
+      },
     }
   );
 
@@ -127,3 +135,27 @@ export const useBookmark = (
     hoverText,
   };
 };
+
+/**
+ * If we bookmarked or unbookmarked a post or comment, update the value of isBookmarked
+ * for that post/comment in the apollo cache. This makes it so that, for example, if you
+ * navigate to a post page from the ultrafeed and bookmark the post there, then use the
+ * back button, the bookmarked state is reflected in the ultrafeed without a refresh.
+ */
+function updateIsBookmarkedCache(
+  cache: ApolloCache,
+  collectionName: BookmarkableCollectionName,
+  documentId: string,
+  isBookmarked: boolean
+) {
+  const typename = collectionNameToTypeName[collectionName];
+  const cacheId = cache.identify({ __typename: typename, _id: documentId });
+  if (!cacheId) return;
+
+  cache.modify({
+    id: cacheId,
+    fields: {
+      isBookmarked: () => isBookmarked,
+    },
+  });
+}
