@@ -2,8 +2,10 @@ import { $generateNodesFromSerializedNodes, $insertGeneratedNodes } from '@lexic
 import { $findMatchingParent, $insertFirst } from '@lexical/utils'
 import { generateUUID } from '@/lib/vendor/proton/generateUUID'
 import type { LexicalEditor, ElementNode, RangeSelection, LexicalNode } from 'lexical'
-import { $isDecoratorNode, $isParagraphNode, OUTDENT_CONTENT_COMMAND } from 'lexical'
 import {
+  $isDecoratorNode,
+  $isParagraphNode,
+  OUTDENT_CONTENT_COMMAND,
   UNDO_COMMAND,
   REDO_COMMAND,
   $getSelection,

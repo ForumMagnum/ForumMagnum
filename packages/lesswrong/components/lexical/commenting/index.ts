@@ -24,14 +24,22 @@ export type Comment = {
   content: string;
   deleted: boolean;
   id: string;
+  commentKind?: 'suggestionSummary';
   timeStamp: number;
   type: 'comment';
 };
 
+export type ThreadStatus = 'open' | 'accepted' | 'rejected';
+
+export type ThreadType = 'comment' | 'suggestion';
+
 export type Thread = {
   comments: Array<Comment>;
   id: string;
+  markID?: string;
   quote: string;
+  status?: ThreadStatus;
+  threadType?: ThreadType;
   type: 'thread';
 };
 
@@ -50,12 +58,14 @@ export function createComment(
   id?: string,
   timeStamp?: number,
   deleted?: boolean,
+  commentKind?: Comment['commentKind'],
 ): Comment {
   return {
     author,
     content,
     deleted: deleted === undefined ? false : deleted,
     id: id === undefined ? createUID() : id,
+    commentKind,
     timeStamp:
       timeStamp === undefined
         ? performance.timeOrigin + performance.now()
@@ -68,11 +78,15 @@ export function createThread(
   quote: string,
   comments: Array<Comment>,
   id?: string,
+  options?: { markID?: string; status?: ThreadStatus; threadType?: ThreadType },
 ): Thread {
   return {
     comments,
     id: id === undefined ? createUID() : id,
+    markID: options?.markID,
     quote,
+    status: options?.status,
+    threadType: options?.threadType,
     type: 'thread',
   };
 }
@@ -81,7 +95,10 @@ function cloneThread(thread: Thread): Thread {
   return {
     comments: Array.from(thread.comments),
     id: thread.id,
+    markID: thread.markID,
     quote: thread.quote,
+    status: thread.status,
+    threadType: thread.threadType,
     type: 'thread',
   };
 }
@@ -92,6 +109,7 @@ function markDeleted(comment: Comment): Comment {
     content: '[Deleted Comment]',
     deleted: true,
     id: comment.id,
+    commentKind: comment.commentKind,
     timeStamp: comment.timeStamp,
     type: 'comment',
   };
@@ -125,7 +143,16 @@ export class CommentStore {
     return this._comments;
   }
 
-  updateThread(threadId: string, data: { quote?: string; firstCommentContent?: string }): void {
+  updateThread(
+    threadId: string,
+    data: {
+      quote?: string;
+      firstCommentContent?: string;
+      markID?: string;
+      status?: ThreadStatus;
+      threadType?: ThreadType;
+    },
+  ): void {
     const nextComments = Array.from(this._comments);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sharedCommentsArray: YArray<any> | null = this._getCollabComments();
@@ -142,6 +169,33 @@ export class CommentStore {
         if (this.isCollaborative() && sharedCommentsArray !== null) {
           this._withRemoteTransaction(() => {
             sharedCommentsArray.get(i).set('quote', data.quote);
+          });
+        }
+      }
+
+      if (data.markID !== undefined) {
+        newThread.markID = data.markID;
+        if (this.isCollaborative() && sharedCommentsArray !== null) {
+          this._withRemoteTransaction(() => {
+            sharedCommentsArray.get(i).set('markID', data.markID);
+          });
+        }
+      }
+
+      if (data.status !== undefined) {
+        newThread.status = data.status;
+        if (this.isCollaborative() && sharedCommentsArray !== null) {
+          this._withRemoteTransaction(() => {
+            sharedCommentsArray.get(i).set('status', data.status);
+          });
+        }
+      }
+
+      if (data.threadType !== undefined) {
+        newThread.threadType = data.threadType;
+        if (this.isCollaborative() && sharedCommentsArray !== null) {
+          this._withRemoteTransaction(() => {
+            sharedCommentsArray.get(i).set('threadType', data.threadType);
           });
         }
       }
@@ -272,6 +326,18 @@ export class CommentStore {
     };
   }
 
+  getThreadByMarkID(markID: string): Thread | undefined {
+    return this._comments.find((comment): comment is Thread => comment.type === 'thread' && comment.markID === markID);
+  }
+
+  getThreadsByType(threadType: ThreadType): Thread[] {
+    return this._comments.filter((comment): comment is Thread => comment.type === 'thread' && comment.threadType === threadType);
+  }
+
+  updateThreadStatus(threadId: string, status: ThreadStatus): void {
+    this.updateThread(threadId, { status });
+  }
+
   _withRemoteTransaction(fn: () => void): void {
     const provider = this._collabProvider;
     if (provider !== null) {
@@ -314,9 +380,21 @@ export class CommentStore {
       sharedMap.set('author', commentOrThread.author);
       sharedMap.set('content', commentOrThread.content);
       sharedMap.set('deleted', commentOrThread.deleted);
+      if (commentOrThread.commentKind) {
+        sharedMap.set('commentKind', commentOrThread.commentKind);
+      }
       sharedMap.set('timeStamp', commentOrThread.timeStamp);
     } else {
       sharedMap.set('quote', commentOrThread.quote);
+      if (commentOrThread.markID) {
+        sharedMap.set('markID', commentOrThread.markID);
+      }
+      if (commentOrThread.status) {
+        sharedMap.set('status', commentOrThread.status);
+      }
+      if (commentOrThread.threadType) {
+        sharedMap.set('threadType', commentOrThread.threadType);
+      }
       const commentsArray = new YArray();
       commentOrThread.comments.forEach((comment, i) => {
         const sharedChildComment = this._createCollabSharedMap(comment);
@@ -423,9 +501,15 @@ export class CommentStore {
                                     innerComment.get('id') as string,
                                     innerComment.get('timeStamp') as number,
                                     innerComment.get('deleted') as boolean,
+                                    innerComment.get('commentKind') as Comment['commentKind'],
                                   ),
                               ),
                             id,
+                            {
+                              markID: map.get('markID') as string | undefined,
+                              status: map.get('status') as ThreadStatus | undefined,
+                              threadType: map.get('threadType') as ThreadType | undefined,
+                            },
                           )
                         : createComment(
                             map.get('content'),
@@ -433,6 +517,7 @@ export class CommentStore {
                             id,
                             map.get('timeStamp'),
                             map.get('deleted'),
+                            map.get('commentKind') as Comment['commentKind'],
                           );
                     this._withLocalTransaction(() => {
                       this.addComment(

@@ -58,6 +58,8 @@ import CodeHighlightPrismPlugin from './plugins/CodeHighlightPrismPlugin';
 // import CodeHighlightShikiPlugin from './plugins/CodeHighlightShikiPlugin';
 import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import CommentPlugin from './plugins/CommentPlugin';
+import { CommentStoreProvider } from './commenting/CommentStoreContext';
+import { MarkNodesProvider } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DateTimePlugin from './plugins/DateTimePlugin';
@@ -589,15 +591,17 @@ export default function Editor({
         {/* <SpeechToTextPlugin /> */}
         <AutoLinkPlugin />
         <DateTimePlugin />
-        {!isCommentEditor && !(isCollab && useCollabV2) && (
-          <CommentPlugin
+        <MarkNodesProvider>
+          <CommentStoreProvider
             providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
-          />
-        )}
-        <SuggestedEditsPlugin
-          isSuggestionMode={isSuggestionMode}
-          onUserModeChange={handleUserModeChange}
-        />
+          >
+            {!isCommentEditor && !(isCollab && useCollabV2) && <CommentPlugin />}
+            <SuggestedEditsPlugin
+              isSuggestionMode={isSuggestionMode}
+              onUserModeChange={handleUserModeChange}
+            />
+          </CommentStoreProvider>
+        </MarkNodesProvider>
         {isRichText ? (
           <>
             {isCollabConfigReady && collaborationConfig ? (

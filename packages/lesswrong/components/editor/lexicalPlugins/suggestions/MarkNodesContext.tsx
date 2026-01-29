@@ -1,7 +1,10 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getSelection, $isRangeSelection, type LexicalNode, type NodeKey } from 'lexical';
+import { $findMatchingParent, mergeRegister } from '@lexical/utils';
+import { $getMarkIDs } from '@lexical/mark';
+import { $getSelection, $isElementNode, $isRangeSelection, $isTextNode, type EditorState, type ElementNode, type LexicalNode, type NodeKey } from 'lexical';
 import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { $isSuggestionNode } from '../suggestedEdits/ProtonNode';
+import { $getSuggestionID } from '../suggestedEdits/Utils';
+import { $isSuggestionThatAffectsWholeParent } from '../suggestedEdits/Types';
 
 export type MarkNodeMap = Map<string, Set<NodeKey>>;
 
@@ -29,7 +32,30 @@ export function MarkNodesProvider({ children }: { children: ReactNode }) {
   const [activeIDs, setActiveIDs] = useState<string[]>([]);
 
   useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
+    const addClassToActiveMarkNodes = () => {
+      const changedElements: HTMLElement[] = [];
+      for (const id of activeIDs) {
+        const keys = markNodeMap.get(id);
+        if (!keys) {
+          continue;
+        }
+        for (const key of keys) {
+          const element = editor.getElementByKey(key);
+          if (!element) {
+            continue;
+          }
+          element.classList.add('selected');
+          changedElements.push(element);
+        }
+      }
+      return () => {
+        for (const element of changedElements) {
+          element.classList.remove('selected');
+        }
+      };
+    };
+
+    const updateActiveIds = ({ editorState }: { editorState: EditorState }) => {
       editorState.read(() => {
         const selection = $getSelection();
         let hasActiveIds = false;
@@ -37,25 +63,47 @@ export function MarkNodesProvider({ children }: { children: ReactNode }) {
 
         if ($isRangeSelection(selection)) {
           const anchorNode = selection.anchor.getNode();
-          let suggestionId: string | null = null;
 
-          let current: LexicalNode | null = anchorNode;
-          while (current) {
-            if ($isSuggestionNode(current)) {
-              suggestionId = current.getSuggestionIdOrThrow();
-              break;
-            }
-            current = current.getParent();
+          let suggestionThatAffectsWholeNode;
+          if ($isElementNode(anchorNode) && !anchorNode.isInline()) {
+            const siblings = anchorNode.getParent()?.getChildren();
+            suggestionThatAffectsWholeNode = siblings?.find($isSuggestionThatAffectsWholeParent);
           }
 
-          if (suggestionId) {
-            setActiveIDs([suggestionId]);
+          const nonInlineParent = $findMatchingParent(
+            anchorNode,
+            (node): node is ElementNode => $isElementNode(node) && !node.isInline(),
+          );
+          if (nonInlineParent) {
+            const children = nonInlineParent.getChildren();
+            suggestionThatAffectsWholeNode = children.find($isSuggestionThatAffectsWholeParent);
+            if (!suggestionThatAffectsWholeNode) {
+              const siblings = nonInlineParent.getParent()?.getChildren();
+              suggestionThatAffectsWholeNode = siblings?.find($isSuggestionThatAffectsWholeParent);
+            }
+          }
+
+          if (suggestionThatAffectsWholeNode) {
+            setActiveIDs([suggestionThatAffectsWholeNode.getSuggestionIdOrThrow()]);
             hasActiveIds = true;
           }
 
-          if (!selection.isCollapsed()) {
-            setActiveAnchorKey(anchorNode.getKey());
-            hasAnchorKey = true;
+          if ($isTextNode(anchorNode)) {
+            const commentIDs = $getMarkIDs(anchorNode, selection.anchor.offset);
+            if (commentIDs !== null) {
+              setActiveIDs(commentIDs);
+              hasActiveIds = true;
+            } else {
+              const suggestionID = $getSuggestionID(anchorNode, selection.anchor.offset);
+              if (suggestionID) {
+                setActiveIDs([suggestionID]);
+                hasActiveIds = true;
+              }
+            }
+            if (!selection.isCollapsed()) {
+              setActiveAnchorKey(anchorNode.getKey());
+              hasAnchorKey = true;
+            }
           }
         }
 
@@ -66,8 +114,10 @@ export function MarkNodesProvider({ children }: { children: ReactNode }) {
           setActiveAnchorKey(null);
         }
       });
-    });
-  }, [editor]);
+    };
+
+    return mergeRegister(editor.registerUpdateListener(updateActiveIds), addClassToActiveMarkNodes());
+  }, [activeIDs, editor, markNodeMap]);
 
   return (
     <MarkNodesContext.Provider
