@@ -44,9 +44,6 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
       SET 
         "active" = $(active),
         "lastUpdated" = NOW()
-      WHERE "Bookmarks"."userId" = $(userId) 
-        AND "Bookmarks"."documentId" = $(documentId) 
-        AND "Bookmarks"."collectionName" = $(collectionName)
       RETURNING *
     `, {
       bookmarkId: randomId(),
