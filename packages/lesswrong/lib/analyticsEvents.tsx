@@ -303,6 +303,34 @@ export function useIsInView<T extends HTMLElement>({rootMargin='0px', threshold=
   return { setNode, entry, node }
 }
 
+export function useSubscribeIsInView<T extends HTMLElement>(
+  {rootMargin='0px', threshold=0}={},
+  onEntry: (entry: IntersectionObserverEntry) => void
+) {
+  const nodeRef = useRef<T | null>(null)
+  const observer = useRef<IntersectionObserver | null>(null)
+
+  useEffect(() => {
+    if (!window.IntersectionObserver) return
+
+    if (observer.current) observer.current.disconnect()
+
+    observer.current = new window.IntersectionObserver(([ entry ]) => {
+      onEntry(entry)
+    }, {
+      rootMargin,
+      threshold
+    })
+
+    const { current: currentObserver } = observer
+
+    if (nodeRef.current) currentObserver.observe(nodeRef.current)
+    return () => currentObserver.disconnect()
+  }, [nodeRef, rootMargin, threshold, onEntry])
+
+  return { nodeRef }
+}
+
 
 // Analytics events have two rate limits, one denominated in events per second,
 // the other denominated in uncompressed kilobytes per second. Each of these
