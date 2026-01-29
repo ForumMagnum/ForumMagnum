@@ -16,13 +16,13 @@ export const ScalingSequencePage = () => {
     <AnalyticsContext pageContext="scalingSequence">
       <HeadTags
         title="The Scaling Sequence"
-        description="What will effective charities actually do with your money?"
-        image="https://res.cloudinary.com/cea/image/upload/v1763462529/SocialPreview/og-marginal-funding.jpg"
+        description="Toby Ord's analysis of why AI scaling costs are exploding while returns diminish, and what that means for the future."
+        image="https://res.cloudinary.com/cea/image/upload/v1769690620/scaling_u0ydjc.png"
       />
       <SequenceEventPage
         shareTitle="The Scaling Sequence"
         sequenceId={SCALING_SEQUENCE_ID}
-        listenUrl="https://open.spotify.com/playlist/2wEYoo2FtV7OQQA0pATewT?si=XET3lr9aT9S-PFOGDvW6Kw"
+        listenUrl="https://open.spotify.com/playlist/6xFKOOKfOu52pzWXeh4u5r?si=c71ac51c39a84e73"
         sharingUrl={sharingUrl}
         themeColor="#b8a0ff"
         hoverColor="#efefef"
