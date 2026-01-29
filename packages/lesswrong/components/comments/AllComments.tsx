@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -113,7 +112,4 @@ const AllComments = () => {
   )
 };
 
-export default registerComponent('AllComments', AllComments);
-
-
-
+export default AllComments;

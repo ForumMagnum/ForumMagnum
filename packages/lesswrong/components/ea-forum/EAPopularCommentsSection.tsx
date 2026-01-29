@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { SHOW_POPULAR_COMMENTS_SECTION_COOKIE } from "../../lib/cookies/cookies";
 import { preferredHeadingCase } from "../../themes/forumTheme";
@@ -26,9 +25,6 @@ const EAPopularCommentsSection = () => {
   );
 }
 
-export default registerComponent(
-  "EAPopularCommentsSection",
-  EAPopularCommentsSection,
-);
+export default EAPopularCommentsSection;
 
 

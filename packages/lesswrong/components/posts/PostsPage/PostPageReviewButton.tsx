@@ -2,7 +2,6 @@ import React from "react";
 import { forumTitleSetting } from "@/lib/instanceSettings";
 import { canNominate, REVIEW_YEAR, postEligibleForReview } from "@/lib/reviewUtils";
 import { useCurrentUser } from "@/components/common/withUser";
-import { registerComponent } from "@/lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ReviewVotingWidget from "../../review/ReviewVotingWidget";
 import ReviewPostButton from "../../review/ReviewPostButton";
@@ -44,6 +43,4 @@ function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNaviga
   )
 }
 
-export default registerComponent('PostPageReviewButton', PostPageReviewButton);
-
-
+export default PostPageReviewButton;

@@ -1,6 +1,4 @@
 "use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import PostsPageWrapper from "../posts/PostsPage/PostsPageWrapper";
@@ -13,7 +11,7 @@ const SequencesPost = () => {
   return <PostsPageWrapper documentId={postId} sequenceId={sequenceId} version={version} />
 };
 
-export default registerComponent('SequencesPost', SequencesPost);
+export default SequencesPost;
 
 
 

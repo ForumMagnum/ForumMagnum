@@ -1,6 +1,4 @@
 "use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -62,7 +60,7 @@ const QuestionsPage = () => {
   )
 }
 
-export default registerComponent('QuestionsPage', QuestionsPage);
+export default QuestionsPage;
 
 
 

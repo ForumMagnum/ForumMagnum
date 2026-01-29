@@ -24,7 +24,7 @@ export function getSsrInjectedGraphqlLoaderScript() {
       const subs = subscribersByKey.get(key);
       if (!subs) return;
       for (const fn of Array.from(subs)) {
-        try { fn(); } catch(e) {}
+        fn();
       }
     }
 

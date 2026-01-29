@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { Link } from '@/lib/reactRouterWrapper';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useMessages } from '@/components/common/withMessages';
@@ -9,8 +8,10 @@ import LWDialog from "../../common/LWDialog";
 import EAButton from "../../ea-forum/EAButton";
 import Loading from "../../vulcan-core/Loading";
 import { Typography } from "../../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("DeleteAccountConfirmationModal", (theme: ThemeType) => ({
   dialogPaper: {
     maxWidth: 500,
   },
@@ -43,13 +44,13 @@ const styles = (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.main
   }
-});
+}));
 
-const DeleteAccountConfirmationModal = ({onClose, confirmAction, classes}: {
+const DeleteAccountConfirmationModal = ({onClose, confirmAction}: {
   onClose: () => void,
   confirmAction: () => Promise<void>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [loading, setLoading] = useState(false);
   const { flash } = useMessages();
 
@@ -102,10 +103,6 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction, classes}: {
   );
 }
 
-export default registerComponent(
-  'DeleteAccountConfirmationModal',
-  DeleteAccountConfirmationModal,
-  {styles},
-);
+export default DeleteAccountConfirmationModal;
 
 

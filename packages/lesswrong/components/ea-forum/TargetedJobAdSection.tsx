@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
@@ -310,6 +309,6 @@ const TargetedJobAdSection = () => {
   </div>
 }
 
-export default registerComponent("TargetedJobAdSection", TargetedJobAdSection);
+export default TargetedJobAdSection;
 
 

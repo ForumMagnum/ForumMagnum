@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -86,7 +85,7 @@ const UserReviews = () => {
 
 };
 
-export default registerComponent('UserReviews', UserReviews);
+export default UserReviews;
 
 
 

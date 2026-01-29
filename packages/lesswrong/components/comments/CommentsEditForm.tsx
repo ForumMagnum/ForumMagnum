@@ -1,7 +1,5 @@
 import React from 'react';
 import classNames from 'classnames';
-
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CommentForm } from './CommentForm';
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -50,7 +48,7 @@ const CommentsEditForm = ({ comment, successCallback, cancelCallback, className,
   )
 }
 
-export default registerComponent('CommentsEditForm', CommentsEditForm);
+export default CommentsEditForm;
 
 
 

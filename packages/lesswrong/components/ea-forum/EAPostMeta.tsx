@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { DateWithoutTime } from "../posts/PostsItemMeta";
 import classNames from "classnames";
@@ -9,8 +8,10 @@ import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import EventTime from "../localGroups/EventTime";
 import { maybeDate } from "@/lib/utils/dateUtils";
+import { useStyles } from "../hooks/useStyles";
+import { defineStyles } from "../hooks/defineStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EAPostMeta", (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[600],
     flexGrow: 1,
@@ -49,15 +50,17 @@ const styles = (theme: ThemeType) => ({
   authorsList: {
     fontSize: 14,
   }
+}), {
+  stylePriority: -1,
 });
 
-const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, classes}: {
+const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
   useCuratedDate?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const authorExpandContainer = useRef(null);
   if (useEventStyles && post.isEvent) {
     return (
@@ -107,10 +110,6 @@ const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, class
   );
 }
 
-export default registerComponent(
-  "EAPostMeta",
-  EAPostMeta,
-  {styles, stylePriority: -1},
-);
+export default EAPostMeta;
 
 

@@ -1,7 +1,5 @@
 "use client";
-
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -188,6 +186,6 @@ export const BestOfLessWrongAdmin = () => {
   </div>
 }
 
-export default registerComponent('BestOfLessWrongAdmin', BestOfLessWrongAdmin);
+export default BestOfLessWrongAdmin;
 
 

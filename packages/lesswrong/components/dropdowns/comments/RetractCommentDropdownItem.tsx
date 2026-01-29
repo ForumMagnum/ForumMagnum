@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
@@ -60,8 +59,6 @@ const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   );
 }
 
-export default registerComponent(
-  'RetractCommentDropdownItem', RetractCommentDropdownItem,
-);
+export default RetractCommentDropdownItem;
 
 

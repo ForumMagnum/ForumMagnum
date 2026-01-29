@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import sortBy from "lodash/sortBy";
 import flatten from "lodash/flatten";
@@ -7,6 +6,8 @@ import PostsLoading from "../posts/PostsLoading";
 import EAPostsItem from "../posts/EAPostsItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostInstagramLandingPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -30,7 +31,7 @@ const ChaptersFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("InstagramLandingPage", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'center',
@@ -45,7 +46,7 @@ const styles = (theme: ThemeType) => ({
   content: {
     margin: '0 auto',
   },
-});
+}));
 
 // A draft sequence under SC's account to store the ordered list of posts
 const SEQUENCE_ID = 'iNAgbC98BnMuNWmxN';
@@ -54,7 +55,8 @@ const SEQUENCE_ID = 'iNAgbC98BnMuNWmxN';
  * This is a page that the EAF links to from our Instagram account bio.
  * Basically this is the way to get visitors from Instagram to go where you want them to go.
  */
-const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const InstagramLandingPage = () => {
+  const classes = useStyles(styles);
   const { data, loading: chaptersLoading } = useQuery(ChaptersFragmentMultiQuery, {
     variables: {
       selector: { SequenceChapters: { sequenceId: SEQUENCE_ID } },
@@ -108,10 +110,5 @@ const InstagramLandingPage = ({ classes }: { classes: ClassesType<typeof styles>
   );
 };
 
-export default registerComponent(
-  "InstagramLandingPage",
-  InstagramLandingPage,
-  {styles},
-);
-
+export default InstagramLandingPage;
 

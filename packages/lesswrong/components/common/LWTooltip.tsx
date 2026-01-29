@@ -1,12 +1,13 @@
 import React, { ReactNode, useState, useEffect, useRef, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from './withHover';
 import type { Placement as PopperPlacementType } from "popper.js"
 import classNames from 'classnames';
 import { AnalyticsProps } from '../../lib/analyticsEvents';
 import LWPopper from "./LWPopper";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles("LWTooltip", (_theme: ThemeType) => ({
   root: {
     // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
     display: "inline-block",
@@ -18,7 +19,7 @@ const styles = (_theme: ThemeType) => ({
       maxWidth: "100%",
     },
   }
-})
+}), {stylePriority: -1});
 
 export type LWTooltipProps = {
   title?: ReactNode,
@@ -47,7 +48,6 @@ export type LWTooltipProps = {
    * e.g. to display a tooltip when a user has a command palette menu item selected with their keyboard.
    */
   renderWithoutHover?: boolean,
-  classes: ClassesType<typeof styles>,
 }
 
 const LWTooltip = ({
@@ -71,8 +71,8 @@ const LWTooltip = ({
   className,
   forceOpen,
   renderWithoutHover,
-  classes,
 }: LWTooltipProps) => {
+  const classes = useStyles(styles);
   const [delayedClickable, setDelayedClickable] = useState(false);
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -154,9 +154,6 @@ const LWTooltip = ({
   </As>
 }
 
-export default registerComponent("LWTooltip", LWTooltip, {
-  styles,
-  stylePriority: -1,
-});
+export default LWTooltip;
 
 

@@ -2,7 +2,6 @@ import React from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -169,6 +168,6 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
   </LWDialog>
 }
 
-export default registerComponent('ConversationTitleEditForm', ConversationTitleEditForm);
+export default ConversationTitleEditForm;
 
 

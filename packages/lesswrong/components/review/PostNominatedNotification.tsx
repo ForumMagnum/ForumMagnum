@@ -1,7 +1,6 @@
 import React from 'react';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { getReviewNameInSitu, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getPostPreviewWidth } from '../posts/PostsPreviewTooltip/helpers';
 import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -11,6 +10,8 @@ import PostsTitle from "../posts/PostsTitle";
 import ReviewPostButton from "./ReviewPostButton";
 import LWTooltip from "../common/LWTooltip";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListQuery = gql(`
   query PostNominatedNotification($documentId: String) {
@@ -22,7 +23,7 @@ const PostsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostNominatedNotification", (theme: ThemeType) => ({
   root: {
     padding: theme.spacing.unit*1.5,
     width: getPostPreviewWidth(),
@@ -34,9 +35,10 @@ const styles = (theme: ThemeType) => ({
     padding: theme.spacing.unit,
     textAlign: "center"
   }
-})
+}))
 
-const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<typeof styles>, postId: string}) => {
+const PostNominatedNotification = ({postId}: {postId: string}) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(PostsListQuery, {
     variables: { documentId: postId },
     fetchPolicy: 'cache-first',
@@ -64,6 +66,6 @@ const PostNominatedNotification = ({classes, postId}: {classes: ClassesType<type
   </div>
 }
 
-export default registerComponent('PostNominatedNotification', PostNominatedNotification, {styles});
+export default PostNominatedNotification;
 
 

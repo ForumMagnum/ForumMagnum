@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
@@ -39,6 +38,6 @@ const AnswersSorting = ({ post }: {
   return <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleSortingClick}/>
 };
 
-export default registerComponent('AnswersSorting', AnswersSorting);
+export default AnswersSorting;
 
 

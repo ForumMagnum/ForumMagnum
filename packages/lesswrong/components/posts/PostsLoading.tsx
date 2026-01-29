@@ -1,5 +1,4 @@
 import range from 'lodash/range';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { PostsListViewType } from '../hooks/usePostsListView';

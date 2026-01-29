@@ -1,7 +1,6 @@
 import { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { isLWorAF, isEAForum, fmCrosspostSiteNameSetting, fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
-import { registerComponent } from "@/lib/vulcan-lib/components";
 import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -525,6 +524,6 @@ const PostForm = ({
   );
 };
 
-export default registerComponent("PostForm", PostForm);
+export default PostForm;
 
 

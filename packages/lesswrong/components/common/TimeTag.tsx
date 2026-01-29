@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { ReactNode } from 'react';
 
 /**
@@ -14,6 +13,6 @@ const TimeTag = ({dateTime, children, className}: {
   return <time className={className} dateTime={dateTimeString}>{children}</time>
 };
 
-export default registerComponent('TimeTag', TimeTag);
+export default TimeTag;
 
 

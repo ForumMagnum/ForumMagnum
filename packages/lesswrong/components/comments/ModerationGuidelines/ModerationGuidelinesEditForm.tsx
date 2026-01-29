@@ -3,7 +3,6 @@ import { DialogContent } from '../../widgets/DialogContent';
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { EditablePost } from '@/lib/collections/posts/helpers';
 import { useForm } from '@tanstack/react-form';
 import { EditorFormComponent, useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
@@ -243,6 +242,6 @@ export const ModerationGuidelinesEditForm = ({ commentType = "post", documentId,
   )
 }
 
-export default registerComponent('ModerationGuidelinesEditForm', ModerationGuidelinesEditForm);
+export default ModerationGuidelinesEditForm;
 
 

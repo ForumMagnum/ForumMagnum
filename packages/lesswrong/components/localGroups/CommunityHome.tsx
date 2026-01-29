@@ -1,6 +1,5 @@
 "use client";
 
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useUserLocation } from '../hooks/useUserLocation';
@@ -13,7 +12,6 @@ import { userIsAdmin } from '../../lib/vulcan-users/permissions'
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
-import { WithMessagesFunctions } from '@/components/layout/FlashMessages';
 import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
 import LoginPopup from "../users/LoginPopup";
 import EventNotificationsDialog from "./EventNotificationsDialog";
@@ -29,6 +27,8 @@ import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const UsersProfileUpdateMutation = gql(`
   mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -40,7 +40,7 @@ const UsersProfileUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommunityHome", (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.main,
     "& + &": {
@@ -53,19 +53,10 @@ const styles = (theme: ThemeType) => ({
   enableLocationPermissions: {
     margin: 12,
   },
-});
+}));
 
-interface ExternalProps {
-}
-interface CommunityHomeProps extends ExternalProps, WithMessagesFunctions, WithLocationProps, WithDialogProps {
-}
-interface CommunityHomeState {
-  currentUserLocation: any,
-}
-
-const CommunityHome = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const CommunityHome = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { query } = useLocation();
@@ -287,6 +278,4 @@ const CommunityHome = ({classes}: {
   return render();
 }
 
-export default registerComponent('CommunityHome', CommunityHome, {styles});
-
-
+export default CommunityHome;

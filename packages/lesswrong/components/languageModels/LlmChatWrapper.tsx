@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import sortBy from 'lodash/sortBy';
 import keyBy from 'lodash/keyBy';
@@ -597,6 +596,6 @@ const LlmChatWrapper = ({children}: {
   </LlmChatContext.Provider>
 }
 
-export default registerComponent("LlmChatWrapper", LlmChatWrapper);
+export default LlmChatWrapper;
 
 

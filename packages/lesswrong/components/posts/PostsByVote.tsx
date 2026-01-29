@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import PostsItem from "./PostsItem";
 import ErrorBoundary from "../common/ErrorBoundary";
 import Loading from "../vulcan-core/Loading";
@@ -64,6 +63,6 @@ const PostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hide
   </ErrorBoundary>
 }
 
-export default registerComponent("PostsByVote", PostsByVote);
+export default PostsByVote;
 
 

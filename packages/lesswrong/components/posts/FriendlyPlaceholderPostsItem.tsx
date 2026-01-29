@@ -1,10 +1,11 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { PostsListViewType } from '../hooks/usePostsListView';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FriendlyPlaceholderPostsItem", (theme: ThemeType) => ({
   root: {
     minWidth: "100%",
     width: SECTION_WIDTH,
@@ -92,12 +93,12 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-})
+}))
 
-const FriendlyPlaceholderPostsItem = ({viewType = "list", classes}: {
+const FriendlyPlaceholderPostsItem = ({viewType = "list"}: {
   viewType?: PostsListViewType,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const cardView = viewType === "card";
   return (
     <div className={classNames(classes.root, cardView && classes.rootCard)}>
@@ -138,6 +139,6 @@ const FriendlyPlaceholderPostsItem = ({viewType = "list", classes}: {
   );
 }
 
-export default registerComponent('FriendlyPlaceholderPostsItem', FriendlyPlaceholderPostsItem, {styles});
+export default FriendlyPlaceholderPostsItem;
 
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import LWDialog from "../../common/LWDialog";
@@ -36,7 +35,4 @@ const ArbitalImportRevisionDetails = ({onClose, revision}: {
   </LWDialog>
 }
 
-export default registerComponent('ArbitalImportRevisionDetails', ArbitalImportRevisionDetails);
-
-
-
+export default ArbitalImportRevisionDetails;

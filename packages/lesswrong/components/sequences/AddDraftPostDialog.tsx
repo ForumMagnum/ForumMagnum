@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from "../common/withMessages";
 import { DialogActions } from '../widgets/DialogActions';
 import { DialogContent } from "@/components/widgets/DialogContent";
@@ -62,8 +61,6 @@ const AddDraftPostDialog = ({documentId, postIds, onClose}: {
   )
 }
 
-export default registerComponent(
-  'AddDraftPostDialog', AddDraftPostDialog
-);
+export default AddDraftPostDialog;
 
 

@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../../common/withUser";
 import { preferredHeadingCase } from "../../../themes/forumTheme";
@@ -80,9 +79,6 @@ const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
   return null;
 }
 
-export default registerComponent(
-  "MoveToFrontpageDropdownItem",
-  MoveToFrontpageDropdownItem,
-);
+export default MoveToFrontpageDropdownItem;
 
 

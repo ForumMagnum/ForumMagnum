@@ -1,7 +1,5 @@
 "use client";
-
 import React, { useEffect, useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import type { UseEmailTokenResult } from '@/server/emails/emailTokens';
 import { emailTokenResultComponents } from './emailTokens';
@@ -33,6 +31,4 @@ const EmailTokenPage = () => {
   </SingleColumnSection>
 }
 
-export default registerComponent("EmailTokenPage", EmailTokenPage);
-
-
+export default EmailTokenPage;

@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("GlossaryEditFormNewPost", (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
     marginTop: -8,
@@ -19,11 +20,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[900],
     fontSize: '1.25rem'
   }
-});
+}));
 
-export const GlossaryEditFormNewPost = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const GlossaryEditFormNewPost = () => {
+  const classes = useStyles(styles);
   const tooltipTitle = <div>If you've saved this post once,<br/>you can add terms to the glossary</div>
   return <div className={classes.root}>
     <LWTooltip title={tooltipTitle}>
@@ -35,6 +35,6 @@ export const GlossaryEditFormNewPost = ({classes}: {
   </div>;
 }
 
-export default registerComponent('GlossaryEditFormNewPost', GlossaryEditFormNewPost, {styles});
+export default GlossaryEditFormNewPost;
 
 

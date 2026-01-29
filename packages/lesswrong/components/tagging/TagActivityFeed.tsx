@@ -1,8 +1,6 @@
 "use client";
-
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import TagRevisionItem from "./TagRevisionItem";
@@ -52,6 +50,6 @@ const TagActivityFeed = ({pageSize = 50}: {
   </SingleColumnSection>
 }
 
-export default registerComponent("TagActivityFeed", TagActivityFeed);
+export default TagActivityFeed;
 
 

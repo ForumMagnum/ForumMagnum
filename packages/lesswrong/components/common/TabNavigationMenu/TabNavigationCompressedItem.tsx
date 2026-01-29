@@ -1,14 +1,15 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
 import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const compressedIconSize = 23
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TabNavigationCompressedItem", (theme: ThemeType) => ({
   icon: {
     display: "block",
     opacity: .6,
@@ -34,15 +35,15 @@ const styles = (theme: ThemeType) => ({
       top: -1,
     }
   },
-})
+}))
 
 type TabNavigationCompressedItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
-  classes: ClassesType<typeof styles>,
 }
 
-const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
+const TabNavigationCompressedItem = ({tab, onClick}: TabNavigationCompressedItemProps) => {
+  const classes = useStyles(styles);
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
     <MenuItemLink
       onClick={onClick}
@@ -59,8 +60,6 @@ const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompr
   </LWTooltip>;
 }
 
-export default registerComponent(
-  'TabNavigationCompressedItem', TabNavigationCompressedItem, {styles}
-);
+export default TabNavigationCompressedItem;
 
 

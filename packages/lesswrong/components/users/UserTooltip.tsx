@@ -1,12 +1,13 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { Placement as PopperPlacementType } from "popper.js"
 import HoverOver from "../common/HoverOver";
 import EAUserTooltipContent from "./EAUserTooltipContent";
 import LWUserTooltipContent from "./LWUserTooltipContent";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UserTooltip", (theme: ThemeType) => ({
   root: theme.isFriendlyUI
     ? {
       padding: 12,
@@ -22,9 +23,9 @@ const styles = (theme: ThemeType) => ({
     padding: 0,
     maxWidth: "none",
   }
-});
+}));
 
-const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, children, classes}: {
+const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, children}: {
   user: UsersMinimumInfo,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
@@ -32,8 +33,8 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, 
   hideFollowButton?: boolean,
   disabled?: boolean,
   children: ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const content = isFriendlyUI()
     ? <EAUserTooltipContent user={user} />
     : <LWUserTooltipContent user={user} hideFollowButton={hideFollowButton} />;
@@ -52,6 +53,6 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, 
   );
 }
 
-export default registerComponent("UserTooltip", UserTooltip, {styles});
+export default UserTooltip;
 
 

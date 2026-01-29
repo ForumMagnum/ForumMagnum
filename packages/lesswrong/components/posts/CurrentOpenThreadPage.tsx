@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import PermanentRedirect from "../common/PermanentRedirect";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -42,6 +41,6 @@ const CurrentOpenThreadPage = () => {
   return <PermanentRedirect status={302} url={postGetPageUrl(post)} />
 }
 
-export default registerComponent('CurrentOpenThreadPage', CurrentOpenThreadPage);
+export default CurrentOpenThreadPage;
 
 

@@ -11,6 +11,7 @@ import { getClientIP } from "@/server/utils/getClientIP";
 import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from "@/lib/instanceSettings";
 import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
 import { createGraphqlDeduplicatedObjectStore, extractToObjectStoreAndSubstitute } from "@/lib/apollo/graphqlDeduplicatedObjectStore";
+import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from "@/server/utils/graphqlErrorUtil";
 
 type GraphqlHttpRequestBody = {
   operationName?: string | null;
@@ -18,13 +19,6 @@ type GraphqlHttpRequestBody = {
   variables?: Record<string, unknown> | null;
   extensions?: Record<string, unknown> | null;
 };
-
-// TODO: decide whether we want to always filter all of these out on /api/streamingGraphql requests
-const NOISY_ERROR_MESSAGES = new Set([
-  "app.operation_not_allowed",
-  "app.missing_document",
-  "app.document_not_found",
-]);
 
 function isCrossSiteRequest(request: NextRequest) {
   const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get();
@@ -52,11 +46,13 @@ function isCrossSiteRequest(request: NextRequest) {
 }
 
 function formatGraphQLError(err: any): any {
-  captureException(err);
+  if (shouldCaptureGraphQLErrorInSentry(err)) {
+    captureException(err);
+  }
   if (err instanceof GraphQLError) {
     const formatted = err.toJSON();
     const { message, ...properties } = formatted;
-    if (!NOISY_ERROR_MESSAGES.has(message)) {
+    if (!NOISY_GRAPHQL_ERROR_MESSAGES.has(message)) {
       // eslint-disable-next-line no-console
       console.error(`[GraphQLError: ${message}]`, inspect(properties, { depth: null }), err);
     }

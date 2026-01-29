@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostByLegacyId } from '../posts/usePost';
 import { useCommentByLegacyId } from './useComment';
@@ -30,7 +29,7 @@ const LegacyCommentRedirect = () => {
   }
 };
 
-export default registerComponent('LegacyCommentRedirect', LegacyCommentRedirect);
+export default LegacyCommentRedirect;
 
 
 

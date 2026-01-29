@@ -1,6 +1,5 @@
 import React from 'react';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import CommentsNode from "../comments/CommentsNode";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -47,6 +46,6 @@ const SingleLineReviewsList = () => {
   </div>
 }
 
-export default registerComponent('SingleLineReviewsList', SingleLineReviewsList);
+export default SingleLineReviewsList;
 
 

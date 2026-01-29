@@ -22,12 +22,14 @@ import PostReadCheckbox from "./PostReadCheckbox";
 import PostsItemNewCommentsWrapper from "./PostsItemNewCommentsWrapper";
 import PostMostValuableCheckbox from "./PostMostValuableCheckbox";
 import { maybeDate } from "@/lib/utils/dateUtils";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
 const KARMA_WIDTH = 50;
 const CARD_IMG_HEIGHT = 80;
 const CARD_IMG_WIDTH = 160;
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("EAPostsItem", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -258,6 +260,8 @@ export const styles = (theme: ThemeType) => ({
   cardMeta: {
     maxWidth: `calc(100% - ${CARD_IMG_WIDTH}px)`,
   },
+}), {
+  stylePriority: 1,
 });
 
 
@@ -270,16 +274,15 @@ export type EAPostsItemProps = PostsItemConfig & {
   openInNewTab?: boolean,
   hideSecondaryInfo?: boolean,
   secondaryInfoNode?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 };
 
 const EAPostsItem = ({
   openInNewTab,
   hideSecondaryInfo,
   secondaryInfoNode,
-  classes,
   ...props
 }: EAPostsItemProps) => {
+  const classes = useStyles(styles);
   const {
     post,
     postLink,
@@ -524,8 +527,6 @@ export default registerComponent(
   "EAPostsItem",
   EAPostsItem,
   {
-    styles,
-    stylePriority: 1,
     hocs: [withErrorBoundary],
     areEqual: {
       terms: "deep",

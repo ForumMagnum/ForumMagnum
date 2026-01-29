@@ -1,8 +1,6 @@
 "use client";
-
 import React from "react";
 import { useLocation } from "../../lib/routeUtil";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTagBySlug } from "./useTag";
 import { hasSubforums } from "@/lib/betas";
 import { isFriendlyUI } from "@/themes/forumTheme";
@@ -91,6 +89,4 @@ const TagPageRouter = () => {
   return <TagPage/>
 }
 
-export default registerComponent("TagPageRouter", TagPageRouter);
-
-
+export default TagPageRouter;

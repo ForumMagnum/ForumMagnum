@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
 import { useAdminToggle } from './useAdminToggle';
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AdminToggle", (theme: ThemeType) => ({
   toggle: {
     position: 'fixed',
     left: 20,
@@ -79,11 +80,10 @@ const styles = (theme: ThemeType) => ({
       left: 4
     }
   }
-});
+}));
 
-export const AdminToggle = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const AdminToggle = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const {loading, toggleOn, toggleOff} = useAdminToggle()
   
@@ -110,7 +110,7 @@ export const AdminToggle = ({classes}: {
   return null
 }
 
-export default registerComponent('AdminToggle', AdminToggle, {styles});
+export default AdminToggle;
 
 
 

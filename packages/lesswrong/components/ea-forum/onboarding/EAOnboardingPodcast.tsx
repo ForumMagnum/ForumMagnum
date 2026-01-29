@@ -1,9 +1,10 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import type { PodcastData } from "../../../lib/eaPodcasts";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EAOnboardingPodcast", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     backgroundColor: theme.palette.panelBackground.onboardingPodcast,
@@ -37,12 +38,12 @@ const styles = (theme: ThemeType) => ({
     textDecoration: "none !important",
     fontSize: 12,
   },
-});
+}));
 
-export const EAOnboardingPodcast = ({podcast, classes}: {
+export const EAOnboardingPodcast = ({podcast}: {
   podcast?: PodcastData,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   if (!podcast) {
     return null;
   }
@@ -64,10 +65,4 @@ export const EAOnboardingPodcast = ({podcast, classes}: {
   );
 }
 
-export default registerComponent(
-  "EAOnboardingPodcast",
-  EAOnboardingPodcast,
-  {styles},
-);
-
-
+export default EAOnboardingPodcast;

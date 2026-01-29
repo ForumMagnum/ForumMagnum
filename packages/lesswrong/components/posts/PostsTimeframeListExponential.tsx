@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import moment from 'moment';
 import type { Moment } from 'moment';
 import { getTimeBlockTitle } from './PostsTimeframeList';
@@ -108,7 +107,4 @@ const PostsTimeframeListExponential = ({postListParameters}: {
   </div>
 }
 
-export default registerComponent('PostsTimeframeListExponential', PostsTimeframeListExponential);
-
-
-
+export default PostsTimeframeListExponential;
