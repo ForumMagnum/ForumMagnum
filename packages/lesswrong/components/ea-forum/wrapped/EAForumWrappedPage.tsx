@@ -7,7 +7,6 @@ import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
 import { ForumWrappedProvider, useForumWrapped } from "./hooks";
 import { isWrappedYear } from "./constants";
 import moment from "moment";
-import HeadTags from "../../common/HeadTags";
 import WrappedSection from "./WrappedSection";
 import WrappedHeading from "./WrappedHeading";
 import LoginForm from "../../users/LoginForm";

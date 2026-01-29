@@ -13,7 +13,6 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import SingleColumnSection from "../common/SingleColumnSection";
-import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
 import ForumIcon from "../common/ForumIcon";
@@ -283,8 +282,6 @@ const AuthorAnalyticsPage = ({ classes }: {
     );
   }
 
-  const title = `Stats for ${user?.displayName ?? slug}`;
-
   const getUserHeading = (uppercase: boolean) => {
     const format = uppercase ? capitalize : (s: string) => s;
     if (isCurrentUser) {
@@ -312,9 +309,13 @@ const AuthorAnalyticsPage = ({ classes }: {
     ? Math.min(itemsPerPage, totalCount - posts.length)
     : initialLimit;
 
+  /*
+    ea-forum-look-here This needs to be converted into a route generateMetadata
+    const title = `Stats for ${user?.displayName ?? slug}`;
+    <HeadTags title={title} />
+  */
   return (
     <>
-      <HeadTags title={title} />
       <SingleColumnSection className={classes.root}>
         <div className={classes.pageHeader}>
           <Typography variant="headline" className={classes.pageHeaderText}>

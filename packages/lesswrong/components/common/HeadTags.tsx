@@ -6,33 +6,23 @@ import { Helmet } from "@/components/layout/Helmet";
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { useRouteMetadata } from '@/components/layout/ClientRouteMetadataContext';
 
-const HeadTags = ({
-  ogUrl: ogUrlProp,
-  canonicalUrl: canonicalUrlProp,
-  description: descriptionProp,
-  title: titleProp,
-}: {
-  ogUrl?: string,
-  canonicalUrl?: string,
-  description?: string|null,
-  title?: string,
-}) => {
+const HeadTags = () => {
     const { pathname } = useSubscribedLocation();
     const routeMetadata = useRouteMetadata().metadata;
     // The default url we want to use for our cannonical and og:url tags uses
     // the "base" path, site url and path without query or hash
     const url = combineUrls(getSiteUrl(), getBasePath(pathname))
-    const ogUrl = ogUrlProp || url
-    const canonicalUrl = canonicalUrlProp || url
+    const ogUrl = url
+    const canonicalUrl = url
     // FIXME: Routes table has a "description" option for a few routes, which has probably not been transferred into nextjs
-    //const description = descriptionProp || routeMetadata?.description || taglineSetting.get()
-    const description = descriptionProp || taglineSetting.get()
+    //const description = routeMetadata?.description || taglineSetting.get()
+    const description = taglineSetting.get()
 
     const tabLongTitle = tabLongTitleSetting.get() || tabTitleSetting.get()
     const tabShortTitle = tabTitleSetting.get() || tabLongTitle
 
     const TitleComponent = routeMetadata?.titleComponent;
-    const titleString = routeMetadata?.title || titleProp || routeMetadata?.subtitle;
+    const titleString = routeMetadata?.title || routeMetadata?.subtitle;
 
     const rssUrl = `${getSiteUrl()}feed.xml`
     

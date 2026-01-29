@@ -8,7 +8,6 @@ import keyBy from "lodash/keyBy";
 import moment from "moment";
 import classNames from "classnames";
 import Loading from "../vulcan-core/Loading";
-import HeadTags from "../common/HeadTags";
 import EASequenceCard from "./EASequenceCard";
 import EACollectionCard from "./EACollectionCard";
 import EAPostsItem from "../posts/EAPostsItem";
@@ -253,9 +252,13 @@ const EABestOfPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]).filter(c => !!c);
   const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
   const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
+
+  /*
+    ea-forum-look-here This needs to be converted into route generateMetadata
+      <HeadTags title="Best of the Forum" />
+  */
   return (
     <>
-      <HeadTags title="Best of the Forum" />
       <AnalyticsContext pageContext="eaBestOfPage">
         <div className={classes.root}>
           <div className={classNames(classes.column, classes.leftColumn)}>

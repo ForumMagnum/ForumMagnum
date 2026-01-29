@@ -19,7 +19,6 @@ import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import Loading from "../../vulcan-core/Loading";
 import Error404 from "../../common/Error404";
 import PermanentRedirect from "../../common/PermanentRedirect";
-import HeadTags from "../../common/HeadTags";
 import TagFlagItem from "../TagFlagItem";
 import SubforumLayout from "./SubforumLayout";
 import WriteNewButton from "../WriteNewButton";
@@ -384,6 +383,10 @@ const TagSubforumPage2 = ({classes}: {
     wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />,
   };
 
+  /*
+  ea-forum-look-here
+    <HeadTags description={headTagDescription} />
+  */
   return (
     <AnalyticsContext
       pageContext="tagSubforumPage2"
@@ -391,7 +394,6 @@ const TagSubforumPage2 = ({classes}: {
       tagId={tag._id}
       sortedBy={query.sortedBy || "relevance"}
     >
-      <HeadTags description={headTagDescription} />
       <StructuredData generate={() => getTagStructuredData(tag)}/>
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
       <SubforumLayout
