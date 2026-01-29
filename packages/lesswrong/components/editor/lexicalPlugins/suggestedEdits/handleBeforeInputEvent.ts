@@ -40,9 +40,10 @@ import type { Logger } from '@/lib/vendor/proton/logger'
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
 import type { BlockTypeChangeSuggestionProperties, IndentChangeSuggestionProperties } from './Types'
 import { SuggestionTypesThatCanBeEmpty, TextEditingSuggestionTypes } from './Types'
-import type { ListItemNode } from '@lexical/list'
+import type { ListItemNode, ListType } from '@lexical/list'
 import { $handleListInsertParagraph, $isListItemNode } from '@lexical/list'
 import { $getListInfo } from '@/components/editor/lexicalPlugins/suggestions/stubs/CustomList/$getListInfo'
+import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import type { CreateNotificationOptions } from '@/lib/vendor/proton/notifications'
 import { $removeSuggestionNodeAndResolveIfNeeded } from './removeSuggestionNodeAndResolveIfNeeded'
 import { $setBlocksTypeAsSuggestion } from './setBlocksTypeAsSuggestion'
@@ -366,6 +367,7 @@ function $handleInsertInput(
       data,
       latestSelection,
       existingParentSuggestion,
+      editor,
       onSuggestionCreation,
       suggestionID,
       logger,
@@ -520,11 +522,23 @@ function $handleInsertTextData(
   data: string,
   selection: RangeSelection,
   existingParentSuggestion: ProtonNode | null,
+  editor: LexicalEditor,
   onSuggestionCreation: (id: string) => void,
   suggestionID: string,
   logger: Logger,
 ): boolean {
   logger.info('Inserting text data: ', data)
+
+  const handledListShortcut = $handleListShortcutOnSpace(
+    data,
+    selection,
+    editor,
+    onSuggestionCreation,
+    logger,
+  )
+  if (handledListShortcut) {
+    return true
+  }
 
   const focusNode = selection.focus.getNode()
 
@@ -686,6 +700,53 @@ function $handleInsertTextData(
 
   onSuggestionCreation(suggestionNode.getSuggestionIdOrThrow())
   return true
+}
+
+function $handleListShortcutOnSpace(
+  data: string,
+  selection: RangeSelection,
+  editor: LexicalEditor,
+  onSuggestionCreation: (id: string) => void,
+  logger: Logger,
+): boolean {
+  if (data !== ' ' || !selection.isCollapsed()) {
+    return false
+  }
+
+  const focusNode = selection.focus.getNode()
+  const topLevel = focusNode.getTopLevelElement()
+  if (!topLevel || !$isParagraphNode(topLevel)) {
+    return false
+  }
+
+  if (selection.focus.offset !== focusNode.getTextContentSize()) {
+    return false
+  }
+
+  const textContent = topLevel.getTextContent()
+  const trimmed = textContent.replace(/\s+$/, '')
+
+  let listType: ListType | null = null
+  if (/^\s*[-*+]$/.test(trimmed)) {
+    listType = 'bullet'
+  } else if (/^\s*\d+\.$/.test(trimmed)) {
+    listType = 'number'
+  }
+
+  if (!listType) {
+    return false
+  }
+
+  logger.info('Handling list shortcut before space', listType)
+
+  const children = topLevel.getChildren()
+  for (const child of children) {
+    child.remove()
+  }
+  topLevel.append($createTextNode(''))
+  topLevel.selectStart()
+
+  return $insertListAsSuggestion(editor, listType, onSuggestionCreation, logger)
 }
 
 /**

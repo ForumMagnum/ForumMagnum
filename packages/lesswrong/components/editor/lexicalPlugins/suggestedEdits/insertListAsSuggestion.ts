@@ -1,6 +1,4 @@
-import type { ListNode } from '@lexical/list'
-import { $createListItemNode, $isListItemNode, $isListNode, type ListType } from '@lexical/list'
-import type { ElementNode, LexicalNode, NodeKey, TextNode } from 'lexical'
+import { $createListItemNode, $isListItemNode, $isListNode, type ListNode, type ListType } from '@lexical/list'
 import {
   $createParagraphNode,
   $getRoot,
@@ -10,6 +8,10 @@ import {
   $isRangeSelection,
   $isRootOrShadowRoot,
   type LexicalEditor,
+  type ElementNode,
+  type LexicalNode,
+  type NodeKey,
+  type TextNode,
 } from 'lexical'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import type { CustomListMarker, CustomListStyleType } from '@/components/editor/lexicalPlugins/suggestions/stubs/CustomList/CustomListTypes'
@@ -180,7 +182,7 @@ function $changeBlockTypeToList(
   const formatType = node.getFormatType()
   const indent = node.getIndent()
 
-  const newList = $createCustomListNode(listType, undefined, styleType, marker)
+  const newList = $createCustomListNode(listType)
   const listItem = $createListItemNode()
   listItem.append(...children)
   newList.append(listItem)
@@ -218,7 +220,7 @@ function $replaceList(
   marker?: CustomListMarker,
 ): ListNode {
   logger.info(`Replacing exist list (key: ${node.__key}) with list type ${listType}`)
-  const list = $createCustomListNode(listType, undefined, styleType, marker)
+  const list = $createCustomListNode(listType)
 
   const listInfo = $getListInfo(node)
   const children = node.getChildren()
