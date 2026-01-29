@@ -219,6 +219,8 @@ export const SequenceEventPage = ({
                 to={listenUrl}
                 onClick={onListen}
                 className={classes.option}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <ForumIcon icon="VolumeUp" /> Listen to the posts
               </Link>}
