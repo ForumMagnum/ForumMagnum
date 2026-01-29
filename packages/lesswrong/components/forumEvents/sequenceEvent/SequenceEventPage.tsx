@@ -158,7 +158,6 @@ export const SequenceEventPage = ({
     collectionName: "Sequences",
     fragmentName: "SequencesPageWithChaptersFragment",
     documentId: sequenceId,
-    fetchPolicy: "network-only"
   });
 
   const {postsRead} = useItemsRead();
