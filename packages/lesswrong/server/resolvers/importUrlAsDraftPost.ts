@@ -5,7 +5,7 @@ import { fetchFragmentSingle } from '../fetchFragment'
 import Users from '@/server/collections/users/collection'
 import { ExternalPostImportData } from '@/components/posts/ExternalPostImporter'
 import { eligibleToNominate } from '@/lib/reviewUtils';
-import { sanitize } from "../../lib/vulcan-lib/utils";
+import { sanitize } from "@/lib/utils/sanitize";
 import gql from 'graphql-tag';
 import { createPost } from "../collections/posts/mutations";
 import { PostsEditQueryFragment } from '@/lib/collections/posts/fragments';

@@ -13,7 +13,6 @@ import DeferRender from '../common/DeferRender';
 import Error404 from "../common/Error404";
 import PostsAuthors from "../posts/PostsPage/PostsAuthors";
 import CollabEditorPermissionsNotices from "./CollabEditorPermissionsNotices";
-import CKPostEditor from "./CKPostEditor";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import ContentStyles from "../common/ContentStyles";
@@ -23,8 +22,11 @@ import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
 import PostVersionHistoryButton from './PostVersionHistory';
 import { gql } from '@/lib/generated/gql-codegen';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
-import LexicalEditor from './LexicalEditor';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import dynamic from 'next/dynamic';
+
+const CKPostEditor = dynamic(() => import("./CKPostEditor"));
+const LexicalEditor = dynamic(() => import("./LexicalEditor"));
 
 const styles = (theme: ThemeType) => ({
   title: {

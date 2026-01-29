@@ -15,7 +15,7 @@ import { defaultGlossaryPrompt, defaultExamplePost, defaultExampleTerm, defaultE
 import uniq from 'lodash/uniq';
 import { computeContextFromUser } from '../../vulcan-lib/apollo-server/context';
 
-import { sanitize } from "../../../lib/vulcan-lib/utils";
+import { sanitize } from "@/lib/utils/sanitize";
 import gql from 'graphql-tag';
 import { createJargonTerm } from "../../collections/jargonTerms/mutations";
 import { PostsPage } from '@/lib/collections/posts/fragments';

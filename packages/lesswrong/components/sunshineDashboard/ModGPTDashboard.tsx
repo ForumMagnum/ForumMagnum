@@ -9,7 +9,7 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { sanitizeAllowedTags } from "../../lib/vulcan-lib/utils";
+import { sanitizeAllowedTags } from "@/lib/utils/sanitize";
 import UsersName from "../users/UsersName";
 import FormatDate from "../common/FormatDate";
 import Error404 from "../common/Error404";
