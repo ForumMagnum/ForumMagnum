@@ -7,6 +7,7 @@ import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadat
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { notFound } from "next/navigation";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
@@ -63,10 +64,13 @@ function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Po
     formattedDate = formattedDate.slice(0, formattedDate.indexOf("T")).replace(/-/g, "/");
   }
   
+  const authors: string[] = [
+    ...(post.user?.displayName ? [post.user.displayName] : []),
+    ...filterNonnull(post.coauthors?.map(coauthor => coauthor.displayName) ?? [])
+  ];
   return {
     citation_title: post.title,
-    ...(post.user?.displayName && { citation_author: post.user.displayName }),
-    ...(post.coauthors?.filter(({ _id }) => !post.coauthorUserIds.includes(_id))?.map(coauthor => coauthor.displayName) && { citation_author: post.coauthors?.map(coauthor => coauthor.displayName) }),
+    citation_author: authors,
     ...(formattedDate && { citation_publication_date: formattedDate }),
   } satisfies Metadata['other'];
 }
@@ -117,6 +121,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       const descriptionFields = getMetadataDescriptionFields(description);
       const imagesFields = getMetadataImagesFields(socialPreviewImageUrl);
       
+      console.log('getCitationTags(post)', getCitationTags(post));
       const postMetadata = {
         openGraph: {
           url: ogUrl,
