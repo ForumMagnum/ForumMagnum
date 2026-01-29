@@ -1,7 +1,6 @@
 import React from "react";
 import PostsSingle from '../../../../packages/lesswrong/components/posts/PostsSingle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
-import { PostsPageHeaderTitle } from "@/components/titles/PostsPageHeaderTitle";
 import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
@@ -15,7 +14,6 @@ export default function PostPage() {
     delayedStatusCode
     metadata={{
       noFooter: hasPostRecommendations(),
-      titleComponent: PostsPageHeaderTitle
     }}
   >
     <PostsSingle />
