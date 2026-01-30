@@ -3,7 +3,6 @@ import { useCurrentUser } from '../common/withUser';
 import sortBy from 'lodash/sortBy';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
-import { z } from 'zod';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -136,16 +135,24 @@ interface LlmChatContextType {
 export const LlmChatContext = React.createContext<LlmChatContextType|null>(null);
 
 export const useLlmChat = (): LlmChatContextType => {
-  const result = React.useContext(LlmChatContext);
-  if (!result) throw new Error("useLlmChat called but not a descendent of LlmChatWrapper");
-  return result;
+  const context = React.useContext(LlmChatContext);
+  if (!context) throw new Error("LLM chat is not enabled for this user");
+  return context;
 }
-
 
 const LlmChatWrapper = ({children}: {
   children: React.ReactNode
 }) => {
+  const currentUser = useCurrentUser();
+  const enabled = currentUser && userHasLlmChat(currentUser);
+  return enabled
+    ? <LlmChatWrapperInner>{children}</LlmChatWrapperInner>
+    : <>{children}</>;
+}
 
+const LlmChatWrapperInner = ({children}: {
+  children: React.ReactNode
+}) => {
   const currentUser = useCurrentUser();
 
   const [updateConversation] = useMutation(LlmConversationsFragmentUpdateMutation);
