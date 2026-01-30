@@ -19,7 +19,9 @@ interface SequencePostId {
 
 export const sequenceGetPageUrl = function(sequence: {_id: string}, isAbsolute = false){
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-
+  if (sequence._id === SCALING_SEQUENCE_ID) {
+    return `${prefix}/scaling-sequence`;
+  }
   return `${prefix}/s/${sequence._id}`;
 };
 
