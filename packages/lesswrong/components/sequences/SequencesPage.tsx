@@ -31,7 +31,7 @@ import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
-import { SCALING_SEQUENCE_ID } from '@/lib/collections/forumEvents/helpers';
+import { SCALING_SERIES_ID } from '@/lib/collections/forumEvents/helpers';
 import PermanentRedirect from '../common/PermanentRedirect';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
@@ -206,9 +206,9 @@ const SequencesPage = ({ documentId, classes }: {
       <PermanentRedirect url="/marginal-funding" />
     );
   }
-  if (documentId === SCALING_SEQUENCE_ID && !currentUser?.isAdmin) {
+  if (documentId === SCALING_SERIES_ID && !currentUser?.isAdmin) {
     return (
-      <PermanentRedirect url="/scaling-sequence" />
+      <PermanentRedirect url="/scaling-series" />
     );
   }
   if (document?.isDeleted) {
