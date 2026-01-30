@@ -1,6 +1,7 @@
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import { cheerioParse, tokenizeHtml } from '../utils/htmlUtil';
 import { sanitize } from '../../lib/vulcan-lib/utils';
+import type { Cheerio, NodeWithChildren } from 'cheerio';
 
 export const diffHtml = (before: string, after: string, trim: boolean): string => {
   // Normalize unicode and &entities; so that smart quotes changing form won't
@@ -27,7 +28,7 @@ export const trimHtmlDiff = (html: string): string => {
   // Otherwise look at the root.
   const bodyTags = $('body');
   const hasBodyTag = bodyTags.length > 0;
-  const rootElement = hasBodyTag ? bodyTags : $.root()
+  const rootElement: Cheerio<NodeWithChildren> = hasBodyTag ? bodyTags : $.root()
   
   rootElement.children().each(function(i, elem) {
     const e = $(elem)
