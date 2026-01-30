@@ -18,9 +18,11 @@ export function usePrerenderablePathname() {
   const layoutRouterContext = useContext(LayoutRouterContext);
   if (layoutRouterContext) {
     const pathname = layoutRouterContext.url;
+    console.log(`usePrerenderablePathname: ${pathname}`);
     return removeQueryFrom(pathname);
   } else {
-    throw new Error("No LayoutRouterContext");
+    console.log("usePrerenderablePathname: No LayoutRouterContext");
+    return "/404";
   }
 }
 
