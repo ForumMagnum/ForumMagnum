@@ -17,7 +17,7 @@ export const ScalingSeriesPage = () => {
       <HeadTags
         title="The Scaling Series"
         description="Toby Ord's analysis of why AI scaling costs are exploding while returns diminish, and what that means for the future."
-        image="https://res.cloudinary.com/cea/image/upload/v1769690620/scaling_u0ydjc.png"
+        image="https://res.cloudinary.com/cea/image/upload/v1769778867/Grid/lxzkgegdmfwdstr1pfzz.png"
       />
       <SequenceEventPage
         shareTitle="The Scaling Series"
