@@ -74,6 +74,14 @@ export default function SuggestedEditsPlugin({
         commentStore.deleteCommentOrThread(thread);
         return true;
       },
+      updateSuggestionSummary: async (suggestionID, summaryContent) => {
+        const thread = commentStore.getThreadByMarkID(suggestionID);
+        if (!thread) {
+          return false;
+        }
+        commentStore.updateThread(thread.id, { firstCommentContent: summaryContent });
+        return true;
+      },
     };
   }, [commentStore]);
 

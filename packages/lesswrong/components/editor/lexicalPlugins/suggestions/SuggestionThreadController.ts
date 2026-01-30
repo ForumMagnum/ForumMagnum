@@ -47,4 +47,9 @@ export interface SuggestionThreadController {
     status: 'open' | 'accepted' | 'rejected' | 'archived',
   ): Promise<boolean>;
   deleteSuggestionThread(threadId: string): Promise<boolean>;
+  /**
+   * Update the summary content for a suggestion thread.
+   * Called when the suggestion's content changes (e.g., user continues typing).
+   */
+  updateSuggestionSummary(suggestionID: string, summaryContent: string): Promise<boolean>;
 }

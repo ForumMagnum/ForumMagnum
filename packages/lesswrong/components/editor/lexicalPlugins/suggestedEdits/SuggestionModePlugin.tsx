@@ -235,27 +235,32 @@ export function SuggestionModePlugin({
         const threads = await controller.getAllThreads()
         const threadByMarkId = new Map(threads.map((thread) => [thread.markID, thread]))
 
-        // For each suggestion with nodes in editor, ensure thread exists and is open
+        // For each suggestion with nodes in editor, ensure thread exists, is open, and has up-to-date summary
         for (const suggestionID of openSuggestionIDs) {
           const thread = threadByMarkId.get(suggestionID)
+          const summary = generateSuggestionSummary(editor, markNodeMap, suggestionID)
+          const content = JSON.stringify(summary)
+          
           if (!thread) {
             // Create thread for suggestion that doesn't have one
-            const summary = generateSuggestionSummary(editor, markNodeMap, suggestionID)
-            const content = JSON.stringify(summary)
             const summaryType = summary[0]?.type ?? 'insert'
             suggestionModeLogger.info(`Creating thread for suggestion ${suggestionID} based on editor state`)
             await controller.createSuggestionThread(suggestionID, content, summaryType).catch(reportError)
-          } else if (thread.status !== 'open') {
-            // Nodes exist but thread is resolved -> undo happened -> reopen
-            suggestionModeLogger.info(`Reopening thread ${thread.id} for suggestion ${suggestionID} (undo detected)`)
-            await controller.reopenSuggestion(thread.id).catch(reportError)
+          } else {
+            if (thread.status !== 'open') {
+              // Nodes exist but thread is resolved -> undo happened -> reopen
+              suggestionModeLogger.info(`Reopening thread ${thread.id} for suggestion ${suggestionID} (undo detected)`)
+              await controller.reopenSuggestion(thread.id).catch(reportError)
+            }
+            // Update summary in case content changed
+            await controller.updateSuggestionSummary(suggestionID, content).catch(reportError)
           }
         }
 
         // For each thread without nodes, handle based on current status
         for (const thread of threads) {
           if (openSuggestionIDs.has(thread.markID)) {
-            continue // Already handled above
+            continue
           }
           
           // Skip threads that are currently being resolved (accept/reject in progress)
@@ -322,7 +327,6 @@ export function SuggestionModePlugin({
           if (handled) {
             // Track that this suggestion is being resolved to prevent race with reconciliation
             pendingResolutionsRef.current.add(suggestionID)
-            // Set thread status directly - this persists to Yjs via CommentStore
             controller.getAllThreads().then((threads) => {
               const thread = threads.find((t) => t.markID === suggestionID)
               if (thread) {
