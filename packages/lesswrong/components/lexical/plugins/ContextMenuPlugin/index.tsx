@@ -30,8 +30,13 @@ import { ScissorsIcon } from '../../icons/ScissorsIcon';
 import { CopyIcon } from '../../icons/CopyIcon';
 import { ClipboardIcon } from '../../icons/ClipboardIcon';
 import { TrashIcon } from '../../icons/TrashIcon';
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/LinkPlugin';
 
-export default function ContextMenuPlugin(): JSX.Element {
+export default function ContextMenuPlugin({
+  isSuggestionMode = false,
+}: {
+  isSuggestionMode?: boolean;
+}): JSX.Element {
   const [editor] = useLexicalComposerContext();
 
   const iconStyle = useMemo(() => ({ width: 16, height: 16, marginRight: 8, opacity: 0.6 }), []);
@@ -40,7 +45,16 @@ export default function ContextMenuPlugin(): JSX.Element {
     return [
       new NodeContextMenuOption(`Remove Link`, {
         $onSelect: () => {
-          editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+          if (isSuggestionMode) {
+            editor.dispatchCommand(LINK_CHANGE_COMMAND, {
+              text: null,
+              linkNode: null,
+              url: null,
+              linkTextNode: null,
+            });
+          } else {
+            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+          }
         },
         $showOn: (node: LexicalNode) => $isLinkNode(node.getParent()),
         disabled: false,
@@ -145,7 +159,7 @@ export default function ContextMenuPlugin(): JSX.Element {
         icon: <TrashIcon style={iconStyle} />,
       }),
     ];
-  }, [editor, iconStyle]);
+  }, [editor, iconStyle, isSuggestionMode]);
 
   return (
     <NodeContextMenuPlugin

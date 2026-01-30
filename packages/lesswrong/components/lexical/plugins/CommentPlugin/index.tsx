@@ -6,7 +6,6 @@
  *
  */
 
-import type {Provider} from '@lexical/yjs';
 import type {
   EditorState,
   LexicalCommand,
@@ -15,11 +14,9 @@ import type {
   RangeSelection,
 } from 'lexical';
 import React, { type JSX } from 'react';
-import { Doc, Map as YMap } from 'yjs';
 
 import {
   $createMarkNode,
-  $getMarkIDs,
   $isMarkNode,
   $unwrapMarkNode,
   $wrapSelectionInMarkNode,
@@ -66,6 +63,9 @@ import {
 import {createPortal} from 'react-dom';
 
 import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContext';
+import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
+import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext';
+import { $isSuggestionNode } from '@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode';
 import {
   Comment,
   Comments,
@@ -75,6 +75,7 @@ import {
   Thread,
   useCommentStore,
 } from '../../commenting';
+import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND } from '@/components/editor/lexicalPlugins/suggestedEdits/Commands';
 import useModal from '../../hooks/useModal';
 import CommentEditorTheme from '../../themes/CommentEditorTheme';
 import Button from '../../ui/Button';
@@ -86,12 +87,6 @@ import { ChatLeftTextIcon } from '../../icons/ChatLeftTextIcon';
 import { CommentsIcon } from '../../icons/CommentsIcon';
 import { SendIcon } from '../../icons/SendIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
-
-const SUGGESTION_ID_PREFIX = 'suggestion:';
-
-function isSuggestionMarkId(id: string): boolean {
-  return id.startsWith(SUGGESTION_ID_PREFIX);
-}
 
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   addCommentBox: {
@@ -368,12 +363,6 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
       borderTop: 'none',
     },
   },
-  suggestionThreadActions: {
-    display: 'flex',
-    gap: 8,
-    alignItems: 'center',
-    marginLeft: 12,
-  },
   listThreadInteractive: {
     cursor: 'pointer',
     '&:hover': {
@@ -406,6 +395,40 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
       display: 'inline',
       fontWeight: 'bold',
     },
+  },
+  suggestionSummary: {
+    fontSize: 13,
+    lineHeight: 1.4,
+    marginTop: 6,
+    marginBottom: 6,
+  },
+  suggestionActions: {
+    display: 'flex',
+    gap: 6,
+    marginTop: 6,
+  },
+  suggestionActionButton: {
+    border: 0,
+    borderRadius: 4,
+    padding: '2px 8px',
+    cursor: 'pointer',
+    background: theme.palette.grey[200],
+    '&:hover': {
+      background: theme.palette.grey[300],
+    },
+  },
+  suggestionActionButtonPrimary: {
+    background: theme.palette.primary.main,
+    color: theme.palette.grey[0],
+    '&:hover': {
+      background: theme.palette.primary.dark,
+    },
+  },
+  suggestionStatus: {
+    fontSize: 12,
+    fontWeight: 600,
+    color: theme.palette.grey[600],
+    marginTop: 6,
   },
   threadComments: {
     paddingLeft: 10,
@@ -461,6 +484,50 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   },
 }));
 
+const SUGGESTION_SUMMARY_KIND: Comment['commentKind'] = 'suggestionSummary';
+
+const isSuggestionThread = (thread: Thread): boolean => thread.threadType === 'suggestion';
+
+const getSuggestionSummaryComment = (thread: Thread): Comment | undefined =>
+  thread.comments.find((comment) => comment.commentKind === SUGGESTION_SUMMARY_KIND);
+
+const getSuggestionThreadId = (thread: Thread): string => thread.markID ?? thread.id;
+
+const parseSuggestionSummary = (summary: string): string => {
+  try {
+    const parsed = JSON.parse(summary) as Array<{ type: string; content: string; replaceWith?: string }>;
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return 'Suggestion';
+    }
+    const first = parsed[0];
+    if (!first) {
+      return summary;
+    }
+    if (first.replaceWith) {
+      return `${first.type}: ${first.content} → ${first.replaceWith}`;
+    }
+    return first.content ? `${first.type}: ${first.content}` : first.type;
+  } catch {
+    return summary;
+  }
+};
+
+const acceptSuggestionThread = (editor: LexicalEditor, commentStore: CommentStore, thread: Thread) => {
+  const suggestionId = getSuggestionThreadId(thread);
+  editor.dispatchCommand(ACCEPT_SUGGESTION_COMMAND, suggestionId);
+  commentStore.updateThread(thread.id, {
+    status: 'accepted',
+  });
+};
+
+const rejectSuggestionThread = (editor: LexicalEditor, commentStore: CommentStore, thread: Thread) => {
+  const suggestionId = getSuggestionThreadId(thread);
+  editor.dispatchCommand(REJECT_SUGGESTION_COMMAND, suggestionId);
+  commentStore.updateThread(thread.id, {
+    status: 'rejected',
+  });
+};
+
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
 );
@@ -484,7 +551,6 @@ export type InsertInlineThreadPayload = {
   threadId: string;
   initialContent: string;
   quote?: string;
-  isSuggestion?: boolean;
   selectionSnapshot?: SelectionSnapshot;
 };
 
@@ -503,7 +569,7 @@ function createRangeSelectionFromSnapshot(
 ): RangeSelection | null {
   const anchorNode = $getNodeByKey(snapshot.anchorKey);
   const focusNode = $getNodeByKey(snapshot.focusKey);
-  if (!$isTextNode(anchorNode) || !$isTextNode(focusNode)) return null;
+  if (!anchorNode || !focusNode || !$isTextNode(anchorNode) || !$isTextNode(focusNode)) return null;
   const anchorOffset = Math.min(snapshot.anchorOffset, anchorNode.getTextContentSize());
   const focusOffset = Math.min(snapshot.focusOffset, focusNode.getTextContentSize());
   const range = $createRangeSelection();
@@ -520,14 +586,6 @@ export type HideThreadPayload = { threadId: string };
 export const HIDE_THREAD_COMMAND: LexicalCommand<HideThreadPayload> = createCommand(
   'HIDE_THREAD_COMMAND',
 );
-
-export type ResolveSuggestionByIdPayload = {
-  suggestionId: string;
-  action: 'accept' | 'reject';
-};
-
-export const RESOLVE_SUGGESTION_BY_ID_COMMAND: LexicalCommand<ResolveSuggestionByIdPayload> =
-  createCommand('RESOLVE_SUGGESTION_BY_ID_COMMAND');
 
 function AddCommentBox({
   anchorKey,
@@ -1001,8 +1059,6 @@ function CommentsPanelListComment({
 function CommentsPanelList({
   activeIDs,
   comments,
-  suggestionStates,
-  suggestionThreadIdsRef,
   deleteCommentOrThread,
   listRef,
   submitAddComment,
@@ -1010,8 +1066,6 @@ function CommentsPanelList({
 }: {
   activeIDs: Array<string>;
   comments: Comments;
-  suggestionStates: Map<string, string>;
-  suggestionThreadIdsRef: React.MutableRefObject<Set<string>>;
   deleteCommentOrThread: (
     commentOrThread: Comment | Thread,
     thread?: Thread,
@@ -1026,6 +1080,7 @@ function CommentsPanelList({
 }): JSX.Element {
   const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
+  const { commentStore } = useCommentStoreContext();
   const [counter, setCounter] = useState(0);
   const [modal, showModal] = useModal();
   const rtf = useMemo(
@@ -1054,22 +1109,29 @@ function CommentsPanelList({
       {comments.map((commentOrThread) => {
         const id = commentOrThread.id;
         if (commentOrThread.type === 'thread') {
-          const hasSuggestionMark =
-            typeof document !== 'undefined' &&
-            document.querySelector(`[data-suggestion-id="${id}"]`) !== null;
-          const suggestionState = suggestionStates.get(id);
-          const isSuggestionThread =
-            suggestionThreadIdsRef.current.has(id) ||
-            suggestionState !== undefined ||
-            hasSuggestionMark;
-          if (isSuggestionThread && !hasSuggestionMark) {
+          const isSuggestion = isSuggestionThread(commentOrThread);
+          const suggestionSummaryComment = isSuggestion
+            ? getSuggestionSummaryComment(commentOrThread)
+            : undefined;
+          const suggestionSummaryText = suggestionSummaryComment
+            ? parseSuggestionSummary(suggestionSummaryComment.content)
+            : null;
+          const suggestionStatus = commentOrThread.status ?? 'open';
+          if (suggestionStatus === 'archived') {
             return null;
           }
+          const threadMarkId = isSuggestion ? getSuggestionThreadId(commentOrThread) : id;
+          const threadComments = isSuggestion
+            ? commentOrThread.comments.filter(
+                (comment) => comment.commentKind !== SUGGESTION_SUMMARY_KIND,
+              )
+            : commentOrThread.comments;
+
           const handleClickThread = () => {
-            const markNodeKeys = markNodeMap.get(id);
+            const markNodeKeys = markNodeMap.get(threadMarkId);
             if (
               markNodeKeys !== undefined &&
-              (activeIDs === null || activeIDs.indexOf(id) === -1)
+              (activeIDs === null || activeIDs.indexOf(threadMarkId) === -1)
             ) {
               const activeElement = document.activeElement;
               // Move selection to the start of the mark, so that we
@@ -1077,8 +1139,8 @@ function CommentsPanelList({
               editor.update(
                 () => {
                   const markNodeKey = Array.from(markNodeKeys)[0];
-                  const markNode = $getNodeByKey<MarkNode>(markNodeKey);
-                  if ($isMarkNode(markNode)) {
+                  const markNode = $getNodeByKey(markNodeKey);
+                  if ($isMarkNode(markNode) || $isSuggestionNode(markNode)) {
                     markNode.selectStart();
                   }
                 },
@@ -1100,66 +1162,72 @@ function CommentsPanelList({
               onClick={handleClickThread}
               className={classNames(
                 classes.listThread,
-                { [classes.listThreadInteractive]: markNodeMap.has(id) },
-                { [classes.listThreadActive]: activeIDs.indexOf(id) !== -1 }
+                { [classes.listThreadInteractive]: markNodeMap.has(threadMarkId) },
+                { [classes.listThreadActive]: activeIDs.indexOf(threadMarkId) !== -1 }
               )}>
               <div className={classes.threadQuoteBox}>
-                <blockquote className={classes.threadQuote}>
-                  {'> '}
-                  <span>{commentOrThread.quote}</span>
-                </blockquote>
-                {isSuggestionThread && hasSuggestionMark ? (
-                  <div
-                    className={classes.suggestionThreadActions}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                  >
+                {!isSuggestion && (
+                  <blockquote className={classes.threadQuote}>
+                    {'> '}
+                    <span>{commentOrThread.quote}</span>
+                  </blockquote>
+                )}
+                {!isSuggestion && (
+                  <>
                     <Button
                       onClick={() => {
-                        const ok = editor.dispatchCommand(RESOLVE_SUGGESTION_BY_ID_COMMAND, {
-                          suggestionId: id,
-                          action: 'accept',
-                        });
+                        showModal('Delete Thread', (onClose) => (
+                          <ShowDeleteCommentOrThreadDialog
+                            commentOrThread={commentOrThread}
+                            deleteCommentOrThread={deleteCommentOrThread}
+                            onClose={onClose}
+                          />
+                        ));
                       }}
-                    >
-                      Accept
+                      className={classes.deleteButton}>
+                      <Trash3Icon className={classes.deleteIcon} />
                     </Button>
-                    <Button
-                      onClick={() => {
-                        const ok = editor.dispatchCommand(RESOLVE_SUGGESTION_BY_ID_COMMAND, {
-                          suggestionId: id,
-                          action: 'reject',
-                        });
-                      }}
-                    >
-                      Reject
-                    </Button>
+                    {modal}
+                  </>
+                )}
+                {isSuggestion && suggestionSummaryText && (
+                  <div className={classes.suggestionSummary}>
+                    {suggestionSummaryText}
+                    {suggestionStatus === 'open' ? (
+                      <div className={classes.suggestionActions}>
+                        <button
+                          type="button"
+                          className={classes.suggestionActionButtonPrimary}
+                          onClick={() => {
+                            acceptSuggestionThread(editor, commentStore, commentOrThread);
+                          }}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          type="button"
+                          className={classes.suggestionActionButton}
+                          onClick={() => {
+                            rejectSuggestionThread(editor, commentStore, commentOrThread);
+                          }}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={classes.suggestionStatus}>
+                        {suggestionStatus === 'accepted'
+                          ? 'Accepted'
+                          : suggestionStatus === 'rejected'
+                            ? 'Rejected'
+                            : 'Archived'}
+                      </div>
+                    )}
                   </div>
-                ) : null}
-                {/* INTRODUCE DELETE THREAD HERE*/}
-                <Button
-                  onClick={() => {
-                    showModal('Delete Thread', (onClose) => (
-                      <ShowDeleteCommentOrThreadDialog
-                        commentOrThread={commentOrThread}
-                        deleteCommentOrThread={deleteCommentOrThread}
-                        onClose={onClose}
-                      />
-                    ));
-                  }}
-                  className={classes.deleteButton}>
-                  <Trash3Icon className={classes.deleteIcon} />
-                </Button>
-                {modal}
+                )}
               </div>
               <ul className={classes.threadComments}>
-                {commentOrThread.comments.map((comment) => (
+                {threadComments.map((comment) => (
                   <CommentsPanelListComment
                     key={comment.id}
                     comment={comment}
@@ -1198,13 +1266,9 @@ function CommentsPanel({
   comments,
   submitAddComment,
   markNodeMap,
-  suggestionStates,
-  suggestionThreadIdsRef,
 }: {
   activeIDs: Array<string>;
   comments: Comments;
-  suggestionStates: Map<string, string>;
-  suggestionThreadIdsRef: React.MutableRefObject<Set<string>>;
   deleteCommentOrThread: (
     commentOrThread: Comment | Thread,
     thread?: Thread,
@@ -1229,8 +1293,6 @@ function CommentsPanel({
         <CommentsPanelList
           activeIDs={activeIDs}
           comments={comments}
-          suggestionStates={suggestionStates}
-          suggestionThreadIdsRef={suggestionThreadIdsRef}
           deleteCommentOrThread={deleteCommentOrThread}
           listRef={listRef}
           submitAddComment={submitAddComment}
@@ -1247,85 +1309,19 @@ function useCollabAuthorName(): string {
   return yjsDocMap.has('comments') ? name : 'Playground User';
 }
 
-export default function CommentPlugin({
-  providerFactory,
-}: {
-  providerFactory?: (id: string, yjsDocMap: Map<string, Doc>) => Provider;
-}): JSX.Element {
+export default function CommentPlugin(): JSX.Element {
   const classes = useStyles(styles);
   const { isPostEditor } = useLexicalEditorContext();
-  const collabContext = useCollaborationContext();
   const [editor] = useLexicalComposerContext();
-  const commentStore = useMemo(() => new CommentStore(editor), [editor]);
+  const { commentStore } = useCommentStoreContext();
   const comments = useCommentStore(commentStore);
   const author = useCollabAuthorName();
-  const markNodeMap = useMemo<Map<string, Set<NodeKey>>>(() => {
-    return new Map();
-  }, []);
-  const [activeAnchorKey, setActiveAnchorKey] = useState<NodeKey | null>();
-  const [activeIDs, setActiveIDs] = useState<Array<string>>([]);
+  const { markNodeMap, activeIDs, activeAnchorKey } = useMarkNodesContext();
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentAnchorRect, setCommentAnchorRect] = useState<DOMRect | null>(
     null,
   );
   const [showComments, setShowComments] = useState(false);
-  const [suggestionStates, setSuggestionStates] = useState<Map<string, string>>(
-    new Map(),
-  );
-  const [suggestionMarkVersion, setSuggestionMarkVersion] = useState(0);
-  const suggestionThreadIdsRef = useRef<Set<string>>(new Set());
-  const {yjsDocMap} = collabContext;
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-    const ids = Array.from(document.querySelectorAll('[data-suggestion-id]'))
-      .map((elem) => elem.getAttribute('data-suggestion-id'))
-      .filter((id): id is string => !!id);
-    if (ids.length === 0) return;
-    ids.forEach((id) => suggestionThreadIdsRef.current.add(id));
-  }, [suggestionMarkVersion]);
-
-  useEffect(() => {
-    if (providerFactory) {
-      const provider = providerFactory('comments', yjsDocMap);
-      return commentStore.registerCollaboration(provider);
-    }
-  }, [commentStore, providerFactory, yjsDocMap]);
-
-  useEffect(() => {
-    let doc = yjsDocMap.get('suggestions');
-    if (!doc) {
-      doc = new Doc();
-      yjsDocMap.set('suggestions', doc);
-    }
-    // The YJS types explicitly use `any` as well.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const suggestionsMap = doc.get('suggestions', YMap) as YMap<any>;
-
-    const syncSuggestions = () => {
-      const next = new Map<string, string>();
-      suggestionsMap.forEach((value, key) => {
-        if (value instanceof YMap && typeof key === 'string') {
-          const state = value.get('state');
-          if (typeof state === 'string') {
-            next.set(key, state);
-            suggestionThreadIdsRef.current.add(key);
-          }
-        }
-      });
-      setSuggestionStates(next);
-    };
-
-    syncSuggestions();
-    const observer = () => {
-      syncSuggestions();
-    };
-    suggestionsMap.observeDeep(observer);
-
-    return () => {
-      suggestionsMap.unobserveDeep(observer);
-    };
-  }, [yjsDocMap]);
-
   const cancelAddComment = useCallback(() => {
     editor.update(() => {
       const selection = $getSelection();
@@ -1402,28 +1398,10 @@ export default function CommentPlugin({
   );
 
   useEffect(() => {
-    const changedElems: Array<HTMLElement> = [];
-    for (let i = 0; i < activeIDs.length; i++) {
-      const id = activeIDs[i];
-      const keys = markNodeMap.get(id);
-      if (keys !== undefined) {
-        for (const key of keys) {
-          const elem = editor.getElementByKey(key);
-          if (elem !== null) {
-            elem.classList.add('selected');
-            changedElems.push(elem);
-            setShowComments(true);
-          }
-        }
-      }
+    if (activeIDs.length > 0) {
+      setShowComments(true);
     }
-    return () => {
-      for (let i = 0; i < changedElems.length; i++) {
-        const changedElem = changedElems[i];
-        changedElem.classList.remove('selected');
-      }
-    };
-  }, [activeIDs, editor, markNodeMap]);
+  }, [activeIDs]);
 
   useEffect(() => {
     const markNodeKeysToIDs: Map<NodeKey, Array<string>> = new Map();
@@ -1446,11 +1424,9 @@ export default function CommentPlugin({
       editor.registerMutationListener(
         MarkNode,
         (mutations) => {
-          let suggestionMarkChanged = false;
           editor.getEditorState().read(() => {
             for (const [key, mutation] of mutations) {
               const node: null | MarkNode = $getNodeByKey(key);
-              const previousIds = markNodeKeysToIDs.get(key) ?? [];
               let ids: NodeKey[] = [];
 
               if (mutation === 'destroyed') {
@@ -1459,18 +1435,8 @@ export default function CommentPlugin({
                 ids = node.getIDs();
               }
 
-              if (
-                previousIds.some(isSuggestionMarkId) ||
-                ids.some(isSuggestionMarkId)
-              ) {
-                suggestionMarkChanged = true;
-              }
-
               for (let i = 0; i < ids.length; i++) {
                 const id = ids[i];
-                if (isSuggestionMarkId(id)) {
-                  continue;
-                }
                 let markNodeKeys = markNodeMap.get(id);
                 markNodeKeysToIDs.set(key, ids);
 
@@ -1493,45 +1459,12 @@ export default function CommentPlugin({
               }
             }
           });
-          if (suggestionMarkChanged) {
-            setSuggestionMarkVersion((value) => value + 1);
-          }
         },
         {skipInitialization: false},
       ),
       editor.registerUpdateListener(({editorState, tags}) => {
         editorState.read(() => {
           const selection = $getSelection();
-          let hasActiveIds = false;
-          let hasAnchorKey = false;
-
-          if ($isRangeSelection(selection)) {
-            const anchorNode = selection.anchor.getNode();
-
-            if ($isTextNode(anchorNode)) {
-              const commentIDs = $getMarkIDs(
-                anchorNode,
-                selection.anchor.offset,
-              );
-              if (commentIDs !== null) {
-                const filtered = commentIDs.filter((id) => !isSuggestionMarkId(id));
-                setActiveIDs(filtered);
-                hasActiveIds = true;
-              }
-              if (!selection.isCollapsed()) {
-                setActiveAnchorKey(anchorNode.getKey());
-                hasAnchorKey = true;
-              }
-            }
-          }
-          if (!hasActiveIds) {
-            setActiveIDs((_activeIds) =>
-              _activeIds.length === 0 ? _activeIds : [],
-            );
-          }
-          if (!hasAnchorKey) {
-            setActiveAnchorKey(null);
-          }
           if (!tags.has(COLLABORATION_TAG) && $isRangeSelection(selection)) {
             setShowCommentInput(false);
           }
@@ -1581,9 +1514,6 @@ export default function CommentPlugin({
 
           const quote = payload.quote ?? selection.getTextContent();
           const threadId = payload.threadId;
-          if (payload.isSuggestion) {
-            suggestionThreadIdsRef.current.add(threadId);
-          }
 
           const existing = commentStore
             .getComments()
@@ -1600,7 +1530,7 @@ export default function CommentPlugin({
 
           const isBackward = selection.isBackward();
           // MarkNodes are purely presentational metadata; creating them should not
-          // introduce extra undo steps. (E.g. suggested-edit undo/redo should remain one step.)
+          // introduce extra undo steps.
           $addUpdateTag(HISTORY_MERGE_TAG);
           $wrapSelectionInMarkNode(selection, isBackward, threadId);
 
@@ -1634,7 +1564,7 @@ export default function CommentPlugin({
           const markNodeKeys = markNodeMap.get(payload.threadId);
           if (markNodeKeys !== undefined) {
             // Important: we don't want deferred mark cleanup to run *after* undo/redo has restored
-            // the thread/suggestion, since that can invalidate selection points. We therefore:
+            // the thread, since that can invalidate selection points. We therefore:
             // - run cleanup as a microtask (so it happens promptly)
             // - and skip cleanup if the thread has been recreated in the meantime.
             queueMicrotask(() => {
@@ -1715,8 +1645,6 @@ export default function CommentPlugin({
             deleteCommentOrThread={deleteCommentOrThread}
             activeIDs={activeIDs}
             markNodeMap={markNodeMap}
-            suggestionStates={suggestionStates}
-            suggestionThreadIdsRef={suggestionThreadIdsRef}
           />,
           document.body,
         )}
