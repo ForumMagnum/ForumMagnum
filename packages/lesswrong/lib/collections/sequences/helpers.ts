@@ -6,7 +6,7 @@ import * as _ from 'underscore';
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
 import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
-import { SCALING_SEQUENCE_ID } from '@/lib/collections/forumEvents/helpers';
+import { SCALING_SERIES_ID } from '@/lib/collections/forumEvents/helpers';
 
 export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
 
@@ -19,8 +19,8 @@ interface SequencePostId {
 
 export const sequenceGetPageUrl = function(sequence: {_id: string}, isAbsolute = false){
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  if (sequence._id === SCALING_SEQUENCE_ID) {
-    return `${prefix}/scaling-sequence`;
+  if (sequence._id === SCALING_SERIES_ID) {
+    return `${prefix}/scaling-series`;
   }
   return `${prefix}/s/${sequence._id}`;
 };
@@ -173,7 +173,7 @@ export const sequenceRouteWillDefinitelyReturn200 = async (req: Request, res: Re
   if (!sequenceId) return false;
   if (
     sequenceId === MARGINAL_FUNDING_SEQUENCE_ID ||
-    sequenceId === SCALING_SEQUENCE_ID
+    sequenceId === SCALING_SERIES_ID
   ) {
     return false;
   }
