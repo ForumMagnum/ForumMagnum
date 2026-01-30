@@ -224,7 +224,7 @@ const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   return $("#root").html() || ""
 }
 
-const removeLeadingEmptyParagraphsAndBreaks = (elements: CheerioElement[], $: Root) => {
+const removeLeadingEmptyParagraphsAndBreaks = (elements: CheerioElement[], $: CheerioAPI) => {
    for (const elem of elements) {
     if (isEmptyParagraphOrBreak(elem)) {
       $(elem).remove()
