@@ -17,4 +17,4 @@ export function stripFootnotes(html: string): string {
   return (document.body.textContent || "").trim();
 }
 
-export const SCALING_SEQUENCE_ID = "gBjPorwZHRArNSQ5w"; // TODO
+export const SCALING_SEQUENCE_ID = "HvynzLsZDJm4vS2gL";
