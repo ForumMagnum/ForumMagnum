@@ -13,7 +13,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import StyledMapPopup, { StyledMapPopupContent } from "../../localGroups/StyledMapPopup";
 import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
-import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
+import { MapboxViewport, WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
@@ -221,7 +221,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false}: {
       {...viewport}
       width="100%"
       height="100%"
-      onViewportChange={viewport => setViewport(viewport)}
+      onViewportChange={(viewport: MapboxViewport) => setViewport(viewport)}
     >
       {renderedMarkers}
     </WrappedReactMapGL>

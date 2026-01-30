@@ -8103,10 +8103,10 @@
     "@types/react-instantsearch-dom" "*"
     "@types/react-instantsearch-native" "*"
 
-"@types/react-map-gl@^5.2.2":
-  version "5.2.9"
-  resolved "https://registry.npmjs.org/@types/react-map-gl/-/react-map-gl-5.2.9.tgz"
-  integrity sha512-DbN7irrx9OEfDTK9TNOyTjWgz4/TOJXyY9EDDmHQC1Ne7KW6QCbOt6vKD+StMYjdO1CfkayjM1n4/CeyTHw0BA==
+"@types/react-map-gl@^5.2.11":
+  version "5.2.11"
+  resolved "https://registry.yarnpkg.com/@types/react-map-gl/-/react-map-gl-5.2.11.tgz#440323fb4ca8b72899ba2e544cc924bcdf8e3cfa"
+  integrity sha512-yK9O7szpEgWiYZVBZKuWXCTk+elSn/g1GFUc2MYE38XSWSE0zdCbFRRbTwMZjG6WxbJ/UkC8sHyKI73xC2a8ew==
   dependencies:
     "@types/geojson" "*"
     "@types/mapbox-gl" "*"

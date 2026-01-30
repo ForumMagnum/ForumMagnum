@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import StyledMapPopup from "../../localGroups/StyledMapPopup";
-import { WrappedReactMapGL } from '../WrappedReactMapGL';
+import { type MapboxViewport, WrappedReactMapGL } from '../WrappedReactMapGL';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -115,7 +115,7 @@ const SearchResultsMap = ({
       {...viewport}
       width="100%"
       height="100%"
-      onViewportChange={viewport => setViewport(viewport)}
+      onViewportChange={(viewport: MapboxViewport) => setViewport(viewport)}
     >
       {hits.map(hit => {
         if (!hit._geoloc || !markerLocations[hit._id]) return null

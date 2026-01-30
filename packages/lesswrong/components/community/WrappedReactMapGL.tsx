@@ -8,13 +8,23 @@ import { useMapStyle } from '../hooks/useMapStyle';
 import { mapboxAPIKeySetting } from '@/lib/instanceSettings';
 import { usePathname } from 'next/navigation';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 
-export const WrappedReactMapGL = withErrorBoundary((props: InteractiveMapProps & {
+interface AddedProps {
   mapStyle?: never,
   mapboxApiAccessToken?: never,
   children?: React.ReactNode
-}) => {
+}
+type WrappedReactMapGLProps = InteractiveMapProps & AddedProps;
+
+export type MapboxViewport = {
+  latitude: number
+  longitude: number
+  zoom: number
+}
+
+const WrappedReactMapGLInner = (props: InteractiveMapProps & AddedProps) => {
   const mapStyle = useMapStyle();
   const pathname = usePathname();
 
@@ -32,4 +42,8 @@ export const WrappedReactMapGL = withErrorBoundary((props: InteractiveMapProps &
       mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
     />
   </>;
-})
+}
+
+export const WrappedReactMapGL = registerComponent<WrappedReactMapGLProps>("WrappedReactMapGL", WrappedReactMapGLInner, {
+  hocs: [withErrorBoundary],
+});
