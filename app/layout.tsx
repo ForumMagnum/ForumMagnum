@@ -29,6 +29,7 @@ export default async function RootLayout({
         <SharedScripts/>
       </head>
       <BodyWithBackgroundColor>
+        Not totally empty body
         <Suspense>
           <ClientIDAssignerServer/>
           <PageBackgroundColorSwitcher/>
@@ -37,7 +38,10 @@ export default async function RootLayout({
           <EnvironmentOverrideContextProviderServer>
             <ClientRouteMetadataProvider>
               <ClientAppGenerator abTestGroupsUsed={{}}>
-                {children}
+                Not totally empty ClientAppGenerator
+                <Suspense>
+                  {children}
+                </Suspense>
               </ClientAppGenerator>
             </ClientRouteMetadataProvider>
           </EnvironmentOverrideContextProviderServer>
