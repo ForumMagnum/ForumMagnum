@@ -471,11 +471,12 @@ function FloatingLinkEditor({
             onMouseDown={preventDefault}
             onClick={() => {
               if (isSuggestionMode) {
+                const { linkNode, linkTextNode } = getCurrentLinkChangePayload();
                 editor.dispatchCommand(LINK_CHANGE_COMMAND, {
                   text: null,
-                  linkNode: null,
+                  linkNode,
                   url: null,
-                  linkTextNode: null,
+                  linkTextNode,
                 });
               } else {
                 editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);

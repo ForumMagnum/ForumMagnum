@@ -3,7 +3,7 @@ import type { ElementNode } from 'lexical'
 import { $nodesOfType, $isElementNode, $isTextNode } from 'lexical'
 import { $unwrapSuggestionNode } from './Utils'
 import { ProtonNode, $isSuggestionNode } from './ProtonNode'
-import { $createLinkNode, $isLinkNode } from '@lexical/link'
+import { $createLinkNode, $isLinkNode, $isAutoLinkNode } from '@lexical/link'
 import { $patchStyleText } from '@lexical/selection'
 import { $isImageNode } from '@/components/editor/lexicalPlugins/suggestions/stubs/Image/ImageNode'
 import { $findMatchingParent } from '@lexical/utils'
@@ -110,6 +110,9 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
       $unwrapSuggestionNode(node)
       if (initialURL) {
         linkNode.setURL(initialURL)
+        if ($isAutoLinkNode(linkNode)) {
+          linkNode.setIsUnlinked(false)
+        }
       } else {
         const children = linkNode.getChildren()
         for (const child of children) {

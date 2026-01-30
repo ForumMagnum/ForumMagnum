@@ -1,6 +1,6 @@
-import { $createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
+import { $createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND, type AutoLinkNode, type LinkNode } from '@lexical/link'
 import { $findMatchingParent, $wrapNodeInElement } from '@lexical/utils'
-import type { LexicalEditor } from 'lexical'
+import type { LexicalEditor, LexicalNode } from 'lexical'
 import { $getSelection, $isRangeSelection, $createTextNode } from 'lexical'
 import { generateUUID } from '@/lib/vendor/proton/generateUUID'
 import { normalizeUrl, sanitizeUrl } from '@/components/lexical/utils/url'
@@ -47,12 +47,12 @@ export function $handleLinkChangeSuggestion(
     const nodes = selection.getNodes()
     for (const node of nodes) {
       const parent = node.getParent()
-      if ($isAutoLinkNode(parent)) {
-        continue
-      }
       if ($isLinkNode(parent)) {
         currentLinkNode = parent
         break
+      }
+      if (!currentLinkNode && $isAutoLinkNode(parent)) {
+        currentLinkNode = parent
       }
     }
   }
@@ -72,7 +72,7 @@ export function $handleLinkChangeSuggestion(
   const shouldCreateNewSuggestionNode = existingSuggestion?.getSuggestionTypeOrThrow() !== 'link-change'
 
   if (shouldCreateNewSuggestionNode) {
-    if (currentLinkNode) {
+    if (currentLinkNode && ($isLinkNode(currentLinkNode) || $isAutoLinkNode(currentLinkNode))) {
       const initialURL = currentLinkNode.getURL()
       $wrapNodeInElement(currentLinkNode, () =>
         $createSuggestionNode(suggestionID, 'link-change', {
