@@ -57,8 +57,8 @@ export class ProtonNode extends ElementNode {
   }
 
   createDOM(): HTMLElement {
-    const element = document.createElement('mark')
     const properties = this.__properties
+    const element = properties.suggestionType === 'delete' ? document.createElement('del') : document.createElement('ins')
     if (properties.nodeType === 'suggestion') {
       addClassNamesToElement(element, 'Lexical__Suggestion')
       addClassNamesToElement(element, properties.suggestionType)
