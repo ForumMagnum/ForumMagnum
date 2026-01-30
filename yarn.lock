@@ -2089,6 +2089,11 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@babel/runtime@^7.12.0":
+  version "7.28.6"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.28.6.tgz#d267a43cb1836dc4d182cce93ae75ba954ef6d2b"
+  integrity sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==
+
 "@babel/runtime@^7.12.13":
   version "7.23.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.23.2.tgz#062b0ac103261d68a966c4c7baf2ae3e62ec3885"
@@ -5399,13 +5404,13 @@
   resolved "https://registry.npmjs.org/@mapbox/whoots-js/-/whoots-js-3.1.0.tgz"
   integrity sha512-Es6WcD0nO5l+2BOQS4uLfNPYQaNDfbot3X1XUoloz+x0mPDS3eeORZJl06HXjwBG1fOGwCRnzK88LMdxKRrd6Q==
 
-"@math.gl/web-mercator@^3.1.3":
-  version "3.3.2"
-  resolved "https://registry.npmjs.org/@math.gl/web-mercator/-/web-mercator-3.3.2.tgz"
-  integrity sha512-84NNnwP97Xwm1ynZzat1BuEU2uLyIw0gzG5uvGMrAzezny2P38+E2cUK8t9eptKa8gjk2MaC7hhcO0saFCZTHw==
+"@math.gl/web-mercator@^3.5.5":
+  version "3.6.3"
+  resolved "https://registry.yarnpkg.com/@math.gl/web-mercator/-/web-mercator-3.6.3.tgz#ef91168e030eecffc788618d686e8a6c1d7a0bf8"
+  integrity sha512-UVrkSOs02YLehKaehrxhAejYMurehIHPfFQvPFZmdJHglHOU4V2cCUApTVEwOksvCp161ypEqVp+9H6mGhTTcw==
   dependencies:
-    "@babel/runtime" "^7.0.0"
-    gl-matrix "^3.0.0"
+    "@babel/runtime" "^7.12.0"
+    gl-matrix "^3.4.0"
 
 "@mozilla/readability@^0.4.4":
   version "0.4.4"
@@ -7498,7 +7503,7 @@
   resolved "https://registry.npmjs.org/@types/geojson/-/geojson-7946.0.7.tgz"
   integrity sha512-wE2v81i4C4Ol09RtsWFAqg3BUitWbHSpSlIo+bNdsCJijO9sjme+zm+73ZMCa/qMC8UEERxzGbvmr1cffo2SiQ==
 
-"@types/geojson@^7946.0.10":
+"@types/geojson@^7946.0.10", "@types/geojson@^7946.0.7":
   version "7946.0.16"
   resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.16.tgz#8ebe53d69efada7044454e3305c19017d97ced2a"
   integrity sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==
@@ -7519,6 +7524,11 @@
   integrity sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==
   dependencies:
     "@types/node" "*"
+
+"@types/hammerjs@^2.0.41":
+  version "2.0.46"
+  resolved "https://registry.yarnpkg.com/@types/hammerjs/-/hammerjs-2.0.46.tgz#381daaca1360ff8a7c8dff63f32e69745b9fb1e1"
+  integrity sha512-ynRvcq6wvqexJ9brDMS4BnBLzmr0e14d6ZJTEShTBWKymQiHwlAyGu0ZPEFI2Fh1U53F7tN9ufClWM5KvqkKOw==
 
 "@types/hast@3.0.4", "@types/hast@^3.0.0":
   version "3.0.4"
@@ -7673,6 +7683,13 @@
   version "1.12.8"
   resolved "https://registry.npmjs.org/@types/mapbox-gl/-/mapbox-gl-1.12.8.tgz"
   integrity sha512-a/FCVFr/i43dVl9M+PUVeuoG9IH5H1TfXWGcGoeyXgsdgDHmM6dI5u5CabW2GVu97hMQ64gbeR5N3jZ5sqWaMw==
+  dependencies:
+    "@types/geojson" "*"
+
+"@types/mapbox-gl@^2.0.3":
+  version "2.7.21"
+  resolved "https://registry.yarnpkg.com/@types/mapbox-gl/-/mapbox-gl-2.7.21.tgz#b0cad1e4c3d1bf1592444de36a4f27e890310416"
+  integrity sha512-Dx9MuF2kKgT/N22LsMUB4b3acFZh9clVqz9zv1fomoiPoBrJolwYxpWA/9LPO/2N0xWbKi4V+pkjTaFkkx/4wA==
   dependencies:
     "@types/geojson" "*"
 
@@ -13639,10 +13656,15 @@ gifwrap@^0.10.1:
     image-q "^4.0.0"
     omggif "^1.0.10"
 
-gl-matrix@^3.0.0, gl-matrix@^3.2.0, gl-matrix@^3.2.1:
+gl-matrix@^3.2.0, gl-matrix@^3.2.1:
   version "3.3.0"
   resolved "https://registry.npmjs.org/gl-matrix/-/gl-matrix-3.3.0.tgz"
   integrity sha512-COb7LDz+SXaHtl/h4LeaFcNdJdAQSDeVqjiIihSXNrkWObZLhDI4hIkZC11Aeqp7bcE72clzB0BnDXr2SmslRA==
+
+gl-matrix@^3.4.0:
+  version "3.4.4"
+  resolved "https://registry.yarnpkg.com/gl-matrix/-/gl-matrix-3.4.4.tgz#7789ee4982f62c7a7af447ee488f3bd6b0c77003"
+  integrity sha512-latSnyDNt/8zYUB6VIJ6PCh2jBjJX6gnDsoCZ7LyW7GkqrD51EWwa9qCoGixj8YqBtETQK/xY7OmpTF8xz1DdQ==
 
 glob-parent@^5.1.2, glob-parent@~5.1.2:
   version "5.1.2"
@@ -17432,12 +17454,12 @@ minizlib@^2.1.1:
     minipass "^3.0.0"
     yallist "^4.0.0"
 
-mjolnir.js@^2.4.0:
-  version "2.4.1"
-  resolved "https://registry.npmjs.org/mjolnir.js/-/mjolnir.js-2.4.1.tgz"
-  integrity sha512-bpqKc70aNlijeQCapJ8529EmjVj8VSfYdzh1WsbhWp0XEQSm9hAB6X350OyRVDpH5oTdAyX/NeYFqtwyuO4ZKA==
+mjolnir.js@^2.5.0:
+  version "2.7.3"
+  resolved "https://registry.yarnpkg.com/mjolnir.js/-/mjolnir.js-2.7.3.tgz#b71902edaa387f14c7fe6e9b1f611c0ce814240a"
+  integrity sha512-Z5z/+FzZqOSO3juSVKV3zcm4R2eAlWwlKMcqHmyFEJAaLILNcDKnIbnb4/kbcGyIuhtdWrzu8WOIR7uM6I34aw==
   dependencies:
-    "@babel/runtime" "^7.0.0"
+    "@types/hammerjs" "^2.0.41"
     hammerjs "^2.0.8"
 
 mkdirp@^1.0.3:
@@ -19372,17 +19394,19 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.npmjs.org/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
-react-map-gl@^5.2.9:
-  version "5.2.10"
-  resolved "https://registry.npmjs.org/react-map-gl/-/react-map-gl-5.2.10.tgz"
-  integrity sha512-Mjb0+obehBCjCdfWDmAy51PfsWFW4pIDkgm2RvQLuQoRD0zF4W+vCAAZkV2pgCtA9akGmOcFKQki4H1+Noyzag==
+react-map-gl@^5.3.18:
+  version "5.3.21"
+  resolved "https://registry.yarnpkg.com/react-map-gl/-/react-map-gl-5.3.21.tgz#7d28cdfe382d599d4ac8cccf7d794a3a0f06b65b"
+  integrity sha512-hNVYiPBjgfVIcDV70OU9QnzvNCI1NhLm5OHjyY1rKPOKqzV4m9jjuXEKUaWC72vqIHk1Dzb+gG78xWOpqVi6uw==
   dependencies:
     "@babel/runtime" "^7.0.0"
+    "@types/geojson" "^7946.0.7"
+    "@types/mapbox-gl" "^2.0.3"
     mapbox-gl "^1.0.0"
-    mjolnir.js "^2.4.0"
+    mjolnir.js "^2.5.0"
     prop-types "^15.7.2"
-    react-virtualized-auto-sizer "^1.0.2"
-    viewport-mercator-project "^6.2.3 || ^7.0.1"
+    resize-observer-polyfill "^1.5.1"
+    viewport-mercator-project "^7.0.4"
 
 react-popper@^2.3.0:
   version "2.3.0"
@@ -19457,11 +19481,6 @@ react-transition-group@^4.4.5:
     dom-helpers "^5.0.1"
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
-
-react-virtualized-auto-sizer@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/react-virtualized-auto-sizer/-/react-virtualized-auto-sizer-1.0.2.tgz"
-  integrity sha512-MYXhTY1BZpdJFjUovvYHVBmkq79szK/k7V3MO+36gJkWGkrXKtyr4vCPtpphaTLRAdDNoYEYFZWE8LjN+PIHNg==
 
 react@^19.2.0:
   version "19.2.4"
@@ -22220,12 +22239,12 @@ vfile@^6.0.0:
     "@types/unist" "^3.0.0"
     vfile-message "^4.0.0"
 
-"viewport-mercator-project@^6.2.3 || ^7.0.1":
-  version "7.0.1"
-  resolved "https://registry.npmjs.org/viewport-mercator-project/-/viewport-mercator-project-7.0.1.tgz"
-  integrity sha512-WKTuTL7o6WKdPQ+gmZhlXL7UpSdCdPUjxkDTBd/3AayBdAFSQGHxsqdbmPBvmoGwvo9KWo/30HTkNo/Z7ORJpw==
+viewport-mercator-project@^7.0.4:
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/viewport-mercator-project/-/viewport-mercator-project-7.0.4.tgz#67feec04135484bf424dd4890d630e82116b31e6"
+  integrity sha512-0jzpL6pIMocCKWg1C3mqi/N4UPgZC3FzwghEm1H+XsUo8hNZAyJc3QR7YqC816ibOR8aWT5pCsV+gCu8/BMJgg==
   dependencies:
-    "@math.gl/web-mercator" "^3.1.3"
+    "@math.gl/web-mercator" "^3.5.5"
 
 vite@^5.4.19:
   version "5.4.19"
