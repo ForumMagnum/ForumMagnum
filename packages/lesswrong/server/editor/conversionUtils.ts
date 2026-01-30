@@ -10,6 +10,8 @@ import { sanitize } from '../../lib/vulcan-lib/utils';
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import escape from 'lodash/escape';
 import { getMarkdownIt } from '@/lib/utils/markdownItPlugins';
+import type { Cheerio, CheerioAPI, Element as CheerioElement } from 'cheerio';
+import type { DataNode } from 'domhandler';
 
 let _turndownService: TurndownService|null = null;
 function getTurndown(): TurndownService {
@@ -24,7 +26,7 @@ function getTurndown(): TurndownService {
       filter: (node, options) => node.classList?.contains('footnote-reference'),
       replacement: (content, node) => {
         // Use the data-footnote-id attribute to get the footnote id
-        const id = (node as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
+        const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
         return `[^${id}]`
       }
     })
@@ -33,10 +35,10 @@ function getTurndown(): TurndownService {
       filter: (node, options) => node.classList?.contains('footnote-item'),
       replacement: (content, node) => {
         // Use the data-footnote-id attribute to get the footnote id
-        const id = (node as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
+        const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
     
         // Get the content of the footnote by getting the content of the footnote-content div
-        const text = (node as Element).querySelector('.footnote-content')?.textContent || ''
+        const text = (node as unknown as Element).querySelector('.footnote-content')?.textContent || ''
         return `[^${id}]: ${text} \n\n`
       }
     })
@@ -121,7 +123,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
 }
 
 // Adapted from: https://github.com/cheeriojs/cheerio/issues/748
-export const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
+export const cheerioWrapAll = (toWrap: Cheerio<AnyBecauseHard>, wrapper: string, $: CheerioAPI) => {
   if (toWrap.length < 1) {
     return toWrap;
   }
@@ -153,8 +155,8 @@ function wrapSpoilerTags(html: string): string {
 
   // Iterate through spoiler elements, collecting them into groups. We do this
   // the hard way, because cheerio's sibling-selectors don't seem to work right.
-  let spoilerBlockGroups: Array<cheerio.Element[]> = [];
-  let currentBlockGroup: cheerio.Element[] = [];
+  let spoilerBlockGroups: Array<CheerioElement[]> = [];
+  let currentBlockGroup: CheerioElement[] = [];
   $(`.${spoilerClass}`).each(function(this: any) {
     const element = this;
     if (!(element?.previousSibling && $(element.previousSibling).hasClass(spoilerClass))) {
@@ -222,7 +224,7 @@ const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   return $("#root").html() || ""
 }
 
-const removeLeadingEmptyParagraphsAndBreaks = (elements: cheerio.Element[], $: cheerio.Root) => {
+const removeLeadingEmptyParagraphsAndBreaks = (elements: CheerioElement[], $: Root) => {
    for (const elem of elements) {
     if (isEmptyParagraphOrBreak(elem)) {
       $(elem).remove()
@@ -232,10 +234,10 @@ const removeLeadingEmptyParagraphsAndBreaks = (elements: cheerio.Element[], $: c
   }
 }
 
-const isEmptyParagraphOrBreak = (elem: cheerio.Element) => {
+const isEmptyParagraphOrBreak = (elem: CheerioElement) => {
   if (elem.type === 'tag' && elem.name === "p") {
     if (elem.children?.length === 0) return true
-    if (elem.children?.length === 1 && elem.children[0]?.type === "text" && elem.children[0]?.data?.trim() === "") return true
+    if (elem.children?.length === 1 && elem.children[0]?.type === "text" && (elem.children[0] as DataNode)?.data?.trim() === "") return true
     return false
   }
   if (elem.type === 'tag' && elem.name === "br") return true
@@ -288,6 +290,28 @@ async function ckEditorMarkupToHtml(markup: string, context: ResolverContext, sk
   }
 }
 
+function removePrivateLexicalMarkup(markup: string): string {
+  const $ = cheerioParse(markup);
+  // Suggested edits leave `ins` and `del` wrappers in the markup, and comments leave `mark` wrapper
+  // We want to remove all the wrappers, and in the case of insertions, delete the content, to prevent
+  // leaking any suggested edits that haven't been explicitly accepted to readers.
+  $('ins').remove();
+  $('del').unwrap();
+  $('mark').unwrap();
+  return $.html();
+}
+
+async function lexicalMarkupToHtml(markup: string, context: ResolverContext, skipMathjax?: boolean): Promise<string> {
+  const html = sanitize(markup);
+  const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html);
+  const strippedHtml = removePrivateLexicalMarkup(trimmedHtml);
+  if (skipMathjax) {
+    return strippedHtml;
+  } else {
+    return await mjPagePromise(strippedHtml, trimLatexAndAddCSS);
+  }
+}
+
 interface DataToHTMLOptions {
   sanitize?: boolean,
   skipMathjax?: boolean,
@@ -296,14 +320,14 @@ interface DataToHTMLOptions {
 export async function dataToHTML(data: AnyBecauseTodo, type: string, context: ResolverContext, options?: DataToHTMLOptions) {
   switch (type) {
     case "html":
-    case "lexical":
-      // Lexical content is stored as HTML
       const maybeSanitized = options?.sanitize ? sanitize(data) : data;
       if (options?.skipMathjax) {
         return maybeSanitized;
       } else {
         return await mjPagePromise(maybeSanitized, trimLatexAndAddCSS)
       }
+    case "lexical":
+      return await lexicalMarkupToHtml(data, context, !!options?.skipMathjax)
     case "ckEditorMarkup":
       return await ckEditorMarkupToHtml(data, context, !!options?.skipMathjax)
     case "draftJS":

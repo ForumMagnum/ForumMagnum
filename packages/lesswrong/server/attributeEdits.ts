@@ -1,6 +1,8 @@
 import { diff } from './vendor/node-htmldiff/htmldiff';
 import { compareVersionNumbers } from '../lib/editor/utils';
 import cheerio from 'cheerio';
+import type { Cheerio, CheerioAPI } from 'cheerio';
+import type { DataNode, Element, Node, NodeWithChildren } from 'cheerio/node_modules/domhandler';
 import { cheerioParse } from './utils/htmlUtil';
 import orderBy from 'lodash/orderBy';
 import filter from 'lodash/filter';
@@ -86,20 +88,18 @@ export async function computeAttributions(
   return { finalHtml: finalRev.html || "", attributions };
 }
 
-function annotateInsDel(root: cheerio.Root): InsDelUnc[] {
+function annotateInsDel(root: Node): InsDelUnc[] {
   const annotations: InsDelUnc[] = [];
   
-  // @ts-ignore
-  walkHtmlPreorder<InsDelUnc>(root, "unchanged", (node: cheerio.Element, state: InsDelUnc) => {
-    //@ts-ignore
-    if (node.type === 'tag' || node.type === "root") {
-      if (node.tagName==="ins") {
+  walkHtmlPreorder<InsDelUnc>(root, "unchanged", (node: Node, state: InsDelUnc) => {
+    if (node.type === "tag") {
+      if ((node as Element).tagName === "ins") {
         return "ins";
-      } else if (node.tagName==="del") {
+      } else if ((node as Element).tagName === "del") {
         return "del";
       }
-    } else if (node.type === 'text' && node.data) {
-      const text: string = node.data;
+    } else if (node.type === 'text' && (node as DataNode).data) {
+      const text: string = (node as DataNode).data;
       for (let i=0; i<text.length; i++)
         annotations.push(state);
     }
@@ -109,11 +109,11 @@ function annotateInsDel(root: cheerio.Root): InsDelUnc[] {
   return annotations;
 }
 
-function treeToText($: cheerio.Root): string {
+function treeToText($: CheerioAPI): string {
   const textSegments: string[] = [];
-  walkHtmlPreorder<null>($.root()[0], null, (node: cheerio.Element, state: null) => {
-    if (node.type === 'text' && node.data) {
-      const text: string = node.data;
+  walkHtmlPreorder<null>($.root()[0], null, (node: Node, state: null) => {
+    if (node.type === 'text' && (node as DataNode).data) {
+      const text: string = (node as DataNode).data;
       textSegments.push(text);
     }
     return null;
@@ -125,7 +125,7 @@ function isSpace(s: string): boolean {
   return s.trim()==="";
 }
 
-function replaceDelTag($: cheerio.Root) {
+function replaceDelTag($: CheerioAPI) {
   $('del').each((_, element) => {
     const $del = $(element);
     const attributes = $del.attr();
@@ -150,7 +150,6 @@ export const attributeEdits = (oldHtml: string, newHtml: string, userId: string,
   
   const diffHtml = diff(parsedOldHtml.html(), parsedNewHtml.html());
   const parsedDiffs = cheerioParse(diffHtml);
-  // @ts-ignore
   const insDelAnnotations = annotateInsDel(parsedDiffs.root()[0]);
   
   let newAttributions: EditAttributions = [];
@@ -202,21 +201,19 @@ export const attributeEdits = (oldHtml: string, newHtml: string, userId: string,
   return newAttributions;
 }
 
-function walkHtmlPreorder<T>(node: cheerio.Element, props: T, callback: (node: cheerio.Element, props: T) => T) {
+function walkHtmlPreorder<T>(node: Node, props: T, callback: (node: Node, props: T) => T) {
   const childProps: T = callback(node, props);
-  //@ts-ignore
-  if (node.type==="tag" || node.type==="root") {
-    for (let child of node.children) {
+  if (node.type === "tag" || node.type === "root") {
+    for (let child of (node as NodeWithChildren).children) {
       walkHtmlPreorder(child, childProps, callback);
     }
   }
 }
 
-function mapHtmlPostorder($: cheerio.Root, node: cheerio.Element, callback: (node: cheerio.Cheerio) => cheerio.Cheerio): cheerio.Cheerio {
-  //@ts-ignore
-  if (node.type==="tag" || node.type==="root") {
+function mapHtmlPostorder($: CheerioAPI, node: Node, callback: (node: Cheerio<Node>) => Cheerio<Node>): Cheerio<Node> {
+  if (node.type === "tag" || node.type === "root") {
     const $copiedNode = $(node).clone();
-    const mappedChildren = ($copiedNode[0] as cheerio.TagElement).children.map(c =>
+    const mappedChildren = ($copiedNode[0] as NodeWithChildren).children.map(c =>
       mapHtmlPostorder($, c, callback));
     $copiedNode.empty();
     for (let mappedChild of mappedChildren)
@@ -245,16 +242,15 @@ export const spansToAttributions = (html: string): EditAttributions => {
   const $ = cheerioParse(html);
   const ret: EditAttributions = [];
   let currentAuthorId: string|null = null;
-  walkHtmlPreorder<void>($.root()[0], undefined, (node: cheerio.Element, props: void) => {
-    //@ts-ignore
+  walkHtmlPreorder<void>($.root()[0], undefined, (node: Node, props: void) => {
     if (node.type === 'tag' || node.type === "root") {
-      if (node.attribs?.class) {
-        const newAuthorId = classesToAuthorId(node.attribs.class)
+      if ((node as Element).attribs?.class) {
+        const newAuthorId = classesToAuthorId((node as Element).attribs.class)
         if (newAuthorId)
           currentAuthorId = newAuthorId;
       }
-    } else if (node.type === 'text' && node.data) {
-      for (let i=0; i<node.data.length; i++) {
+    } else if (node.type === 'text' && (node as DataNode).data) {
+      for (let i=0; i<(node as DataNode).data.length; i++) {
         ret.push(currentAuthorId);
       }
     }
@@ -262,13 +258,13 @@ export const spansToAttributions = (html: string): EditAttributions => {
   return ret;
 }
 
-export const applyAttributionsToText = ($: cheerio.Root, node: cheerio.Element, attributions: EditAttributions, startOffset: number): cheerio.Cheerio => {
-  if (!node.data || node.data.length===0) {
+export const applyAttributionsToText = ($: CheerioAPI, node: Node, attributions: EditAttributions, startOffset: number): Cheerio<Node> => {
+  if (!(node as DataNode).data || (node as DataNode).data.length===0) {
     return $(node);
   }
-  const text = node.data;
+  const text = (node as DataNode).data;
   
-  function createSpan(className: string|null, text: string): cheerio.Element|string {
+  function createSpan(className: string|null, text: string): Node|string {
     if (className) {
       const span = $('<span/>');
       span.text(text);
@@ -281,7 +277,7 @@ export const applyAttributionsToText = ($: cheerio.Root, node: cheerio.Element, 
   
   let rangeStart = 0;
   let currentAuthor: string|null = attributions[startOffset];
-  let spans: (cheerio.Element|string)[] = [];
+  let spans: (Node|string)[] = [];
   for (let i=1; i<text.length; i++) {
     if (attributions[startOffset+i] !== attributions[startOffset+i-1]) {
       const span = createSpan(authorIdToClasses(currentAuthor), text.substr(rangeStart, i-rangeStart));
@@ -298,7 +294,6 @@ export const applyAttributionsToText = ($: cheerio.Root, node: cheerio.Element, 
   
   const wrapperSpan = $('<span/>');
   for (let span of spans) {
-    // @ts-ignore
     wrapperSpan.append(span);
   }
   return wrapperSpan;
@@ -308,11 +303,11 @@ export const attributionsToSpans = (html: string, attributions: EditAttributions
   const $ = cheerioParse(html);
   let attributionPos = 0;
   
-  return cheerio.html(mapHtmlPostorder($, $.root()[0], ($node: cheerio.Cheerio) => {
+  return cheerio.html(mapHtmlPostorder($, $.root()[0], ($node: Cheerio<Node>) => {
     const node = $node[0];
-    if (node.type === 'text' && node.data) {
+    if (node.type === 'text' && (node as DataNode).data) {
       const ret = applyAttributionsToText($, node, attributions, attributionPos);
-      attributionPos += node.data.length
+      attributionPos += (node as DataNode).data.length
       return ret;
     } else {
       return $(node);

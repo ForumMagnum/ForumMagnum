@@ -104,7 +104,6 @@
     "@types/bcrypt": "^3.0.0",
     "@types/breejs__later": "^4.1.5",
     "@types/chai-as-promised": "^7.1.2",
-    "@types/cheerio": "^0.22.28",
     "@types/classnames": "^2.2.9",
     "@types/cookie-parser": "^1.4.2",
     "@types/cross-spawn": "^6.0.6",
