@@ -24,7 +24,7 @@ if (!globalThis.cachedAssignRequestId) {
  * globally. This is used for getting a ResolverContext in getResolverContextForSSR
  * and shouldn't be used for much else.
  */
-export async function getRequestId(): Promise<string> {
+export async function getRequestIdForServerComponentOrGenerateMetadata(): Promise<string> {
   return await globalThis.cachedAssignRequestId!();
 }
 

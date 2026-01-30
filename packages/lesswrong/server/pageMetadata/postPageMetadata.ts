@@ -1,16 +1,13 @@
-import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
+import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { notFound } from "next/navigation";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { runQuery } from "../vulcan-lib/query";
-import { getRequestId } from "../rendering/requestId";
-import { getResolverContextForSSR } from "../rendering/ssrApolloClient";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
@@ -88,9 +85,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
 
     const postId = paramsToPostIdConverter(paramValues);
     const commentId = searchParamsValues.commentId;
-    const searchParamsStr = JSON.stringify(searchParamsValues);
-    const requestId = await getRequestId();
-    const resolverContext = await getResolverContextForSSR(searchParamsStr, requestId);
+    const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);
 
     try {
       const [{ data: postData }, { data: commentData }] = await Promise.all([

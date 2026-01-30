@@ -1,23 +1,23 @@
 import React from "react";
 import CollectionsSingle from '@/components/sequences/CollectionsSingle';
-import { getClient } from "@/lib/apollo/nextApolloClient";
 import { CollectionsPageFragmentQuery } from "@/components/sequences/queries";
 import merge from "lodash/merge";
 import type { Metadata } from "next";
-import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, noIndexMetadata } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, noIndexMetadata } from "@/server/pageMetadata/sharedMetadata";
 import { taglineSetting } from "@/lib/instanceSettings";
 import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
 import RouteRoot from "@/components/layout/RouteRoot";
+import { runQuery } from "@/server/vulcan-lib/query";
 
-export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: {
+  params: Promise<{ _id: string }>,
+  searchParams: Promise<{}>,
+ }): Promise<Metadata> {
   const [{ _id }, defaultMetadata] = await Promise.all([params, getDefaultMetadata()]);
 
   try {
-    const { data } = await getClient().query({
-      query: CollectionsPageFragmentQuery,
-      variables: { documentId: _id },
-      fetchPolicy: 'network-only',
-    });
+    const resolverContext = await getResolverContextForGenerateMetadata(await searchParams);
+    const { data } = await runQuery(CollectionsPageFragmentQuery, { documentId: _id }, resolverContext);
   
     if (!data?.collection?.result) return {};
   

@@ -47,8 +47,8 @@ async function createResolverContextForSSR(searchParamsStr: string): Promise<Res
 
 /**
  * Gets a ResolverContext for use during SSR (and metadata generation), given a requestId
- * (from getRequestId) and search params from the URL. This is deduplicated between the
- * SSR and metadata generation.
+ * (from getRequestIdForServerComponentOrGenerateMetadata) and search params from the URL.
+ * This is deduplicated between the SSR and metadata generation.
  */
 export async function getResolverContextForSSR(searchParamsStr: string, requestId: string): Promise<ResolverContext> {
   const cache = getResolverContextMap();

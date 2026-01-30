@@ -49,8 +49,8 @@ export default async function RootLayout({
 const ClientAppGeneratorWithRequestId = async ({ children }: {
   children: React.ReactNode,
 }) => {
-  const { getRequestId } = await import("@/server/rendering/requestId");
-  const requestId = await getRequestId();
+  const { getRequestIdForServerComponentOrGenerateMetadata } = await import("@/server/rendering/requestId");
+  const requestId = await getRequestIdForServerComponentOrGenerateMetadata();
 
   return <ClientAppGenerator abTestGroupsUsed={{}} requestId={requestId}>
     {children}
