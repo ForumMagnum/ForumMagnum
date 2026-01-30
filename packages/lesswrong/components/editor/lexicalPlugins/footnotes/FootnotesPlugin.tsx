@@ -8,6 +8,7 @@ import {
   $isRangeSelection,
   $isNodeSelection,
   $isTextNode,
+  $isElementNode,
   $createParagraphNode,
   $addUpdateTag,
   $getAdjacentNode,
@@ -21,6 +22,7 @@ import {
   PASTE_COMMAND,
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
+  KEY_ARROW_LEFT_COMMAND,
   SELECTION_CHANGE_COMMAND,
   EditorState,
   HISTORY_MERGE_TAG,
@@ -269,6 +271,136 @@ function preventBackLinkSelection(editor: LexicalEditor): boolean {
   return didPrevent;
 }
 
+/**
+ * Check if the cursor is at the very start of a footnote's editable content.
+ * Returns the FootnoteItemNode if so, null otherwise.
+ */
+function $getFootnoteItemIfAtContentStart(): FootnoteItemNode | null {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+    return null;
+  }
+
+  const anchorNode = selection.anchor.getNode();
+  const anchorOffset = selection.anchor.offset;
+
+  // Find the containing FootnoteItemNode
+  let footnoteItem: FootnoteItemNode | null = null;
+  let node: LexicalNode | null = anchorNode;
+  while (node) {
+    if ($isFootnoteItemNode(node)) {
+      footnoteItem = node;
+      break;
+    }
+    node = node.getParent();
+  }
+
+  if (!footnoteItem) {
+    return null;
+  }
+
+  // Find the FootnoteContentNode within this item
+  const footnoteContent = footnoteItem
+    .getChildren()
+    .find((child) => $isFootnoteContentNode(child));
+  if (!footnoteContent) {
+    return null;
+  }
+
+  // Check if cursor is at the very start of the content
+  // Case 1: Selection is directly in the FootnoteContentNode at offset 0
+  if ($isFootnoteContentNode(anchorNode) && anchorOffset === 0) {
+    return footnoteItem;
+  }
+
+  // Case 2: Selection is in the first text node at offset 0
+  // We need to check if this is the first text-containing descendant
+  const firstChild = footnoteContent.getFirstChild();
+  if (!firstChild) {
+    // Empty content, cursor at start
+    return footnoteItem;
+  }
+
+  // Traverse to find the first text position in the content
+  let firstTextNode: LexicalNode | null = firstChild;
+  while (firstTextNode && !$isTextNode(firstTextNode)) {
+    if (!$isElementNode(firstTextNode)) {
+      break;
+    }
+    const firstDescendant: LexicalNode | null = firstTextNode.getFirstChild();
+    if (!firstDescendant) {
+      break;
+    }
+    firstTextNode = firstDescendant;
+  }
+
+  // If the anchor is the first text node (or its parent paragraph) at offset 0
+  if ($isTextNode(anchorNode) && anchorOffset === 0) {
+    // Check if this is the first text node in the content
+    if (anchorNode === firstTextNode) {
+      return footnoteItem;
+    }
+  }
+
+  // Case 3: Selection is in a paragraph/element at offset 0 that is the first child
+  if (anchorNode === firstChild && anchorOffset === 0) {
+    return footnoteItem;
+  }
+
+  return null;
+}
+
+function handleLeftArrowInFootnote(
+  editor: LexicalEditor,
+  event: KeyboardEvent
+): boolean {
+  const footnoteItem = $getFootnoteItemIfAtContentStart();
+
+  if (!footnoteItem) {
+    return false;
+  }
+
+  event.preventDefault();
+
+  editor.update(() => {
+    const section = footnoteItem.getParent();
+    if (!$isFootnoteSectionNode(section)) {
+      return;
+    }
+
+    const previousSibling = footnoteItem.getPreviousSibling();
+
+    if ($isFootnoteItemNode(previousSibling)) {
+      // Move to the end of the previous footnote's content
+      const prevContent = previousSibling
+        .getChildren()
+        .find((child) => $isFootnoteContentNode(child));
+      if (prevContent) {
+        prevContent.selectEnd();
+      }
+    } else {
+      // This is the first footnote - move cursor before the footnote section
+      const prevSectionSibling = section.getPreviousSibling();
+      if (prevSectionSibling) {
+        prevSectionSibling.selectEnd();
+      } else {
+        // Footnote section is the first element in the document
+        // Create a paragraph before it or select the root
+        const root = $getRoot();
+        const firstChild = root.getFirstChild();
+        if (firstChild === section) {
+          // Insert a paragraph before the section
+          const paragraph = $createParagraphNode();
+          section.insertBefore(paragraph);
+          paragraph.selectEnd();
+        }
+      }
+    }
+  });
+
+  return true;
+}
+
 type FootnoteReferenceDirection = 'before' | 'after';
 
 function getFootnoteReferenceAdjacentToCursor(
@@ -362,6 +494,12 @@ export function FootnotesPlugin(): null {
           }
           return deleteFootnoteItemOrSectionOnDelete(editor, event);
         },
+        COMMAND_PRIORITY_HIGH
+      ),
+
+      editor.registerCommand(
+        KEY_ARROW_LEFT_COMMAND,
+        (event) => handleLeftArrowInFootnote(editor, event),
         COMMAND_PRIORITY_HIGH
       ),
       
