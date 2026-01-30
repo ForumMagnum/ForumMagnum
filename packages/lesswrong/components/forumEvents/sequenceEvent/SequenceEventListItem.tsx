@@ -7,7 +7,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import UsersName from "../../users/UsersName";
 import classNames from "classnames";
 
-const styles = defineStyles("MarginalFundingListItem", (theme) => ({
+const styles = defineStyles("SequenceEventListItem", (theme) => ({
   root: {
     display: "contents",
     cursor: "pointer",
@@ -17,21 +17,21 @@ const styles = defineStyles("MarginalFundingListItem", (theme) => ({
     },
     "@media (pointer:fine)": {
       "&:hover": {
-        color: theme.palette.givingSeason.primary,
-        "& .MarginalFundingListItem-read": {
-          background: `${theme.palette.givingSeason.cardHover} !important`,
+        color: "var(--sequence-theme)",
+        "& .SequenceEventListItem-read": {
+          background: "var(--sequence-hover) !important",
         },
-        "& .MarginalFundingListItem-unread": {
-          background: `${theme.palette.givingSeason.cardHover} !important`,
+        "& .SequenceEventListItem-unread": {
+          background: "var(--sequence-hover) !important",
         },
-        "& .MarginalFundingListItem-org": {
-          borderColor: theme.palette.givingSeason.primary,
+        "& .SequenceEventListItem-org": {
+          borderColor: "var(--sequence-theme)",
         },
       },
     },
   },
   read: {
-    background: theme.palette.givingSeason.primary,
+    background: "var(--sequence-theme)",
   },
   unread: {
     background: theme.palette.text.alwaysWhite,
@@ -89,7 +89,7 @@ const styles = defineStyles("MarginalFundingListItem", (theme) => ({
   },
 }))
 
-export const MarginalFundingListItem = ({post}: {post: PostsListWithVotes}) => {
+export const SequenceEventListItem = ({post}: {post: PostsListWithVotes}) => {
   const href = postGetPageUrl(post);
   const {onClick} = useClickableCell({href});
   const classes = useStyles(styles);
@@ -140,4 +140,4 @@ export const MarginalFundingListItem = ({post}: {post: PostsListWithVotes}) => {
   );
 }
 
-export default registerComponent('MarginalFundingListItem', MarginalFundingListItem);
+export default registerComponent('SequenceEventListItem', SequenceEventListItem);

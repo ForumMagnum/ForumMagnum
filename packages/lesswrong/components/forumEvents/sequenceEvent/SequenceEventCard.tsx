@@ -9,7 +9,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import UsersName from "../../users/UsersName";
 import classNames from "classnames";
 
-const styles = defineStyles("MarginalFundingCard", (theme) => ({
+const styles = defineStyles("SequenceEventCard", (theme) => ({
   root: {
     padding: 40,
     display: "flex",
@@ -17,12 +17,12 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
     cursor: "pointer",
     "@media (pointer:fine)": {
       "&:hover": {
-        background: `${theme.palette.givingSeason.cardHover} !important`,
-        color: theme.palette.givingSeason.primary,
-        "& .MarginalFundingCard-org": {
-          borderColor: theme.palette.givingSeason.primary,
+        background: "var(--sequence-hover) !important",
+        color: "var(--sequence-theme)",
+        "& .SequenceEventCard-org": {
+          borderColor: "var(--sequence-theme)",
         },
-        "& .MarginalFundingCard-image": {
+        "& .SequenceEventCard-image": {
           transform: "scale(1.02)",
         },
       },
@@ -32,7 +32,7 @@ const styles = defineStyles("MarginalFundingCard", (theme) => ({
     },
   },
   read: {
-    background: theme.palette.givingSeason.primary,
+    background: "var(--sequence-theme)",
   },
   unread: {
     background: theme.palette.text.alwaysWhite,
@@ -103,7 +103,7 @@ const getImageUrl = (post: PostsListWithVotes) => {
   return "https://res.cloudinary.com/cea/image/upload/v1761927213/ForumImagePlaceholder.jpg";
 }
 
-export const MarginalFundingCard = ({post}: {post: PostsListWithVotes}) => {
+export const SequenceEventCard = ({post}: {post: PostsListWithVotes}) => {
   const href = postGetPageUrl(post);
   const {onClick} = useClickableCell({href});
   const classes = useStyles(styles);
@@ -155,4 +155,4 @@ export const MarginalFundingCard = ({post}: {post: PostsListWithVotes}) => {
   );
 }
 
-export default registerComponent('MarginalFundingCard', MarginalFundingCard);
+export default registerComponent('SequenceEventCard', SequenceEventCard);
