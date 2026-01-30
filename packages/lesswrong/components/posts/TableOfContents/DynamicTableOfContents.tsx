@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { EditorContents } from '../../editor/Editor';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import TableOfContents from "./TableOfContents";
@@ -23,7 +22,7 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
 
   const setToc = useCallback((document: EditorContents) => {
     // TODO handle markdown and everything else
-    if (document.type === 'ckEditorMarkup') {
+    if (document.type === 'ckEditorMarkup' || document.type === 'lexical') {
       setLatestHtml(document.value)
     }
   }, []);
@@ -48,7 +47,7 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   </div>;
 }
 
-export default registerComponent('DynamicTableOfContents', DynamicTableOfContents);
+export default DynamicTableOfContents;
 
 
 

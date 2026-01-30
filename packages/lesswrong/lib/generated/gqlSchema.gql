@@ -638,6 +638,7 @@ extend type Query {
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
+  HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
 }
 
 extend type Mutation {
@@ -701,6 +702,12 @@ type HomepageCommunityEventMarkersResult {
 
 type HomepageCommunityEventPostsResult {
   posts: [Post!]!
+}
+
+type HocuspocusAuth {
+  token: String!
+  wsUrl: String!
+  documentName: String!
 }
 
 type DigestHighlightsResult {
@@ -1297,12 +1304,23 @@ input ToggleBookmarkInput {
   collectionName: String!
 }
 
+input SetIsBookmarkedInput {
+  documentId: String!
+  collectionName: String!
+  isBookmarked: Boolean!
+}
+
 type ToggleBookmarkOutput {
+  data: Bookmark
+}
+
+type SetIsBookmarkedOutput {
   data: Bookmark
 }
 
 extend type Mutation {
   toggleBookmark(input: ToggleBookmarkInput!): ToggleBookmarkOutput
+  setIsBookmarked(input: SetIsBookmarkedInput!): SetIsBookmarkedOutput
 }
 
 extend type Mutation {
@@ -2189,6 +2207,7 @@ type Comment {
   agentFoundationsId: String
   originalDialogueId: String
   originalDialogue: Post
+  isBookmarked: Boolean!
   currentUserVote: String
   currentUserExtendedVote: JSON
   allVotes: [Vote!]
@@ -3994,6 +4013,7 @@ type ModerationTemplate {
   name: String!
   collectionName: ModerationTemplateType!
   order: Float!
+  groupLabel: String
   deleted: Boolean!
 }
 
@@ -4756,6 +4776,7 @@ type Post {
   curationNotices: [CurationNotice!]
   reviews: [Comment!]
   automatedContentEvaluations: AutomatedContentEvaluation
+  isBookmarked: Boolean!
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -8415,6 +8436,11 @@ extend type Query {
   votes(input: MultiVoteInput @deprecated(reason: "Use the selector field instead"), selector: VoteSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiVoteOutput
 }
 
+type YjsDocument {
+  _id: String!
+  createdAt: Date!
+}
+
 input CreateAdvisorRequestDataInput {
   legacyData: JSON
   userId: String!
@@ -9254,6 +9280,7 @@ input CreateModerationTemplateDataInput {
   name: String!
   collectionName: ModerationTemplateType!
   order: Float
+  groupLabel: String
 }
 
 input CreateModerationTemplateInput {
@@ -9266,6 +9293,7 @@ input UpdateModerationTemplateDataInput {
   name: String
   collectionName: ModerationTemplateType
   order: Float
+  groupLabel: String
   deleted: Boolean
 }
 

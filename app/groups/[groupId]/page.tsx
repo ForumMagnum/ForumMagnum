@@ -1,6 +1,5 @@
 import React from "react";
 import LocalGroupSingle from '@/components/localGroups/LocalGroupSingle';
-import { LocalgroupPageTitle } from '@/components/titles/LocalgroupPageTitle';
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
 import { getClient } from "@/lib/apollo/nextApolloClient";
@@ -63,7 +62,6 @@ export default function Page() {
   return <RouteRoot delayedStatusCode metadata={{
     subtitle: 'Community',
     subtitleLink: '/community',
-    titleComponent: LocalgroupPageTitle
   }}>
     <LocalGroupSingle />
   </RouteRoot>;

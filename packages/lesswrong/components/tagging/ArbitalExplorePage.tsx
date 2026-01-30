@@ -1,7 +1,5 @@
 "use client";
-
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 // import { arbitalPageData } from './ArbitalMockupData';
 import type { ArbitalPage, ArbitalPageNode } from './arbitalTypes';
@@ -155,8 +153,4 @@ const ArbitalExplorePage = () => {
   // );
 };
 
-export default registerComponent('ArbitalExplorePage', ArbitalExplorePage);
-
-
-
-
+export default ArbitalExplorePage;

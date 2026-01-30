@@ -4,7 +4,6 @@ import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { unflattenComments } from '@/lib/utils/unflatten';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions.ts';
 import React, { useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import { CurationNoticesForm } from './CurationNoticesForm';
 import SunshineCuratedSuggestionsList from "../sunshineDashboard/SunshineCuratedSuggestionsList";
@@ -16,6 +15,8 @@ import CurationNoticesItem from "./CurationNoticesItem";
 import CommentsList from "../comments/CommentsList";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const CurationNoticesFragmentMultiQuery = gql(`
   query multiCurationNoticeCurationPageQuery($selector: CurationNoticeSelector, $limit: Int, $enableTotal: Boolean) {
@@ -28,7 +29,7 @@ const CurationNoticesFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CurationPage", (theme: ThemeType) => ({
   curated: {
     position: "absolute",
     right: 0,
@@ -38,11 +39,10 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   }
-});
+}));
 
-export const CurationPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const CurationPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [post, setPost] = useState<PostsList|null>(null)
 
@@ -96,11 +96,11 @@ export const CurationPage = ({classes}: {
           </div>
     </SingleColumnSection>
     {<div className={classes.curated}>
-        <SunshineCuratedSuggestionsList limit={50} atBottom setCurationPost={setPost}/>
+        <SunshineCuratedSuggestionsList limit={50} setCurationPost={setPost}/>
     </div>}
   </div>;
 }
 
-export default registerComponent('CurationPage', CurationPage, {styles});
+export default CurationPage;
 
 

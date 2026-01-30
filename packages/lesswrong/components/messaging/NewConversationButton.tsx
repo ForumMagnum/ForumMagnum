@@ -1,5 +1,4 @@
 import React, { MouseEvent, ReactNode, useCallback, useEffect, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import { useDialog } from '../common/withDialog';
 import { useNavigate } from '../../lib/routeUtil';
@@ -98,6 +97,4 @@ const NewConversationButton = ({
   )
 }
 
-export default registerComponent('NewConversationButton', NewConversationButton);
-
-
+export default NewConversationButton;

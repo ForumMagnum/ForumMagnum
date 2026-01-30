@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
@@ -84,9 +83,4 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  'SuggestCuratedDropdownItem',
-  SuggestCuratedDropdownItem,
-);
-
-
+export default SuggestCuratedDropdownItem;

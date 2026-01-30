@@ -1,15 +1,16 @@
 import React from 'react';
 import type { EmojiReactName, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
 import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
 import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import ReactOrAntireactVote from "./ReactOrAntireactVote";
 import UsersWhoReacted from "./UsersWhoReacted";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReactionQuotesHoverInfo", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.commentStyle.fontFamily,
   },
@@ -60,15 +61,15 @@ const styles = (theme: ThemeType) => ({
     fontSize: 12,
     color: theme.palette.grey[500]
   }
-});
+}));
 
-const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, classes}: {
+const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef}: {
   react: EmojiReactName,
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
 
   const reactionsOfType: UserReactInfo[] = normalizedReactions?.reacts?.[react] ?? [];
@@ -113,7 +114,7 @@ const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, class
 }
 
 
-export default registerComponent('ReactionQuotesHoverInfo', ReactionQuotesHoverInfo, {styles});
+export default ReactionQuotesHoverInfo;
 
 
 

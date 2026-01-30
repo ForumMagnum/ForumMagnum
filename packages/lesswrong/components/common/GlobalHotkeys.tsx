@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useGlobalKeydown, useOnSearchHotkey } from './withGlobalKeydown';
 import { useSetTheme, useConcreteThemeOptions } from '../themes/useTheme';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -55,6 +54,6 @@ export const GlobalHotkeys = () => {
   return <></>;
 }
 
-export default registerComponent('GlobalHotkeys', GlobalHotkeys);
+export default GlobalHotkeys;
 
 

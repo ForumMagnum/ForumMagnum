@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../../common/withUser";
 
 import { userCanDo, userOwns } from "../../../lib/vulcan-users/permissions";
@@ -54,8 +53,6 @@ const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
   );
 };
 
-export default registerComponent(
-  "ShortformFrontpageDropdownItem", ShortformFrontpageDropdownItem,
-);
+export default ShortformFrontpageDropdownItem;
 
 

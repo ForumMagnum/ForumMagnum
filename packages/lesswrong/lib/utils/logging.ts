@@ -19,7 +19,7 @@
 import util from 'util'
 import { instanceDebuggersSetting, databaseDebuggersSetting } from '../instanceSettings'
 
-type Logger = (...args: any[]) => void
+export type Logger = (...args: any[]) => void
 
 const manuallyEnabledDebuggers: string[] = []
 

@@ -12,7 +12,6 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import Loading from '@/components/vulcan-core/Loading';
 import ContentStyles from "@/components/common/ContentStyles";
-import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
@@ -22,6 +21,13 @@ import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { makeEditorConfig } from '@/components/editor/editorConfigs';
+import { useCurrentUser } from '@/components/common/withUser';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { focusLexicalEditor } from '@/components/editor/focusLexicalEditor';
+import dynamic from 'next/dynamic';
+
+const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
+const CKEditor  = dynamic(() => import('@/lib/vendor/ckeditor5-react/ckeditor'));
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRestrictAndNotifyModalQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -125,9 +131,12 @@ const RestrictAndNotifyModal = ({
   collectionName: 'Posts' | 'Comments';
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const isAdmin = userIsAdmin(currentUser);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [messageContent, setMessageContent] = useState('');
   const [editor, setEditor] = useState<Editor | null>(null);
+  const [lexicalEditorVersion, setLexicalEditorVersion] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -179,11 +188,14 @@ const RestrictAndNotifyModal = ({
         displayName: user.displayName,
       });
       setMessageContent(filledContent);
-      if (editor) {
+      if (isAdmin) {
+        setLexicalEditorVersion((prev) => prev + 1);
+        focusLexicalEditor(editorContainerRef.current);
+      } else if (editor) {
         editor.setData(filledContent);
       }
     }
-  }, [templates, user.displayName, editor]);
+  }, [editor, isAdmin, templates, user.displayName]);
 
   const handleConfirm = useCallback(() => {
     if (!selectedTemplateId || !messageContent) return;
@@ -233,12 +245,16 @@ const RestrictAndNotifyModal = ({
         setTimeout(() => {
           editorContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           setTimeout(() => {
-            editor?.focus();
+            if (isAdmin) {
+              focusLexicalEditor(editorContainerRef.current);
+            } else {
+              editor?.focus();
+            }
           }, 300);
         }, 0);
         break;
     }
-  }, [filteredTemplates, selectedIndex, handleTemplateSelect, selectedTemplateId, messageContent, editor, handleConfirm]);
+  }, [filteredTemplates, selectedIndex, handleTemplateSelect, selectedTemplateId, messageContent, editor, handleConfirm, isAdmin]);
 
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -329,19 +345,29 @@ const RestrictAndNotifyModal = ({
 
         <div className={classes.editorContainer} ref={editorContainerRef}>
           <ContentStyles contentType='comment'>
-            <CKEditor
-              editor={CommentEditor}
-              data={messageContent}
-              config={editorConfig}
-              isCollaborative={false}
-              onReady={(editorInstance: Editor) => {
-                setEditor(editorInstance);
-              }}
-              onChange={(event: any, editorInstance: Editor) => {
-                const data = editorInstance.getData();
-                setMessageContent(data);
-              }}
-            />
+            {isAdmin ? (
+              <LexicalEditor
+                key={lexicalEditorVersion}
+                data={messageContent}
+                placeholder="Edit message to user..."
+                onChange={setMessageContent}
+                onReady={() => {}}
+                commentEditor
+              />
+            ) : (
+              <CKEditor
+                editor={CommentEditor}
+                data={messageContent}
+                config={editorConfig}
+                onReady={(editorInstance: Editor) => {
+                  setEditor(editorInstance);
+                }}
+                onChange={(event: any, editorInstance: Editor) => {
+                  const data = editorInstance.getData();
+                  setMessageContent(data);
+                }}
+              />
+            )}
           </ContentStyles>
         </div>
       </DialogContent>

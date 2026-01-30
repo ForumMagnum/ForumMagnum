@@ -1,0 +1,329 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import {mergeRegister} from '@lexical/utils';
+import {
+  $getYChangeState,
+  CLEAR_DIFF_VERSIONS_COMMAND__EXPERIMENTAL,
+  DIFF_VERSIONS_COMMAND__EXPERIMENTAL,
+} from '@lexical/yjs';
+import {
+  $getNodeByKeyOrThrow,
+  COMMAND_PRIORITY_CRITICAL,
+  COMMAND_PRIORITY_EDITOR,
+  createCommand,
+  LexicalCommand,
+  TextNode,
+} from 'lexical';
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+  PermanentUserData,
+  Snapshot,
+  snapshot as createSnapshot,
+  XmlElement,
+} from 'yjs';
+
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import Button from '../../ui/Button';
+import Modal from '../../ui/Modal';
+
+const styles = defineStyles('LexicalVersionsPlugin', (theme: ThemeType) => ({
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16,
+    minWidth: 320,
+  },
+  header: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  versionList: {
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 4,
+    maxHeight: 300,
+    overflowY: 'auto',
+  },
+  versionItem: {
+    alignItems: 'center',
+    backgroundColor: theme.palette.grey[0],
+    border: 'none',
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '12px 16px',
+    width: '100%',
+    '&:disabled': {
+      color: theme.palette.grey[620],
+      fontStyle: 'italic',
+      cursor: 'default',
+    },
+    '&:hover:not(:disabled)': {
+      backgroundColor: theme.palette.grey[100],
+    },
+  },
+  versionItemSelected: {
+    backgroundColor: theme.palette.primary.light,
+  },
+  compareButton: {
+    alignSelf: 'center',
+  },
+}));
+
+interface Version {
+  name: string;
+  timestamp: number;
+  snapshot: Snapshot;
+}
+
+const COLORS = [
+  '#4a90e288',
+  '#bd10e088',
+  '#d0021b88',
+  '#8b572a88',
+  '#41750588',
+  '#f5a62388',
+];
+
+type User = string; // username
+
+export const SHOW_VERSIONS_COMMAND: LexicalCommand<void> = createCommand(
+  'SHOW_VERSIONS_COMMAND',
+);
+
+export function VersionsPlugin({id}: {id: string}) {
+  const [editor] = useLexicalComposerContext();
+  const {name: username, yjsDocMap} = useCollaborationContext();
+  const yDoc = yjsDocMap.get(id);
+
+  const [isDiffMode, setIsDiffMode] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [versions, setVersions] = useState<Version[]>([]);
+
+  const [pudInitialised, setPudInitialised] = useState(false);
+
+  useEffect(
+    () =>
+      mergeRegister(
+        editor.registerCommand(
+          SHOW_VERSIONS_COMMAND,
+          () => {
+            setShowModal(true);
+            return false;
+          },
+          COMMAND_PRIORITY_EDITOR,
+        ),
+        editor.registerCommand(
+          DIFF_VERSIONS_COMMAND__EXPERIMENTAL,
+          () => {
+            editor.setEditable(false);
+            setIsDiffMode(true);
+            return false;
+          },
+          COMMAND_PRIORITY_CRITICAL,
+        ),
+        editor.registerCommand(
+          CLEAR_DIFF_VERSIONS_COMMAND__EXPERIMENTAL,
+          () => {
+            editor.setEditable(true);
+            setIsDiffMode(false);
+            return false;
+          },
+          COMMAND_PRIORITY_CRITICAL,
+        ),
+        editor.registerEditableListener((isEditable) => {
+          if (isEditable && isDiffMode) {
+            editor.dispatchCommand(
+              CLEAR_DIFF_VERSIONS_COMMAND__EXPERIMENTAL,
+              undefined,
+            );
+          }
+        }),
+      ),
+    [editor, isDiffMode],
+  );
+
+  useEffect(() => {
+    if (pudInitialised || !yDoc) {
+      return;
+    }
+
+    const root = yDoc.get('root-v2', XmlElement);
+    const handleChange: Parameters<typeof root.observeDeep>[0] = (
+      _events,
+      transaction,
+    ) => {
+      if (transaction.local) {
+        // User's made a local change. Register PUD mapping.
+        const permanentUserData = new PermanentUserData(yDoc);
+        permanentUserData.setUserMapping(yDoc, yDoc.clientID, username);
+        setPudInitialised(true);
+      }
+    };
+
+    root.observeDeep(handleChange);
+    return () => root.unobserveDeep(handleChange);
+  }, [yDoc, username, pudInitialised]);
+
+  useEffect(() => {
+    if (!isDiffMode) {
+      return;
+    }
+    return editor.registerMutationListener(
+      TextNode,
+      (nodes) => {
+        const userToColor = new Map<User, string>();
+        const getUserColor = (user: User): string => {
+          if (userToColor.has(user)) {
+            return userToColor.get(user)!;
+          }
+          const color = COLORS[userToColor.size % COLORS.length];
+          userToColor.set(user, color);
+          return color;
+        };
+        editor.getEditorState().read(() => {
+          for (const [nodeKey, mutation] of nodes.entries()) {
+            if (mutation === 'destroyed') {
+              continue;
+            }
+            const node = $getNodeByKeyOrThrow<TextNode>(nodeKey);
+            const ychange = $getYChangeState<User>(node);
+            const element = editor.getElementByKey(nodeKey);
+            if (!ychange || !element) {
+              continue;
+            }
+            const {type, user: changeUser} = ychange;
+            if (!changeUser) {
+              continue;
+            }
+            const color = getUserColor(changeUser);
+            switch (type) {
+              case 'removed':
+                element.style.color = color;
+                element.style.textDecoration = 'line-through';
+                break;
+              case 'added':
+                element.style.backgroundColor = color;
+                break;
+              default:
+              // no change
+            }
+          }
+        });
+      },
+      {skipInitialization: true},
+    );
+  }, [editor, isDiffMode]);
+
+  const handleAddVersion = useCallback(() => {
+    if (!yDoc) {
+      return;
+    }
+
+    const now = Date.now();
+    setVersions((prevVersions) => [
+      ...prevVersions,
+      {
+        name: `Snapshot ${new Date(now).toLocaleString()}`,
+        snapshot: createSnapshot(yDoc),
+        timestamp: now,
+      },
+    ]);
+  }, [setVersions, yDoc]);
+
+  if (!showModal) {
+    return null;
+  }
+
+  return (
+    <VersionsModal
+      versions={versions}
+      isDiffMode={isDiffMode}
+      onAddVersion={handleAddVersion}
+      onClose={() => setShowModal(false)}
+    />
+  );
+}
+
+function VersionsModal({
+  versions,
+  isDiffMode,
+  onAddVersion,
+  onClose,
+}: {
+  versions: Version[];
+  isDiffMode: boolean;
+  onAddVersion: () => void;
+  onClose: () => void;
+}) {
+  const classes = useStyles(styles);
+  const [editor] = useLexicalComposerContext();
+  const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
+
+  return (
+    <Modal onClose={onClose} title="Version History">
+      <div className={classes.container}>
+        <div className={classes.header}>
+          <Button onClick={onAddVersion}>+ Add snapshot</Button>
+          {isDiffMode && (
+            <Button
+              onClick={() => {
+                editor.dispatchCommand(
+                  CLEAR_DIFF_VERSIONS_COMMAND__EXPERIMENTAL,
+                  undefined,
+                );
+                onClose();
+              }}>
+              Exit compare view
+            </Button>
+          )}
+        </div>
+
+        {/* Version list */}
+        <div className={classes.versionList}>
+          {versions.length === 0 ? (
+            <button className={classes.versionItem} disabled={true}>
+              Add a snapshot to get started
+            </button>
+          ) : (
+            versions.map((version, idx) => {
+              const isSelected = selectedVersion === idx;
+
+              return (
+                <button
+                  key={version.name}
+                  onClick={() => setSelectedVersion(idx)}
+                  className={classNames(
+                    classes.versionItem,
+                    isSelected && classes.versionItemSelected,
+                  )}>
+                  Snapshot at {new Date(version.timestamp).toLocaleString()}
+                </button>
+              );
+            })
+          )}
+        </div>
+        <Button
+          onClick={() => {
+            editor.dispatchCommand(DIFF_VERSIONS_COMMAND__EXPERIMENTAL, {
+              prevSnapshot: versions[selectedVersion!].snapshot,
+            });
+            onClose();
+          }}
+          disabled={selectedVersion === null}
+          className={classes.compareButton}>
+          Show changes since selected version
+        </Button>
+      </div>
+    </Modal>
+  );
+}

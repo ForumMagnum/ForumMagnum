@@ -519,7 +519,7 @@ const LWHomePosts = ({ children, }: {
           flexWrapEndGrow={false}
         />
         {selectedTab === 'recombee-hybrid' && hasSetAnyFilters && <div className={classes.enrichedTagFilterNotice}>
-          In the Enriched tab, filters apply only to "Latest" posts, not "Recommended" posts.
+          In the Enriched tab, filters apply only to "Recent" posts, not "Recommended" posts.
         </div>}
   
       </div>}

@@ -1,12 +1,11 @@
-import { GraphQLSchema, SourceLocation } from "graphql";
-import { SchemaLink } from '@apollo/client/link/schema';
-import { BatchHttpLink } from '@apollo/client/link/batch-http';
+import { type SourceLocation } from "graphql";
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
 import { graphqlBatchMaxSetting } from '../instanceSettings';
 import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
 import { crosspostUserAgent } from "./constants";
 import { getSiteUrl } from "../vulcan-lib/utils";
+import { StreamingGraphqlHttpLink } from "./StreamingGraphqlHttpLink";
 
 /**
  * "Links" are Apollo's way of defining the source to read our data from, and they need to
@@ -18,17 +17,10 @@ import { getSiteUrl } from "../vulcan-lib/utils";
  */
 
 /**
- * Schema link is used for SSR
- */
-export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext) =>
-  // We are doing `context: () => ({...context})` rather than just context to fix a bug in datadog, see: https://github.com/DataDog/dd-trace-js/issues/709
-  new SchemaLink({ schema, context: () => ({...context}) });
-
-/**
  * Http link is used for client side rendering
  */
 export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
-  const uri = baseUrl + 'graphql';
+  const uri = baseUrl + "api/streamGraphql";
 
   const batchKey = (operation: Operation) => {
     // The default part is copied from https://github.com/apollographql/apollo-client/blob/main/src/link/batch-http/batchHttpLink.ts#L192-L206
@@ -62,7 +54,7 @@ export const createHttpLink = (baseUrl: string, loginToken: string|null) => {
       },
     })
     : globalThis.fetch;
-  return new BatchHttpLink({
+  return new StreamingGraphqlHttpLink({
     uri,
     credentials: isSameSiteRequest ? 'same-origin' : 'omit',
     batchMax: isServer ? 1 : graphqlBatchMaxSetting.get(),

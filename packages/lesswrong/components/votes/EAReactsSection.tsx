@@ -1,5 +1,4 @@
 import React, { FC, MouseEvent, useState, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { PostVotingComponentProps, CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
@@ -18,8 +17,10 @@ import LoginPopup from "../users/LoginPopup";
 import EAEmojiPalette from "./EAEmojiPalette";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EAReactsSection", (theme: ThemeType) => ({
   button: {
     display: "flex",
     alignItems: "center",
@@ -101,7 +102,7 @@ const styles = (theme: ThemeType) => ({
       padding: 0,
     },
   },
-});
+}));
 
 const isEmojiSelected = (
   currentUserExtendedVote: AnyBecauseHard,
@@ -139,8 +140,8 @@ const getCurrentReactions = (
 const AnonymousEmojiTooltipContent: FC<{
   emojiOption: EmojiOption,
   count: number,
-  classes: ClassesType<typeof styles>,
-}> = ({emojiOption, count, classes}) => {
+}> = ({emojiOption, count}) => {
+  const classes = useStyles(styles);
   return (
     <div>
       <div>
@@ -167,8 +168,8 @@ const EmojiTooltipContent: FC<{
   emojiOption: EmojiOption,
   isSelected: boolean,
   reactors?: Record<string, string[]>,
-  classes: ClassesType<typeof styles>,
-}> = ({currentUser, emojiOption, isSelected, reactors, classes}) => {
+}> = ({currentUser, emojiOption, isSelected, reactors}) => {
+  const classes = useStyles(styles);
   let displayNames = reactors?.[emojiOption.name] ?? [];
   if (currentUser) {
     const {displayName} = currentUser;
@@ -224,8 +225,8 @@ type EAReactsSectionOptions = {
 
 const EAReactsSection: FC<{
   large?: boolean,
-  classes: ClassesType<typeof styles>,
-} & EAReactsSectionOptions> = ({document, voteProps, large, viewOnly, classes}) => {
+} & EAReactsSectionOptions> = ({document, voteProps, large, viewOnly}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -290,7 +291,6 @@ const EAReactsSection: FC<{
                   <AnonymousEmojiTooltipContent
                     emojiOption={emojiOption}
                     count={score}
-                    classes={classes}
                   />
                 )
                 : (
@@ -299,7 +299,6 @@ const EAReactsSection: FC<{
                     emojiOption={emojiOption}
                     isSelected={isSelected}
                     reactors={'emojiReactors' in document ? document.emojiReactors : undefined}
-                    classes={classes}
                   />
                 )
             }
@@ -357,10 +356,6 @@ const EAReactsSection: FC<{
   );
 }
 
-export default registerComponent(
-  "EAReactsSection",
-  EAReactsSection,
-  {styles},
-);
+export default EAReactsSection;
 
 

@@ -130,9 +130,11 @@ type FooterTagListPost = Pick<PostsList, '_id'|'tags'|'curatedDate'|'frontpageDa
 
 const autoClassifiedIconStyles = defineStyles('AutoClassifiedIcon', (theme: ThemeType) => ({
   robotIcon: {
-    marginLeft: -4,
+    marginLeft: 4,
     height: 12,
     opacity: 0.7,
+    position: 'relative',
+    top: 1,
   },
 }));
 
@@ -310,10 +312,11 @@ const FooterTagList = ({
 
   const contentTypeInfo = forumSelect(getContentTypes());
 
-  const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling}: {
+  const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling, showAutoClassifiedIcon}: {
     tooltipBody: ReactNode,
     label: string,
-    neverCoreStyling?: boolean
+    neverCoreStyling?: boolean,
+    showAutoClassifiedIcon?: boolean
   }) => {
     return (
       <HoverOver
@@ -332,6 +335,7 @@ const FooterTagList = ({
           [classes.neverCoreStyling]: neverCoreStyling,
         })}>
           {label}
+          {showAutoClassifiedIcon && <AutoClassifiedIcon />}
         </div>
       </HoverOver>
     );
@@ -340,23 +344,23 @@ const FooterTagList = ({
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
   // have reviewedByUserId set to anything.
+  const showAutoClassifiedIcon = !post.curatedDate && !!post.reviewedByUserId && post.reviewedByUserId === adminAccountSetting.get()?._id;
+
   let postType = post.curatedDate
     ? <MaybeLink to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
         <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody} neverCoreStyling={neverCoreStyling}/>
       </MaybeLink>
     : (post.frontpageDate
       ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget} className={classes.postTypeLink}>
-          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody} neverCoreStyling={neverCoreStyling}/>
+          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody} neverCoreStyling={neverCoreStyling} showAutoClassifiedIcon={showAutoClassifiedIcon}/>
         </MaybeLink>
       : (post.reviewedByUserId
         ? <MaybeLink to={contentTypeInfo.personal.linkTarget} className={classes.postTypeLink}>
-            <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody} neverCoreStyling={neverCoreStyling}/>
+            <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody} neverCoreStyling={neverCoreStyling} showAutoClassifiedIcon={showAutoClassifiedIcon}/>
           </MaybeLink>
         : null
       )
     )
-  
-  const showAutoClassifiedIcon = !post.curatedDate && post.reviewedByUserId && post.reviewedByUserId === adminAccountSetting.get()?._id;
 
   const eventTag = contentTypeInfo.event && post.isEvent ? <MaybeLink to={contentTypeInfo.event.linkTarget} className={classes.postTypeLink}>
     <PostTypeTag label="Event" tooltipBody={contentTypeInfo.event.tooltipBody} neverCoreStyling={neverCoreStyling}/>
@@ -399,7 +403,6 @@ const FooterTagList = ({
           )
       )}
       {!hidePostTypeTag && postType}
-      {!hidePostTypeTag && showAutoClassifiedIcon && <AutoClassifiedIcon />}
       {eventTag}
       {isLWorAF() && annualReviewMarketInfo && isRecent && (
         <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />

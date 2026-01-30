@@ -603,6 +603,39 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // Banner ad compatibility - non-affecting default for light mode
     bannerAdBackground: 'transparent',
   },
+  lexicalEditor: {
+    // Modal overlay - specific dark grey, not pure black
+    modalOverlay: "rgba(40, 40, 40, 0.6)",
+    // Equation/LaTeX editor - purple for math syntax
+    equationText: "#8421a2",
+    // Blue hover background for edit buttons
+    editButtonHover: "rgba(60, 132, 244, 0.1)",
+    // Blue focus ring for selections
+    focusRing: "rgb(60, 132, 244)",
+    // Light blue shadow for mention focus
+    mentionFocus: "rgb(180, 213, 255)",
+    // Coral/orange color for keywords
+    keyword: "rgb(241, 118, 94)",
+    // Blues for comment input box button background
+    commentInputBoxButtonBackground: "rgb(66, 135, 245)",
+    commentInputBoxButtonHoverBackground: "rgb(53, 114, 211)",
+    threadQuoteBackground: "rgba(255, 212, 0, 0.4)",
+    codeActionMenuBackground: "rgb(223, 232, 250)",
+    tableCellResizerHover: "#adf",
+    codeHighlight: {
+      tokenComment: "slategray",
+      tokenDeleted: "linear-gradient(to right, #ffcecb 50%, #ffebe9 50%) fill 0/0/0 100vw",
+      tokenInserted: "linear-gradient(to right, #aceebb 50%, #dafbe1 50%) fill 0/0/0 100vw",
+      tokenUnchanged: "linear-gradient(to right, #ddd 50%, #f0f2f5 50%) fill 0/0/0 100vw",
+      tokenPunctuation: "#999",
+      tokenProperty: "#905",
+      tokenSelector: "#690",
+      tokenOperator: "#9a6e3a",
+      tokenAttr: "#07a",
+      tokenVariable: "#e90",
+      tokenFunction: "#dd4a68",
+    },
+  },
   blockquoteHighlight: {
     commentHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
     individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",

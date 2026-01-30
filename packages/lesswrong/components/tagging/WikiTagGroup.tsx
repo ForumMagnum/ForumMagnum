@@ -4,7 +4,6 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import LoadMore from "../common/LoadMore";
 import ConceptItem from "./ConceptItem";
 import Loading from "../vulcan-core/Loading";
@@ -183,8 +182,4 @@ const WikiTagGroup = ({
 };
 
 
-export default registerComponent("WikiTagGroup", WikiTagGroup);
-
-
-
-
+export default WikiTagGroup;

@@ -11,6 +11,7 @@ import { GraphQLFormattedError } from 'graphql';
 import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
 import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
+import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from '@/server/utils/graphqlErrorUtil';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
@@ -45,9 +46,6 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   }
 }
 
-// TODO: decide whether we want to always filter all of these out on /graphql requests
-const NOISY_ERROR_MESSAGES = new Set(['app.operation_not_allowed', 'app.missing_document', 'app.document_not_found']);
-
 const server = new ApolloServer<ResolverContext>({
   schema: getExecutableSchema(),
   introspection: true,
@@ -56,9 +54,11 @@ const server = new ApolloServer<ResolverContext>({
   includeStacktraceInErrorResponses: true,
   plugins: [new ApolloServerLogging()],
   formatError: (formattedError, error): GraphQLFormattedError => {
-    captureException(error);
+    if (shouldCaptureGraphQLErrorInSentry(error)) {
+      captureException(error);
+    }
     const {message, ...properties} = formattedError;
-    if (!NOISY_ERROR_MESSAGES.has(message)) {
+    if (!NOISY_GRAPHQL_ERROR_MESSAGES.has(message)) {
       // eslint-disable-next-line no-console
       console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}), error);
     }

@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { DialogContent } from '../../widgets/DialogContent';
 import { DialogTitle } from '../../widgets/DialogTitle';
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
@@ -11,8 +10,10 @@ import { Typography } from "../Typography";
 import ForumIcon from "../ForumIcon";
 import CookieTable from "./CookieTable";
 import LWDialog from "../LWDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CookieDialog", (theme: ThemeType) => ({
   dialog: {
     margin: 24,
   },
@@ -82,7 +83,7 @@ const styles = (theme: ThemeType) => ({
     display: "block",
     boxShadow: "none",
   },
-});
+}));
 
 const CookieCategory = ({
   title,
@@ -91,7 +92,6 @@ const CookieCategory = ({
   setAllowedCookies,
   alwaysEnabled = false,
   className,
-  classes,
 }: {
   title: string;
   cookieType: CookieType;
@@ -99,8 +99,8 @@ const CookieCategory = ({
   setAllowedCookies: (cookies: CookieType[]) => void;
   alwaysEnabled?: boolean;
   className?: string;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const [open, setOpen] = useState(false);
 
   const checked = useMemo(() => allowedCookies.includes(cookieType), [allowedCookies, cookieType]);
@@ -166,7 +166,8 @@ const CookieCategory = ({
   );
 };
 
-const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: ClassesType<typeof styles> }) => {
+const CookieDialog = ({ onClose }: { onClose?: () => void }) => {
+  const classes = useStyles(styles);
   const { cookiePreferences, updateCookiePreferences } = useCookiePreferences();
   const [allowedCookies, setAllowedCookies] = useState<CookieType[]>(cookiePreferences);
 
@@ -201,7 +202,6 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
           allowedCookies={allowedCookies}
           setAllowedCookies={setAllowedCookies}
           alwaysEnabled
-          classes={classes}
           className={classes.categoryWrapper}
         />
         <CookieCategory
@@ -209,7 +209,6 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
           cookieType="functional"
           allowedCookies={allowedCookies}
           setAllowedCookies={setAllowedCookies}
-          classes={classes}
           className={classes.categoryWrapper}
         />
         <CookieCategory
@@ -217,7 +216,6 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
           cookieType="analytics"
           allowedCookies={allowedCookies}
           setAllowedCookies={setAllowedCookies}
-          classes={classes}
           className={classes.categoryWrapper}
         />
         <Button className={classes.button} variant="contained" color="primary" onClick={saveAndClose}>
@@ -228,8 +226,4 @@ const CookieDialog = ({ onClose, classes }: { onClose?: () => void; classes: Cla
   );
 };
 
-export default registerComponent("CookieDialog", CookieDialog, {
-  styles,
-});
-
-
+export default CookieDialog;

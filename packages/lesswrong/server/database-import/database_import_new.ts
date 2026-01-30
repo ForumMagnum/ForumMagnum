@@ -2,7 +2,7 @@ import Users from '../../server/collections/users/collection';
 import { Comments } from '../../server/collections/comments/collection'
 import { Posts } from '../../server/collections/posts/collection'
 import { postStatuses } from '../../lib/collections/posts/constants'
-import { sanitize } from '../../lib/vulcan-lib/utils';
+import { sanitize } from "@/lib/utils/sanitize";
 import moment from 'moment';
 import { markdownToHtml } from '../editor/conversionUtils';
 import pgp from 'pg-promise';

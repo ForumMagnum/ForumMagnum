@@ -1,6 +1,4 @@
 "use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
@@ -67,6 +65,4 @@ const UsersSingle = () => {
   }
 };
 
-export default registerComponent('UsersSingle', UsersSingle);
-
-
+export default UsersSingle;

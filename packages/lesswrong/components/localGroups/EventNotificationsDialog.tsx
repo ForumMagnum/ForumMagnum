@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
@@ -20,6 +19,8 @@ import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import LWDialog from "../common/LWDialog";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const MAX_NOTIFICATION_RADIUS = 300;
 
@@ -59,7 +60,7 @@ export const sharedStyles = (theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EventNotificationsDialog", (theme: ThemeType) => ({
   ...sharedStyles(theme),
   distanceSection: {
     marginTop: 30,
@@ -95,13 +96,13 @@ const styles = (theme: ThemeType) => ({
   peopleThresholdCheckbox: {
     marginLeft: -12
   }
-})
+}))
 
 const MAX_NOTIFICATION_RADIUS_STEPSIZE = 5
-const EventNotificationsDialog = ({ onClose, classes }: {
+const EventNotificationsDialog = ({ onClose }: {
   onClose: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
@@ -212,7 +213,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   )
 }
 
-export default registerComponent('EventNotificationsDialog', EventNotificationsDialog, {styles});
+export default EventNotificationsDialog;
 
 
 

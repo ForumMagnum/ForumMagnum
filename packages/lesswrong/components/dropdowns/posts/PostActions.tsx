@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { isBookUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
@@ -23,11 +22,12 @@ import DuplicateEventDropdownItem from "./DuplicateEventDropdownItem";
 import PostAnalyticsDropdownItem from "./PostAnalyticsDropdownItem";
 import ExcludeFromRecommendationsDropdownItem from "./ExcludeFromRecommendationsDropdownItem";
 import ApproveNewUserDropdownItem from "./ApproveNewUserDropdownItem";
-import SharePostSubmenu from "./SharePostSubmenu";
 import { PostSubscriptionsDropdownItem } from "./PostSubscriptionsDropdownItem";
 import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownItem";
 import HideFrontPageButton from './HideFrontpagePostDropdownItem';
 import LLMScoreDropdownItem from "./LLMScoreDropdownItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -36,21 +36,20 @@ export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(fal
 // Same as above context provider but for whether a post is being served as a recommendation
 export const IsRecommendationContext = React.createContext<boolean>(false);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostActions", (theme: ThemeType) => ({
   root: {
     minWidth: theme.isFriendlyUI ? undefined : 300,
     maxWidth: "calc(100vw - 100px)",
   },
-})
+}))
 
-const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
+const PostActions = ({post, closeMenu, includeBookmark=true}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
   includeBookmark?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-
 
   if (!post) return null;
 
@@ -66,10 +65,8 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
 
   return (
     <DropdownMenu className={classes.root} >
-      <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
       <EditPostDropdownItem post={post} />
       <ResyncRssDropdownItem post={post} closeMenu={closeMenu} />
-      {isBookUI() && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
       <PostSubscriptionsDropdownItem post={post} />
@@ -90,10 +87,11 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <ApproveNewUserDropdownItem post={post} />
       <SuggestAlignmentPostDropdownItem post={post}/>
       <MoveToAlignmentPostDropdownItem post={post}/>
+      <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
     </DropdownMenu>
   );
 }
 
-export default registerComponent('PostActions', PostActions, {styles});
+export default PostActions;
 
 

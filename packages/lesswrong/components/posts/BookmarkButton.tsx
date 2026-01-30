@@ -37,6 +37,7 @@ const styles = (theme: ThemeType) => ({
 const BookmarkButton = ({
   documentId,
   collectionName,
+  initial,
   withText,
   placement="right",
   overrideTooltipText,
@@ -45,13 +46,14 @@ const BookmarkButton = ({
 }: {
   documentId: string,
   collectionName: BookmarkableCollectionName,
+  initial?: boolean,
   withText?: boolean,
   placement?: PopperPlacementType,
   overrideTooltipText?: string,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {icon, labelText, hoverText, toggleBookmark} = useBookmark(documentId, collectionName);
+  const {icon, labelText, hoverText, toggleBookmark} = useBookmark(documentId, collectionName, initial);
   const Component = withText ? "a" : "span";
   return (
     <LWTooltip title={overrideTooltipText ?? hoverText} placement={withText ? "bottom" : placement}>

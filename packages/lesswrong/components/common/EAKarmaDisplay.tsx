@@ -1,10 +1,11 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import classNames from "classnames";
 import KarmaDisplay from "./KarmaDisplay";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EAKarmaDisplay", (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[600],
     display: "flex",
@@ -15,13 +16,15 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[400],
     margin: "-6px 0 2px 0",
   },
+}), {
+  stylePriority: -1,
 });
 
-const EAKarmaDisplay = ({post, className, classes}: {
+const EAKarmaDisplay = ({post, className}: {
   post: PostsList,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classNames(classes.root, className)}>
       <div className={classes.voteArrow}>
@@ -32,10 +35,4 @@ const EAKarmaDisplay = ({post, className, classes}: {
   );
 };
 
-export default registerComponent(
-  "EAKarmaDisplay",
-  EAKarmaDisplay,
-  {styles, stylePriority: -1},
-);
-
-
+export default EAKarmaDisplay;

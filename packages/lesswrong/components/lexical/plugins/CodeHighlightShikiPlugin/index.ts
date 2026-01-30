@@ -1,0 +1,25 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+import React, { type JSX } from 'react';
+
+// @ts-ignore - haven't installed code-shiki as a dependency; might remove this entire plugin later, TBD.
+// eslint-disable-next-line import/no-unresolved
+import {registerCodeHighlighting} from '@lexical/code-shiki';
+import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
+import {useEffect} from 'react';
+
+export default function CodeHighlightShikiPlugin(): JSX.Element | null {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    return registerCodeHighlighting(editor);
+  }, [editor]);
+
+  return null;
+}

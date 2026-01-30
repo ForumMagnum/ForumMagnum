@@ -1,5 +1,4 @@
 import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
-import { canonicalizePath } from "./packages/lesswrong/lib/generated/routeManifest";
 import { randomId } from './packages/lesswrong/lib/random';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
@@ -31,18 +30,6 @@ function urlIsAbsolute(url: string): boolean {
  * possible amount of loading).
  */
 export async function middleware(request: NextRequest) {
-  // Before NextJS, we were using react-router, which wasn't case-sensitive by default.
-  // To solve the problem of any existing links going to non-canonically-capitalized paths,
-  // we have a codegen step that generates a trie which we use to find a matching canonical
-  // path (if one exists).
-  const currentPath = request.nextUrl.pathname;
-  const canonical = canonicalizePath(currentPath);
-  if (canonical && canonical !== currentPath) {
-    const url = request.nextUrl.clone();
-    url.pathname = canonical;
-    return NextResponse.redirect(url, 308);
-  }
-  
   const clientIdCookie = request.cookies.get(CLIENT_ID_COOKIE);
   const addedClientId = clientIdCookie ? null : randomId();
   
@@ -211,7 +198,7 @@ export const config: MiddlewareConfig = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: "/((?!api|$|auth|graphql|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+      source: "/((?!api|$|auth|graphql|graphql2|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
       missing: [{ type: 'header', key: 'next-router-state-tree' }],
     }
   ]

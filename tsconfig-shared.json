@@ -30,6 +30,7 @@
     "packages/lesswrong",
     "ckEditor/src/editorConfigs.js",
     "playwright",
+    "playwright.config.ts",
     "./build.ts",
     ".next/types/**/*.ts",
     "app",
@@ -40,7 +41,8 @@
     "sentry.edge.config.ts",
     "deployCkEditorBundle.ts",
     "migrate.ts",
-    "next.config.ts"
+    "next.config.ts",
+    "fly/hocuspocusServer/src/**/*.ts"
   ],
   "exclude": [
     "node_modules",

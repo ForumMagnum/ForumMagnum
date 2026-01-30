@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -87,6 +86,6 @@ const CommentActions = ({comment, post, tag, showEdit}: {
   );
 }
 
-export default registerComponent("CommentActions", CommentActions);
+export default CommentActions;
 
 

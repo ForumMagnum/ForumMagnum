@@ -478,6 +478,7 @@ type Comment = {
   hideKarma?: Maybe<Scalars['Boolean']['output']>;
   hideModeratorHat?: Maybe<Scalars['Boolean']['output']>;
   htmlBody?: Maybe<Scalars['String']['output']>;
+  isBookmarked: Scalars['Boolean']['output'];
   isPinnedOnProfile: Scalars['Boolean']['output'];
   lastEditedAt?: Maybe<Scalars['Date']['output']>;
   lastSubthreadActivity?: Maybe<Scalars['Date']['output']>;
@@ -1493,6 +1494,7 @@ type CreateMessageInput = {
 type CreateModerationTemplateDataInput = {
   collectionName: ModerationTemplateType;
   contents?: InputMaybe<CreateRevisionDataInput>;
+  groupLabel?: InputMaybe<Scalars['String']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   name: Scalars['String']['input'];
   order?: InputMaybe<Scalars['Float']['input']>;
@@ -2856,6 +2858,13 @@ type GoogleServiceAccountSessionSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
+type HocuspocusAuth = {
+  __typename?: 'HocuspocusAuth';
+  documentName: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+  wsUrl: Scalars['String']['output'];
+};
+
 type HomepageCommunityEventMarker = {
   __typename?: 'HomepageCommunityEventMarker';
   _id: Scalars['String']['output'];
@@ -3277,6 +3286,7 @@ type ModerationTemplate = {
   contents_latest?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   deleted: Scalars['Boolean']['output'];
+  groupLabel?: Maybe<Scalars['String']['output']>;
   legacyData?: Maybe<Scalars['JSON']['output']>;
   name: Scalars['String']['output'];
   order: Scalars['Float']['output'];
@@ -4474,6 +4484,7 @@ type Mutation = {
   runLlmCheckForDocument: AutomatedContentEvaluation;
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
+  setIsBookmarked?: Maybe<SetIsBookmarkedOutput>;
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
   setVoteElectionCandidate?: Maybe<ElectionCandidate>;
@@ -5124,6 +5135,11 @@ type MutationsendEventTriggeredDMArgs = {
 type MutationsendNewDialogueMessageNotificationArgs = {
   dialogueHtml: Scalars['String']['input'];
   postId: Scalars['String']['input'];
+};
+
+
+type MutationsetIsBookmarkedArgs = {
+  input: SetIsBookmarkedInput;
 };
 
 
@@ -5817,6 +5833,7 @@ type Post = {
   hideFrontpageComments: Scalars['Boolean']['output'];
   htmlBody?: Maybe<Scalars['String']['output']>;
   ignoreRateLimits?: Maybe<Scalars['Boolean']['output']>;
+  isBookmarked: Scalars['Boolean']['output'];
   isEvent: Scalars['Boolean']['output'];
   isFuture: Scalars['Boolean']['output'];
   isRead?: Maybe<Scalars['Boolean']['output']>;
@@ -7720,6 +7737,7 @@ type Query = {
   GetRandomUser?: Maybe<User>;
   GetUserBySlug?: Maybe<User>;
   GivingSeasonHearts: Array<GivingSeasonHeart>;
+  HocuspocusAuth?: Maybe<HocuspocusAuth>;
   HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
@@ -8008,6 +8026,12 @@ type QueryGetUserBySlugArgs = {
 
 type QueryGivingSeasonHeartsArgs = {
   electionName: Scalars['String']['input'];
+};
+
+
+type QueryHocuspocusAuthArgs = {
+  linkSharingKey?: InputMaybe<Scalars['String']['input']>;
+  postId: Scalars['String']['input'];
 };
 
 
@@ -9790,6 +9814,17 @@ type Session = {
   expires?: Maybe<Scalars['Date']['output']>;
   lastModified?: Maybe<Scalars['Date']['output']>;
   session?: Maybe<Scalars['JSON']['output']>;
+};
+
+type SetIsBookmarkedInput = {
+  collectionName: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  isBookmarked: Scalars['Boolean']['input'];
+};
+
+type SetIsBookmarkedOutput = {
+  __typename?: 'SetIsBookmarkedOutput';
+  data?: Maybe<Bookmark>;
 };
 
 type SideCommentCache = {
@@ -11774,6 +11809,7 @@ type UpdateModerationTemplateDataInput = {
   collectionName?: InputMaybe<ModerationTemplateType>;
   contents?: InputMaybe<CreateRevisionDataInput>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
+  groupLabel?: InputMaybe<Scalars['String']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   order?: InputMaybe<Scalars['Float']['input']>;
@@ -13128,6 +13164,12 @@ type WrappedDataByYear = {
   topPosts?: Maybe<Array<Maybe<Post>>>;
   topShortform?: Maybe<Comment>;
   totalSeconds?: Maybe<Scalars['Int']['output']>;
+};
+
+type YjsDocument = {
+  __typename?: 'YjsDocument';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
 };
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
@@ -15935,6 +15977,19 @@ type createElicitQuestionCreateClaimDialogMutationVariables = Exact<{
 
 type createElicitQuestionCreateClaimDialogMutation = createElicitQuestionCreateClaimDialogMutation_Mutation;
 
+type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string, wsUrl: string, documentName: string };
+
+type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
+
+
+type HocuspocusAuthQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
+
 type ConvertDocumentQuery_Query = { __typename?: 'Query', convertDocument: any | null };
 
 
@@ -16487,22 +16542,22 @@ type multiBookmarkuseBookmarkQueryQueryVariables = Exact<{
 
 type multiBookmarkuseBookmarkQueryQuery = multiBookmarkuseBookmarkQueryQuery_Query;
 
-type ToggleBookmarkMutationMutation_toggleBookmark_ToggleBookmarkOutput_data_Bookmark = (
+type SetIsBookmarkedMutationMutation_setIsBookmarked_SetIsBookmarkedOutput_data_Bookmark = (
   { __typename?: 'Bookmark' }
   & BookmarksMinimumInfoFragment
 );
 
-type ToggleBookmarkMutationMutation_toggleBookmark_ToggleBookmarkOutput = { __typename?: 'ToggleBookmarkOutput', data: ToggleBookmarkMutationMutation_toggleBookmark_ToggleBookmarkOutput_data_Bookmark | null };
+type SetIsBookmarkedMutationMutation_setIsBookmarked_SetIsBookmarkedOutput = { __typename?: 'SetIsBookmarkedOutput', data: SetIsBookmarkedMutationMutation_setIsBookmarked_SetIsBookmarkedOutput_data_Bookmark | null };
 
-type ToggleBookmarkMutationMutation_Mutation = { __typename?: 'Mutation', toggleBookmark: ToggleBookmarkMutationMutation_toggleBookmark_ToggleBookmarkOutput | null };
+type SetIsBookmarkedMutationMutation_Mutation = { __typename?: 'Mutation', setIsBookmarked: SetIsBookmarkedMutationMutation_setIsBookmarked_SetIsBookmarkedOutput | null };
 
 
-type ToggleBookmarkMutationMutationVariables = Exact<{
-  input: ToggleBookmarkInput;
+type SetIsBookmarkedMutationMutationVariables = Exact<{
+  input: SetIsBookmarkedInput;
 }>;
 
 
-type ToggleBookmarkMutationMutation = ToggleBookmarkMutationMutation_Mutation;
+type SetIsBookmarkedMutationMutation = SetIsBookmarkedMutationMutation_Mutation;
 
 type multiForumEventuseCurrentForumEventQueryQuery_forumEvents_MultiForumEventOutput_results_ForumEvent = (
   { __typename?: 'ForumEvent' }
@@ -21626,6 +21681,25 @@ type multiConversationSunshineUserMessagesQueryQueryVariables = Exact<{
 
 type multiConversationSunshineUserMessagesQueryQuery = multiConversationSunshineUserMessagesQueryQuery_Query;
 
+type multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput = { __typename?: 'MultiModerationTemplateOutput', totalCount: number | null, results: Array<multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate> };
+
+type multiModerationTemplateSunshineUserMessagesQueryQuery_Query = { __typename?: 'Query', moderationTemplates: multiModerationTemplateSunshineUserMessagesQueryQuery_moderationTemplates_MultiModerationTemplateOutput | null };
+
+
+type multiModerationTemplateSunshineUserMessagesQueryQueryVariables = Exact<{
+  selector: InputMaybe<ModerationTemplateSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type multiModerationTemplateSunshineUserMessagesQueryQuery = multiModerationTemplateSunshineUserMessagesQueryQuery_Query;
+
 type multiUserRateLimitUserRateLimitItemQueryQuery_userRateLimits_MultiUserRateLimitOutput_results_UserRateLimit = (
   { __typename?: 'UserRateLimit' }
   & UserRateLimitDisplay
@@ -21905,24 +21979,6 @@ type multiPostAutoClassifiedInboxQueryQueryVariables = Exact<{
 
 type multiPostAutoClassifiedInboxQueryQuery = multiPostAutoClassifiedInboxQueryQuery_Query;
 
-type updateUserModerationSidebarMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & SunshineUsersList
-);
-
-type updateUserModerationSidebarMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModerationSidebarMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserModerationSidebarMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModerationSidebarMutation_updateUser_UserOutput | null };
-
-
-type updateUserModerationSidebarMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserModerationSidebarMutation = updateUserModerationSidebarMutation_Mutation;
-
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -21998,6 +22054,24 @@ type performVoteTagRelModeratorCoreTagsChecklistMutationVariables = Exact<{
 
 
 type performVoteTagRelModeratorCoreTagsChecklistMutation = performVoteTagRelModeratorCoreTagsChecklistMutation_Mutation;
+
+type updateUserModeratorNotesMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type updateUserModeratorNotesMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserModeratorNotesMutation_updateUser_UserOutput_data_User | null };
+
+type updateUserModeratorNotesMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserModeratorNotesMutation_updateUser_UserOutput | null };
+
+
+type updateUserModeratorNotesMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type updateUserModeratorNotesMutation = updateUserModeratorNotesMutation_Mutation;
 
 type multiModerationTemplateRestrictAndNotifyModalQueryQuery_moderationTemplates_MultiModerationTemplateOutput_results_ModerationTemplate = (
   { __typename?: 'ModerationTemplate' }
@@ -23723,40 +23797,6 @@ type getTagSectionPreviewQueryVariables = Exact<{
 
 type getTagSectionPreviewQuery = getTagSectionPreviewQuery_Query;
 
-type LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = (
-  { __typename?: 'Localgroup' }
-  & localGroupsBase
-);
-
-type LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput = { __typename?: 'SingleLocalgroupOutput', result: LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput_result_Localgroup | null };
-
-type LocalgroupPageTitleQuery_Query = { __typename?: 'Query', localgroup: LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput | null };
-
-
-type LocalgroupPageTitleQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type LocalgroupPageTitleQuery = LocalgroupPageTitleQuery_Query;
-
-type PostsPageHeaderTitleQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsBase
-);
-
-type PostsPageHeaderTitleQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsPageHeaderTitleQuery_post_SinglePostOutput_result_Post | null };
-
-type PostsPageHeaderTitleQuery_Query = { __typename?: 'Query', post: PostsPageHeaderTitleQuery_post_SinglePostOutput | null };
-
-
-type PostsPageHeaderTitleQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type PostsPageHeaderTitleQuery = PostsPageHeaderTitleQuery_Query;
-
 type SequencesPageTitleQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
   & SequencesPageTitleFragment
@@ -24915,7 +24955,7 @@ type CommentsList_Comment_promotedByUser_User = (
   & UsersMinimumInfo
 );
 
-type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, emojiReactors: any | null, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
+type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, emojiReactors: any | null, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
 
 type CommentsListWithTopLevelComment_Comment_topLevelComment_Comment = (
   { __typename?: 'Comment' }
@@ -25358,7 +25398,7 @@ type ModerationTemplateFragment_ModerationTemplate_contents_Revision = (
   & RevisionEdit
 );
 
-type ModerationTemplateFragment = { __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType, order: number, deleted: boolean, contents: ModerationTemplateFragment_ModerationTemplate_contents_Revision | null };
+type ModerationTemplateFragment = { __typename?: 'ModerationTemplate', _id: string, name: string, collectionName: ModerationTemplateType, order: number, groupLabel: string | null, deleted: boolean, contents: ModerationTemplateFragment_ModerationTemplate_contents_Revision | null };
 
 type ModeratorActionDisplay_ModeratorAction_user_User = (
   { __typename?: 'User' }
@@ -25580,7 +25620,7 @@ type PostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, 
 type PostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
 type PostsList = (
-  { __typename?: 'Post', deletedDraft: boolean, bannedUserIds: Array<string> | null, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
+  { __typename?: 'Post', deletedDraft: boolean, isBookmarked: boolean, bannedUserIds: Array<string> | null, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
   & PostsListBase
 );
 
@@ -25649,7 +25689,7 @@ type PostsDetails_Post_targetPostRelations_PostRelation = { __typename?: 'PostRe
 type PostsDetails_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
 type PostsDetails = (
-  { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<PostsDetails_Post_tags_Tag>, socialPreviewData: PostsDetails_Post_socialPreviewData_SocialPreviewType, canonicalSequence: PostsDetails_Post_canonicalSequence_Sequence | null, canonicalBook: PostsDetails_Post_canonicalBook_Book | null, canonicalCollection: PostsDetails_Post_canonicalCollection_Collection | null, feed: PostsDetails_Post_feed_RSSFeed | null, sourcePostRelations: Array<PostsDetails_Post_sourcePostRelations_PostRelation>, targetPostRelations: Array<PostsDetails_Post_targetPostRelations_PostRelation>, fmCrosspost: PostsDetails_Post_fmCrosspost_CrosspostOutput | null }
+  { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<PostsDetails_Post_tags_Tag>, socialPreviewData: PostsDetails_Post_socialPreviewData_SocialPreviewType, canonicalSequence: PostsDetails_Post_canonicalSequence_Sequence | null, canonicalBook: PostsDetails_Post_canonicalBook_Book | null, canonicalCollection: PostsDetails_Post_canonicalCollection_Collection | null, feed: PostsDetails_Post_feed_RSSFeed | null, sourcePostRelations: Array<PostsDetails_Post_sourcePostRelations_PostRelation>, targetPostRelations: Array<PostsDetails_Post_targetPostRelations_PostRelation>, fmCrosspost: PostsDetails_Post_fmCrosspost_CrosspostOutput | null }
   & PostsListBase
 );
 
@@ -25872,7 +25912,7 @@ type SunshinePostsList_Post_tagRels_TagRel = (
 );
 
 type SunshinePostsList = (
-  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null, frontpageClassification: SunshinePostsList_Post_frontpageClassification_FrontpageClassification | null, tagRels: Array<SunshinePostsList_Post_tagRels_TagRel> }
+  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null, frontpageClassification: SunshinePostsList_Post_frontpageClassification_FrontpageClassification | null, tagRels: Array<SunshinePostsList_Post_tagRels_TagRel> }
   & PostsListBase
 );
 

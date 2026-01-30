@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers";
 
 import { useCurrentUser } from "../../common/withUser";
@@ -24,9 +23,6 @@ const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  "DuplicateEventDropdownItem",
-  DuplicateEventDropdownItem,
-);
+export default DuplicateEventDropdownItem;
 
 

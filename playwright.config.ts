@@ -4,6 +4,12 @@ type WebServers = Extract<Parameters<typeof defineConfig>[0]["webServer"], any[]
 type Projects = Extract<Parameters<typeof defineConfig>[0]["projects"], any[]>;
 
 const CROSSPOST_TEST_REGEX = /.*crossposts.spec.ts/
+const HOCUSPOCUS_PORT = 8080;
+const HOCUSPOCUS_URL = `ws://localhost:${HOCUSPOCUS_PORT}`;
+const HOCUSPOCUS_JWT_SECRET = "playwright_hocuspocus_secret";
+const ENABLE_HOCUSPOCUS = process.env.PLAYWRIGHT_HOCUSPOCUS === "1";
+const DEFAULT_PLAYWRIGHT_DB_URL = "postgres://postgres:password@localhost:5433/postgres";
+const PLAYWRIGHT_DB_URL = process.env.PG_URL ?? DEFAULT_PLAYWRIGHT_DB_URL;
 
 const getWebServers = () => {
   const webServers: WebServers = [];
@@ -14,15 +20,33 @@ const getWebServers = () => {
       port: 5433,
       reuseExistingServer: true,
       stdout: "ignore",
-      stderr: "ignore",
+      // Keep this as "pipe" so failures (often docker/port issues) are visible.
+      stderr: "pipe",
+    });
+  }
+
+  if (ENABLE_HOCUSPOCUS) {
+    webServers.push({
+      // NOTE: we assume fly/hocuspocusServer already has dependencies installed locally.
+      // (It is a separate project with its own node_modules.)
+      command: `cd fly/hocuspocusServer && yarn build && E2E=true PORT=${HOCUSPOCUS_PORT} DATABASE_URL=${PLAYWRIGHT_DB_URL} HOCUSPOCUS_JWT_SECRET=${HOCUSPOCUS_JWT_SECRET} node dist/index.js`,
+      // Important: use an HTTP healthcheck rather than only checking that the port is open.
+      // Otherwise Playwright can incorrectly treat a crashed/incorrect process as "available",
+      // leading to ws://localhost:${HOCUSPOCUS_PORT} connection refused during the test.
+      url: `http://localhost:${HOCUSPOCUS_PORT}/health`,
+      reuseExistingServer: true,
+      stdout: "pipe",
+      stderr: "pipe",
     });
   }
 
   webServers.push({
-    command: "yarn start-playwright",
+    command: ENABLE_HOCUSPOCUS
+      ? `PORT=3456 E2E=true PG_URL=${PLAYWRIGHT_DB_URL} HOCUSPOCUS_URL=${HOCUSPOCUS_URL} HOCUSPOCUS_JWT_SECRET=${HOCUSPOCUS_JWT_SECRET} yarn next dev --turbopack`
+      : `PORT=3456 E2E=true PG_URL=${PLAYWRIGHT_DB_URL} yarn next dev --turbopack`,
     url: "http://localhost:3456",
     reuseExistingServer: true,
-    stdout: "ignore",
+    stdout: ENABLE_HOCUSPOCUS ? "pipe" : "ignore",
     stderr: "pipe",
   });
 

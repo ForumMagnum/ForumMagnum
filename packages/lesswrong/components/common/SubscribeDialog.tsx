@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
 import { rssTermsToUrl } from "../../lib/rss_urls";
@@ -329,6 +328,6 @@ const SubscribeDialog = (props: {
   );
 }
 
-export default registerComponent("SubscribeDialog", SubscribeDialog);
+export default SubscribeDialog;
 
 

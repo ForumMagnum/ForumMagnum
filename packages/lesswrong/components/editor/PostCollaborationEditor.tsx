@@ -13,7 +13,6 @@ import DeferRender from '../common/DeferRender';
 import Error404 from "../common/Error404";
 import PostsAuthors from "../posts/PostsPage/PostsAuthors";
 import CollabEditorPermissionsNotices from "./CollabEditorPermissionsNotices";
-import CKPostEditor from "./CKPostEditor";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import ContentStyles from "../common/ContentStyles";
@@ -23,6 +22,11 @@ import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
 import PostVersionHistoryButton from './PostVersionHistory';
 import { gql } from '@/lib/generated/gql-codegen';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import dynamic from 'next/dynamic';
+
+const CKPostEditor = dynamic(() => import("./CKPostEditor"));
+const LexicalEditor = dynamic(() => import("./LexicalEditor"));
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -46,6 +50,7 @@ const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const isAdmin = userIsAdmin(currentUser);
 
   const { query: { postId, key } } = useLocation();
 
@@ -123,17 +128,31 @@ const PostCollaborationEditor = ({ classes }: {
       </div>*/}
       <ContentStyles className={classes.editor} contentType="post">
         <DeferRender ssr={false}>
-          <CKPostEditor
-            documentId={postId}
-            collectionName="Posts"
-            fieldName="contents"
-            formType="edit"
-            userId={currentUser?._id}
-            isCollaborative={true}
-            accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
-            document={post}
-            onReady={()=>{}}
-          />
+          {isAdmin ? (
+            <LexicalEditor
+              data={''}
+              placeholder="Start writing..."
+              onChange={() => {}}
+              onReady={() => {}}
+              commentEditor={false}
+              documentId={post._id}
+              collectionName="Posts"
+              accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+            />
+          ) : (
+            <CKPostEditor
+              data={''}
+              documentId={postId}
+              collectionName="Posts"
+              fieldName="contents"
+              formType="edit"
+              userId={currentUser?._id}
+              isCollaborative={true}
+              accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+              document={post}
+              onReady={()=>{}}
+            />
+          )}
           <PostVersionHistoryButton
             post={post}
             postId={postId}

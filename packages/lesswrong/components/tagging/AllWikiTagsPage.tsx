@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useMemo } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useLocation } from '../../lib/routeUtil';
@@ -10,7 +9,6 @@ import { Configure, SearchBox, connectStateResults } from 'react-instantsearch-d
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import Loading from "../vulcan-core/Loading";
@@ -223,7 +221,7 @@ const ArbitalRedirectNotice = ({ onDismiss }: {
   const redirectHtml = <div>
     <h2>You have been redirected from Arbital.com</h2>
     <p>Following the end of the <HoverPreviewLink href="/posts/kAgJJa3HLSZxsuSrf/arbital-postmortem">Arbital project</HoverPreviewLink>, the site's content has been integrated into the LessWrong wiki system, ensuring it is preserved for posterity.</p>
-    <p>Among other goals, Arbital aimed to the best place on the Internet for explanations. It spawned a great number or excellent pages on AI Alignment and math. Some of the best pages of Arbital include: <HoverPreviewLink href="/w/bayes-rule?lens=bayes_rule_guide">Bayes's Rule Guide</HoverPreviewLink>, <a href="#">Logarithm Guide</a>, and many <HoverPreviewLink href="/w/eliezer-s-lost-alignment-articles-the-arbital-sequence">AI alignment pages</HoverPreviewLink> by Eliezer.</p>
+    <p>Among other goals, Arbital aimed to the best place on the Internet for explanations. It spawned a great number or excellent pages on AI Alignment and math. Some of the best pages of Arbital include: <HoverPreviewLink href="/w/bayes-rule?lens=bayes_rule_guide">Bayes's Rule Guide</HoverPreviewLink>, <a href="/w/logarithm-1">Logarithm Guide</a>, and many <HoverPreviewLink href="/w/eliezer-s-lost-alignment-articles-the-arbital-sequence">AI alignment pages</HoverPreviewLink> by Eliezer.</p>
     <p>Arbital content is indicated with the Arbital theme color and logo.</p>
   </div>
 
@@ -372,7 +370,7 @@ const AllWikiTagsPage = () => {
   );
 };
 
-export default registerComponent("AllWikiTagsPage", AllWikiTagsPage);
+export default AllWikiTagsPage;
 
 
 

@@ -1,5 +1,4 @@
 import React, { useCallback, ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
@@ -74,9 +73,6 @@ const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment})
   );
 }
 
-export default registerComponent(
-  "EACollectionCard",
-  EACollectionCard,
-);
+export default EACollectionCard;
 
 

@@ -284,8 +284,4 @@ const SubforumSubforumTab = ({
   );
 }
 
-export default registerComponent(
-  'SubforumSubforumTab', SubforumSubforumTab, {styles}
-);
-
-
+export default registerComponent('SubforumSubforumTab', SubforumSubforumTab, {styles});

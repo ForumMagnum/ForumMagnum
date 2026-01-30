@@ -6,11 +6,11 @@ import { getUserEmail, userEmailAddressIsVerified, userHasEmailAddress} from '..
 import { useMessages } from '../common/withMessages';
 import { getGraphQLErrorID, getGraphQLErrorMessage } from '../../lib/utils/errorUtil';
 import { randInt } from '../../lib/random';
-import SimpleSchema from '@/lib/utils/simpleSchema';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import MailOutline from '@/lib/vendor/@material-ui/icons/src/MailOutline'
 import CheckRounded from '@/lib/vendor/@material-ui/icons/src/CheckRounded'
+import { isValidEmail } from '@/lib/vulcan-lib/utils';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
@@ -306,7 +306,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
       <div className={classes.buttons}>
         <Button className={classes.subscribeButton} onClick={async (ev) => {
           const emailAddress = emailAddressInput.current;
-          if (emailAddress && SimpleSchema.RegEx.Email.test(emailAddress?.value)) {
+          if (emailAddress && isValidEmail(emailAddress?.value)) {
             setLoading(true);
             try {
               // subscribe to different emails based on forum type

@@ -59,6 +59,7 @@ import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts
 import { UserRateLimitsViews } from '../collections/userRateLimits/views';
 import { UserTagRelsViews } from '../collections/userTagRels/views';
 import { VotesViews } from '../collections/votes/views';
+import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 
 export const allViews = {
   AdvisorRequests: AdvisorRequestsViews,
@@ -154,4 +155,5 @@ export const allViews = {
   UserTagRels: UserTagRelsViews,
   UserActivities: new CollectionViewSet('UserActivities', {}),
   Votes: VotesViews,
+  YjsDocuments: YjsDocumentsViews,
 };

@@ -35,6 +35,7 @@ interface Query {
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
+  HocuspocusAuth: HocuspocusAuth | null;
   DigestHighlights: DigestHighlightsResult | null;
   DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
@@ -277,6 +278,7 @@ interface Mutation {
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
+  setIsBookmarked: SetIsBookmarkedOutput | null;
   setIsHidden: User;
   markAsReadOrUnread: boolean | null;
   markPostCommentsRead: boolean | null;
@@ -911,6 +913,12 @@ interface HomepageCommunityEventPostsResult {
   posts: Array<Post>;
 }
 
+interface HocuspocusAuth {
+  token: string;
+  wsUrl: string;
+  documentName: string;
+}
+
 interface DigestHighlightsResult {
   results: Array<Post>;
 }
@@ -1240,7 +1248,17 @@ interface ToggleBookmarkInput {
   collectionName: string;
 }
 
+interface SetIsBookmarkedInput {
+  documentId: string;
+  collectionName: string;
+  isBookmarked: boolean;
+}
+
 interface ToggleBookmarkOutput {
+  data: Bookmark | null;
+}
+
+interface SetIsBookmarkedOutput {
   data: Bookmark | null;
 }
 
@@ -1946,6 +1964,7 @@ interface Comment {
   agentFoundationsId: string | null;
   originalDialogueId: string | null;
   originalDialogue: Post | null;
+  isBookmarked: boolean;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   allVotes: Array<Vote> | null;
@@ -3619,6 +3638,7 @@ interface ModerationTemplate {
   name: string;
   collectionName: ModerationTemplateType;
   order: number;
+  groupLabel: string | null;
   deleted: boolean;
 }
 
@@ -4288,6 +4308,7 @@ interface Post {
   curationNotices: Array<CurationNotice> | null;
   reviews: Array<Comment> | null;
   automatedContentEvaluations: AutomatedContentEvaluation | null;
+  isBookmarked: boolean;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -7722,6 +7743,11 @@ interface MultiVoteOutput {
   totalCount: number | null;
 }
 
+interface YjsDocument {
+  _id: string;
+  createdAt: Date;
+}
+
 interface CreateAdvisorRequestDataInput {
   legacyData?: any;
   userId: string;
@@ -8468,6 +8494,7 @@ interface CreateModerationTemplateDataInput {
   name: string;
   collectionName: ModerationTemplateType;
   order?: number | null;
+  groupLabel?: string | null;
 }
 
 interface CreateModerationTemplateInput {
@@ -8480,6 +8507,7 @@ interface UpdateModerationTemplateDataInput {
   name?: string | null;
   collectionName?: ModerationTemplateType | null;
   order?: number | null;
+  groupLabel?: string | null;
   deleted?: boolean | null;
 }
 
@@ -9954,6 +9982,7 @@ interface GraphQLTypeMap {
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
   HomepageCommunityEventPostsResult: HomepageCommunityEventPostsResult;
+  HocuspocusAuth: HocuspocusAuth;
   DigestHighlightsResult: DigestHighlightsResult;
   DigestPostsThisWeekResult: DigestPostsThisWeekResult;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
@@ -10004,7 +10033,9 @@ interface GraphQLTypeMap {
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   ToggleBookmarkInput: ToggleBookmarkInput;
+  SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
+  SetIsBookmarkedOutput: SetIsBookmarkedOutput;
   RssPostChangeInfo: RssPostChangeInfo;
   FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;
   FeedPost: FeedPost;
@@ -10673,6 +10704,7 @@ interface GraphQLTypeMap {
   VoteSelector: VoteSelector;
   MultiVoteInput: MultiVoteInput;
   MultiVoteOutput: MultiVoteOutput;
+  YjsDocument: YjsDocument;
   CreateAdvisorRequestDataInput: CreateAdvisorRequestDataInput;
   CreateAdvisorRequestInput: CreateAdvisorRequestInput;
   UpdateAdvisorRequestDataInput: UpdateAdvisorRequestDataInput;
@@ -10984,6 +11016,7 @@ interface CreateInputsByCollectionName {
   TypingIndicators: never;
   UserActivities: never;
   Votes: never;
+  YjsDocuments: never;
 }
 
 interface UpdateInputsByCollectionName {
@@ -11080,4 +11113,5 @@ interface UpdateInputsByCollectionName {
   UltraFeedEvents: never;
   UserActivities: never;
   Votes: never;
+  YjsDocuments: never;
 }

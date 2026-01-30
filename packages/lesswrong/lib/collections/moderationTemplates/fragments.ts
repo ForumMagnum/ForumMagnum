@@ -6,6 +6,7 @@ export const ModerationTemplateFragment = gql(`
     name
     collectionName
     order
+    groupLabel
     deleted
     contents {
       ...RevisionEdit

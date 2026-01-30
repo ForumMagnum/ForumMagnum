@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function GET(req: NextRequest) {
   const currentUser = await getUserFromReq(req);
   if (!currentUser) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response('{"error":"Unauthorized"}', { status: 401 });
   }
 
   const selector = {

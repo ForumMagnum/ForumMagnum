@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { tagUrlBaseSetting } from '@/lib/instanceSettings';
@@ -173,7 +172,7 @@ const RedlinkTagPage = ({tag, slug}: {
   </SingleColumnSection>
 }
 
-export default registerComponent('RedlinkTagPage', RedlinkTagPage);
+export default RedlinkTagPage;
 
 
 

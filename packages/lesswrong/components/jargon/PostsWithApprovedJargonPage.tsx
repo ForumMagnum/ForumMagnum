@@ -6,7 +6,6 @@ import { NetworkStatus } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery"
 import { userIsAdmin } from '@/lib/vulcan-users/permissions.ts';
 import { useCurrentUser } from '../common/withUser';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import PostsItem from "../posts/PostsItem";
 import JargonTooltip from "./JargonTooltip";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -16,8 +15,10 @@ import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import { gql } from '@/lib/generated/gql-codegen';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsWithApprovedJargonPage", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2
   },
@@ -45,13 +46,13 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 10,
     margin: 0
   }
-});
+}));
 
-const PostListItemWithJargon = ({ post, jargonTerms, classes }: {
+const PostListItemWithJargon = ({ post, jargonTerms }: {
   post: PostsListWithVotes,
   jargonTerms: JargonTerms[],
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return <div className={classes.post}>
     <PostsItem post={post}/>
     <div className={classes.jargonTerms}>
@@ -66,9 +67,8 @@ const PostListItemWithJargon = ({ post, jargonTerms, classes }: {
   </div>
 };
 
-export const PostsWithApprovedJargonPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const PostsWithApprovedJargonPage = () => {
+  const classes = useStyles(styles);
   const [limit, setLimit] = useState(15);
   const pageSize = 20;
 
@@ -123,17 +123,17 @@ export const PostsWithApprovedJargonPage = ({classes}: {
       
       {!!todaysPosts.length && <SectionTitle title="Today"/>}
       {todaysPosts.map(({ post, jargonTerms }) => {
-        return <PostListItemWithJargon key={post._id} post={post} jargonTerms={jargonTerms} classes={classes} />
+        return <PostListItemWithJargon key={post._id} post={post} jargonTerms={jargonTerms} />
       })}
       
       {!!yesterdaysPosts.length && <SectionTitle title="Yesterday"/>}
       {yesterdaysPosts.map(({ post, jargonTerms }) => {
-        return <PostListItemWithJargon key={post._id} post={post} jargonTerms={jargonTerms} classes={classes} />
+        return <PostListItemWithJargon key={post._id} post={post} jargonTerms={jargonTerms} />
       })}
       
       {!!olderPosts.length && <SectionTitle title="Older"/>}
       {olderPosts.map(({ post, jargonTerms }) => {
-        return <PostListItemWithJargon key={post._id} post={post} jargonTerms={jargonTerms} classes={classes} />
+        return <PostListItemWithJargon key={post._id} post={post} jargonTerms={jargonTerms} />
       })}
       
       <div className={classes.loadMore}>
@@ -158,6 +158,4 @@ export const PostsWithApprovedJargonPage = ({classes}: {
   </div>;
 }
 
-export default registerComponent('PostsWithApprovedJargonPage', PostsWithApprovedJargonPage, {styles});
-
-
+export default PostsWithApprovedJargonPage;

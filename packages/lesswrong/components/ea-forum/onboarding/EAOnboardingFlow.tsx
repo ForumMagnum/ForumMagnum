@@ -1,5 +1,4 @@
 import React from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components'
 import OnboardingFlow from "../../onboarding/OnboardingFlow";
 import EAOnboardingUserStage from "./EAOnboardingUserStage";
 import EAOnboardingSubscribeStage from "./EAOnboardingSubscribeStage";
@@ -27,9 +26,4 @@ const EAOnboardingFlow = ({viewAsAdmin}: {
   )
 }
 
-export default registerComponent(
-  'EAOnboardingFlow',
-  EAOnboardingFlow,
-);
-
-
+export default EAOnboardingFlow;

@@ -44,8 +44,12 @@ const styles = (theme: ThemeType) => ({
       margin: 0,
       minHeight: 30,
     },
+    '--lexical-comment-min-height': `${COLLAPSED_HEIGHT}px`,
     '& .ck.ck-editor__editable_inline': {
       border: "none !important",
+    },
+    '& [contenteditable="true"]': {
+      border: "none",
     },
     '& .EditorTypeSelect-select': {
       display: 'none',
@@ -62,6 +66,15 @@ const styles = (theme: ThemeType) => ({
     },
     '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
       minHeight: 'unset'
+    },
+    '--lexical-comment-min-height': `${COLLAPSED_HEIGHT}px`,
+    '--lexical-comment-placeholder-top': '25%',
+    '--lexical-comment-placeholder-transform': 'translateY(-50%)',
+    '--lexical-comment-placeholder-left': '0px',
+    '& .EditorFormComponent-commentEditorHeight [contenteditable="true"]': {
+      minHeight: COLLAPSED_HEIGHT,
+      maxHeight: COLLAPSED_HEIGHT,
+      overflow: 'hidden',
     },
     '& .LocalStorageCheck-root': {
       display: 'none',

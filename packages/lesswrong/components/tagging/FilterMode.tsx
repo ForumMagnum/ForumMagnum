@@ -31,7 +31,7 @@ const TagPreviewFragmentQuery = gql(`
   }
 `);
 
-const getLatestPostsName = () => isFriendlyUI() ? 'Frontpage Posts' : 'Latest Posts';
+const getLatestPostsName = () => isFriendlyUI() ? 'Frontpage Posts' : 'Recent Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
 
 export const filteringStyles = (theme: ThemeType) => ({

@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen";
 import PostsPage from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
@@ -109,4 +108,4 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
   </>;
 }
 
-export default registerComponent("PostsPageWrapper", PostsPageWrapper);
+export default PostsPageWrapper;

@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, PropsWithChildren, useContext } from "react";
+import React, { FC, MouseEvent, PropsWithChildren, useContext, useSyncExternalStore } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import qs from "qs";
@@ -7,6 +7,7 @@ import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
 import { isSpecialClick } from "@/lib/utils/eventUtils";
+import { useMatchSSR } from "@/components/common/DeferRender";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,
@@ -94,12 +95,17 @@ export const useCommentLink = ({
  */
 export const useCommentLinkState = () => {
   const { query, hash } = useSubscribedLocation();
-  const { matchSSR } = useContext(EnvironmentOverrideContext);
 
   const queryId = query.commentId
-  const hashId = matchSSR ? '' : hash.slice(1)
+  const hashId = hash.slice(1);
 
-  const scrollToCommentId = commentPermalinkStyleSetting.get() === 'in-context' ? queryId ?? hashId : hashId
+  // Hash is only available on the client, not the server; useSyncExternalStore suppresses
+  // the SSR mismatch
+  const scrollToCommentId = useSyncExternalStore(
+    ()=>()=>{},
+    () => commentPermalinkStyleSetting.get() === 'in-context' ? (queryId ?? hashId) : hashId,
+    () => commentPermalinkStyleSetting.get() === 'in-context' ? queryId : "",
+  ) ?? "";
 
   return { linkedCommentId: queryId, scrollToCommentId }
 }

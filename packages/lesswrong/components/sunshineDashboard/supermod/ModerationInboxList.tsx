@@ -17,7 +17,8 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
   scrollContainer: {
     flex: 1,
     minHeight: 0, // Required for flex child to shrink below content height
-    overflowY: 'auto',
+    maxHeight: 'calc(100vh - 109px)',
+    overflowY: 'scroll',
   },
   empty: {
     padding: 40,

@@ -1,7 +1,7 @@
 import { getOpenAI } from './languageModelIntegration';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import sanitizeHtml from 'sanitize-html';
-import { sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
+import { sanitizeAllowedTags } from "@/lib/utils/sanitize";
 import Comments from '../../server/collections/comments/collection';
 import { dataToHTML } from '../editor/conversionUtils';
 // eslint-disable-next-line no-restricted-imports

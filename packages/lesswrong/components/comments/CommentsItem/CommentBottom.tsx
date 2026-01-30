@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import React from 'react';
 import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useFilteredCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
@@ -14,8 +13,10 @@ import CommentBottomCaveats from "./CommentBottomCaveats";
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { Link } from '@/lib/reactRouterWrapper';
 import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentBottom", (theme: ThemeType) => ({
   bottom: {
     display: "flex",
     alignItems: "center",
@@ -46,9 +47,9 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
     marginLeft: theme.spacing.unit,
   },
-})
+}))
 
-const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton, classes}: {
+const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton}: {
   comment: CommentsList,
   post: PostsMinimumInfo|undefined,
   treeOptions: CommentTreeOptions,
@@ -56,8 +57,8 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   voteProps: VotingProps<VoteableTypeClient>,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   replyButton: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const userCanReplyOnBlocked = useFilteredCurrentUser(u => userCanDo(u, 'comments.replyOnBlocked.all'));
   const userCanModerateAll = useFilteredCurrentUser(u => userCanDo(u, 'posts.moderate.all'));
 
@@ -120,7 +121,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   );
 }
 
-export default registerComponent('CommentBottom', CommentBottom, {styles});
+export default CommentBottom;
 
 
 

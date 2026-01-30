@@ -1,6 +1,5 @@
 "use client";
 
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -18,6 +17,6 @@ const EventsUpcoming = () => {
   )
 }
 
-export default registerComponent('EventsUpcoming', EventsUpcoming);
+export default EventsUpcoming;
 
 

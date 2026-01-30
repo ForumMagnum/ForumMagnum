@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTimezone } from "../common/withTimezone";
 import { useLocation } from "../../lib/routeUtil";
 import { AllowHidingFrontPagePostsContext } from "../dropdowns/posts/PostActions";
@@ -156,6 +155,6 @@ const AllPostsList = ({
   );
 }
 
-export default registerComponent("AllPostsList", AllPostsList);
+export default AllPostsList;
 
 

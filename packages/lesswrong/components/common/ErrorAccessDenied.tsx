@@ -1,12 +1,13 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import LoginForm from "../users/LoginForm";
 import SingleColumnSection from "./SingleColumnSection";
 import { Typography } from "./Typography";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ErrorAccessDenied", (theme: ThemeType) => ({
   root: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -17,7 +18,7 @@ const styles = (theme: ThemeType) => ({
       marginTop: 30
     }
     :{},
-});
+}));
 
 /**
  * Show a simple "you don't have access" message if the user is logged in,
@@ -29,13 +30,13 @@ const styles = (theme: ThemeType) => ({
  * However, for pages that are normally meant to be publicly accessible (like the post page),
  * we skip the login prompt and just display the "you don't have access" message.
  */
-const ErrorAccessDenied = ({explanation, skipLoginPrompt, classes}: {
+const ErrorAccessDenied = ({explanation, skipLoginPrompt}: {
   explanation?: string,
   skipLoginPrompt?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  
+  const classes = useStyles(styles);
+
   if (currentUser || skipLoginPrompt) {
     const message = `Sorry, you don't have access to this page.${(explanation ? ` ${explanation}` : "")}`
     return <>
@@ -57,10 +58,6 @@ const ErrorAccessDenied = ({explanation, skipLoginPrompt, classes}: {
   }
 }
 
-export default registerComponent(
-  "ErrorAccessDenied",
-  ErrorAccessDenied,
-  {styles},
-);
+export default ErrorAccessDenied;
 
 

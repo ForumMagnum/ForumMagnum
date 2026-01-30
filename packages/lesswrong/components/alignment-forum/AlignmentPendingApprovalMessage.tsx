@@ -2,7 +2,7 @@ import React from 'react';
 import { isAF } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
-import { defineStyles } from '../hooks/defineStyles';
+import { defineStyles } from '@/components/hooks/defineStyles';
 import { useGetStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("AlignmentPendingApprovalMessage", (theme: ThemeType) => ({

@@ -1,6 +1,6 @@
 import React from "react";
 import ResendVerificationEmailPage from '@/components/users/ResendVerificationEmailPage';
-import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
@@ -9,9 +9,7 @@ import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgrou
 assertRouteHasWhiteBackground("/resendVerificationEmail");
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), {
-    title: 'Email Verification',
-  });
+  return merge({}, await getDefaultMetadata(), getPageTitleFields('Email Verification'));
 }
 
 export default function Page() {

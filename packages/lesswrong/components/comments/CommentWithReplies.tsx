@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
 import CommentsNode, { CommentsNodeProps } from './CommentsNode';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentWithReplies", (theme: ThemeType) => ({
   showChildren: {
     padding: 4,
     paddingLeft: 12,
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     display: "block",
     fontSize: 14,
   },
-})
+}))
 
 export interface CommentWithRepliesProps {
   comment: CommentWithRepliesFragment;
@@ -24,7 +25,6 @@ export interface CommentWithRepliesProps {
   commentNodeProps?: Partial<CommentsNodeProps>;
   startExpanded?: boolean;
   className?: string;
-  classes: ClassesType<typeof styles>;
 }
 
 const CommentWithReplies = ({
@@ -35,8 +35,8 @@ const CommentWithReplies = ({
   commentNodeProps,
   startExpanded,
   className,
-  classes,
 }: CommentWithRepliesProps) => {
+  const classes = useStyles(styles);
   const [maxChildren, setMaxChildren] = useState(startExpanded ? 500 : initialMaxChildren);
 
   if (!comment) return null;
@@ -88,7 +88,6 @@ const CommentWithReplies = ({
 
 export default registerComponent(
   'CommentWithReplies', CommentWithReplies, {
-    styles,
     hocs: [withErrorBoundary]
   }
 );

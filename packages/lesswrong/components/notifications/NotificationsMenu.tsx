@@ -13,7 +13,7 @@ import { Drawer } from '@/components/material-ui/Drawer'
 import ForumIcon from "../common/ForumIcon";
 import ErrorBoundary from "../common/ErrorBoundary";
 import NotificationsList from "./NotificationsList";
-import { useReadQuery } from '@apollo/client/react';
+import { useReadQuery } from '@/lib/crud/useQuery';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 

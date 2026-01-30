@@ -1,14 +1,12 @@
 import React from "react";
 import Nominations2019 from '@/components/review/Nominations2019';
-import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), {
-    title: '2019 Nominations',
-  });
+  return merge({}, await getDefaultMetadata(), getPageTitleFields('2019 Nominations'));
 }
 
 export default function Page() {

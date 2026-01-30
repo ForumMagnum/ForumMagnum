@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -46,7 +45,7 @@ export const SpotlightHistory = () => {
   </SingleColumnSection>;
 }
 
-export default registerComponent('SpotlightHistory', SpotlightHistory);
+export default SpotlightHistory;
 
 
 
