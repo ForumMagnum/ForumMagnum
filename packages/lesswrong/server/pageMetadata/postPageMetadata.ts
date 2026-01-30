@@ -8,6 +8,9 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { notFound } from "next/navigation";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { runQuery } from "../vulcan-lib/query";
+import { getRequestId } from "../rendering/requestId";
+import { getResolverContextForSSR } from "../rendering/ssrApolloClient";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
@@ -85,20 +88,23 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
 
     const postId = paramsToPostIdConverter(paramValues);
     const commentId = searchParamsValues.commentId;
-
-    const client = getClient();
+    const searchParamsStr = JSON.stringify(searchParamsValues);
+    const requestId = await getRequestId();
+    const resolverContext = await getResolverContextForSSR(searchParamsStr, requestId);
 
     try {
       const [{ data: postData }, { data: commentData }] = await Promise.all([
-        client.query({
-          query: PostMetadataQuery,
-          variables: { postId },
-        }),
+        runQuery(
+          PostMetadataQuery,
+          { postId },
+          resolverContext
+        ),
         commentId
-          ? client.query({
-              query: CommentPermalinkMetadataQuery,
-              variables: { commentId },
-            })
+          ? runQuery(
+              CommentPermalinkMetadataQuery,
+              { commentId },
+              resolverContext
+            )
           : { data: null },
       ]);
   

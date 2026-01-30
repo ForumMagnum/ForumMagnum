@@ -6,7 +6,7 @@ import { VoyageAIClient } from "voyageai";
 import { EmbedResponseDataItem } from "voyageai/api/types";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { gql } from "@/lib/generated/gql-codegen";
-import { getApolloClientWithContext } from "../rendering/ssrApolloClient";
+import { getApolloClientForSSRWithContext } from "../rendering/ssrApolloClient";
 import { maybeDate } from "@/lib/utils/dateUtils";
 import chunk from "lodash/chunk";
 
@@ -155,7 +155,7 @@ export const updateCommentEmbeddings = async (commentId: string) => {
   
   const context = createAdminContext();
   const { repos } = context;
-  const apolloClient = await getApolloClientWithContext(context);
+  const apolloClient = await getApolloClientForSSRWithContext(context);
 
   const { data } = await apolloClient.query({
     query: commentsForEmbeddingsQuery,
@@ -186,7 +186,7 @@ export const updateMissingCommentEmbeddings = async () => {
   const context = createAdminContext();
   const { repos } = context;
 
-  const apolloClient = await getApolloClientWithContext(context);
+  const apolloClient = await getApolloClientForSSRWithContext(context);
 
   let startDate = new Date("2023-01-29");
   const commentsWithoutEmbeddings = await repos.commentEmbeddings.getAllCommentIdsWithoutEmbeddings(startDate);
