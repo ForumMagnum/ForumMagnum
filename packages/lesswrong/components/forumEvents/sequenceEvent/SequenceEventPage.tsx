@@ -1,7 +1,6 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo } from "react";
 import { defineStyles, useStyles } from "../../hooks/useStyles";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "../../common/withUser";
 import { useItemsRead } from "../../hooks/useRecordPostView";
@@ -234,7 +233,7 @@ export const SequenceEventPage = ({
               />
               {currentUser?.isAdmin &&
                 <Link
-                  to={sequenceGetPageUrl({_id: sequenceId})}
+                  to={`/s/${sequenceId}`}
                   onClick={onEdit}
                   className={classes.option}
                 >
