@@ -7,9 +7,10 @@ import BadlyTypedReactMapGL, { InteractiveMapProps } from 'react-map-gl';
 import { useMapStyle } from '../hooks/useMapStyle';
 import { mapboxAPIKeySetting } from '@/lib/instanceSettings';
 import { usePathname } from 'next/navigation';
+import withErrorBoundary from '../common/withErrorBoundary';
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 
-export const WrappedReactMapGL = (props: InteractiveMapProps & {
+export const WrappedReactMapGL = withErrorBoundary((props: InteractiveMapProps & {
   mapStyle?: never,
   mapboxApiAccessToken?: never,
   children?: React.ReactNode
@@ -31,4 +32,4 @@ export const WrappedReactMapGL = (props: InteractiveMapProps & {
       mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
     />
   </>;
-}
+})
