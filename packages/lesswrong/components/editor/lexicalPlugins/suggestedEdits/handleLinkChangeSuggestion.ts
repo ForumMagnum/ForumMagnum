@@ -3,7 +3,7 @@ import { $findMatchingParent, $wrapNodeInElement } from '@lexical/utils'
 import type { LexicalEditor } from 'lexical'
 import { $getSelection, $isRangeSelection, $createTextNode } from 'lexical'
 import { generateUUID } from '@/lib/vendor/proton/generateUUID'
-import { sanitizeUrl } from '@/lib/vendor/proton/sanitizeUrl'
+import { normalizeUrl, sanitizeUrl } from '@/components/lexical/utils/url'
 import type { LinkChangePayload } from '@/components/editor/lexicalPlugins/suggestions/stubs/LinkPlugin'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import { $wrapSelectionInSuggestionNode } from './Utils'
@@ -23,15 +23,16 @@ export function $handleLinkChangeSuggestion(
 
   const suggestionID = generateUUID()
 
-  const sanitizedURL = url ? sanitizeUrl(url.startsWith('http') ? url : 'https://' + url) : null
+  const normalizedUrl = url ? normalizeUrl(url) : null
+  const sanitizedUrl = normalizedUrl ? sanitizeUrl(normalizedUrl) : null
 
   const isSelectionCollapsed = selection.isCollapsed()
   const shouldCreateNewLink = isSelectionCollapsed && url && !linkNode
   if (shouldCreateNewLink) {
-    if (!sanitizedURL || sanitizedURL.isFailed()) {
+    if (!sanitizedUrl) {
       return true
     }
-    const linkNode = $createLinkNode(sanitizedURL.getValue())
+    const linkNode = $createLinkNode(sanitizedUrl)
     linkNode.append($createTextNode(text || url))
     const suggestion = $createSuggestionNode(suggestionID, 'insert').append(linkNode)
     logger.info(`Inserting new link node as suggestion ${url}`)
@@ -66,10 +67,6 @@ export function $handleLinkChangeSuggestion(
     deleteSuggestion.insertBefore(insertSuggestion)
   }
 
-  if (sanitizedURL && sanitizedURL.isFailed()) {
-    return true
-  }
-
   const existingSuggestion = $findMatchingParent(currentLinkNode || selection.focus.getNode(), $isSuggestionNode)
 
   const shouldCreateNewSuggestionNode = existingSuggestion?.getSuggestionTypeOrThrow() !== 'link-change'
@@ -90,7 +87,7 @@ export function $handleLinkChangeSuggestion(
     onSuggestionCreation(suggestionID)
   }
 
-  editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitizedURL?.getValue() || null)
+  editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitizedUrl || null)
 
   return true
 }

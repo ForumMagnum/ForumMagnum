@@ -47,7 +47,7 @@ import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import type { CreateNotificationOptions } from '@/lib/vendor/proton/notifications'
 import { $removeSuggestionNodeAndResolveIfNeeded } from './removeSuggestionNodeAndResolveIfNeeded'
 import { $setBlocksTypeAsSuggestion } from './setBlocksTypeAsSuggestion'
-import { sanitizeUrl } from '@/lib/vendor/proton/sanitizeUrl'
+import { normalizeUrl, sanitizeUrl, validateUrl } from '@/components/lexical/utils/url'
 import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/LinkPlugin'
 
 /**
@@ -801,13 +801,21 @@ function $insertDataTransferAsSuggestion(dataTransfer: DataTransfer, selection: 
     return
   }
 
-  const sanitizedURL = sanitizeUrl(text)
-  const isValidURL = !sanitizedURL.isFailed()
-  if (isValidURL) {
+  const normalizedUrl = normalizeUrl(text)
+  const sanitizedUrl = sanitizeUrl(normalizedUrl)
+  const isValidUrl =
+    validateUrl(normalizedUrl) ||
+    normalizedUrl.startsWith('mailto:') ||
+    normalizedUrl.startsWith('tel:') ||
+    normalizedUrl.startsWith('sms:') ||
+    normalizedUrl.startsWith('/') ||
+    normalizedUrl.startsWith('#') ||
+    normalizedUrl.startsWith('?')
+  if (isValidUrl) {
     editor.dispatchCommand(LINK_CHANGE_COMMAND, {
       text: null,
       linkNode: null,
-      url: sanitizedURL.getValue(),
+      url: sanitizedUrl,
       linkTextNode: null,
     })
     return

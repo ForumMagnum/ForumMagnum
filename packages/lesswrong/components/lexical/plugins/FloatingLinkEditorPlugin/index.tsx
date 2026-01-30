@@ -20,6 +20,7 @@ import {
   $isLineBreakNode,
   $isNodeSelection,
   $isRangeSelection,
+  $isTextNode,
   BaseSelection,
   CLICK_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
@@ -38,6 +39,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {normalizeUrl, sanitizeUrl} from '../../utils/url';
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/LinkPlugin';
 import { PencilFillIcon } from '../../icons/PencilFillIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import { SuccessAltIcon } from '../../icons/SuccessAltIcon';
@@ -147,6 +149,7 @@ function FloatingLinkEditor({
   anchorElem,
   isLinkEditMode,
   setIsLinkEditMode,
+  isSuggestionMode,
 }: {
   editor: LexicalEditor;
   isLink: boolean;
@@ -154,6 +157,7 @@ function FloatingLinkEditor({
   anchorElem: HTMLElement;
   isLinkEditMode: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
+  isSuggestionMode: boolean;
 }): JSX.Element {
   const classes = useStyles(styles);
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -339,6 +343,25 @@ function FloatingLinkEditor({
     }
   };
 
+  const getCurrentLinkChangePayload = () => {
+    return editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection)) {
+        return { linkNode: null, linkTextNode: null };
+      }
+      const selectedNode = getSelectedNode(selection);
+      const linkNode = $findMatchingParent(selectedNode, $isLinkNode);
+      if (!linkNode) {
+        return { linkNode: null, linkTextNode: null };
+      }
+      const firstChild = linkNode.getFirstChild();
+      return {
+        linkNode,
+        linkTextNode: $isTextNode(firstChild) ? firstChild : null,
+      };
+    });
+  };
+
   const handleLinkSubmission = (
     event:
       | React.KeyboardEvent<HTMLInputElement>
@@ -347,24 +370,34 @@ function FloatingLinkEditor({
     event.preventDefault();
     if (lastSelection !== null) {
       if (editedLinkUrl.trim() !== '') {
-        editor.update(() => {
-          editor.dispatchCommand(
-            TOGGLE_LINK_COMMAND,
-            sanitizeUrl(normalizeUrl(editedLinkUrl)),
-          );
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            const parent = getSelectedNode(selection).getParent();
-            if ($isAutoLinkNode(parent)) {
-              const linkNode = $createLinkNode(parent.getURL(), {
-                rel: parent.__rel,
-                target: parent.__target,
-                title: parent.__title,
-              });
-              parent.replace(linkNode, true);
+        if (isSuggestionMode) {
+          const { linkNode, linkTextNode } = getCurrentLinkChangePayload();
+          editor.dispatchCommand(LINK_CHANGE_COMMAND, {
+            text: null,
+            linkNode,
+            url: editedLinkUrl,
+            linkTextNode,
+          });
+        } else {
+          editor.update(() => {
+            editor.dispatchCommand(
+              TOGGLE_LINK_COMMAND,
+              sanitizeUrl(normalizeUrl(editedLinkUrl)),
+            );
+            const selection = $getSelection();
+            if ($isRangeSelection(selection)) {
+              const parent = getSelectedNode(selection).getParent();
+              if ($isAutoLinkNode(parent)) {
+                const linkNode = $createLinkNode(parent.getURL(), {
+                  rel: parent.__rel,
+                  target: parent.__target,
+                  title: parent.__title,
+                });
+                parent.replace(linkNode, true);
+              }
             }
-          }
-        });
+          });
+        }
       }
       setEditedLinkUrl('');
       setIsLinkEditMode(false);
@@ -437,7 +470,16 @@ function FloatingLinkEditor({
             tabIndex={0}
             onMouseDown={preventDefault}
             onClick={() => {
-              editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+              if (isSuggestionMode) {
+                editor.dispatchCommand(LINK_CHANGE_COMMAND, {
+                  text: null,
+                  linkNode: null,
+                  url: null,
+                  linkTextNode: null,
+                });
+              } else {
+                editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+              }
             }}
             aria-label="Remove link">
             <Trash3Icon className={classes.linkIcon} />
@@ -453,6 +495,7 @@ function useFloatingLinkEditorToolbar(
   anchorElem: HTMLElement,
   isLinkEditMode: boolean,
   setIsLinkEditMode: Dispatch<boolean>,
+  isSuggestionMode: boolean,
 ): JSX.Element | null {
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLink, setIsLink] = useState(false);
@@ -548,6 +591,7 @@ function useFloatingLinkEditorToolbar(
       setIsLink={setIsLink}
       isLinkEditMode={isLinkEditMode}
       setIsLinkEditMode={setIsLinkEditMode}
+      isSuggestionMode={isSuggestionMode}
     />,
     anchorElem,
   );
@@ -557,10 +601,12 @@ export default function FloatingLinkEditorPlugin({
   anchorElem = document.body,
   isLinkEditMode,
   setIsLinkEditMode,
+  isSuggestionMode = false,
 }: {
   anchorElem?: HTMLElement;
   isLinkEditMode: boolean;
   setIsLinkEditMode: Dispatch<boolean>;
+  isSuggestionMode?: boolean;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
   return useFloatingLinkEditorToolbar(
@@ -568,5 +614,6 @@ export default function FloatingLinkEditorPlugin({
     anchorElem,
     isLinkEditMode,
     setIsLinkEditMode,
+    isSuggestionMode,
   );
 }

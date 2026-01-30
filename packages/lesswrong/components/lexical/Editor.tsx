@@ -559,6 +559,7 @@ export default function Editor({
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
           setIsLinkEditMode={setIsLinkEditMode}
+          isSuggestionMode={isSuggestionMode}
           isVisible={false}
         />
       )}
@@ -722,6 +723,7 @@ export default function Editor({
                   anchorElem={floatingAnchorElem}
                   isLinkEditMode={isLinkEditMode}
                   setIsLinkEditMode={setIsLinkEditMode}
+                  isSuggestionMode={isSuggestionMode}
                 />
                 {/* <TableCellActionMenuPlugin
                   anchorElem={floatingAnchorElem}
@@ -741,6 +743,7 @@ export default function Editor({
               setIsLinkEditMode={setIsLinkEditMode}
               variant={isCommentEditor ? 'comment' : 'post'}
               showInlineCommentButton={isCollab && !isCommentEditor}
+              isSuggestionMode={isSuggestionMode}
             />}
           </>
         ) : (
@@ -760,7 +763,7 @@ export default function Editor({
         )}
         {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
-        {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
+        {shouldUseLexicalContextMenu && <ContextMenuPlugin isSuggestionMode={isSuggestionMode} />}
         {/* {shouldAllowHighlightingWithBrackets && <SpecialTextPlugin />} */}
         {/* <ActionsPlugin
           shouldPreserveNewLinesInMarkdown={shouldPreserveNewLinesInMarkdown}
