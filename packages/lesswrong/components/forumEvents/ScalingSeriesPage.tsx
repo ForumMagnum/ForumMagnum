@@ -25,7 +25,7 @@ export const ScalingSeriesPage = () => {
         listenUrl="https://open.spotify.com/playlist/6xFKOOKfOu52pzWXeh4u5r?si=c71ac51c39a84e73"
         sharingUrl={sharingUrl}
         themeColor="#b8a0ff"
-        hoverColor="#efefef"
+        hoverColor="#f8f5ff"
       />
     </AnalyticsContext>
   );
