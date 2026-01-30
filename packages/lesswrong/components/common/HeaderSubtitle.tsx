@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
 import { useRouteMetadata } from '@/components/layout/ClientRouteMetadataContext';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { defineStyles, useGetStyles } from '../hooks/useStyles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 
 export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
@@ -16,7 +16,7 @@ export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: Theme
 }));
 
 const HeaderSubtitle = () => {
-  const classes = useStyles(headerSubtitleStyles);
+  const getClasses = useGetStyles(headerSubtitleStyles);
   const { metadata: routeMetadata } = useRouteMetadata();
 
   const SubtitleComponent = routeMetadata.subtitleComponent;
@@ -26,10 +26,12 @@ const HeaderSubtitle = () => {
   if (SubtitleComponent) {
     return <SubtitleComponent isSubtitle={true} />
   } else if (subtitleLink) {
+    const classes = getClasses();
     return <span className={classes.subtitle}>
       <Link to={subtitleLink}>{subtitleString}</Link>
     </span>
   } else if (subtitleString) {
+    const classes = getClasses();
     return <span className={classes.subtitle}>
       {subtitleString}
     </span> 
