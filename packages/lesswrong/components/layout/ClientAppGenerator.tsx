@@ -158,7 +158,6 @@ const ClientAppGenerator = ({ abTestGroupsUsed, children }: {
                 <HelmetProvider>
                   <LocationContextProvider>
                     <MessageContextProvider>
-                      {/* <HeadTags image={siteImageSetting.get()} /> */}
                       <Layout>
                         {children}
                       </Layout>

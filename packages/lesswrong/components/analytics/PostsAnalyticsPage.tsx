@@ -16,7 +16,6 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import SingleColumnSection from "../common/SingleColumnSection";
 import LoginForm from "../users/LoginForm";
-import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import { maybeDate } from "@/lib/utils/dateUtils";
@@ -157,7 +156,6 @@ const PostsAnalyticsPage = () => {
 
   return (
     <>
-      <HeadTags title={post?.title ?? "Post analytics"} />
       <SingleColumnSection className={classes.root}>
         <Typography variant="display2" className={classes.title}>
           {post

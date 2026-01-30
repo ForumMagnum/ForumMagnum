@@ -5,7 +5,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { headerSubtitleStyles } from '../common/HeaderSubtitle';
-import { Helmet } from '@/components/layout/Helmet';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useStyles } from '../hooks/useStyles';
@@ -35,18 +34,12 @@ export const SequencesPageTitle = ({isSubtitle, siteName}: {
   const sequence = data?.sequence?.result;
   
   if (!sequence || loading) return null;
-  const titleString = `${sequence.title} - ${siteName}`
   if (isSubtitle) {
     return (<span className={classes.subtitle}>
       <Link to={getCollectionOrSequenceUrl(sequence)}>
         {sequence.canonicalCollection?.title ?? sequence.title}
       </Link>
     </span>);
-  } else {
-    return <Helmet name="title">
-      <title>{titleString}</title>
-      <meta property='og:title' content={titleString}/>
-    </Helmet>
   }
   
   // TODO: An earlier implementation of this had a special case for the core

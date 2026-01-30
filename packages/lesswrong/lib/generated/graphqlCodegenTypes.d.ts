@@ -23797,40 +23797,6 @@ type getTagSectionPreviewQueryVariables = Exact<{
 
 type getTagSectionPreviewQuery = getTagSectionPreviewQuery_Query;
 
-type LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = (
-  { __typename?: 'Localgroup' }
-  & localGroupsBase
-);
-
-type LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput = { __typename?: 'SingleLocalgroupOutput', result: LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput_result_Localgroup | null };
-
-type LocalgroupPageTitleQuery_Query = { __typename?: 'Query', localgroup: LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput | null };
-
-
-type LocalgroupPageTitleQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type LocalgroupPageTitleQuery = LocalgroupPageTitleQuery_Query;
-
-type PostsPageHeaderTitleQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsBase
-);
-
-type PostsPageHeaderTitleQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsPageHeaderTitleQuery_post_SinglePostOutput_result_Post | null };
-
-type PostsPageHeaderTitleQuery_Query = { __typename?: 'Query', post: PostsPageHeaderTitleQuery_post_SinglePostOutput | null };
-
-
-type PostsPageHeaderTitleQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type PostsPageHeaderTitleQuery = PostsPageHeaderTitleQuery_Query;
-
 type SequencesPageTitleQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
   & SequencesPageTitleFragment

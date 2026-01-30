@@ -39,7 +39,6 @@ import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentFor
 import SharePostPopup from "../SharePostPopup";
 import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
 import MultiToCLayout from "../TableOfContents/MultiToCLayout";
-import CitationTags from "../../common/CitationTags";
 import PostsPagePostHeader from "./PostsPagePostHeader";
 import PostsPagePostFooter from "./PostsPagePostFooter";
 import PostBodyPrefix from "./PostBodyPrefix";
@@ -572,12 +571,6 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   const header = <>
     {fullPost && !linkedCommentId && <>
       <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree})}/>
-      <CitationTags
-        title={post.title}
-        author={post.user?.displayName}
-        coauthors={post.coauthors?.map(({displayName}) => displayName)}
-        date={post.postedAt ?? undefined}
-      />
     </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
