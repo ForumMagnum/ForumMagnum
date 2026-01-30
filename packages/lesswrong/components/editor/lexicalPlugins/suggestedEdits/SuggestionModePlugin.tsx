@@ -32,7 +32,6 @@ import type { SuggestionThreadController } from '@/components/editor/lexicalPlug
 import { reportError } from '@/lib/vendor/proton/reportError'
 import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext'
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND, TOGGLE_SUGGESTION_MODE_COMMAND } from './Commands'
-import debounce from 'lodash/debounce'
 import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST } from '@lexical/markdown'
 import { $acceptSuggestion } from './acceptSuggestion'
 import { $rejectSuggestion } from './rejectSuggestion'
@@ -83,11 +82,6 @@ import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggest
 import { useNotifications } from '@/lib/vendor/proton/notifications'
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import { eventFiles } from '@lexical/rich-text'
-import {
-  $setSuggestionResolutionMarker,
-  SuggestionResolutionNode,
-  type SuggestionResolutionStatus,
-} from './SuggestionResolutionNode'
 
 const LIST_TRANSFORMERS = [UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]
 
@@ -201,73 +195,98 @@ export function SuggestionModePlugin({
     )
   }, [controller, editor, markNodeMap, suggestionModeLogger])
 
+  /**
+   * Refs for serialized reconciliation - ensures only one reconciliation runs at a time
+   * and schedules another if changes occur during reconciliation.
+   */
+  const reconcileInProgressRef = useRef(false)
+  const reconcilePendingRef = useRef(false)
+  
+  /**
+   * Track suggestions that are currently being resolved (accepted/rejected).
+   * This prevents race conditions where reconciliation runs before the
+   * thread status update completes.
+   */
+  const pendingResolutionsRef = useRef(new Set<string>())
+
   useEffect(() => {
-    const syncOpenSuggestionThreads = (
-      openSuggestionIDs: Set<string>,
-      resolvedSuggestionStatuses: Map<string, SuggestionResolutionStatus>,
-    ) => {
-      controller
-        .getAllThreads()
-        .then((threads) => {
-          const threadByMarkId = new Map(threads.map((thread) => [thread.markID, thread]))
+    /**
+     * Reconcile suggestion threads with editor state.
+     * This is the single source of truth reconciliation:
+     * - If suggestion nodes exist for a thread -> thread should be 'open'
+     * - If suggestion nodes don't exist and thread is 'open' -> archive/delete (implicit deletion)
+     * - If suggestion nodes don't exist and thread is 'accepted'/'rejected' -> leave as-is
+     */
+    const reconcileSuggestionThreads = async () => {
+      if (reconcileInProgressRef.current) {
+        reconcilePendingRef.current = true
+        return
+      }
+      reconcileInProgressRef.current = true
 
-          for (const suggestionID of openSuggestionIDs) {
-            const thread = threadByMarkId.get(suggestionID)
-            if (!thread) {
-              const summary = generateSuggestionSummary(editor, markNodeMap, suggestionID)
-              const content = JSON.stringify(summary)
-              const summaryType = summary[0]?.type ?? 'insert'
-              suggestionModeLogger.info(`Creating thread for suggestion ${suggestionID} based on editor state`)
-              controller.createSuggestionThread(suggestionID, content, summaryType).catch(reportError)
-              continue
-            }
-            if (thread.status !== 'open') {
-              suggestionModeLogger.info(`Reopening thread ${thread.id} for suggestion ${suggestionID} based on editor state`)
-              controller.reopenSuggestion(thread.id).catch(reportError)
-            }
-          }
-
-          for (const [suggestionID, status] of resolvedSuggestionStatuses.entries()) {
-            if (openSuggestionIDs.has(suggestionID)) {
-              continue
-            }
-            const thread = threadByMarkId.get(suggestionID)
-            if (!thread) {
-              const summaryContent = JSON.stringify([{ type: 'insert', content: '' }])
-              controller.createSuggestionThread(suggestionID, summaryContent, 'insert').then((created) => {
-                if (created) {
-                  controller.setThreadStatus(created.id, status).catch(reportError)
-                }
-              }).catch(reportError)
-              continue
-            }
-            if (thread.status !== status) {
-              controller.setThreadStatus(thread.id, status).catch(reportError)
-            }
-          }
-
-          for (const thread of threads) {
-            if (openSuggestionIDs.has(thread.markID)) {
-              continue
-            }
-            if (resolvedSuggestionStatuses.has(thread.markID)) {
-              continue
-            }
-            if (thread.status === 'open' || thread.status === undefined) {
-              if (thread.hasChildComments) {
-                suggestionModeLogger.info(`Archiving thread ${thread.id} with comments and no matching suggestion`)
-                controller.setThreadStatus(thread.id, 'archived').catch(reportError)
-              } else {
-                suggestionModeLogger.info(`Deleting open thread ${thread.id} with no matching suggestion in editor`)
-                controller.deleteSuggestionThread(thread.id).catch(reportError)
-              }
-            }
-          }
+      try {
+        // Get suggestion IDs from current editor state
+        const openSuggestionIDs = editor.getEditorState().read(() => {
+          const nodes = $nodesOfType(ProtonNode).filter($isSuggestionNode)
+          return new Set(nodes.map((node) => node.getSuggestionIdOrThrow()))
         })
-        .catch(reportError)
-    }
 
-    const debouncedSync = debounce(syncOpenSuggestionThreads, 250)
+        // Get all suggestion threads
+        const threads = await controller.getAllThreads()
+        const threadByMarkId = new Map(threads.map((thread) => [thread.markID, thread]))
+
+        // For each suggestion with nodes in editor, ensure thread exists and is open
+        for (const suggestionID of openSuggestionIDs) {
+          const thread = threadByMarkId.get(suggestionID)
+          if (!thread) {
+            // Create thread for suggestion that doesn't have one
+            const summary = generateSuggestionSummary(editor, markNodeMap, suggestionID)
+            const content = JSON.stringify(summary)
+            const summaryType = summary[0]?.type ?? 'insert'
+            suggestionModeLogger.info(`Creating thread for suggestion ${suggestionID} based on editor state`)
+            await controller.createSuggestionThread(suggestionID, content, summaryType).catch(reportError)
+          } else if (thread.status !== 'open') {
+            // Nodes exist but thread is resolved -> undo happened -> reopen
+            suggestionModeLogger.info(`Reopening thread ${thread.id} for suggestion ${suggestionID} (undo detected)`)
+            await controller.reopenSuggestion(thread.id).catch(reportError)
+          }
+        }
+
+        // For each thread without nodes, handle based on current status
+        for (const thread of threads) {
+          if (openSuggestionIDs.has(thread.markID)) {
+            continue // Already handled above
+          }
+          
+          // Skip threads that are currently being resolved (accept/reject in progress)
+          if (pendingResolutionsRef.current.has(thread.markID)) {
+            continue
+          }
+
+          // No nodes for this thread
+          if (thread.status === 'open' || thread.status === undefined) {
+            // Was open, now no nodes -> implicit deletion (not explicit accept/reject)
+            if (thread.hasChildComments) {
+              suggestionModeLogger.info(`Archiving thread ${thread.id} with comments (no matching suggestion)`)
+              await controller.setThreadStatus(thread.id, 'archived').catch(reportError)
+            } else {
+              suggestionModeLogger.info(`Deleting thread ${thread.id} (no matching suggestion, no comments)`)
+              await controller.deleteSuggestionThread(thread.id).catch(reportError)
+            }
+          }
+          // If status is 'accepted', 'rejected', or 'archived' -> leave as-is
+        }
+      } catch (error) {
+        reportError(error)
+      } finally {
+        reconcileInProgressRef.current = false
+        if (reconcilePendingRef.current) {
+          reconcilePendingRef.current = false
+          // Run again with fresh state
+          void reconcileSuggestionThreads()
+        }
+      }
+    }
 
     return mergeRegister(
       editor.registerCommand(
@@ -301,7 +320,17 @@ export function SuggestionModePlugin({
           }
           const handled = $acceptSuggestion(suggestionID)
           if (handled) {
-            $setSuggestionResolutionMarker(suggestionID, 'accepted')
+            // Track that this suggestion is being resolved to prevent race with reconciliation
+            pendingResolutionsRef.current.add(suggestionID)
+            // Set thread status directly - this persists to Yjs via CommentStore
+            controller.getAllThreads().then((threads) => {
+              const thread = threads.find((t) => t.markID === suggestionID)
+              if (thread) {
+                return controller.setThreadStatus(thread.id, 'accepted')
+              }
+            }).catch(reportError).finally(() => {
+              pendingResolutionsRef.current.delete(suggestionID)
+            })
           }
           return handled
         },
@@ -315,7 +344,17 @@ export function SuggestionModePlugin({
           }
           const handled = $rejectSuggestion(suggestionID)
           if (handled) {
-            $setSuggestionResolutionMarker(suggestionID, 'rejected')
+            // Track that this suggestion is being resolved to prevent race with reconciliation
+            pendingResolutionsRef.current.add(suggestionID)
+            // Set thread status directly - this persists to Yjs via CommentStore
+            controller.getAllThreads().then((threads) => {
+              const thread = threads.find((t) => t.markID === suggestionID)
+              if (thread) {
+                return controller.setThreadStatus(thread.id, 'rejected')
+              }
+            }).catch(reportError).finally(() => {
+              pendingResolutionsRef.current.delete(suggestionID)
+            })
           }
           return handled
         },
@@ -323,20 +362,11 @@ export function SuggestionModePlugin({
       ),
       editor.registerUpdateListener(
         /**
-         * Keep open suggestion threads in sync with suggestion nodes present in the editor.
+         * Keep suggestion threads in sync with suggestion nodes present in the editor.
+         * Uses serialized reconciliation to avoid race conditions.
          */
-        function syncSuggestionThreadsFromEditor({ editorState }) {
-          const { openSuggestionIDs, resolvedSuggestionStatuses } = editorState.read(() => {
-            const nodes = $nodesOfType(ProtonNode).filter($isSuggestionNode)
-            const openIds = new Set(nodes.map((node) => node.getSuggestionIdOrThrow()))
-            const resolutionNodes = $nodesOfType(SuggestionResolutionNode)
-            const resolved = new Map<string, SuggestionResolutionStatus>()
-            for (const node of resolutionNodes) {
-              resolved.set(node.getSuggestionId(), node.getStatus())
-            }
-            return { openSuggestionIDs: openIds, resolvedSuggestionStatuses: resolved }
-          })
-          debouncedSync(openSuggestionIDs, resolvedSuggestionStatuses)
+        function syncSuggestionThreadsFromEditor() {
+          void reconcileSuggestionThreads()
         },
       ),
       editor.registerNodeTransform(ProtonNode, function cleanupEmptySuggestionNodes(node) {
