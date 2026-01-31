@@ -190,12 +190,14 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           let visibilityOptions: ConditionalVisibilitySettings|null = null;
           try {
             visibilityOptions = JSON.parse(visibilityOptionsStr)
-            result = <ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
-              {result}
-            </ConditionalVisibilityBlockDisplay>;
           } catch {
             // eslint-disable-next-line no-console
             console.error("Error parsing conditional visibility options", visibilityOptionsStr);
+          }
+          if (visibilityOptions) {
+            result = <ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
+              {result}
+            </ConditionalVisibilityBlockDisplay>;
           }
         }
       }
