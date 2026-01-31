@@ -1,9 +1,8 @@
 import React from 'react';
-import { type RouteMetadata } from "@/components/layout/ClientRouteMetadataContext";
-import { RouteMetadataSetter } from '@/components/layout/RouteMetadataContext';
 import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
 import Footer from '@/components/layout/Footer';
 import { RouteRootClient } from './RouteRootClient';
+import { RouteSubtitlePortal } from './RouteSubtitlePortal';
 
 const RouteRoot = ({delayedStatusCode=false, subtitle, noFooter, fullscreen, children}: {
   delayedStatusCode?: boolean
@@ -12,12 +11,9 @@ const RouteRoot = ({delayedStatusCode=false, subtitle, noFooter, fullscreen, chi
   fullscreen?: boolean,
   children: React.ReactNode
 }) => {
-  const metadata: RouteMetadata = {
-    subtitle,
-  };
   return <>
     {!delayedStatusCode && <StatusCodeSetter status={200}/>}
-    {metadata && <RouteMetadataSetter metadata={metadata}/>}
+    <RouteSubtitlePortal subtitle={subtitle} />
     
     <RouteRootClient
       fullscreen={!!fullscreen}

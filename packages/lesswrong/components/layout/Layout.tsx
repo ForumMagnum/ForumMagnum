@@ -49,6 +49,7 @@ import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute, isStaticHeaderRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import { SubtitlePortalProvider } from './SubtitlePortalContext';
 
 import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
@@ -173,6 +174,7 @@ const Layout = ({children}: {
     
     return (
       <AnalyticsContext path={pathname}>
+      <SubtitlePortalProvider>
       <PopperPortalProvider>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
@@ -251,6 +253,7 @@ const Layout = ({children}: {
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
       </PopperPortalProvider>
+      </SubtitlePortalProvider>
       </AnalyticsContext>
     )
   };

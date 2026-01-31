@@ -1,9 +1,8 @@
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
 import HeaderEventSubtitle from "./HeaderEventSubtitle";
-import { useRouteMetadata } from '@/components/layout/ClientRouteMetadataContext';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/useStyles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
+import { useSubtitlePortal } from '@/components/layout/SubtitlePortalContext';
 
 export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
   subtitle: {
@@ -16,27 +15,12 @@ export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: Theme
 }));
 
 const HeaderSubtitle = () => {
-  const classes = useStyles(headerSubtitleStyles);
-  const { metadata: routeMetadata } = useRouteMetadata();
+  const { containerRef, hasSubtitleContent } = useSubtitlePortal();
 
-  const subtitle = routeMetadata.subtitle;
-
-  if (subtitle) {
-    if (typeof subtitle === 'string') {
-      return <span className={classes.subtitle}>
-        {subtitle}
-      </span> 
-    } else if ('link' in subtitle) {
-      return <span className={classes.subtitle}>
-        <Link to={subtitle.link}>{subtitle.title}</Link>
-      </span>
-    } else {
-      const SubtitleComponent = subtitle;
-      return <SubtitleComponent />
-    }
-  }
-
-  return <HeaderEventSubtitle />;
+  return <>
+    <span ref={containerRef} />
+    {!hasSubtitleContent && <HeaderEventSubtitle />}
+  </>
 }
 
 export default HeaderSubtitle;
