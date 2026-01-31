@@ -46,8 +46,10 @@ function getSnapshot() {
   return cachedSize;
 }
 
+const SERVER_SNAPSHOT = { width: 4000, height: 2000 };
+
 function getServerSnapshot() {
-  return { width: 4000, height: 2000 };
+  return SERVER_SNAPSHOT;
 }
 
 export const useWindowSize = () => {
