@@ -1,11 +1,12 @@
 import { $createListItemNode, $isListItemNode, $isListNode } from '@lexical/list'
 import type { ElementNode } from 'lexical'
 import { $nodesOfType, $isElementNode, $isTextNode } from 'lexical'
+import { $generateNodesFromSerializedNodes } from '@lexical/clipboard'
 import { $unwrapSuggestionNode } from './Utils'
 import { ProtonNode, $isSuggestionNode } from './ProtonNode'
 import { $createLinkNode, $isLinkNode, $isAutoLinkNode } from '@lexical/link'
 import { $patchStyleText } from '@lexical/selection'
-import { $isImageNode } from '@/components/editor/lexicalPlugins/suggestions/stubs/Image/ImageNode'
+import { $isImageNode } from '@/components/lexical/nodes/ImageNode'
 import { $findMatchingParent } from '@lexical/utils'
 import { $deleteTableColumn, $isTableCellNode, $isTableNode, $isTableRowNode } from '@lexical/table'
 import { blockTypeToCreateElementFn } from '@/components/editor/lexicalPlugins/suggestions/stubs/BlockTypePlugin'
@@ -127,14 +128,29 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
         node.remove()
         continue
       }
-      const initialWidth = changedProperties.width
-      const initialHeight = changedProperties.height
       const imageNode = node.getFirstChildOrThrow()
       $unwrapSuggestionNode(node)
       if (!$isImageNode(imageNode)) {
         continue
       }
-      imageNode.setWidthAndHeight(initialWidth, initialHeight)
+      if (Object.prototype.hasOwnProperty.call(changedProperties, 'widthPercent')) {
+        const initialWidthPercent = changedProperties.widthPercent ?? null
+        imageNode.setWidthPercent(initialWidthPercent)
+      }
+      if (Object.prototype.hasOwnProperty.call(changedProperties, 'showCaption')) {
+        const initialShowCaption = changedProperties.showCaption ?? false
+        const serializedCaption = changedProperties.caption ?? null
+        imageNode.setShowCaption(initialShowCaption)
+        if (initialShowCaption && serializedCaption) {
+          const captionNode = imageNode.getCaptionNode()
+          if (captionNode) {
+            captionNode.clear()
+            const children = serializedCaption.children ?? []
+            const restoredChildren = $generateNodesFromSerializedNodes(children)
+            captionNode.append(...restoredChildren)
+          }
+        }
+      }
     } else if (suggestionType === 'indent-change') {
       const changedProperties = node.getSuggestionChangedProperties<IndentChangeSuggestionProperties>()
       if (!changedProperties) {

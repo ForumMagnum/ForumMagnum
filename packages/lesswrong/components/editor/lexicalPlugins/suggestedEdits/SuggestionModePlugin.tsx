@@ -1,9 +1,10 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { IS_APPLE, mergeRegister } from '@lexical/utils'
-import type { NodeKey } from 'lexical'
+import type { LexicalEditor, NodeKey } from 'lexical'
 import {
   $getNodeByKey,
   $getSelection,
+  $isNodeSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
   $isTextNode,
@@ -46,8 +47,18 @@ import { $handleLinkChangeSuggestion } from './handleLinkChangeSuggestion'
 import { CLEAR_FORMATTING_COMMAND, SET_SELECTION_STYLE_PROPERTY_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/FormattingPlugin'
 import { $patchStyleAsSuggestion } from './patchStyleAsSuggestion'
 import { generateSuggestionSummary } from './generateSuggestionSummary'
-import { INSERT_IMAGE_NODE_COMMAND, SET_IMAGE_SIZE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/Image/ImagePlugin'
-import { $handleImageDragAndDropAsSuggestion, $handleImageSizeChangeAsSuggestion } from './imageHandling'
+import { INSERT_IMAGE_COMMAND, type InsertImagePayload } from '@/components/lexical/plugins/ImagesPlugin'
+import {
+  SET_IMAGE_CAPTION_VISIBILITY_COMMAND,
+  SET_IMAGE_SIZE_COMMAND,
+} from '@/components/lexical/plugins/ImagesPlugin/commands'
+import {
+  $handleImageDragAndDropAsSuggestion,
+  $handleImageSizeChangeAsSuggestion,
+  $handleImageCaptionToggleAsSuggestion,
+  $handleImageDeleteAsSuggestion,
+  $insertImageNodeAsSuggestion,
+} from './imageHandling'
 import { EditorUserMode } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode'
 import { $handleIndentOutdentAsSuggestion } from './handleIndentOutdent'
 import { useGenericAlertModal } from '@/lib/vendor/proton/alertModal'
@@ -82,6 +93,45 @@ import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggest
 import { useNotifications } from '@/lib/vendor/proton/notifications'
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import { eventFiles } from '@lexical/rich-text'
+import { $createImageNode } from '@/components/lexical/nodes/ImageNode'
+import { isImageFile } from '@/components/lexical/plugins/ImagesPlugin/ImageUtils'
+import { ImageUploadError, uploadToCloudinary } from '@/components/lexical/utils/cloudinaryUpload'
+
+function getImageAltText(payload: Blob): string {
+  return payload instanceof File ? payload.name : ''
+}
+
+function insertImageFileAsSuggestion(
+  editor: LexicalEditor,
+  payload: Blob,
+  onSuggestionCreation: (id: string) => void,
+  logger: ConsoleLogger,
+): boolean {
+  if (!isImageFile(payload) || !(payload instanceof File)) {
+    return false
+  }
+  uploadToCloudinary(payload)
+    .then((result) => {
+      const altText = getImageAltText(payload)
+      editor.update(() => {
+        const imageNode = $createImageNode({
+          altText,
+          src: result.secure_url,
+          width: result.width,
+          height: result.height,
+        })
+        $insertImageNodeAsSuggestion(imageNode, onSuggestionCreation, logger)
+      })
+    })
+    .catch((error) => {
+      if (error instanceof ImageUploadError) {
+        reportError(error)
+        return
+      }
+      reportError(error)
+    })
+  return true
+}
 
 const LIST_TRANSFORMERS = [UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]
 
@@ -459,6 +509,14 @@ export function SuggestionModePlugin({
             return false
           }
           event.preventDefault()
+          const selection = $getSelection()
+          if ($isNodeSelection(selection)) {
+            let handled = true
+            editor.update(() => {
+              handled = $handleImageDeleteAsSuggestion(addCreatedIDtoSet, suggestionModeLogger)
+            })
+            return handled
+          }
           let handled = true
           editor.update(() => {
             handled = $handleDeleteInputType(
@@ -480,6 +538,14 @@ export function SuggestionModePlugin({
             return false
           }
           event.preventDefault()
+          const selection = $getSelection()
+          if ($isNodeSelection(selection)) {
+            let handled = true
+            editor.update(() => {
+              handled = $handleImageDeleteAsSuggestion(addCreatedIDtoSet, suggestionModeLogger)
+            })
+            return handled
+          }
           let handled = true
           editor.update(() => {
             handled = $handleDeleteInputType(
@@ -506,12 +572,16 @@ export function SuggestionModePlugin({
         (event) => {
           const [, files, hasTextContent] = eventFiles(event)
           if (files.length > 0 && !hasTextContent) {
-            for (const file of files) {
+            const imageFiles = files.filter(isImageFile)
+            if (imageFiles.length === 0) {
+              return false
+            }
+            for (const file of imageFiles) {
               editor.dispatchCommand(INSERT_FILE_COMMAND, file)
             }
             return true
           }
-          return true
+          return false
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
@@ -654,8 +724,11 @@ export function SuggestionModePlugin({
         COMMAND_PRIORITY_CRITICAL,
       ),
       editor.registerCommand(
-        INSERT_IMAGE_NODE_COMMAND,
-        (node) => $selectionInsertClipboardNodes([node], addCreatedIDtoSet, suggestionModeLogger),
+        INSERT_IMAGE_COMMAND,
+        (payload: InsertImagePayload) => {
+          const imageNode = $createImageNode(payload)
+          return $selectionInsertClipboardNodes([imageNode], addCreatedIDtoSet, suggestionModeLogger)
+        },
         COMMAND_PRIORITY_CRITICAL,
       ),
       editor.registerCommand(
@@ -664,8 +737,18 @@ export function SuggestionModePlugin({
         COMMAND_PRIORITY_CRITICAL,
       ),
       editor.registerCommand(
+        SET_IMAGE_CAPTION_VISIBILITY_COMMAND,
+        (payload) => $handleImageCaptionToggleAsSuggestion(payload, addCreatedIDtoSet, suggestionModeLogger),
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      editor.registerCommand(
         DROP_COMMAND,
         (event) => $handleImageDragAndDropAsSuggestion(event, addCreatedIDtoSet, suggestionModeLogger),
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      editor.registerCommand(
+        INSERT_FILE_COMMAND,
+        (payload) => insertImageFileAsSuggestion(editor, payload, addCreatedIDtoSet, suggestionModeLogger),
         COMMAND_PRIORITY_CRITICAL,
       ),
       editor.registerCommand(

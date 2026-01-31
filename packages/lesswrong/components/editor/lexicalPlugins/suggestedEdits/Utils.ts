@@ -1,7 +1,7 @@
 import type { ElementNode, LexicalNode, RangeSelection, TextNode } from 'lexical'
 import { $isDecoratorNode, $isElementNode, $isRootOrShadowRoot, $isTextNode } from 'lexical'
 import { SuggestionTypesThatAffectWholeParent, SuggestionTypesThatCanBeEmpty, type SuggestionProperties, type SuggestionType } from './Types'
-import { $isImageNode } from '@/components/editor/lexicalPlugins/suggestions/stubs/Image/ImageNode'
+import { $isImageCaptionNode, $isImageNode, $isImageRenderNode } from '@/components/lexical/nodes/ImageNode'
 import type { ProtonNode } from './ProtonNode'
 import { $isSuggestionNode, $createSuggestionNode } from './ProtonNode'
 import { $findMatchingParent, $insertFirst } from '@lexical/utils'
@@ -117,7 +117,21 @@ export function $wrapSelectionInSuggestionNode(
     } else if ($isImageNode(node)) {
       logger?.info('Node is image node')
       targetNode = node
-    } else if ($isTableNode(node)) {
+    } else if ($isImageRenderNode(node) || $isImageCaptionNode(node)) {
+      const imageParent = $findMatchingParent(node, $isImageNode)
+      if (imageParent) {
+        logger?.info('Node is image child, targeting image node')
+        targetNode = imageParent
+      }
+    }
+    if (!targetNode) {
+      const imageParent = $findMatchingParent(node, $isImageNode)
+      if (imageParent) {
+        logger?.info('Node is inside image, targeting image node')
+        targetNode = imageParent
+      }
+    }
+    if (!targetNode && $isTableNode(node)) {
       logger?.info('Node is table node')
 
       if (type !== 'delete' && type !== 'insert') {
