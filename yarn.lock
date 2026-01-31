@@ -7503,7 +7503,7 @@
   resolved "https://registry.npmjs.org/@types/geojson/-/geojson-7946.0.7.tgz"
   integrity sha512-wE2v81i4C4Ol09RtsWFAqg3BUitWbHSpSlIo+bNdsCJijO9sjme+zm+73ZMCa/qMC8UEERxzGbvmr1cffo2SiQ==
 
-"@types/geojson@^7946.0.10", "@types/geojson@^7946.0.7":
+"@types/geojson@^7946.0.10":
   version "7946.0.16"
   resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-7946.0.16.tgz#8ebe53d69efada7044454e3305c19017d97ced2a"
   integrity sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==
@@ -7683,13 +7683,6 @@
   version "1.12.8"
   resolved "https://registry.npmjs.org/@types/mapbox-gl/-/mapbox-gl-1.12.8.tgz"
   integrity sha512-a/FCVFr/i43dVl9M+PUVeuoG9IH5H1TfXWGcGoeyXgsdgDHmM6dI5u5CabW2GVu97hMQ64gbeR5N3jZ5sqWaMw==
-  dependencies:
-    "@types/geojson" "*"
-
-"@types/mapbox-gl@^2.0.3":
-  version "2.7.21"
-  resolved "https://registry.yarnpkg.com/@types/mapbox-gl/-/mapbox-gl-2.7.21.tgz#b0cad1e4c3d1bf1592444de36a4f27e890310416"
-  integrity sha512-Dx9MuF2kKgT/N22LsMUB4b3acFZh9clVqz9zv1fomoiPoBrJolwYxpWA/9LPO/2N0xWbKi4V+pkjTaFkkx/4wA==
   dependencies:
     "@types/geojson" "*"
 
@@ -17454,7 +17447,7 @@ minizlib@^2.1.1:
     minipass "^3.0.0"
     yallist "^4.0.0"
 
-mjolnir.js@^2.5.0:
+mjolnir.js@^2.4.0:
   version "2.7.3"
   resolved "https://registry.yarnpkg.com/mjolnir.js/-/mjolnir.js-2.7.3.tgz#b71902edaa387f14c7fe6e9b1f611c0ce814240a"
   integrity sha512-Z5z/+FzZqOSO3juSVKV3zcm4R2eAlWwlKMcqHmyFEJAaLILNcDKnIbnb4/kbcGyIuhtdWrzu8WOIR7uM6I34aw==
@@ -19394,19 +19387,17 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.npmjs.org/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
-react-map-gl@^5.3.18:
-  version "5.3.21"
-  resolved "https://registry.yarnpkg.com/react-map-gl/-/react-map-gl-5.3.21.tgz#7d28cdfe382d599d4ac8cccf7d794a3a0f06b65b"
-  integrity sha512-hNVYiPBjgfVIcDV70OU9QnzvNCI1NhLm5OHjyY1rKPOKqzV4m9jjuXEKUaWC72vqIHk1Dzb+gG78xWOpqVi6uw==
+react-map-gl@5.2.13:
+  version "5.2.13"
+  resolved "https://registry.yarnpkg.com/react-map-gl/-/react-map-gl-5.2.13.tgz#f204ee4964e22636ced7ed7c0c17d4710e965371"
+  integrity sha512-yYqpZJADB7o5epiYpkcUED5MWevFnOsVn9mgKfizxjsenLMpVNgNgb/x0e9DS4VZtpOLWW2ZXYBB4BJZJlZmTQ==
   dependencies:
     "@babel/runtime" "^7.0.0"
-    "@types/geojson" "^7946.0.7"
-    "@types/mapbox-gl" "^2.0.3"
     mapbox-gl "^1.0.0"
-    mjolnir.js "^2.5.0"
+    mjolnir.js "^2.4.0"
     prop-types "^15.7.2"
-    resize-observer-polyfill "^1.5.1"
-    viewport-mercator-project "^7.0.4"
+    react-virtualized-auto-sizer "^1.0.2"
+    viewport-mercator-project "^6.2.3 || ^7.0.1"
 
 react-popper@^2.3.0:
   version "2.3.0"
@@ -19481,6 +19472,11 @@ react-transition-group@^4.4.5:
     dom-helpers "^5.0.1"
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
+
+react-virtualized-auto-sizer@^1.0.2:
+  version "1.0.26"
+  resolved "https://registry.yarnpkg.com/react-virtualized-auto-sizer/-/react-virtualized-auto-sizer-1.0.26.tgz#e9470ef6a778dc4f1d5fd76305fa2d8b610c357a"
+  integrity sha512-CblNyiNVw2o+hsa5/49NH2ogGxZ+t+3aweRvNSq7TVjDIlwk7ir4lencEg5HxHeSzwNarSkNkiu0qJSOXtxm5A==
 
 react@^19.2.0:
   version "19.2.4"
@@ -22239,7 +22235,7 @@ vfile@^6.0.0:
     "@types/unist" "^3.0.0"
     vfile-message "^4.0.0"
 
-viewport-mercator-project@^7.0.4:
+"viewport-mercator-project@^6.2.3 || ^7.0.1":
   version "7.0.4"
   resolved "https://registry.yarnpkg.com/viewport-mercator-project/-/viewport-mercator-project-7.0.4.tgz#67feec04135484bf424dd4890d630e82116b31e6"
   integrity sha512-0jzpL6pIMocCKWg1C3mqi/N4UPgZC3FzwghEm1H+XsUo8hNZAyJc3QR7YqC816ibOR8aWT5pCsV+gCu8/BMJgg==
