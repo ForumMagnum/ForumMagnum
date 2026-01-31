@@ -284,5 +284,3 @@ export const auth0SettingsDatabaseServerSetting = new ParsedServerSetting<Auth0S
 
 export const slowSSRWarnThresholdSetting = new ParsedServerSetting<number>("slowSSRWarnThreshold", 3000);
 
-export const dbPageCacheEnabledSetting = new ParsedServerSetting<boolean>("dbPageCacheEnabled", true);
-
