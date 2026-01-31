@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
-import { matchPath } from 'react-router'
+import { matchPath } from '../vendor/react-router/matchPath';
 import { isAF, taggingNamePluralSetting } from "../instanceSettings";
 
 function pathnameMatchesRoutePath(pathname: string, routePath: string) {

@@ -3,11 +3,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo, useRef } from 'react';
 import { getRouteMetadata } from './ServerRouteMetadataContext';
 
-// TODO: see if we can successfully move all of the <head> metadata to NextJS-native functionality
-// like metadata objects or generateMetadata functions.  Probably depends on whether we can use
-// Apollo client from within generateMetadata.
 export interface RouteMetadata {
-  title?: string;
   titleComponent?: React.FunctionComponent<{ siteName: string, isSubtitle: boolean }>;
   subtitle?: string;
   subtitleLink?: string;

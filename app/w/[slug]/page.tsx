@@ -13,8 +13,6 @@ export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ 
 assertRouteHasWhiteBackground("/w/[slug]");
 
 export default async function Page({ params, searchParams }: { params: Promise<{ slug: string }>, searchParams: Promise<{ startPath?: string }> }) {
-  // enableResourcePrefetch was: function
-
   const [{ slug }, searchParamValues] = await Promise.all([params, searchParams]);
   // This needs to be an `in` because startPath will be an empty string,
   // for legacy Arbital compatibility reasons.

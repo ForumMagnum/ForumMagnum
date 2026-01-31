@@ -79,8 +79,6 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
 }
 
 export default function Page() {
-  // enableResourcePrefetch was: function
-  
   return <RouteRoot delayedStatusCode metadata={{
     titleComponent: SequencesPageTitle,
     subtitleComponent: SequencesPageTitle
