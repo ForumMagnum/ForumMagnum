@@ -117,7 +117,7 @@ function setupPersistence(
 export function createWebsocketProvider(
   id: string,
   yjsDocMap: Map<string, Doc>,
-): Provider {
+): Provider & HocuspocusProvider {
   let doc = yjsDocMap.get(id);
 
   if (doc === undefined) {
@@ -130,7 +130,7 @@ export function createWebsocketProvider(
   return createWebsocketProviderWithDoc(id, doc);
 }
 
-export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
+export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider & HocuspocusProvider {
   const config = _collaborationConfig;
 
   if (!config) {
@@ -187,5 +187,5 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
 
   // HocuspocusProvider is compatible with Lexical's Provider at runtime,
   // but has slightly different awareness typing (Awareness | null vs Awareness)
-  return provider as unknown as Provider;
+  return provider as Provider & HocuspocusProvider;
 }

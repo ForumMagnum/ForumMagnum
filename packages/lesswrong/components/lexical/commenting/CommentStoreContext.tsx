@@ -5,6 +5,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 
 import { CommentStore } from './index';
+import type { HocuspocusProvider } from '@hocuspocus/provider';
 
 type CommentStoreContextValue = {
   commentStore: CommentStore;
@@ -25,7 +26,7 @@ export function CommentStoreProvider({
   providerFactory,
 }: {
   children: ReactNode;
-  providerFactory?: (id: string, yjsDocMap: Map<string, Doc>) => Provider;
+  providerFactory?: (id: string, yjsDocMap: Map<string, Doc>) => Provider & HocuspocusProvider;
 }) {
   const [editor] = useLexicalComposerContext();
   const collabContext = useCollaborationContext();

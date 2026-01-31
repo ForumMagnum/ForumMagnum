@@ -80,6 +80,10 @@ export default function SuggestedEditsPlugin({
         if (!thread) {
           return false;
         }
+        const firstComment = thread.comments[0];
+        if (firstComment && firstComment.content === summaryContent) {
+          return true;
+        }
         commentStore.updateThread(thread.id, { firstCommentContent: summaryContent });
         return true;
       },

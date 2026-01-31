@@ -32,6 +32,7 @@ import { BEFOREINPUT_EVENT_COMMAND, COMPOSITION_START_EVENT_COMMAND, INSERT_FILE
 import type { SuggestionThreadController } from '@/components/editor/lexicalPlugins/suggestions/SuggestionThreadController'
 import { reportError } from '@/lib/vendor/proton/reportError'
 import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext'
+import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext'
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND, TOGGLE_SUGGESTION_MODE_COMMAND } from './Commands'
 import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST } from '@lexical/markdown'
 import { $acceptSuggestion } from './acceptSuggestion'
@@ -147,6 +148,7 @@ export function SuggestionModePlugin({
   const [editor] = useLexicalComposerContext()
 
   const { markNodeMap } = useMarkNodesContext()
+  const { commentStore } = useCommentStoreContext()
 
   const [suggestionModeLogger] = useState(() => new ConsoleLogger('docs-suggestions-mode'))
 
@@ -275,6 +277,12 @@ export function SuggestionModePlugin({
       reconcileInProgressRef.current = true
 
       try {
+        // If we are collaborative and not yet synced, we shouldn't make decisions about creating/deleting threads
+        // based on the absence of threads, because we might just not have received them yet.
+        if (commentStore.isCollaborative() && !commentStore.isSynced()) {
+          return
+        }
+
         // Get suggestion IDs from current editor state
         const openSuggestionIDs = editor.getEditorState().read(() => {
           const nodes = $nodesOfType(ProtonNode).filter($isSuggestionNode)
@@ -437,8 +445,11 @@ export function SuggestionModePlugin({
           node.remove()
         }
       }),
+      commentStore.registerOnChange(() => {
+        void reconcileSuggestionThreads()
+      }),
     )
-  }, [controller, editor, isSuggestionMode, markNodeMap, onUserModeChange, suggestionModeLogger])
+  }, [controller, editor, isSuggestionMode, markNodeMap, onUserModeChange, suggestionModeLogger, commentStore])
 
   useEffect(() => {
     if (!isSuggestionMode) {

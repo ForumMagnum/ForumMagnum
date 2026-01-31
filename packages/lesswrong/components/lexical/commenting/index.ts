@@ -19,6 +19,7 @@ import {
   YEvent,
 } from 'yjs';
 import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
+import type { HocuspocusProvider } from '@hocuspocus/provider';
 
 export type Comment = {
   author: string;
@@ -128,16 +129,22 @@ export class CommentStore {
   _comments: Comments;
   _changeListeners: Set<() => void>;
   _collabProvider: null | Provider;
+  _isSynced: boolean;
 
   constructor(editor: LexicalEditor) {
     this._comments = [];
     this._editor = editor;
     this._collabProvider = null;
     this._changeListeners = new Set();
+    this._isSynced = true;
   }
 
   isCollaborative(): boolean {
     return this._collabProvider !== null;
+  }
+
+  isSynced(): boolean {
+    return this._isSynced;
   }
 
   getComments(): Comments {
@@ -332,7 +339,8 @@ export class CommentStore {
   }
 
   getThreadsByType(threadType: ThreadType): Thread[] {
-    return this._comments.filter((comment): comment is Thread => comment.type === 'thread' && comment.threadType === threadType);
+    const threads = this._comments.filter((comment): comment is Thread => comment.type === 'thread' && comment.threadType === threadType);
+    return threads;
   }
 
   updateThreadStatus(threadId: string, status: ThreadStatus): void {
@@ -406,8 +414,11 @@ export class CommentStore {
     return sharedMap;
   }
 
-  registerCollaboration(provider: Provider): () => void {
+  registerCollaboration(provider: Provider & HocuspocusProvider): () => void {
     this._collabProvider = provider;
+    this._isSynced = provider.synced;
+    triggerOnChange(this);
+
     const sharedCommentsArray = this._getCollabComments();
 
     const connect = () => {
@@ -421,6 +432,13 @@ export class CommentStore {
         // Do nothing
       }
     };
+
+    const onSync = () => {
+      this._isSynced = provider.synced;
+      triggerOnChange(this);
+    };
+
+    provider.on('synced', onSync);
 
     const unsubscribe = this._editor.registerCommand(
       TOGGLE_CONNECT_COMMAND,
@@ -562,6 +580,7 @@ export class CommentStore {
     return () => {
       sharedCommentsArray.unobserveDeep(onSharedCommentChanges);
       unsubscribe();
+      provider.off('synced', onSync);
       this._collabProvider = null;
     };
   }
