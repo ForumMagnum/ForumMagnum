@@ -1,6 +1,10 @@
-import { useEffect, useLayoutEffect, useState, useSyncExternalStore } from "react";
-import { isClient } from "../../lib/executionEnvironment";
+import { useSyncExternalStore } from "react";
 import { useTheme } from "../themes/useTheme";
+
+function subscribeToResize(callback: () => void) {
+  window.addEventListener("resize", callback);
+  return () => window.removeEventListener("resize", callback);
+}
 
 /**
  * Returns whether the screen width is above (>=) a threshold, in pixels. On
@@ -10,12 +14,7 @@ import { useTheme } from "../themes/useTheme";
  */
 export const useIsAboveScreenWidth = (targetScreenWidth: number, defaultValue=true) => {
   return useSyncExternalStore(
-    (cb) => {
-      window.addEventListener("resize", cb);
-      return () => {
-        window.removeEventListener("resize", cb);
-      };
-    },
+    subscribeToResize,
     () => window.innerWidth >= targetScreenWidth,
     () => defaultValue,
   );
@@ -34,17 +33,29 @@ export const useIsAboveBreakpoint = (breakpoint: BreakpointName, defaultValue=tr
 
 /**
  * Get the window size. If server side or hydrating, returns 4000x2000. This
- * won't cause an SSR mismatch, but may cause visible layout shift.
+ * won't cause an SSR mismatch, but may cause visible layout shift.  We have a module-level
+ * assignment to avoid returning a new object from getSnapshot even when the values
+ * haven't changed, which would otherwise cause an infinite render loop and break.
  */
+let cachedSize = { width: 4000, height: 2000 };
+
+function getSnapshot() {
+  if (cachedSize.width !== window.innerWidth || cachedSize.height !== window.innerHeight) {
+    cachedSize = { width: window.innerWidth, height: window.innerHeight };
+  }
+  return cachedSize;
+}
+
+const SERVER_SNAPSHOT = { width: 4000, height: 2000 };
+
+function getServerSnapshot() {
+  return SERVER_SNAPSHOT;
+}
+
 export const useWindowSize = () => {
   return useSyncExternalStore(
-    (cb) => {
-      window.addEventListener("resize", cb);
-      return () => {
-        window.removeEventListener("resize", cb);
-      };
-    },
-    () => ({width: window.innerWidth, height: window.innerHeight}),
-    () => ({width: 4000, height: 2000}),
+    subscribeToResize,
+    getSnapshot,
+    getServerSnapshot
   );
 }
