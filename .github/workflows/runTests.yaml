@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 env:
   BROWSERSLIST_IGNORE_OLD_DATA: 1
+  VERCEL_ACCESS_TOKEN: ${{ secrets.VERCEL_ACCESS_TOKEN }}
 jobs:
   runLint:
     runs-on: ubuntu-latest
@@ -55,12 +56,12 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Pull Vercel Environment Information
-      if: ${{ secrets.VERCEL_ACCESS_TOKEN != '' }}
+      if: ${{ env.VERCEL_ACCESS_TOKEN != '' }}
       run: |
         npm install --global vercel@latest
-        vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
+        vercel env pull --yes --environment=development --token=${{ env.VERCEL_ACCESS_TOKEN }}
     - name: Assert Vercel config not required on fork
-      if: ${{ secrets.VERCEL_ACCESS_TOKEN == '' }}
+      if: ${{ env.VERCEL_ACCESS_TOKEN == '' }}
       run: echo "Running codegen with default/test env (no Vercel config)"
     - name: Setup database
       run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
@@ -234,7 +235,7 @@ jobs:
         parallel: true
 
   runIntegrationTests:
-    if: ${{ secrets.VERCEL_ACCESS_TOKEN != '' }}
+    if: ${{ env.VERCEL_ACCESS_TOKEN != '' }}
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -266,7 +267,7 @@ jobs:
     - name: Pull Vercel Environment Information
       run: |
         npm install --global vercel@latest
-        vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
+        vercel env pull --yes --environment=development --token=${{ env.VERCEL_ACCESS_TOKEN }}
     - name: Setup database schema
       run: yarn create-integration-db-ci
     - name: yarn run integration-ci
@@ -280,7 +281,7 @@ jobs:
         parallel: true
 
   runPostgresBootstrap:
-    if: ${{ secrets.VERCEL_ACCESS_TOKEN != '' }}
+    if: ${{ env.VERCEL_ACCESS_TOKEN != '' }}
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -311,7 +312,7 @@ jobs:
     - name: Pull Vercel Environment Information
       run: |
         npm install --global vercel@latest
-        vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
+        vercel env pull --yes --environment=development --token=${{ env.VERCEL_ACCESS_TOKEN }}
     - name: Execute Accepted Schema
       run: psql $PG_URL -f ./schema/accepted_schema.sql
     - name: Run Database Bootstrap
