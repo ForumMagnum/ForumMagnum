@@ -1,13 +1,13 @@
-import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
+import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { notFound } from "next/navigation";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { runQuery } from "../vulcan-lib/query";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
@@ -85,20 +85,21 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
 
     const postId = paramsToPostIdConverter(paramValues);
     const commentId = searchParamsValues.commentId;
-
-    const client = getClient();
+    const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);
 
     try {
       const [{ data: postData }, { data: commentData }] = await Promise.all([
-        client.query({
-          query: PostMetadataQuery,
-          variables: { postId },
-        }),
+        runQuery(
+          PostMetadataQuery,
+          { postId },
+          resolverContext
+        ),
         commentId
-          ? client.query({
-              query: CommentPermalinkMetadataQuery,
-              variables: { commentId },
-            })
+          ? runQuery(
+              CommentPermalinkMetadataQuery,
+              { commentId },
+              resolverContext
+            )
           : { data: null },
       ]);
   

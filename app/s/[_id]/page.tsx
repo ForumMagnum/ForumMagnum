@@ -3,14 +3,14 @@ import SequencesSingle from '@/components/sequences/SequencesSingle';
 import { SequencesPageTitle } from '@/components/titles/SequencesPageTitle';
 import type { Metadata } from "next";
 import { gql } from "@/lib/generated/gql-codegen";
-import { getClient } from "@/lib/apollo/nextApolloClient";
-import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { notFound } from "next/navigation";
 import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
+import { runQuery } from "@/server/vulcan-lib/query";
 
 const SequenceMetadataQuery = gql(`
   query SequenceMetadata($sequenceId: String) {
@@ -29,18 +29,19 @@ const SequenceMetadataQuery = gql(`
   }
 `);
 
-export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: {
+  params: Promise<{ _id: string }>
+  searchParams: Promise<{}>,
+ }): Promise<Metadata> {
   const { _id } = await params;
-
-  const client = getClient();
+  const resolverContext = await getResolverContextForGenerateMetadata(await searchParams);
 
   try {
-    const { data } = await client.query({
-      query: SequenceMetadataQuery,
-      variables: {
-        sequenceId: _id,
-      },
-    });
+    const { data } = await runQuery(
+      SequenceMetadataQuery,
+      { sequenceId: _id },
+      resolverContext
+    );
   
     const sequence = data?.sequence?.result;
   
