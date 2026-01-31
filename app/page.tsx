@@ -6,7 +6,7 @@ import { forumSelect } from "@/lib/forumTypeUtils";
 import EAHome from "@/components/ea-forum/EAHome";
 
 export default async function Home() {
-  return <RouteRoot hasLeftNavigationColumn>
+  return <RouteRoot>
     {forumSelect({
       AlignmentForum: <AlignmentForumHome/>,
       LessWrong: <LWHome/>,

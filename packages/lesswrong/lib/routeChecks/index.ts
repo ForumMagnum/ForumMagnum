@@ -19,6 +19,15 @@ export const isStaticHeaderRoute = (pathname: string) => pathnameMatchesRoutePat
 
 export const isFullscreenRoute = (pathname: string) => ["/inbox", "/inbox/:_id", "/moderatorInbox", "/conversation"].some(route => pathnameMatchesRoutePath(pathname, route));
 
+export const isRouteWithLeftNavigationColumn = (pathname: string) => [
+  "/",
+  "/allPosts",
+  "/questions",
+  "/quicktakes",
+  "/collections/:_id",
+  "/library",
+].some(route => pathnameMatchesRoutePath(pathname, route));
+
 // ea-forum-look-here There was some special casing in Layout specific to the
 // subforum2 route. We dropped that route entirely along with its special
 // casing, but the corresponding styles are likely significantly easier to

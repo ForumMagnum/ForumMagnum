@@ -5,7 +5,6 @@ import { getRouteMetadata } from './ServerRouteMetadataContext';
 
 export interface RouteMetadata {
   subtitle?: string | { title: string; link: string } | React.FunctionComponent<{}>;
-  hasLeftNavigationColumn?: boolean;
 }
 
 interface RouteMetadataContextType {

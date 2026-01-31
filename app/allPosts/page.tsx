@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot hasLeftNavigationColumn>
+  return <RouteRoot>
     <AllPostsPage />
   </RouteRoot>;
 }

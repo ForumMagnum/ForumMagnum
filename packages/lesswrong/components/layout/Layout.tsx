@@ -46,8 +46,7 @@ import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { useRouteMetadata } from './ClientRouteMetadataContext';
-import { isFullscreenRoute, isStandaloneRoute, isStaticHeaderRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute, isStaticHeaderRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 
@@ -144,8 +143,6 @@ const Layout = ({children}: {
   // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
   const { pathname, query } = useLocation();
   // const pathname = usePathname();
-  const { metadata: routeMetadata } = useRouteMetadata();
-
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
   // replace with following line to enable during ACX Everywhere.
@@ -172,7 +169,7 @@ const Layout = ({children}: {
     // Check whether the current route is one which should have standalone
     // navigation on the side. If there is no current route (ie, a 404 page),
     // then it should.
-    const standaloneNavigation = !!routeMetadata.hasLeftNavigationColumn;
+    const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
     
     return (
       <AnalyticsContext path={pathname}>

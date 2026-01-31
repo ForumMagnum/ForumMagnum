@@ -5,24 +5,21 @@ import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
 import Footer from '@/components/layout/Footer';
 import { RouteRootClient } from './RouteRootClient';
 
-const RouteRoot = ({delayedStatusCode=false, subtitle, noFooter, hasLeftNavigationColumn, fullscreen, children}: {
+const RouteRoot = ({delayedStatusCode=false, subtitle, noFooter, fullscreen, children}: {
   delayedStatusCode?: boolean
   subtitle?: string | { title: string; link: string } | React.FunctionComponent<{}>;
   noFooter?: boolean;
-  hasLeftNavigationColumn?: boolean;
   fullscreen?: boolean,
   children: React.ReactNode
 }) => {
   const metadata: RouteMetadata = {
     subtitle,
-    hasLeftNavigationColumn,
   };
   return <>
     {!delayedStatusCode && <StatusCodeSetter status={200}/>}
     {metadata && <RouteMetadataSetter metadata={metadata}/>}
     
     <RouteRootClient
-      hasLeftNavigationColumn={!!metadata?.hasLeftNavigationColumn}
       fullscreen={!!fullscreen}
     >
       {children}

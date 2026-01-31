@@ -6,7 +6,7 @@ import { DelayedLoading } from '../common/DelayedLoading';
 import ErrorBoundary from '../common/ErrorBoundary';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { PopperPortalProvider } from '../common/LWPopper';
-import { isFullscreenRoute, isHomeRoute, isSunshineSidebarRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isSunshineSidebarRoute } from '@/lib/routeChecks';
 import DeferRender from '../common/DeferRender';
 import NavigationStandalone from '../common/TabNavigationMenu/NavigationStandalone';
 import { isLW, isLWorAF } from '@/lib/forumTypeUtils';
@@ -57,14 +57,14 @@ const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
   },
 }))
 
-export const RouteRootClient = ({hasLeftNavigationColumn, fullscreen, children}: {
-  hasLeftNavigationColumn: boolean
+export const RouteRootClient = ({fullscreen, children}: {
   fullscreen: boolean
   children: React.ReactNode
 }) => {
   const classes = useStyles(styles);
-  const standaloneNavigation = hasLeftNavigationColumn;
-  const shouldUseGridLayout = hasLeftNavigationColumn;
+  const pathname = usePrerenderablePathname();
+  const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
+  const shouldUseGridLayout = standaloneNavigation;
 
   // an optional mode for displaying the side navigation, for when we want the right banner
   // to be displayed on medium screens
@@ -72,7 +72,6 @@ export const RouteRootClient = ({hasLeftNavigationColumn, fullscreen, children}:
   const iconOnlyNavigationEnabled = renderIconOnlyNavigation && standaloneNavigation
 
   // The friendly home page has a unique grid layout, to account for the right hand side column.
-  const pathname = usePrerenderablePathname();
   const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
 
   const currentUser = useCurrentUser();
