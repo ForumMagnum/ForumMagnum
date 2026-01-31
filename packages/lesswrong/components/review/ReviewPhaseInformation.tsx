@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, reviewPostPath, ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { Card } from "@/components/widgets/Paper";
 import ReviewProgressNominations from "./ReviewProgressNominations";
@@ -9,8 +8,9 @@ import ReviewProgressReviews from "./ReviewProgressReviews";
 import ContentStyles from "../common/ContentStyles";
 import LWTooltip from "../common/LWTooltip";
 import ReviewProgressVoting from "./ReviewProgressVoting";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewPhaseInformation', (theme: ThemeType) => ({
   root: {
     padding: 16,
     paddingTop: 6,
@@ -36,30 +36,13 @@ const styles = (theme: ThemeType) => ({
     textDecorationColor: theme.palette.text.dim4,
     textUnderlineOffset: '3px'
   },
-});
+}));
 
-export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewPhaseInformation = ({reviewYear, reviewPhase}: {
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase
 }) => {
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const FaqCard = ({linkText, children}: {
-    linkText: React.ReactNode,
-    children: React.ReactNode,
-  }) => (
-    <LWTooltip tooltip={false} clickable title={
-      <Card className={classes.faqCard}>
-        <ContentStyles contentType="comment">
-          {children}
-        </ContentStyles>
-      </Card>}
-    >
-      {linkText}
-    </LWTooltip>
-  )
-
+  const classes = useStyles(styles);
   if (reviewPhase === "REVIEWS") {
     return <ContentStyles contentType="comment" className={classes.root}>
       <p>Posts need at least 1 review to enter the Final Voting Phase</p>
@@ -105,7 +88,23 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   </ContentStyles>
 }
 
-export default registerComponent('ReviewPhaseInformation', ReviewPhaseInformation, {styles});
+const FaqCard = ({linkText, children}: {
+  linkText: React.ReactNode,
+  children: React.ReactNode,
+}) => {
+  const classes = useStyles(styles);
+  return <LWTooltip tooltip={false} clickable title={
+    <Card className={classes.faqCard}>
+      <ContentStyles contentType="comment">
+        {children}
+      </ContentStyles>
+    </Card>}
+  >
+    {linkText}
+  </LWTooltip>
+}
+
+export default ReviewPhaseInformation;
 
 
 

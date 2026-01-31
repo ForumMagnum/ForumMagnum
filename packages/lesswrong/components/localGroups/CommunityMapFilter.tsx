@@ -267,19 +267,13 @@ const CommunityMapFilter = ({
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }, [currentUser, flash, setShowMap, updateCurrentUser]);
 
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const GroupIcon = () => isEAForum()
+  const groupIcon = isEAForum()
     ? <StarIcon className={classes.eaButtonIcon}/>
     : <GroupIconSVG className={classes.buttonIcon}/>;
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const EventIcon = () => isEAForum()
+  const eventIcon = isEAForum()
     ? <RoomIcon className={classes.eaButtonIcon}/>
     : <ArrowSVG className={classes.buttonIcon}/>;
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const PersonIcon = () => isEAForum()
+  const personIcon = isEAForum()
     ? <PersonPinIcon className={classes.eaButtonIcon}/>
     : <PersonSVG className={classes.buttonIcon}/>;
 
@@ -315,10 +309,10 @@ const CommunityMapFilter = ({
       <div className={classes.actions}>
         <div className={classes.filterSection}>
           <span className={classes.desktopFilter}>
-            <GroupIcon />
+            {groupIcon}
           </span>
           <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showGroups})} onClick={toggleGroups}>
-            <GroupIcon />
+            {groupIcon}
           </span>
           <span className={classes.buttonText}>Groups</span>
           <span className={classes.actionContainer}>
@@ -343,10 +337,10 @@ const CommunityMapFilter = ({
         <div 
           className={classes.filterSection}>
           <span className={classes.desktopFilter}>
-            <EventIcon/>
+            {eventIcon}
           </span>
           <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showEvents})} onClick={toggleEvents}>
-            <EventIcon/>
+            {eventIcon}
           </span>
           <span className={classes.buttonText}> Events </span>
           <span className={classes.actionContainer}>
@@ -368,10 +362,10 @@ const CommunityMapFilter = ({
           className={classes.filterSection}
         >
           <span className={classes.desktopFilter}>
-            <PersonIcon />
+            {personIcon}
           </span>
           <span className={classNames(classes.mobileFilter, {[classes.mobileFilterActive]: !showIndividuals})} onClick={toggleIndividuals}>
-            <PersonIcon />
+            {personIcon}
           </span>
           <span className={classes.buttonText}> Individuals </span>
           <span className={classes.actionContainer}>
