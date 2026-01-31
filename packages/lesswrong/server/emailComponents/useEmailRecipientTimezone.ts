@@ -1,6 +1,6 @@
 import { type EmailContextType } from "./emailContext"
 
-export function useEmailRecipientTimezone(emailContext: EmailContextType) {
+export function emailUseRecipientTimezone(emailContext: EmailContextType) {
   const lastUsedTimezone = emailContext.currentUser?.lastUsedTimezone
   if (lastUsedTimezone) {
     return {
