@@ -24,7 +24,7 @@ const HeaderSubtitle = () => {
   const subtitleLink = routeMetadata.subtitleLink;
 
   if (SubtitleComponent) {
-    return <SubtitleComponent isSubtitle={true} />
+    return <SubtitleComponent />
   } else if (subtitleLink) {
     return <span className={classes.subtitle}>
       <Link to={subtitleLink}>{subtitleString}</Link>

@@ -4,10 +4,9 @@ import React, { createContext, useContext, useState, ReactNode, useEffect, useMe
 import { getRouteMetadata } from './ServerRouteMetadataContext';
 
 export interface RouteMetadata {
-  titleComponent?: React.FunctionComponent<{ siteName: string, isSubtitle: boolean }>;
   subtitle?: string;
   subtitleLink?: string;
-  subtitleComponent?: React.FunctionComponent<{ isSubtitle?: boolean }>;
+  subtitleComponent?: React.FunctionComponent<{}>;
   hasLeftNavigationColumn?: boolean;
   noFooter?: boolean;
 }

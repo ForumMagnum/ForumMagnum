@@ -1,6 +1,6 @@
 import React from "react";
 import TagHistoryPage from '@/components/tagging/history/TagHistoryPage';
-import { TagHistoryPageTitle } from '@/components/tagging/TagHistoryPageTitle';
+import { TagHistoryPageSubtitle } from '@/components/tagging/TagHistoryPageSubtitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 
@@ -8,8 +8,7 @@ export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ 
 
 export default function Page() {
   return <RouteRoot metadata={{
-    titleComponent: TagHistoryPageTitle,
-    subtitleComponent: TagHistoryPageTitle
+    subtitleComponent: TagHistoryPageSubtitle
   }}>
     <TagHistoryPage />
   </RouteRoot>;
