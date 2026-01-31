@@ -6,7 +6,7 @@ import { cloudinaryCloudNameSetting, siteNameWithArticleSetting, taglineSetting 
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { captureException } from "@/lib/sentryWrapper";
 import { notFound } from "next/navigation";
-import { runQuery } from "@/stubs/server/vulcan-lib/query";
+import { runQuery } from "@/server/vulcan-lib/query";
 
 const UserMetadataQuery = gql(`
   query UserMetadata($slug: String) {
