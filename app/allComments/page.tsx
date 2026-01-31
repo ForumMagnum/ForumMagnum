@@ -10,8 +10,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  // enableResourcePrefetch was: true
-  
   return <RouteRoot>
     <AllComments />
   </RouteRoot>

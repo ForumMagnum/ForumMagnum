@@ -19,8 +19,7 @@ const SequencesPageTitleFragmentQuery = gql(`
   }
 `);
 
-export const SequencesPageTitle = ({isSubtitle, siteName}: {
-  isSubtitle: boolean,
+export const SequencesPageSubtitle = ({siteName}: {
   siteName: string,
 }) => {
   const classes = useStyles(headerSubtitleStyles);
@@ -34,13 +33,11 @@ export const SequencesPageTitle = ({isSubtitle, siteName}: {
   const sequence = data?.sequence?.result;
   
   if (!sequence || loading) return null;
-  if (isSubtitle) {
-    return (<span className={classes.subtitle}>
-      <Link to={getCollectionOrSequenceUrl(sequence)}>
-        {sequence.canonicalCollection?.title ?? sequence.title}
-      </Link>
-    </span>);
-  }
+  return (<span className={classes.subtitle}>
+    <Link to={getCollectionOrSequenceUrl(sequence)}>
+      {sequence.canonicalCollection?.title ?? sequence.title}
+    </Link>
+  </span>);
   
   // TODO: An earlier implementation of this had a special case for the core
   // collections. That special case didn't work, but maybe it's worth building

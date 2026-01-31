@@ -3,7 +3,6 @@ import "@/components/momentjs";
 import React, { Suspense } from "react";
 import ClientAppGenerator, { EnvironmentOverrideContextProvider } from "@/components/layout/ClientAppGenerator";
 import { cookies } from "next/headers";
-import { ClientRouteMetadataProvider } from "@/components/layout/ClientRouteMetadataContext";
 import { DEFAULT_TIMEZONE, SSRMetadata } from "@/lib/utils/timeUtil";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
 import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
@@ -34,11 +33,9 @@ export default async function RootLayout({
         </Suspense>
         <Suspense>
           <EnvironmentOverrideContextProviderServer>
-            <ClientRouteMetadataProvider>
-              <ClientAppGenerator abTestGroupsUsed={{}}>
-                {children}
-              </ClientAppGenerator>
-            </ClientRouteMetadataProvider>
+            <ClientAppGenerator abTestGroupsUsed={{}}>
+              {children}
+            </ClientAppGenerator>
           </EnvironmentOverrideContextProviderServer>
         </Suspense>
       </BodyWithBackgroundColor>

@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 assertRouteHasWhiteBackground("/hpmor/[slug]");
 
 export default function Page() {
-  return <RouteRoot delayedStatusCode metadata={{ subtitle: 'HPMoR', subtitleLink: '/hpmor' }}>
+  return <RouteRoot delayedStatusCode subtitle={{ title: 'HPMoR', link: '/hpmor' }}>
     <PostsSingleSlug />
   </RouteRoot>;
 }
