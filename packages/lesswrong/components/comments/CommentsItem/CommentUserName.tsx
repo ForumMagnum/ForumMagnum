@@ -104,43 +104,37 @@ const CommentUserName = ({
       </span>
     );
   } else if (isFriendlyUI()) {
-    // FIXME: Unstable component will lose state on rerender
-    // eslint-disable-next-line react/no-unstable-nested-components
-    const Wrapper = ({children}: {children: ReactNode}) => simple
-      ? (
-        <div className={classes.mainWrapper}>
-          {children}
-        </div>
-      )
-      : (
-        <UserTooltip user={author}>
-          <Link
-            to={userGetProfileUrl(author)}
-            className={classNames(classes.mainWrapper, classes.fullWrapper, className)}
-          >
-            {children}
-          </Link>
-        </UserTooltip>
-      );
-    return (
-      <Wrapper>
-        {currentUserHasProfileImages
-          ? <UsersProfileImage
-            user={author}
-            size={PROFILE_IMAGE_SIZE}
-            fallback="initials"
-            className={classes.profileImage}
-          />
-          : <div className={classes.profileImagePlaceholder} />
-        }
-        <UsersName
+    const content = <>
+      {currentUserHasProfileImages
+        ? <UsersProfileImage
           user={author}
-          className={classes.author}
-          simple
-          color
+          size={PROFILE_IMAGE_SIZE}
+          fallback="initials"
+          className={classes.profileImage}
         />
-      </Wrapper>
-    );
+        : <div className={classes.profileImagePlaceholder} />
+      }
+      <UsersName
+        user={author}
+        className={classes.author}
+        simple
+        color
+      />
+    </>;
+    if (simple) {
+      return <div className={classes.mainWrapper}>
+        {content}
+      </div>
+    } else {
+      return <UserTooltip user={author}>
+        <Link
+          to={userGetProfileUrl(author)}
+          className={classNames(classes.mainWrapper, classes.fullWrapper, className)}
+        >
+          {content}
+        </Link>
+      </UserTooltip>
+    }
   }
 
   return (

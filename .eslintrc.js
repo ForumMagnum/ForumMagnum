@@ -37,6 +37,7 @@ module.exports = {
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
 
     // Uncomment to enable cycle-detection. Note that caching doesn't seem to
     // work quite right with this plugin; after fixing some issues, you will
@@ -128,6 +129,14 @@ module.exports = {
     }],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
+
+    "react-hooks/refs": 0,
+    "react-hooks/immutability": 0,
+    "react-hooks/static-components": 0,
+    "react-hooks/set-state-in-effect": 0,
+    "react-hooks/preserve-manual-memoization": 0,
+    "react-hooks/purity": 0,
+
     "import/no-unresolved": 1,
     "import/no-dynamic-require": 1,
     "import/no-self-import": 1,
@@ -430,6 +439,7 @@ module.exports = {
     // You wouldn't have thought this was necessary would you
     ".eslintrc.js",
     "packages/lesswrong/lib/vendor/@material-ui",
-    "packages/lesswrong/lib/generated/gql-codegen"
+    "packages/lesswrong/lib/generated/gql-codegen",
+    "packages/lesswrong/lib/generated"
   ]
 }

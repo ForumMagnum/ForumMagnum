@@ -296,20 +296,6 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const MaybeLink = ({to, children, className}: {
-    to: string|null,
-    children: React.ReactNode,
-    className?: string,
-  }) => {
-    if (to) {
-      return <Link to={to} className={className}>{children}</Link>
-    } else {
-      return <>{children}</>;
-    }
-  }
-
   const contentTypeInfo = forumSelect(getContentTypes());
 
   const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling, showAutoClassifiedIcon}: {
@@ -423,5 +409,17 @@ const FooterTagList = ({
     {displayShowAllButton && <div className={classes.showAll} onClick={onClickShowAll}>Show all {taggingNamePluralSetting.get()}</div>}
   </>
 };
+
+const MaybeLink = ({to, children, className}: {
+  to: string|null,
+  children: React.ReactNode,
+  className?: string,
+}) => {
+  if (to) {
+    return <Link to={to} className={className}>{children}</Link>
+  } else {
+    return <>{children}</>;
+  }
+}
 
 export default FooterTagList;
