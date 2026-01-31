@@ -55,9 +55,13 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Pull Vercel Environment Information
+      if: ${{ secrets.VERCEL_ACCESS_TOKEN != '' }}
       run: |
         npm install --global vercel@latest
         vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
+    - name: Assert Vercel config not required on fork
+      if: ${{ secrets.VERCEL_ACCESS_TOKEN == '' }}
+      run: echo "Running codegen with default/test env (no Vercel config)"
     - name: Setup database
       run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
     - name: Create database connection string file
@@ -230,6 +234,7 @@ jobs:
         parallel: true
 
   runIntegrationTests:
+    if: ${{ secrets.VERCEL_ACCESS_TOKEN != '' }}
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -275,6 +280,7 @@ jobs:
         parallel: true
 
   runPostgresBootstrap:
+    if: ${{ secrets.VERCEL_ACCESS_TOKEN != '' }}
     runs-on: ubuntu-latest
     services:
       postgres:
