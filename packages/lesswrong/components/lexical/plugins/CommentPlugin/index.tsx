@@ -52,6 +52,7 @@ import {
   HISTORY_MERGE_TAG,
   KEY_ESCAPE_COMMAND,
 } from 'lexical';
+import moment from 'moment';
 import {
   useCallback,
   useEffect,
@@ -73,6 +74,7 @@ import {
   createComment,
   createThread,
   Thread,
+  useCollabAuthorName,
   useCommentStore,
 } from '../../commenting';
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND } from '@/components/editor/lexicalPlugins/suggestedEdits/Commands';
@@ -87,6 +89,7 @@ import { ChatLeftTextIcon } from '../../icons/ChatLeftTextIcon';
 import { CommentsIcon } from '../../icons/CommentsIcon';
 import { SendIcon } from '../../icons/SendIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
+import ForumIcon from '@/components/common/ForumIcon';
 
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   addCommentBox: {
@@ -191,6 +194,9 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     position: 'relative',
     margin: 10,
     borderRadius: 5,
+    '--lexical-comment-placeholder-top': '10px',
+    '--lexical-comment-placeholder-left': '10px',
+    '--lexical-comment-min-height': '30px',
   },
   commentInputBoxEditor: {
     position: 'relative',
@@ -240,6 +246,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     borderTopLeftRadius: 10,
     animation: '$showComments 0.2s ease',
     zIndex: 25,
+    ...theme.typography.commentStyle,
   },
   '@keyframes showComments': {
     '0%': {
@@ -256,7 +263,6 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     paddingTop: 10,
     margin: 0,
     height: 34,
-    borderBottom: `1px solid ${theme.palette.grey[200]}`,
     fontSize: 20,
     display: 'block',
     width: '100%',
@@ -329,38 +335,46 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     height: 'calc(100% - 45px)',
   },
   listComment: {
-    padding: '15px 0 15px 15px',
+    padding: '12px 16px',
     margin: 0,
-    fontSize: 14,
+    fontSize: 15,
     position: 'relative',
     transition: 'all 0.2s linear',
+    borderTop: `1px solid ${theme.palette.grey[200]}`,
+    '&:first-child': {
+      borderTop: 'none',
+    },
     '& p': {
       margin: 0,
-      color: theme.palette.grey[700],
+      marginTop: 4,
+      color: theme.palette.grey[900],
+      lineHeight: 1.5,
     },
   },
   listDetails: {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 8,
+    marginBottom: 2,
+    fontSize: 13,
     color: theme.palette.grey[700],
-    paddingBottom: 5,
-    verticalAlign: 'top',
   },
   commentAuthor: {
-    fontWeight: 'bold',
-    paddingRight: 5,
+    fontWeight: 600,
+    color: theme.palette.grey[900],
   },
   commentTime: {
-    color: theme.palette.grey[500],
+    color: theme.palette.grey[600],
+    fontSize: 12,
   },
   listThread: {
     padding: 0,
     margin: 0,
-    borderTop: `1px solid ${theme.palette.grey[200]}`,
     borderBottom: `1px solid ${theme.palette.grey[200]}`,
     position: 'relative',
     transition: 'all 0.2s linear',
-    borderLeft: `0 solid ${theme.palette.grey[200]}`,
-    '&:first-child, & + &': {
-      borderTop: 'none',
+    '&:first-child': {
+      borderTop: `1px solid ${theme.palette.grey[200]}`,
     },
   },
   listThreadInteractive: {
@@ -371,14 +385,15 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   },
   listThreadActive: {
     backgroundColor: theme.palette.grey[50],
-    borderLeft: `15px solid ${theme.palette.grey[200]}`,
+    borderLeft: `4px solid ${theme.palette.primary.main}`, // More visible active state
     cursor: 'inherit',
     '& $listComment:hover': {
       backgroundColor: 'inherit',
     },
   },
   threadQuoteBox: {
-    paddingTop: 10,
+    paddingTop: 12,
+    paddingBottom: 4,
     color: theme.palette.grey[400],
     display: 'block',
     '&:hover $deleteButton': {
@@ -386,21 +401,39 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     },
   },
   threadQuote: {
-    margin: '0px 10px 0 10px',
+    margin: '0 16px',
+    paddingLeft: 8,
+    borderLeft: `3px solid ${theme.palette.grey[300]}`,
     '& span': {
-      color: theme.palette.grey[900],
-      backgroundColor: theme.palette.lexicalEditor.threadQuoteBackground,
-      padding: 1,
+      color: theme.palette.grey[700],
+      backgroundColor: 'transparent',
+      padding: 0,
       lineHeight: 1.4,
       display: 'inline',
-      fontWeight: 'bold',
+      fontStyle: 'italic',
     },
   },
   suggestionSummary: {
+    fontSize: 15,
+    lineHeight: 1.5,
+    marginTop: 0,
+    marginBottom: 8,
+    marginLeft: 16,
+    marginRight: 16,
+    color: theme.palette.grey[900],
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  suggestionHeader: {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 8,
+    marginBottom: 4,
+    marginLeft: 16,
+    marginRight: 16,
     fontSize: 13,
-    lineHeight: 1.4,
-    marginTop: 6,
-    marginBottom: 6,
   },
   suggestionActions: {
     display: 'flex',
@@ -408,21 +441,15 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     marginTop: 6,
   },
   suggestionActionButton: {
-    border: 0,
-    borderRadius: 4,
-    padding: '2px 8px',
+    padding: 0,
+    height: 16,
+    width: 16,
     cursor: 'pointer',
-    background: theme.palette.grey[200],
-    '&:hover': {
-      background: theme.palette.grey[300],
-    },
+    background: 'unset',
   },
-  suggestionActionButtonPrimary: {
-    background: theme.palette.primary.main,
-    color: theme.palette.grey[0],
-    '&:hover': {
-      background: theme.palette.primary.dark,
-    },
+  suggestionActionButtonIcon: {
+    height: 16,
+    width: 16,
   },
   suggestionStatus: {
     fontSize: 12,
@@ -1001,7 +1028,6 @@ function CommentsPanelListComment({
   comment,
   deleteComment,
   thread,
-  rtf,
 }: {
   comment: Comment;
   deleteComment: (
@@ -1009,14 +1035,9 @@ function CommentsPanelListComment({
     // eslint-disable-next-line no-shadow
     thread?: Thread,
   ) => void;
-  rtf: Intl.RelativeTimeFormat;
   thread?: Thread;
 }): JSX.Element {
   const classes = useStyles(styles);
-  const seconds = Math.round(
-    (comment.timeStamp - (performance.timeOrigin + performance.now())) / 1000,
-  );
-  const minutes = Math.round(seconds / 60);
   const [modal, showModal] = useModal();
 
   return (
@@ -1026,7 +1047,7 @@ function CommentsPanelListComment({
           {comment.author}
         </span>
         <span className={classes.commentTime}>
-          · {seconds > -10 ? 'Just now' : rtf.format(minutes, 'minute')}
+          {moment(comment.timeStamp).format('MMMM DD, YYYY, h:mm A')}
         </span>
       </div>
       <p
@@ -1083,15 +1104,6 @@ function CommentsPanelList({
   const { commentStore } = useCommentStoreContext();
   const [counter, setCounter] = useState(0);
   const [modal, showModal] = useModal();
-  const rtf = useMemo(
-    () =>
-      new Intl.RelativeTimeFormat('en', {
-        localeMatcher: 'best fit',
-        numeric: 'auto',
-        style: 'short',
-      }),
-    [],
-  );
 
   useEffect(() => {
     // Used to keep the time stamp up to date
@@ -1156,6 +1168,8 @@ function CommentsPanelList({
             }
           };
 
+          const showEditor = commentOrThread.status === 'open';
+
           return (
             <li
               key={id}
@@ -1191,39 +1205,51 @@ function CommentsPanelList({
                   </>
                 )}
                 {isSuggestion && suggestionSummaryText && (
-                  <div className={classes.suggestionSummary}>
-                    {suggestionSummaryText}
-                    {suggestionStatus === 'open' ? (
-                      <div className={classes.suggestionActions}>
-                        <button
-                          type="button"
-                          className={classes.suggestionActionButtonPrimary}
-                          onClick={() => {
-                            acceptSuggestionThread(editor, commentStore, commentOrThread);
-                          }}
-                        >
-                          Accept
-                        </button>
-                        <button
-                          type="button"
-                          className={classes.suggestionActionButton}
-                          onClick={() => {
-                            rejectSuggestionThread(editor, commentStore, commentOrThread);
-                          }}
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    ) : (
-                      <div className={classes.suggestionStatus}>
-                        {suggestionStatus === 'accepted'
-                          ? 'Accepted'
-                          : suggestionStatus === 'rejected'
-                            ? 'Rejected'
-                            : 'Archived'}
+                  <>
+                    {suggestionSummaryComment && (
+                      <div className={classes.suggestionHeader}>
+                        <span className={classes.commentAuthor}>
+                          {suggestionSummaryComment.author}
+                        </span>
+                        <span className={classes.commentTime}>
+                          {moment(suggestionSummaryComment.timeStamp).format('MMMM DD, YYYY, h:mm A')}
+                        </span>
                       </div>
                     )}
-                  </div>
+                    <div className={classes.suggestionSummary}>
+                      {suggestionSummaryText}
+                      {suggestionStatus === 'open' ? (
+                        <div className={classes.suggestionActions}>
+                          <button
+                            type="button"
+                            className={classes.suggestionActionButton}
+                            onClick={() => {
+                              acceptSuggestionThread(editor, commentStore, commentOrThread);
+                            }}
+                          >
+                            <ForumIcon icon="Check" className={classes.suggestionActionButtonIcon} />
+                          </button>
+                          <button
+                            type="button"
+                            className={classes.suggestionActionButton}
+                            onClick={() => {
+                              rejectSuggestionThread(editor, commentStore, commentOrThread);
+                            }}
+                          >
+                            <ForumIcon icon="Close" className={classes.suggestionActionButtonIcon} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className={classes.suggestionStatus}>
+                          {suggestionStatus === 'accepted'
+                            ? 'Accepted'
+                            : suggestionStatus === 'rejected'
+                              ? 'Rejected'
+                              : 'Archived'}
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
               </div>
               <ul className={classes.threadComments}>
@@ -1233,17 +1259,16 @@ function CommentsPanelList({
                     comment={comment}
                     deleteComment={deleteCommentOrThread}
                     thread={commentOrThread}
-                    rtf={rtf}
                   />
                 ))}
               </ul>
-              <div className={classes.threadEditor}>
+              {showEditor && <div className={classes.threadEditor}>
                 <CommentsComposer
                   submitAddComment={submitAddComment}
                   thread={commentOrThread}
                   placeholder="Reply to comment..."
                 />
-              </div>
+              </div>}
             </li>
           );
         }
@@ -1252,7 +1277,6 @@ function CommentsPanelList({
             key={id}
             comment={commentOrThread}
             deleteComment={deleteCommentOrThread}
-            rtf={rtf}
           />
         );
       })}
@@ -1301,12 +1325,6 @@ function CommentsPanel({
       )}
     </div>
   );
-}
-
-function useCollabAuthorName(): string {
-  const collabContext = useCollaborationContext();
-  const {yjsDocMap, name} = collabContext;
-  return yjsDocMap.has('comments') ? name : 'Playground User';
 }
 
 export default function CommentPlugin(): JSX.Element {
@@ -1640,7 +1658,7 @@ export default function CommentPlugin(): JSX.Element {
       {showComments && isPostEditor &&
         createPortal(
           <CommentsPanel
-            comments={comments}
+            comments={[...comments].reverse()}
             submitAddComment={submitAddComment}
             deleteCommentOrThread={deleteCommentOrThread}
             activeIDs={activeIDs}

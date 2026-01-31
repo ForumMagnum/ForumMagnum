@@ -18,6 +18,7 @@ import {
   YArrayEvent,
   YEvent,
 } from 'yjs';
+import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 
 export type Comment = {
   author: string;
@@ -578,4 +579,10 @@ export function useCommentStore(commentStore: CommentStore): Comments {
   }, [commentStore]);
 
   return comments;
+}
+
+export function useCollabAuthorName(): string {
+  const collabContext = useCollaborationContext();
+  const {yjsDocMap, name} = collabContext;
+  return yjsDocMap.has('comments') ? name : 'Unknown User';
 }
