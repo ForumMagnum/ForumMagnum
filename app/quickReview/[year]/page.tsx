@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ subtitle: 'Quick Review Page' }}>
+  return <RouteRoot subtitle="Quick Review Page">
     <AnnualReviewPage />
   </RouteRoot>;
 }

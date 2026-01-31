@@ -10,9 +10,7 @@ export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ 
 assertRouteHasWhiteBackground("/w/[slug]/discussion");
 
 export default function Page() {
-  return <RouteRoot metadata={{
-    subtitleComponent: TagPageSubtitle
-  }}>
+  return <RouteRoot subtitle={TagPageSubtitle}>
     <TagDiscussionPage />
   </RouteRoot>;
 }

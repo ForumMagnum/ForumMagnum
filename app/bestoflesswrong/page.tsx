@@ -17,9 +17,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{
-    subtitle: 'The Best of LessWrong',
-    subtitleLink: '/leastwrong',
+  return <RouteRoot subtitle={{
+    title: 'The Best of LessWrong',
+    link: '/leastwrong',
   }}>
     <TopPostsPage />
   </RouteRoot>;

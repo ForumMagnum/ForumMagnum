@@ -19,23 +19,24 @@ const HeaderSubtitle = () => {
   const classes = useStyles(headerSubtitleStyles);
   const { metadata: routeMetadata } = useRouteMetadata();
 
-  const SubtitleComponent = routeMetadata.subtitleComponent;
-  const subtitleString = routeMetadata.subtitle;
-  const subtitleLink = routeMetadata.subtitleLink;
+  const subtitle = routeMetadata.subtitle;
 
-  if (SubtitleComponent) {
-    return <SubtitleComponent />
-  } else if (subtitleLink) {
-    return <span className={classes.subtitle}>
-      <Link to={subtitleLink}>{subtitleString}</Link>
-    </span>
-  } else if (subtitleString) {
-    return <span className={classes.subtitle}>
-      {subtitleString}
-    </span> 
-  } else {
-    return <HeaderEventSubtitle />;
+  if (subtitle) {
+    if (typeof subtitle === 'string') {
+      return <span className={classes.subtitle}>
+        {subtitle}
+      </span> 
+    } else if ('link' in subtitle) {
+      return <span className={classes.subtitle}>
+        <Link to={subtitle.link}>{subtitle.title}</Link>
+      </span>
+    } else {
+      const SubtitleComponent = subtitle;
+      return <SubtitleComponent />
+    }
   }
+
+  return <HeaderEventSubtitle />;
 }
 
 export default HeaderSubtitle;

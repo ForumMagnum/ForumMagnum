@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ hasLeftNavigationColumn: true }}>
+  return <RouteRoot hasLeftNavigationColumn>
     {isAF() ? <AFLibraryPage /> : <LibraryPage />}
   </RouteRoot>;
 }

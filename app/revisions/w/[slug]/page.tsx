@@ -7,7 +7,7 @@ import RouteRoot from "@/components/layout/RouteRoot";
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 
 export default function Page() {
-  return <RouteRoot metadata={{ subtitleComponent: TagPageSubtitle }}>
+  return <RouteRoot subtitle={TagPageSubtitle}>
     <TagPageRevisionSelect />
   </RouteRoot>;
 }

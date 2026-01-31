@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 assertRouteHasWhiteBackground("/w/create");
 
 export default function Page() {
-  return <RouteRoot metadata={{ subtitleComponent: TagPageSubtitle }}>
+  return <RouteRoot subtitle={TagPageSubtitle}>
     <NewTagPage />
   </RouteRoot>;
 }

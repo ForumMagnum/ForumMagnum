@@ -79,9 +79,7 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
 }
 
 export default function Page() {
-  return <RouteRoot delayedStatusCode metadata={{
-    subtitleComponent: SequencesPageSubtitle
-  }}>
+  return <RouteRoot delayedStatusCode subtitle={SequencesPageSubtitle}>
     <SequencesSingle />
   </RouteRoot>;
 }

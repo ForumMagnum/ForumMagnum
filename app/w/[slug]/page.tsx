@@ -26,9 +26,7 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      subtitleComponent: TagPageSubtitle
-    }}
+    subtitle={TagPageSubtitle}
   >
     <TagPageRouter />
   </RouteRoot>

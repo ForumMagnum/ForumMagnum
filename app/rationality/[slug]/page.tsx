@@ -13,10 +13,9 @@ export async function generateMetadata(): Promise<Metadata> {
 assertRouteHasWhiteBackground("/rationality/[slug]");
 
 export default function Page() {
-  return <RouteRoot delayedStatusCode metadata={{
-    subtitle: 'Rationality: A-Z',
-    subtitleLink: '/rationality',
-  }}>
+  return <RouteRoot delayedStatusCode
+    subtitle={{ title: 'Rationality: A-Z', link: '/rationality' }}
+  >
     <PostsSingleSlug />
   </RouteRoot>;
 }

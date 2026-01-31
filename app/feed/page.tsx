@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ subtitle: 'The Feed', hasLeftNavigationColumn: false }}>
+  return <RouteRoot subtitle="The Feed">
     <UltraFeedPage />
   </RouteRoot>;
 }
