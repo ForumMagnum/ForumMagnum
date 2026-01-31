@@ -3867,13 +3867,6 @@ interface MultiNotificationOutput {
   totalCount: number | null;
 }
 
-interface PageCacheEntry {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-}
-
 interface PetrovDayAction {
   _id: string;
   schemaVersion: number;
@@ -10382,7 +10375,6 @@ interface GraphQLTypeMap {
   NotificationSelector: NotificationSelector;
   MultiNotificationInput: MultiNotificationInput;
   MultiNotificationOutput: MultiNotificationOutput;
-  PageCacheEntry: PageCacheEntry;
   PetrovDayAction: PetrovDayAction;
   SinglePetrovDayActionInput: SinglePetrovDayActionInput;
   SinglePetrovDayActionOutput: SinglePetrovDayActionOutput;
@@ -10995,7 +10987,6 @@ interface CreateInputsByCollectionName {
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
-  PageCache: never;
   PetrovDayLaunchs: never;
   Podcasts: never;
   PostEmbeddings: never;
@@ -11088,7 +11079,6 @@ interface UpdateInputsByCollectionName {
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
-  PageCache: never;
   PetrovDayActions: never;
   PetrovDayLaunchs: never;
   PodcastEpisodes: never;
