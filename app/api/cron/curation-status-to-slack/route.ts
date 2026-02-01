@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { WebClient } from '@slack/web-api';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
+import { captureException } from '@sentry/nextjs';
 
 interface CurationStatus {
   daysSinceCurated: number;
@@ -11,6 +12,20 @@ interface CurationStatus {
 
 async function getCurationStatus(): Promise<CurationStatus> {
   const context = createAnonymousContext();
+  // Days since most recent curation
+  const mostRecentCuration = await context.Posts.findOne(
+    { curatedDate: { $gt: new Date(0) } },
+    { sort: { curatedDate: -1 } }
+  );
+
+  if (!mostRecentCuration || !mostRecentCuration.curatedDate) {
+    return {
+      daysSinceCurated: 0,
+      lastCurationDate: null,
+      unpublishedDraftCount: 0,
+      averageDaysPerCuration: null,
+    };
+  }
   
   // Get curations from the last month to calculate average
   const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -31,18 +46,9 @@ async function getCurationStatus(): Promise<CurationStatus> {
     }
     averageDaysPerCuration = Math.round((gaps.reduce((a, b) => a + b, 0) / gaps.length) * 10) / 10;
   }
-  
-  // Days since most recent curation
-  const mostRecentCuration = await context.Posts.findOne(
-    { curatedDate: { $gt: new Date(0) } },
-    { sort: { curatedDate: -1 } }
-  );
-  const lastCurationDate = mostRecentCuration?.curatedDate 
-    ? new Date(mostRecentCuration.curatedDate) 
-    : null;
-  const daysSinceCurated = lastCurationDate
-    ? Math.floor((Date.now() - lastCurationDate.getTime()) / (24 * 60 * 60 * 1000))
-    : Infinity;
+ 
+  const lastCurationDate = new Date(mostRecentCuration.curatedDate)
+  const daysSinceCurated = Math.floor((Date.now() - lastCurationDate.getTime()) / (24 * 60 * 60 * 1000))
   
   // Match the CurationPage logic exactly:
   // Get 20 most recent non-deleted curation notices, filter for drafts for uncurated posts
@@ -51,15 +57,26 @@ async function getCurationStatus(): Promise<CurationStatus> {
     { sort: { createdAt: -1 }, limit: 20 }
   ).fetch();
   
-  let unpublishedDraftCount = 0;
-  for (const notice of recentCurationNotices) {
-    if (notice.commentId === null && notice.postId) {
-      const post = await context.Posts.findOne({ _id: notice.postId });
-      if (post && !post.curatedDate) {
-        unpublishedDraftCount++;
-      }
-    }
-  }
+  // Collect post IDs from draft notices (those without a commentId)
+  const draftNoticePostIds = recentCurationNotices
+    .filter(notice => notice.commentId === null && notice.postId)
+    .map(notice => notice.postId!);
+
+  // Batch load all posts in one query instead of N+1 queries
+  const posts = draftNoticePostIds.length > 0
+    ? await context.Posts.find(
+        { _id: { $in: draftNoticePostIds } },
+        { projection: { _id: 1, curatedDate: 1 } }
+      ).fetch()
+    : [];
+
+  // Count posts that haven't been curated yet
+  const curatedPostIds = new Set(
+    posts.filter(post => post.curatedDate).map(post => post._id)
+  );
+  const unpublishedDraftCount = draftNoticePostIds.filter(
+    postId => !curatedPostIds.has(postId)
+  ).length;
   
   return {
     daysSinceCurated,
@@ -135,11 +152,18 @@ async function postCurationStatusToSlack(status: CurationStatus) {
   
   const slack = new WebClient(slackBotToken);
   
-  await slack.chat.postMessage({
-    channel: channelId,
-    text: lines.join('\n'),
-    mrkdwn: true,
-  });
+  try {
+    await slack.chat.postMessage({
+      channel: channelId,
+      text: lines.join('\n'),
+      mrkdwn: true,
+    });
+  } catch (error) {
+    // Log to Sentry but don't let Slack failures crash the cron job
+    captureException(error);
+    // eslint-disable-next-line no-console
+    console.error('Failed to post curation status to Slack:', error);
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -155,10 +179,5 @@ export async function GET(request: NextRequest) {
   // eslint-disable-next-line no-console
   console.log(`Posted curation status to Slack: ${status.daysSinceCurated} days, ${status.unpublishedDraftCount} drafts`);
   
-  return new Response(
-    `Days since last curation: ${status.daysSinceCurated}\n` +
-    `Unpublished drafts: ${status.unpublishedDraftCount}\n` +
-    `Average days per curation: ${status.averageDaysPerCuration}`,
-    { status: 200 }
-  );
+  return new Response('OK', { status: 200 }); 
 }
