@@ -183,11 +183,11 @@ export const AnnualReviewPage = ({classes}: {
     </SingleColumnSection>
   }
 
-  if (!currentUser) {
-    return <SingleColumnSection>
-      You must be logged in to view the annual review.
-    </SingleColumnSection>
-  }
+  // if (!currentUser) {
+  //   return <SingleColumnSection>
+  //     You must be logged in to view the annual review.
+  //   </SingleColumnSection>
+  // }
 
   return <div className={classNames(classes.root, expandedPost ? classes.grid : classes.noExpandedPost)}>
       <div className={classNames(classes.leftColumn, expandedPost && classes.expandedPost)}>
@@ -234,5 +234,3 @@ export const AnnualReviewPage = ({classes}: {
 }
 
 export default registerComponent('AnnualReviewPage', AnnualReviewPage, {styles});
-
-

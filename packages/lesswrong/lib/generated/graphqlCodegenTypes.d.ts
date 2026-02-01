@@ -13182,6 +13182,23 @@ type SequenceMetadataQueryVariables = Exact<{
 
 type SequenceMetadataQuery = SequenceMetadataQuery_Query;
 
+type SimpleReviewPostsQueryQuery_posts_MultiPostOutput_results_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type SimpleReviewPostsQueryQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, slug: string, title: string, postedAt: string, baseScore: number, reviewCount: number, positiveReviewVoteCount: number, reviewVoteScoreAllKarma: number, user: SimpleReviewPostsQueryQuery_posts_MultiPostOutput_results_Post_user_User | null };
+
+type SimpleReviewPostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<SimpleReviewPostsQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type SimpleReviewPostsQueryQuery_Query = { __typename?: 'Query', posts: SimpleReviewPostsQueryQuery_posts_MultiPostOutput | null };
+
+
+type SimpleReviewPostsQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type SimpleReviewPostsQueryQuery = SimpleReviewPostsQueryQuery_Query;
+
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 
 
