@@ -14,6 +14,7 @@ interface Query {
   CommentEmbeddingSimilaritySearch: Array<Comment>;
   CommentsWithReacts: CommentsWithReactsResult | null;
   PopularComments: PopularCommentsResult | null;
+  ReviewsByPostLastCommentedAt: ReviewsByPostLastCommentedAtResult | null;
   PostAnalytics: PostAnalyticsResult;
   MultiPostAnalytics: MultiPostAnalyticsResult;
   AnalyticsSeries: Array<AnalyticsSeriesValue | null> | null;
@@ -679,6 +680,10 @@ interface CommentsWithReactsResult {
 }
 
 interface PopularCommentsResult {
+  results: Array<Comment>;
+}
+
+interface ReviewsByPostLastCommentedAtResult {
   results: Array<Comment>;
 }
 
@@ -9925,6 +9930,7 @@ interface GraphQLTypeMap {
   VoteResultMultiDocument: VoteResultMultiDocument;
   CommentsWithReactsResult: CommentsWithReactsResult;
   PopularCommentsResult: PopularCommentsResult;
+  ReviewsByPostLastCommentedAtResult: ReviewsByPostLastCommentedAtResult;
   PostKarmaChange: PostKarmaChange;
   CommentKarmaChange: CommentKarmaChange;
   RevisionsKarmaChange: RevisionsKarmaChange;

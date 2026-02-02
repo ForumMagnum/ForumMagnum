@@ -33,6 +33,22 @@ const { Query: popularCommentsQuery, typeDefs: popularCommentsTypeDefs } = creat
   cacheMaxAgeMs: 300000, // 5 mins
 });
 
+const { Query: reviewsByPostLastCommentedAtQuery, typeDefs: reviewsByPostLastCommentedAtTypeDefs } = createPaginatedResolver({
+  name: "ReviewsByPostLastCommentedAt",
+  graphQLType: "Comment",
+  args: { reviewYear: "Int!" },
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+    args?: { reviewYear: number },
+  ): Promise<DbComment[]> => {
+    if (!args?.reviewYear) {
+      throw new Error("reviewYear is required");
+    }
+    return context.repos.comments.getReviewsSortedByPostLastCommentedAt({ reviewYear: args.reviewYear, limit });
+  },
+});
+
 export const graphqlMutations = {
   async moderateComment(root: void, { commentId, deleted, deletedPublic, deletedReason}: {
     commentId: string, deleted: boolean, deletedPublic: boolean, deletedReason: string
@@ -76,6 +92,7 @@ export const graphqlMutations = {
 export const graphqlQueries = {
   ...commentsWithReactsQuery,
   ...popularCommentsQuery,
+  ...reviewsByPostLastCommentedAtQuery,
   async CommentEmbeddingSearch(root: void, args: { query: string, scoreBias: number | null }, context: ResolverContext) {
     const { repos, currentUser } = context;
 
@@ -120,5 +137,5 @@ export const graphqlTypeDefs = gql`
   }
   ${commentsWithReactsTypeDefs}
   ${popularCommentsTypeDefs}
+  ${reviewsByPostLastCommentedAtTypeDefs}
 `
-

@@ -360,6 +360,7 @@ type Documents = {
     "\n  query multiReviewWinnerArtBestOfLessWrongAdminQuery($selector: ReviewWinnerArtSelector, $limit: Int, $enableTotal: Boolean) {\n    reviewWinnerArts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ReviewWinnerArtImages\n      }\n      totalCount\n    }\n  }\n": typeof types.multiReviewWinnerArtBestOfLessWrongAdminQueryDocument,
     "\n    query BestOfLessWrongAdmin {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n  ": typeof types.BestOfLessWrongAdminDocument,
     "\n  query FrontpageBestOfLWWidget($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.FrontpageBestOfLWWidgetDocument,
+    "\n  query FrontpageReviewsQuickTakesQuery($reviewYear: Int!, $limit: Int) {\n    ReviewsByPostLastCommentedAt(reviewYear: $reviewYear, limit: $limit) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.FrontpageReviewsQuickTakesQueryDocument,
     "\n    mutation GenerateCoverImagesForPost($postId: String!, $prompt: String) {\n      generateCoverImagesForPost(postId: $postId, prompt: $prompt) { \n        _id\n      }\n    }\n  ": typeof types.GenerateCoverImagesForPostDocument,
     "\n  query multiCommentLatestReviewQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentLatestReviewQueryDocument,
     "\n  query PostNominatedNotification($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.PostNominatedNotificationDocument,
@@ -1282,6 +1283,7 @@ const documents: Documents = {
     "\n  query multiReviewWinnerArtBestOfLessWrongAdminQuery($selector: ReviewWinnerArtSelector, $limit: Int, $enableTotal: Boolean) {\n    reviewWinnerArts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ReviewWinnerArtImages\n      }\n      totalCount\n    }\n  }\n": types.multiReviewWinnerArtBestOfLessWrongAdminQueryDocument,
     "\n    query BestOfLessWrongAdmin {\n      GetAllReviewWinners {\n        ...PostsTopItemInfo\n      }\n    }\n  ": types.BestOfLessWrongAdminDocument,
     "\n  query FrontpageBestOfLWWidget($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.FrontpageBestOfLWWidgetDocument,
+    "\n  query FrontpageReviewsQuickTakesQuery($reviewYear: Int!, $limit: Int) {\n    ReviewsByPostLastCommentedAt(reviewYear: $reviewYear, limit: $limit) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.FrontpageReviewsQuickTakesQueryDocument,
     "\n    mutation GenerateCoverImagesForPost($postId: String!, $prompt: String) {\n      generateCoverImagesForPost(postId: $postId, prompt: $prompt) { \n        _id\n      }\n    }\n  ": types.GenerateCoverImagesForPostDocument,
     "\n  query multiCommentLatestReviewQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n": types.multiCommentLatestReviewQueryDocument,
     "\n  query PostNominatedNotification($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.PostNominatedNotificationDocument,
@@ -3256,6 +3258,10 @@ export function gql(source: "\n    query BestOfLessWrongAdmin {\n      GetAllRev
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query FrontpageBestOfLWWidget($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query FrontpageBestOfLWWidget($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query FrontpageReviewsQuickTakesQuery($reviewYear: Int!, $limit: Int) {\n    ReviewsByPostLastCommentedAt(reviewYear: $reviewYear, limit: $limit) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"): (typeof documents)["\n  query FrontpageReviewsQuickTakesQuery($reviewYear: Int!, $limit: Int) {\n    ReviewsByPostLastCommentedAt(reviewYear: $reviewYear, limit: $limit) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

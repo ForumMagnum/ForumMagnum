@@ -14,8 +14,8 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import SectionTitle from "../common/SectionTitle";
 import SettingsButton from "../icons/SettingsButton";
 import LWTooltip from "../common/LWTooltip";
-import PostsList2 from "../posts/PostsList2";
 import ReviewProgressReviews from "./ReviewProgressReviews";
+import FrontpageReviewsQuickTakesList from "./FrontpageReviewsQuickTakesList";
 import ReviewProgressVoting from "./ReviewProgressVoting";
 import ReviewProgressNominations from "./ReviewProgressNominations";
 
@@ -385,21 +385,16 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     </span>}  
   </div>
 
-  const postList = <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${reviewYear}`}>
-    <PostsList2 
-      itemsPerPage={10}
-      terms={{
-        view:"frontpageReviewWidget",
-        reviewYear: reviewYear,
-        limit: 3,
-      }}
-    >
-      {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && nominationPhaseButtons}  
+  const actionButtons = <>
+    {activeRange === "NOMINATIONS" && showFrontpageItems && eligibleToNominate(currentUser) && nominationPhaseButtons}
+    {activeRange === "REVIEWS" && showFrontpageItems && reviewPhaseButtons}
+    {activeRange === "VOTING" && showFrontpageItems && eligibleToNominate(currentUser) && votingPhaseButtons}
+  </>;
 
-      {activeRange === "REVIEWS" && showFrontpageItems && reviewPhaseButtons}
+  const reviewsList = <AnalyticsContext listContext={`frontpageReviewReviews`} reviewYear={`${reviewYear}`}>
+        <FrontpageReviewsQuickTakesList reviewYear={reviewYear} />
 
-      {activeRange === "VOTING" && showFrontpageItems && eligibleToNominate(currentUser) && votingPhaseButtons}
-    </PostsList2>
+    {actionButtons}
   </AnalyticsContext>
 
   return (
@@ -429,8 +424,8 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
 
         {/* TODO: Improve logged out user experience */}
 
-        {/* Post list */}
-        {showFrontpageItems && postList}
+        {/* Reviews list */}
+        {showFrontpageItems && reviewsList}
 
 
       </div>

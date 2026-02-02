@@ -841,6 +841,22 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
 
     return engagementStats;
   }
+
+  async getReviewsSortedByPostLastCommentedAt({ reviewYear, limit }: { reviewYear: number, limit: number }): Promise<DbComment[]> {
+    return this.any(`
+      -- CommentsRepo.getReviewsSortedByPostLastCommentedAt
+      SELECT c.*
+      FROM "Comments" c
+      INNER JOIN "Posts" p ON c."postId" = p._id
+      WHERE c."reviewingForReview" = $(reviewYear)::text
+        AND c.deleted IS NOT TRUE
+        AND c.rejected IS NOT TRUE
+        AND p.draft IS NOT TRUE
+        AND ${getViewableCommentsSelector('c')}
+      ORDER BY p."lastCommentedAt" DESC NULLS LAST, c."postedAt" DESC
+      LIMIT $(limit)
+    `, { reviewYear, limit });
+  }
 }
 
 recordPerfMetrics(CommentsRepo);

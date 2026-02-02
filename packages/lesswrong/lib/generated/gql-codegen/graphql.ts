@@ -7750,6 +7750,7 @@ export type Query = {
   RecombeeHybridPosts: Maybe<RecombeeHybridPostsResult>;
   RecombeeLatestPosts: Maybe<RecombeeLatestPostsResult>;
   Recommendations: Maybe<Array<Post>>;
+  ReviewsByPostLastCommentedAt: Maybe<ReviewsByPostLastCommentedAtResult>;
   RevisionsDiff: Maybe<Scalars['String']['output']>;
   RssPostChanges: RssPostChangeInfo;
   SearchSynonyms: Array<Scalars['String']['output']>;
@@ -8122,6 +8123,12 @@ export type QueryRecombeeLatestPostsArgs = {
 export type QueryRecommendationsArgs = {
   algorithm?: InputMaybe<Scalars['JSON']['input']>;
   count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryReviewsByPostLastCommentedAtArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  reviewYear: Scalars['Int']['input'];
 };
 
 
@@ -9596,6 +9603,11 @@ export type ReviewWinnersReviewWinnerSingleInput = {
   category?: InputMaybe<Scalars['String']['input']>;
   reviewRanking?: InputMaybe<Scalars['String']['input']>;
   reviewYear?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ReviewsByPostLastCommentedAtResult = {
+  __typename?: 'ReviewsByPostLastCommentedAtResult';
+  results: Array<Comment>;
 };
 
 export type Revision = {
@@ -16916,6 +16928,17 @@ export type FrontpageBestOfLWWidgetQuery = { __typename?: 'Query', post: { __typ
       & PostsListWithVotes
     ) | null } | null };
 
+export type FrontpageReviewsQuickTakesQueryQueryVariables = Exact<{
+  reviewYear: Scalars['Int']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type FrontpageReviewsQuickTakesQueryQuery = { __typename?: 'Query', ReviewsByPostLastCommentedAt: { __typename?: 'ReviewsByPostLastCommentedAtResult', results: Array<(
+      { __typename?: 'Comment' }
+      & CommentsListWithParentMetadata
+    )> } | null };
+
 export type GenerateCoverImagesForPostMutationVariables = Exact<{
   postId: Scalars['String']['input'];
   prompt?: InputMaybe<Scalars['String']['input']>;
@@ -22413,6 +22436,7 @@ export const ForumEventsEditDoc = {"kind":"Document","definitions":[ForumEventsE
 export const ForumEventsMinimumInfoDoc = {"kind":"Document","definitions":[ForumEventsMinimumInfoFragmentDef]} as unknown as DocumentNode<ForumEventsMinimumInfo, unknown>;
 export const FriendlyInboxDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FriendlyInbox"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"conversation"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ConversationsListWithReadStatus"}}]}}]}}]}},ConversationsListWithReadStatusFragmentDef,ConversationsListFragmentDef,ConversationsMinimumInfoFragmentDef,UsersMinimumInfoFragmentDef,messageListFragmentFragmentDef]} as unknown as DocumentNode<FriendlyInboxQuery, FriendlyInboxQueryVariables>;
 export const FrontpageBestOfLWWidgetDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FrontpageBestOfLWWidget"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}}]}}]}}]}},PostsListWithVotesFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostPodcastEpisodeFragmentDef]} as unknown as DocumentNode<FrontpageBestOfLWWidgetQuery, FrontpageBestOfLWWidgetQueryVariables>;
+export const FrontpageReviewsQuickTakesQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"FrontpageReviewsQuickTakesQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"reviewYear"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ReviewsByPostLastCommentedAt"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"reviewYear"},"value":{"kind":"Variable","name":{"kind":"Name","value":"reviewYear"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsListWithParentMetadata"}}]}}]}}]}},CommentsListWithParentMetadataFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<FrontpageReviewsQuickTakesQueryQuery, FrontpageReviewsQuickTakesQueryQueryVariables>;
 export const FrontpageShortformCommentsDoc = {"kind":"Document","definitions":[FrontpageShortformCommentsFragmentDef,ShortformCommentsFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<FrontpageShortformComments, unknown>;
 export const GenerateCoverImagesForPostDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"GenerateCoverImagesForPost"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"prompt"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"generateCoverImagesForPost"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"prompt"},"value":{"kind":"Variable","name":{"kind":"Name","value":"prompt"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}}]}}]}}]} as unknown as DocumentNode<GenerateCoverImagesForPostMutation, GenerateCoverImagesForPostMutationVariables>;
 export const GetAllReviewWinnersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllReviewWinners"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"GetAllReviewWinners"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsTopItemInfo"}}]}}]}},PostsTopItemInfoFragmentDef,PostsMinimumInfoFragmentDef,ReviewWinnerTopPostsPageFragmentDef,SplashArtCoordinatesEditFragmentDef,SplashArtCoordinatesFragmentDef]} as unknown as DocumentNode<GetAllReviewWinnersQuery, GetAllReviewWinnersQueryVariables>;

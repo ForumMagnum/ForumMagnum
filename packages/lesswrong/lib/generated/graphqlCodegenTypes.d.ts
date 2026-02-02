@@ -7747,6 +7747,7 @@ type Query = {
   RecombeeHybridPosts?: Maybe<RecombeeHybridPostsResult>;
   RecombeeLatestPosts?: Maybe<RecombeeLatestPostsResult>;
   Recommendations?: Maybe<Array<Post>>;
+  ReviewsByPostLastCommentedAt?: Maybe<ReviewsByPostLastCommentedAtResult>;
   RevisionsDiff?: Maybe<Scalars['String']['output']>;
   RssPostChanges: RssPostChangeInfo;
   SearchSynonyms: Array<Scalars['String']['output']>;
@@ -8119,6 +8120,12 @@ type QueryRecombeeLatestPostsArgs = {
 type QueryRecommendationsArgs = {
   algorithm?: InputMaybe<Scalars['JSON']['input']>;
   count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QueryReviewsByPostLastCommentedAtArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  reviewYear: Scalars['Int']['input'];
 };
 
 
@@ -9593,6 +9600,11 @@ type ReviewWinnersReviewWinnerSingleInput = {
   category?: InputMaybe<Scalars['String']['input']>;
   reviewRanking?: InputMaybe<Scalars['String']['input']>;
   reviewYear?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ReviewsByPostLastCommentedAtResult = {
+  __typename?: 'ReviewsByPostLastCommentedAtResult';
+  results: Array<Comment>;
 };
 
 type Revision = {
@@ -19294,6 +19306,24 @@ type FrontpageBestOfLWWidgetQueryVariables = Exact<{
 
 
 type FrontpageBestOfLWWidgetQuery = FrontpageBestOfLWWidgetQuery_Query;
+
+type FrontpageReviewsQuickTakesQueryQuery_ReviewsByPostLastCommentedAt_ReviewsByPostLastCommentedAtResult_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type FrontpageReviewsQuickTakesQueryQuery_ReviewsByPostLastCommentedAt_ReviewsByPostLastCommentedAtResult = { __typename?: 'ReviewsByPostLastCommentedAtResult', results: Array<FrontpageReviewsQuickTakesQueryQuery_ReviewsByPostLastCommentedAt_ReviewsByPostLastCommentedAtResult_results_Comment> };
+
+type FrontpageReviewsQuickTakesQueryQuery_Query = { __typename?: 'Query', ReviewsByPostLastCommentedAt: FrontpageReviewsQuickTakesQueryQuery_ReviewsByPostLastCommentedAt_ReviewsByPostLastCommentedAtResult | null };
+
+
+type FrontpageReviewsQuickTakesQueryQueryVariables = Exact<{
+  reviewYear: Scalars['Int']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type FrontpageReviewsQuickTakesQueryQuery = FrontpageReviewsQuickTakesQueryQuery_Query;
 
 type GenerateCoverImagesForPostMutation_generateCoverImagesForPost_ReviewWinnerArt = { __typename?: 'ReviewWinnerArt', _id: string };
 

@@ -400,6 +400,14 @@ extend type Query {
   PopularComments(limit: Int): PopularCommentsResult
 }
 
+type ReviewsByPostLastCommentedAtResult {
+  results: [Comment!]!
+}
+
+extend type Query {
+  ReviewsByPostLastCommentedAt(reviewYear: Int!, limit: Int): ReviewsByPostLastCommentedAtResult
+}
+
 type PostKarmaChange {
   _id: String!
   collectionName: String!
