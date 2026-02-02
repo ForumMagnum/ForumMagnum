@@ -72,6 +72,16 @@ const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   recentDiscussion: { lastSubthreadActivity: -1 },
 }
 
+function getPostedAtTimeRange(terms: Pick<CommentsViewTerms, 'before' | 'after'>) {
+  if (!terms.before && !terms.after) return null;
+  return {
+    postedAt: {
+      ...(terms.before && {$lt: new Date(terms.before)}),
+      ...(terms.after && {$gte: new Date(terms.after)})
+    }
+  };
+}
+
 const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"; context?: ResolverContext; } = {}) => {
   const currentUserId = context?.currentUser?._id;
 
@@ -332,15 +342,8 @@ function draftComments(terms: CommentsViewTerms) {
 }
 
 function allRecentComments(terms: CommentsViewTerms) {
-  const timeRange = ((terms.before || terms.after)
-    ? { postedAt: {
-      ...(terms.before && {$lt: new Date(terms.before)}),
-      ...(terms.after && {$gte: new Date(terms.after)})
-    } }
-    : null
-  );
   return {
-    selector: { deletedPublic: false, ...timeRange },
+    selector: { deletedPublic: false, ...getPostedAtTimeRange(terms) },
     options: { 
       sort: terms.sortBy 
         ? sortings[terms.sortBy]
@@ -351,15 +354,8 @@ function allRecentComments(terms: CommentsViewTerms) {
 }
 
 function recentComments(terms: CommentsViewTerms) {
-  const timeRange = ((terms.before || terms.after)
-    ? { postedAt: {
-      ...(terms.before && {$lt: new Date(terms.before)}),
-      ...(terms.after && {$gte: new Date(terms.after)})
-    } }
-    : null
-  );
   return {
-    selector: { score:{$gt:0}, deletedPublic: false, ...timeRange},
+    selector: { score:{$gt:0}, deletedPublic: false, ...getPostedAtTimeRange(terms)},
     options: {
       sort: terms.sortBy 
         ? sortings[terms.sortBy] 
@@ -514,14 +510,6 @@ function answersAndReplies(terms: CommentsViewTerms) {
 }
 
 function topShortform(terms: CommentsViewTerms) {
-  const timeRange = ((terms.before || terms.after)
-    ? { postedAt: {
-      ...(terms.before && {$lt: new Date(terms.before)}),
-      ...(terms.after && {$gte: new Date(terms.after)})
-    } }
-    : null
-  );
-
   const shortformFrontpage =
     isEAForum() && typeof terms.shortformFrontpage === "boolean"
       ? {shortformFrontpage: terms.shortformFrontpage}
@@ -532,7 +520,7 @@ function topShortform(terms: CommentsViewTerms) {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
       deleted: false,
-      ...timeRange,
+      ...getPostedAtTimeRange(terms),
       ...shortformFrontpage,
     },
     options: {sort: {baseScore: -1, postedAt: -1}}
