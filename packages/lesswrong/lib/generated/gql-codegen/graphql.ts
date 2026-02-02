@@ -729,7 +729,9 @@ export type CommentsAllCommentsDeletedInput = {
 };
 
 export type CommentsAllRecentCommentsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   limit?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
@@ -937,7 +939,9 @@ export type CommentsQuestionAnswersInput = {
 };
 
 export type CommentsRecentCommentsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   limit?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;

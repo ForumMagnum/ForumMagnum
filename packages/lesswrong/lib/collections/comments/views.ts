@@ -332,8 +332,15 @@ function draftComments(terms: CommentsViewTerms) {
 }
 
 function allRecentComments(terms: CommentsViewTerms) {
+  const timeRange = ((terms.before || terms.after)
+    ? { postedAt: {
+      ...(terms.before && {$lt: new Date(terms.before)}),
+      ...(terms.after && {$gte: new Date(terms.after)})
+    } }
+    : null
+  );
   return {
-    selector: { deletedPublic: false },
+    selector: { deletedPublic: false, ...timeRange },
     options: { 
       sort: terms.sortBy 
         ? sortings[terms.sortBy]
@@ -344,8 +351,15 @@ function allRecentComments(terms: CommentsViewTerms) {
 }
 
 function recentComments(terms: CommentsViewTerms) {
+  const timeRange = ((terms.before || terms.after)
+    ? { postedAt: {
+      ...(terms.before && {$lt: new Date(terms.before)}),
+      ...(terms.after && {$gte: new Date(terms.after)})
+    } }
+    : null
+  );
   return {
-    selector: { score:{$gt:0}, deletedPublic: false},
+    selector: { score:{$gt:0}, deletedPublic: false, ...timeRange},
     options: {
       sort: terms.sortBy 
         ? sortings[terms.sortBy] 
