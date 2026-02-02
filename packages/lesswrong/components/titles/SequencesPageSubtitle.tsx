@@ -19,9 +19,7 @@ const SequencesPageTitleFragmentQuery = gql(`
   }
 `);
 
-export const SequencesPageSubtitle = ({siteName}: {
-  siteName: string,
-}) => {
+export const SequencesPageSubtitle = () => {
   const classes = useStyles(headerSubtitleStyles);
 
   const { params: {_id} } = useLocation();

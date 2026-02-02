@@ -21,9 +21,7 @@ const UsersMinimumInfoMultiQuery = gql(`
   }
 `);
 
-export const UserPageSubtitle = ({siteName}: {
-  siteName: string,
-}) => {
+export const UserPageSubtitle = () => {
   const classes = useStyles(headerSubtitleStyles);
 
   const { params: {slug} } = useLocation();
