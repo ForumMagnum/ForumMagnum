@@ -785,7 +785,7 @@ const setNotnullCommands = `
     ALTER COLUMN "viewed" SET NOT NULL,
     ALTER COLUMN "waitingForBatch" SET NOT NULL;
 
-  ALTER TABLE "PageCache"
+  ALTER TABLE IF EXISTS "PageCache"
     ALTER COLUMN "abTestGroups" SET NOT NULL,
     ALTER COLUMN "bundleHash" SET NOT NULL,
     ALTER COLUMN "expiresAt" SET NOT NULL,
