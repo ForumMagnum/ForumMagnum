@@ -854,6 +854,9 @@ export const routeTrie = {
     "sequencesNew": {
       "hasPage": true
     },
+    "simple-review": {
+      "hasPage": true
+    },
     "spotlights": {
       "hasPage": true
     },
@@ -1048,6 +1051,7 @@ export const routeTrie = {
     "search": "search",
     "sequences": "sequences",
     "sequencesnew": "sequencesNew",
+    "simple-review": "simple-review",
     "spotlights": "spotlights",
     "u": "u",
     "upcomingevents": "upcomingEvents",
