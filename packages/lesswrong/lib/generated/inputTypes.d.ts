@@ -2099,6 +2099,8 @@ interface CommentsAllRecentCommentsInput {
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
+  before?: string | null;
+  after?: string | null;
 }
 
 interface CommentsRecentCommentsInput {
@@ -2108,6 +2110,8 @@ interface CommentsRecentCommentsInput {
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
+  before?: string | null;
+  after?: string | null;
 }
 
 interface CommentsAfSubmissionsInput {

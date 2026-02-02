@@ -2362,6 +2362,8 @@ input CommentsAllRecentCommentsInput {
   authorIsUnreviewed: Boolean
   sortBy: String
   limit: String
+  before: String
+  after: String
 }
 
 input CommentsRecentCommentsInput {
@@ -2371,6 +2373,8 @@ input CommentsRecentCommentsInput {
   authorIsUnreviewed: Boolean
   sortBy: String
   limit: String
+  before: String
+  after: String
 }
 
 input CommentsAfSubmissionsInput {
