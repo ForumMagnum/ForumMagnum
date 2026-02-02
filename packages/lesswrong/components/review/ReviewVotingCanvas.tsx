@@ -15,6 +15,8 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { gql } from "@/lib/generated/gql-codegen";
 import type { CloudinaryPropsType } from "../common/cloudinaryHelpers";
+import { ICON_ONLY_NAVIGATION_BREAKPOINT } from '../common/TabNavigationMenu/NavigationStandalone';
+import { TAB_NAVIGATION_MENU_WIDTH, TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH } from '../common/TabNavigationMenu/TabNavigationMenu';
 
 const reviewVoteFragmentMultiQuery = gql(`
   query multiReviewVoteReviewVotingCanvasQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -36,12 +38,41 @@ export type GivingSeasonHeart = {
 }
 
 const styles = (theme: ThemeType) => ({
+  screenContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '57vw',
+    height: '100vh',
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    zIndex: 2,
+    [theme.breakpoints.down(1225)]: {
+      display: 'none',
+    },
+  },
+  imageContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '57vw',
+    height: '100%',
+    pointerEvents: 'none',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none'
+    },
+  },
   backgroundImage: {
     position: 'absolute',
-    width: '57vw',
-    maxWidth: '1000px',
+    width: '100%',
     top: -70,
     right: '-334px',
+    [theme.breakpoints.down(1800)]: {
+      right: 'calc(((100vw - 1800px) * 0.1) - 334px)'
+    },
+    [theme.breakpoints.down(ICON_ONLY_NAVIGATION_BREAKPOINT + 1)]: {
+      right: '-334px',
+    },
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     height: 'auto',
     marginLeft: '-22px',
@@ -56,7 +87,15 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
     transition: "opacity 0.25s ease",
     zIndex: 1,
-    position: "relative",
+    position: "absolute",
+    top: 0,
+    right: 0,
+    height: '100%',
+    width: 'calc(100vw - 1100px)',
+    [theme.breakpoints.down(ICON_ONLY_NAVIGATION_BREAKPOINT + 1)]: {
+      width: `calc(100vw - ${1100 - (TAB_NAVIGATION_MENU_WIDTH - TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH)}px)`,
+    },
+    pointerEvents: 'auto',
    '&:hover': {
       opacity: 1
     }
@@ -141,6 +180,9 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     height: '100vh',
     width: 'calc(100vw - 1100px)',
+    [theme.breakpoints.down(ICON_ONLY_NAVIGATION_BREAKPOINT + 1)]: {
+      width: `calc(100vw - ${1100 - (TAB_NAVIGATION_MENU_WIDTH - TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH)}px)`,
+    },
     zIndex: 1,
     [theme.breakpoints.down("sm")]: {
       display: "none",
@@ -188,9 +230,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(.7),
     zIndex: theme.zIndexes.reviewVotingCanvas,
     position: 'absolute',
-    top: 270,
-    right: 300,
+    pointerEvents: 'auto',
+    top: 300,
+    right: 'calc(500px - (260px - (100vw - 1800px)) * 0.5)',
+
     [theme.breakpoints.down(1800)]: {
+      top: 270,
       right: 260,
     },
     [theme.breakpoints.down(1700)]: {
@@ -207,21 +252,16 @@ const styles = (theme: ThemeType) => ({
       top: 225,
     },
     [theme.breakpoints.down(1520)]: {
-      right: 'unset',
-      left: 10,
       width:175,
       top: 225
     },
     [theme.breakpoints.down(1475)]: {
-      left: 10,
-      top: 625,
+      right: 100,
       width: 250,
       fontSize: 26
     },
     [theme.breakpoints.down(1350)]: {
       fontSize: 26,
-      right: 'unset',
-      left: -40,
       width: 225,
       top: 625
     },
@@ -459,8 +499,10 @@ const ReviewVotingCanvas = ({
   }, [normalizeCoords, addHeart, flash, userHasVotedEnough]);
 
   return (
-    <>
-      <CloudinaryImage2 className={classes.backgroundImage} publicId="uncleOli_inoyl6" darkPublicId="uncleOli_darkmoe_ixccjs"/>
+    <div className={classes.screenContainer}>
+      <div className={classes.imageContainer}>
+        <CloudinaryImage2 className={classes.backgroundImage} publicId="uncleOli_inoyl6" darkPublicId="uncleOli_darkmoe_ixccjs"/>
+      </div>
       <h3 className={classes.callToAction}>LESSWRONG needs YOU to VOTE</h3>
 
       <AnalyticsContext pageSectionContext="header" siteEvent={reviewElectionName}>
@@ -496,7 +538,7 @@ const ReviewVotingCanvas = ({
             </div>
         </div>
       </AnalyticsContext>
-    </>
+    </div>
   );
 }
 

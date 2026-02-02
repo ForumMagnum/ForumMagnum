@@ -9,6 +9,8 @@ import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { SolsticeSeasonBanner } from '../seasonal/solsticeSeason/SolsticeSeasonBanner';
 import { Inkhaven2026Banner } from '../seasonal/Inkhaven2026Banner';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
+import { getReviewPhase, reviewIsActive } from '@/lib/reviewUtils';
+import ReviewVotingCanvas from '../review/ReviewVotingCanvas';
 
 // Inkhaven Cohort #2 banner active period
 const INKHAVEN_2026_START = new Date('2026-01-10T00:00:00-08:00');
@@ -111,6 +113,10 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   // }
 
   // const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
+
+  if (reviewIsActive() && getReviewPhase() === 'VOTING' && isHomePage) {
+    homePageImage = <ReviewVotingCanvas />
+  }
 
   return <div className={classes.root}>
     {homePageImage}
