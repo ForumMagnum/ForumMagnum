@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { WebClient } from '@slack/web-api';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
-import { captureException } from '@sentry/nextjs';
+import { captureException } from '@/lib/sentryWrapper';
 
 interface CurationStatus {
   daysSinceCurated: number;
@@ -28,7 +28,7 @@ async function getCurationStatus(): Promise<CurationStatus> {
   }
   
   // Get curations from the last month to calculate average
-  const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const oneMonthAgo = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000));
   const recentCuratedPosts = await context.Posts.find(
     { curatedDate: { $gt: oneMonthAgo } },
     { sort: { curatedDate: -1 } }
