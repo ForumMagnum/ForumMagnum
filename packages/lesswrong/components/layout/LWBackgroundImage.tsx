@@ -114,7 +114,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
 
   // const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
 
-  if (reviewIsActive() && getReviewPhase() === 'VOTING' && isHomePage) {
+  if (reviewIsActive() && getReviewPhase() === 'VOTING' && isHomePage && standaloneNavigation) {
     homePageImage = <ReviewVotingCanvas />
   }
 
