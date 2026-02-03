@@ -33,9 +33,9 @@ export const down = async ({db}: MigrationContext) => {
       UPDATE "ForumEvents"
       SET
         "darkColor" = $1,
-        "lightColor" = NULL,
-        "bannerTextColor" = NULL
-      WHERE "darkColor" = $2
-    `, [oldDarkColor, newColors.darkColor]);
+        "lightColor" = $2,
+        "bannerTextColor" = $3
+      WHERE "darkColor" = $4
+    `, [oldDarkColor, '#ffffff', '#ffffff', newColors.darkColor]);
   }
 }
