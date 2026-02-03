@@ -1053,13 +1053,13 @@ export const PollClosedNotification = createServerNotificationType({
         {notifications.map((notification, i) => {
           const pollQuestion = notification.extraData?.pollQuestion || "a poll";
           const isCreator = notification.extraData?.isCreator;
-          const link = notification.link;
-          if (!link) return null;
-
+          if (!notification.link) return null;
+          const link = makeAbsolute(notification.link);
           const prefix = isCreator ? "Your poll" : "A poll you voted on";
           return (
             <p key={i}>
-              {prefix} has closed: <a href={makeAbsolute(link)}>"{pollQuestion}"</a>
+              {prefix} has closed:{" "}
+              <a href={link}>"{pollQuestion}" - click to view the results</a>
             </p>
           );
         })}
