@@ -980,6 +980,7 @@ export const ForumEventPoll = ({
                       prefilledProps={commentPrefilledProps}
                       successMessage="Success! Open the results to view everyone's votes and comments."
                       forumEvent={event}
+                      cancelLabel="Skip"
                       cancelCallback={() => setCommentFormOpen(false)}
                       successCallback={refetchComments}
                       anchorEl={userVoteRef.current}
