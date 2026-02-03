@@ -136,9 +136,8 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
     navigate({ pathname, search: `?pollId=${event._id}` });
 
     // Also copy to clipboard and flash message
-    const url = new URL(window.location.href);
-    url.searchParams.set("pollId", event._id);
-    await navigator.clipboard.writeText(url.toString());
+    const url = `${window.location.origin}${pathname}?pollId=${event._id}`;
+    await navigator.clipboard.writeText(url);
     flash("Link copied to clipboard");
   }, [event, captureEvent, flash, navigate, pathname]);
 
