@@ -97,7 +97,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'center',
     color: "var(--forum-event-banner-text)",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: "0px 16px 15px 24px",
+    padding: "0px 8px 15px 8px",
     margin: "0 auto",
     maxWidth: "100%",
   },
@@ -148,7 +148,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "var(--forum-event-foreground)",
+    backgroundColor: "color-mix(in oklab, var(--forum-event-foreground) 50%, var(--forum-event-background) 50%)",
     color: "var(--forum-event-background)",
     borderRadius: "50%",
     fontWeight: "bold",
@@ -164,7 +164,7 @@ const styles = (theme: ThemeType) => ({
     top: "50%",
     left: "50%",
     transform: "translate(-54%, -54%)",
-    fontSize: 14,
+    fontSize: 12,
     overflow: "hidden",
     textOverflow: "ellipsis",
     [theme.breakpoints.down('sm')]: {
@@ -178,7 +178,7 @@ const styles = (theme: ThemeType) => ({
   sliderLine: {
     position: "relative",
     width: "100%",
-    height: 2,
+    height: 1,
     backgroundColor: "var(--forum-event-foreground)",
     marginBottom: "16px",
     transition: "transform 0.5s ease-in-out",
@@ -189,8 +189,8 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     right: 0,
     height: USER_IMAGE_SIZE,
-    paddingTop: (USER_IMAGE_SIZE - 12) / 2,
-    paddingBottom: (USER_IMAGE_SIZE - 12) / 2,
+    paddingTop: (USER_IMAGE_SIZE - 6) / 2,
+    paddingBottom: (USER_IMAGE_SIZE - 6) / 2,
     display: "flex",
     gap: GAP,
     '&:hover $tick': {
@@ -206,7 +206,7 @@ const styles = (theme: ThemeType) => ({
       top: 0,
       bottom: 0,
       left: "50%",
-      width: 2,
+      width: 1,
       backgroundColor: "var(--forum-event-foreground)",
       opacity: 0.3,
       transform: "translateX(-50%)",
@@ -232,14 +232,15 @@ const styles = (theme: ThemeType) => ({
   sliderArrow: {
     stroke: "var(--forum-event-foreground)",
     position: "absolute",
-    top: -11,
+    top: -5,
+    "--icon-size": "11px",
   },
   sliderArrowLeft: {
-    transform: "translateX(-8px)",
+    transform: "translateX(-4px)",
     left: 0,
   },
   sliderArrowRight: {
-    transform: "translateX(8px)",
+    transform: "translateX(4px)",
     right: 0,
   },
   voteTooltipHeading: {
@@ -254,7 +255,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '140%',
   },
   userImage: {
-    outline: `2px solid var(--forum-event-foreground)`,
+    outline: `2px solid color-mix(in oklab, var(--forum-event-foreground) 50%, var(--forum-event-background) 50%)`,
   },
   placeholderUserIcon: {
     // add a black background to the placeholder user circle icon
@@ -271,13 +272,14 @@ const styles = (theme: ThemeType) => ({
     top: -5,
     right: -5,
     backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 10%, color-mix(in oklab, var(--forum-event-background) 65%, var(--forum-event-foreground) 35%))`,
+    color: theme.palette.text.alwaysWhite,
     padding: 2,
     borderRadius: '50%',
     cursor: 'pointer',
     width: 15,
     height: 15,
     "&:hover": {
-      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 10%, var(--forum-event-background) 90%)`,
+      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 50%, color-mix(in oklab, var(--forum-event-background) 65%, var(--forum-event-foreground) 35%))`,
     },
   },
   clearVote: {
@@ -980,6 +982,7 @@ export const ForumEventPoll = ({
                       prefilledProps={commentPrefilledProps}
                       successMessage="Success! Open the results to view everyone's votes and comments."
                       forumEvent={event}
+                      cancelLabel="Skip"
                       cancelCallback={() => setCommentFormOpen(false)}
                       successCallback={refetchComments}
                       anchorEl={userVoteRef.current}

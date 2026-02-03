@@ -621,6 +621,8 @@ export const UsersEdit = () => frag`
     notificationSubforumUnread
     notificationNewMention
     notificationNewPingback
+    notificationPollClosingSoon
+    notificationPollClosed
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
     notificationDialogueMessages
