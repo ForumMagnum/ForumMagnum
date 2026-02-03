@@ -1,11 +1,12 @@
 /* eslint-disable no-console */
 /* eslint-disable import/no-dynamic-require */
 import { Umzug } from "@centreforeffectivealtruism/umzug";
-import { readFileSync } from "fs";
+import { readFileSync, readdirSync } from "fs";
 import { createHash } from "crypto";
 import { resolve } from "path";
 import PgStorage from "./PgStorage";
 import { safeRun } from '@/server/manualMigrations/safeRun';
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 
 declare global {
   interface MigrationTimer {
@@ -46,6 +47,76 @@ const getLastMigration = async (storage: PgStorage, context: MigrationContext): 
   return executed[0];
 }
 
+const isTsMigrationFile = (filename: string) => filename.endsWith(".ts") && !filename.endsWith(".d.ts");
+const isFileEntry = (entry: { isFile: () => boolean }) => entry.isFile();
+const getEntryName = (entry: { name: string }) => entry.name;
+const compareNames = (a: string, b: string) => a.localeCompare(b);
+
+const getMigrationFilenames = () => {
+  const entries = readdirSync(resolve(root), { withFileTypes: true });
+  const files = entries
+    .filter(isFileEntry)
+    .map(getEntryName)
+    .filter(isTsMigrationFile)
+    .sort(compareNames);
+
+  for (const name of files) {
+    migrationNameToDate(name);
+  }
+  return files;
+}
+
+const getMigrationHash = (filePath: string) =>
+  createHash("md5").update(readFileSync(filePath).toString()).digest("hex");
+
+const markMigrationAsExecuted = async ({
+  name,
+  context,
+  storage,
+}: {
+  name: string;
+  context: MigrationContext;
+  storage: PgStorage;
+}) => {
+  const filePath = resolve(root, name);
+  const now = new Date();
+  context.hashes[name] = getMigrationHash(filePath);
+  context.timers[name] = { start: now, end: now };
+  await storage.logMigration({ name, context });
+}
+
+export const skipMigrationsAfterDatabaseInit = async () => {
+  const db = getSqlClientOrThrow();
+  const storage = new PgStorage();
+  await storage.setupEnvironment(db);
+
+  const context: MigrationContext = {
+    db,
+    dbOutsideTransaction: db,
+    timers: {},
+    hashes: {},
+  };
+
+  const executed = await storage.executed({
+    context: { ...context, timers: {}, hashes: {} },
+  });
+  const executedSet = new Set(executed);
+  const migrationFilenames = getMigrationFilenames();
+  const pendingMigrations: string[] = [];
+  for (const name of migrationFilenames) {
+    if (!executedSet.has(name)) {
+      pendingMigrations.push(name);
+    }
+  }
+
+  for (const name of pendingMigrations) {
+    await markMigrationAsExecuted({ name, context, storage });
+  }
+
+  // eslint-disable-next-line no-console
+  console.log(`Marked ${pendingMigrations.length} migrations as executed.`);
+}
+
 export const createMigrator = async (dbInTransaction: SqlClient, dbOutsideTransaction: SqlClient) => {
   const storage = new PgStorage();
   await storage.setupEnvironment(dbInTransaction);
@@ -64,8 +135,7 @@ export const createMigrator = async (dbInTransaction: SqlClient, dbOutsideTransa
         if (!path) {
           throw new Error("Missing migration path");
         }
-        const code = readFileSync(path).toString();
-        ctx.hashes[name] = createHash("md5").update(code).digest("hex");
+        ctx.hashes[name] = getMigrationHash(path);
         return {
           name,
           up: async () => {
