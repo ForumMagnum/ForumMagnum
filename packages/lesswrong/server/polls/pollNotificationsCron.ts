@@ -121,14 +121,19 @@ async function sendPollClosedNotifications() {
   const closedPolls = await forumEventsRepo.getPollsClosedBetween(minEndDate, now);
 
   for (const poll of closedPolls) {
-    if (!poll.derivedPostId) continue;
+    if (!poll.derivedPostId) {
+      continue;
+    }
 
-    const alreadyNotified = await getUsersAlreadyNotified(poll._id, "pollClosed");
+    const [alreadyNotified, post, pollQuestion] = await Promise.all([
+      getUsersAlreadyNotified(poll._id, "pollClosed"),
+      context.loaders.Posts.load(poll.derivedPostId),
+      getPollQuestion(context, poll._id),
+    ]);
+    if (!post) {
+      continue;
+    }
 
-    const post = await context.loaders.Posts.load(poll.derivedPostId);
-    if (!post) continue;
-
-    const pollQuestion = await getPollQuestion(context, poll._id);
     const link = getPollUrl(post, poll._id);
 
     const creatorSet = new Set(poll.creatorUserIds.filter(Boolean));
