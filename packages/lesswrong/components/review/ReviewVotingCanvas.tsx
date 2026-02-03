@@ -501,7 +501,7 @@ const ReviewVotingCanvas = ({
   return (
     <div className={classes.screenContainer}>
       <div className={classes.imageContainer}>
-        <CloudinaryImage2 className={classes.backgroundImage} publicId="uncleOli_inoyl6" darkPublicId="uncleOli_darkmoe_ixccjs"/>
+        <CloudinaryImage2 className={classes.backgroundImage} publicId="uncleOli_inoyl6" darkPublicId="wizardman_otvnpj"/>
       </div>
       <h3 className={classes.callToAction}>LESSWRONG needs YOU to VOTE</h3>
 
