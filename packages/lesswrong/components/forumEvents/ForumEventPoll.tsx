@@ -271,13 +271,14 @@ const styles = (theme: ThemeType) => ({
     top: -5,
     right: -5,
     backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 10%, color-mix(in oklab, var(--forum-event-background) 65%, var(--forum-event-foreground) 35%))`,
+    color: theme.palette.text.alwaysWhite,
     padding: 2,
     borderRadius: '50%',
     cursor: 'pointer',
     width: 15,
     height: 15,
     "&:hover": {
-      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 10%, var(--forum-event-background) 90%)`,
+      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 50%, color-mix(in oklab, var(--forum-event-background) 65%, var(--forum-event-foreground) 35%))`,
     },
   },
   clearVote: {
