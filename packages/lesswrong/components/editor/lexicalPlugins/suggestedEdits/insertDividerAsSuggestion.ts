@@ -12,7 +12,7 @@ export function $insertDividerAsSuggestion(onSuggestionCreation: (id: string) =>
 
   const suggestionID = generateUUID()
   const dividerNode = $createHorizontalRuleNode()
-  const suggestionNode = $createSuggestionNode(suggestionID, 'insert')
+  const suggestionNode = $createSuggestionNode(suggestionID, 'insert-divider')
   suggestionNode.append(dividerNode)
 
   const insertedNode = $insertNodeToNearestRoot(suggestionNode)

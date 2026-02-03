@@ -9,7 +9,7 @@ import type {
 } from 'lexical'
 import { $isRangeSelection, $isRootOrShadowRoot, ElementNode } from 'lexical'
 import type { SuggestionProperties, SuggestionType } from './Types'
-import { ProtonNodeTypes } from './Types'
+import { $isPlainDeletionSuggestion, ProtonNodeTypes } from './Types'
 import { addClassNamesToElement } from '@lexical/utils'
 
 type ProtonNodeProperties = SuggestionProperties
@@ -57,12 +57,15 @@ export class ProtonNode extends ElementNode {
 
   createDOM(): HTMLElement {
     const properties = this.__properties
-    const element = properties.suggestionType === 'delete' ? document.createElement('del') : document.createElement('ins')
+    const element = $isPlainDeletionSuggestion(properties.suggestionType)
+      ? document.createElement('del')
+      : document.createElement('ins');
+
     if (properties.nodeType === 'suggestion') {
       addClassNamesToElement(element, 'Lexical__Suggestion')
       addClassNamesToElement(element, properties.suggestionType)
       element.setAttribute('data-suggestion-id', properties.suggestionID)
-      if (properties.suggestionType === 'delete') {
+      if ($isPlainDeletionSuggestion(properties.suggestionType)) {
         element.setAttribute('spellcheck', 'false')
       }
     }

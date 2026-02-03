@@ -29,7 +29,7 @@ export function $insertImageNodeAsSuggestion(
     return true
   }
   const suggestionID = generateUUID()
-  const suggestion = $createSuggestionNode(suggestionID, 'insert').append(node)
+  const suggestion = $createSuggestionNode(suggestionID, 'insert-image').append(node)
   selection.insertNodes([suggestion])
   onSuggestionCreation(suggestionID)
   return true
@@ -52,7 +52,7 @@ export function $handleImageSizeChangeAsSuggestion(
   node.setWidthPercent(widthPercent)
   const existingSuggestionParent = $findMatchingParent(node, $isSuggestionNode)
   const suggestionType = existingSuggestionParent?.getSuggestionTypeOrThrow()
-  if (existingSuggestionParent || suggestionType === 'insert' || suggestionType === 'image-change') {
+  if (existingSuggestionParent || suggestionType === 'insert-image' || suggestionType === 'image-change') {
     return true
   }
   logger.info('Wrapping node with new suggestion', initialWidthPercent)
@@ -98,7 +98,7 @@ export function $handleImageCaptionToggleAsSuggestion(
     }
   }
 
-  if (existingSuggestionParent || suggestionType === 'insert' || suggestionType === 'image-change') {
+  if (existingSuggestionParent || suggestionType === 'insert-image' || suggestionType === 'image-change') {
     return true
   }
 
@@ -123,12 +123,12 @@ export function $handleImageDeleteAsSuggestion(
   }
   const existingSuggestionParent = $findMatchingParent(draggedImageNode, $isSuggestionNode)
   const suggestionType = existingSuggestionParent?.getSuggestionTypeOrThrow()
-  if (existingSuggestionParent && suggestionType === 'insert') {
+  if (existingSuggestionParent && suggestionType === 'insert-image') {
     existingSuggestionParent.remove()
     return true
   }
   const suggestionID = generateUUID()
-  $wrapNodeInElement(draggedImageNode, () => $createSuggestionNode(suggestionID, 'delete'))
+  $wrapNodeInElement(draggedImageNode, () => $createSuggestionNode(suggestionID, 'delete-image'))
   onSuggestionCreation(suggestionID)
   return true
 }
@@ -156,7 +156,7 @@ export function $handleImageDragAndDropAsSuggestion(
   const suggestionID = generateUUID()
   const range = getDragSelection(event)
   logger.info('Wrapping existing node with "delete" type')
-  $wrapNodeInElement(draggedImageNode, () => $createSuggestionNode(suggestionID, 'delete'))
+  $wrapNodeInElement(draggedImageNode, () => $createSuggestionNode(suggestionID, 'delete-image'))
   const rangeSelection = $createRangeSelection()
   if (range !== null && range !== undefined) {
     rangeSelection.applyDOMRange(range)
@@ -175,7 +175,7 @@ export function $handleImageDragAndDropAsSuggestion(
     captionsEnabled: data.captionsEnabled,
   })
   logger.info('Created and inserted "insert" type suggestion')
-  const insertSuggestion = $createSuggestionNode(suggestionID, 'insert').append(imageNode)
+  const insertSuggestion = $createSuggestionNode(suggestionID, 'insert-image').append(imageNode)
   rangeSelection.insertNodes([insertSuggestion])
   onSuggestionCreation(suggestionID)
   return true

@@ -65,6 +65,7 @@ export function $wrapSelectionInSuggestionNode(
     logger?.info('Current node:', nodeInfo)
 
     let targetNode: LexicalNode | null = null
+    let suggestionType: SuggestionType = type
 
     if ($isTextNode(node)) {
       const textContentSize = node.getTextContentSize()
@@ -117,11 +118,13 @@ export function $wrapSelectionInSuggestionNode(
     } else if ($isImageNode(node)) {
       logger?.info('Node is image node')
       targetNode = node
+      suggestionType = 'insert-image'
     } else if ($isImageRenderNode(node) || $isImageCaptionNode(node)) {
       const imageParent = $findMatchingParent(node, $isImageNode)
       if (imageParent) {
         logger?.info('Node is image child, targeting image node')
         targetNode = imageParent
+        suggestionType = 'insert-image'
       }
     }
     if (!targetNode) {
@@ -129,6 +132,7 @@ export function $wrapSelectionInSuggestionNode(
       if (imageParent) {
         logger?.info('Node is inside image, targeting image node')
         targetNode = imageParent
+        suggestionType = 'insert-image'
       }
     }
     if (!targetNode && $isTableNode(node)) {
@@ -171,7 +175,7 @@ export function $wrapSelectionInSuggestionNode(
 
       if (lastCreatedMarkNode === null) {
         logger?.info('Creating new suggestion node')
-        lastCreatedMarkNode = $createSuggestionNode(id, type, changedProperties)
+        lastCreatedMarkNode = $createSuggestionNode(id, suggestionType, changedProperties)
         targetNode.insertBefore(lastCreatedMarkNode)
         createdMarkNodes.push(lastCreatedMarkNode)
       }

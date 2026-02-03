@@ -6,6 +6,7 @@ import { ProtonNode, $isSuggestionNode } from './ProtonNode'
 import { $findMatchingParent } from '@lexical/utils'
 import { $deleteTableColumn, $isTableCellNode, $isTableNode, $isTableRowNode } from '@lexical/table'
 import { $isNonInlineLeafElement } from '@/lib/vendor/proton/isNonInlineLeafElement'
+import { $isPlainDeletionSuggestion, $isPlainInsertionSuggestion } from './Types'
 
 /**
  * Joins the closest non-inline leaf element parent of the given
@@ -62,9 +63,9 @@ export function $acceptSuggestion(suggestionID: string): boolean {
       continue
     }
     const suggestionType = node.getSuggestionTypeOrThrow()
-    if (suggestionType === 'insert') {
+    if ($isPlainInsertionSuggestion(suggestionType)) {
       $unwrapSuggestionNode(node)
-    } else if (suggestionType === 'delete') {
+    } else if ($isPlainDeletionSuggestion(suggestionType)) {
       node.remove()
     } else if (suggestionType === 'property-change') {
       $unwrapSuggestionNode(node)

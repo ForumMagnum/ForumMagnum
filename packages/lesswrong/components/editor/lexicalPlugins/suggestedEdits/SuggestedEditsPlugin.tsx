@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND } from 'lexical';
 import type { SuggestionThreadController, SuggestionThreadInfo } from '@/components/editor/lexicalPlugins/suggestions/SuggestionThreadController';
@@ -90,7 +90,7 @@ export default function SuggestedEditsPlugin({
     };
   }, [commentStore, author]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     return editor.registerCommand(
       KEY_DOWN_COMMAND,
       (event) => {
@@ -106,7 +106,7 @@ export default function SuggestedEditsPlugin({
     );
   }, [editor]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // ContentEditable handles DOM event interception for suggestion mode.
     return undefined;
   }, []);

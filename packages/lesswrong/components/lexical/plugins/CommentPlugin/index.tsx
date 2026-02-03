@@ -24,7 +24,6 @@ import {
 } from '@lexical/mark';
 import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
 import {ClearEditorPlugin} from '@lexical/react/LexicalClearEditorPlugin';
-import {useCollaborationContext} from '@lexical/react/LexicalCollaborationContext';
 import {LexicalComposer} from '@lexical/react/LexicalComposer';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {EditorRefPlugin} from '@lexical/react/LexicalEditorRefPlugin';
@@ -90,6 +89,7 @@ import { CommentsIcon } from '../../icons/CommentsIcon';
 import { SendIcon } from '../../icons/SendIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import ForumIcon from '@/components/common/ForumIcon';
+import { SuggestionType, SuggestionTypeToSummaryText } from '@/components/editor/lexicalPlugins/suggestedEdits/Types';
 
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   addCommentBox: {
@@ -515,25 +515,34 @@ const SUGGESTION_SUMMARY_KIND: Comment['commentKind'] = 'suggestionSummary';
 
 const isSuggestionThread = (thread: Thread): boolean => thread.threadType === 'suggestion';
 
-const getSuggestionSummaryComment = (thread: Thread): Comment | undefined =>
-  thread.comments.find((comment) => comment.commentKind === SUGGESTION_SUMMARY_KIND);
+const getSuggestionSummaryComment = (thread: Thread): Comment | undefined => thread.comments.find((comment) => comment.commentKind === SUGGESTION_SUMMARY_KIND);
 
 const getSuggestionThreadId = (thread: Thread): string => thread.markID ?? thread.id;
 
 const parseSuggestionSummary = (summary: string): string => {
   try {
-    const parsed = JSON.parse(summary) as Array<{ type: string; content: string; replaceWith?: string }>;
+    const parsed: Array<{ type: SuggestionType; content: string; replaceWith?: string }> = JSON.parse(summary);
     if (!Array.isArray(parsed) || parsed.length === 0) {
       return 'Suggestion';
     }
+
     const first = parsed[0];
     if (!first) {
       return summary;
     }
-    if (first.replaceWith) {
-      return `${first.type}: ${first.content} → ${first.replaceWith}`;
+
+    const { type, content, replaceWith } = first;
+
+    const suggestionType = SuggestionTypeToSummaryText[type] ?? type;
+
+    if (replaceWith) {
+      return `${suggestionType}: ${content} → ${replaceWith}`;
     }
-    return first.content ? `${first.type}: ${first.content}` : first.type;
+
+    const trimmedContent = content.trim();
+    return trimmedContent
+      ? `${suggestionType}: ${trimmedContent}`
+      : suggestionType;
   } catch {
     return summary;
   }
@@ -1125,9 +1134,11 @@ function CommentsPanelList({
           const suggestionSummaryComment = isSuggestion
             ? getSuggestionSummaryComment(commentOrThread)
             : undefined;
+
           const suggestionSummaryText = suggestionSummaryComment
             ? parseSuggestionSummary(suggestionSummaryComment.content)
             : null;
+
           const suggestionStatus = commentOrThread.status ?? 'open';
           if (suggestionStatus === 'archived') {
             return null;

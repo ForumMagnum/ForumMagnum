@@ -279,10 +279,16 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     '& ins': {
       background: theme.palette.background.diffInserted,
       textDecoration: 'none',
+      '&.insert-image img': {
+        border: `2px solid ${theme.palette.primary.main}`,
+      },
     },
     '& del': {
       background: theme.palette.background.diffDeleted,
       textDecoration: 'none',
+      '&.delete-image img': {
+        border: `2px solid ${theme.palette.error.main}`,
+      },
     },
   },
   editorContainerComment: {

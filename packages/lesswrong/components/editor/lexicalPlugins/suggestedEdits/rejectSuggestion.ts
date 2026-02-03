@@ -10,12 +10,14 @@ import { $isImageNode } from '@/components/lexical/nodes/ImageNode'
 import { $findMatchingParent } from '@lexical/utils'
 import { $deleteTableColumn, $isTableCellNode, $isTableNode, $isTableRowNode } from '@lexical/table'
 import { blockTypeToCreateElementFn } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
-import type {
-  PropertyChangeSuggestionProperties,
-  AlignChangeSuggestionProperties,
-  LinkChangeSuggestionProperties,
-  BlockTypeChangeSuggestionProperties,
-  IndentChangeSuggestionProperties,
+import {
+  type PropertyChangeSuggestionProperties,
+  type AlignChangeSuggestionProperties,
+  type LinkChangeSuggestionProperties,
+  type BlockTypeChangeSuggestionProperties,
+  type IndentChangeSuggestionProperties,
+  $isPlainDeletionSuggestion,
+  $isPlainInsertionSuggestion,
 } from './Types'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import { $isNonInlineLeafElement } from '@/lib/vendor/proton/isNonInlineLeafElement'
@@ -31,9 +33,9 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
       continue
     }
     const suggestionType = node.getSuggestionTypeOrThrow()
-    if (suggestionType === 'insert') {
+    if ($isPlainInsertionSuggestion(suggestionType)) {
       node.remove()
-    } else if (suggestionType === 'delete') {
+    } else if ($isPlainDeletionSuggestion(suggestionType)) {
       $unwrapSuggestionNode(node)
     } else if (suggestionType === 'style-change') {
       const children = node.getChildren()
