@@ -118,7 +118,7 @@ async function sendPollClosedNotifications() {
   const now = new Date();
   // Look back up to 24 hours for closed polls
   const minEndDate = new Date(now.getTime() - ONE_DAY_MS);
-  const closedPolls = await forumEventsRepo.getPollsClosedBetween(minEndDate, now);
+  const closedPolls = await forumEventsRepo.getPollsClosingBetween(minEndDate, now);
 
   for (const poll of closedPolls) {
     if (!poll.derivedPostId) {
