@@ -2,7 +2,7 @@ import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { isFriendlyUI } from '@/themes/forumTheme';
-import { EmailContextType, useEmailStyles } from './emailContext';
+import { EmailContextType, emailUseStyles } from './emailContext';
 import { defineStyles } from '@/components/hooks/defineStyles';
 
 const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
@@ -22,7 +22,7 @@ export const EmailWrapper = ({unsubscribeAllLink, emailContext, children}: {
   emailContext: EmailContextType,
   children: React.ReactNode,
 }) => {
-  const classes = useEmailStyles(styles, emailContext);
+  const classes = emailUseStyles(styles, emailContext);
   const accountLink = `${getSiteUrl()}account`
   const siteNameWithArticle = siteNameWithArticleSetting.get()
   

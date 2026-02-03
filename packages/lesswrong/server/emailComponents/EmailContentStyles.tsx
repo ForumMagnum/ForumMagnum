@@ -1,6 +1,6 @@
 import React, { CSSProperties } from 'react';
 import classNames from 'classnames';
-import { EmailContextType, useEmailStyles } from './emailContext';
+import { EmailContextType, emailUseStyles } from './emailContext';
 import { styles, contentStylesClassnames, ContentStyleType } from '@/components/common/ContentStylesValues';
 
 export const EmailContentStyles = ({contentType, className, style, emailContext, children}: {
@@ -10,7 +10,7 @@ export const EmailContentStyles = ({contentType, className, style, emailContext,
   emailContext: EmailContextType
   children: React.ReactNode,
 }) => {
-  const classes = useEmailStyles(styles, emailContext);
+  const classes = emailUseStyles(styles, emailContext);
 
   return <div style={style} className={classNames(
     className,

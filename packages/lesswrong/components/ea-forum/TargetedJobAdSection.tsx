@@ -125,7 +125,7 @@ const TargetedJobAdSection = () => {
   const [activeJob, setActiveJob] = useState<string>()
   
   // select a job ad to show to the current user
-  useMemo(() => {
+  const matchedJob = useMemo(() => {
     if (!currentUser || userJobAdsLoading || userEAGDetailsLoading || coreTagReadsLoading || activeJob) return
   
     const ads = userJobAds ?? []
@@ -215,11 +215,9 @@ const TargetedJobAdSection = () => {
       const shouldShowAd = !userJobAdState || ['seen', 'expanded'].includes(userJobAdState)
 
       if (userIsMatch && shouldShowAd) {
-        setActiveJob(jobName)
-        return
+        return jobName
       }
     }
-    
   }, [
     currentUser,
     userJobAds,
@@ -230,6 +228,12 @@ const TargetedJobAdSection = () => {
     coreTagReadsLoading,
     activeJob
   ])
+
+  useEffect(() => {
+    if (matchedJob) {
+      setActiveJob(matchedJob)
+    }
+  }, [matchedJob])
 
   // record when this user has seen the selected ad
   useEffect(() => {

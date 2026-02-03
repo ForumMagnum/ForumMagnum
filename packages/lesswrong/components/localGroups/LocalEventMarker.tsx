@@ -40,11 +40,9 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   const { htmlHighlight = "" } = event.contents || {}
   const htmlBody = {__html: htmlHighlight};
 
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const EventIcon = () => isEAForum() ? 
-    <RoomIcon className={classes.eaIcon}/> : 
-    <ArrowSVG className={classes.icon}/>;
+  const eventIcon = isEAForum()
+    ? <RoomIcon className={classes.eaIcon}/>
+    : <ArrowSVG className={classes.icon}/>;
 
   return <React.Fragment>
     <Marker
@@ -54,7 +52,7 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
       offsetTop={-25}
     >
       <span onClick={() => handleMarkerClick(event._id)}>
-        <EventIcon/>
+        {eventIcon}
       </span>
     </Marker>
     {infoOpen && 
