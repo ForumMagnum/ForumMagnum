@@ -1,5 +1,4 @@
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { registerComponent } from '@/lib/vulcan-lib/components'
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ForumIcon from "../common/ForumIcon";
 
@@ -136,7 +135,7 @@ const ForumEventEmojiPicker: FC<{ onSelect: (value: string) => void }> = ({ onSe
   );
 };
 
-export default registerComponent('ForumEventEmojiPicker', ForumEventEmojiPicker);
+export default ForumEventEmojiPicker;
 
 
 

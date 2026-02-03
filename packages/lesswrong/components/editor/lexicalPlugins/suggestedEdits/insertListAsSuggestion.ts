@@ -1,4 +1,4 @@
-import { $createListItemNode, $isListItemNode, $isListNode, type ListNode, type ListType } from '@lexical/list'
+import { $createListItemNode, $createListNode, $isListItemNode, $isListNode, type ListNode, type ListType } from '@lexical/list'
 import {
   $createParagraphNode,
   $getRoot,
@@ -14,14 +14,12 @@ import {
   type TextNode,
 } from 'lexical'
 import type { Logger } from '@/lib/vendor/proton/logger'
-import type { CustomListMarker, CustomListStyleType } from '@/components/editor/lexicalPlugins/suggestions/stubs/CustomList/CustomListTypes'
-import { $createCustomListNode } from '@/components/editor/lexicalPlugins/suggestions/stubs/CustomList/$createCustomListNode'
-import { $getListInfo } from '@/components/editor/lexicalPlugins/suggestions/stubs/CustomList/$getListInfo'
+import { $getListInfo } from '@/components/editor/lexicalPlugins/suggestions/$getListInfo'
 import { $insertFirst } from '@lexical/utils'
 import type { ProtonNode } from './ProtonNode'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import { generateUUID } from '@/lib/vendor/proton/generateUUID'
-import { $getElementBlockType } from '@/components/editor/lexicalPlugins/suggestions/stubs/BlockTypePlugin'
+import { $getElementBlockType } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import { $isEmptyListItemExceptForSuggestions } from './Utils'
 
 export function $insertListAsSuggestion(
@@ -29,8 +27,8 @@ export function $insertListAsSuggestion(
   listType: ListType,
   onSuggestionCreation: (id: string) => void,
   logger: Logger,
-  styleType?: CustomListStyleType,
-  marker?: CustomListMarker,
+  styleType?: string,
+  marker?: string,
 ): boolean {
   logger.info('Inserting list as suggestion', listType, styleType, marker)
 
@@ -162,8 +160,8 @@ function $changeBlockTypeToList(
   suggestionID: string,
   logger: Logger,
   onSuggestionCreation: (id: string) => void,
-  styleType?: CustomListStyleType,
-  marker?: CustomListMarker,
+  styleType?: string,
+  marker?: string,
 ) {
   logger.info('Change node block type to list')
 
@@ -182,7 +180,7 @@ function $changeBlockTypeToList(
   const formatType = node.getFormatType()
   const indent = node.getIndent()
 
-  const newList = $createCustomListNode(listType)
+  const newList = $createListNode(listType)
   const listItem = $createListItemNode()
   listItem.append(...children)
   newList.append(listItem)
@@ -216,11 +214,11 @@ function $replaceList(
   suggestionID: string,
   logger: Logger,
   onSuggestionCreation: (id: string) => void,
-  styleType?: CustomListStyleType,
-  marker?: CustomListMarker,
+  styleType?: string,
+  marker?: string,
 ): ListNode {
   logger.info(`Replacing exist list (key: ${node.__key}) with list type ${listType}`)
-  const list = $createCustomListNode(listType)
+  const list = $createListNode(listType)
 
   const listInfo = $getListInfo(node)
   const children = node.getChildren()

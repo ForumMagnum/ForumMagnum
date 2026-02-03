@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '@/components/hooks/useUserLocation';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { Marker as BadlyTypedMarker, Popup as BadlyTypedPopup } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';
@@ -14,7 +13,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import StyledMapPopup, { StyledMapPopupContent } from "../../localGroups/StyledMapPopup";
 import GroupLinks from "../../localGroups/GroupLinks";
 import HomepageMapFilter from "./HomepageMapFilter";
-import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
+import { MapboxViewport, WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 
 const Popup = componentWithChildren(BadlyTypedPopup);
@@ -31,7 +30,7 @@ const PostsListQuery = gql(`
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("HomepageCommunityMap", (theme: ThemeType) => ({
   root: {
     width: "100%",
     height: 440,
@@ -61,7 +60,7 @@ const styles = (theme: ThemeType) => ({
     },
     ...theme.typography.body2
   },
-})
+}))
 
 
 const localEventWrapperPopUpStyles = defineStyles("localEventWrapperPopUpStyles", (theme: ThemeType) => ({
@@ -190,13 +189,13 @@ export const LocalEventMapMarkerWrappersInner = ({localEvents, onMarkerClick}: {
   </React.Fragment>
 }
 
-export const LocalEventMapMarkerWrappers = registerComponent("LocalEventMapMarkerWrappers", LocalEventMapMarkerWrappersInner) 
+export const LocalEventMapMarkerWrappers = LocalEventMapMarkerWrappersInner; 
 
 
-export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
+export const HomepageCommunityMap = ({dontAskUserLocation = false}: {
   dontAskUserLocation?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles)
   const currentUser = useCurrentUser()
  
   // this is unused in this component, but for Meetup Month it seems good to force the prompt to enter location.
@@ -222,11 +221,11 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
       {...viewport}
       width="100%"
       height="100%"
-      onViewportChange={viewport => setViewport(viewport)}
+      onViewportChange={(viewport: MapboxViewport) => setViewport(viewport)}
     >
       {renderedMarkers}
     </WrappedReactMapGL>
   </div>;
 }
 
-export default registerComponent('HomepageCommunityMap', HomepageCommunityMap, {styles});
+export default HomepageCommunityMap;

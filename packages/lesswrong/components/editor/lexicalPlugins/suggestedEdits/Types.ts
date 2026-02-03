@@ -22,12 +22,12 @@ export type SuggestionType =
 import type { ElementFormatType, LexicalNode } from 'lexical'
 import type { ProtonNode } from './ProtonNode'
 import { $isSuggestionNode } from './ProtonNode'
-import type { BlockType } from '@/components/editor/lexicalPlugins/suggestions/stubs/BlockTypePlugin'
-import type { ListInfo } from '@/components/editor/lexicalPlugins/suggestions/stubs/CustomList/$getListInfo'
+import type { BlockType } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
+import type { ListInfo } from '@/components/editor/lexicalPlugins/suggestions/$getListInfo'
 
-export enum ProtonNodeTypes {
-  Suggestion = 'suggestion',
-}
+export const ProtonNodeTypes = {
+  Suggestion: 'suggestion',
+} as const;
 
 export const SuggestionTypesThatCanBeEmpty: SuggestionType[] = [
   'split',
@@ -68,7 +68,7 @@ export const TextEditingSuggestionTypes: SuggestionType[] = ['insert', 'delete',
 export type SuggestionID = string
 
 export type SuggestionProperties = {
-  nodeType: ProtonNodeTypes.Suggestion
+  nodeType: typeof ProtonNodeTypes.Suggestion
   suggestionID: string
   suggestionType: SuggestionType
   /**

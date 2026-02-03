@@ -39,7 +39,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {getSelectedNode} from '../../utils/getSelectedNode';
 import {setFloatingElemPositionForLinkEditor} from '../../utils/setFloatingElemPositionForLinkEditor';
 import {normalizeUrl, sanitizeUrl} from '../../utils/url';
-import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/LinkPlugin';
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand';
 import { PencilFillIcon } from '../../icons/PencilFillIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import { SuccessAltIcon } from '../../icons/SuccessAltIcon';

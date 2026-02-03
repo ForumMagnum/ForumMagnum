@@ -478,6 +478,7 @@ type Comment = {
   hideKarma?: Maybe<Scalars['Boolean']['output']>;
   hideModeratorHat?: Maybe<Scalars['Boolean']['output']>;
   htmlBody?: Maybe<Scalars['String']['output']>;
+  isBookmarked: Scalars['Boolean']['output'];
   isPinnedOnProfile: Scalars['Boolean']['output'];
   lastEditedAt?: Maybe<Scalars['Date']['output']>;
   lastSubthreadActivity?: Maybe<Scalars['Date']['output']>;
@@ -725,7 +726,9 @@ type CommentsAllCommentsDeletedInput = {
 };
 
 type CommentsAllRecentCommentsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   limit?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
@@ -933,7 +936,9 @@ type CommentsQuestionAnswersInput = {
 };
 
 type CommentsRecentCommentsInput = {
+  after?: InputMaybe<Scalars['String']['input']>;
   authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
   commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
   limit?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
@@ -4483,6 +4488,7 @@ type Mutation = {
   runLlmCheckForDocument: AutomatedContentEvaluation;
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
+  setIsBookmarked?: Maybe<SetIsBookmarkedOutput>;
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
   setVoteElectionCandidate?: Maybe<ElectionCandidate>;
@@ -5133,6 +5139,11 @@ type MutationsendEventTriggeredDMArgs = {
 type MutationsendNewDialogueMessageNotificationArgs = {
   dialogueHtml: Scalars['String']['input'];
   postId: Scalars['String']['input'];
+};
+
+
+type MutationsetIsBookmarkedArgs = {
+  input: SetIsBookmarkedInput;
 };
 
 
@@ -5826,6 +5837,7 @@ type Post = {
   hideFrontpageComments: Scalars['Boolean']['output'];
   htmlBody?: Maybe<Scalars['String']['output']>;
   ignoreRateLimits?: Maybe<Scalars['Boolean']['output']>;
+  isBookmarked: Scalars['Boolean']['output'];
   isEvent: Scalars['Boolean']['output'];
   isFuture: Scalars['Boolean']['output'];
   isRead?: Maybe<Scalars['Boolean']['output']>;
@@ -9806,6 +9818,17 @@ type Session = {
   expires?: Maybe<Scalars['Date']['output']>;
   lastModified?: Maybe<Scalars['Date']['output']>;
   session?: Maybe<Scalars['JSON']['output']>;
+};
+
+type SetIsBookmarkedInput = {
+  collectionName: Scalars['String']['input'];
+  documentId: Scalars['String']['input'];
+  isBookmarked: Scalars['Boolean']['input'];
+};
+
+type SetIsBookmarkedOutput = {
+  __typename?: 'SetIsBookmarkedOutput';
+  data?: Maybe<Bookmark>;
 };
 
 type SideCommentCache = {
@@ -16523,22 +16546,22 @@ type multiBookmarkuseBookmarkQueryQueryVariables = Exact<{
 
 type multiBookmarkuseBookmarkQueryQuery = multiBookmarkuseBookmarkQueryQuery_Query;
 
-type ToggleBookmarkMutationMutation_toggleBookmark_ToggleBookmarkOutput_data_Bookmark = (
+type SetIsBookmarkedMutationMutation_setIsBookmarked_SetIsBookmarkedOutput_data_Bookmark = (
   { __typename?: 'Bookmark' }
   & BookmarksMinimumInfoFragment
 );
 
-type ToggleBookmarkMutationMutation_toggleBookmark_ToggleBookmarkOutput = { __typename?: 'ToggleBookmarkOutput', data: ToggleBookmarkMutationMutation_toggleBookmark_ToggleBookmarkOutput_data_Bookmark | null };
+type SetIsBookmarkedMutationMutation_setIsBookmarked_SetIsBookmarkedOutput = { __typename?: 'SetIsBookmarkedOutput', data: SetIsBookmarkedMutationMutation_setIsBookmarked_SetIsBookmarkedOutput_data_Bookmark | null };
 
-type ToggleBookmarkMutationMutation_Mutation = { __typename?: 'Mutation', toggleBookmark: ToggleBookmarkMutationMutation_toggleBookmark_ToggleBookmarkOutput | null };
+type SetIsBookmarkedMutationMutation_Mutation = { __typename?: 'Mutation', setIsBookmarked: SetIsBookmarkedMutationMutation_setIsBookmarked_SetIsBookmarkedOutput | null };
 
 
-type ToggleBookmarkMutationMutationVariables = Exact<{
-  input: ToggleBookmarkInput;
+type SetIsBookmarkedMutationMutationVariables = Exact<{
+  input: SetIsBookmarkedInput;
 }>;
 
 
-type ToggleBookmarkMutationMutation = ToggleBookmarkMutationMutation_Mutation;
+type SetIsBookmarkedMutationMutation = SetIsBookmarkedMutationMutation_Mutation;
 
 type multiForumEventuseCurrentForumEventQueryQuery_forumEvents_MultiForumEventOutput_results_ForumEvent = (
   { __typename?: 'ForumEvent' }
@@ -23778,40 +23801,6 @@ type getTagSectionPreviewQueryVariables = Exact<{
 
 type getTagSectionPreviewQuery = getTagSectionPreviewQuery_Query;
 
-type LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = (
-  { __typename?: 'Localgroup' }
-  & localGroupsBase
-);
-
-type LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput = { __typename?: 'SingleLocalgroupOutput', result: LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput_result_Localgroup | null };
-
-type LocalgroupPageTitleQuery_Query = { __typename?: 'Query', localgroup: LocalgroupPageTitleQuery_localgroup_SingleLocalgroupOutput | null };
-
-
-type LocalgroupPageTitleQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type LocalgroupPageTitleQuery = LocalgroupPageTitleQuery_Query;
-
-type PostsPageHeaderTitleQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsBase
-);
-
-type PostsPageHeaderTitleQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsPageHeaderTitleQuery_post_SinglePostOutput_result_Post | null };
-
-type PostsPageHeaderTitleQuery_Query = { __typename?: 'Query', post: PostsPageHeaderTitleQuery_post_SinglePostOutput | null };
-
-
-type PostsPageHeaderTitleQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type PostsPageHeaderTitleQuery = PostsPageHeaderTitleQuery_Query;
-
 type SequencesPageTitleQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
   & SequencesPageTitleFragment
@@ -24970,7 +24959,7 @@ type CommentsList_Comment_promotedByUser_User = (
   & UsersMinimumInfo
 );
 
-type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, emojiReactors: any | null, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
+type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, emojiReactors: any | null, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
 
 type CommentsListWithTopLevelComment_Comment_topLevelComment_Comment = (
   { __typename?: 'Comment' }
@@ -25635,7 +25624,7 @@ type PostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, 
 type PostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
 type PostsList = (
-  { __typename?: 'Post', deletedDraft: boolean, bannedUserIds: Array<string> | null, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
+  { __typename?: 'Post', deletedDraft: boolean, isBookmarked: boolean, bannedUserIds: Array<string> | null, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
   & PostsListBase
 );
 
@@ -25704,7 +25693,7 @@ type PostsDetails_Post_targetPostRelations_PostRelation = { __typename?: 'PostRe
 type PostsDetails_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
 
 type PostsDetails = (
-  { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<PostsDetails_Post_tags_Tag>, socialPreviewData: PostsDetails_Post_socialPreviewData_SocialPreviewType, canonicalSequence: PostsDetails_Post_canonicalSequence_Sequence | null, canonicalBook: PostsDetails_Post_canonicalBook_Book | null, canonicalCollection: PostsDetails_Post_canonicalCollection_Collection | null, feed: PostsDetails_Post_feed_RSSFeed | null, sourcePostRelations: Array<PostsDetails_Post_sourcePostRelations_PostRelation>, targetPostRelations: Array<PostsDetails_Post_targetPostRelations_PostRelation>, fmCrosspost: PostsDetails_Post_fmCrosspost_CrosspostOutput | null }
+  { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<PostsDetails_Post_tags_Tag>, socialPreviewData: PostsDetails_Post_socialPreviewData_SocialPreviewType, canonicalSequence: PostsDetails_Post_canonicalSequence_Sequence | null, canonicalBook: PostsDetails_Post_canonicalBook_Book | null, canonicalCollection: PostsDetails_Post_canonicalCollection_Collection | null, feed: PostsDetails_Post_feed_RSSFeed | null, sourcePostRelations: Array<PostsDetails_Post_sourcePostRelations_PostRelation>, targetPostRelations: Array<PostsDetails_Post_targetPostRelations_PostRelation>, fmCrosspost: PostsDetails_Post_fmCrosspost_CrosspostOutput | null }
   & PostsListBase
 );
 
@@ -25927,7 +25916,7 @@ type SunshinePostsList_Post_tagRels_TagRel = (
 );
 
 type SunshinePostsList = (
-  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null, frontpageClassification: SunshinePostsList_Post_frontpageClassification_FrontpageClassification | null, tagRels: Array<SunshinePostsList_Post_tagRels_TagRel> }
+  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null, frontpageClassification: SunshinePostsList_Post_frontpageClassification_FrontpageClassification | null, tagRels: Array<SunshinePostsList_Post_tagRels_TagRel> }
   & PostsListBase
 );
 

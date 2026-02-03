@@ -3,8 +3,8 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useRecommendations } from '../../components/recommendations/withRecommendations';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { defineStyles } from "@/components/hooks/defineStyles";
-import { EmailContextType, useEmailStyles } from "./emailContext";
-import { useEmailQuery } from '../vulcan-lib/query';
+import { EmailContextType, emailUseStyles } from "./emailContext";
+import { emailUseQuery } from '../vulcan-lib/query';
 import { gql } from '@/lib/generated/gql-codegen';
 
 const styles = defineStyles("EmailFooterRecommendations", (theme: ThemeType) => ({
@@ -16,7 +16,7 @@ const styles = defineStyles("EmailFooterRecommendations", (theme: ThemeType) => 
 export const EmailFooterRecommendations = async ({emailContext}: {
   emailContext: EmailContextType
 }) => {
-  const classes = useEmailStyles(styles, emailContext);
+  const classes = emailUseStyles(styles, emailContext);
   const algorithm: RecommendationsAlgorithm = {
     method: "sample",
     count: 5,
@@ -30,7 +30,7 @@ export const EmailFooterRecommendations = async ({emailContext}: {
     onlyUnread: true,
   }
   
-  const recommendationsResult = await useEmailQuery(gql(`
+  const recommendationsResult = await emailUseQuery(gql(`
     query EmailFooterRecommendationsQuery($count: Int, $algorithm: JSON) {
       Recommendations(count: $count, algorithm: $algorithm) {
         ...PostsListWithVotesAndSequence

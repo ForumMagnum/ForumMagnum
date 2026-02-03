@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper'
 import RecommendationsAlgorithmPicker, { getRecommendationSettings, getArchiveRecommendationsName } from './RecommendationsAlgorithmPicker'
@@ -51,6 +50,6 @@ const ConfigurableRecommendationsList = ({configName}: {
   </SingleColumnSection>
 }
 
-export default registerComponent("ConfigurableRecommendationsList", ConfigurableRecommendationsList);
+export default ConfigurableRecommendationsList;
 
 

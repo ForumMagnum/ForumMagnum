@@ -8,9 +8,8 @@ import type {
   Spread,
 } from 'lexical'
 import { $isRangeSelection, $isRootOrShadowRoot, ElementNode } from 'lexical'
-import type { SuggestionProperties } from './Types'
+import type { SuggestionProperties, SuggestionType } from './Types'
 import { ProtonNodeTypes } from './Types'
-import type { SuggestionType } from './Types'
 import { addClassNamesToElement } from '@lexical/utils'
 
 type ProtonNodeProperties = SuggestionProperties
@@ -138,7 +137,7 @@ export class ProtonNode extends ElementNode {
     return destination !== 'clone'
   }
 
-  getProtonNodeType(): ProtonNodeTypes {
+  getProtonNodeType(): typeof ProtonNodeTypes[keyof typeof ProtonNodeTypes] {
     return this.__properties.nodeType
   }
 
@@ -166,7 +165,7 @@ export class ProtonNode extends ElementNode {
     return props.suggestionType
   }
 
-  getSuggestionChangedProperties<T extends unknown = Record<string, any>>(): T | undefined {
+  getSuggestionChangedProperties<T = Record<string, any>>(): T | undefined {
     const props = this.__properties
     if (props.nodeType !== 'suggestion') {
       throw new Error('Node is not suggestion node')

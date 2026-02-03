@@ -9,11 +9,9 @@ import isEmpty from "lodash/isEmpty";
 import range from "lodash/range";
 import AnalyticsGraph, { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import { slugify } from "@/lib/utils/slugify";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { capitalize } from "../../lib/vulcan-lib/utils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import SingleColumnSection from "../common/SingleColumnSection";
-import HeadTags from "../common/HeadTags";
 import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
 import ForumIcon from "../common/ForumIcon";
@@ -22,6 +20,8 @@ import AnalyticsPostItem from "./AnalyticsPostItem";
 import AnalyticsPostItemSkeleton from "./AnalyticsPostItemSkeleton";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersMinimumInfoMultiQuery = gql(`
   query multiUserAuthorAnalyticsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -43,7 +43,7 @@ export const gridColumns = (titleWidth: number) =>
     titleWidth
   )}%`;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AuthorAnalyticsPage", (theme: ThemeType) => ({
   root: {
     width: 800,
     maxWidth: "100%",
@@ -171,11 +171,10 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-});
+}));
 
-const AuthorAnalyticsPage = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const AuthorAnalyticsPage = () => {
+  const classes = useStyles(styles);
   const { params, query, location } = useLocation();
   const navigate = useNavigate();
   const slug = slugify(params.slug);
@@ -283,8 +282,6 @@ const AuthorAnalyticsPage = ({ classes }: {
     );
   }
 
-  const title = `Stats for ${user?.displayName ?? slug}`;
-
   const getUserHeading = (uppercase: boolean) => {
     const format = uppercase ? capitalize : (s: string) => s;
     if (isCurrentUser) {
@@ -312,9 +309,13 @@ const AuthorAnalyticsPage = ({ classes }: {
     ? Math.min(itemsPerPage, totalCount - posts.length)
     : initialLimit;
 
+  /*
+    ea-forum-look-here This needs to be converted into a route generateMetadata
+    const title = `Stats for ${user?.displayName ?? slug}`;
+    <HeadTags title={title} />
+  */
   return (
     <>
-      <HeadTags title={title} />
       <SingleColumnSection className={classes.root}>
         <div className={classes.pageHeader}>
           <Typography variant="headline" className={classes.pageHeaderText}>
@@ -363,6 +364,6 @@ const AuthorAnalyticsPage = ({ classes }: {
   );
 };
 
-export default registerComponent("AuthorAnalyticsPage", AuthorAnalyticsPage, { styles });
+export default AuthorAnalyticsPage;
 
 

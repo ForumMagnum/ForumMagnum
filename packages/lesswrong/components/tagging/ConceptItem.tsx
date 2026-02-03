@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import classNames from 'classnames';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { Link } from '@/lib/reactRouterWrapper';
@@ -264,8 +263,4 @@ const ConceptItem = ({
   );
 };
 
-export default registerComponent('ConceptItem', ConceptItem);
-
-
-
-
+export default ConceptItem;

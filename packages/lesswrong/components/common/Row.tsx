@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 
@@ -22,7 +21,7 @@ export const Row = ({justifyContent="space-between", alignItems="center", childr
   </div>;
 }
 
-export default registerComponent('Row', Row);
+export default Row;
 
 
 

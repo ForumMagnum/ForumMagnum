@@ -1,6 +1,5 @@
 import React from "react";
 import PostsSingle from '@/components/posts/PostsSingle';
-import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
@@ -17,7 +16,6 @@ export default function Page() {
       subtitle: 'Community',
       subtitleLink: '/community',
       noFooter: hasPostRecommendations(),
-      titleComponent: PostsPageHeaderTitle
     }}
   >
     <PostsSingle />

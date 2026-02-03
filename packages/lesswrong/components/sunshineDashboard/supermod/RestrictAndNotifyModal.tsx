@@ -12,7 +12,6 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import Loading from '@/components/vulcan-core/Loading';
 import ContentStyles from "@/components/common/ContentStyles";
-import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
@@ -24,8 +23,11 @@ import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
 import { makeEditorConfig } from '@/components/editor/editorConfigs';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import LexicalEditor from '@/components/editor/LexicalEditor';
 import { focusLexicalEditor } from '@/components/editor/focusLexicalEditor';
+import dynamic from 'next/dynamic';
+
+const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
+const CKEditor  = dynamic(() => import('@/lib/vendor/ckeditor5-react/ckeditor'));
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateRestrictAndNotifyModalQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -357,7 +359,6 @@ const RestrictAndNotifyModal = ({
                 editor={CommentEditor}
                 data={messageContent}
                 config={editorConfig}
-                isCollaborative={false}
                 onReady={(editorInstance: Editor) => {
                   setEditor(editorInstance);
                 }}

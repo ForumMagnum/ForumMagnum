@@ -58,6 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
   strictestRateLimits: {
     margin: 0,
+    paddingLeft: 16,
   },
   absoluteRoot: {
     position: 'relative',
@@ -163,5 +164,3 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute
 }
 
 export default registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplay, {styles});
-
-

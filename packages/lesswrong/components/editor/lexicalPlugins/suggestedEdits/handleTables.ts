@@ -1,26 +1,19 @@
 import type { TableCellNode, TableNode, TableRowNode } from '@lexical/table'
-import { $isTableCellNode } from '@lexical/table'
-import { $isTableNode } from '@lexical/table'
+import { $createTableNodeWithDimensions, $insertTableColumnAtSelection, $insertTableRowAtSelection, $isTableNode } from '@lexical/table'
 import { $insertNodeToNearestRoot, $insertFirst, $findMatchingParent } from '@lexical/utils'
 import { generateUUID } from '@/lib/vendor/proton/generateUUID'
 import type { ProtonNode } from './ProtonNode'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import type { NodeKey } from 'lexical'
-import { $getEditor, $getNodeByKey, $isParagraphNode } from 'lexical'
+import { $getNodeByKey, $isParagraphNode } from 'lexical'
 import type { Logger } from '@/lib/vendor/proton/logger'
-import { $insertTableRowAtSelection } from '@/components/editor/lexicalPlugins/suggestions/stubs/Table/TableUtils/insertNewRowAtSelection'
-import { $insertTableColumnAtSelection } from '@/components/editor/lexicalPlugins/suggestions/stubs/Table/TableUtils/insertNewColumnAtSelection'
-import { $moveSelectionToCell } from '@/components/editor/lexicalPlugins/suggestions/stubs/Table/TableUtils/moveSelectionToCell'
-import { $createTableNodeWithDimensions } from '@/components/editor/lexicalPlugins/suggestions/stubs/Table/CreateTableNodeWithDimensions'
-import type { InsertTableCommandPayload } from '@/components/editor/lexicalPlugins/suggestions/stubs/Table/Commands'
-import { $generateDuplicatedRow } from '@/components/editor/lexicalPlugins/suggestions/stubs/Table/TableUtils/duplicateRow'
-import { $generateDuplicatedColumn } from '@/components/editor/lexicalPlugins/suggestions/stubs/Table/TableUtils/duplicateSelectedColumn'
+import type { InsertTableCommandPayload } from '@/components/editor/lexicalPlugins/suggestions/Table/Commands'
 
 export function $insertNewTableAsSuggestion(
-  { rows, columns, includeHeaders, fullWidth }: InsertTableCommandPayload,
+  { rows, columns, includeHeaders }: InsertTableCommandPayload,
   onSuggestionCreation: (id: string) => void,
 ): boolean {
-  const tableNode = $createTableNodeWithDimensions(Number(rows), Number(columns), includeHeaders, fullWidth)
+  const tableNode = $createTableNodeWithDimensions(Number(rows), Number(columns), includeHeaders)
   const insertedTableNode = $insertNodeToNearestRoot(tableNode)
   const nextSibling = insertedTableNode.getNextSibling()
 
@@ -128,6 +121,15 @@ export function $insertNewTableRowAsSuggestion(
   return true
 }
 
+function $moveSelectionToCell(cell: TableCellNode): void {
+  const firstDescendant = cell.getFirstDescendant()
+  if (firstDescendant == null) {
+    cell.selectStart()
+  } else {
+    firstDescendant.getParentOrThrow().selectStart()
+  }
+}
+
 export function $insertNewTableColumnAsSuggestion(
   insertAfter: boolean,
   onSuggestionCreation: (id: string) => void,
@@ -226,96 +228,6 @@ export function $suggestTableColumnDeletion(cell: TableCellNode, onSuggestionCre
     }
 
     $insertFirst(currentCell, $createSuggestionNode(suggestionID, 'delete-table-column'))
-  }
-
-  onSuggestionCreation(suggestionID)
-  return true
-}
-
-export function $duplicateTableRowAsSuggestion(row: TableRowNode, onSuggestionCreation: (id: string) => void): boolean {
-  const editor = $getEditor()
-  const duplicatedRow = $generateDuplicatedRow(editor, row)
-  if (!duplicatedRow) {
-    return true
-  }
-
-  const suggestionID = generateUUID()
-
-  const children = duplicatedRow.getChildren<TableCellNode>()
-  for (let index = 0; index < children.length; index++) {
-    const cell = children[index]
-
-    const originalCell = row.getChildAtIndex<TableCellNode>(index)
-    if (!originalCell) {
-      continue
-    }
-    const originalCellChildren = originalCell.getChildren()
-
-    const existingInsertTableSuggestion = originalCellChildren.find((node): node is ProtonNode => {
-      if (!$isSuggestionNode(node)) {
-        return false
-      }
-      const type = node.getSuggestionTypeOrThrow()
-      return type === 'insert-table'
-    })
-    if (existingInsertTableSuggestion) {
-      continue
-    }
-
-    $insertFirst(cell, $createSuggestionNode(suggestionID, 'duplicate-table-row'))
-  }
-  row.insertAfter(duplicatedRow)
-  duplicatedRow.getFirstChild()?.selectStart()
-
-  onSuggestionCreation(suggestionID)
-  return true
-}
-
-export function $duplicateTableColumnAsSuggestion(
-  cell: TableCellNode,
-  onSuggestionCreation: (id: string) => void,
-): boolean {
-  const editor = $getEditor()
-
-  const originalTable = $findMatchingParent(cell, $isTableNode)
-  if (!originalTable) {
-    throw new Error('Expected cell to have table parent')
-  }
-
-  const { index: cellIndex, cells: duplicatedCells } = $generateDuplicatedColumn(editor, cell)
-  if (!duplicatedCells.length) {
-    return true
-  }
-
-  const suggestionID = generateUUID()
-
-  const rows = originalTable.getChildren<TableRowNode>()
-
-  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
-    const row = rows[rowIndex]
-    const cell = row.getChildAtIndex(cellIndex)
-    if (!$isTableCellNode(cell)) {
-      throw new Error('Could not find cell at index')
-    }
-
-    const duplicatedCell = duplicatedCells[rowIndex]
-    if (!duplicatedCell) {
-      continue
-    }
-
-    const originalCellChildren = cell.getChildren()
-    const existingInsertTableSuggestion = originalCellChildren.find((node): node is ProtonNode => {
-      if (!$isSuggestionNode(node)) {
-        return false
-      }
-      const type = node.getSuggestionTypeOrThrow()
-      return type === 'insert-table'
-    })
-    if (!existingInsertTableSuggestion) {
-      $insertFirst(duplicatedCell, $createSuggestionNode(suggestionID, 'duplicate-table-column'))
-    }
-
-    cell.insertAfter(duplicatedCell)
   }
 
   onSuggestionCreation(suggestionID)

@@ -1,10 +1,11 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { stripFootnotes } from "@/lib/collections/forumEvents/helpers";
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ForumEventsMinimumInfoQuery = gql(`
   query CommentPollVote($documentId: String) {
@@ -16,7 +17,7 @@ const ForumEventsMinimumInfoQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentPollVote", (theme: ThemeType) => ({
   root: {
     fontWeight: 600,
     whiteSpace: 'nowrap'
@@ -30,9 +31,10 @@ const styles = (theme: ThemeType) => ({
   tooltip: {
     transform: "translateY(-10px)",
   },
-});
+}));
 
-const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes: ClassesType<typeof styles> }) => {
+const CommentPollVote = ({ comment }: { comment: CommentsList; }) => {
+  const classes = useStyles(styles);
   const voteWhenPublished = comment.forumEventMetadata?.poll?.voteWhenPublished;
   const latestVote = comment.forumEventMetadata?.poll?.latestVote;
 
@@ -96,8 +98,4 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
   );
 };
 
-export default registerComponent("CommentPollVote", CommentPollVote, {
-  styles,
-});
-
-
+export default CommentPollVote;

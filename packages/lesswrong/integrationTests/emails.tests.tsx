@@ -5,8 +5,8 @@ import { createEmailContext, generateEmail } from '../server/emails/renderEmail'
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from "@/components/hooks/useStyles";
-import { useEmailQuery } from "@/server/vulcan-lib/query";
-import { EmailContextType, useEmailStyles } from "@/server/emailComponents/emailContext";
+import { emailUseQuery } from "@/server/vulcan-lib/query";
+import { EmailContextType, emailUseStyles } from "@/server/emailComponents/emailContext";
 
 const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
 
@@ -65,7 +65,7 @@ describe('renderEmail', () => {
     email.text.should.equal("Hello");
   });
   
-  it("Renders styles with useEmailStyles", async () => {
+  it("Renders styles with emailUseStyles", async () => {
     const styles = defineStyles("StyledComponent", (theme) => ({
       underlined: {
         textDecoration: "underline",
@@ -74,7 +74,7 @@ describe('renderEmail', () => {
 
     const emailContext = await createEmailContext(null);
     const TestComponent = ({children}: {children: any}) => {
-      const classes = useEmailStyles(styles, emailContext);
+      const classes = emailUseStyles(styles, emailContext);
       return <div className={classes.underlined}>{children}</div>
     };
     
@@ -86,14 +86,14 @@ describe('renderEmail', () => {
     (email.html as any).should.equal(emailDoctype+'<div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div>');
   });
   
-  it("Can use useEmailQuery", async () => {
+  it("Can use emailUseQuery", async () => {
     const user = await createDummyUser();
     const post = await createDummyPost(user, { title: "Email unit test post" });
 
     const emailContext = await createEmailContext(user);
     
     const PostTitleComponent= async ({documentId}: {documentId: string}) => {
-      const { data } = await useEmailQuery(PostsRevisionQuery, {
+      const { data } = await emailUseQuery(PostsRevisionQuery, {
         variables: { documentId: documentId, version: null },
         emailContext,
       });

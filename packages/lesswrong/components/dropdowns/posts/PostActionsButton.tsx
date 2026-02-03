@@ -1,5 +1,4 @@
 import React, { CSSProperties, useRef, useState } from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -105,7 +104,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
 }
 
 
-export default registerComponent('PostActionsButton', PostActionsButton);
+export default PostActionsButton;
 
 
 

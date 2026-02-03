@@ -6,8 +6,10 @@ import type { ToCDisplayOptions } from '../posts/TableOfContents/TableOfContents
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
 import TagContributorsList from "./TagContributorsList";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("TagTableOfContents", (theme: ThemeType) => ({
   tableOfContentsWrapper: {
     position: "relative",
     top: 12,
@@ -23,17 +25,17 @@ export const styles = (theme: ThemeType) => ({
   unreadCount: {
     color: theme.palette.primary.main,
   }
-});
+}));
 
 
-const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributor, displayOptions, classes}: {
+const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributor, displayOptions}: {
   tag: TagPageFragment|AllTagsPageFragment
   expandAll?: () => void,
   showContributors: boolean,
   onHoverContributor?: (contributorId: string) => void,
   displayOptions?: ToCDisplayOptions,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   if (!tag.tableOfContents) {
     return null;
   }
@@ -58,6 +60,6 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
   );
 }
 
-export default registerComponent("TagTableOfContents", TagTableOfContents, {styles});
+export default TagTableOfContents;
 
 

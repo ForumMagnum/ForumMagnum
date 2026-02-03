@@ -10,7 +10,7 @@ import moment from 'moment';
 import { FeedItemSourceType, FeedItemType, FeedType, UltraFeedAnalyticsContext } from '@/components/ultraFeed/ultraFeedTypes';
 import type { RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import { getShowAnalyticsDebug } from './analyticsDebugging';
-import { serverCaptureEvent } from '@/server/analytics/serverAnalyticsWriter';
+import { backgroundTask } from '@/server/utils/backgroundTask';
 
 // clientContextVars: A dictionary of variables that will be added to every
 // analytics event sent from the client. Client-side only, filled in side-
@@ -33,9 +33,10 @@ export function captureEvent(eventType: string, eventProps?: EventProps, suppres
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
       // events during startup.
-      // import('@/server/analytics/serverAnalyticsWriter').then(({ serverCaptureEvent }) => {
+      backgroundTask((async () => {
+        const { serverCaptureEvent } = await import('@/server/analytics/serverAnalyticsWriter');
         serverCaptureEvent(eventType, eventProps, suppressConsoleLog);
-      // });
+      })());
     } else if (isClient) {
       // If run from the client, make a graphQL mutation
       const event = {
@@ -301,6 +302,34 @@ export function useIsInView<T extends HTMLElement>({rootMargin='0px', threshold=
   }, [node, rootMargin, threshold])
 
   return { setNode, entry, node }
+}
+
+export function useSubscribeIsInView<T extends HTMLElement>(
+  {rootMargin='0px', threshold=0}={},
+  onEntry: (entry: IntersectionObserverEntry) => void
+) {
+  const nodeRef = useRef<T | null>(null)
+  const observer = useRef<IntersectionObserver | null>(null)
+
+  useEffect(() => {
+    if (!window.IntersectionObserver) return
+
+    if (observer.current) observer.current.disconnect()
+
+    observer.current = new window.IntersectionObserver(([ entry ]) => {
+      onEntry(entry)
+    }, {
+      rootMargin,
+      threshold
+    })
+
+    const { current: currentObserver } = observer
+
+    if (nodeRef.current) currentObserver.observe(nodeRef.current)
+    return () => currentObserver.disconnect()
+  }, [nodeRef, rootMargin, threshold, onEntry])
+
+  return { nodeRef }
 }
 
 

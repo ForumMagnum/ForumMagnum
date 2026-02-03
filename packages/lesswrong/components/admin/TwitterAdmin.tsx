@@ -5,7 +5,6 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
-import { registerComponent } from "@/lib/vulcan-lib/components";
 import { makeAbsolute } from "@/lib/vulcan-lib/utils.ts";
 import Error404 from "../common/Error404";
 import SectionTitle from "../common/SectionTitle";
@@ -17,8 +16,10 @@ import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TwitterAdmin", (theme: ThemeType) => ({
   root: {
     maxWidth: 1200,
     margin: '10px auto',
@@ -96,11 +97,12 @@ const styles = (theme: ThemeType) => ({
   centeredColHeader: {
     textAlign: 'center',
   },
-});
+}));
 
 const readableDate = (date: Date) => date.toISOString().replace('T', ' ').slice(0, 16);
 
-const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const TwitterAdmin = () => {
+  const classes = useStyles(styles);
   const [copyCount, setCopyCount] = useState(10);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -284,6 +286,4 @@ const TwitterAdmin = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-export default registerComponent('TwitterAdmin', TwitterAdmin, { styles });
-
-
+export default TwitterAdmin;

@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { userCanModerateComment } from '../../../lib/collections/users/helpers';
 import { useDialog } from '../../common/withDialog'
@@ -76,8 +75,4 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   }
 }
 
-export default registerComponent(
-  'DeleteCommentDropdownItem', DeleteCommentDropdownItem,
-);
-
-
+export default DeleteCommentDropdownItem;

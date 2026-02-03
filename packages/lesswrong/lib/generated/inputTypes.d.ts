@@ -278,6 +278,7 @@ interface Mutation {
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
+  setIsBookmarked: SetIsBookmarkedOutput | null;
   setIsHidden: User;
   markAsReadOrUnread: boolean | null;
   markPostCommentsRead: boolean | null;
@@ -1247,7 +1248,17 @@ interface ToggleBookmarkInput {
   collectionName: string;
 }
 
+interface SetIsBookmarkedInput {
+  documentId: string;
+  collectionName: string;
+  isBookmarked: boolean;
+}
+
 interface ToggleBookmarkOutput {
+  data: Bookmark | null;
+}
+
+interface SetIsBookmarkedOutput {
   data: Bookmark | null;
 }
 
@@ -1953,6 +1964,7 @@ interface Comment {
   agentFoundationsId: string | null;
   originalDialogueId: string | null;
   originalDialogue: Post | null;
+  isBookmarked: boolean;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   allVotes: Array<Vote> | null;
@@ -2101,6 +2113,8 @@ interface CommentsAllRecentCommentsInput {
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
+  before?: string | null;
+  after?: string | null;
 }
 
 interface CommentsRecentCommentsInput {
@@ -2110,6 +2124,8 @@ interface CommentsRecentCommentsInput {
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
+  before?: string | null;
+  after?: string | null;
 }
 
 interface CommentsAfSubmissionsInput {
@@ -4296,6 +4312,7 @@ interface Post {
   curationNotices: Array<CurationNotice> | null;
   reviews: Array<Comment> | null;
   automatedContentEvaluations: AutomatedContentEvaluation | null;
+  isBookmarked: boolean;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -10020,7 +10037,9 @@ interface GraphQLTypeMap {
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   ToggleBookmarkInput: ToggleBookmarkInput;
+  SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
+  SetIsBookmarkedOutput: SetIsBookmarkedOutput;
   RssPostChangeInfo: RssPostChangeInfo;
   FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;
   FeedPost: FeedPost;

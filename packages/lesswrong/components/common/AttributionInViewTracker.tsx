@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useCallback, useState } from 'react';
 import { useIsInView } from "../../lib/analyticsEvents";
 import { useCurrentUser } from './withUser';
@@ -53,6 +52,6 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   )
 }
 
-export default registerComponent('AttributionInViewTracker', AttributionInViewTracker);
+export default AttributionInViewTracker;
 
 

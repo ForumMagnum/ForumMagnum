@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import TabNavigationMenu, { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
@@ -11,7 +10,7 @@ import { getCommunityPath } from '@/lib/pathConstants';
 const ICON_ONLY_NAVIGATION_WIDTH = 64;
 export const ICON_ONLY_NAVIGATION_BREAKPOINT = 1424;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NavigationStandalone", (theme: ThemeType) => ({
   // This wrapper is on friendly sites so that when this sidebar is hidden
   // and the right-hand sidebar is visible,
   // the center column is positioned slightly closer to the center of the screen.
@@ -64,19 +63,18 @@ const styles = (theme: ThemeType) => ({
       display: "block",
     },
   },
-})
+}))
 
 const NavigationStandalone = ({
   sidebarHidden,
   noTopMargin,
   iconOnlyNavigationEnabled,
-  classes,
 }: {
   sidebarHidden: boolean,
   noTopMargin?: boolean,
   iconOnlyNavigationEnabled?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { location } = useLocation();
   const friendlyUI = isFriendlyUI();
 
@@ -139,8 +137,6 @@ const Slide = ({slidIn, children}: {
   </div>
 }
 
-export default registerComponent(
-  'NavigationStandalone', NavigationStandalone, {styles}
-);
+export default NavigationStandalone;
 
 

@@ -5,7 +5,7 @@ import { parseDocumentFromString } from "@/lib/domParser";
 import { highlightFromHTML, truncate } from "@/lib/editor/ellipsize";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { extractTableOfContents } from "@/lib/tableOfContents";
-import { sanitizeAllowedTags } from "@/lib/vulcan-lib/utils";
+import { sanitizeAllowedTags } from "@/lib/utils/sanitize";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { htmlStartingAtHash } from "@/server/extractHighlights";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
@@ -14,7 +14,6 @@ import { ContentType } from "./revisionSchemaTypes";
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import { getOriginalContents } from "./helpers";
-import { isLWorAF } from "@/lib/instanceSettings";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so

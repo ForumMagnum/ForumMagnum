@@ -1,4 +1,3 @@
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { lightconeFundraiserPostId, lightconeFundraiserThermometerBgUrl, lightconeFundraiserThermometerGoalAmount, lightconeFundraiserThermometerGoal2Amount, lightconeFundraiserThermometerGoal3Amount } from '@/lib/instanceSettings';
@@ -10,6 +9,8 @@ import DeferRender from './DeferRender';
 import { isClient } from '@/lib/executionEnvironment';
 import Confetti from 'react-confetti';
 import LWTooltip from "./LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // Second thermometer background image:
 const lightconeFundraiserThermometerBgUrl2 =
@@ -23,7 +24,7 @@ interface FundraisingThermometerProps {
   onPost?: boolean;
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FundraisingThermometer", (theme: ThemeType) => ({
   root: {
     '&:hover $header': {
       color: theme.palette.review.winner,
@@ -317,11 +318,12 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.error.main,
     }
   },
-});
+}));
 
 const FundraisingThermometer: React.FC<
-  FundraisingThermometerProps & { classes: ClassesType<typeof styles> }
-> = ({ classes, onPost = false }) => {
+  FundraisingThermometerProps
+> = ({ onPost = false }) => {
+  const classes = useStyles(styles);
 
   // First, second, and third goal amounts
   const goal1 = lightconeFundraiserThermometerGoalAmount.get();
@@ -510,12 +512,4 @@ const FundraisingThermometer: React.FC<
   );
 };
 
-export default registerComponent(
-  'FundraisingThermometer',
-  FundraisingThermometer,
-  { styles }
-);
-
-
-
-
+export default FundraisingThermometer;

@@ -41,12 +41,8 @@ import { $handleBeforeInputEvent, $handleDeleteInputType } from './handleBeforeI
 import { $formatTextAsSuggestion } from './formatTextAsSuggestion'
 import { ConsoleLogger } from '@/lib/vendor/proton/logger'
 import { $selectionInsertClipboardNodes } from './selectionInsertClipboardNodes'
-import { KEYBOARD_SHORTCUT_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/KeyboardShortcutsCommand'
-import { getShortcutFromKeyboardEvent } from '@/components/editor/lexicalPlugins/suggestions/stubs/KeyboardShortcutsUtils'
-import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/LinkPlugin'
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand'
 import { $handleLinkChangeSuggestion } from './handleLinkChangeSuggestion'
-import { CLEAR_FORMATTING_COMMAND, SET_SELECTION_STYLE_PROPERTY_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/FormattingPlugin'
-import { $patchStyleAsSuggestion } from './patchStyleAsSuggestion'
 import { generateSuggestionSummary } from './generateSuggestionSummary'
 import { INSERT_IMAGE_COMMAND, type InsertImagePayload } from '@/components/lexical/plugins/ImagesPlugin'
 import {
@@ -60,22 +56,18 @@ import {
   $handleImageDeleteAsSuggestion,
   $insertImageNodeAsSuggestion,
 } from './imageHandling'
-import { EditorUserMode } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode'
+import { EditorUserMode, type EditorUserModeType } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode'
 import { $handleIndentOutdentAsSuggestion } from './handleIndentOutdent'
 import { useGenericAlertModal } from '@/lib/vendor/proton/alertModal'
 import {
   DELETE_TABLE_COLUMN_COMMAND,
   DELETE_TABLE_COMMAND,
   DELETE_TABLE_ROW_COMMAND,
-  DUPLICATE_TABLE_COLUMN_COMMAND,
-  DUPLICATE_TABLE_ROW_COMMAND,
   INSERT_TABLE_COLUMN_COMMAND,
   INSERT_TABLE_COMMAND,
   INSERT_TABLE_ROW_COMMAND,
-} from '@/components/editor/lexicalPlugins/suggestions/stubs/Table/Commands'
+} from '@/components/editor/lexicalPlugins/suggestions/Table/Commands'
 import {
-  $duplicateTableColumnAsSuggestion,
-  $duplicateTableRowAsSuggestion,
   $insertNewTableAsSuggestion,
   $insertNewTableColumnAsSuggestion,
   $insertNewTableRowAsSuggestion,
@@ -84,12 +76,10 @@ import {
   $suggestTableRowDeletion,
 } from './handleTables'
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list'
-import { INSERT_CUSTOM_ORDERED_LIST_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/CustomList/CustomListCommands'
-import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/BlockTypePlugin'
+import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import { $setBlocksTypeAsSuggestion } from './setBlocksTypeAsSuggestion'
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode'
 import { $insertDividerAsSuggestion } from './insertDividerAsSuggestion'
-import { $clearFormattingAsSuggestion } from './clearFormattingAsSuggestion'
 import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggestion'
 import { useNotifications } from '@/lib/vendor/proton/notifications'
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
@@ -143,7 +133,7 @@ export function SuggestionModePlugin({
 }: {
   isSuggestionMode: boolean
   controller: SuggestionThreadController
-  onUserModeChange: (mode: EditorUserMode) => void
+  onUserModeChange: (mode: EditorUserModeType) => void
 }) {
   const [editor] = useLexicalComposerContext()
 
@@ -353,17 +343,6 @@ export function SuggestionModePlugin({
 
     return mergeRegister(
       editor.registerCommand(
-        KEYBOARD_SHORTCUT_COMMAND,
-        ({ shortcut }) => {
-          if (shortcut === 'SUGGESTION_MODE_SHORTCUT') {
-            editor.dispatchCommand(TOGGLE_SUGGESTION_MODE_COMMAND, undefined)
-            return true
-          }
-          return false
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
-      editor.registerCommand(
         TOGGLE_SUGGESTION_MODE_COMMAND,
         () => {
           if (isSuggestionMode) {
@@ -466,15 +445,6 @@ export function SuggestionModePlugin({
         FORMAT_TEXT_COMMAND,
         (payload) => {
           return $formatTextAsSuggestion(payload, addCreatedIDtoSet, suggestionModeLogger)
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
-      editor.registerCommand(
-        SET_SELECTION_STYLE_PROPERTY_COMMAND,
-        ({ property, value }) => {
-          // Intended for inline CSS styles (font-size, color, etc.). Our UI
-          // doesn't currently dispatch this, but the handler is ready.
-          return $patchStyleAsSuggestion(property, value, addCreatedIDtoSet, suggestionModeLogger)
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
@@ -599,12 +569,6 @@ export function SuggestionModePlugin({
       editor.registerCommand(
         KEY_DOWN_COMMAND,
         (event) => {
-          const shortcut = getShortcutFromKeyboardEvent(event)
-          if (shortcut === 'SUGGESTION_MODE_SHORTCUT') {
-            editor.dispatchCommand(TOGGLE_SUGGESTION_MODE_COMMAND, undefined)
-            return true
-          }
-
           const { key, shiftKey, ctrlKey, metaKey, altKey } = event
           const controlOrMeta = IS_APPLE ? metaKey : ctrlKey
           const lowerCaseKey = key.toLowerCase()
@@ -805,13 +769,6 @@ export function SuggestionModePlugin({
         COMMAND_PRIORITY_CRITICAL,
       ),
       editor.registerCommand(
-        DUPLICATE_TABLE_ROW_COMMAND,
-        (row) => {
-          return $duplicateTableRowAsSuggestion(row, addCreatedIDtoSet)
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
-      editor.registerCommand(
         DELETE_TABLE_ROW_COMMAND,
         (row) => {
           return $suggestTableRowDeletion(row, addCreatedIDtoSet)
@@ -822,13 +779,6 @@ export function SuggestionModePlugin({
         INSERT_TABLE_COLUMN_COMMAND,
         ({ insertAfter }) => {
           return $insertNewTableColumnAsSuggestion(insertAfter, addCreatedIDtoSet)
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
-      editor.registerCommand(
-        DUPLICATE_TABLE_COLUMN_COMMAND,
-        (cell) => {
-          return $duplicateTableColumnAsSuggestion(cell, addCreatedIDtoSet)
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
@@ -861,16 +811,6 @@ export function SuggestionModePlugin({
         COMMAND_PRIORITY_CRITICAL,
       ),
       editor.registerCommand(
-        INSERT_CUSTOM_ORDERED_LIST_COMMAND,
-        ({ type, marker }) => {
-          if (!type) {
-            return true
-          }
-          return $insertListAsSuggestion(editor, 'number', addCreatedIDtoSet, suggestionModeLogger, type, marker)
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
-      editor.registerCommand(
         SET_BLOCK_TYPE_COMMAND,
         (blockType) => {
           return $setBlocksTypeAsSuggestion(blockType, addCreatedIDtoSet, suggestionModeLogger)
@@ -881,15 +821,6 @@ export function SuggestionModePlugin({
         INSERT_HORIZONTAL_RULE_COMMAND,
         () => {
           return $insertDividerAsSuggestion(addCreatedIDtoSet)
-        },
-        COMMAND_PRIORITY_CRITICAL,
-      ),
-      editor.registerCommand(
-        CLEAR_FORMATTING_COMMAND,
-        () => {
-          // Intended for "clear formatting" actions in a formatting UI.
-          // Our UI doesn't currently dispatch this.
-          return $clearFormattingAsSuggestion(addCreatedIDtoSet)
         },
         COMMAND_PRIORITY_CRITICAL,
       ),

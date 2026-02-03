@@ -17,7 +17,6 @@ import EAPopularCommentsSection from "./EAPopularCommentsSection";
 import EAHomeMainContent from "./EAHomeMainContent";
 import SmallpoxBanner from "./SmallpoxBanner";
 import EventBanner from "./EventBanner";
-import HeadTags from "../common/HeadTags";
 import BotSiteBanner from "@/components/layout/BotSiteBanner";
 import EAGBanner from "./EAGBanner";
 import { StructuredData } from '../common/StructuredData'

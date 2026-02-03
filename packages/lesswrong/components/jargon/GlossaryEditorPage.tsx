@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userCanPassivelyGenerateJargonTerms } from '@/lib/betas';
 import { useLocation } from '@/lib/routeUtil';
@@ -17,6 +16,8 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
 const PostsEditQueryFragmentMultiQuery = gql(`
   query multiPostGlossaryEditorPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $version: String) {
@@ -29,7 +30,7 @@ const PostsEditQueryFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("GlossaryEditorPage", (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle
   },
@@ -42,11 +43,10 @@ const styles = (theme: ThemeType) => ({
   post: {
     marginBottom: theme.spacing.unit * 4,
   }
-});
+}));
 
-export const GlossaryEditorPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const GlossaryEditorPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const { query } = useLocation();
@@ -96,6 +96,6 @@ export const GlossaryEditorPage = ({classes}: {
   </div>;
 }
 
-export default registerComponent('GlossaryEditorPage', GlossaryEditorPage, {styles});
+export default GlossaryEditorPage;
 
 

@@ -9,8 +9,7 @@ import { $patchStyleText } from '@lexical/selection'
 import { $isImageNode } from '@/components/lexical/nodes/ImageNode'
 import { $findMatchingParent } from '@lexical/utils'
 import { $deleteTableColumn, $isTableCellNode, $isTableNode, $isTableRowNode } from '@lexical/table'
-import { blockTypeToCreateElementFn } from '@/components/editor/lexicalPlugins/suggestions/stubs/BlockTypePlugin'
-import { $isCustomListNode } from '@/components/editor/lexicalPlugins/suggestions/stubs/CustomList/$isCustomListNode'
+import { blockTypeToCreateElementFn } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import type {
   PropertyChangeSuggestionProperties,
   AlignChangeSuggestionProperties,
@@ -209,22 +208,19 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
       const formatType = changedProperties.initialFormatType || block.getFormatType()
       const indent = changedProperties.initialIndent || block.getIndent()
       const initialBlockTypeNode = createInitialBlockTypeElement()
-      if (!$isCustomListNode(initialBlockTypeNode)) {
+      if (!$isListNode(initialBlockTypeNode)) {
         initialBlockTypeNode.setFormat(formatType)
       }
       if (initialBlockTypeNode.canIndent()) {
         initialBlockTypeNode.setIndent(indent)
       }
-      if ($isCustomListNode(initialBlockTypeNode) && changedProperties.listInfo) {
-        const { listStyleType, listMarker } = changedProperties.listInfo
-        if (listStyleType) {
-          initialBlockTypeNode.setListStyleType(listStyleType)
-        }
-        if (listMarker) {
-          initialBlockTypeNode.setMarker(listMarker)
+      if ($isListNode(initialBlockTypeNode) && changedProperties.listInfo) {
+        const { listType } = changedProperties.listInfo
+        if (listType) {
+          initialBlockTypeNode.setListType(listType)
         }
       }
-      if ($isListItemNode(block) && $isCustomListNode(initialBlockTypeNode)) {
+      if ($isListItemNode(block) && $isListNode(initialBlockTypeNode)) {
         const blockChildren = block.getChildren()
         const listItem = $createListItemNode(block.getChecked())
         for (const child of blockChildren) {
@@ -236,7 +232,7 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
       } else {
         block.replace(initialBlockTypeNode, true)
       }
-      if ($isCustomListNode(initialBlockTypeNode)) {
+      if ($isListNode(initialBlockTypeNode)) {
         if (initialBlockTypeNode.getChildrenSize() === 0) {
           const emptyListItem = $createListItemNode()
           initialBlockTypeNode.append(emptyListItem)

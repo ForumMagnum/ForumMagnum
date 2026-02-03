@@ -1,5 +1,4 @@
 import React, {CSSProperties, useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components'
 import {AnalyticsContext, useTracking} from '../../lib/analyticsEvents.tsx'
 import classNames from 'classnames'
 import debounce from 'lodash/debounce'
@@ -12,6 +11,8 @@ import ForumIcon from "./ForumIcon";
 import LWTooltip from "./LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagFragmentMultiQuery = gql(`
   query multiTagHomeTagBarQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -42,7 +43,7 @@ const eventTabStyles = (invertColors: boolean) => ({
   },
 });
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("HomeTagBar", (theme: ThemeType) => ({
   tabsSection: {
     marginTop: 10,
     marginBottom: 26,
@@ -175,7 +176,7 @@ const styles = (theme: ThemeType) => ({
   tagDescriptionTooltip: {
     margin: 8,
   }
-})
+}))
 
 const eventTabProperties = (event?: ForumEventsDisplay): CSSProperties => {
   return event
@@ -203,19 +204,18 @@ export type TopicsBarTab = {
  */
 const HomeTagBar = (
   {
-    classes,
     onTagSelectionUpdated,
     frontpageTab,
     sortTopics = (topics: Array<TopicsBarTab>) => topics,
     showDescriptionOnHover = false,
   }: {
-    classes: ClassesType<typeof styles>,
     onTagSelectionUpdated: (tab: TopicsBarTab) => void,
     frontpageTab: TopicsBarTab,
     sortTopics?: (topics: Array<TopicsBarTab>) => Array<TopicsBarTab>,
     showDescriptionOnHover?: boolean,
   },
 ) => {
+  const classes = useStyles(styles);
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
 
   // we use the widths of the tabs window and the underlying topics bar
@@ -402,6 +402,5 @@ const HomeTagBar = (
   )
 }
 
-export default registerComponent('HomeTagBar', HomeTagBar, {styles});
-
+export default HomeTagBar;
 

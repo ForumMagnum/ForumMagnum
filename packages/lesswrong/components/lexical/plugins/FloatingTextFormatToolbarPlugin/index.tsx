@@ -12,7 +12,7 @@ import {$isCodeHighlightNode} from '@lexical/code';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
-import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/LinkPlugin';
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand';
 
 import { TypeBoldIcon } from '../../icons/TypeBoldIcon';
 import { TypeItalicIcon } from '../../icons/TypeItalicIcon';

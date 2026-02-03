@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -26,6 +25,4 @@ const EmailConfirmationRequiredCheckbox = (props: FormComponentCheckboxProps) =>
   }
 }
 
-export default registerComponent("EmailConfirmationRequiredCheckbox", EmailConfirmationRequiredCheckbox);
-
-
+export default EmailConfirmationRequiredCheckbox;

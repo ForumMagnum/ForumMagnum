@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useCallback } from 'react';
 import { postCanDelete } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
@@ -45,9 +44,6 @@ const DeleteDraftDropdownItem = ({ post }: {
   }
 }
 
-export default registerComponent(
-  'DeleteDraftDropdownItem',
-  DeleteDraftDropdownItem,
-);
+export default DeleteDraftDropdownItem;
 
 

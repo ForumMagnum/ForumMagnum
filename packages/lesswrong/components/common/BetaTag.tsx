@@ -1,7 +1,8 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("BetaTag", (theme: ThemeType) => ({
   root: {
     paddingLeft: 4,
     ...theme.typography.body2,
@@ -9,14 +10,13 @@ const styles = (theme: ThemeType) => ({
     fontSize: ".9rem",
     color: theme.palette.grey[600],
   }
-});
+}));
 
-const BetaTag = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const BetaTag = () => {
+  const classes = useStyles(styles);
   return <span className={classes.root}>[Beta]</span>
 }
 
-export default registerComponent('BetaTag', BetaTag, {styles});
+export default BetaTag;
 
 

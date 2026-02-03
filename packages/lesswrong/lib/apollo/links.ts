@@ -1,5 +1,4 @@
-import { GraphQLSchema, SourceLocation } from "graphql";
-import { SchemaLink } from '@apollo/client/link/schema';
+import { type SourceLocation } from "graphql";
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
 import { graphqlBatchMaxSetting } from '../instanceSettings';
@@ -16,13 +15,6 @@ import { StreamingGraphqlHttpLink } from "./StreamingGraphqlHttpLink";
  *
  * https://www.apollographql.com/docs/react/api/link/introduction/
  */
-
-/**
- * Schema link is used for SSR
- */
-export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext) =>
-  // We are doing `context: () => ({...context})` rather than just context to fix a bug in datadog, see: https://github.com/DataDog/dd-trace-js/issues/709
-  new SchemaLink({ schema, context: () => ({...context}) });
 
 /**
  * Http link is used for client side rendering

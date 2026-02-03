@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { Placement as PopperPlacementType } from "popper.js"
 import React from 'react';
 import UsersNameDisplay from "./UsersNameDisplay";
@@ -46,6 +45,4 @@ const UsersName = ({
   }
 }
 
-export default registerComponent('UsersName', UsersName);
-
-
+export default UsersName;

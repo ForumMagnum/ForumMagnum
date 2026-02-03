@@ -14,7 +14,7 @@ import {
   type LexicalCommand,
   type LexicalEditor,
 } from "lexical";
-import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/BlockTypePlugin';
+import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 import { useEffect } from "react";
 
 /**

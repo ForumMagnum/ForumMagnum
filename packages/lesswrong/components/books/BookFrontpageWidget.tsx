@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
@@ -10,6 +9,7 @@ import BookAnimation from "./BookAnimation";
 import ContentStyles from "../common/ContentStyles";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserBookFrontpageWidget($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -21,7 +21,7 @@ const UsersCurrentUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BookFrontpageWidget', (theme: ThemeType) => ({
   root: {
     width: 1120,
     marginLeft: 'auto',
@@ -133,11 +133,10 @@ const styles = (theme: ThemeType) => ({
     marginTop: 4,
     lineHeight: '1.3'
   },
-})
+}))
 
-const BookFrontpageWidget = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const BookFrontpageWidget = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [updateUser] = useMutation(UsersCurrentUpdateMutation);
   const { openDialog } = useDialog();
@@ -162,31 +161,6 @@ const BookFrontpageWidget = ({ classes }: {
     }
   }
 
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const BookMarketingText = ({title, subtitle, description, buttons}: {
-    title: string;
-    subtitle: string;
-    description: string | React.JSX.Element;
-    buttons: React.JSX.Element;
-  }) => {
-    return <ContentStyles contentType="post" className={classes.bookExplanation}>
-      <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
-      <h1 className={classes.mainHeading}>
-        {title}
-      </h1>
-      <h4 className={classes.secondaryHeading}>
-        {subtitle}
-      </h4>
-      <p className={classes.descriptionText}>
-        {description}
-      </p>
-      <div className={classes.buttonRow}>
-        {buttons}
-      </div>
-    </ContentStyles>
-  }
-
   return (
     <div className={classes.root}>
       <BookAnimation successContent={
@@ -203,6 +177,7 @@ const BookFrontpageWidget = ({ classes }: {
             </Link>
             <BookCheckout ignoreMessages text={"Buy Another"} link="https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"/>
           </>}
+          hideClickHandler={hideClickHandler}
         />
       }>
         <BookMarketingText 
@@ -216,13 +191,38 @@ const BookFrontpageWidget = ({ classes }: {
             </Link>
             <BookCheckout link="https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"/>
           </>}
+          hideClickHandler={hideClickHandler}
         />
       </BookAnimation>
     </div>
   )
 }
 
+const BookMarketingText = ({title, subtitle, description, buttons, hideClickHandler}: {
+  title: string;
+  subtitle: string;
+  description: string | React.JSX.Element;
+  buttons: React.JSX.Element;
+  hideClickHandler: () => void;
+}) => {
+  const classes = useStyles(styles);
+  return <ContentStyles contentType="post" className={classes.bookExplanation}>
+    <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
+    <h1 className={classes.mainHeading}>
+      {title}
+    </h1>
+    <h4 className={classes.secondaryHeading}>
+      {subtitle}
+    </h4>
+    <p className={classes.descriptionText}>
+      {description}
+    </p>
+    <div className={classes.buttonRow}>
+      {buttons}
+    </div>
+  </ContentStyles>
+}
 
-export default registerComponent('BookFrontpageWidget', BookFrontpageWidget, { styles });
+export default BookFrontpageWidget;
 
 

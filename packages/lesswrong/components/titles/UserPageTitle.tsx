@@ -7,7 +7,6 @@ import { useLocation } from '../../lib/routeUtil';
 import { headerSubtitleStyles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
 import { useStyles } from '../hooks/useStyles';
-import { Helmet } from '@/components/layout/Helmet';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -51,7 +50,6 @@ export const UserPageTitle = ({isSubtitle, siteName}: {
   if (!user) return null;
   const userLink = userGetProfileUrl(user);
   const userNameString = user.displayName || user.slug;
-  const titleString = `${userNameString} - ${siteName}`
   
   // Ray note: I think it was just a mistake to have the User Profile subtitle 
   // on the UsersProfile page, because it's just superfluous with the actual header
@@ -64,10 +62,5 @@ export const UserPageTitle = ({isSubtitle, siteName}: {
         {userNameString}
       </Link>
     </span>);
-  } else {
-    return <Helmet name="title">
-      <title>{titleString}</title>
-      <meta property='og:title' content={titleString}/>
-    </Helmet>
   }
 }

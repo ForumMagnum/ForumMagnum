@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import PopupCommentEditor from "./PopupCommentEditor";
 
 /**
@@ -34,6 +33,6 @@ const ReplyCommentDialog = ({post, initialHtml, onClose}: {
   />
 }
 
-export default registerComponent('ReplyCommentDialog', ReplyCommentDialog);
+export default ReplyCommentDialog;
 
 

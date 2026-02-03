@@ -42,13 +42,13 @@ import type { BlockTypeChangeSuggestionProperties, IndentChangeSuggestionPropert
 import { SuggestionTypesThatCanBeEmpty, TextEditingSuggestionTypes } from './Types'
 import type { ListItemNode, ListType } from '@lexical/list'
 import { $handleListInsertParagraph, $isListItemNode } from '@lexical/list'
-import { $getListInfo } from '@/components/editor/lexicalPlugins/suggestions/stubs/CustomList/$getListInfo'
+import { $getListInfo } from '@/components/editor/lexicalPlugins/suggestions/$getListInfo'
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import type { CreateNotificationOptions } from '@/lib/vendor/proton/notifications'
 import { $removeSuggestionNodeAndResolveIfNeeded } from './removeSuggestionNodeAndResolveIfNeeded'
 import { $setBlocksTypeAsSuggestion } from './setBlocksTypeAsSuggestion'
 import { normalizeUrl, sanitizeUrl, validateUrl } from '@/components/lexical/utils/url'
-import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/LinkPlugin'
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand'
 
 /**
  * This is the main core of suggestion mode. It handles input events,

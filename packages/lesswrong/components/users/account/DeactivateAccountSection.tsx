@@ -1,4 +1,3 @@
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useFlashErrors } from '@/components/hooks/useFlashErrors';
 import ActionButtonSection from "./ActionButtonSection";
@@ -43,8 +42,4 @@ const DeactivateAccountSection = ({
   );
 };
 
-export default registerComponent('DeactivateAccountSection', DeactivateAccountSection);
-
-
-
-
+export default DeactivateAccountSection;

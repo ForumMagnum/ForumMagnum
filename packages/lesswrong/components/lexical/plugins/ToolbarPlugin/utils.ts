@@ -34,8 +34,8 @@ import {
   SKIP_DOM_SELECTION_TAG,
   SKIP_SELECTION_FOCUS_TAG,
 } from 'lexical';
-import type { BlockType } from '@/components/editor/lexicalPlugins/suggestions/stubs/BlockTypePlugin';
-import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/BlockTypePlugin';
+import type { BlockType } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
+import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 
 import {
   DEFAULT_FONT_SIZE,

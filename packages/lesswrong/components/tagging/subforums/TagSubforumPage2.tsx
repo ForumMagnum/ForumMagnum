@@ -19,7 +19,6 @@ import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import Loading from "../../vulcan-core/Loading";
 import Error404 from "../../common/Error404";
 import PermanentRedirect from "../../common/PermanentRedirect";
-import HeadTags from "../../common/HeadTags";
 import TagFlagItem from "../TagFlagItem";
 import SubforumLayout from "./SubforumLayout";
 import WriteNewButton from "../WriteNewButton";
@@ -32,6 +31,8 @@ import { StructuredData } from '@/components/common/StructuredData';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UserTagRelDetailsMultiQuery = gql(`
   query multiUserTagRelTagSubforumPage2Query($selector: UserTagRelSelector, $limit: Int, $enableTotal: Boolean) {
@@ -65,7 +66,7 @@ const UserTagRelDetailsMutation = gql(`
   }
 `);
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("TagSubforumPage2", (theme: ThemeType) => ({
   tabRow: {
     display: 'flex',
     alignItems: 'center',
@@ -151,15 +152,14 @@ export const styles = (theme: ThemeType) => ({
   tableOfContentsWrapper: {
     padding: 24,
   },
-});
+}));
 
 const subforumTabs = ["posts", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
 const defaultTab: SubforumTab = "posts"
 
-const TagSubforumPage2 = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const TagSubforumPage2 = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
   const navigate = useNavigate();
@@ -384,6 +384,10 @@ const TagSubforumPage2 = ({classes}: {
     wiki: <SubforumWikiTab tag={tag} revision={revision} truncated={truncated} setTruncated={setTruncated} />,
   };
 
+  /*
+  ea-forum-look-here
+    <HeadTags description={headTagDescription} />
+  */
   return (
     <AnalyticsContext
       pageContext="tagSubforumPage2"
@@ -391,7 +395,6 @@ const TagSubforumPage2 = ({classes}: {
       tagId={tag._id}
       sortedBy={query.sortedBy || "relevance"}
     >
-      <HeadTags description={headTagDescription} noIndex={tag.noindex} />
       <StructuredData generate={() => getTagStructuredData(tag)}/>
       {hoveredContributorId && <style>{`.by_${hoveredContributorId} {background: rgba(95, 155, 101, 0.35);}`}</style>}
       <SubforumLayout
@@ -406,6 +409,4 @@ const TagSubforumPage2 = ({classes}: {
   );
 }
 
-export default registerComponent("TagSubforumPage2", TagSubforumPage2, {styles});
-
-
+export default TagSubforumPage2;

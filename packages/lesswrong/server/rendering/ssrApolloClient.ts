@@ -5,7 +5,13 @@ import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import { ApolloClient, InMemoryCache } from "@apollo/client-integration-nextjs";
 import { ApolloLink } from "@apollo/client";
-import { headerLink, createErrorLink, createSchemaLink } from "@/lib/apollo/links";
+import { headerLink, createErrorLink } from "@/lib/apollo/links";
+import { type GraphQLSchema } from "graphql";
+import { SchemaLink } from "@apollo/client/link/schema";
+
+export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext) =>
+  // We are doing `context: () => ({...context})` rather than just context to fix a bug in datadog, see: https://github.com/DataDog/dd-trace-js/issues/709
+  new SchemaLink({ schema, context: () => ({...context}) });
 
 export async function getApolloClientWithContext(context: ResolverContext) {
   const { getExecutableSchema } = await import("../vulcan-lib/apollo-server/initGraphQL");

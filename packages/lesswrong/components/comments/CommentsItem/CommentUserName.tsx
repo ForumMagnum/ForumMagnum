@@ -12,10 +12,12 @@ import UsersNameWithModal from "../../ultraFeed/UsersNameWithModal";
 import UsersProfileImage from "../../users/UsersProfileImage";
 import UserTooltip from "../../users/UserTooltip";
 import type { Placement as PopperPlacementType } from "popper.js";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PROFILE_IMAGE_SIZE = 20;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentUserName", (theme: ThemeType) => ({
   author: {
     ...theme.typography.body2,
     fontWeight: 600,
@@ -64,23 +66,22 @@ const styles = (theme: ThemeType) => ({
   profileImagePlaceholder: {
     marginRight: 4,
   },
-});
+}), {stylePriority: 100});
 
 const CommentUserName = ({
   comment,
-  classes,
   simple = false,
   className,
   useUltraFeedModal = false,
   tooltipPlacement,
 }: {
   comment: CommentsList,
-  classes: ClassesType<typeof styles>,
   simple?: boolean,
   className?: string,
   useUltraFeedModal?: boolean,
   tooltipPlacement?: PopperPlacementType,
 }) => {
+  const classes = useStyles(styles);
   const currentUserHasProfileImages = useFilteredCurrentUser(u => userHasCommentProfileImages(u));
   const author = comment.user;
 
@@ -103,43 +104,37 @@ const CommentUserName = ({
       </span>
     );
   } else if (isFriendlyUI()) {
-    // FIXME: Unstable component will lose state on rerender
-    // eslint-disable-next-line react/no-unstable-nested-components
-    const Wrapper = ({children}: {children: ReactNode}) => simple
-      ? (
-        <div className={classes.mainWrapper}>
-          {children}
-        </div>
-      )
-      : (
-        <UserTooltip user={author}>
-          <Link
-            to={userGetProfileUrl(author)}
-            className={classNames(classes.mainWrapper, classes.fullWrapper, className)}
-          >
-            {children}
-          </Link>
-        </UserTooltip>
-      );
-    return (
-      <Wrapper>
-        {currentUserHasProfileImages
-          ? <UsersProfileImage
-            user={author}
-            size={PROFILE_IMAGE_SIZE}
-            fallback="initials"
-            className={classes.profileImage}
-          />
-          : <div className={classes.profileImagePlaceholder} />
-        }
-        <UsersName
+    const content = <>
+      {currentUserHasProfileImages
+        ? <UsersProfileImage
           user={author}
-          className={classes.author}
-          simple
-          color
+          size={PROFILE_IMAGE_SIZE}
+          fallback="initials"
+          className={classes.profileImage}
         />
-      </Wrapper>
-    );
+        : <div className={classes.profileImagePlaceholder} />
+      }
+      <UsersName
+        user={author}
+        className={classes.author}
+        simple
+        color
+      />
+    </>;
+    if (simple) {
+      return <div className={classes.mainWrapper}>
+        {content}
+      </div>
+    } else {
+      return <UserTooltip user={author}>
+        <Link
+          to={userGetProfileUrl(author)}
+          className={classNames(classes.mainWrapper, classes.fullWrapper, className)}
+        >
+          {content}
+        </Link>
+      </UserTooltip>
+    }
   }
 
   return (
@@ -152,9 +147,6 @@ const CommentUserName = ({
   );
 }
 
-export default registerComponent('CommentUserName', CommentUserName, {
-  styles,
-  stylePriority: 100, //Higher than UsersName, which gets a className from us
-});
+export default CommentUserName;
 
 

@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { COMMAND_PRIORITY_CRITICAL, KEY_DOWN_COMMAND } from 'lexical';
 import type { SuggestionThreadController, SuggestionThreadInfo } from '@/components/editor/lexicalPlugins/suggestions/SuggestionThreadController';
-import { EditorUserMode } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode';
+import { type EditorUserModeType } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode';
 import { TOGGLE_SUGGESTION_MODE_COMMAND } from './Commands';
 import { SuggestionModePlugin } from './SuggestionModePlugin';
 import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext';
@@ -30,7 +30,7 @@ export default function SuggestedEditsPlugin({
   onUserModeChange,
 }: {
   isSuggestionMode: boolean;
-  onUserModeChange: (mode: EditorUserMode) => void;
+  onUserModeChange: (mode: EditorUserModeType) => void;
 }) {
   const [editor] = useLexicalComposerContext();
   const { commentStore } = useCommentStoreContext();

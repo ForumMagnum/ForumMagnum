@@ -11,7 +11,6 @@ import { useSetTheme, useAbstractThemeOptions } from '@/components/themes/useThe
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
-import { registerComponent } from "@/lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { LegacyFormGroupLayout } from '@/components/tanstack-form-components/LegacyFormGroupLayout';
@@ -1418,7 +1417,4 @@ const UsersEditForm = ({ terms }: {
   );
 };
 
-
-export default registerComponent('UsersEditForm', UsersEditForm);
-
-
+export default UsersEditForm;

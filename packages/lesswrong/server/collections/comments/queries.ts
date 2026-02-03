@@ -160,6 +160,8 @@ export const graphqlCommentQueryTypeDefs = gql`
     authorIsUnreviewed: Boolean
     sortBy: String
     limit: String
+    before: String
+    after: String
   }
   
   input CommentsRecentCommentsInput {
@@ -169,6 +171,8 @@ export const graphqlCommentQueryTypeDefs = gql`
     authorIsUnreviewed: Boolean
     sortBy: String
     limit: String
+    before: String
+    after: String
   }
   
   input CommentsAfSubmissionsInput {

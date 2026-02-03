@@ -1,6 +1,6 @@
 import { diff } from '../vendor/node-htmldiff/htmldiff';
 import { cheerioParse, tokenizeHtml } from '../utils/htmlUtil';
-import { sanitize } from '../../lib/vulcan-lib/utils';
+import { sanitize } from "@/lib/utils/sanitize";
 import type { Cheerio, NodeWithChildren } from 'cheerio';
 
 export const diffHtml = (before: string, after: string, trim: boolean): string => {

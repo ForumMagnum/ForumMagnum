@@ -189,7 +189,7 @@ export function SpoilersPlugin({ isSuggestionMode }: { isSuggestionMode?: boolea
         }
       })
     );
-  }, [editor]);
+  }, [createNotification, editor, isSuggestionMode]);
 
   return null;
 }

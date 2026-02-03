@@ -30,7 +30,7 @@ import { ScissorsIcon } from '../../icons/ScissorsIcon';
 import { CopyIcon } from '../../icons/CopyIcon';
 import { ClipboardIcon } from '../../icons/ClipboardIcon';
 import { TrashIcon } from '../../icons/TrashIcon';
-import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/LinkPlugin';
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand';
 
 export default function ContextMenuPlugin({
   isSuggestionMode = false,

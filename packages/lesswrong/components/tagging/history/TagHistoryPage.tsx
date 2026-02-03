@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
@@ -320,6 +319,4 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
   </div>
 }
 
-export default registerComponent("TagHistoryPage", TagHistoryPage);
-
-
+export default TagHistoryPage;

@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanPost } from '@/lib/collections/users/helpers';
@@ -37,6 +36,8 @@ import LocalGroupSubscribers from "./LocalGroupSubscribers";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostLocalGroupPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -59,7 +60,7 @@ const localGroupsHomeFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
   root: {},
   topSection: {
     [theme.breakpoints.up('md')]: {
@@ -266,13 +267,13 @@ const styles = (theme: ThemeType) => ({
       maxWidth: 'none'
     },
   }
-});
+}));
 
-const LocalGroupPage = ({ classes, documentId: groupId }: {
-  classes: ClassesType<typeof styles>,
+const LocalGroupPage = ({ documentId: groupId }: {
   documentId: string,
   groupId?: string,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const { loading: groupLoading, data } = useQuery(localGroupsHomeFragmentQuery, {
@@ -588,6 +589,4 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   )
 }
 
-export default registerComponent('LocalGroupPage', LocalGroupPage, {styles});
-
-
+export default LocalGroupPage;

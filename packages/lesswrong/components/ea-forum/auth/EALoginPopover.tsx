@@ -1,5 +1,4 @@
 import React, { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useAuth0Client } from "../../hooks/useAuth0Client";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
@@ -14,8 +13,10 @@ import BlurredBackgroundModal from "../../common/BlurredBackgroundModal";
 import ForumIcon from "../../common/ForumIcon";
 import EAButton from "../EAButton";
 import Loading from "../../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EALoginPopover", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     width: 386,
@@ -180,7 +181,7 @@ const styles = (theme: ThemeType) => ({
   passwordPolicy: {
     textAlign: "left",
   },
-});
+}));
 
 type Tree = {
   root: string;
@@ -218,8 +219,8 @@ const TreeDisplay: FC<{ tree: Tree[] }> = ({ tree }) => {
 
 const PasswordPolicy: FC<{
   policy?: string,
-  classes: ClassesType<typeof styles>,
-}> = ({ policy, classes }) => {
+}> = ({ policy }) => {
+  const classes = useStyles(styles);
   if (!policy) {
     return null;
   }
@@ -237,13 +238,13 @@ const links = {
   privacy: "/privacyPolicy",
 } as const;
 
-export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = auth0FacebookLoginEnabled.get(), googleEnabled = true, classes}: {
+export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = auth0FacebookLoginEnabled.get(), googleEnabled = true}: {
   action?: LoginAction | null,
   setAction?: (action: LoginAction | null) => void,
   facebookEnabled?: boolean,
   googleEnabled?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {loginAction, setLoginAction} = useLoginPopoverContext();
   const action = action_ ?? loginAction;
   const setAction = setAction_ ?? setLoginAction;
@@ -475,7 +476,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
             {error && (
               <div className={classes.error}>
                 {error}
-                {policy && <PasswordPolicy policy={policy} classes={classes} />}
+                {policy && <PasswordPolicy policy={policy} />}
               </div>
             )}
             <EAButton
@@ -562,10 +563,4 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   );
 }
 
-export default registerComponent(
-  "EALoginPopover",
-  EALoginPopover,
-  {styles},
-);
-
-
+export default EALoginPopover;

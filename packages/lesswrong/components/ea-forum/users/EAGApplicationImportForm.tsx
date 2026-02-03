@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from "@/lib/collections/users/helpers";
@@ -760,6 +759,6 @@ const EAGApplicationImportForm = ({currentUser}: {
 }
 
 
-export default registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportFormWrapper);
+export default EAGApplicationImportFormWrapper;
 
 

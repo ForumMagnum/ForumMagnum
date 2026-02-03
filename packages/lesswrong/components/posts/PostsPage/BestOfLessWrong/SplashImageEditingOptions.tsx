@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { PostWithArtGrid } from './PostWithArtGrid';
 import GenerateImagesButton from '@/components/review/GenerateImagesButton';
@@ -70,6 +69,6 @@ export const SplashImageEditingOptions = ({ post }: {
   );
 };
 
-export default registerComponent('SplashImageEditingOptions', SplashImageEditingOptions);
+export default SplashImageEditingOptions;
 
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SequencesGridWrapper from "./SequencesGridWrapper";
 
 export const CuratedSequences = () => {
@@ -10,7 +9,7 @@ export const CuratedSequences = () => {
     />
 }
 
-export default registerComponent('CuratedSequences', CuratedSequences);
+export default CuratedSequences;
 
 
 

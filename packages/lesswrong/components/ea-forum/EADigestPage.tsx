@@ -11,7 +11,6 @@ import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import Error404 from "../common/Error404";
-import HeadTags from "../common/HeadTags";
 import PostsLoading from "../posts/PostsLoading";
 import EAPostsItem from "../posts/EAPostsItem";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
@@ -289,9 +288,12 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     </LWTooltip>
   }
 
+  /*
+  ea-forum-look-here
+    <HeadTags title={`EA Forum Digest #${digestNum}`} />
+  */
   return (
     <>
-      <HeadTags title={`EA Forum Digest #${digestNum}`} />
       <AnalyticsContext pageContext="DigestPage">
         <div className={classes.root} style={style}>
           <div>
@@ -330,10 +332,6 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-export default registerComponent(
-  "EADigestPage",
-  EADigestPage,
-  {styles},
-);
+export default registerComponent("EADigestPage", EADigestPage, {styles});
 
 

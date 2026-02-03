@@ -114,8 +114,9 @@ import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
 import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
-import { EditorUserMode } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
+import { EditorUserMode, type EditorUserModeType } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
 import { TOGGLE_SUGGESTION_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
+import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
 import {
   preprocessHtmlForImport,
   restoreInternalIds,
@@ -274,6 +275,14 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       '& p': {
         margin: 0,
       },
+    },
+    '& ins': {
+      background: theme.palette.background.diffInserted,
+      textDecoration: 'none',
+    },
+    '& del': {
+      background: theme.palette.background.diffDeleted,
+      textDecoration: 'none',
     },
   },
   editorContainerComment: {
@@ -503,7 +512,7 @@ export default function Editor({
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
   const [isSuggestionMode, setIsSuggestionMode] = useState(false);
-  const handleUserModeChange = useCallback((mode: EditorUserMode) => {
+  const handleUserModeChange = useCallback((mode: EditorUserModeType) => {
     setIsSuggestionMode(mode === EditorUserMode.Suggest);
   }, []);
   const handleToggleSuggestionMode = useCallback(() => {
@@ -704,6 +713,7 @@ export default function Editor({
             <FigmaPlugin />
             <ClickableLinkPlugin disabled={isEditable} />
             <HorizontalRulePlugin />
+            <HorizontalRuleEnterPlugin />
             <MathPlugin />
             {/* <ExcalidrawPlugin /> */}
             <TabFocusPlugin />

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Menu } from '@/components/widgets/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -9,8 +8,10 @@ import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { MenuItem } from "./Menus";
 import ForumIcon from "./ForumIcon";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ForumDropdownMultiselect", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -107,7 +108,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 12,
     width: "16px !important",
   },
-});
+}), {stylePriority: -2});
 
 const ForumDropdownMultiselect = ({
   values,
@@ -117,7 +118,6 @@ const ForumDropdownMultiselect = ({
   paddingSize = 10,
   useIconLabel,
   disabled,
-  classes,
   className,
 }: {
   values: string[],
@@ -127,9 +127,9 @@ const ForumDropdownMultiselect = ({
   paddingSize?: number,
   useIconLabel?: boolean,
   disabled?: boolean,
-  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
+  const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const label = useIconLabel
     ? <ForumIcon icon={options[values[0]].icon!} className={classes.iconLabel} />
@@ -186,10 +186,6 @@ const ForumDropdownMultiselect = ({
   );
 }
 
-export default registerComponent(
-  'ForumDropdownMultiselect',
-  ForumDropdownMultiselect,
-  {styles, stylePriority: -2},
-);
+export default ForumDropdownMultiselect;
 
 

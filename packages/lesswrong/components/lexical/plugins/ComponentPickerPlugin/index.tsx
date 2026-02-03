@@ -26,7 +26,7 @@ import {$createHeadingNode, $createQuoteNode} from '@lexical/rich-text';
 import {$setBlocksType} from '@lexical/selection';
 import {INSERT_TABLE_COMMAND} from '@lexical/table';
 import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
-import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/stubs/BlockTypePlugin';
+import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 import {
   $createParagraphNode,
   $getSelection,
