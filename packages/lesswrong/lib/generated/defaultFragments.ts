@@ -1698,6 +1698,8 @@ export const UsersDefaultFragment = `
     notificationSubforumUnread
     notificationNewMention
     notificationNewPingback
+    notificationPollClosingSoon
+    notificationPollClosed
     notificationDialogueMessages
     notificationPublishedDialogueMessages
     notificationAddedAsCoauthor

@@ -4075,6 +4075,8 @@ interface User {
   notificationSubforumUnread: any;
   notificationNewMention: any;
   notificationNewPingback: any;
+  notificationPollClosingSoon: any;
+  notificationPollClosed: any;
   notificationDialogueMessages: any;
   notificationPublishedDialogueMessages: any;
   notificationAddedAsCoauthor: any;
@@ -6185,6 +6187,8 @@ interface CreateUserDataInput {
   notificationSubforumUnread?: any;
   notificationNewMention?: any;
   notificationNewPingback?: any;
+  notificationPollClosingSoon?: any;
+  notificationPollClosed?: any;
   notificationDialogueMessages?: any;
   notificationPublishedDialogueMessages?: any;
   notificationAddedAsCoauthor?: any;
@@ -6365,6 +6369,8 @@ interface UpdateUserDataInput {
   notificationSubforumUnread?: any;
   notificationNewMention?: any;
   notificationNewPingback?: any;
+  notificationPollClosingSoon?: any;
+  notificationPollClosed?: any;
   notificationDialogueMessages?: any;
   notificationPublishedDialogueMessages?: any;
   notificationAddedAsCoauthor?: any;
