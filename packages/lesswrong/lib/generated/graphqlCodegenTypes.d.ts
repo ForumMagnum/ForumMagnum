@@ -13177,6 +13177,22 @@ type YjsDocument = {
   createdAt: Scalars['Date']['output'];
 };
 
+type PostQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', markdown: string | null };
+
+type PostQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, title: string, contents: PostQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+
+type PostQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostQuery_post_SinglePostOutput_result_Post | null };
+
+type PostQuery_Query = { __typename?: 'Query', post: PostQuery_post_SinglePostOutput | null };
+
+
+type PostQueryVariables = Exact<{
+  _id: Scalars['String']['input'];
+}>;
+
+
+type PostQuery = PostQuery_Query;
+
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = { __typename?: 'Localgroup', _id: string, name: string, bannerImageId: string | null, contents: LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision | null };
