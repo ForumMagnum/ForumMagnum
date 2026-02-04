@@ -12,6 +12,7 @@ import SectionSubtitle from "../common/SectionSubtitle";
 import DialoguesSectionFrontpageSettings from "./DialoguesSectionFrontpageSettings";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const styles = (theme: ThemeType) => ({
   content: {
@@ -90,7 +91,7 @@ const styles = (theme: ThemeType) => ({
 const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, classes: ClassesType<typeof styles> }) => {
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
-  const currentDate = new Date();
+  const currentDate = useCurrentTime();
   const isEvenDay = currentDate.getUTCDate() % 2 === 0;
   const showReciprocityRecommendations = (currentUser.karma > 100) && isEvenDay; // hide reciprocity recommendations if user has less than 100 karma, or if the current day is not an even number (just a hack to avoid spamming folks)
 

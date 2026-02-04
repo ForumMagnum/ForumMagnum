@@ -15,6 +15,7 @@ import AnalyticsGraphSkeleton from "./AnalyticsGraphSkeleton";
 import AnalyticsDisclaimers from "./AnalyticsDisclaimers";
 import { defineStyles } from "../hooks/defineStyles";
 import { useStyles } from "../hooks/useStyles";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const CONTROLS_BREAKPOINT = 650;
 
@@ -189,8 +190,7 @@ const dateOptions = {
   }
 } as const;
 
-const startEndDateFromOption = (option: string) => {
-  const now = new Date();
+const startEndDateFromOption = (now: Date, option: string) => {
   switch (option) {
     case dateOptions.last7Days.value:
       return {
@@ -262,7 +262,8 @@ export const AnalyticsGraph = ({
   const [displayFields, setDisplayFields] = useState<AnalyticsField[]>(initialDisplayFields);
   const [dateOption, setDateOption] = useState<string>(dateOptions.last30Days.value);
 
-  const {startDate: fallbackStartDate, endDate: fallbackEndDate} = startEndDateFromOption(dateOption);
+  const now = useCurrentTime();
+  const {startDate: fallbackStartDate, endDate: fallbackEndDate} = startEndDateFromOption(now, dateOption);
   const [displayStartDate, setDisplayStartDate] = useState<Date | null>(fallbackStartDate);
   const [displayEndDate, setDisplayEndDate] = useState<Date>(fallbackEndDate);
 
@@ -292,7 +293,7 @@ export const AnalyticsGraph = ({
     setDateOption(option);
 
     if (option !== dateOptions.custom.value) {
-      const {startDate, endDate} = startEndDateFromOption(option);
+      const {startDate, endDate} = startEndDateFromOption(new Date(), option);
       updateDisplayDates(startDate, endDate);
     } else {
       openDialog({

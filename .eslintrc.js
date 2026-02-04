@@ -135,7 +135,6 @@ module.exports = {
     "react-hooks/static-components": 0,
     "react-hooks/set-state-in-effect": 0,
     "react-hooks/preserve-manual-memoization": 0,
-    "react-hooks/purity": 0,
 
     "import/no-unresolved": 1,
     "import/no-dynamic-require": 1,

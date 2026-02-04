@@ -955,9 +955,9 @@ function CommentsPanelListComment({
   thread?: Thread;
 }): JSX.Element {
   const classes = useStyles(styles);
-  const seconds = Math.round(
-    (comment.timeStamp - (performance.timeOrigin + performance.now())) / 1000,
-  );
+  // FIXME This can be an SSR mismatch
+  // eslint-disable-next-line react-hooks/purity
+  const seconds = Math.round((comment.timeStamp - (performance.timeOrigin + performance.now())) / 1000);
   const minutes = Math.round(seconds / 60);
   const [modal, showModal] = useModal();
 

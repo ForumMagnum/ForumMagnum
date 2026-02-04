@@ -20,6 +20,7 @@ import FormatDate from "../common/FormatDate";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum } from '@/lib/instanceSettings';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const SunshineCurationPostsListUpdateMutation = gql(`
   mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -118,7 +119,8 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
 
   // De-emphasize posts that are 30+ days old
   const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
-  const isOldPost = post.postedAt && (Date.now() - new Date(post.postedAt).getTime()) > thirtyDaysInMs;
+  const now = useCurrentTime();
+  const isOldPost = post.postedAt && (now.getTime() - new Date(post.postedAt).getTime()) > thirtyDaysInMs;
 
   return (
     <span {...eventHandlers} className={isOldPost ? classes.oldPost : undefined}>

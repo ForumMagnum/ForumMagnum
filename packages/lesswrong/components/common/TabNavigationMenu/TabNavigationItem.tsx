@@ -11,6 +11,7 @@ import TabNavigationSubItem from "./TabNavigationSubItem";
 import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 export const iconWidth = 30
 
@@ -195,6 +196,7 @@ const useFlag = (tab: MenuTabRegular): {
   flag: string | undefined,
   onClickFlag?: () => void,
 } => {
+  const now = useCurrentTime();
   const cookieName = `${NAV_MENU_FLAG_COOKIE_PREFIX}${tab.id}_${tab.flag}`;
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
   const cookie = cookies[cookieName];
@@ -205,7 +207,7 @@ const useFlag = (tab: MenuTabRegular): {
       (value: string) => setCookie(cookieName, value),
     );
     const MS_PER_28_DAYS = 2_628_000_000;
-    if (clickedAt || firstViewedAt < new Date(Date.now() - MS_PER_28_DAYS)) {
+    if (clickedAt || firstViewedAt < new Date(now.getTime() - MS_PER_28_DAYS)) {
       return {flag: undefined};
     }
     return {
