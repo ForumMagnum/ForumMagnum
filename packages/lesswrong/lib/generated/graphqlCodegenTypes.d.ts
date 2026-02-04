@@ -9553,7 +9553,7 @@ type ReviewVoteSelector = {
 };
 
 type ReviewVotesReviewVotesAdminDashboardInput = {
-  year?: InputMaybe<Scalars['Int']['input']>;
+  year?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ReviewVotesReviewVotesForPostAndUserInput = {

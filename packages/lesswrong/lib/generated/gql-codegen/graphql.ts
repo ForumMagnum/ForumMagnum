@@ -9556,7 +9556,7 @@ export type ReviewVoteSelector = {
 };
 
 export type ReviewVotesReviewVotesAdminDashboardInput = {
-  year?: InputMaybe<Scalars['Int']['input']>;
+  year?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ReviewVotesReviewVotesForPostAndUserInput = {

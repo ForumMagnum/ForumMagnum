@@ -6050,7 +6050,7 @@ interface ReviewVotesReviewVotesFromUserInput {
 }
 
 interface ReviewVotesReviewVotesAdminDashboardInput {
-  year?: number | null;
+  year?: string | null;
 }
 
 interface ReviewVotesReviewVotesForPostAndUserInput {
