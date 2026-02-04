@@ -64,7 +64,7 @@
     "@anthropic-ai/sdk": "^0.63.1",
     "@apollo/client": "^4.0.4",
     "@apollo/client-integration-nextjs": "^0.13.1",
-    "@apollo/server": "^4.12.0",
+    "@apollo/server": "^5.4.0",
     "@as-integrations/express5": "^1.0.0",
     "@as-integrations/next": "^3.2.0",
     "@aws-sdk/client-cloudfront": "^3.577.0",
