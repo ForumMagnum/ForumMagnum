@@ -247,7 +247,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
   const voteEndDateDisplay = getVotingPhaseEndDisplay(reviewYear)
 
   // These should be calculated at render
-  const currentDate = moment(useCurrentTime())
+  const currentDate = moment(now)
   const activeRange = getReviewPhase(reviewYear)
   const isBeforeReviewPhase = activeRange === "NOMINATIONS"
   const isBeforeVotingPhase = activeRange === "REVIEWS" || activeRange === "NOMINATIONS"
