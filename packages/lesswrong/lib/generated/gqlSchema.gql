@@ -6539,7 +6539,7 @@ input ReviewVotesReviewVotesFromUserInput {
 }
 
 input ReviewVotesReviewVotesAdminDashboardInput {
-  year: Int
+  year: String
 }
 
 input ReviewVotesReviewVotesForPostAndUserInput {
