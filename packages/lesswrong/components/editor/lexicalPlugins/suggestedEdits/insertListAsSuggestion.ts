@@ -75,7 +75,35 @@ export function $insertListAsSuggestion(
     }
   }
 
-  const nodes = selection.getNodes()
+  let nodes = selection.getNodes()
+
+  // If selection returns empty or just a suggestion node, find the nearest block parent
+  if ($isRangeSelection(selection) && (nodes.length === 0 || (nodes.length === 1 && $isSuggestionNode(nodes[0])))) {
+    logger.info('Selection returned empty or just suggestion node, finding block parent')
+    const anchorNode = selection.anchor.getNode()
+    let blockParent: ElementNode | null = null
+    
+    if ($isSuggestionNode(anchorNode)) {
+      // The suggestion node's parent should be the block element
+      blockParent = anchorNode.getParent()
+    } else if ($isElementNode(anchorNode) && !anchorNode.isInline()) {
+      blockParent = anchorNode
+    } else {
+      // Walk up to find block parent
+      let parent = anchorNode.getParent()
+      while (parent && (parent.isInline() || $isSuggestionNode(parent))) {
+        parent = parent.getParent()
+      }
+      if ($isElementNode(parent)) {
+        blockParent = parent
+      }
+    }
+    
+    if (blockParent && !$isRootOrShadowRoot(blockParent)) {
+      logger.info('Found block parent:', blockParent.__type)
+      nodes = [blockParent]
+    }
+  }
 
   const suggestionID = generateUUID()
 
