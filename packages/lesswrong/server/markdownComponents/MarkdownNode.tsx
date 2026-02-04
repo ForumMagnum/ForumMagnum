@@ -1,4 +1,4 @@
-import { markdownClasses } from "./markdownResponse"
+import { markdownClasses } from "../markdownApi/markdownResponse"
 
 export function MarkdownNode({markdown}: {
   markdown: string

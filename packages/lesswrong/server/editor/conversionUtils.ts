@@ -54,6 +54,10 @@ function getTurndown(): TurndownService {
         return `\n\n${unescape(markdown)}\n\n`
       }
     })
+    turndownService.addRule('markdown-title', {
+      filter: (node, options) => node.classList?.contains('markdown-title'),
+      replacement: (content) => `# ${content.trim()}\n\n`,
+    })
     turndownService.addRule('footnote-ref', {
       filter: (node, options) => node.classList?.contains('footnote-reference'),
       replacement: (content, node) => {

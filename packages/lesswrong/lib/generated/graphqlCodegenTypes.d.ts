@@ -13177,9 +13177,11 @@ type YjsDocument = {
   createdAt: Scalars['Date']['output'];
 };
 
+type PostQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
+
 type PostQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', markdown: string | null };
 
-type PostQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, title: string, contents: PostQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+type PostQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, postedAt: string, title: string, user: PostQuery_post_SinglePostOutput_result_Post_user_User | null, contents: PostQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
 
 type PostQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostQuery_post_SinglePostOutput_result_Post | null };
 

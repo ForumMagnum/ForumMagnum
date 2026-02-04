@@ -1,10 +1,12 @@
 import { findPostByIdOrSlug } from "@/server/markdownApi/apiUtil";
-import { markdownResponse } from "@/server/markdownApi/markdownResponse";
+import { markdownClasses, markdownResponse } from "@/server/markdownApi/markdownResponse";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest } from "next/server";
 import { gql } from "@/lib/generated/gql-codegen";
-import { MarkdownNode } from "@/server/markdownApi/MarkdownNode";
+import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
+import { MarkdownUserLink } from "@/server/markdownComponents/MarkdownUserLink";
+import { MarkdownDate } from "@/server/markdownComponents/MarkdownDate";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ idOrSlug: string }> }) {
   const { idOrSlug } = await params;
@@ -19,6 +21,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ idOr
       post(selector: {_id: $_id}) {
         result {
           _id slug
+          postedAt
+          user { slug displayName }
           title
           contents { markdown }
         }
@@ -33,9 +37,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ idOr
     return new Response('No post found with ID or slug: ' + idOrSlug, { status: 404 });
   }
 
-  const markdown = await markdownResponse(<div>
-    <div>{post.title}</div>
+  return await markdownResponse(<div>
+    <div className={markdownClasses.title}>{post.title}</div>
+    <div>
+      By <MarkdownUserLink user={post.user} /><br/>
+      <MarkdownDate date={post.postedAt} />
+    </div>
     <MarkdownNode markdown={post.contents?.markdown ?? ""} />
   </div>);
-  return new Response(markdown, { status: 200 });
 }

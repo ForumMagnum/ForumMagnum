@@ -1,10 +1,10 @@
 import React from "react";
 import { htmlToMarkdown } from "../editor/conversionUtils";
 import { renderToString } from "../emails/renderEmail";
+import { NextResponse } from "next/server";
 
 export const markdownClasses: Record<string, string> = {
-  section: "section",
-  markdown: "markdown",
+  title: "markdown-title",
 }
 
 /**
@@ -12,9 +12,8 @@ export const markdownClasses: Record<string, string> = {
  * component tree, and renders it to Markdown. Elements in the provided tree
  * should not use any classes except those in `markdownClasses`.
  */
-export async function markdownResponse(reactTree: React.ReactNode): Promise<string> {
-  // TODO: Optimize and fine tune the formatting here
+export async function markdownResponse(reactTree: React.ReactNode): Promise<Response> {
   const html = await renderToString(reactTree)
   const markdown = htmlToMarkdown(html)
-  return markdown
+  return new NextResponse(markdown, { status: 200 });
 }
