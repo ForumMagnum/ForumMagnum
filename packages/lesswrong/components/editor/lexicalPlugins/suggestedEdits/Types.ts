@@ -30,33 +30,6 @@ export type SuggestionType =
   | 'insert-divider'
   | 'delete-divider';
 
-export const SuggestionTypeToSummaryText = {
-  insert: 'Insert',
-  delete: 'Delete',
-  'property-change': 'Property Change',
-  split: 'Split',
-  join: 'Join',
-  'link-change': 'Link Change',
-  'style-change': 'Style Change',
-  'image-change': 'Image Change',
-  'indent-change': 'Indent Change',
-  'insert-table': 'Insert Table',
-  'delete-table': 'Delete Table',
-  'insert-table-row': 'Insert Table Row',
-  'duplicate-table-row': 'Duplicate Table Row',
-  'delete-table-row': 'Delete Table Row',
-  'insert-table-column': 'Insert Table Column',
-  'delete-table-column': 'Delete Table Column',
-  'duplicate-table-column': 'Duplicate Table Column',
-  'block-type-change': 'Block Type Change',
-  'clear-formatting': 'Clear Formatting',
-  'align-change': 'Align Change',
-  'insert-image': 'Insert Image',
-  'delete-image': 'Delete Image',
-  'insert-divider': 'Insert Divider',
-  'delete-divider': 'Delete Divider',
-} satisfies Record<SuggestionType, string>;
-
 export const ProtonNodeTypes = {
   Suggestion: 'suggestion',
 } as const;
@@ -120,6 +93,7 @@ export type SuggestionProperties = {
 
 export type BlockTypeChangeSuggestionProperties = {
   initialBlockType: BlockType
+  targetBlockType?: BlockType
   initialFormatType?: ElementFormatType
   initialIndent?: number
   listInfo?: ListInfo

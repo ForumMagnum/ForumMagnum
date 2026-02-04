@@ -280,15 +280,42 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       background: theme.palette.background.diffInserted,
       textDecoration: 'none',
       '&.insert-image img': {
-        border: `2px solid ${theme.palette.primary.main}`,
+        outline: `2px solid ${theme.palette.primary.main}`,
+        outlineOffset: '-2px',
       },
+      '&.insert-divider hr': {
+        outline: `2px solid ${theme.palette.primary.main}`,
+        outlineOffset: '-2px',
+      },
+    },
+    '& p:has(> ins.block-type-change.target-paragraph), & blockquote:has(> ins.block-type-change.target-quote)': {
+      background: theme.palette.background.diffInserted,
+      height: '26px',
+    },
+    '& li:has(> ins.block-type-change.target-bullet), & li:has(> ins.block-type-change.target-number), & li:has(> ins.block-type-change.target-check)': {
+      background: theme.palette.background.diffInserted,
+      '&::marker': {
+        color: theme.palette.primary.main,
+      },
+    },
+    '& blockquote:has(> ins.block-type-change.target-quote)': {
+      background: theme.palette.background.diffInserted,
     },
     '& del': {
       background: theme.palette.background.diffDeleted,
       textDecoration: 'none',
       '&.delete-image img': {
-        border: `2px solid ${theme.palette.error.main}`,
+        outline: `2px solid ${theme.palette.error.main}`,
+        outlineOffset: '-2px',
       },
+      '&.delete-divider hr': {
+        outline: `2px solid ${theme.palette.error.main}`,
+        outlineOffset: '-2px',
+      },
+    },
+    '& hr.selected': {
+      outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
+      outlineOffset: '-2px',
     },
   },
   editorContainerComment: {

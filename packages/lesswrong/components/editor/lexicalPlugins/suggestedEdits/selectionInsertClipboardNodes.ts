@@ -11,6 +11,8 @@ import { generateUUID } from '@/lib/vendor/proton/generateUUID'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import { $wrapSelectionInSuggestionNode, $isNodeNotInline } from './Utils'
 import type { Logger } from '@/lib/vendor/proton/logger'
+import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
+import type { SuggestionType } from './Types'
 
 /**
  * This command is triggered by $insertDataTransferForRichText to allow
@@ -62,7 +64,13 @@ export function $selectionInsertClipboardNodes(
 
   const isInitialSelectionNotCollapsed = !selection.isCollapsed()
   if (isInitialSelectionNotCollapsed) {
-    $wrapSelectionInSuggestionNode(selection, selection.isBackward(), suggestionID, 'delete', logger)
+    // Determine the deletion type based on what's being deleted
+    let deleteType: SuggestionType = 'delete'
+    const selectedNodes = selection.getNodes()
+    if (selectedNodes.length === 1 && $isHorizontalRuleNode(selectedNodes[0])) {
+      deleteType = 'delete-divider'
+    }
+    $wrapSelectionInSuggestionNode(selection, selection.isBackward(), suggestionID, deleteType, logger)
     onSuggestionCreation(suggestionID)
     logger.info('Wrapped non-collapsed selection as delete suggestion', suggestionID)
   }

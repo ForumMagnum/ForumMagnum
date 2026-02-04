@@ -89,7 +89,7 @@ import { CommentsIcon } from '../../icons/CommentsIcon';
 import { SendIcon } from '../../icons/SendIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import ForumIcon from '@/components/common/ForumIcon';
-import { SuggestionType, SuggestionTypeToSummaryText } from '@/components/editor/lexicalPlugins/suggestedEdits/Types';
+import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
 
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   addCommentBox: {
@@ -518,35 +518,6 @@ const isSuggestionThread = (thread: Thread): boolean => thread.threadType === 's
 const getSuggestionSummaryComment = (thread: Thread): Comment | undefined => thread.comments.find((comment) => comment.commentKind === SUGGESTION_SUMMARY_KIND);
 
 const getSuggestionThreadId = (thread: Thread): string => thread.markID ?? thread.id;
-
-const parseSuggestionSummary = (summary: string): string => {
-  try {
-    const parsed: Array<{ type: SuggestionType; content: string; replaceWith?: string }> = JSON.parse(summary);
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      return 'Suggestion';
-    }
-
-    const first = parsed[0];
-    if (!first) {
-      return summary;
-    }
-
-    const { type, content, replaceWith } = first;
-
-    const suggestionType = SuggestionTypeToSummaryText[type] ?? type;
-
-    if (replaceWith) {
-      return `${suggestionType}: ${content} → ${replaceWith}`;
-    }
-
-    const trimmedContent = content.trim();
-    return trimmedContent
-      ? `${suggestionType}: ${trimmedContent}`
-      : suggestionType;
-  } catch {
-    return summary;
-  }
-};
 
 const acceptSuggestionThread = (editor: LexicalEditor, commentStore: CommentStore, thread: Thread) => {
   const suggestionId = getSuggestionThreadId(thread);
@@ -1136,7 +1107,7 @@ function CommentsPanelList({
             : undefined;
 
           const suggestionSummaryText = suggestionSummaryComment
-            ? parseSuggestionSummary(suggestionSummaryComment.content)
+            ? formatSuggestionSummary(suggestionSummaryComment.content)
             : null;
 
           const suggestionStatus = commentOrThread.status ?? 'open';

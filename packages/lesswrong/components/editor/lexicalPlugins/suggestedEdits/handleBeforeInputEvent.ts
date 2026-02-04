@@ -36,9 +36,10 @@ import {
   $isEmptyListItemExceptForSuggestions,
 } from './Utils'
 import { $generateNodesFromDOM } from '@lexical/html'
+import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
-import type { BlockTypeChangeSuggestionProperties, IndentChangeSuggestionProperties } from './Types'
+import type { BlockTypeChangeSuggestionProperties, IndentChangeSuggestionProperties, SuggestionType } from './Types'
 import { SuggestionTypesThatCanBeEmpty, TextEditingSuggestionTypes } from './Types'
 import type { ListItemNode, ListType } from '@lexical/list'
 import { $handleListInsertParagraph, $isListItemNode } from '@lexical/list'
@@ -242,7 +243,13 @@ function $handleDeleteInput(
   const isWholeSelectionInsideExistingSuggestion = $isWholeSelectionInsideSuggestion(selection)
 
   if (!isWholeSelectionInsideExistingSuggestion || existingParentSuggestion?.getSuggestionTypeOrThrow() !== 'delete') {
-    suggestionNodes = $wrapSelectionInSuggestionNode(selection, selection.isBackward(), suggestionID, 'delete', logger)
+    // Determine the deletion type based on what's being deleted
+    let deleteType: SuggestionType = 'delete'
+    const selectedNodes = selection.getNodes()
+    if (selectedNodes.length === 1 && $isHorizontalRuleNode(selectedNodes[0])) {
+      deleteType = 'delete-divider'
+    }
+    suggestionNodes = $wrapSelectionInSuggestionNode(selection, selection.isBackward(), suggestionID, deleteType, logger)
   }
 
   if (!suggestionNodes.length) {
@@ -318,7 +325,13 @@ function $handleInsertInput(
   if (!selection.isCollapsed() && data !== null && dataTransfer === null) {
     logger.info('Wrapping non-collapsed selection in a delete suggestion')
     const isInsideExistingSelection = $isWholeSelectionInsideSuggestion(selection)
-    const nodes = $wrapSelectionInSuggestionNode(selection, selection.isBackward(), suggestionID, 'delete', logger)
+    // Determine the deletion type based on what's being deleted
+    let deleteType: SuggestionType = 'delete'
+    const selectedNodes = selection.getNodes()
+    if (selectedNodes.length === 1 && $isHorizontalRuleNode(selectedNodes[0])) {
+      deleteType = 'delete-divider'
+    }
+    const nodes = $wrapSelectionInSuggestionNode(selection, selection.isBackward(), suggestionID, deleteType, logger)
     if (isInsideExistingSelection && existingParentSuggestion?.getSuggestionTypeOrThrow() === 'insert') {
       logger.info('Removing the wrapped suggestion as it is inside an existing one')
       for (const node of nodes) {
@@ -431,7 +444,7 @@ function $handleInsertParagraph(
   return true
 }
 
-function $handleInsertParagraphOnEmptyListItem(
+export function $handleInsertParagraphOnEmptyListItem(
   listItem: ListItemNode,
   suggestionID: string,
   onSuggestionCreation: (id: string) => void,
@@ -484,6 +497,7 @@ function $handleInsertParagraphOnEmptyListItem(
       focus,
       $createSuggestionNode(suggestionID, 'block-type-change', {
         initialBlockType: listInfo.listType,
+        targetBlockType: 'paragraph',
         initialFormatType,
         initialIndent,
         listInfo,

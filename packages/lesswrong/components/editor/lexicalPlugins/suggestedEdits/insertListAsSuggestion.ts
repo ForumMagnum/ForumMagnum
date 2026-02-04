@@ -45,6 +45,21 @@ export function $insertListAsSuggestion(
   }
 
   const [anchor] = startEndPoints
+  
+  // Check if the anchor node still exists (it might have been removed by ComponentPickerPlugin)
+  const anchorNode = anchor.getNode()
+  if (!anchorNode.isAttached()) {
+    logger.info('Anchor node is no longer attached, re-selecting')
+    const root = $getRoot()
+    const firstChild = root.getFirstChild()
+    if (firstChild && $isElementNode(firstChild)) {
+      selection = firstChild.selectStart()
+    } else {
+      logger.info('No valid selection target')
+      return true
+    }
+  }
+  
   if (anchor.key === 'root') {
     logger.info('Resetting selection because it is at root')
     const root = $getRoot()
@@ -97,6 +112,41 @@ export function $insertListAsSuggestion(
       logger.info('Is empty element node that has not been handled')
       $changeBlockTypeToList(node, listType, suggestionID, logger, incrementSuggestionCounter, styleType, marker)
       continue
+    }
+
+    // Handle case where the node is directly a ListItemNode (e.g., from slash command in a list)
+    if ($isListItemNode(node) && !nodeHasBeenHandled) {
+      const parentList = node.getParent()
+      if ($isListNode(parentList)) {
+        logger.info('Node is list item, converting parent list')
+        const parentKey = parentList.getKey()
+        if (!handled.has(parentKey)) {
+          handled.add(parentKey)
+          const list = $replaceList(
+            parentList,
+            listType,
+            suggestionID,
+            logger,
+            incrementSuggestionCounter,
+            styleType,
+            marker,
+          )
+          handled.add(list.getKey())
+        }
+        continue
+      }
+    }
+
+    // Handle case where the node is a non-empty element node at the top level (e.g., paragraph from slash command)
+    if ($isElementNode(node) && !nodeHasBeenHandled && !isSuggestionNode && !$isListItemNode(node)) {
+      const grandParent = node.getParent()
+      if ($isRootOrShadowRoot(grandParent)) {
+        logger.info('Non-empty top-level element node, converting to list')
+        handled.add(node.getKey())
+        const list = $changeBlockTypeToList(node, listType, suggestionID, logger, incrementSuggestionCounter, styleType, marker)
+        handled.add(list.getKey())
+        continue
+      }
     }
 
     if (!$isLeafNode(node)) {
@@ -195,6 +245,7 @@ function $changeBlockTypeToList(
       listItem,
       $createSuggestionNode(suggestionID, 'block-type-change', {
         initialBlockType: blockType,
+        targetBlockType: listType,
         initialFormatType: formatType,
         initialIndent: indent,
       }),
@@ -240,6 +291,7 @@ function $replaceList(
         child,
         $createSuggestionNode(suggestionID, 'block-type-change', {
           initialBlockType: listInfo.listType,
+          targetBlockType: listType,
           initialFormatType: formatType,
           initialIndent: indent,
           listInfo,

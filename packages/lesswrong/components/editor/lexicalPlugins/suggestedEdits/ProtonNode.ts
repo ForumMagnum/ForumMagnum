@@ -68,6 +68,11 @@ export class ProtonNode extends ElementNode {
       if ($isPlainDeletionSuggestion(properties.suggestionType)) {
         element.setAttribute('spellcheck', 'false')
       }
+      // Add target block type as CSS class for block-type-change suggestions
+      const changedProps = properties.nodePropertiesChanged
+      if (changedProps && 'targetBlockType' in changedProps && changedProps.targetBlockType) {
+        addClassNamesToElement(element, `target-${changedProps.targetBlockType}`)
+      }
     }
     return element
   }

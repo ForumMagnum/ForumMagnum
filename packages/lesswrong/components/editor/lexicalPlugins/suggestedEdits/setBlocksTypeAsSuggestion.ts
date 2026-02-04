@@ -56,6 +56,7 @@ export function $setBlocksTypeAsSuggestion(
       element,
       $createSuggestionNode(suggestionID, 'block-type-change', {
         initialBlockType: 'paragraph',
+        targetBlockType: blockType,
       }),
     )
 
@@ -122,6 +123,7 @@ export function $setBlocksTypeAsSuggestion(
     } else {
       const properties = {
         initialBlockType: nodeBlockType,
+        targetBlockType: blockType,
         initialFormatType,
         initialIndent,
         listInfo,

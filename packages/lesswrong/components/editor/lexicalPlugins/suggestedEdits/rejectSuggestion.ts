@@ -206,9 +206,25 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
         continue
       }
       const initialBlockType = changedProperties.initialBlockType
-      const createInitialBlockTypeElement = blockTypeToCreateElementFn[initialBlockType]
       const formatType = changedProperties.initialFormatType || block.getFormatType()
       const indent = changedProperties.initialIndent || block.getIndent()
+      
+      // Special handling for list-to-list changes: just change the parent list's type
+      const isInitialBlockTypeList = initialBlockType === 'bullet' || initialBlockType === 'number' || initialBlockType === 'check'
+      if ($isListItemNode(block) && isInitialBlockTypeList) {
+        const parentList = block.getParent()
+        if ($isListNode(parentList) && changedProperties.listInfo) {
+          // Change the parent list's type back to the original
+          parentList.setListType(changedProperties.listInfo.listType)
+          block.setFormat(formatType)
+          block.setIndent(indent)
+          block.selectStart()
+          continue
+        }
+      }
+      
+      // For non-list-to-list changes, create a new element
+      const createInitialBlockTypeElement = blockTypeToCreateElementFn[initialBlockType]
       const initialBlockTypeNode = createInitialBlockTypeElement()
       if (!$isListNode(initialBlockTypeNode)) {
         initialBlockTypeNode.setFormat(formatType)

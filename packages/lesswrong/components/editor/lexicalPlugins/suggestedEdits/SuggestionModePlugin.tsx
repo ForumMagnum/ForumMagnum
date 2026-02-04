@@ -18,6 +18,7 @@ import {
   KEY_BACKSPACE_COMMAND,
   KEY_DELETE_COMMAND,
   KEY_DOWN_COMMAND,
+  KEY_ENTER_COMMAND,
   KEY_TAB_COMMAND,
   OUTDENT_CONTENT_COMMAND,
   PASTE_COMMAND,
@@ -34,10 +35,13 @@ import { reportError } from '@/lib/vendor/proton/reportError'
 import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext'
 import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext'
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND, TOGGLE_SUGGESTION_MODE_COMMAND } from './Commands'
-import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST } from '@lexical/markdown'
+import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST, QUOTE } from '@lexical/markdown'
+import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, type ListItemNode } from '@lexical/list'
+import { $isEmptyListItemExceptForSuggestions } from './Utils'
+import { generateUUID } from '@/lib/vendor/proton/generateUUID'
 import { $acceptSuggestion } from './acceptSuggestion'
 import { $rejectSuggestion } from './rejectSuggestion'
-import { $handleBeforeInputEvent, $handleDeleteInputType } from './handleBeforeInputEvent'
+import { $handleBeforeInputEvent, $handleDeleteInputType, $handleInsertParagraphOnEmptyListItem } from './handleBeforeInputEvent'
 import { $formatTextAsSuggestion } from './formatTextAsSuggestion'
 import { ConsoleLogger } from '@/lib/vendor/proton/logger'
 import { $selectionInsertClipboardNodes } from './selectionInsertClipboardNodes'
@@ -56,6 +60,7 @@ import {
   $handleImageDeleteAsSuggestion,
   $insertImageNodeAsSuggestion,
 } from './imageHandling'
+import { $handleDividerDeleteAsSuggestion } from './dividerHandling'
 import { EditorUserMode, type EditorUserModeType } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode'
 import { $handleIndentOutdentAsSuggestion } from './handleIndentOutdent'
 import { useGenericAlertModal } from '@/lib/vendor/proton/alertModal'
@@ -75,11 +80,12 @@ import {
   $suggestTableDeletion,
   $suggestTableRowDeletion,
 } from './handleTables'
-import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list'
 import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import { $setBlocksTypeAsSuggestion } from './setBlocksTypeAsSuggestion'
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode'
 import { $insertDividerAsSuggestion } from './insertDividerAsSuggestion'
+import { HR } from '@/components/lexical/plugins/MarkdownTransformers'
+import { $getTopLevelParagraphForHR } from '@/components/editor/lexicalPlugins/horizontalRuleEnter'
 import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggestion'
 import { useNotifications } from '@/lib/vendor/proton/notifications'
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
@@ -494,7 +500,11 @@ export function SuggestionModePlugin({
           if ($isNodeSelection(selection)) {
             let handled = true
             editor.update(() => {
+              // Try image first, then divider
               handled = $handleImageDeleteAsSuggestion(addCreatedIDtoSet, suggestionModeLogger)
+              if (!handled) {
+                handled = $handleDividerDeleteAsSuggestion(addCreatedIDtoSet, suggestionModeLogger)
+              }
             })
             return handled
           }
@@ -523,7 +533,11 @@ export function SuggestionModePlugin({
           if ($isNodeSelection(selection)) {
             let handled = true
             editor.update(() => {
+              // Try image first, then divider
               handled = $handleImageDeleteAsSuggestion(addCreatedIDtoSet, suggestionModeLogger)
+              if (!handled) {
+                handled = $handleDividerDeleteAsSuggestion(addCreatedIDtoSet, suggestionModeLogger)
+              }
             })
             return handled
           }
@@ -605,6 +619,81 @@ export function SuggestionModePlugin({
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
+      editor.registerCommand(
+        KEY_ENTER_COMMAND,
+        (event) => {
+          // Handle horizontal rule markdown shortcut (---, ***, ___)
+          let shouldHandleHR = false
+          let emptyListItem: ListItemNode | null = null
+          
+          editor.getEditorState().read(() => {
+            const selection = $getSelection()
+            
+            // Check for HR shortcut
+            const paragraphElement = $getTopLevelParagraphForHR(selection)
+            if (paragraphElement) {
+              const textContent = paragraphElement.getTextContent()
+              if (HR.regExp.test(textContent)) {
+                shouldHandleHR = true
+                return
+              }
+            }
+            
+            // Check for empty list item
+            if ($isRangeSelection(selection) && selection.isCollapsed()) {
+              const anchorNode = selection.anchor.getNode()
+              emptyListItem = $isEmptyListItemExceptForSuggestions(anchorNode)
+            }
+          })
+
+          if (shouldHandleHR) {
+            editor.update(() => {
+              const selection = $getSelection()
+              const paragraphElement = $getTopLevelParagraphForHR(selection)
+              if (!paragraphElement) {
+                return
+              }
+
+              // Remove the paragraph with the dashes
+              paragraphElement.remove()
+
+              // Insert the HR as a suggestion
+              $insertDividerAsSuggestion(addCreatedIDtoSet)
+            })
+
+            event?.preventDefault()
+            return true
+          }
+
+          if (emptyListItem) {
+            // Handle Enter on empty list item - convert to paragraph as suggestion
+            const suggestionID = generateUUID()
+            editor.update(() => {
+              // Re-check inside update since editor state may have changed
+              const selection = $getSelection()
+              if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+                return
+              }
+              const listItem = $isEmptyListItemExceptForSuggestions(selection.anchor.getNode())
+              if (!listItem) {
+                return
+              }
+              $handleInsertParagraphOnEmptyListItem(
+                listItem,
+                suggestionID,
+                addCreatedIDtoSet,
+                suggestionModeLogger,
+              )
+            })
+
+            event?.preventDefault()
+            return true
+          }
+
+          return false
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
       editor.registerUpdateListener(
         /**
          * Lexical's markdown shortcut plugin doesn't allow running element transformers if the parent
@@ -651,16 +740,45 @@ export function SuggestionModePlugin({
           }
 
           /**
-           * Goes through the available markdown list transformers and if the regexp
+           * Goes through the available markdown element transformers (lists, HR) and if the regexp
            * for one of them is matched then it runs that i.e converting a shortcut
-           * like `- ` to the respective list.
+           * like `- ` to the respective list, or `---` to a horizontal rule.
            */
-          const $runMarkdownListTransformers = () => {
+          const $runMarkdownElementTransformers = () => {
             const textContent = anchorNode.getTextContent()
 
             const isNotPrecededBySpace = textContent[anchorOffset - 1] !== ' '
             if (isNotPrecededBySpace) {
               return
+            }
+
+            // Check for horizontal rule shortcut (---, ***, ___)
+            const hrMatch = textContent.match(HR.regExp)
+            if (hrMatch && hrMatch[0].length === anchorOffset) {
+              const actualParent = parent.getParent()!
+              const isActualParentBlockLevel = $isRootOrShadowRoot(actualParent.getParent())
+              if (isActualParentBlockLevel) {
+                // Remove the paragraph containing the dashes and the suggestion node
+                actualParent.remove()
+                // Insert the HR as a suggestion
+                $insertDividerAsSuggestion(addCreatedIDtoSet)
+                return
+              }
+            }
+
+            // Check for blockquote shortcut (> )
+            const quoteMatch = textContent.match(QUOTE.regExp)
+            if (quoteMatch && quoteMatch[0].length === anchorOffset) {
+              const actualParent = parent.getParent()!
+              const isActualParentBlockLevel = $isRootOrShadowRoot(actualParent.getParent())
+              if (isActualParentBlockLevel) {
+                // Remove the "> " text
+                const [leadingNode] = anchorNode.splitText(anchorOffset)
+                leadingNode.remove()
+                // Convert to blockquote as suggestion
+                $setBlocksTypeAsSuggestion('quote', addCreatedIDtoSet, suggestionModeLogger)
+                return
+              }
             }
 
             for (const transformer of LIST_TRANSFORMERS) {
@@ -686,7 +804,7 @@ export function SuggestionModePlugin({
             }
           }
 
-          editor.update($runMarkdownListTransformers, {
+          editor.update($runMarkdownElementTransformers, {
             tag: 'suggestion-md-transform',
           })
         },

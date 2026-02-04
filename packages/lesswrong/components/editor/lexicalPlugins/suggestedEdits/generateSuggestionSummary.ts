@@ -2,8 +2,10 @@ import type { NodeKey, LexicalEditor } from 'lexical'
 import { $getNodeByKey } from 'lexical'
 import type { SuggestionSummaryType } from '@/components/editor/lexicalPlugins/suggestions/SuggestionThreadController'
 import { $isSuggestionNode } from './ProtonNode'
+import type { BlockTypeChangeSuggestionProperties } from './Types'
+import { getBlockTypeChangeSummaryType, type SuggestionSummaryItem } from './suggestionSummaryUtils'
 
-export type SuggestionSummaryContent = { type: SuggestionSummaryType; content: string; replaceWith?: string }[]
+export type SuggestionSummaryContent = SuggestionSummaryItem[]
 
 const TextContentLimit = 80
 
@@ -32,6 +34,12 @@ export function generateSuggestionSummary(
       const currentType = node.getSuggestionTypeOrThrow()
 
       let type: SuggestionSummaryType = currentType
+
+      // For block-type-change, generate a more specific summary type based on the target
+      if (currentType === 'block-type-change') {
+        const props = node.getSuggestionChangedProperties<BlockTypeChangeSuggestionProperties>()
+        type = getBlockTypeChangeSummaryType(props)
+      }
 
       let content = node.getTextContent().slice(0, TextContentLimit)
 
