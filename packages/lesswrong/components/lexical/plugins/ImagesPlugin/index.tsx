@@ -415,9 +415,19 @@ export default function ImagesPlugin({
         },
         COMMAND_PRIORITY_HIGH,
       ),
-      editor.registerNodeTransform(ImageNode, (node) =>
-        enforceImageNodeStructure(node),
-      ),
+      editor.registerUpdateListener(({dirtyElements, tags}) => {
+        if (tags.has('collaboration')) {
+          return;
+        }
+        editor.update(() => {
+          for (const key of dirtyElements.keys()) {
+            const node = $getNodeByKey(key);
+            if ($isImageNode(node)) {
+              enforceImageNodeStructure(node);
+            }
+          }
+        });
+      }),
       editor.registerMutationListener(ImageCaptionNode, (mutations) => {
         editor.getEditorState().read(() => {
           for (const [nodeKey] of mutations) {

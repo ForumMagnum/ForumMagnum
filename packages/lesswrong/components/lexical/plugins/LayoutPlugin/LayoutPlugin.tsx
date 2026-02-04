@@ -206,26 +206,35 @@ export function LayoutPlugin(): null {
         COMMAND_PRIORITY_EDITOR,
       ),
 
-      editor.registerNodeTransform(LayoutItemNode, (node) => {
-        // Structure enforcing transformers for each node type. In case nesting structure is not
-        // "Container > Item" it'll unwrap nodes and convert it back
-        // to regular content.
-        const isRemoved = $removeIsolatedLayoutItem(node);
+      editor.registerUpdateListener(({dirtyElements, tags}) => {
+        if (tags.has('collaboration')) {
+          return;
+        }
+        editor.update(() => {
+          for (const key of dirtyElements.keys()) {
+            const node = $getNodeByKey(key);
+            if ($isLayoutItemNode(node)) {
+              // Structure enforcing transformers for each node type. In case nesting structure is not
+              // "Container > Item" it'll unwrap nodes and convert it back
+              // to regular content.
+              const isRemoved = $removeIsolatedLayoutItem(node);
 
-        if (!isRemoved) {
-          // Layout item should always have a child. this function will listen
-          // for any empty layout item and fill it with a paragraph node
-          $fillLayoutItemIfEmpty(node);
-        }
-      }),
-      editor.registerNodeTransform(LayoutContainerNode, (node) => {
-        const children = node.getChildren<LexicalNode>();
-        if (!children.every($isLayoutItemNode)) {
-          for (const child of children) {
-            node.insertBefore(child);
+              if (!isRemoved) {
+                // Layout item should always have a child. this function will listen
+                // for any empty layout item and fill it with a paragraph node
+                $fillLayoutItemIfEmpty(node);
+              }
+            } else if ($isLayoutContainerNode(node)) {
+              const children = node.getChildren<LexicalNode>();
+              if (!children.every($isLayoutItemNode)) {
+                for (const child of children) {
+                  node.insertBefore(child);
+                }
+                node.remove();
+              }
+            }
           }
-          node.remove();
-        }
+        });
       }),
     );
   }, [editor]);

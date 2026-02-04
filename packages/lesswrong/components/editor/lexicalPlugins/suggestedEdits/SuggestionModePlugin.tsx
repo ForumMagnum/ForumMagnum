@@ -132,6 +132,13 @@ function insertImageFileAsSuggestion(
 
 const LIST_TRANSFORMERS = [UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]
 
+const SUGGESTION_SUMMARY_KIND = 'suggestionSummary' as const
+
+/** Check if a suggestion thread has comments beyond the auto-generated summary */
+function hasChildComments(thread: { comments: Array<{ commentKind?: string }> }): boolean {
+  return thread.comments.some((comment) => comment.commentKind !== SUGGESTION_SUMMARY_KIND)
+}
+
 export function SuggestionModePlugin({
   isSuggestionMode,
   controller,
@@ -159,6 +166,37 @@ export function SuggestionModePlugin({
    */
   const createdSuggestionIDsRef = useRef(new Set<string>())
 
+  /** Tracks whether the current historic update is a redo (vs an undo) */
+  const isRedoOperationRef = useRef(false)
+
+  useEffect(() => {
+    // Track whether the current historic operation is a redo (vs an undo)
+    return mergeRegister(
+      editor.registerCommand(
+        UNDO_COMMAND,
+        () => {
+          isRedoOperationRef.current = false
+          return false
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      editor.registerCommand(
+        REDO_COMMAND,
+        () => {
+          isRedoOperationRef.current = true
+          return false
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      // Clear the flag after each update via microtask (after mutation listeners have read it)
+      editor.registerUpdateListener(() => {
+        queueMicrotask(() => {
+          isRedoOperationRef.current = false
+        })
+      }),
+    )
+  }, [editor])
+
   useEffect(() => {
     /**
      * Temporary map of suggestion node keys to their suggestion ID,
@@ -168,13 +206,22 @@ export function SuggestionModePlugin({
 
     return mergeRegister(
       /**
-       * This listener creates/updates the ID->Set<NodeKey> relations
-       * stored in the mark node map which are used for the hover/active
-       * states of the suggestion nodes and their related thread.
+       * Handles suggestion node lifecycle:
+       * - Maintaining ID->NodeKey mappings for hover/active states
+       * - Creating threads for new suggestions
+       * - Reopening threads when nodes reappear (undo)
+       * - Restoring status when nodes are removed via redo
+       * - Orphan cleanup when nodes are deleted
        */
-      editor.registerMutationListener(ProtonNode, (mutations) => {
+      editor.registerMutationListener(ProtonNode, (mutations, { updateTags }) => {
+        if (updateTags.has('collaboration')) {
+          return
+        }
+        
         const createdSuggestionIDs = createdSuggestionIDsRef.current
-        const idsToCreateCommentsFor: string[] = []
+        const idsToCreateThreadsFor: string[] = []
+        const idsToReopenThreadsFor: string[] = []
+        const idsToHandleDestruction: string[] = []
 
         editor.read(() => {
           for (const [key, mutation] of mutations) {
@@ -187,48 +234,60 @@ export function SuggestionModePlugin({
               id = node.getSuggestionIdOrThrow()
             }
 
+            if (!id) {
+              continue
+            }
+
             let suggestionNodeKeys = markNodeMap.get(id)
             suggestionNodeKeysToIDMap.set(key, id)
 
             if (mutation === 'destroyed') {
               if (!suggestionNodeKeys) {
-                return
+                continue
               }
-              // One of the nodes for an ID is destroyed so we remove the key for it from the existing set.
               suggestionNodeKeys.delete(key)
-              // If the set doesn't have any keys remaining, then we remove the ID from the mark node map
-              // as no more nodes existing for that suggestion.
               if (suggestionNodeKeys.size === 0) {
                 markNodeMap.delete(id)
+                idsToHandleDestruction.push(id)
               }
             } else {
-              // No suggestion node for the given ID existed before.
-              // If this suggestion was created in this session then we also create a thread for it.
               if (!suggestionNodeKeys) {
+                // New suggestion
                 suggestionNodeKeys = new Set()
                 markNodeMap.set(id, suggestionNodeKeys)
+                
                 if (createdSuggestionIDs.has(id)) {
-                  idsToCreateCommentsFor.push(id)
+                  idsToCreateThreadsFor.push(id)
+                } else {
+                  // Nodes appeared but weren't created locally - likely undo
+                  idsToReopenThreadsFor.push(id)
                 }
-              }
-              // Existing set of node keys for this ID doesn't contain this key
-              if (!suggestionNodeKeys.has(key)) {
+                
                 suggestionNodeKeys.add(key)
+              } else {
+                if (!suggestionNodeKeys.has(key)) {
+                  suggestionNodeKeys.add(key)
+                }
               }
             }
           }
         })
 
-        for (const id of idsToCreateCommentsFor) {
+        // Skip thread management if commentStore hasn't synced yet (e.g., initial page load)
+        // The markNodeMap is still updated above for hover/active state tracking
+        if (!commentStore.isSynced()) {
+          return
+        }
+
+        // Create threads for new suggestions
+        for (const id of idsToCreateThreadsFor) {
           const keys = markNodeMap.get(id)
           if (!keys || keys.size === 0) {
             continue
           }
 
           suggestionModeLogger.info(`Creating new thread for suggestion ${id}`)
-
           const summary = generateSuggestionSummary(editor, markNodeMap, id)
-
           const content = JSON.stringify(summary)
 
           controller
@@ -239,114 +298,90 @@ export function SuggestionModePlugin({
             })
             .catch(reportError)
         }
-      }),
-    )
-  }, [controller, editor, markNodeMap, suggestionModeLogger])
 
-  /**
-   * Refs for serialized reconciliation - ensures only one reconciliation runs at a time
-   * and schedules another if changes occur during reconciliation.
-   */
-  const reconcileInProgressRef = useRef(false)
-  const reconcilePendingRef = useRef(false)
-  
-  /**
-   * Track suggestions that are currently being resolved (accepted/rejected).
-   * This prevents race conditions where reconciliation runs before the
-   * thread status update completes.
-   */
-  const pendingResolutionsRef = useRef(new Set<string>())
-
-  useEffect(() => {
-    /**
-     * Reconcile suggestion threads with editor state.
-     * This is the single source of truth reconciliation:
-     * - If suggestion nodes exist for a thread -> thread should be 'open'
-     * - If suggestion nodes don't exist and thread is 'open' -> archive/delete (implicit deletion)
-     * - If suggestion nodes don't exist and thread is 'accepted'/'rejected' -> leave as-is
-     */
-    const reconcileSuggestionThreads = async () => {
-      if (reconcileInProgressRef.current) {
-        reconcilePendingRef.current = true
-        return
-      }
-      reconcileInProgressRef.current = true
-
-      try {
-        // If we are collaborative and not yet synced, we shouldn't make decisions about creating/deleting threads
-        // based on the absence of threads, because we might just not have received them yet.
-        if (commentStore.isCollaborative() && !commentStore.isSynced()) {
-          return
-        }
-
-        // Get suggestion IDs from current editor state
-        const openSuggestionIDs = editor.getEditorState().read(() => {
-          const nodes = $nodesOfType(ProtonNode).filter($isSuggestionNode)
-          return new Set(nodes.map((node) => node.getSuggestionIdOrThrow()))
-        })
-
-        // Get all suggestion threads
-        const threads = await controller.getAllThreads()
-        const threadByMarkId = new Map(threads.map((thread) => [thread.markID, thread]))
-
-        // For each suggestion with nodes in editor, ensure thread exists, is open, and has up-to-date summary
-        for (const suggestionID of openSuggestionIDs) {
-          const thread = threadByMarkId.get(suggestionID)
-          const summary = generateSuggestionSummary(editor, markNodeMap, suggestionID)
-          const content = JSON.stringify(summary)
+        // Reopen threads when nodes reappear (undo)
+        for (const id of idsToReopenThreadsFor) {
+          const thread = commentStore.getThreadByMarkID(id)
           
           if (!thread) {
-            // Create thread for suggestion that doesn't have one
-            const summaryType = summary[0]?.type ?? 'insert'
-            suggestionModeLogger.info(`Creating thread for suggestion ${suggestionID} based on editor state`)
-            await controller.createSuggestionThread(suggestionID, content, summaryType).catch(reportError)
-          } else {
-            if (thread.status !== 'open') {
-              // Nodes exist but thread is resolved -> undo happened -> reopen
-              suggestionModeLogger.info(`Reopening thread ${thread.id} for suggestion ${suggestionID} (undo detected)`)
-              await controller.reopenSuggestion(thread.id).catch(reportError)
-            }
-            // Update summary in case content changed
-            await controller.updateSuggestionSummary(suggestionID, content).catch(reportError)
-          }
-        }
-
-        // For each thread without nodes, handle based on current status
-        for (const thread of threads) {
-          if (openSuggestionIDs.has(thread.markID)) {
+            // Thread was deleted - create a new one
+            suggestionModeLogger.info(`Creating thread for reappearing suggestion ${id}`)
+            const summary = generateSuggestionSummary(editor, markNodeMap, id)
+            const content = JSON.stringify(summary)
+            controller.createSuggestionThread(id, content, summary[0].type).catch(reportError)
             continue
           }
           
-          // Skip threads that are currently being resolved (accept/reject in progress)
-          if (pendingResolutionsRef.current.has(thread.markID)) {
+          if (thread.status === 'accepted' || thread.status === 'rejected') {
+            suggestionModeLogger.info(`Reopening thread ${thread.id} for suggestion ${id}`)
+            commentStore.updateThread(thread.id, {
+              statusBeforeReopen: thread.status,
+              status: 'open',
+            })
+          } else if (thread.status === 'archived') {
+            suggestionModeLogger.info(`Reopening archived thread ${thread.id} for suggestion ${id}`)
+            commentStore.updateThread(thread.id, { status: 'open' })
+          }
+          
+          const keys = markNodeMap.get(id)
+          if (keys && keys.size > 0) {
+            const summary = generateSuggestionSummary(editor, markNodeMap, id)
+            const content = JSON.stringify(summary)
+            controller.updateSuggestionSummary(id, content).catch(reportError)
+          }
+        }
+
+        // Handle node destruction (redo or orphan cleanup)
+        const isRedoOperation = isRedoOperationRef.current
+        
+        for (const id of idsToHandleDestruction) {
+          const thread = commentStore.getThreadByMarkID(id)
+          if (!thread) {
             continue
           }
 
-          // No nodes for this thread
-          if (thread.status === 'open' || thread.status === undefined) {
-            // Was open, now no nodes -> implicit deletion (not explicit accept/reject)
-            if (thread.hasChildComments) {
-              suggestionModeLogger.info(`Archiving thread ${thread.id} with comments (no matching suggestion)`)
-              await controller.setThreadStatus(thread.id, 'archived').catch(reportError)
+          if (isRedoOperation && thread.statusBeforeReopen) {
+            // Redo: restore the status from before undo reopened the thread
+            suggestionModeLogger.info(`Restoring thread ${thread.id} status to ${thread.statusBeforeReopen}`)
+            commentStore.updateThread(thread.id, {
+              status: thread.statusBeforeReopen,
+              statusBeforeReopen: null,
+            })
+          } else if (thread.status === 'open') {
+            // Orphan cleanup: archive if has comments, otherwise delete
+            if (hasChildComments(thread)) {
+              suggestionModeLogger.info(`Archiving thread ${thread.id} (orphan with comments)`)
+              commentStore.updateThread(thread.id, { status: 'archived', statusBeforeReopen: null })
             } else {
-              suggestionModeLogger.info(`Deleting thread ${thread.id} (no matching suggestion, no comments)`)
-              await controller.deleteSuggestionThread(thread.id).catch(reportError)
+              suggestionModeLogger.info(`Deleting thread ${thread.id} (orphan)`)
+              commentStore.deleteCommentOrThread(thread)
             }
+          } else if (thread.statusBeforeReopen) {
+            // Clear stale statusBeforeReopen
+            commentStore.updateThread(thread.id, { statusBeforeReopen: null })
           }
-          // If status is 'accepted', 'rejected', or 'archived' -> leave as-is
         }
-      } catch (error) {
-        reportError(error)
-      } finally {
-        reconcileInProgressRef.current = false
-        if (reconcilePendingRef.current) {
-          reconcilePendingRef.current = false
-          // Run again with fresh state
-          void reconcileSuggestionThreads()
+      }),
+      // The ProtonNode mutation listener only fires for node creation/destruction/property changes,
+      // not for text content changes within the node (which are TextNode mutations).
+      editor.registerUpdateListener(({ tags }) => {
+        if (tags.has('collaboration')) {
+          return
         }
-      }
-    }
+        
+        for (const [id, keys] of markNodeMap) {
+          if (keys.size === 0) {
+            continue
+          }
+          const summary = generateSuggestionSummary(editor, markNodeMap, id)
+          const content = JSON.stringify(summary)
+          controller.updateSuggestionSummary(id, content).catch(reportError)
+        }
+      }),
+    )
+  }, [controller, editor, markNodeMap, suggestionModeLogger, commentStore])
 
+  useEffect(() => {
     return mergeRegister(
       editor.registerCommand(
         TOGGLE_SUGGESTION_MODE_COMMAND,
@@ -366,17 +401,18 @@ export function SuggestionModePlugin({
           if (!editor.isEditable()) {
             return false
           }
+          // Get thread synchronously before modifying nodes
+          const thread = commentStore.getThreadByMarkID(suggestionID)
+          if (!thread) {
+            suggestionModeLogger.warn(`No thread found for suggestion ${suggestionID} during accept`)
+          }
+          
           const handled = $acceptSuggestion(suggestionID)
-          if (handled) {
-            // Track that this suggestion is being resolved to prevent race with reconciliation
-            pendingResolutionsRef.current.add(suggestionID)
-            controller.getAllThreads().then((threads) => {
-              const thread = threads.find((t) => t.markID === suggestionID)
-              if (thread) {
-                return controller.setThreadStatus(thread.id, 'accepted')
-              }
-            }).catch(reportError).finally(() => {
-              pendingResolutionsRef.current.delete(suggestionID)
+          
+          if (handled && thread) {
+            commentStore.updateThread(thread.id, { 
+              status: 'accepted',
+              statusBeforeReopen: null,
             })
           }
           return handled
@@ -389,52 +425,48 @@ export function SuggestionModePlugin({
           if (!editor.isEditable()) {
             return false
           }
+          // Get thread synchronously before modifying nodes
+          const thread = commentStore.getThreadByMarkID(suggestionID)
+          if (!thread) {
+            suggestionModeLogger.warn(`No thread found for suggestion ${suggestionID} during reject`)
+          }
+          
           const handled = $rejectSuggestion(suggestionID)
-          if (handled) {
-            // Track that this suggestion is being resolved to prevent race with reconciliation
-            pendingResolutionsRef.current.add(suggestionID)
-            // Set thread status directly - this persists to Yjs via CommentStore
-            controller.getAllThreads().then((threads) => {
-              const thread = threads.find((t) => t.markID === suggestionID)
-              if (thread) {
-                return controller.setThreadStatus(thread.id, 'rejected')
-              }
-            }).catch(reportError).finally(() => {
-              pendingResolutionsRef.current.delete(suggestionID)
+          
+          if (handled && thread) {
+            commentStore.updateThread(thread.id, { 
+              status: 'rejected',
+              statusBeforeReopen: null,
             })
           }
           return handled
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
-      editor.registerUpdateListener(
-        /**
-         * Keep suggestion threads in sync with suggestion nodes present in the editor.
-         * Uses serialized reconciliation to avoid race conditions.
-         */
-        function syncSuggestionThreadsFromEditor() {
-          void reconcileSuggestionThreads()
-        },
-      ),
-      editor.registerNodeTransform(ProtonNode, function cleanupEmptySuggestionNodes(node) {
-        if (!$isSuggestionNode(node)) {
-          return
+      editor.registerUpdateListener(({dirtyElements, tags}) => {
+        if (tags.has('collaboration')) {
+          return;
         }
-        const type = node.getSuggestionTypeOrThrow()
-        if (SuggestionTypesThatCanBeEmpty.includes(type)) {
-          return
-        }
-        if (node.getChildrenSize() === 0) {
-          const id = node.getSuggestionIdOrThrow()
-          suggestionModeLogger.info('Removing empty suggestion node', id, type)
-          node.remove()
-        }
-      }),
-      commentStore.registerOnChange(() => {
-        void reconcileSuggestionThreads()
+        editor.update(() => {
+          for (const key of dirtyElements.keys()) {
+            const node = $getNodeByKey(key);
+            if (!$isSuggestionNode(node)) {
+              continue;
+            }
+            const type = node.getSuggestionTypeOrThrow()
+            if (SuggestionTypesThatCanBeEmpty.includes(type)) {
+              continue;
+            }
+            if (node.getChildrenSize() === 0) {
+              const id = node.getSuggestionIdOrThrow()
+              suggestionModeLogger.info('Removing empty suggestion node', id, type)
+              node.remove()
+            }
+          }
+        });
       }),
     )
-  }, [controller, editor, isSuggestionMode, markNodeMap, onUserModeChange, suggestionModeLogger, commentStore])
+  }, [editor, isSuggestionMode, onUserModeChange, suggestionModeLogger, commentStore])
 
   useEffect(() => {
     if (!isSuggestionMode) {

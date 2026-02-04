@@ -16,10 +16,12 @@ import {
   Map as YMap,
   Transaction,
   YArrayEvent,
+  YMapEvent,
   YEvent,
 } from 'yjs';
 import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
+import { TupleSet } from '@/lib/utils/typeGuardUtils';
 
 export type Comment = {
   author: string;
@@ -41,6 +43,8 @@ export type Thread = {
   markID?: string;
   quote: string;
   status?: ThreadStatus;
+  /** Stores the thread's status before it was reopened via undo, so redo can restore it */
+  statusBeforeReopen?: ThreadStatus;
   threadType?: ThreadType;
   type: 'thread';
 };
@@ -80,7 +84,7 @@ export function createThread(
   quote: string,
   comments: Array<Comment>,
   id?: string,
-  options?: { markID?: string; status?: ThreadStatus; threadType?: ThreadType },
+  options?: { markID?: string; status?: ThreadStatus; statusBeforeReopen?: ThreadStatus; threadType?: ThreadType },
 ): Thread {
   return {
     comments,
@@ -88,6 +92,7 @@ export function createThread(
     markID: options?.markID,
     quote,
     status: options?.status,
+    statusBeforeReopen: options?.statusBeforeReopen,
     threadType: options?.threadType,
     type: 'thread',
   };
@@ -100,6 +105,7 @@ function cloneThread(thread: Thread): Thread {
     markID: thread.markID,
     quote: thread.quote,
     status: thread.status,
+    statusBeforeReopen: thread.statusBeforeReopen,
     threadType: thread.threadType,
     type: 'thread',
   };
@@ -158,6 +164,8 @@ export class CommentStore {
       firstCommentContent?: string;
       markID?: string;
       status?: ThreadStatus;
+      /** Set to a status to store it, or null to clear it */
+      statusBeforeReopen?: ThreadStatus | null;
       threadType?: ThreadType;
     },
   ): void {
@@ -196,6 +204,24 @@ export class CommentStore {
           this._withRemoteTransaction(() => {
             sharedCommentsArray.get(i).set('status', data.status);
           });
+        }
+      }
+
+      if (data.statusBeforeReopen !== undefined) {
+        if (data.statusBeforeReopen === null) {
+          newThread.statusBeforeReopen = undefined;
+          if (this.isCollaborative() && sharedCommentsArray !== null) {
+            this._withRemoteTransaction(() => {
+              sharedCommentsArray.get(i).delete('statusBeforeReopen');
+            });
+          }
+        } else {
+          newThread.statusBeforeReopen = data.statusBeforeReopen;
+          if (this.isCollaborative() && sharedCommentsArray !== null) {
+            this._withRemoteTransaction(() => {
+              sharedCommentsArray.get(i).set('statusBeforeReopen', data.statusBeforeReopen);
+            });
+          }
         }
       }
 
@@ -252,8 +278,11 @@ export class CommentStore {
               .get(i)
               .get('comments');
             this._withRemoteTransaction(() => {
-              const sharedMap = this._createCollabSharedMap(commentOrThread);
-              parentSharedArray.insert(insertOffset, [sharedMap]);
+              let exists = checkIfCommentAlreadyExists(parentSharedArray, commentOrThread);
+              if (!exists) {
+                const sharedMap = this._createCollabSharedMap(commentOrThread);
+                parentSharedArray.insert(insertOffset, [sharedMap]);
+              }
             });
           }
           newThread.comments.splice(insertOffset, 0, commentOrThread);
@@ -264,8 +293,11 @@ export class CommentStore {
       const insertOffset = offset !== undefined ? offset : nextComments.length;
       if (this.isCollaborative() && sharedCommentsArray !== null) {
         this._withRemoteTransaction(() => {
-          const sharedMap = this._createCollabSharedMap(commentOrThread);
-          sharedCommentsArray.insert(insertOffset, [sharedMap]);
+          const exists = checkIfCommentAlreadyExists(sharedCommentsArray, commentOrThread);
+          if (!exists) {
+            const sharedMap = this._createCollabSharedMap(commentOrThread);
+            sharedCommentsArray.insert(insertOffset, [sharedMap]);
+          }
         });
       }
       nextComments.splice(insertOffset, 0, commentOrThread);
@@ -401,6 +433,9 @@ export class CommentStore {
       if (commentOrThread.status) {
         sharedMap.set('status', commentOrThread.status);
       }
+      if (commentOrThread.statusBeforeReopen) {
+        sharedMap.set('statusBeforeReopen', commentOrThread.statusBeforeReopen);
+      }
       if (commentOrThread.threadType) {
         sharedMap.set('threadType', commentOrThread.threadType);
       }
@@ -527,6 +562,7 @@ export class CommentStore {
                             {
                               markID: map.get('markID') as string | undefined,
                               status: map.get('status') as ThreadStatus | undefined,
+                              statusBeforeReopen: map.get('statusBeforeReopen') as ThreadStatus | undefined,
                               threadType: map.get('threadType') as ThreadType | undefined,
                             },
                           )
@@ -564,6 +600,19 @@ export class CommentStore {
                 }
               }
             }
+          } else if (event instanceof YMapEvent) {
+            // Handle property updates on existing threads/comments
+            const target = event.target;
+            const targetId = target.get('id');
+            const targetType = target.get('type');
+            
+            if (targetType === 'thread' && targetId) {
+              this._updateThreadProperty(targetId, event, target);
+            } else if (targetType === 'comment' && targetId) {
+              // Handle comment property updates (e.g., content changes for suggestion summaries)
+              // Find the thread that contains this comment
+              this._updateCommentProperty(targetId, event, target);
+            }
           }
         }
       }
@@ -584,6 +633,94 @@ export class CommentStore {
       this._collabProvider = null;
     };
   }
+
+  private updatedableThreadProperties = new TupleSet(['status', 'statusBeforeReopen', 'quote', 'markID', 'threadType'] as const);
+  private updatedableCommentProperties = new TupleSet(['content', 'deleted'] as const);
+
+  private _updateThreadProperty(threadId: string, event: YMapEvent<any>, target: YMap<any>) {
+    const thread = this._comments.find(
+      (c): c is Thread => c.type === 'thread' && c.id === threadId
+    );
+
+    if (!thread) {
+      return;
+    }
+
+    const threadIndex = this._comments.indexOf(thread);
+    const newThread = cloneThread(thread);
+    let changed = false;
+
+    for (const key of event.keysChanged) {
+      const newValue = target.get(key);
+      if (!this.updatedableThreadProperties.has(key)) {
+        continue;
+      }
+
+      Object.assign(newThread, { [key]: newValue });
+      changed = true;
+    }
+
+    if (!changed) {
+      return;
+    }
+
+    const nextComments = Array.from(this._comments);
+    nextComments[threadIndex] = newThread;
+    this._comments = nextComments;
+    triggerOnChange(this);
+  }
+
+  private _updateCommentProperty(commentId: string, event: YMapEvent<any>, target: YMap<any>) {
+    const thread = this._comments.find(
+      (c): c is Thread => c.type === 'thread' && c.comments.some(comment => comment.id === commentId)
+    );
+
+    if (!thread) {
+      return;
+    }
+
+    const threadIndex = this._comments.indexOf(thread);
+    const commentIndex = thread.comments.findIndex(c => c.id === commentId);
+
+    if (commentIndex === -1) {
+      return;
+    }
+
+    const newThread = cloneThread(thread);
+    const comment = newThread.comments[commentIndex];
+    let changed = false;
+
+    for (const key of event.keysChanged) {
+      const newValue = target.get(key);
+      if (!this.updatedableCommentProperties.has(key)) {
+        continue;
+      }
+
+      Object.assign(comment, { [key]: newValue });
+      changed = true;
+    }
+
+    if (!changed) {
+      return;
+    }
+    
+    const nextComments = Array.from(this._comments);
+    nextComments[threadIndex] = newThread;
+    this._comments = nextComments;
+    triggerOnChange(this);
+  }
+}
+
+function checkIfCommentAlreadyExists(parentSharedArray: YArray<AnyBecauseHard>, commentOrThread: Comment | Thread) {
+  let exists = false;
+  for (let i = 0; i < parentSharedArray.length; i++) {
+    const item = parentSharedArray.get(i);
+    if (item.get('id') === commentOrThread.id) {
+      exists = true;
+      break;
+    }
+  }
+  return exists;
 }
 
 export function useCommentStore(commentStore: CommentStore): Comments {
