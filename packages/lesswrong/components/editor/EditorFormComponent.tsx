@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useContext, Suspense } from 'react';
 import { debateEditorPlaceholder, getDefaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
@@ -622,6 +622,8 @@ export function EditorFormComponent<S, R>(props: EditorFormComponentProps<S, R>)
   }
 
   return <ErrorBoundary>
-    <InnerEditorFormComponent<S, R> {...{ field, formType, ...rest }} />
+    <Suspense>
+      <InnerEditorFormComponent<S, R> {...{ field, formType, ...rest }} />
+    </Suspense>
   </ErrorBoundary>;
 }
