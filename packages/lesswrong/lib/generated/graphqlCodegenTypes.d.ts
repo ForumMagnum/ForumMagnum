@@ -7981,6 +7981,7 @@ type QueryCrossedKarmaThresholdArgs = {
 
 
 type QueryCuratedAndPopularThisWeekArgs = {
+  af?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -19190,6 +19191,7 @@ type CuratedAndPopularThisWeekQuery_Query = { __typename?: 'Query', CuratedAndPo
 
 type CuratedAndPopularThisWeekQueryVariables = Exact<{
   limit: InputMaybe<Scalars['Int']['input']>;
+  af: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 

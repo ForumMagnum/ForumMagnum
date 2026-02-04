@@ -49,13 +49,19 @@ const {Query: DigestPostsThisWeekQuery, typeDefs: DigestPostsThisWeekTypeDefs } 
 const {Query: CuratedAndPopularThisWeekQuery, typeDefs: CuratedAndPopularThisWeekTypeDefs } = createPaginatedResolver({
   name: "CuratedAndPopularThisWeek",
   graphQLType: "Post",
+  args: { af: "Boolean" },
   callback: async (
     {repos, currentUser}: ResolverContext,
     limit: number,
-  ): Promise<DbPost[]> => repos.posts.getCuratedAndPopularPosts({
-    currentUser,
-    limit,
-  }),
+    args: { af?: boolean },
+  ): Promise<DbPost[]> => {
+    const af = args?.af ?? isAF();
+    return repos.posts.getCuratedAndPopularPosts({
+      currentUser,
+      limit,
+      af,
+    });
+  },
 });
 
 const {Query: RecentlyActiveDialoguesQuery, typeDefs: RecentlyActiveDialoguesTypeDefs } = createPaginatedResolver({

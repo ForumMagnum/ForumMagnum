@@ -116,7 +116,8 @@ abstract class RecommendationStrategy {
    * suitable for recommendations, and all of the filters from the default view of the
    * Posts collection.
    */
-  protected getDefaultPostFilter() {
+  protected getDefaultPostFilter(strategy?: StrategySettings) {
+    const afFilter = strategy?.af ? `p."af" IS TRUE AND` : "";
     return {
       join: `
         JOIN "Users" author ON author."_id" = p."userId"
@@ -132,6 +133,7 @@ abstract class RecommendationStrategy {
         p."baseScore" >= $(minimumBaseScore) AND
         p."disableRecommendation" IS NOT TRUE AND
         author."deleted" IS NOT TRUE AND
+        ${afFilter}
       `,
       args: {
         postStatus: postStatuses.STATUS_APPROVED,
@@ -168,10 +170,11 @@ abstract class RecommendationStrategy {
     filter: string,
     args: Record<string, unknown> = {},
     sort: keyof DbPost = "score",
+    strategy?: StrategySettings,
   ): Promise<DbPost[]> {
     const db = getSqlClientOrThrow();
     const userFilter = this.getUserFilter(currentUser);
-    const postFilter = this.getDefaultPostFilter();
+    const postFilter = this.getDefaultPostFilter(strategy);
     return db.any(`
       SELECT p.*
       FROM "Posts" p
