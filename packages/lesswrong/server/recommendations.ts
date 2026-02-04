@@ -152,6 +152,13 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, res
     disableRecommendation: {$ne: true},
   }
 
+  if (algorithm.af) {
+    recommendationFilter = {
+      ...recommendationFilter,
+      af: true,
+    };
+  }
+
   if (isEAForum()) {
     recommendationFilter = {$and: [
       recommendationFilter,
@@ -171,6 +178,7 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, res
         {
           ...getDefaultViewSelector(PostsViews, resolverContext), // Ensure drafts are still excluded
           defaultRecommendation: true,
+          ...(algorithm.af ? {af: true} : {}),
         },
       ],
     };
@@ -378,21 +386,28 @@ export const graphqlQueries = {
 
     async Recommendations(root: void, {count,algorithm}: {count: number, algorithm: RecommendationsAlgorithm}, context: ResolverContext) {
       const { currentUser, clientId } = context;
+      const filterAfOnly = algorithm?.af === true;
 
       if (recommendationsAlgorithmHasStrategy(algorithm)) {
         const service = new RecommendationService();
-        return service.recommend(
+        const recommendations = await service.recommend(
           currentUser,
           clientId,
           count,
           algorithm.strategy,
           algorithm.disableFallbacks,
         );
+        return filterAfOnly
+          ? recommendations.filter((post) => post.af)
+          : recommendations;
       }
 
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser, resolverContext: context})
-      const accessFilteredPosts = await accessFilterMultiple(currentUser, 'Posts', recommendedPosts, context);
-      if (recommendedPosts.length !== accessFilteredPosts.length) {
+      const afFilteredPosts = filterAfOnly
+        ? recommendedPosts.filter((post) => post.af)
+        : recommendedPosts;
+      const accessFilteredPosts = await accessFilterMultiple(currentUser, 'Posts', afFilteredPosts, context);
+      if (afFilteredPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
       }
