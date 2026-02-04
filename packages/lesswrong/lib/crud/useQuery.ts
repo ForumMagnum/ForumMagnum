@@ -166,14 +166,14 @@ function normalizeQueryResult(result: any): any {
  * apollo-client bugs than if we were using apollo directly.
  */
 export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryOptions) => {
+  const isNoSSR = (options && 'ssr' in options && !options.ssr);
+  const isSkipped = options?.skip || isNoSSR;
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   if (bundleIsServer) {
     const injectHTML = useInjectHTML();
     const ssrCache = useSsrQueryCache();
     const resolverContext = useSSRResolverContext();
-
-    const isNoSSR = (options && 'ssr' in options && !options.ssr);
-    const isSkipped = options?.skip || isNoSSR;
 
     if (debugSuspenseBoundaries) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -192,7 +192,7 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
       return {
         data: undefined,
         error: undefined,
-        loading: false,
+        loading: isNoSSR && !(options?.skip),
         networkStatus: 7,
       } as any;
     }
@@ -237,8 +237,6 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
     const storeMap = typeof globalThis !== "undefined" ? (globalThis as unknown as Window).__LW_SSR_GQL_STORE_MAP__ : undefined;
     const injectedBeforeWait = injectedStoreBeforeWait?.[injectedKey];
 
-    const isNoSSR = (options && 'ssr' in options && !options.ssr);
-    const isSkipped = options?.skip || isNoSSR;
     // During hydration, it's possible to render before the injected <script>
     // for this key has executed. If we're in a hydration render pass and this
     // query isn't skipped, wait briefly for injection before letting apollo
