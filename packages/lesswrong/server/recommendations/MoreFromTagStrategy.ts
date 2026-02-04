@@ -23,8 +23,9 @@ class MoreFromTagStrategy extends RecommendationStrategy {
   async recommend(
     currentUser: DbUser|null,
     count: number,
-    {postId}: StrategySpecification,
+    strategy: StrategySpecification,
   ): Promise<RecommendationResult> {
+    const {postId} = strategy;
     const tag = await this.chooseTagForPost(postId);
     if (!tag) {
       throw new Error("Couldn't choose a relevant tag for post " + postId);
@@ -35,8 +36,10 @@ class MoreFromTagStrategy extends RecommendationStrategy {
       postId,
       `("p"."tagRelevance"->$(tagId))::INTEGER >= 1`,
       {tagId: tag._id},
+      "score",
+      strategy,
     );
-    return {posts, settings: {postId}};
+    return {posts, settings: {postId, af: strategy.af}};
   };
 
   private async chooseTagForPost(postId: string): Promise<{_id: string} | null> {

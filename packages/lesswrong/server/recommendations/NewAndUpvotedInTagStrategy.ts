@@ -12,8 +12,9 @@ class NewAndUpvotedInTagStrategy extends RecommendationStrategy {
   async recommend(
     currentUser: DbUser|null,
     count: number,
-    {postId, tagId}: StrategySpecification,
+    strategy: StrategySpecification,
   ): Promise<RecommendationResult> {
+    const {postId, tagId} = strategy;
     if (!tagId) {
       throw new Error("No tag id provided");
     }
@@ -27,8 +28,9 @@ class NewAndUpvotedInTagStrategy extends RecommendationStrategy {
       `,
       {tagId},
       "score",
+      strategy,
     );
-    return {posts, settings: {postId, tagId}};
+    return {posts, settings: {postId, tagId, af: strategy.af}};
   };
 }
 

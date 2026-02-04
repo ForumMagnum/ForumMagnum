@@ -44,6 +44,8 @@ export interface StrategySettings {
   /** Various strategy use a bias parameter in different ways for tuning - this
    *  is now mostly deprecated in favour of using features. */
   bias?: number,
+  /** Limit recommendations to Alignment Forum posts. */
+  af?: boolean,
   /** Target year for the EA Forum wrapped strategy */
   year?: number,
   /** Weighted scoring factors for defining a recommendation algorithm. */

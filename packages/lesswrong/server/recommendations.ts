@@ -386,28 +386,24 @@ export const graphqlQueries = {
 
     async Recommendations(root: void, {count,algorithm}: {count: number, algorithm: RecommendationsAlgorithm}, context: ResolverContext) {
       const { currentUser, clientId } = context;
-      const filterAfOnly = algorithm?.af === true;
 
       if (recommendationsAlgorithmHasStrategy(algorithm)) {
         const service = new RecommendationService();
-        const recommendations = await service.recommend(
+        const strategy = algorithm.af
+          ? {...algorithm.strategy, af: true}
+          : algorithm.strategy;
+        return await service.recommend(
           currentUser,
           clientId,
           count,
-          algorithm.strategy,
+          strategy,
           algorithm.disableFallbacks,
         );
-        return filterAfOnly
-          ? recommendations.filter((post) => post.af)
-          : recommendations;
       }
 
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser, resolverContext: context})
-      const afFilteredPosts = filterAfOnly
-        ? recommendedPosts.filter((post) => post.af)
-        : recommendedPosts;
-      const accessFilteredPosts = await accessFilterMultiple(currentUser, 'Posts', afFilteredPosts, context);
-      if (afFilteredPosts.length !== accessFilteredPosts.length) {
+      const accessFilteredPosts = await accessFilterMultiple(currentUser, 'Posts', recommendedPosts, context);
+      if (recommendedPosts.length !== accessFilteredPosts.length) {
         // eslint-disable-next-line no-console
         console.error("Recommendation engine returned a post which permissions filtered out as inaccessible");
       }
