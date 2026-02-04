@@ -1,6 +1,5 @@
 import { $findMatchingParent, $insertFirst } from '@lexical/utils'
-import type { ElementNode } from 'lexical'
-import { $getSelection, $isElementNode, $isRangeSelection, type ElementFormatType } from 'lexical'
+import { $getSelection, $isElementNode, $isRangeSelection, type ElementFormatType, type ElementNode } from 'lexical'
 import type { ProtonNode } from './ProtonNode'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import { generateUUID } from '@/lib/vendor/proton/generateUUID'

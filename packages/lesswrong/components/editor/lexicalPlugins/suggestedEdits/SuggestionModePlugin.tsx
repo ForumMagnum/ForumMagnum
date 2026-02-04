@@ -63,7 +63,6 @@ import {
 import { $handleDividerDeleteAsSuggestion } from './dividerHandling'
 import { EditorUserMode, type EditorUserModeType } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode'
 import { $handleIndentOutdentAsSuggestion } from './handleIndentOutdent'
-import { useGenericAlertModal } from '@/lib/vendor/proton/alertModal'
 import {
   DELETE_TABLE_COLUMN_COMMAND,
   DELETE_TABLE_COMMAND,
@@ -87,12 +86,12 @@ import { $insertDividerAsSuggestion } from './insertDividerAsSuggestion'
 import { HR } from '@/components/lexical/plugins/MarkdownTransformers'
 import { $getTopLevelParagraphForHR } from '@/components/editor/lexicalPlugins/horizontalRuleEnter'
 import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggestion'
-import { useNotifications } from '@/lib/vendor/proton/notifications'
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import { eventFiles } from '@lexical/rich-text'
 import { $createImageNode } from '@/components/lexical/nodes/ImageNode'
 import { isImageFile } from '@/components/lexical/plugins/ImagesPlugin/ImageUtils'
 import { ImageUploadError, uploadToCloudinary } from '@/components/lexical/utils/cloudinaryUpload'
+import { useMessages } from '@/components/common/withMessages'
 
 function getImageAltText(payload: Blob): string {
   return payload instanceof File ? payload.name : ''
@@ -155,8 +154,7 @@ export function SuggestionModePlugin({
 
   const [suggestionModeLogger] = useState(() => new ConsoleLogger('docs-suggestions-mode'))
 
-  const { createNotification } = useNotifications()
-  const [alertModal, showAlertModal] = useGenericAlertModal()
+  const { flash: createNotification } = useMessages()
 
   /**
    * Set of suggestion IDs created during the current session.
@@ -888,11 +886,11 @@ export function SuggestionModePlugin({
           editor.setEditable(false)
           editor._compositionKey = null
           onUserModeChange(EditorUserMode.Preview)
-          showAlertModal({
-            title: 'Language not supported',
-            translatedMessage:
-              "The language you're using isn’t currently supported in suggestion mode. Please switch to edit mode or change the language.",
+          createNotification({
+            messageString: `The language you're using isn't currently supported in suggestion mode. Please switch to edit mode or change the language.`,
+            type: 'error'
           })
+
           return true
         },
         COMMAND_PRIORITY_CRITICAL,
@@ -975,7 +973,7 @@ export function SuggestionModePlugin({
         COMMAND_PRIORITY_CRITICAL,
       ),
     )
-  }, [controller, createNotification, editor, isSuggestionMode, onUserModeChange, showAlertModal, suggestionModeLogger])
+  }, [controller, createNotification, editor, isSuggestionMode, onUserModeChange, suggestionModeLogger])
 
-  return <>{alertModal}</>
+  return null
 }

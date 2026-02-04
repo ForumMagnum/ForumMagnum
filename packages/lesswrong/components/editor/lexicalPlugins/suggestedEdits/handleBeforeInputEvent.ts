@@ -45,11 +45,11 @@ import type { ListItemNode, ListType } from '@lexical/list'
 import { $handleListInsertParagraph, $isListItemNode } from '@lexical/list'
 import { $getListInfo } from '@/components/editor/lexicalPlugins/suggestions/$getListInfo'
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
-import type { CreateNotificationOptions } from '@/lib/vendor/proton/notifications'
 import { $removeSuggestionNodeAndResolveIfNeeded } from './removeSuggestionNodeAndResolveIfNeeded'
 import { $setBlocksTypeAsSuggestion } from './setBlocksTypeAsSuggestion'
 import { normalizeUrl, sanitizeUrl, validateUrl } from '@/components/lexical/utils/url'
 import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand'
+import type { WithMessagesMessage } from '@/components/layout/FlashMessages'
 
 /**
  * This is the main core of suggestion mode. It handles input events,
@@ -61,7 +61,7 @@ export function $handleBeforeInputEvent(
   event: InputEvent,
   onSuggestionCreation: (id: string) => void,
   logger: Logger,
-  createNotification?: (options: CreateNotificationOptions) => number,
+  createNotification: (message: WithMessagesMessage) => void,
 ): boolean {
   const inputType = event.inputType
 
@@ -87,9 +87,9 @@ export function $handleBeforeInputEvent(
 
   if ($isAnyPartOfSelectionInCodeNode(selection)) {
     logger.info('Aborting beforeinput because selection is inside a code-block')
-    createNotification?.({
-      text: 'Making suggestions inside code blocks is not supported',
-      type: 'warning',
+    createNotification({
+      messageString: 'Making suggestions inside code blocks is not supported',
+      type: 'error',
     })
     return true
   }
@@ -110,7 +110,7 @@ export function $handleDeleteInputType(
   inputType: string,
   onSuggestionCreation: (id: string) => void,
   logger: Logger,
-  createNotification?: (options: CreateNotificationOptions) => number,
+  createNotification: (message: WithMessagesMessage) => void,
 ): boolean {
   if (!DeleteInputTypes.includes(inputType)) {
     return true
@@ -124,9 +124,9 @@ export function $handleDeleteInputType(
 
   if ($isAnyPartOfSelectionInCodeNode(selection)) {
     logger.info('Aborting delete because selection is inside a code-block')
-    createNotification?.({
-      text: 'Making suggestions inside code blocks is not supported',
-      type: 'warning',
+    createNotification({
+      messageString: 'Making suggestions inside code blocks is not supported',
+      type: 'error',
     })
     return true
   }

@@ -18,7 +18,7 @@ import {
 import { $setBlocksType } from '@lexical/selection';
 import { mergeRegister } from '@lexical/utils';
 import { SpoilerNode, $createSpoilerNode, $isSpoilerNode } from './SpoilerNode';
-import { useNotifications } from '@/lib/vendor/proton/notifications';
+import { useMessages } from '@/components/common/withMessages';
 
 export const INSERT_SPOILER_COMMAND: LexicalCommand<void> = createCommand('INSERT_SPOILER_COMMAND');
 export const TOGGLE_SPOILER_COMMAND: LexicalCommand<void> = createCommand('TOGGLE_SPOILER_COMMAND');
@@ -33,7 +33,7 @@ export const TOGGLE_SPOILER_COMMAND: LexicalCommand<void> = createCommand('TOGGL
  */
 export function SpoilersPlugin({ isSuggestionMode }: { isSuggestionMode?: boolean }): null {
   const [editor] = useLexicalComposerContext();
-  const { createNotification } = useNotifications();
+  const { flash } = useMessages();
 
   useEffect(() => {
     // Register the SpoilerNode if not already registered
@@ -47,10 +47,11 @@ export function SpoilersPlugin({ isSuggestionMode }: { isSuggestionMode?: boolea
         INSERT_SPOILER_COMMAND,
         () => {
           if (isSuggestionMode) {
-            createNotification?.({
-              text: 'Spoiler blocks are not supported in suggestion mode',
-              type: 'warning',
+            flash({
+              messageString: 'Spoiler blocks are not supported in suggestion mode',
+              type: 'error',
             });
+            
             return true;
           }
           editor.update(() => {
@@ -74,9 +75,9 @@ export function SpoilersPlugin({ isSuggestionMode }: { isSuggestionMode?: boolea
         TOGGLE_SPOILER_COMMAND,
         () => {
           if (isSuggestionMode) {
-            createNotification?.({
-              text: 'Spoiler blocks are not supported in suggestion mode',
-              type: 'warning',
+            flash({
+              messageString: 'Spoiler blocks are not supported in suggestion mode',
+              type: 'error',
             });
             return true;
           }
@@ -198,7 +199,7 @@ export function SpoilersPlugin({ isSuggestionMode }: { isSuggestionMode?: boolea
         });
       })
     );
-  }, [createNotification, editor, isSuggestionMode]);
+  }, [editor, isSuggestionMode, flash]);
 
   return null;
 }
