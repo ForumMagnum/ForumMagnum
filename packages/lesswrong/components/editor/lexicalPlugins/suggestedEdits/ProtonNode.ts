@@ -133,16 +133,17 @@ export class ProtonNode extends ElementNode {
   }
 
   /**
-   * Returning true from this will exclude this node from serialization
-   * The children of the node will not be excluded unless they also specifically
-   * override this method and return false.
-   * Here we return true if the destination is not 'clone', which makes sure it
-   * will still be serialized when we do `editorState.toJSON()` but not when
-   * we call `$generateHtml..` or `$generateJSON..` as they check this method
-   * with a destination of 'html'
+   * We include ProtonNodes (suggestion wrappers) in HTML exports so that
+   * the server-side `removePrivateLexicalMarkup` can process them:
+   * - `<ins>` elements are removed entirely (rejecting unaccepted insertions)
+   * - `<del>` elements are unwrapped, keeping the original text
+   *
+   * The original Proton implementation excluded these from HTML exports
+   * (`return destination !== 'clone'`), but our pipeline relies on the
+   * `<ins>`/`<del>` tags being present in the serialized HTML.
    */
-  excludeFromCopy(destination: 'clone' | 'html'): boolean {
-    return destination !== 'clone'
+  excludeFromCopy(_destination: 'clone' | 'html'): boolean {
+    return false
   }
 
   getProtonNodeType(): typeof ProtonNodeTypes[keyof typeof ProtonNodeTypes] {
