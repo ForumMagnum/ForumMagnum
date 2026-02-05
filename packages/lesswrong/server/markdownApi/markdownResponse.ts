@@ -13,7 +13,11 @@ export const markdownClasses: Record<string, string> = {
  * should not use any classes except those in `markdownClasses`.
  */
 export async function markdownResponse(reactTree: React.ReactNode): Promise<Response> {
-  const html = await renderToString(reactTree)
-  const markdown = htmlToMarkdown(html)
+  const markdown = await renderReactToMarkdown(reactTree)
   return new NextResponse(markdown, { status: 200 });
+}
+
+export async function renderReactToMarkdown(reactTree: React.ReactNode): Promise<string> {
+  const html = await renderToString(reactTree)
+  return htmlToMarkdown(html)
 }
