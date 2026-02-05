@@ -49,7 +49,10 @@ const server = new Server({
         id: userId,
         name: displayName,
         accessLevel,
-        canEdit: accessLevel === 'edit',
+        // Allow both 'edit' and 'comment' users to write to the document.
+        // 'comment' users are forced into suggestion mode on the client side,
+        // so their edits will be wrapped in suggestion marks rather than being direct edits.
+        canEdit: accessLevel === 'edit' || accessLevel === 'comment',
       },
     };
   },
