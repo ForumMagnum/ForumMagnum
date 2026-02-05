@@ -110,6 +110,12 @@ export const routeTrie = {
     },
     "api": {
       "staticChildren": {
+        "SKILL.md": {
+          "hasRoute": true
+        },
+        "latest": {
+          "hasRoute": true
+        },
         "autocomplete": {
           "hasRoute": true
         },
@@ -259,6 +265,8 @@ export const routeTrie = {
         }
       },
       "lowerCase": {
+        "skill.md": "SKILL.md",
+        "latest": "latest",
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",
@@ -274,7 +282,8 @@ export const routeTrie = {
         "sendllmchat": "sendLlmChat",
         "streamgraphql": "streamGraphql",
         "v2": "v2"
-      }
+      },
+      "hasRoute": true
     },
     "arbital": {
       "hasPage": true

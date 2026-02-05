@@ -28,11 +28,6 @@ function getTurndown(): TurndownService {
     const TurndownService = require('turndown');
     const {gfm} = require('turndown-plugin-gfm');
 
-    function hasDataMarkdownAttribute(node: Node): boolean {
-      return node?.nodeType === ServerSafeNode.ELEMENT_NODE
-        && typeof (node as Element).getAttribute === 'function'
-        && (node as Element).getAttribute('data-markdown') !== null
-    }
     const turndownService: TurndownService = new TurndownService({
       blankReplacement: (content: string, node: Node) => {
         if (hasDataMarkdownAttribute(node)) {
@@ -110,6 +105,12 @@ function getTurndown(): TurndownService {
     _turndownService = turndownService;
   }
   return _turndownService;
+}
+
+function hasDataMarkdownAttribute(node: Node): boolean {
+  return node?.nodeType === ServerSafeNode.ELEMENT_NODE
+    && typeof (node as Element).getAttribute === 'function'
+    && (node as Element).getAttribute('data-markdown') !== null
 }
 
 export function mjPagePromise(html: string, beforeSerializationCallback: (dom: any, css: string) => any): Promise<string> {

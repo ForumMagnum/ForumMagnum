@@ -8,6 +8,7 @@ import { MarkdownUserLink } from "@/server/markdownComponents/MarkdownUserLink";
 import { MarkdownDate } from "@/server/markdownComponents/MarkdownDate";
 import { tagUrlBaseSetting } from "@/lib/instanceSettings";
 import { gql } from "@/lib/generated/gql-codegen";
+import React from "react";
 
 const PostMarkdownQuery = gql(`
   query PostMarkdownApi($_id: String!) {
@@ -63,7 +64,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ idOr
     <ul>
       <li>
         By <MarkdownUserLink user={post.user} />
-        {post.coauthors?.map((coauthor,i) => <>{", "}<MarkdownUserLink user={coauthor} /></>)}
+        {post.coauthors?.map((coauthor,i) => <React.Fragment key={i}>
+          {", "}<MarkdownUserLink user={coauthor} />
+        </React.Fragment>)}
       </li>
       <li><MarkdownDate date={post.postedAt} /></li>
       <li>{post.baseScore ?? 0} points</li>
@@ -72,7 +75,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ idOr
       </li>}
       {isCurated && <li>Curated</li>}
       {post.tags?.length && post.tags.map((tag,i) => 
-        <li>Tag: <a href={`/${tagUrlBase}/${tag.slug}`}>{tag.name}</a></li>
+        <li key={i}>Tag: <a href={`/${tagUrlBase}/${tag.slug}`}>{tag.name}</a></li>
       )}
       <li>{frontpageLabel}</li>
       <li>Post URL (HTML): <a href={`/posts/${post._id}/${post.slug}`}>{`/posts/${post._id}/${post.slug}`}</a></li>

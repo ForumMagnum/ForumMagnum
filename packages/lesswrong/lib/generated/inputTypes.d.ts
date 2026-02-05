@@ -6185,6 +6185,7 @@ interface Revision {
   html: string | null;
   markdown: string | null;
   agentMarkdown: string | null;
+  agentMarkdownExcerpt: string | null;
   ckEditorMarkup: string | null;
   wordCount: number;
   htmlHighlight: string;
