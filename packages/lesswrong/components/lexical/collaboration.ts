@@ -15,9 +15,10 @@ import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/coll
 
 export interface CollaborationConfig {
   postId: string;
-  token: string;
-  wsUrl: string;
-  documentName: string;
+  /** Async function that fetches a fresh JWT for Hocuspocus authentication.
+   * Called on every WebSocket connection attempt (including reconnections),
+   * ensuring the token is always valid at connection time. */
+  getToken: () => Promise<string>;
   user: {
     id: string;
     name: string;
@@ -192,9 +193,15 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
     throw new Error('[Collaboration] No collaboration config set. Call setCollaborationConfig() before using collaboration features.');
   }
 
-  // For nested editors (captions, etc.), use a unique document name to avoid conflicts.
-  // The main editor typically uses 'main' as the id.
-  const documentName = id === 'main' ? config.documentName : `${config.documentName}/${id}`;
+  const wsUrl = process.env.NEXT_PUBLIC_HOCUSPOCUS_URL;
+  if (!wsUrl) {
+    throw new Error('[Collaboration] HOCUSPOCUS_URL is not configured. Set the HOCUSPOCUS_URL environment variable at build time.');
+  }
+
+  // Document names follow the pattern "post-{postId}" for the main editor,
+  // or "post-{postId}/{subDocId}" for nested editors (captions, etc.).
+  const baseDocumentName = `post-${config.postId}`;
+  const documentName = id === 'main' ? baseDocumentName : `${baseDocumentName}/${id}`;
 
   // Initialize persistence if needed.
   // For 'main', we wait for IndexedDB to sync (or fail) before connecting.
@@ -207,10 +214,10 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
   let hasReceivedFirstSync = false;
 
   const provider = new HocuspocusProvider({
-    url: config.wsUrl,
+    url: wsUrl,
     name: documentName,
     document: doc,
-    token: config.token,
+    token: config.getToken,
     // Don't connect automatically - we'll connect after IndexedDB syncs
     connect: false,
 

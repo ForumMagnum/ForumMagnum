@@ -15,7 +15,9 @@ import { useCurrentUser } from '../common/withUser';
 import WarningBanner from '../common/WarningBanner';
 import { useClientId } from '../hooks/useClientId';
 import type { CollaborationConfig } from '../lexical/collaboration';
-import { useHocuspocusAuth } from './lexicalPlugins/collaboration/useHocuspocusAuth'
+import { useApolloClient } from '@apollo/client/react';
+import { useLocation } from '@/lib/routeUtil';
+import type { ApolloClient } from '@apollo/client/core';
 import Editor from '../lexical/Editor';
 import { LexicalEditorContext } from './LexicalEditorContext';
 import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
@@ -28,6 +30,15 @@ import { ToolbarContext } from '../lexical/context/ToolbarContext';
 import Settings from '../lexical/Settings';
 import { TableCellNode } from '@lexical/table';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
+import { gql } from '@/lib/generated/gql-codegen';
+
+const HocuspocusAuthQuery = gql(`
+  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
+    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
+      token
+    }
+  }
+`);
 
 
 const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
@@ -348,6 +359,23 @@ const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExpo
   return output;
 };
 
+async function fetchHocuspocusToken(
+  apolloClient: ApolloClient,
+  postId: string,
+  linkSharingKey: string | null,
+): Promise<string> {
+  const { data } = await apolloClient.query({
+    query: HocuspocusAuthQuery,
+    variables: { postId, linkSharingKey },
+    fetchPolicy: 'network-only',
+  });
+  const token = data?.HocuspocusAuth?.token;
+  if (!token) {
+    throw new Error('Failed to fetch collaboration token');
+  }
+  return token;
+}
+
 const LexicalEditor = ({
   data = '',
   placeholder = 'Start writing...',
@@ -362,6 +390,9 @@ const LexicalEditor = ({
   const classes = useStyles(lexicalStyles);
   const currentUser = useCurrentUser();
   const clientId = useClientId();
+  const apolloClient = useApolloClient();
+  const { query } = useLocation();
+  const linkSharingKey = typeof query.key === 'string' ? query.key : null;
   const initialHtmlRef = useRef<string | null>(null);
   const lastDocumentIdRef = useRef<string | null>(null);
   const lastEmittedHtmlRef = useRef<string | null>(null);
@@ -385,25 +416,20 @@ const LexicalEditor = ({
   // This ensures we always use Yjs for consistency, even when not sharing with others.
   // Anonymous users can collaborate if they have a clientId (from cookie).
   const shouldEnableCollaboration = isPostEditor && !!documentId;
-  const { auth: hocuspocusAuth, loading: authLoading, error: authError } = useHocuspocusAuth(
-    documentId,
-    !shouldEnableCollaboration
-  );
 
-  // Build collaboration config when auth is available
+  // Build collaboration config directly -- no initial auth query needed.
+  // The wsUrl is a build-time constant, the documentName is derived from the postId,
+  // and auth tokens are fetched lazily by getToken on each WebSocket connection attempt.
   const collaborationConfig: CollaborationConfig | null = useMemo(() => {
-    if (!shouldEnableCollaboration || !hocuspocusAuth) {
+    if (!shouldEnableCollaboration) {
       return null;
     }
-    // Use currentUser info if logged in, otherwise use clientId for anonymous users
     const userId = currentUser?._id ?? clientId ?? 'anonymous';
     const userName = currentUser?.displayName ?? 'Anonymous';
     
     return {
       postId: documentId!,
-      token: hocuspocusAuth.token,
-      wsUrl: hocuspocusAuth.wsUrl,
-      documentName: hocuspocusAuth.documentName,
+      getToken: () => fetchHocuspocusToken(apolloClient, documentId!, linkSharingKey),
       user: {
         id: userId,
         name: userName,
@@ -412,7 +438,7 @@ const LexicalEditor = ({
         setCollaborationWarning(error.message);
       },
     };
-  }, [shouldEnableCollaboration, hocuspocusAuth, currentUser, clientId, documentId]);
+  }, [shouldEnableCollaboration, currentUser, clientId, documentId, apolloClient, linkSharingKey]);
 
   useEffect(() => {
     onReady?.();
@@ -455,32 +481,6 @@ const LexicalEditor = ({
     },
     [],
   );
-
-  // Show loading state while fetching collaboration auth
-  if (shouldEnableCollaboration && authLoading) {
-    return (
-      <div className={classes.editorContainer}>
-        <div className={classes.editorInner}>
-          <div className={classes.editorPlaceholder}>Loading collaborative editor...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // Fail closed if collaboration is required but auth is missing or failed.
-  if (shouldEnableCollaboration && !authLoading && !hocuspocusAuth) {
-    // eslint-disable-next-line no-console
-    console.error('[LexicalEditor] Failed to get collaboration auth:', authError);
-    return (
-      <div className={classes.editorContainer}>
-        <div className={classes.editorInner}>
-          <WarningBanner
-            message="Unable to start collaborative editing. Please refresh, or message us on Intercom if this persists."
-          />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <LexicalEditorContext.Provider value={editorContextValue}>
