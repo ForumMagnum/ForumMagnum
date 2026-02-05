@@ -20,6 +20,7 @@ import { useUltraFeedContext } from "./UltraFeedContextProvider";
 import { Link } from "@/lib/reactRouterWrapper";
 import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
 import { getReviewLink } from "@/lib/reviewUtils";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -376,6 +377,7 @@ const UltraFeedCommentsItemMeta = ({
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const now = useCurrentTime();
   const [postTitleHighlighted, setPostTitleHighlighted] = useState(false);
   const { post } = comment;
   const { feedType } = useUltraFeedContext();
@@ -387,7 +389,7 @@ const UltraFeedCommentsItemMeta = ({
   const moderatorCommentAnnotation = comment.hideModeratorHat ? "Moderator Comment (Invisible)" : "Moderator Comment";
   const showModeratorCommentAnnotation = comment.moderatorHat && (!comment.hideModeratorHat || userIsAdmin(currentUser));
 
-  const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)));
+  const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)));
   const isTopLevelComment = !comment.parentCommentId;
   const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted;
   

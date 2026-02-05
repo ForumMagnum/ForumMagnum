@@ -11,13 +11,14 @@ import { Inkhaven2026Banner } from '../seasonal/Inkhaven2026Banner';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
 import { getReviewPhase, reviewIsActive } from '@/lib/reviewUtils';
 import ReviewVotingCanvas from '../review/ReviewVotingCanvas';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 // Inkhaven Cohort #2 banner active period
 const INKHAVEN_2026_START = new Date('2026-01-10T00:00:00-08:00');
 const INKHAVEN_2026_END = new Date('2026-02-01T00:00:00-08:00');
 
-function isInkhaven2026Active(): boolean {
-  const now = new Date();
+function useIsInkhaven2026Active(): boolean {
+  const now = useCurrentTime();
   return now >= INKHAVEN_2026_START && now < INKHAVEN_2026_END;
 }
 
@@ -104,7 +105,7 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   
   // Show Inkhaven Cohort #2 banner on homepage during active period
   let homePageImage = defaultImage;
-  if (isInkhaven2026Active() && standaloneNavigation && isHomePage) {
+  if (useIsInkhaven2026Active() && standaloneNavigation && isHomePage) {
     homePageImage = <Inkhaven2026Banner />;
   }
   

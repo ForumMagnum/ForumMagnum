@@ -224,7 +224,11 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
       const value = parsed <= 0 || parsed >= 1
         ? Math.round(parsed)
         : Math.floor(parsed * 100) / 100;
+
+      // Linter incorrectly believes this could be called at render time
+      // eslint-disable-next-line react-hooks/purity
       const now = Date.now();
+
       setMode(value, now);
       if (standardFilterModes.includes(value)) {
         setTimeout(() => {

@@ -10,7 +10,7 @@ import { useMessages } from '../common/withMessages';
 import { afNonMemberDisplayInitialPopup, useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
-import { isInFuture } from '../../lib/utils/timeUtil';
+import { isInFuture, useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -175,7 +175,8 @@ const CommentsNewForm = ({
 }: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
-  const commentSubmitStartTimeRef = useRef(Date.now());
+  const now = useCurrentTime();
+  const commentSubmitStartTimeRef = useRef(now.getTime());
   
   const { refetch, data } = useQuery(UsersCurrentCommentRateLimitQuery, {
     variables: { documentId: currentUser?._id, postId: post?._id },
@@ -292,7 +293,7 @@ const CommentsNewForm = ({
   const hideDate = hideUnreviewedAuthorCommentsSettings.get();
   const commentWillBeHidden = (
     hideDate
-    && new Date(hideDate) < new Date()
+    && new Date(hideDate) < now
     && currentUser
     && !currentUser.isReviewed
   );

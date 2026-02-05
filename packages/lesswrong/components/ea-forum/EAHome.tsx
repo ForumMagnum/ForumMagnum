@@ -20,6 +20,7 @@ import EventBanner from "./EventBanner";
 import BotSiteBanner from "@/components/layout/BotSiteBanner";
 import EAGBanner from "./EAGBanner";
 import { StructuredData } from '../common/StructuredData'
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 /**
  * Build structured data to help with SEO.
@@ -87,7 +88,8 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   // Only show the maintenance banner if the the current time is before the maintenance time (plus 5 minutes leeway),
   // this is just so we don't have to rush to change the server settings as soon as the maintenance is done
   const maintenanceTimeValue = maintenanceTime.get()
-  const isBeforeMaintenanceTime = maintenanceTimeValue && Date.now() < new Date(maintenanceTimeValue).getTime() + (5*60*1000)
+  const now = useCurrentTime();
+  const isBeforeMaintenanceTime = maintenanceTimeValue && now.getTime() < new Date(maintenanceTimeValue).getTime() + (5*60*1000)
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
   const shouldRenderBotSiteBanner = isBotSiteSetting.get() && isEAForum()
 

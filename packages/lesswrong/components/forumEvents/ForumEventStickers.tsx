@@ -130,6 +130,8 @@ const ForumEventStickers: FC<{
     null
   );
   // Random rotation between -25 and 25 degrees
+  // ea-forum-look-here: Needs something to not be an SSR mismatch
+  // eslint-disable-next-line react-hooks/purity
   const hoverTheta = useMemo(() => (Math.random() * 50) - 25, []);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
