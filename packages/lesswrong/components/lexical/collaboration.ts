@@ -6,10 +6,12 @@
  *
  */
 
+import React, { createContext, useCallback, useContext } from 'react';
 import {Provider} from '@lexical/yjs';
 import {HocuspocusProvider} from '@hocuspocus/provider';
 import {Doc} from 'yjs';
 import {IndexeddbPersistence} from 'y-indexeddb';
+import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 
 export interface CollaborationConfig {
   postId: string;
@@ -23,6 +25,59 @@ export interface CollaborationConfig {
   /** Called when the initial sync with the server completes. Receives the Y.Doc for bootstrap detection. */
   onSynced?: (doc: Doc, isFirstSync: boolean) => void;
   onError?: (error: Error) => void;
+}
+
+export interface CollaboratorIdentity {
+  /** Unique user ID (userId for logged-in users, clientId for anonymous) */
+  id: string;
+  /** Display name */
+  name: string;
+  /** Access level for the collaborative document */
+  accessLevel: CollaborativeEditingAccessLevel;
+}
+
+const CollaboratorIdentityContext = createContext<CollaboratorIdentity | null>(null);
+
+export const CollaboratorIdentityProvider = CollaboratorIdentityContext.Provider;
+
+/**
+ * Hook to get the current collaborator's identity.
+ * Returns the user ID, name, and access level from the collaboration context.
+ * Throws if used outside of a CollaboratorIdentityProvider.
+ */
+export function useCollaboratorIdentity(): CollaboratorIdentity {
+  const identity = useContext(CollaboratorIdentityContext);
+  if (!identity) {
+    throw new Error('useCollaboratorIdentity must be used within a CollaboratorIdentityProvider');
+  }
+  return identity;
+}
+
+/**
+ * Hook to get the current collaborator's ID.
+ */
+export function useCurrentCollaboratorId(): string {
+  return useCollaboratorIdentity().id;
+}
+
+/**
+ * Hook that returns a function to check if the current user can reject a suggestion.
+ * The returned function accepts the suggestion's author ID and returns true if:
+ * - The user has "edit" permissions, OR
+ * - The user is the author of the suggestion
+ */
+export function useCanRejectSuggestion(): (suggestionAuthorId: string) => boolean {
+  const { id, accessLevel } = useCollaboratorIdentity();
+  const canAcceptOrReject = accessLevelCan(accessLevel, "edit");
+  
+  return useCallback(
+    (suggestionAuthorId: string | undefined) => {
+      if (canAcceptOrReject) return true;
+      const isOwnSuggestion = suggestionAuthorId != null && suggestionAuthorId === id;
+      return isOwnSuggestion;
+    },
+    [canAcceptOrReject, id]
+  );
 }
 
 // Module-level config storage - set this before rendering the Editor.

@@ -37,7 +37,10 @@ import { useCommentStoreContext } from '@/components/lexical/commenting/CommentS
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND, TOGGLE_SUGGESTION_MODE_COMMAND } from './Commands'
 import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST, QUOTE } from '@lexical/markdown'
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, type ListItemNode } from '@lexical/list'
-import { $isEmptyListItemExceptForSuggestions } from './Utils'
+import { $isEmptyListItemExceptForSuggestions, hasChildComments } from './Utils'
+import { getSuggestionAuthorIdFromComments } from './suggestionPermissions'
+import { useCanRejectSuggestion, useCollaboratorIdentity } from '@/components/lexical/collaboration'
+import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions'
 import { generateUUID } from '@/lib/vendor/proton/generateUUID'
 import { $acceptSuggestion } from './acceptSuggestion'
 import { $rejectSuggestion } from './rejectSuggestion'
@@ -131,13 +134,6 @@ function insertImageFileAsSuggestion(
 
 const LIST_TRANSFORMERS = [UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]
 
-const SUGGESTION_SUMMARY_KIND = 'suggestionSummary' as const
-
-/** Check if a suggestion thread has comments beyond the auto-generated summary */
-function hasChildComments(thread: { comments: Array<{ commentKind?: string }> }): boolean {
-  return thread.comments.some((comment) => comment.commentKind !== SUGGESTION_SUMMARY_KIND)
-}
-
 export function SuggestionModePlugin({
   isSuggestionMode,
   controller,
@@ -148,6 +144,9 @@ export function SuggestionModePlugin({
   onUserModeChange: (mode: EditorUserModeType) => void
 }) {
   const [editor] = useLexicalComposerContext()
+  const { accessLevel } = useCollaboratorIdentity()
+  const canAcceptOrReject = accessLevelCan(accessLevel, "edit")
+  const canRejectSuggestion = useCanRejectSuggestion()
 
   const { markNodeMap } = useMarkNodesContext()
   const { commentStore } = useCommentStoreContext()
@@ -404,6 +403,10 @@ export function SuggestionModePlugin({
           if (!thread) {
             suggestionModeLogger.warn(`No thread found for suggestion ${suggestionID} during accept`)
           }
+
+          if (!canAcceptOrReject) {
+            return false
+          }
           
           const handled = $acceptSuggestion(suggestionID)
           
@@ -427,6 +430,13 @@ export function SuggestionModePlugin({
           const thread = commentStore.getThreadByMarkID(suggestionID)
           if (!thread) {
             suggestionModeLogger.warn(`No thread found for suggestion ${suggestionID} during reject`)
+            return false
+          }
+          
+          const suggestionAuthorId = getSuggestionAuthorIdFromComments(thread.comments)
+          if (!suggestionAuthorId || !canRejectSuggestion(suggestionAuthorId)) {
+            suggestionModeLogger.warn(`User does not have permission to reject suggestion ${suggestionID}`)
+            return false
           }
           
           const handled = $rejectSuggestion(suggestionID)
@@ -464,7 +474,7 @@ export function SuggestionModePlugin({
         });
       }),
     )
-  }, [editor, isSuggestionMode, onUserModeChange, suggestionModeLogger, commentStore])
+  }, [editor, isSuggestionMode, onUserModeChange, suggestionModeLogger, commentStore, canAcceptOrReject, canRejectSuggestion])
 
   useEffect(() => {
     if (!isSuggestionMode) {

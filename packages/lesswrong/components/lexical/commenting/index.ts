@@ -25,6 +25,7 @@ import { TupleSet } from '@/lib/utils/typeGuardUtils';
 
 export type Comment = {
   author: string;
+  authorId: string;
   content: string;
   deleted: boolean;
   id: string;
@@ -61,6 +62,7 @@ function createUID(): string {
 export function createComment(
   content: string,
   author: string,
+  authorId: string,
   id?: string,
   timeStamp?: number,
   deleted?: boolean,
@@ -68,6 +70,7 @@ export function createComment(
 ): Comment {
   return {
     author,
+    authorId,
     content,
     deleted: deleted === undefined ? false : deleted,
     id: id === undefined ? createUID() : id,
@@ -114,6 +117,7 @@ function cloneThread(thread: Thread): Thread {
 function markDeleted(comment: Comment): Comment {
   return {
     author: comment.author,
+    authorId: comment.authorId,
     content: '[Deleted Comment]',
     deleted: true,
     id: comment.id,
@@ -419,6 +423,7 @@ export class CommentStore {
     sharedMap.set('id', id);
     if (type === 'comment') {
       sharedMap.set('author', commentOrThread.author);
+      sharedMap.set('authorId', commentOrThread.authorId);
       sharedMap.set('content', commentOrThread.content);
       sharedMap.set('deleted', commentOrThread.deleted);
       if (commentOrThread.commentKind) {
@@ -552,6 +557,7 @@ export class CommentStore {
                                   createComment(
                                     innerComment.get('content') as string,
                                     innerComment.get('author') as string,
+                                    innerComment.get('authorId') as string,
                                     innerComment.get('id') as string,
                                     innerComment.get('timeStamp') as number,
                                     innerComment.get('deleted') as boolean,
@@ -569,6 +575,7 @@ export class CommentStore {
                         : createComment(
                             map.get('content'),
                             map.get('author'),
+                            map.get('authorId') as string,
                             id,
                             map.get('timeStamp'),
                             map.get('deleted'),

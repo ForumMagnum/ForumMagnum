@@ -8,11 +8,9 @@ import { type EditorUserModeType } from '@/components/editor/lexicalPlugins/sugg
 import { TOGGLE_SUGGESTION_MODE_COMMAND } from './Commands';
 import { SuggestionModePlugin } from './SuggestionModePlugin';
 import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext';
-import { createComment, createThread, type Thread, type Comment, useCollabAuthorName } from '@/components/lexical/commenting';
-
-const SUGGESTION_SUMMARY_KIND: Thread['comments'][number]['commentKind'] = 'suggestionSummary';
-
-const hasChildComments = (thread: Thread): boolean => thread.comments.some((comment) => comment.commentKind !== SUGGESTION_SUMMARY_KIND);
+import { createComment, createThread, type Thread, type Comment } from '@/components/lexical/commenting';
+import { useCollaboratorIdentity } from '@/components/lexical/collaboration';
+import { hasChildComments } from './Utils';
 
 const getSuggestionThreadInfo = (thread: Thread): SuggestionThreadInfo => ({
   id: thread.id,
@@ -21,8 +19,8 @@ const getSuggestionThreadInfo = (thread: Thread): SuggestionThreadInfo => ({
   hasChildComments: hasChildComments(thread),
 });
 
-const createSuggestionSummaryComment = (summary: string, author: string): Comment => {
-  return createComment(summary, author, undefined, undefined, false, 'suggestionSummary');
+const createSuggestionSummaryComment = (summary: string, author: string, authorId: string): Comment => {
+  return createComment(summary, author, authorId, undefined, undefined, false, 'suggestionSummary');
 };
 
 export default function SuggestedEditsPlugin({
@@ -34,7 +32,7 @@ export default function SuggestedEditsPlugin({
 }) {
   const [editor] = useLexicalComposerContext();
   const { commentStore } = useCommentStoreContext();
-  const author = useCollabAuthorName();
+  const { id: authorId, name: authorName } = useCollaboratorIdentity();
 
   const controller = useMemo<SuggestionThreadController>(() => {
     return {
@@ -48,7 +46,7 @@ export default function SuggestedEditsPlugin({
         if (existing) {
           return getSuggestionThreadInfo(existing);
         }
-        const summaryComment = createSuggestionSummaryComment(commentContent, author);
+        const summaryComment = createSuggestionSummaryComment(commentContent, authorName, authorId);
         const thread = createThread('', [summaryComment], undefined, {
           markID: suggestionID,
           status: 'open',
@@ -88,7 +86,7 @@ export default function SuggestedEditsPlugin({
         return true;
       },
     };
-  }, [commentStore, author]);
+  }, [authorId, authorName, commentStore]);
 
   useEffect(() => {
     return editor.registerCommand(
@@ -105,11 +103,6 @@ export default function SuggestedEditsPlugin({
       COMMAND_PRIORITY_CRITICAL,
     );
   }, [editor]);
-
-  useEffect(() => {
-    // ContentEditable handles DOM event interception for suggestion mode.
-    return undefined;
-  }, []);
 
   return (
     <SuggestionModePlugin

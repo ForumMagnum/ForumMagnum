@@ -14,16 +14,25 @@ export class ConsoleLogger implements Logger {
   }
 
   info(...args: unknown[]) {
+    if (!this.enabled) {
+      return;
+    }
     // eslint-disable-next-line no-console
     console.info(`[${this.prefix}]`, ...args);
   }
 
   warn(...args: unknown[]) {
+    if (!this.enabled) {
+      return;
+    }
     // eslint-disable-next-line no-console
     console.warn(`[${this.prefix}]`, ...args);
   }
 
   error(...args: unknown[]) {
+    if (!this.enabled) {
+      return;
+    }
     // eslint-disable-next-line no-console
     console.error(`[${this.prefix}]`, ...args);
   }

@@ -90,6 +90,9 @@ import { SendIcon } from '../../icons/SendIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import ForumIcon from '@/components/common/ForumIcon';
 import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
+import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
+import { useCurrentCollaboratorId, useCollaboratorIdentity, useCanRejectSuggestion } from '@/components/lexical/collaboration';
+import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   addCommentBox: {
@@ -511,29 +514,87 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   },
 }));
 
-const SUGGESTION_SUMMARY_KIND: Comment['commentKind'] = 'suggestionSummary';
-
 const isSuggestionThread = (thread: Thread): boolean => thread.threadType === 'suggestion';
 
 const getSuggestionSummaryComment = (thread: Thread): Comment | undefined => thread.comments.find((comment) => comment.commentKind === SUGGESTION_SUMMARY_KIND);
 
 const getSuggestionThreadId = (thread: Thread): string => thread.markID ?? thread.id;
 
-const acceptSuggestionThread = (editor: LexicalEditor, commentStore: CommentStore, thread: Thread) => {
+const acceptSuggestionThread = (editor: LexicalEditor, thread: Thread) => {
   const suggestionId = getSuggestionThreadId(thread);
   editor.dispatchCommand(ACCEPT_SUGGESTION_COMMAND, suggestionId);
-  commentStore.updateThread(thread.id, {
-    status: 'accepted',
-  });
 };
 
-const rejectSuggestionThread = (editor: LexicalEditor, commentStore: CommentStore, thread: Thread) => {
+const rejectSuggestionThread = (editor: LexicalEditor, thread: Thread) => {
   const suggestionId = getSuggestionThreadId(thread);
   editor.dispatchCommand(REJECT_SUGGESTION_COMMAND, suggestionId);
-  commentStore.updateThread(thread.id, {
-    status: 'rejected',
-  });
 };
+
+/**
+ * Renders either the suggestion status (if not open) or accept/reject action buttons.
+ * Permission checks determine which buttons are shown.
+ * Derives permissions from the CollaboratorIdentityContext.
+ */
+function SuggestionStatusOrActions({
+  status,
+  suggestionAuthorId,
+  onAccept,
+  onReject,
+  classes,
+}: {
+  status: 'open' | 'accepted' | 'rejected' | 'archived';
+  suggestionAuthorId: string | undefined;
+  onAccept: () => void;
+  onReject: () => void;
+  classes: Record<string, string>;
+}): JSX.Element | null {
+  const { accessLevel } = useCollaboratorIdentity();
+  const canRejectSuggestion = useCanRejectSuggestion();
+  
+  if (status !== 'open') {
+    return (
+      <div className={classes.suggestionStatus}>
+        {status === 'accepted'
+          ? 'Accepted'
+          : status === 'rejected'
+            ? 'Rejected'
+            : 'Archived'}
+      </div>
+    );
+  }
+
+  const canAccept = accessLevelCan(accessLevel, "edit");
+  const canReject = suggestionAuthorId ? canRejectSuggestion(suggestionAuthorId) : false;
+
+  if (!canAccept && !canReject) {
+    return null;
+  }
+
+  return (
+    <div className={classes.suggestionActions}>
+      {canAccept && (
+        <button
+          type="button"
+          className={classes.suggestionActionButton}
+          onClick={onAccept}
+          title="Accept suggestion"
+        >
+          <ForumIcon icon="Check" className={classes.suggestionActionButtonIcon} />
+        </button>
+      )}
+      {canReject && (
+        <button
+          type="button"
+          className={classes.suggestionActionButton}
+          onClick={onReject}
+          title="Reject suggestion"
+        >
+          <ForumIcon icon="Close" className={classes.suggestionActionButtonIcon} />
+        </button>
+      )}
+    </div>
+  );
+}
 
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
@@ -751,6 +812,7 @@ function CommentInputBox({
   );
   const selectionRef = useRef<RangeSelection | null>(null);
   const author = useCollabAuthorName();
+  const authorId = useCurrentCollaboratorId();
 
   const updateLocation = useCallback(() => {
     if (anchorRect) {
@@ -877,7 +939,7 @@ function CommentInputBox({
         quote = quote.slice(0, 99) + '…';
       }
       submitAddComment(
-        createThread(quote, [createComment(content, author)]),
+        createThread(quote, [createComment(content, author, authorId)]),
         true,
         undefined,
         selectionRef.current,
@@ -931,12 +993,13 @@ function CommentsComposer({
   const [canSubmit, setCanSubmit] = useState(false);
   const editorRef = useRef<LexicalEditor>(null);
   const author = useCollabAuthorName();
+  const authorId = useCurrentCollaboratorId();
 
   const onChange = useOnChange(setContent, setCanSubmit);
 
   const submitComment = () => {
     if (canSubmit) {
-      submitAddComment(createComment(content, author), false, thread);
+      submitAddComment(createComment(content, author, authorId), false, thread);
       const editor = editorRef.current;
       if (editor !== null) {
         editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
@@ -1200,36 +1263,13 @@ function CommentsPanelList({
                     )}
                     <div className={classes.suggestionSummary}>
                       {suggestionSummaryText}
-                      {suggestionStatus === 'open' ? (
-                        <div className={classes.suggestionActions}>
-                          <button
-                            type="button"
-                            className={classes.suggestionActionButton}
-                            onClick={() => {
-                              acceptSuggestionThread(editor, commentStore, commentOrThread);
-                            }}
-                          >
-                            <ForumIcon icon="Check" className={classes.suggestionActionButtonIcon} />
-                          </button>
-                          <button
-                            type="button"
-                            className={classes.suggestionActionButton}
-                            onClick={() => {
-                              rejectSuggestionThread(editor, commentStore, commentOrThread);
-                            }}
-                          >
-                            <ForumIcon icon="Close" className={classes.suggestionActionButtonIcon} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className={classes.suggestionStatus}>
-                          {suggestionStatus === 'accepted'
-                            ? 'Accepted'
-                            : suggestionStatus === 'rejected'
-                              ? 'Rejected'
-                              : 'Archived'}
-                        </div>
-                      )}
+                      <SuggestionStatusOrActions
+                        status={suggestionStatus}
+                        suggestionAuthorId={suggestionSummaryComment?.authorId}
+                        onAccept={() => acceptSuggestionThread(editor, commentOrThread)}
+                        onReject={() => rejectSuggestionThread(editor, commentOrThread)}
+                        classes={classes}
+                      />
                     </div>
                   </>
                 )}
@@ -1316,6 +1356,7 @@ export default function CommentPlugin(): JSX.Element {
   const { commentStore } = useCommentStoreContext();
   const comments = useCommentStore(commentStore);
   const author = useCollabAuthorName();
+  const authorId = useCurrentCollaboratorId();
   const { markNodeMap, activeIDs, activeAnchorKey } = useMarkNodesContext();
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentAnchorRect, setCommentAnchorRect] = useState<DOMRect | null>(
@@ -1522,7 +1563,7 @@ export default function CommentPlugin(): JSX.Element {
           if (!existing) {
             const thread = createThread(
               quote,
-              [createComment(payload.initialContent, author)],
+              [createComment(payload.initialContent, author, authorId)],
               threadId,
             );
             commentStore.addComment(thread);
@@ -1599,7 +1640,7 @@ export default function CommentPlugin(): JSX.Element {
         COMMAND_PRIORITY_EDITOR,
       ),
     );
-  }, [author, commentStore, editor, markNodeMap]);
+  }, [author, authorId, commentStore, editor, markNodeMap]);
 
   const onAddComment = () => {
     editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);

@@ -14,6 +14,12 @@ import { $isNonInlineLeafElement } from '@/lib/vendor/proton/isNonInlineLeafElem
 import type { ListItemNode } from '@lexical/list'
 import { $isListItemNode } from '@lexical/list'
 
+export const SUGGESTION_SUMMARY_KIND = 'suggestionSummary' as const;
+
+/** Check if a suggestion thread has comments beyond the auto-generated summary */
+export function hasChildComments(thread: { comments: Array<{ commentKind?: string }> }): boolean {
+  return thread.comments.some((comment) => comment.commentKind !== SUGGESTION_SUMMARY_KIND)
+}
 /**
  * Wraps a given selection with suggestion node(s), splitting
  * text nodes where required and making sure not to wrap whole

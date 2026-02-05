@@ -45,7 +45,9 @@ import {
   createWebsocketProvider,
   createWebsocketProviderWithDoc,
   setCollaborationConfig,
+  CollaboratorIdentityProvider,
   type CollaborationConfig,
+  type CollaboratorIdentity,
 } from './collaboration';
 import {useSettings} from './context/SettingsContext';
 import {useSharedHistoryContext} from './context/SharedHistoryContext';
@@ -122,7 +124,7 @@ import {
   restoreInternalIds,
   InternalIdMap,
 } from '../editor/lexicalPlugins/links/InternalBlockLinksPlugin';
-import { type CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
+import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
@@ -344,8 +346,12 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     color: theme.palette.grey[900],
     fontSize: 12,
     fontWeight: 600,
-    '&:hover': {
+    '&:hover:not(:disabled)': {
       background: theme.palette.grey[300],
+    },
+    '&:disabled': {
+      cursor: 'not-allowed',
+      opacity: 0.7,
     },
   },
   suggestionModeButtonActive: {
@@ -544,7 +550,20 @@ export default function Editor({
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
-  const [isSuggestionMode, setIsSuggestionMode] = useState(false);
+  // Initialize suggestion mode based on access level:
+  // - Users with "comment" access (but not "edit") should start in Suggesting mode
+  // - Users with "edit" access start in Editing mode
+  const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
+  const [isSuggestionMode, setIsSuggestionMode] = useState(!canEdit);
+  
+  const collaboratorIdentity: CollaboratorIdentity | null = useMemo(() => {
+    if (!collaborationConfig || !accessLevel) return null;
+    return {
+      id: collaborationConfig.user.id,
+      name: collaborationConfig.user.name,
+      accessLevel,
+    };
+  }, [collaborationConfig, accessLevel]);
   const handleUserModeChange = useCallback((mode: EditorUserModeType) => {
     setIsSuggestionMode(mode === EditorUserMode.Suggest);
   }, []);
@@ -590,6 +609,8 @@ export default function Editor({
               isSuggestionMode && classes.suggestionModeButtonActive,
             )}
             onClick={handleToggleSuggestionMode}
+            disabled={!canEdit}
+            title={!canEdit ? 'You have comment access only - edits are shown as suggestions' : undefined}
           >
             {isSuggestionMode ? 'Suggesting' : 'Editing'}
           </button>
@@ -635,15 +656,21 @@ export default function Editor({
         <AutoLinkPlugin />
         <DateTimePlugin />
         <MarkNodesProvider>
-          <CommentStoreProvider
-            providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
-          >
-            {!isCommentEditor && !(isCollab && useCollabV2) && <CommentPlugin />}
-            <SuggestedEditsPlugin
-              isSuggestionMode={isSuggestionMode}
-              onUserModeChange={handleUserModeChange}
-            />
-          </CommentStoreProvider>
+          {collaboratorIdentity && (
+            <CollaboratorIdentityProvider value={collaboratorIdentity}>
+              <CommentStoreProvider
+                providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
+              >
+                {!isCommentEditor && !(isCollab && useCollabV2) && (
+                  <CommentPlugin />
+                )}
+              <SuggestedEditsPlugin
+                isSuggestionMode={isSuggestionMode}
+                onUserModeChange={handleUserModeChange}
+              />
+              </CommentStoreProvider>
+            </CollaboratorIdentityProvider>
+          )}
         </MarkNodesProvider>
         {isRichText ? (
           <>
