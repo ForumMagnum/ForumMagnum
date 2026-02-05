@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { formatRole, formatStat } from "../../users/EAUserTooltipContent";
 import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
 import { useEAOnboarding } from "./useEAOnboarding";
 import UsersProfileImage from "../../users/UsersProfileImage";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EAOnboardingAuthor", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     userSelect: "none",
@@ -49,13 +50,13 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "130%",
     paddingTop: 8,
   },
-});
+}));
 
-export const EAOnboardingAuthor = ({user, onSubscribed, classes}: {
+export const EAOnboardingAuthor = ({user, onSubscribed}: {
   user: UserOnboardingAuthor,
   onSubscribed?: (id: string, subscribed: boolean) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {viewAsAdmin} = useEAOnboarding();
 
   const {isSubscribed, onSubscribe} = useNotifyMe({
@@ -100,10 +101,5 @@ export const EAOnboardingAuthor = ({user, onSubscribed, classes}: {
   );
 }
 
-export default registerComponent(
-  "EAOnboardingAuthor",
-  EAOnboardingAuthor,
-  {styles},
-);
-
+export default EAOnboardingAuthor;
 

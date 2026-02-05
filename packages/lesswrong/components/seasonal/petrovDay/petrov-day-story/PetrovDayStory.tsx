@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react';
 import { petrovDaySections } from './petrovDaySectionsFinal';
 import ContentStyles from '@/components/common/ContentStyles';
 import classNames from 'classnames';
-import { useWindowSize } from '@/components/hooks/useScreenWidth';
 import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import ForumIcon from '@/components/common/ForumIcon';
 import LWTooltip from '@/components/common/LWTooltip';

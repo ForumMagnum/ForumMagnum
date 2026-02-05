@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, PropsWithChildren, useContext } from "react";
+import React, { FC, MouseEvent, PropsWithChildren, useContext, useSyncExternalStore } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import qs from "qs";
@@ -18,14 +18,15 @@ export type UseCommentLinkProps = {
   permalink?: boolean,
 }
 
-export const useCommentLink = ({
+export const CommentLinkWrapper = ({
   comment,
   post,
   tag,
   scrollOnClick,
   scrollIntoView,
   permalink,
-}: UseCommentLinkProps) => {
+  children
+}: UseCommentLinkProps & { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const {location, query} = useSubscribedLocation();
   const {captureEvent} = useTracking();
@@ -72,19 +73,15 @@ export const useCommentLink = ({
     }
   }
 
-  const Wrapper: FC<PropsWithChildren<{}>> = scrollOnClick
-    ? ({children}) => (
-      <a rel="nofollow" href={url} onClick={handleLinkClick}>
-        {children}
-      </a>
-    )
-    : ({children}) => (
-      <Link rel="nofollow" to={url} eventProps={{furtherContext}}>
-        {children}
-      </Link>
-    );
-
-  return Wrapper;
+  if (scrollOnClick) {
+    return <a rel="nofollow" href={url} onClick={handleLinkClick}>
+      {children}
+    </a>
+  } else {
+    return <Link rel="nofollow" to={url} eventProps={{furtherContext}}>
+      {children}
+    </Link>
+  }
 }
 
 /**
@@ -95,12 +92,17 @@ export const useCommentLink = ({
  */
 export const useCommentLinkState = () => {
   const { query, hash } = useSubscribedLocation();
-  const matchSSR = useMatchSSR();
 
   const queryId = query.commentId
-  const hashId = matchSSR ? '' : hash.slice(1)
+  const hashId = hash.slice(1);
 
-  const scrollToCommentId = commentPermalinkStyleSetting.get() === 'in-context' ? queryId ?? hashId : hashId
+  // Hash is only available on the client, not the server; useSyncExternalStore suppresses
+  // the SSR mismatch
+  const scrollToCommentId = useSyncExternalStore(
+    ()=>()=>{},
+    () => commentPermalinkStyleSetting.get() === 'in-context' ? (queryId ?? hashId) : hashId,
+    () => commentPermalinkStyleSetting.get() === 'in-context' ? queryId : "",
+  ) ?? "";
 
   return { linkedCommentId: queryId, scrollToCommentId }
 }

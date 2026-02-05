@@ -278,6 +278,7 @@ interface Mutation {
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
+  setIsBookmarked: SetIsBookmarkedOutput | null;
   setIsHidden: User;
   markAsReadOrUnread: boolean | null;
   markPostCommentsRead: boolean | null;
@@ -1247,7 +1248,17 @@ interface ToggleBookmarkInput {
   collectionName: string;
 }
 
+interface SetIsBookmarkedInput {
+  documentId: string;
+  collectionName: string;
+  isBookmarked: boolean;
+}
+
 interface ToggleBookmarkOutput {
+  data: Bookmark | null;
+}
+
+interface SetIsBookmarkedOutput {
   data: Bookmark | null;
 }
 
@@ -1953,6 +1964,7 @@ interface Comment {
   agentFoundationsId: string | null;
   originalDialogueId: string | null;
   originalDialogue: Post | null;
+  isBookmarked: boolean;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   allVotes: Array<Vote> | null;
@@ -2101,6 +2113,8 @@ interface CommentsAllRecentCommentsInput {
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
+  before?: string | null;
+  after?: string | null;
 }
 
 interface CommentsRecentCommentsInput {
@@ -2110,6 +2124,8 @@ interface CommentsRecentCommentsInput {
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
+  before?: string | null;
+  after?: string | null;
 }
 
 interface CommentsAfSubmissionsInput {
@@ -3855,13 +3871,6 @@ interface MultiNotificationOutput {
   totalCount: number | null;
 }
 
-interface PageCacheEntry {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-}
-
 interface PetrovDayAction {
   _id: string;
   schemaVersion: number;
@@ -4296,6 +4305,7 @@ interface Post {
   curationNotices: Array<CurationNotice> | null;
   reviews: Array<Comment> | null;
   automatedContentEvaluations: AutomatedContentEvaluation | null;
+  isBookmarked: boolean;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -6033,7 +6043,7 @@ interface ReviewVotesReviewVotesFromUserInput {
 }
 
 interface ReviewVotesReviewVotesAdminDashboardInput {
-  year?: number | null;
+  year?: string | null;
 }
 
 interface ReviewVotesReviewVotesForPostAndUserInput {
@@ -10020,7 +10030,9 @@ interface GraphQLTypeMap {
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   ToggleBookmarkInput: ToggleBookmarkInput;
+  SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
+  SetIsBookmarkedOutput: SetIsBookmarkedOutput;
   RssPostChangeInfo: RssPostChangeInfo;
   FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;
   FeedPost: FeedPost;
@@ -10367,7 +10379,6 @@ interface GraphQLTypeMap {
   NotificationSelector: NotificationSelector;
   MultiNotificationInput: MultiNotificationInput;
   MultiNotificationOutput: MultiNotificationOutput;
-  PageCacheEntry: PageCacheEntry;
   PetrovDayAction: PetrovDayAction;
   SinglePetrovDayActionInput: SinglePetrovDayActionInput;
   SinglePetrovDayActionOutput: SinglePetrovDayActionOutput;
@@ -10980,7 +10991,6 @@ interface CreateInputsByCollectionName {
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
-  PageCache: never;
   PetrovDayLaunchs: never;
   Podcasts: never;
   PostEmbeddings: never;
@@ -11073,7 +11083,6 @@ interface UpdateInputsByCollectionName {
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
-  PageCache: never;
   PetrovDayActions: never;
   PetrovDayLaunchs: never;
   PodcastEpisodes: never;

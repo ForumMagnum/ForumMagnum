@@ -14,13 +14,15 @@ import { CollapsedFootnotes } from './CollapsedFootnotes';
 import { WrappedStrawPoll } from './WrappedStrawPoll';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { useTracking } from '@/lib/analyticsEvents';
-import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
 import { captureException } from '@/lib/sentryWrapper';
 import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
 import { useAbstractThemeOptions } from '../themes/useTheme';
-import { ContentCodeBlockWithMenu } from './ContentCodeBlockWithMenu';
+import dynamic from 'next/dynamic';
+
+const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
+const ForumEventPostPagePollSection = dynamic(() => import('@/components/forumEvents/ForumEventPostPagePollSection'));
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   themeName: UserThemeSetting,
@@ -188,12 +190,14 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           let visibilityOptions: ConditionalVisibilitySettings|null = null;
           try {
             visibilityOptions = JSON.parse(visibilityOptionsStr)
-            result = <ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
-              {result}
-            </ConditionalVisibilityBlockDisplay>;
           } catch {
             // eslint-disable-next-line no-console
             console.error("Error parsing conditional visibility options", visibilityOptionsStr);
+          }
+          if (visibilityOptions) {
+            result = <ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
+              {result}
+            </ConditionalVisibilityBlockDisplay>;
           }
         }
       }

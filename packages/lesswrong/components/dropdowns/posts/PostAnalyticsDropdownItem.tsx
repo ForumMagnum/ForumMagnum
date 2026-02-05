@@ -23,9 +23,6 @@ const PostAnalyticsDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  "PostAnalyticsDropdownItem",
-  PostAnalyticsDropdownItem,
-);
+export default PostAnalyticsDropdownItem;
 
 

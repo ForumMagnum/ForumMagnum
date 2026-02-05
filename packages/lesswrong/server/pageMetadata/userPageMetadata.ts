@@ -1,12 +1,12 @@
-import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
-import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
+import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { cloudinaryCloudNameSetting, siteNameWithArticleSetting, taglineSetting } from "@/lib/instanceSettings";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { captureException } from "@/lib/sentryWrapper";
 import { notFound } from "next/navigation";
+import { runQuery } from "@/server/vulcan-lib/query";
 
 const UserMetadataQuery = gql(`
   query UserMetadata($slug: String) {
@@ -26,18 +26,19 @@ const UserMetadataQuery = gql(`
   }
 `);
 
-export async function generateUserPageMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const [paramValues, defaultMetadata] = await Promise.all([params, getDefaultMetadata()]);
-
-  const client = getClient();
+export async function generateUserPageMetadata({ params, searchParams }: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{}>,
+}): Promise<Metadata> {
+  const [paramValues, searchParamsValues, defaultMetadata] = await Promise.all([params, searchParams, getDefaultMetadata()]);
+  const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);
 
   try {
-    const { data } = await client.query({
-      query: UserMetadataQuery,
-      variables: {
-        slug: paramValues.slug,
-      },
-    });
+    const { data } = await runQuery(
+      UserMetadataQuery,
+      { slug: paramValues.slug },
+      resolverContext
+    );
   
     const user = data?.users?.results?.[0];
   

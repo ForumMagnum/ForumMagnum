@@ -4,14 +4,15 @@ import {useCurrentUser} from '../common/withUser'
 import {NetworkStatus} from '@apollo/client'
 import { useQuery } from "@/lib/crud/useQuery"
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import Loading from "../vulcan-core/Loading";
 import PostsItem from "../posts/PostsItem";
 import LoadMore from "../common/LoadMore";
 import { Typography } from "../common/Typography";
 import { gql } from "@/lib/generated/gql-codegen/index"
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsListUserCommentedOn", (theme: ThemeType) => ({
   loadMore: {
     marginTop: 10,
   },
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 10,
     margin: 0,
   },
-})
+}))
 
 const usePostsUserCommentedOn = ({currentUser, limit, filter, sort}: {
   currentUser: UsersCurrent | null,
@@ -53,13 +54,13 @@ const usePostsUserCommentedOn = ({currentUser, limit, filter, sort}: {
   return {data, loading, fetchMore, networkStatus}
 }
 
-const PostsListUserCommentedOn = ({classes, filter, sort}: {
-  classes: ClassesType<typeof styles>,
+const PostsListUserCommentedOn = ({filter, sort}: {
   filter?: FilterPostsForReview,
   sort?: {
     karma?: boolean,
   },
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const defaultLimit = 30
   const pageSize = 30
@@ -107,6 +108,6 @@ const PostsListUserCommentedOn = ({classes, filter, sort}: {
   </AnalyticsContext>
 }
 
-export default registerComponent('PostsListUserCommentedOn', PostsListUserCommentedOn, {styles});
+export default PostsListUserCommentedOn;
 
 

@@ -731,7 +731,7 @@ type CuratedAndPopularThisWeekResult {
 }
 
 extend type Query {
-  CuratedAndPopularThisWeek(limit: Int): CuratedAndPopularThisWeekResult
+  CuratedAndPopularThisWeek(af: Boolean, limit: Int): CuratedAndPopularThisWeekResult
 }
 
 type RecentlyActiveDialoguesResult {
@@ -1304,12 +1304,23 @@ input ToggleBookmarkInput {
   collectionName: String!
 }
 
+input SetIsBookmarkedInput {
+  documentId: String!
+  collectionName: String!
+  isBookmarked: Boolean!
+}
+
 type ToggleBookmarkOutput {
+  data: Bookmark
+}
+
+type SetIsBookmarkedOutput {
   data: Bookmark
 }
 
 extend type Mutation {
   toggleBookmark(input: ToggleBookmarkInput!): ToggleBookmarkOutput
+  setIsBookmarked(input: SetIsBookmarkedInput!): SetIsBookmarkedOutput
 }
 
 extend type Mutation {
@@ -2196,6 +2207,7 @@ type Comment {
   agentFoundationsId: String
   originalDialogueId: String
   originalDialogue: Post
+  isBookmarked: Boolean!
   currentUserVote: String
   currentUserExtendedVote: JSON
   allVotes: [Vote!]
@@ -2361,6 +2373,8 @@ input CommentsAllRecentCommentsInput {
   authorIsUnreviewed: Boolean
   sortBy: String
   limit: String
+  before: String
+  after: String
 }
 
 input CommentsRecentCommentsInput {
@@ -2370,6 +2384,8 @@ input CommentsRecentCommentsInput {
   authorIsUnreviewed: Boolean
   sortBy: String
   limit: String
+  before: String
+  after: String
 }
 
 input CommentsAfSubmissionsInput {
@@ -4303,13 +4319,6 @@ extend type Query {
   notifications(input: MultiNotificationInput @deprecated(reason: "Use the selector field instead"), selector: NotificationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiNotificationOutput
 }
 
-type PageCacheEntry {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-}
-
 type PetrovDayAction {
   _id: String!
   schemaVersion: Float!
@@ -4764,6 +4773,7 @@ type Post {
   curationNotices: [CurationNotice!]
   reviews: [Comment!]
   automatedContentEvaluations: AutomatedContentEvaluation
+  isBookmarked: Boolean!
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -6522,7 +6532,7 @@ input ReviewVotesReviewVotesFromUserInput {
 }
 
 input ReviewVotesReviewVotesAdminDashboardInput {
-  year: Int
+  year: String
 }
 
 input ReviewVotesReviewVotesForPostAndUserInput {

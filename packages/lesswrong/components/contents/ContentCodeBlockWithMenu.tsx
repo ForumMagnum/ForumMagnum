@@ -32,7 +32,7 @@ const getCodeBlockLanguage = (
   );
 };
 
-export const ContentCodeBlockWithMenu = ({
+const ContentCodeBlockWithMenu = ({
   attribs,
   classNames,
   children,
@@ -90,3 +90,5 @@ export const ContentCodeBlockWithMenu = ({
     </pre>
   );
 };
+
+export default ContentCodeBlockWithMenu;

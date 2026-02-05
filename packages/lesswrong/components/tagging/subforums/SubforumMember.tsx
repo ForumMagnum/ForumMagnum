@@ -224,8 +224,5 @@ const SubforumMember = ({user, isOrganizer, classes}: {
   </div>
 }
 
-export default registerComponent(
-  'SubforumMember', SubforumMember, {styles}
-);
-
+export default registerComponent('SubforumMember', SubforumMember, {styles});
 

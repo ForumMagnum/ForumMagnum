@@ -1,8 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import ContentStyles from '../common/ContentStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SuggestAlignmentCommentMultiQuery = gql(`
   query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -15,7 +16,7 @@ const SuggestAlignmentCommentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AFUnreviewedCommentCount", (theme: ThemeType) => ({
   root: {
     fontWeight: 400,
     marginTop: 32,
@@ -25,14 +26,14 @@ const styles = (theme: ThemeType) => ({
   viewLink: {
     marginLeft: 4
   }
-});
+}));
 
 
-const AFUnreviewedCommentCount = ({ post, classes }: {
+const AFUnreviewedCommentCount = ({ post }: {
   post: PostsBase,
-  classes: ClassesType<typeof styles>,
 }) => {
-  
+  const classes = useStyles(styles);
+
   //this gets number of comments submitted by non-members or suggested by members that haven't been processed yet
   const { data, loading } = useQuery(SuggestAlignmentCommentMultiQuery, {
     variables: {
@@ -58,6 +59,6 @@ const AFUnreviewedCommentCount = ({ post, classes }: {
  }
 }
 
-export default registerComponent('AFUnreviewedCommentCount', AFUnreviewedCommentCount, {styles});
+export default AFUnreviewedCommentCount;
 
 

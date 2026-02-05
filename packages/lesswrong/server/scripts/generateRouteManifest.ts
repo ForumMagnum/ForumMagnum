@@ -112,6 +112,9 @@ function walkApp(dir: string, urlSegments: string[], root: RouteNode) {
   if (page || route) addRouteAt(root, urlSegments, page, route)
 
   for (const sub of dirs) {
+    if (!urlSegments.length && (isCatchAll(sub) || isOptionalCatchAll(sub))) {
+      continue
+    }
     if (isRouteGroupOrParallel(sub)) {
       walkApp(path.join(dir, sub), urlSegments, root)
       continue

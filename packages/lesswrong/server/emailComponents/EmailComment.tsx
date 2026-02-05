@@ -6,13 +6,13 @@ import { tagGetSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/ta
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
 import { defineStyles } from "@/components/hooks/defineStyles";
-import { EmailContextType, useEmailStyles } from "./emailContext";
+import { EmailContextType, emailUseStyles } from "./emailContext";
 import { EmailFormatDate } from './EmailFormatDate';
 import { EmailUsername } from './EmailUsername';
 import { EmailContentItemBody } from './EmailContentItemBody';
 import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
-import { useEmailQuery } from '../vulcan-lib/query';
+import { emailUseQuery } from '../vulcan-lib/query';
 import { captureException } from '@/lib/sentryWrapper';
 
 const CommentsListWithParentMetadataQuery = gql(`
@@ -68,7 +68,7 @@ export const EmailCommentBatch = ({comments, emailContext}: {
   comments: Partial<DbComment>[],
   emailContext: EmailContextType,
 }) => {
-  const classes = useEmailStyles(styles, emailContext);
+  const classes = emailUseStyles(styles, emailContext);
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
   const commentsByPostId = groupBy(commentsOnPosts, (comment: DbComment)=>comment.postId);
   const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "DISCUSSION")
@@ -117,7 +117,7 @@ const HeadingLink = ({ text, href, emailContext }: {
   href: string,
   emailContext: EmailContextType,
 }) => {
-  const classes = useEmailStyles(styles, emailContext);
+  const classes = emailUseStyles(styles, emailContext);
   return (
     <h1>
       <a href={href} className={classes.headingLink}>
@@ -132,7 +132,7 @@ const EmailCommentsOnPostHeader = async ({postId, allShortform, emailContext}: {
   allShortform: boolean,
   emailContext: EmailContextType,
 }) => {
-  const { data } = await useEmailQuery(PostsListQuery, {
+  const { data } = await emailUseQuery(PostsListQuery, {
     variables: { documentId: postId },
     emailContext
   });
@@ -149,7 +149,7 @@ const EmailCommentsOnTagHeader = async ({tagId, isSubforum, emailContext}: {
   isSubforum: boolean,
   emailContext: EmailContextType
 }) => {
-  const { data } = await useEmailQuery(TagPreviewFragmentQuery, {
+  const { data } = await emailUseQuery(TagPreviewFragmentQuery, {
     variables: { documentId: tagId },
     emailContext
   });
@@ -177,7 +177,7 @@ export const EmailComment = async ({commentId, hideTitle, emailContext}: {
   hideTitle?: boolean,
   emailContext: EmailContextType,
 }) => {
-  const { data, errors } = await useEmailQuery(CommentsListWithParentMetadataQuery, {
+  const { data, errors } = await emailUseQuery(CommentsListWithParentMetadataQuery, {
     variables: { documentId: commentId },
     emailContext
   });

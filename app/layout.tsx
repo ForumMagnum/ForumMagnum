@@ -6,7 +6,6 @@ import { cookies } from "next/headers";
 import { ClientRouteMetadataProvider } from "@/components/layout/ClientRouteMetadataContext";
 import { DEFAULT_TIMEZONE, SSRMetadata } from "@/lib/utils/timeUtil";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
-import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
 import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
 import { SharedScripts } from "@/components/next/SharedScripts";
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
@@ -36,9 +35,9 @@ export default async function RootLayout({
         <Suspense>
           <EnvironmentOverrideContextProviderServer>
             <ClientRouteMetadataProvider>
-              <ClientAppGenerator abTestGroupsUsed={{}}>
+              <ClientAppGeneratorWithRequestId>
                 {children}
-              </ClientAppGenerator>
+              </ClientAppGeneratorWithRequestId>
             </ClientRouteMetadataProvider>
           </EnvironmentOverrideContextProviderServer>
         </Suspense>
@@ -47,7 +46,19 @@ export default async function RootLayout({
   );
 }
 
+const ClientAppGeneratorWithRequestId = async ({ children }: {
+  children: React.ReactNode,
+}) => {
+  const { getRequestIdForServerComponentOrGenerateMetadata } = await import("@/server/rendering/requestId");
+  const requestId = await getRequestIdForServerComponentOrGenerateMetadata();
+
+  return <ClientAppGenerator abTestGroupsUsed={{}} requestId={requestId}>
+    {children}
+  </ClientAppGenerator>
+}
+
 const ClientIDAssignerServer = async () => {
+  const ClientIdsRepo = (await import("@/server/repos/ClientIdsRepo")).default;
   const cookieStore = await cookies();
   const clientId = cookieStore.get(CLIENT_ID_COOKIE)?.value ?? null;
   const clientIdNewCookieExists = !!cookieStore.get(CLIENT_ID_NEW_COOKIE)?.value;

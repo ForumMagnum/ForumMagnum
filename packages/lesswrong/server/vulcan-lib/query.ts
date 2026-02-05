@@ -54,7 +54,7 @@ export const runQuery = async <const TDocumentNode extends TypedDocumentNode<any
   return result;
 };
 
-export const useEmailQuery = <
+export const emailUseQuery = <
   TData extends Record<string, any>,
   TVariables extends OperationVariables
 >(

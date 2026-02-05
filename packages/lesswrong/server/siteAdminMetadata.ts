@@ -1,7 +1,6 @@
 import process from 'process';
 import os from 'os';
 import { execSync } from 'child_process';
-import { getCacheHitRate } from '@/server/rendering/pageCache';
 import { getPreloadedDatabaseId } from './loadDatabaseSettings';
 import gql from 'graphql-tag';
 import { runSqlQuery } from './sql/sqlClient';
@@ -32,7 +31,6 @@ export const siteAdminMetadataGraphQLQueries = {
       memoryUsage: process.memoryUsage(),
       uptime: process.uptime(),
       cpuUsage: process.cpuUsage(),
-      pageCacheHitRate: getCacheHitRate(),
       serverTimezoneOffset: new Date().getTimezoneOffset()/60.0,
       estimatedDatabaseLatency: await getEstimatedDatabaseLatency(),
     });

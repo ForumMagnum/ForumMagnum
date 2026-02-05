@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostByLegacyId } from './usePost';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -20,7 +19,7 @@ const LegacyPostRedirect = () => {
   }
 };
 
-export default registerComponent('LegacyPostRedirect', LegacyPostRedirect);
+export default LegacyPostRedirect;
 
 
 

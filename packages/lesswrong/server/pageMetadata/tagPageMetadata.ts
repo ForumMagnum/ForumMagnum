@@ -1,11 +1,10 @@
-import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
-import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
+import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import merge from "lodash/merge";
-import { notFound } from "next/navigation";
 import { tagGetDiscussionUrl, tagGetHistoryUrl, tagGetUrl } from "@/lib/collections/tags/helpers";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
+import { runQuery } from "@/server/vulcan-lib/query";
 
 const TagMetadataQuery = gql(`
   query TagMetadata($tagSlug: String) {
@@ -37,21 +36,21 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
     const slug = paramsToTagSlugConverter(paramValues);
     const commentId = searchParamsValues.commentId;
 
-    const client = getClient();
+    const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);
 
     try {
       const [{ data }, { data: commentData }] = await Promise.all([
-        client.query({
-        query: TagMetadataQuery,
-        variables: {
-          tagSlug: slug,
-        },
-      }),
+        runQuery(
+          TagMetadataQuery,
+          { tagSlug: slug },
+          resolverContext
+        ),
       commentId
-        ? client.query({
-            query: CommentPermalinkMetadataQuery,
-            variables: { commentId },
-          })
+        ? runQuery(
+            CommentPermalinkMetadataQuery,
+            { commentId },
+            resolverContext
+          )
         : { data: null },
       ]);
   

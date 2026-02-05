@@ -1,2 +1,0 @@
-import './cron';
-import './swr';

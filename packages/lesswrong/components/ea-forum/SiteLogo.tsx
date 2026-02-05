@@ -4,12 +4,13 @@
  * Could easily be adapted for other Forums
  */
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getLogoUrl } from '../../lib/vulcan-lib/utils';
 import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
 import { lightbulbIcon } from '../icons/lightbulbIcon';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SiteLogo", (theme: ThemeType) => ({
   root: {
     height: theme.isEAForum ? 34 : 48,
     [theme.breakpoints.down('sm')]: {
@@ -22,12 +23,12 @@ const styles = (theme: ThemeType) => ({
       width: 30,
     },
   }
-})
+}))
 
-const SiteLogo = ({eaContrast, classes}: {
+const SiteLogo = ({eaContrast}: {
   eaContrast?: boolean,
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   // Use this icon when we want version of the EAF logo with an editable (usually white) color
   if (isEAForum() && eaContrast) {
     return <div className={classes.icon}>{lightbulbIcon}</div>
@@ -43,9 +44,6 @@ const SiteLogo = ({eaContrast, classes}: {
   />
 }
 
-SiteLogo.displayName = "SiteLogo";
-export default registerComponent(
-  'SiteLogo', SiteLogo, {styles}
-);
+export default SiteLogo;
 
 

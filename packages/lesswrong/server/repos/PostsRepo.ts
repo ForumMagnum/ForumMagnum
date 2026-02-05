@@ -457,12 +457,14 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [maxAgeInDays, numPostsPerDigest, limit]);
   }
 
-  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3}: {
+  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3, af}: {
     currentUser?: DbUser | null,
     days?: number,
     limit?: number,
+    af?: boolean,
   } = {}) {
     const postFilter = getViewablePostsSelector("p");
+    const afFilter = af ? `p."af" IS TRUE AND` : "";
     const readFilter = currentUser
       ? {
         join: `
@@ -479,6 +481,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       FROM "Posts" p
       ${readFilter.join}
       WHERE
+        ${afFilter}
         p."curatedDate" > NOW() - ($1 || ' days')::INTERVAL AND
         p."disableRecommendation" IS NOT TRUE AND
         ${readFilter.filter}
@@ -489,6 +492,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       JOIN "Users" u ON p."userId" = u."_id"
       ${readFilter.join}
       WHERE
+        ${afFilter}
         p."curatedDate" IS NULL AND
         p."frontpageDate" > NOW() - ($1 || ' days')::INTERVAL AND
         COALESCE(

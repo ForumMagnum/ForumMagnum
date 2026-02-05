@@ -6,7 +6,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, isEAForum, isLW, isLWorAF, requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
-import type { EditablePost } from '@/lib/collections/posts/helpers.ts';
+import type { EditablePost, PostSubmitMeta } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 import LWTooltip from "../common/LWTooltip";
@@ -56,7 +56,7 @@ export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
 }));
 
 export type PostSubmitProps = {
-  formApi: TypedFormApi<EditablePost, { successCallback?: (createdPost: PostsEditMutationFragment) => void }>,
+  formApi: TypedFormApi<EditablePost, PostSubmitMeta>,
   disabled: boolean;
   submitLabel?: string,
   cancelLabel?: string,
@@ -138,7 +138,9 @@ export const PostSubmit = ({
                       'requested-feedback',
                       intercomProps
                     );
-                  }
+                  },
+                  // The redirect here is both undesirable and might interfere with Intercom displaying the message prompt
+                  skipRedirect: true,
                 });
               }
             }}

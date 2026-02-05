@@ -1,4 +1,4 @@
-import { sanitize } from "@/lib/vulcan-lib/utils";
+import { sanitize } from "@/lib/utils/sanitize";
 
 // TODO: test that this works correctly in both the case where it's called before make_editable and after make_editable callback that creates the normalized contents
 export function sanitizeJargonTerm<T extends DbJargonTerm | CreateJargonTermDataInput | UpdateJargonTermDataInput>(jargonTerm: T) {

@@ -2,7 +2,7 @@ import type { JssStyles } from "@/lib/jssStyles";
 import type { StyleDefinition } from "../styleGeneration";
 import { classNameProxy } from "@/components/hooks/defineStyles";
 
-export const useEmailStyles = <T extends string>(styles: StyleDefinition<T>, context: EmailContextType): JssStyles<T> => {
+export const emailUseStyles = <T extends string>(styles: StyleDefinition<T>, context: EmailContextType): JssStyles<T> => {
   if (!styles.nameProxy) {
     styles.nameProxy = classNameProxy(styles.name+"-");
   }

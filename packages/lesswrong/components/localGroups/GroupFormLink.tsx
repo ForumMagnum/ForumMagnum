@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import AddLocationIcon from '@/lib/vendor/@material-ui/icons/src/AddLocation';
 import { useDialog } from '../common/withDialog'
 import { preferredHeadingCase } from '../../themes/forumTheme';
@@ -35,6 +34,6 @@ const GroupFormLink = ({documentId, isOnline}: {
   }
 }
 
-export default registerComponent('GroupFormLink', GroupFormLink);
+export default GroupFormLink;
 
 

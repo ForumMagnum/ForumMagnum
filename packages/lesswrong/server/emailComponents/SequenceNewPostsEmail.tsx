@@ -3,7 +3,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { defineStyles } from "@/components/hooks/defineStyles";
-import { EmailContextType, useEmailStyles } from "./emailContext";
+import { EmailContextType, emailUseStyles } from "./emailContext";
 
 const styles = defineStyles("SequenceNewPostsEmail", (theme: ThemeType) => ({
   root: {
@@ -24,7 +24,7 @@ export const SequenceNewPostsEmail = ({sequence, posts, emailContext}: {
   posts: DbPost[],
   emailContext: EmailContextType,
 }) => {
-  const classes = useEmailStyles(styles, emailContext);
+  const classes = emailUseStyles(styles, emailContext);
   const img = sequence.gridImageId || sequence.bannerImageId;
     const imgUrl = img ? makeCloudinaryImageUrl(img, {
       c: "fill",

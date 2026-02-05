@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState} from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components'
 import classNames from 'classnames'
 import SingleColumnSection from "./SingleColumnSection";
 import ForumIcon from "./ForumIcon";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import TabButton from "./TabButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const rightFadeStyle = (theme: ThemeType) => ({
   '&:after': {
@@ -22,7 +23,7 @@ const rightFadeStyle = (theme: ThemeType) => ({
   },
 });
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TabPicker", (theme: ThemeType) => ({
   tabsSection: {
     margin: 0,
     width: 'inherit',
@@ -125,7 +126,7 @@ const styles = (theme: ThemeType) => ({
   rightArrow: {
     right: -30,
   },
-})
+}))
 
 export interface TabRecord {
   name: string,
@@ -145,19 +146,18 @@ export interface TabRecord {
  */
 const TabPicker = <T extends TabRecord[]>(
   {
-    classes,
     sortedTabs,
     defaultTab,
     onTabSelectionUpdate,
     showDescriptionOnHover = false,
   }: {
-    classes: ClassesType<typeof styles>,
     sortedTabs: T,
     defaultTab?: T[number]['name'],
     onTabSelectionUpdate: (tab: T[number]['name']) => void,
     showDescriptionOnHover?: boolean,
   },
 ) => {
+  const classes = useStyles(styles);
   const [activeTab, setActiveTab] = useState<T[number]['name']>(defaultTab ?? sortedTabs[0].name);
 
   // Sync activeTab with defaultTab when the prop changes (e.g., from parent state updates)
@@ -298,6 +298,6 @@ const TabPicker = <T extends TabRecord[]>(
   );
 }
 
-export default registerComponent('TabPicker', TabPicker, {styles});
+export default TabPicker;
 
 

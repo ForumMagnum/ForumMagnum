@@ -1,7 +1,5 @@
 import React from "react";
 import PostsSingleSlugRedirect from '@/components/posts/PostsSingleSlugRedirect';
-import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
-import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
@@ -18,7 +16,6 @@ export default function Page() {
     delayedStatusCode
     metadata={{
       noFooter: hasPostRecommendations(),
-      titleComponent: PostsPageHeaderTitle
     }}
   >
     <PostsSingleSlugRedirect />

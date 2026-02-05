@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import {
   SocialMediaProfileField,
   profileFieldToSocialMediaHref,
@@ -28,9 +27,6 @@ const SocialMediaLink = ({user, field, className}: {
   );
 }
 
-export default registerComponent(
-  "SocialMediaLink",
-  SocialMediaLink,
-);
+export default SocialMediaLink;
 
 

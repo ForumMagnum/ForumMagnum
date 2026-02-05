@@ -105,8 +105,4 @@ const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
   );
 }
 
-export default registerComponent(
-  'SuggestAlignmentCommentDropdownItem', SuggestAlignmentCommentDropdownItem, {styles}
-);
-
-
+export default registerComponent('SuggestAlignmentCommentDropdownItem', SuggestAlignmentCommentDropdownItem, {styles});

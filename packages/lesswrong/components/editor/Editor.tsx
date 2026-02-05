@@ -9,18 +9,20 @@ import { isClient } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { rootStyles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
 import ContentStyles from "../common/ContentStyles";
-import CKCommentEditor from "./CKCommentEditor";
-import CKPostEditor from "./CKPostEditor";
-import LexicalEditor from "./LexicalEditor";
 import WarningBanner from "../common/WarningBanner";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
+import dynamic from 'next/dynamic';
+
+const CKCommentEditor = dynamic(() => import("./CKCommentEditor"));
+const CKPostEditor = dynamic(() => import("./CKPostEditor"));
+const LexicalEditor = dynamic(() => import("./LexicalEditor"));
 
 const getPostEditorHeight = () => isEAForum() ? 250 : 400;
 const getQuestionEditorHeight = () => isEAForum() ? 150 : 400;
@@ -91,7 +93,7 @@ export const styles = (theme: ThemeType) => ({
     ...ckEditorStyles(theme),
   },
   ckEditorGrey: {
-    ...greyEditorStyles(theme).root,
+    ...greyEditorStyles(theme),
   },
   questionWidth: {
     width: 640,

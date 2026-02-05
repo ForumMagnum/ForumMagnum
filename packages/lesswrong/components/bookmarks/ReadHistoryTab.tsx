@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useCurrentUser } from '@/components/common/withUser'
 import moment from 'moment'
 import { gql } from "@/lib/generated/gql-codegen";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import PostsItem from "../posts/PostsItem";
@@ -11,8 +10,10 @@ import { Typography } from "../common/Typography";
 import { NetworkStatus } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery";
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReadHistoryTab", (theme: ThemeType) => ({
   loadMore: {
     marginTop: 10
   },
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 10,
     margin: 0
   }
-})
+}))
 
 export interface FilterPostsForReview {
   startDate?: Date
@@ -65,14 +66,14 @@ const useUserReadHistory = ({currentUser, limit, filter, sort}: {
   return {data, loading, fetchMore, networkStatus}
 }
 
-const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
-  classes: ClassesType<typeof styles>,
+const ReadHistoryTab = ({groupByDate = true, filter, sort}: {
   groupByDate?: boolean,
   filter?: FilterPostsForReview,
   sort?: {
     karma?: boolean,
   },
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const defaultLimit = 30;
   const pageSize = 30;
@@ -136,7 +137,4 @@ const ReadHistoryTab = ({classes, groupByDate = true, filter, sort}: {
   </AnalyticsContext>
 }
 
-
-export default registerComponent('ReadHistoryTab', ReadHistoryTab, {styles});
-
-
+export default ReadHistoryTab;

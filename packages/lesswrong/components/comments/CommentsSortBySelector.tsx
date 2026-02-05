@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
@@ -34,6 +33,6 @@ export const CommentsSortBySelector = ({setRestoreScrollPos}: {
   return <InlineSelect options={sortByOptions} selected={selectedOption} handleSelect={handleViewClick}/>
 };
 
-export default registerComponent('CommentsSortBySelector', CommentsSortBySelector);
+export default CommentsSortBySelector;
 
 

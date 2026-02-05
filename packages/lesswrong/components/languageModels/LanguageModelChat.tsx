@@ -552,8 +552,8 @@ const CustomPromptInput = () => {
 
 export const ChatInterface = () => {
   const classes = useStyles(styles);
-
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading, orderedConversationsLoading } = useLlmChat();
+
   const { currentPostId, postContext } = useCurrentPostContext();
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
 

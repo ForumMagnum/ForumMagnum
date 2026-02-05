@@ -13,13 +13,14 @@ import LocalActivityIcon from '@/lib/vendor/@material-ui/icons/src/LocalActivity
 import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { Typography } from "../../common/Typography";
 import EventTime from "../../localGroups/EventTime";
 import SmallMapPreview from "../../localGroups/SmallMapPreview";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPageEventData", (theme: ThemeType) => ({
   metadata: {
     display: 'flex',
     ...theme.typography.postStyle,
@@ -97,12 +98,12 @@ const styles = (theme: ThemeType) => ({
       marginTop: 20
     },
   },
-})
+}))
 
-const PostsPageEventData = ({classes, post}: {
-  classes: ClassesType<typeof styles>,
+const PostsPageEventData = ({post}: {
   post: PostsList,
 }) => {
+  const classes = useStyles(styles);
   const now = moment(useCurrentTime())
   const {captureEvent} = useTracking()
   
@@ -237,6 +238,6 @@ const PostsPageEventData = ({classes, post}: {
   </Typography>
 }
 
-export default registerComponent('PostsPageEventData', PostsPageEventData, {styles});
+export default PostsPageEventData;
 
 

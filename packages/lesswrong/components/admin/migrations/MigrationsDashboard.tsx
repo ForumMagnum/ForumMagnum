@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -10,8 +9,10 @@ import SingleColumnSection from "../../common/SingleColumnSection";
 import Loading from "../../vulcan-core/Loading";
 import SectionTitle from "../../common/SectionTitle";
 import { gql } from '@/lib/generated/gql-codegen';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("MigrationsDashboard", (theme: ThemeType) => ({
   ...rowStyles,
   row: {
     display: 'flex',
@@ -20,11 +21,10 @@ const styles = (theme: ThemeType) => ({
     borderBottom: theme.palette.border.tableHeadingDivider,
     marginBottom: theme.spacing.unit / 2,
   }
-});
+}));
 
-const MigrationsDashboard = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const MigrationsDashboard = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { data, loading } = useQuery(gql(`
     query MigrationsDashboardQuery {
@@ -57,8 +57,6 @@ const MigrationsDashboard = ({classes}: {
   </SingleColumnSection>;
 }
 
-export default registerComponent(
-  "MigrationsDashboard", MigrationsDashboard, {styles}
-);
+export default MigrationsDashboard;
 
 

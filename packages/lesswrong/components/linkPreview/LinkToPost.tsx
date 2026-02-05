@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { linkStyles } from './linkStyles';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -34,6 +33,6 @@ const LinkToPost = ({post}: {
   );
 }
 
-export default registerComponent("LinkToPost", LinkToPost);
+export default LinkToPost;
 
 

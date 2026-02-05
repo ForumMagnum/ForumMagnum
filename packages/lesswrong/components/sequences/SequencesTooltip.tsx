@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import type { Placement as PopperPlacementType } from "popper.js"
 import HoverOver from "../common/HoverOver";
@@ -38,9 +37,4 @@ export const SequencesTooltip = ({
   );
 }
 
-export default registerComponent(
-  "SequencesTooltip",
-  SequencesTooltip,
-);
-
-
+export default SequencesTooltip;

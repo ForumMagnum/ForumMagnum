@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from './PostsPage/PostsPage';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -89,6 +88,6 @@ const PostsCompareRevisions = () => {
   </div>;
 }
 
-export default registerComponent("PostsCompareRevisions", PostsCompareRevisions);
+export default PostsCompareRevisions;
 
 

@@ -1,5 +1,4 @@
 import range from 'lodash/range';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { PostsListViewType } from '../hooks/usePostsListView';
@@ -14,11 +13,13 @@ const PostsLoading = ({
   loadMore,
   showFinalBottomBorder,
   viewType = "list",
+  children
 }: {
   placeholderCount?: number,
   loadMore?: boolean,
   showFinalBottomBorder?: boolean
   viewType?: PostsListViewType,
+  children?: React.ReactNode,
 }) => {
   if (!placeholderCount) {
     return <Loading />;
@@ -39,13 +40,14 @@ const PostsLoading = ({
           key={i}
           showBottomBorder={showFinalBottomBorder || i+1<placeholderCount}
         />)}
-      {loadMore && <SectionFooter>
-        <LoadMorePlaceholder sectionFooterStyles/>
+      {!!(loadMore || children) && <SectionFooter>
+        {loadMore && <LoadMorePlaceholder sectionFooterStyles/>}
+        {children}
       </SectionFooter>}
     </>
   }
 };
 
-export default registerComponent('PostsLoading', PostsLoading);
+export default PostsLoading;
 
 

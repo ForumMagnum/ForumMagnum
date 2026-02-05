@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
 import { useMessages } from '../common/withMessages';
@@ -126,7 +125,7 @@ const TargetedJobAdSection = () => {
   const [activeJob, setActiveJob] = useState<string>()
   
   // select a job ad to show to the current user
-  useMemo(() => {
+  const matchedJob = useMemo(() => {
     if (!currentUser || userJobAdsLoading || userEAGDetailsLoading || coreTagReadsLoading || activeJob) return
   
     const ads = userJobAds ?? []
@@ -216,11 +215,9 @@ const TargetedJobAdSection = () => {
       const shouldShowAd = !userJobAdState || ['seen', 'expanded'].includes(userJobAdState)
 
       if (userIsMatch && shouldShowAd) {
-        setActiveJob(jobName)
-        return
+        return jobName
       }
     }
-    
   }, [
     currentUser,
     userJobAds,
@@ -231,6 +228,12 @@ const TargetedJobAdSection = () => {
     coreTagReadsLoading,
     activeJob
   ])
+
+  useEffect(() => {
+    if (matchedJob) {
+      setActiveJob(matchedJob)
+    }
+  }, [matchedJob])
 
   // record when this user has seen the selected ad
   useEffect(() => {
@@ -310,6 +313,6 @@ const TargetedJobAdSection = () => {
   </div>
 }
 
-export default registerComponent("TargetedJobAdSection", TargetedJobAdSection);
+export default TargetedJobAdSection;
 
 

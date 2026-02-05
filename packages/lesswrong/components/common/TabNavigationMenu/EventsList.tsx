@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useUserLocation } from '@/components/hooks/useUserLocation';
 import { isEAForum } from '../../../lib/instanceSettings';
@@ -48,6 +47,6 @@ export const EventsList = ({onClick}: {
   </span>
 }
 
-export default registerComponent("EventsList", EventsList);
+export default EventsList;
 
 
