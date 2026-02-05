@@ -15,6 +15,14 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 type Documents = {
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.LocalgroupMetadataDocument,
+    "\n  query HabrykaDynamicUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.HabrykaDynamicUserQueryDocument,
+    "\n  query HabrykaDynamicPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.HabrykaDynamicPostsQueryDocument,
+    "\n  query HabrykaDynamicSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.HabrykaDynamicSequencesQueryDocument,
+    "\n  query HabrykaDynamicCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n": typeof types.HabrykaDynamicCommentsQueryDocument,
+    "\n  query HabrykaMockupUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.HabrykaMockupUserQueryDocument,
+    "\n  query HabrykaMockupPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.HabrykaMockupPostsQueryDocument,
+    "\n  query HabrykaMockupSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.HabrykaMockupSequencesQueryDocument,
+    "\n  query HabrykaMockupCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n": typeof types.HabrykaMockupCommentsQueryDocument,
     "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n": typeof types.multiModeratorCommentsQueryDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n        bannerImageId\n        gridImageId\n        noindex\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.SequenceMetadataDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": typeof types.AdminMetadataQueryDocument,
@@ -622,6 +630,7 @@ type Documents = {
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": typeof types.LocalPostQueryDocument,
     "\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.UserRecentPostsForCompactCardDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemDocument,
+    "\n  query UltraFeedThreadItemV2($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.UltraFeedThreadItemV2Document,
     "\n  mutation createUltraFeedEvent($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": typeof types.createUltraFeedEventDocument,
     "\n  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: $selector, data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": typeof types.updateUltraFeedEventDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": typeof types.connectCrossposterDocument,
@@ -936,6 +945,14 @@ type Documents = {
 };
 const documents: Documents = {
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.LocalgroupMetadataDocument,
+    "\n  query HabrykaDynamicUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.HabrykaDynamicUserQueryDocument,
+    "\n  query HabrykaDynamicPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.HabrykaDynamicPostsQueryDocument,
+    "\n  query HabrykaDynamicSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n": types.HabrykaDynamicSequencesQueryDocument,
+    "\n  query HabrykaDynamicCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n": types.HabrykaDynamicCommentsQueryDocument,
+    "\n  query HabrykaMockupUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.HabrykaMockupUserQueryDocument,
+    "\n  query HabrykaMockupPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.HabrykaMockupPostsQueryDocument,
+    "\n  query HabrykaMockupSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n": types.HabrykaMockupSequencesQueryDocument,
+    "\n  query HabrykaMockupCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n": types.HabrykaMockupCommentsQueryDocument,
     "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n": types.multiModeratorCommentsQueryDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n        bannerImageId\n        gridImageId\n        noindex\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.SequenceMetadataDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": types.AdminMetadataQueryDocument,
@@ -1543,6 +1560,7 @@ const documents: Documents = {
     "\n  query LocalPostQuery($documentId: String!) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...UltraFeedPostFragment\n      }\n    }\n  }\n": types.LocalPostQueryDocument,
     "\n  query UserRecentPostsForCompactCard($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.UserRecentPostsForCompactCardDocument,
     "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemDocument,
+    "\n  query UltraFeedThreadItemV2($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.UltraFeedThreadItemV2Document,
     "\n  mutation createUltraFeedEvent($data: CreateUltraFeedEventDataInput!) {\n    createUltraFeedEvent(data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": types.createUltraFeedEventDocument,
     "\n  mutation updateUltraFeedEvent($selector: String!, $data: UpdateUltraFeedEventDataInput!) {\n    updateUltraFeedEvent(selector: $selector, data: $data) {\n      data {\n        _id\n      }\n    }\n  }\n": types.updateUltraFeedEventDocument,
     "\n    mutation connectCrossposter($token: String) {\n      connectCrossposter(token: $token)\n    }\n  ": types.connectCrossposterDocument,
@@ -1874,6 +1892,38 @@ export function gql(source: string): unknown;
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HabrykaDynamicUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query HabrykaDynamicUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HabrykaDynamicPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query HabrykaDynamicPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HabrykaDynamicSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query HabrykaDynamicSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HabrykaDynamicCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query HabrykaDynamicCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HabrykaMockupUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query HabrykaMockupUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HabrykaMockupPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query HabrykaMockupPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HabrykaMockupSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query HabrykaMockupSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query HabrykaMockupCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query HabrykaMockupCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -4302,6 +4352,10 @@ export function gql(source: "\n  query UserRecentPostsForCompactCard($selector: 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedThreadItem($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query UltraFeedThreadItemV2($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query UltraFeedThreadItemV2($documentId: String) {\n    post(selector: { _id: $documentId }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

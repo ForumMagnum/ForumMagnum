@@ -13188,6 +13188,158 @@ type LocalgroupMetadataQueryVariables = Exact<{
 
 type LocalgroupMetadataQuery = LocalgroupMetadataQuery_Query;
 
+type HabrykaDynamicUserQueryQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & UsersProfile
+);
+
+type HabrykaDynamicUserQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<HabrykaDynamicUserQueryQuery_users_MultiUserOutput_results_User> };
+
+type HabrykaDynamicUserQueryQuery_Query = { __typename?: 'Query', users: HabrykaDynamicUserQueryQuery_users_MultiUserOutput | null };
+
+
+type HabrykaDynamicUserQueryQueryVariables = Exact<{
+  selector: InputMaybe<UserSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type HabrykaDynamicUserQueryQuery = HabrykaDynamicUserQueryQuery_Query;
+
+type HabrykaDynamicPostsQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type HabrykaDynamicPostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<HabrykaDynamicPostsQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type HabrykaDynamicPostsQueryQuery_Query = { __typename?: 'Query', posts: HabrykaDynamicPostsQueryQuery_posts_MultiPostOutput | null };
+
+
+type HabrykaDynamicPostsQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type HabrykaDynamicPostsQueryQuery = HabrykaDynamicPostsQueryQuery_Query;
+
+type HabrykaDynamicSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
+  { __typename?: 'Sequence' }
+  & SequenceContinueReadingFragment
+);
+
+type HabrykaDynamicSequencesQueryQuery_sequences_MultiSequenceOutput = { __typename?: 'MultiSequenceOutput', totalCount: number | null, results: Array<HabrykaDynamicSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence> };
+
+type HabrykaDynamicSequencesQueryQuery_Query = { __typename?: 'Query', sequences: HabrykaDynamicSequencesQueryQuery_sequences_MultiSequenceOutput | null };
+
+
+type HabrykaDynamicSequencesQueryQueryVariables = Exact<{
+  selector: InputMaybe<SequenceSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type HabrykaDynamicSequencesQueryQuery = HabrykaDynamicSequencesQueryQuery_Query;
+
+type HabrykaDynamicCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type HabrykaDynamicCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<HabrykaDynamicCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type HabrykaDynamicCommentsQueryQuery_Query = { __typename?: 'Query', comments: HabrykaDynamicCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type HabrykaDynamicCommentsQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type HabrykaDynamicCommentsQueryQuery = HabrykaDynamicCommentsQueryQuery_Query;
+
+type HabrykaMockupUserQueryQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & UsersProfile
+);
+
+type HabrykaMockupUserQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<HabrykaMockupUserQueryQuery_users_MultiUserOutput_results_User> };
+
+type HabrykaMockupUserQueryQuery_Query = { __typename?: 'Query', users: HabrykaMockupUserQueryQuery_users_MultiUserOutput | null };
+
+
+type HabrykaMockupUserQueryQueryVariables = Exact<{
+  selector: InputMaybe<UserSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type HabrykaMockupUserQueryQuery = HabrykaMockupUserQueryQuery_Query;
+
+type HabrykaMockupPostsQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type HabrykaMockupPostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<HabrykaMockupPostsQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type HabrykaMockupPostsQueryQuery_Query = { __typename?: 'Query', posts: HabrykaMockupPostsQueryQuery_posts_MultiPostOutput | null };
+
+
+type HabrykaMockupPostsQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type HabrykaMockupPostsQueryQuery = HabrykaMockupPostsQueryQuery_Query;
+
+type HabrykaMockupSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
+  { __typename?: 'Sequence' }
+  & SequenceContinueReadingFragment
+);
+
+type HabrykaMockupSequencesQueryQuery_sequences_MultiSequenceOutput = { __typename?: 'MultiSequenceOutput', totalCount: number | null, results: Array<HabrykaMockupSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence> };
+
+type HabrykaMockupSequencesQueryQuery_Query = { __typename?: 'Query', sequences: HabrykaMockupSequencesQueryQuery_sequences_MultiSequenceOutput | null };
+
+
+type HabrykaMockupSequencesQueryQueryVariables = Exact<{
+  selector: InputMaybe<SequenceSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type HabrykaMockupSequencesQueryQuery = HabrykaMockupSequencesQueryQuery_Query;
+
+type HabrykaMockupCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type HabrykaMockupCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<HabrykaMockupCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type HabrykaMockupCommentsQueryQuery_Query = { __typename?: 'Query', comments: HabrykaMockupCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type HabrykaMockupCommentsQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type HabrykaMockupCommentsQueryQuery = HabrykaMockupCommentsQueryQuery_Query;
+
 type multiModeratorCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
   & ShortformComments
@@ -23955,6 +24107,23 @@ type UltraFeedThreadItemQueryVariables = Exact<{
 
 
 type UltraFeedThreadItemQuery = UltraFeedThreadItemQuery_Query;
+
+type UltraFeedThreadItemV2Query_post_SinglePostOutput_result_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UltraFeedThreadItemV2Query_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: UltraFeedThreadItemV2Query_post_SinglePostOutput_result_Post | null };
+
+type UltraFeedThreadItemV2Query_Query = { __typename?: 'Query', post: UltraFeedThreadItemV2Query_post_SinglePostOutput | null };
+
+
+type UltraFeedThreadItemV2QueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UltraFeedThreadItemV2Query = UltraFeedThreadItemV2Query_Query;
 
 type createUltraFeedEventMutation_createUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = { __typename?: 'UltraFeedEvent', _id: string };
 

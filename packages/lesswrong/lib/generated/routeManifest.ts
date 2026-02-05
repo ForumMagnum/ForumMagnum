@@ -514,6 +514,15 @@ export const routeTrie = {
     "groups-map": {
       "hasPage": true
     },
+    "habryka13-110": {
+      "dynamicChild": {
+        "paramName": "slug",
+        "child": {
+          "hasPage": true
+        }
+      },
+      "hasPage": true
+    },
     "highlights": {
       "dynamicChild": {
         "paramName": "slug",
@@ -521,6 +530,9 @@ export const routeTrie = {
           "hasPage": true
         }
       },
+      "hasPage": true
+    },
+    "homepage-v2": {
       "hasPage": true
     },
     "hpmor": {
@@ -1000,7 +1012,9 @@ export const routeTrie = {
     "graphql": "graphql",
     "groups": "groups",
     "groups-map": "groups-map",
+    "habryka13-110": "habryka13-110",
     "highlights": "highlights",
+    "homepage-v2": "homepage-v2",
     "hpmor": "hpmor",
     "inbox": "inbox",
     "item": "item",
