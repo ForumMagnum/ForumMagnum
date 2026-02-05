@@ -9,4 +9,4 @@ export type LinkChangePayload = {
   text: string | null;
 };
 
-export const LINK_CHANGE_COMMAND = createCommand<LinkChangePayload>('SUGGESTION_STUB_LINK_CHANGE_COMMAND');
+export const LINK_CHANGE_COMMAND = createCommand<LinkChangePayload>('SUGGESTION_LINK_CHANGE_COMMAND');

@@ -66,7 +66,7 @@ export const $getElementBlockType = (node: ElementNode): BlockType | null => {
   return null;
 };
 
-export const SET_BLOCK_TYPE_COMMAND = createCommand<BlockType>('SUGGESTION_STUB_SET_BLOCK_TYPE_COMMAND');
+export const SET_BLOCK_TYPE_COMMAND = createCommand<BlockType>('SUGGESTION_SET_BLOCK_TYPE_COMMAND');
 
 export const blockTypeToBlockName: { [k in BlockType]: string } = {
   paragraph: 'Normal',
