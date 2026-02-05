@@ -1,18 +1,13 @@
 import React from "react";
 import TagHistoryPage from '@/components/tagging/history/TagHistoryPage';
-import { TagHistoryPageTitle } from '@/components/tagging/TagHistoryPageTitle';
+import { TagHistoryPageSubtitle } from '@/components/tagging/TagHistoryPageSubtitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug, { historyPage: true, noIndex: true });
 
 export default function Page() {
-  // enableResourcePrefetch was: function
-  
-  return <RouteRoot metadata={{
-    titleComponent: TagHistoryPageTitle,
-    subtitleComponent: TagHistoryPageTitle
-  }}>
+  return <RouteRoot subtitle={TagHistoryPageSubtitle}>
     <TagHistoryPage />
   </RouteRoot>;
 }

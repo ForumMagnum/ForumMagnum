@@ -21,10 +21,7 @@ const UsersMinimumInfoMultiQuery = gql(`
   }
 `);
 
-export const UserPageTitle = ({isSubtitle, siteName}: {
-  isSubtitle: boolean,
-  siteName: string,
-}) => {
+export const UserPageSubtitle = () => {
   const classes = useStyles(headerSubtitleStyles);
 
   const { params: {slug} } = useLocation();
@@ -56,11 +53,9 @@ export const UserPageTitle = ({isSubtitle, siteName}: {
   // title. I've removed that use of this component, and I don't think there's another
   // currently-in-use subtitle version of this component. Probably should remove
   // the option, unless we want to go back to using the User subtitle on personal blogposts.
-  if (isSubtitle) {
-    return (<span className={classes.subtitle}>
-      <Link to={userLink}>
-        {userNameString}
-      </Link>
-    </span>);
-  }
+  return (<span className={classes.subtitle}>
+    <Link to={userLink}>
+      {userNameString}
+    </Link>
+  </span>);
 }

@@ -149,21 +149,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [oldUserId, newUserId]);
   }
 
-  async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
-    const maybeRequireAF = isAF() ? "AND af IS TRUE" : ""
-    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
-      -- PostsRepo.postRouteWillDefinitelyReturn200
-      SELECT EXISTS(
-        SELECT 1
-        FROM "Posts"
-        WHERE "_id" = $1 AND ${getViewablePostsSelector()}
-        ${maybeRequireAF}
-      )
-    `, [id]);
-
-    return res?.exists ?? false;
-  }
-
   async getEarliestPostTime(): Promise<Date> {
     const result = await this.oneOrNone(`
       -- PostsRepo.getEarliestPostTime

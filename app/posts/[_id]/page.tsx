@@ -12,9 +12,7 @@ assertRouteHasWhiteBackground("/posts/[_id]");
 export default function Page() {
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      noFooter: hasPostRecommendations(),
-    }}
+    noFooter={hasPostRecommendations()}
   >
     <PostsSingle />
   </RouteRoot>;

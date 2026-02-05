@@ -1,6 +1,6 @@
 import React from "react";
 import SequencesSingle from '@/components/sequences/SequencesSingle';
-import { SequencesPageTitle } from '@/components/titles/SequencesPageTitle';
+import { SequencesPageSubtitle } from '@/components/titles/SequencesPageSubtitle';
 import type { Metadata } from "next";
 import { gql } from "@/lib/generated/gql-codegen";
 import { getClient } from "@/lib/apollo/nextApolloClient";
@@ -79,12 +79,7 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
 }
 
 export default function Page() {
-  // enableResourcePrefetch was: function
-  
-  return <RouteRoot delayedStatusCode metadata={{
-    titleComponent: SequencesPageTitle,
-    subtitleComponent: SequencesPageTitle
-  }}>
+  return <RouteRoot delayedStatusCode subtitle={SequencesPageSubtitle}>
     <SequencesSingle />
   </RouteRoot>;
 }

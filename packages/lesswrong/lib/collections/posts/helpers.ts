@@ -452,21 +452,6 @@ export const googleDocIdToUrl = (docId: string): string => {
   return `https://docs.google.com/document/d/${docId}/edit`;
 };
 
-export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
-  const match = matchPath<any>(req.path, '/posts/:_id/:slug?');
-
-  if (match) {
-    const postId = match.params.postId;
-    if (req.query.commentId && commentPermalinkStyleSetting.get() === 'in-context') {
-      // Will redirect from ?commentId=... to #...
-      return false;
-    }
-
-    return await context.repos.posts.postRouteWillDefinitelyReturn200(postId);
-  }
-  return false;
-}
-
 export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase & keyof DbPost> | PostsBase): boolean => {
   // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
   // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended

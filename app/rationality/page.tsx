@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ subtitle: 'Rationality: A-Z', subtitleLink: '/rationality' }}>
+  return <RouteRoot subtitle={{ title: 'Rationality: A-Z', link: '/rationality' }}>
     <CoreSequences />
   </RouteRoot>;
 }

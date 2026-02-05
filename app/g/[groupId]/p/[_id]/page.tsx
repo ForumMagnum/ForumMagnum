@@ -18,11 +18,8 @@ assertRouteHasWhiteBackground("/g/[groupId]/p/[_id]");
 export default function Page() {
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      subtitle: 'Community',
-      subtitleLink: '/community',
-      noFooter: hasPostRecommendations()
-    }}
+    subtitle={{ title: 'Community', link: '/community' }}
+    noFooter={hasPostRecommendations()}
   >
     <PostsSingle />
   </RouteRoot>;

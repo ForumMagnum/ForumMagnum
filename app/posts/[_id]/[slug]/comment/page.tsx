@@ -8,7 +8,7 @@ export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ 
 export default function Page() {
   return <RouteRoot
     delayedStatusCode
-    metadata={{ noFooter: false }}
+    noFooter={false}
   >
     <PostsSingle />
   </RouteRoot>;
