@@ -14,6 +14,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  query MarkdownLatestPosts($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...MarkdownPostsList\n      }\n    }\n  }\n": typeof types.MarkdownLatestPostsDocument,
+    "\n  query PostMarkdownApi($_id: String!) {\n    post(selector: {_id: $_id}) {\n      result {\n        _id\n        slug\n        baseScore\n        postedAt\n        draft\n        curatedDate\n        frontpageDate\n        postCategory\n        url\n        user { slug displayName }\n        coauthors { slug displayName }\n        tags { _id name slug }\n        title\n        contents { agentMarkdown }\n      }\n    }\n  }\n": typeof types.PostMarkdownApiDocument,
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.LocalgroupMetadataDocument,
     "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n": typeof types.multiModeratorCommentsQueryDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n        bannerImageId\n        gridImageId\n        noindex\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": typeof types.SequenceMetadataDocument,
@@ -763,6 +765,7 @@ type Documents = {
     "\n  fragment PostsAuthors on Post {\n    user {\n      ...UsersMinimumInfo\n      profileImageId\n      \n      # Author moderation info\n      moderationStyle\n      bannedUserIds\n      moderatorAssistance\n      groups\n      banned\n      allCommentingDisabled\n    }\n    coauthors {\n      ...UsersMinimumInfo\n    }\n  }\n": typeof types.PostsAuthorsDoc,
     "\n  fragment PostsListBase on Post {\n    ...PostsBase\n    ...PostsAuthors\n    readTimeMinutes\n    rejectedReason\n    customHighlight {\n      _id\n      html\n      plaintextDescription\n    }\n    lastPromotedComment {\n      _id\n      user {\n        ...UsersMinimumInfo\n      }\n    }\n    bestAnswer {\n      ...CommentsList\n    }\n    tags {\n      ...TagBasicInfo\n    }\n    socialPreviewData {\n      _id\n      imageUrl\n    }\n\n    feedId\n    totalDialogueResponseCount\n    unreadDebateResponseCount\n    dialogTooltipPreview\n    disableSidenotes\n  }\n": typeof types.PostsListBaseDoc,
     "\n  fragment PostsList on Post {\n    ...PostsListBase\n    deletedDraft\n    contents {\n      _id\n      htmlHighlight\n      plaintextDescription\n      wordCount\n      version\n    }\n    isBookmarked\n    fmCrosspost {\n      isCrosspost\n      hostedHere\n      foreignPostId\n    }\n    bannedUserIds\n  }\n": typeof types.PostsListDoc,
+    "\n  fragment MarkdownPostsList on Post {\n    ...PostsListBase\n    contents {\n      _id\n      agentMarkdownExcerpt\n    }\n    isBookmarked\n    fmCrosspost {\n      isCrosspost\n      hostedHere\n      foreignPostId\n    }\n  }\n": typeof types.MarkdownPostsListDoc,
     "\n  fragment SunshineCurationPostsList on Post {\n    ...PostsList\n    curationNotices {\n      ...CurationNoticesFragment\n    }\n  }\n": typeof types.SunshineCurationPostsListDoc,
     "\n  fragment PostsListTag on Post {\n    ...PostsList\n    tagRel(tagId: $tagId) {\n      ...WithVoteTagRel\n    }\n  }\n": typeof types.PostsListTagDoc,
     "\n  fragment PostsListTagWithVotes on Post {\n    ...PostsListWithVotes\n    tagRel(tagId: $tagId) {\n      ...WithVoteTagRel\n    }\n  }\n": typeof types.PostsListTagWithVotesDoc,
@@ -935,6 +938,8 @@ type Documents = {
     "\n  query CommentsForEmbeddings($selector: CommentSelector) {\n    comments(selector: $selector) {\n      results {\n        _id\n        postedAt\n        contents {\n          _id\n          html\n        }\n        user {\n          _id\n          displayName\n          username\n          fullName\n        }\n        post {\n          _id\n          title\n        }\n      }\n    }\n  }\n": typeof types.CommentsForEmbeddingsDocument,
 };
 const documents: Documents = {
+    "\n  query MarkdownLatestPosts($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...MarkdownPostsList\n      }\n    }\n  }\n": types.MarkdownLatestPostsDocument,
+    "\n  query PostMarkdownApi($_id: String!) {\n    post(selector: {_id: $_id}) {\n      result {\n        _id\n        slug\n        baseScore\n        postedAt\n        draft\n        curatedDate\n        frontpageDate\n        postCategory\n        url\n        user { slug displayName }\n        coauthors { slug displayName }\n        tags { _id name slug }\n        title\n        contents { agentMarkdown }\n      }\n    }\n  }\n": types.PostMarkdownApiDocument,
     "\n  query LocalgroupMetadata($groupId: String) {\n    localgroup(selector: { _id: $groupId }) {\n      result {\n        _id\n        name\n        bannerImageId\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.LocalgroupMetadataDocument,
     "\n  query multiModeratorCommentsQuery($commentIds: [String!]!) {\n    comments(selector: { default: { commentIds: $commentIds } }) {\n      results {\n        ...ShortformComments\n      }\n    }\n  }\n": types.multiModeratorCommentsQueryDocument,
     "\n  query SequenceMetadata($sequenceId: String) {\n    sequence(selector: { _id: $sequenceId }) {\n      result {\n        _id\n        title\n        bannerImageId\n        gridImageId\n        noindex\n        contents {\n          plaintextDescription\n        }\n      }\n    }\n  }\n": types.SequenceMetadataDocument,
@@ -1684,6 +1689,7 @@ const documents: Documents = {
     "\n  fragment PostsAuthors on Post {\n    user {\n      ...UsersMinimumInfo\n      profileImageId\n      \n      # Author moderation info\n      moderationStyle\n      bannedUserIds\n      moderatorAssistance\n      groups\n      banned\n      allCommentingDisabled\n    }\n    coauthors {\n      ...UsersMinimumInfo\n    }\n  }\n": types.PostsAuthorsDoc,
     "\n  fragment PostsListBase on Post {\n    ...PostsBase\n    ...PostsAuthors\n    readTimeMinutes\n    rejectedReason\n    customHighlight {\n      _id\n      html\n      plaintextDescription\n    }\n    lastPromotedComment {\n      _id\n      user {\n        ...UsersMinimumInfo\n      }\n    }\n    bestAnswer {\n      ...CommentsList\n    }\n    tags {\n      ...TagBasicInfo\n    }\n    socialPreviewData {\n      _id\n      imageUrl\n    }\n\n    feedId\n    totalDialogueResponseCount\n    unreadDebateResponseCount\n    dialogTooltipPreview\n    disableSidenotes\n  }\n": types.PostsListBaseDoc,
     "\n  fragment PostsList on Post {\n    ...PostsListBase\n    deletedDraft\n    contents {\n      _id\n      htmlHighlight\n      plaintextDescription\n      wordCount\n      version\n    }\n    isBookmarked\n    fmCrosspost {\n      isCrosspost\n      hostedHere\n      foreignPostId\n    }\n    bannedUserIds\n  }\n": types.PostsListDoc,
+    "\n  fragment MarkdownPostsList on Post {\n    ...PostsListBase\n    contents {\n      _id\n      agentMarkdownExcerpt\n    }\n    isBookmarked\n    fmCrosspost {\n      isCrosspost\n      hostedHere\n      foreignPostId\n    }\n  }\n": types.MarkdownPostsListDoc,
     "\n  fragment SunshineCurationPostsList on Post {\n    ...PostsList\n    curationNotices {\n      ...CurationNoticesFragment\n    }\n  }\n": types.SunshineCurationPostsListDoc,
     "\n  fragment PostsListTag on Post {\n    ...PostsList\n    tagRel(tagId: $tagId) {\n      ...WithVoteTagRel\n    }\n  }\n": types.PostsListTagDoc,
     "\n  fragment PostsListTagWithVotes on Post {\n    ...PostsListWithVotes\n    tagRel(tagId: $tagId) {\n      ...WithVoteTagRel\n    }\n  }\n": types.PostsListTagWithVotesDoc,
@@ -1870,6 +1876,14 @@ const documents: Documents = {
  */
 export function gql(source: string): unknown;
 
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query MarkdownLatestPosts($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...MarkdownPostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query MarkdownLatestPosts($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...MarkdownPostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query PostMarkdownApi($_id: String!) {\n    post(selector: {_id: $_id}) {\n      result {\n        _id\n        slug\n        baseScore\n        postedAt\n        draft\n        curatedDate\n        frontpageDate\n        postCategory\n        url\n        user { slug displayName }\n        coauthors { slug displayName }\n        tags { _id name slug }\n        title\n        contents { agentMarkdown }\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostMarkdownApi($_id: String!) {\n    post(selector: {_id: $_id}) {\n      result {\n        _id\n        slug\n        baseScore\n        postedAt\n        draft\n        curatedDate\n        frontpageDate\n        postCategory\n        url\n        user { slug displayName }\n        coauthors { slug displayName }\n        tags { _id name slug }\n        title\n        contents { agentMarkdown }\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -4866,6 +4880,10 @@ export function gql(source: "\n  fragment PostsListBase on Post {\n    ...PostsB
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  fragment PostsList on Post {\n    ...PostsListBase\n    deletedDraft\n    contents {\n      _id\n      htmlHighlight\n      plaintextDescription\n      wordCount\n      version\n    }\n    isBookmarked\n    fmCrosspost {\n      isCrosspost\n      hostedHere\n      foreignPostId\n    }\n    bannedUserIds\n  }\n"): (typeof documents)["\n  fragment PostsList on Post {\n    ...PostsListBase\n    deletedDraft\n    contents {\n      _id\n      htmlHighlight\n      plaintextDescription\n      wordCount\n      version\n    }\n    isBookmarked\n    fmCrosspost {\n      isCrosspost\n      hostedHere\n      foreignPostId\n    }\n    bannedUserIds\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment MarkdownPostsList on Post {\n    ...PostsListBase\n    contents {\n      _id\n      agentMarkdownExcerpt\n    }\n    isBookmarked\n    fmCrosspost {\n      isCrosspost\n      hostedHere\n      foreignPostId\n    }\n  }\n"): (typeof documents)["\n  fragment MarkdownPostsList on Post {\n    ...PostsListBase\n    contents {\n      _id\n      agentMarkdownExcerpt\n    }\n    isBookmarked\n    fmCrosspost {\n      isCrosspost\n      hostedHere\n      foreignPostId\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

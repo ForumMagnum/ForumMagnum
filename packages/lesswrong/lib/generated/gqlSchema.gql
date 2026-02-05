@@ -6688,6 +6688,8 @@ type Revision {
   originalContents: ContentType!
   html: String
   markdown: String
+  agentMarkdown: String
+  agentMarkdownExcerpt: String
   ckEditorMarkup: String
   wordCount: Float!
   htmlHighlight: String!

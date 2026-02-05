@@ -4,7 +4,7 @@ import { TagHoverPreview } from '../tagging/TagHoverPreview';
 
 // ea-forum-look-here
 // This matches directory structure in app/lw which will need to be duplicated as app/ea
-const legacyRouteAcronym = 'lw';
+export const legacyRouteAcronym = 'lw';
 
 export type LinkPreviewComponent = React.FC<{
   href: string,

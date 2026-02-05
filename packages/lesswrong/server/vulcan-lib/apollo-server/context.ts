@@ -99,9 +99,9 @@ export function configureSentryScope(context: ResolverContext, scope: Scope) {
   }
 }
 
-export async function getContextFromReqAndRes({req, isSSR}: {
+export async function getContextFromReqAndRes({req, isSSR=false}: {
   req: NextRequest,
-  isSSR: boolean
+  isSSR?: boolean
 }): Promise<ResolverContext> {
   // TODO: do we want to abstract this out into something shared across all routes that need to grab the authenticated user for the current request?
   const user = await getUserFromReq(req);

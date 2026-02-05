@@ -110,6 +110,12 @@ export const routeTrie = {
     },
     "api": {
       "staticChildren": {
+        "SKILL.md": {
+          "hasRoute": true
+        },
+        "latest": {
+          "hasRoute": true
+        },
         "autocomplete": {
           "hasRoute": true
         },
@@ -185,6 +191,14 @@ export const routeTrie = {
         "notificationEvents": {
           "hasRoute": true
         },
+        "post": {
+          "dynamicChild": {
+            "paramName": "idOrSlug",
+            "child": {
+              "hasRoute": true
+            }
+          }
+        },
         "quit": {
           "hasRoute": true
         },
@@ -251,6 +265,8 @@ export const routeTrie = {
         }
       },
       "lowerCase": {
+        "skill.md": "SKILL.md",
+        "latest": "latest",
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",
@@ -259,13 +275,15 @@ export const routeTrie = {
         "health": "health",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
+        "post": "post",
         "quit": "quit",
         "registerclientid": "registerClientId",
         "search": "search",
         "sendllmchat": "sendLlmChat",
         "streamgraphql": "streamGraphql",
         "v2": "v2"
-      }
+      },
+      "hasRoute": true
     },
     "arbital": {
       "hasPage": true

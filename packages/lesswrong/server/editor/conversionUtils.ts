@@ -9,7 +9,18 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import escape from 'lodash/escape';
+import unescape from 'lodash/unescape';
 import { getMarkdownIt } from '@/lib/utils/markdownItPlugins';
+import { ServerSafeNode } from '@/lib/domParser';
+
+const blockTags = new Set([
+  'ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'DIV', 'DL', 'DT', 'DD', 'FIELDSET',
+  'FIGCAPTION', 'FIGURE', 'FOOTER', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
+  'HEADER', 'HR', 'LI', 'MAIN', 'NAV', 'NOSCRIPT', 'OL', 'P', 'PRE', 'SECTION',
+  'TABLE', 'TFOOT', 'UL',
+]);
+
+const isBlockTag = (nodeName: string): boolean => blockTags.has(nodeName);
 
 let _turndownService: TurndownService|null = null;
 function getTurndown(): TurndownService {
@@ -17,9 +28,31 @@ function getTurndown(): TurndownService {
     const TurndownService = require('turndown');
     const {gfm} = require('turndown-plugin-gfm');
 
-    const turndownService: TurndownService = new TurndownService()
+    const turndownService: TurndownService = new TurndownService({
+      blankReplacement: (content: string, node: Node) => {
+        if (hasDataMarkdownAttribute(node)) {
+          const markdown = (node as Element).getAttribute('data-markdown') ?? '';
+          return `\n\n${unescape(markdown)}\n\n`
+        }
+        if (node?.nodeType === ServerSafeNode.ELEMENT_NODE && isBlockTag(node.nodeName)) {
+          return '\n\n'
+        }
+        return ''
+      },
+    })
     turndownService.use(gfm); // Add support for strikethrough and tables
     turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
+    turndownService.addRule('raw-markdown', {
+      filter: (node, options) => hasDataMarkdownAttribute(node),
+      replacement: (content, node) => {
+        const markdown = (node as Element).getAttribute('data-markdown') ?? '';
+        return `\n\n${unescape(markdown)}\n\n`
+      }
+    })
+    turndownService.addRule('markdown-title', {
+      filter: (node, options) => node.classList?.contains('markdown-title'),
+      replacement: (content) => `# ${content.trim()}\n\n`,
+    })
     turndownService.addRule('footnote-ref', {
       filter: (node, options) => node.classList?.contains('footnote-reference'),
       replacement: (content, node) => {
@@ -72,6 +105,12 @@ function getTurndown(): TurndownService {
     _turndownService = turndownService;
   }
   return _turndownService;
+}
+
+function hasDataMarkdownAttribute(node: Node): boolean {
+  return node?.nodeType === ServerSafeNode.ELEMENT_NODE
+    && typeof (node as Element).getAttribute === 'function'
+    && (node as Element).getAttribute('data-markdown') !== null
 }
 
 export function mjPagePromise(html: string, beforeSerializationCallback: (dom: any, css: string) => any): Promise<string> {

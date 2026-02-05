@@ -18,8 +18,8 @@ function fileMightIncludeFragment(filePath: string): boolean {
   }
 }
 
-function findFragmentsIn(srcDir: string, functionToFind: string): string[] {
-  const tsFiles = getAllTypeScriptFilesIn(srcDir);
+function findFragmentsIn(srcDirs: string|string[], functionToFind: string): string[] {
+  const tsFiles = getAllTypeScriptFilesIn(srcDirs);
   const program = ts.createProgram(tsFiles, {});
   const fragmentStrings: string[] = [];
   
@@ -31,7 +31,7 @@ function findFragmentsIn(srcDir: string, functionToFind: string): string[] {
   return fragmentStrings;
 }
 
-function getAllTypeScriptFilesIn(dir: string): string[] {
+function getAllTypeScriptFilesIn(dir: string | string[]): string[] {
   const files: string[] = [];
   
   function traverse(currentDir: string) {
@@ -53,8 +53,14 @@ function getAllTypeScriptFilesIn(dir: string): string[] {
       }
     }
   }
-  
-  traverse(dir);
+
+  if (Array.isArray(dir)) {
+    for (const currentDir of dir) {
+      traverse(currentDir);
+    }
+  } else {
+    traverse(dir);
+  }
   return files;
 }
 
@@ -105,7 +111,7 @@ let allFragmentsInSource: FragmentsFromSource|null = null;
 
 export function findFragmentsInSource(collectionNameToTypeName: Record<string, string>): FragmentsFromSource {
   if (allFragmentsInSource) return allFragmentsInSource;
-  const foundFragmentStrings = findFragmentsIn("packages/lesswrong", "gql");
+  const foundFragmentStrings = findFragmentsIn(["packages/lesswrong", "app"], "gql");
   const fragmentStrings = [
     ...foundFragmentStrings,
   ];

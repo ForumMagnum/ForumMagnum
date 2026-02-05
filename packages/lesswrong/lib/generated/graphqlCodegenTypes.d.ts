@@ -9620,6 +9620,8 @@ type Revision = {
   afBaseScore?: Maybe<Scalars['Float']['output']>;
   afExtendedScore?: Maybe<Scalars['JSON']['output']>;
   afVoteCount?: Maybe<Scalars['Float']['output']>;
+  agentMarkdown?: Maybe<Scalars['String']['output']>;
+  agentMarkdownExcerpt?: Maybe<Scalars['String']['output']>;
   baseScore: Scalars['Float']['output'];
   changeMetrics: Scalars['JSON']['output'];
   ckEditorMarkup?: Maybe<Scalars['String']['output']>;
@@ -13168,6 +13170,46 @@ type YjsDocument = {
   _id: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
 };
+
+type MarkdownLatestPostsQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownLatestPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownLatestPostsQuery_posts_MultiPostOutput_results_Post> };
+
+type MarkdownLatestPostsQuery_Query = { __typename?: 'Query', posts: MarkdownLatestPostsQuery_posts_MultiPostOutput | null };
+
+
+type MarkdownLatestPostsQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownLatestPostsQuery = MarkdownLatestPostsQuery_Query;
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_coauthors_User = { __typename?: 'User', slug: string, displayName: string };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_tags_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, baseScore: number, postedAt: string, draft: boolean | null, curatedDate: string | null, frontpageDate: string | null, postCategory: PostCategory, url: string | null, title: string, user: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_user_User | null, coauthors: Array<PostMarkdownApiQuery_post_SinglePostOutput_result_Post_coauthors_User> | null, tags: Array<PostMarkdownApiQuery_post_SinglePostOutput_result_Post_tags_Tag>, contents: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+
+type PostMarkdownApiQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMarkdownApiQuery_post_SinglePostOutput_result_Post | null };
+
+type PostMarkdownApiQuery_Query = { __typename?: 'Query', post: PostMarkdownApiQuery_post_SinglePostOutput | null };
+
+
+type PostMarkdownApiQueryVariables = Exact<{
+  _id: Scalars['String']['input'];
+}>;
+
+
+type PostMarkdownApiQuery = PostMarkdownApiQuery_Query;
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
@@ -25619,6 +25661,15 @@ type PostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutpu
 
 type PostsList = (
   { __typename?: 'Post', deletedDraft: boolean, isBookmarked: boolean, bannedUserIds: Array<string> | null, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
+  & PostsListBase
+);
+
+type MarkdownPostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, agentMarkdownExcerpt: string | null };
+
+type MarkdownPostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
+
+type MarkdownPostsList = (
+  { __typename?: 'Post', isBookmarked: boolean, contents: MarkdownPostsList_Post_contents_Revision | null, fmCrosspost: MarkdownPostsList_Post_fmCrosspost_CrosspostOutput | null }
   & PostsListBase
 );
 
