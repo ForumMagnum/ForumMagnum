@@ -9628,6 +9628,7 @@ type Revision = {
   afBaseScore?: Maybe<Scalars['Float']['output']>;
   afExtendedScore?: Maybe<Scalars['JSON']['output']>;
   afVoteCount?: Maybe<Scalars['Float']['output']>;
+  agentMarkdown?: Maybe<Scalars['String']['output']>;
   baseScore: Scalars['Float']['output'];
   changeMetrics: Scalars['JSON']['output'];
   ckEditorMarkup?: Maybe<Scalars['String']['output']>;
@@ -13179,7 +13180,7 @@ type YjsDocument = {
 
 type PostQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
 
-type PostQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', markdown: string | null };
+type PostQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null };
 
 type PostQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, postedAt: string, title: string, user: PostQuery_post_SinglePostOutput_result_Post_user_User | null, contents: PostQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
 

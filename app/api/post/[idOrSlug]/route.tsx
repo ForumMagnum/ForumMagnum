@@ -24,7 +24,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ idOr
           postedAt
           user { slug displayName }
           title
-          contents { markdown }
+          contents { agentMarkdown }
         }
       }
     }
@@ -43,6 +43,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ idOr
       By <MarkdownUserLink user={post.user} /><br/>
       <MarkdownDate date={post.postedAt} />
     </div>
-    <MarkdownNode markdown={post.contents?.markdown ?? ""} />
+    <MarkdownNode markdown={post.contents?.agentMarkdown ?? ""} />
   </div>);
 }

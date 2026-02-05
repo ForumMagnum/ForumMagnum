@@ -14,6 +14,7 @@ import { ContentType } from "./revisionSchemaTypes";
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import { getOriginalContents } from "./helpers";
+import { rewritePostLinksForAgentMarkdown } from "@/server/markdownApi/markdownLinks";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -235,6 +236,17 @@ const schema = {
       canRead: ["guests"],
       resolver: ({ originalContents }) =>
         originalContents ? dataToMarkdown(originalContents.data, originalContents.type) : null,
+    },
+  },
+  agentMarkdown: {
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      resolver: async ({ originalContents }, args, context) => {
+        if (!originalContents) return null;
+        const markdown = dataToMarkdown(originalContents.data, originalContents.type);
+        return rewritePostLinksForAgentMarkdown(markdown, context);
+      },
     },
   },
   ckEditorMarkup: {
