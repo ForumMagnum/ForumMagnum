@@ -1,24 +1,26 @@
 import React from "react";
 import PostsEditPage from '@/components/posts/PostsEditPage';
 import { Metadata } from "next";
-import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields, getResolverContextForGenerateMetadata } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
-import { getClient } from "@/lib/apollo/nextApolloClient";
 import { PostsEditFormQuery } from "@/components/posts/queries";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { runQuery } from "@/server/vulcan-lib/query";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ postId?: string, version?: string }> }): Promise<Metadata> {
-  const [{ postId, version }, defaultMetadata] = await Promise.all([searchParams, getDefaultMetadata()]);
+  const [searchParamsValues, defaultMetadata] = await Promise.all([searchParams, getDefaultMetadata()]);
+  const { postId, version } = searchParamsValues;
 
   if (!postId) return {};
 
   try {
-    const { data } = await getClient().query({
-      query: PostsEditFormQuery,
-      variables: { documentId: postId, version: version ?? 'draft' },
-      fetchPolicy: 'network-only',
-    });
+    const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);
+    const { data } = await runQuery(
+      PostsEditFormQuery,
+      { documentId: postId, version: version ?? 'draft' },
+      resolverContext
+    );
   
     if (!data?.post?.result) return {};
   
