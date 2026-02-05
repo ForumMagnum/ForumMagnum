@@ -55,3 +55,35 @@
   content: '';
   pointer-events: none;
 }
+
+/* Text format styles — only for formats that use <span> and need CSS classes.
+   Bold (<strong>), italic (<em>), subscript (<sub>), and superscript (<sup>)
+   use native HTML elements and don't need classes. */
+.text-strikethrough {
+  text-decoration: line-through;
+}
+.text-underline {
+  text-decoration: underline;
+}
+.text-underline-strikethrough {
+  text-decoration: underline line-through;
+}
+.text-code {
+  font-family: Menlo, Consolas, Monaco, monospace;
+  font-size: 94%;
+  padding: 1px 0.25rem;
+  background-color: rgb(240, 242, 245);
+  border-radius: 2px;
+}
+.text-highlight {
+  background-color: rgb(255, 212, 0);
+}
+.text-capitalize {
+  text-transform: capitalize;
+}
+.text-lowercase {
+  text-transform: lowercase;
+}
+.text-uppercase {
+  text-transform: uppercase;
+}

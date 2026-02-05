@@ -110,20 +110,16 @@ const theme: EditorThemeClasses = {
   tableScrollableWrapper: 'table-scrollable-wrapper',
   tableSelected: 'table-selected',
   tableSelection: 'table-selection',
-  // text: {
-  //   bold: 'PlaygroundEditorTheme__textBold',
-  //   capitalize: 'PlaygroundEditorTheme__textCapitalize',
-  //   code: 'PlaygroundEditorTheme__textCode',
-  //   highlight: 'PlaygroundEditorTheme__textHighlight',
-  //   italic: 'PlaygroundEditorTheme__textItalic',
-  //   lowercase: 'PlaygroundEditorTheme__textLowercase',
-  //   strikethrough: 'PlaygroundEditorTheme__textStrikethrough',
-  //   subscript: 'PlaygroundEditorTheme__textSubscript',
-  //   superscript: 'PlaygroundEditorTheme__textSuperscript',
-  //   underline: 'PlaygroundEditorTheme__textUnderline',
-  //   underlineStrikethrough: 'PlaygroundEditorTheme__textUnderlineStrikethrough',
-  //   uppercase: 'PlaygroundEditorTheme__textUppercase',
-  // },
+  text: {
+    capitalize: 'text-capitalize',
+    code: 'text-code',
+    highlight: 'text-highlight',
+    lowercase: 'text-lowercase',
+    strikethrough: 'text-strikethrough',
+    underline: 'text-underline',
+    underlineStrikethrough: 'text-underline-strikethrough',
+    uppercase: 'text-uppercase',
+  },
 };
 
 export default theme;
