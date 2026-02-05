@@ -85,12 +85,28 @@ function getTurndown(): TurndownService {
       filter: ['i'],
       replacement: (content) => `*${content}*`
     })
-    //If we have a math-tex block, we want to leave it as is without escaping it
+    const unescapeMarkdownInMath = (text: string): string =>
+      text.replace(/\\([ \\!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])/g, '$1');
+
+    const convertMathDelimiters = (text: string): string | null => {
+      const trimmed = text.trim();
+      const inlineMatch = trimmed.match(/^\\\\?\\\(([\s\S]*?)\\\\?\\\)$/);
+      if (inlineMatch) {
+        return `$${unescapeMarkdownInMath(inlineMatch[1])}$`;
+      }
+      const blockMatch = trimmed.match(/^\\\\?\\\[([\s\S]*?)\\\\?\\\]$/);
+      if (blockMatch) {
+        return `\n\n$$\n${unescapeMarkdownInMath(blockMatch[1])}\n$$\n\n`;
+      }
+      return null;
+    };
+
+    //If we have a math-tex block, we want to convert it to markdown math delimiters
     turndownService.addRule('latex-spans', {
       filter: (node, options) => node.classList?.contains('math-tex'),
       replacement: (content) => {
-        // Leave the first three and last three characters alone, and then replace every escaped markdown control character with its unescaped version
-        return content.slice(0, 3) + content.slice(3, -3).replace(/\\([ \\!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])/g, '$1') + content.slice(-3)
+        const converted = convertMathDelimiters(content);
+        return converted ?? content;
       }
     })
     
