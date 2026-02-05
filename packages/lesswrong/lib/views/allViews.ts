@@ -112,7 +112,6 @@ export const allViews = {
   ModeratorActions: ModeratorActionsViews,
   MultiDocuments: MultiDocumentsViews,
   Notifications: NotificationsViews,
-  PageCache: new CollectionViewSet('PageCache', {}),
   PetrovDayActions: PetrovDayActionsViews,
   PetrovDayLaunchs: new CollectionViewSet('PetrovDayLaunchs', {}),
   PodcastEpisodes: PodcastEpisodesViews,

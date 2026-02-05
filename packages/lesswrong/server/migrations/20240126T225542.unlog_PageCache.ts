@@ -25,13 +25,10 @@
  */
 export const acceptsSchemaHash = "8d498c2c299a4fdf9ab47fcb9f045078";
 
-import PageCache from "../../server/collections/pagecache/collection"
-import { logTable, unlogTable } from "./meta/utils"
-
 export const up = async ({db}: MigrationContext) => {
-  await unlogTable(db, PageCache)
+  await db.none('ALTER TABLE "PageCache" SET UNLOGGED;');
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await logTable(db, PageCache)
+  await db.none('ALTER TABLE "PageCache" SET LOGGED;');
 }

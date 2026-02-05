@@ -5588,14 +5588,6 @@ export type NotificationsUserNotificationsInput = {
   viewed?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type PageCacheEntry = {
-  __typename?: 'PageCacheEntry';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  legacyData: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-};
-
 export type PangramWindowScore = {
   __typename?: 'PangramWindowScore';
   endIndex: Scalars['Int']['output'];

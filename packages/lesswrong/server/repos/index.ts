@@ -16,7 +16,6 @@ import LocalgroupsRepo from "./LocalgroupsRepo";
 import LWEventsRepo from "./LWEventsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import NotificationsRepo from "./NotificationsRepo";
-import PageCacheRepo from "./PageCacheRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
@@ -68,7 +67,6 @@ const allRepos = {
   lwEvents: LWEventsRepo,
   manifoldProbabilitiesCachesRepo: ManifoldProbabilitiesCachesRepo,
   notifications: NotificationsRepo,
-  pageCaches: PageCacheRepo,
   postEmbeddings: PostEmbeddingsRepo,
   postRecommendations: PostRecommendationsRepo,
   postRelations: PostRelationsRepo,

@@ -11,7 +11,6 @@ import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
 import universalCookiesMiddleware from 'universal-cookie-express';
 import { formatError } from 'apollo-errors';
 // import { getIsolationScope } from '@sentry/nextjs';
-import { app } from './expressServer';
 import path from 'path'
 import { expressSessionSecretSetting, botProtectionCommentRedirectSetting } from './databaseSettings';
 // import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
@@ -38,6 +37,7 @@ import { getCommandLineArguments } from './commandLine';
 import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import express from 'express';
+export const app = express();
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { requestToNextRequest } from './utils/requestToNextRequest';
 import { defaultNotificationsView, NotificationsViews } from '@/lib/collections/notifications/views';

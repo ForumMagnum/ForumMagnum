@@ -120,7 +120,6 @@ import { graphqlModerationTemplateQueryTypeDefs, moderationTemplateGqlQueryHandl
 import { graphqlModeratorActionQueryTypeDefs, moderatorActionGqlQueryHandlers, moderatorActionGqlFieldResolvers } from "@/server/collections/moderatorActions/queries";
 import { graphqlMultiDocumentQueryTypeDefs, multiDocumentGqlQueryHandlers, multiDocumentGqlFieldResolvers } from "@/server/collections/multiDocuments/queries";
 import { graphqlNotificationQueryTypeDefs, notificationGqlQueryHandlers, notificationGqlFieldResolvers } from "@/server/collections/notifications/queries";
-import { graphqlPageCacheEntryQueryTypeDefs, pageCacheEntryGqlFieldResolvers } from "@/server/collections/pagecache/queries";
 import { graphqlPetrovDayActionQueryTypeDefs, petrovDayActionGqlQueryHandlers, petrovDayActionGqlFieldResolvers } from "@/server/collections/petrovDayActions/queries";
 import { graphqlPetrovDayLaunchQueryTypeDefs, petrovDayLaunchGqlFieldResolvers } from "@/server/collections/petrovDayLaunchs/queries";
 import { graphqlPodcastEpisodeQueryTypeDefs, podcastEpisodeGqlQueryHandlers, podcastEpisodeGqlFieldResolvers } from "@/server/collections/podcastEpisodes/queries";
@@ -375,7 +374,6 @@ export const getTypeDefs = () => gql`
   ${graphqlModeratorActionQueryTypeDefs}
   ${graphqlMultiDocumentQueryTypeDefs}
   ${graphqlNotificationQueryTypeDefs}
-  ${graphqlPageCacheEntryQueryTypeDefs}
   ${graphqlPetrovDayActionQueryTypeDefs}
   ${graphqlPetrovDayLaunchQueryTypeDefs}
   ${graphqlPodcastEpisodeQueryTypeDefs}
@@ -763,7 +761,6 @@ const getResolvers = () => ({
   ...moderatorActionGqlFieldResolvers,
   ...multiDocumentGqlFieldResolvers,
   ...notificationGqlFieldResolvers,
-  ...pageCacheEntryGqlFieldResolvers,
   ...petrovDayActionGqlFieldResolvers,
   ...petrovDayLaunchGqlFieldResolvers,
   ...podcastEpisodeGqlFieldResolvers,
