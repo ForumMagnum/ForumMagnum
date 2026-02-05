@@ -290,9 +290,31 @@ async function ckEditorMarkupToHtml(markup: string, context: ResolverContext, sk
   }
 }
 
+/**
+ * This is mostly a fallback, since we should already be stripping
+ * private lexical markup on the client using `getDataWithDiscardedSuggestions`.
+ * This doesn't have correct rejection semantics, since it only handles
+ * plain insertions/deletions properly and not property changes,
+ * which are rendered as `ins` wrappers that would cause the changed
+ * element to be deleted here.  This is fine as a last-ditch
+ * saving throw but ideally this should be a no-op.
+ */
 function removePrivateLexicalMarkup(markup: string): string {
   const $ = cheerioParse(markup);
-  // Suggested edits leave `ins` and `del` wrappers in the markup, and comments leave `mark` wrapper
+
+  const insCount = $('ins').length;
+  const delCount = $('del').length;
+  if (insCount > 0 || delCount > 0) {
+    const error = new Error(
+      `removePrivateLexicalMarkup: unexpected suggestion markup (${insCount} ins, ${delCount} del). ` +
+      `This means dataWithDiscardedSuggestions was not provided by the client, or the client's implementation is incorrect; falling back to lossy server-side stripping.`
+    );
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+    captureException(error);
+  }
+
+  // Suggested edits leave `ins` and `del` wrappers in the markup, and comments leave `mark` wrapper.
   // We want to remove all the wrappers, and in the case of insertions, delete the content, to prevent
   // leaking any suggested edits that haven't been explicitly accepted to readers.
   $('ins').remove();

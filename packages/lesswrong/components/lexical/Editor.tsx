@@ -124,6 +124,7 @@ import {
   restoreInternalIds,
   InternalIdMap,
 } from '../editor/lexicalPlugins/links/InternalBlockLinksPlugin';
+import { getDataWithDiscardedSuggestions } from '../editor/lexicalPlugins/suggestedEdits/getDataWithDiscardedSuggestions';
 import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
@@ -409,6 +410,12 @@ export interface EditorProps {
   initialHtml?: string;
   /** Called on any editor change with the current HTML representation */
   onChangeHtml?: (html: string) => void;
+  /**
+   * Called once with a function that generates HTML with all suggestions
+   * rejected. Called with null on unmount. The form wrapper stores this and
+   * invokes it at submit time to populate `dataWithDiscardedSuggestions`.
+   */
+  onGetDataWithDiscardedSuggestions?: (fn: (() => string | undefined) | null) => void;
   /** Placeholder override (otherwise uses built-in placeholder based on settings/collab mode) */
   placeholder?: string;
   /** Render editor in compact comment mode */
@@ -437,6 +444,7 @@ export default function Editor({
   accessLevel,
   initialHtml,
   onChangeHtml,
+  onGetDataWithDiscardedSuggestions,
   placeholder: placeholderOverride,
   commentEditor = false,
 }: EditorProps): JSX.Element {
@@ -445,6 +453,15 @@ export default function Editor({
   const hasLoadedInitialHtmlRef = useRef(false);
   const internalIdsRef = useRef<InternalIdMap>(new Map());
   const [editor] = useLexicalComposerContext();
+
+  // Expose a function that generates HTML with all suggestions rejected.
+  // The form wrapper stores this and calls it at submit time.
+  useEffect(() => {
+    onGetDataWithDiscardedSuggestions?.(() => getDataWithDiscardedSuggestions(editor));
+    return () => {
+      onGetDataWithDiscardedSuggestions?.(null);
+    };
+  }, [editor, onGetDataWithDiscardedSuggestions]);
   
   // Track when collaboration config is ready (set synchronously, not in useEffect)
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);

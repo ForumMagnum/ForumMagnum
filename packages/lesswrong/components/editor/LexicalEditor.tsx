@@ -275,6 +275,11 @@ interface LexicalEditorProps {
   placeholder?: string;
   onChange: (html: string) => void;
   onReady?: () => void;
+  /**
+   * Called with a function that generates HTML with all suggestions rejected,
+   * or null on unmount. The parent stores this and invokes it at submit time.
+   */
+  onGetDataWithDiscardedSuggestions?: (fn: (() => string | undefined) | null) => void;
   commentEditor?: boolean;
   /** Collection name to determine whether collaboration is supported. */
   collectionName?: CollectionNameString;
@@ -348,6 +353,7 @@ const LexicalEditor = ({
   placeholder = 'Start writing...',
   onChange,
   onReady,
+  onGetDataWithDiscardedSuggestions,
   collectionName,
   documentId = null,
   commentEditor = false,
@@ -493,6 +499,7 @@ const LexicalEditor = ({
                   accessLevel={accessLevel}
                   initialHtml={initialHtmlRef.current ?? ''}
                   onChangeHtml={handleChange}
+                  onGetDataWithDiscardedSuggestions={onGetDataWithDiscardedSuggestions}
                   placeholder={placeholder}
                   commentEditor={commentEditor}
                 />
