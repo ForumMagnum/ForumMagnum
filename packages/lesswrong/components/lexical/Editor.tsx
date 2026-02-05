@@ -704,7 +704,7 @@ export default function Editor({
                 </>
               ) : (
                 <CollaborationPlugin
-                  key={collaborationConfig.token}
+                  key={collaborationConfig.postId}
                   id={COLLAB_DOC_ID}
                   providerFactory={createWebsocketProvider}
                   shouldBootstrap={false}
