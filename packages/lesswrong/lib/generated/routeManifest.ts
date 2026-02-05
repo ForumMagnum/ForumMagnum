@@ -438,6 +438,9 @@ export const routeTrie = {
         "notificationEmailPreview": {
           "hasPage": true
         },
+        "postLinkPreviewTester": {
+          "hasPage": true
+        },
         "query-waterfall": {
           "hasPage": true
         }
@@ -445,6 +448,7 @@ export const routeTrie = {
       "lowerCase": {
         "emailhistory": "emailHistory",
         "notificationemailpreview": "notificationEmailPreview",
+        "postlinkpreviewtester": "postLinkPreviewTester",
         "query-waterfall": "query-waterfall"
       }
     },

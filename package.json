@@ -286,6 +286,7 @@
     "rss": "^1.2.1",
     "sanitize-html": "^2.12.1",
     "shallowequal": "^1.1.0",
+    "sharp": "^0.34.5",
     "simpl-schema": "^1.5.0",
     "speakingurl": "^9.0.0",
     "stripe": "^17.4.0",

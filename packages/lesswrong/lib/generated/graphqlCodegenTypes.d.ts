@@ -13169,9 +13169,13 @@ type YjsDocument = {
   createdAt: Scalars['Date']['output'];
 };
 
-type PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', html: string | null };
+type PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', plaintextMainText: string };
 
-type PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, socialPreviewImageAutoUrl: string | null, contents: PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+type PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', displayName: string };
+
+type PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post_coauthors_User = { __typename?: 'User', displayName: string };
+
+type PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, socialPreviewImageAutoUrl: string | null, contents: PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post_contents_Revision | null, user: PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post_user_User | null, coauthors: Array<PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post_coauthors_User> | null };
 
 type PostMetadataForPreviewImageQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMetadataForPreviewImageQuery_post_SinglePostOutput_result_Post | null };
 
