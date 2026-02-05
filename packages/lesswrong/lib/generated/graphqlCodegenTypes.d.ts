@@ -13178,23 +13178,27 @@ type YjsDocument = {
   createdAt: Scalars['Date']['output'];
 };
 
-type PostQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
 
-type PostQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null };
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_coauthors_User = { __typename?: 'User', slug: string, displayName: string };
 
-type PostQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, postedAt: string, title: string, user: PostQuery_post_SinglePostOutput_result_Post_user_User | null, contents: PostQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_tags_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string };
 
-type PostQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostQuery_post_SinglePostOutput_result_Post | null };
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null };
 
-type PostQuery_Query = { __typename?: 'Query', post: PostQuery_post_SinglePostOutput | null };
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, baseScore: number, postedAt: string, draft: boolean | null, curatedDate: string | null, frontpageDate: string | null, postCategory: PostCategory, url: string | null, title: string, user: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_user_User | null, coauthors: Array<PostMarkdownApiQuery_post_SinglePostOutput_result_Post_coauthors_User> | null, tags: Array<PostMarkdownApiQuery_post_SinglePostOutput_result_Post_tags_Tag>, contents: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+
+type PostMarkdownApiQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMarkdownApiQuery_post_SinglePostOutput_result_Post | null };
+
+type PostMarkdownApiQuery_Query = { __typename?: 'Query', post: PostMarkdownApiQuery_post_SinglePostOutput | null };
 
 
-type PostQueryVariables = Exact<{
+type PostMarkdownApiQueryVariables = Exact<{
   _id: Scalars['String']['input'];
 }>;
 
 
-type PostQuery = PostQuery_Query;
+type PostMarkdownApiQuery = PostMarkdownApiQuery_Query;
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
