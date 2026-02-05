@@ -6836,6 +6836,7 @@ interface Tag {
   userId: string | null;
   user: User | null;
   adminOnly: boolean;
+  removalResistant: boolean;
   canEditUserIds: Array<string> | null;
   charsAdded: number | null;
   charsRemoved: number | null;
@@ -9290,6 +9291,7 @@ interface CreateTagDataInput {
   defaultOrder?: number | null;
   descriptionTruncationCount?: number | null;
   adminOnly?: boolean | null;
+  removalResistant?: boolean | null;
   canEditUserIds?: Array<string> | null;
   reviewedByUserId?: string | null;
   wikiGrade?: number | null;
@@ -9330,6 +9332,7 @@ interface UpdateTagDataInput {
   defaultOrder?: number | null;
   descriptionTruncationCount?: number | null;
   adminOnly?: boolean | null;
+  removalResistant?: boolean | null;
   canEditUserIds?: Array<string> | null;
   deleted?: boolean | null;
   needsReview?: boolean | null;
