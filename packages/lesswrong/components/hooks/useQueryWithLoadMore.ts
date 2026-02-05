@@ -3,7 +3,6 @@ import { type OperationVariables } from "@apollo/client";
 import { useQuery } from "@/lib/crud/useQuery";
 import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { Kind } from "graphql";
-import { apolloSSRFlag } from "@/lib/helpers";
 import isEqual from "lodash/isEqual";
 import { useStabilizedCallbackAsync } from "./useDebouncedCallback";
 
@@ -75,7 +74,7 @@ export function useQueryWithLoadMore<
 
   const queryOutput = useQuery(query, {
     ...remainingOptions,
-    ssr: apolloSSRFlag(ssr),
+    ssr,
     notifyOnNetworkStatusChange,
     variables: {
       ...({ selector, ...remainingVariables }) as TVariables,

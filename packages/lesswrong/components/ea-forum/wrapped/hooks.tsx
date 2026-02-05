@@ -31,7 +31,6 @@ import WrappedRecommendationsSection from "./WrappedRecommendationsSection";
 import WrappedMostValuablePostsSection from "./WrappedMostValuablePostsSection";
 import WrappedThankYouSection from "./WrappedThankYouSection";
 import { useQueryWithLoadMore, LoadMoreProps } from "@/components/hooks/useQueryWithLoadMore";
-import { apolloSSRFlag } from "@/lib/helpers";
 import { WrappedYear } from "./constants";
 
 const PostsListWithVotesMultiQuery = gql(`
@@ -328,7 +327,7 @@ const useVotes = (year: WrappedYear, voteType: VoteType) => {
       limit: 100,
       enableTotal: false,
     },
-    ssr: apolloSSRFlag(false),
+    ssr: false,
     notifyOnNetworkStatusChange: true,
   });
 

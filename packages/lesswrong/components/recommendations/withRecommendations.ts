@@ -1,6 +1,5 @@
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
-import { apolloSSRFlag } from '../../lib/helpers';
 import { defaultAlgorithmSettings, RecommendationsAlgorithm } from "../../lib/collections/users/recommendationSettings";
 
 export const useRecommendations = ({
@@ -27,9 +26,7 @@ export const useRecommendations = ({
         algorithm: algorithm || defaultAlgorithmSettings,
       },
       context: { batchKey: "recommendations" },
-      // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
-      // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
-      ssr: apolloSSRFlag(ssr),
+      ssr: ssr,
     }
   );
   return {
