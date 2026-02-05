@@ -35,15 +35,26 @@ export default async function RootLayout({
         <Suspense>
           <EnvironmentOverrideContextProviderServer>
             <ClientRouteMetadataProvider>
-              <ClientAppGenerator abTestGroupsUsed={{}}>
+              <ClientAppGeneratorWithRequestId>
                 {children}
-              </ClientAppGenerator>
+              </ClientAppGeneratorWithRequestId>
             </ClientRouteMetadataProvider>
           </EnvironmentOverrideContextProviderServer>
         </Suspense>
       </BodyWithBackgroundColor>
     </html>
   );
+}
+
+const ClientAppGeneratorWithRequestId = async ({ children }: {
+  children: React.ReactNode,
+}) => {
+  const { getRequestIdForServerComponentOrGenerateMetadata } = await import("@/server/rendering/requestId");
+  const requestId = await getRequestIdForServerComponentOrGenerateMetadata();
+
+  return <ClientAppGenerator abTestGroupsUsed={{}} requestId={requestId}>
+    {children}
+  </ClientAppGenerator>
 }
 
 const ClientIDAssignerServer = async () => {

@@ -1,7 +1,6 @@
 import { captureException } from '@/lib/sentryWrapper';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { consoleLogMemoryUsageThreshold, sentryErrorMemoryUsageThreshold, memoryUsageCheckInterval, logGraphqlQueriesSetting, logGraphqlMutationsSetting } from './databaseSettings';
-import { printInFlightRequests } from '@/server/rendering/pageCache';
 
 // Log unhandled promise rejections, eg exceptions escaping from async
 // callbacks. The default node behavior is to silently ignore these exceptions,
@@ -100,6 +99,5 @@ function printInFlightGraphqlQueries() {
 }
 
 export function logInFlightStuff() {
-  printInFlightRequests();
   printInFlightGraphqlQueries();
 }

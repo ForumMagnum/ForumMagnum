@@ -3,7 +3,7 @@
 // Import needed to get the database settings from the window on the client
 import '@/client/publicSettings';
 
-import React, { use, useEffect, useRef, useState, useTransition } from 'react';
+import React, { Suspense, use, useEffect, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import { SSRMetadata, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
@@ -138,8 +138,9 @@ function useLocationHash() {
   return hash;
 }
 
-const ClientAppGenerator = ({ abTestGroupsUsed, children }: {
+const ClientAppGenerator = ({ abTestGroupsUsed, requestId, children }: {
   abTestGroupsUsed: RelevantTestGroupAllocation,
+  requestId: string,
   children: React.ReactNode,
 }) => {
   const universalCookies = useGetUniversalCookies();
@@ -149,6 +150,7 @@ const ClientAppGenerator = ({ abTestGroupsUsed, children }: {
   return <EnableSuspenseContext.Provider value={isServer}>
     <ApolloWrapper
       loginToken={loginToken ?? null}
+      requestId={requestId}
       searchParams={Object.fromEntries(urlSearchParams.entries())}
     >
       <CookiesProvider cookies={universalCookies}>
