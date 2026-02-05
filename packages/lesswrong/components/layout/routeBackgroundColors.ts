@@ -24,6 +24,8 @@ const routesWithWhiteBackground = [
   "/events/[_id]",
   "/faq",
   "/g/[groupId]/p/[_id]",
+  "/habryka13-110",
+  "/habryka13-110/[slug]",
   "/highlights/[slug]",
   "/hpmor/[slug]",
   "/login",
@@ -40,6 +42,7 @@ const routesWithWhiteBackground = [
   "/s/[_id]/p/[postId]",
   "/search",
   "/users/[slug]/edit",
+  "/users/[slug]/profile-v3",
   "/w/[slug]",
   "/w/[slug]/discussion",
   "/w/create"
