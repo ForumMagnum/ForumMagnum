@@ -616,6 +616,27 @@ export default function HabrykaUserPage() {
               <div
                 className={`feed-list tab-panel ${activeTab === "feed" ? "active" : ""}`}
               >
+                {(sortPanelOpen || sortPanelClosing) && (
+                  <div className={`sort-panel ${sortPanelClosing ? "closing" : ""}`}>
+                    <div className="sort-panel-section">
+                      <div className="sort-panel-header">Sorted by:</div>
+                      <button
+                        className={`sort-panel-option ${feedSortBy === "recent" ? "selected" : ""}`}
+                        onClick={() => setFeedSortBy("recent")}
+                        type="button"
+                      >
+                        New
+                      </button>
+                      <button
+                        className={`sort-panel-option ${feedSortBy === "top" ? "selected" : ""}`}
+                        onClick={() => setFeedSortBy("top")}
+                        type="button"
+                      >
+                        Top
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="feed-filter-tabs">
                   <button
                     className={`feed-filter-tab ${feedFilter === "all" ? "active" : ""}`}
@@ -646,27 +667,6 @@ export default function HabrykaUserPage() {
                     Posts
                   </button>
                 </div>
-                {(sortPanelOpen || sortPanelClosing) && (
-                  <div className={`sort-panel ${sortPanelClosing ? "closing" : ""}`}>
-                    <div className="sort-panel-section">
-                      <div className="sort-panel-header">Sorted by:</div>
-                      <button
-                        className={`sort-panel-option ${feedSortBy === "recent" ? "selected" : ""}`}
-                        onClick={() => setFeedSortBy("recent")}
-                        type="button"
-                      >
-                        New
-                      </button>
-                      <button
-                        className={`sort-panel-option ${feedSortBy === "top" ? "selected" : ""}`}
-                        onClick={() => setFeedSortBy("top")}
-                        type="button"
-                      >
-                        Top
-                      </button>
-                    </div>
-                  </div>
-                )}
                 {userId && (
                   <UltraFeedContextProvider openInNewTab={true}>
                     <UltraFeedObserverProvider incognitoMode={false}>
