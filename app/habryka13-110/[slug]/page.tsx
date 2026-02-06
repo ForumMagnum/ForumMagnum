@@ -358,7 +358,8 @@ export default function HabrykaUserPage() {
           </div>
 
           <div className="top-posts-indicator">
-            <span className="top-posts-label">Top post</span>
+            <span className="top-posts-label top-posts-label--plural">Top posts</span>
+            <span className="top-posts-label top-posts-label--singular">Top post</span>
           </div>
 
           {topPost ? (
@@ -588,9 +589,11 @@ export default function HabrykaUserPage() {
                 {bio && (
                   <>
                     <p className="sidebar-author-bio">
-                      {bio.length > 450 ? bio.slice(0, 450) + "..." : bio}
+                      {bio.split(/\s+/).filter(Boolean).length > 65
+                        ? `${bio.split(/\s+/).filter(Boolean).slice(0, 65).join(" ")}...`
+                        : bio}
                     </p>
-                    {bio.length > 450 && (
+                    {bio.split(/\s+/).filter(Boolean).length > 65 && (
                       <div className="read-more">
                         <a href={user ? userGetProfileUrl(user) : "#"} className="read-more-link">
                           Read more

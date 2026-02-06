@@ -1208,6 +1208,10 @@ body {
   padding: 0;
 }
 
+.top-posts-label--singular {
+  display: none;
+}
+
 /* Empty state styling */
 .empty-state-container {
   display: flex;
@@ -1671,7 +1675,7 @@ body {
 .list-article-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 16px;
   overflow: visible;
 }
 
@@ -2395,8 +2399,6 @@ html:not(.truncation-ready) .post-article .post-summary {
   line-height: 1.8;
   color: #6b655d;
   white-space: normal;
-  padding-bottom: 0.6em;
-  margin-bottom: -0.2em;
   position: relative;
   z-index: 1;
 }
@@ -2412,7 +2414,7 @@ html:not(.truncation-ready) .post-article .post-summary {
 }
 
 .habryka2 .list-article-meta {
-  margin-top: 12px;
+  margin-top: 0;
 }
 
 /* Responsive design for medium/tablet screens */
@@ -2547,6 +2549,14 @@ html:not(.truncation-ready) .post-article .post-summary {
   /* Hide the 3 small article cards */
   .small-articles-grid {
     display: none;
+  }
+
+  .top-posts-label--plural {
+    display: none;
+  }
+
+  .top-posts-label--singular {
+    display: block;
   }
 
   /* Show name + bio before all posts */
