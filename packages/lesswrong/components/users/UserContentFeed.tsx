@@ -382,8 +382,8 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
     }
   }, [sortMode]);
 
-  const isLoading = (!skipPosts && postsLoading) || (!skipComments && commentsLoading);
-  const hasNoContent = !isLoading && mixedFeed.length === 0;
+  const isInitialLoading = ((!skipPosts && postsLoading) || (!skipComments && commentsLoading)) && mixedFeed.length === 0;
+  const hasNoContent = !isInitialLoading && mixedFeed.length === 0;
 
   if (hasNoContent) {
     return null;
@@ -434,10 +434,10 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
           </div>
         </div>
       )}
-      {isLoading && <div className={classes.loading}>
+      {isInitialLoading && <div className={classes.loading}>
         <Loading />
       </div>}
-      {!isLoading && <div className={classes.feedContent}>
+      <div className={classes.feedContent}>
         {mixedFeed.map((item, index) => (
           <UserContentFeedItem 
             key={item.type === 'post' ? `post-${item.data._id}` : `comment-${item.data._id}`}
@@ -447,7 +447,8 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
           />
         ))}
         {hasMoreRemote && <div ref={sentinelRef} style={{height: 1}} />}
-      </div>}
+        {loadingMore && <div className={classes.loading}><Loading /></div>}
+      </div>
     </div>
   );
 };

@@ -14,6 +14,7 @@ import UserContentFeed from "@/components/users/UserContentFeed";
 import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContextProvider";
 import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";
 import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavObserverContext";
+import UsersNameWithModal from "@/components/ultraFeed/UsersNameWithModal";
 import moment from "moment";
 
 type ProfileTab = "posts" | "sequences" | "feed";
@@ -474,7 +475,13 @@ export default function HabrykaUserPage() {
                   </button>
                 </div>
               </div>
-              <h4 className="sidebar-author-name">{username}</h4>
+              <h4 className="sidebar-author-name">
+                <UsersNameWithModal
+                  user={user}
+                  className="sidebar-author-name-link"
+                  tooltipPlacement="bottom-start"
+                />
+              </h4>
             </div>
 
             <div className="all-posts-container">

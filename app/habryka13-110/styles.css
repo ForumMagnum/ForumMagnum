@@ -2038,6 +2038,15 @@ body {
   letter-spacing: 0.8px;
 }
 
+.sidebar-author-name-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.sidebar-author-name-link:hover {
+  opacity: 0.67;
+}
+
 .sidebar-actions {
   display: flex;
   align-items: center;
