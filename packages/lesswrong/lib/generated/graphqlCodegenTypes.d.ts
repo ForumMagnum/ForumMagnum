@@ -2864,9 +2864,7 @@ type GoogleServiceAccountSessionSelector = {
 
 type HocuspocusAuth = {
   __typename?: 'HocuspocusAuth';
-  documentName: Scalars['String']['output'];
   token: Scalars['String']['output'];
-  wsUrl: Scalars['String']['output'];
 };
 
 type HomepageCommunityEventMarker = {
@@ -15818,6 +15816,19 @@ type autosaveRevisionMutationVariables = Exact<{
 
 type autosaveRevisionMutation = autosaveRevisionMutation_Mutation;
 
+type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
+
+type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
+
+
+type HocuspocusAuthQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
+
 type LinkSharingQueryQuery_getLinkSharedPost_Post = (
   { __typename?: 'Post' }
   & PostsEdit
@@ -15973,19 +15984,6 @@ type createElicitQuestionCreateClaimDialogMutationVariables = Exact<{
 
 
 type createElicitQuestionCreateClaimDialogMutation = createElicitQuestionCreateClaimDialogMutation_Mutation;
-
-type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string, wsUrl: string, documentName: string };
-
-type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
-
-
-type HocuspocusAuthQueryQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-  linkSharingKey: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
 
 type ConvertDocumentQuery_Query = { __typename?: 'Query', convertDocument: any | null };
 

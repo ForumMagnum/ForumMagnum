@@ -1,5 +1,5 @@
 import axios from 'axios';
-import cheerio from 'cheerio';
+import cheerio, { type Element, type Cheerio, type Node } from 'cheerio';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
 import { extractTableOfContents } from '@/lib/tableOfContents';
 import { dataToCkEditor, markdownToHtml } from './conversionUtils';
@@ -15,7 +15,7 @@ function googleDocConvertFootnotes(html: string): string {
   const footnotePattern = /^ftnt(\d+)$/; // The actual footnotes at the bottom of the doc
   const referencePattern = /^ftnt_ref(\d+)$/; // The links to the footnotes in the main text
 
-  const footnotes: Record<string, { item: cheerio.Cheerio; anchor: cheerio.Cheerio, id: string }> = {};
+  const footnotes: Record<string, { item: Cheerio<Node>; anchor: Cheerio<Element>, id: string }> = {};
   $('a[id]').each((_, element) => {
     if (!('attribs' in element)) return
 
@@ -36,7 +36,7 @@ function googleDocConvertFootnotes(html: string): string {
     return $.html();
   }
 
-  const references: Record<string, { item: cheerio.Cheerio; id: string }> = {};
+  const references: Record<string, { item: Cheerio<Element>; id: string }> = {};
   $('a[id]').each((_, element) => {
     if (!('attribs' in element)) return
 
@@ -362,9 +362,9 @@ function googleDocConvertNestedBullets(html: string): string {
   // Each nesting level (<ul> or <ol> group) has a class like lst-kix_gwukp0509sil-0, or lst-kix_gwukp0509sil-1
   // The number at the end indicates the level of indentation, and the group a nesting level corresponds to
   // can be inferred from the fact that it is part of a continuous block of <ul>/<ol>s with nothing in between
-  const listGroups: Record<string, {element: cheerio.Cheerio, index: number}[]> = {};
+  const listGroups: Record<string, {element: Cheerio<Element>, index: number}[]> = {};
   let currentGroupId = 0;
-  let lastListElement: cheerio.Element | null = null;
+  let lastListElement: Element | null = null;
 
   $('ul[class*="lst-"], ol[class*="lst-"]').each((_, element) => {
     // If the current list element is not immediately after the last one, it's a new group
@@ -407,7 +407,7 @@ function googleDocConvertNestedBullets(html: string): string {
           prevItem.element.children('li:last-child').append(item.element);
         } else if (item.index <= prevItem.index) {
           // Find the ancestor list that matches the current index
-          let ancestor = prevItem.element;
+          let ancestor: Cheerio<Node> = prevItem.element;
           for (let j = 0; j < prevItem.index - item.index; j++) {
             ancestor = ancestor.parent().closest('ul, ol');
           }

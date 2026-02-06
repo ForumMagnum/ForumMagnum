@@ -26,6 +26,7 @@ import {$createHeadingNode, $createQuoteNode} from '@lexical/rich-text';
 import {$setBlocksType} from '@lexical/selection';
 import {INSERT_TABLE_COMMAND} from '@lexical/table';
 import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
+import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 import {
   $createParagraphNode,
   $getSelection,
@@ -37,6 +38,7 @@ import {useCallback, useMemo, useState} from 'react';
 import * as ReactDOM from 'react-dom';
 
 import useModal from '../../hooks/useModal';
+import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
 // import catTypingGif from '../../images/cat-typing.gif';
 // import {EmbedConfigs} from '../AutoEmbedPlugin';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
@@ -200,12 +202,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <TextParagraphIcon style={iconStyle} />,
       keywords: ['normal', 'paragraph', 'p', 'text'],
       onSelect: () =>
-        editor.update(() => {
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            $setBlocksType(selection, () => $createParagraphNode());
-          }
-        }),
+        applyBlockTypeChange(editor, 'paragraph'),
     }),
     ...([1, 2, 3] as const).map(
       (n) => {
@@ -214,12 +211,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
           icon: <HeadingIcon style={iconStyle} />,
           keywords: ['heading', 'header', `h${n}`],
           onSelect: () =>
-            editor.update(() => {
-              const selection = $getSelection();
-              if ($isRangeSelection(selection)) {
-                $setBlocksType(selection, () => $createHeadingNode(`h${n}`));
-              }
-            }),
+            applyBlockTypeChange(editor, `h${n}`),
         });
       }
     ),
@@ -251,32 +243,13 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <ChatSquareQuoteIcon style={iconStyle} />,
       keywords: ['block quote'],
       onSelect: () =>
-        editor.update(() => {
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            $setBlocksType(selection, () => $createQuoteNode());
-          }
-        }),
+        applyBlockTypeChange(editor, 'quote'),
     }),
     new ComponentPickerOption('Code', {
       icon: <CodeIcon style={iconStyle} />,
       keywords: ['javascript', 'python', 'js', 'codeblock'],
       onSelect: () =>
-        editor.update(() => {
-          const selection = $getSelection();
-
-          if ($isRangeSelection(selection)) {
-            if (selection.isCollapsed()) {
-              $setBlocksType(selection, () => $createCodeNode());
-            } else {
-              // Will this ever happen?
-              const textContent = selection.getTextContent();
-              const codeNode = $createCodeNode();
-              selection.insertNodes([codeNode]);
-              selection.insertRawText(textContent);
-            }
-          }
-        }),
+        applyBlockTypeChange(editor, 'code'),
     }),
     new ComponentPickerOption('Divider', {
       icon: <HorizontalRuleIcon style={iconStyle} />,

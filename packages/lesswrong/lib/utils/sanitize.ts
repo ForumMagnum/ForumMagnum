@@ -190,7 +190,7 @@ export const sanitize = function(s: string): string {
       button: ['table-add-columns', 'table-add-rows', 'table-cell-action-button'],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],
-      li: [ 'footnote-item' ],
+      li: [ 'footnote-item', 'nested-list-item' ],
       details: ['detailsBlock'],
       summary: ['detailsBlockTitle'],
     },

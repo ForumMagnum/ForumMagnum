@@ -12,7 +12,7 @@ import './PlaygroundEditorTheme.css';
 
 const theme: EditorThemeClasses = {
   // autocomplete: 'PlaygroundEditorTheme__autocomplete',
-  // blockCursor: 'PlaygroundEditorTheme__blockCursor',
+  // blockCursor: 'block-cursor',
   // characterLimit: 'PlaygroundEditorTheme__characterLimit',
   code: 'code-block',
   codeHighlight: {
@@ -68,23 +68,23 @@ const theme: EditorThemeClasses = {
   // layoutContainer: 'PlaygroundEditorTheme__layoutContainer',
   // layoutItem: 'PlaygroundEditorTheme__layoutItem',
   // link: 'PlaygroundEditorTheme__link',
-  // list: {
-  //   checklist: 'PlaygroundEditorTheme__checklist',
-  //   listitem: 'PlaygroundEditorTheme__listItem',
-  //   listitemChecked: 'PlaygroundEditorTheme__listItemChecked',
-  //   listitemUnchecked: 'PlaygroundEditorTheme__listItemUnchecked',
-  //   nested: {
-  //     listitem: 'PlaygroundEditorTheme__nestedListItem',
-  //   },
-  //   olDepth: [
-  //     'PlaygroundEditorTheme__ol1',
-  //     'PlaygroundEditorTheme__ol2',
-  //     'PlaygroundEditorTheme__ol3',
-  //     'PlaygroundEditorTheme__ol4',
-  //     'PlaygroundEditorTheme__ol5',
-  //   ],
-  //   ul: 'PlaygroundEditorTheme__ul',
-  // },
+  list: {
+    // checklist: 'PlaygroundEditorTheme__checklist',
+    // listitem: 'PlaygroundEditorTheme__listItem',
+    // listitemChecked: 'PlaygroundEditorTheme__listItemChecked',
+    // listitemUnchecked: 'PlaygroundEditorTheme__listItemUnchecked',
+    nested: {
+      listitem: 'nested-list-item',
+    },
+    // olDepth: [
+    //   'PlaygroundEditorTheme__ol1',
+    //   'PlaygroundEditorTheme__ol2',
+    //   'PlaygroundEditorTheme__ol3',
+    //   'PlaygroundEditorTheme__ol4',
+    //   'PlaygroundEditorTheme__ol5',
+    // ],
+    // ul: 'PlaygroundEditorTheme__ul',
+  },
   mark: 'editor-mark',
   markOverlap: 'editor-mark-overlap',
   // quote: 'PlaygroundEditorTheme__quote',
@@ -110,20 +110,16 @@ const theme: EditorThemeClasses = {
   tableScrollableWrapper: 'table-scrollable-wrapper',
   tableSelected: 'table-selected',
   tableSelection: 'table-selection',
-  // text: {
-  //   bold: 'PlaygroundEditorTheme__textBold',
-  //   capitalize: 'PlaygroundEditorTheme__textCapitalize',
-  //   code: 'PlaygroundEditorTheme__textCode',
-  //   highlight: 'PlaygroundEditorTheme__textHighlight',
-  //   italic: 'PlaygroundEditorTheme__textItalic',
-  //   lowercase: 'PlaygroundEditorTheme__textLowercase',
-  //   strikethrough: 'PlaygroundEditorTheme__textStrikethrough',
-  //   subscript: 'PlaygroundEditorTheme__textSubscript',
-  //   superscript: 'PlaygroundEditorTheme__textSuperscript',
-  //   underline: 'PlaygroundEditorTheme__textUnderline',
-  //   underlineStrikethrough: 'PlaygroundEditorTheme__textUnderlineStrikethrough',
-  //   uppercase: 'PlaygroundEditorTheme__textUppercase',
-  // },
+  text: {
+    capitalize: 'text-capitalize',
+    code: 'text-code',
+    highlight: 'text-highlight',
+    lowercase: 'text-lowercase',
+    strikethrough: 'text-strikethrough',
+    underline: 'text-underline',
+    underlineStrikethrough: 'text-underline-strikethrough',
+    uppercase: 'text-uppercase',
+  },
 };
 
 export default theme;

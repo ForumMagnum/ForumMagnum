@@ -45,7 +45,9 @@ import {
   createWebsocketProvider,
   createWebsocketProviderWithDoc,
   setCollaborationConfig,
+  CollaboratorIdentityProvider,
   type CollaborationConfig,
+  type CollaboratorIdentity,
 } from './collaboration';
 import {useSettings} from './context/SettingsContext';
 import {useSharedHistoryContext} from './context/SharedHistoryContext';
@@ -58,7 +60,8 @@ import CodeHighlightPrismPlugin from './plugins/CodeHighlightPrismPlugin';
 // import CodeHighlightShikiPlugin from './plugins/CodeHighlightShikiPlugin';
 import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import CommentPlugin from './plugins/CommentPlugin';
-import SuggestedEditsPlugin from './plugins/SuggestedEditsPlugin';
+import { CommentStoreProvider } from './commenting/CommentStoreContext';
+import { MarkNodesProvider } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DateTimePlugin from './plugins/DateTimePlugin';
@@ -112,13 +115,18 @@ import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
+import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
+import { EditorUserMode, type EditorUserModeType } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
+import { TOGGLE_SUGGESTION_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
+import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
 import {
   preprocessHtmlForImport,
   restoreInternalIds,
   InternalIdMap,
 } from '../editor/lexicalPlugins/links/InternalBlockLinksPlugin';
-import { type CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
+import { getDataWithDiscardedSuggestions } from '../editor/lexicalPlugins/suggestedEdits/getDataWithDiscardedSuggestions';
+import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
@@ -272,42 +280,53 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
         margin: 0,
       },
     },
-    // Suggested edits styling overrides.
-    '& .editor-mark[data-suggestion-id]': {
-      backgroundColor: 'transparent',
-      boxShadow: 'none',
+    '& ins': {
+      background: theme.palette.background.diffInserted,
       textDecoration: 'none',
-      borderBottom: 'none',
+      '&.insert-image img': {
+        outline: `2px solid ${theme.palette.primary.main}`,
+        outlineOffset: '-2px',
+      },
+      '&.insert-divider hr': {
+        outline: `2px solid ${theme.palette.primary.main}`,
+        outlineOffset: '-2px',
+      },
     },
-    '& .editor-mark.selected[data-suggestion-id]': {
-      backgroundColor: 'transparent',
-      boxShadow: 'none',
-      borderBottom: 'none',
+    '& p:has(> ins.block-type-change.target-paragraph), & blockquote:has(> ins.block-type-change.target-quote)': {
+      background: theme.palette.background.diffInserted,
+      height: '26px',
     },
-    '& .editor-mark[data-suggestion-id] *': {
-      backgroundColor: 'transparent',
-      boxShadow: 'none',
-      borderBottom: 'none',
+    '& li:has(> ins.block-type-change.target-bullet), & li:has(> ins.block-type-change.target-number), & li:has(> ins.block-type-change.target-check)': {
+      background: theme.palette.background.diffInserted,
+      '&::marker': {
+        color: theme.palette.primary.main,
+      },
     },
-    '& .editor-mark.lexical-suggestion-insert': {
-      backgroundColor: theme.palette.primary.light,
-      borderRadius: 2,
-      padding: '0 1px',
+    '& blockquote:has(> ins.block-type-change.target-quote)': {
+      background: theme.palette.background.diffInserted,
     },
-    '& .editor-mark.lexical-suggestion-delete': {
-      backgroundColor: theme.palette.error.light,
-      borderRadius: 2,
-      padding: '0 1px',
-      textDecoration: 'line-through',
-      color: theme.palette.error.dark,
+    '& del': {
+      background: theme.palette.background.diffDeleted,
+      textDecoration: 'none',
+      '&.delete-image img': {
+        outline: `2px solid ${theme.palette.error.main}`,
+        outlineOffset: '-2px',
+      },
+      '&.delete-divider hr': {
+        outline: `2px solid ${theme.palette.error.main}`,
+        outlineOffset: '-2px',
+      },
     },
-    '& .editor-mark.selected.lexical-suggestion-insert': {
-      backgroundColor: theme.palette.primary.light,
-      borderBottom: 'none',
+    '& hr.selected': {
+      outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
+      outlineOffset: '-2px',
     },
-    '& .editor-mark.selected.lexical-suggestion-delete': {
-      backgroundColor: theme.palette.error.light,
-      borderBottom: 'none',
+    // Hide the marker on wrapper list items that only contain a nested list
+    // (no text content of their own). Without this, the wrapper's marker
+    // (e.g. "2.") appears on the same line as the nested list's first item
+    // (e.g. "a."), making them look squished together.
+    '& .nested-list-item': {
+      listStyleType: 'none',
     },
   },
   editorContainerComment: {
@@ -321,6 +340,35 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   plainText: {
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
+  },
+  suggestionModeToggle: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginBottom: 6,
+  },
+  suggestionModeButton: {
+    border: 0,
+    borderRadius: 6,
+    padding: '6px 10px',
+    cursor: 'pointer',
+    background: theme.palette.grey[200],
+    color: theme.palette.grey[900],
+    fontSize: 12,
+    fontWeight: 600,
+    '&:hover:not(:disabled)': {
+      background: theme.palette.grey[300],
+    },
+    '&:disabled': {
+      cursor: 'not-allowed',
+      opacity: 0.7,
+    },
+  },
+  suggestionModeButtonActive: {
+    background: theme.palette.primary.main,
+    color: theme.palette.grey[0],
+    '&:hover': {
+      background: theme.palette.primary.dark,
+    },
   },
   editorScroller: {
     minHeight: 'var(--lexical-editor-min-height, 150px)',
@@ -370,6 +418,12 @@ export interface EditorProps {
   initialHtml?: string;
   /** Called on any editor change with the current HTML representation */
   onChangeHtml?: (html: string) => void;
+  /**
+   * Called once with a function that generates HTML with all suggestions
+   * rejected. Called with null on unmount. The form wrapper stores this and
+   * invokes it at submit time to populate `dataWithDiscardedSuggestions`.
+   */
+  onGetDataWithDiscardedSuggestions?: (fn: (() => string | undefined) | null) => void;
   /** Placeholder override (otherwise uses built-in placeholder based on settings/collab mode) */
   placeholder?: string;
   /** Render editor in compact comment mode */
@@ -398,6 +452,7 @@ export default function Editor({
   accessLevel,
   initialHtml,
   onChangeHtml,
+  onGetDataWithDiscardedSuggestions,
   placeholder: placeholderOverride,
   commentEditor = false,
 }: EditorProps): JSX.Element {
@@ -406,6 +461,15 @@ export default function Editor({
   const hasLoadedInitialHtmlRef = useRef(false);
   const internalIdsRef = useRef<InternalIdMap>(new Map());
   const [editor] = useLexicalComposerContext();
+
+  // Expose a function that generates HTML with all suggestions rejected.
+  // The form wrapper stores this and calls it at submit time.
+  useEffect(() => {
+    onGetDataWithDiscardedSuggestions?.(() => getDataWithDiscardedSuggestions(editor));
+    return () => {
+      onGetDataWithDiscardedSuggestions?.(null);
+    };
+  }, [editor, onGetDataWithDiscardedSuggestions]);
   
   // Track when collaboration config is ready (set synchronously, not in useEffect)
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
@@ -511,6 +575,26 @@ export default function Editor({
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
+  // Initialize suggestion mode based on access level:
+  // - Users with "comment" access (but not "edit") should start in Suggesting mode
+  // - Users with "edit" access start in Editing mode
+  const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
+  const [isSuggestionMode, setIsSuggestionMode] = useState(!canEdit);
+  
+  const collaboratorIdentity: CollaboratorIdentity | null = useMemo(() => {
+    if (!collaborationConfig || !accessLevel) return null;
+    return {
+      id: collaborationConfig.user.id,
+      name: collaborationConfig.user.name,
+      accessLevel,
+    };
+  }, [collaborationConfig, accessLevel]);
+  const handleUserModeChange = useCallback((mode: EditorUserModeType) => {
+    setIsSuggestionMode(mode === EditorUserMode.Suggest);
+  }, []);
+  const handleToggleSuggestionMode = useCallback(() => {
+    editor.dispatchCommand(TOGGLE_SUGGESTION_MODE_COMMAND, undefined);
+  }, [editor]);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
@@ -541,12 +625,29 @@ export default function Editor({
 
   return (
     <>
+      {isRichText && collaborationConfig && (
+        <div className={classes.suggestionModeToggle}>
+          <button
+            type="button"
+            className={classNames(
+              classes.suggestionModeButton,
+              isSuggestionMode && classes.suggestionModeButtonActive,
+            )}
+            onClick={handleToggleSuggestionMode}
+            disabled={!canEdit}
+            title={!canEdit ? 'You have comment access only - edits are shown as suggestions' : undefined}
+          >
+            {isSuggestionMode ? 'Suggesting' : 'Editing'}
+          </button>
+        </div>
+      )}
       {isRichText && (
         <ToolbarPlugin
           editor={editor}
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
           setIsLinkEditMode={setIsLinkEditMode}
+          isSuggestionMode={isSuggestionMode}
           isVisible={false}
         />
       )}
@@ -579,17 +680,23 @@ export default function Editor({
         {/* <SpeechToTextPlugin /> */}
         <AutoLinkPlugin />
         <DateTimePlugin />
-        {!isCommentEditor && !(isCollab && useCollabV2) && (
-          <CommentPlugin
-            providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
-          />
-        )}
-        {!isCommentEditor && (
-          <SuggestedEditsPlugin
-            accessLevel={accessLevel}
-            providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
-          />
-        )}
+        <MarkNodesProvider>
+          {collaboratorIdentity && (
+            <CollaboratorIdentityProvider value={collaboratorIdentity}>
+              <CommentStoreProvider
+                providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
+              >
+                {!isCommentEditor && !(isCollab && useCollabV2) && (
+                  <CommentPlugin />
+                )}
+              <SuggestedEditsPlugin
+                isSuggestionMode={isSuggestionMode}
+                onUserModeChange={handleUserModeChange}
+              />
+              </CommentStoreProvider>
+            </CollaboratorIdentityProvider>
+          )}
+        </MarkNodesProvider>
         {isRichText ? (
           <>
             {isCollabConfigReady && collaborationConfig ? (
@@ -605,7 +712,7 @@ export default function Editor({
                 </>
               ) : (
                 <CollaborationPlugin
-                  key={collaborationConfig.token}
+                  key={collaborationConfig.postId}
                   id={COLLAB_DOC_ID}
                   providerFactory={createWebsocketProvider}
                   shouldBootstrap={false}
@@ -632,6 +739,7 @@ export default function Editor({
                     <ContentEditable
                       placeholder={placeholder}
                       variant={isCommentEditor ? 'comment' : undefined}
+                      isSuggestionMode={isSuggestionMode}
                     />
                   </div>
                 </div>
@@ -691,6 +799,7 @@ export default function Editor({
             <ClickableLinkPlugin disabled={isEditable} />
             <HorizontalRulePlugin />
             <HorizontalRuleEnterPlugin />
+            <BlockCursorNavigationPlugin />
             <MathPlugin />
             {/* <ExcalidrawPlugin /> */}
             <TabFocusPlugin />
@@ -700,7 +809,7 @@ export default function Editor({
             <LayoutPlugin />
             <FootnotesPlugin />
             <MentionsPlugin />
-            <SpoilersPlugin />
+            <SpoilersPlugin isSuggestionMode={isSuggestionMode} />
             <ClaimsPlugin />
             <RemoveRedirectPlugin />
             <LLMAutocompletePlugin />
@@ -710,6 +819,7 @@ export default function Editor({
                   anchorElem={floatingAnchorElem}
                   isLinkEditMode={isLinkEditMode}
                   setIsLinkEditMode={setIsLinkEditMode}
+                  isSuggestionMode={isSuggestionMode}
                 />
                 {/* <TableCellActionMenuPlugin
                   anchorElem={floatingAnchorElem}
@@ -729,12 +839,13 @@ export default function Editor({
               setIsLinkEditMode={setIsLinkEditMode}
               variant={isCommentEditor ? 'comment' : 'post'}
               showInlineCommentButton={isCollab && !isCommentEditor}
+              isSuggestionMode={isSuggestionMode}
             />}
           </>
         ) : (
           <>
             <PlainTextPlugin
-              contentEditable={<ContentEditable placeholder={placeholder} />}
+              contentEditable={<ContentEditable placeholder={placeholder} isSuggestionMode={isSuggestionMode} />}
               ErrorBoundary={LexicalErrorBoundary}
             />
             <HistoryPlugin externalHistoryState={historyState} />
@@ -748,7 +859,7 @@ export default function Editor({
         )}
         {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
-        {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
+        {shouldUseLexicalContextMenu && <ContextMenuPlugin isSuggestionMode={isSuggestionMode} />}
         {/* {shouldAllowHighlightingWithBrackets && <SpecialTextPlugin />} */}
         {/* <ActionsPlugin
           shouldPreserveNewLinesInMarkdown={shouldPreserveNewLinesInMarkdown}

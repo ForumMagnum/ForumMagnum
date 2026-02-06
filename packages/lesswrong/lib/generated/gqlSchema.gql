@@ -706,8 +706,6 @@ type HomepageCommunityEventPostsResult {
 
 type HocuspocusAuth {
   token: String!
-  wsUrl: String!
-  documentName: String!
 }
 
 type DigestHighlightsResult {

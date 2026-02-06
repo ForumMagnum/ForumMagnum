@@ -336,11 +336,7 @@ export const postGqlQueries = {
       { expiresIn: '1h' }
     );
 
-    return {
-      token,
-      wsUrl: process.env.HOCUSPOCUS_URL,
-      documentName: `post-${postId}`,
-    };
+    return { token };
   },
   ...DigestHighlightsQuery,
   ...DigestPostsThisWeekQuery,
@@ -572,8 +568,6 @@ export const postGqlTypeDefs = gql`
   }
   type HocuspocusAuth {
     token: String!
-    wsUrl: String!
-    documentName: String!
   }
   ${DigestHighlightsTypeDefs}
   ${DigestPostsThisWeekTypeDefs}

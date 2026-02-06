@@ -12,6 +12,7 @@ import {$isCodeHighlightNode} from '@lexical/code';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand';
 
 import { TypeBoldIcon } from '../../icons/TypeBoldIcon';
 import { TypeItalicIcon } from '../../icons/TypeItalicIcon';
@@ -210,6 +211,7 @@ function TextFormatFloatingToolbar({
   blockType,
   variant,
   showInlineCommentButton,
+  isSuggestionMode,
 }: {
   editor: LexicalEditor;
   anchorElem: HTMLElement;
@@ -221,6 +223,7 @@ function TextFormatFloatingToolbar({
   blockType: string;
   variant: FloatingToolbarVariant;
   showInlineCommentButton: boolean;
+  isSuggestionMode: boolean;
 }): JSX.Element {
   const classes = useStyles(styles);
   const popupCharStylesEditorRef = useRef<HTMLDivElement | null>(null);
@@ -230,9 +233,18 @@ function TextFormatFloatingToolbar({
       setIsLinkEditMode(true);
     } else {
       setIsLinkEditMode(false);
-      editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+      if (isSuggestionMode) {
+        editor.dispatchCommand(LINK_CHANGE_COMMAND, {
+          text: null,
+          linkNode: null,
+          url: null,
+          linkTextNode: null,
+        });
+      } else {
+        editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+      }
     }
-  }, [editor, isLink, setIsLinkEditMode]);
+  }, [editor, isLink, isSuggestionMode, setIsLinkEditMode]);
 
   const insertComment = () => {
     editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
@@ -574,6 +586,7 @@ function useFloatingTextFormatToolbar(
   setIsLinkEditMode: Dispatch<boolean>,
   variant: FloatingToolbarVariant,
   showInlineCommentButton: boolean,
+  isSuggestionMode: boolean,
 ): JSX.Element | null {
   const [isText, setIsText] = useState(false);
   const [isLink, setIsLink] = useState(false);
@@ -674,6 +687,7 @@ function useFloatingTextFormatToolbar(
       setIsLinkEditMode={setIsLinkEditMode}
       variant={variant}
       showInlineCommentButton={showInlineCommentButton}
+      isSuggestionMode={isSuggestionMode}
     />,
     anchorElem,
   );
@@ -684,11 +698,13 @@ export default function FloatingTextFormatToolbarPlugin({
   setIsLinkEditMode,
   variant = 'post',
   showInlineCommentButton = false,
+  isSuggestionMode = false,
 }: {
   anchorElem?: HTMLElement;
   setIsLinkEditMode: Dispatch<boolean>;
   variant?: FloatingToolbarVariant;
   showInlineCommentButton?: boolean;
+  isSuggestionMode?: boolean;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
   return useFloatingTextFormatToolbar(
@@ -696,6 +712,7 @@ export default function FloatingTextFormatToolbarPlugin({
     anchorElem,
     setIsLinkEditMode,
     variant,
-    showInlineCommentButton
+    showInlineCommentButton,
+    isSuggestionMode,
   );
 }

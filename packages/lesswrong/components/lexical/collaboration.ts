@@ -6,16 +6,19 @@
  *
  */
 
+import React, { createContext, useCallback, useContext } from 'react';
 import {Provider} from '@lexical/yjs';
 import {HocuspocusProvider} from '@hocuspocus/provider';
 import {Doc} from 'yjs';
 import {IndexeddbPersistence} from 'y-indexeddb';
+import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 
 export interface CollaborationConfig {
   postId: string;
-  token: string;
-  wsUrl: string;
-  documentName: string;
+  /** Async function that fetches a fresh JWT for Hocuspocus authentication.
+   * Called on every WebSocket connection attempt (including reconnections),
+   * ensuring the token is always valid at connection time. */
+  getToken: () => Promise<string>;
   user: {
     id: string;
     name: string;
@@ -23,6 +26,59 @@ export interface CollaborationConfig {
   /** Called when the initial sync with the server completes. Receives the Y.Doc for bootstrap detection. */
   onSynced?: (doc: Doc, isFirstSync: boolean) => void;
   onError?: (error: Error) => void;
+}
+
+export interface CollaboratorIdentity {
+  /** Unique user ID (userId for logged-in users, clientId for anonymous) */
+  id: string;
+  /** Display name */
+  name: string;
+  /** Access level for the collaborative document */
+  accessLevel: CollaborativeEditingAccessLevel;
+}
+
+const CollaboratorIdentityContext = createContext<CollaboratorIdentity | null>(null);
+
+export const CollaboratorIdentityProvider = CollaboratorIdentityContext.Provider;
+
+/**
+ * Hook to get the current collaborator's identity.
+ * Returns the user ID, name, and access level from the collaboration context.
+ * Throws if used outside of a CollaboratorIdentityProvider.
+ */
+export function useCollaboratorIdentity(): CollaboratorIdentity {
+  const identity = useContext(CollaboratorIdentityContext);
+  if (!identity) {
+    throw new Error('useCollaboratorIdentity must be used within a CollaboratorIdentityProvider');
+  }
+  return identity;
+}
+
+/**
+ * Hook to get the current collaborator's ID.
+ */
+export function useCurrentCollaboratorId(): string {
+  return useCollaboratorIdentity().id;
+}
+
+/**
+ * Hook that returns a function to check if the current user can reject a suggestion.
+ * The returned function accepts the suggestion's author ID and returns true if:
+ * - The user has "edit" permissions, OR
+ * - The user is the author of the suggestion
+ */
+export function useCanRejectSuggestion(): (suggestionAuthorId: string) => boolean {
+  const { id, accessLevel } = useCollaboratorIdentity();
+  const canAcceptOrReject = accessLevelCan(accessLevel, "edit");
+  
+  return useCallback(
+    (suggestionAuthorId: string | undefined) => {
+      if (canAcceptOrReject) return true;
+      const isOwnSuggestion = suggestionAuthorId != null && suggestionAuthorId === id;
+      return isOwnSuggestion;
+    },
+    [canAcceptOrReject, id]
+  );
 }
 
 // Module-level config storage - set this before rendering the Editor.
@@ -117,7 +173,7 @@ function setupPersistence(
 export function createWebsocketProvider(
   id: string,
   yjsDocMap: Map<string, Doc>,
-): Provider {
+): Provider & HocuspocusProvider {
   let doc = yjsDocMap.get(id);
 
   if (doc === undefined) {
@@ -130,16 +186,22 @@ export function createWebsocketProvider(
   return createWebsocketProviderWithDoc(id, doc);
 }
 
-export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
+export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider & HocuspocusProvider {
   const config = _collaborationConfig;
 
   if (!config) {
     throw new Error('[Collaboration] No collaboration config set. Call setCollaborationConfig() before using collaboration features.');
   }
 
-  // For nested editors (captions, etc.), use a unique document name to avoid conflicts.
-  // The main editor typically uses 'main' as the id.
-  const documentName = id === 'main' ? config.documentName : `${config.documentName}/${id}`;
+  const wsUrl = process.env.NEXT_PUBLIC_HOCUSPOCUS_URL;
+  if (!wsUrl) {
+    throw new Error('[Collaboration] HOCUSPOCUS_URL is not configured. Set the HOCUSPOCUS_URL environment variable at build time.');
+  }
+
+  // Document names follow the pattern "post-{postId}" for the main editor,
+  // or "post-{postId}/{subDocId}" for nested editors (captions, etc.).
+  const baseDocumentName = `post-${config.postId}`;
+  const documentName = id === 'main' ? baseDocumentName : `${baseDocumentName}/${id}`;
 
   // Initialize persistence if needed.
   // For 'main', we wait for IndexedDB to sync (or fail) before connecting.
@@ -152,10 +214,10 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
   let hasReceivedFirstSync = false;
 
   const provider = new HocuspocusProvider({
-    url: config.wsUrl,
+    url: wsUrl,
     name: documentName,
     document: doc,
-    token: config.token,
+    token: config.getToken,
     // Don't connect automatically - we'll connect after IndexedDB syncs
     connect: false,
 
@@ -187,5 +249,5 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
 
   // HocuspocusProvider is compatible with Lexical's Provider at runtime,
   // but has slightly different awareness typing (Awareness | null vs Awareness)
-  return provider as unknown as Provider;
+  return provider as Provider & HocuspocusProvider;
 }

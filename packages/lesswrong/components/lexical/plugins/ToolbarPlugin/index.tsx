@@ -72,6 +72,7 @@ import { FontFamilyIcon } from '../../icons/FontFamilyIcon';
 //   normalizeCodeLanguage as normalizeCodeLanguageShiki,
 // } from '@lexical/code-shiki';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand';
 import {$isListNode, ListNode} from '@lexical/list';
 import {INSERT_EMBED_COMMAND} from '@lexical/react/LexicalAutoEmbedPlugin';
 import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/react/LexicalHorizontalRuleNode';
@@ -750,12 +751,14 @@ export default function ToolbarPlugin({
   activeEditor,
   setActiveEditor,
   setIsLinkEditMode,
+  isSuggestionMode = false,
   isVisible = true,
 }: {
   editor: LexicalEditor;
   activeEditor: LexicalEditor;
   setActiveEditor: Dispatch<LexicalEditor>;
   setIsLinkEditMode: Dispatch<boolean>;
+  isSuggestionMode?: boolean;
   isVisible?: boolean;
 }): JSX.Element {
   const classes = useStyles(styles);
@@ -767,7 +770,6 @@ export default function ToolbarPlugin({
   >([]);
   const [modal, showModal] = useModal();
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
-  const [isSuggestionMode, setIsSuggestionMode] = useState(false);
   const {toolbarState, updateToolbarState} = useToolbarState();
 
   const dispatchToolbarCommand = <T extends LexicalCommand<unknown>>(
@@ -1112,9 +1114,18 @@ export default function ToolbarPlugin({
       setIsLinkEditMode(true);
     } else {
       setIsLinkEditMode(false);
-      activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+      if (isSuggestionMode) {
+        activeEditor.dispatchCommand(LINK_CHANGE_COMMAND, {
+          text: null,
+          linkNode: null,
+          url: null,
+          linkTextNode: null,
+        });
+      } else {
+        activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+      }
     }
-  }, [activeEditor, setIsLinkEditMode, toolbarState.isLink]);
+  }, [activeEditor, isSuggestionMode, setIsLinkEditMode, toolbarState.isLink]);
 
   const onCodeLanguageSelect = useCallback(
     (value: string) => {

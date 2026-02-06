@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+import cheerio, { type Element } from 'cheerio';
 import HtmlLexer from 'html-lexer';
 
 
@@ -76,7 +76,7 @@ export function cheerioParseAndMarkOffsets(html: string) {
   let offsetMarkers = parsed('.__offset_marker');
   for (let i=0; i<offsetMarkers.length; i++) {
     let offsetMarker = offsetMarkers[i];
-    let offset = parseInt((offsetMarker as cheerio.TagElement).attribs.offset);
+    let offset = parseInt((offsetMarker as Element).attribs.offset);
     if (offsetMarker.next) {
       (offsetMarker.next as any).offset = offset;
     }

@@ -46,6 +46,7 @@ const nextConfig: NextConfig = {
       ...(process.env.E2E === 'true' ? { 'process.env.E2E': 'true' } : {}),
       'process.env.FORUM_TYPE': process.env.FORUM_TYPE ?? 'LessWrong',
       ...(process.env.VERCEL_DEPLOYMENT_ID ? { 'process.env.VERCEL_DEPLOYMENT_ID': 'true' } : {}),
+      ...(process.env.HOCUSPOCUS_URL ? { 'process.env.NEXT_PUBLIC_HOCUSPOCUS_URL': process.env.HOCUSPOCUS_URL } : {}),
     },
   },
   productionBrowserSourceMaps: true,
@@ -235,6 +236,7 @@ module.exports = nextConfig;
 
 // Injected content via Sentry wizard below
 
+// eslint-disable-next-line no-restricted-imports
 import { withSentryConfig } from "@sentry/nextjs";
 
 module.exports = process.env.E2E ? module.exports : withSentryConfig(

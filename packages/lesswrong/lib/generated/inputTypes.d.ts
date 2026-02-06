@@ -915,8 +915,6 @@ interface HomepageCommunityEventPostsResult {
 
 interface HocuspocusAuth {
   token: string;
-  wsUrl: string;
-  documentName: string;
 }
 
 interface DigestHighlightsResult {

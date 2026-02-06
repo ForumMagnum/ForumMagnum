@@ -1,0 +1,93 @@
+import { $createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND, type AutoLinkNode, type LinkNode } from '@lexical/link'
+import { $findMatchingParent, $wrapNodeInElement } from '@lexical/utils'
+import type { LexicalEditor, LexicalNode } from 'lexical'
+import { $getSelection, $isRangeSelection, $createTextNode } from 'lexical'
+import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { normalizeUrl, sanitizeUrl } from '@/components/lexical/utils/url'
+import type { LinkChangePayload } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand'
+import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
+import { $wrapSelectionInSuggestionNode } from './Utils'
+import type { Logger } from '@/lib/vendor/proton/logger'
+import type { LinkChangeSuggestionProperties } from './Types'
+
+export function $handleLinkChangeSuggestion(
+  editor: LexicalEditor,
+  { linkNode, url, linkTextNode, text }: LinkChangePayload,
+  logger: Logger,
+  onSuggestionCreation: (id: string) => void,
+): boolean {
+  const selection = $getSelection()
+  if (!$isRangeSelection(selection)) {
+    return true
+  }
+
+  const suggestionID = generateUUID()
+
+  const normalizedUrl = url ? normalizeUrl(url) : null
+  const sanitizedUrl = normalizedUrl ? sanitizeUrl(normalizedUrl) : null
+
+  const isSelectionCollapsed = selection.isCollapsed()
+  const shouldCreateNewLink = isSelectionCollapsed && url && !linkNode
+  if (shouldCreateNewLink) {
+    if (!sanitizedUrl) {
+      return true
+    }
+    const linkNode = $createLinkNode(sanitizedUrl)
+    linkNode.append($createTextNode(text || url))
+    const suggestion = $createSuggestionNode(suggestionID, 'insert').append(linkNode)
+    logger.info(`Inserting new link node as suggestion ${url}`)
+    selection.insertNodes([suggestion])
+    onSuggestionCreation(suggestionID)
+    linkNode.selectEnd()
+    return true
+  }
+
+  let currentLinkNode = linkNode
+  if (!linkNode) {
+    const nodes = selection.getNodes()
+    for (const node of nodes) {
+      const parent = node.getParent()
+      if ($isLinkNode(parent)) {
+        currentLinkNode = parent
+        break
+      }
+      if (!currentLinkNode && $isAutoLinkNode(parent)) {
+        currentLinkNode = parent
+      }
+    }
+  }
+
+  const hasLinkTextChanged = linkTextNode && text && linkTextNode.getTextContent() !== text
+  if (hasLinkTextChanged) {
+    const newText = $createTextNode(text)
+    const insertSuggestion = $createSuggestionNode(suggestionID, 'insert')
+    insertSuggestion.append(newText)
+
+    const deleteSuggestion = $wrapNodeInElement(linkTextNode, () => $createSuggestionNode(suggestionID, 'delete'))
+    deleteSuggestion.insertBefore(insertSuggestion)
+  }
+
+  const existingSuggestion = $findMatchingParent(currentLinkNode || selection.focus.getNode(), $isSuggestionNode)
+
+  const shouldCreateNewSuggestionNode = existingSuggestion?.getSuggestionTypeOrThrow() !== 'link-change'
+
+  if (shouldCreateNewSuggestionNode) {
+    if (currentLinkNode && ($isLinkNode(currentLinkNode) || $isAutoLinkNode(currentLinkNode))) {
+      const initialURL = currentLinkNode.getURL()
+      $wrapNodeInElement(currentLinkNode, () =>
+        $createSuggestionNode(suggestionID, 'link-change', {
+          __url: initialURL,
+        } satisfies LinkChangeSuggestionProperties),
+      )
+    } else {
+      $wrapSelectionInSuggestionNode(selection, selection.isBackward(), suggestionID, 'link-change', logger, {
+        __url: null,
+      } satisfies LinkChangeSuggestionProperties)
+    }
+    onSuggestionCreation(suggestionID)
+  }
+
+  editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitizedUrl || null)
+
+  return true
+}
