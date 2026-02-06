@@ -383,47 +383,49 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
 
   return (
     <div className={classes.root}>
-      {/* Sort mode tabs */}
-      <div className={classes.sortToggle}>
-        <div
-          onClick={(e) => {
-            e.preventDefault();
-            handleSortModeChange('recent');
-          }}
-          className={classNames(
-            classes.sortButton,
-            sortMode === 'recent'
-              ? classes.sortButtonActive
-              : classes.sortButtonInactive
-          )}
-        >
-          <div className={classes.tabLabel}>
-            Recent
-            {sortMode === 'recent' && (
-              <div className={classes.tabUnderline} />
+      {/* Sort mode tabs - hidden when externally controlled */}
+      {!externalSortMode && (
+        <div className={classes.sortToggle}>
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              handleSortModeChange('recent');
+            }}
+            className={classNames(
+              classes.sortButton,
+              sortMode === 'recent'
+                ? classes.sortButtonActive
+                : classes.sortButtonInactive
             )}
+          >
+            <div className={classes.tabLabel}>
+              Recent
+              {sortMode === 'recent' && (
+                <div className={classes.tabUnderline} />
+              )}
+            </div>
+          </div>
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              handleSortModeChange('top');
+            }}
+            className={classNames(
+              classes.sortButton,
+              sortMode === 'top'
+                ? classes.sortButtonActive
+                : classes.sortButtonInactive
+            )}
+          >
+            <div className={classes.tabLabel}>
+              Top
+              {sortMode === 'top' && (
+                <div className={classes.tabUnderline} />
+              )}
+            </div>
           </div>
         </div>
-        <div
-          onClick={(e) => {
-            e.preventDefault();
-            handleSortModeChange('top');
-          }}
-          className={classNames(
-            classes.sortButton,
-            sortMode === 'top'
-              ? classes.sortButtonActive
-              : classes.sortButtonInactive
-          )}
-        >
-          <div className={classes.tabLabel}>
-            Top
-            {sortMode === 'top' && (
-              <div className={classes.tabUnderline} />
-            )}
-          </div>
-        </div>
-      </div>
+      )}
       {isLoading && <div className={classes.loading}>
         <Loading />
       </div>}
