@@ -639,81 +639,80 @@ export default function ImageComponent({
   };
   return (
     <Suspense fallback={null}>
-      <>
-        {modal}
-        <div className={classes.imageContainer}>
-          {showToolbar && (
-            <div className={classes.toolbar}>
-              <button
-                type="button"
-                className={classes.toolbarButton}
-                onClick={openAltTextModal}
-                title="Edit image alt text">
-                <FileEarmarkTextIcon className={classes.toolbarIcon} />
-                Alt
-              </button>
-              <button
-                type="button"
-                className={classes.toolbarButton}
-                onClick={openCommentInput}
-                title="Add comment">
-                <ChatLeftTextIcon className={classes.toolbarIcon} />
-                Comment
-              </button>
-              <button
-                type="button"
-                className={classNames(
-                  classes.toolbarButton,
-                  { [classes.toolbarButtonActive]: isCaptionButtonActive },
-                )}
-                onClick={() => setShowCaption(!showCaption)}
-                disabled={!captionsEnabled}
-                title={showCaption ? 'Hide caption' : 'Show caption'}>
-                <ChatSquareQuoteIcon className={classes.toolbarIcon} />
-                Caption
-              </button>
-            </div>
-          )}
-          <div
-            draggable={draggable}
-            className={classNames(
-              classes.imageWrapper,
-              {
-                [classes.resizing]: isResizing,
-                [classes.imageWrapperFocused]: isFocused,
-              },
-            )}>
-            {isLoadError ? (
-              <ImageBrokenIcon />
-            ) : (
-              <LazyImage
-                className={classNames(
-                  classes.imageElement,
-                  isFocused
-                    ? `focused ${isInNodeSelection ? 'draggable' : ''}`
-                    : null,
-                )}
-                src={src}
-                srcSet={srcSet ?? undefined}
-                altText={altText}
-                imageRef={imageRef}
-                width={width}
-                maxWidth={maxWidth}
-                onError={() => setIsLoadError(true)}
-              />
-            )}
-            {resizable && isInNodeSelection && isFocused && (
-              <ImageResizer
-                editor={editor}
-                imageRef={imageRef}
-                nodeKey={imageNodeKey}
-                onResizeStart={onResizeStart}
-                onResizeEnd={onResizeEnd}
-              />
-            )}
+      {modal}
+      <div className={classes.imageContainer}>
+        {showToolbar && (
+          <div className={classes.toolbar}>
+            <button
+              type="button"
+              className={classes.toolbarButton}
+              onClick={openAltTextModal}
+              title="Edit image alt text">
+              <FileEarmarkTextIcon className={classes.toolbarIcon} />
+              Alt
+            </button>
+            <button
+              type="button"
+              className={classes.toolbarButton}
+              onClick={openCommentInput}
+              title="Add comment">
+              <ChatLeftTextIcon className={classes.toolbarIcon} />
+              Comment
+            </button>
+            <button
+              type="button"
+              className={classNames(
+                classes.toolbarButton,
+                { [classes.toolbarButtonActive]: isCaptionButtonActive },
+              )}
+              onClick={() => setShowCaption(!showCaption)}
+              disabled={!captionsEnabled}
+              title={showCaption ? 'Hide caption' : 'Show caption'}>
+              <ChatSquareQuoteIcon className={classes.toolbarIcon} />
+              Caption
+            </button>
           </div>
+        )}
+        <div
+          key="image-wrapper"
+          draggable={draggable}
+          className={classNames(
+            classes.imageWrapper,
+            {
+              [classes.resizing]: isResizing,
+              [classes.imageWrapperFocused]: isFocused,
+            },
+          )}>
+          {isLoadError ? (
+            <ImageBrokenIcon />
+          ) : (
+            <LazyImage
+              className={classNames(
+                classes.imageElement,
+                isFocused
+                  ? `focused ${isInNodeSelection ? 'draggable' : ''}`
+                  : null,
+              )}
+              src={src}
+              srcSet={srcSet ?? undefined}
+              altText={altText}
+              imageRef={imageRef}
+              width={width}
+              maxWidth={maxWidth}
+              onError={() => setIsLoadError(true)}
+            />
+          )}
+          {resizable && isInNodeSelection && isFocused && (
+            <ImageResizer
+              editor={editor}
+              imageRef={imageRef}
+              nodeKey={imageNodeKey}
+              onResizeStart={onResizeStart}
+              onResizeEnd={onResizeEnd}
+            />
+          )}
         </div>
-      </>
+      </div>
     </Suspense>
   );
 }
