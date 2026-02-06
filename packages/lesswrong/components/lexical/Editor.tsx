@@ -320,6 +320,13 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
       outlineOffset: '-2px',
     },
+    // Hide the marker on wrapper list items that only contain a nested list
+    // (no text content of their own). Without this, the wrapper's marker
+    // (e.g. "2.") appears on the same line as the nested list's first item
+    // (e.g. "a."), making them look squished together.
+    '& .nested-list-item': {
+      listStyleType: 'none',
+    },
   },
   editorContainerComment: {
     background: 'transparent',
@@ -617,7 +624,7 @@ export default function Editor({
 
   return (
     <>
-      {isRichText && (
+      {isRichText && collaborationConfig && (
         <div className={classes.suggestionModeToggle}>
           <button
             type="button"
