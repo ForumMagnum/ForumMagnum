@@ -14785,6 +14785,14 @@ export type autosaveRevisionMutation = { __typename?: 'Mutation', autosaveRevisi
     & RevisionEdit
   ) | null };
 
+export type HocuspocusAuthQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type HocuspocusAuthQueryQuery = { __typename?: 'Query', HocuspocusAuth: { __typename?: 'HocuspocusAuth', token: string } | null };
+
 export type LinkSharingQueryQueryVariables = Exact<{
   postId: Scalars['String']['input'];
   linkSharingKey: Scalars['String']['input'];
@@ -14883,14 +14891,6 @@ export type createElicitQuestionCreateClaimDialogMutation = { __typename?: 'Muta
       { __typename?: 'ElicitQuestion' }
       & ElicitQuestionFragment
     ) | null } | null };
-
-export type HocuspocusAuthQueryQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-  linkSharingKey?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type HocuspocusAuthQueryQuery = { __typename?: 'Query', HocuspocusAuth: { __typename?: 'HocuspocusAuth', token: string } | null };
 
 export type ConvertDocumentQueryVariables = Exact<{
   document?: InputMaybe<Scalars['JSON']['input']>;

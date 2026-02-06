@@ -92,6 +92,10 @@ export class FootnoteSectionNode extends ElementNode {
     return false;
   }
 
+  isInline(): boolean {
+    return false;
+  }
+
   canInsertTextBefore(): boolean {
     return false;
   }

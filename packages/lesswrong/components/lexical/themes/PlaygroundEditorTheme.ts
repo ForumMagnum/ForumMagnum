@@ -12,7 +12,7 @@ import './PlaygroundEditorTheme.css';
 
 const theme: EditorThemeClasses = {
   // autocomplete: 'PlaygroundEditorTheme__autocomplete',
-  // blockCursor: 'PlaygroundEditorTheme__blockCursor',
+  // blockCursor: 'block-cursor',
   // characterLimit: 'PlaygroundEditorTheme__characterLimit',
   code: 'code-block',
   codeHighlight: {
