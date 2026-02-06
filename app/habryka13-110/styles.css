@@ -1597,6 +1597,44 @@ body {
   grid-column: 1 / 5;
 }
 
+/* Tighten feed item spacing */
+.feed-list .UltraFeedPostItem-footer,
+.feed-list .UltraFeedCommentItem-footer {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.feed-list .UserContentFeed-feedContent {
+  gap: 4px;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.feed-list .UltraFeedPostItem-root,
+.feed-list .UltraFeedCommentItem-root,
+.feed-list .UltraFeedThreadItem-root {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Limit content height in feed items */
+.feed-list .FeedContentBody-root {
+  max-height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.feed-list .UltraFeedCommentItem-contentWrapper {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.feed-list .UltraFeedPostItem-footer,
+.feed-list .UltraFeedCommentItem-footer {
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
 .sequences-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
