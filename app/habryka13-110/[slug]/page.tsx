@@ -611,22 +611,22 @@ export default function HabrykaUserPage() {
                   {sequences.map((sequence) => {
                     const imageId = sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg";
                     return (
-                      <a
-                        key={sequence._id}
-                        href={sequenceGetPageUrl(sequence)}
-                        className="sequence-card"
-                        style={{ textDecoration: "none", color: "inherit" }}
-                      >
-                        <div
-                          className="sequence-card-image"
-                          style={{
-                            backgroundImage: `url('https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}')`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                          }}
-                        ></div>
-                        <h3 className="sequence-card-title">{sequence.title}</h3>
-                      </a>
+                      <article key={sequence._id} className="sequence-card">
+                        <a
+                          href={sequenceGetPageUrl(sequence)}
+                          style={{ textDecoration: "none", color: "inherit", display: "contents" }}
+                        >
+                          <div
+                            className="sequence-card-image"
+                            style={{
+                              backgroundImage: `url('https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}')`,
+                            }}
+                          ></div>
+                          <div className="sequence-card-content">
+                            <h3 className="sequence-card-title">{sequence.title}</h3>
+                          </div>
+                        </a>
+                      </article>
                     );
                   })}
                 </div>

@@ -1599,22 +1599,116 @@ body {
 
 .sequences-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  padding: 20px 0;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 8px 0;
 }
 
 .sequence-card {
   display: flex;
   flex-direction: column;
-  border-radius: 8px;
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: visible;
+  position: relative;
+  transition: transform 0.2s ease;
 }
 
 .sequence-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sequence-card:hover .sequence-hover-dialogue {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.sequence-hover-dialogue {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  z-index: 100;
+  width: 340px;
+  background: #ffffff;
+  border: 1px solid #e5ddd6;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sequence-hover-image {
+  width: 100%;
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 4px 4px 0 0;
+}
+
+.sequence-hover-body {
+  padding: 16px;
+}
+
+.sequence-hover-title {
+  font-family: ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+  font-size: 18px;
+  font-weight: 400;
+  font-variant: small-caps;
+  letter-spacing: 0.03em;
+  color: #2e2a25;
+  margin: 0 0 10px 0;
+  line-height: 1.3;
+}
+
+.sequence-hover-description {
+  font-family: warnock-pro, "Cormorant Garamond", "Georgia", serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6d655d;
+  margin: 0 0 12px 0;
+}
+
+.sequence-hover-posts {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sequence-hover-post-item {
+  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
+  font-size: 13px;
+  color: #2e2a25;
+  padding-left: 18px;
+  position: relative;
+  line-height: 1.4;
+}
+
+.sequence-hover-post-item::before {
+  content: "□";
+  position: absolute;
+  left: 0;
+  color: #c0b8b0;
+  font-size: 11px;
+}
+
+.sequence-hover-post-more {
+  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
+  font-size: 13px;
+  color: #9a9189;
+  padding-left: 18px;
+  font-style: italic;
+}
+
+.sequence-hover-readtime {
+  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
+  font-size: 12px;
+  color: #9a9189;
+  padding-top: 8px;
+  border-top: 1px solid #e5ddd6;
 }
 
 .sequence-card-image {
@@ -1625,15 +1719,20 @@ body {
   background-position: center;
 }
 
+.sequence-card-content {
+  padding: 12px 0;
+  background: transparent;
+}
+
 .sequence-card-title {
-  padding: 16px;
-  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.4;
+  font-family: ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.03em;
+  font-variant: small-caps;
   color: #2e2a25;
-  background: #ffffff;
-  border: 1px solid #e5ddd6;
+  margin: 0;
   border-top: none;
   border-radius: 0 0 8px 8px;
 }
@@ -2712,7 +2811,7 @@ html.dates-ready .list-article-meta {
   /* Sequences grid responsive */
   .sequences-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 24px;
   }
 
   /* Stack all posts container and move sidebar below */
