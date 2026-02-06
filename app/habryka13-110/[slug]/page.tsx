@@ -60,6 +60,7 @@ export default function HabrykaUserPage() {
   const [sortPanelClosing, setSortPanelClosing] = useState(false);
   const [sortBy, setSortBy] = useState<"new" | "top" | "topInflation" | "recentComments" | "old" | "magic">("new");
   const [feedSortBy, setFeedSortBy] = useState<"recent" | "top">("recent");
+  const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
   const bioRef = useRef<HTMLDivElement>(null);
   const { params } = useLocation();
   const slug = slugify(params.slug);
@@ -615,6 +616,36 @@ export default function HabrykaUserPage() {
               <div
                 className={`feed-list tab-panel ${activeTab === "feed" ? "active" : ""}`}
               >
+                <div className="feed-filter-tabs">
+                  <button
+                    className={`feed-filter-tab ${feedFilter === "all" ? "active" : ""}`}
+                    onClick={() => setFeedFilter("all")}
+                    type="button"
+                  >
+                    All
+                  </button>
+                  <button
+                    className={`feed-filter-tab ${feedFilter === "comments" ? "active" : ""}`}
+                    onClick={() => setFeedFilter("comments")}
+                    type="button"
+                  >
+                    Comments
+                  </button>
+                  <button
+                    className={`feed-filter-tab ${feedFilter === "quickTakes" ? "active" : ""}`}
+                    onClick={() => setFeedFilter("quickTakes")}
+                    type="button"
+                  >
+                    Quick takes
+                  </button>
+                  <button
+                    className={`feed-filter-tab ${feedFilter === "posts" ? "active" : ""}`}
+                    onClick={() => setFeedFilter("posts")}
+                    type="button"
+                  >
+                    Posts
+                  </button>
+                </div>
                 {(sortPanelOpen || sortPanelClosing) && (
                   <div className={`sort-panel ${sortPanelClosing ? "closing" : ""}`}>
                     <div className="sort-panel-section">
@@ -640,7 +671,7 @@ export default function HabrykaUserPage() {
                   <UltraFeedContextProvider openInNewTab={true}>
                     <UltraFeedObserverProvider incognitoMode={false}>
                       <OverflowNavObserverProvider>
-                        <UserContentFeed userId={userId} externalSortMode={feedSortBy} />
+                        <UserContentFeed userId={userId} externalSortMode={feedSortBy} externalFilter={feedFilter} />
                       </OverflowNavObserverProvider>
                     </UltraFeedObserverProvider>
                   </UltraFeedContextProvider>

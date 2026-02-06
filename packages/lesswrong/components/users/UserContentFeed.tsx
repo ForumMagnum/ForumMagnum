@@ -190,14 +190,16 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
 }
 
 
+type SortMode = 'recent' | 'top';
+type FilterMode = 'all' | 'posts' | 'quickTakes' | 'comments';
+
 interface UserContentFeedProps {
   userId: string;
   initialLimit?: number;
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
   externalSortMode?: SortMode;
+  externalFilter?: FilterMode;
 }
-
-type SortMode = 'recent' | 'top';
 
 type PostItem = PostsListWithVotes;
 type CommentItem = CommentsList & { post: PostItem | null };
@@ -238,13 +240,17 @@ const UserContentFeedItem = ({ item, index, feedSettings }: {
   }
 };
 
-const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, externalSortMode }: UserContentFeedProps) => {
+const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, externalSortMode, externalFilter }: UserContentFeedProps) => {
   const classes = useStyles(userContentFeedStyles);
   const [internalSortMode, setInternalSortMode] = useState<SortMode>('recent');
   const sortMode = externalSortMode ?? internalSortMode;
   const setSortMode = setInternalSortMode;
+  const filter = externalFilter ?? 'all';
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  const skipPosts = filter === 'comments';
+  const skipComments = filter === 'posts' || filter === 'quickTakes';
 
   const postsSortBy = sortMode === 'recent' ? 'new' : 'top';
   const commentsSortBy = sortMode === 'recent' ? 'new' : 'top';
@@ -257,7 +263,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
     USER_POSTS_QUERY,
     {
       variables: { userId, limit: initialLimit, sortedBy: postsSortBy },
-      skip: !userId,
+      skip: !userId || skipPosts,
       fetchPolicy: 'cache-and-network',
       itemsPerPage: 10,
     }
@@ -271,7 +277,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
     USER_COMMENTS_QUERY,
     {
       variables: { userId, limit: initialLimit, sortBy: commentsSortBy },
-      skip: !userId,
+      skip: !userId || skipComments,
       fetchPolicy: 'cache-and-network',
       itemsPerPage: 10,
     }
@@ -280,17 +286,19 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
   const mixedFeed = useMemo(() => {
     const items: FeedItem[] = [];
     
-    const posts = postsData?.posts?.results ?? [];
-    const comments = commentsData?.comments?.results ?? [];
+    const posts = skipPosts ? [] : (postsData?.posts?.results ?? []);
+    const comments = skipComments ? [] : (commentsData?.comments?.results ?? []);
     
     posts.forEach(post => {
-      if (post?.postedAt) {
-        items.push({
-          type: 'post',
-          data: post,
-          postedAt: new Date(post.postedAt)
-        });
-      }
+      if (!post?.postedAt) return;
+      const isShortform = !!post.shortform;
+      if (filter === 'posts' && isShortform) return;
+      if (filter === 'quickTakes' && !isShortform) return;
+      items.push({
+        type: 'post',
+        data: post,
+        postedAt: new Date(post.postedAt)
+      });
     });
     
     comments.forEach(comment => {
@@ -314,10 +322,10 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
     }
     
     return items;
-  }, [postsData, commentsData, sortMode]);
+  }, [postsData, commentsData, sortMode, filter, skipPosts, skipComments]);
 
-  const postsHasMore = !postsLoadMoreProps.hidden;
-  const commentsHasMore = !commentsLoadMoreProps.hidden;
+  const postsHasMore = !skipPosts && !postsLoadMoreProps.hidden;
+  const commentsHasMore = !skipComments && !commentsLoadMoreProps.hidden;
   const hasMoreRemote = postsHasMore || commentsHasMore;
 
   const { settings: feedSettings } = useUltraFeedSettings();
@@ -374,7 +382,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
     }
   }, [sortMode]);
 
-  const isLoading = postsLoading || commentsLoading;
+  const isLoading = (!skipPosts && postsLoading) || (!skipComments && commentsLoading);
   const hasNoContent = !isLoading && mixedFeed.length === 0;
 
   if (hasNoContent) {

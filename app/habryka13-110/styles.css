@@ -1597,6 +1597,36 @@ body {
   grid-column: 1 / 5;
 }
 
+.feed-filter-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid #e5ddd6;
+  margin-bottom: 12px;
+}
+
+.feed-filter-tab {
+  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #9a9189;
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.feed-filter-tab:hover {
+  color: #2e2a25;
+}
+
+.feed-filter-tab.active {
+  color: #2e2a25;
+  font-weight: 600;
+  border-bottom-color: #2e2a25;
+}
+
 /* Tighten feed item spacing */
 .feed-list .UltraFeedPostItem-footer,
 .feed-list .UltraFeedCommentItem-footer {
