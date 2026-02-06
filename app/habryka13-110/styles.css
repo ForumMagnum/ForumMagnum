@@ -988,10 +988,32 @@ body {
 }
 
 .profile-header {
-  margin-bottom: 30px;
-  display: flex;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5ddd6;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
+}
+
+.profile-name {
+  grid-column: 2;
+  text-align: center;
+}
+
+.profile-edit-button {
+  grid-column: 3;
+  justify-self: end;
+  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: #6c8f6f;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.profile-edit-button:hover {
+  opacity: 0.67;
 }
 
 /* Enhanced profile header with avatar and stats */

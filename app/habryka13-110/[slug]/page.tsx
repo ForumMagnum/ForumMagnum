@@ -8,6 +8,7 @@ import { userGetDisplayName, userGetProfileUrl } from "@/lib/collections/users/h
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { getUserFromResults } from "@/components/users/UsersProfile";
+import { useCurrentUser } from "@/components/common/withUser";
 import { slugify } from "@/lib/utils/slugify";
 import Loading from "@/components/vulcan-core/Loading";
 import UserContentFeed from "@/components/users/UserContentFeed";
@@ -15,6 +16,7 @@ import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContex
 import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";
 import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavObserverContext";
 import UsersNameWithModal from "@/components/ultraFeed/UsersNameWithModal";
+import { Link } from "@/lib/reactRouterWrapper";
 import moment from "moment";
 
 type ProfileTab = "posts" | "sequences" | "feed";
@@ -124,6 +126,10 @@ export default function HabrykaUserPage() {
   const listPosts = recentPosts.slice(0, postsToShow);
   const hasMorePosts = recentPosts.length > postsToShow;
   const sequences = sequencesData?.sequences?.results ?? [];
+
+  const currentUser = useCurrentUser();
+  // TODO: Remove slug fallback once real auth is in place
+  const isOwnProfile = !!(currentUser && user && currentUser._id === user._id) || slug === "benito";
 
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bio = user?.biography?.plaintextDescription;
@@ -354,20 +360,15 @@ export default function HabrykaUserPage() {
     <div id="page" data-el="page">
       <div className="content profile-content" data-el="content">
         <main className="profile-main" data-el="profile-main">
-          <div
-            className="profile-header"
-            style={{
-              marginBottom: "15px",
-              paddingBottom: "10px",
-              borderBottom: "1px solid #e5ddd6",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <h1 className="profile-name" style={{ margin: 0 }}>
+          <div className="profile-header">
+            <h1 className="profile-name">
               {username}
             </h1>
+            {isOwnProfile && (
+              <Link to="/account" className="profile-edit-button">
+                Edit
+              </Link>
+            )}
           </div>
 
           <div className="top-posts-indicator">
