@@ -1778,8 +1778,7 @@ body {
 }
 
 .sidebar-subscribe:hover {
-  color: #5a7a5e;
-  text-decoration: underline;
+  opacity: 0.67;
 }
 
 .sidebar-more {
@@ -1793,8 +1792,7 @@ body {
 }
 
 .sidebar-more:hover {
-  color: #5a7a5e;
-  text-decoration: underline;
+  opacity: 0.67;
 }
 
 .sidebar-author-bio {
@@ -1815,8 +1813,7 @@ body {
 }
 
 .bio-see-more:hover {
-  color: #5a7a5e;
-  text-decoration: underline;
+  opacity: 0.67;
 }
 
 /* Account settings page */
@@ -2226,7 +2223,7 @@ body {
 }
 
 .read-more-link:hover {
-  text-decoration: underline;
+  opacity: 0.67;
 }
 
 .post-title {
