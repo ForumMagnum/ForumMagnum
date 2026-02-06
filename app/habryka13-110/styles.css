@@ -1453,10 +1453,112 @@ body {
   font-family: "Gill Sans", "Gill Sans MT", sans-serif;
   font-size: 14px;
   color: #7a7269;
+  position: relative;
+}
+
+.sort-icon-button {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+
+.sort-icon-button:hover {
+  opacity: 0.67;
 }
 
 .sort-icon {
   font-size: 16px;
+}
+
+.sort-panel {
+  background: #f8f6f3;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: panelOpen 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes panelOpen {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+}
+
+.sort-panel.closing {
+  animation: panelClose 0.3s cubic-bezier(0.4, 0, 1, 1);
+  animation-fill-mode: forwards;
+}
+
+@keyframes panelClose {
+  from {
+    opacity: 1;
+    max-height: 500px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+}
+
+.sort-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sort-panel-header {
+  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  font-style: italic;
+  color: #8a8279;
+  margin-bottom: 6px;
+}
+
+.sort-panel-option {
+  display: block;
+  width: fit-content;
+  padding: 4px 0;
+  padding-left: 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
+  font-size: 14px;
+  color: #a8a199;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.sort-panel-option:hover {
+  color: #2e2a25;
+}
+
+.sort-panel-option.selected {
+  color: #000000;
 }
 
 .sort-label {
@@ -1628,6 +1730,18 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 16px;
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .list-article.pinned {

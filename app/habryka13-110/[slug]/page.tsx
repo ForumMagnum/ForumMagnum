@@ -62,9 +62,25 @@ const HabrykaCommentsQuery = gql(`
 export default function HabrykaUserPage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [bioExpanded, setBioExpanded] = useState(false);
+  const [postsToShow, setPostsToShow] = useState(7);
+  const [sortPanelOpen, setSortPanelOpen] = useState(false);
+  const [sortPanelClosing, setSortPanelClosing] = useState(false);
+  const [sortBy, setSortBy] = useState<"new" | "top" | "topInflation" | "recentComments" | "old" | "magic">("new");
   const bioRef = useRef<HTMLDivElement>(null);
   const { params } = useLocation();
   const slug = slugify(params.slug);
+
+  const handleSortPanelToggle = () => {
+    if (sortPanelOpen) {
+      setSortPanelClosing(true);
+      setTimeout(() => {
+        setSortPanelOpen(false);
+        setSortPanelClosing(false);
+      }, 300);
+    } else {
+      setSortPanelOpen(true);
+    }
+  };
 
   const { data: userData, loading: userLoading } = useQuery(HabrykaUserQuery, {
     variables: {
@@ -90,7 +106,7 @@ export default function HabrykaUserPage() {
     skip: !userId,
     variables: {
       selector: userId ? { userPosts: { userId, sortedBy: "new", authorIsUnreviewed: null } } : undefined,
-      limit: 10,
+      limit: 50,
       enableTotal: false,
     },
   });
@@ -117,12 +133,14 @@ export default function HabrykaUserPage() {
   const topPost = topPosts[0];
   const smallArticles = topPosts.slice(1, 4);
   const recentPosts = recentPostsData?.posts?.results ?? [];
-  const listPosts = recentPosts.slice(0, 7);
+  const listPosts = recentPosts.slice(0, postsToShow);
+  const hasMorePosts = recentPosts.length > postsToShow;
   const sequences = sequencesData?.sequences?.results ?? [];
   const comments = commentsData?.comments?.results ?? [];
 
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bio = user?.biography?.plaintextDescription;
+
 
   useLayoutEffect(() => {
     const truncateToLines = (node: HTMLElement, maxLines: number) => {
@@ -466,7 +484,13 @@ export default function HabrykaUserPage() {
                   </button>
                 </div>
                 <div className="sort-control">
-                  <span className="sort-icon">⚙</span>
+                  <button 
+                    className="sort-icon-button"
+                    onClick={handleSortPanelToggle}
+                    type="button"
+                  >
+                    <span className="sort-icon">⚙</span>
+                  </button>
                 </div>
               </div>
               <h4 className="sidebar-author-name">{username}</h4>
@@ -474,6 +498,55 @@ export default function HabrykaUserPage() {
 
             <div className="all-posts-container">
               <div className={`posts-list tab-panel ${activeTab === "posts" ? "active" : ""}`}>
+                {(sortPanelOpen || sortPanelClosing) && (
+                  <div className={`sort-panel ${sortPanelClosing ? "closing" : ""}`}>
+                    <div className="sort-panel-section">
+                      <div className="sort-panel-header">Sorted by:</div>
+                      <button
+                        className={`sort-panel-option ${sortBy === "new" ? "selected" : ""}`}
+                        onClick={() => setSortBy("new")}
+                        type="button"
+                      >
+                        New
+                      </button>
+                      <button
+                        className={`sort-panel-option ${sortBy === "old" ? "selected" : ""}`}
+                        onClick={() => setSortBy("old")}
+                        type="button"
+                      >
+                        Old
+                      </button>
+                      <button
+                        className={`sort-panel-option ${sortBy === "magic" ? "selected" : ""}`}
+                        onClick={() => setSortBy("magic")}
+                        type="button"
+                      >
+                        Magic (New & Upvoted)
+                      </button>
+                      <button
+                        className={`sort-panel-option ${sortBy === "top" ? "selected" : ""}`}
+                        onClick={() => setSortBy("top")}
+                        type="button"
+                      >
+                        Top
+                      </button>
+                      <button
+                        className={`sort-panel-option ${sortBy === "topInflation" ? "selected" : ""}`}
+                        onClick={() => setSortBy("topInflation")}
+                        type="button"
+                      >
+                        Top (Inflation Adjusted)
+                      </button>
+                      <button
+                        className={`sort-panel-option ${sortBy === "recentComments" ? "selected" : ""}`}
+                        onClick={() => setSortBy("recentComments")}
+                        type="button"
+                      >
+                        Recent Comments
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {listPosts.map((post, index) => {
                   const summary = getPostSummary(post);
                   const imageUrl = getPostImageUrl(post);
@@ -515,11 +588,20 @@ export default function HabrykaUserPage() {
                   );
                 })}
 
-                <div className="read-more">
-                  <a href={user ? userGetProfileUrl(user) : "#"} className="read-more-link">
-                    Read more
-                  </a>
-                </div>
+                {hasMorePosts && (
+                  <div className="read-more">
+                    <a 
+                      href="#" 
+                      className="read-more-link"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setPostsToShow(prev => prev + 7);
+                      }}
+                    >
+                      Read more
+                    </a>
+                  </div>
+                )}
               </div>
 
               <div
