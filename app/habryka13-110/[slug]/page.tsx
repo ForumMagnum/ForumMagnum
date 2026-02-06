@@ -286,6 +286,7 @@ export default function HabrykaUserPage() {
     const scheduleUpdate = () => window.requestAnimationFrame(updateOverflowIndicators);
 
     document.documentElement.classList.remove("truncation-ready");
+    document.documentElement.classList.remove("dates-ready");
 
     // Run immediately to attempt truncation before paint, then schedule
     // a follow-up via rAF in case CSS wasn't applied yet
@@ -295,14 +296,24 @@ export default function HabrykaUserPage() {
     const finalizeTruncation = () => {
       updateOverflowIndicators();
       document.documentElement.classList.add("truncation-ready");
+      document.documentElement.classList.add("dates-ready");
     };
 
     // Re-run after web fonts load (may change line widths/heights)
+    // Add timeout fallback in case fonts take too long
+    const fontTimeout = setTimeout(finalizeTruncation, 1000);
+    
     if (document.fonts && "ready" in document.fonts) {
-      document.fonts.ready.then(finalizeTruncation);
+      document.fonts.ready.then(() => {
+        clearTimeout(fontTimeout);
+        finalizeTruncation();
+      });
     } else {
       scheduleUpdate();
-      window.requestAnimationFrame(finalizeTruncation);
+      window.requestAnimationFrame(() => {
+        clearTimeout(fontTimeout);
+        finalizeTruncation();
+      });
     }
 
     window.addEventListener("resize", scheduleUpdate);

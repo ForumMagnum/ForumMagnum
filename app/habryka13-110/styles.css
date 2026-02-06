@@ -1355,13 +1355,13 @@ body {
 .small-article-meta {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 10px;
 }
 
 .small-karma {
   font-family: "Gill Sans", "Gill Sans MT", sans-serif;
   font-size: 13px;
-  color: #6d655d;
+  color: #5a524d;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -1721,13 +1721,13 @@ body {
 .list-article-meta {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 10px;
 }
 
 .list-karma {
   font-family: "Gill Sans", "Gill Sans MT", sans-serif;
   font-size: 13px;
-  color: #6d655d;
+  color: #5a524d;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -2268,25 +2268,37 @@ body {
   font-weight: 400;
   line-height: 1.6;
   color: #6d655d;
-  margin: 0 0 16px 0;
+  margin: 0 0 14px 0;
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
 
-html:not(.truncation-ready) .post-article .post-summary {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 6;
-  line-clamp: 6;
-  text-overflow: ellipsis;
-  visibility: hidden;
+.post-summary,
+.post-meta-bar,
+.small-article-meta,
+.list-article-meta {
+  transition: opacity 0.2s ease-in;
+}
+
+html:not(.dates-ready) .post-summary,
+html:not(.dates-ready) .post-meta-bar,
+html:not(.dates-ready) .small-article-meta,
+html:not(.dates-ready) .list-article-meta {
+  opacity: 0;
+}
+
+html.dates-ready .post-summary,
+html.dates-ready .post-meta-bar,
+html.dates-ready .small-article-meta,
+html.dates-ready .list-article-meta {
+  opacity: 1;
 }
 
 .post-meta-bar {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 10px;
   font-size: 13px;
   color: #8a8279;
   flex-shrink: 0;
@@ -2294,7 +2306,7 @@ html:not(.truncation-ready) .post-article .post-summary {
 
 .karma-score {
   font-size: 13px;
-  color: #6d655d;
+  color: #5a524d;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -2365,7 +2377,7 @@ html:not(.truncation-ready) .post-article .post-summary {
 }
 
 .habryka2 .small-article-meta {
-  margin-top: 0;
+  margin-top: -2px;
 }
 
 .habryka2 .list-article {
@@ -2414,7 +2426,7 @@ html:not(.truncation-ready) .post-article .post-summary {
 }
 
 .habryka2 .list-article-meta {
-  margin-top: 0;
+  margin-top: -2px;
 }
 
 /* Responsive design for medium/tablet screens */
