@@ -178,24 +178,25 @@ export default function HabrykaUserPage() {
         node.dataset.fullText = fullText;
       }
 
-      // On mobile/responsive (parent has height: auto), skip JS truncation
-      // and let CSS line-clamp handle it instead
-      const parent = node.parentElement;
-      if (parent) {
-        const parentHeight = window.getComputedStyle(parent).height;
-        if (parentHeight === "auto" || parentHeight === "") {
-          node.style.display = "";
-          node.style.position = "";
-          node.style.height = "";
-          node.style.flex = "";
-          node.style.width = "";
-          node.textContent = fullText;
-          return;
-        }
+      // On mobile/responsive (below the stacking breakpoint), skip JS
+      // truncation and let CSS line-clamp handle it instead
+      if (window.innerWidth <= 750) {
+        node.style.display = "";
+        node.style.position = "";
+        node.style.height = "";
+        node.style.flex = "";
+        node.style.width = "";
+        node.textContent = fullText;
+        return;
       }
 
-      // Always reset display before measuring so we get accurate dimensions
+      // Reset all inline styles before measuring so CSS takes over and we
+      // get accurate flex-allocated dimensions
       node.style.display = "";
+      node.style.flex = "";
+      node.style.position = "";
+      node.style.height = "";
+      node.style.width = "";
       node.textContent = fullText;
 
       const style = window.getComputedStyle(node);
@@ -234,10 +235,10 @@ export default function HabrykaUserPage() {
       const naturalHeight = node.scrollHeight;
 
       if (naturalHeight <= targetHeight + 1) {
-        // Content fits — restore and return
+        // Content fits — restore with flex: none so element shrinks to content
         node.style.position = "";
         node.style.height = "";
-        node.style.flex = "";
+        node.style.flex = "none";
         node.style.width = "";
         return;
       }
@@ -263,10 +264,11 @@ export default function HabrykaUserPage() {
       }
       node.textContent = `${truncated}${ellipsis}`;
 
-      // Restore flex layout
+      // Restore layout but keep flex: none so the element shrinks to its
+      // truncated content height instead of stretching to fill the container
       node.style.position = "";
       node.style.height = "";
-      node.style.flex = "";
+      node.style.flex = "none";
       node.style.width = "";
     };
 
@@ -283,9 +285,24 @@ export default function HabrykaUserPage() {
 
     const scheduleUpdate = () => window.requestAnimationFrame(updateOverflowIndicators);
 
+    document.documentElement.classList.remove("truncation-ready");
+
+    // Run immediately to attempt truncation before paint, then schedule
+    // a follow-up via rAF in case CSS wasn't applied yet
+    updateOverflowIndicators();
     scheduleUpdate();
+
+    const finalizeTruncation = () => {
+      updateOverflowIndicators();
+      document.documentElement.classList.add("truncation-ready");
+    };
+
+    // Re-run after web fonts load (may change line widths/heights)
     if (document.fonts && "ready" in document.fonts) {
-      document.fonts.ready.then(scheduleUpdate);
+      document.fonts.ready.then(finalizeTruncation);
+    } else {
+      scheduleUpdate();
+      window.requestAnimationFrame(finalizeTruncation);
     }
 
     window.addEventListener("resize", scheduleUpdate);
@@ -571,12 +588,12 @@ export default function HabrykaUserPage() {
                 {bio && (
                   <>
                     <p className="sidebar-author-bio">
-                      {bio.length > 300 ? bio.slice(0, 300) + "..." : bio}
+                      {bio.length > 450 ? bio.slice(0, 450) + "..." : bio}
                     </p>
-                    {bio.length > 300 && (
+                    {bio.length > 450 && (
                       <div className="read-more">
                         <a href={user ? userGetProfileUrl(user) : "#"} className="read-more-link">
-                          See more
+                          Read more
                         </a>
                       </div>
                     )}

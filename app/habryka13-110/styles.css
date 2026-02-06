@@ -1329,7 +1329,7 @@ body {
   padding: 16px 0 0 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
 }
 
 .small-article-title {
@@ -2270,6 +2270,15 @@ body {
   overflow: hidden;
 }
 
+html:not(.truncation-ready) .post-article .post-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  text-overflow: ellipsis;
+  visibility: hidden;
+}
+
 .post-meta-bar {
   display: flex;
   align-items: baseline;
@@ -2352,7 +2361,7 @@ body {
 }
 
 .habryka2 .small-article-meta {
-  margin-top: 6px;
+  margin-top: 0;
 }
 
 .habryka2 .list-article {
@@ -2403,7 +2412,7 @@ body {
 }
 
 .habryka2 .list-article-meta {
-  margin-top: 6px;
+  margin-top: 12px;
 }
 
 /* Responsive design for medium/tablet screens */
