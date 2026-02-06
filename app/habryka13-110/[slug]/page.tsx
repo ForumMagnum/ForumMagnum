@@ -168,7 +168,88 @@ export default function HabrykaUserPage() {
       node.textContent = `${truncated}${ellipsis}`;
     };
 
+    const truncateToFit = (node: HTMLElement) => {
+      const fullText = node.dataset.fullText ?? node.textContent ?? "";
+      if (!fullText) {
+        return;
+      }
+
+      if (!node.dataset.fullText) {
+        node.dataset.fullText = fullText;
+      }
+
+      // Always reset display before measuring so we get accurate dimensions
+      node.style.display = "";
+      node.textContent = fullText;
+
+      const style = window.getComputedStyle(node);
+      const lineHeight = Number.parseFloat(style.lineHeight);
+      if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
+        return;
+      }
+
+      // In a flex container, clientHeight is the allocated space (our budget)
+      const availableHeight = node.clientHeight;
+      if (availableHeight <= 0) {
+        return;
+      }
+
+      const maxLines = Math.floor(availableHeight / lineHeight);
+      if (maxLines < 2) {
+        node.textContent = "";
+        node.style.display = "none";
+        return;
+      }
+
+      const targetHeight = lineHeight * maxLines;
+
+      // Temporarily take element out of flex flow so scrollHeight reflects
+      // actual content height rather than being clamped to clientHeight
+      node.style.position = "absolute";
+      node.style.height = "auto";
+      node.style.flex = "none";
+
+      const naturalHeight = node.scrollHeight;
+
+      if (naturalHeight <= targetHeight + 1) {
+        // Content fits — restore and return
+        node.style.position = "";
+        node.style.height = "";
+        node.style.flex = "";
+        return;
+      }
+
+      const ellipsis = "...";
+      let low = 0;
+      let high = fullText.length;
+
+      while (low < high) {
+        const mid = Math.ceil((low + high) / 2);
+        node.textContent = `${fullText.slice(0, mid).trimEnd()}${ellipsis}`;
+        if (node.scrollHeight <= targetHeight + 1) {
+          low = mid;
+        } else {
+          high = mid - 1;
+        }
+      }
+
+      let truncated = fullText.slice(0, Math.max(1, low)).trimEnd();
+      const lastSpace = truncated.lastIndexOf(" ");
+      if (lastSpace > Math.max(0, truncated.length - 20)) {
+        truncated = truncated.slice(0, lastSpace).trimEnd();
+      }
+      node.textContent = `${truncated}${ellipsis}`;
+
+      // Restore flex layout
+      node.style.position = "";
+      node.style.height = "";
+      node.style.flex = "";
+    };
+
     const updateOverflowIndicators = () => {
+      const summaryNodes = document.querySelectorAll<HTMLElement>(".post-summary");
+      summaryNodes.forEach((node) => truncateToFit(node));
+
       const titleNodes = document.querySelectorAll<HTMLElement>(
         ".habryka2 .list-article-title-text"
       );
@@ -185,7 +266,7 @@ export default function HabrykaUserPage() {
 
     window.addEventListener("resize", scheduleUpdate);
     return () => window.removeEventListener("resize", scheduleUpdate);
-  }, [activeTab]);
+  }, [activeTab, topPost?._id]);
 
   if (userLoading || !user) {
     return <div className="content profile-content">
@@ -202,10 +283,7 @@ export default function HabrykaUserPage() {
     return words.slice(0, 50).join(" ") + "...";
   };
   const getTopPostSummary = (post: any) => {
-    const fullSummary = post?.contents?.plaintextDescription ?? "";
-    const words = fullSummary.split(/\s+/);
-    if (words.length <= 18) return fullSummary;
-    return words.slice(0, 18).join(" ") + "...";
+    return post?.contents?.plaintextDescription ?? "";
   };
   const getPostImageUrl = (post: any) => {
     const url = post?.socialPreviewData?.imageUrl;

@@ -1270,9 +1270,10 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  overflow: visible;
+  overflow: hidden;
   padding-left: 0;
   margin-left: 0;
+  height: 240px;
 }
 
 .post-image {
@@ -2237,6 +2238,7 @@ body {
   white-space: normal;
   max-width: 100%;
   padding-left: 0;
+  flex-shrink: 0;
 }
 
 .top-posts-indicator + .post-article .post-title {
@@ -2263,6 +2265,9 @@ body {
   line-height: 1.6;
   color: #6d655d;
   margin: 0 0 16px 0;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .post-meta-bar {
@@ -2271,6 +2276,7 @@ body {
   gap: 12px;
   font-size: 13px;
   color: #8a8279;
+  flex-shrink: 0;
 }
 
 .karma-score {
@@ -2438,6 +2444,7 @@ body {
   }
 
   .post-content {
+    height: auto;
     max-height: none;
     width: 100%;
   }
@@ -2449,6 +2456,9 @@ body {
 
   /* Only 2 lines for summary in mobile stacked layout */
   .post-summary {
+    flex: none;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
   }
@@ -2494,6 +2504,7 @@ body {
   }
 
   .post-content {
+    height: auto;
     max-height: none;
     width: 100%;
   }
@@ -2515,6 +2526,9 @@ body {
 
   /* Only 2 lines for summary in mobile stacked layout */
   .post-summary {
+    flex: none;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
   }
