@@ -1624,6 +1624,14 @@ body {
   position: relative;
 }
 
+/* The ContentStyles flex wrapper computes min-height from content intrinsic size,
+   causing it to be ~540px even when the actual text is short. Reset to 0 so it
+   respects the parent's max-height and overflow: hidden properly. */
+.feed-list .FeedContentBody-root > .ContentStyles-base {
+  min-height: 0 !important;
+  display: block !important;
+}
+
 .feed-list .UltraFeedCommentItem-contentWrapper {
   margin-top: 8px;
   margin-bottom: 8px;
