@@ -59,6 +59,7 @@ export default function HabrykaUserPage() {
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
   const [sortPanelClosing, setSortPanelClosing] = useState(false);
   const [sortBy, setSortBy] = useState<"new" | "top" | "topInflation" | "recentComments" | "old" | "magic">("new");
+  const [feedSortBy, setFeedSortBy] = useState<"recent" | "top">("recent");
   const bioRef = useRef<HTMLDivElement>(null);
   const { params } = useLocation();
   const slug = slugify(params.slug);
@@ -614,11 +615,32 @@ export default function HabrykaUserPage() {
               <div
                 className={`feed-list tab-panel ${activeTab === "feed" ? "active" : ""}`}
               >
+                {(sortPanelOpen || sortPanelClosing) && (
+                  <div className={`sort-panel ${sortPanelClosing ? "closing" : ""}`}>
+                    <div className="sort-panel-section">
+                      <div className="sort-panel-header">Sorted by:</div>
+                      <button
+                        className={`sort-panel-option ${feedSortBy === "recent" ? "selected" : ""}`}
+                        onClick={() => setFeedSortBy("recent")}
+                        type="button"
+                      >
+                        New
+                      </button>
+                      <button
+                        className={`sort-panel-option ${feedSortBy === "top" ? "selected" : ""}`}
+                        onClick={() => setFeedSortBy("top")}
+                        type="button"
+                      >
+                        Top
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {userId && (
                   <UltraFeedContextProvider openInNewTab={true}>
                     <UltraFeedObserverProvider incognitoMode={false}>
                       <OverflowNavObserverProvider>
-                        <UserContentFeed userId={userId} />
+                        <UserContentFeed userId={userId} externalSortMode={feedSortBy} />
                       </OverflowNavObserverProvider>
                     </UltraFeedObserverProvider>
                   </UltraFeedContextProvider>

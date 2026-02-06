@@ -194,6 +194,7 @@ interface UserContentFeedProps {
   userId: string;
   initialLimit?: number;
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
+  externalSortMode?: SortMode;
 }
 
 type SortMode = 'recent' | 'top';
@@ -237,9 +238,11 @@ const UserContentFeedItem = ({ item, index, feedSettings }: {
   }
 };
 
-const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: UserContentFeedProps) => {
+const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, externalSortMode }: UserContentFeedProps) => {
   const classes = useStyles(userContentFeedStyles);
-  const [sortMode, setSortMode] = useState<SortMode>('recent');
+  const [internalSortMode, setInternalSortMode] = useState<SortMode>('recent');
+  const sortMode = externalSortMode ?? internalSortMode;
+  const setSortMode = setInternalSortMode;
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
