@@ -1592,7 +1592,7 @@ body {
   gap: 8px;
 }
 
-.comments-list,
+.feed-list,
 .sequences-list {
   grid-column: 1 / 5;
 }

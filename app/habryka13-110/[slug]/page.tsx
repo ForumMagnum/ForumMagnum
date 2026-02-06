@@ -7,13 +7,16 @@ import { useLocation } from "@/lib/routeUtil";
 import { userGetDisplayName, userGetProfileUrl } from "@/lib/collections/users/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
-import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 import { getUserFromResults } from "@/components/users/UsersProfile";
 import { slugify } from "@/lib/utils/slugify";
 import Loading from "@/components/vulcan-core/Loading";
+import UserContentFeed from "@/components/users/UserContentFeed";
+import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContextProvider";
+import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";
+import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavObserverContext";
 import moment from "moment";
 
-type ProfileTab = "posts" | "sequences" | "comments";
+type ProfileTab = "posts" | "sequences" | "feed";
 
 const HabrykaUserQuery = gql(`
   query HabrykaDynamicUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -48,16 +51,6 @@ const HabrykaSequencesQuery = gql(`
   }
 `);
 
-const HabrykaCommentsQuery = gql(`
-  query HabrykaDynamicCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
-    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...CommentsListWithParentMetadata
-      }
-      totalCount
-    }
-  }
-`);
 
 export default function HabrykaUserPage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
@@ -120,14 +113,6 @@ export default function HabrykaUserPage() {
     },
   });
 
-  const { data: commentsData } = useQuery(HabrykaCommentsQuery, {
-    skip: !userId,
-    variables: {
-      selector: userId ? { profileComments: { userId, sortBy: "new", authorIsUnreviewed: null } } : undefined,
-      limit: 6,
-      enableTotal: false,
-    },
-  });
 
   const topPosts = topPostsData?.posts?.results ?? [];
   const topPost = topPosts[0];
@@ -136,7 +121,6 @@ export default function HabrykaUserPage() {
   const listPosts = recentPosts.slice(0, postsToShow);
   const hasMorePosts = recentPosts.length > postsToShow;
   const sequences = sequencesData?.sequences?.results ?? [];
-  const comments = commentsData?.comments?.results ?? [];
 
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bio = user?.biography?.plaintextDescription;
@@ -362,11 +346,6 @@ export default function HabrykaUserPage() {
     return (url && url.trim()) ? url : "/default-post-preview.png";
   };
   const formatRelativeDate = (date: Date | string) => moment(new Date(date)).fromNow();
-  const getCommentParagraphs = (comment: any) => {
-    const text = comment.contents?.plaintextMainText;
-    if (!text) return [];
-    return text.split(/\n+/).map((l: string) => l.trim()).filter(Boolean).slice(0, 2);
-  };
 
   return (
     <div id="page" data-el="page">
@@ -475,12 +454,12 @@ export default function HabrykaUserPage() {
                     Sequences
                   </button>
                   <button
-                    className={`profile-tab ${activeTab === "comments" ? "active" : ""}`}
-                    data-tab="comments"
+                    className={`profile-tab ${activeTab === "feed" ? "active" : ""}`}
+                    data-tab="feed"
                     type="button"
-                    onClick={() => setActiveTab("comments")}
+                    onClick={() => setActiveTab("feed")}
                   >
-                    Comments
+                    Feed
                   </button>
                 </div>
                 <div className="sort-control">
@@ -633,45 +612,17 @@ export default function HabrykaUserPage() {
               </div>
 
               <div
-                className={`comments-list tab-panel ${activeTab === "comments" ? "active" : ""}`}
+                className={`feed-list tab-panel ${activeTab === "feed" ? "active" : ""}`}
               >
-                {comments.map((comment) => {
-                  const paragraphs = getCommentParagraphs(comment);
-                  const [quoteParagraph, ...bodyParagraphs] = paragraphs;
-                  const commentTitle = comment.post?.title || comment.tag?.slug || "Comment";
-                  return (
-                    <div key={comment._id} className="comment-thread">
-                      <div className="comment-thread-title">{commentTitle}</div>
-                      <div className="comment-meta-row">
-                        <span className="comment-author">{comment.user?.displayName}</span>
-                        <span className="comment-time">{formatRelativeDate(comment.postedAt!)}</span>
-                        <span className="comment-karma">{comment.baseScore ?? 0}</span>
-                        <span className="comment-replies">{comment.directChildrenCount ?? 0}</span>
-                      </div>
-                      {quoteParagraph && (
-                        <div className="comment-quote">
-                          <p>{quoteParagraph}</p>
-                        </div>
-                      )}
-                      {bodyParagraphs.length > 0 && (
-                        <div className="comment-body">
-                          {bodyParagraphs.map((p, i) => (
-                            <p key={i}>{p}</p>
-                          ))}
-                        </div>
-                      )}
-                      <div className="comment-reply">Reply</div>
-                    </div>
-                  );
-                })}
-                <div className="read-more">
-                  <a
-                    href={user ? `${userGetProfileUrl(user)}/replies` : "#"}
-                    className="read-more-link"
-                  >
-                    See more
-                  </a>
-                </div>
+                {userId && (
+                  <UltraFeedContextProvider openInNewTab={true}>
+                    <UltraFeedObserverProvider incognitoMode={false}>
+                      <OverflowNavObserverProvider>
+                        <UserContentFeed userId={userId} />
+                      </OverflowNavObserverProvider>
+                    </UltraFeedObserverProvider>
+                  </UltraFeedContextProvider>
+                )}
               </div>
 
               <aside className="posts-sidebar">
