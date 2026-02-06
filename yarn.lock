@@ -7350,13 +7350,6 @@
   resolved "https://registry.npmjs.org/@types/chai/-/chai-4.2.14.tgz"
   integrity sha512-G+ITQPXkwTrslfG5L/BksmbLUA0M1iybEsmCWPqzSxsRRhJZimBKJkoMi8fr/CPygPTj4zO5pJH7I2/cm9M7SQ==
 
-"@types/cheerio@*":
-  version "0.22.28"
-  resolved "https://registry.npmjs.org/@types/cheerio/-/cheerio-0.22.28.tgz"
-  integrity sha512-ehUMGSW5IeDxJjbru4awKYMlKGmo1wSSGUVqXtYwlgmUM8X1a0PZttEIm6yEY7vHsY/hh6iPnklF213G0UColw==
-  dependencies:
-    "@types/node" "*"
-
 "@types/classnames@^2.2.9":
   version "2.2.11"
   resolved "https://registry.npmjs.org/@types/classnames/-/classnames-2.2.11.tgz"
@@ -7519,14 +7512,6 @@
   dependencies:
     "@types/react" "*"
     immutable "~3.7.4"
-
-"@types/enzyme@^3.10.5":
-  version "3.10.8"
-  resolved "https://registry.npmjs.org/@types/enzyme/-/enzyme-3.10.8.tgz"
-  integrity sha512-vlOuzqsTHxog6PV79+tvOHFb6hq4QZKMq1lLD9MaWD1oec2lHTKndn76XOpSwCA0oFTaIbKVPrgM3k78Jjd16g==
-  dependencies:
-    "@types/cheerio" "*"
-    "@types/react" "*"
 
 "@types/estree@*", "@types/estree@1.0.8", "@types/estree@^1.0.0":
   version "1.0.8"
