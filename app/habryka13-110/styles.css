@@ -2454,13 +2454,14 @@ body {
     height: 220px;
   }
 
-  /* Only 2 lines for summary in mobile stacked layout */
+  /* Match all-posts summary length in mobile stacked layout */
   .post-summary {
     flex: none;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    text-overflow: ellipsis;
   }
 }
 
@@ -2524,13 +2525,14 @@ body {
     white-space: normal;
   }
 
-  /* Only 2 lines for summary in mobile stacked layout */
+  /* Match all-posts summary length in mobile stacked layout */
   .post-summary {
     flex: none;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    text-overflow: ellipsis;
   }
 
   /* Hide the 3 small article cards */

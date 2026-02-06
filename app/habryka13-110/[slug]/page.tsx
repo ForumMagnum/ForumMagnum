@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useLocation } from "@/lib/routeUtil";
@@ -122,7 +122,7 @@ export default function HabrykaUserPage() {
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bio = user?.biography?.plaintextDescription;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const truncateToLines = (node: HTMLElement, maxLines: number) => {
       const fullText = node.dataset.fullText ?? node.textContent ?? "";
       if (!fullText) {
@@ -178,6 +178,22 @@ export default function HabrykaUserPage() {
         node.dataset.fullText = fullText;
       }
 
+      // On mobile/responsive (parent has height: auto), skip JS truncation
+      // and let CSS line-clamp handle it instead
+      const parent = node.parentElement;
+      if (parent) {
+        const parentHeight = window.getComputedStyle(parent).height;
+        if (parentHeight === "auto" || parentHeight === "") {
+          node.style.display = "";
+          node.style.position = "";
+          node.style.height = "";
+          node.style.flex = "";
+          node.style.width = "";
+          node.textContent = fullText;
+          return;
+        }
+      }
+
       // Always reset display before measuring so we get accurate dimensions
       node.style.display = "";
       node.textContent = fullText;
@@ -190,11 +206,14 @@ export default function HabrykaUserPage() {
 
       // In a flex container, clientHeight is the allocated space (our budget)
       const availableHeight = node.clientHeight;
-      if (availableHeight <= 0) {
+      const flexWidth = node.clientWidth;
+      if (availableHeight <= 0 || flexWidth <= 0) {
         return;
       }
 
-      const maxLines = Math.floor(availableHeight / lineHeight);
+      // Subtract a small buffer so descenders on the last line aren't clipped
+      const descenderBuffer = 4;
+      const maxLines = Math.floor((availableHeight - descenderBuffer) / lineHeight);
       if (maxLines < 2) {
         node.textContent = "";
         node.style.display = "none";
@@ -204,10 +223,13 @@ export default function HabrykaUserPage() {
       const targetHeight = lineHeight * maxLines;
 
       // Temporarily take element out of flex flow so scrollHeight reflects
-      // actual content height rather than being clamped to clientHeight
+      // actual content height rather than being clamped to clientHeight.
+      // Lock the width to match the flex-allocated width so line wrapping
+      // is identical during measurement and final display.
       node.style.position = "absolute";
       node.style.height = "auto";
       node.style.flex = "none";
+      node.style.width = `${flexWidth}px`;
 
       const naturalHeight = node.scrollHeight;
 
@@ -216,6 +238,7 @@ export default function HabrykaUserPage() {
         node.style.position = "";
         node.style.height = "";
         node.style.flex = "";
+        node.style.width = "";
         return;
       }
 
@@ -244,6 +267,7 @@ export default function HabrykaUserPage() {
       node.style.position = "";
       node.style.height = "";
       node.style.flex = "";
+      node.style.width = "";
     };
 
     const updateOverflowIndicators = () => {
