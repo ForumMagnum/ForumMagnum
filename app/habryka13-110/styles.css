@@ -1795,6 +1795,28 @@ body {
   opacity: 0.67;
 }
 
+.sidebar-bio-wrapper {
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-bio-wrapper.collapsed {
+  max-height: 200px;
+}
+
+.sidebar-bio-wrapper.collapsed .sidebar-author-bio {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-bio-wrapper.expanded {
+  max-height: 2000px;
+  transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .sidebar-author-bio {
   font-family: "Gill Sans", "Gill Sans MT", sans-serif;
   font-size: 14px;

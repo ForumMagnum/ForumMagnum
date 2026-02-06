@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useState, useRef, useEffect } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useLocation } from "@/lib/routeUtil";
@@ -61,6 +61,8 @@ const HabrykaCommentsQuery = gql(`
 
 export default function HabrykaUserPage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
+  const [bioExpanded, setBioExpanded] = useState(false);
+  const bioRef = useRef<HTMLDivElement>(null);
   const { params } = useLocation();
   const slug = slugify(params.slug);
 
@@ -599,15 +601,25 @@ export default function HabrykaUserPage() {
                 </div>
                 {bio && (
                   <>
-                    <p className="sidebar-author-bio">
-                      {bio.split(/\s+/).filter(Boolean).length > 65
-                        ? `${bio.split(/\s+/).filter(Boolean).slice(0, 65).join(" ")}...`
-                        : bio}
-                    </p>
+                    <div 
+                      ref={bioRef}
+                      className={`sidebar-bio-wrapper ${bioExpanded ? "expanded" : "collapsed"}`}
+                    >
+                      <p className="sidebar-author-bio">
+                        {bio}
+                      </p>
+                    </div>
                     {bio.split(/\s+/).filter(Boolean).length > 65 && (
                       <div className="read-more">
-                        <a href={user ? userGetProfileUrl(user) : "#"} className="read-more-link">
-                          Read more
+                        <a 
+                          href="#" 
+                          className="read-more-link"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setBioExpanded(!bioExpanded);
+                          }}
+                        >
+                          {bioExpanded ? "Show less" : "Read more"}
                         </a>
                       </div>
                     )}
