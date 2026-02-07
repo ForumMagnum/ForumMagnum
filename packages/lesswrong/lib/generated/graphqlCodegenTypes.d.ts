@@ -1874,6 +1874,7 @@ type CreateTagDataInput = {
   name: Scalars['String']['input'];
   parentTagId?: InputMaybe<Scalars['String']['input']>;
   postsDefaultSortOrder?: InputMaybe<Scalars['String']['input']>;
+  removalResistant?: InputMaybe<Scalars['Boolean']['input']>;
   reviewedByUserId?: InputMaybe<Scalars['String']['input']>;
   shortName?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
@@ -10996,6 +10997,7 @@ type Tag = {
   postCount: Scalars['Float']['output'];
   postsDefaultSortOrder?: Maybe<Scalars['String']['output']>;
   recentComments: Array<Comment>;
+  removalResistant: Scalars['Boolean']['output'];
   reviewedByUser?: Maybe<User>;
   reviewedByUserId?: Maybe<Scalars['String']['output']>;
   schemaVersion: Scalars['Float']['output'];
@@ -12177,6 +12179,7 @@ type UpdateTagDataInput = {
   noindex?: InputMaybe<Scalars['Boolean']['input']>;
   parentTagId?: InputMaybe<Scalars['String']['input']>;
   postsDefaultSortOrder?: InputMaybe<Scalars['String']['input']>;
+  removalResistant?: InputMaybe<Scalars['Boolean']['input']>;
   reviewedByUserId?: InputMaybe<Scalars['String']['input']>;
   shortName?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
@@ -26719,7 +26722,7 @@ type TagEditFragment_Tag_moderationGuidelines_Revision = (
 );
 
 type TagEditFragment = (
-  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, autoTagModel: string | null, autoTagPrompt: string | null, parentTag: TagEditFragment_Tag_parentTag_Tag | null, description: TagEditFragment_Tag_description_Revision | null, subforumWelcomeText: TagEditFragment_Tag_subforumWelcomeText_Revision | null, moderationGuidelines: TagEditFragment_Tag_moderationGuidelines_Revision | null }
+  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, removalResistant: boolean, autoTagModel: string | null, autoTagPrompt: string | null, parentTag: TagEditFragment_Tag_parentTag_Tag | null, description: TagEditFragment_Tag_description_Revision | null, subforumWelcomeText: TagEditFragment_Tag_subforumWelcomeText_Revision | null, moderationGuidelines: TagEditFragment_Tag_moderationGuidelines_Revision | null }
   & TagDetailsFragment
 );
 

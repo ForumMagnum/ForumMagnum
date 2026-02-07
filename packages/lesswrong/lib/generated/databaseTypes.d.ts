@@ -1553,6 +1553,7 @@ interface DbTag extends DbObject {
   pingbacks: any | null
   postCount: number
   postsDefaultSortOrder: string | null
+  removalResistant: boolean
   reviewedByUserId: string | null
   score: number
   shortName: string | null
