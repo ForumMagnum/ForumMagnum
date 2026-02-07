@@ -17,6 +17,7 @@ import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayA
 import { MINIMUM_COAUTHOR_KARMA } from "@/lib/collections/posts/helpers";
 import { DisableNoKibitzContext } from './UsersNameDisplay';
 import { useAdminToggle } from '../admin/useAdminToggle';
+import { useEAForumV3 } from '../admin/useEAForumV3';
 import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
@@ -113,6 +114,7 @@ const UsersMenu = ({classes}: {
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
   const {toggleOn, toggleOff} = useAdminToggle();
+  const {preferNewSite, setPreferNewSite, showNewSiteToggle} = useEAForumV3();
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
@@ -417,6 +419,12 @@ const UsersMenu = ({classes}: {
                 <DropdownItem
                   title={preferredHeadingCase("Re-enable Admin Powers")}
                   onClick={toggleOn}
+                />
+              </div>}
+              {showNewSiteToggle && <div className={classes.adminToggleItem}>
+                <DropdownItem
+                  title={preferredHeadingCase(preferNewSite ? "Prefer Old Site" : "Prefer New Site")}
+                  onClick={() => setPreferNewSite(!preferNewSite)}
                 />
               </div>}
 
