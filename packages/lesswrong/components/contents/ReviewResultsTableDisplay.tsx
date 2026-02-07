@@ -100,7 +100,7 @@ export function ReviewResultsTableDisplay({
         <tbody>
           {results.map((entry) => (
             <tr key={entry.rank} className={classes.row}>
-              <td className={classes.rankCell}>{entry.rank}</td>
+              <td className={classes.rankCell}>{entry.rank + 1}</td>
               <td className={classes.titleCell}>
                 <a href={entry.postUrl} className={classes.postTitle}>{entry.title}</a>
                 <span className={classes.postAuthor}>{entry.authorName}</span>
