@@ -30,6 +30,7 @@ import {
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
+  COMMAND_PRIORITY_NORMAL,
   createCommand,
   DRAGOVER_COMMAND,
   DRAGSTART_COMMAND,
@@ -38,6 +39,7 @@ import {
   LexicalCommand,
   LexicalEditor,
   NodeKey,
+  PASTE_COMMAND,
   ParagraphNode,
   TextNode,
 } from 'lexical';
@@ -72,6 +74,8 @@ import {
   ImageUploadError,
 } from '../../utils/cloudinaryUpload';
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
+import { useMessages } from '@/components/common/withMessages'
+import { WithMessagesMessage } from '@/components/layout/FlashMessages';
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -312,12 +316,24 @@ export function InsertImageDialog({
   );
 }
 
+function flashUploadError(
+  flash: (message: WithMessagesMessage) => void,
+  error: unknown,
+): void {
+  const errorMessage =
+    error instanceof ImageUploadError && error.isUserFacing
+      ? error.message
+      : 'Failed to upload image. Please try again.';
+  flash({ messageString: errorMessage, type: 'error' });
+}
+
 export default function ImagesPlugin({
   captionsEnabled,
 }: {
   captionsEnabled?: boolean;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
+  const { flash } = useMessages();
 
   useEffect(() => {
     if (!editor.hasNodes([ImageNode])) {
@@ -365,12 +381,42 @@ export default function ImagesPlugin({
               });
             })
             .catch((error) => {
-              // eslint-disable-next-line no-console
-              console.error(error);
+              flashUploadError(flash, error);
             });
           return true;
         },
         COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand(
+        PASTE_COMMAND,
+        (event) => {
+          const clipboardData = 'clipboardData' in event ? event.clipboardData : null;
+          if (!clipboardData) {
+            return false;
+          }
+          const files = Array.from(clipboardData.files);
+          const imageFiles = files.filter(isImageFile);
+          if (imageFiles.length === 0) {
+            return false;
+          }
+          event.preventDefault();
+          for (const file of imageFiles) {
+            uploadToCloudinary(file)
+              .then((result) => {
+                editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                  altText: file.name || 'Pasted image',
+                  src: result.secure_url,
+                  width: result.width,
+                  height: result.height,
+                });
+              })
+              .catch((error) => {
+                flashUploadError(flash, error);
+              });
+          }
+          return true;
+        },
+        COMMAND_PRIORITY_NORMAL,
       ),
       editor.registerCommand<InsertImagePayload>(
         INSERT_IMAGE_COMMAND,
@@ -445,7 +491,7 @@ export default function ImagesPlugin({
         updateCaptionEmptyFromMutations(editor, mutations);
       }),
     );
-  }, [captionsEnabled, editor]);
+  }, [captionsEnabled, editor, flash]);
 
   return null;
 }
