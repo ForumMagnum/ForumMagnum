@@ -21,7 +21,6 @@ import {
   $isTextNode,
   $setSelection,
   CLICK_COMMAND,
-  COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
   createCommand,
@@ -44,8 +43,7 @@ import {
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-// import brokenImage from '../images/image-broken.svg';
-import { ImageBrokenIcon } from '../icons/ImageBrokenIcon';
+import { useMessages } from '@/components/common/withMessages';
 import useModal from '../hooks/useModal';
 import ImageResizer from '../ui/ImageResizer';
 import Button from '../ui/Button';
@@ -142,7 +140,6 @@ function useSuspenseImage(src: string): ImageStatus {
   } else if (!cached) {
     cached = new Promise<ImageStatus>((resolve) => {
       const img = new Image();
-      img.src = src;
       img.onload = () =>
         resolve({
           error: false,
@@ -150,6 +147,7 @@ function useSuspenseImage(src: string): ImageStatus {
           width: img.naturalWidth,
         });
       img.onerror = () => resolve({error: true});
+      img.src = src;
     }).then((rval) => {
       imageCache.set(src, rval);
       return rval;
@@ -182,7 +180,7 @@ function LazyImage({
   srcSet?: string | null;
   width: 'inherit' | number;
   onError: () => void;
-}): JSX.Element {
+}): JSX.Element | null {
   const isSVGImage = isSVG(src);
   const status = useSuspenseImage(src);
 
@@ -193,7 +191,7 @@ function LazyImage({
   }, [status.error, onError]);
 
   if (status.error) {
-    return <ImageBrokenIcon />;
+    return null;
   }
 
   const widthAttribute =
@@ -216,21 +214,6 @@ function LazyImage({
     />
   );
 }
-
-// function BrokenImage(): JSX.Element {
-//   return (
-//     <img
-//       src={brokenImage}
-//       style={{
-//         height: 200,
-//         opacity: 0.2,
-//         width: 200,
-//       }}
-//       draggable="false"
-//       alt="Broken image"
-//     />
-//   );
-// }
 
 function noop() {}
 
@@ -298,7 +281,21 @@ export default function ImageComponent({
   const [editor] = useLexicalComposerContext();
   const [isLoadError, setIsLoadError] = useState<boolean>(false);
   const isEditable = useLexicalEditable();
+  const { flash } = useMessages();
   const [modal, showModal] = useModal();
+
+  useEffect(() => {
+    if (isLoadError) {
+      flash({ messageString: 'Failed to load image', type: 'error' });
+      editor.update(() => {
+        const node = $getNodeByKey(imageNodeKey);
+        if ($isImageNode(node)) {
+          node.remove();
+        }
+      });
+    }
+  }, [isLoadError, editor, imageNodeKey, flash]);
+
   const isInNodeSelection = useMemo(
     () =>
       isSelected &&
@@ -683,9 +680,7 @@ export default function ImageComponent({
               [classes.imageWrapperFocused]: isFocused,
             },
           )}>
-          {isLoadError ? (
-            <ImageBrokenIcon />
-          ) : (
+          {!isLoadError && (
             <LazyImage
               className={classNames(
                 classes.imageElement,
