@@ -3,7 +3,6 @@
 import React, { type JSX } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { Link } from '@/lib/reactRouterWrapper';
-import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
 
 export interface ReviewResultsEntry {
