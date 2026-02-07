@@ -128,7 +128,7 @@ const PostCollaborationEditor = ({ classes }: {
       </div>*/}
       <ContentStyles className={classes.editor} contentType="post">
         <DeferRender ssr={false}>
-          {/* {isAdmin ? ( */}
+          {isAdmin ? (
             <LexicalEditor
               data={''}
               placeholder="Start writing..."
@@ -139,7 +139,7 @@ const PostCollaborationEditor = ({ classes }: {
               collectionName="Posts"
               accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
             />
-          {/* ) : (
+          ) : (
             <CKPostEditor
               data={''}
               documentId={postId}
@@ -152,7 +152,7 @@ const PostCollaborationEditor = ({ classes }: {
               document={post}
               onReady={()=>{}}
             />
-          )} */}
+          )}
           <PostVersionHistoryButton
             post={post}
             postId={postId}
