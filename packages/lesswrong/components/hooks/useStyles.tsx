@@ -120,6 +120,7 @@ function removeStyleUsage<T extends string>(context: StylesContextType, styleDef
 }
 
 export const useStyles = <T extends string>(styles: StyleDefinition<T>, overrideClasses?: Partial<JssStyles<T>>): JssStyles<T> => {
+  const stylesName = styles.name;
   const stylesContext = useContext(StylesContext);
   const themeContext = useContext(ThemeContext);
   const theme = themeContext!.theme;
@@ -130,12 +131,67 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
       // StylesContext. If we do, use it to record which styles were used during
       // the render. This is used when rendering emails, or if you want to serve
       // an SSR with styles inlined rather than in a static stlyesheet.
-      if (!stylesContext.mountedStyles.has(styles.name)) {
-        if (bundleIsServer) {
-          stylesContext.stylesAwaitingServerInjection.push(styles);
-        }
-        stylesContext.mountedStyles.set(styles.name, {
+      const mountedStyles = stylesContext.mountedStyles.get(stylesName)
+      if (!mountedStyles) {
+        stylesContext.stylesAwaitingServerInjection.push(styles);
+        stylesContext.mountedStyles.set(stylesName, {
           refcount: 1,
+          styleDefinition: styles,
+        });
+      } else if (!mountedStyles.refcount) {
+        mountedStyles.refcount++;
+        stylesContext.stylesAwaitingServerInjection.push(styles);
+      }
+    }
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useLayoutEffect(() => {
+      if (stylesContext) {
+        addStyleUsage(stylesContext, theme, styles);
+        return () => removeStyleUsage(stylesContext, styles);
+      }
+    }, [styles, stylesContext, theme]);
+  }
+
+  if (!styles.nameProxy) {
+    styles.nameProxy = classNameProxy(stylesName+"-");
+  }
+  if (overrideClasses) {
+    return overrideClassesProxy(stylesName+"-", overrideClasses)
+  } else {
+    return styles.nameProxy;
+  }
+}
+
+/**
+ * Like useStyles, except it returns a function to get classes, rather than
+ * classes directly. When doing SSR, styles will not be embedded in the page
+ * unless this function is called. This is useful in the case where a component
+ * has an early-exit and you don't want to embed styles in an SSR if the early
+ * exit is taken, eg
+ *   function ComponentVisibleOnlyIfLoggedIn() {
+ *     const getClasses = useGetStyles();
+ *     const currentUser = useCurrentUser();
+ *     if (!currentUser) return null;
+ *     const classes = getClasses();
+ *   }
+ */
+export const useGetStyles = <T extends string>(styles: StyleDefinition<T>): () => JssStyles<T> => {
+  const stylesName = styles.name;
+  const stylesContext = useContext(StylesContext);
+  const themeContext = useContext(ThemeContext);
+  const theme = themeContext!.theme;
+
+  if (bundleIsServer) {
+    if (stylesContext) {
+      // If we're rendering server-side, we might or might not have
+      // StylesContext. If we do, use it to record which styles were used during
+      // the render. This is used when rendering emails, or if you want to serve
+      // an SSR with styles inlined rather than in a static stlyesheet.
+      const mountedStyles = stylesContext.mountedStyles.get(stylesName)
+      if (!mountedStyles) {
+        stylesContext.mountedStyles.set(stylesName, {
+          refcount: 0,
           styleDefinition: styles,
         });
       }
@@ -151,13 +207,9 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
   }
 
   if (!styles.nameProxy) {
-    styles.nameProxy = classNameProxy(styles.name+"-");
+    styles.nameProxy = classNameProxy(stylesName+"-");
   }
-  if (overrideClasses) {
-    return overrideClassesProxy(styles.name+"-", overrideClasses)
-  } else {
-    return styles.nameProxy;
-  }
+  return () => styles.nameProxy!;
 }
 
 /**
