@@ -183,7 +183,7 @@ export const AnnualReviewPage = ({classes}: {
     </SingleColumnSection>
   }
 
-  if (!currentUser) {
+  if (!currentUser && activeTab !== 'reviews') {
     return <SingleColumnSection>
       You must be logged in to view the annual review.
     </SingleColumnSection>
