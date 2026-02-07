@@ -2,6 +2,9 @@
 
 import React, { type JSX } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { Link } from '@/lib/reactRouterWrapper';
+import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import HoverPreviewLink from '../linkPreview/HoverPreviewLink';
 
 export interface ReviewResultsEntry {
   rank: number;
@@ -85,13 +88,13 @@ function getDotStyle(vote: number): React.CSSProperties {
 }
 
 interface ReviewResultsTableDisplayProps {
-  year: number;
   results: ReviewResultsEntry[];
+  context: 'editor' | 'content-item-body';
 }
 
 export function ReviewResultsTableDisplay({
-  year,
   results,
+  context,
 }: ReviewResultsTableDisplayProps): JSX.Element {
   const classes = useStyles(styles);
   return (
@@ -102,7 +105,13 @@ export function ReviewResultsTableDisplay({
             <tr key={entry.rank} className={classes.row}>
               <td className={classes.rankCell}>{entry.rank + 1}</td>
               <td className={classes.titleCell}>
-                <a href={entry.postUrl} className={classes.postTitle}>{entry.title}</a>
+                {context === 'editor' ? (
+                  <Link to={entry.postUrl} className={classes.postTitle}>{entry.title}</Link>
+                ) : (
+                  <HoverPreviewLink href={entry.postUrl} id={entry.rank.toString()} className={classes.postTitle}>
+                    {entry.title}
+                  </HoverPreviewLink>
+                )}
                 <span className={classes.postAuthor}>{entry.authorName}</span>
               </td>
               <td className={classes.dotsCell}>
