@@ -16,6 +16,7 @@ export interface ReviewResultsEntry {
 const styles = defineStyles('ReviewResultsTableDisplay', (theme: ThemeType) => ({
   root: {
     padding: '8px 0',
+    overflowX: 'auto',
   },
   table: {
     width: '100%',
@@ -40,6 +41,10 @@ const styles = defineStyles('ReviewResultsTableDisplay', (theme: ThemeType) => (
     border: 'none !important',
     padding: '4px 8px',
     verticalAlign: 'middle',
+    width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: 150,
+    },
   },
   postTitle: {
     fontWeight: 500,
@@ -71,6 +76,9 @@ const styles = defineStyles('ReviewResultsTableDisplay', (theme: ThemeType) => (
     paddingBottom: 8,
     flexWrap: 'wrap',
     width: 350,
+    [theme.breakpoints.down('sm')]: {
+      width: 150,
+    },
   },
   dot: {
     marginRight: 2,
