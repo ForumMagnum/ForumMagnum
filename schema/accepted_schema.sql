@@ -1530,6 +1530,7 @@ CREATE TABLE "Posts" (
   "question" BOOL NOT NULL DEFAULT FALSE,
   "authorIsUnreviewed" BOOL NOT NULL DEFAULT FALSE,
   "readTimeMinutesOverride" DOUBLE PRECISION,
+  "wordCount" INTEGER NOT NULL DEFAULT 0,
   "submitToFrontpage" BOOL NOT NULL DEFAULT TRUE,
   "hiddenRelatedQuestion" BOOL NOT NULL DEFAULT FALSE,
   "originalPostRelationSourceId" TEXT,
@@ -1895,6 +1896,32 @@ CREATE INDEX IF NOT EXISTS "idx_Posts_status_isFuture_draft_unlisted_shortform_h
   "af",
   "frontpageDate",
   "curatedDate",
+  "baseScore"
+);
+
+-- Index "idx_posts_userId_wordCount"
+CREATE INDEX IF NOT EXISTS "idx_posts_userId_wordCount" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "wordCount",
+  "userId",
+  "hideAuthor",
+  "deletedDraft",
+  "modifiedAt",
+  "createdAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
   "baseScore"
 );
 

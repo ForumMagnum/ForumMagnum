@@ -45,6 +45,17 @@ interface EditAsyncEditableCallbackProperties<N extends CollectionNameString> {
   props: UpdateCallbackProperties<N>;
 }
 
+function assignWordCountIfNeeded<N extends CollectionNameString>(
+  target: Record<string, unknown>,
+  collectionName: N,
+  fieldName: string,
+  wordCount: number | undefined,
+) {
+  if (collectionName === "Posts" && fieldName === "contents") {
+    (target as AnyBecauseHard).wordCount = wordCount ?? 0;
+  }
+}
+
 function getEditableFieldsCallbackProps<N extends CollectionNameString>({ schema, collection }: { schema: SchemaType<N>, collection: CollectionBase<N> }) {
   const editableFields = Object.entries(schema).filter(isEditableField);
   return editableFields.map(([fieldName, fieldSpec]) => {
@@ -144,7 +155,7 @@ async function createInitialRevision<N extends CollectionNameString>(
 
     const firstRevision = await createRevision({ data: newRevision }, context);
 
-    return {
+    const docWithRevision = {
       ...doc,
       ...(!normalized && {
         [fieldName]: {
@@ -158,6 +169,8 @@ async function createInitialRevision<N extends CollectionNameString>(
         pingbacks: await htmlToPingbacks(html, null),
       } : null),
     }
+    assignWordCountIfNeeded(docWithRevision, collectionName, fieldName, wordCount);
+    return docWithRevision;
   }
   return doc
 }
@@ -234,7 +247,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const newRevisionDoc = await createRevision({ data: newRevision }, context);
     const newRevisionId = newRevisionDoc._id;
 
-    return {
+    const updatedDocData = {
       ...docData,
       ...(!normalized && {
         [fieldName]: {
@@ -251,6 +264,8 @@ async function createUpdateRevision<N extends CollectionNameString>(
         ),
       } : null),
     }
+    assignWordCountIfNeeded(updatedDocData, collectionName, fieldName, wordCount);
+    return updatedDocData;
   }
   return docData
 }
