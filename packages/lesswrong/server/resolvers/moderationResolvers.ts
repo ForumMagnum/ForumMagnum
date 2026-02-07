@@ -7,7 +7,7 @@ import { Posts } from '../../server/collections/posts/collection';
 import moment from 'moment';
 import uniq from 'lodash/uniq';
 import gql from 'graphql-tag';
-import { updateComment } from '../collections/comments/mutations';
+import { createComment, updateComment } from '../collections/comments/mutations';
 import { updatePost } from '../collections/posts/mutations';
 import { updateUser } from '../collections/users/mutations';
 import { getSignatureWithNote } from '../../lib/collections/users/helpers';
@@ -40,6 +40,7 @@ export const moderationGqlTypeDefs = gql`
     approveUserCurrentContentOnly(userId: String!): Boolean!
     rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
     runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+    unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
   }
 `
 
@@ -310,6 +311,59 @@ export const moderationGqlMutations = {
     }
 
     return ace;
+  },
+  async unlistLlmPost(_root: void, args: {postId: string, modCommentHtml: string}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser || !userIsAdminOrMod(currentUser)) {
+      throw new Error("Only admins and moderators can apply LLM policy violations");
+    }
+
+    const { postId, modCommentHtml } = args;
+
+    const post = await Posts.findOne(postId);
+    if (!post) {
+      throw new Error("Invalid post ID");
+    }
+
+    const user = await Users.findOne(post.userId);
+    if (!user) {
+      throw new Error("Post author not found");
+    }
+
+    // Unlist the post
+    await updatePost({
+      data: { unlisted: true },
+      selector: { _id: postId }
+    }, context);
+
+    // Post a moderator comment on the post
+    await createComment({
+      data: {
+        postId,
+        contents: {
+          originalContents: {
+            type: "html",
+            data: modCommentHtml,
+          }
+        },
+        moderatorHat: true,
+      }
+    }, context);
+
+    // Unapprove the user so future content needs review
+    const notes = user.sunshineNotes || '';
+    const newNotes = getSignatureWithNote(currentUser.displayName, 'LLM policy violation - unapproved user, unlisted post') + notes;
+    await updateUser({
+      data: {
+        reviewedByUserId: null,
+        reviewedAt: user.reviewedAt ? new Date() : null,
+        needsReview: true,
+        sunshineNotes: newNotes,
+      },
+      selector: { _id: user._id }
+    }, context);
+
+    return true;
   },
 }
 

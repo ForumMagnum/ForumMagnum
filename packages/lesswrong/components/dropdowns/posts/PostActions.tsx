@@ -26,6 +26,7 @@ import { PostSubscriptionsDropdownItem } from "./PostSubscriptionsDropdownItem";
 import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownItem";
 import HideFrontPageButton from './HideFrontpagePostDropdownItem';
 import LLMScoreDropdownItem from "./LLMScoreDropdownItem";
+import LlmPolicyViolationDropdownItem from "./LlmPolicyViolationDropdownItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -87,6 +88,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
       <ApproveNewUserDropdownItem post={post} />
       <SuggestAlignmentPostDropdownItem post={post}/>
       <MoveToAlignmentPostDropdownItem post={post}/>
+      <LlmPolicyViolationDropdownItem post={post} closeMenu={closeMenu} />
       <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
     </DropdownMenu>
   );

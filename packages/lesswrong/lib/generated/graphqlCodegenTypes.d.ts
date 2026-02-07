@@ -4500,6 +4500,7 @@ type Mutation = {
   submitReviewVote?: Maybe<Post>;
   toggleBookmark?: Maybe<ToggleBookmarkOutput>;
   unlinkCrossposter?: Maybe<Scalars['String']['output']>;
+  unlistLlmPost: Scalars['Boolean']['output'];
   unlockPost?: Maybe<Post>;
   unlockThread: Scalars['Boolean']['output'];
   updateAdvisorRequest?: Maybe<AdvisorRequestOutput>;
@@ -5231,6 +5232,12 @@ type MutationsubmitReviewVoteArgs = {
 
 type MutationtoggleBookmarkArgs = {
   input: ToggleBookmarkInput;
+};
+
+
+type MutationunlistLlmPostArgs = {
+  modCommentHtml: Scalars['String']['input'];
+  postId: Scalars['String']['input'];
 };
 
 
@@ -15047,6 +15054,52 @@ type PostLLMScoreQueryQueryVariables = Exact<{
 
 
 type PostLLMScoreQueryQuery = PostLLMScoreQueryQuery_Query;
+
+type llmPolicyViolationTemplateQueryQuery_moderationTemplate_SingleModerationTemplateOutput_result_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type llmPolicyViolationTemplateQueryQuery_moderationTemplate_SingleModerationTemplateOutput = { __typename?: 'SingleModerationTemplateOutput', result: llmPolicyViolationTemplateQueryQuery_moderationTemplate_SingleModerationTemplateOutput_result_ModerationTemplate | null };
+
+type llmPolicyViolationTemplateQueryQuery_Query = { __typename?: 'Query', moderationTemplate: llmPolicyViolationTemplateQueryQuery_moderationTemplate_SingleModerationTemplateOutput | null };
+
+
+type llmPolicyViolationTemplateQueryQueryVariables = Exact<{
+  selector: InputMaybe<SelectorInput>;
+}>;
+
+
+type llmPolicyViolationTemplateQueryQuery = llmPolicyViolationTemplateQueryQuery_Query;
+
+type unlistLlmPostMutation_Mutation = { __typename?: 'Mutation', unlistLlmPost: boolean };
+
+
+type unlistLlmPostMutationVariables = Exact<{
+  postId: Scalars['String']['input'];
+  modCommentHtml: Scalars['String']['input'];
+}>;
+
+
+type unlistLlmPostMutation = unlistLlmPostMutation_Mutation;
+
+type unapproveUserLlmPolicyViolationMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type unapproveUserLlmPolicyViolationMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: unapproveUserLlmPolicyViolationMutation_updateUser_UserOutput_data_User | null };
+
+type unapproveUserLlmPolicyViolationMutation_Mutation = { __typename?: 'Mutation', updateUser: unapproveUserLlmPolicyViolationMutation_updateUser_UserOutput | null };
+
+
+type unapproveUserLlmPolicyViolationMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type unapproveUserLlmPolicyViolationMutation = unapproveUserLlmPolicyViolationMutation_Mutation;
 
 type markAsReadOrUnreadMutation_Mutation = { __typename?: 'Mutation', markAsReadOrUnread: boolean | null };
 

@@ -1283,6 +1283,7 @@ extend type Mutation {
   approveUserCurrentContentOnly(userId: String!): Boolean!
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+  unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
 }
 
 extend type Mutation {
