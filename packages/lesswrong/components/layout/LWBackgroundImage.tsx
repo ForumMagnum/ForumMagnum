@@ -9,8 +9,9 @@ import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { SolsticeSeasonBanner } from '../seasonal/solsticeSeason/SolsticeSeasonBanner';
 import { Inkhaven2026Banner } from '../seasonal/Inkhaven2026Banner';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
-import { getReviewPhase, reviewIsActive } from '@/lib/reviewUtils';
+import { getReviewPhase, reviewIsActive, reviewResultsPostPath } from '@/lib/reviewUtils';
 import ReviewVotingCanvas from '../review/ReviewVotingCanvas';
+import { Link } from '@/lib/reactRouterWrapper';
 
 // Inkhaven Cohort #2 banner active period
 const INKHAVEN_2026_START = new Date('2026-01-10T00:00:00-08:00');
@@ -71,7 +72,65 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     [theme.breakpoints.down(1425)]: {
       display: 'none',
     },
-  }
+  },
+  reviewVotingCanvas: {
+    position: 'absolute',
+    width: '57vw',
+    height: '100vh',
+    '& img': {
+      width: '100%',
+      height: '100vh',
+      position: 'relative',
+      right: -40,
+      objectFit: 'cover',
+    },
+    maxWidth: '1000px',
+    top: '-57px',
+    right: '-334px',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    
+    [theme.breakpoints.up(2000)]: {
+      right: '0px',
+    }
+  },
+  votingResultsLink: {
+    position: 'absolute',
+    zIndex: theme.zIndexes.reviewVotingCanvas,
+    top: 715,
+    right: 250,
+    width: 200,
+    opacity: .6,
+    textAlign: 'center',
+    display: 'block',
+    '&:hover': {
+      opacity: .4,
+    },
+    [theme.breakpoints.down(1600)]: {
+      right: 100,
+      top: 690
+    },
+    [theme.breakpoints.down(1400)]: {
+      right: 35,
+      top: 650
+    },
+    '& h1': {
+      ...theme.typography.headerStyle,
+      fontSize: '2.8rem',
+      lineHeight: '2.6rem',
+      fontWeight: 600,
+      marginTop: 20,
+      marginBottom: 0,
+    },
+    '& h3': {
+      ...theme.typography.commentStyle,
+      fontSize: '1.4rem',
+      lineHeight: '1.2',
+      marginTop: 16,
+      marginBottom: 6,
+      fontStyle: 'italic',
+      opacity: .5,
+    }
+  },
 }));
 
 export const LWBackgroundImage = ({standaloneNavigation}: {
@@ -114,8 +173,25 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
 
   // const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
 
-  if (reviewIsActive() && getReviewPhase() === 'VOTING' && isHomePage && standaloneNavigation) {
-    homePageImage = <ReviewVotingCanvas />
+  // if (reviewIsActive() && getReviewPhase() === 'VOTING' && isHomePage && standaloneNavigation) {
+  //   homePageImage = <ReviewVotingCanvas />
+  // }
+
+  const reviewCompleteImage = <div className={classes.imageColumn}>
+    <Link className={classes.votingResultsLink} to={reviewResultsPostPath}>
+      <h1>Thank YOU for Voting!</h1>
+      <h3>View Results</h3>
+    </Link>
+    <CloudinaryImage2
+      loading="lazy"
+      className={classes.backgroundImage}
+      publicId="happyWizard_mmmnjx"
+      darkPublicId={"happyWizard_mmmnjx"}
+    />
+  </div>;
+
+  if (getReviewPhase() === 'RESULTS' && isHomePage && standaloneNavigation) {
+    homePageImage = reviewCompleteImage;
   }
 
   return <div className={classes.root}>
