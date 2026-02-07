@@ -23,7 +23,6 @@ import Loading from "../vulcan-core/Loading";
 import AddTagButton from "./AddTagButton";
 import CoreTagsChecklist from "./CoreTagsChecklist";
 import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
-import { apolloSSRFlag } from "@/lib/helpers";
 import ForumIcon from '../common/ForumIcon';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
@@ -221,7 +220,7 @@ const FooterTagList = ({
     },
     fetchPolicy: 'cache-and-network',
     // Only fetch this as a follow-up query on the client
-    ssr: apolloSSRFlag(false),
+    ssr: false,
     notifyOnNetworkStatusChange: true,
   });
 

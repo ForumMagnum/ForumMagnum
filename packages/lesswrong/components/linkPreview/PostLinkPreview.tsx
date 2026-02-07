@@ -17,7 +17,6 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import SequencesTooltip from "../sequences/SequencesTooltip";
 import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
-import { apolloSSRFlag } from '@/lib/helpers';
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import { linkStyles } from './linkStyles';
 import LWTooltip from '../common/LWTooltip';
@@ -94,7 +93,7 @@ export const PostLinkPreview = ({href, originalHref, targetLocation, id, classNa
       allowNull: true,
     },
     fetchPolicy: 'cache-first',
-    ssr: apolloSSRFlag(false),
+    ssr: false,
   });
   const post = data?.post?.result;
   
