@@ -10,6 +10,7 @@ export interface ReviewResultsEntry {
   title: string;
   postUrl: string;
   authorName: string;
+  coauthorNames?: string[];
   votes: number[];
 }
 
@@ -20,6 +21,7 @@ const styles = defineStyles('ReviewResultsTableDisplay', (theme: ThemeType) => (
   },
   table: {
     width: '100%',
+    tableLayout: 'fixed',
     borderCollapse: 'collapse',
     border: 'none !important',
   },
@@ -27,6 +29,7 @@ const styles = defineStyles('ReviewResultsTableDisplay', (theme: ThemeType) => (
     borderBottom: theme.palette.greyBorder('1px', 0.2),
   },
   rankCell: {
+    width: 40,
     whiteSpace: 'pre',
     textAlign: 'center',
     fontSize: 12,
@@ -37,35 +40,38 @@ const styles = defineStyles('ReviewResultsTableDisplay', (theme: ThemeType) => (
     verticalAlign: 'middle',
   },
   titleCell: {
-    maxWidth: 350,
     border: 'none !important',
     padding: '4px 8px',
     verticalAlign: 'middle',
-    width: '100%',
-    [theme.breakpoints.down('sm')]: {
-      maxWidth: 150,
-    },
   },
   postTitle: {
     fontWeight: 500,
     color: theme.palette.greyAlpha(0.87),
     lineHeight: '2rem',
+    marginRight: 4,
     '&:hover': {
       color: theme.palette.greyAlpha(0.87),
     },
   },
+  titleCellInner: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    color: theme.palette.greyAlpha(0.5),
+  },
   postAuthor: {
     fontSize: 14,
-    whiteSpace: 'pre',
+    whiteSpace: 'nowrap',
     lineHeight: '1rem',
-    wordBreak: 'keep-all',
     color: theme.palette.greyAlpha(0.5),
-    marginLeft: 4,
   },
   dotsCell: {
+    width: '50%',
     border: 'none !important',
     padding: '4px 8px',
     verticalAlign: 'middle',
+    [theme.breakpoints.down('sm')]: {
+      width: '35%',
+    },
   },
   dotsRow: {
     display: 'flex',
@@ -75,10 +81,6 @@ const styles = defineStyles('ReviewResultsTableDisplay', (theme: ThemeType) => (
     paddingTop: 8,
     paddingBottom: 8,
     flexWrap: 'wrap',
-    width: 350,
-    [theme.breakpoints.down('sm')]: {
-      width: 150,
-    },
   },
   dot: {
     marginRight: 2,
@@ -112,14 +114,20 @@ export function ReviewResultsTableDisplay({
             <tr key={entry.rank} className={classes.row}>
               <td className={classes.rankCell}>{entry.rank + 1}</td>
               <td className={classes.titleCell}>
-                {context === 'editor' ? (
-                  <Link to={entry.postUrl} className={classes.postTitle}>{entry.title}</Link>
-                ) : (
-                  <HoverPreviewLink href={entry.postUrl} id={entry.rank.toString()} className={classes.postTitle}>
-                    {entry.title}
-                  </HoverPreviewLink>
-                )}
-                <span className={classes.postAuthor}>{entry.authorName}</span>
+                <div className={classes.titleCellInner}>
+                  {context === 'editor' ? (
+                    <Link to={entry.postUrl} className={classes.postTitle}>{entry.title}</Link>
+                  ) : (
+                    <HoverPreviewLink href={entry.postUrl} id={entry.rank.toString()} className={classes.postTitle}>
+                      {entry.title}
+                    </HoverPreviewLink>
+                  )}
+                  <span className={classes.postAuthor}>
+                    {entry.coauthorNames && entry.coauthorNames.length > 0
+                      ? `${entry.authorName}, ${entry.coauthorNames.join(', ')}`
+                      : entry.authorName}
+                  </span>
+                </div>
               </td>
               <td className={classes.dotsCell}>
                 <div className={classes.dotsRow}>

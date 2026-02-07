@@ -1405,6 +1405,7 @@ type ReviewResultsPostEntry {
   title: String!
   postUrl: String!
   authorName: String!
+  coauthorNames: [String!]!
   votes: [Float!]!
 }
 
