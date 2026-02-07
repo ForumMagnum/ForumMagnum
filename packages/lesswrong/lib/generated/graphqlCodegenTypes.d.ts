@@ -18253,6 +18253,23 @@ type ImportGoogleDocMutationVariables = Exact<{
 
 type ImportGoogleDocMutation = ImportGoogleDocMutation_Mutation;
 
+type HyperdensePostsQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type HyperdensePostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<HyperdensePostsQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type HyperdensePostsQueryQuery_Query = { __typename?: 'Query', posts: HyperdensePostsQueryQuery_posts_MultiPostOutput | null };
+
+
+type HyperdensePostsQueryQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type HyperdensePostsQueryQuery = HyperdensePostsQueryQuery_Query;
+
 type multiPostLWPostsByVoteQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsListWithVotes
