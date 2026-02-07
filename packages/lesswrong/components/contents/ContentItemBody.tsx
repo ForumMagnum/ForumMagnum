@@ -9,6 +9,7 @@ import uniq from 'lodash/uniq';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import ElicitBlock from './ElicitBlock';
+import { ReviewResultsTableDisplay, type ReviewResultsEntry } from './ReviewResultsTableDisplay';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes } from './CollapsedFootnotes';
 import { WrappedStrawPoll } from './WrappedStrawPoll';
@@ -205,6 +206,20 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         const elicitId = attribs['data-elicit-id'];
         if (elicitId) {
           result = <ElicitBlock questionId={elicitId}/>
+        }
+      }
+      if (classNames.includes("review-results-table")) {
+        const reviewResultsStr = attribs['data-review-results'];
+        if (reviewResultsStr) {
+          let data: { year: number; results: ReviewResultsEntry[] } | null = null;
+          try {
+            data = JSON.parse(reviewResultsStr) as { year: number; results: ReviewResultsEntry[] };
+          } catch {
+            // Fall through to default rendering on parse failure
+          }
+          if (data) {
+            result = <ReviewResultsTableDisplay year={data.year} results={data.results} />;
+          }
         }
       }
       if (classNames.includes("strawpoll-embed")) {

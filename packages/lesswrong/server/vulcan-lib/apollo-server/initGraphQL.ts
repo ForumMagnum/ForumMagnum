@@ -62,6 +62,7 @@ import { elasticGqlMutations, elasticGqlQueries, elasticGqlTypeDefs } from '@/se
 import { emailTokensGraphQLMutations, emailTokensGraphQLTypeDefs } from '@/server/emails/emailTokens';
 import { fmCrosspostGraphQLMutations, fmCrosspostGraphQLQueries, fmCrosspostGraphQLTypeDefs } from '@/server/fmCrosspost/resolvers';
 import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolvers';
+import { reviewResultsGqlQueries, reviewResultsGqlTypeDefs } from '@/server/resolvers/reviewResultsResolvers';
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
 import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
@@ -314,6 +315,7 @@ export const getTypeDefs = () => gql`
   ${emailTokensGraphQLTypeDefs}
   ${fmCrosspostGraphQLTypeDefs}
   ${diffGqlTypeDefs}
+  ${reviewResultsGqlTypeDefs}
   ${recommendationsGqlTypeDefs}
   ${extraPostResolversGraphQLTypeDefs}
   ${ultraFeedGraphQLTypeDefs}
@@ -501,6 +503,7 @@ const getResolvers = () => ({
     ...elasticGqlQueries,
     ...fmCrosspostGraphQLQueries,
     ...diffGqlQueries,
+    ...reviewResultsGqlQueries,
     ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
     ...ultraFeedGraphQLQueries,

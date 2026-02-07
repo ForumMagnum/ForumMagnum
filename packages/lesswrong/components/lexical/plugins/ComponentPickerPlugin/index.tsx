@@ -70,6 +70,9 @@ import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 // import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
+import { useCurrentUser } from '@/components/common/withUser';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { InsertReviewResultsDialog } from '../../embeds/ReviewResultsEmbed/InsertReviewResultsDialog';
 import {
   typeaheadPopover,
   typeaheadList,
@@ -196,7 +199,8 @@ const headingIcons = {
 } as const;
 
 
-function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
+function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser: UsersCurrent | null) {
+  const isAdminUser = userIsAdmin(currentUser);
   return [
     new ComponentPickerOption('Paragraph', {
       icon: <TextParagraphIcon style={iconStyle} />,
@@ -366,6 +370,16 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
     //       <InsertLayoutDialog activeEditor={editor} onClose={onClose} />
     //     )),
     // }),
+    ...(isAdminUser ? [
+      new ComponentPickerOption('Review Results Table', {
+        icon: <CardChecklistIcon style={iconStyle} />,
+        keywords: ['review', 'results', 'annual', 'voting', 'table'],
+        onSelect: () =>
+          showModal('Insert Review Results Table', (onClose) => (
+            <InsertReviewResultsDialog activeEditor={editor} onClose={onClose} />
+          )),
+      }),
+    ] : []),
   ];
 }
 
@@ -373,6 +387,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [modal, showModal] = useModal();
   const [queryString, setQueryString] = useState<string | null>(null);
+  const currentUser = useCurrentUser();
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     allowWhitespace: true,
@@ -380,7 +395,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   });
 
   const options = useMemo(() => {
-    const baseOptions = getBaseOptions(editor, showModal);
+    const baseOptions = getBaseOptions(editor, showModal, currentUser);
 
     if (!queryString) {
       return baseOptions;
@@ -396,7 +411,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           option.keywords.some((keyword) => regex.test(keyword)),
       ),
     ];
-  }, [editor, queryString, showModal]);
+  }, [editor, queryString, showModal, currentUser]);
 
   const onSelectOption = useCallback(
     (

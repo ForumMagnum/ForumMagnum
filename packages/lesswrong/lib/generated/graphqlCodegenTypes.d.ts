@@ -7757,6 +7757,7 @@ type Query = {
   RecombeeHybridPosts?: Maybe<RecombeeHybridPostsResult>;
   RecombeeLatestPosts?: Maybe<RecombeeLatestPostsResult>;
   Recommendations?: Maybe<Array<Post>>;
+  ReviewResultsTableData?: Maybe<ReviewResultsTableData>;
   RevisionsDiff?: Maybe<Scalars['String']['output']>;
   RssPostChanges: RssPostChangeInfo;
   SearchSynonyms: Array<Scalars['String']['output']>;
@@ -8136,6 +8137,11 @@ type QueryRecombeeLatestPostsArgs = {
 type QueryRecommendationsArgs = {
   algorithm?: InputMaybe<Scalars['JSON']['input']>;
   count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QueryReviewResultsTableDataArgs = {
+  year: Scalars['Int']['input'];
 };
 
 
@@ -9515,6 +9521,21 @@ type ReportSelector = {
 
 type ReportsAdminClaimedReportsInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ReviewResultsPostEntry = {
+  __typename?: 'ReviewResultsPostEntry';
+  authorName: Scalars['String']['output'];
+  postUrl: Scalars['String']['output'];
+  rank: Scalars['Int']['output'];
+  title: Scalars['String']['output'];
+  votes: Array<Scalars['Float']['output']>;
+};
+
+type ReviewResultsTableData = {
+  __typename?: 'ReviewResultsTableData';
+  results: Array<ReviewResultsPostEntry>;
+  year: Scalars['Int']['output'];
 };
 
 type ReviewVote = {
@@ -17281,6 +17302,20 @@ type updateUserLayoutMutationVariables = Exact<{
 
 
 type updateUserLayoutMutation = updateUserLayoutMutation_Mutation;
+
+type GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData_results_ReviewResultsPostEntry = { __typename?: 'ReviewResultsPostEntry', rank: number, title: string, postUrl: string, authorName: string, votes: Array<number> };
+
+type GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData = { __typename?: 'ReviewResultsTableData', year: number, results: Array<GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData_results_ReviewResultsPostEntry> };
+
+type GetReviewResultsTableDataQuery_Query = { __typename?: 'Query', ReviewResultsTableData: GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData | null };
+
+
+type GetReviewResultsTableDataQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+}>;
+
+
+type GetReviewResultsTableDataQuery = GetReviewResultsTableDataQuery_Query;
 
 type PostLinkPreviewSequenceQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
