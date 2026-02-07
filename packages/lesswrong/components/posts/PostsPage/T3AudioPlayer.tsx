@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTracking } from "../../../lib/analyticsEvents";
 import classNames from 'classnames';
@@ -46,6 +46,42 @@ export const T3AudioPlayer = ({classes, showEmbeddedPlayer, documentId, collecti
     type: "module",
     "cross-origin": "anonymous",
   });
+
+  useEffect(() => {
+    if (!type3scriptLoaded || !showEmbeddedPlayer || !divRef.current) {
+      return;
+    }
+    const key = `audio-position-${collectionName}-${documentId}`;
+    const container = divRef.current;
+    let audioEl: HTMLAudioElement | null = null;
+    const onTimeUpdate = () => {
+      if (audioEl) {
+        localStorage.setItem(key, audioEl.currentTime.toString());
+      }
+    };
+    const intervalId = window.setInterval(() => {
+      const playerEl = container.querySelector('type-3-player') as any;
+      if (!playerEl?.shadowRoot) return;
+      const aud = playerEl.shadowRoot.querySelector('audio') as HTMLAudioElement | null;
+      if (!aud) return;
+      audioEl = aud;
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const time = parseFloat(saved);
+        if (!isNaN(time)) {
+          audioEl.currentTime = time;
+        }
+      }
+      audioEl.addEventListener('timeupdate', onTimeUpdate);
+      clearInterval(intervalId);
+    }, 500);
+    return () => {
+      clearInterval(intervalId);
+      if (audioEl) {
+        audioEl.removeEventListener('timeupdate', onTimeUpdate);
+      }
+    };
+  }, [type3scriptLoaded, showEmbeddedPlayer, documentId, collectionName]);
 
   return <div
     ref={divRef}
