@@ -110,6 +110,9 @@ type Documents = {
     "\n  mutation updatePostDeleteDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostDeleteDraftDropdownItemDocument,
     "\n  mutation updatePostExcludeFromRecommendationsDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostExcludeFromRecommendationsDropdownItemDocument,
     "\n  query PostLLMScoreQuery($postId: String!) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        contents {\n          _id\n          html\n        }\n        automatedContentEvaluations {\n          ...AutomatedContentEvaluationsFragment\n        }\n      }\n    }\n  }\n": typeof types.PostLLMScoreQueryDocument,
+    "\n  query llmPolicyViolationTemplateQuery($selector: SelectorInput) {\n    moderationTemplate(selector: $selector) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": typeof types.llmPolicyViolationTemplateQueryDocument,
+    "\n  mutation unlistLlmPost($postId: String!, $modCommentHtml: String!) {\n    unlistLlmPost(postId: $postId, modCommentHtml: $modCommentHtml)\n  }\n": typeof types.unlistLlmPostDocument,
+    "\n  mutation unapproveUserLlmPolicyViolation($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.unapproveUserLlmPolicyViolationDocument,
     "\n    mutation markAsReadOrUnread($postId: String, $isRead: Boolean) {\n      markAsReadOrUnread(postId: $postId, isRead: $isRead)\n    }\n  ": typeof types.markAsReadOrUnreadDocument,
     "\n  mutation updatePostMoveToDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostMoveToDraftDropdownItemDocument,
     "\n  mutation updatePostMoveToFrontpageDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostMoveToFrontpageDropdownItemDocument,
@@ -1032,6 +1035,9 @@ const documents: Documents = {
     "\n  mutation updatePostDeleteDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostDeleteDraftDropdownItemDocument,
     "\n  mutation updatePostExcludeFromRecommendationsDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostExcludeFromRecommendationsDropdownItemDocument,
     "\n  query PostLLMScoreQuery($postId: String!) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        contents {\n          _id\n          html\n        }\n        automatedContentEvaluations {\n          ...AutomatedContentEvaluationsFragment\n        }\n      }\n    }\n  }\n": types.PostLLMScoreQueryDocument,
+    "\n  query llmPolicyViolationTemplateQuery($selector: SelectorInput) {\n    moderationTemplate(selector: $selector) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": types.llmPolicyViolationTemplateQueryDocument,
+    "\n  mutation unlistLlmPost($postId: String!, $modCommentHtml: String!) {\n    unlistLlmPost(postId: $postId, modCommentHtml: $modCommentHtml)\n  }\n": types.unlistLlmPostDocument,
+    "\n  mutation unapproveUserLlmPolicyViolation($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.unapproveUserLlmPolicyViolationDocument,
     "\n    mutation markAsReadOrUnread($postId: String, $isRead: Boolean) {\n      markAsReadOrUnread(postId: $postId, isRead: $isRead)\n    }\n  ": types.markAsReadOrUnreadDocument,
     "\n  mutation updatePostMoveToDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostMoveToDraftDropdownItemDocument,
     "\n  mutation updatePostMoveToFrontpageDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostMoveToFrontpageDropdownItemDocument,
@@ -2256,6 +2262,18 @@ export function gql(source: "\n  mutation updatePostExcludeFromRecommendationsDr
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query PostLLMScoreQuery($postId: String!) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        contents {\n          _id\n          html\n        }\n        automatedContentEvaluations {\n          ...AutomatedContentEvaluationsFragment\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query PostLLMScoreQuery($postId: String!) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        contents {\n          _id\n          html\n        }\n        automatedContentEvaluations {\n          ...AutomatedContentEvaluationsFragment\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query llmPolicyViolationTemplateQuery($selector: SelectorInput) {\n    moderationTemplate(selector: $selector) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query llmPolicyViolationTemplateQuery($selector: SelectorInput) {\n    moderationTemplate(selector: $selector) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation unlistLlmPost($postId: String!, $modCommentHtml: String!) {\n    unlistLlmPost(postId: $postId, modCommentHtml: $modCommentHtml)\n  }\n"): (typeof documents)["\n  mutation unlistLlmPost($postId: String!, $modCommentHtml: String!) {\n    unlistLlmPost(postId: $postId, modCommentHtml: $modCommentHtml)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation unapproveUserLlmPolicyViolation($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation unapproveUserLlmPolicyViolation($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
