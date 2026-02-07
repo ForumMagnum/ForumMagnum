@@ -1273,6 +1273,7 @@ interface ReviewResultsPostEntry {
   title: string;
   postUrl: string;
   authorName: string;
+  coauthorNames: Array<string>;
   votes: Array<number>;
 }
 

@@ -10,6 +10,7 @@ interface ReviewResultsPostEntry {
   title: string;
   postUrl: string;
   authorName: string;
+  coauthorNames: string[];
   votes: number[];
 }
 
@@ -43,8 +44,8 @@ export const reviewResultsGqlQueries = {
       return b.finalReviewVoteScoreHighKarma - a.finalReviewVoteScoreHighKarma;
     });
 
-    const userIds = [...new Set(posts.map((post) => post.userId))];
-    const users = await Users.find({ _id: { $in: userIds } }).fetch();
+    const allUserIds = [...new Set(posts.flatMap((post) => [post.userId, ...post.coauthorUserIds]))];
+    const users = await Users.find({ _id: { $in: allUserIds } }).fetch();
     const usersById = Object.fromEntries(users.map((u) => [u._id, u]));
 
     const results: ReviewResultsPostEntry[] = posts.map((post, i) => ({
@@ -52,6 +53,9 @@ export const reviewResultsGqlQueries = {
       title: post.title,
       postUrl: postGetPageUrl(post),
       authorName: usersById[post.userId]?.displayName ?? "Unknown",
+      coauthorNames: post.coauthorUserIds
+        .map((id) => usersById[id]?.displayName)
+        .filter((name): name is string => !!name),
       votes: [...(post.finalReviewVotesAllKarma ?? [])].sort((a, b) => b - a),
     }));
 
@@ -65,6 +69,7 @@ export const reviewResultsGqlTypeDefs = gql`
     title: String!
     postUrl: String!
     authorName: String!
+    coauthorNames: [String!]!
     votes: [Float!]!
   }
 

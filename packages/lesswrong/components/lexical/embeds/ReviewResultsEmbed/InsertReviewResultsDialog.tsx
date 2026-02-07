@@ -35,6 +35,7 @@ const reviewResultsTableDataQuery = gql(`
         title
         postUrl
         authorName
+        coauthorNames
         votes
       }
     }

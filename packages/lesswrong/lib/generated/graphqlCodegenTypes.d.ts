@@ -9533,6 +9533,7 @@ type ReportsAdminClaimedReportsInput = {
 type ReviewResultsPostEntry = {
   __typename?: 'ReviewResultsPostEntry';
   authorName: Scalars['String']['output'];
+  coauthorNames: Array<Scalars['String']['output']>;
   postUrl: Scalars['String']['output'];
   rank: Scalars['Int']['output'];
   title: Scalars['String']['output'];
@@ -17356,7 +17357,7 @@ type updateUserLayoutMutationVariables = Exact<{
 
 type updateUserLayoutMutation = updateUserLayoutMutation_Mutation;
 
-type GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData_results_ReviewResultsPostEntry = { __typename?: 'ReviewResultsPostEntry', rank: number, title: string, postUrl: string, authorName: string, votes: Array<number> };
+type GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData_results_ReviewResultsPostEntry = { __typename?: 'ReviewResultsPostEntry', rank: number, title: string, postUrl: string, authorName: string, coauthorNames: Array<string>, votes: Array<number> };
 
 type GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData = { __typename?: 'ReviewResultsTableData', year: number, results: Array<GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData_results_ReviewResultsPostEntry> };
 
