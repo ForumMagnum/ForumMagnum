@@ -1,5 +1,5 @@
 import { LWEvents } from '../../server/collections/lwevents/collection';
-import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
+import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { getCommentSubtree } from '../utils/commentTreeUtils';
 import { Comments } from '../../server/collections/comments/collection';
 import { Users } from '../../server/collections/users/collection';
@@ -314,8 +314,8 @@ export const moderationGqlMutations = {
   },
   async unlistLlmPost(_root: void, args: {postId: string, modCommentHtml: string}, context: ResolverContext) {
     const { currentUser } = context;
-    if (!currentUser || !userIsAdminOrMod(currentUser)) {
-      throw new Error("Only admins and moderators can apply LLM policy violations");
+    if (!userIsAdmin(currentUser)) {
+      throw new Error("Only admins can unlist posts due to LLM policy violations");
     }
 
     const { postId, modCommentHtml } = args;

@@ -82,7 +82,7 @@ function buildModComment(templateHtml: string, authorDisplayName: string, author
 const LlmPolicyViolationDialog = ({post, onClose, onSubmit}: {
   post: PostsList | SunshinePostsList,
   onClose: () => void,
-  onSubmit: (modCommentHtml: string) => void,
+  onSubmit: (modCommentHtml: string) => Promise<void>,
 }) => {
   const classes = useStyles(styles);
   const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -101,9 +101,9 @@ const LlmPolicyViolationDialog = ({post, onClose, onSubmit}: {
   const [modCommentHtml, setModCommentHtml] = useState<string | null>(null);
   const effectiveHtml = modCommentHtml ?? initialHtml;
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (effectiveHtml) {
-      onSubmit(effectiveHtml);
+      await onSubmit(effectiveHtml);
       onClose();
     }
   }, [effectiveHtml, onSubmit, onClose]);

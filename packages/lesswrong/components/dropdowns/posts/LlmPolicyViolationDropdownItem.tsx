@@ -50,8 +50,8 @@ const LlmPolicyViolationDropdownItem = ({post, closeMenu}: {
           <LlmPolicyViolationDialog
             post={post}
             onClose={onClose}
-            onSubmit={(modCommentHtml) => {
-              void unlistLlmPost({
+            onSubmit={async (modCommentHtml) => {
+              await unlistLlmPost({
                 variables: { postId: post._id, modCommentHtml },
               });
             }}
