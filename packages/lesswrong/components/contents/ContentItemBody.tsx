@@ -218,7 +218,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
             // Fall through to default rendering on parse failure
           }
           if (data) {
-            result = <ReviewResultsTableDisplay year={data.year} results={data.results} />;
+            result = <ReviewResultsTableDisplay results={data.results} context="content-item-body" />;
           }
         }
       }

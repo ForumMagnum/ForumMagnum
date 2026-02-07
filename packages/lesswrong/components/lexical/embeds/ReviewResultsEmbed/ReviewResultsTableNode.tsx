@@ -52,7 +52,7 @@ function ReviewResultsEditorComponent({
 }: ReviewResultsEditorComponentProps) {
   return (
     <BlockWithAlignableContents className={className} format={format} nodeKey={nodeKey}>
-      <ReviewResultsTableDisplay year={year} results={results} />
+      <ReviewResultsTableDisplay results={results} context="editor" />
     </BlockWithAlignableContents>
   );
 }
