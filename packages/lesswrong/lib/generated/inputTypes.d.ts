@@ -78,6 +78,7 @@ interface Query {
   SearchSynonyms: Array<string>;
   getCrosspost: any;
   RevisionsDiff: string | null;
+  ReviewResultsTableData: ReviewResultsTableData | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
   getBookWordCount: number | null;
@@ -1264,6 +1265,19 @@ interface RssPostChangeInfo {
   isChanged: boolean;
   newHtml: string;
   htmlDiff: string;
+}
+
+interface ReviewResultsPostEntry {
+  rank: number;
+  title: string;
+  postUrl: string;
+  authorName: string;
+  votes: Array<number>;
+}
+
+interface ReviewResultsTableData {
+  year: number;
+  results: Array<ReviewResultsPostEntry>;
 }
 
 interface FeedSpotlightMetaInfo {
@@ -10032,6 +10046,8 @@ interface GraphQLTypeMap {
   ToggleBookmarkOutput: ToggleBookmarkOutput;
   SetIsBookmarkedOutput: SetIsBookmarkedOutput;
   RssPostChangeInfo: RssPostChangeInfo;
+  ReviewResultsPostEntry: ReviewResultsPostEntry;
+  ReviewResultsTableData: ReviewResultsTableData;
   FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;

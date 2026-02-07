@@ -1399,6 +1399,23 @@ extend type Query {
   RevisionsDiff(collectionName: String!, fieldName: String!, id: String, beforeRev: String, afterRev: String!, trim: Boolean): String
 }
 
+type ReviewResultsPostEntry {
+  rank: Int!
+  title: String!
+  postUrl: String!
+  authorName: String!
+  votes: [Float!]!
+}
+
+type ReviewResultsTableData {
+  year: Int!
+  results: [ReviewResultsPostEntry!]!
+}
+
+extend type Query {
+  ReviewResultsTableData(year: Int!): ReviewResultsTableData
+}
+
 extend type Mutation {
   observeRecommendation(postId: String!): Boolean
   clickRecommendation(postId: String!): Boolean
