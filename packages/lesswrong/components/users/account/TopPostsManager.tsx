@@ -113,27 +113,32 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   },
   dragHandle: {
     display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    height: 24,
+    alignItems: "center",
+    alignSelf: "stretch",
     cursor: "grab",
-    padding: "2px 4px",
-    borderRadius: 3,
+    padding: "0 3px 0 4px",
+    marginLeft: -4,
     touchAction: "none",
-    "& > span": {
-      width: 3,
-      height: 3,
-      borderRadius: "50%",
-      background: theme.palette.greyAlpha(0.25),
-    },
-    "&:hover > span": {
+    "&:hover span": {
       background: theme.palette.greyAlpha(0.55),
     },
   },
   dragHandleActive: {
     cursor: "grabbing",
-    "& > span": {
+    "& span": {
       background: theme.palette.greyAlpha(0.55),
+    },
+  },
+  dragDots: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    height: 24,
+    "& > span": {
+      width: 3,
+      height: 3,
+      borderRadius: "50%",
+      background: theme.palette.greyAlpha(0.25),
     },
   },
   postContent: {
@@ -186,14 +191,14 @@ const SwapIcon = ({ classes }: { classes: ClassesType<typeof styles> }) => (
   </svg>
 );
 
-const DragDots = () => (
-  <>
+const DragDots = ({ classes }: { classes: ClassesType<typeof styles> }) => (
+  <div className={classes.dragDots}>
     <span />
     <span />
     <span />
     <span />
     <span />
-  </>
+  </div>
 );
 
 function SortablePostRow({
@@ -244,7 +249,7 @@ function SortablePostRow({
           {...attributes}
           {...listeners}
         >
-          <DragDots />
+          <DragDots classes={classes} />
         </div>
         <div className={classes.postContent}>
           <span className={classes.postTitle}>
