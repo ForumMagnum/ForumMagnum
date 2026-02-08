@@ -1,13 +1,30 @@
 "use client";
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { Link } from "@/lib/reactRouterWrapper";
 import moment from "moment";
 import classNames from "classnames";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  MouseSensor,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 
 const UserTopPostsQuery = gql(`
   query UserTopPostsForManager($selector: PostSelector, $limit: Int) {
@@ -18,6 +35,13 @@ const UserTopPostsQuery = gql(`
     }
   }
 `);
+
+interface PostItem {
+  _id: string;
+  title: string;
+  baseScore: number;
+  postedAt: string;
+}
 
 const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   root: {
@@ -36,13 +60,13 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   },
   restoreButton: {
     padding: "6px 16px",
-    position: "relative",
+    position: "relative" as const,
     top: 5,
     fontSize: "0.8125rem",
     fontFamily: theme.typography.fontFamily,
     fontWeight: 500,
     letterSpacing: "0.02857em",
-    textTransform: "uppercase",
+    textTransform: "uppercase" as const,
     color: theme.palette.grey[600],
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
@@ -77,6 +101,8 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     background: theme.palette.background.pageActiveAreaBackground,
     flex: 1,
   },
+  postItemDragging: {},
+  postItemPlaceholder: {},
   postNumber: {
     fontSize: "0.875rem",
     fontWeight: 600,
@@ -93,6 +119,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     cursor: "grab",
     padding: "2px 4px",
     borderRadius: 3,
+    touchAction: "none",
     "& > span": {
       width: 3,
       height: 3,
@@ -100,6 +127,12 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
       background: theme.palette.greyAlpha(0.25),
     },
     "&:hover > span": {
+      background: theme.palette.greyAlpha(0.55),
+    },
+  },
+  dragHandleActive: {
+    cursor: "grabbing",
+    "& > span": {
       background: theme.palette.greyAlpha(0.55),
     },
   },
@@ -160,18 +193,100 @@ const SwapIcon = ({ classes }: { classes: ClassesType<typeof styles> }) => (
   </svg>
 );
 
-const DragHandle = ({ classes }: { classes: ClassesType<typeof styles> }) => (
-  <div className={classes.dragHandle}>
+const DragDots = () => (
+  <>
     <span />
     <span />
     <span />
     <span />
     <span />
-  </div>
+  </>
 );
+
+function SortablePostRow({
+  post,
+  index,
+  showSwapButtons,
+  activeDragId,
+  classes,
+}: {
+  post: PostItem;
+  index: number;
+  showSwapButtons: boolean;
+  activeDragId: string | null;
+  classes: ClassesType<typeof styles>;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: post._id });
+
+  const cardStyle: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+    position: "relative" as const,
+    flex: 1,
+  };
+
+  const isPlaceholder = activeDragId === post._id;
+
+  return (
+    <div className={classes.postRow}>
+      <div className={classes.postNumber}>{index + 1}</div>
+      <div
+        ref={setNodeRef}
+        style={cardStyle}
+        className={classNames(classes.postItem, {
+          [classes.postItemDragging]: isDragging,
+          [classes.postItemPlaceholder]: isPlaceholder && !isDragging,
+        })}
+      >
+        <div
+          className={classNames(classes.dragHandle, { [classes.dragHandleActive]: isDragging })}
+          {...attributes}
+          {...listeners}
+        >
+          <DragDots />
+        </div>
+        <div className={classes.postContent}>
+          <span className={classes.postTitle}>
+            {post.title}
+          </span>
+          <div className={classes.postMeta}>
+            {post.baseScore} · {moment(new Date(post.postedAt)).fromNow()}
+          </div>
+        </div>
+        {showSwapButtons && (
+          <button
+            className={classes.swapButton}
+            onClick={() => {
+              // TODO: Wire up swap functionality
+              console.log(`Swap button clicked for post ${index + 1}`);
+            }}
+            type="button"
+          >
+            <SwapIcon classes={classes} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export const TopPostsManager = ({ userId }: { userId: string }) => {
   const classes = useStyles(styles);
+  const [orderedPostIds, setOrderedPostIds] = useState<string[] | null>(null);
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+
+  const mouse = useSensor(MouseSensor, { activationConstraint: { distance: 5 } });
+  const pointer = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
+  const keyboard = useSensor(KeyboardSensor);
+  const sensors = useSensors(mouse, pointer, keyboard);
 
   const { data, loading } = useQuery(UserTopPostsQuery, {
     variables: { 
@@ -184,25 +299,53 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
     fetchPolicy: "network-only",
   });
 
-  if (loading) {
-    return null;
-  }
-
   // TODO: Switch to published posts once query is fixed
   const allPosts = data?.posts?.results ?? [];
   const postCount = allPosts.length;
 
-  // Don't show if user has 0-1 posts (nothing to manage)
-  if (postCount <= 1) {
-    return null;
-  }
-
-  const hasCustomization = false;
+  const hasCustomization = orderedPostIds !== null;
 
   // For 2-4 posts, show all posts (no swap buttons)
   // For 5+ posts, show top 4 with swap buttons
-  const postsToShow = postCount <= 4 ? allPosts.slice(0, postCount) : allPosts.slice(0, 4);
+  const defaultPosts = postCount <= 4 ? allPosts.slice(0, postCount) : allPosts.slice(0, 4);
   const showSwapButtons = postCount >= 5;
+
+  // Use custom order if set, otherwise default
+  const postsToShow = orderedPostIds
+    ? orderedPostIds.map(id => allPosts.find(p => p._id === id)).filter((p): p is NonNullable<typeof p> => !!p)
+    : defaultPosts;
+
+  const postIds = postsToShow.map(p => p._id);
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveDragId(event.active.id as string);
+  }, []);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    setActiveDragId(null);
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const currentIds = orderedPostIds ?? postIds;
+      const oldIndex = currentIds.indexOf(active.id as string);
+      const newIndex = currentIds.indexOf(over.id as string);
+      if (oldIndex !== -1 && newIndex !== -1) {
+        setOrderedPostIds(arrayMove(currentIds, oldIndex, newIndex));
+      }
+    }
+  }, [orderedPostIds, postIds]);
+
+  const handleDragCancel = useCallback(() => {
+    setActiveDragId(null);
+  }, []);
+
+  const handleRestoreDefaults = useCallback(() => {
+    setOrderedPostIds(null);
+  }, []);
+
+  // Don't show if loading or user has 0-1 posts (nothing to manage)
+  if (loading || postCount <= 1) {
+    return null;
+  }
 
   return (
     <div className={classes.root}>
@@ -211,44 +354,33 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
         <button
           className={classes.restoreButton}
           disabled={!hasCustomization}
-          onClick={() => {
-            // TODO: Wire up restore defaults functionality
-            console.log("Restore defaults clicked");
-          }}
+          onClick={handleRestoreDefaults}
         >
           Restore defaults
         </button>
       </div>
-      <div className={classes.postList}>
-        {postsToShow.map((post, index) => (
-          <div key={post._id} className={classes.postRow}>
-            <div className={classes.postNumber}>{index + 1}</div>
-            <div className={classes.postItem}>
-              <DragHandle classes={classes} />
-            <div className={classes.postContent}>
-              <span className={classes.postTitle}>
-                {post.title}
-              </span>
-              <div className={classes.postMeta}>
-                {post.baseScore} · {moment(new Date(post.postedAt)).fromNow()}
-              </div>
-            </div>
-            {showSwapButtons && (
-              <button
-                className={classes.swapButton}
-                onClick={() => {
-                  // TODO: Wire up swap functionality
-                  console.log(`Swap button clicked for post ${index + 1}`);
-                }}
-                type="button"
-              >
-                <SwapIcon classes={classes} />
-              </button>
-            )}
-            </div>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <SortableContext items={postIds} strategy={verticalListSortingStrategy}>
+          <div className={classes.postList}>
+            {postsToShow.map((post, index) => (
+              <SortablePostRow
+                key={post._id}
+                post={post}
+                index={index}
+                showSwapButtons={showSwapButtons}
+                activeDragId={activeDragId}
+                classes={classes}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 };
