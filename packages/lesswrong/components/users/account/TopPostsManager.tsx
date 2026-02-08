@@ -35,8 +35,14 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     color: theme.palette.grey[800],
   },
   restoreButton: {
-    padding: "6px 12px",
-    fontSize: "0.875rem",
+    padding: "6px 16px",
+    position: "relative",
+    top: 5,
+    fontSize: "0.8125rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 500,
+    letterSpacing: "0.02857em",
+    textTransform: "uppercase",
     color: theme.palette.grey[600],
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
@@ -65,11 +71,18 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: theme.spacing.unit * 1.5,
-    padding: theme.spacing.unit * 1.5,
+    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 1.5}px`,
     border: theme.palette.border.grey300,
     borderRadius: 6,
     background: theme.palette.background.pageActiveAreaBackground,
     flex: 1,
+    cursor: "pointer",
+    "&:hover": {
+      "& button": {
+        background: theme.palette.grey[100],
+        borderColor: theme.palette.grey[400],
+      },
+    },
   },
   postNumber: {
     fontSize: "0.875rem",
@@ -82,13 +95,14 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   dragHandle: {
     display: "flex",
     flexDirection: "column",
-    gap: 2,
+    justifyContent: "space-between",
+    height: 24,
     cursor: "grab",
     "& > span": {
-      width: 4,
-      height: 4,
+      width: 3,
+      height: 3,
       borderRadius: "50%",
-      background: theme.palette.grey[400],
+      background: theme.palette.greyAlpha(0.25),
     },
   },
   postContent: {
@@ -100,13 +114,10 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     fontWeight: 500,
     color: theme.palette.text.normal,
     textDecoration: "none",
-    "&:hover": {
-      color: theme.palette.primary.main,
-    },
   },
   postMeta: {
     fontSize: "0.8125rem",
-    color: theme.palette.grey[600],
+    color: "light-dark(#9a9189, #9a9189)",
     marginTop: 2,
   },
   swapButton: {
@@ -120,30 +131,24 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     background: "white",
     cursor: "pointer",
     flexShrink: 0,
-    "&:hover": {
-      background: theme.palette.grey[50],
-      borderColor: theme.palette.grey[400],
-    },
+    transition: "background 0.15s, border-color 0.15s",
   },
   swapIcon: {
     width: 16,
     height: 16,
-    "& path": {
-      stroke: theme.palette.grey[600],
-    },
+    opacity: 0.55,
   },
 }));
 
-const SwapIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 6L8 2L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M4 10L8 14L12 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+const SwapIcon = ({ classes }: { classes: ClassesType<typeof styles> }) => (
+  <svg className={classes.swapIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21 7.5L8 7.5M21 7.5L16.6667 3M21 7.5L16.6667 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M4 16.5L17 16.5M4 16.5L8.33333 21M4 16.5L8.33333 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 const DragHandle = ({ classes }: { classes: ClassesType<typeof styles> }) => (
   <div className={classes.dragHandle}>
-    <span />
     <span />
     <span />
     <span />
@@ -224,7 +229,7 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
                 }}
                 type="button"
               >
-                <SwapIcon />
+                <SwapIcon classes={classes} />
               </button>
             )}
             </div>
