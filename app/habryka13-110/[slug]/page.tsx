@@ -129,7 +129,7 @@ export default function HabrykaUserPage() {
 
   const currentUser = useCurrentUser();
   // TODO: Remove slug fallback once real auth is in place
-  const isOwnProfile = !!(currentUser && user && currentUser._id === user._id) || slug === "benito";
+  const isOwnProfile = !!(currentUser && user && currentUser._id === user._id) || slug === "joanna";
 
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bio = user?.biography?.plaintextDescription;
@@ -449,14 +449,16 @@ export default function HabrykaUserPage() {
                   >
                     All posts
                   </button>
-                  <button
-                    className={`profile-tab ${activeTab === "sequences" ? "active" : ""}`}
-                    data-tab="sequences"
-                    type="button"
-                    onClick={() => setActiveTab("sequences")}
-                  >
-                    Sequences
-                  </button>
+                  {sequences.length > 0 && (
+                    <button
+                      className={`profile-tab ${activeTab === "sequences" ? "active" : ""}`}
+                      data-tab="sequences"
+                      type="button"
+                      onClick={() => setActiveTab("sequences")}
+                    >
+                      Sequences
+                    </button>
+                  )}
                   <button
                     className={`profile-tab ${activeTab === "feed" ? "active" : ""}`}
                     data-tab="feed"
