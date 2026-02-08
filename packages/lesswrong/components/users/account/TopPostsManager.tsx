@@ -96,7 +96,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     alignItems: "center",
     gap: theme.spacing.unit * 1.5,
     padding: `${theme.spacing.unit}px ${theme.spacing.unit * 1.5}px`,
-    border: theme.palette.border.grey300,
+    border: `1px solid ${theme.palette.grey[400]}`,
     borderRadius: 6,
     background: theme.palette.background.pageActiveAreaBackground,
     flex: 1,
@@ -141,15 +141,11 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     minWidth: 0,
     cursor: "pointer",
     "&:hover + button": {
-      background: theme.palette.grey[100],
-      borderColor: theme.palette.grey[400],
-      "& svg": {
-        opacity: 0.7,
-      },
+      backgroundColor: `color-mix(in srgb, ${theme.palette.primary.main} 8%, transparent)`,
     },
   },
   postTitle: {
-    fontSize: "0.9375rem",
+    fontSize: "1.0625rem",
     fontWeight: 500,
     color: theme.palette.text.normal,
   },
@@ -164,25 +160,22 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     justifyContent: "center",
     width: 32,
     height: 32,
-    border: `1px solid ${theme.palette.grey[300]}`,
+    border: `1px solid ${theme.palette.primary.main}`,
     borderRadius: 4,
-    background: "white",
+    background: "transparent",
     cursor: "pointer",
     flexShrink: 0,
-    transition: "background 0.15s, border-color 0.15s",
+    transition: "background 0.15s",
     "&:hover": {
-      background: theme.palette.grey[100],
-      borderColor: theme.palette.grey[400],
-      "& svg": {
-        opacity: 0.7,
-      },
+      background: `rgba(${theme.palette.primary.main}, 0.04)`,
+      // MUI outlined secondary hover uses a faint tint of the color
+      backgroundColor: `color-mix(in srgb, ${theme.palette.primary.main} 8%, transparent)`,
     },
   },
   swapIcon: {
     width: 16,
     height: 16,
-    opacity: 0.35,
-    transition: "opacity 0.15s",
+    color: theme.palette.primary.main,
   },
 }));
 
