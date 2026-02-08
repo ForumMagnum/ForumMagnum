@@ -236,6 +236,7 @@ const UsersForm = ({
       void form.handleSubmit();
     }}>
       {displayedErrorComponent}
+
       <div className={classes.defaultGroup}>
         {!isFriendlyUI() && <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
@@ -243,17 +244,6 @@ const UsersForm = ({
               <MuiTextField
                 field={field}
                 label="Display name"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {userIsAdminOrMod(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="previousDisplayName">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Previous display name"
               />
             )}
           </form.Field>
@@ -271,17 +261,19 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isLWorAF() && <div className={classes.fieldWrapper}>
-          <form.Field name="fullName">
+        {userIsAdminOrMod(currentUser) && <div className={classes.fieldWrapper}>
+          <form.Field name="previousDisplayName">
             {(field) => (
               <MuiTextField
                 field={field}
-                label="Full name"
+                label="Previous display name"
               />
             )}
           </form.Field>
         </div>}
+      </div>
 
+      <LegacyFormGroupLayout label={preferredHeadingCase("Profile")} startCollapsed={false}>
         {!isEAForum() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
@@ -303,7 +295,20 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>}
-      </div>
+      </LegacyFormGroupLayout>
+
+      {isLWorAF() && <LegacyFormGroupLayout label={preferredHeadingCase("Alignment Forum")} startCollapsed={false}>
+        <div className={classes.fieldWrapper}>
+          <form.Field name="fullName">
+            {(field) => (
+              <MuiTextField
+                field={field}
+                label="Full name"
+              />
+            )}
+          </form.Field>
+        </div>
+      </LegacyFormGroupLayout>}
 
       <LegacyFormGroupLayout label={preferredHeadingCase("Site Customizations")} startCollapsed={true && highlightedField !== "googleLocation"}>
         {!isLWorAF() && <div className={classes.fieldWrapper}>
