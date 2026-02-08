@@ -2039,6 +2039,7 @@ type CreateUserDataInput = {
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   petrovOptOut?: InputMaybe<Scalars['Boolean']['input']>;
+  pinnedPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
   postGlossariesPinned?: InputMaybe<Scalars['Boolean']['input']>;
   postingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
   previousDisplayName?: InputMaybe<Scalars['String']['input']>;
@@ -12337,6 +12338,7 @@ type UpdateUserDataInput = {
   petrovLaunchCodeDate?: InputMaybe<Scalars['Date']['input']>;
   petrovOptOut?: InputMaybe<Scalars['Boolean']['input']>;
   petrovPressedButtonDate?: InputMaybe<Scalars['Date']['input']>;
+  pinnedPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
   postGlossariesPinned?: InputMaybe<Scalars['Boolean']['input']>;
   postingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
   previousDisplayName?: InputMaybe<Scalars['String']['input']>;
@@ -12670,6 +12672,7 @@ type User = {
   petrovLaunchCodeDate?: Maybe<Scalars['Date']['output']>;
   petrovOptOut: Scalars['Boolean']['output'];
   petrovPressedButtonDate?: Maybe<Scalars['Date']['output']>;
+  pinnedPostIds?: Maybe<Array<Scalars['String']['output']>>;
   postCount: Scalars['Float']['output'];
   postGlossariesPinned?: Maybe<Scalars['Boolean']['output']>;
   postingDisabled?: Maybe<Scalars['Boolean']['output']>;
@@ -13244,25 +13247,6 @@ type HabrykaDynamicSequencesQueryQueryVariables = Exact<{
 
 
 type HabrykaDynamicSequencesQueryQuery = HabrykaDynamicSequencesQueryQuery_Query;
-
-type HabrykaDynamicCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithParentMetadata
-);
-
-type HabrykaDynamicCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<HabrykaDynamicCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type HabrykaDynamicCommentsQueryQuery_Query = { __typename?: 'Query', comments: HabrykaDynamicCommentsQueryQuery_comments_MultiCommentOutput | null };
-
-
-type HabrykaDynamicCommentsQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type HabrykaDynamicCommentsQueryQuery = HabrykaDynamicCommentsQueryQuery_Query;
 
 type HabrykaMockupUserQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
@@ -24108,23 +24092,6 @@ type UltraFeedThreadItemQueryVariables = Exact<{
 
 type UltraFeedThreadItemQuery = UltraFeedThreadItemQuery_Query;
 
-type UltraFeedThreadItemV2Query_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type UltraFeedThreadItemV2Query_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: UltraFeedThreadItemV2Query_post_SinglePostOutput_result_Post | null };
-
-type UltraFeedThreadItemV2Query_Query = { __typename?: 'Query', post: UltraFeedThreadItemV2Query_post_SinglePostOutput | null };
-
-
-type UltraFeedThreadItemV2QueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type UltraFeedThreadItemV2Query = UltraFeedThreadItemV2Query_Query;
-
 type createUltraFeedEventMutation_createUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent = { __typename?: 'UltraFeedEvent', _id: string };
 
 type createUltraFeedEventMutation_createUltraFeedEvent_UltraFeedEventOutput = { __typename?: 'UltraFeedEventOutput', data: createUltraFeedEventMutation_createUltraFeedEvent_UltraFeedEventOutput_data_UltraFeedEvent | null };
@@ -24569,6 +24536,24 @@ type updateUserDeleteAccountSectionMutationVariables = Exact<{
 
 
 type updateUserDeleteAccountSectionMutation = updateUserDeleteAccountSectionMutation_Mutation;
+
+type UserTopPostsForManagerQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type UserTopPostsForManagerQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<UserTopPostsForManagerQuery_posts_MultiPostOutput_results_Post> };
+
+type UserTopPostsForManagerQuery_Query = { __typename?: 'Query', posts: UserTopPostsForManagerQuery_posts_MultiPostOutput | null };
+
+
+type UserTopPostsForManagerQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type UserTopPostsForManagerQuery = UserTopPostsForManagerQuery_Query;
 
 type UsersAccountManagementGetUserBySlugQuery_GetUserBySlug_User = (
   { __typename?: 'User' }

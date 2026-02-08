@@ -7,6 +7,7 @@ import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useSetTheme, useAbstractThemeOptions } from '@/components/themes/useTheme';
+import { TopPostsManager } from './TopPostsManager';
 
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
@@ -274,6 +275,8 @@ const UsersForm = ({
       </div>
 
       <LegacyFormGroupLayout label={preferredHeadingCase("Profile")} startCollapsed={false}>
+        <TopPostsManager userId={form.state.values._id} />
+        
         {!isEAForum() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (

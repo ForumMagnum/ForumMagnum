@@ -321,6 +321,25 @@ const schema = {
   },
   biography_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   
+  // pinnedPostIds: User-customized order of top posts to feature on their profile.
+  // If null/empty, profile displays top 4 posts by karma (default behavior).
+  // If set, profile displays these 4 posts in this specific order.
+  pinnedPostIds: {
+    database: {
+      type: "VARCHAR(27)[]",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "[String!]",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins"],
+      canCreate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  
   username: {
     database: {
       type: "TEXT",
