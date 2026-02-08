@@ -76,13 +76,6 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     borderRadius: 6,
     background: theme.palette.background.pageActiveAreaBackground,
     flex: 1,
-    cursor: "pointer",
-    "&:hover": {
-      "& button": {
-        background: theme.palette.grey[100],
-        borderColor: theme.palette.grey[400],
-      },
-    },
   },
   postNumber: {
     fontSize: "0.875rem",
@@ -98,22 +91,34 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     justifyContent: "space-between",
     height: 24,
     cursor: "grab",
+    padding: "2px 4px",
+    borderRadius: 3,
     "& > span": {
       width: 3,
       height: 3,
       borderRadius: "50%",
       background: theme.palette.greyAlpha(0.25),
     },
+    "&:hover > span": {
+      background: theme.palette.greyAlpha(0.55),
+    },
   },
   postContent: {
     flex: 1,
     minWidth: 0,
+    cursor: "pointer",
+    "&:hover + button": {
+      background: theme.palette.grey[100],
+      borderColor: theme.palette.grey[400],
+      "& svg": {
+        opacity: 0.7,
+      },
+    },
   },
   postTitle: {
     fontSize: "0.9375rem",
     fontWeight: 500,
     color: theme.palette.text.normal,
-    textDecoration: "none",
   },
   postMeta: {
     fontSize: "0.8125rem",
@@ -132,11 +137,19 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     cursor: "pointer",
     flexShrink: 0,
     transition: "background 0.15s, border-color 0.15s",
+    "&:hover": {
+      background: theme.palette.grey[100],
+      borderColor: theme.palette.grey[400],
+      "& svg": {
+        opacity: 0.7,
+      },
+    },
   },
   swapIcon: {
     width: 16,
     height: 16,
-    opacity: 0.55,
+    opacity: 0.35,
+    transition: "opacity 0.15s",
   },
 }));
 
@@ -213,9 +226,9 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
             <div className={classes.postItem}>
               <DragHandle classes={classes} />
             <div className={classes.postContent}>
-              <Link to={postGetPageUrl(post)} className={classes.postTitle}>
+              <span className={classes.postTitle}>
                 {post.title}
-              </Link>
+              </span>
               <div className={classes.postMeta}>
                 {post.baseScore} · {moment(new Date(post.postedAt)).fromNow()}
               </div>
