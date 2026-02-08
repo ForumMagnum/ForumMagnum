@@ -94,7 +94,6 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   postItem: {
     display: "flex",
     alignItems: "center",
-    gap: theme.spacing.unit * 1.5,
     padding: `${theme.spacing.unit}px ${theme.spacing.unit * 1.5}px`,
     border: `1px solid ${theme.palette.grey[400]}`,
     borderRadius: 6,
@@ -116,7 +115,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     alignItems: "center",
     alignSelf: "stretch",
     cursor: "grab",
-    padding: "0 3px 0 4px",
+    padding: `0 ${theme.spacing.unit * 1.5}px 0 4px`,
     marginLeft: -4,
     touchAction: "none",
     "&:hover span": {
@@ -163,6 +162,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    marginLeft: theme.spacing.unit * 1.5,
     width: 32,
     height: 32,
     border: `1px solid ${theme.palette.primary.main}`,
