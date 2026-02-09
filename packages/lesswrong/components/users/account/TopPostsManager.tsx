@@ -195,6 +195,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     borderRadius: 6,
     boxShadow: "none",
     marginTop: -1,
+    marginBottom: -1,
   },
   searchInput: {
     "&&, &&:focus": {
@@ -205,11 +206,8 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
       borderRadius: 6,
       outline: "none",
       background: theme.palette.background.paper,
-      fontFamily: theme.typography.fontFamily,
+      fontFamily: theme.typography.postStyle.fontFamily,
       marginBottom: theme.spacing.unit,
-    },
-    "&&:focus": {
-      border: `1px solid ${theme.palette.primary.main}`,
     },
   },
   dialogPostList: {
@@ -218,16 +216,17 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     "&::-webkit-scrollbar-thumb": {
       background: theme.palette.greyAlpha(0.1),
     },
-    maxHeight: 140,
+    maxHeight: 120,
     margin: 0,
     padding: 0,
     listStyle: "none",
   },
   dialogPostItem: {
-    padding: "10px 12px",
+    padding: "6px 12px",
     cursor: "pointer",
     borderRadius: 4,
     fontSize: "0.9375rem",
+    fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.text.normal,
     transition: "background 0.1s",
     "&:hover": {
