@@ -1186,9 +1186,8 @@ body {
 
 .mobile-profile-bio {
   display: none;
-  margin: 26px 0 30px;
-  padding: 18px 0;
-  border-top: 1px solid #e5ddd6;
+  margin: 0 0 30px;
+  padding: 18px 0 18px;
   border-bottom: 1px solid #e5ddd6;
 }
 
@@ -1205,6 +1204,16 @@ body {
 .mobile-profile-actions {
   margin-top: 0;
   margin-bottom: 16px;
+}
+
+.mobile-meta-info {
+  margin-top: 12px;
+  color: #8a8279;
+}
+
+/* Increase spacing between stat items to match hover card feel */
+.mobile-meta-info > div > div {
+  margin-right: 14px !important;
 }
 
 .mobile-profile-text {

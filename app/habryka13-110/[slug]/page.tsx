@@ -18,6 +18,7 @@ import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavO
 import UsersNameWithModal from "@/components/ultraFeed/UsersNameWithModal";
 import { Link } from "@/lib/reactRouterWrapper";
 import LWTooltip from "@/components/common/LWTooltip";
+import UserMetaInfo from "@/components/users/UserMetaInfo";
 import moment from "moment";
 
 type ProfileTab = "posts" | "sequences" | "feed";
@@ -474,22 +475,8 @@ export default function HabrykaUserPage() {
                 </div>
               )}
               {user && (
-                <div className="sidebar-stats">
-                  {(user.karma ?? 0) !== 0 && (
-                    <div className="sidebar-stat-row">{(user.karma ?? 0).toLocaleString()} karma</div>
-                  )}
-                  {(user.afKarma ?? 0) > 0 && (
-                    <div className="sidebar-stat-row">{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
-                  )}
-                  {(user.postCount ?? 0) > 0 && (
-                    <div className="sidebar-stat-row">{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
-                  )}
-                  {(user.commentCount ?? 0) > 0 && (
-                    <div className="sidebar-stat-row">{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
-                  )}
-                  {user.createdAt && (
-                    <div className="sidebar-stat-row">Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
-                  )}
+                <div className="mobile-meta-info">
+                  <UserMetaInfo user={user} />
                 </div>
               )}
             </div>

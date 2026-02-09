@@ -10,6 +10,7 @@ import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 import { getUserFromResults } from "@/components/users/UsersProfile";
 import Loading from "@/components/vulcan-core/Loading";
 import LWTooltip from "@/components/common/LWTooltip";
+import UserMetaInfo from "@/components/users/UserMetaInfo";
 import moment from "moment";
 
 type ProfileTab = "posts" | "sequences" | "comments";
@@ -342,22 +343,8 @@ function HabrykaProfileContent({ slug, activeTab, setActiveTab }: {
                 </div>
               )}
               {user && (
-                <div className="sidebar-stats">
-                  {(user.karma ?? 0) !== 0 && (
-                    <div className="sidebar-stat-row">{(user.karma ?? 0).toLocaleString()} karma</div>
-                  )}
-                  {(user.afKarma ?? 0) > 0 && (
-                    <div className="sidebar-stat-row">{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
-                  )}
-                  {(user.postCount ?? 0) > 0 && (
-                    <div className="sidebar-stat-row">{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
-                  )}
-                  {(user.commentCount ?? 0) > 0 && (
-                    <div className="sidebar-stat-row">{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
-                  )}
-                  {user.createdAt && (
-                    <div className="sidebar-stat-row">Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
-                  )}
+                <div className="mobile-meta-info">
+                  <UserMetaInfo user={user} />
                 </div>
               )}
             </div>
