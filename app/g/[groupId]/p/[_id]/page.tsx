@@ -15,7 +15,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 assertRouteHasWhiteBackground("/g/[groupId]/p/[_id]");
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ _id: string, groupId: string }>
+}) {
+  const { _id, groupId } = await params;
   return <RouteRoot
     delayedStatusCode
     metadata={{
@@ -24,6 +27,6 @@ export default function Page() {
       noFooter: hasPostRecommendations()
     }}
   >
-    <PostsSingle />
+    <PostsSingle _id={_id} />
   </RouteRoot>;
 }

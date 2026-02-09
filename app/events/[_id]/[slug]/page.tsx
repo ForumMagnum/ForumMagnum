@@ -9,7 +9,10 @@ export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ 
 
 assertRouteHasWhiteBackground("/events/[_id]/[slug]");
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ _id: string, slug: string }>
+}) {
+  const { _id, slug } = await params;
   return <RouteRoot
     delayedStatusCode
     metadata={{
@@ -18,6 +21,6 @@ export default function Page() {
       noFooter: hasPostRecommendations(),
     }}
   >
-    <PostsSingle />
+    <PostsSingle _id={_id} slug={slug} />
   </RouteRoot>;
 }
