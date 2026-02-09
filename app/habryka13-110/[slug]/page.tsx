@@ -67,12 +67,25 @@ export default function HabrykaUserPage() {
   const [feedSortBy, setFeedSortBy] = useState<"recent" | "top">("recent");
   const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
   const bioRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
   const { params } = useLocation();
   const slugAliases: Record<string, string> = {
     "habryka": "habryka4",
   };
   const rawSlug = slugify(params.slug);
   const slug = slugAliases[rawSlug] ?? rawSlug;
+
+  const handleTabSwitch = (tab: ProfileTab) => {
+    // Preserve scroll position relative to tabs when switching
+    const tabsTop = tabsRef.current?.getBoundingClientRect().top ?? 0;
+    setActiveTab(tab);
+    requestAnimationFrame(() => {
+      if (tabsRef.current) {
+        const newTabsTop = tabsRef.current.getBoundingClientRect().top;
+        window.scrollBy(0, newTabsTop - tabsTop);
+      }
+    });
+  };
 
   const handleSortPanelToggle = () => {
     if (sortPanelOpen) {
@@ -483,14 +496,14 @@ export default function HabrykaUserPage() {
           )}
 
           <section className="all-posts-section habryka2">
-            <div className="all-posts-header">
+            <div className="all-posts-header" ref={tabsRef}>
               <div className="all-posts-left-header">
                 <div className="profile-tabs">
                   <button
                     className={`profile-tab ${activeTab === "posts" ? "active" : ""}`}
                     data-tab="posts"
                     type="button"
-                    onClick={() => setActiveTab("posts")}
+                    onClick={() => handleTabSwitch("posts")}
                   >
                     All posts
                   </button>
@@ -499,7 +512,7 @@ export default function HabrykaUserPage() {
                       className={`profile-tab ${activeTab === "sequences" ? "active" : ""}`}
                       data-tab="sequences"
                       type="button"
-                      onClick={() => setActiveTab("sequences")}
+                      onClick={() => handleTabSwitch("sequences")}
                     >
                       Sequences
                     </button>
@@ -508,15 +521,15 @@ export default function HabrykaUserPage() {
                     className={`profile-tab ${activeTab === "feed" ? "active" : ""}`}
                     data-tab="feed"
                     type="button"
-                    onClick={() => setActiveTab("feed")}
+                    onClick={() => handleTabSwitch("feed")}
                   >
                     Feed
                   </button>
                 </div>
                 <div className="sort-control">
                   <button 
-                    className="sort-icon-button"
-                    onClick={handleSortPanelToggle}
+                    className={`sort-icon-button ${activeTab === "sequences" ? "sort-icon-disabled" : ""}`}
+                    onClick={activeTab !== "sequences" ? handleSortPanelToggle : undefined}
                     type="button"
                   >
                     <span className="sort-icon">⚙</span>
@@ -672,7 +685,7 @@ export default function HabrykaUserPage() {
                 className={`feed-list tab-panel ${activeTab === "feed" ? "active" : ""}`}
               >
                 {(sortPanelOpen || sortPanelClosing) && (
-                  <div className={`sort-panel ${sortPanelClosing ? "closing" : ""}`}>
+                  <div className={`sort-panel sort-panel-multi ${sortPanelClosing ? "closing" : ""}`}>
                     <div className="sort-panel-section">
                       <div className="sort-panel-header">Sorted by:</div>
                       <button
@@ -690,38 +703,39 @@ export default function HabrykaUserPage() {
                         Top
                       </button>
                     </div>
+                    <div className="sort-panel-section">
+                      <div className="sort-panel-header">Show:</div>
+                      <button
+                        className={`sort-panel-option ${feedFilter === "all" ? "selected" : ""}`}
+                        onClick={() => setFeedFilter("all")}
+                        type="button"
+                      >
+                        All
+                      </button>
+                      <button
+                        className={`sort-panel-option ${feedFilter === "comments" ? "selected" : ""}`}
+                        onClick={() => setFeedFilter("comments")}
+                        type="button"
+                      >
+                        Comments
+                      </button>
+                      <button
+                        className={`sort-panel-option ${feedFilter === "quickTakes" ? "selected" : ""}`}
+                        onClick={() => setFeedFilter("quickTakes")}
+                        type="button"
+                      >
+                        Quick takes
+                      </button>
+                      <button
+                        className={`sort-panel-option ${feedFilter === "posts" ? "selected" : ""}`}
+                        onClick={() => setFeedFilter("posts")}
+                        type="button"
+                      >
+                        Posts
+                      </button>
+                    </div>
                   </div>
                 )}
-                <div className="feed-filter-tabs">
-                  <button
-                    className={`feed-filter-tab ${feedFilter === "all" ? "active" : ""}`}
-                    onClick={() => setFeedFilter("all")}
-                    type="button"
-                  >
-                    All
-                  </button>
-                  <button
-                    className={`feed-filter-tab ${feedFilter === "comments" ? "active" : ""}`}
-                    onClick={() => setFeedFilter("comments")}
-                    type="button"
-                  >
-                    Comments
-                  </button>
-                  <button
-                    className={`feed-filter-tab ${feedFilter === "quickTakes" ? "active" : ""}`}
-                    onClick={() => setFeedFilter("quickTakes")}
-                    type="button"
-                  >
-                    Quick takes
-                  </button>
-                  <button
-                    className={`feed-filter-tab ${feedFilter === "posts" ? "active" : ""}`}
-                    onClick={() => setFeedFilter("posts")}
-                    type="button"
-                  >
-                    Posts
-                  </button>
-                </div>
                 {userId && (
                   <UltraFeedContextProvider openInNewTab={true}>
                     <UltraFeedObserverProvider incognitoMode={false}>

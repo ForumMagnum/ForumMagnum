@@ -1523,6 +1523,15 @@ body {
   opacity: 0.67;
 }
 
+.sort-icon-disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.sort-icon-disabled:hover {
+  opacity: 0.35;
+}
+
 .sort-icon {
   font-size: 16px;
 }
@@ -1574,6 +1583,11 @@ body {
     padding-bottom: 0;
     margin-bottom: 0;
   }
+}
+
+.sort-panel-multi {
+  display: flex;
+  gap: 40px;
 }
 
 .sort-panel-section {
@@ -1643,6 +1657,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .feed-list,
@@ -1653,7 +1668,7 @@ body {
 .feed-filter-tabs {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid #e5ddd6;
+  border-bottom: none;
   margin-bottom: 12px;
 }
 
@@ -1677,7 +1692,6 @@ body {
 .feed-filter-tab.active {
   color: #2e2a25;
   font-weight: 600;
-  border-bottom-color: #2e2a25;
 }
 
 /* Tighten feed item spacing */
