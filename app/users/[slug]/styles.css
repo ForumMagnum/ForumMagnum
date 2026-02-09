@@ -347,7 +347,7 @@
 
 body {
   margin: 0;
-  background: #ffffff;
+  background: rgba(248, 244, 238, 0.35);
   color: #3d3a35;
   font-family: "Gill Sans", "Gill Sans MT", sans-serif;
   overflow-x: hidden;
@@ -357,14 +357,14 @@ body {
   width: 100%;
   min-height: 100vh;
   margin: 0;
-  background: #ffffff;
+  background: rgba(248, 244, 238, 0.35);
   position: relative;
   overflow: hidden;
 }
 
 .topbar {
   height: 60px;
-  background: #ffffff;
+  background: rgba(248, 244, 238, 0.35);
   border-bottom: 1px solid #e5ded7;
   display: flex;
   align-items: center;
@@ -988,7 +988,7 @@ body {
   margin: 0 auto;
   padding: 47px 80px 60px 80px;
   color: #37332e;
-  background: #ffffff;
+  background: transparent;
 }
 
 .profile-header {
@@ -1342,6 +1342,7 @@ body {
   color: #f4f1ed;
   font-size: 14px;
   aspect-ratio: 3 / 2;
+  mix-blend-mode: multiply;
 }
 
 .post-image img {
@@ -1384,6 +1385,7 @@ body {
   font-size: 12px;
   border-radius: 4px;
   overflow: hidden;
+  mix-blend-mode: multiply;
 }
 
 .small-article-content {
@@ -3107,6 +3109,26 @@ html.dates-ready .list-article-meta {
 /* Cream background only on feed tab */
 #page.feed-active .all-posts-section {
   background: #f8f4ee;
+}
+
+/* ── Global cream background for profile pages ── */
+
+body:has(.habryka-page) {
+  background: #fdfbf9 !important;
+}
+
+body:has(.habryka-page) header {
+  background-color: rgba(253, 251, 249, 0.65) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.habryka-page {
+  background: transparent;
+  min-height: 100vh;
+}
+
+.habryka-page #page {
+  background: transparent;
 }
 
 /* ── Benito3 variant: always cream below the line ── */
