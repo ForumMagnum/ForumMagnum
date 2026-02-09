@@ -138,6 +138,8 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     flexDirection: "column",
     justifyContent: "space-between",
     height: 28,
+    paddingTop: 1,
+    paddingBottom: 1,
     "& > span": {
       width: 3,
       height: 3,
@@ -156,14 +158,13 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   postTitle: {
     fontSize: "1.0625rem",
     fontWeight: 500,
-    fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.text.normal,
     marginTop: 15,
   },
   postMeta: {
     fontSize: "0.8125rem",
     color: "light-dark(#9a9189, #9a9189)",
-    marginTop: 0,
+    marginTop: 3,
   },
   swapButton: {
     display: "flex",
@@ -208,7 +209,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
       borderRadius: 6,
       outline: "none",
       background: theme.palette.background.paper,
-      fontFamily: theme.typography.postStyle.fontFamily,
+      fontFamily: theme.typography.fontFamily,
       marginBottom: theme.spacing.unit,
     },
   },
@@ -228,7 +229,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     cursor: "pointer",
     borderRadius: 4,
     fontSize: "0.9375rem",
-    fontFamily: theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.fontFamily,
     color: theme.palette.text.normal,
     transition: "background 0.1s",
     "&:hover": {
