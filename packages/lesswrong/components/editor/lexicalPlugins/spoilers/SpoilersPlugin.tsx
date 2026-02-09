@@ -13,10 +13,12 @@ import {
   TextNode,
   $isTextNode,
   ElementNode,
+  $getNodeByKey,
 } from 'lexical';
 import { $setBlocksType } from '@lexical/selection';
 import { mergeRegister } from '@lexical/utils';
 import { SpoilerNode, $createSpoilerNode, $isSpoilerNode } from './SpoilerNode';
+import { useMessages } from '@/components/common/withMessages';
 
 export const INSERT_SPOILER_COMMAND: LexicalCommand<void> = createCommand('INSERT_SPOILER_COMMAND');
 export const TOGGLE_SPOILER_COMMAND: LexicalCommand<void> = createCommand('TOGGLE_SPOILER_COMMAND');
@@ -29,8 +31,9 @@ export const TOGGLE_SPOILER_COMMAND: LexicalCommand<void> = createCommand('TOGGL
  * - Auto-format: type ">!" at start of line to create spoiler
  * - Press Enter in empty spoiler block to exit
  */
-export function SpoilersPlugin(): null {
+export function SpoilersPlugin({ isSuggestionMode }: { isSuggestionMode?: boolean }): null {
   const [editor] = useLexicalComposerContext();
+  const { flash } = useMessages();
 
   useEffect(() => {
     // Register the SpoilerNode if not already registered
@@ -43,6 +46,14 @@ export function SpoilersPlugin(): null {
       editor.registerCommand(
         INSERT_SPOILER_COMMAND,
         () => {
+          if (isSuggestionMode) {
+            flash({
+              messageString: 'Spoiler blocks are not supported in suggestion mode',
+              type: 'error',
+            });
+            
+            return true;
+          }
           editor.update(() => {
             const selection = $getSelection();
             if (!$isRangeSelection(selection)) return;
@@ -63,6 +74,13 @@ export function SpoilersPlugin(): null {
       editor.registerCommand(
         TOGGLE_SPOILER_COMMAND,
         () => {
+          if (isSuggestionMode) {
+            flash({
+              messageString: 'Spoiler blocks are not supported in suggestion mode',
+              type: 'error',
+            });
+            return true;
+          }
           editor.update(() => {
             const selection = $getSelection();
             if (!$isRangeSelection(selection)) return;
@@ -129,51 +147,59 @@ export function SpoilersPlugin(): null {
       ),
 
       // Auto-format: ">!" at start of line creates spoiler
-      editor.registerNodeTransform(TextNode, (node) => {
-        if (!$isTextNode(node)) return;
-
-        const textContent = node.getTextContent();
-        
-        // Check for ">!" pattern at start of text
-        if (textContent === '>!' || textContent.startsWith('>! ')) {
-          const parent = node.getParent();
-          if (!parent) return;
-
-          // Don't transform if already in a spoiler
-          if (findSpoilerParent(node)) return;
-
-          // Only transform if this is the first text in the paragraph
-          const previousSibling = node.getPreviousSibling();
-          if (previousSibling) return;
-
-          // Create spoiler and move content
-          const spoilerNode = $createSpoilerNode();
-          const paragraph = $createParagraphNode();
-          
-          // Get remaining text after ">!" or ">! "
-          const remainingText = textContent.startsWith('>! ') 
-            ? textContent.slice(3) 
-            : textContent.slice(2);
-
-          if (remainingText) {
-            paragraph.append(node.splitText(textContent.startsWith('>! ') ? 3 : 2)[1]);
-          }
-          
-          spoilerNode.append(paragraph);
-          
-          // Replace the parent paragraph with the spoiler
-          if (parent.getChildrenSize() === 1 && textContent.length <= 3) {
-            parent.replace(spoilerNode);
-          } else {
-            parent.insertBefore(spoilerNode);
-            node.remove();
-          }
-          
-          paragraph.selectStart();
+      editor.registerUpdateListener(({dirtyLeaves, tags}) => {
+        if (tags.has('collaboration')) {
+          return;
         }
+        editor.update(() => {
+          for (const key of dirtyLeaves) {
+            const node = $getNodeByKey(key);
+            if (!$isTextNode(node)) continue;
+
+            const textContent = node.getTextContent();
+            
+            // Check for ">!" pattern at start of text
+            if (textContent === '>!' || textContent.startsWith('>! ')) {
+              const parent = node.getParent();
+              if (!parent) continue;
+
+              // Don't transform if already in a spoiler
+              if (findSpoilerParent(node)) continue;
+
+              // Only transform if this is the first text in the paragraph
+              const previousSibling = node.getPreviousSibling();
+              if (previousSibling) continue;
+
+              // Create spoiler and move content
+              const spoilerNode = $createSpoilerNode();
+              const paragraph = $createParagraphNode();
+              
+              // Get remaining text after ">!" or ">! "
+              const remainingText = textContent.startsWith('>! ') 
+                ? textContent.slice(3) 
+                : textContent.slice(2);
+
+              if (remainingText) {
+                paragraph.append(node.splitText(textContent.startsWith('>! ') ? 3 : 2)[1]);
+              }
+              
+              spoilerNode.append(paragraph);
+              
+              // Replace the parent paragraph with the spoiler
+              if (parent.getChildrenSize() === 1 && textContent.length <= 3) {
+                parent.replace(spoilerNode);
+              } else {
+                parent.insertBefore(spoilerNode);
+                node.remove();
+              }
+              
+              paragraph.selectStart();
+            }
+          }
+        });
       })
     );
-  }, [editor]);
+  }, [editor, isSuggestionMode, flash]);
 
   return null;
 }

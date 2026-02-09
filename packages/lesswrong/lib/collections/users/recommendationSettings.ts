@@ -44,6 +44,8 @@ export interface StrategySettings {
   /** Various strategy use a bias parameter in different ways for tuning - this
    *  is now mostly deprecated in favour of using features. */
   bias?: number,
+  /** Limit recommendations to Alignment Forum posts. */
+  af?: boolean,
   /** Target year for the EA Forum wrapped strategy */
   year?: number,
   /** Weighted scoring factors for defining a recommendation algorithm. */
@@ -66,6 +68,8 @@ export interface RecommendationsAlgorithmWithStrategy {
   strategy: StrategySpecification,
   /** The maximum number of results to return */
   count?: number,
+  /** Limit recommendations to Alignment Forum posts. */
+  af?: boolean,
   /** If the selected strategy fails to generate `count` results then, by
    * default, we automatically switch to using a different strategy as a
    * fallback. Set `disableFallbacks` to true to prevent this. */
@@ -83,6 +87,8 @@ export interface DefaultRecommendationsAlgorithm {
   reviewFinal?: ReviewYear,
   includePersonal?: boolean
   includeMeta?: boolean
+  /** Limit recommendations to Alignment Forum posts. */
+  af?: boolean
   minimumBaseScore?: number
   excludeDefaultRecommendations?: boolean
   onlyUnread?: boolean

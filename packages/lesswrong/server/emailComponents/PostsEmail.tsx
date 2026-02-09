@@ -10,9 +10,9 @@ import { EmailFooterRecommendations } from './EmailFooterRecommendations';
 import { EmailPostDate } from './EmailPostDate';
 // import ContentStyles from '@/components/common/ContentStyles';
 import type { PostsRevision } from "@/lib/generated/gql-codegen/graphql";
-import { EmailContextType, useEmailStyles } from './emailContext';
+import { EmailContextType, emailUseStyles } from './emailContext';
 import { PostsRevisionMultiQuery } from './queries';
-import { useEmailQuery } from '../vulcan-lib/query';
+import { emailUseQuery } from '../vulcan-lib/query';
 import { EmailContentStyles } from './EmailContentStyles';
 
 const getPodcastInfoElement = (podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>) => {
@@ -125,8 +125,8 @@ export async function PostsEmail({
   hideRecommendations?: boolean;
   emailContext: EmailContextType,
 }) {
-  const classes = useEmailStyles(styles, emailContext);
-  const { data } = await useEmailQuery(PostsRevisionMultiQuery, {
+  const classes = emailUseStyles(styles, emailContext);
+  const { data } = await emailUseQuery(PostsRevisionMultiQuery, {
     variables: {
       selector: { default: { exactPostIds: postIds } },
       limit: 10,

@@ -5,7 +5,7 @@ import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
-import { useCommentLink, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
+import { CommentLinkWrapper, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { ContentItemBodyImperative } from '../contents/contentBodyUtil';
@@ -171,7 +171,6 @@ const Answer = ({ comment, post, childComments, classes }: {
     setReplyFormIsOpen(false);
   }, []);
 
-  const CommentLinkWrapper = useCommentLink({comment, post});
   const menuIcon = isFriendlyUI()
     ? undefined
     : <MoreHorizIcon />;
@@ -194,7 +193,7 @@ const Answer = ({ comment, post, childComments, classes }: {
             Answer was deleted
           </Typography>
           {isFriendlyUI() &&
-            <CommentLinkWrapper>
+            <CommentLinkWrapper comment={comment} post={post}>
               <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
             </CommentLinkWrapper>
           }
@@ -222,7 +221,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                   <SmallSideVote document={comment} collectionName="Comments"/>
                 </span>
                 {isFriendlyUI() &&
-                  <CommentLinkWrapper>
+                  <CommentLinkWrapper comment={comment} post={post}>
                     <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
                   </CommentLinkWrapper>
                 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { defineStyles } from "@/components/hooks/defineStyles";
-import { type EmailContextType, useEmailStyles } from "./emailContext";
+import { type EmailContextType, emailUseStyles } from "./emailContext";
 
 const styles = defineStyles("EmailCuratedAuthors", (theme: ThemeType) => ({
   root: {
@@ -22,7 +22,7 @@ export const EmailCuratedAuthors = ({ user, post, emailContext }: {
   post: DbPost;
   emailContext: EmailContextType,
 }) => {
-  const classes = useEmailStyles(styles, emailContext);
+  const classes = emailUseStyles(styles, emailContext);
 
   return (
     <div className={classes.root}>

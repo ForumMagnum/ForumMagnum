@@ -152,7 +152,7 @@ const TabNavigationEventsList = ({ terms, onClick }: {
   </div>
 }
 
-const _TabNavigationEventSingleLine = ({event, onClick}: {
+const TabNavigationEventSingleLineInner = ({event, onClick}: {
   event: PostsList,
   onClick: () => void,
 }) => {
@@ -184,11 +184,11 @@ const _TabNavigationEventSingleLine = ({event, onClick}: {
     </TabNavigationSubItem>
   </MenuItemLink>
 };
-const TabNavigationEventSingleLine = registerComponent("TabNavigationEventSingleLine", _TabNavigationEventSingleLine, {
+const TabNavigationEventSingleLine = registerComponent("TabNavigationEventSingleLine", TabNavigationEventSingleLineInner, {
   hocs: [withErrorBoundary]
 });
 
-const _TabNavigationEventTwoLines = ({event, onClick}: {
+const TabNavigationEventTwoLinesInner = ({event, onClick}: {
   event: PostsList,
   onClick: () => void,
 }) => {
@@ -213,7 +213,7 @@ const _TabNavigationEventTwoLines = ({event, onClick}: {
     </TabNavigationSubItem>
   </MenuItemLink>
 };
-const TabNavigationEventTwoLines = registerComponent("TabNavigationEventTwoLines", _TabNavigationEventTwoLines, {
+const TabNavigationEventTwoLines = registerComponent("TabNavigationEventTwoLines", TabNavigationEventTwoLinesInner, {
   hocs: [withErrorBoundary]
 });
 

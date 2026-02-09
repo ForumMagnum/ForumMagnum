@@ -497,6 +497,7 @@ export type EditablePost = UpdatePostDataInput & {
 
 export interface PostSubmitMeta {
   redirectToEditor?: boolean;
+  skipRedirect?: boolean;
   successCallback?: (editedPost: PostsEditMutationFragment) => void;
 }
 

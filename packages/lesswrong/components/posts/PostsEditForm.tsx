@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
-import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
@@ -9,7 +8,6 @@ import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -139,7 +137,6 @@ const PostsEditFormInner = ({ documentId, version }: {
   const { query } = useLocation();
   const navigate = useNavigate();
   const { flash } = useMessages();
-  const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
 
   const [editorState, setEditorState] = useState<Editor|null>(null);
@@ -225,8 +222,11 @@ const PostsEditFormInner = ({ documentId, version }: {
               onSuccess={(post, options) => {
                 const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId!)
                 if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling(post);
-                if (options?.submitOptions?.redirectToEditor) {
-                  navigate(postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined));
+                if (options?.submitOptions?.skipRedirect) {
+                  return;
+                } else if (options?.submitOptions?.redirectToEditor) {
+                  const redirectPath = postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined);
+                  navigate(redirectPath);
                 } else {
                   // If they are publishing a draft, show the share popup
                   // Note: we can't use isDraft here because it gets updated to true when they click "Publish"

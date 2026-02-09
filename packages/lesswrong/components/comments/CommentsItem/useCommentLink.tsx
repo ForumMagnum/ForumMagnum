@@ -18,14 +18,15 @@ export type UseCommentLinkProps = {
   permalink?: boolean,
 }
 
-export const useCommentLink = ({
+export const CommentLinkWrapper = ({
   comment,
   post,
   tag,
   scrollOnClick,
   scrollIntoView,
   permalink,
-}: UseCommentLinkProps) => {
+  children
+}: UseCommentLinkProps & { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const {location, query} = useSubscribedLocation();
   const {captureEvent} = useTracking();
@@ -72,19 +73,15 @@ export const useCommentLink = ({
     }
   }
 
-  const Wrapper: FC<PropsWithChildren<{}>> = scrollOnClick
-    ? ({children}) => (
-      <a rel="nofollow" href={url} onClick={handleLinkClick}>
-        {children}
-      </a>
-    )
-    : ({children}) => (
-      <Link rel="nofollow" to={url} eventProps={{furtherContext}}>
-        {children}
-      </Link>
-    );
-
-  return Wrapper;
+  if (scrollOnClick) {
+    return <a rel="nofollow" href={url} onClick={handleLinkClick}>
+      {children}
+    </a>
+  } else {
+    return <Link rel="nofollow" to={url} eventProps={{furtherContext}}>
+      {children}
+    </Link>
+  }
 }
 
 /**

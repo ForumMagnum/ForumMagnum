@@ -1340,24 +1340,6 @@ CREATE INDEX IF NOT EXISTS "idx_Notifications_documentId" ON "Notifications" USI
 -- Index "idx_Notifications_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Notifications_createdAt" ON "Notifications" USING btree ("createdAt");
 
--- Table "PageCache"
-CREATE UNLOGGED TABLE "PageCache" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "path" TEXT NOT NULL,
-  "abTestGroups" JSONB NOT NULL,
-  "bundleHash" TEXT NOT NULL,
-  "renderedAt" TIMESTAMPTZ NOT NULL,
-  "expiresAt" TIMESTAMPTZ NOT NULL,
-  "ttlMs" DOUBLE PRECISION NOT NULL,
-  "renderResult" JSONB NOT NULL
-);
-
--- Index "idx_PageCache_path_bundleHash_expiresAt"
-CREATE INDEX IF NOT EXISTS "idx_PageCache_path_bundleHash_expiresAt" ON "PageCache" USING btree ("path", "bundleHash", "expiresAt");
-
 -- Table "PetrovDayActions"
 CREATE TABLE "PetrovDayActions" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3688,9 +3670,6 @@ WHERE
 
 -- CustomIndex "idx_multi_documents_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_multi_documents_pingbacks ON "MultiDocuments" USING gin (pingbacks);
-
--- CustomIndex "idx_PageCache_path_abTestGroups_bundleHash"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash" ON public."PageCache" USING btree (PATH, "abTestGroups", "bundleHash");
 
 -- CustomIndex "idx_ReadStatuses_userId_postId_tagId"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON public."ReadStatuses" USING btree (

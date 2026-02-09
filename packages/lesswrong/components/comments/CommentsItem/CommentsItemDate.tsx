@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
+import { CommentLinkWrapper, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
@@ -70,8 +70,6 @@ type CommentsItemDateProps = UseCommentLinkProps & {
 const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: CommentsItemDateProps) => {
   const classes = useStyles(styles);
   
-  const LinkWrapper = useCommentLink({comment, ...rest});
-  
   let dateFormat: string | undefined;
   if (preventDateFormatting) {
     dateFormat = undefined;
@@ -101,9 +99,9 @@ const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: 
       className,
     )}>
       <DeferRender ssr={!isLWorAF()} fallback={linkContents}>
-        <LinkWrapper>
+        <CommentLinkWrapper comment={comment} {...rest}>
           {linkContents}
-        </LinkWrapper>
+        </CommentLinkWrapper>
       </DeferRender>
     </span>
   );

@@ -1,7 +1,7 @@
 import React from "react";
 import { JOB_AD_DATA } from "../../components/ea-forum/constants";
 import { defineStyles } from "@/components/hooks/defineStyles";
-import { EmailContextType, useEmailStyles } from "./emailContext";
+import { EmailContextType, emailUseStyles } from "./emailContext";
 
 const styles = defineStyles("EmailJobAdReminder", (theme: ThemeType) => ({
   root: {
@@ -24,7 +24,7 @@ export const EmailJobAdReminder = ({ jobName, emailContext }: {
   jobName: string;
   emailContext: EmailContextType
 }) => {
-  const classes = useEmailStyles(styles, emailContext);
+  const classes = emailUseStyles(styles, emailContext);
   const jobData = JOB_AD_DATA[jobName];
   const link = jobData.bitlyLink;
 

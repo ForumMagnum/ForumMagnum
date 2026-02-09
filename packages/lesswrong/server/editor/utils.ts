@@ -1,11 +1,11 @@
 import type { ChangeMetrics } from '../../server/collections/revisions/collection';
 import { diff } from "../vendor/node-htmldiff/htmldiff";
 import { cheerioParse } from '../utils/htmlUtil'
-import cheerio from 'cheerio'
+import cheerio, { type CheerioAPI } from 'cheerio'
 import { extractVersionsFromSemver } from '../../lib/editor/utils';
 import { normalizeHtmlForDiff } from '../resolvers/htmlDiff';
 
-const countCharsInTag = (parsedHtml: cheerio.Root, tagName: string): number => {
+const countCharsInTag = (parsedHtml: CheerioAPI, tagName: string): number => {
   const instancesOfTag = parsedHtml(tagName);
   let cumulative = 0;
   for (let i=0; i<instancesOfTag.length; i++) {

@@ -7,6 +7,7 @@ import ModerationUserStatsColumn from './ModerationUserStatsColumn';
 import ModerationUserBioColumn from './ModerationUserBioColumn';
 import ModeratorNotes from './ModeratorNotes';
 import { getPrimaryDisplayedModeratorAction, partitionModeratorActions } from './groupings';
+import UserAutoRateLimitsDisplay from '../ModeratorUserInfo/UserAutoRateLimitsDisplay';
 
 const styles = defineStyles('ModerationUserInfoColumn', (theme: ThemeType) => ({
   header: {
@@ -48,6 +49,7 @@ const ModerationUserInfoColumn = ({
       <ModeratorNotes user={user} currentUser={currentUser} />
 
       <ModerationUserStatsColumn user={user} posts={posts} comments={comments} />
+      <UserAutoRateLimitsDisplay user={user} showKarmaMeta={true} />
       <ModerationUserBioColumn user={user} />
     </div>
   );
