@@ -56,7 +56,7 @@ const HabrykaSequencesQuery = gql(`
 `);
 
 
-export default function ProfilePage() {
+export default function ProfilePage({ variant = "default" }: { variant?: string }) {
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [bioExpanded, setBioExpanded] = useState(false);
   const [postsToShow, setPostsToShow] = useState(7);
@@ -401,7 +401,7 @@ export default function ProfilePage() {
   const formatRelativeDate = (date: Date | string) => moment(new Date(date)).fromNow();
 
   return (
-    <div id="page" data-el="page">
+    <div id="page" className={variant === "benito3" ? "benito3" : variant === "benito2" ? (activeTab === "feed" ? "benito2 feed-active" : "benito2") : undefined} data-el="page">
       <div className="content profile-content" data-el="content">
         <main className="profile-main" data-el="profile-main">
           <div className="profile-header">
@@ -509,6 +509,8 @@ export default function ProfilePage() {
               )}
             </div>
           )}
+
+          {(variant === "benito2" || variant === "benito3") && <div className="full-bleed-divider" />}
 
           <section className="all-posts-section habryka2">
             <div className="all-posts-header" ref={tabsRef}>

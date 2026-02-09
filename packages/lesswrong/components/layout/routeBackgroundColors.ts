@@ -40,6 +40,8 @@ const routesWithWhiteBackground = [
   "/resendVerificationEmail",
   "/s/[_id]/p/[postId]",
   "/search",
+  "/users/[slug]/benito2",
+  "/users/[slug]/benito3",
   "/users/[slug]/edit",
   "/users/[slug]/profile-v3",
   "/w/[slug]",

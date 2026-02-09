@@ -886,6 +886,12 @@ export const routeTrie = {
         "paramName": "slug",
         "child": {
           "staticChildren": {
+            "benito2": {
+              "hasPage": true
+            },
+            "benito3": {
+              "hasPage": true
+            },
             "edit": {
               "hasPage": true
             },
@@ -894,6 +900,8 @@ export const routeTrie = {
             }
           },
           "lowerCase": {
+            "benito2": "benito2",
+            "benito3": "benito3",
             "edit": "edit",
             "replies": "replies"
           },

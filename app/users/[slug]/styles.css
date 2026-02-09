@@ -3068,3 +3068,63 @@ html.dates-ready .list-article-meta {
 
   /* Bio is shown in mobile-profile-bio section above */
 }
+
+/* ── Benito2 variant: cream background on feed tab ── */
+
+.small-articles-grid {
+  transition: border-bottom-color 0.5s ease;
+}
+
+#page.feed-active .small-articles-grid {
+  border-bottom-color: transparent;
+}
+
+.full-bleed-divider {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  height: 1px;
+  background: #e5ddd6;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+#page.feed-active .full-bleed-divider {
+  opacity: 1;
+}
+
+/* Always full-bleed layout in benito2 (no layout shift on tab switch) */
+#page.benito2 .all-posts-section {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: 0;
+  padding-top: 30px;
+  padding-left: calc(50vw - 50%);
+  padding-right: calc(50vw - 50%);
+  transition: background-color 0.5s ease;
+}
+
+/* Cream background only on feed tab */
+#page.feed-active .all-posts-section {
+  background: #f8f4ee;
+}
+
+/* ── Benito3 variant: always cream below the line ── */
+
+#page.benito3 .small-articles-grid {
+  border-bottom-color: transparent;
+}
+
+#page.benito3 .full-bleed-divider {
+  opacity: 1;
+}
+
+#page.benito3 .all-posts-section {
+  background: #f8f4ee;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: 0;
+  padding-top: 30px;
+  padding-left: calc(50vw - 50%);
+  padding-right: calc(50vw - 50%);
+}
