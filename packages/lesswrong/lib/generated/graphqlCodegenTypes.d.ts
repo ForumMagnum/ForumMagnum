@@ -19119,6 +19119,24 @@ type getRecombeeHybridPostsQueryVariables = Exact<{
 
 type getRecombeeHybridPostsQuery = getRecombeeHybridPostsQuery_Query;
 
+type UnapprovedPostsListQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UnapprovedPostsListQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<UnapprovedPostsListQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type UnapprovedPostsListQueryQuery_Query = { __typename?: 'Query', posts: UnapprovedPostsListQueryQuery_posts_MultiPostOutput | null };
+
+
+type UnapprovedPostsListQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type UnapprovedPostsListQueryQuery = UnapprovedPostsListQueryQuery_Query;
+
 type createCommentDialogueSubmitMutation_createComment_CommentOutput_data_Comment = (
   { __typename?: 'Comment' }
   & CommentEdit

@@ -112,7 +112,7 @@ export default function HabrykaUserPage() {
   const { data: topPostsData } = useQuery(HabrykaPostsQuery, {
     skip: !userId,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: "top", authorIsUnreviewed: null } } : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy: "top" } } : undefined,
       limit: 4,
       enableTotal: false,
     },
@@ -121,7 +121,7 @@ export default function HabrykaUserPage() {
   const { data: recentPostsData, loading: recentPostsLoading } = useQuery(HabrykaPostsQuery, {
     skip: !userId,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: "new", authorIsUnreviewed: null } } : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy: "new" } } : undefined,
       limit: 50,
       enableTotal: false,
     },

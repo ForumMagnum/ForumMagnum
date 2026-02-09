@@ -9,6 +9,7 @@ import {useLocation} from "../../lib/routeUtil";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import SingleColumnSection from "../common/SingleColumnSection";
 import DraftsList from "./DraftsList";
+import UnapprovedPostsList from "./UnapprovedPostsList";
 
 const styles = (theme: ThemeType) => ({
   checkbox: {
@@ -38,6 +39,7 @@ const DraftsPage = ({classes}: {
   return <SingleColumnSection>
     <AnalyticsContext listContext={"draftsPage"}>
       <DraftsList limit={50} title={"Drafts & Unpublished Posts"} showAllDraftsLink={false}/>
+      <UnapprovedPostsList userId={currentUser._id} />
     </AnalyticsContext>
   </SingleColumnSection>
 }
