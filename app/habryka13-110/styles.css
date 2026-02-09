@@ -1187,7 +1187,7 @@ body {
 .mobile-profile-bio {
   display: none;
   margin: 0 0 30px;
-  padding: 18px 0 18px;
+  padding: 30px 0 30px;
   border-bottom: 1px solid #e5ddd6;
 }
 
@@ -1212,6 +1212,11 @@ body {
 }
 
 /* Increase spacing between stat items to match hover card feel */
+.mobile-meta-info > div {
+  flex-wrap: wrap;
+  gap: 4px 0;
+}
+
 .mobile-meta-info > div > div {
   margin-right: 14px !important;
 }
@@ -1301,7 +1306,7 @@ body {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 20px;
-  padding-bottom: 20px;
+  padding-bottom: 30px;
   border-bottom: 1px solid #e5ddd6;
   overflow: visible;
   transition: opacity 0.15s ease;
@@ -1344,8 +1349,8 @@ body {
 
 /* Small articles grid */
 .small-articles-grid {
-  margin-top: 25px;
-  padding-bottom: 25px;
+  margin-top: 30px;
+  padding-bottom: 30px;
   border-bottom: 1px solid #e5ddd6;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
