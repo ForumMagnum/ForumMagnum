@@ -34,10 +34,10 @@ export function linkToMarkdownApiLink(link: string): string {
 
   if (parsedUrl.routePattern && routeUrlMapping[parsedUrl.routePattern]) {
     const mappedUrl = routeUrlMapping[parsedUrl.routePattern](parsedUrl.params);
-    return new URLClass(mappedUrl, getSiteUrl()).toString();
+    return mappedUrl;
   }
 
-  return link;
+  return onsiteUrl;
 }
 
 const MARKDOWN_INLINE_LINK_REGEX = /\]\(\s*<?([^\s)]+)>?(?:\s+"[^"]*")?\s*\)/g;

@@ -3,7 +3,7 @@ import { renderPostsListResponse } from "../postsListUtils";
 
 export async function GET(req: NextRequest) {
   return await renderPostsListResponse(req, {
-    title: "Latest Posts",
-    selector: { new: {} },
+    title: "Curated Posts",
+    selector: { curated: {} },
   });
 }

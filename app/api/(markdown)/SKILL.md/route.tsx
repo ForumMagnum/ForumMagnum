@@ -5,6 +5,9 @@ LessWrong: A site dedicated to improving the art of rationality
 
 Finding content to read:
  * /api/latest
+ * /api/recent
+ * /api/curated
+ * Add ?limit=n to list routes (max 100)
 Reading posts:
  * /api/post/[id]
 `;
