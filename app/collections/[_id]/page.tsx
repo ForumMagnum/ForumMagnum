@@ -47,7 +47,7 @@ export async function generateMetadata({ params, searchParams }: {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ hasLeftNavigationColumn: true }}>
+  return <RouteRoot>
     <CollectionsSingle />
   </RouteRoot>;
 }

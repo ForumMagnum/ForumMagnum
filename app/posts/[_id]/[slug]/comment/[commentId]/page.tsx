@@ -6,10 +6,7 @@ import RouteRoot from "@/components/layout/RouteRoot";
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id, { noIndex: true });
 
 export default function Page() {
-  return <RouteRoot
-    delayedStatusCode
-    metadata={{ noFooter: false }}
-  >
+  return <RouteRoot delayedStatusCode>
     <PostsSingle />
   </RouteRoot>;
 }

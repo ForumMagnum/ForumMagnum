@@ -1,6 +1,6 @@
 import React from "react";
 import SequencesSingle from '@/components/sequences/SequencesSingle';
-import { SequencesPageTitle } from '@/components/titles/SequencesPageTitle';
+import { SequencesPageSubtitle } from '@/components/titles/SequencesPageSubtitle';
 import type { Metadata } from "next";
 import { gql } from "@/lib/generated/gql-codegen";
 import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
@@ -80,12 +80,7 @@ export async function generateMetadata({ params, searchParams }: {
 }
 
 export default function Page() {
-  // enableResourcePrefetch was: function
-  
-  return <RouteRoot delayedStatusCode metadata={{
-    titleComponent: SequencesPageTitle,
-    subtitleComponent: SequencesPageTitle
-  }}>
+  return <RouteRoot delayedStatusCode subtitle={SequencesPageSubtitle}>
     <SequencesSingle />
   </RouteRoot>;
 }
