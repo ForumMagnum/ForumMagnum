@@ -1213,7 +1213,8 @@ body {
 
 /* Top posts indicator */
 .top-posts-indicator {
-  margin-bottom: 12px;
+  margin-top: 25px;
+  margin-bottom: 15px;
   margin-left: 0;
   padding-left: 0;
 }
@@ -1286,7 +1287,7 @@ body {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 20px;
-  padding-bottom: 25px;
+  padding-bottom: 20px;
   border-bottom: 1px solid #e5ddd6;
   overflow: visible;
 }
@@ -1299,7 +1300,7 @@ body {
   overflow: hidden;
   padding-left: 0;
   margin-left: 0;
-  height: 240px;
+  aspect-ratio: 3 / 2;
 }
 
 .post-image {
@@ -1312,7 +1313,7 @@ body {
   justify-content: center;
   color: #f4f1ed;
   font-size: 14px;
-  height: 240px;
+  aspect-ratio: 3 / 2;
 }
 
 .post-image img {
@@ -1352,7 +1353,7 @@ body {
 }
 
 .small-article-content {
-  padding: 16px 0 0 0;
+  padding: 15px 0 0 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1402,7 +1403,7 @@ body {
 }
 
 .all-posts-header {
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 20px;
@@ -1800,14 +1801,15 @@ body {
 
 .sequence-card-image {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 3 / 2;
   background-color: #f5f2ed;
   background-size: cover;
   background-position: center;
+  border-radius: 4px;
 }
 
 .sequence-card-content {
-  padding: 12px 0;
+  padding: 15px 0;
   background: transparent;
 }
 
@@ -1975,7 +1977,7 @@ body {
 .list-article-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   overflow: visible;
 }
 
@@ -2073,17 +2075,17 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 10px;
+  margin-top: 20px;
   margin-bottom: 12px;
 }
 
 .sidebar-subscribe {
   font-family: "Gill Sans", "Gill Sans MT", sans-serif;
   color: #6c8f6f;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   display: inline-block;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .sidebar-subscribe:hover {
@@ -2093,10 +2095,10 @@ body {
 .sidebar-more {
   font-family: "Gill Sans", "Gill Sans MT", sans-serif;
   color: #6c8f6f;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   display: inline-block;
-  font-weight: 400;
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -2542,7 +2544,7 @@ body {
 
 .read-more {
   text-align: left;
-  margin-top: 4px;
+  margin-top: 12px;
 }
 
 .read-more-link {
@@ -2561,7 +2563,7 @@ body {
   font-family: ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
   font-size: 2rem;
   font-weight: 400;
-  margin: 0 0 16px 0;
+  margin: 0 0 18px 0;
   color: #2e2a25;
   line-height: 1.2;
   letter-spacing: -.02em;
@@ -2592,11 +2594,11 @@ body {
 
 .post-summary {
   font-family: warnock-pro, "Cormorant Garamond", "Georgia", serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.6;
   color: #6d655d;
-  margin: 0 0 14px 0;
+  margin: 0 0 16px 0;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -2689,7 +2691,7 @@ html.dates-ready .list-article-meta {
 
 .habryka2 .small-article {
   grid-column: auto;
-  padding: 18px 0;
+  padding: 20px 0;
   border-top: 1px solid #e5ddd6;
 }
 
@@ -2705,7 +2707,7 @@ html.dates-ready .list-article-meta {
 }
 
 .habryka2 .small-article-meta {
-  margin-top: -2px;
+  margin-top: 0;
 }
 
 .habryka2 .list-article {
@@ -2736,7 +2738,7 @@ html.dates-ready .list-article-meta {
 
 .habryka2 .list-article-summary {
   font-size: 15px;
-  line-height: 1.8;
+  line-height: 1.6;
   color: #6b655d;
   white-space: normal;
   position: relative;
@@ -2747,8 +2749,6 @@ html.dates-ready .list-article-meta {
   display: block;
   flex: 1;
   min-width: 0;
-  padding-bottom: 0.6em;
-  margin-bottom: -0.2em;
   position: relative;
   z-index: 1;
 }
@@ -2798,11 +2798,13 @@ html.dates-ready .list-article-meta {
     height: auto;
     max-height: none;
     width: 100%;
+    aspect-ratio: auto;
   }
 
   .post-image {
     width: 100%;
     height: 220px;
+    aspect-ratio: auto;
   }
 
   /* Match all-posts summary length in mobile stacked layout */
@@ -2859,11 +2861,13 @@ html.dates-ready .list-article-meta {
     height: auto;
     max-height: none;
     width: 100%;
+    aspect-ratio: auto;
   }
 
   .post-image {
     width: 100%;
     height: 200px;
+    aspect-ratio: auto;
   }
 
   /* Ensure all text wraps properly on mobile */
