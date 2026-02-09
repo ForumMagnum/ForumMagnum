@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
@@ -24,6 +24,9 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import PopperCard from "@/components/common/PopperCard";
+import type { Placement as PopperPlacementType } from "popper.js";
+import { prettyScrollbars } from "@/themes/styleUtils";
 
 
 const UserTopPostsQuery = gql(`
@@ -46,6 +49,7 @@ interface PostItem {
 const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit * 3,
+    position: "relative",
   },
   header: {
     display: "flex",
@@ -76,6 +80,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     "&:enabled": {
       cursor: "pointer",
       opacity: 1,
+      border: `1px solid ${theme.palette.grey[500]}`,
       "&:hover": {
         background: theme.palette.grey[50],
       },
@@ -172,15 +177,79 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     flexShrink: 0,
     transition: "background 0.15s",
     "&:hover": {
-      background: `rgba(${theme.palette.primary.main}, 0.04)`,
-      // MUI outlined secondary hover uses a faint tint of the color
       backgroundColor: `color-mix(in srgb, ${theme.palette.primary.main} 8%, transparent)`,
     },
+  },
+  swapButtonActive: {
+    backgroundColor: `color-mix(in srgb, ${theme.palette.primary.main} 8%, transparent)`,
   },
   swapIcon: {
     width: 16,
     height: 16,
     color: theme.palette.primary.main,
+  },
+
+  searchDialog: {
+    padding: `${theme.spacing.unit * 1.5}px`,
+    border: `1px solid ${theme.palette.grey[400]}`,
+    borderRadius: 6,
+    boxShadow: "none",
+    marginTop: -1,
+  },
+  searchInput: {
+    "&&, &&:focus": {
+      width: "100%",
+      padding: "10px 12px",
+      fontSize: "0.9375rem",
+      border: `1px solid ${theme.palette.grey[400]}`,
+      borderRadius: 6,
+      outline: "none",
+      background: theme.palette.background.paper,
+      fontFamily: theme.typography.fontFamily,
+      marginBottom: theme.spacing.unit,
+    },
+    "&&:focus": {
+      border: `1px solid ${theme.palette.primary.main}`,
+    },
+  },
+  dialogPostList: {
+    ...prettyScrollbars(theme),
+    scrollbarColor: `${theme.palette.greyAlpha(0.1)} transparent`,
+    "&::-webkit-scrollbar-thumb": {
+      background: theme.palette.greyAlpha(0.1),
+    },
+    maxHeight: 140,
+    margin: 0,
+    padding: 0,
+    listStyle: "none",
+  },
+  dialogPostItem: {
+    padding: "10px 12px",
+    cursor: "pointer",
+    borderRadius: 4,
+    fontSize: "0.9375rem",
+    color: theme.palette.text.normal,
+    transition: "background 0.1s",
+    "&:hover": {
+      background: theme.palette.grey[100],
+    },
+  },
+  dialogPostItemDisabled: {
+    opacity: 0.4,
+    cursor: "default",
+    "&:hover": {
+      background: "none",
+    },
+  },
+  dialogPostItemCheck: {
+    color: theme.palette.grey[400],
+    marginRight: theme.spacing.unit,
+    fontSize: "0.8125rem",
+  },
+  noResults: {
+    padding: "12px",
+    color: theme.palette.grey[500],
+    fontSize: "0.875rem",
   },
 }));
 
@@ -201,17 +270,50 @@ const DragDots = ({ classes }: { classes: ClassesType<typeof styles> }) => (
   </div>
 );
 
+function computePlacement(anchorEl: HTMLElement): PopperPlacementType {
+  const rect = anchorEl.getBoundingClientRect();
+  const viewportHeight = window.innerHeight;
+  // If the anchor is in the lower 40% of the viewport, show above
+  if (rect.bottom > viewportHeight * 0.6) {
+    return "top-start";
+  }
+  return "bottom-start";
+}
+
+function handleDocumentMouseDown(
+  event: MouseEvent,
+  searchRef: React.RefObject<HTMLDivElement | null>,
+  anchorEl: HTMLElement | null,
+  closeSearch: () => void
+) {
+  const target = event.target as Node;
+  // Don't close if clicking inside the search dialog or on the anchor (swap button)
+  if (searchRef.current?.contains(target)) return;
+  if (anchorEl?.contains(target)) return;
+  closeSearch();
+}
+
+function handleDocumentKeyDown(event: KeyboardEvent, closeSearch: () => void) {
+  if (event.key === "Escape") {
+    closeSearch();
+  }
+}
+
 function SortablePostRow({
   post,
   index,
   showSwapButtons,
+  isSwapActive,
   activeDragId,
+  onSwapClick,
   classes,
 }: {
   post: PostItem;
   index: number;
   showSwapButtons: boolean;
+  isSwapActive: boolean;
   activeDragId: string | null;
+  onSwapClick: (index: number, anchorEl: HTMLElement) => void;
   classes: ClassesType<typeof styles>;
 }) {
   const {
@@ -261,11 +363,8 @@ function SortablePostRow({
         </div>
         {showSwapButtons && (
           <button
-            className={classes.swapButton}
-            onClick={() => {
-              // TODO: Wire up swap functionality
-              console.log(`Swap button clicked for post ${index + 1}`);
-            }}
+            className={classNames(classes.swapButton, { [classes.swapButtonActive]: isSwapActive })}
+            onClick={(e) => onSwapClick(index, e.currentTarget)}
             type="button"
           >
             <SwapIcon classes={classes} />
@@ -280,6 +379,13 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
   const classes = useStyles(styles);
   const [orderedPostIds, setOrderedPostIds] = useState<string[] | null>(null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [swapSlotIndex, setSwapSlotIndex] = useState<number | null>(null);
+  const [swapAnchorEl, setSwapAnchorEl] = useState<HTMLElement | null>(null);
+  const [swapPlacement, setSwapPlacement] = useState<PopperPlacementType>("bottom-start");
+  const [swapDialogWidth, setSwapDialogWidth] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+  const searchRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const mouse = useSensor(MouseSensor, { activationConstraint: { distance: 5 } });
   const pointer = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
@@ -340,6 +446,71 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
     setOrderedPostIds(null);
   }, []);
 
+  const handleSwapClick = useCallback((index: number, anchorEl: HTMLElement) => {
+    setSwapSlotIndex(prevIndex => {
+      if (prevIndex === index) {
+        setSwapAnchorEl(null);
+        return null;
+      }
+      // The swap button's parent is the postItem card — anchor to it
+      const cardEl = anchorEl.parentElement as HTMLElement | null;
+      const anchor = cardEl ?? anchorEl;
+      setSwapAnchorEl(anchor);
+      setSwapPlacement(computePlacement(anchor));
+      if (cardEl) {
+        setSwapDialogWidth(cardEl.offsetWidth);
+      }
+      return index;
+    });
+    setSearch("");
+  }, []);
+
+  const handleCloseSearch = useCallback(() => {
+    setSwapSlotIndex(null);
+    setSwapAnchorEl(null);
+    setSearch("");
+  }, []);
+
+  const handleSwapSelect = useCallback((postId: string) => {
+    if (swapSlotIndex === null) return;
+    if (postIds.includes(postId)) return;
+    const currentIds = orderedPostIds ?? postIds;
+    const newIds = [...currentIds];
+    newIds[swapSlotIndex] = postId;
+    setOrderedPostIds(newIds);
+    setSwapSlotIndex(null);
+    setSwapAnchorEl(null);
+    setSearch("");
+  }, [swapSlotIndex, orderedPostIds, postIds]);
+
+  const filteredPosts = useMemo(() => {
+    if (!search.trim()) return allPosts;
+    const term = search.toLowerCase();
+    return allPosts.filter(p => p.title.toLowerCase().includes(term));
+  }, [allPosts, search]);
+
+  useEffect(() => {
+    if (swapSlotIndex === null) return;
+    const onMouseDown = (e: MouseEvent) => handleDocumentMouseDown(e, searchRef, swapAnchorEl, handleCloseSearch);
+    const onKeyDown = (e: KeyboardEvent) => handleDocumentKeyDown(e, handleCloseSearch);
+    document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [swapSlotIndex, swapAnchorEl, handleCloseSearch]);
+
+  // Focus the search input after the popper has positioned, using
+  // preventScroll to avoid the browser jumping the page.
+  useEffect(() => {
+    if (swapSlotIndex === null) return;
+    const frameId = requestAnimationFrame(() => {
+      searchInputRef.current?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frameId);
+  }, [swapSlotIndex]);
+
   // Don't show if loading or user has 0-1 posts (nothing to manage)
   if (loading || postCount <= 1) {
     return null;
@@ -347,6 +518,43 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
 
   return (
     <div className={classes.root}>
+      <PopperCard
+        open={swapSlotIndex !== null}
+        anchorEl={swapAnchorEl}
+        placement={swapPlacement}
+        className={classes.searchDialog}
+        style={swapDialogWidth ? { width: swapDialogWidth } : undefined}
+      >
+        <div ref={searchRef}>
+          <input
+            ref={searchInputRef}
+            className={classes.searchInput}
+            placeholder="Search your posts"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <ul className={classes.dialogPostList}>
+            {filteredPosts.length === 0 && (
+              <li className={classes.noResults}>No posts found</li>
+            )}
+            {filteredPosts.map((post) => {
+              const isAlreadySelected = postIds.includes(post._id);
+              return (
+                <li
+                  key={post._id}
+                  className={classNames(classes.dialogPostItem, {
+                    [classes.dialogPostItemDisabled]: isAlreadySelected,
+                  })}
+                  onClick={() => handleSwapSelect(post._id)}
+                >
+                  {isAlreadySelected && <span className={classes.dialogPostItemCheck}>&#10003;</span>}
+                  {post.title}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </PopperCard>
       <div className={classes.header}>
         <div className={classes.title}>Swap top posts</div>
         <button
@@ -372,7 +580,9 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
                 post={post}
                 index={index}
                 showSwapButtons={showSwapButtons}
+                isSwapActive={swapSlotIndex === index}
                 activeDragId={activeDragId}
+                onSwapClick={handleSwapClick}
                 classes={classes}
               />
             ))}

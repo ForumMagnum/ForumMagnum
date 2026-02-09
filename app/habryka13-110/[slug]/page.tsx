@@ -16,7 +16,6 @@ import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContex
 import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";
 import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavObserverContext";
 import UsersNameWithModal from "@/components/ultraFeed/UsersNameWithModal";
-import { Link } from "@/lib/reactRouterWrapper";
 import LWTooltip from "@/components/common/LWTooltip";
 import UserMetaInfo from "@/components/users/UserMetaInfo";
 import moment from "moment";
@@ -396,9 +395,9 @@ export default function HabrykaUserPage() {
               {username}
             </h1>
             {isOwnProfile && (
-              <Link to="/account" className="profile-edit-button">
+              <a href="/account" className="profile-edit-button">
                 Edit
-              </Link>
+              </a>
             )}
           </div>
 

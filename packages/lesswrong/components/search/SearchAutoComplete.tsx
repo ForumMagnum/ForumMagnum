@@ -51,7 +51,7 @@ const SearchAutoComplete = ({
   indexName: string,
   classes: ClassesType<typeof styles>,
   renderInputComponent?: any,
-  facetFilters?: Record<string, boolean>,
+  facetFilters?: Record<string, boolean | string>,
 }) => {
   if (!isSearchEnabled()) {
     // Fallback for when search is unavailable (ie, local development installs).
