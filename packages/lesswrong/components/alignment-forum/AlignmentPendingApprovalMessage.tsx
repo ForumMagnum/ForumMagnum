@@ -3,7 +3,7 @@ import { isAF } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles } from '@/components/hooks/defineStyles';
-import { useStyles } from '@/components/hooks/useStyles';
+import { useGetStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("AlignmentPendingApprovalMessage", (theme: ThemeType) => ({
   root: {
@@ -15,13 +15,14 @@ const styles = defineStyles("AlignmentPendingApprovalMessage", (theme: ThemeType
 const AlignmentPendingApprovalMessage = ({post}: {
   post: PostsBase,
 }) => {
-  const classes = useStyles(styles);
+  const getClasses = useGetStyles(styles);
   const currentUser = useCurrentUser()
   if (!currentUser) return null
   
   const userSubmittedPost = !!post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
   
   if (!post.af && userSubmittedPost && isAF()) {
+    const classes = getClasses();
     return (
       <div className={classes.root}>
         <p>
