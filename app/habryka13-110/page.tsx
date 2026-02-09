@@ -175,6 +175,9 @@ function HabrykaProfileContent({ slug, activeTab, setActiveTab }: {
     };
 
     const updateOverflowIndicators = () => {
+      const postTitleNodes = document.querySelectorAll<HTMLElement>(".post-title");
+      postTitleNodes.forEach((node) => truncateToLines(node, 4));
+
       const titleNodes = document.querySelectorAll<HTMLElement>(
         ".habryka2 .list-article-title-text"
       );
@@ -215,7 +218,12 @@ function HabrykaProfileContent({ slug, activeTab, setActiveTab }: {
   };
   const getPostImageUrl = (post: any) => {
     const url = post?.socialPreviewData?.imageUrl;
-    return (url && url.trim()) ? url : "/default-post-preview.png";
+    if (!url || !url.trim()) return "/default-post-preview.png";
+    // Apply Cloudinary smart crop for better image fitting
+    if (url.includes("res.cloudinary.com") && url.includes("/upload/")) {
+      return url.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
+    }
+    return url;
   };
   const formatRelativeDate = (date: Date | string) => moment(new Date(date)).fromNow();
   const getCommentParagraphs = (comment: any) => {

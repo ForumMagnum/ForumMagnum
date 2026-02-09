@@ -1350,6 +1350,7 @@ body {
   color: #f4f1ed;
   font-size: 12px;
   border-radius: 4px;
+  overflow: hidden;
 }
 
 .small-article-content {
@@ -2576,8 +2577,8 @@ body {
 }
 
 .top-posts-indicator + .post-article .post-title {
-  font-size: 38px;
-  line-height: 1.1;
+  font-size: 34px;
+  line-height: 1.15;
 }
 
 .top-posts-indicator + .post-article {
