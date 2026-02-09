@@ -48,9 +48,3 @@ export const getSequenceCollectionBooks = async function(sequenceId: string, con
 
   return context.Books.find({ collectionId }, { sort: { number: 1 } }).fetch();
 }
-
-export const sequenceRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
-  const sequenceId = parsedRoute.params._id;
-  if (!sequenceId) return false;
-  return await context.repos.sequences.sequenceRouteWillDefinitelyReturn200(sequenceId);
-}

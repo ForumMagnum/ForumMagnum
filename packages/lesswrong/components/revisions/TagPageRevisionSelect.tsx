@@ -26,14 +26,8 @@ const RevisionHistoryEntryMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
-});
-
-const TagPageRevisionSelect = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
-  const { params, query } = useLocation();
-  const { slug } = params;
+const TagPageRevisionSelect = ({slug}: {slug: string}) => {
+  const { query } = useLocation();
   const focusedUser = query.user;
   const navigate = useNavigate();
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
@@ -90,6 +84,6 @@ const TagPageRevisionSelect = ({ classes }: {
   </SingleColumnSection>
 }
 
-export default registerComponent("TagPageRevisionSelect", TagPageRevisionSelect, {styles});
+export default TagPageRevisionSelect;
 
 

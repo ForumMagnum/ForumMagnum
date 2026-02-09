@@ -11,13 +11,16 @@ import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgrou
 
 assertRouteHasWhiteBackground("/posts/slug/[slug]");
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params;
   return <RouteRoot
     delayedStatusCode
     metadata={{
       noFooter: hasPostRecommendations(),
     }}
   >
-    <PostsSingleSlugRedirect />
+    <PostsSingleSlugRedirect slug={slug} />
   </RouteRoot>;
 }

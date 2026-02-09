@@ -6,8 +6,11 @@ import RouteRoot from "@/components/layout/RouteRoot";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params;
   return <RouteRoot metadata={{ titleComponent: TagPageTitle }}>
-    <TagPageRevisionSelect />
+    <TagPageRevisionSelect slug={slug} />
   </RouteRoot>;
 }

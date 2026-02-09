@@ -12,11 +12,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
 assertRouteHasWhiteBackground("/highlights/[slug]");
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params;
   return <RouteRoot delayedStatusCode metadata={{
     subtitle: 'Sequence Highlights',
     subtitleLink: '/highlights',
   }}>
-    <PostsSingleSlug />
+    <PostsSingleSlug slug={slug} />
   </RouteRoot>;
 }

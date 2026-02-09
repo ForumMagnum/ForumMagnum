@@ -8,8 +8,11 @@ assertRouteHasWhiteBackground("/s/[_id]/p/[postId]");
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string; postId: string }>(({ postId }) => postId);
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ _id: string; postId: string }>
+}) {
+  const { _id, postId } = await params;
   return <RouteRoot>
-    <SequencesPost />
+    <SequencesPost postId={postId} sequenceId={_id} />
   </RouteRoot>;
 }

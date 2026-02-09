@@ -14,6 +14,6 @@ assertRouteHasWhiteBackground("/account");
 
 export default function Page() {
   return <RouteRoot>
-    <UsersAccount />
+    <UsersAccount slug={null} />
   </RouteRoot>;
 }

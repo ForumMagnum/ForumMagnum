@@ -22,8 +22,11 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
   });
 }
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ _id: string }>
+}) {
+  const { _id } = await params;
   return <RouteRoot>
-    <SequencesSingle />
+    <SequencesSingle _id={_id} />
   </RouteRoot>
 }

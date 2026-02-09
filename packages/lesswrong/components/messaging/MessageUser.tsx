@@ -1,8 +1,5 @@
 "use client";
-
 import React, { useEffect } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useLocation } from "../../lib/routeUtil";
 import { useCurrentUser } from "../common/withUser";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import Loading from "../vulcan-core/Loading";
@@ -11,6 +8,8 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { StatusCodeSetter } from "../next/StatusCodeSetter";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useStyles } from "@/components/hooks/useStyles";
 
 const GetUserBySlugQuery = gql(`
   query MessageUserGetUserBySlug($slug: String!) {
@@ -20,7 +19,7 @@ const GetUserBySlugQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("MessageUser", (theme: ThemeType) => ({
   error: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 16,
@@ -28,9 +27,12 @@ const styles = (theme: ThemeType) => ({
     marginTop: 16,
     padding: 16
   },
-});
+}));
 
-const MessageUserInnerInner = ({ user, classes }: { user: UsersMinimumInfo; classes: ClassesType<typeof styles> }) => {
+const MessageUserInnerInner = ({ user }: {
+  user: UsersMinimumInfo
+}) => {
+  const classes = useStyles(styles);
   const { conversation, conversationLoading, initiateConversation } = useInitiateConversation();
 
   useEffect(() => {
@@ -49,12 +51,12 @@ const MessageUserInnerInner = ({ user, classes }: { user: UsersMinimumInfo; clas
   return <PermanentRedirect url={url} status={302} />;
 };
 
-const MessageUser = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const MessageUser = ({ slug }: { slug: string }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const { params } = useLocation();
   const { data, loading } = useQuery(GetUserBySlugQuery, {
-    variables: { slug: params.slug },
-    skip: !currentUser || !params.slug,
+    variables: { slug: slug },
+    skip: !currentUser || !slug,
   });
 
   const user = data?.GetUserBySlug;
@@ -86,9 +88,7 @@ const MessageUser = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     </>;
   }
 
-  return <MessageUserInnerInner user={user} classes={classes} />;
+  return <MessageUserInnerInner user={user} />;
 };
 
-export default registerComponent("MessageUser", MessageUser, { styles });
-
-
+export default MessageUser;

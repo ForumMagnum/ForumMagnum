@@ -9,12 +9,15 @@ export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ 
 
 assertRouteHasWhiteBackground("/w/[slug]/discussion");
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params;
   return <RouteRoot metadata={{
     titleComponent: TagPageTitle,
     subtitleComponent: TagPageTitle
   }}>
-    <TagDiscussionPage />
+    <TagDiscussionPage slug={slug} />
   </RouteRoot>;
 }
 

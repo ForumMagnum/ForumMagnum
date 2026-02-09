@@ -79,13 +79,15 @@ export async function generateMetadata({ params, searchParams }: {
   }
 }
 
-export default function Page() {
-  // enableResourcePrefetch was: function
+export default async function Page({ params }: {
+  params: Promise<{ _id: string }>
+}) {
+  const { _id } = await params;
   
   return <RouteRoot delayedStatusCode metadata={{
     titleComponent: SequencesPageTitle,
     subtitleComponent: SequencesPageTitle
   }}>
-    <SequencesSingle />
+    <SequencesSingle _id={_id} />
   </RouteRoot>;
 }

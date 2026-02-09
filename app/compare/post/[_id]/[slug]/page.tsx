@@ -5,8 +5,11 @@ import RouteRoot from "@/components/layout/RouteRoot";
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ _id: string, slug: string }>
+}) {
+  const { _id, slug } = await params;
   return <RouteRoot>
-    <PostsCompareRevisions />
+    <PostsCompareRevisions postId={_id} slug={slug} />
   </RouteRoot>;
 }
