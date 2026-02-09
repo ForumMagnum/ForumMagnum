@@ -300,7 +300,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       cost: 0, 
       tooltip: 
         <div>
-          <p>No strong opinion on this post,</p>
+          <p>No strong opinion on this post.</p>
           <div><em>Costs 0 points (of 500)</em></div>
           {overSpentWarning}
         </div>
