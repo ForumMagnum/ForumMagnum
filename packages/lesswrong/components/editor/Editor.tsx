@@ -9,6 +9,8 @@ import { isClient } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { getUserABTestGroup } from '@/lib/abTestImpl';
+import { lexicalEditorABTest } from '@/lib/abTests';
 import { rootStyles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
@@ -199,12 +201,38 @@ export const getEditorTypeToDisplayMap = (): Record<LegacyEditorTypeString,{name
   lexical: {name: 'Lexical', postfix: '[Experimental]'},
 });
 
-export const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
-export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'lexical']
+const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
+const betaEditors: EditorTypeString[] = ['ckEditorMarkup', 'lexical']
+const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'lexical']
+
+/** Whether a user should have access to the Lexical editor (as a default or selectable option). */
+export function userHasLexicalEditor(user: UsersCurrent | DbUser | null): boolean {
+  if (!user) return false;
+  if (userIsAdmin(user)) return true;
+  if (user.beta) {
+    const abTestGroup = getUserABTestGroup({ user }, lexicalEditorABTest);
+    return abTestGroup === "lexical";
+  }
+  return false;
+}
+
+/** Returns the list of editors available to the given user. */
+export function getEditorsForUser(user: UsersCurrent | DbUser | null): EditorTypeString[] {
+  if (user && userIsAdmin(user)) {
+    return adminEditors;
+  }
+  if (user?.beta) {
+    if (userUseMarkdownPostEditor(user)) {
+      return ['markdown', ...betaEditors];
+    }
+    return betaEditors;
+  }
+  return nonAdminEditors;
+}
 
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
-  if (user && userIsAdmin(user)) return "lexical"
+  if (userHasLexicalEditor(user)) return "lexical"
   return "ckEditorMarkup"
 }
 
