@@ -89,11 +89,6 @@ function positionToolbar(
     left = anchorRect.width - toolbarRect.width;
   }
 
-  // // Keep it from going off the left edge
-  // if (left < 0) {
-  //   left = 0;
-  // }
-
   toolbarElem.style.opacity = '1';
   toolbarElem.style.transform = `translate(${left}px, ${top}px)`;
 }

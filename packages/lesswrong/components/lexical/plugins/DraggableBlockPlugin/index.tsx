@@ -27,7 +27,10 @@ const styles = defineStyles('LexicalDraggableBlockPlugin', (theme: ThemeType) =>
     cursor: 'grab',
     opacity: 0,
     position: 'absolute',
-    left: -42,
+    // The editor div (anchorElem) is shifted 50px left via negative margin to
+    // extend its hit zone into the gutter. Adjust from -42 to 8 (-42 + 50) so
+    // the menu appears at the same visual position.
+    left: 8,
     top: -2,
     willChange: 'transform, opacity',
     display: 'flex',
@@ -143,7 +146,7 @@ export default function DraggableBlockPlugin({
             <button
               ref={addButtonRef}
               type="button"
-              title="Click to insert block"
+              title="Click to insert custom element"
               className={classes.addButton}
               onClick={toggleToolbar}>
               <PlusIcon className={classes.icon} />

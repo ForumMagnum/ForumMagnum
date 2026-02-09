@@ -391,6 +391,15 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     resize: 'vertical',
     minHeight: '100%',
     zIndex: 0,
+    // Extend the editor div into the left gutter so that the draggable block
+    // menu's hit zone covers the gutter area. This allows users to hover from
+    // the left to reveal the plus/drag icons, and prevents accidental
+    // overshoot from hiding them. The padding compensates so content stays
+    // in the same position. Floating plugins that portal into this element
+    // are unaffected because their anchor-relative positioning math cancels
+    // out the shift.
+    marginLeft: -50,
+    paddingLeft: 50,
   },
   cursorsContainer: {
     position: 'absolute',
