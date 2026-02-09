@@ -9,13 +9,16 @@ import React, { type JSX } from 'react';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {DraggableBlockPlugin_EXPERIMENTAL} from '@lexical/react/LexicalDraggableBlockPlugin';
-import {$createParagraphNode, $getNearestNodeFromDOMNode} from 'lexical';
-import {useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { DraggableBlockMenuIcon } from '../../icons/DraggableBlockMenuIcon';
 import { PlusIcon } from '../../icons/PlusIcon';
+import useModal from '../../hooks/useModal';
+import { useInsertClaim } from '../../embeds/ElicitEmbed/ClaimsPlugin';
+import { isLWorAF } from '@/lib/instanceSettings';
+import BlockInsertToolbarPlugin from './BlockInsertToolbar';
 
 const styles = defineStyles('LexicalDraggableBlockPlugin', (theme: ThemeType) => ({
   menu: {
@@ -77,8 +80,14 @@ const styles = defineStyles('LexicalDraggableBlockPlugin', (theme: ThemeType) =>
   },
 }));
 
+const BLOCK_MENU_CLASS = 'draggable-block-menu';
+const BLOCK_INSERT_TOOLBAR_CLASS = 'block-insert-toolbar';
+
 function isOnMenu(element: HTMLElement): boolean {
-  return !!element.closest('.draggable-block-menu');
+  return !!(
+    element.closest(`.${BLOCK_MENU_CLASS}`) ||
+    element.closest(`.${BLOCK_INSERT_TOOLBAR_CLASS}`)
+  );
 }
 
 export default function DraggableBlockPlugin({
@@ -90,58 +99,76 @@ export default function DraggableBlockPlugin({
   const [editor] = useLexicalComposerContext();
   const menuRef = useRef<HTMLDivElement>(null);
   const targetLineRef = useRef<HTMLDivElement>(null);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
   const [draggableElement, setDraggableElement] = useState<HTMLElement | null>(
     null,
   );
+  const [isToolbarOpen, setIsToolbarOpen] = useState(false);
 
-  function insertBlock(e: React.MouseEvent<HTMLButtonElement>) {
+  const [modal, showModal] = useModal();
+  const insertClaimFn = useInsertClaim();
+  const insertClaim = isLWorAF() ? insertClaimFn : null;
+
+  const handleClose = useCallback(() => {
+    setIsToolbarOpen(false);
+  }, []);
+
+  // Close toolbar when hovered block changes, but only if the toolbar isn't
+  // currently open (when the toolbar is open, isOnMenu prevents the library
+  // from changing draggableElement, but guard against edge cases).
+  const isToolbarOpenRef = useRef(false);
+  isToolbarOpenRef.current = isToolbarOpen;
+  useEffect(() => {
+    if (!isToolbarOpenRef.current) {
+      setIsToolbarOpen(false);
+    }
+  }, [draggableElement]);
+
+  function toggleToolbar(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     e.stopPropagation();
-    if (!draggableElement || !editor) {
-      return;
-    }
-
-    editor.update(() => {
-      const node = $getNearestNodeFromDOMNode(draggableElement);
-      if (!node) {
-        return;
-      }
-
-      const pNode = $createParagraphNode();
-      if (e.altKey || e.ctrlKey) {
-        node.insertBefore(pNode);
-      } else {
-        node.insertAfter(pNode);
-      }
-      pNode.select();
-    });
+    setIsToolbarOpen((prev) => !prev);
   }
 
   return (
-    // eslint-disable-next-line react/jsx-pascal-case
-    <DraggableBlockPlugin_EXPERIMENTAL
-      anchorElem={anchorElem}
-      menuRef={menuRef}
-      targetLineRef={targetLineRef}
-      menuComponent={
-        <div ref={menuRef} className={classNames(classes.menu, 'draggable-block-menu')}>
-          <button
-            type="button"
-            title="Click to add below"
-            className={classes.addButton}
-            onClick={insertBlock}>
-            <PlusIcon className={classes.icon} />
-          </button>
-          <div className={classes.dragHandle}>
-            <DraggableBlockMenuIcon className={classes.icon} />
+    <>
+      {modal}
+      {/* eslint-disable-next-line react/jsx-pascal-case */}
+      <DraggableBlockPlugin_EXPERIMENTAL
+        anchorElem={anchorElem}
+        menuRef={menuRef}
+        targetLineRef={targetLineRef}
+        menuComponent={
+          <div ref={menuRef} className={classNames(classes.menu, 'draggable-block-menu')}>
+            <button
+              ref={addButtonRef}
+              type="button"
+              title="Click to insert block"
+              className={classes.addButton}
+              onClick={toggleToolbar}>
+              <PlusIcon className={classes.icon} />
+            </button>
+            <div className={classes.dragHandle}>
+              <DraggableBlockMenuIcon className={classes.icon} />
+            </div>
           </div>
-        </div>
-      }
-      targetLineComponent={
-        <div ref={targetLineRef} className={classes.targetLine} />
-      }
-      isOnMenu={isOnMenu}
-      onElementChanged={setDraggableElement}
-    />
+        }
+        targetLineComponent={
+          <div ref={targetLineRef} className={classes.targetLine} />
+        }
+        isOnMenu={isOnMenu}
+        onElementChanged={setDraggableElement}
+      />
+      {isToolbarOpen && addButtonRef.current && (
+        <BlockInsertToolbarPlugin
+          editor={editor}
+          anchorElem={anchorElem}
+          buttonElem={addButtonRef.current}
+          onClose={handleClose}
+          showModal={showModal}
+          insertClaim={insertClaim}
+        />
+      )}
+    </>
   );
 }
