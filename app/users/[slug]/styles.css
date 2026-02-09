@@ -1719,7 +1719,7 @@ body {
 .feed-list .UltraFeedThreadItem-root {
   border: 1px solid #e5ddd6;
   border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.053);
   padding: 25px 25px 8px 25px;
   background: #ffffff;
 }

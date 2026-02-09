@@ -385,12 +385,44 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
   const getTopPostSummary = (post: any) => {
     return post?.contents?.plaintextDescription ?? "";
   };
-  const getPostImageUrl = (post: any) => {
+  const defaultPreviews = [
+    "/default-post-preview.png",
+    "/default-post-preview-1.png",
+    "/default-post-preview-2.png",
+    "/default-post-preview-3.png",
+  ];
+  const hashString = (s: string) => {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) {
+      h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+    }
+    return Math.abs(h);
+  };
+  // Seeded shuffle for top posts area so no two get the same default image
+  const topPostDefaultImages = (() => {
+    const seed = hashString(topPosts[0]?._id ?? "seed");
+    const arr = [...defaultPreviews];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = (seed + i * 2654435761) % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  })();
+  const getDefaultPreview = (postId: string) => {
+    return defaultPreviews[hashString(postId) % defaultPreviews.length];
+  };
+  const getTopPostDefaultPreview = (index: number) => {
+    return topPostDefaultImages[index % topPostDefaultImages.length];
+  };
+  const getPostImageUrl = (post: any, topPostIndex?: number) => {
+    const fallback = topPostIndex !== undefined
+      ? getTopPostDefaultPreview(topPostIndex)
+      : getDefaultPreview(post?._id ?? "0");
     const url = post?.socialPreviewData?.imageUrl;
-    if (!url || !url.trim()) return "/default-post-preview.png";
+    if (!url || !url.trim()) return fallback;
     // Filter out unreliable image hosts that block hotlinking
     if (url.includes("lh3.googleusercontent.com") || url.includes("docs.google.com")) {
-      return "/default-post-preview.png";
+      return fallback;
     }
     // Apply Cloudinary smart crop for better image fitting
     if (url.includes("res.cloudinary.com") && url.includes("/upload/")) {
@@ -445,15 +477,15 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
                   <div
                     className="post-image"
                     style={{
-                      backgroundImage: `url('${getPostImageUrl(topPost)}')`,
+                      backgroundImage: `url('${getPostImageUrl(topPost, 0)}')`,
                     }}
                   ></div>
                 </a>
               )}
 
               <div className="small-articles-grid">
-                {smallArticles.map((post) => {
-                  const imageUrl = getPostImageUrl(post);
+                {smallArticles.map((post, idx) => {
+                  const imageUrl = getPostImageUrl(post, idx + 1);
                   return (
                     <article key={post._id} className="small-article">
                       <a
