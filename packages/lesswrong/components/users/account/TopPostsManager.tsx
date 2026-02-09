@@ -137,7 +137,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    height: 24,
+    height: 28,
     "& > span": {
       width: 3,
       height: 3,
@@ -156,12 +156,14 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   postTitle: {
     fontSize: "1.0625rem",
     fontWeight: 500,
+    fontFamily: theme.typography.postStyle.fontFamily,
     color: theme.palette.text.normal,
+    marginTop: 15,
   },
   postMeta: {
     fontSize: "0.8125rem",
     color: "light-dark(#9a9189, #9a9189)",
-    marginTop: 2,
+    marginTop: 0,
   },
   swapButton: {
     display: "flex",
@@ -315,6 +317,7 @@ function SortablePostRow({
   onSwapClick: (index: number, anchorEl: HTMLElement) => void;
   classes: ClassesType<typeof styles>;
 }) {
+  const cardRef = useRef<HTMLDivElement | null>(null);
   const {
     attributes,
     listeners,
@@ -323,6 +326,16 @@ function SortablePostRow({
     transition,
     isDragging,
   } = useSortable({ id: post._id });
+
+  const setSortableAndCardRef = useCallback((node: HTMLDivElement | null) => {
+    setNodeRef(node);
+    cardRef.current = node;
+  }, [setNodeRef]);
+
+  const handleContentClick = useCallback(() => {
+    if (!showSwapButtons || !cardRef.current) return;
+    onSwapClick(index, cardRef.current);
+  }, [showSwapButtons, onSwapClick, index]);
 
   const cardStyle: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -338,7 +351,7 @@ function SortablePostRow({
     <div className={classes.postRow}>
       <div className={classes.postNumber}>{index + 1}</div>
       <div
-        ref={setNodeRef}
+        ref={setSortableAndCardRef}
         style={cardStyle}
         className={classNames(classes.postItem, {
           [classes.postItemDragging]: isDragging,
@@ -352,7 +365,7 @@ function SortablePostRow({
         >
           <DragDots classes={classes} />
         </div>
-        <div className={classes.postContent}>
+        <div className={classes.postContent} onClick={handleContentClick}>
           <span className={classes.postTitle}>
             {post.title}
           </span>
@@ -451,18 +464,18 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
         setSwapAnchorEl(null);
         return null;
       }
-      // The swap button's parent is the postItem card — anchor to it
-      const cardEl = anchorEl.parentElement as HTMLElement | null;
-      const anchor = cardEl ?? anchorEl;
-      setSwapAnchorEl(anchor);
-      setSwapPlacement(computePlacement(anchor));
-      if (cardEl) {
-        setSwapDialogWidth(cardEl.offsetWidth);
-      }
+      // anchorEl may be the card itself (content click) or the swap button;
+      // walk up to the postItem card if needed by checking for the postItem class
+      const cardEl = anchorEl.classList.contains(classes.postItem)
+        ? anchorEl
+        : (anchorEl.parentElement as HTMLElement | null) ?? anchorEl;
+      setSwapAnchorEl(cardEl);
+      setSwapPlacement(computePlacement(cardEl));
+      setSwapDialogWidth(cardEl.offsetWidth);
       return index;
     });
     setSearch("");
-  }, []);
+  }, [classes.postItem]);
 
   const handleCloseSearch = useCallback(() => {
     setSwapSlotIndex(null);
