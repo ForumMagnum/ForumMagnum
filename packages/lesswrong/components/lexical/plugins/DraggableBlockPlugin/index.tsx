@@ -109,8 +109,7 @@ export default function DraggableBlockPlugin({
   const [isToolbarOpen, setIsToolbarOpen] = useState(false);
 
   const [modal, showModal] = useModal();
-  const insertClaimFn = useInsertClaim();
-  const insertClaim = isLWorAF() ? insertClaimFn : null;
+  const insertClaim = useInsertClaim();
 
   const handleClose = useCallback(() => {
     setIsToolbarOpen(false);

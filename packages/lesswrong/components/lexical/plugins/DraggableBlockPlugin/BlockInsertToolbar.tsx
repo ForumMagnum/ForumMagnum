@@ -15,7 +15,7 @@ import { HorizontalRuleIcon } from '../../icons/HorizontalRuleIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 import { CkFootnoteIcon } from '../../icons/CkFootnoteIcon';
-import { PlugIcon } from '../../icons/PlugIcon';
+import { InsertClaimIcon } from '../../icons/InsertClaimIcon';
 
 const styles = defineStyles('LexicalBlockInsertToolbar', (theme: ThemeType) => ({
   popup: {
@@ -278,7 +278,7 @@ function BlockInsertToolbar({
       className={classes.popupItem}
       title="Insert claim"
       aria-label="Insert claim">
-      <PlugIcon className={classes.format} />
+      <InsertClaimIcon className={classes.format} />
     </button>
   ) : null;
 
