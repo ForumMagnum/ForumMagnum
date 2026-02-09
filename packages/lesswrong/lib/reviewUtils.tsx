@@ -290,7 +290,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       cost: 1, 
       tooltip: 
         <div>
-          <p>Misleading, harmful or unimportant.</p>
+          <p>Misleading, harmful, or unimportant.</p>
           <div><em>Costs 1 point (of 500)</em></div>
           {overSpentWarning}
         </div>
