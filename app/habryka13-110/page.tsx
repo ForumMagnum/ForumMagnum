@@ -9,6 +9,7 @@ import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 import { getUserFromResults } from "@/components/users/UsersProfile";
 import Loading from "@/components/vulcan-core/Loading";
+import LWTooltip from "@/components/common/LWTooltip";
 import moment from "moment";
 
 type ProfileTab = "posts" | "sequences" | "comments";
@@ -219,6 +220,10 @@ function HabrykaProfileContent({ slug, activeTab, setActiveTab }: {
   const getPostImageUrl = (post: any) => {
     const url = post?.socialPreviewData?.imageUrl;
     if (!url || !url.trim()) return "/default-post-preview.png";
+    // Filter out unreliable image hosts that block hotlinking
+    if (url.includes("lh3.googleusercontent.com") || url.includes("docs.google.com")) {
+      return "/default-post-preview.png";
+    }
     // Apply Cloudinary smart crop for better image fitting
     if (url.includes("res.cloudinary.com") && url.includes("/upload/")) {
       return url.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
@@ -253,7 +258,9 @@ function HabrykaProfileContent({ slug, activeTab, setActiveTab }: {
           </div>
 
           <div className="top-posts-indicator">
-            <span className="top-posts-label">Top post</span>
+            <LWTooltip title="Based on karma" placement="bottom">
+              <span className="top-posts-label">Top post</span>
+            </LWTooltip>
           </div>
 
           {topPost ? (
@@ -480,16 +487,54 @@ function HabrykaProfileContent({ slug, activeTab, setActiveTab }: {
                     Message
                   </a>
                 </div>
+                {!bio && user && (
+                  <div className="sidebar-stats">
+                    {(user.karma ?? 0) !== 0 && (
+                      <div className="sidebar-stat-row">{(user.karma ?? 0).toLocaleString()} karma</div>
+                    )}
+                    {(user.afKarma ?? 0) > 0 && (
+                      <div className="sidebar-stat-row">{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
+                    )}
+                    {(user.postCount ?? 0) > 0 && (
+                      <div className="sidebar-stat-row">{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
+                    )}
+                    {(user.commentCount ?? 0) > 0 && (
+                      <div className="sidebar-stat-row">{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
+                    )}
+                    {user.createdAt && (
+                      <div className="sidebar-stat-row">Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
+                    )}
+                  </div>
+                )}
                 {bio && (
                   <>
                     <p className="sidebar-author-bio">
-                      {bio.length > 300 ? bio.slice(0, 300) + "..." : bio}
+                      {bio.split(/\s+/).length > 45 ? bio.split(/\s+/).slice(0, 45).join(" ") + "..." : bio}
                     </p>
-                    {bio.length > 300 && (
+                    {bio.split(/\s+/).length > 45 && (
                       <div className="read-more">
                         <a href={user ? userGetProfileUrl(user) : "#"} className="read-more-link">
                           See more
                         </a>
+                      </div>
+                    )}
+                    {user && (
+                      <div className="sidebar-stats">
+                        {(user.karma ?? 0) !== 0 && (
+                          <div className="sidebar-stat-row">{(user.karma ?? 0).toLocaleString()} karma</div>
+                        )}
+                        {(user.afKarma ?? 0) > 0 && (
+                          <div className="sidebar-stat-row">{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
+                        )}
+                        {(user.postCount ?? 0) > 0 && (
+                          <div className="sidebar-stat-row">{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
+                        )}
+                        {(user.commentCount ?? 0) > 0 && (
+                          <div className="sidebar-stat-row">{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
+                        )}
+                        {user.createdAt && (
+                          <div className="sidebar-stat-row">Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
+                        )}
                       </div>
                     )}
                   </>

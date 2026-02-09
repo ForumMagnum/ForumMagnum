@@ -17,6 +17,7 @@ import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObser
 import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavObserverContext";
 import UsersNameWithModal from "@/components/ultraFeed/UsersNameWithModal";
 import { Link } from "@/lib/reactRouterWrapper";
+import LWTooltip from "@/components/common/LWTooltip";
 import moment from "moment";
 
 type ProfileTab = "posts" | "sequences" | "feed";
@@ -360,6 +361,10 @@ export default function HabrykaUserPage() {
   const getPostImageUrl = (post: any) => {
     const url = post?.socialPreviewData?.imageUrl;
     if (!url || !url.trim()) return "/default-post-preview.png";
+    // Filter out unreliable image hosts that block hotlinking
+    if (url.includes("lh3.googleusercontent.com") || url.includes("docs.google.com")) {
+      return "/default-post-preview.png";
+    }
     // Apply Cloudinary smart crop for better image fitting
     if (url.includes("res.cloudinary.com") && url.includes("/upload/")) {
       return url.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
@@ -384,8 +389,10 @@ export default function HabrykaUserPage() {
           </div>
 
           <div className="top-posts-indicator">
-            <span className="top-posts-label top-posts-label--plural">Top posts</span>
-            <span className="top-posts-label top-posts-label--singular">Top post</span>
+            <LWTooltip title="Based on karma" placement="bottom">
+              <span className="top-posts-label top-posts-label--plural">Top posts</span>
+              <span className="top-posts-label top-posts-label--singular">Top post</span>
+            </LWTooltip>
           </div>
 
           {topPost ? (
@@ -707,6 +714,25 @@ export default function HabrykaUserPage() {
                     Message
                   </a>
                 </div>
+                {!bio && user && (
+                  <div className="sidebar-stats">
+                    {(user.karma ?? 0) !== 0 && (
+                      <div className="sidebar-stat-row">{(user.karma ?? 0).toLocaleString()} karma</div>
+                    )}
+                    {(user.afKarma ?? 0) > 0 && (
+                      <div className="sidebar-stat-row">{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
+                    )}
+                    {(user.postCount ?? 0) > 0 && (
+                      <div className="sidebar-stat-row">{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
+                    )}
+                    {(user.commentCount ?? 0) > 0 && (
+                      <div className="sidebar-stat-row">{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
+                    )}
+                    {user.createdAt && (
+                      <div className="sidebar-stat-row">Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
+                    )}
+                  </div>
+                )}
                 {bio && (
                   <>
                     <div 
@@ -717,7 +743,7 @@ export default function HabrykaUserPage() {
                         {bio}
                       </p>
                     </div>
-                    {bio.split(/\s+/).filter(Boolean).length > 65 && (
+                    {bio.split(/\s+/).filter(Boolean).length > 45 && (
                       <div className="read-more">
                         <a 
                           href="#" 
@@ -729,6 +755,25 @@ export default function HabrykaUserPage() {
                         >
                           {bioExpanded ? "See less" : "See more"}
                         </a>
+                      </div>
+                    )}
+                    {user && (
+                      <div className="sidebar-stats">
+                        {(user.karma ?? 0) !== 0 && (
+                          <div className="sidebar-stat-row">{(user.karma ?? 0).toLocaleString()} karma</div>
+                        )}
+                        {(user.afKarma ?? 0) > 0 && (
+                          <div className="sidebar-stat-row">{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
+                        )}
+                        {(user.postCount ?? 0) > 0 && (
+                          <div className="sidebar-stat-row">{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
+                        )}
+                        {(user.commentCount ?? 0) > 0 && (
+                          <div className="sidebar-stat-row">{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
+                        )}
+                        {user.createdAt && (
+                          <div className="sidebar-stat-row">Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
+                        )}
                       </div>
                     )}
                   </>
