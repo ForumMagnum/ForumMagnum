@@ -13191,6 +13191,39 @@ type LocalgroupMetadataQueryVariables = Exact<{
 
 type LocalgroupMetadataQuery = LocalgroupMetadataQuery_Query;
 
+type multiModeratorCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & ShortformComments
+);
+
+type multiModeratorCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<multiModeratorCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type multiModeratorCommentsQueryQuery_Query = { __typename?: 'Query', comments: multiModeratorCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type multiModeratorCommentsQueryQueryVariables = Exact<{
+  commentIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+type multiModeratorCommentsQueryQuery = multiModeratorCommentsQueryQuery_Query;
+
+type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
+
+type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, bannerImageId: string | null, gridImageId: string | null, noindex: boolean, contents: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
+
+type SequenceMetadataQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence | null };
+
+type SequenceMetadataQuery_Query = { __typename?: 'Query', sequence: SequenceMetadataQuery_sequence_SingleSequenceOutput | null };
+
+
+type SequenceMetadataQueryVariables = Exact<{
+  sequenceId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type SequenceMetadataQuery = SequenceMetadataQuery_Query;
+
 type HabrykaDynamicUserQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & UsersProfile
@@ -13247,115 +13280,6 @@ type HabrykaDynamicSequencesQueryQueryVariables = Exact<{
 
 
 type HabrykaDynamicSequencesQueryQuery = HabrykaDynamicSequencesQueryQuery_Query;
-
-type HabrykaMockupUserQueryQuery_users_MultiUserOutput_results_User = (
-  { __typename?: 'User' }
-  & UsersProfile
-);
-
-type HabrykaMockupUserQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<HabrykaMockupUserQueryQuery_users_MultiUserOutput_results_User> };
-
-type HabrykaMockupUserQueryQuery_Query = { __typename?: 'Query', users: HabrykaMockupUserQueryQuery_users_MultiUserOutput | null };
-
-
-type HabrykaMockupUserQueryQueryVariables = Exact<{
-  selector: InputMaybe<UserSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type HabrykaMockupUserQueryQuery = HabrykaMockupUserQueryQuery_Query;
-
-type HabrykaMockupPostsQueryQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type HabrykaMockupPostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<HabrykaMockupPostsQueryQuery_posts_MultiPostOutput_results_Post> };
-
-type HabrykaMockupPostsQueryQuery_Query = { __typename?: 'Query', posts: HabrykaMockupPostsQueryQuery_posts_MultiPostOutput | null };
-
-
-type HabrykaMockupPostsQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type HabrykaMockupPostsQueryQuery = HabrykaMockupPostsQueryQuery_Query;
-
-type HabrykaMockupSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
-  { __typename?: 'Sequence' }
-  & SequenceContinueReadingFragment
-);
-
-type HabrykaMockupSequencesQueryQuery_sequences_MultiSequenceOutput = { __typename?: 'MultiSequenceOutput', totalCount: number | null, results: Array<HabrykaMockupSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence> };
-
-type HabrykaMockupSequencesQueryQuery_Query = { __typename?: 'Query', sequences: HabrykaMockupSequencesQueryQuery_sequences_MultiSequenceOutput | null };
-
-
-type HabrykaMockupSequencesQueryQueryVariables = Exact<{
-  selector: InputMaybe<SequenceSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type HabrykaMockupSequencesQueryQuery = HabrykaMockupSequencesQueryQuery_Query;
-
-type HabrykaMockupCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithParentMetadata
-);
-
-type HabrykaMockupCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<HabrykaMockupCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type HabrykaMockupCommentsQueryQuery_Query = { __typename?: 'Query', comments: HabrykaMockupCommentsQueryQuery_comments_MultiCommentOutput | null };
-
-
-type HabrykaMockupCommentsQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type HabrykaMockupCommentsQueryQuery = HabrykaMockupCommentsQueryQuery_Query;
-
-type multiModeratorCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
-  { __typename?: 'Comment' }
-  & ShortformComments
-);
-
-type multiModeratorCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<multiModeratorCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type multiModeratorCommentsQueryQuery_Query = { __typename?: 'Query', comments: multiModeratorCommentsQueryQuery_comments_MultiCommentOutput | null };
-
-
-type multiModeratorCommentsQueryQueryVariables = Exact<{
-  commentIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
-}>;
-
-
-type multiModeratorCommentsQueryQuery = multiModeratorCommentsQueryQuery_Query;
-
-type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
-
-type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, bannerImageId: string | null, gridImageId: string | null, noindex: boolean, contents: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
-
-type SequenceMetadataQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence | null };
-
-type SequenceMetadataQuery_Query = { __typename?: 'Query', sequence: SequenceMetadataQuery_sequence_SingleSequenceOutput | null };
-
-
-type SequenceMetadataQueryVariables = Exact<{
-  sequenceId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type SequenceMetadataQuery = SequenceMetadataQuery_Query;
 
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 

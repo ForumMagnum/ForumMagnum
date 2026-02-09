@@ -56,7 +56,7 @@ const HabrykaSequencesQuery = gql(`
 `);
 
 
-export default function HabrykaUserPage() {
+export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [bioExpanded, setBioExpanded] = useState(false);
   const [postsToShow, setPostsToShow] = useState(7);

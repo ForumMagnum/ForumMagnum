@@ -1,8 +1,9 @@
 import React from "react";
-import UsersSingle from '@/components/users/UsersSingle';
 import { UserPageTitle } from '@/components/titles/UserPageTitle';
 import { generateUserPageMetadata } from "@/server/pageMetadata/userPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
+import ProfilePage from "./ProfilePage";
+import "./styles.css";
 
 export const generateMetadata = generateUserPageMetadata;
 
@@ -11,6 +12,8 @@ export default function Page() {
     delayedStatusCode
     metadata={{ titleComponent: UserPageTitle }}
   >
-    <UsersSingle />
+    <div className="habryka-page">
+      <ProfilePage />
+    </div>
   </RouteRoot>;
 }
