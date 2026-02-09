@@ -118,7 +118,7 @@ export default function HabrykaUserPage() {
     },
   });
 
-  const { data: recentPostsData } = useQuery(HabrykaPostsQuery, {
+  const { data: recentPostsData, loading: recentPostsLoading } = useQuery(HabrykaPostsQuery, {
     skip: !userId,
     variables: {
       selector: userId ? { userPosts: { userId, sortedBy: "new", authorIsUnreviewed: null } } : undefined,
@@ -144,6 +144,20 @@ export default function HabrykaUserPage() {
   const listPosts = recentPosts.slice(0, postsToShow);
   const hasMorePosts = recentPosts.length > postsToShow;
   const sequences = sequencesData?.sequences?.results ?? [];
+
+  const hasEnoughTopPosts = topPosts.length >= 4;
+  const hasPosts = recentPosts.length > 0;
+  const hasFeedContent = (user?.postCount ?? 0) > 0 || (user?.commentCount ?? 0) > 0;
+
+  const tabInitialized = useRef(false);
+  useEffect(() => {
+    if (tabInitialized.current) return;
+    if (recentPostsLoading || !userId) return;
+    tabInitialized.current = true;
+    if (!hasPosts) {
+      setActiveTab("feed");
+    }
+  }, [recentPostsLoading, userId, hasPosts, setActiveTab]);
 
   const currentUser = useCurrentUser();
   // TODO: Remove slug fallback once real auth is in place
@@ -401,73 +415,75 @@ export default function HabrykaUserPage() {
             )}
           </div>
 
-          <div className="top-posts-indicator">
-            <LWTooltip title="Based on karma" placement="bottom">
-              <span className="top-posts-label top-posts-label--plural">Top posts</span>
-              <span className="top-posts-label top-posts-label--singular">Top post</span>
-            </LWTooltip>
-          </div>
-
-          {topPost ? (
-            <a
-              href={postGetPageUrl(topPost)}
-              className="post-article"
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <div className="post-content">
-                <h2 className="post-title">
-                  {topPost.title}
-                </h2>
-                <p className="post-summary">
-                  {getTopPostSummary(topPost)}
-                </p>
-                <div className="post-meta-bar">
-                  <span className="karma-score">{topPost.baseScore ?? 0}</span>
-                  <span className="post-date">{formatRelativeDate(topPost.postedAt!)}</span>
-                </div>
+          {hasEnoughTopPosts && (
+            <>
+              <div className="top-posts-indicator">
+                <LWTooltip title="Based on karma" placement="bottom">
+                  <span className="top-posts-label top-posts-label--plural">Top posts</span>
+                  <span className="top-posts-label top-posts-label--singular">Top post</span>
+                </LWTooltip>
               </div>
-              <div
-                className="post-image"
-                style={{
-                  backgroundImage: `url('${getPostImageUrl(topPost)}')`,
-                }}
-              ></div>
-            </a>
-          ) : (
-            <div>No top post yet.</div>
-          )}
 
-          <div className="small-articles-grid">
-            {smallArticles.map((post) => {
-              const imageUrl = getPostImageUrl(post);
-              return (
-                <article key={post._id} className="small-article">
-                  <a
-                    href={postGetPageUrl(post)}
-                    style={{ textDecoration: "none", color: "inherit", display: "contents" }}
-                  >
-                    <div
-                      className="small-article-image"
-                      style={{
-                        backgroundImage: `url('${imageUrl}')`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                      }}
-                    ></div>
-                    <div className="small-article-content">
-                      <h3 className="small-article-title">
-                        {post.title}
-                      </h3>
-                      <div className="small-article-meta">
-                        <span className="small-karma">{post.baseScore ?? 0}</span>
-                        <span className="small-date">{formatRelativeDate(post.postedAt!)}</span>
-                      </div>
+              {topPost && (
+                <a
+                  href={postGetPageUrl(topPost)}
+                  className="post-article"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <div className="post-content">
+                    <h2 className="post-title">
+                      {topPost.title}
+                    </h2>
+                    <p className="post-summary">
+                      {getTopPostSummary(topPost)}
+                    </p>
+                    <div className="post-meta-bar">
+                      <span className="karma-score">{topPost.baseScore ?? 0}</span>
+                      <span className="post-date">{formatRelativeDate(topPost.postedAt!)}</span>
                     </div>
-                  </a>
-                </article>
-              );
-            })}
-          </div>
+                  </div>
+                  <div
+                    className="post-image"
+                    style={{
+                      backgroundImage: `url('${getPostImageUrl(topPost)}')`,
+                    }}
+                  ></div>
+                </a>
+              )}
+
+              <div className="small-articles-grid">
+                {smallArticles.map((post) => {
+                  const imageUrl = getPostImageUrl(post);
+                  return (
+                    <article key={post._id} className="small-article">
+                      <a
+                        href={postGetPageUrl(post)}
+                        style={{ textDecoration: "none", color: "inherit", display: "contents" }}
+                      >
+                        <div
+                          className="small-article-image"
+                          style={{
+                            backgroundImage: `url('${imageUrl}')`,
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                          }}
+                        ></div>
+                        <div className="small-article-content">
+                          <h3 className="small-article-title">
+                            {post.title}
+                          </h3>
+                          <div className="small-article-meta">
+                            <span className="small-karma">{post.baseScore ?? 0}</span>
+                            <span className="small-date">{formatRelativeDate(post.postedAt!)}</span>
+                          </div>
+                        </div>
+                      </a>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
           {(bio || user) && (
             <div className="mobile-profile-bio">
@@ -593,6 +609,14 @@ export default function HabrykaUserPage() {
                         Recent Comments
                       </button>
                     </div>
+                  </div>
+                )}
+                {!hasPosts && !recentPostsLoading && (
+                  <div className="empty-state-container">
+                    <div className="empty-state-image">
+                      <img src="/empty-state-quill.png" alt="" />
+                    </div>
+                    <p className="empty-state-description">{username} has not written any posts yet.</p>
                   </div>
                 )}
                 {listPosts.map((post, index) => {
@@ -735,7 +759,15 @@ export default function HabrykaUserPage() {
                     </div>
                   </div>
                 )}
-                {userId && (
+                {!hasFeedContent && (
+                  <div className="empty-state-container">
+                    <div className="empty-state-image">
+                      <img src="/empty-state-quill.png" alt="" />
+                    </div>
+                    <p className="empty-state-description">{username} hasn&apos;t written anything yet.</p>
+                  </div>
+                )}
+                {hasFeedContent && userId && (
                   <UltraFeedContextProvider openInNewTab={true}>
                     <UltraFeedObserverProvider incognitoMode={false}>
                       <OverflowNavObserverProvider>
