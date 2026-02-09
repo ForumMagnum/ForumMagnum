@@ -28,11 +28,23 @@ function getTurndown(): TurndownService {
     const TurndownService = require('turndown');
     const {gfm} = require('turndown-plugin-gfm');
 
+    const indentMarkdown = (markdown: string, indentLevel: number): string => {
+      if (indentLevel <= 0) return markdown;
+      const prefix = "\t".repeat(indentLevel);
+      return markdown
+        .split("\n")
+        .map((line) => (line.length ? `${prefix}${line}` : line))
+        .join("\n");
+    };
+
     const turndownService: TurndownService = new TurndownService({
       blankReplacement: (content: string, node: Node) => {
         if (hasDataMarkdownAttribute(node)) {
-          const markdown = (node as Element).getAttribute('data-markdown') ?? '';
-          return `\n\n${unescape(markdown)}\n\n`
+          const element = node as Element;
+          const markdown = element.getAttribute('data-markdown') ?? '';
+          const indentLevel = Number.parseInt(element.getAttribute('data-indent-level') ?? "0", 10) || 0;
+          const indentedMarkdown = indentMarkdown(unescape(markdown), indentLevel);
+          return `\n\n${indentedMarkdown}\n\n`
         }
         if (node?.nodeType === ServerSafeNode.ELEMENT_NODE && isBlockTag(node.nodeName)) {
           return '\n\n'
@@ -45,8 +57,11 @@ function getTurndown(): TurndownService {
     turndownService.addRule('raw-markdown', {
       filter: (node, options) => hasDataMarkdownAttribute(node),
       replacement: (content, node) => {
-        const markdown = (node as Element).getAttribute('data-markdown') ?? '';
-        return `\n\n${unescape(markdown)}\n\n`
+        const element = node as Element;
+        const markdown = element.getAttribute('data-markdown') ?? '';
+        const indentLevel = Number.parseInt(element.getAttribute('data-indent-level') ?? "0", 10) || 0;
+        const indentedMarkdown = indentMarkdown(unescape(markdown), indentLevel);
+        return `\n\n${indentedMarkdown}\n\n`
       }
     })
     turndownService.addRule('markdown-title', {
