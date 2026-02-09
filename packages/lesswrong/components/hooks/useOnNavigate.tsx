@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { RouterLocation } from '../../lib/vulcan-lib/routes';
+import type { RouterLocation } from '../../lib/routeChecks/parseRoute';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { useTracking } from '../../lib/analyticsEvents';
 

@@ -2,7 +2,7 @@ import React from "react";
 import SequencesPost from '@/components/sequences/SequencesPost';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
 
 assertRouteHasWhiteBackground("/s/[_id]/p/[postId]");
 

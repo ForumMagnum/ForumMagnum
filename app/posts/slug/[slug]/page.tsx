@@ -2,7 +2,7 @@ import React from "react";
 import PostsSingleSlugRedirect from '@/components/posts/PostsSingleSlugRedirect';
 import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
 
 // TODO: this route previously used PostsPageHeaderTitle for its metadata, but that was nonsensical because
 // it was using a slug to then do a permanent redirect, and PostsPageHeaderTitle needs an _id or postId

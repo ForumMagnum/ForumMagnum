@@ -1,4 +1,4 @@
-import { parsePath, parseRoute } from '@/lib/vulcan-lib/routes';
+import { parsePath, parseRoute } from '@/lib/routeChecks/parseRoute';
 
 describe('parseRoute', () => {
   it('preserves query parameters from the original URL when applying redirects', () => {

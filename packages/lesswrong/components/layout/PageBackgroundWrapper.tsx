@@ -2,7 +2,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
-import { routeHasWhiteBackground } from './routeBackgroundColors';
+import { routeHasWhiteBackground } from '../../lib/routeChecks/routeBackgroundColors';
 import { isClient } from '@/lib/executionEnvironment';
 import "./pageBackground.css";
 

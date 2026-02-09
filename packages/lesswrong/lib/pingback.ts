@@ -1,4 +1,4 @@
-import { PingbackDocument, RouterLocation } from './vulcan-lib/routes'
+import { PingbackDocument, RouterLocation } from './routeChecks/parseRoute'
 
 export const userMentionQuery = 'mention'
 export const userMentionValue = 'user'

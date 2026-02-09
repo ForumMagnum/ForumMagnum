@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
 
 // TODO: this route previously did _not_ use the PostsPageHeaderTitle for its metadata.
 // Check whether we want that to continue to be true?

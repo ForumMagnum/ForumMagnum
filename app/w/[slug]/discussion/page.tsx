@@ -3,7 +3,7 @@ import TagDiscussionPage from '@/components/tagging/TagDiscussionPage';
 import { TagPageSubtitle } from '@/components/tagging/TagPageSubtitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 

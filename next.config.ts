@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import { redirects } from "./packages/lesswrong/lib/redirects";
+import { redirects } from "./packages/lesswrong/lib/routeChecks/redirects";
 import type { NextConfig } from 'next';
 import type { WebpackConfigContext } from 'next/dist/server/config-shared';
 

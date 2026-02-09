@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
-import { classifyHost, classifyLink, useLocation } from '../../lib/routeUtil';
+import { classifyLink, useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import withErrorBoundary from '../common/withErrorBoundary';
 import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../contents/CollapsedFootnotes';
@@ -11,7 +11,8 @@ import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, Neu
 import FootnotePreview from "./FootnotePreview";
 import { NoSideItems } from '../contents/SideItems';
 
-import { parseRouteWithErrors, routePreviewComponentMapping } from './parseRouteWithErrors';
+import { parseRouteWithErrors } from './parseRouteWithErrors';
+import { routePreviewComponentMapping } from '@/lib/routeChecks/hoverPreviewRoutes';
 
 export const linkIsExcludedFromPreview = (url: string): boolean => {
   // Don't try to preview special JS links

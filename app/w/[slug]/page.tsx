@@ -6,7 +6,7 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import PermanentRedirect from "@/components/common/PermanentRedirect";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 

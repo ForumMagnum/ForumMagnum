@@ -18,11 +18,11 @@ import SequencesTooltip from "../sequences/SequencesTooltip";
 import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
 import { apolloSSRFlag } from '@/lib/helpers';
-import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import { linkStyles } from './linkStyles';
 import LWTooltip from '../common/LWTooltip';
 import ConversationPreview from '../messaging/ConversationPreview';
-import type { LinkPreviewComponent } from './parseRouteWithErrors';
+import type { LinkPreviewComponent } from '@/lib/routeChecks/hoverPreviewRoutes';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 

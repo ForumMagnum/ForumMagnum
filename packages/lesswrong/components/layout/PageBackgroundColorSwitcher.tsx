@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from 'react';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
-import { routeHasWhiteBackground } from './routeBackgroundColors';
+import { routeHasWhiteBackground } from '../../lib/routeChecks/routeBackgroundColors';
 
 export function PageBackgroundColorSwitcher() {
   // Some pages (eg post pages) have a solid white background, others (eg front page) have a gray

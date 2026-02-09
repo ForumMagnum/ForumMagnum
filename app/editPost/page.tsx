@@ -5,7 +5,7 @@ import { getDefaultMetadata, getPageTitleFields, getResolverContextForGenerateMe
 import merge from "lodash/merge";
 import { PostsEditFormQuery } from "@/components/posts/queries";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
 import { runQuery } from "@/server/vulcan-lib/query";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ postId?: string, version?: string }> }): Promise<Metadata> {

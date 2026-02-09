@@ -1,5 +1,5 @@
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
-import { routeHasWhiteBackground } from '../layout/routeBackgroundColors';
+import { routeHasWhiteBackground } from '../../lib/routeChecks/routeBackgroundColors';
 
 export const useIsOnGrayBackground = () => {
   const pathname = usePrerenderablePathname();

@@ -4,7 +4,7 @@ import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFiel
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge(

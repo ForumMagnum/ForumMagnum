@@ -1,8 +1,7 @@
-import { applyParamsToPathname, compilePath, matchPath } from '@/lib/vendor/react-router/matchPath';
-import type { Request, Response } from 'express';
+import { applyParamsToPathname, matchPath } from '@/lib/vendor/react-router/matchPath';
 import { captureException } from '@/lib/sentryWrapper';
-import { isClient } from '../executionEnvironment';
-import { redirects } from "@/lib/redirects";
+import { isClient } from '@/lib/executionEnvironment';
+import { redirects } from "@/lib/routeChecks/redirects";
 import qs from 'qs';
 
 export type PingbackDocument = {
