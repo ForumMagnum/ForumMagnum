@@ -16,9 +16,9 @@ export default async function Page({ params }: {
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params;
-  return <RouteRoot delayedStatusCode metadata={{
-    subtitle: 'Sequence Highlights',
-    subtitleLink: '/highlights',
+  return <RouteRoot delayedStatusCode subtitle={{
+    title: 'Sequence Highlights',
+    link: '/highlights',
   }}>
     <PostsSingleSlug slug={slug} />
   </RouteRoot>;

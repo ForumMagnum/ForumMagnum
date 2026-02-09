@@ -15,9 +15,7 @@ export default async function PostPage({ params }: {
   const { _id, slug } = await params;
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      noFooter: hasPostRecommendations(),
-    }}
+    noFooter={hasPostRecommendations()}
   >
     <PostsSingle _id={_id} slug={slug} />
   </RouteRoot>;

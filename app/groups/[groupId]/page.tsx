@@ -60,10 +60,9 @@ export default async function Page({ params }: {
   params: Promise<{ groupId: string }>
 }) {
   const { groupId } = await params;
-  return <RouteRoot delayedStatusCode metadata={{
-    subtitle: 'Community',
-    subtitleLink: '/community',
-  }}>
+  return <RouteRoot delayedStatusCode
+    subtitle={{ title: 'Community', link: '/community' }}
+  >
     <LocalGroupSingle groupId={groupId} />
   </RouteRoot>;
 }

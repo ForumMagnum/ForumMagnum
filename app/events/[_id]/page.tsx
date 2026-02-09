@@ -13,11 +13,8 @@ export default async function Page({ params }: { params: Promise<{ _id: string }
   const { _id } = await params;
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      subtitle: 'Community',
-      subtitleLink: '/community',
-      noFooter: hasPostRecommendations(),
-    }}
+    subtitle={{ title: 'Community', link: '/community' }}
+    noFooter={hasPostRecommendations()}
   >
     <PostsSingle _id={_id} />
   </RouteRoot>;

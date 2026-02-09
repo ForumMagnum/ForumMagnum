@@ -1,6 +1,6 @@
 import React from "react";
 import TagPageRouter from '@/components/tagging/TagPageRouter';
-import { TagPageTitle } from '@/components/tagging/TagPageTitle';
+import { TagPageSubtitle } from '@/components/tagging/TagPageSubtitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
@@ -30,10 +30,7 @@ export default async function Page({ params, searchParams }: {
   
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      titleComponent: TagPageTitle,
-      subtitleComponent: TagPageTitle
-    }}
+    subtitle={TagPageSubtitle}
   >
     <TagPageRouter slug={slug} />
   </RouteRoot>

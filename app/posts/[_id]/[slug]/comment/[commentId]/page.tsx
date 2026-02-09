@@ -9,10 +9,7 @@ export default async function Page({ params }: {
   params: Promise<{ _id: string, slug: string, commentId: string }>
 }) {
   const { _id, slug, commentId } = await params;
-  return <RouteRoot
-    delayedStatusCode
-    metadata={{ noFooter: false }}
-  >
+  return <RouteRoot delayedStatusCode>
     <PostsSingle _id={_id} slug={slug} />
   </RouteRoot>;
 }

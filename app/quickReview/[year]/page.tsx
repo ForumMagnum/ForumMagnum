@@ -13,7 +13,7 @@ export default async function Page({ params }: {
   params: Promise<{ year: string }>
 }) {
   const { year } = await params;
-  return <RouteRoot metadata={{ subtitle: 'Quick Review Page' }}>
+  return <RouteRoot subtitle="Quick Review Page">
     <AnnualReviewPage year={year} />
   </RouteRoot>;
 }

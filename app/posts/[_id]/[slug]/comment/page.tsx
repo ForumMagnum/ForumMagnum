@@ -11,7 +11,7 @@ export default async function Page({ params }: {
   const { _id, slug } = await params;
   return <RouteRoot
     delayedStatusCode
-    metadata={{ noFooter: false }}
+    noFooter={false}
   >
     <PostsSingle _id={_id} slug={slug} />
   </RouteRoot>;

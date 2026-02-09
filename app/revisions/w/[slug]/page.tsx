@@ -1,6 +1,6 @@
 import React from "react";
 import TagPageRevisionSelect from '@/components/revisions/TagPageRevisionSelect';
-import { TagPageTitle } from '@/components/tagging/TagPageTitle';
+import { TagPageSubtitle } from '@/components/tagging/TagPageSubtitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 
@@ -10,7 +10,7 @@ export default async function Page({ params }: {
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params;
-  return <RouteRoot metadata={{ titleComponent: TagPageTitle }}>
+  return <RouteRoot subtitle={TagPageSubtitle}>
     <TagPageRevisionSelect slug={slug} />
   </RouteRoot>;
 }

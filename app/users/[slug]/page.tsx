@@ -1,6 +1,6 @@
 import React from "react";
 import UsersSingle from '@/components/users/UsersSingle';
-import { UserPageTitle } from '@/components/titles/UserPageTitle';
+import { UserPageSubtitle } from '@/components/titles/UserPageSubtitle';
 import { generateUserPageMetadata } from "@/server/pageMetadata/userPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 
@@ -12,7 +12,6 @@ export default async function Page({ params }: {
   const { slug } = await params;
   return <RouteRoot
     delayedStatusCode
-    metadata={{ titleComponent: UserPageTitle }}
   >
     <UsersSingle slug={slug} />
   </RouteRoot>;

@@ -21,11 +21,8 @@ export default async function Page({ params }: {
   const { _id, groupId } = await params;
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      subtitle: 'Community',
-      subtitleLink: '/community',
-      noFooter: hasPostRecommendations()
-    }}
+    subtitle={{ title: 'Community', link: '/community' }}
+    noFooter={hasPostRecommendations()}
   >
     <PostsSingle _id={_id} />
   </RouteRoot>;

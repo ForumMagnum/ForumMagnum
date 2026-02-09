@@ -1,6 +1,6 @@
 import React from "react";
 import TagHistoryPage from '@/components/tagging/history/TagHistoryPage';
-import { TagHistoryPageTitle } from '@/components/tagging/TagHistoryPageTitle';
+import { TagHistoryPageSubtitle } from '@/components/tagging/TagHistoryPageSubtitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 
@@ -11,10 +11,7 @@ export default async function Page({ params }: {
 }) {
   const { slug } = await params;
   
-  return <RouteRoot metadata={{
-    titleComponent: TagHistoryPageTitle,
-    subtitleComponent: TagHistoryPageTitle
-  }}>
+  return <RouteRoot subtitle={TagHistoryPageSubtitle}>
     <TagHistoryPage slug={slug} />
   </RouteRoot>;
 }

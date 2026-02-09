@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ hasLeftNavigationColumn: false }}>
+  return <RouteRoot>
     <AllWikiTagsPage />
   </RouteRoot>;
 }

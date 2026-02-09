@@ -14,9 +14,7 @@ export default async function Page({ params }: {
   const { slug } = await params;
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      noFooter: false,
-    }}
+    noFooter={false}
   >
     <PostsSingleSlugRedirect slug={slug} />
   </RouteRoot>;
