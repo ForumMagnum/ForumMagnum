@@ -3114,11 +3114,11 @@ html.dates-ready .list-article-meta {
 /* ── Global cream background for profile pages ── */
 
 body:has(.habryka-page) {
-  background: #fdfbf9 !important;
+  background: #fcfbf8 !important;
 }
 
 body:has(.habryka-page) header {
-  background-color: rgba(253, 251, 249, 0.65) !important;
+  background-color: rgba(252, 251, 248, 0.65) !important;
   backdrop-filter: blur(4px) !important;
 }
 
