@@ -66,7 +66,11 @@ export default function HabrykaUserPage() {
   const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
   const bioRef = useRef<HTMLDivElement>(null);
   const { params } = useLocation();
-  const slug = slugify(params.slug);
+  const slugAliases: Record<string, string> = {
+    "habryka": "habryka4",
+  };
+  const rawSlug = slugify(params.slug);
+  const slug = slugAliases[rawSlug] ?? rawSlug;
 
   const handleSortPanelToggle = () => {
     if (sortPanelOpen) {
@@ -589,7 +593,7 @@ export default function HabrykaUserPage() {
                         setPostsToShow(prev => prev + 7);
                       }}
                     >
-                      Read more
+                      See more
                     </a>
                   </div>
                 )}
@@ -715,7 +719,7 @@ export default function HabrykaUserPage() {
                             setBioExpanded(!bioExpanded);
                           }}
                         >
-                          {bioExpanded ? "Show less" : "Read more"}
+                          {bioExpanded ? "See less" : "See more"}
                         </a>
                       </div>
                     )}

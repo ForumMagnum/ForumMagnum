@@ -390,7 +390,7 @@ function HabrykaProfileContent({ slug, activeTab, setActiveTab }: {
 
                 <div className="read-more">
                   <a href={user ? userGetProfileUrl(user) : "#"} className="read-more-link">
-                    Read more
+                    See more
                   </a>
                 </div>
               </div>
