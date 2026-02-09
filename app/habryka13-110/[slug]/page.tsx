@@ -456,6 +456,45 @@ export default function HabrykaUserPage() {
             })}
           </div>
 
+          {(bio || user) && (
+            <div className="mobile-profile-bio">
+              <h4 className="mobile-profile-name">{username}</h4>
+              <div className="mobile-profile-actions sidebar-actions">
+                <div className="sidebar-subscribe">Subscribe</div>
+                <a href="#" className="sidebar-more">Message</a>
+              </div>
+              {bio && (
+                <p className="mobile-bio-text sidebar-author-bio">
+                  {bio.split(/\s+/).length > 45 ? bio.split(/\s+/).slice(0, 45).join(" ") + "..." : bio}
+                </p>
+              )}
+              {bio && bio.split(/\s+/).length > 45 && (
+                <div className="read-more">
+                  <a href={user ? userGetProfileUrl(user) : "#"} className="read-more-link">See more</a>
+                </div>
+              )}
+              {user && (
+                <div className="sidebar-stats">
+                  {(user.karma ?? 0) !== 0 && (
+                    <div className="sidebar-stat-row">{(user.karma ?? 0).toLocaleString()} karma</div>
+                  )}
+                  {(user.afKarma ?? 0) > 0 && (
+                    <div className="sidebar-stat-row">{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
+                  )}
+                  {(user.postCount ?? 0) > 0 && (
+                    <div className="sidebar-stat-row">{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
+                  )}
+                  {(user.commentCount ?? 0) > 0 && (
+                    <div className="sidebar-stat-row">{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
+                  )}
+                  {user.createdAt && (
+                    <div className="sidebar-stat-row">Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <section className="all-posts-section habryka2">
             <div className="all-posts-header">
               <div className="all-posts-left-header">
@@ -707,34 +746,15 @@ export default function HabrykaUserPage() {
                 )}
               </div>
 
-              <aside className="posts-sidebar">
+              <aside className={`posts-sidebar ${bio ? "has-bio" : ""}`}>
                 <div className="sidebar-actions">
                   <div className="sidebar-subscribe">Subscribe</div>
                   <a href="#" className="sidebar-more">
                     Message
                   </a>
                 </div>
-                {!bio && user && (
-                  <div className="sidebar-stats">
-                    {(user.karma ?? 0) !== 0 && (
-                      <div className="sidebar-stat-row">{(user.karma ?? 0).toLocaleString()} karma</div>
-                    )}
-                    {(user.afKarma ?? 0) > 0 && (
-                      <div className="sidebar-stat-row">{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
-                    )}
-                    {(user.postCount ?? 0) > 0 && (
-                      <div className="sidebar-stat-row">{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
-                    )}
-                    {(user.commentCount ?? 0) > 0 && (
-                      <div className="sidebar-stat-row">{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
-                    )}
-                    {user.createdAt && (
-                      <div className="sidebar-stat-row">Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
-                    )}
-                  </div>
-                )}
                 {bio && (
-                  <>
+                  <div className="sidebar-bio-section">
                     <div 
                       ref={bioRef}
                       className={`sidebar-bio-wrapper ${bioExpanded ? "expanded" : "collapsed"}`}
@@ -757,26 +777,26 @@ export default function HabrykaUserPage() {
                         </a>
                       </div>
                     )}
-                    {user && (
-                      <div className="sidebar-stats">
-                        {(user.karma ?? 0) !== 0 && (
-                          <div className="sidebar-stat-row">{(user.karma ?? 0).toLocaleString()} karma</div>
-                        )}
-                        {(user.afKarma ?? 0) > 0 && (
-                          <div className="sidebar-stat-row">{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
-                        )}
-                        {(user.postCount ?? 0) > 0 && (
-                          <div className="sidebar-stat-row">{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
-                        )}
-                        {(user.commentCount ?? 0) > 0 && (
-                          <div className="sidebar-stat-row">{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
-                        )}
-                        {user.createdAt && (
-                          <div className="sidebar-stat-row">Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
-                        )}
-                      </div>
+                  </div>
+                )}
+                {user && (
+                  <div className="sidebar-stats">
+                    {(user.karma ?? 0) !== 0 && (
+                      <div className="sidebar-stat-row">{(user.karma ?? 0).toLocaleString()} karma</div>
                     )}
-                  </>
+                    {(user.afKarma ?? 0) > 0 && (
+                      <div className="sidebar-stat-row">{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
+                    )}
+                    {(user.postCount ?? 0) > 0 && (
+                      <div className="sidebar-stat-row">{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
+                    )}
+                    {(user.commentCount ?? 0) > 0 && (
+                      <div className="sidebar-stat-row">{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
+                    )}
+                    {user.createdAt && (
+                      <div className="sidebar-stat-row">Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
+                    )}
+                  </div>
                 )}
               </aside>
             </div>

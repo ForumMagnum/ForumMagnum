@@ -1202,6 +1202,11 @@ body {
   letter-spacing: 0.8px;
 }
 
+.mobile-profile-actions {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
 .mobile-profile-text {
   font-size: 15px;
   line-height: 1.65;
@@ -2182,6 +2187,11 @@ body {
   margin-top: 16px;
 }
 
+/* Hide stats in sidebar on desktop when user has a bio */
+.posts-sidebar.has-bio .sidebar-stats {
+  display: none;
+}
+
 .sidebar-stat-row {
   white-space: nowrap;
 }
@@ -2944,9 +2954,19 @@ html.dates-ready .list-article-meta {
     display: block;
   }
 
-  /* Show name + bio before all posts */
+  /* Show mobile bio + stats before all posts */
   .mobile-profile-bio {
     display: block;
+  }
+
+  /* Show stats again in sidebar on mobile even when bio exists */
+  .posts-sidebar.has-bio .sidebar-stats {
+    display: block;
+  }
+
+  /* Hide sidebar bio on mobile (shown in mobile-profile-bio instead) */
+  .posts-sidebar .sidebar-bio-section {
+    display: none;
   }
 
   /* Sequences grid responsive */
@@ -3013,7 +3033,5 @@ html.dates-ready .list-article-meta {
     content: '';
   }
 
-  .habryka2 .posts-sidebar .sidebar-author-bio {
-    display: none;
-  }
+  /* Bio is shown in mobile-profile-bio section above */
 }
