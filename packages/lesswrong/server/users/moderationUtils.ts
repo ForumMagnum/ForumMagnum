@@ -112,6 +112,20 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
   for (let sequence of sequences) {
     await updateSequence({ data: {isDeleted: true}, selector: { _id: sequence._id } }, context)
   }
+
+  const flaggedUserReports = await Reports.find({reportedUserId: user._id, closedAt: {$exists: false}}).fetch();
+  //eslint-disable-next-line no-console
+  console.info(`Marking reports for user ${user._id} as reviewed: `, flaggedUserReports);
+  for (let report of flaggedUserReports) {
+    await updateReport({
+      data: {
+        closedAt: new Date(),
+        claimedUserId: deletingUser._id,
+        markedAsSpam: false,
+      },
+      selector: { _id: report._id }
+    }, context)
+  }
   
   if (deleteTags) {
     await deleteUserTagsAndRevisions(user, deletingUser, context)
