@@ -47,8 +47,8 @@ export const htmlToTextDefault = (html = "", { fallbackToImageText = false }: Ht
   const text = defaultConverter(html);
   // If the text of the body is empty but there's an image, return a "[Image]" string.
   // (We're doing this instead of replacing all instances of "img" with [Image] because
-  // in most cases the plaintext preview is probably better if it ignores images. But, it's
-  // a non-obvious judgment call)
+  // in most cases the plaintext preview is probably better if it ignores images. 
+  // But, it's a non-obvious judgment call)
   if (text.trim() || !fallbackToImageText) {
     return text;
   }
