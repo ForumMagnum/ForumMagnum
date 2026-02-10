@@ -19,6 +19,7 @@ import UsersNameWithModal from "@/components/ultraFeed/UsersNameWithModal";
 import LWTooltip from "@/components/common/LWTooltip";
 import UserMetaInfo from "@/components/users/UserMetaInfo";
 import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
+import NewConversationButton from "@/components/messaging/NewConversationButton";
 import moment from "moment";
 
 type ProfileTab = "posts" | "sequences" | "feed";
@@ -527,16 +528,33 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
                 ) : (
                   <div className="sidebar-subscribe">Subscribe</div>
                 )}
-                <a href="#" className="sidebar-more">Message</a>
+                {user && currentUser?._id !== user._id ? (
+                  <NewConversationButton user={user} currentUser={currentUser}>
+                    <a className="sidebar-more">Message</a>
+                  </NewConversationButton>
+                ) : (
+                  <span className="sidebar-more">Message</span>
+                )}
               </div>
               {bio && (
                 <p className="mobile-bio-text sidebar-author-bio">
-                  {bio.split(/\s+/).length > 45 ? bio.split(/\s+/).slice(0, 45).join(" ") + "..." : bio}
+                  {!bioExpanded && bio.split(/\s+/).length > 45
+                    ? bio.split(/\s+/).slice(0, 45).join(" ") + "..."
+                    : bio}
                 </p>
               )}
               {bio && bio.split(/\s+/).length > 45 && (
                 <div className="read-more">
-                  <a href={user ? userGetProfileUrl(user) : "#"} className="read-more-link">See more</a>
+                  <a
+                    href="#"
+                    className="read-more-link"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setBioExpanded(!bioExpanded);
+                    }}
+                  >
+                    {bioExpanded ? "See less" : "See more"}
+                  </a>
                 </div>
               )}
               {user && (
@@ -826,9 +844,13 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
                   ) : (
                     <div className="sidebar-subscribe">Subscribe</div>
                   )}
-                  <a href="#" className="sidebar-more">
-                    Message
-                  </a>
+                  {user && currentUser?._id !== user._id ? (
+                    <NewConversationButton user={user} currentUser={currentUser}>
+                      <a className="sidebar-more">Message</a>
+                    </NewConversationButton>
+                  ) : (
+                    <span className="sidebar-more">Message</span>
+                  )}
                 </div>
                 {bio && (
                   <div className="sidebar-bio-section">

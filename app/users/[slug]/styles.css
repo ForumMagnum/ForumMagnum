@@ -341,16 +341,9 @@
   }
 }
 
-* {
+#page *,
+#page {
   box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: rgba(248, 244, 238, 0.35);
-  color: #3d3a35;
-  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
-  overflow-x: hidden;
 }
 
 #page {
@@ -358,6 +351,8 @@ body {
   min-height: 100vh;
   margin: 0;
   background: rgba(248, 244, 238, 0.35);
+  color: #3d3a35;
+  font-family: "Gill Sans", "Gill Sans MT", sans-serif;
   position: relative;
   overflow: hidden;
 }
@@ -986,7 +981,7 @@ body {
   width: 100%;
   max-width: 842px;
   margin: 0 auto;
-  padding: 47px 80px 60px 80px;
+  padding: 53px 80px 60px 80px;
   color: #37332e;
   background: transparent;
 }
@@ -1313,10 +1308,13 @@ body {
   padding-bottom: 30px;
   border-bottom: 1px solid #e5ddd6;
   overflow: visible;
-  transition: opacity 0.15s ease;
 }
 
-.post-article:hover {
+.post-article:hover .post-content {
+  opacity: 0.7;
+}
+
+.post-article:hover .post-image {
   opacity: 0.7;
 }
 
@@ -1329,6 +1327,7 @@ body {
   padding-left: 0;
   margin-left: 0;
   aspect-ratio: 3 / 2;
+  transition: opacity 0.15s ease;
 }
 
 .post-image {
@@ -1342,6 +1341,7 @@ body {
   color: #f4f1ed;
   font-size: 14px;
   aspect-ratio: 3 / 2;
+  transition: opacity 0.15s ease;
   mix-blend-mode: multiply;
 }
 
@@ -1366,10 +1366,13 @@ body {
   grid-column: span 2;
   display: flex;
   flex-direction: column;
-  transition: opacity 0.15s ease;
 }
 
-.small-article:hover {
+.small-article:hover .small-article-content {
+  opacity: 0.7;
+}
+
+.small-article:hover .small-article-image {
   opacity: 0.7;
 }
 
@@ -1385,6 +1388,7 @@ body {
   font-size: 12px;
   border-radius: 4px;
   overflow: hidden;
+  transition: opacity 0.15s ease;
   mix-blend-mode: multiply;
 }
 
@@ -1393,6 +1397,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  transition: opacity 0.15s ease;
 }
 
 .small-article-title {
@@ -2813,7 +2818,7 @@ html.dates-ready .list-article-meta {
 }
 
 .habryka2 .profile-name {
-  font-size: 28px;
+  font-size: 2em;
   letter-spacing: -0.01em;
 }
 
@@ -2828,7 +2833,7 @@ html.dates-ready .list-article-meta {
 
 .habryka2 .list-article-summary {
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.75;
   color: #6b655d;
   white-space: normal;
   position: relative;
@@ -2998,13 +3003,10 @@ html.dates-ready .list-article-meta {
     display: block;
   }
 
-  /* Show stats again in sidebar on mobile even when bio exists */
-  .posts-sidebar.has-bio .sidebar-stats {
-    display: block;
-  }
-
-  /* Hide sidebar bio on mobile (shown in mobile-profile-bio instead) */
-  .posts-sidebar .sidebar-bio-section {
+  /* Hide entire sidebar content on mobile (shown in mobile-profile-bio instead) */
+  .posts-sidebar .sidebar-actions,
+  .posts-sidebar .sidebar-bio-section,
+  .posts-sidebar .sidebar-stats {
     display: none;
   }
 
@@ -3124,6 +3126,11 @@ body:has(.habryka-page) {
 body:has(.habryka-page) header {
   background-color: rgba(252, 251, 248, 0.65) !important;
   backdrop-filter: blur(4px) !important;
+}
+
+/* Remove RouteRootClient centralColumn padding above profile page */
+div:has(> .habryka-page) {
+  padding-top: 0 !important;
 }
 
 .habryka-page {
