@@ -38,7 +38,7 @@ const getImageTextFallback = (html: string): string => {
   }
   const titleText = firstImage.getAttribute("title")?.trim();
   if (titleText) {
-    return titleText;
+    return `[Image: ${titleText}]`;
   }
   return "[Image]";
 }
