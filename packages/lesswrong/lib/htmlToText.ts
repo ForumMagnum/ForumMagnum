@@ -1,4 +1,5 @@
 import { compile } from "html-to-text";
+import { parseDocumentFromString } from "@/lib/domParser";
 
 const defaultConverter = compile({
   selectors: [
@@ -14,4 +15,38 @@ const defaultConverter = compile({
   wordwrap: false,
 });
 
-export const htmlToTextDefault = (html = "") => defaultConverter(html);
+interface HtmlToTextDefaultOptions {
+  fallbackToImageText?: boolean
+}
+
+const getImageTextFallback = (html: string): string|undefined => {
+  const { document } = parseDocumentFromString(html);
+  const captions = Array.from(document.querySelectorAll("figcaption"));
+  for (const caption of captions) {
+    const captionText = caption.textContent?.trim();
+    if (captionText) {
+      return `[Image: ${captionText}]`;
+    }
+  }
+  const firstImage = document.querySelector("img");
+  if (!firstImage) {
+    return undefined;
+  }
+  const altText = firstImage.getAttribute("alt")?.trim();
+  if (altText) {
+    return `[Image: ${altText}]`;
+  }
+  const titleText = firstImage.getAttribute("title")?.trim();
+  if (titleText) {
+    return titleText;
+  }
+  return "[Image]";
+}
+
+export const htmlToTextDefault = (html = "", { fallbackToImageText = false }: HtmlToTextDefaultOptions = {}) => {
+  const text = defaultConverter(html);
+  if (text.trim() || !fallbackToImageText) {
+    return text;
+  }
+  return getImageTextFallback(html) ?? text;
+};
