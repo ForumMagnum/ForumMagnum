@@ -24,6 +24,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useMutation } from "@apollo/client/react";
 import PopperCard from "@/components/common/PopperCard";
 import type { Placement as PopperPlacementType } from "popper.js";
 import { prettyScrollbars } from "@/themes/styleUtils";
@@ -34,6 +35,17 @@ const UserTopPostsQuery = gql(`
     posts(selector: $selector, limit: $limit) {
       results {
         ...PostsList
+      }
+    }
+  }
+`);
+
+const UpdatePinnedPostIdsMutation = gql(`
+  mutation UpdatePinnedPostIds($selector: SelectorInput!, $data: UpdateUserDataInput!) {
+    updateUser(selector: $selector, data: $data) {
+      data {
+        _id
+        pinnedPostIds
       }
     }
   }
@@ -388,9 +400,9 @@ function SortablePostRow({
   );
 }
 
-export const TopPostsManager = ({ userId }: { userId: string }) => {
+export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }: { userId: string; pinnedPostIds?: string[] | null }) => {
   const classes = useStyles(styles);
-  const [orderedPostIds, setOrderedPostIds] = useState<string[] | null>(null);
+  const [orderedPostIds, setOrderedPostIds] = useState<string[] | null>(initialPinnedPostIds ?? null);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [swapSlotIndex, setSwapSlotIndex] = useState<number | null>(null);
   const [swapAnchorEl, setSwapAnchorEl] = useState<HTMLElement | null>(null);
@@ -405,10 +417,12 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
   const keyboard = useSensor(KeyboardSensor);
   const sensors = useSensors(mouse, pointer, keyboard);
 
+  const [updatePinnedPosts] = useMutation(UpdatePinnedPostIdsMutation);
+
   const { data, loading } = useQuery(UserTopPostsQuery, {
     variables: { 
       selector: userId ? { 
-        drafts: { userId, includeArchived: false }
+        userPosts: { userId, sortedBy: "top" }
       } : undefined,
       limit: 50,
     },
@@ -416,7 +430,6 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
     fetchPolicy: "network-only",
   });
 
-  // TODO: Switch to published posts once query is fixed
   const allPosts = data?.posts?.results ?? [];
   const postCount = allPosts.length;
 
@@ -434,6 +447,15 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
 
   const postIds = postsToShow.map(p => p._id);
 
+  const persistPinnedPosts = useCallback((newIds: string[] | null) => {
+    updatePinnedPosts({
+      variables: {
+        selector: { _id: userId },
+        data: { pinnedPostIds: newIds },
+      },
+    });
+  }, [userId, updatePinnedPosts]);
+
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveDragId(event.active.id as string);
   }, []);
@@ -446,10 +468,12 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
       const oldIndex = currentIds.indexOf(active.id as string);
       const newIndex = currentIds.indexOf(over.id as string);
       if (oldIndex !== -1 && newIndex !== -1) {
-        setOrderedPostIds(arrayMove(currentIds, oldIndex, newIndex));
+        const newOrder = arrayMove(currentIds, oldIndex, newIndex);
+        setOrderedPostIds(newOrder);
+        persistPinnedPosts(newOrder);
       }
     }
-  }, [orderedPostIds, postIds]);
+  }, [orderedPostIds, postIds, persistPinnedPosts]);
 
   const handleDragCancel = useCallback(() => {
     setActiveDragId(null);
@@ -457,7 +481,8 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
 
   const handleRestoreDefaults = useCallback(() => {
     setOrderedPostIds(null);
-  }, []);
+    persistPinnedPosts(null);
+  }, [persistPinnedPosts]);
 
   const handleSwapClick = useCallback((index: number, anchorEl: HTMLElement) => {
     setSwapSlotIndex(prevIndex => {
@@ -491,10 +516,11 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
     const newIds = [...currentIds];
     newIds[swapSlotIndex] = postId;
     setOrderedPostIds(newIds);
+    persistPinnedPosts(newIds);
     setSwapSlotIndex(null);
     setSwapAnchorEl(null);
     setSearch("");
-  }, [swapSlotIndex, orderedPostIds, postIds]);
+  }, [swapSlotIndex, orderedPostIds, postIds, persistPinnedPosts]);
 
   const filteredPosts = useMemo(() => {
     if (!search.trim()) return allPosts;
@@ -524,8 +550,8 @@ export const TopPostsManager = ({ userId }: { userId: string }) => {
     return () => cancelAnimationFrame(frameId);
   }, [swapSlotIndex]);
 
-  // Don't show if loading or user has 0-1 posts (nothing to manage)
-  if (loading || postCount <= 1) {
+  // Don't show if loading or user has fewer than 4 posts
+  if (loading || postCount < 4) {
     return null;
   }
 

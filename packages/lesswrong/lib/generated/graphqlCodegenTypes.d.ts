@@ -24497,6 +24497,21 @@ type UserTopPostsForManagerQueryVariables = Exact<{
 
 type UserTopPostsForManagerQuery = UserTopPostsForManagerQuery_Query;
 
+type UpdatePinnedPostIdsMutation_updateUser_UserOutput_data_User = { __typename?: 'User', _id: string, pinnedPostIds: Array<string> | null };
+
+type UpdatePinnedPostIdsMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: UpdatePinnedPostIdsMutation_updateUser_UserOutput_data_User | null };
+
+type UpdatePinnedPostIdsMutation_Mutation = { __typename?: 'Mutation', updateUser: UpdatePinnedPostIdsMutation_updateUser_UserOutput | null };
+
+
+type UpdatePinnedPostIdsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type UpdatePinnedPostIdsMutation = UpdatePinnedPostIdsMutation_Mutation;
+
 type UsersAccountManagementGetUserBySlugQuery_GetUserBySlug_User = (
   { __typename?: 'User' }
   & UsersEdit
@@ -26839,7 +26854,7 @@ type UsersProfile_User_moderationGuidelines_Revision = (
 );
 
 type UsersProfile = (
-  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string> | null, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
   & UsersMinimumInfo
 );
 
