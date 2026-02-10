@@ -497,7 +497,7 @@ body {
   opacity: 0.9;
 }
 
-.content {
+.profile-content {
   display: flex;
   min-height: calc(100vh - 60px);
 }
@@ -2240,7 +2240,7 @@ body {
 }
 
 /* Account settings page */
-.settings-page .content {
+.settings-page .profile-content {
   justify-content: center;
   background: #ffffff;
 }
