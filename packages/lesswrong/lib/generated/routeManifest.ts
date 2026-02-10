@@ -419,6 +419,9 @@ export const routeTrie = {
         "emailHistory": {
           "hasPage": true
         },
+        "linkPreview": {
+          "hasPage": true
+        },
         "notificationEmailPreview": {
           "hasPage": true
         },
@@ -428,6 +431,7 @@ export const routeTrie = {
       },
       "lowerCase": {
         "emailhistory": "emailHistory",
+        "linkpreview": "linkPreview",
         "notificationemailpreview": "notificationEmailPreview",
         "query-waterfall": "query-waterfall"
       }

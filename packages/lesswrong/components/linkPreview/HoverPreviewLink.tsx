@@ -8,6 +8,7 @@ import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import type { ContentStyleType } from '../common/ContentStylesValues';
 import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, NeuronpediaPreview, MetaforecastPreview, OWIDPreview, ArbitalPreview, EstimakerPreview, ViewpointsPreview } from '@/components/linkPreview/PostLinkPreview';
+import CrossSiteLinkPreview from '@/components/linkPreview/CrossSiteLinkPreview';
 import FootnotePreview from "./FootnotePreview";
 import { NoSideItems } from '../contents/SideItems';
 
@@ -136,9 +137,9 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
           {children}
         </ViewpointsPreview>
       }
-      return <DefaultPreview href={href} id={id} rel={rel} className={className}>
+      return <CrossSiteLinkPreview href={href} id={id} rel={rel} className={className}>
         {children}
-      </DefaultPreview>
+      </CrossSiteLinkPreview>
     }
     return <a href={href} id={id} rel={rel} className={className}>
       {children}

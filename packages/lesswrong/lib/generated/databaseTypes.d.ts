@@ -662,6 +662,28 @@ interface DbLegacyData extends DbObject {
   objectId: string
 }
 
+type LinkPreviewCachesCollection = PgCollection<"LinkPreviewCaches">;
+
+interface DbLinkPreviewCaches extends DbObject {
+  __collectionName?: "LinkPreviewCaches"
+  cacheVersion: number
+  createdAt: Date
+  debugHtmlSource: string | null
+  debugImageSource: string | null
+  debugTitleSource: string | null
+  error: string | null
+  fetchedAt: Date | null
+  imageUrl: string | null
+  legacyData: any | null
+  nextRefreshAt: Date
+  remoteHtml: string | null
+  requestStartedAt: Date
+  sanitizedHtml: string | null
+  status: string
+  title: string | null
+  url: string
+}
+
 type LlmConversationsCollection = PgCollection<"LlmConversations">;
 
 interface DbLlmConversation extends DbObject {
@@ -2374,6 +2396,7 @@ interface CollectionsByName {
   JargonTerms: JargonTermsCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
+  LinkPreviewCaches: LinkPreviewCachesCollection
   LlmConversations: LlmConversationsCollection
   LlmMessages: LlmMessagesCollection
   Localgroups: LocalgroupsCollection
@@ -2470,6 +2493,7 @@ interface ObjectsByCollectionName {
   JargonTerms: DbJargonTerm
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
+  LinkPreviewCaches: DbLinkPreviewCaches
   LlmConversations: DbLlmConversation
   LlmMessages: DbLlmMessage
   Localgroups: DbLocalgroup
@@ -2566,6 +2590,7 @@ interface ObjectsByTypeName {
   JargonTerm: DbJargonTerm
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
+  LinkPreviewCaches: DbLinkPreviewCaches
   LlmConversation: DbLlmConversation
   LlmMessage: DbLlmMessage
   Localgroup: DbLocalgroup

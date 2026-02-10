@@ -44,6 +44,7 @@ import { GoogleServiceAccountSessions } from './googleServiceAccountSessions/col
 import { Images } from './images/collection';
 import { JargonTerms } from './jargonTerms/collection';
 import { LegacyData } from './legacyData/collection';
+import { LinkPreviewCaches } from './linkPreviewCaches/collection';
 import { LlmConversations } from './llmConversations/collection';
 import { LlmMessages } from './llmMessages/collection';
 import { Localgroups } from './localgroups/collection';
@@ -122,6 +123,7 @@ const allCollections = {
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
   DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
   FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages,
+  LinkPreviewCaches,
   Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
   PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,

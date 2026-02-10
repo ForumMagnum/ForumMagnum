@@ -2150,6 +2150,21 @@ type CronHistory = {
   startedAt?: Maybe<Scalars['Date']['output']>;
 };
 
+type CrossSiteLinkPreviewData = {
+  __typename?: 'CrossSiteLinkPreviewData';
+  cacheVersion?: Maybe<Scalars['Int']['output']>;
+  debugHtmlSource?: Maybe<Scalars['String']['output']>;
+  debugImageSource?: Maybe<Scalars['String']['output']>;
+  debugTitleSource?: Maybe<Scalars['String']['output']>;
+  error?: Maybe<Scalars['String']['output']>;
+  fetchedAt?: Maybe<Scalars['Date']['output']>;
+  html?: Maybe<Scalars['String']['output']>;
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  nextRefreshAt?: Maybe<Scalars['Date']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
+};
+
 type CrossedKarmaThresholdResult = {
   __typename?: 'CrossedKarmaThresholdResult';
   results: Array<Post>;
@@ -7813,6 +7828,7 @@ type Query = {
   conversation?: Maybe<SingleConversationOutput>;
   conversations?: Maybe<MultiConversationOutput>;
   convertDocument?: Maybe<Scalars['JSON']['output']>;
+  crossSiteLinkPreview?: Maybe<CrossSiteLinkPreviewData>;
   curationNotice?: Maybe<SingleCurationNoticeOutput>;
   curationNotices?: Maybe<MultiCurationNoticeOutput>;
   currentSpotlight?: Maybe<Spotlight>;
@@ -8488,6 +8504,13 @@ type QueryconversationsArgs = {
 type QueryconvertDocumentArgs = {
   document?: InputMaybe<Scalars['JSON']['input']>;
   targetFormat?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type QuerycrossSiteLinkPreviewArgs = {
+  forceRefetch?: InputMaybe<Scalars['Boolean']['input']>;
+  includeDebug?: InputMaybe<Scalars['Boolean']['input']>;
+  url: Scalars['String']['input'];
 };
 
 
@@ -17370,6 +17393,32 @@ type GetReviewResultsTableDataQueryVariables = Exact<{
 
 
 type GetReviewResultsTableDataQuery = GetReviewResultsTableDataQuery_Query;
+
+type CrossSiteLinkPreviewQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData = { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, html: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null };
+
+type CrossSiteLinkPreviewQueryQuery_Query = { __typename?: 'Query', crossSiteLinkPreview: CrossSiteLinkPreviewQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData | null };
+
+
+type CrossSiteLinkPreviewQueryQueryVariables = Exact<{
+  url: Scalars['String']['input'];
+  forceRefetch: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type CrossSiteLinkPreviewQueryQuery = CrossSiteLinkPreviewQueryQuery_Query;
+
+type CrossSiteLinkPreviewDebugQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData = { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null, debugTitleSource: string | null, debugImageSource: string | null, debugHtmlSource: string | null };
+
+type CrossSiteLinkPreviewDebugQueryQuery_Query = { __typename?: 'Query', crossSiteLinkPreview: CrossSiteLinkPreviewDebugQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData | null };
+
+
+type CrossSiteLinkPreviewDebugQueryQueryVariables = Exact<{
+  url: Scalars['String']['input'];
+  includeDebug: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type CrossSiteLinkPreviewDebugQueryQuery = CrossSiteLinkPreviewDebugQueryQuery_Query;
 
 type PostLinkPreviewSequenceQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }

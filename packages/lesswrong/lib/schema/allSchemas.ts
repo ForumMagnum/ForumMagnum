@@ -42,6 +42,7 @@ import { default as GoogleServiceAccountSessions } from '../collections/googleSe
 import { default as Images } from '../collections/images/newSchema';
 import { default as JargonTerms } from '../collections/jargonTerms/newSchema';
 import { default as LegacyData } from '../collections/legacyData/newSchema';
+import { default as LinkPreviewCaches } from '../collections/linkPreviewCaches/newSchema';
 import { default as LlmConversations } from '../collections/llmConversations/newSchema';
 import { default as LlmMessages } from '../collections/llmMessages/newSchema';
 import { default as Localgroups } from '../collections/localgroups/newSchema';
@@ -113,6 +114,7 @@ export const allSchemas = {
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
   DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
   FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages,
+  LinkPreviewCaches,
   Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
   PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,

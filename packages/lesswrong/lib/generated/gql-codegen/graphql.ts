@@ -2153,6 +2153,21 @@ export type CronHistory = {
   startedAt: Maybe<Scalars['Date']['output']>;
 };
 
+export type CrossSiteLinkPreviewData = {
+  __typename?: 'CrossSiteLinkPreviewData';
+  cacheVersion: Maybe<Scalars['Int']['output']>;
+  debugHtmlSource: Maybe<Scalars['String']['output']>;
+  debugImageSource: Maybe<Scalars['String']['output']>;
+  debugTitleSource: Maybe<Scalars['String']['output']>;
+  error: Maybe<Scalars['String']['output']>;
+  fetchedAt: Maybe<Scalars['Date']['output']>;
+  html: Maybe<Scalars['String']['output']>;
+  imageUrl: Maybe<Scalars['String']['output']>;
+  nextRefreshAt: Maybe<Scalars['Date']['output']>;
+  status: Maybe<Scalars['String']['output']>;
+  title: Maybe<Scalars['String']['output']>;
+};
+
 export type CrossedKarmaThresholdResult = {
   __typename?: 'CrossedKarmaThresholdResult';
   results: Array<Post>;
@@ -7816,6 +7831,7 @@ export type Query = {
   conversation: Maybe<SingleConversationOutput>;
   conversations: Maybe<MultiConversationOutput>;
   convertDocument: Maybe<Scalars['JSON']['output']>;
+  crossSiteLinkPreview: Maybe<CrossSiteLinkPreviewData>;
   curationNotice: Maybe<SingleCurationNoticeOutput>;
   curationNotices: Maybe<MultiCurationNoticeOutput>;
   currentSpotlight: Maybe<Spotlight>;
@@ -8491,6 +8507,13 @@ export type QueryconversationsArgs = {
 export type QueryconvertDocumentArgs = {
   document?: InputMaybe<Scalars['JSON']['input']>;
   targetFormat?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QuerycrossSiteLinkPreviewArgs = {
+  forceRefetch?: InputMaybe<Scalars['Boolean']['input']>;
+  includeDebug?: InputMaybe<Scalars['Boolean']['input']>;
+  url: Scalars['String']['input'];
 };
 
 
@@ -15754,6 +15777,22 @@ export type GetReviewResultsTableDataQueryVariables = Exact<{
 
 export type GetReviewResultsTableDataQuery = { __typename?: 'Query', ReviewResultsTableData: { __typename?: 'ReviewResultsTableData', year: number, results: Array<{ __typename?: 'ReviewResultsPostEntry', rank: number, title: string, postUrl: string, authorName: string, coauthorNames: Array<string>, votes: Array<number> }> } | null };
 
+export type CrossSiteLinkPreviewQueryQueryVariables = Exact<{
+  url: Scalars['String']['input'];
+  forceRefetch?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type CrossSiteLinkPreviewQueryQuery = { __typename?: 'Query', crossSiteLinkPreview: { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, html: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null } | null };
+
+export type CrossSiteLinkPreviewDebugQueryQueryVariables = Exact<{
+  url: Scalars['String']['input'];
+  includeDebug?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type CrossSiteLinkPreviewDebugQueryQuery = { __typename?: 'Query', crossSiteLinkPreview: { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null, debugTitleSource: string | null, debugImageSource: string | null, debugHtmlSource: string | null } | null };
+
 export type PostLinkPreviewSequenceQueryVariables = Exact<{
   documentId?: InputMaybe<Scalars['String']['input']>;
   allowNull?: InputMaybe<Scalars['Boolean']['input']>;
@@ -22450,6 +22489,8 @@ export const ConversationsListDoc = {"kind":"Document","definitions":[Conversati
 export const ConversationsListWithReadStatusDoc = {"kind":"Document","definitions":[ConversationsListWithReadStatusFragmentDef,ConversationsListFragmentDef,ConversationsMinimumInfoFragmentDef,UsersMinimumInfoFragmentDef,messageListFragmentFragmentDef]} as unknown as DocumentNode<ConversationsListWithReadStatus, unknown>;
 export const ConversationsMinimumInfoDoc = {"kind":"Document","definitions":[ConversationsMinimumInfoFragmentDef]} as unknown as DocumentNode<ConversationsMinimumInfo, unknown>;
 export const ConvertDocumentDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"ConvertDocument"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"document"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"JSON"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"targetFormat"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"convertDocument"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"document"},"value":{"kind":"Variable","name":{"kind":"Name","value":"document"}}},{"kind":"Argument","name":{"kind":"Name","value":"targetFormat"},"value":{"kind":"Variable","name":{"kind":"Name","value":"targetFormat"}}}]}]}}]} as unknown as DocumentNode<ConvertDocumentQuery, ConvertDocumentQueryVariables>;
+export const CrossSiteLinkPreviewDebugQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CrossSiteLinkPreviewDebugQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"includeDebug"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"crossSiteLinkPreview"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"url"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}},{"kind":"Argument","name":{"kind":"Name","value":"includeDebug"},"value":{"kind":"Variable","name":{"kind":"Name","value":"includeDebug"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"fetchedAt"}},{"kind":"Field","name":{"kind":"Name","value":"nextRefreshAt"}},{"kind":"Field","name":{"kind":"Name","value":"debugTitleSource"}},{"kind":"Field","name":{"kind":"Name","value":"debugImageSource"}},{"kind":"Field","name":{"kind":"Name","value":"debugHtmlSource"}}]}}]}}]} as unknown as DocumentNode<CrossSiteLinkPreviewDebugQueryQuery, CrossSiteLinkPreviewDebugQueryQueryVariables>;
+export const CrossSiteLinkPreviewQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CrossSiteLinkPreviewQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"url"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"forceRefetch"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"crossSiteLinkPreview"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"url"},"value":{"kind":"Variable","name":{"kind":"Name","value":"url"}}},{"kind":"Argument","name":{"kind":"Name","value":"forceRefetch"},"value":{"kind":"Variable","name":{"kind":"Name","value":"forceRefetch"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"imageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"html"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"fetchedAt"}},{"kind":"Field","name":{"kind":"Name","value":"nextRefreshAt"}}]}}]}}]} as unknown as DocumentNode<CrossSiteLinkPreviewQueryQuery, CrossSiteLinkPreviewQueryQueryVariables>;
 export const CrossedKarmaThresholdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CrossedKarmaThreshold"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"CrossedKarmaThreshold"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsTwitterAdmin"}}]}}]}}]}},PostsTwitterAdminFragmentDef,PostsListWithVotesFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostPodcastEpisodeFragmentDef,UsersSocialMediaInfoFragmentDef,UsersProfileFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<CrossedKarmaThresholdQuery, CrossedKarmaThresholdQueryVariables>;
 export const CuratedAndPopularThisWeekDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CuratedAndPopularThisWeek"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"af"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"CuratedAndPopularThisWeek"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"af"},"value":{"kind":"Variable","name":{"kind":"Name","value":"af"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}}]}}]}}]}},PostsListWithVotesFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostPodcastEpisodeFragmentDef]} as unknown as DocumentNode<CuratedAndPopularThisWeekQuery, CuratedAndPopularThisWeekQueryVariables>;
 export const CurationNoticesFragmentDoc = {"kind":"Document","definitions":[CurationNoticesFragmentFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostsMinimumInfoFragmentDef,RevisionEditFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<CurationNoticesFragment, unknown>;
