@@ -7,19 +7,24 @@ import type { ParamMap } from '../../../../.next/types/routes';
 // This matches directory structure in app/lw which will need to be duplicated as app/ea
 const legacyRouteAcronym = 'lw';
 
-export type LinkPreviewComponent = React.FC<{
+type NextExistingRoute = keyof ParamMap;
+
+export type LinkPreviewComponent<TRoute extends NextExistingRoute = NextExistingRoute> = React.FC<{
   href: string,
   originalHref: string,
   targetLocation: RouterLocation,
+  params: ParamMap[TRoute],
   id: string,
   className?: string,
   noPrefetch?: boolean,
   children: React.ReactNode,
 }>
 
-type NextExistingRoute = keyof ParamMap;
+const defineRoutePreviewComponentMapping = <const TRoute extends NextExistingRoute>(
+  routePreviewComponentMapping: { [TRoutePattern in TRoute]: LinkPreviewComponent<TRoutePattern> }
+) => routePreviewComponentMapping;
 
-export const routePreviewComponentMapping = {
+export const routePreviewComponentMapping = defineRoutePreviewComponentMapping({
   '/sequences/[_id]': SequencePreview,
   '/s/[_id]': SequencePreview,
   '/s/[_id]/p/[postId]': PostLinkPreviewSequencePost,
@@ -44,4 +49,7 @@ export const routePreviewComponentMapping = {
   [`/${legacyRouteAcronym}/[id]/[slug]/[commentId]`]: CommentLinkPreviewLegacy,
   '/inbox/[conversationId]': MessagePreview,
   '/inbox': MessagePreview,
-} satisfies Partial<Record<NextExistingRoute, LinkPreviewComponent>>;
+});
+
+export type RoutePreviewPattern = keyof typeof routePreviewComponentMapping;
+export type RoutePreviewParams<TRoutePattern extends RoutePreviewPattern> = ParamMap[TRoutePattern];

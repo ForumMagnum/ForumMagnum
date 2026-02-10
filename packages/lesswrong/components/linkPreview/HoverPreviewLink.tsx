@@ -12,7 +12,7 @@ import FootnotePreview from "./FootnotePreview";
 import { NoSideItems } from '../contents/SideItems';
 
 import { parseRouteWithErrors } from './parseRouteWithErrors';
-import { routePreviewComponentMapping } from '@/lib/routeChecks/hoverPreviewRoutes';
+import { routePreviewComponentMapping, type LinkPreviewComponent } from '@/lib/routeChecks/hoverPreviewRoutes';
 
 export const linkIsExcludedFromPreview = (url: string): boolean => {
   // Don't try to preview special JS links
@@ -73,13 +73,13 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
       const destinationUrl = hostType==="onsite" ? parsedUrl.url : href;
 
       if (parsedUrl.routePattern) {
-        const PreviewComponent = routePreviewComponentMapping[parsedUrl.routePattern];
+        const PreviewComponent = routePreviewComponentMapping[parsedUrl.routePattern] as LinkPreviewComponent;
         const previewComponentName = PreviewComponent?.name;
 
         if (PreviewComponent) {
           return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={previewComponentName} onsite>
             <NoSideItems>
-              <PreviewComponent href={destinationUrl} originalHref={href} targetLocation={parsedUrl} id={id ?? ''} noPrefetch={noPrefetch} className={className}>
+              <PreviewComponent href={destinationUrl} originalHref={href} targetLocation={parsedUrl} params={parsedUrl.params} id={id ?? ''} noPrefetch={noPrefetch} className={className}>
                 {children}
               </PreviewComponent>
             </NoSideItems>
