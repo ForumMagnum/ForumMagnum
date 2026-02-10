@@ -1,10 +1,28 @@
-import { Server } from '@hocuspocus/server';
+import { Server, type Extension } from '@hocuspocus/server';
 import { Logger } from '@hocuspocus/extension-logger';
 import { PostgresExtension } from './extensions/postgres';
+import { RevisionSyncExtension } from './extensions/revisionSync';
 import { verifyAuthToken } from './auth';
 
 const port = parseInt(process.env.PORT ?? '8080');
 const e2eDebug = process.env.E2E === 'true';
+
+const extensions: Extension[] = [
+  new PostgresExtension({
+    connectionString: process.env.DATABASE_URL!,
+  }),
+  new Logger(),
+];
+
+// Only enable the RevisionSync extension if the webhook URL is configured
+if (process.env.HOCUSPOCUS_WEBHOOK_URL && process.env.HOCUSPOCUS_WEBHOOK_SECRET) {
+  extensions.push(
+    new RevisionSyncExtension({
+      webhookUrl: process.env.HOCUSPOCUS_WEBHOOK_URL,
+      webhookSecret: process.env.HOCUSPOCUS_WEBHOOK_SECRET,
+    }),
+  );
+}
 
 const server = new Server({
   port,
@@ -12,13 +30,7 @@ const server = new Server({
   
   quiet: process.env.NODE_ENV === 'production',
   
-  extensions: [    
-    new PostgresExtension({
-      connectionString: process.env.DATABASE_URL!,
-    }),
-    
-    new Logger(),
-  ],
+  extensions,
   
   async onAuthenticate({ token, documentName }) {
     if (!token) {
