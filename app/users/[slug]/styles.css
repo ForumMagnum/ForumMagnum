@@ -1262,10 +1262,10 @@ body {
 .empty-state-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 0 16px 32px;
-  text-align: center;
+  padding: 0 0 32px;
+  text-align: left;
   width: 100%;
 }
 
@@ -1283,6 +1283,7 @@ body {
   display: block;
   filter: none;
   margin-bottom: -10px;
+  mix-blend-mode: multiply;
 }
 
 .empty-state-title {

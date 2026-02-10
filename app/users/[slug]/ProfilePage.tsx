@@ -147,7 +147,7 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
 
   const hasEnoughTopPosts = topPosts.length >= 4;
   const hasPosts = recentPosts.length > 0;
-  const hasFeedContent = (user?.postCount ?? 0) > 0 || (user?.commentCount ?? 0) > 0;
+  const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
 
   const tabInitialized = useRef(false);
   useEffect(() => {
@@ -648,7 +648,7 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
                 {!hasPosts && !recentPostsLoading && (
                   <div className="empty-state-container">
                     <div className="empty-state-image">
-                      <img src="/empty-state-quill.png" alt="" />
+                      <img src="/default-post-preview-1.png" alt="" />
                     </div>
                     <p className="empty-state-description">{username} has not written any posts yet.</p>
                   </div>
@@ -796,7 +796,7 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
                 {!hasFeedContent && (
                   <div className="empty-state-container">
                     <div className="empty-state-image">
-                      <img src="/empty-state-quill.png" alt="" />
+                      <img src="/default-post-preview-3.png" alt="" />
                     </div>
                     <p className="empty-state-description">{username} hasn&apos;t written anything yet.</p>
                   </div>
