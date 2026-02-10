@@ -1263,26 +1263,25 @@ body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
-  padding: 0 0 32px;
+  justify-content: flex-start;
+  padding: 16px 0 32px;
   text-align: left;
   width: 100%;
 }
 
 .empty-state-image {
-  margin-bottom: 6px;
+  margin-top: 8px;
   width: 100%;
-  max-width: 495px;
+  max-width: 380px;
   overflow: hidden;
 }
 
 .empty-state-image img {
   width: 100%;
   height: auto;
-  opacity: 0.95;
+  opacity: 0.85;
   display: block;
   filter: none;
-  margin-bottom: -10px;
   mix-blend-mode: multiply;
 }
 
@@ -1297,12 +1296,12 @@ body {
 
 .empty-state-description {
   font-family: "Gill Sans", "Gill Sans MT", sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 400;
-  color: #8a8279;
-  line-height: 1.45;
+  color: #9a9189;
+  line-height: 1.5;
   margin: 0;
-  max-width: 480px;
+  font-style: italic;
 }
 
 /* Article post styling */

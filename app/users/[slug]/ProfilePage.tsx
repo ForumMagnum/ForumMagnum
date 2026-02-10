@@ -575,15 +575,17 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
                     Feed
                   </button>
                 </div>
-                <div className="sort-control">
-                  <button 
-                    className={`sort-icon-button ${activeTab === "sequences" ? "sort-icon-disabled" : ""}`}
-                    onClick={activeTab !== "sequences" ? handleSortPanelToggle : undefined}
-                    type="button"
-                  >
-                    <span className="sort-icon">⚙</span>
-                  </button>
-                </div>
+                {((activeTab === "posts" && hasPosts) || (activeTab === "feed" && hasFeedContent) || activeTab === "sequences") && (
+                  <div className="sort-control">
+                    <button 
+                      className={`sort-icon-button ${activeTab === "sequences" ? "sort-icon-disabled" : ""}`}
+                      onClick={activeTab !== "sequences" ? handleSortPanelToggle : undefined}
+                      type="button"
+                    >
+                      <span className="sort-icon">⚙</span>
+                    </button>
+                  </div>
+                )}
               </div>
               <h4 className="sidebar-author-name">
                 <UsersNameWithModal
@@ -647,10 +649,10 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
                 )}
                 {!hasPosts && !recentPostsLoading && (
                   <div className="empty-state-container">
+                    <p className="empty-state-description">{username} has not written any posts yet.</p>
                     <div className="empty-state-image">
                       <img src="/default-post-preview-1.png" alt="" />
                     </div>
-                    <p className="empty-state-description">{username} has not written any posts yet.</p>
                   </div>
                 )}
                 {listPosts.map((post, index) => {
@@ -795,10 +797,10 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
                 )}
                 {!hasFeedContent && (
                   <div className="empty-state-container">
+                    <p className="empty-state-description">{username} hasn&apos;t written anything yet.</p>
                     <div className="empty-state-image">
                       <img src="/default-post-preview-3.png" alt="" />
                     </div>
-                    <p className="empty-state-description">{username} hasn&apos;t written anything yet.</p>
                   </div>
                 )}
                 {hasFeedContent && userId && (
