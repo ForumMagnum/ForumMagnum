@@ -140,16 +140,16 @@ export const PostLinkPreviewSequencePost: LinkPreviewComponent<'/s/[_id]/p/[post
   </PostLinkPreviewVariantCheck>
 }
 
-export const PostLinkPreviewSlug: LinkPreviewComponent<'/highlights/[slug]' | '/hpmor/[slug]' | '/codex/[slug]' | '/rationality/[slug]' | '/posts/slug' | '/posts/slug/[slug]'> = ({href, originalHref, targetLocation, params, id, className, children}: {
+export const PostLinkPreviewSlug: LinkPreviewComponent<'/highlights/[slug]' | '/hpmor/[slug]' | '/codex/[slug]' | '/rationality/[slug]' | '/posts/slug/[slug]'> = ({href, originalHref, targetLocation, params, id, className, children}: {
   href: string,
   originalHref: string,
   targetLocation: RouterLocation,
-  params: RoutePreviewParams<'/highlights/[slug]' | '/hpmor/[slug]' | '/codex/[slug]' | '/rationality/[slug]' | '/posts/slug' | '/posts/slug/[slug]'>,
+  params: RoutePreviewParams<'/highlights/[slug]' | '/hpmor/[slug]' | '/codex/[slug]' | '/rationality/[slug]' | '/posts/slug/[slug]'>,
   id: string,
   className?: string,
   children: ReactNode,
 }) => {
-  const slug = 'slug' in params ? params.slug : targetLocation.params.slug;
+  const slug = params.slug;
   const { post, error } = usePostBySlug({ slug, ssr: false });
 
   return <PostLinkPreviewVariantCheck href={href} originalHref={originalHref} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>

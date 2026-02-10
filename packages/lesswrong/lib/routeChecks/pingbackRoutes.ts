@@ -56,7 +56,6 @@ export const routePingbackMapping = {
   '/g/[groupId]/p/[_id]': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   '/posts/[_id]': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
   '/posts/[_id]/[slug]': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
-  '/posts/slug': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   '/posts/slug/[slug]': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   [`/${legacyRouteAcronym}/[id]`]: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
   [`/${legacyRouteAcronym}/[id]/[slug]`]: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),

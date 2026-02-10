@@ -34,7 +34,6 @@ const routesWithWhiteBackground = [
   "/posts/[_id]/[slug]",
   "/posts/[_id]",
   "/posts/slug/[slug]",
-  "/posts/slug",
   "/rationality/[slug]",
   "/resendVerificationEmail",
   "/s/[_id]/p/[postId]",

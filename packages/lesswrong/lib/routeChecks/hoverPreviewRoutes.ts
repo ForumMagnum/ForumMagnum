@@ -39,7 +39,6 @@ export const routePreviewComponentMapping = defineRoutePreviewComponentMapping({
   '/g/[groupId]/p/[_id]': PostLinkPreview,
   '/posts/[_id]': PostLinkPreview,
   '/posts/[_id]/[slug]': PostLinkPreview,
-  '/posts/slug': PostLinkPreviewSlug,
   '/posts/slug/[slug]': PostLinkPreviewSlug,
   '/posts/[_id]/[slug]/comment': PostCommentLinkPreviewGreaterWrong,
   '/posts/[_id]/[slug]/comment/[commentId]': PostCommentLinkPreviewGreaterWrong,
