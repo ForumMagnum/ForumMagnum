@@ -19,7 +19,7 @@ interface HtmlToTextDefaultOptions {
   fallbackToImageText?: boolean
 }
 
-const getImageTextFallback = (html: string): string|undefined => {
+const getImageTextFallback = (html: string): string => {
   const { document } = parseDocumentFromString(html);
   const captions = Array.from(document.querySelectorAll("figcaption"));
   for (const caption of captions) {
@@ -30,7 +30,7 @@ const getImageTextFallback = (html: string): string|undefined => {
   }
   const firstImage = document.querySelector("img");
   if (!firstImage) {
-    return undefined;
+    return "";
   }
   const altText = firstImage.getAttribute("alt")?.trim();
   if (altText) {
@@ -48,5 +48,5 @@ export const htmlToTextDefault = (html = "", { fallbackToImageText = false }: Ht
   if (text.trim() || !fallbackToImageText) {
     return text;
   }
-  return getImageTextFallback(html) ?? text;
+  return getImageTextFallback(html)
 };
