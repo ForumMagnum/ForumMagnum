@@ -44,3 +44,7 @@ runs:
     - name: Verify dependencies were installed
       shell: bash
       run: test -d node_modules
+
+    - name: Generate Next.js route types
+      shell: bash
+      run: yarn next typegen .
