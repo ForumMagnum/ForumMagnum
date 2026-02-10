@@ -688,8 +688,7 @@ export const routeTrie = {
             "child": {
               "hasPage": true
             }
-          },
-          "hasPage": true
+          }
         }
       },
       "lowerCase": {
