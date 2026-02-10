@@ -1,8 +1,14 @@
 import { matchPath } from '../vendor/react-router/matchPath';
-import { isAF, taggingNamePluralSetting } from "../instanceSettings";
+import { isAF } from "../instanceSettings";
 import { routePatternToReactRouterPath } from './routePatternFormat';
+import type { ParamMap } from '../../../../.next/types/routes';
+type NextExistingRoute = keyof ParamMap;
 
-function pathnameMatchesRoutePath(pathname: string, routePath: string) {
+function pathnameMatchesAnyOf(pathname: string, routePaths: NextExistingRoute[]) {
+  return routePaths.some(routePath => pathnameMatchesRoutePath(pathname, routePath));
+}
+
+function pathnameMatchesRoutePath(pathname: string, routePath: NextExistingRoute) {
   return !!matchPath(pathname, {
     path: routePatternToReactRouterPath(routePath),
     exact: true,
@@ -14,20 +20,29 @@ export const isHomeRoute = (pathname: string) => pathnameMatchesRoutePath(pathna
 
 export const isSunshineSidebarRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/');
 
-export const isStandaloneRoute = (pathname: string) => ['/crosspostLogin', '/groups-map'].some(route => pathnameMatchesRoutePath(pathname, route));
+export const isStandaloneRoute = (pathname: string) => pathnameMatchesAnyOf(pathname, [
+  '/crosspostLogin',
+  '/groups-map'
+]);
 
-export const isStaticHeaderRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/admin/digests/[num]');
+// ea-forum-look-here Uncomment when this route exists
+//export const isStaticHeaderRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/admin/digests/[num]');
+export const isStaticHeaderRoute = (pathname: string) => false;
 
-export const isFullscreenRoute = (pathname: string) => ["/inbox", "/inbox/[conversationId]", "/moderatorInbox", "/conversation"].some(route => pathnameMatchesRoutePath(pathname, route));
+export const isFullscreenRoute = (pathname: string) => pathnameMatchesAnyOf(pathname, [
+  "/inbox",
+  "/inbox/[conversationId]",
+  "/moderatorInbox",
+]);
 
-export const isRouteWithLeftNavigationColumn = (pathname: string) => [
+export const isRouteWithLeftNavigationColumn = (pathname: string) => pathnameMatchesAnyOf(pathname, [
   "/",
   "/allPosts",
   "/questions",
   "/quicktakes",
   "/collections/[_id]",
   "/library",
-].some(route => pathnameMatchesRoutePath(pathname, route));
+]);
 
 // ea-forum-look-here There was some special casing in Layout specific to the
 // subforum2 route. We dropped that route entirely along with its special
