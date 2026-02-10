@@ -1,26 +1,24 @@
 import {
   Extension,
-  onChangePayload,
-  onDisconnectPayload,
+  afterStoreDocumentPayload,
   afterLoadDocumentPayload,
-  beforeUnloadDocumentPayload,
 } from '@hocuspocus/server';
 import * as Y from 'yjs';
 
 /**
- * How long to wait after the last edit before saving a revision.
- * If the user pauses typing for this long, a revision is created.
+ * How long to wait after the last DB save before sending a revision webhook.
+ * If no further saves happen for this long, a webhook is sent.
  */
 const REVISION_IDLE_DEBOUNCE_MS = 60_000; // 60 seconds
 
 /**
- * Maximum time between revision saves during continuous editing.
- * Even if the user never pauses, a revision is created at this interval.
+ * Maximum time between revision webhooks during continuous editing.
+ * Even if saves keep happening, a webhook is sent at this interval.
  */
 const REVISION_MAX_INTERVAL_MS = 5 * 60_000; // 5 minutes
 
 interface RevisionSyncConfig {
-  /** The base URL of the ForumMagnum app (e.g. https://www.lesswrong.com) */
+  /** The URL of the ForumMagnum hocuspocusWebhook page */
   webhookUrl: string;
   /** Shared secret for authenticating with the ForumMagnum webhook */
   webhookSecret: string;
@@ -42,14 +40,13 @@ interface CommentYMap {
 /**
  * Per-document state for the revision debounce timers.
  *
- * When `onChange` fires, we don't immediately send a webhook.
- * Instead we reset an idle timer and maintain a max-interval
- * timer, so revisions are only created:
- *   - After 60 seconds of inactivity, OR
- *   - At most every 5 minutes during continuous editing.
+ * We debounce off `afterStoreDocument` (which fires after the PostgresExtension
+ * has written the Yjs state to the DB), so when the webhook fires, ForumMagnum
+ * is guaranteed to read fresh state from the YjsDocuments table.
  *
- * On disconnect the pending timer is flushed immediately so the final
- * document state is never lost.
+ * Timers ensure revisions are only created:
+ *   - After 60 seconds of inactivity (no further DB saves), OR
+ *   - At most every 5 minutes during continuous editing.
  */
 interface PendingRevision {
   /** Timer that fires after REVISION_IDLE_DEBOUNCE_MS of inactivity. */
@@ -60,16 +57,17 @@ interface PendingRevision {
    * Only set once per "dirty" window; cleared after a revision is saved.
    */
   maxTimer: NodeJS.Timeout;
-  /** Reference to the live Y.Doc so we can encode state at flush time. */
-  document: Y.Doc;
 }
 
 /**
  * Hocuspocus extension that syncs document changes back to ForumMagnum
  * for revision storage and comment notifications.
  *
- * Equivalent to the CKEditor webhook system, but running inside the
- * Hocuspocus server rather than being called by an external service.
+ * Uses `afterStoreDocument` as its trigger, which guarantees the Yjs state
+ * has been persisted to the database before we tell ForumMagnum to read it.
+ *
+ * Sends GET requests to the ForumMagnum webhook page with event data
+ * in HTTP headers (not query params, to avoid logging sensitive data).
  */
 export class RevisionSyncExtension implements Extension {
   private config: RevisionSyncConfig;
@@ -93,13 +91,14 @@ export class RevisionSyncExtension implements Extension {
   }
 
   /**
-   * Called on every individual Yjs update (i.e. per keystroke).
+   * Called after the PostgresExtension (and any other onStoreDocument hooks)
+   * have finished writing the document to the database.
    *
-   * Resets the idle timer so it always measures from the most recent edit,
-   * and starts the max-interval timer on the first edit of a dirty window.
-   * The actual webhook call only happens when a timer fires or on disconnect.
+   * Resets the idle timer so it always measures from the most recent DB save,
+   * and starts the max-interval timer on the first save of a dirty window.
+   * The actual webhook call only happens when a timer fires.
    */
-  async onChange({ documentName, document }: onChangePayload): Promise<void> {
+  async afterStoreDocument({ documentName }: afterStoreDocumentPayload): Promise<void> {
     const existing = this.pendingRevisions.get(documentName);
 
     // Always clear and reset the idle timer
@@ -121,7 +120,6 @@ export class RevisionSyncExtension implements Extension {
     this.pendingRevisions.set(documentName, {
       idleTimer,
       maxTimer,
-      document,
     });
   }
 
@@ -134,43 +132,10 @@ export class RevisionSyncExtension implements Extension {
   }
 
   /**
-   * Called when a user disconnects from a document.
-   *
-   * If there's a pending revision save for this document, flush it
-   * immediately so the final state isn't lost. Then send a separate
-   * user.disconnected event attributed to this user.
-   *
-   * Equivalent of CKEditor's `document.user.disconnected` webhook event.
-   */
-  async onDisconnect({ documentName, document, context }: onDisconnectPayload): Promise<void> {
-    // Flush any pending debounced revision save so we don't double-save
-    this.cancelPendingRevision(documentName);
-
-    const userId = context?.user?.id;
-    if (!userId) {
-      return;
-    }
-
-    const state = Y.encodeStateAsUpdate(document);
-    const base64State = Buffer.from(state).toString('base64');
-
-    await this.postToWebhook({
-      event: 'user.disconnected',
-      payload: {
-        documentName,
-        userId,
-        yjsState: base64State,
-      },
-    });
-  }
-
-  /**
-   * Called before a document is unloaded from memory.
+   * Called before a document is unloaded from memory (all users disconnected).
    * Flushes any pending revision and cleans up the comment observer.
    */
-  async beforeUnloadDocument({ documentName }: beforeUnloadDocumentPayload): Promise<void> {
-    // If there's still a pending revision (e.g. all users disconnected at
-    // once before the idle timer fired), flush it now.
+  async beforeUnloadDocument({ documentName }: afterStoreDocumentPayload): Promise<void> {
     await this.flushRevision(documentName);
     this.cleanupCommentObserver(documentName);
   }
@@ -191,8 +156,8 @@ export class RevisionSyncExtension implements Extension {
   }
 
   /**
-   * Sends the current document state to ForumMagnum as a `document.updated`
-   * event, then clears the pending revision timers for that document.
+   * Sends a `document.updated` webhook to ForumMagnum, then clears the
+   * pending revision timers for that document.
    */
   private async flushRevision(documentName: string): Promise<void> {
     const pending = this.pendingRevisions.get(documentName);
@@ -201,19 +166,10 @@ export class RevisionSyncExtension implements Extension {
     }
 
     // Clear both timers before the async work so a concurrent flush
-    // (e.g. idle timer + disconnect racing) doesn't double-send.
+    // (e.g. idle timer + beforeUnloadDocument racing) doesn't double-send.
     this.cancelPendingRevision(documentName);
 
-    const state = Y.encodeStateAsUpdate(pending.document);
-    const base64State = Buffer.from(state).toString('base64');
-
-    await this.postToWebhook({
-      event: 'document.updated',
-      payload: {
-        documentName,
-        yjsState: base64State,
-      },
-    });
+    await this.sendWebhookEvent('document.updated', documentName);
   }
 
   /**
@@ -330,15 +286,11 @@ export class RevisionSyncExtension implements Extension {
               ? this.getCommentersInThread(parentThread)
               : [];
 
-            await this.postToWebhook({
-              event: 'comment.added',
-              payload: {
-                documentName,
-                authorId,
-                content,
-                threadId: parentThread ? parentThread.get('id') : id,
-                commentersInThread,
-              },
+            await this.sendWebhookEvent('comment.added', documentName, {
+              'X-Hocuspocus-Comment-Author-Id': authorId,
+              'X-Hocuspocus-Comment-Content': content,
+              'X-Hocuspocus-Comment-Thread-Id': parentThread ? parentThread.get('id') : id,
+              'X-Hocuspocus-Comment-Commenters': commentersInThread.join(','),
             });
           } else if (type === 'thread') {
             // A new thread was created — register all its initial comment IDs
@@ -359,15 +311,11 @@ export class RevisionSyncExtension implements Extension {
               const authorId = firstComment.get('authorId');
               const content = firstComment.get('content');
               if (authorId && content) {
-                await this.postToWebhook({
-                  event: 'comment.added',
-                  payload: {
-                    documentName,
-                    authorId,
-                    content,
-                    threadId: id,
-                    commentersInThread: [authorId],
-                  },
+                await this.sendWebhookEvent('comment.added', documentName, {
+                  'X-Hocuspocus-Comment-Author-Id': authorId,
+                  'X-Hocuspocus-Comment-Content': content,
+                  'X-Hocuspocus-Comment-Thread-Id': id,
+                  'X-Hocuspocus-Comment-Commenters': authorId,
                 });
               }
             }
@@ -416,15 +364,26 @@ export class RevisionSyncExtension implements Extension {
     this.knownCommentIds.delete(documentName);
   }
 
-  private async postToWebhook(body: { event: string; payload: Record<string, unknown> }): Promise<void> {
+  /**
+   * Sends a GET request to the ForumMagnum webhook page with event data
+   * encoded in HTTP headers (not query params, to avoid logging sensitive data).
+   * The ForumMagnum page reads the Yjs state from the database rather than
+   * receiving it in the request body, so no large payloads are needed.
+   */
+  private async sendWebhookEvent(
+    event: string,
+    documentName: string,
+    extraHeaders?: Record<string, string>,
+  ): Promise<void> {
     try {
       const response = await fetch(this.config.webhookUrl, {
-        method: 'POST',
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${this.config.webhookSecret}`,
+          'X-Hocuspocus-Event': event,
+          'X-Hocuspocus-Document': documentName,
+          ...extraHeaders,
         },
-        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -435,7 +394,7 @@ export class RevisionSyncExtension implements Extension {
       }
     } catch (error) {
       // eslint-disable-next-line no-console
-      console.error('[RevisionSync] Error posting to webhook:', error);
+      console.error('[RevisionSync] Error sending webhook event:', error);
     }
   }
 }

@@ -1,3 +1,18 @@
+/**
+ * Client-context Yjs-to-HTML conversion.
+ *
+ * This file lives outside of @/server/ so that it can statically import
+ * PlaygroundNodes and PlaygroundEditorTheme (which are "use client" modules
+ * with transitive React dependencies). The linkedom DOM shim is injected
+ * as a parameter since it lives in @/server/ and must be dynamically imported
+ * by the caller during SSR.
+ *
+ * The conversion flow:
+ *   1. Apply the Yjs binary update to a fresh Y.Doc
+ *   2. Create a headless Lexical editor with all PlaygroundNodes registered
+ *   3. Use @lexical/yjs V1 binding to sync the Yjs state into Lexical
+ *   4. Serialize the Lexical editor state to HTML via $generateHtmlFromNodes
+ */
 import { createEditor, $getRoot } from 'lexical';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { createBinding } from '@lexical/yjs';
@@ -5,7 +20,8 @@ import type { Provider, Binding } from '@lexical/yjs';
 import * as Y from 'yjs';
 import PlaygroundNodes from '@/components/lexical/nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from '@/components/lexical/themes/PlaygroundEditorTheme';
-import { getLinkedom } from '@/server/utils/wrapLinkedom';
+
+type ParseHTML = (html: string) => { document: Document; window: Window & typeof globalThis };
 
 /**
  * Creates a no-op Provider that satisfies the @lexical/yjs Provider interface.
@@ -32,17 +48,13 @@ function createMockProvider(): Provider {
  * Sets up a minimal DOM environment using linkedom so that Lexical's
  * $generateHtmlFromNodes (which calls node.exportDOM → document.createElement)
  * can run in Node.js.
- *
- * Returns a cleanup function that restores the previous global state.
  */
-function withLinkedomGlobals<T>(fn: () => T): T {
-  const parseHTML = getLinkedom();
+function withLinkedomGlobals<T>(parseHTML: ParseHTML, fn: () => T): T {
   const { document, window } = parseHTML('<!DOCTYPE html><html><body></body></html>');
 
   const prevDocument = globalThis.document;
   const prevWindow = globalThis.window;
 
-  // Lexical's exportDOM uses the global `document` for createElement, etc.
   globalThis.document = document;
   globalThis.window = window;
 
@@ -76,8 +88,6 @@ function $syncV1BindingToLexical(binding: Binding): void {
   const root = $getRoot();
   root.clear();
 
-  // Access the underlying XmlText to get the Yjs deltas.
-  // _xmlText is a conventional-private field on CollabElementNode.
   const xmlText: Y.XmlText = binding.root._xmlText;
   const delta = xmlText.toDelta();
 
@@ -85,22 +95,21 @@ function $syncV1BindingToLexical(binding: Binding): void {
     return;
   }
 
-  // Populate the collab tree from the Yjs deltas, then sync the children
-  // into the Lexical editor. syncChildrenFromYjs walks the collab tree and
-  // creates Lexical nodes for each entry, attaching them to the root.
   binding.root.applyChildrenYjsDelta(binding, delta);
   binding.root.syncChildrenFromYjs(binding);
 }
 
 /**
- * Converts a Yjs binary state (from a Hocuspocus document) into an HTML string
- * by hydrating a headless Lexical editor through the @lexical/yjs V1 binding.
+ * Converts a Yjs binary state into an HTML string by hydrating a headless
+ * Lexical editor through the @lexical/yjs V1 binding.
  *
- * This is the server-side equivalent of the client's $generateHtmlFromNodes flow.
- * It uses linkedom to provide the DOM shim that $generateHtmlFromNodes needs.
+ * @param binary - The raw Yjs state (from Y.encodeStateAsUpdate)
+ * @param parseHTML - The linkedom parseHTML function, dynamically imported by
+ *   the caller from @/server/utils/wrapLinkedom since that module can't be
+ *   statically imported in a client-context file.
  */
-export function yjsBinaryToHtml(binary: Uint8Array): string {
-  return withLinkedomGlobals(() => {
+export function yjsBinaryToHtml(binary: Uint8Array, parseHTML: ParseHTML): string {
+  return withLinkedomGlobals(parseHTML, () => {
     const ydoc = new Y.Doc();
     Y.applyUpdate(ydoc, binary);
 
@@ -116,11 +125,8 @@ export function yjsBinaryToHtml(binary: Uint8Array): string {
     const docMap = new Map<string, Y.Doc>([['main', ydoc]]);
     const mockProvider = createMockProvider();
 
-    // createBinding reads doc.get('root', XmlText) and wraps it in a
-    // CollabElementNode with _key='root', linking it to the Lexical root.
     const binding = createBinding(editor, mockProvider, 'main', ydoc, docMap);
 
-    // Sync the Yjs state into the Lexical editor
     editor.update(
       () => {
         $syncV1BindingToLexical(binding);
@@ -135,16 +141,4 @@ export function yjsBinaryToHtml(binary: Uint8Array): string {
 
     return html;
   });
-}
-
-/**
- * Extracts the post ID from a Hocuspocus document name.
- * Document names follow the pattern "post-{postId}" or "post-{postId}/{subDocId}".
- */
-export function documentNameToPostId(documentName: string): string {
-  const match = documentName.match(/^post-([a-zA-Z0-9]+)/);
-  if (!match) {
-    throw new Error(`Invalid document name: ${documentName}`);
-  }
-  return match[1];
 }

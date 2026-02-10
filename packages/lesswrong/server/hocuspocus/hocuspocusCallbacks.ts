@@ -1,15 +1,15 @@
-import { Posts } from '../../server/collections/posts/collection';
-import Revisions from '../../server/collections/revisions/collection';
+import { Posts } from '@/server/collections/posts/collection';
+import Revisions from '@/server/collections/revisions/collection';
 import Users from '../../server/collections/users/collection';
-import { createNotifications } from '../notificationCallbacksHelpers';
-import { createAdminContext } from '../vulcan-lib/createContexts';
-import { createRevision } from '../collections/revisions/mutations';
+import { createNotifications } from '@/server/notificationCallbacksHelpers';
+import { createAdminContext } from '@/server/vulcan-lib/createContexts';
+import { createRevision } from '@/server/collections/revisions/mutations';
 import { buildRevisionWithUser } from '../editor/conversionUtils';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
-import { yjsBinaryToHtml, documentNameToPostId } from './yjsToHtml';
 import { constantTimeCompare } from '../../lib/helpers';
 import isEqual from 'lodash/isEqual';
 import moment from 'moment';
+import YjsDocuments from '@/server/collections/yjsDocuments/collection';
 
 // Time interval such that, when autosaving, we will update an existing
 // rev instead of create a new rev if it's within this amount of time ago.
@@ -17,6 +17,18 @@ import moment from 'moment';
 const AUTOSAVE_MAX_INTERVAL = 10 * 60 * 1000;
 
 const COLLAB_AUTOSAVE_COMMIT_MESSAGE = 'Collaborative editor autosave';
+
+/**
+ * Extracts the post ID from a Hocuspocus document name.
+ * Document names follow the pattern "post-{postId}" or "post-{postId}/{subDocId}".
+ */
+export function documentNameToPostId(documentName: string): string {
+  const match = documentName.match(/^post-([a-zA-Z0-9]+)/);
+  if (!match) {
+    throw new Error(`Invalid document name: ${documentName}`);
+  }
+  return match[1];
+}
 
 /**
  * Verifies the shared secret used to authenticate requests from the
@@ -30,6 +42,17 @@ export function verifyHocuspocusWebhookSecret(providedSecret: string): boolean {
     return false;
   }
   return constantTimeCompare({ correctValue: expectedSecret, unknownValue: providedSecret });
+}
+
+/**
+ * Reads the current Yjs state for a document from the YjsDocuments table.
+ * Returns null if the document doesn't exist.
+ */
+export async function readYjsState(documentName: string): Promise<Uint8Array | null> {
+  const documentId = documentNameToPostId(documentName);
+  const yjsDocument = await YjsDocuments.findOne({ documentId });
+  if (!yjsDocument) return null;
+  return new Uint8Array(yjsDocument.yjsState);
 }
 
 /**
@@ -62,10 +85,9 @@ async function getUserForSavedPost(postId: string, userId: string): Promise<{
 }
 
 /**
- * Save a new revision for a collaboratively-edited document.
- *
- * Equivalent of the CKEditor `saveDocumentRevision`, but stores content
- * as type "lexical" (HTML generated from the Lexical editor state).
+ * Save a new revision for a collaboratively-edited document, attributed to
+ * a specific user. Called by saveOrUpdateLexicalRevision when creating a
+ * fresh revision (as opposed to updating an existing autosave in-place).
  */
 async function saveLexicalDocumentRevision(userId: string, postId: string, html: string): Promise<void> {
   const context = createAdminContext();
@@ -108,7 +130,7 @@ async function saveLexicalDocumentRevision(userId: string, postId: string, html:
  *
  * Equivalent of the CKEditor `saveOrUpdateDocumentRevision`.
  */
-async function saveOrUpdateLexicalRevision(postId: string, html: string): Promise<void> {
+export async function saveOrUpdateLexicalRevision(postId: string, html: string): Promise<void> {
   const context = createAdminContext();
   const fieldName = 'contents';
   const previousRev = await getLatestRev(postId, fieldName, context);
@@ -147,44 +169,7 @@ async function saveOrUpdateLexicalRevision(postId: string, html: string): Promis
   }
 }
 
-/**
- * Handle the "document updated" callback from Hocuspocus.
- * Fired by the onStoreDocument hook (debounced after edits).
- *
- * Equivalent of CKEditor's `collaboration.document.updated` and
- * `storage.document.saved` webhook events.
- */
-export async function handleDocumentUpdated(documentName: string, yjsState: Uint8Array): Promise<void> {
-  const postId = documentNameToPostId(documentName);
-
-  // eslint-disable-next-line no-console
-  console.log(`[HocuspocusWebhook] Document updated: ${documentName} (postId: ${postId})`);
-
-  const html = yjsBinaryToHtml(yjsState);
-  await saveOrUpdateLexicalRevision(postId, html);
-}
-
-/**
- * Handle the "user disconnected" callback from Hocuspocus.
- * Creates a definitive revision attributed to the disconnecting user.
- *
- * Equivalent of CKEditor's `document.user.disconnected` webhook event.
- */
-export async function handleUserDisconnected(
-  documentName: string,
-  userId: string,
-  yjsState: Uint8Array,
-): Promise<void> {
-  const postId = documentNameToPostId(documentName);
-
-  // eslint-disable-next-line no-console
-  console.log(`[HocuspocusWebhook] User disconnected: ${userId} from ${documentName}`);
-
-  const html = yjsBinaryToHtml(yjsState);
-  await saveLexicalDocumentRevision(userId, postId, html);
-}
-
-interface HocuspocusCommentData {
+export interface HocuspocusCommentData {
   authorId: string;
   content: string;
   threadId: string;
