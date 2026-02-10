@@ -3,11 +3,16 @@ import PostsSingle from '../../../../packages/lesswrong/components/posts/PostsSi
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/routeBackgroundColors";
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
 
-assertRouteHasWhiteBackground("/posts/[_id]/[slug]");
+assertRouteAttributes("/posts/[_id]/[slug]", {
+  whiteBackground: true,
+  hasLinkPreview: true,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+});
 
 export default async function PostPage({ params }: {
   params: Promise<{ _id: string, slug: string }>

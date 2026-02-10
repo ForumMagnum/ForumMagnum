@@ -2,6 +2,7 @@ import { matchPath } from '../vendor/react-router/matchPath';
 import { isAF } from "../instanceSettings";
 import { routePatternToReactRouterPath } from './routePatternFormat';
 import type { ParamMap } from '../../../../.next/types/routes';
+
 type NextExistingRoute = keyof ParamMap;
 
 function pathnameMatchesAnyOf(pathname: string, routePaths: NextExistingRoute[]) {
@@ -35,14 +36,18 @@ export const isFullscreenRoute = (pathname: string) => pathnameMatchesAnyOf(path
   "/moderatorInbox",
 ]);
 
-export const isRouteWithLeftNavigationColumn = (pathname: string) => pathnameMatchesAnyOf(pathname, [
+const routesWithLeftNavigationColumn = [
   "/",
   "/allPosts",
   "/questions",
   "/quicktakes",
   "/collections/[_id]",
   "/library",
-]);
+] as const satisfies readonly NextExistingRoute[];
+
+export type LeftNavigationRoutePattern = typeof routesWithLeftNavigationColumn[number];
+
+export const isRouteWithLeftNavigationColumn = (pathname: string) => pathnameMatchesAnyOf(pathname, [...routesWithLeftNavigationColumn]);
 
 // ea-forum-look-here There was some special casing in Layout specific to the
 // subforum2 route. We dropped that route entirely along with its special

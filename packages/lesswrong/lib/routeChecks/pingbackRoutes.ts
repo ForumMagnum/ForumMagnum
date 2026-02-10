@@ -60,3 +60,5 @@ export const routePingbackMapping = {
   [`/${legacyRouteAcronym}/[id]`]: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
   [`/${legacyRouteAcronym}/[id]/[slug]`]: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
 } satisfies Partial<Record<NextExistingRoute, GetPingbackFunction>>;
+
+export type PingbackRoutePattern = keyof typeof routePingbackMapping;
