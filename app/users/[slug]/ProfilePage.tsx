@@ -18,6 +18,7 @@ import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavO
 import UsersNameWithModal from "@/components/ultraFeed/UsersNameWithModal";
 import LWTooltip from "@/components/common/LWTooltip";
 import UserMetaInfo from "@/components/users/UserMetaInfo";
+import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import moment from "moment";
 
 type ProfileTab = "posts" | "sequences" | "feed";
@@ -521,7 +522,11 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
             <div className="mobile-profile-bio">
               <h4 className="mobile-profile-name">{username}</h4>
               <div className="mobile-profile-actions sidebar-actions">
-                <div className="sidebar-subscribe">Subscribe</div>
+                {user ? (
+                  <UserNotifyDropdown user={user} popperPlacement="bottom-start" className="sidebar-subscribe" />
+                ) : (
+                  <div className="sidebar-subscribe">Subscribe</div>
+                )}
                 <a href="#" className="sidebar-more">Message</a>
               </div>
               {bio && (
@@ -816,7 +821,11 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
 
               <aside className={`posts-sidebar ${bio ? "has-bio" : ""}`}>
                 <div className="sidebar-actions">
-                  <div className="sidebar-subscribe">Subscribe</div>
+                  {user ? (
+                    <UserNotifyDropdown user={user} popperPlacement="bottom-start" className="sidebar-subscribe" />
+                  ) : (
+                    <div className="sidebar-subscribe">Subscribe</div>
+                  )}
                   <a href="#" className="sidebar-more">
                     Message
                   </a>
