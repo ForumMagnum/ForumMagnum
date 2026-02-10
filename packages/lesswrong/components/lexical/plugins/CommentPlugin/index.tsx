@@ -1658,17 +1658,6 @@ export default function CommentPlugin(): JSX.Element {
           />,
           document.body,
         )}
-      {activeAnchorKey !== null &&
-        activeAnchorKey !== undefined &&
-        !showCommentInput &&
-        createPortal(
-          <AddCommentBox
-            anchorKey={activeAnchorKey}
-            editor={editor}
-            onAddComment={onAddComment}
-          />,
-          document.body,
-        )}
       {isPostEditor && createPortal(
         <Button
           className={classNames(classes.showCommentsButton, { [classes.showCommentsButtonActive]: showComments })}
