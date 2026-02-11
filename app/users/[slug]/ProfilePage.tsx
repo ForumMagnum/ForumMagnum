@@ -11,6 +11,7 @@ import { getUserFromResults } from "@/components/users/UsersProfile";
 import { useCurrentUser } from "@/components/common/withUser";
 import { slugify } from "@/lib/utils/slugify";
 import classNames from "classnames";
+import { useStyles } from "@/components/hooks/useStyles";
 import Loading from "@/components/vulcan-core/Loading";
 import UserContentFeed from "@/components/users/UserContentFeed";
 import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContextProvider";
@@ -22,6 +23,7 @@ import UserMetaInfo from "@/components/users/UserMetaInfo";
 import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
 import moment from "moment";
+import { profileStyles } from "./profileStyles";
 
 // ── Constants ──
 
@@ -160,6 +162,7 @@ const HabrykaSequencesQuery = gql(`
 
 
 export default function ProfilePage() {
+  const classes = useStyles(profileStyles);
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [bioExpanded, setBioExpanded] = useState(false);
   const [postsToShow, setPostsToShow] = useState(INITIAL_POSTS_TO_SHOW);
@@ -485,8 +488,8 @@ export default function ProfilePage() {
   }, [activeTab, topPost?._id]);
 
   if (userLoading || !user) {
-    return <div className="content profile-content">
-      <main className="profile-main">
+    return <div className={classNames("content", "profile-content", classes.profileContent)}>
+      <main className={classNames("profile-main", classes.profileMain)}>
         <Loading />
       </main>
     </div>;
@@ -494,14 +497,14 @@ export default function ProfilePage() {
 
   return (
     <div id="page" data-el="page">
-      <div className="content profile-content" data-el="content">
-        <main className="profile-main" data-el="profile-main">
-          <div className="profile-header">
-            <h1 className="profile-name">
+      <div className={classNames("content", "profile-content", classes.profileContent)} data-el="content">
+        <main className={classNames("profile-main", classes.profileMain)} data-el="profile-main">
+          <div className={classNames("profile-header", classes.profileHeader)}>
+            <h1 className={classNames("profile-name", classes.profileName)}>
               {username}
             </h1>
             {isOwnProfile && (
-              <a href="/account" className="profile-edit-button">
+              <a href="/account" className={classNames("profile-edit-button", classes.profileEditButton)}>
                 Edit
               </a>
             )}
@@ -509,30 +512,30 @@ export default function ProfilePage() {
 
           {hasEnoughTopPosts && (
             <>
-              <div className="top-posts-indicator">
+              <div className={classNames("top-posts-indicator", classes.topPostsIndicator)}>
                 <LWTooltip title="Based on karma" placement="bottom">
-                  <span className="top-posts-label top-posts-label--plural">Top posts</span>
-                  <span className="top-posts-label top-posts-label--singular">Top post</span>
+                  <span className={classNames("top-posts-label", "top-posts-label--plural", classes.topPostsLabel)}>Top posts</span>
+                  <span className={classNames("top-posts-label", "top-posts-label--singular", classes.topPostsLabel, classes.topPostsLabelSingular)}>Top post</span>
                 </LWTooltip>
               </div>
 
               {topPost && (
                 <a
                   href={postGetPageUrl(topPost)}
-                  className="post-article"
+                  className={classNames("post-article", classes.postArticle, classes.postArticleTop)}
                 >
-                  <div className="post-content">
-                    <h2 className="post-title">
+                  <div className={classNames("post-content", classes.postContent)}>
+                    <h2 className={classNames("post-title", classes.postTitle, classes.topPostTitle)}>
                       {topPost.title}
                     </h2>
-                    <p className="post-summary">{getTopPostSummary(topPost)}</p>
-                    <div className="post-meta-bar">
-                      <span className="karma-score">{topPost.baseScore ?? 0}</span>
-                      <span className="post-date">{formatRelativeDate(topPost.postedAt!)}</span>
+                    <p className={classNames("post-summary", classes.postSummary)}>{getTopPostSummary(topPost)}</p>
+                    <div className={classNames("post-meta-bar", classes.postMetaBar)}>
+                      <span className={classNames("karma-score", classes.karmaScore)}>{topPost.baseScore ?? 0}</span>
+                      <span className={classNames("post-date", classes.postDate)}>{formatRelativeDate(topPost.postedAt!)}</span>
                     </div>
                   </div>
                   <div
-                    className="post-image"
+                    className={classNames("post-image", classes.postImage)}
                     style={{
                       backgroundImage: `url('${getPostImageUrl(topPost, topPostDefaultImages, 0)}')`,
                     }}
@@ -540,26 +543,26 @@ export default function ProfilePage() {
                 </a>
               )}
 
-              <div className="small-articles-grid">
+              <div className={classNames("small-articles-grid", classes.smallArticlesGrid)}>
                 {smallArticles.map((post, idx) => {
                   const imageUrl = getPostImageUrl(post, topPostDefaultImages, idx + 1);
                   return (
-                    <article key={post._id} className="small-article">
+                    <article key={post._id} className={classNames("small-article", classes.smallArticle)}>
                       <a
                         href={postGetPageUrl(post)}
                         className="article-link"
                       >
                         <div
-                          className="small-article-image"
+                          className={classNames("small-article-image", classes.smallArticleImage)}
                           style={{ backgroundImage: `url('${imageUrl}')` }}
                         ></div>
-                        <div className="small-article-content">
-                          <h3 className="small-article-title">
+                        <div className={classNames("small-article-content", classes.smallArticleContent)}>
+                          <h3 className={classNames("small-article-title", classes.smallArticleTitle)}>
                             {post.title}
                           </h3>
-                          <div className="small-article-meta">
-                            <span className="small-karma">{post.baseScore ?? 0}</span>
-                            <span className="small-date">{formatRelativeDate(post.postedAt!)}</span>
+                          <div className={classNames("small-article-meta", classes.smallArticleMeta)}>
+                            <span className={classNames("small-karma", classes.smallKarma)}>{post.baseScore ?? 0}</span>
+                            <span className={classNames("small-date", classes.smallDate)}>{formatRelativeDate(post.postedAt!)}</span>
                           </div>
                         </div>
                       </a>
@@ -571,20 +574,24 @@ export default function ProfilePage() {
           )}
 
           {(bio || user) && (
-            <div className="mobile-profile-bio">
-              <h4 className="mobile-profile-name">{username}</h4>
-              <div className="mobile-profile-actions sidebar-actions">
+            <div className={classNames("mobile-profile-bio", classes.mobileProfileBio)}>
+              <h4 className={classNames("mobile-profile-name", classes.mobileProfileName)}>{username}</h4>
+              <div className={classNames("mobile-profile-actions", "sidebar-actions", classes.mobileProfileActions, classes.sidebarActions)}>
                 {canSubscribeToUser ? (
-                  <UserNotifyDropdown user={user} popperPlacement="bottom-start" className="sidebar-subscribe" />
+                  <UserNotifyDropdown
+                    user={user}
+                    popperPlacement="bottom-start"
+                    className={classNames("sidebar-subscribe", classes.sidebarSubscribe)}
+                  />
                 ) : (
-                  <span className={classNames("sidebar-subscribe", "sidebar-action-disabled")}>Subscribe</span>
+                  <span className={classNames("sidebar-subscribe", "sidebar-action-disabled", classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
                 )}
                 {canMessageUser ? (
                   <NewConversationButton user={user} currentUser={currentUser}>
-                    <a className="sidebar-more">Message</a>
+                    <a className={classNames("sidebar-more", classes.sidebarMore)}>Message</a>
                   </NewConversationButton>
                 ) : (
-                  <span className={classNames("sidebar-more", "sidebar-action-disabled")}>Message</span>
+                  <span className={classNames("sidebar-more", "sidebar-action-disabled", classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
                 )}
               </div>
               {bio && (
@@ -607,19 +614,19 @@ export default function ProfilePage() {
                 </div>
               )}
               {user && (
-                <div className="mobile-meta-info">
+                <div className={classNames("mobile-meta-info", classes.mobileMetaInfo)}>
                   <UserMetaInfo user={user} />
                 </div>
               )}
             </div>
           )}
 
-          <section className="all-posts-section habryka2">
-            <div className="all-posts-header" ref={tabsRef}>
-              <div className="all-posts-left-header">
-                <div className="profile-tabs">
+          <section className={classNames("all-posts-section", "habryka2", classes.allPostsSection)}>
+            <div className={classNames("all-posts-header", classes.allPostsHeader)} ref={tabsRef}>
+              <div className={classNames("all-posts-left-header", classes.allPostsLeftHeader)}>
+                <div className={classNames("profile-tabs", classes.profileTabs)}>
                   <button
-                    className={classNames("profile-tab", { active: activeTab === "posts" })}
+                    className={classNames("profile-tab", classes.profileTab, { active: activeTab === "posts" }, activeTab === "posts" && classes.profileTabActive)}
                     data-tab="posts"
                     type="button"
                     onClick={() => handleTabSwitch("posts")}
@@ -628,7 +635,7 @@ export default function ProfilePage() {
                   </button>
                   {sequences.length > 0 && (
                     <button
-                      className={classNames("profile-tab", { active: activeTab === "sequences" })}
+                      className={classNames("profile-tab", classes.profileTab, { active: activeTab === "sequences" }, activeTab === "sequences" && classes.profileTabActive)}
                       data-tab="sequences"
                       type="button"
                       onClick={() => handleTabSwitch("sequences")}
@@ -637,7 +644,7 @@ export default function ProfilePage() {
                     </button>
                   )}
                   <button
-                    className={classNames("profile-tab", { active: activeTab === "feed" })}
+                    className={classNames("profile-tab", classes.profileTab, { active: activeTab === "feed" }, activeTab === "feed" && classes.profileTabActive)}
                     data-tab="feed"
                     type="button"
                     onClick={() => handleTabSwitch("feed")}
@@ -646,21 +653,21 @@ export default function ProfilePage() {
                   </button>
                 </div>
                 {((activeTab === "posts" && hasPosts) || (activeTab === "feed" && hasFeedContent) || activeTab === "sequences") && (
-                  <div className="sort-control">
+                  <div className={classNames("sort-control", classes.sortControl)}>
                     <button 
-                      className={classNames("sort-icon-button", { "sort-icon-disabled": activeTab === "sequences" })}
+                      className={classNames("sort-icon-button", classes.sortIconButton, { "sort-icon-disabled": activeTab === "sequences" }, activeTab === "sequences" && classes.sortIconDisabled)}
                       onClick={activeTab !== "sequences" ? handleSortPanelToggle : undefined}
                       type="button"
                     >
-                      <span className="sort-icon">⚙</span>
+                      <span className={classNames("sort-icon", classes.sortIcon)}>⚙</span>
                     </button>
                   </div>
                 )}
               </div>
-              <h4 className="sidebar-author-name">
+              <h4 className={classNames("sidebar-author-name", classes.sidebarAuthorName)}>
                 <UsersNameWithModal
                   user={user}
-                  className="sidebar-author-name-link"
+                  className={classNames("sidebar-author-name-link", classes.sidebarAuthorNameLink)}
                   tooltipPlacement="bottom-start"
                 />
               </h4>
@@ -669,46 +676,46 @@ export default function ProfilePage() {
             <div className="all-posts-container">
               <div className={classNames("posts-list", "tab-panel", { active: activeTab === "posts" })}>
                 {(sortPanelOpen || sortPanelClosing) && (
-                  <div className={classNames("sort-panel", { closing: sortPanelClosing })}>
-                    <div className="sort-panel-section">
-                      <div className="sort-panel-header">Sorted by:</div>
+                  <div className={classNames("sort-panel", classes.sortPanel, { closing: sortPanelClosing }, sortPanelClosing && classes.sortPanelClosing)}>
+                    <div className={classNames("sort-panel-section", classes.sortPanelSection)}>
+                      <div className={classNames("sort-panel-header", classes.sortPanelHeader)}>Sorted by:</div>
                       <button
-                        className={classNames("sort-panel-option", { selected: sortBy === "new" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: sortBy === "new" }, sortBy === "new" && classes.sortPanelOptionSelected)}
                         onClick={() => setSortBy("new")}
                         type="button"
                       >
                         New
                       </button>
                       <button
-                        className={classNames("sort-panel-option", { selected: sortBy === "old" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: sortBy === "old" }, sortBy === "old" && classes.sortPanelOptionSelected)}
                         onClick={() => setSortBy("old")}
                         type="button"
                       >
                         Old
                       </button>
                       <button
-                        className={classNames("sort-panel-option", { selected: sortBy === "magic" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: sortBy === "magic" }, sortBy === "magic" && classes.sortPanelOptionSelected)}
                         onClick={() => setSortBy("magic")}
                         type="button"
                       >
                         Magic (New & Upvoted)
                       </button>
                       <button
-                        className={classNames("sort-panel-option", { selected: sortBy === "top" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: sortBy === "top" }, sortBy === "top" && classes.sortPanelOptionSelected)}
                         onClick={() => setSortBy("top")}
                         type="button"
                       >
                         Top
                       </button>
                       <button
-                        className={classNames("sort-panel-option", { selected: sortBy === "topInflation" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: sortBy === "topInflation" }, sortBy === "topInflation" && classes.sortPanelOptionSelected)}
                         onClick={() => setSortBy("topInflation")}
                         type="button"
                       >
                         Top (Inflation Adjusted)
                       </button>
                       <button
-                        className={classNames("sort-panel-option", { selected: sortBy === "recentComments" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: sortBy === "recentComments" }, sortBy === "recentComments" && classes.sortPanelOptionSelected)}
                         onClick={() => setSortBy("recentComments")}
                         type="button"
                       >
@@ -718,9 +725,9 @@ export default function ProfilePage() {
                   </div>
                 )}
                 {!hasPosts && !recentPostsLoading && (
-                  <div className="empty-state-container">
-                    <p className="empty-state-description">{username} has not written any posts yet.</p>
-                    <div className="empty-state-image">
+                  <div className={classNames("empty-state-container", classes.emptyStateContainer)}>
+                    <p className={classNames("empty-state-description", classes.emptyStateDescription)}>{username} has not written any posts yet.</p>
+                    <div className={classNames("empty-state-image", classes.emptyStateImage)}>
                       <img src="/default-post-preview-1.png" alt="" />
                     </div>
                   </div>
@@ -730,13 +737,13 @@ export default function ProfilePage() {
                   const imageUrl = getPostImageUrl(post, topPostDefaultImages);
                   const isPinned = !!post.shortform;
                   return (
-                    <article key={post._id} className={classNames("list-article", { pinned: isPinned })}>
+                    <article key={post._id} className={classNames("list-article", classes.listArticle, { pinned: isPinned })}>
                       <a
                         href={postGetPageUrl(post)}
                         className="article-link"
                       >
-                        <div className="list-article-content">
-                          <h3 className="list-article-title">
+                        <div className={classNames("list-article-content", classes.listArticleContent)}>
+                          <h3 className={classNames("list-article-title", classes.listArticleTitle)}>
                             {isPinned && (
                               <span className="pinned-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
@@ -749,14 +756,14 @@ export default function ProfilePage() {
                             )}
                             <span className="list-article-title-text">{post.title}</span>
                           </h3>
-                          {summary && <p className="list-article-summary">{summary}</p>}
-                          <div className="list-article-meta">
-                            <span className="list-karma">{post.baseScore ?? 0}</span>
-                            <span className="list-date">{formatRelativeDate(post.postedAt!)}</span>
+                          {summary && <p className={classNames("list-article-summary", classes.listArticleSummary)}>{summary}</p>}
+                          <div className={classNames("list-article-meta", classes.listArticleMeta)}>
+                            <span className={classNames("list-karma", classes.listKarma)}>{post.baseScore ?? 0}</span>
+                            <span className={classNames("list-date", classes.listDate)}>{formatRelativeDate(post.postedAt!)}</span>
                           </div>
                         </div>
                         <div
-                          className="list-article-image"
+                          className={classNames("list-article-image", classes.listArticleImage)}
                           style={imageUrl ? {
                             backgroundImage: `url('${imageUrl}')`,
                           } : undefined}
@@ -814,49 +821,49 @@ export default function ProfilePage() {
                 className={classNames("feed-list", "tab-panel", { active: activeTab === "feed" })}
               >
                 {(sortPanelOpen || sortPanelClosing) && (
-                  <div className={classNames("sort-panel", "sort-panel-multi", { closing: sortPanelClosing })}>
-                    <div className="sort-panel-section">
-                      <div className="sort-panel-header">Sorted by:</div>
+                  <div className={classNames("sort-panel", "sort-panel-multi", classes.sortPanel, classes.sortPanelMulti, { closing: sortPanelClosing }, sortPanelClosing && classes.sortPanelClosing)}>
+                    <div className={classNames("sort-panel-section", classes.sortPanelSection)}>
+                      <div className={classNames("sort-panel-header", classes.sortPanelHeader)}>Sorted by:</div>
                       <button
-                        className={classNames("sort-panel-option", { selected: feedSortBy === "recent" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: feedSortBy === "recent" }, feedSortBy === "recent" && classes.sortPanelOptionSelected)}
                         onClick={() => setFeedSortBy("recent")}
                         type="button"
                       >
                         New
                       </button>
                       <button
-                        className={classNames("sort-panel-option", { selected: feedSortBy === "top" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: feedSortBy === "top" }, feedSortBy === "top" && classes.sortPanelOptionSelected)}
                         onClick={() => setFeedSortBy("top")}
                         type="button"
                       >
                         Top
                       </button>
                     </div>
-                    <div className="sort-panel-section">
-                      <div className="sort-panel-header">Show:</div>
+                    <div className={classNames("sort-panel-section", classes.sortPanelSection)}>
+                      <div className={classNames("sort-panel-header", classes.sortPanelHeader)}>Show:</div>
                       <button
-                        className={classNames("sort-panel-option", { selected: feedFilter === "all" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: feedFilter === "all" }, feedFilter === "all" && classes.sortPanelOptionSelected)}
                         onClick={() => setFeedFilter("all")}
                         type="button"
                       >
                         All
                       </button>
                       <button
-                        className={classNames("sort-panel-option", { selected: feedFilter === "comments" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: feedFilter === "comments" }, feedFilter === "comments" && classes.sortPanelOptionSelected)}
                         onClick={() => setFeedFilter("comments")}
                         type="button"
                       >
                         Comments
                       </button>
                       <button
-                        className={classNames("sort-panel-option", { selected: feedFilter === "quickTakes" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: feedFilter === "quickTakes" }, feedFilter === "quickTakes" && classes.sortPanelOptionSelected)}
                         onClick={() => setFeedFilter("quickTakes")}
                         type="button"
                       >
                         Quick takes
                       </button>
                       <button
-                        className={classNames("sort-panel-option", { selected: feedFilter === "posts" })}
+                        className={classNames("sort-panel-option", classes.sortPanelOption, { selected: feedFilter === "posts" }, feedFilter === "posts" && classes.sortPanelOptionSelected)}
                         onClick={() => setFeedFilter("posts")}
                         type="button"
                       >
@@ -866,9 +873,9 @@ export default function ProfilePage() {
                   </div>
                 )}
                 {!hasFeedContent && (
-                  <div className="empty-state-container">
-                    <p className="empty-state-description">{username} hasn&apos;t written anything yet.</p>
-                    <div className="empty-state-image">
+                  <div className={classNames("empty-state-container", classes.emptyStateContainer)}>
+                    <p className={classNames("empty-state-description", classes.emptyStateDescription)}>{username} hasn&apos;t written anything yet.</p>
+                    <div className={classNames("empty-state-image", classes.emptyStateImage)}>
                       <img src="/default-post-preview-3.png" alt="" />
                     </div>
                   </div>
@@ -885,18 +892,22 @@ export default function ProfilePage() {
               </div>
 
               <aside className={classNames("posts-sidebar", { "has-bio": !!bio })}>
-                <div className="sidebar-actions">
+                <div className={classNames("sidebar-actions", classes.sidebarActions)}>
                   {canSubscribeToUser ? (
-                    <UserNotifyDropdown user={user} popperPlacement="bottom-start" className="sidebar-subscribe" />
+                    <UserNotifyDropdown
+                      user={user}
+                      popperPlacement="bottom-start"
+                      className={classNames("sidebar-subscribe", classes.sidebarSubscribe)}
+                    />
                   ) : (
-                    <span className={classNames("sidebar-subscribe", "sidebar-action-disabled")}>Subscribe</span>
+                    <span className={classNames("sidebar-subscribe", "sidebar-action-disabled", classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
                   )}
                   {canMessageUser ? (
                     <NewConversationButton user={user} currentUser={currentUser}>
-                      <a className="sidebar-more">Message</a>
+                      <a className={classNames("sidebar-more", classes.sidebarMore)}>Message</a>
                     </NewConversationButton>
                   ) : (
-                    <span className={classNames("sidebar-more", "sidebar-action-disabled")}>Message</span>
+                    <span className={classNames("sidebar-more", "sidebar-action-disabled", classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
                   )}
                 </div>
                 {bio && (
