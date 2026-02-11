@@ -86,7 +86,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
-    background: "white",
+    background: theme.palette.background.paper,
     cursor: "not-allowed",
     opacity: 0.5,
     "&:enabled": {
@@ -175,7 +175,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   },
   postMeta: {
     fontSize: "0.8125rem",
-    color: "light-dark(#9a9189, #9a9189)",
+    color: theme.palette.text.dim,
     marginTop: 3,
   },
   swapButton: {
@@ -223,6 +223,10 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
       background: theme.palette.background.paper,
       fontFamily: theme.typography.fontFamily,
       marginBottom: theme.spacing.unit,
+      "&::placeholder": {
+        color: theme.palette.text.dim40,
+        opacity: 1,
+      },
     },
   },
   dialogPostList: {

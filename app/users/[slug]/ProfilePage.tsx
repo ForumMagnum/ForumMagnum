@@ -276,6 +276,8 @@ export default function ProfilePage() {
 
   const currentUser = useCurrentUser();
   const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
+  const canSubscribeToUser = !!user && !isOwnProfile;
+  const canMessageUser = !!user && !!currentUser && !isOwnProfile;
 
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bio = user?.biography?.plaintextDescription;
@@ -572,17 +574,17 @@ export default function ProfilePage() {
             <div className="mobile-profile-bio">
               <h4 className="mobile-profile-name">{username}</h4>
               <div className="mobile-profile-actions sidebar-actions">
-                {user ? (
+                {canSubscribeToUser ? (
                   <UserNotifyDropdown user={user} popperPlacement="bottom-start" className="sidebar-subscribe" />
                 ) : (
-                  <div className="sidebar-subscribe">Subscribe</div>
+                  <span className={classNames("sidebar-subscribe", "sidebar-action-disabled")}>Subscribe</span>
                 )}
-                {user && currentUser?._id !== user._id ? (
+                {canMessageUser ? (
                   <NewConversationButton user={user} currentUser={currentUser}>
                     <a className="sidebar-more">Message</a>
                   </NewConversationButton>
                 ) : (
-                  <span className="sidebar-more">Message</span>
+                  <span className={classNames("sidebar-more", "sidebar-action-disabled")}>Message</span>
                 )}
               </div>
               {bio && (
@@ -884,17 +886,17 @@ export default function ProfilePage() {
 
               <aside className={classNames("posts-sidebar", { "has-bio": !!bio })}>
                 <div className="sidebar-actions">
-                  {user ? (
+                  {canSubscribeToUser ? (
                     <UserNotifyDropdown user={user} popperPlacement="bottom-start" className="sidebar-subscribe" />
                   ) : (
-                    <div className="sidebar-subscribe">Subscribe</div>
+                    <span className={classNames("sidebar-subscribe", "sidebar-action-disabled")}>Subscribe</span>
                   )}
-                  {user && currentUser?._id !== user._id ? (
+                  {canMessageUser ? (
                     <NewConversationButton user={user} currentUser={currentUser}>
                       <a className="sidebar-more">Message</a>
                     </NewConversationButton>
                   ) : (
-                    <span className="sidebar-more">Message</span>
+                    <span className={classNames("sidebar-more", "sidebar-action-disabled")}>Message</span>
                   )}
                 </div>
                 {bio && (
