@@ -12,8 +12,6 @@ export default function Page() {
     delayedStatusCode
     metadata={{ titleComponent: UserPageTitle }}
   >
-    <div className="habryka-page">
-      <ProfilePage />
-    </div>
+    <ProfilePage />
   </RouteRoot>;
 }

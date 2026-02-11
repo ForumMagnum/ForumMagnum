@@ -11,11 +11,22 @@ body.greyBackground.theme-default{
   color-scheme: light only;
   background: #f8f4ee;
 }
+body.creamBackground.theme-default {
+  color-scheme: light only;
+  background: #fcfbf8;
+}
+body.creamBackground.theme-default header {
+  background-color: rgba(252, 251, 248, 0.65) !important;
+}
 body.whiteBackground.theme-dark {
   color-scheme: dark only;
   background: black;
 }
 body.greyBackground.theme-dark {
+  color-scheme: dark only;
+  background: #262626;
+}
+body.creamBackground.theme-dark {
   color-scheme: dark only;
   background: #262626;
 }
@@ -26,12 +37,21 @@ body.greyBackground.theme-dark {
   body.greyBackground.theme-auto {
     background: #f8f4ee;
   }
+  body.creamBackground.theme-auto {
+    background: #fcfbf8;
+  }
+  body.creamBackground.theme-auto header {
+    background-color: rgba(252, 251, 248, 0.65) !important;
+  }
 }
 @media (prefers-color-scheme: dark) {
   body.whiteBackground.theme-auto {
     background: black;
   }
   body.greyBackground.theme-auto {
+    background: #262626;
+  }
+  body.creamBackground.theme-auto {
     background: #262626;
   }
 }

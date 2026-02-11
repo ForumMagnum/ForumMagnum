@@ -3,6 +3,9 @@
  * pure-white boxes on top of (eg, the front page page). Some pages instead have
  * a pure-white background instead (eg, post pages).
  *
+ * A third tier, "cream", is used for pages with a warm off-white background
+ * (eg, the profile page).
+ *
  * Because this is a handled by the root layout rather than the route component,
  * we have a list of white-background routes here. In the route component, call
  * assertRouteHasWhiteBackground to enforce that it's in this list.
@@ -24,7 +27,6 @@ const routesWithWhiteBackground = [
   "/events/[_id]",
   "/faq",
   "/g/[groupId]/p/[_id]",
-  "/users/[slug]",
   "/highlights/[slug]",
   "/hpmor/[slug]",
   "/login",
@@ -40,17 +42,22 @@ const routesWithWhiteBackground = [
   "/resendVerificationEmail",
   "/s/[_id]/p/[postId]",
   "/search",
-  "/users/[slug]/benito2",
-  "/users/[slug]/benito3",
   "/users/[slug]/edit",
-  "/users/[slug]/profile-v3",
   "/w/[slug]",
   "/w/[slug]/discussion",
   "/w/create"
 ] as const;
 
+const routesWithCreamBackground = [
+  "/users/[slug]",
+] as const;
+
 export function routeHasWhiteBackground(pathname: string): boolean {
   return isOnRoutesList(pathname, routesWithWhiteBackground);
+}
+
+export function routeHasCreamBackground(pathname: string): boolean {
+  return isOnRoutesList(pathname, routesWithCreamBackground);
 }
 
 function isOnRoutesList(pathname: string, routes: readonly string[]): boolean {

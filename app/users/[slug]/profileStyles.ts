@@ -1,6 +1,27 @@
 import { defineStyles } from "@/components/hooks/useStyles";
 
 export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => ({
+  page: {
+    width: "100%",
+    minHeight: "100vh",
+    // Cancel the centralColumn padding-top so the profile page sits flush
+    marginTop: -theme.spacing.mainLayoutPaddingTop,
+    background: "transparent",
+    color: theme.palette.text.normal,
+    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    position: "relative" as const,
+    overflow: "hidden",
+    boxSizing: "border-box" as const,
+    "& *": {
+      boxSizing: "border-box" as const,
+    },
+    [theme.breakpoints.down("md")]: {
+      marginTop: theme.isFriendlyUI ? 0 : -theme.spacing.mainLayoutPaddingTop,
+    },
+    [theme.breakpoints.down("sm")]: {
+      marginTop: theme.isFriendlyUI ? 0 : -10,
+    },
+  },
   profileContent: {
     display: "block",
     minHeight: "calc(100vh - 60px)",
@@ -26,7 +47,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     gridColumn: 2,
     textAlign: "center",
     fontFamily: 'ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif',
-    fontSize: 24,
+    fontSize: "2.3rem",
     fontWeight: 400,
     margin: "0 0 2px 0",
     color: theme.palette.text.normal,
@@ -70,6 +91,13 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   mobileMetaInfo: {
     marginTop: 12,
     color: theme.palette.text.dim,
+    "& > div": {
+      flexWrap: "wrap",
+      gap: "4px 0",
+    },
+    "& > div > div": {
+      marginRight: "14px !important",
+    },
   },
   topPostsIndicator: {
     marginTop: 25,
@@ -200,6 +228,13 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     flex: 1,
     minHeight: 0,
     overflow: "hidden",
+    transition: "opacity 0.2s ease-in",
+    "html:not(.dates-ready) &": {
+      opacity: 0,
+    },
+    "html.dates-ready &": {
+      opacity: 1,
+    },
   },
   postMetaBar: {
     display: "flex",
@@ -208,6 +243,13 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     fontSize: 13,
     color: theme.palette.text.dim,
     flexShrink: 0,
+    transition: "opacity 0.2s ease-in",
+    "html:not(.dates-ready) &": {
+      opacity: 0,
+    },
+    "html.dates-ready &": {
+      opacity: 1,
+    },
   },
   karmaScore: {
     fontSize: 13,
@@ -281,6 +323,13 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "flex",
     alignItems: "baseline",
     gap: 10,
+    transition: "opacity 0.2s ease-in",
+    "html:not(.dates-ready) &": {
+      opacity: 0,
+    },
+    "html.dates-ready &": {
+      opacity: 1,
+    },
   },
   smallKarma: {
     fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
@@ -297,13 +346,14 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     letterSpacing: 0,
   },
   listArticle: {
-    padding: "16px 0",
+    padding: "20px 0",
     borderBottom: "1px solid rgba(140,110,70,.14)",
     display: "flex",
     alignItems: "flex-start",
     gap: 16,
     transition: "opacity 0.15s ease",
     animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    overflow: "visible",
     "&:hover": {
       opacity: 0.7,
     },
@@ -322,31 +372,59 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   listArticleTitle: {
     fontFamily: 'ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif',
-    fontSize: 16,
+    fontSize: 19,
     fontWeight: 400,
     margin: 0,
     color: theme.palette.text.normal,
-    lineHeight: 1.3,
+    lineHeight: 1.45,
     letterSpacing: "-.02em",
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
+    display: "flex",
+    alignItems: "baseline",
+    gap: 6,
+    whiteSpace: "normal",
+  },
+  listArticleTitleText: {
+    display: "block",
+    flex: 1,
+    minWidth: 0,
+    position: "relative",
+    zIndex: 1,
+  },
+  pinnedIcon: {
+    display: "inline-flex",
+    width: 14,
+    height: 14,
+    marginRight: 6,
+    verticalAlign: "text-top",
+  },
+  pinnedIconSvg: {
+    width: "100%",
+    height: "100%",
+    fill: theme.palette.text.dim,
   },
   listArticleSummary: {
     fontFamily: 'warnock-pro, "Cormorant Garamond", "Georgia", serif',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: 400,
-    lineHeight: 1.6,
+    lineHeight: 1.75,
     color: theme.palette.text.slightlyDim2,
     margin: 0,
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
+    whiteSpace: "normal",
+    position: "relative",
+    zIndex: 1,
   },
   listArticleMeta: {
     display: "flex",
     alignItems: "baseline",
     gap: 10,
+    marginTop: -2,
+    transition: "opacity 0.2s ease-in",
+    "html:not(.dates-ready) &": {
+      opacity: 0,
+    },
+    "html.dates-ready &": {
+      opacity: 1,
+    },
   },
   listKarma: {
     fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
@@ -496,6 +574,107 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   sortPanelOptionSelected: {
     color: theme.palette.text.normal,
   },
+  allPostsContainer: {
+    display: "grid",
+    gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+    gap: 20,
+    minHeight: "100vh",
+  },
+  postsList: {
+    gridColumn: "1 / 5",
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+  },
+  tabPanel: {
+    display: "none",
+  },
+  tabPanelActive: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+  },
+  articleLink: {
+    textDecoration: "none",
+    color: "inherit",
+    display: "contents",
+  },
+  sequencesList: {
+    gridColumn: "1 / 5",
+  },
+  feedList: {
+    gridColumn: "1 / 5",
+    "& .UserContentFeed-feedContent": {
+      gap: 22,
+      marginLeft: 0,
+      marginRight: 0,
+    },
+    "& .UltraFeedPostItem-root, & .UltraFeedCommentItem-root, & .UltraFeedThreadItem-root": {
+      border: "1px solid rgba(0,0,0,.1)",
+      borderRadius: 6,
+      boxShadow: "0 1px 4px rgba(0,0,0,.05)",
+      padding: "25px 25px 8px 25px",
+      background: "rgba(255,255,255,1)",
+    },
+    "& .FeedContentBody-root": {
+      maxHeight: 200,
+      overflow: "hidden",
+      position: "relative",
+    },
+    "& .FeedContentBody-root > .ContentStyles-base": {
+      minHeight: "0 !important",
+      display: "block !important",
+    },
+    "& .UltraFeedCommentItem-contentWrapper": {
+      marginTop: 8,
+      marginBottom: 8,
+    },
+    "& .UltraFeedPostItem-footer, & .UltraFeedCommentItem-footer": {
+      marginTop: 4,
+      marginBottom: 8,
+    },
+  },
+  sequencesGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: 20,
+    padding: "8px 0",
+  },
+  sequenceCard: {
+    display: "flex",
+    flexDirection: "column",
+    overflow: "visible",
+    position: "relative",
+    transition: "opacity 0.15s ease",
+    "&:hover": {
+      opacity: 0.7,
+    },
+  },
+  sequenceCardImage: {
+    width: "100%",
+    aspectRatio: "3 / 2",
+    backgroundColor: "#fcfbf8",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    borderRadius: 4,
+  },
+  sequenceCardContent: {
+    padding: "15px 0",
+    background: "transparent",
+  },
+  sequenceCardTitle: {
+    fontFamily: 'ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif',
+    fontSize: 15,
+    fontWeight: 400,
+    lineHeight: 1.3,
+    letterSpacing: "0.03em",
+    fontVariant: "small-caps",
+    color: theme.palette.text.normal,
+    margin: 0,
+    borderTop: "none",
+    borderRadius: "0 0 8px 8px",
+  },
   sidebarAuthorName: {
     gridColumn: "5 / 7",
     fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
@@ -514,15 +693,113 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       opacity: 0.67,
     },
   },
+  postsSidebar: {
+    gridColumn: "5 / 7",
+    position: "sticky",
+    top: 80,
+    alignSelf: "start",
+  },
+  postsSidebarHasBio: {
+    "& $sidebarStats": {
+      display: "none",
+    },
+  },
+  sidebarBioSection: {},
+  sidebarBioWrapper: {
+    overflow: "hidden",
+    transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+  },
+  sidebarBioCollapsed: {
+    maxHeight: 400,
+    "& $sidebarAuthorBio": {
+      display: "-webkit-box",
+      WebkitBoxOrient: "vertical",
+      WebkitLineClamp: 12,
+      lineClamp: 12,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+  },
+  sidebarBioExpanded: {
+    maxHeight: 2000,
+    transition: "max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+  },
+  sidebarAuthorBio: {
+    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontSize: 14,
+    lineHeight: 1.6,
+    color: theme.palette.text.dim55,
+    fontWeight: 400,
+    margin: 0,
+  },
+  sidebarStats: {
+    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontSize: 14,
+    lineHeight: 1.6,
+    color: theme.palette.text.dim,
+    fontWeight: 400,
+    marginTop: 16,
+  },
+  sidebarStatRow: {
+    whiteSpace: "nowrap",
+  },
+  readMore: {
+    textAlign: "left",
+    marginTop: 12,
+  },
+  postsSidebarReadMore: {
+    marginTop: 5,
+  },
+  readMoreLink: {
+    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontSize: 14,
+    color: theme.palette.primary.main,
+    textDecoration: "none",
+    fontWeight: 400,
+    "&:hover": {
+      opacity: 0.67,
+    },
+  },
+  sidebarActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    marginTop: 24,
+    marginBottom: 22,
+  },
+  sidebarSubscribe: {
+    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    cursor: "pointer",
+    display: "inline-block",
+    fontWeight: 400,
+    "&:hover": {
+      opacity: 0.67,
+    },
+  },
+  sidebarMore: {
+    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    cursor: "pointer",
+    display: "inline-block",
+    fontWeight: 400,
+    textDecoration: "none",
+    "&:hover": {
+      opacity: 0.67,
+    },
+  },
+  sidebarActionDisabled: {
+    color: theme.palette.primary.light,
+    cursor: "default",
+    "&:hover": {
+      opacity: 1,
+    },
+  },
   "@media (max-width: 900px)": {
     profileMain: {
       padding: "40px 30px 50px 30px",
-    },
-    postContent: {
-      gridColumn: "1 / 5",
-    },
-    postImage: {
-      gridColumn: "5 / 7",
     },
     postTitle: {
       wordWrap: "break-word",
@@ -592,6 +869,32 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       width: "100%",
       marginBottom: 16,
     },
+    allPostsContainer: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 30,
+    },
+    postsList: {
+      width: "100%",
+    },
+    tabPanel: {
+      order: 1,
+    },
+    postsSidebar: {
+      width: "100%",
+      position: "static",
+      order: 2,
+      "& $sidebarActions, & $sidebarBioSection, & $sidebarStats": {
+        display: "none",
+      },
+    },
+    sequencesGrid: {
+      gridTemplateColumns: "1fr",
+      gap: 24,
+    },
+    sidebarAuthorName: {
+      display: "none",
+    },
     postTitle: {
       wordWrap: "break-word",
       overflowWrap: "break-word",
@@ -655,43 +958,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       paddingTop: 0,
       paddingBottom: 0,
       marginBottom: 0,
-    },
-  },
-  sidebarActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    marginTop: 24,
-    marginBottom: 22,
-  },
-  sidebarSubscribe: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
-    color: theme.palette.primary.main,
-    fontSize: 14,
-    cursor: "pointer",
-    display: "inline-block",
-    fontWeight: 400,
-    "&:hover": {
-      opacity: 0.67,
-    },
-  },
-  sidebarMore: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
-    color: theme.palette.primary.main,
-    fontSize: 14,
-    cursor: "pointer",
-    display: "inline-block",
-    fontWeight: 400,
-    textDecoration: "none",
-    "&:hover": {
-      opacity: 0.67,
-    },
-  },
-  sidebarActionDisabled: {
-    color: theme.palette.primary.light,
-    cursor: "default",
-    "&:hover": {
-      opacity: 1,
     },
   },
 }));
