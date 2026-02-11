@@ -87,9 +87,8 @@ export const HorizScrollBlock = ({children, className, contentsClassName}: {
     if (scrollableContentsRef.current) {
       const scrollLeft = scrollableContentsRef.current.scrollLeft;
       setIsScrolledAllTheWayLeft((scrollLeft===0));
-      setIsScrolledAllTheWayRight((
-        scrollLeft === scrollableContentsRef.current.scrollWidth - scrollableContentsRef.current.clientWidth
-      ));
+      const scrollRight = (scrollableContentsRef.current.scrollWidth - scrollableContentsRef.current.clientWidth) - scrollLeft;
+      setIsScrolledAllTheWayRight(scrollRight < 1.0);
     }
   }, []);
   
