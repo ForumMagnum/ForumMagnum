@@ -120,8 +120,6 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
     await updateReport({
       data: {
         closedAt: new Date(),
-        claimedUserId: deletingUser._id,
-        markedAsSpam: false,
       },
       selector: { _id: report._id }
     }, context)
