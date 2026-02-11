@@ -6,6 +6,7 @@ import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { hasGoogleDocImportSetting } from '@/lib/instanceSettings';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const GoogleServiceAccountSessionAdminInfoMultiQuery = gql(`
   query multiGoogleServiceAccountSessionSunshineGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -52,7 +53,8 @@ const SunshineGoogleServiceAccount = ({ classes }: {
   const serviceAccounts = data?.googleServiceAccountSessions?.results;
   const estimatedExpiry = serviceAccounts?.[0]?.estimatedExpiry
 
-  const shouldWarn = !estimatedExpiry || (new Date(estimatedExpiry).getTime() - Date.now()) < WARN_THRESHOLD
+  const now = useCurrentTime();
+  const shouldWarn = !estimatedExpiry || (new Date(estimatedExpiry).getTime() - now.getTime()) < WARN_THRESHOLD
 
   if (loading || !userIsAdmin(currentUser) || !hasGoogleDocImportSetting.get() || !shouldWarn) {
     return null;

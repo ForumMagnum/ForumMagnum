@@ -27,6 +27,7 @@ import { apolloSSRFlag } from "@/lib/helpers";
 import ForumIcon from '../common/ForumIcon';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
   root: theme.isFriendlyUI ? {
@@ -362,7 +363,8 @@ const FooterTagList = ({
   </AddTagButton>
 
   const postYear = post.postedAt ? new Date(post.postedAt).getFullYear() : null; // 2023
-  const currentYear = new Date().getFullYear(); // 2025
+  const now = useCurrentTime();
+  const currentYear = now.getFullYear(); // 2025
   const isRecent = postYear && ((currentYear - postYear) < 2);
 
   const innerContent = (
