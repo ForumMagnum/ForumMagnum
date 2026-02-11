@@ -6,6 +6,7 @@ import { useMutation } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { getSignature } from '@/lib/collections/users/helpers';
+import { hideScrollBars } from '@/themes/styleUtils';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModeratorNotes($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -36,9 +37,12 @@ const styles = defineStyles('ModeratorNotes', (theme: ThemeType) => ({
     border: theme.palette.border.faint,
     borderRadius: 4,
     padding: 8,
-    maxHeight: 200,
-    overflow: 'auto',
     backgroundColor: theme.palette.background.paper,
+    '& textarea:not([aria-hidden])': {
+      minHeight: 100,
+      maxHeight: 300,
+      ...hideScrollBars,
+    },
   },
 }));
 
@@ -120,7 +124,6 @@ const ModeratorNotes = ({
           disableUnderline
           placeholder="Notes for other moderators"
           multiline
-          rows={4}
         />
       </div>
     </div>
