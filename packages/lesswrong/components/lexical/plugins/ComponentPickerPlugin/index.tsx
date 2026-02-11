@@ -26,6 +26,7 @@ import {$createHeadingNode, $createQuoteNode} from '@lexical/rich-text';
 import {$setBlocksType} from '@lexical/selection';
 import {INSERT_TABLE_COMMAND} from '@lexical/table';
 import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
+import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 import {
   $createParagraphNode,
   $getSelection,
@@ -37,6 +38,7 @@ import {useCallback, useMemo, useState} from 'react';
 import * as ReactDOM from 'react-dom';
 
 import useModal from '../../hooks/useModal';
+import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
 // import catTypingGif from '../../images/cat-typing.gif';
 // import {EmbedConfigs} from '../AutoEmbedPlugin';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
@@ -68,6 +70,9 @@ import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
 // import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
+import { useCurrentUser } from '@/components/common/withUser';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { InsertReviewResultsDialog } from '../../embeds/ReviewResultsEmbed/InsertReviewResultsDialog';
 import {
   typeaheadPopover,
   typeaheadList,
@@ -194,18 +199,14 @@ const headingIcons = {
 } as const;
 
 
-function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
+function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser: UsersCurrent | null) {
+  const isAdminUser = userIsAdmin(currentUser);
   return [
     new ComponentPickerOption('Paragraph', {
       icon: <TextParagraphIcon style={iconStyle} />,
       keywords: ['normal', 'paragraph', 'p', 'text'],
       onSelect: () =>
-        editor.update(() => {
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            $setBlocksType(selection, () => $createParagraphNode());
-          }
-        }),
+        applyBlockTypeChange(editor, 'paragraph'),
     }),
     ...([1, 2, 3] as const).map(
       (n) => {
@@ -214,12 +215,7 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
           icon: <HeadingIcon style={iconStyle} />,
           keywords: ['heading', 'header', `h${n}`],
           onSelect: () =>
-            editor.update(() => {
-              const selection = $getSelection();
-              if ($isRangeSelection(selection)) {
-                $setBlocksType(selection, () => $createHeadingNode(`h${n}`));
-              }
-            }),
+            applyBlockTypeChange(editor, `h${n}`),
         });
       }
     ),
@@ -251,32 +247,13 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
       icon: <ChatSquareQuoteIcon style={iconStyle} />,
       keywords: ['block quote'],
       onSelect: () =>
-        editor.update(() => {
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            $setBlocksType(selection, () => $createQuoteNode());
-          }
-        }),
+        applyBlockTypeChange(editor, 'quote'),
     }),
     new ComponentPickerOption('Code', {
       icon: <CodeIcon style={iconStyle} />,
       keywords: ['javascript', 'python', 'js', 'codeblock'],
       onSelect: () =>
-        editor.update(() => {
-          const selection = $getSelection();
-
-          if ($isRangeSelection(selection)) {
-            if (selection.isCollapsed()) {
-              $setBlocksType(selection, () => $createCodeNode());
-            } else {
-              // Will this ever happen?
-              const textContent = selection.getTextContent();
-              const codeNode = $createCodeNode();
-              selection.insertNodes([codeNode]);
-              selection.insertRawText(textContent);
-            }
-          }
-        }),
+        applyBlockTypeChange(editor, 'code'),
     }),
     new ComponentPickerOption('Divider', {
       icon: <HorizontalRuleIcon style={iconStyle} />,
@@ -393,6 +370,16 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal) {
     //       <InsertLayoutDialog activeEditor={editor} onClose={onClose} />
     //     )),
     // }),
+    ...(isAdminUser ? [
+      new ComponentPickerOption('Review Results Table', {
+        icon: <CardChecklistIcon style={iconStyle} />,
+        keywords: ['review', 'results', 'annual', 'voting', 'table'],
+        onSelect: () =>
+          showModal('Insert Review Results Table', (onClose) => (
+            <InsertReviewResultsDialog activeEditor={editor} onClose={onClose} />
+          )),
+      }),
+    ] : []),
   ];
 }
 
@@ -400,6 +387,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [modal, showModal] = useModal();
   const [queryString, setQueryString] = useState<string | null>(null);
+  const currentUser = useCurrentUser();
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     allowWhitespace: true,
@@ -407,7 +395,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   });
 
   const options = useMemo(() => {
-    const baseOptions = getBaseOptions(editor, showModal);
+    const baseOptions = getBaseOptions(editor, showModal, currentUser);
 
     if (!queryString) {
       return baseOptions;
@@ -423,7 +411,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           option.keywords.some((keyword) => regex.test(keyword)),
       ),
     ];
-  }, [editor, queryString, showModal]);
+  }, [editor, queryString, showModal, currentUser]);
 
   const onSelectOption = useCallback(
     (

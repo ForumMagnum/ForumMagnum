@@ -61,8 +61,12 @@ function useForceRerender() {
   return {renderCount, rerender};
 }
 
-export const SideItemsContainer = ({children}: {
+export const SideItemsContainer = ({
+  children,
+  hideBlockSideItems = false,
+}: {
   children: React.ReactNode
+  hideBlockSideItems?: boolean
 }) => {
   const classes = useStyles(styles);
   const state = useRef<SideItemsState>({sideItems: [], maxId: -1});
@@ -111,9 +115,11 @@ export const SideItemsContainer = ({children}: {
   }), [addSideItem, removeSideItem, resizeItem]);
   
   const sideItemsDisplayContext: SideItemsDisplayContextType = useMemo(() => ({
-    sideItems: state.current.sideItems
+    sideItems: hideBlockSideItems
+      ? state.current.sideItems.filter((sideItem) => sideItem.options.format !== "block")
+      : state.current.sideItems
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [renderCount, state.current.sideItems]);
+  }), [renderCount, state.current.sideItems, hideBlockSideItems]);
   
   useEffect(() => {
     // Watch contents for size-change of the central column, which will happen

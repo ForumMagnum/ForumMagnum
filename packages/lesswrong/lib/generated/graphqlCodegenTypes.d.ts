@@ -2864,9 +2864,7 @@ type GoogleServiceAccountSessionSelector = {
 
 type HocuspocusAuth = {
   __typename?: 'HocuspocusAuth';
-  documentName: Scalars['String']['output'];
   token: Scalars['String']['output'];
-  wsUrl: Scalars['String']['output'];
 };
 
 type HomepageCommunityEventMarker = {
@@ -4502,6 +4500,7 @@ type Mutation = {
   submitReviewVote?: Maybe<Post>;
   toggleBookmark?: Maybe<ToggleBookmarkOutput>;
   unlinkCrossposter?: Maybe<Scalars['String']['output']>;
+  unlistLlmPost: Scalars['Boolean']['output'];
   unlockPost?: Maybe<Post>;
   unlockThread: Scalars['Boolean']['output'];
   updateAdvisorRequest?: Maybe<AdvisorRequestOutput>;
@@ -5236,6 +5235,12 @@ type MutationtoggleBookmarkArgs = {
 };
 
 
+type MutationunlistLlmPostArgs = {
+  modCommentHtml: Scalars['String']['input'];
+  postId: Scalars['String']['input'];
+};
+
+
 type MutationunlockPostArgs = {
   linkSharingKey: Scalars['String']['input'];
   postId: Scalars['String']['input'];
@@ -5583,14 +5588,6 @@ type NotificationsUserNotificationsInput = {
   type?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
   viewed?: InputMaybe<Scalars['String']['input']>;
-};
-
-type PageCacheEntry = {
-  __typename?: 'PageCacheEntry';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
 };
 
 type PangramWindowScore = {
@@ -7767,6 +7764,7 @@ type Query = {
   RecombeeHybridPosts?: Maybe<RecombeeHybridPostsResult>;
   RecombeeLatestPosts?: Maybe<RecombeeLatestPostsResult>;
   Recommendations?: Maybe<Array<Post>>;
+  ReviewResultsTableData?: Maybe<ReviewResultsTableData>;
   RevisionsDiff?: Maybe<Scalars['String']['output']>;
   RssPostChanges: RssPostChangeInfo;
   SearchSynonyms: Array<Scalars['String']['output']>;
@@ -7981,6 +7979,7 @@ type QueryCrossedKarmaThresholdArgs = {
 
 
 type QueryCuratedAndPopularThisWeekArgs = {
+  af?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -8145,6 +8144,11 @@ type QueryRecombeeLatestPostsArgs = {
 type QueryRecommendationsArgs = {
   algorithm?: InputMaybe<Scalars['JSON']['input']>;
   count?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QueryReviewResultsTableDataArgs = {
+  year: Scalars['Int']['input'];
 };
 
 
@@ -9526,6 +9530,22 @@ type ReportsAdminClaimedReportsInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
+type ReviewResultsPostEntry = {
+  __typename?: 'ReviewResultsPostEntry';
+  authorName: Scalars['String']['output'];
+  coauthorNames: Array<Scalars['String']['output']>;
+  postUrl: Scalars['String']['output'];
+  rank: Scalars['Int']['output'];
+  title: Scalars['String']['output'];
+  votes: Array<Scalars['Float']['output']>;
+};
+
+type ReviewResultsTableData = {
+  __typename?: 'ReviewResultsTableData';
+  results: Array<ReviewResultsPostEntry>;
+  year: Scalars['Int']['output'];
+};
+
 type ReviewVote = {
   __typename?: 'ReviewVote';
   _id: Scalars['String']['output'];
@@ -9553,7 +9573,7 @@ type ReviewVoteSelector = {
 };
 
 type ReviewVotesReviewVotesAdminDashboardInput = {
-  year?: InputMaybe<Scalars['Int']['input']>;
+  year?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ReviewVotesReviewVotesForPostAndUserInput = {
@@ -15036,6 +15056,52 @@ type PostLLMScoreQueryQueryVariables = Exact<{
 
 type PostLLMScoreQueryQuery = PostLLMScoreQueryQuery_Query;
 
+type llmPolicyViolationTemplateQueryQuery_moderationTemplate_SingleModerationTemplateOutput_result_ModerationTemplate = (
+  { __typename?: 'ModerationTemplate' }
+  & ModerationTemplateFragment
+);
+
+type llmPolicyViolationTemplateQueryQuery_moderationTemplate_SingleModerationTemplateOutput = { __typename?: 'SingleModerationTemplateOutput', result: llmPolicyViolationTemplateQueryQuery_moderationTemplate_SingleModerationTemplateOutput_result_ModerationTemplate | null };
+
+type llmPolicyViolationTemplateQueryQuery_Query = { __typename?: 'Query', moderationTemplate: llmPolicyViolationTemplateQueryQuery_moderationTemplate_SingleModerationTemplateOutput | null };
+
+
+type llmPolicyViolationTemplateQueryQueryVariables = Exact<{
+  selector: InputMaybe<SelectorInput>;
+}>;
+
+
+type llmPolicyViolationTemplateQueryQuery = llmPolicyViolationTemplateQueryQuery_Query;
+
+type unlistLlmPostMutation_Mutation = { __typename?: 'Mutation', unlistLlmPost: boolean };
+
+
+type unlistLlmPostMutationVariables = Exact<{
+  postId: Scalars['String']['input'];
+  modCommentHtml: Scalars['String']['input'];
+}>;
+
+
+type unlistLlmPostMutation = unlistLlmPostMutation_Mutation;
+
+type unapproveUserLlmPolicyViolationMutation_updateUser_UserOutput_data_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type unapproveUserLlmPolicyViolationMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: unapproveUserLlmPolicyViolationMutation_updateUser_UserOutput_data_User | null };
+
+type unapproveUserLlmPolicyViolationMutation_Mutation = { __typename?: 'Mutation', updateUser: unapproveUserLlmPolicyViolationMutation_updateUser_UserOutput | null };
+
+
+type unapproveUserLlmPolicyViolationMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserDataInput;
+}>;
+
+
+type unapproveUserLlmPolicyViolationMutation = unapproveUserLlmPolicyViolationMutation_Mutation;
+
 type markAsReadOrUnreadMutation_Mutation = { __typename?: 'Mutation', markAsReadOrUnread: boolean | null };
 
 
@@ -15825,6 +15891,19 @@ type autosaveRevisionMutationVariables = Exact<{
 
 type autosaveRevisionMutation = autosaveRevisionMutation_Mutation;
 
+type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
+
+type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
+
+
+type HocuspocusAuthQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
+
 type LinkSharingQueryQuery_getLinkSharedPost_Post = (
   { __typename?: 'Post' }
   & PostsEdit
@@ -15980,19 +16059,6 @@ type createElicitQuestionCreateClaimDialogMutationVariables = Exact<{
 
 
 type createElicitQuestionCreateClaimDialogMutation = createElicitQuestionCreateClaimDialogMutation_Mutation;
-
-type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string, wsUrl: string, documentName: string };
-
-type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
-
-
-type HocuspocusAuthQueryQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-  linkSharingKey: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
 
 type ConvertDocumentQuery_Query = { __typename?: 'Query', convertDocument: any | null };
 
@@ -17290,6 +17356,20 @@ type updateUserLayoutMutationVariables = Exact<{
 
 
 type updateUserLayoutMutation = updateUserLayoutMutation_Mutation;
+
+type GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData_results_ReviewResultsPostEntry = { __typename?: 'ReviewResultsPostEntry', rank: number, title: string, postUrl: string, authorName: string, coauthorNames: Array<string>, votes: Array<number> };
+
+type GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData = { __typename?: 'ReviewResultsTableData', year: number, results: Array<GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData_results_ReviewResultsPostEntry> };
+
+type GetReviewResultsTableDataQuery_Query = { __typename?: 'Query', ReviewResultsTableData: GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData | null };
+
+
+type GetReviewResultsTableDataQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+}>;
+
+
+type GetReviewResultsTableDataQuery = GetReviewResultsTableDataQuery_Query;
 
 type PostLinkPreviewSequenceQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
@@ -19190,6 +19270,7 @@ type CuratedAndPopularThisWeekQuery_Query = { __typename?: 'Query', CuratedAndPo
 
 type CuratedAndPopularThisWeekQueryVariables = Exact<{
   limit: InputMaybe<Scalars['Int']['input']>;
+  af: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 

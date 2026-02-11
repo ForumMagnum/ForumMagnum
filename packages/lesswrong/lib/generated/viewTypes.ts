@@ -48,7 +48,6 @@ type ModerationTemplatesViewName = "moderationTemplatesList"|"moderationTemplate
 type ModeratorActionsViewName = "restrictionModerationActions"|"userModeratorActions";
 type MultiDocumentsViewName = "lensBySlug"|"pingbackLensPages"|"summariesByParentId";
 type NotificationsViewName = "adminAlertNotifications"|"unreadUserNotifications"|"userNotifications";
-type PageCacheViewName = never
 type PetrovDayActionsViewName = "adminConsole"|"getAction"|"launchDashboard"|"warningConsole";
 type PetrovDayLaunchsViewName = never
 type PodcastEpisodesViewName = "episodeByExternalId";
@@ -144,7 +143,6 @@ interface ViewTermsByCollectionName {
   ModeratorActions: ModeratorActionsViewTerms
   MultiDocuments: MultiDocumentsViewTerms
   Notifications: NotificationsViewTerms
-  PageCache: ViewTermsBase
   PetrovDayActions: PetrovDayActionsViewTerms
   PetrovDayLaunchs: ViewTermsBase
   PodcastEpisodes: PodcastEpisodesViewTerms

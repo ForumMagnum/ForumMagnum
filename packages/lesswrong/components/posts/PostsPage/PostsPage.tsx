@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, isDialogueParticipant } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
@@ -717,8 +717,8 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
         />}
 
     </div>
-  const betweenPostAndCommentsSection =
-    <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
+  const betweenPostAndCommentsSection = <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
+    <Suspense>
       {reviewIsActive() && postEligibleForReview(post) && getReviewPhase() !== "RESULTS" && <div className={classes.reviewVoting}>
         <PostPageReviewButton post={post} />
       </div>}
@@ -736,7 +736,8 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
           </div>
         </AnalyticsContext>
       }
-    </div>
+    </Suspense>
+  </div>
 
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
@@ -751,6 +752,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
         {/* Comments Section */}
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
+          <Suspense>
             {fullPost && <CommentsListSection
               comments={comments ?? []}
               loadMoreComments={loadMore}
@@ -764,6 +766,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
               setHighlightDate={setHighlightDate}
             />}
             {isAF() && <AFUnreviewedCommentCount post={post}/>}
+          </Suspense>
           </AnalyticsContext>
           {isFriendlyUI() && Math.max(post.commentCount, comments?.length ?? 0) < 1 &&
             <div className={classes.noCommentsPlaceholder}>
@@ -807,7 +810,9 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
               isCommentToC: true
             },
             {
-              centralColumn: <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
+              centralColumn: <Suspense>
+                <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
+              </Suspense>
             }
           ]}
           tocRowMap={[0, 0, 2, 2]}
@@ -831,10 +836,12 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   
     {isEAForum() && <DeferRender ssr={false}><MaybeStickyDigestAd post={post} /></DeferRender>}
     {hasPostRecommendations() && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
-      <PostBottomRecommendations
-        post={post}
-        hasTableOfContents={hasTableOfContents}
-      />
+      <Suspense>
+        <PostBottomRecommendations
+          post={post}
+          hasTableOfContents={hasTableOfContents}
+        />
+      </Suspense>
     </AnalyticsInViewTracker>}
     </SideItemVisibilityContextProvider>
     </ImageProvider>

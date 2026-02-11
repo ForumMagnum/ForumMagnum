@@ -1,6 +1,5 @@
 // import { startWebserver } from './apolloServer';
 import { scheduleQueueProcessing } from './cache/swr';
-import { initRenderQueueLogging } from './rendering/requestQueue';
 import { startMemoryUsageMonitor } from './logging';
 // import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
@@ -41,7 +40,6 @@ import { backgroundTask } from './utils/backgroundTask';
 
 export async function runServerOnStartupFunctions() {
   scheduleQueueProcessing();
-  initRenderQueueLogging();
   startMemoryUsageMonitor();
   // initLegacyRoutes();
   backgroundTask(startupSanityChecks());

@@ -82,7 +82,7 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
 }
 
 export const reviewPostPath = "/posts/ZpRzTr5QBT6C3Faor/the-2024-lesswrong-review"
-export const reviewResultsPostPath = "/posts/sHvByGZRCsFuxtTKr/voting-results-for-the-2023-review"
+export const reviewResultsPostPath = "/posts/uk48L6j28iiAyvPKJ/voting-results-for-the-2024-review"
 export const longformReviewTagId = "iAmF7peh3Trtdxobd"
 
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
@@ -290,7 +290,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       cost: 1, 
       tooltip: 
         <div>
-          <p>Misleading, harmful or unimportant.</p>
+          <p>Misleading, harmful, or unimportant.</p>
           <div><em>Costs 1 point (of 500)</em></div>
           {overSpentWarning}
         </div>
@@ -300,7 +300,7 @@ export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<numbe
       cost: 0, 
       tooltip: 
         <div>
-          <p>No strong opinion on this post,</p>
+          <p>No strong opinion on this post.</p>
           <div><em>Costs 0 points (of 500)</em></div>
           {overSpentWarning}
         </div>

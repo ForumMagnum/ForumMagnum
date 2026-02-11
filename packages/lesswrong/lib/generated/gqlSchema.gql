@@ -706,8 +706,6 @@ type HomepageCommunityEventPostsResult {
 
 type HocuspocusAuth {
   token: String!
-  wsUrl: String!
-  documentName: String!
 }
 
 type DigestHighlightsResult {
@@ -731,7 +729,7 @@ type CuratedAndPopularThisWeekResult {
 }
 
 extend type Query {
-  CuratedAndPopularThisWeek(limit: Int): CuratedAndPopularThisWeekResult
+  CuratedAndPopularThisWeek(af: Boolean, limit: Int): CuratedAndPopularThisWeekResult
 }
 
 type RecentlyActiveDialoguesResult {
@@ -1285,6 +1283,7 @@ extend type Mutation {
   approveUserCurrentContentOnly(userId: String!): Boolean!
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+  unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
 }
 
 extend type Mutation {
@@ -1399,6 +1398,24 @@ extend type Query {
 
 extend type Query {
   RevisionsDiff(collectionName: String!, fieldName: String!, id: String, beforeRev: String, afterRev: String!, trim: Boolean): String
+}
+
+type ReviewResultsPostEntry {
+  rank: Int!
+  title: String!
+  postUrl: String!
+  authorName: String!
+  coauthorNames: [String!]!
+  votes: [Float!]!
+}
+
+type ReviewResultsTableData {
+  year: Int!
+  results: [ReviewResultsPostEntry!]!
+}
+
+extend type Query {
+  ReviewResultsTableData(year: Int!): ReviewResultsTableData
 }
 
 extend type Mutation {
@@ -4319,13 +4336,6 @@ extend type Query {
   notifications(input: MultiNotificationInput @deprecated(reason: "Use the selector field instead"), selector: NotificationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiNotificationOutput
 }
 
-type PageCacheEntry {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-}
-
 type PetrovDayAction {
   _id: String!
   schemaVersion: Float!
@@ -6539,7 +6549,7 @@ input ReviewVotesReviewVotesFromUserInput {
 }
 
 input ReviewVotesReviewVotesAdminDashboardInput {
-  year: Int
+  year: String
 }
 
 input ReviewVotesReviewVotesForPostAndUserInput {

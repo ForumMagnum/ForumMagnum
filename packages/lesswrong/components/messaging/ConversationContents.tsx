@@ -157,7 +157,7 @@ const ConversationContents = ({
     return (
       <div data-testid="conversation-messages">
         {results.map((message, idx) => (
-          <SideItemsContainer key={message._id}>
+          <SideItemsContainer key={message._id} hideBlockSideItems>
             <MessageItem message={message} />
           </SideItemsContainer>
         ))}

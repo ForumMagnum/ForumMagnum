@@ -10,7 +10,7 @@ import type {LexicalEditor} from 'lexical';
 import React, { type JSX } from 'react';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {TextNode} from 'lexical';
+import {$getNodeByKey, TextNode} from 'lexical';
 import {useEffect} from 'react';
 
 import {$createEmojiNode, EmojiNode} from '../../nodes/EmojiNode';
@@ -65,7 +65,19 @@ function useEmojis(editor: LexicalEditor): void {
       throw new Error('EmojisPlugin: EmojiNode not registered on editor');
     }
 
-    return editor.registerNodeTransform(TextNode, $textNodeTransform);
+    return editor.registerUpdateListener(({dirtyLeaves, tags}) => {
+      if (tags.has('collaboration')) {
+        return;
+      }
+      editor.update(() => {
+        for (const key of dirtyLeaves) {
+          const node = $getNodeByKey(key);
+          if (node instanceof TextNode) {
+            $textNodeTransform(node);
+          }
+        }
+      });
+    });
   }, [editor]);
 }
 

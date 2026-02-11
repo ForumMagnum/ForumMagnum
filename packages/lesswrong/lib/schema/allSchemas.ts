@@ -55,7 +55,6 @@ import { default as ModerationTemplates } from '../collections/moderationTemplat
 import { default as ModeratorActions } from '../collections/moderatorActions/newSchema';
 import { default as MultiDocuments } from '../collections/multiDocuments/newSchema';
 import { default as Notifications } from '../collections/notifications/newSchema';
-import { default as PageCache } from '../collections/pagecache/newSchema';
 import { default as PetrovDayActions } from '../collections/petrovDayActions/newSchema';
 import { default as PetrovDayLaunchs } from '../collections/petrovDayLaunchs/newSchema';
 import { default as PodcastEpisodes } from '../collections/podcastEpisodes/newSchema';
@@ -115,7 +114,7 @@ export const allSchemas = {
   DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
   FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages,
   Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
-  PageCache, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
+  PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,
   Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags,
   TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits,

@@ -14,9 +14,7 @@ assertRouteHasWhiteBackground("/posts/slug/[slug]");
 export default function Page() {
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      noFooter: hasPostRecommendations(),
-    }}
+    noFooter={hasPostRecommendations()}
   >
     <PostsSingleSlugRedirect />
   </RouteRoot>;

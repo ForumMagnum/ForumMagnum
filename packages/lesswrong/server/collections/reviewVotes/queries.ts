@@ -23,7 +23,7 @@ export const graphqlReviewVoteQueryTypeDefs = gql`
   }
   
   input ReviewVotesReviewVotesAdminDashboardInput {
-    year: Int
+    year: String
   }
   
   input ReviewVotesReviewVotesForPostAndUserInput {

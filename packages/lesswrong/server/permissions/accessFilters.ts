@@ -424,7 +424,6 @@ const accessFilters = {
   ModeratorActions: allowAccess,
   MultiDocuments: multiDocumentCheckAccess,
   Notifications: notificationCheckAccess,
-  PageCache: allowAccess,
   PetrovDayActions: allowAccess,
   PetrovDayLaunchs: allowAccess,
   PodcastEpisodes: allowAccess,

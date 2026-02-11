@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ subtitle: 'Wikitags Dashboard', subtitleLink: '/wikitags/dashboard' }}>
+  return <RouteRoot subtitle={{ title: 'Wikitags Dashboard', link: '/wikitags/dashboard' }}>
     <TaggingDashboard />
   </RouteRoot>;
 }
