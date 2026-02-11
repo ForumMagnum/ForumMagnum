@@ -1,4 +1,4 @@
-import React, {ComponentProps, useState, useEffect, useRef, useMemo} from 'react';
+import React, {ComponentProps, useState, useEffect, useRef, useMemo, Suspense} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
