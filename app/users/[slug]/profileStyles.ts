@@ -543,7 +543,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     fontSize: 16,
   },
   sortPanel: {
-    background: "#fcfbf8",
+    background: theme.palette.greyAlpha(0.03),
     padding: "20px 24px",
     marginBottom: 20,
     borderRadius: 4,
@@ -619,10 +619,12 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   sequencesList: {
     gridColumn: "1 / 5",
+    paddingTop: 20,
   },
   feedList: {
     gridColumn: "1 / 5",
     "& .UserContentFeed-feedContent": {
+      paddingTop: 25,
       gap: 22,
       marginLeft: 0,
       marginRight: 0,
@@ -670,14 +672,14 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   sequenceCardImage: {
     width: "100%",
-    aspectRatio: "3 / 2",
+    aspectRatio: "5 / 2",
     backgroundColor: "#fcfbf8",
     backgroundSize: "cover",
     backgroundPosition: "center",
     borderRadius: 4,
   },
   sequenceCardContent: {
-    padding: "15px 0",
+    padding: "10px 0",
     background: "transparent",
   },
   sequenceCardTitle: {

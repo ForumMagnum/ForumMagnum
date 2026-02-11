@@ -44,10 +44,6 @@ const DEFAULT_PREVIEWS = [
   "/profile-placeholder-4.png",
 ];
 
-const SLUG_ALIASES: Record<string, string> = {
-  "habryka": "habryka4",
-};
-
 // ── Helper functions ──
 
 interface PostWithPreview {
@@ -179,8 +175,7 @@ export default function ProfilePage() {
   const bioRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const { params } = useLocation();
-  const rawSlug = slugify(params.slug);
-  const slug = SLUG_ALIASES[rawSlug] ?? rawSlug;
+  const slug = slugify(params.slug);
 
   const handleTabSwitch = (tab: ProfileTab) => {
     // Preserve scroll position relative to tabs when switching
@@ -450,7 +445,7 @@ export default function ProfilePage() {
       summaryNodes.forEach((node) => truncateToFit(node));
 
       const titleNodes = document.querySelectorAll<HTMLElement>(
-        ".habryka2 .list-article-title-text"
+        ".list-article-title-text"
       );
 
       titleNodes.forEach((node) => truncateToLines(node, 4));
@@ -503,8 +498,8 @@ export default function ProfilePage() {
 
   return (
     <div id="page" className={classes.page} data-el="page">
-      <div className={classes.profileContent} data-el="content">
-        <main className={classes.profileMain} data-el="profile-main">
+      <div className={classes.profileContent}>
+        <main className={classes.profileMain}>
           <div className={classes.profileHeader}>
             <h1 className={classes.profileName}>
               <UsersNameWithModal
@@ -639,7 +634,7 @@ export default function ProfilePage() {
             </div>
           )}
 
-          <section className={classNames("habryka2", classes.allPostsSection)}>
+          <section className={classes.allPostsSection}>
             <div className={classes.allPostsHeader} ref={tabsRef}>
               <div className={classes.allPostsLeftHeader}>
                 <div className={classes.profileTabs}>
