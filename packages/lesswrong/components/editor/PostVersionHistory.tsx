@@ -217,11 +217,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     // old in-memory Yjs state from being synced back when the provider
     // auto-reconnects after the server evicts the document.
     if (isCollabEditor) {
-      // eslint-disable-next-line no-console
-      console.log(`[Restore] Step 1: Disconnecting collaboration for post ${postId}`);
       await disconnectCollaborationForPost(postId);
-      // eslint-disable-next-line no-console
-      console.log(`[Restore] Step 2: Firing revert mutation for revision ${selectedRevisionId}`);
     }
 
     await revertMutation({
@@ -230,8 +226,6 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
         revisionId: selectedRevisionId,
       },
     });
-    // eslint-disable-next-line no-console
-    console.log(`[Restore] Step 3: Mutation complete, reloading page`);
     // Hard-refresh the page to get things back in sync
     window.location.reload();
   }, [captureEvent, isCollabEditor, postId, revertMutation, selectedRevisionId])

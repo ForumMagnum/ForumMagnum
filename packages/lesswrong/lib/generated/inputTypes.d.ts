@@ -8953,6 +8953,7 @@ interface ReportOutput {
 interface ContentTypeInput {
   type: string;
   data: ContentTypeData;
+  yjsState?: string | null;
 }
 
 interface CreateRevisionDataInput {

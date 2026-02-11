@@ -10,6 +10,10 @@ export const ContentType = new SimpleSchema({
     type: Object,
     blackbox: true,
   }),
+  // Base64-encoded Yjs binary state snapshot. Only present for revisions of
+  // Lexical collaborative documents. Used for restoring to a previous revision
+  // without needing to round-trip through HTML→Lexical→Yjs.
+  yjsState: { type: String, optional: true },
 });
 
 export const RevisionStorageType = new SimpleSchema({

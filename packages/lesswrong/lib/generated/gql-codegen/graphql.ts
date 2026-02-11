@@ -1117,6 +1117,7 @@ export type ContentType = {
 export type ContentTypeInput = {
   data: Scalars['ContentTypeData']['input'];
   type: Scalars['String']['input'];
+  yjsState?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Conversation = {

@@ -92,7 +92,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
           finished = true;
           resolve(html);
         }
-      }, 10000);
+      }, 2000);
     }
 
     const errorHandler = (id: AnyBecauseTodo, wrapperNode: AnyBecauseTodo, sourceFormula: AnyBecauseTodo, sourceFormat: AnyBecauseTodo, errors: AnyBecauseTodo) => {

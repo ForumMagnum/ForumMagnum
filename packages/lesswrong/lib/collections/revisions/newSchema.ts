@@ -192,15 +192,6 @@ const schema = {
       },
     },
   },
-  // Yjs binary state snapshot at the time this revision was created.
-  // Only present for revisions of Lexical collaborative documents (where
-  // originalContents.type === 'lexical'). Used for restoring to a previous
-  // revision without needing to round-trip through HTML→Lexical→Yjs.
-  yjsState: {
-    database: {
-      type: "BYTEA",
-    },
-  },
   originalContents: {
     database: {
       type: "JSONB",
@@ -218,11 +209,17 @@ const schema = {
         // suggestion. Original contents is only visible to people who are invited
         // to collaborative editing. (This is only relevant for posts, but supporting
         // it means we need originalContents to default to unviewable)
+        let contents: ContentType;
         if (document.collectionName === "Posts" && document.documentId) {
           const post = await context.loaders["Posts"].load(document.documentId);
-          return getOriginalContents(context.currentUser, post, document.originalContents, context);
+          contents = await getOriginalContents(context.currentUser, post, document.originalContents, context);
+        } else {
+          contents = document.originalContents ?? { type: 'ckEditorMarkup', data: '' };
         }
-        return document.originalContents ?? { type: 'ckEditorMarkup', data: '' };
+        // Strip yjsState from the GraphQL output — it's a large base64 blob
+        // only needed server-side for restore operations, not by clients.
+        const { yjsState: _stripped, ...rest } = contents as ContentType & { yjsState?: string };
+        return rest;
       },
     },
   },

@@ -1294,6 +1294,7 @@ interface DbRevision extends DbObject {
   originalContents: {
     type: string,
     data: string,
+    yjsState: string,
   } | null
   score: number
   skipAttributions: boolean
@@ -1302,7 +1303,6 @@ interface DbRevision extends DbObject {
   version: string
   voteCount: number
   wordCount: number
-  yjsState: any | null
 }
 
 type SequencesCollection = PgCollection<"Sequences">;

@@ -87,7 +87,7 @@ async function saveLexicalDocumentRevision(
   userId: string,
   postId: string,
   html: string,
-  yjsState: Uint8Array,
+  yjsStateBase64: string,
 ): Promise<void> {
   const context = createAdminContext();
   const fieldName = 'contents';
@@ -97,9 +97,17 @@ async function saveLexicalDocumentRevision(
   const newOriginalContents = {
     data: html,
     type: 'lexical' as const,
+    yjsState: yjsStateBase64,
   };
 
-  if (!previousRev || !isEqual(newOriginalContents, previousRev.originalContents)) {
+  // Compare only data+type for deduplication (yjsState changes even when
+  // text content is identical due to CRDT metadata)
+  const prevContentsForComparison = previousRev?.originalContents
+    ? { data: previousRev.originalContents.data, type: previousRev.originalContents.type }
+    : null;
+  const newContentsForComparison = { data: html, type: 'lexical' as const };
+
+  if (!prevContentsForComparison || !isEqual(newContentsForComparison, prevContentsForComparison)) {
     const newRevision: Partial<DbRevision> = {
       ...(await buildRevisionWithUser({
         originalContents: newOriginalContents,
@@ -115,7 +123,6 @@ async function saveLexicalDocumentRevision(
       updateType: 'patch',
       commitMessage: COLLAB_AUTOSAVE_COMMIT_MESSAGE,
       changeMetrics: htmlToChangeMetrics(previousRev?.html || '', html),
-      yjsState,
     };
 
     await createRevision({ data: newRevision }, context);
@@ -135,11 +142,11 @@ async function saveLexicalDocumentRevision(
 export async function saveOrUpdateLexicalRevision(
   postId: string,
   html: string,
-  yjsState: Uint8Array,
+  yjsStateBase64: string,
 ): Promise<void> {
   const post = await Posts.findOne(postId);
   const userId = post!.userId;
-  await saveLexicalDocumentRevision(userId, postId, html, yjsState);
+  await saveLexicalDocumentRevision(userId, postId, html, yjsStateBase64);
 }
 
 /**
@@ -223,27 +230,16 @@ export async function pushRevisionToLexicalCollab(
   if (revision.documentId !== postId) {
     throw new Error(`[Hocuspocus] Revision ${revisionId} does not belong to post ${postId}`);
   }
-  if (!revision.yjsState) {
+
+  const yjsStateBase64 = revision.originalContents?.yjsState;
+  if (!yjsStateBase64) {
     throw new Error(
-      `[Hocuspocus] Revision ${revisionId} has no yjsState — ` +
+      `[Hocuspocus] Revision ${revisionId} has no yjsState in originalContents — ` +
       'only revisions created after the Lexical collaborative editor was deployed can be restored'
     );
   }
 
-  const yjsState = new Uint8Array(revision.yjsState);
-
-  // Diagnostic: decode the revision's yjsState to inspect its content
-  // eslint-disable-next-line no-console
-  console.log(`[Hocuspocus] Revision yjsState: ${yjsState.length} bytes, first 20 bytes: [${Array.from(yjsState.slice(0, 20)).join(',')}]`);
-
-  // Decode it into a Y.Doc so we can compare text content
-  const Y = await import('yjs');
-  const tempDoc = new Y.Doc();
-  Y.applyUpdate(tempDoc, yjsState);
-  const rootXml = tempDoc.getXmlElement('root');
-  // eslint-disable-next-line no-console
-  console.log(`[Hocuspocus] Revision Y.Doc text preview: "${rootXml.toString().slice(0, 200)}"`);
-  tempDoc.destroy();
+  const yjsState = new Uint8Array(Buffer.from(yjsStateBase64, 'base64'));
 
   // Send the Yjs state to the Hocuspocus server, which handles the
   // destructive replacement (evict document + write to DB).

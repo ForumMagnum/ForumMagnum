@@ -10,8 +10,8 @@ type EditableFieldsOf<T> = {
 export function sanitizeEditableFieldValues<T extends Record<string, AnyBecauseHard>>(data: T, editableFields: Array<EditableFieldsOf<T>>) {
   const sanitized = Object.fromEntries(Object.entries(data).map(([key, value]) => {
     if (editableFields.includes(key as EditableFieldsOf<T>) && typeof value === 'object' && value !== null) {
-      const { originalContents: { type, data }, commitMessage, updateType, dataWithDiscardedSuggestions } = value;
-      return [key, { originalContents: { type, data }, commitMessage, updateType, dataWithDiscardedSuggestions }];
+      const { originalContents: { type, data, yjsState }, commitMessage, updateType, dataWithDiscardedSuggestions } = value;
+      return [key, { originalContents: { type, data, ...(yjsState ? { yjsState } : {}) }, commitMessage, updateType, dataWithDiscardedSuggestions }];
     }
     return [key, value];
   })) as T;

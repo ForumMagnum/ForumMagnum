@@ -21,6 +21,7 @@ import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
 import dynamic from 'next/dynamic';
+import { getYjsStateBase64ForPost } from '../lexical/collaboration';
 
 const CKCommentEditor = dynamic(() => import("./CKCommentEditor"));
 const CKPostEditor = dynamic(() => import("./CKPostEditor"));
@@ -426,6 +427,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   submitData = async () => {
     let data: any = null
     let dataWithDiscardedSuggestions
+    let yjsState: string | null = null
     const { updateType, commitMessage, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()
     switch(this.props.value.type) {
@@ -436,6 +438,11 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       case "lexical":
         data = this.props.value.value;
         dataWithDiscardedSuggestions = this._lexicalGetDataWithDiscardedSuggestions?.();
+        // For Lexical posts, capture the current Yjs state so
+        // the revision created by updatePost has a restorable snapshot.
+        if (this.props.document?._id) {
+          yjsState = getYjsStateBase64ForPost(this.props.document._id);
+        }
         break
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
@@ -450,7 +457,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
 
     return {
-      originalContents: {type, data},
+      originalContents: {type, data, ...(yjsState ? { yjsState } : {})},
       commitMessage, updateType,
       dataWithDiscardedSuggestions
     };

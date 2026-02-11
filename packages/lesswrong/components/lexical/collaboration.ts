@@ -9,7 +9,7 @@
 import React, { createContext, useCallback, useContext } from 'react';
 import {Provider} from '@lexical/yjs';
 import {HocuspocusProvider} from '@hocuspocus/provider';
-import {Doc} from 'yjs';
+import {Doc, encodeStateAsUpdate} from 'yjs';
 import {IndexeddbPersistence} from 'y-indexeddb';
 import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 
@@ -265,35 +265,43 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
 export async function disconnectCollaborationForPost(postId: string): Promise<void> {
   const baseDocumentName = `post-${postId}`;
 
-  // eslint-disable-next-line no-console
-  console.log(`[Restore] disconnectCollaborationForPost called for ${postId}. providerInstances keys:`, [...providerInstances.keys()], 'persistenceInstances keys:', [...persistenceInstances.keys()]);
-
   // Disconnect all providers whose document name starts with this post's prefix
   // (covers the main editor and any sub-documents like comments)
-  let disconnectedCount = 0;
   for (const [documentName, provider] of providerInstances) {
     if (documentName === baseDocumentName || documentName.startsWith(`${baseDocumentName}/`)) {
-      // eslint-disable-next-line no-console
-      console.log(`[Restore] Disconnecting provider for ${documentName}, status:`, provider.status);
       provider.disconnect();
       providerInstances.delete(documentName);
-      disconnectedCount++;
     }
   }
 
   // Clear IndexedDB persistence to prevent stale state from being loaded on page reload
-  let clearedCount = 0;
   for (const [indexedDbKey, persistence] of persistenceInstances) {
     if (indexedDbKey.startsWith(baseDocumentName)) {
-      // eslint-disable-next-line no-console
-      console.log(`[Restore] Clearing IndexedDB persistence for ${indexedDbKey}`);
       await persistence.clearData();
       await persistence.destroy();
       persistenceInstances.delete(indexedDbKey);
-      clearedCount++;
     }
   }
+}
 
-  // eslint-disable-next-line no-console
-  console.log(`[Restore] Disconnected ${disconnectedCount} providers, cleared ${clearedCount} persistence instances`);
+/**
+ * Get the current Yjs state for a post's main document as a base64 string.
+ * Returns null if no active provider exists (e.g., non-collaborative editor).
+ *
+ * Used by the client-side save flow to include the Yjs snapshot in
+ * originalContents so that revisions created by updatePost (manual save,
+ * publish, etc.) also have a restorable Yjs state.
+ */
+export function getYjsStateBase64ForPost(postId: string): string | null {
+  const provider = providerInstances.get(`post-${postId}`);
+  if (!provider) return null;
+
+  const doc = provider.document;
+  const state = encodeStateAsUpdate(doc);
+  // Browser-safe base64 encoding (btoa operates on binary strings)
+  let binaryStr = '';
+  for (let i = 0; i < state.length; i++) {
+    binaryStr += String.fromCharCode(state[i]);
+  }
+  return btoa(binaryStr);
 }
