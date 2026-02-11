@@ -162,8 +162,6 @@ const UsersForm = ({
   
   const formType = 'edit';
 
-  initialData?.banned
-
   const {
     onSubmitCallback: onSubmitBiographyCallback,
     onSuccessCallback: onSuccessBiographyCallback,

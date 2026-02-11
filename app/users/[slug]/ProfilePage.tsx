@@ -4,7 +4,7 @@ import { useLayoutEffect, useState, useRef, useEffect } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useLocation } from "@/lib/routeUtil";
-import { userGetDisplayName, userGetProfileUrl } from "@/lib/collections/users/helpers";
+import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { getUserFromResults } from "@/components/users/UsersProfile";
@@ -58,7 +58,7 @@ const HabrykaSequencesQuery = gql(`
 `);
 
 
-export default function ProfilePage({ variant = "default" }: { variant?: string }) {
+export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [bioExpanded, setBioExpanded] = useState(false);
   const [postsToShow, setPostsToShow] = useState(7);
@@ -176,8 +176,7 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
   }, [recentPostsLoading, userId, hasPosts, setActiveTab]);
 
   const currentUser = useCurrentUser();
-  // TODO: Remove slug fallback once real auth is in place
-  const isOwnProfile = !!(currentUser && user && currentUser._id === user._id) || slug === "joanna";
+  const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
 
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bio = user?.biography?.plaintextDescription;
@@ -449,7 +448,7 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
   const formatRelativeDate = (date: Date | string) => moment(new Date(date)).fromNow();
 
   return (
-    <div id="page" className={variant === "benito3" ? "benito3" : variant === "benito2" ? (activeTab === "feed" ? "benito2 feed-active" : "benito2") : undefined} data-el="page">
+    <div id="page" data-el="page">
       <div className="content profile-content" data-el="content">
         <main className="profile-main" data-el="profile-main">
           <div className="profile-header">
@@ -578,8 +577,6 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
               )}
             </div>
           )}
-
-          {(variant === "benito2" || variant === "benito3") && <div className="full-bleed-divider" />}
 
           <section className="all-posts-section habryka2">
             <div className="all-posts-header" ref={tabsRef}>
