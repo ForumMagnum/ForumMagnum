@@ -19,6 +19,7 @@ import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObser
 import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavObserverContext";
 import UsersNameWithModal from "@/components/ultraFeed/UsersNameWithModal";
 import LWTooltip from "@/components/common/LWTooltip";
+import { ExpandedDate } from "@/components/common/FormatDate";
 import UserMetaInfo from "@/components/users/UserMetaInfo";
 import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
@@ -37,10 +38,10 @@ const SORT_PANEL_CLOSE_MS = 300;
 const FONT_LOAD_TIMEOUT_MS = 1000;
 
 const DEFAULT_PREVIEWS = [
-  "/default-post-preview.png",
-  "/default-post-preview-1.png",
-  "/default-post-preview-2.png",
-  "/default-post-preview-3.png",
+  "/profile-placeholder-1.png",
+  "/profile-placeholder-2.png",
+  "/profile-placeholder-3.png",
+  "/profile-placeholder-4.png",
 ];
 
 const SLUG_ALIASES: Record<string, string> = {
@@ -110,8 +111,12 @@ function getPostImageUrl(
   return url;
 }
 
-function formatRelativeDate(date: Date | string): string {
-  return moment(new Date(date)).fromNow();
+function formatReadableDate(date: Date | string): string {
+  const m = moment(new Date(date));
+  if (m.year() === moment().year()) {
+    return m.format("MMM D");
+  }
+  return m.format("MMM D, YYYY");
 }
 
 function truncateBio(bio: string, expanded: boolean): string {
@@ -207,6 +212,7 @@ export default function ProfilePage() {
       limit: 1,
       enableTotal: false,
     },
+    fetchPolicy: "cache-and-network",
   });
 
   const user = getUserFromResults(userData?.users?.results);
@@ -217,7 +223,7 @@ export default function ProfilePage() {
   const { data: topPostsData } = useQuery(HabrykaPostsQuery, {
     skip: !userId || hasPinnedPosts,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: "top" } } : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } } : undefined,
       limit: TOP_POSTS_LIMIT,
       enableTotal: false,
     },
@@ -235,7 +241,7 @@ export default function ProfilePage() {
   const { data: recentPostsData, loading: recentPostsLoading } = useQuery(HabrykaPostsQuery, {
     skip: !userId,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: "new" } } : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy: "new", excludeEvents: true } } : undefined,
       limit: RECENT_POSTS_LIMIT,
       enableTotal: false,
     },
@@ -501,7 +507,11 @@ export default function ProfilePage() {
         <main className={classes.profileMain} data-el="profile-main">
           <div className={classes.profileHeader}>
             <h1 className={classes.profileName}>
-              {username}
+              <UsersNameWithModal
+                user={user}
+                className={classes.profileNameLink}
+                tooltipPlacement="bottom-start"
+              />
             </h1>
             {isOwnProfile && (
               <a href="/account" className={classes.profileEditButton}>
@@ -530,8 +540,12 @@ export default function ProfilePage() {
                     </h2>
                     <p className={classNames("post-summary", classes.postSummary)}>{getTopPostSummary(topPost)}</p>
                     <div className={classes.postMetaBar}>
-                      <span className={classes.karmaScore}>{topPost.baseScore ?? 0}</span>
-                      <span className={classes.postDate}>{formatRelativeDate(topPost.postedAt!)}</span>
+                      <LWTooltip title="Karma score">
+                        <span className={classes.karmaScore}>{topPost.baseScore ?? 0}</span>
+                      </LWTooltip>
+                      <LWTooltip title={<ExpandedDate date={topPost.postedAt!} />}>
+                        <span className={classes.postDate}>{formatReadableDate(topPost.postedAt!)}</span>
+                      </LWTooltip>
                     </div>
                   </div>
                   <div
@@ -561,8 +575,12 @@ export default function ProfilePage() {
                             {post.title}
                           </h3>
                           <div className={classes.smallArticleMeta}>
-                            <span className={classes.smallKarma}>{post.baseScore ?? 0}</span>
-                            <span className={classes.smallDate}>{formatRelativeDate(post.postedAt!)}</span>
+                            <LWTooltip title="Karma score">
+                              <span className={classes.smallKarma}>{post.baseScore ?? 0}</span>
+                            </LWTooltip>
+                            <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
+                              <span className={classes.smallDate}>{formatReadableDate(post.postedAt!)}</span>
+                            </LWTooltip>
                           </div>
                         </div>
                       </a>
@@ -728,7 +746,7 @@ export default function ProfilePage() {
                   <div className={classes.emptyStateContainer}>
                     <p className={classes.emptyStateDescription}>{username} has not written any posts yet.</p>
                     <div className={classes.emptyStateImage}>
-                      <img src="/default-post-preview-1.png" alt="" />
+                      <img src="/profile-placeholder-2.png" alt="" />
                     </div>
                   </div>
                 )}
@@ -758,8 +776,12 @@ export default function ProfilePage() {
                           </h3>
                           {summary && <p className={classes.listArticleSummary}>{summary}</p>}
                           <div className={classes.listArticleMeta}>
-                            <span className={classes.listKarma}>{post.baseScore ?? 0}</span>
-                            <span className={classes.listDate}>{formatRelativeDate(post.postedAt!)}</span>
+                            <LWTooltip title="Karma score">
+                              <span className={classes.listKarma}>{post.baseScore ?? 0}</span>
+                            </LWTooltip>
+                            <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
+                              <span className={classes.listDate}>{formatReadableDate(post.postedAt!)}</span>
+                            </LWTooltip>
                           </div>
                         </div>
                         <div
@@ -876,7 +898,7 @@ export default function ProfilePage() {
                   <div className={classes.emptyStateContainer}>
                     <p className={classes.emptyStateDescription}>{username} hasn&apos;t written anything yet.</p>
                     <div className={classes.emptyStateImage}>
-                      <img src="/default-post-preview-3.png" alt="" />
+                      <img src="/profile-placeholder-4.png" alt="" />
                     </div>
                   </div>
                 )}

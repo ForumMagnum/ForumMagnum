@@ -54,6 +54,18 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     lineHeight: 1.1,
     letterSpacing: "-.02em",
   },
+  profileNameLink: {
+    color: "inherit",
+    fontFamily: "inherit",
+    fontSize: "inherit",
+    fontWeight: "inherit" as const,
+    letterSpacing: "inherit",
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "none",
+      color: "inherit",
+    },
+  },
   profileEditButton: {
     gridColumn: 3,
     justifySelf: "end",
@@ -164,11 +176,16 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     overflow: "visible",
     textDecoration: "none",
     color: "inherit",
+    // Override global a:hover { opacity: 0.5 } so we can apply it to children
+    // individually, preserving mix-blend-mode: multiply on the image
+    "&:hover": {
+      opacity: 1,
+    },
     "&:hover $postContent": {
-      opacity: 0.7,
+      opacity: 0.5,
     },
     "&:hover $postImage": {
-      opacity: 0.7,
+      opacity: 0.5,
     },
   },
   postArticleTop: {
@@ -276,10 +293,10 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "flex",
     flexDirection: "column",
     "&:hover $smallArticleContent": {
-      opacity: 0.7,
+      opacity: 0.5,
     },
     "&:hover $smallArticleImage": {
-      opacity: 0.7,
+      opacity: 0.5,
     },
   },
   smallArticleImage: {
@@ -355,7 +372,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
     overflow: "visible",
     "&:hover": {
-      opacity: 0.7,
+      opacity: 0.5,
     },
     "&:last-of-type": {
       borderBottom: "none",
@@ -611,8 +628,8 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       marginRight: 0,
     },
     "& .UltraFeedPostItem-root, & .UltraFeedCommentItem-root, & .UltraFeedThreadItem-root": {
-      border: "1px solid rgba(0,0,0,.1)",
-      borderRadius: 6,
+      border: "none",
+      borderRadius: 4,
       boxShadow: "0 1px 4px rgba(0,0,0,.05)",
       padding: "25px 25px 8px 25px",
       background: "rgba(255,255,255,1)",
@@ -648,7 +665,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     position: "relative",
     transition: "opacity 0.15s ease",
     "&:hover": {
-      opacity: 0.7,
+      opacity: 0.5,
     },
   },
   sequenceCardImage: {

@@ -451,13 +451,19 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
 
   const postIds = postsToShow.map(p => p._id);
 
-  const persistPinnedPosts = useCallback((newIds: string[] | null) => {
-    updatePinnedPosts({
-      variables: {
-        selector: { _id: userId },
-        data: { pinnedPostIds: newIds },
-      },
-    });
+  const persistPinnedPosts = useCallback(async (newIds: string[] | null) => {
+    try {
+      await updatePinnedPosts({
+        variables: {
+          selector: { _id: userId },
+          data: { pinnedPostIds: newIds },
+        },
+        refetchQueries: ['HabrykaDynamicUserQuery'],
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to save pinned posts:', e);
+    }
   }, [userId, updatePinnedPosts]);
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
