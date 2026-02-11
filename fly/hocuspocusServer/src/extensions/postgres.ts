@@ -31,8 +31,7 @@ function parseDocumentId(documentName: string): string {
 }
 
 export class PostgresExtension implements Extension {
-  // Public for diagnostic access from the admin endpoint
-  pool: Pool;
+  private pool: Pool;
 
   /**
    * Document names for which onStoreDocument should be skipped once.
@@ -73,11 +72,6 @@ export class PostgresExtension implements Extension {
       // We do this instead of returning the bytes because Hocuspocus
       // needs the data applied before syncing to clients
       Y.applyUpdate(document, update);
-
-      // Diagnostic: log what was loaded
-      const rootXml = document.getXmlElement('root');
-      // eslint-disable-next-line no-console
-      console.log(`[PostgresExtension] Loaded ${documentName} (${update.length} bytes), text: "${rootXml.toString().slice(0, 200)}"`);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(`[PostgresExtension] Error loading document: ${documentId}`, error);
@@ -87,16 +81,10 @@ export class PostgresExtension implements Extension {
   
   async onStoreDocument({ documentName, document }: onStoreDocumentPayload): Promise<void> {
     if (this.skipStoreForDocuments.delete(documentName)) {
-      // eslint-disable-next-line no-console
-      console.log(`[PostgresExtension] SKIPPED onStoreDocument for ${documentName} (restore in progress)`);
       return;
     }
     const state = Y.encodeStateAsUpdate(document);
     const stateVector = Y.encodeStateVector(document);
-    // eslint-disable-next-line no-console
-    const rootXml = document.getXmlElement('root');
-    // eslint-disable-next-line no-console
-    console.log(`[PostgresExtension] onStoreDocument for ${documentName} (${state.length} bytes), text: "${rootXml.toString().slice(0, 200)}"`);
     await this.storeDocumentState(documentName, state, stateVector);
   }
 

@@ -165,35 +165,6 @@ const server = new Server({
         const newStateVector = Y.encodeStateVector(tempDoc);
         tempDoc.destroy();
 
-        // Diagnostic: compare new state with what's currently in DB
-        const documentId = documentName.replace(/^post-/, '');
-        const existingRow = await postgresExtension.pool.query(
-          'SELECT "yjsState" FROM "YjsDocuments" WHERE "documentId" = $1',
-          [documentId]
-        );
-        if (existingRow.rows.length > 0) {
-          const existingState = new Uint8Array(existingRow.rows[0].yjsState);
-          const statesMatch = existingState.length === newState.length && existingState.every((b: number, i: number) => b === newState[i]);
-          // eslint-disable-next-line no-console
-          console.log(`[Admin] Existing DB state: ${existingState.length} bytes, new state: ${newState.length} bytes, identical: ${statesMatch}`);
-
-          // Decode both to compare text content
-          const existingDoc2 = new Y.Doc();
-          Y.applyUpdate(existingDoc2, existingState);
-          // eslint-disable-next-line no-console
-          console.log(`[Admin] Existing text: "${existingDoc2.getXmlElement('root').toString().slice(0, 200)}"`);
-          existingDoc2.destroy();
-        } else {
-          // eslint-disable-next-line no-console
-          console.log(`[Admin] No existing state in DB for ${documentId}`);
-        }
-
-        const newDoc2 = new Y.Doc();
-        Y.applyUpdate(newDoc2, newState);
-        // eslint-disable-next-line no-console
-        console.log(`[Admin] New (restored) text: "${newDoc2.getXmlElement('root').toString().slice(0, 200)}"`);
-        newDoc2.destroy();
-
         await postgresExtension.storeDocumentState(documentName, newState, newStateVector);
 
         // eslint-disable-next-line no-console
