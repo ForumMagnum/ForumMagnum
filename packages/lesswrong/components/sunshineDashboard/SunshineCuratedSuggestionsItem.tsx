@@ -9,7 +9,6 @@ import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
-import StarIcon from '@material-ui/icons/Star';
 import ClearIcon from '@material-ui/icons/Clear';
 import * as _ from 'underscore';
 
@@ -23,16 +22,6 @@ const SunshineCuratedSuggestionsItem = ({post}: {
     fragmentName: 'PostsList',
   });
   
-  const handleCurate = () => {
-    void updatePost({
-      selector: {_id: post._id},
-      data: {
-        reviewForCuratedUserId: currentUser!._id,
-        curatedDate: new Date(),
-      }
-    })
-  }
-
   const handleDisregardForCurated = () => {
     void updatePost({
       selector: {_id: post._id},
@@ -106,9 +95,6 @@ const SunshineCuratedSuggestionsItem = ({post}: {
               <UndoIcon/>
             </Components.SidebarAction>
           }
-          <Components.SidebarAction title="Curate Post" onClick={handleCurate}>
-            <StarIcon/>
-          </Components.SidebarAction>
           <Components.SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
             <ClearIcon/>
           </Components.SidebarAction>
