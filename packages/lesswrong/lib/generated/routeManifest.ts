@@ -548,6 +548,9 @@ export const routeTrie = {
     "leaderboard": {
       "hasPage": true
     },
+    "lexicalRestore": {
+      "hasPage": true
+    },
     "library": {
       "hasPage": true
     },
@@ -1013,6 +1016,7 @@ export const routeTrie = {
     "inbox": "inbox",
     "item": "item",
     "leaderboard": "leaderboard",
+    "lexicalrestore": "lexicalRestore",
     "library": "library",
     "login": "login",
     "logout": "logout",

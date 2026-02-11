@@ -25,15 +25,13 @@ async function processDocumentUpdate({ documentName, yjsStateBase64 }: WebhookPr
   // Dynamic imports of server-only modules — resolved at runtime during SSR,
   // bypassing the @/server/* → stub alias that applies to static imports in
   // client bundles.
-  const { getLinkedom } = await import('@/server/utils/wrapLinkedom');
   const {
     saveOrUpdateLexicalRevision,
     documentNameToPostId,
   } = await import('@/server/hocuspocus/hocuspocusCallbacks');
 
   const yjsState = new Uint8Array(Buffer.from(yjsStateBase64, 'base64'));
-  const parseHTML = getLinkedom();
-  const html = yjsBinaryToHtml(yjsState, parseHTML);
+  const html = await yjsBinaryToHtml(yjsState);
   const postId = documentNameToPostId(documentName);
 
   await saveOrUpdateLexicalRevision(postId, html);

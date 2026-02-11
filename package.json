@@ -222,6 +222,7 @@
     "io-ts": "^2.2.19",
     "jimp": "^0.22.12",
     "js-tiktoken": "^1.0.20",
+    "jsdom": "^28.0.0",
     "json-stringify-deterministic": "^1.0.8",
     "jsonwebtoken": "^9.0.3",
     "jss": "^10.10.0",
@@ -373,7 +374,7 @@
     "rxjs": "^7.8.0"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=24.13.1"
   },
   "knip": {
     "entry": [

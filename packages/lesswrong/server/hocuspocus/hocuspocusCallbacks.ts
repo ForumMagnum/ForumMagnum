@@ -10,6 +10,7 @@ import { constantTimeCompare } from '../../lib/helpers';
 import isEqual from 'lodash/isEqual';
 import moment from 'moment';
 import YjsDocuments from '@/server/collections/yjsDocuments/collection';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 
 // Time interval such that, when autosaving, we will update an existing
 // rev instead of create a new rev if it's within this amount of time ago.
@@ -89,7 +90,11 @@ async function getUserForSavedPost(postId: string, userId: string): Promise<{
  * a specific user. Called by saveOrUpdateLexicalRevision when creating a
  * fresh revision (as opposed to updating an existing autosave in-place).
  */
-async function saveLexicalDocumentRevision(userId: string, postId: string, html: string): Promise<void> {
+async function saveLexicalDocumentRevision(
+  userId: string,
+  postId: string,
+  html: string,
+): Promise<void> {
   const context = createAdminContext();
   const fieldName = 'contents';
   const { user, isAdmin } = await getUserForSavedPost(postId, userId);
@@ -130,7 +135,10 @@ async function saveLexicalDocumentRevision(userId: string, postId: string, html:
  *
  * Equivalent of the CKEditor `saveOrUpdateDocumentRevision`.
  */
-export async function saveOrUpdateLexicalRevision(postId: string, html: string): Promise<void> {
+export async function saveOrUpdateLexicalRevision(
+  postId: string,
+  html: string,
+): Promise<void> {
   const context = createAdminContext();
   const fieldName = 'contents';
   const previousRev = await getLatestRev(postId, fieldName, context);
@@ -167,6 +175,155 @@ export async function saveOrUpdateLexicalRevision(postId: string, html: string):
     const userId = post!.userId;
     await saveLexicalDocumentRevision(userId, postId, html);
   }
+}
+
+/**
+ * Derives the HTTP URL for the Hocuspocus admin endpoint from the
+ * WebSocket URL (HOCUSPOCUS_URL env var). The WebSocket URL is typically
+ * ws://host:port or wss://host:port; we convert to http:// or https://.
+ */
+function getHocuspocusHttpUrl(): string | null {
+  const wsUrl = process.env.HOCUSPOCUS_URL;
+  if (!wsUrl) return null;
+  return wsUrl.replace(/^ws(s?):\/\//, 'http$1://');
+}
+
+/**
+ * Sends a reset-document request to the Hocuspocus admin endpoint.
+ * This pushes the new Yjs state to any active in-memory document and
+ * broadcasts it to all connected clients, so they see the restored
+ * content immediately without needing to reload.
+ *
+ * If the Hocuspocus server is not configured or the request fails,
+ * the error is logged but not thrown — the DB has already been updated,
+ * and clients will get the new state on their next reconnect.
+ */
+async function resetHocuspocusDocument(documentName: string, newState: Uint8Array): Promise<void> {
+  const httpUrl = getHocuspocusHttpUrl();
+  const secret = process.env.HOCUSPOCUS_WEBHOOK_SECRET;
+  if (!httpUrl || !secret) {
+    // eslint-disable-next-line no-console
+    console.log('[Hocuspocus] Skipping document reset: Hocuspocus not configured');
+    return;
+  }
+
+  const base64State = Buffer.from(newState).toString('base64');
+
+  try {
+    const response = await fetch(`${httpUrl}/admin/reset-document`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${secret}`,
+        'X-Document-Name': documentName,
+        'Content-Type': 'text/plain',
+      },
+      body: base64State,
+    });
+
+    if (!response.ok) {
+      // eslint-disable-next-line no-console
+      console.error(`[Hocuspocus] Document reset failed: ${response.status} ${response.statusText}`);
+    } else {
+      const result = await response.json();
+      // eslint-disable-next-line no-console
+      console.log(`[Hocuspocus] Document reset result:`, result);
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[Hocuspocus] Error calling reset-document endpoint:', err);
+  }
+}
+
+/**
+ * Writes a new Yjs state to the YjsDocuments table and notifies the
+ * Hocuspocus server to broadcast the change to connected clients.
+ *
+ * Called from the RestoreProcessor client component (during SSR) after
+ * it has computed the new Yjs state via the Lexical↔Yjs conversion.
+ */
+export async function writeYjsStateAndNotify(
+  postId: string,
+  newState: Uint8Array,
+  stateVector: Uint8Array,
+): Promise<void> {
+  const documentName = `post-${postId}`;
+
+  // Upsert the new state into YjsDocuments (same pattern as PostgresExtension.onStoreDocument)
+  await YjsDocuments.rawUpdateOne(
+    { documentId: postId },
+    {
+      $set: {
+        yjsState: newState,
+        yjsStateVector: stateVector,
+        updatedAt: new Date(),
+      },
+    },
+    { upsert: true },
+  );
+
+  // Notify the Hocuspocus server to broadcast the change to connected clients
+  await resetHocuspocusDocument(documentName, newState);
+}
+
+/**
+ * Calls the internal lexicalRestore page route to restore a collaborative
+ * Lexical document to a previous revision.
+ *
+ * The Yjs↔HTML conversion requires importing PlaygroundNodes, which has
+ * transitive dependencies on React hooks and CSS files. Turbopack barfs
+ * if you try to import them in an RSC context (which includes API route handlers).
+ * So the conversion runs inside a "use client" component rendered during SSR
+ * on the lexicalRestore page — the same pattern used by the Hocuspocus
+ * webhook handler (app/hocuspocusWebhook/).
+ *
+ * This function is called from the revertPostToRevision GraphQL mutation
+ * (which has already performed permission checks).
+ */
+export async function pushRevisionToLexicalCollab(
+  postId: string,
+  revisionId: string,
+): Promise<void> {
+  // eslint-disable-next-line no-console
+  console.log(`[Hocuspocus] Restoring revision ${revisionId} for post ${postId} via lexicalRestore page`);
+
+  const secret = process.env.HOCUSPOCUS_WEBHOOK_SECRET;
+  if (!secret) {
+    throw new Error('[Hocuspocus] Cannot restore: HOCUSPOCUS_WEBHOOK_SECRET is not configured');
+  }
+
+  // Make an internal HTTP request to the lexicalRestore page route.
+  // The page's server component reads the revision and existing Yjs state
+  // from the database, then the client component (during SSR) does the
+  // Yjs conversion and writes the result.
+  //
+  // We use the app's own URL to make the request. In production this is
+  // the deployment URL; locally it's localhost.
+  const baseUrl = getSiteUrl();
+  const url = `${baseUrl}/lexicalRestore`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${secret}`,
+      'X-Post-Id': postId,
+      'X-Revision-Id': revisionId,
+    },
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`[Hocuspocus] Restore page returned ${response.status}: ${body}`);
+  }
+
+  const body = await response.text();
+
+  // The page renders a <div> with the result text. Check for success.
+  if (!body.includes('ok')) {
+    throw new Error(`[Hocuspocus] Restore page returned unexpected result: ${body.slice(0, 200)}`);
+  }
+
+  // eslint-disable-next-line no-console
+  console.log(`[Hocuspocus] Restore completed for post ${postId}`);
 }
 
 export interface HocuspocusCommentData {

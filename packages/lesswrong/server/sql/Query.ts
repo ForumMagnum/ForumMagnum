@@ -10,6 +10,13 @@ class Arg {
   public typehint = "";
 
   constructor(public value: any, type?: Type) {
+    // pg-promise only recognises Buffer (not Uint8Array) for binary/BYTEA
+    // formatting. Without this, a Uint8Array falls through to $to.json()
+    // which JSON-serialises it to {"0":v,"1":v,...} — corrupting the data.
+    if (this.value instanceof Uint8Array && !Buffer.isBuffer(this.value)) {
+      this.value = Buffer.from(this.value.buffer, this.value.byteOffset, this.value.byteLength);
+    }
+
     if (this.value === null && type instanceof DefaultValueType && type.isNotNull() && type.getDefaultValueString()) {
       if (type.isArray() || type.toConcrete() instanceof JsonType) {
         this.value = type.getDefaultValue();
@@ -222,6 +229,9 @@ abstract class Query<T extends DbObject> {
     }
     if (typeHint instanceof Date) {
       return "::TIMESTAMPTZ";
+    }
+    if (typeHint instanceof Uint8Array) {
+      return "::BYTEA";
     }
     if (Array.isArray(typeHint)) {
       return "";
