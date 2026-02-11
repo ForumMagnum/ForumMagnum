@@ -114,13 +114,18 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
   const hasPinnedPosts = pinnedPostIds && pinnedPostIds.length >= 4;
 
   const { data: topPostsData } = useQuery(HabrykaPostsQuery, {
-    skip: !userId,
+    skip: !userId || hasPinnedPosts,
     variables: {
-      selector: userId
-        ? hasPinnedPosts
-          ? { userPosts: { userId, exactPostIds: pinnedPostIds } }
-          : { userPosts: { userId, sortedBy: "top" } }
-        : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy: "top" } } : undefined,
+      limit: 4,
+      enableTotal: false,
+    },
+  });
+
+  const { data: pinnedPostsData } = useQuery(HabrykaPostsQuery, {
+    skip: !hasPinnedPosts,
+    variables: {
+      selector: hasPinnedPosts ? { default: { exactPostIds: pinnedPostIds } } : undefined,
       limit: 4,
       enableTotal: false,
     },
@@ -145,11 +150,10 @@ export default function ProfilePage({ variant = "default" }: { variant?: string 
   });
 
 
-  const topPostsRaw = topPostsData?.posts?.results ?? [];
   // When using pinnedPostIds, reorder results to match the pinned order
   const topPosts = hasPinnedPosts
-    ? pinnedPostIds.map(id => topPostsRaw.find(p => p._id === id)).filter((p): p is NonNullable<typeof p> => !!p)
-    : topPostsRaw;
+    ? pinnedPostIds.map(id => (pinnedPostsData?.posts?.results ?? []).find(p => p._id === id)).filter((p): p is NonNullable<typeof p> => !!p)
+    : (topPostsData?.posts?.results ?? []);
   const topPost = topPosts[0];
   const smallArticles = topPosts.slice(1, 4);
   const recentPosts = recentPostsData?.posts?.results ?? [];
