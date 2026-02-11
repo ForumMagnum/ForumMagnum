@@ -55,27 +55,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeForCuration}: {
+const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
   classes: ClassesType<typeof styles>,
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
-  timeForCuration?: boolean,
 }) => {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   const [updatePost] = useMutation(SunshineCurationPostsListUpdateMutation);
-
-  const handleCurate = () => {
-    void updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: {
-          reviewForCuratedUserId: currentUser!._id,
-          curatedDate: new Date(),
-        }
-      }
-    })
-  }
 
   const handleDisregardForCurated = () => {
     void updatePost({
@@ -174,11 +161,6 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
             :
             <SidebarAction title="Unendorse Curation" onClick={handleUnsuggestCurated}>
               <ForumIcon icon="Undo"/>
-            </SidebarAction>
-          }
-          { timeForCuration && canCurate &&
-            <SidebarAction title="Curate Post" onClick={handleCurate}>
-              <ForumIcon icon="Star" />
             </SidebarAction>
           }
           { canCurate && <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
