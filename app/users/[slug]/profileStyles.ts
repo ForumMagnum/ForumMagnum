@@ -88,6 +88,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     margin: 0,
     padding: 0,
   },
+  topPostsLabelPlural: {
+    display: "block",
+  },
   topPostsLabelSingular: {
     display: "none",
   },
@@ -509,6 +512,107 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     textDecoration: "none",
     "&:hover": {
       opacity: 0.67,
+    },
+  },
+  "@media (max-width: 900px)": {
+    profileMain: {
+      padding: "40px 30px 50px 30px",
+    },
+    postContent: {
+      gridColumn: "1 / 5",
+    },
+    postImage: {
+      gridColumn: "5 / 7",
+    },
+    postTitle: {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+    },
+    postSummary: {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+    },
+  },
+  "@media (max-width: 750px)": {
+    profileMain: {
+      padding: "35px 25px 45px 25px",
+    },
+    postArticle: {
+      display: "flex",
+      flexDirection: "column-reverse",
+      gap: 16,
+    },
+    postContent: {
+      height: "auto",
+      maxHeight: "none",
+      width: "100%",
+      aspectRatio: "auto",
+    },
+    postImage: {
+      width: "100%",
+      height: 220,
+      aspectRatio: "auto",
+    },
+    postSummary: {
+      flex: "none",
+      display: "-webkit-box",
+      WebkitBoxOrient: "vertical",
+      WebkitLineClamp: 4,
+      lineClamp: 4,
+      textOverflow: "ellipsis",
+    },
+  },
+  "@media (max-width: 630px)": {
+    profileMain: {
+      padding: "30px 20px 40px 20px",
+    },
+    postImage: {
+      height: 200,
+    },
+    smallArticlesGrid: {
+      display: "none",
+    },
+    topPostsLabelPlural: {
+      display: "none",
+    },
+    topPostsLabelSingular: {
+      display: "block",
+    },
+    mobileProfileBio: {
+      display: "block",
+    },
+    allPostsHeader: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 0,
+    },
+    allPostsLeftHeader: {
+      width: "100%",
+      marginBottom: 16,
+    },
+    postTitle: {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+    },
+    postSummary: {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+    },
+    smallArticleTitle: {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+    },
+    listArticleTitle: {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+      overflow: "visible",
+      textOverflow: "clip",
     },
   },
   "@keyframes slideIn": {

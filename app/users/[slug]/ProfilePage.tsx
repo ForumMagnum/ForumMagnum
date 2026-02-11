@@ -514,7 +514,7 @@ export default function ProfilePage() {
             <>
               <div className={classNames("top-posts-indicator", classes.topPostsIndicator)}>
                 <LWTooltip title="Based on karma" placement="bottom">
-                  <span className={classNames("top-posts-label", "top-posts-label--plural", classes.topPostsLabel)}>Top posts</span>
+                  <span className={classNames("top-posts-label", "top-posts-label--plural", classes.topPostsLabel, classes.topPostsLabelPlural)}>Top posts</span>
                   <span className={classNames("top-posts-label", "top-posts-label--singular", classes.topPostsLabel, classes.topPostsLabelSingular)}>Top post</span>
                 </LWTooltip>
               </div>
