@@ -628,7 +628,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       marginRight: 0,
     },
     "& .UltraFeedPostItem-root, & .UltraFeedCommentItem-root, & .UltraFeedThreadItem-root": {
-      border: "none",
+      border: `1px solid ${theme.palette.greyAlpha(0.06)}`,
       borderRadius: 4,
       boxShadow: "0 1px 4px rgba(0,0,0,.05)",
       padding: "25px 25px 8px 25px",
