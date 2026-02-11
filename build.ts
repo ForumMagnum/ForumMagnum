@@ -515,8 +515,8 @@ async function main() {
     },
     external: [
       "node_modules",
-      "canvas", "express", "pg", "pg-promise", "mathjax", "mathjax-node",
-      "mathjax-node-page", "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
+      "canvas", "express", "pg", "pg-promise", "mathjax-full",
+      "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
       "@apollo/server", "graphql", "csso", "io-ts", "fp-ts",
       "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
       "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
