@@ -9,7 +9,7 @@ const serverExternalPackages = [
   '@aws-sdk/client-cloudfront', 'auth0', 'jimp', 'juice', '@sentry/nextjs',
   'request', 'stripe', 'openai', 'twitter-api-v2', 'draft-js', 'draft-convert', 'csso',
   'js-tiktoken', 'cheerio', '@elastic/elasticsearch', '@googlemaps/google-maps-services-js',
-  'intercom-client',
+  'intercom-client', 'jsdom',
   // Needs to be external for email-rendering to be able to use prerenderToNodeStream,
   // because nextjs bundles a version of react-dom which omits react-dom/static (and
   // doesn't provide anything in its place that would work for server-component email
@@ -77,6 +77,9 @@ const nextConfig: NextConfig = {
       '@/*': './packages/lesswrong/*',
 
       'superagent-proxy': './packages/lesswrong/stubs/emptyModule.js',
+      'jsdom': {
+        browser: './packages/lesswrong/stubs/emptyModule.js',
+      },
     },
   },
   serverExternalPackages,

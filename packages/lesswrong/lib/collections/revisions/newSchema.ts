@@ -192,6 +192,15 @@ const schema = {
       },
     },
   },
+  // Yjs binary state snapshot at the time this revision was created.
+  // Only present for revisions of Lexical collaborative documents (where
+  // originalContents.type === 'lexical'). Used for restoring to a previous
+  // revision without needing to round-trip through HTML→Lexical→Yjs.
+  yjsState: {
+    database: {
+      type: "BYTEA",
+    },
+  },
   originalContents: {
     database: {
       type: "JSONB",

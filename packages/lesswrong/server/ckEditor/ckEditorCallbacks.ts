@@ -133,11 +133,8 @@ export const ckEditorCallbacksGraphQLMutations = {
       console.log("Reverting to a CkEditor collaborative revision");
       await pushRevisionToCkEditor(post._id, revision.originalContents.data);
     } else if (revision.originalContents.type === "lexical") {
-      // Lexical collaborative post: delegate to the lexicalRestore page
-      // which handles the Yjs conversion in a client-component context.
-      // If the revision has a saved yjsState, it uses it for full-fidelity
-      // restore. Otherwise falls back to HTML→Yjs conversion (preserves
-      // comment thread data but orphans anchors).
+      // Lexical collaborative post: send the revision's stored Yjs state
+      // to the Hocuspocus server, which replaces the live document state.
       // eslint-disable-next-line no-console
       console.log("Reverting to a Lexical collaborative revision");
       await pushRevisionToLexicalCollab(post._id, revision._id);

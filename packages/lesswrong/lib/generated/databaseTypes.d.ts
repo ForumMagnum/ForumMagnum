@@ -1302,6 +1302,7 @@ interface DbRevision extends DbObject {
   version: string
   voteCount: number
   wordCount: number
+  yjsState: any | null
 }
 
 type SequencesCollection = PgCollection<"Sequences">;

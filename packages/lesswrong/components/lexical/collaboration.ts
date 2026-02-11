@@ -92,7 +92,8 @@ export function setCollaborationConfig(config: CollaborationConfig | null): void
   _collaborationConfig = config;
 }
 
-// Track IndexedDB persistence instances so we can clean them up
+// Track provider and IndexedDB persistence instances so we can clean them up
+const providerInstances = new Map<string, HocuspocusProvider>();
 const persistenceInstances = new Map<string, IndexeddbPersistence>();
 
 // Version suffix for IndexedDB keys - increment when making breaking changes
@@ -244,10 +245,55 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
     await originalConnect();
   };
 
+  // Track the provider so we can disconnect it during restores
+  providerInstances.set(documentName, provider);
+
   // HocuspocusProvider uses 'document' property, but Lexical's code expects 'doc'
   (provider as AnyBecauseHard).doc = provider.document;
 
   // HocuspocusProvider is compatible with Lexical's Provider at runtime,
   // but has slightly different awareness typing (Awareness | null vs Awareness)
   return provider as Provider & HocuspocusProvider;
+}
+
+/**
+ * Disconnect all Hocuspocus providers and clear IndexedDB persistence
+ * for the given post. Call this before a restore operation to prevent
+ * the client's old Yjs state from being synced back to the server
+ * when it auto-reconnects.
+ */
+export async function disconnectCollaborationForPost(postId: string): Promise<void> {
+  const baseDocumentName = `post-${postId}`;
+
+  // eslint-disable-next-line no-console
+  console.log(`[Restore] disconnectCollaborationForPost called for ${postId}. providerInstances keys:`, [...providerInstances.keys()], 'persistenceInstances keys:', [...persistenceInstances.keys()]);
+
+  // Disconnect all providers whose document name starts with this post's prefix
+  // (covers the main editor and any sub-documents like comments)
+  let disconnectedCount = 0;
+  for (const [documentName, provider] of providerInstances) {
+    if (documentName === baseDocumentName || documentName.startsWith(`${baseDocumentName}/`)) {
+      // eslint-disable-next-line no-console
+      console.log(`[Restore] Disconnecting provider for ${documentName}, status:`, provider.status);
+      provider.disconnect();
+      providerInstances.delete(documentName);
+      disconnectedCount++;
+    }
+  }
+
+  // Clear IndexedDB persistence to prevent stale state from being loaded on page reload
+  let clearedCount = 0;
+  for (const [indexedDbKey, persistence] of persistenceInstances) {
+    if (indexedDbKey.startsWith(baseDocumentName)) {
+      // eslint-disable-next-line no-console
+      console.log(`[Restore] Clearing IndexedDB persistence for ${indexedDbKey}`);
+      await persistence.clearData();
+      await persistence.destroy();
+      persistenceInstances.delete(indexedDbKey);
+      clearedCount++;
+    }
+  }
+
+  // eslint-disable-next-line no-console
+  console.log(`[Restore] Disconnected ${disconnectedCount} providers, cleared ${clearedCount} persistence instances`);
 }

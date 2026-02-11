@@ -5,17 +5,10 @@ import { createNotifications } from '@/server/notificationCallbacksHelpers';
 import { createAdminContext } from '@/server/vulcan-lib/createContexts';
 import { createRevision } from '@/server/collections/revisions/mutations';
 import { buildRevisionWithUser } from '../editor/conversionUtils';
-import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
+import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { constantTimeCompare } from '../../lib/helpers';
 import isEqual from 'lodash/isEqual';
-import moment from 'moment';
 import YjsDocuments from '@/server/collections/yjsDocuments/collection';
-import { getSiteUrl } from '@/lib/vulcan-lib/utils';
-
-// Time interval such that, when autosaving, we will update an existing
-// rev instead of create a new rev if it's within this amount of time ago.
-// In milliseconds.
-const AUTOSAVE_MAX_INTERVAL = 10 * 60 * 1000;
 
 const COLLAB_AUTOSAVE_COMMIT_MESSAGE = 'Collaborative editor autosave';
 
@@ -94,6 +87,7 @@ async function saveLexicalDocumentRevision(
   userId: string,
   postId: string,
   html: string,
+  yjsState: Uint8Array,
 ): Promise<void> {
   const context = createAdminContext();
   const fieldName = 'contents';
@@ -121,6 +115,7 @@ async function saveLexicalDocumentRevision(
       updateType: 'patch',
       commitMessage: COLLAB_AUTOSAVE_COMMIT_MESSAGE,
       changeMetrics: htmlToChangeMetrics(previousRev?.html || '', html),
+      yjsState,
     };
 
     await createRevision({ data: newRevision }, context);
@@ -128,53 +123,23 @@ async function saveLexicalDocumentRevision(
 }
 
 /**
- * Save or update a revision for a collaboratively-edited document.
- * If a recent autosave revision exists, update it in-place to avoid
- * creating excessive revisions during active editing. Otherwise create
- * a new revision.
+ * Save a new revision for a collaboratively-edited document.
+ * Always creates a new revision (no in-place update of previous
+ * autosaves) so that every snapshot has its own yjsState and can
+ * be restored independently.
  *
- * Equivalent of the CKEditor `saveOrUpdateDocumentRevision`.
+ * Deduplication is handled inside saveLexicalDocumentRevision: if
+ * the HTML content hasn't changed since the last revision, no new
+ * revision is created.
  */
 export async function saveOrUpdateLexicalRevision(
   postId: string,
   html: string,
+  yjsState: Uint8Array,
 ): Promise<void> {
-  const context = createAdminContext();
-  const fieldName = 'contents';
-  const previousRev = await getLatestRev(postId, fieldName, context);
-
-  const lastEditedAt = previousRev
-    ? moment(previousRev.autosaveTimeoutStart || previousRev.editedAt).toDate().getTime()
-    : 0;
-  const timeSinceLastEdit = Date.now() - lastEditedAt;
-
-  if (
-    previousRev &&
-    previousRev.draft &&
-    timeSinceLastEdit < AUTOSAVE_MAX_INTERVAL &&
-    previousRev.commitMessage === COLLAB_AUTOSAVE_COMMIT_MESSAGE
-  ) {
-    // Get the revision prior to the one being replaced, for computing change metrics
-    const precedingRev = await getPrecedingRev(previousRev, context);
-
-    // eslint-disable-next-line no-console
-    console.log(`[HocuspocusWebhook] Updating existing rev ${previousRev._id}`);
-    await Revisions.rawUpdateOne(
-      { _id: previousRev._id },
-      {
-        $set: {
-          editedAt: new Date(),
-          autosaveTimeoutStart: previousRev.autosaveTimeoutStart || previousRev.editedAt,
-          originalContents: { data: html, type: 'lexical' },
-          changeMetrics: htmlToChangeMetrics(precedingRev?.html || '', html),
-        },
-      },
-    );
-  } else {
-    const post = await Posts.findOne(postId);
-    const userId = post!.userId;
-    await saveLexicalDocumentRevision(userId, postId, html);
-  }
+  const post = await Posts.findOne(postId);
+  const userId = post!.userId;
+  await saveLexicalDocumentRevision(userId, postId, html, yjsState);
 }
 
 /**
@@ -190,13 +155,10 @@ function getHocuspocusHttpUrl(): string | null {
 
 /**
  * Sends a reset-document request to the Hocuspocus admin endpoint.
- * This pushes the new Yjs state to any active in-memory document and
- * broadcasts it to all connected clients, so they see the restored
- * content immediately without needing to reload.
- *
- * If the Hocuspocus server is not configured or the request fails,
- * the error is logged but not thrown — the DB has already been updated,
- * and clients will get the new state on their next reconnect.
+ * The endpoint does a destructive replacement: it closes all connections,
+ * unloads the in-memory Y.Doc, then writes the new Yjs state to the
+ * database. When clients auto-reconnect, Hocuspocus loads the new state
+ * from the database.
  */
 async function resetHocuspocusDocument(documentName: string, newState: Uint8Array): Promise<void> {
   const httpUrl = getHocuspocusHttpUrl();
@@ -234,47 +196,14 @@ async function resetHocuspocusDocument(documentName: string, newState: Uint8Arra
   }
 }
 
-/**
- * Writes a new Yjs state to the YjsDocuments table and notifies the
- * Hocuspocus server to broadcast the change to connected clients.
- *
- * Called from the RestoreProcessor client component (during SSR) after
- * it has computed the new Yjs state via the Lexical↔Yjs conversion.
- */
-export async function writeYjsStateAndNotify(
-  postId: string,
-  newState: Uint8Array,
-  stateVector: Uint8Array,
-): Promise<void> {
-  const documentName = `post-${postId}`;
-
-  // Upsert the new state into YjsDocuments (same pattern as PostgresExtension.onStoreDocument)
-  await YjsDocuments.rawUpdateOne(
-    { documentId: postId },
-    {
-      $set: {
-        yjsState: newState,
-        yjsStateVector: stateVector,
-        updatedAt: new Date(),
-      },
-    },
-    { upsert: true },
-  );
-
-  // Notify the Hocuspocus server to broadcast the change to connected clients
-  await resetHocuspocusDocument(documentName, newState);
-}
 
 /**
- * Calls the internal lexicalRestore page route to restore a collaborative
- * Lexical document to a previous revision.
+ * Restores a collaborative Lexical document to a previous revision by
+ * sending the revision's stored Yjs state to the Hocuspocus server.
  *
- * The Yjs↔HTML conversion requires importing PlaygroundNodes, which has
- * transitive dependencies on React hooks and CSS files. Turbopack barfs
- * if you try to import them in an RSC context (which includes API route handlers).
- * So the conversion runs inside a "use client" component rendered during SSR
- * on the lexicalRestore page — the same pattern used by the Hocuspocus
- * webhook handler (app/hocuspocusWebhook/).
+ * The Hocuspocus server does a destructive replacement: it closes all
+ * connections, unloads the in-memory Y.Doc, and writes the new state to
+ * the database. When clients reconnect they get the restored state.
  *
  * This function is called from the revertPostToRevision GraphQL mutation
  * (which has already performed permission checks).
@@ -284,43 +213,41 @@ export async function pushRevisionToLexicalCollab(
   revisionId: string,
 ): Promise<void> {
   // eslint-disable-next-line no-console
-  console.log(`[Hocuspocus] Restoring revision ${revisionId} for post ${postId} via lexicalRestore page`);
+  console.log(`[Hocuspocus] Restoring revision ${revisionId} for post ${postId}`);
 
-  const secret = process.env.HOCUSPOCUS_WEBHOOK_SECRET;
-  if (!secret) {
-    throw new Error('[Hocuspocus] Cannot restore: HOCUSPOCUS_WEBHOOK_SECRET is not configured');
+  // Load the revision and check that it has a stored Yjs state
+  const revision = await Revisions.findOne({ _id: revisionId });
+  if (!revision) {
+    throw new Error(`[Hocuspocus] Revision not found: ${revisionId}`);
+  }
+  if (revision.documentId !== postId) {
+    throw new Error(`[Hocuspocus] Revision ${revisionId} does not belong to post ${postId}`);
+  }
+  if (!revision.yjsState) {
+    throw new Error(
+      `[Hocuspocus] Revision ${revisionId} has no yjsState — ` +
+      'only revisions created after the Lexical collaborative editor was deployed can be restored'
+    );
   }
 
-  // Make an internal HTTP request to the lexicalRestore page route.
-  // The page's server component reads the revision and existing Yjs state
-  // from the database, then the client component (during SSR) does the
-  // Yjs conversion and writes the result.
-  //
-  // We use the app's own URL to make the request. In production this is
-  // the deployment URL; locally it's localhost.
-  const baseUrl = getSiteUrl();
-  const url = `${baseUrl}/lexicalRestore`;
+  const yjsState = new Uint8Array(revision.yjsState);
 
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${secret}`,
-      'X-Post-Id': postId,
-      'X-Revision-Id': revisionId,
-    },
-  });
+  // Diagnostic: decode the revision's yjsState to inspect its content
+  // eslint-disable-next-line no-console
+  console.log(`[Hocuspocus] Revision yjsState: ${yjsState.length} bytes, first 20 bytes: [${Array.from(yjsState.slice(0, 20)).join(',')}]`);
 
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`[Hocuspocus] Restore page returned ${response.status}: ${body}`);
-  }
+  // Decode it into a Y.Doc so we can compare text content
+  const Y = await import('yjs');
+  const tempDoc = new Y.Doc();
+  Y.applyUpdate(tempDoc, yjsState);
+  const rootXml = tempDoc.getXmlElement('root');
+  // eslint-disable-next-line no-console
+  console.log(`[Hocuspocus] Revision Y.Doc text preview: "${rootXml.toString().slice(0, 200)}"`);
+  tempDoc.destroy();
 
-  const body = await response.text();
-
-  // The page renders a <div> with the result text. Check for success.
-  if (!body.includes('ok')) {
-    throw new Error(`[Hocuspocus] Restore page returned unexpected result: ${body.slice(0, 200)}`);
-  }
+  // Send the Yjs state to the Hocuspocus server, which handles the
+  // destructive replacement (evict document + write to DB).
+  await resetHocuspocusDocument(`post-${postId}`, yjsState);
 
   // eslint-disable-next-line no-console
   console.log(`[Hocuspocus] Restore completed for post ${postId}`);

@@ -31,10 +31,10 @@ async function processDocumentUpdate({ documentName, yjsStateBase64 }: WebhookPr
   } = await import('@/server/hocuspocus/hocuspocusCallbacks');
 
   const yjsState = new Uint8Array(Buffer.from(yjsStateBase64, 'base64'));
-  const html = await yjsBinaryToHtml(yjsState);
+  const html = yjsBinaryToHtml(yjsState);
   const postId = documentNameToPostId(documentName);
 
-  await saveOrUpdateLexicalRevision(postId, html);
+  await saveOrUpdateLexicalRevision(postId, html, yjsState);
 
   return 'ok';
 }

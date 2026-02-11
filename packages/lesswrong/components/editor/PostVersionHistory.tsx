@@ -22,6 +22,7 @@ import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { disconnectCollaborationForPost } from "../lexical/collaboration";
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -210,15 +211,30 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     }
     captureEvent("restoreVersionClicked", {postId, revisionId: selectedRevisionId})
     setRevertInProgress(true);
+
+    // For Lexical collaborative documents, disconnect the Yjs provider and
+    // clear IndexedDB BEFORE firing the mutation. This prevents the client's
+    // old in-memory Yjs state from being synced back when the provider
+    // auto-reconnects after the server evicts the document.
+    if (isCollabEditor) {
+      // eslint-disable-next-line no-console
+      console.log(`[Restore] Step 1: Disconnecting collaboration for post ${postId}`);
+      await disconnectCollaborationForPost(postId);
+      // eslint-disable-next-line no-console
+      console.log(`[Restore] Step 2: Firing revert mutation for revision ${selectedRevisionId}`);
+    }
+
     await revertMutation({
       variables: {
         postId: postId,
         revisionId: selectedRevisionId,
       },
     });
+    // eslint-disable-next-line no-console
+    console.log(`[Restore] Step 3: Mutation complete, reloading page`);
     // Hard-refresh the page to get things back in sync
     window.location.reload();
-  }, [captureEvent, postId, revertMutation, selectedRevisionId])
+  }, [captureEvent, isCollabEditor, postId, revertMutation, selectedRevisionId])
 
   const loadVersion = useCallback(async (version: string) => {
     captureEvent("loadVersionClicked", {postId, revisionId: selectedRevisionId})
