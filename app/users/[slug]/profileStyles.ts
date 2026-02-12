@@ -68,22 +68,55 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       color: "inherit",
     },
   },
-  profileEditButton: {
+  profileHeaderActions: {
     gridColumn: 3,
     justifySelf: "end",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
     position: "relative",
-    top: 3,
-    padding: "6px 10px",
-    border: "1px solid",
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 13,
-    fontWeight: 400,
-    color: theme.palette.primary.main,
+    top: 2,
+  },
+  profileActionIconLink: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#000",
     textDecoration: "none",
     cursor: "pointer",
     "&:hover": {
       opacity: 0.67,
     },
+    "&:focus-visible": {
+      outline: "1px solid #000",
+      outlineOffset: 2,
+      borderRadius: 2,
+    },
+  },
+  profileActionIconButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 0,
+    border: "none",
+    background: "none",
+    color: "#000",
+    cursor: "pointer",
+    "&:hover": {
+      opacity: 0.67,
+    },
+    "&:focus-visible": {
+      outline: "1px solid #000",
+      outlineOffset: 2,
+      borderRadius: 2,
+    },
+  },
+  profileActionIcon: {
+    fontSize: 16,
+  },
+  sunshineToolsSection: {
+    marginTop: 8,
+    marginBottom: 24,
   },
   mobileProfileBio: {
     display: "none",
