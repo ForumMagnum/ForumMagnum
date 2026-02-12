@@ -24,6 +24,7 @@ import UserMetaInfo from "@/components/users/UserMetaInfo";
 import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
 import { Link } from "@/lib/reactRouterWrapper";
+import { PinIcon } from "@/components/icons/pinIcon";
 import moment from "moment";
 import { useCurrentTime } from "@/lib/utils/timeUtil";
 import { profileStyles } from "./profileStyles";
@@ -594,12 +595,7 @@ export default function ProfilePage() {
                           <h3 className={classes.listArticleTitle}>
                             {isPinned && (
                               <span className={classes.pinnedIcon} aria-hidden="true">
-                                <svg className={classes.pinnedIconSvg} viewBox="0 0 24 24" focusable="false" aria-hidden="true">
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M16 9V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v5c0 1.66-1.34 3-3 3v2h5.97v7l1 1 1-1v-7H19v-2c-1.66 0-3-1.34-3-3"
-                                  />
-                                </svg>
+                                <PinIcon className={classes.pinnedIconSvg} />
                               </span>
                             )}
                             <span className={classes.listArticleTitleText}>{post.title}</span>

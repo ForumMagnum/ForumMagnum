@@ -404,6 +404,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     width: "100%",
     height: "100%",
     fill: theme.palette.text.dim,
+    opacity: 0.5,
   },
   listArticleSummary: {
     fontFamily: theme.typography.postStyle.fontFamily,
