@@ -9,6 +9,7 @@ import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/uti
 import { constantTimeCompare } from '../../lib/helpers';
 import isEqual from 'lodash/isEqual';
 import YjsDocuments from '@/server/collections/yjsDocuments/collection';
+import { captureException } from '@/lib/sentryWrapper';
 
 const COLLAB_AUTOSAVE_COMMIT_MESSAGE = 'Collaborative editor autosave';
 
@@ -185,7 +186,8 @@ async function resetHocuspocusDocument(documentName: string, newState: Uint8Arra
   const secret = process.env.HOCUSPOCUS_WEBHOOK_SECRET;
   if (!httpUrl || !secret) {
     // eslint-disable-next-line no-console
-    console.log('[Hocuspocus] Skipping document reset: Hocuspocus not configured');
+    console.error('[Hocuspocus] Skipping document reset: Hocuspocus not configured');
+    captureException(new Error('[Hocuspocus] Skipping document reset: Hocuspocus not configured'));
     return;
   }
 
@@ -205,14 +207,12 @@ async function resetHocuspocusDocument(documentName: string, newState: Uint8Arra
     if (!response.ok) {
       // eslint-disable-next-line no-console
       console.error(`[Hocuspocus] Document reset failed: ${response.status} ${response.statusText}`);
-    } else {
-      const result = await response.json();
-      // eslint-disable-next-line no-console
-      console.log(`[Hocuspocus] Document reset result:`, result);
+      captureException(new Error(`[Hocuspocus] Document reset failed: ${response.status} ${response.statusText}`));
     }
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('[Hocuspocus] Error calling reset-document endpoint:', err);
+    captureException(new Error(`[Hocuspocus] Error calling reset-document endpoint: ${err}`));
   }
 }
 

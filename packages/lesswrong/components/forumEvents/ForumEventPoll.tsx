@@ -25,6 +25,7 @@ import UsersProfileImage from "../users/UsersProfileImage";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
+import { getUserDefaultRichTextEditor } from "@/lib/editor/defaultRichTextEditor";
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentForumEventPollQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -523,6 +524,7 @@ export const ForumEventPoll = ({
   const { currentForumEvent, refetch: refectCurrentEvent } = useCurrentAndRecentForumEvents();
   const { onSignup } = useLoginPopoverContext();
   const currentUser = useCurrentUser();
+  const defaultRichTextEditorType = getUserDefaultRichTextEditor(currentUser);
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
 
@@ -826,7 +828,7 @@ export const ForumEventPoll = ({
     ...(!event.isGlobal && {
       contents: {
         originalContents: {
-          type: "ckEditorMarkup",
+          type: defaultRichTextEditorType,
           data: commentPrompt,
         }
       }

@@ -20,6 +20,7 @@ import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import { getMeetupMonthInfo } from '../seasonal/meetupMonth/meetupMonthEventUtils';
 import { getUserDefaultEditor } from '../editor/Editor';
+import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
 
 const PostsEditMutation = gql(`
   mutation createPostPostsNewForm($data: CreatePostDataInput!) {
@@ -206,7 +207,7 @@ const PostsNewForm = () => {
   const { data: meetupMonthData, title } = getMeetupMonthInfo(types)
   
   const defaultContents = meetupMonthData
-    ? { originalContents: { type: "ckEditorMarkup", data: meetupMonthData } }
+    ? { originalContents: { type: getUserDefaultRichTextEditor(currentUser), data: meetupMonthData } }
     : { originalContents: { type: getUserDefaultEditor(currentUser), data: "" }};
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
