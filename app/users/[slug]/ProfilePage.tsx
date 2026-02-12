@@ -234,8 +234,8 @@ export default function ProfilePage() {
 
   const user = getUserFromResults(userData?.users?.results);
   const userId = user?._id;
-  const pinnedPostIds = user?.pinnedPostIds;
-  const hasPinnedPosts = pinnedPostIds && pinnedPostIds.length >= TOP_POSTS_LIMIT;
+  const pinnedPostIds = user?.pinnedPostIds ?? [];
+  const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
 
   const { data: topPostsData } = useQuery(ProfilePostsQuery, {
     skip: !userId || !!hasPinnedPosts,

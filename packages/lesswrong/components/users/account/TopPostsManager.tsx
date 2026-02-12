@@ -406,7 +406,7 @@ function SortablePostRow({
 
 export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }: { userId: string; pinnedPostIds?: string[] | null }) => {
   const classes = useStyles(styles);
-  const [orderedPostIds, setOrderedPostIds] = useState<string[] | null>(initialPinnedPostIds ?? null);
+  const [orderedPostIds, setOrderedPostIds] = useState<string[]>(initialPinnedPostIds ?? []);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [swapSlotIndex, setSwapSlotIndex] = useState<number | null>(null);
   const [swapAnchorEl, setSwapAnchorEl] = useState<HTMLElement | null>(null);
@@ -437,7 +437,7 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
   const allPosts = useMemo(() => data?.posts?.results ?? [], [data?.posts?.results]);
   const postCount = allPosts.length;
 
-  const hasCustomization = orderedPostIds !== null;
+  const hasCustomization = orderedPostIds.length > 0;
 
   // For 2-4 posts, show all posts (no swap buttons)
   // For 5+ posts, show top 4 with swap buttons
@@ -445,13 +445,13 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
   const showSwapButtons = postCount >= 5;
 
   // Use custom order if set, otherwise default
-  const postsToShow = orderedPostIds
+  const postsToShow = orderedPostIds.length > 0
     ? orderedPostIds.map(id => allPosts.find(p => p._id === id)).filter((p): p is NonNullable<typeof p> => !!p)
     : defaultPosts;
 
   const postIds = postsToShow.map(p => p._id);
 
-  const persistPinnedPosts = useCallback(async (newIds: string[] | null) => {
+  const persistPinnedPosts = useCallback(async (newIds: string[]) => {
     try {
       await updatePinnedPosts({
         variables: {
@@ -474,7 +474,7 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
     setActiveDragId(null);
     const { active, over } = event;
     if (over && active.id !== over.id) {
-      const currentIds = orderedPostIds ?? postIds;
+      const currentIds = orderedPostIds.length > 0 ? orderedPostIds : postIds;
       const oldIndex = currentIds.indexOf(active.id as string);
       const newIndex = currentIds.indexOf(over.id as string);
       if (oldIndex !== -1 && newIndex !== -1) {
@@ -490,8 +490,8 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
   }, []);
 
   const handleRestoreDefaults = useCallback(() => {
-    setOrderedPostIds(null);
-    void persistPinnedPosts(null);
+    setOrderedPostIds([]);
+    void persistPinnedPosts([]);
   }, [persistPinnedPosts]);
 
   const handleSwapClick = useCallback((index: number, anchorEl: HTMLElement) => {
@@ -522,7 +522,7 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
   const handleSwapSelect = useCallback((postId: string) => {
     if (swapSlotIndex === null) return;
     if (postIds.includes(postId)) return;
-    const currentIds = orderedPostIds ?? postIds;
+    const currentIds = orderedPostIds.length > 0 ? orderedPostIds : postIds;
     const newIds = [...currentIds];
     newIds[swapSlotIndex] = postId;
     setOrderedPostIds(newIds);

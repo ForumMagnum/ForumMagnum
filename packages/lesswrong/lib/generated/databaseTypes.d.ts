@@ -2237,7 +2237,7 @@ interface DbUser extends DbObject {
   petrovLaunchCodeDate: Date | null
   petrovOptOut: boolean
   petrovPressedButtonDate: Date | null
-  pinnedPostIds: Array<string> | null
+  pinnedPostIds: Array<string>
   postCount: number
   postGlossariesPinned: boolean
   postingDisabled: boolean | null
