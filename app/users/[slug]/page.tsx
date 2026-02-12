@@ -3,7 +3,6 @@ import { UserPageTitle } from '@/components/titles/UserPageTitle';
 import { generateUserPageMetadata } from "@/server/pageMetadata/userPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 import ProfilePage from "./ProfilePage";
-import "./styles.css";
 
 export const generateMetadata = generateUserPageMetadata;
 

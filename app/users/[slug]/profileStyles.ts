@@ -8,7 +8,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     marginTop: -theme.spacing.mainLayoutPaddingTop,
     background: "transparent",
     color: theme.palette.text.normal,
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     position: "relative" as const,
     overflow: "hidden",
     boxSizing: "border-box" as const,
@@ -46,7 +46,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   profileName: {
     gridColumn: 2,
     textAlign: "center",
-    fontFamily: 'ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif',
+    fontFamily: theme.typography.headerStyle.fontFamily,
     fontSize: "2.3rem",
     fontWeight: 400,
     margin: "0 0 2px 0",
@@ -71,7 +71,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     justifySelf: "end",
     position: "relative",
     top: 3,
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     fontWeight: 400,
     color: theme.palette.primary.main,
@@ -88,7 +88,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     borderBottom: "1px solid rgba(140,110,70,.14)",
   },
   mobileProfileName: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     fontWeight: 400,
     margin: "0 0 10px 0",
@@ -118,7 +118,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     paddingLeft: 0,
   },
   topPostsLabel: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     color: theme.palette.text.dim,
     fontWeight: 400,
@@ -158,7 +158,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     },
   },
   emptyStateDescription: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 15,
     fontWeight: 400,
     color: theme.palette.text.dim,
@@ -217,7 +217,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     mixBlendMode: "multiply",
   },
   postTitle: {
-    fontFamily: 'ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif',
+    fontFamily: theme.typography.headerStyle.fontFamily,
     fontSize: "2rem",
     fontWeight: 400,
     margin: "0 0 18px 0",
@@ -236,7 +236,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     lineHeight: 1.15,
   },
   postSummary: {
-    fontFamily: 'warnock-pro, "Cormorant Garamond", "Georgia", serif',
+    fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 15,
     fontWeight: 400,
     lineHeight: 1.6,
@@ -322,7 +322,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     transition: "opacity 0.15s ease",
   },
   smallArticleTitle: {
-    fontFamily: 'ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif',
+    fontFamily: theme.typography.headerStyle.fontFamily,
     fontSize: 16,
     fontWeight: 400,
     margin: 0,
@@ -349,14 +349,14 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     },
   },
   smallKarma: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     color: theme.palette.text.slightlyDim2,
     fontWeight: 600,
     letterSpacing: "-0.01em",
   },
   smallDate: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     color: theme.palette.text.dim,
     fontWeight: 400,
@@ -388,7 +388,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     overflow: "visible",
   },
   listArticleTitle: {
-    fontFamily: 'ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif',
+    fontFamily: theme.typography.headerStyle.fontFamily,
     fontSize: 19,
     fontWeight: 400,
     margin: 0,
@@ -420,7 +420,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     fill: theme.palette.text.dim,
   },
   listArticleSummary: {
-    fontFamily: 'warnock-pro, "Cormorant Garamond", "Georgia", serif',
+    fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 15,
     fontWeight: 400,
     lineHeight: 1.75,
@@ -444,14 +444,14 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     },
   },
   listKarma: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     color: theme.palette.text.slightlyDim2,
     fontWeight: 600,
     letterSpacing: "-0.01em",
   },
   listDate: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     color: theme.palette.text.dim,
     fontWeight: 400,
@@ -492,7 +492,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     paddingBottom: 6,
   },
   profileTab: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 12,
     fontWeight: 400,
     background: "none",
@@ -515,7 +515,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "flex",
     alignItems: "center",
     gap: 8,
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     color: theme.palette.text.dim60,
     position: "relative",
@@ -565,7 +565,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     gap: 2,
   },
   sortPanelHeader: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     fontWeight: 600,
     fontStyle: "italic",
@@ -579,7 +579,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     textAlign: "left",
     background: "none",
     border: "none",
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     color: theme.palette.text.dim40,
     cursor: "pointer",
@@ -683,7 +683,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     background: "transparent",
   },
   sequenceCardTitle: {
-    fontFamily: 'ETBookRoman, warnock-pro, Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif',
+    fontFamily: theme.typography.headerStyle.fontFamily,
     fontSize: 15,
     fontWeight: 400,
     lineHeight: 1.3,
@@ -696,7 +696,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   sidebarAuthorName: {
     gridColumn: "5 / 7",
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 12,
     fontWeight: 400,
     margin: 0,
@@ -744,7 +744,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     transition: "max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
   },
   sidebarAuthorBio: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     lineHeight: 1.6,
     color: theme.palette.text.dim55,
@@ -752,7 +752,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     margin: 0,
   },
   sidebarStats: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     lineHeight: 1.6,
     color: theme.palette.text.dim,
@@ -770,7 +770,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     marginTop: 5,
   },
   readMoreLink: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     color: theme.palette.primary.main,
     textDecoration: "none",
@@ -787,7 +787,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     marginBottom: 22,
   },
   sidebarSubscribe: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     color: theme.palette.primary.main,
     fontSize: 14,
     cursor: "pointer",
@@ -798,7 +798,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     },
   },
   sidebarMore: {
-    fontFamily: '"Gill Sans", "Gill Sans MT", sans-serif',
+    fontFamily: theme.typography.fontFamily,
     color: theme.palette.primary.main,
     fontSize: 14,
     cursor: "pointer",
