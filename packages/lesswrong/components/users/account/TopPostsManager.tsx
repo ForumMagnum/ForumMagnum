@@ -470,17 +470,17 @@ export const TopPostsManager = ({ userId, field }: { userId: string; field: Type
         return null;
       }
       // anchorEl may be the card itself (content click) or the swap button;
-      // walk up to the postItem card if needed by checking for the postItem class
-      const cardEl = anchorEl.classList.contains(classes.postItem)
-        ? anchorEl
-        : (anchorEl.parentElement as HTMLElement | null) ?? anchorEl;
+      // if it's a button, walk up to the parent card
+      const cardEl = anchorEl.tagName === "BUTTON"
+        ? (anchorEl.parentElement as HTMLElement | null) ?? anchorEl
+        : anchorEl;
       setSwapAnchorEl(cardEl);
       setSwapPlacement(computePlacement(cardEl));
       setSwapDialogWidth(cardEl.offsetWidth);
       return index;
     });
     setSearch("");
-  }, [classes.postItem]);
+  }, []);
 
   const handleCloseSearch = useCallback(() => {
     setSwapSlotIndex(null);
