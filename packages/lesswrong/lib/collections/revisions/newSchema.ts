@@ -218,7 +218,7 @@ const schema = {
         }
         // Strip yjsState from the GraphQL output — it's a large base64 blob
         // only needed server-side for restore operations, not by clients.
-        const { yjsState: _stripped, ...rest } = contents as ContentType & { yjsState?: string };
+        const { yjsState, ...rest } = contents;
         return rest;
       },
     },

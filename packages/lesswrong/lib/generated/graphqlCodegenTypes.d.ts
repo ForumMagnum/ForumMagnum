@@ -1109,6 +1109,7 @@ type ContentType = {
   __typename?: 'ContentType';
   data: Scalars['ContentTypeData']['output'];
   type: Scalars['String']['output'];
+  yjsState?: Maybe<Scalars['String']['output']>;
 };
 
 type ContentTypeInput = {

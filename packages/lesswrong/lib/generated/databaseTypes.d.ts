@@ -1294,7 +1294,7 @@ interface DbRevision extends DbObject {
   originalContents: {
     type: string,
     data: string,
-    yjsState: string,
+    yjsState: string | null,
   } | null
   score: number
   skipAttributions: boolean

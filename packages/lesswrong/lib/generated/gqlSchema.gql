@@ -13,6 +13,7 @@ scalar ContentTypeData
 type ContentType {
   type: String!
   data: ContentTypeData!
+  yjsState: String
 }
 
 input SelectorInput {

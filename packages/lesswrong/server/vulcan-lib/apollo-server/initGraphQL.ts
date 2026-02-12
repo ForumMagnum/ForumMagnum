@@ -246,6 +246,7 @@ export const getTypeDefs = () => gql`
   type ContentType {
     type: String!
     data: ContentTypeData!
+    yjsState: String
   }
 
   ${selectorInput}

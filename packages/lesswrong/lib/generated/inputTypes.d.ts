@@ -392,6 +392,7 @@ interface Mutation {
 interface ContentType {
   type: string;
   data: ContentTypeData;
+  yjsState: string | null;
 }
 
 interface SelectorInput {

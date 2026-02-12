@@ -194,7 +194,8 @@ export const createStyledPost = async () => {
     contents: {
       originalContents: {
         data: makeStyledBody(),
-        type: "html"
+        type: "html",
+        yjsState: null,
       }
     },
     frontpageDate: new Date(),
@@ -222,7 +223,8 @@ export const createStyledAFPost = async () => {
     contents: {
       originalContents: {
         data: makeStyledBody(),
-        type: "html"
+        type: "html",
+        yjsState: null,
       }
     },
     af: true,
@@ -251,7 +253,8 @@ export const createStyledQuestion = async () => {
     contents: {
       originalContents: {
         data: makeStyledBody(),
-        type: "html"
+        type: "html",
+        yjsState: null,
       }
     },
     question: true,

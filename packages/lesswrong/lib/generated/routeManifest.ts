@@ -42,6 +42,9 @@ export const routeTrie = {
         "llmConversations": {
           "hasPage": true
         },
+        "mathjaxRegression": {
+          "hasPage": true
+        },
         "migrations": {
           "hasPage": true
         },
@@ -80,6 +83,7 @@ export const routeTrie = {
         "debugheaders": "debugHeaders",
         "emailsender": "emailSender",
         "llmconversations": "llmConversations",
+        "mathjaxregression": "mathjaxRegression",
         "migrations": "migrations",
         "moderation": "moderation",
         "moderationtemplates": "moderationTemplates",
