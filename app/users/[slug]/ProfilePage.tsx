@@ -26,7 +26,6 @@ import NewConversationButton from "@/components/messaging/NewConversationButton"
 import ContentStyles from "@/components/common/ContentStyles";
 import { ContentItemBody } from "@/components/contents/ContentItemBody";
 import { Link } from "@/lib/reactRouterWrapper";
-import { PinIcon } from "@/components/icons/pinIcon";
 import moment from "moment";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from "@/lib/instanceSettings";
 import { relativeTimeToLongFormat, useCurrentTime } from "@/lib/utils/timeUtil";
@@ -710,7 +709,6 @@ export default function ProfilePage() {
                   const summary = getPostSummary(post);
                   const imageUrl = getListPostImageUrl(post);
                   const hasListImage = !!imageUrl;
-                  const isPinned = !!pinnedPostIds?.includes(post._id);
                   return (
                     <article key={post._id} className={classes.listArticle}>
                       <Link
@@ -720,18 +718,6 @@ export default function ProfilePage() {
                         <div className={classes.listArticleContent}>
                           <div className={classNames(classes.listArticleBody, !hasListImage && classes.listArticleBodyNoImage)}>
                             <div className={classNames(classes.listArticleText, !hasListImage && classes.listArticleTextNoImage)}>
-                              {isPinned && (
-                                <div className={classes.listArticleTopMeta}>
-                                  <div className={classes.listArticleTopMetaLeft}>
-                                    <span className={classes.listPinnedBadge}>
-                                      <span className={classes.pinnedIcon} aria-hidden="true">
-                                        <PinIcon className={classes.pinnedIconSvg} />
-                                      </span>
-                                      <span>Pinned</span>
-                                    </span>
-                                  </div>
-                                </div>
-                              )}
                               <h3 className={classes.listArticleTitle}>
                                 <span className={classes.listArticleTitleText}>{post.title}</span>
                               </h3>
