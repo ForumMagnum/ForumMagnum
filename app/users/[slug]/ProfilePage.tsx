@@ -25,10 +25,11 @@ import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
 import ContentStyles from "@/components/common/ContentStyles";
 import { ContentItemBody } from "@/components/contents/ContentItemBody";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { Link } from "@/lib/reactRouterWrapper";
+import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 import moment from "moment";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from "@/lib/instanceSettings";
-import { relativeTimeToLongFormat, useCurrentTime } from "@/lib/utils/timeUtil";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
 import { SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
 import { truncate } from "@/lib/editor/ellipsize";
@@ -308,6 +309,45 @@ const ProfileSequencesQuery = gql(`
   }
 `);
 
+const DIAMONDS_LIMIT = 10000;
+const DIAMONDS_INITIAL = 250;
+const COMMENT_DIAMONDS_LIMIT = 10000;
+const COMMENT_DIAMONDS_INITIAL = 200;
+
+const ProfileDiamondsQuery = gql(`
+  query ProfileDiamondsQuery($selector: PostSelector, $limit: Int) {
+    posts(selector: $selector, limit: $limit) {
+      results {
+        ...PostsMinimumInfo
+        baseScore
+        reviewWinner {
+          _id
+        }
+      }
+    }
+  }
+`);
+
+const ProfileCommentDiamondsQuery = gql(`
+  query ProfileCommentDiamondsQuery($selector: CommentSelector, $limit: Int) {
+    comments(selector: $selector, limit: $limit) {
+      results {
+        _id
+        baseScore
+        postId
+        post {
+          _id
+          slug
+        }
+        tag {
+          slug
+        }
+        tagCommentType
+      }
+    }
+  }
+`);
+
 
 export default function ProfilePage() {
   const classes = useStyles(profileStyles);
@@ -322,6 +362,8 @@ export default function ProfilePage() {
   const [sortBy, setSortBy] = useState<"new" | "top" | "topInflation" | "recentComments" | "old" | "magic">("new");
   const [feedSortBy, setFeedSortBy] = useState<"recent" | "top">("recent");
   const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
+  const [showAllPostDiamonds, setShowAllPostDiamonds] = useState(false);
+  const [showAllCommentDiamonds, setShowAllCommentDiamonds] = useState(false);
   const bioRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const { params } = useLocation();
@@ -388,6 +430,23 @@ export default function ProfilePage() {
     fetchPolicy: "cache-and-network",
   });
 
+  const { data: diamondsData } = useQuery(ProfileDiamondsQuery, {
+    skip: !userId,
+    variables: {
+      selector: userId ? { userPosts: { userId, sortedBy: "new", excludeEvents: true } } : undefined,
+      limit: DIAMONDS_LIMIT,
+    },
+    fetchPolicy: "cache-and-network",
+  });
+
+  const { data: commentDiamondsData } = useQuery(ProfileCommentDiamondsQuery, {
+    skip: !userId,
+    variables: {
+      selector: userId ? { profileComments: { userId, sortBy: "new" } } : undefined,
+      limit: COMMENT_DIAMONDS_LIMIT,
+    },
+    fetchPolicy: "cache-and-network",
+  });
 
   // When using pinnedPostIds, reorder results to match the pinned order.
   // The PostsList fragment guarantees all PostWithPreview fields exist at
@@ -406,6 +465,20 @@ export default function ProfilePage() {
   const listPosts = recentPosts.slice(0, postsToShow);
   const hasMorePosts = recentPosts.length > postsToShow;
   const sequences = sequencesData?.sequences?.results ?? [];
+
+  const allDiamondPosts = (diamondsData?.posts?.results ?? []).filter(
+    (p) => p && !p.draft && !p.shortform
+  );
+  const diamondPosts = showAllPostDiamonds
+    ? allDiamondPosts
+    : allDiamondPosts.slice(0, DIAMONDS_INITIAL);
+  const hasMorePostDiamonds = allDiamondPosts.length > DIAMONDS_INITIAL;
+
+  const allCommentDiamonds = commentDiamondsData?.comments?.results ?? [];
+  const commentDiamonds = showAllCommentDiamonds
+    ? allCommentDiamonds
+    : allCommentDiamonds.slice(0, COMMENT_DIAMONDS_INITIAL);
+  const hasMoreCommentDiamonds = allCommentDiamonds.length > COMMENT_DIAMONDS_INITIAL;
 
   const hasEnoughTopPosts = !hideTopPosts && topPosts.length >= 4;
   const hasPosts = recentPosts.length > 0;
@@ -430,7 +503,6 @@ export default function ProfilePage() {
   }, [recentPostsLoading, sequencesLoading, userId, hasPosts, hasSequences, preferredProfileTab]);
 
   const currentUser = useCurrentUser();
-  const now = useCurrentTime();
   const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
   const canSubscribeToUser = !!user && !isOwnProfile;
   const canMessageUser = !!user && !!currentUser && !isOwnProfile;
@@ -462,11 +534,13 @@ export default function ProfilePage() {
                 tooltipPlacement="bottom-start"
               />
             </h1>
-            {isOwnProfile && (
-              <Link to="/account?highlightField=pinnedPostIds" className={classes.profileEditButton}>
-                Edit
-              </Link>
-            )}
+            <div className={classes.profileHeaderActions}>
+              {isOwnProfile && (
+                <Link to="/account?highlightField=pinnedPostIds" className={classes.profileEditButton}>
+                  Edit
+                </Link>
+              )}
+            </div>
           </div>
 
           {hasEnoughTopPosts && (
@@ -544,24 +618,26 @@ export default function ProfilePage() {
 
           {(bioHtml || user) && (
             <div className={classes.mobileProfileBio}>
-              <h4 className={classes.mobileProfileName}>{username}</h4>
-              <div className={classNames(classes.mobileProfileActions, classes.sidebarActions)}>
-                {canSubscribeToUser ? (
-                  <UserNotifyDropdown
-                    user={user}
-                    popperPlacement="bottom-start"
-                    className={classes.sidebarSubscribe}
-                  />
-                ) : (
-                  <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
-                )}
-                {canMessageUser ? (
-                  <NewConversationButton user={user} currentUser={currentUser}>
-                    <a className={classes.sidebarMore}>Message</a>
-                  </NewConversationButton>
-                ) : (
-                  <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
-                )}
+              <div className={classes.mobileProfileHeaderRow}>
+                <h4 className={classes.mobileProfileName}>{username}</h4>
+                <div className={classes.mobileProfileActions}>
+                  {canSubscribeToUser ? (
+                    <UserNotifyDropdown
+                      user={user}
+                      popperPlacement="bottom-start"
+                      className={classes.sidebarSubscribe}
+                    />
+                  ) : (
+                    <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
+                  )}
+                  {canMessageUser ? (
+                    <NewConversationButton user={user} currentUser={currentUser}>
+                      <a className={classes.sidebarMore}>Message</a>
+                    </NewConversationButton>
+                  ) : (
+                    <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
+                  )}
+                </div>
               </div>
               {bioHtml && (
                 <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
@@ -595,6 +671,7 @@ export default function ProfilePage() {
           )}
 
           <section className={classes.allPostsSection}>
+            <div className={classes.allPostsLeftColumn}>
             <div className={classes.allPostsHeader} ref={tabsRef}>
               <div className={classes.allPostsLeftHeader}>
                 <div className={classes.profileTabs}>
@@ -637,13 +714,6 @@ export default function ProfilePage() {
                   </div>
                 )}
               </div>
-              <h4 className={classes.sidebarAuthorName}>
-                <UsersNameWithModal
-                  user={user}
-                  className={classes.sidebarAuthorNameLink}
-                  tooltipPlacement="bottom-start"
-                />
-              </h4>
             </div>
 
             <div className={classes.allPostsContainer}>
@@ -874,79 +944,156 @@ export default function ProfilePage() {
                   </UltraFeedContextProvider>
                 )}
               </div>
+            </div>
+            </div>
 
-              <aside className={classNames(classes.postsSidebar, bioHtml && classes.postsSidebarHasBio)}>
-                <div className={classes.sidebarActions}>
-                  {canSubscribeToUser ? (
-                    <UserNotifyDropdown
-                      user={user}
-                      popperPlacement="bottom-start"
-                      className={classes.sidebarSubscribe}
-                    />
-                  ) : (
-                    <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
-                  )}
-                  {canMessageUser ? (
-                    <NewConversationButton user={user} currentUser={currentUser}>
-                      <a className={classes.sidebarMore}>Message</a>
-                    </NewConversationButton>
-                  ) : (
-                    <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
-                  )}
+            <aside className={classNames(classes.postsSidebar, bioHtml && classes.postsSidebarHasBio)}>
+              <div className={classes.sidebarAuthorBlock}>
+                  <div className={classes.diamondsSectionTitle}>Bio</div>
+                  <div className={classes.sidebarBioMeta}>
+                    {canSubscribeToUser && (
+                      <UserNotifyDropdown
+                        user={user}
+                        popperPlacement="bottom-start"
+                        className={classes.sidebarMetaAction}
+                      />
+                    )}
+                    {canMessageUser && (
+                      <NewConversationButton user={user} currentUser={currentUser}>
+                        <a className={classes.sidebarMetaAction}>Message</a>
+                      </NewConversationButton>
+                    )}
+                  </div>
                 </div>
-                {bioHtml && (
-                  <div className={classes.sidebarBioSection}>
-                    <div 
-                      ref={bioRef}
-                      className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}
-                    >
-                      <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+                <div className={classes.sidebarBioSection}>
+                  <div 
+                    ref={bioRef}
+                    className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}
+                  >
+                    <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+                      {bioHtml && (
                         <ContentItemBody
                           className={classes.sidebarAuthorBio}
                           dangerouslySetInnerHTML={{ __html: displayBioHtml }}
                           nofollow={bioNoFollow}
                         />
-                      </ContentStyles>
+                      )}
+                    </ContentStyles>
+                  </div>
+                  {showBioExpand && (
+                    <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
+                      <a 
+                        href="#" 
+                        className={classes.readMoreLink}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setBioExpanded(!bioExpanded);
+                        }}
+                      >
+                        {bioExpanded ? "See less" : "See more"}
+                      </a>
                     </div>
-                    {showBioExpand && (
-                      <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
-                        <a 
-                          href="#" 
+                  )}
+                </div>
+                {allDiamondPosts.length > 0 && (
+                  <div className={classes.diamondsSection}>
+                    <div className={classes.diamondsSectionHeader}>
+                      <div className={classes.diamondsSectionTitle}>
+                        Posts <span className={classes.diamondsSectionCount}>({allDiamondPosts.length})</span>
+                      </div>
+                      {hasMorePostDiamonds && !showAllPostDiamonds && (
+                        <a
+                          href="#"
                           className={classes.readMoreLink}
                           onClick={(e) => {
                             e.preventDefault();
-                            setBioExpanded(!bioExpanded);
+                            setShowAllPostDiamonds(true);
                           }}
                         >
-                          {bioExpanded ? "See less" : "See more"}
+                          Show all
                         </a>
-                      </div>
-                    )}
+                      )}
+                    </div>
+                    <div className={classes.diamondsGrid}>
+                      {diamondPosts.map((post) => {
+                        const isReviewWinner = !!post.reviewWinner;
+                        const isHighKarma = (post.baseScore ?? 0) > 50;
+                        const isSolid = isReviewWinner || isHighKarma;
+                        return (
+                          <PostsTooltip
+                            key={post._id}
+                            postId={post._id}
+                            placement="bottom-start"
+                            As="span"
+                          >
+                            <Link
+                              to={postGetPageUrl(post)}
+                              className={classNames(
+                                classes.diamondLink,
+                                isSolid ? classes.diamondSolid : classes.diamondHollow,
+                                isReviewWinner && classes.diamondGold,
+                              )}
+                            />
+                          </PostsTooltip>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
-                {user && (
-                  <div className={classes.sidebarStats}>
-                    {(user.karma ?? 0) !== 0 && (
-                      <div className={classes.sidebarStatRow}>{(user.karma ?? 0).toLocaleString()} karma</div>
-                    )}
-                    {(user.afKarma ?? 0) > 0 && (
-                      <div className={classes.sidebarStatRow}>{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
-                    )}
-                    {(user.postCount ?? 0) > 0 && (
-                      <div className={classes.sidebarStatRow}>{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
-                    )}
-                    {(user.commentCount ?? 0) > 0 && (
-                      <div className={classes.sidebarStatRow}>{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
-                    )}
-                    {user.createdAt && (
-                      <div className={classes.sidebarStatRow}>
-                        Member for {relativeTimeToLongFormat(moment(now).from(moment(new Date(user.createdAt)), true))}
+                {commentDiamonds.length > 0 && (
+                  <div className={classes.diamondsSection}>
+                    <div className={classes.diamondsSectionHeader}>
+                      <div className={classes.diamondsSectionTitle}>
+                        Comments <span className={classes.diamondsSectionCount}>({allCommentDiamonds.length})</span>
                       </div>
-                    )}
+                      {hasMoreCommentDiamonds && !showAllCommentDiamonds && (
+                        <a
+                          href="#"
+                          className={classes.readMoreLink}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setShowAllCommentDiamonds(true);
+                          }}
+                        >
+                          Show all
+                        </a>
+                      )}
+                    </div>
+                    <div className={classes.diamondsGrid}>
+                      {commentDiamonds.map((comment) => {
+                        const score = comment.baseScore ?? 0;
+                        const isGold = score > 80;
+                        const isSolid = score > 20;
+                        const commentUrl = commentGetPageUrlFromIds({
+                          postId: comment.post?._id,
+                          postSlug: comment.post?.slug,
+                          tagSlug: comment.tag?.slug,
+                          tagCommentType: comment.tagCommentType,
+                          commentId: comment._id,
+                        });
+                        return (
+                          <PostsTooltip
+                            key={comment._id}
+                            postId={comment.post?._id ?? undefined}
+                            commentId={comment._id}
+                            placement="bottom-start"
+                            As="span"
+                          >
+                            <Link
+                              to={commentUrl}
+                              className={classNames(
+                                classes.diamondLink,
+                                isSolid ? classes.diamondSolid : classes.diamondHollow,
+                                isGold && classes.diamondGold,
+                              )}
+                            />
+                          </PostsTooltip>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
-              </aside>
-            </div>
+            </aside>
           </section>
         </main>
       </div>
