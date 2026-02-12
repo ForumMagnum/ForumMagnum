@@ -1,5 +1,6 @@
 import { MiddlewareConfig, NextRequest, NextResponse } from 'next/server'
 import { randomId } from './packages/lesswrong/lib/random';
+import { getMarkdownPathname } from './packages/lesswrong/lib/routeChecks/markdownVersionRoutes';
 
 // These need to be defined here instead of imported from @/lib/cookies/cookies
 // because that import chain contains a transitive import of lodash, which
@@ -38,6 +39,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
   
+  if (requestPrefersMarkdown(request)) {
+    const markdownRewrite = getMarkdownRewriteResponse(request, addedClientId);
+    if (markdownRewrite) {
+      return markdownRewrite;
+    }
+  }
+
   if (shouldProxyForStatusCode(request)) {
     const forwardedHeaders = new Headers(request.headers);
     forwardedHeaders.set(ForwardingHeaderName, "true");
@@ -87,6 +95,27 @@ export async function middleware(request: NextRequest) {
     }
     return nextResponse;
   }
+}
+
+function requestPrefersMarkdown(request: NextRequest): boolean {
+  const acceptHeader = request.headers.get("accept")?.toLowerCase() ?? "";
+  const wantsHtml = acceptHeader.includes("text/html") || acceptHeader.includes("application/xhtml+xml");
+  const wantsMarkdown = acceptHeader.includes("text/markdown") || acceptHeader.includes("text/plain");
+  return wantsMarkdown && !wantsHtml;
+}
+
+function getMarkdownRewriteResponse(request: NextRequest, addedClientId: string | null): NextResponse | null {
+  const markdownPathname = getMarkdownPathname(request.nextUrl.pathname);
+  if (!markdownPathname) {
+    return null;
+  }
+
+  const rewrittenUrl = new URL(markdownPathname, request.url);
+  const response = NextResponse.rewrite(rewrittenUrl);
+  if (addedClientId) {
+    return addClientIdToResponseHeaders(response, addedClientId);
+  }
+  return response;
 }
 
 function shouldProxyForStatusCode(req: NextRequest) {
