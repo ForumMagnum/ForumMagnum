@@ -4,9 +4,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useLocation } from "@/lib/routeUtil";
-import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import { userCanEditUser, userGetDisplayName } from "@/lib/collections/users/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
+import { userGetEditUrl } from "@/lib/vulcan-users/helpers";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { getUserFromResults } from "@/components/users/UsersProfile";
 import { useCurrentUser } from "@/components/common/withUser";
 import { slugify } from "@/lib/utils/slugify";
@@ -25,6 +27,9 @@ import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
 import ContentStyles from "@/components/common/ContentStyles";
 import { ContentItemBody } from "@/components/contents/ContentItemBody";
+import SunshineNewUsersProfileInfo from "@/components/sunshineDashboard/SunshineNewUsersProfileInfo";
+import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
+import SupervisorAccountIcon from "@/lib/vendor/@material-ui/icons/src/SupervisorAccount";
 import { Link } from "@/lib/reactRouterWrapper";
 import moment from "moment";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from "@/lib/instanceSettings";
@@ -319,6 +324,7 @@ export default function ProfilePage() {
   const [postsToShow, setPostsToShow] = useState(INITIAL_POSTS_TO_SHOW);
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
   const [sortPanelClosing, setSortPanelClosing] = useState(false);
+  const [showModerationTools, setShowModerationTools] = useState(false);
   const [sortBy, setSortBy] = useState<"new" | "top" | "topInflation" | "recentComments" | "old" | "magic">("new");
   const [feedSortBy, setFeedSortBy] = useState<"recent" | "top">("recent");
   const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
@@ -432,6 +438,8 @@ export default function ProfilePage() {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
+  const canEditProfile = userCanEditUser(currentUser, user);
+  const canModerateUserProfile = userIsAdminOrMod(currentUser);
   const canSubscribeToUser = !!user && !isOwnProfile;
   const canMessageUser = !!user && !!currentUser && !isOwnProfile;
 
@@ -462,12 +470,40 @@ export default function ProfilePage() {
                 tooltipPlacement="bottom-start"
               />
             </h1>
-            {isOwnProfile && (
-              <Link to="/account?highlightField=pinnedPostIds" className={classes.profileEditButton}>
-                Edit
-              </Link>
+            {(canEditProfile || canModerateUserProfile) && (
+              <div className={classes.profileHeaderActions}>
+                {canEditProfile && (
+                  <LWTooltip title="Edit profile" placement="bottom">
+                    <Link
+                      to={userGetEditUrl(user)}
+                      className={classes.profileActionIconLink}
+                      aria-label={`Edit ${username}'s profile`}
+                    >
+                      <EditIcon className={classes.profileActionIcon} />
+                    </Link>
+                  </LWTooltip>
+                )}
+                {canModerateUserProfile && (
+                  <LWTooltip title={showModerationTools ? "Hide moderation tools" : "Show moderation tools"} placement="bottom">
+                    <button
+                      type="button"
+                      className={classes.profileActionIconButton}
+                      aria-label={showModerationTools ? "Hide moderation tools" : "Show moderation tools"}
+                      aria-expanded={showModerationTools}
+                      onClick={() => setShowModerationTools((open) => !open)}
+                    >
+                      <SupervisorAccountIcon className={classes.profileActionIcon} />
+                    </button>
+                  </LWTooltip>
+                )}
+              </div>
             )}
           </div>
+          {canModerateUserProfile && showModerationTools && userId && (
+            <div className={classes.sunshineToolsSection}>
+              <SunshineNewUsersProfileInfo userId={userId} startExpanded />
+            </div>
+          )}
 
           {hasEnoughTopPosts && (
             <>

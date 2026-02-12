@@ -39,6 +39,17 @@ const USER_COMMENTS_QUERY = gql(`
   }
 `);
 
+const COMMENTS_LIST_MULTI_QUERY = gql(`
+  query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
+
 const THREAD_BY_TOPLEVEL_QUERY = gql(`
   query UserContentFeedThread($topLevelCommentId: String!, $limit: Int) {
     comments(selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: $topLevelCommentId } }, limit: $limit) {
@@ -138,7 +149,8 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
       byId[c._id] = c;
     });
     
-    let current = comment;
+    // Prefer the thread-fetched copy when available so we keep richer fields (e.g. post metadata).
+    let current = byId[comment._id] ?? comment;
     const seen = new Set<string>();
     
     while (current) {
@@ -250,10 +262,14 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const skipPosts = filter === 'comments';
-  const skipComments = filter === 'posts' || filter === 'quickTakes';
+  const skipProfileComments = filter === 'posts' || filter === 'quickTakes';
+  const skipShortformComments = filter === 'posts';
 
   const postsSortBy = sortMode === 'recent' ? 'new' : 'top';
   const commentsSortBy = sortMode === 'recent' ? 'new' : 'top';
+  const shortformSelector = sortMode === 'top'
+    ? ({ topShortform: { userId } })
+    : ({ shortform: { userId } });
 
   const { 
     data: postsData, 
@@ -270,14 +286,28 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
   );
 
   const { 
-    data: commentsData, 
-    loading: commentsLoading, 
-    loadMoreProps: commentsLoadMoreProps 
+    data: profileCommentsData, 
+    loading: profileCommentsLoading, 
+    loadMoreProps: profileCommentsLoadMoreProps 
   } = useQueryWithLoadMore(
     USER_COMMENTS_QUERY,
     {
       variables: { userId, limit: initialLimit, sortBy: commentsSortBy },
-      skip: !userId || skipComments,
+      skip: !userId || skipProfileComments,
+      fetchPolicy: 'cache-and-network',
+      itemsPerPage: 10,
+    }
+  );
+
+  const { 
+    data: shortformCommentsData, 
+    loading: shortformCommentsLoading, 
+    loadMoreProps: shortformCommentsLoadMoreProps 
+  } = useQueryWithLoadMore(
+    COMMENTS_LIST_MULTI_QUERY,
+    {
+      variables: { selector: shortformSelector, limit: initialLimit, enableTotal: true },
+      skip: !userId || skipShortformComments,
       fetchPolicy: 'cache-and-network',
       itemsPerPage: 10,
     }
@@ -287,7 +317,27 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
     const items: FeedItem[] = [];
     
     const posts = skipPosts ? [] : (postsData?.posts?.results ?? []);
-    const comments = skipComments ? [] : (commentsData?.comments?.results ?? []);
+    const profileComments = (skipProfileComments ? [] : (profileCommentsData?.comments?.results ?? [])) as CommentItem[];
+    const shortformComments = skipShortformComments
+      ? []
+      : (shortformCommentsData?.comments?.results ?? []).map((comment) => ({ ...comment, post: null })) as CommentItem[];
+    const shortformCommentIds = new Set(shortformComments.map((comment) => comment._id));
+    const comments: CommentItem[] = (() => {
+      if (filter === 'quickTakes') {
+        return shortformComments;
+      }
+      if (filter === 'comments') {
+        return profileComments.filter((comment) => !shortformCommentIds.has(comment._id));
+      }
+      const merged: CommentItem[] = [];
+      const seenCommentIds = new Set<string>();
+      [...profileComments, ...shortformComments].forEach((comment) => {
+        if (seenCommentIds.has(comment._id)) return;
+        seenCommentIds.add(comment._id);
+        merged.push(comment);
+      });
+      return merged;
+    })();
     
     posts.forEach(post => {
       if (!post?.postedAt) return;
@@ -302,13 +352,12 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
     });
     
     comments.forEach(comment => {
-      if (comment?.postedAt) {
-        items.push({
-          type: 'comment',
-          data: comment,
-          postedAt: new Date(comment.postedAt)
-        });
-      }
+      if (!comment?.postedAt) return;
+      items.push({
+        type: 'comment',
+        data: comment,
+        postedAt: new Date(comment.postedAt)
+      });
     });
     
     if (sortMode === 'recent') {
@@ -322,11 +371,12 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
     }
     
     return items;
-  }, [postsData, commentsData, sortMode, filter, skipPosts, skipComments]);
+  }, [postsData, profileCommentsData, shortformCommentsData, sortMode, filter, skipPosts, skipProfileComments, skipShortformComments]);
 
   const postsHasMore = !skipPosts && !postsLoadMoreProps.hidden;
-  const commentsHasMore = !skipComments && !commentsLoadMoreProps.hidden;
-  const hasMoreRemote = postsHasMore || commentsHasMore;
+  const profileCommentsHasMore = !skipProfileComments && !profileCommentsLoadMoreProps.hidden;
+  const shortformCommentsHasMore = !skipShortformComments && !shortformCommentsLoadMoreProps.hidden;
+  const hasMoreRemote = postsHasMore || profileCommentsHasMore || shortformCommentsHasMore;
 
   const { settings: feedSettings } = useUltraFeedSettings();
 
@@ -340,14 +390,17 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
       if (postsHasMore) {
         promises.push(postsLoadMoreProps.loadMore());
       }
-      if (commentsHasMore) {
-        promises.push(commentsLoadMoreProps.loadMore());
+      if (profileCommentsHasMore) {
+        promises.push(profileCommentsLoadMoreProps.loadMore());
+      }
+      if (shortformCommentsHasMore) {
+        promises.push(shortformCommentsLoadMoreProps.loadMore());
       }
       await Promise.all(promises);
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMoreRemote, postsHasMore, commentsHasMore, postsLoadMoreProps, commentsLoadMoreProps]);
+  }, [loadingMore, hasMoreRemote, postsHasMore, profileCommentsHasMore, shortformCommentsHasMore, postsLoadMoreProps, profileCommentsLoadMoreProps, shortformCommentsLoadMoreProps]);
 
   // Set up infinite scroll
   useEffect(() => {
@@ -382,7 +435,11 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
     }
   }, [sortMode, setSortMode]);
 
-  const isInitialLoading = ((!skipPosts && postsLoading) || (!skipComments && commentsLoading)) && mixedFeed.length === 0;
+  const isInitialLoading = (
+    (!skipPosts && postsLoading) ||
+    (!skipProfileComments && profileCommentsLoading) ||
+    (!skipShortformComments && shortformCommentsLoading)
+  ) && mixedFeed.length === 0;
   const hasNoContent = !isInitialLoading && mixedFeed.length === 0;
 
   if (hasNoContent) {
@@ -456,5 +513,3 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
 
 
 export default UserContentFeed;
-
-
