@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useState, useRef, useEffect } from "react";
+import React, { useLayoutEffect, useState, useRef, useEffect } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useLocation } from "@/lib/routeUtil";
@@ -82,7 +82,7 @@ function buildTopPostDefaultImages(topPosts: Array<{ _id: string }>): string[] {
   const seed = hashString(topPosts[0]?._id ?? "seed");
   const arr = [...DEFAULT_PREVIEWS];
   for (let i = arr.length - 1; i > 0; i--) {
-    const j = (seed + i * 2654435761) % (i + 1);
+    const j = (seed + (i * 2654435761)) % (i + 1);
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
@@ -306,7 +306,7 @@ export default function ProfilePage() {
         return;
       }
 
-      const maxHeight = lineHeight * maxLines - paddingBottom - 8;
+      const maxHeight = (lineHeight * maxLines) - paddingBottom - 8;
       if (node.scrollHeight <= maxHeight + paddingBottom) {
         return;
       }
@@ -472,7 +472,7 @@ export default function ProfilePage() {
     const fontTimeout = setTimeout(finalizeTruncation, FONT_LOAD_TIMEOUT_MS);
     
     if (document.fonts && "ready" in document.fonts) {
-      document.fonts.ready.then(() => {
+      void document.fonts.ready.then(() => {
         clearTimeout(fontTimeout);
         finalizeTruncation();
       });

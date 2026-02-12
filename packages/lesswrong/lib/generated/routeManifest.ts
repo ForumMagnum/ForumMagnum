@@ -523,9 +523,6 @@ export const routeTrie = {
       },
       "hasPage": true
     },
-    "homepage-v2": {
-      "hasPage": true
-    },
     "hpmor": {
       "dynamicChild": {
         "paramName": "slug",
@@ -886,12 +883,6 @@ export const routeTrie = {
         "paramName": "slug",
         "child": {
           "staticChildren": {
-            "benito2": {
-              "hasPage": true
-            },
-            "benito3": {
-              "hasPage": true
-            },
             "edit": {
               "hasPage": true
             },
@@ -900,8 +891,6 @@ export const routeTrie = {
             }
           },
           "lowerCase": {
-            "benito2": "benito2",
-            "benito3": "benito3",
             "edit": "edit",
             "replies": "replies"
           },
@@ -1012,7 +1001,6 @@ export const routeTrie = {
     "groups": "groups",
     "groups-map": "groups-map",
     "highlights": "highlights",
-    "homepage-v2": "homepage-v2",
     "hpmor": "hpmor",
     "inbox": "inbox",
     "item": "item",
