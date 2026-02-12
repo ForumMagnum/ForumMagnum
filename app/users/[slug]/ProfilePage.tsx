@@ -264,10 +264,11 @@ export default function ProfilePage() {
   const user = getUserFromResults(userData?.users?.results);
   const userId = user?._id;
   const pinnedPostIds = user?.pinnedPostIds ?? [];
+  const hideTopPosts = user?.hideProfileTopPosts ?? false;
   const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
 
   const { data: topPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !userId || !!hasPinnedPosts,
+    skip: !userId || !!hasPinnedPosts || hideTopPosts,
     variables: {
       selector: userId ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } } : undefined,
       limit: TOP_POSTS_LIMIT,
@@ -277,7 +278,7 @@ export default function ProfilePage() {
   });
 
   const { data: pinnedPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !hasPinnedPosts,
+    skip: !hasPinnedPosts || hideTopPosts,
     variables: {
       selector: hasPinnedPosts ? { default: { exactPostIds: pinnedPostIds } } : undefined,
       limit: TOP_POSTS_LIMIT,
@@ -325,7 +326,7 @@ export default function ProfilePage() {
   const hasMorePosts = recentPosts.length > postsToShow;
   const sequences = sequencesData?.sequences?.results ?? [];
 
-  const hasEnoughTopPosts = topPosts.length >= 4;
+  const hasEnoughTopPosts = !hideTopPosts && topPosts.length >= 4;
   const hasPosts = recentPosts.length > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
   const hasSequences = sequences.length > 0;
