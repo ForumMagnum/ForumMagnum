@@ -738,7 +738,7 @@ export default function ProfilePage() {
                                   )}>{summary}</p>
                                 </div>
                               )}
-                              <div className={classNames(classes.listArticleMeta, !hasListImage && classes.listArticleMetaNoImage)}>
+                              <div className={classNames(classes.listArticleMeta)}>
                                 <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
                                   <span className={classes.listDate}>{formatReadableDate(post.postedAt!)}</span>
                                 </LWTooltip>
