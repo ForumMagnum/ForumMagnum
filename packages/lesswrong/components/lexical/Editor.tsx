@@ -478,10 +478,18 @@ export default function Editor({
   
   // Callback for handling the first sync with the collaboration server.
   // If the Yjs document is empty and we have initial HTML, bootstrap from it.
-  const handleCollaborationSync = useCallback((doc: Doc, isFirstSync: boolean) => {
-    if (!isFirstSync) return;
-    
+  const handleCollaborationSync = useCallback((doc: Doc, isFirstSync: boolean, docId: string) => {
     const htmlToBootstrap = initialHtmlRef.current;
+    const stateSize = Y.encodeStateAsUpdate(doc).length;
+
+    if (docId !== COLLAB_DOC_ID) return;
+    if (!isFirstSync) return;
+
+    // If the synced main doc already has substantive Yjs content, never
+    // bootstrap from initialHtml. This prevents stale page-prop HTML from
+    // overwriting restored server state.
+    if (stateSize > 2) return;
+    
     if (!htmlToBootstrap?.trim()) return;
     if (!isYjsDocEmpty(doc)) return;
     
@@ -511,9 +519,9 @@ export default function Editor({
     if (collaborationConfig) {
       const configWithSyncHandler: CollaborationConfig = {
         ...collaborationConfig,
-        onSynced: (doc, isFirstSync) => {
-          handleCollaborationSync(doc, isFirstSync);
-          collaborationConfig.onSynced?.(doc, isFirstSync);
+        onSynced: (doc, isFirstSync, docId) => {
+          handleCollaborationSync(doc, isFirstSync, docId);
+          collaborationConfig.onSynced?.(doc, isFirstSync, docId);
         },
       };
       setCollaborationConfig(configWithSyncHandler);

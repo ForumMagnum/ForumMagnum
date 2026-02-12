@@ -1,4 +1,4 @@
-import { Server, type Extension } from '@hocuspocus/server';
+import { type Document, Server, type Extension } from '@hocuspocus/server';
 import { Logger } from '@hocuspocus/extension-logger';
 import { PostgresExtension } from './extensions/postgres';
 import { RevisionSyncExtension } from './extensions/revisionSync';
@@ -46,6 +46,30 @@ function verifyAdminSecret(providedSecret: string): boolean {
     );
   } catch {
     return false;
+  }
+}
+
+/**
+ * Force-close active sockets for a document without sending the protocol-level
+ * CLOSE message (message type 7).
+ *
+ * Why: our app currently uses @hocuspocus/provider v2 on the client, which
+ * throws on incoming CLOSE messages. The built-in `closeConnections()` API
+ * sends that message, so for admin restore we do a transport-level WS close
+ * instead.
+ */
+function forceCloseDocumentConnections(existingDoc: Document): void {
+  const connectionEntries = Array.from(existingDoc.connections.values());
+  for (const { connection } of connectionEntries) {
+    if (existingDoc.hasConnection(connection)) {
+      existingDoc.removeConnection(connection);
+    }
+    const ws = connection.webSocket;
+    if (!ws) continue;
+    const openState = typeof ws.OPEN === 'number' ? ws.OPEN : 1;
+    if (ws.readyState === undefined || ws.readyState === openState) {
+      ws.close(4205, 'Reset Connection');
+    }
   }
 }
 
@@ -179,7 +203,10 @@ const server = new Server({
         const connectionCount = existingDoc?.getConnectionsCount() ?? 0;
 
         if (existingDoc) {
-          hocuspocus.closeConnections(documentName);
+          // `closeConnections()` sends Hocuspocus CLOSE (type 7), which our
+          // current client provider version doesn't parse correctly. Close
+          // sockets directly instead.
+          forceCloseDocumentConnections(existingDoc);
           postgresExtension.skipNextStoreForDocument(documentName);
           try {
             await hocuspocus.unloadDocument(existingDoc);

@@ -212,13 +212,10 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     captureEvent("restoreVersionClicked", {postId, revisionId: selectedRevisionId})
     setRevertInProgress(true);
 
-    // For Lexical collaborative documents, disconnect the Yjs provider and
-    // clear IndexedDB BEFORE firing the mutation. This prevents the client's
-    // old in-memory Yjs state from being synced back when the provider
-    // auto-reconnects after the server evicts the document.
-    if (isCollabEditor) {
-      await disconnectCollaborationForPost(postId);
-    }
+    // Always disconnect local Lexical collaboration providers (if any) before
+    // restore. This is a safe no-op when no provider exists, and prevents
+    // stale local Yjs state from being re-synced right after server reset.
+    await disconnectCollaborationForPost(postId);
 
     await revertMutation({
       variables: {
@@ -228,7 +225,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     });
     // Hard-refresh the page to get things back in sync
     window.location.reload();
-  }, [captureEvent, isCollabEditor, postId, revertMutation, selectedRevisionId])
+  }, [captureEvent, postId, revertMutation, selectedRevisionId])
 
   const loadVersion = useCallback(async (version: string) => {
     captureEvent("loadVersionClicked", {postId, revisionId: selectedRevisionId})

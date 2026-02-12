@@ -23,8 +23,8 @@ export interface CollaborationConfig {
     id: string;
     name: string;
   };
-  /** Called when the initial sync with the server completes. Receives the Y.Doc for bootstrap detection. */
-  onSynced?: (doc: Doc, isFirstSync: boolean) => void;
+  /** Called when sync with the server completes. `docId` is 'main' or a sub-doc id like 'comments'. */
+  onSynced?: (doc: Doc, isFirstSync: boolean, docId: string) => void;
   onError?: (error: Error) => void;
 }
 
@@ -207,7 +207,7 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
   // Initialize persistence if needed.
   // For 'main', we wait for IndexedDB to sync (or fail) before connecting.
   // For others, we proceed immediately.
-  const readyPromise = id === 'main' 
+  const readyPromise = id === 'main'
     ? setupPersistence(documentName, doc, config)
     : Promise.resolve();
 
@@ -225,7 +225,7 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
     onSynced: () => {
       const isFirstSync = !hasReceivedFirstSync;
       hasReceivedFirstSync = true;
-      config.onSynced?.(doc, isFirstSync);
+      config.onSynced?.(doc, isFirstSync, id);
     },
 
     onAuthenticationFailed: ({ reason }) => {
@@ -269,7 +269,8 @@ export async function disconnectCollaborationForPost(postId: string): Promise<vo
   // (covers the main editor and any sub-documents like comments)
   for (const [documentName, provider] of providerInstances) {
     if (documentName === baseDocumentName || documentName.startsWith(`${baseDocumentName}/`)) {
-      provider.disconnect();
+      provider.configuration.preserveConnection = false;
+      provider.destroy();
       providerInstances.delete(documentName);
     }
   }
