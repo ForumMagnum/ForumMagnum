@@ -24564,21 +24564,6 @@ type UserTopPostsForManagerQueryVariables = Exact<{
 
 type UserTopPostsForManagerQuery = UserTopPostsForManagerQuery_Query;
 
-type UpdatePinnedPostIdsMutation_updateUser_UserOutput_data_User = { __typename?: 'User', _id: string, pinnedPostIds: Array<string> };
-
-type UpdatePinnedPostIdsMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: UpdatePinnedPostIdsMutation_updateUser_UserOutput_data_User | null };
-
-type UpdatePinnedPostIdsMutation_Mutation = { __typename?: 'Mutation', updateUser: UpdatePinnedPostIdsMutation_updateUser_UserOutput | null };
-
-
-type UpdatePinnedPostIdsMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type UpdatePinnedPostIdsMutation = UpdatePinnedPostIdsMutation_Mutation;
-
 type UsersAccountManagementGetUserBySlugQuery_GetUserBySlug_User = (
   { __typename?: 'User' }
   & UsersEdit

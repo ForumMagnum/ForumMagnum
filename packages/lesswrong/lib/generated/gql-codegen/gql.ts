@@ -657,7 +657,6 @@ type Documents = {
     "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeactivateAccountSectionDocument,
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeleteAccountSectionDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.UserTopPostsForManagerDocument,
-    "\n  mutation UpdatePinnedPostIds($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        _id\n        pinnedPostIds\n      }\n    }\n  }\n": typeof types.UpdatePinnedPostIdsDocument,
     "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersAccountManagementGetUserBySlugDocument,
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserUsersEditFormDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersEditFormGetUserBySlugDocument,
@@ -1587,7 +1586,6 @@ const documents: Documents = {
     "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeactivateAccountSectionDocument,
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeleteAccountSectionDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.UserTopPostsForManagerDocument,
-    "\n  mutation UpdatePinnedPostIds($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        _id\n        pinnedPostIds\n      }\n    }\n  }\n": types.UpdatePinnedPostIdsDocument,
     "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersAccountManagementGetUserBySlugDocument,
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserUsersEditFormDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersEditFormGetUserBySlugDocument,
@@ -4460,10 +4458,6 @@ export function gql(source: "\n  mutation updateUserDeleteAccountSection($select
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation UpdatePinnedPostIds($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        _id\n        pinnedPostIds\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation UpdatePinnedPostIds($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        _id\n        pinnedPostIds\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
