@@ -438,7 +438,7 @@ export default function ProfilePage() {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
-  const canEditProfile = userCanEditUser(currentUser, user);
+  const canEditProfile = !!user && userCanEditUser(currentUser, user);
   const canModerateUserProfile = userIsAdminOrMod(currentUser);
   const canSubscribeToUser = !!user && !isOwnProfile;
   const canMessageUser = !!user && !!currentUser && !isOwnProfile;
