@@ -17,7 +17,6 @@ import './server/rss-integration/cron';
 import './server/rss-integration/callbacks';
 import './server/karmaInflation/cron';
 import './server/useractivities/cron';
-import './server/cache';
 import './server/users/cron';
 import './server/users/permanentDeletion';
 import './server/curationEmails/cron';

@@ -16,6 +16,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { RecommendationsAlgorithm } from "@/lib/collections/users/recommendationSettings";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { isAF } from "@/lib/instanceSettings";
 
 const styles = defineStyles("PostBottomRecommendations", (theme: ThemeType) => ({
   root: {
@@ -84,6 +85,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
     },
     count: 3,
     disableFallbacks: true,
+    af: isAF(),
   }), [postId]);
 
   const {
@@ -92,15 +94,15 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
   } = useRecommendations({ algorithm, ssr });
 
   const { data: curatedAndPopularData, loading: curatedAndPopularLoading } = useQuery(gql(`
-    query CuratedAndPopularThisWeek($limit: Int) {
-      CuratedAndPopularThisWeek(limit: $limit) {
+    query CuratedAndPopularThisWeek($limit: Int, $af: Boolean) {
+      CuratedAndPopularThisWeek(limit: $limit, af: $af) {
         results {
           ...PostsListWithVotes
         }
       }
     }
   `), {
-    variables: { limit: 3 },
+    variables: { limit: 3, af: isAF() },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
     ssr
@@ -187,8 +189,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
                   </Link>
                 </div>
               </AnalyticsContext>
-              </div>
-            }
+            </div>}
           </div>
         </WrapperComponent>
       </div>

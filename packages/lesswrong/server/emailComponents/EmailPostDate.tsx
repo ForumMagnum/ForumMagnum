@@ -3,13 +3,13 @@ import { EmailFormatDate } from './EmailFormatDate';
 import PrettyEventDateTime from '@/components/events/modules/PrettyEventDateTime';
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { EmailContextType } from './emailContext';
-import { useEmailRecipientTimezone } from './useEmailRecipientTimezone';
+import { emailUseRecipientTimezone } from './useEmailRecipientTimezone';
 
 export const EmailPostDate = ({post, emailContext}: {
   post: PostsBase
   emailContext: EmailContextType
 }) => {
-  const { timezone, timezoneIsKnown } = useEmailRecipientTimezone(emailContext)
+  const { timezone, timezoneIsKnown } = emailUseRecipientTimezone(emailContext)
   
   if (post.isEvent) {
     const now = new Date();

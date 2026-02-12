@@ -83,6 +83,7 @@ const styles = defineStyles('ModerationPostSidebar', (theme: ThemeType) => ({
     flex: 1,
     overflow: 'auto',
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    paddingTop: 48
   },
   empty: {
     padding: 40,
@@ -198,4 +199,3 @@ const ModerationPostSidebar = ({
 };
 
 export default ModerationPostSidebar;
-

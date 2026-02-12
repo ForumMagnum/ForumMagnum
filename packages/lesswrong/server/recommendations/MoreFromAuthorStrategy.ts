@@ -9,10 +9,11 @@ class MoreFromAuthorStrategy extends RecommendationStrategy {
   async recommend(
     _currentUser: DbUser|null,
     count: number,
-    {postId}: StrategySpecification,
+    strategy: StrategySpecification,
   ): Promise<RecommendationResult> {
     const db = getSqlClientOrThrow();
-    const postFilter = this.getDefaultPostFilter();
+    const {postId} = strategy;
+    const postFilter = this.getDefaultPostFilter(strategy);
     const posts = await db.any(`
       SELECT p.*
       FROM "Posts" p
@@ -29,7 +30,7 @@ class MoreFromAuthorStrategy extends RecommendationStrategy {
       count,
       ...postFilter.args,
     });
-    return {posts, settings: {postId}};
+    return {posts, settings: {postId, af: strategy.af}};
   };
 }
 

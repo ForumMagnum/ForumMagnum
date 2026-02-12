@@ -167,7 +167,7 @@ const SunshineCuratedSuggestionsList = ({ limit = 7, atBottom, classes, setCurat
       </SunshineListTitle>
       {results?.map(post =>
         <div key={post._id} >
-          <SunshineCuratedSuggestionsItem post={post} setCurationPost={setCurationPost} timeForCuration={timeForCuration}/>
+          <SunshineCuratedSuggestionsItem post={post} setCurationPost={setCurationPost}/>
         </div>
       )}
       {showLoadMore && <div className={classes.loadMorePadding}>

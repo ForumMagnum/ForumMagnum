@@ -19,11 +19,12 @@ import LoginForm from "../users/LoginForm";
 import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
 import Loading from "../vulcan-core/Loading";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 // mailchimp link to sign up for the EA Forum's digest
 export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
@@ -108,7 +109,7 @@ const styles = (theme: ThemeType) => ({
   },
   dontAskAgainButton: {
   },
-});
+}));
 
 /**
  * This is the ad that appears in "Recent discussion".
@@ -120,9 +121,8 @@ const styles = (theme: ThemeType) => ({
  *
  * See EAHomeRightHandSide.tsx for the other component.
  */
-const RecentDiscussionSubscribeReminder = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const RecentDiscussionSubscribeReminder = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const [hide, setHide] = useState(false);
@@ -215,18 +215,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     }
 
     setLoading(false);
-  }
-  
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const AnalyticsWrapper = ({children, branch}: {children: React.ReactNode, branch: string}) => {
-    return <AnalyticsContext pageElementContext="subscribeReminder" branch={branch}>
-      <AnalyticsInViewTracker eventProps={{inViewType: "subscribeReminder"}}>
-        <div className={classes.root}>
-          {children}
-        </div>
-      </AnalyticsInViewTracker>
-    </AnalyticsContext>
   }
   
   // the EA Forum uses this prompt in most cases
@@ -426,9 +414,19 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   }
 }
 
+const AnalyticsWrapper = ({children, branch}: {children: React.ReactNode, branch: string}) => {
+  const classes = useStyles(styles);
+  return <AnalyticsContext pageElementContext="subscribeReminder" branch={branch}>
+    <AnalyticsInViewTracker eventProps={{inViewType: "subscribeReminder"}}>
+      <div className={classes.root}>
+        {children}
+      </div>
+    </AnalyticsInViewTracker>
+  </AnalyticsContext>
+}
+
 export default registerComponent(
   'RecentDiscussionSubscribeReminder', RecentDiscussionSubscribeReminder, {
-    styles,
     hocs: [withErrorBoundary],
   }
 );

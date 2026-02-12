@@ -14,6 +14,8 @@ import {
   $createParagraphNode,
   $isRootNode,
   RootNode,
+  $isTextNode,
+  $getRoot,
 } from 'lexical';
 import { $isCodeNode } from '@lexical/code';
 import { $isLinkNode } from '@lexical/link';
@@ -301,19 +303,32 @@ export function MathPlugin(): React.ReactElement {
       ),
       
       // Register text node transform to auto-convert LaTeX delimiters
-      editor.registerNodeTransform(TextNode, (textNode) => {
-        const text = textNode.getTextContent();
-        
-        // Check for complete LaTeX expressions with delimiters
-        const extracted = extractDelimiters(text);
-        if (!extracted || !shouldAutoConvertMath(textNode)) {
+      editor.registerUpdateListener(({dirtyLeaves, dirtyElements, tags}) => {
+        if (tags.has('collaboration')) {
           return;
         }
-        const mathNode = $createMathNode(extracted.equation, !extracted.display);
-        textNode.replace(mathNode);
-      }),
-      editor.registerNodeTransform(RootNode, (rootNode: RootNode) => {
-        ensureTrailingParagraphAfterMath(rootNode);
+        editor.update(() => {
+          for (const key of dirtyLeaves) {
+            const textNode = $getNodeByKey(key);
+            if ($isTextNode(textNode)) {
+              const text = textNode.getTextContent();
+              
+              // Check for complete LaTeX expressions with delimiters
+              const extracted = extractDelimiters(text);
+              if (!extracted || !shouldAutoConvertMath(textNode)) {
+                continue;
+              }
+              const mathNode = $createMathNode(extracted.equation, !extracted.display);
+              textNode.replace(mathNode);
+            }
+          }
+          
+          // Check root node for trailing paragraph
+          // We check if any dirty element is the root or a child of root
+          // But simpler to just check root every time there's a local update
+          const rootNode = $getRoot();
+          ensureTrailingParagraphAfterMath(rootNode);
+        });
       })
     );
   }, [editor, openEditor]);

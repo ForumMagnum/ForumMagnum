@@ -3,7 +3,6 @@ import "@/components/momentjs";
 import React, { Suspense } from "react";
 import ClientAppGenerator, { EnvironmentOverrideContextProvider } from "@/components/layout/ClientAppGenerator";
 import { cookies } from "next/headers";
-import { ClientRouteMetadataProvider } from "@/components/layout/ClientRouteMetadataContext";
 import { DEFAULT_TIMEZONE, SSRMetadata } from "@/lib/utils/timeUtil";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
 import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
@@ -34,16 +33,25 @@ export default async function RootLayout({
         </Suspense>
         <Suspense>
           <EnvironmentOverrideContextProviderServer>
-            <ClientRouteMetadataProvider>
-              <ClientAppGenerator abTestGroupsUsed={{}}>
-                {children}
-              </ClientAppGenerator>
-            </ClientRouteMetadataProvider>
+            <ClientAppGeneratorWithRequestId>
+              {children}
+            </ClientAppGeneratorWithRequestId>
           </EnvironmentOverrideContextProviderServer>
         </Suspense>
       </BodyWithBackgroundColor>
     </html>
   );
+}
+
+const ClientAppGeneratorWithRequestId = async ({ children }: {
+  children: React.ReactNode,
+}) => {
+  const { getRequestIdForServerComponentOrGenerateMetadata } = await import("@/server/rendering/requestId");
+  const requestId = await getRequestIdForServerComponentOrGenerateMetadata();
+
+  return <ClientAppGenerator abTestGroupsUsed={{}} requestId={requestId}>
+    {children}
+  </ClientAppGenerator>
 }
 
 const ClientIDAssignerServer = async () => {

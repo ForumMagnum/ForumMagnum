@@ -1,4 +1,5 @@
 import { compile } from "html-to-text";
+import { parseDocumentFromString } from "@/lib/domParser";
 
 const defaultConverter = compile({
   selectors: [
@@ -14,4 +15,42 @@ const defaultConverter = compile({
   wordwrap: false,
 });
 
-export const htmlToTextDefault = (html = "") => defaultConverter(html);
+interface HtmlToTextDefaultOptions {
+  fallbackToImageText?: boolean
+}
+
+const getImageTextFallback = (html: string): string => {
+  const { document } = parseDocumentFromString(html);
+  const captions = Array.from(document.querySelectorAll("figcaption"));
+  for (const caption of captions) {
+    const captionText = caption.textContent?.trim();
+    if (captionText) {
+      return `[Image: ${captionText}]`;
+    }
+  }
+  const firstImage = document.querySelector("img");
+  if (!firstImage) {
+    return "";
+  }
+  const altText = firstImage.getAttribute("alt")?.trim();
+  if (altText) {
+    return `[Image: ${altText}]`;
+  }
+  const titleText = firstImage.getAttribute("title")?.trim();
+  if (titleText) {
+    return `[Image: ${titleText}]`;
+  }
+  return "[Image]";
+}
+
+export const htmlToTextDefault = (html = "", { fallbackToImageText = false }: HtmlToTextDefaultOptions = {}) => {
+  const text = defaultConverter(html);
+  // If the text of the body is empty but there's an image, return a "[Image]" string.
+  // (We're doing this instead of replacing all instances of "img" with [Image] because
+  // in most cases the plaintext preview is probably better if it ignores images. 
+  // But, it's a non-obvious judgment call)
+  if (text.trim() || !fallbackToImageText) {
+    return text;
+  }
+  return getImageTextFallback(html)
+};

@@ -11,9 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
 export default function PetrovDayStoryPage() {
-  return <RouteRoot
-    metadata={{ noFooter: true, hasLeftNavigationColumn: false }}
-  >
+  return <RouteRoot noFooter>
     <PetrovDayPage />
   </RouteRoot>;
 }

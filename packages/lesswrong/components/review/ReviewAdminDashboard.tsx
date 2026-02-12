@@ -62,7 +62,7 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
   // TODO: fix the bug where for some reason this doesn't work for 2020 votes
   const { data, loading: votesLoading } = useQuery(reviewAdminDashboardMultiQuery, {
     variables: {
-      selector: { reviewVotesAdminDashboard: { year: parseInt(year) } },
+      selector: { reviewVotesAdminDashboard: { year } },
       limit: 5000,
       enableTotal: true,
     },

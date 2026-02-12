@@ -118,6 +118,9 @@ export const routeTrie = {
         },
         "cron": {
           "staticChildren": {
+            "curation-status-to-slack": {
+              "hasRoute": true
+            },
             "every-five-minutes": {
               "hasRoute": true
             },
@@ -153,6 +156,7 @@ export const routeTrie = {
             }
           },
           "lowerCase": {
+            "curation-status-to-slack": "curation-status-to-slack",
             "every-five-minutes": "every-five-minutes",
             "every-hour": "every-hour",
             "every-midnight": "every-midnight",

@@ -78,6 +78,7 @@ interface Query {
   SearchSynonyms: Array<string>;
   getCrosspost: any;
   RevisionsDiff: string | null;
+  ReviewResultsTableData: ReviewResultsTableData | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
   getBookWordCount: number | null;
@@ -275,6 +276,7 @@ interface Mutation {
   approveUserCurrentContentOnly: boolean;
   rerunLlmCheck: AutomatedContentEvaluation;
   runLlmCheckForDocument: AutomatedContentEvaluation;
+  unlistLlmPost: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -915,8 +917,6 @@ interface HomepageCommunityEventPostsResult {
 
 interface HocuspocusAuth {
   token: string;
-  wsUrl: string;
-  documentName: string;
 }
 
 interface DigestHighlightsResult {
@@ -1266,6 +1266,20 @@ interface RssPostChangeInfo {
   isChanged: boolean;
   newHtml: string;
   htmlDiff: string;
+}
+
+interface ReviewResultsPostEntry {
+  rank: number;
+  title: string;
+  postUrl: string;
+  authorName: string;
+  coauthorNames: Array<string>;
+  votes: Array<number>;
+}
+
+interface ReviewResultsTableData {
+  year: number;
+  results: Array<ReviewResultsPostEntry>;
 }
 
 interface FeedSpotlightMetaInfo {
@@ -2113,6 +2127,8 @@ interface CommentsAllRecentCommentsInput {
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
+  before?: string | null;
+  after?: string | null;
 }
 
 interface CommentsRecentCommentsInput {
@@ -2122,6 +2138,8 @@ interface CommentsRecentCommentsInput {
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
+  before?: string | null;
+  after?: string | null;
 }
 
 interface CommentsAfSubmissionsInput {
@@ -3865,13 +3883,6 @@ interface MultiNotificationInput {
 interface MultiNotificationOutput {
   results: Array<Notification>;
   totalCount: number | null;
-}
-
-interface PageCacheEntry {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
 }
 
 interface PetrovDayAction {
@@ -6046,7 +6057,7 @@ interface ReviewVotesReviewVotesFromUserInput {
 }
 
 interface ReviewVotesReviewVotesAdminDashboardInput {
-  year?: number | null;
+  year?: string | null;
 }
 
 interface ReviewVotesReviewVotesForPostAndUserInput {
@@ -10040,6 +10051,8 @@ interface GraphQLTypeMap {
   ToggleBookmarkOutput: ToggleBookmarkOutput;
   SetIsBookmarkedOutput: SetIsBookmarkedOutput;
   RssPostChangeInfo: RssPostChangeInfo;
+  ReviewResultsPostEntry: ReviewResultsPostEntry;
+  ReviewResultsTableData: ReviewResultsTableData;
   FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;
@@ -10385,7 +10398,6 @@ interface GraphQLTypeMap {
   NotificationSelector: NotificationSelector;
   MultiNotificationInput: MultiNotificationInput;
   MultiNotificationOutput: MultiNotificationOutput;
-  PageCacheEntry: PageCacheEntry;
   PetrovDayAction: PetrovDayAction;
   SinglePetrovDayActionInput: SinglePetrovDayActionInput;
   SinglePetrovDayActionOutput: SinglePetrovDayActionOutput;
@@ -10998,7 +11010,6 @@ interface CreateInputsByCollectionName {
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
-  PageCache: never;
   PetrovDayLaunchs: never;
   Podcasts: never;
   PostEmbeddings: never;
@@ -11091,7 +11102,6 @@ interface UpdateInputsByCollectionName {
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
-  PageCache: never;
   PetrovDayActions: never;
   PetrovDayLaunchs: never;
   PodcastEpisodes: never;

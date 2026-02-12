@@ -113,6 +113,9 @@ type Documents = {
     "\n  mutation updatePostDeleteDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostDeleteDraftDropdownItemDocument,
     "\n  mutation updatePostExcludeFromRecommendationsDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostExcludeFromRecommendationsDropdownItemDocument,
     "\n  query PostLLMScoreQuery($postId: String!) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        contents {\n          _id\n          html\n        }\n        automatedContentEvaluations {\n          ...AutomatedContentEvaluationsFragment\n        }\n      }\n    }\n  }\n": typeof types.PostLLMScoreQueryDocument,
+    "\n  query llmPolicyViolationTemplateQuery($selector: SelectorInput) {\n    moderationTemplate(selector: $selector) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": typeof types.llmPolicyViolationTemplateQueryDocument,
+    "\n  mutation unlistLlmPost($postId: String!, $modCommentHtml: String!) {\n    unlistLlmPost(postId: $postId, modCommentHtml: $modCommentHtml)\n  }\n": typeof types.unlistLlmPostDocument,
+    "\n  mutation unapproveUserLlmPolicyViolation($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.unapproveUserLlmPolicyViolationDocument,
     "\n    mutation markAsReadOrUnread($postId: String, $isRead: Boolean) {\n      markAsReadOrUnread(postId: $postId, isRead: $isRead)\n    }\n  ": typeof types.markAsReadOrUnreadDocument,
     "\n  mutation updatePostMoveToDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostMoveToDraftDropdownItemDocument,
     "\n  mutation updatePostMoveToFrontpageDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostMoveToFrontpageDropdownItemDocument,
@@ -158,6 +161,7 @@ type Documents = {
     "\n  mutation updatePostEditTitle($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n": typeof types.updatePostEditTitleDocument,
     "\n    query getPostIsCriticism($args: JSON) {\n      PostIsCriticism(args: $args)\n    }\n    ": typeof types.getPostIsCriticismDocument,
     "\n    mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {\n      autosaveRevision(postId: $postId, contents: $contents) {\n        ...RevisionEdit\n      }\n    }\n  ": typeof types.autosaveRevisionDocument,
+    "\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n    }\n  }\n": typeof types.HocuspocusAuthQueryDocument,
     "\n    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {\n      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {\n        ...PostsEdit\n      }\n    }\n  ": typeof types.LinkSharingQueryDocument,
     "\n  query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {\n    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...RevisionMetadataWithChangeMetrics\n      }\n      totalCount\n    }\n  }\n": typeof types.multiRevisionPostVersionHistoryQueryDocument,
     "\n  query PostVersionHistory($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionDisplay\n        ...RevisionMetadata\n      }\n    }\n  }\n": typeof types.PostVersionHistoryDocument,
@@ -167,7 +171,6 @@ type Documents = {
     "\n  query TagVersionHistory($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionDisplay\n      }\n    }\n  }\n": typeof types.TagVersionHistoryDocument,
     "\n    mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {\n      revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {\n        ...TagPageFragment\n      }\n    }\n  ": typeof types.revertToRevisionDocument,
     "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n": typeof types.createElicitQuestionCreateClaimDialogDocument,
-    "\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n      wsUrl\n      documentName\n    }\n  }\n": typeof types.HocuspocusAuthQueryDocument,
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": typeof types.ConvertDocumentDocument,
     "\n  query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostEventsHomeQueryDocument,
     "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.updateUserEventsHomeDocument,
@@ -245,6 +248,7 @@ type Documents = {
     "\n  query LlmConversationsViewingPage($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n": typeof types.LlmConversationsViewingPageDocument,
     "\n  query PostSummaryDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostWithGeneratedSummary\n      }\n    }\n  }\n": typeof types.PostSummaryDialogDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": typeof types.updateUserLayoutDocument,
+    "\n  query GetReviewResultsTableData($year: Int!) {\n    ReviewResultsTableData(year: $year) {\n      year\n      results {\n        rank\n        title\n        postUrl\n        authorName\n        coauthorNames\n        votes\n      }\n    }\n  }\n": typeof types.GetReviewResultsTableDataDocument,
     "\n  query PostLinkPreviewSequence($documentId: String, $allowNull: Boolean) {\n    sequence(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {\n      result {\n        ...SequencesPageFragment\n      }\n    }\n  }\n": typeof types.PostLinkPreviewSequenceDocument,
     "\n  query PostLinkPreviewComment($documentId: String, $allowNull: Boolean) {\n    comment(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.PostLinkPreviewCommentDocument,
     "\n  query PostLinkPreviewPost($documentId: String, $allowNull: Boolean) {\n    post(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.PostLinkPreviewPostDocument,
@@ -353,7 +357,7 @@ type Documents = {
     "\n  query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...FrontpageShortformComments\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentQuickTakesSectionQueryDocument,
     "\n  query multiTaguseQuickTakesTagsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagPreviewFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiTaguseQuickTakesTagsQueryDocument,
     "\n  query multiPostRecentDiscussionThreadsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $commentsLimit: Int, $maxAgeHours: Int, $af: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsRecentDiscussion\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostRecentDiscussionThreadsListQueryDocument,
-    "\n    query CuratedAndPopularThisWeek($limit: Int) {\n      CuratedAndPopularThisWeek(limit: $limit) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  ": typeof types.CuratedAndPopularThisWeekDocument,
+    "\n    query CuratedAndPopularThisWeek($limit: Int, $af: Boolean) {\n      CuratedAndPopularThisWeek(limit: $limit, af: $af) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  ": typeof types.CuratedAndPopularThisWeekDocument,
     "\n  query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostRecommendationsSamplePageQueryDocument,
     "\n  query WelcomePostItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.WelcomePostItemDocument,
     "\n      mutation observeRecommendation($postId: String!) {\n        observeRecommendation(postId: $postId)\n      }\n    ": typeof types.observeRecommendationDocument,
@@ -1039,6 +1043,9 @@ const documents: Documents = {
     "\n  mutation updatePostDeleteDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostDeleteDraftDropdownItemDocument,
     "\n  mutation updatePostExcludeFromRecommendationsDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostExcludeFromRecommendationsDropdownItemDocument,
     "\n  query PostLLMScoreQuery($postId: String!) {\n    post(selector: { _id: $postId }) {\n      result {\n        _id\n        contents {\n          _id\n          html\n        }\n        automatedContentEvaluations {\n          ...AutomatedContentEvaluationsFragment\n        }\n      }\n    }\n  }\n": types.PostLLMScoreQueryDocument,
+    "\n  query llmPolicyViolationTemplateQuery($selector: SelectorInput) {\n    moderationTemplate(selector: $selector) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n": types.llmPolicyViolationTemplateQueryDocument,
+    "\n  mutation unlistLlmPost($postId: String!, $modCommentHtml: String!) {\n    unlistLlmPost(postId: $postId, modCommentHtml: $modCommentHtml)\n  }\n": types.unlistLlmPostDocument,
+    "\n  mutation unapproveUserLlmPolicyViolation($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.unapproveUserLlmPolicyViolationDocument,
     "\n    mutation markAsReadOrUnread($postId: String, $isRead: Boolean) {\n      markAsReadOrUnread(postId: $postId, isRead: $isRead)\n    }\n  ": types.markAsReadOrUnreadDocument,
     "\n  mutation updatePostMoveToDraftDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostMoveToDraftDropdownItemDocument,
     "\n  mutation updatePostMoveToFrontpageDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostMoveToFrontpageDropdownItemDocument,
@@ -1084,6 +1091,7 @@ const documents: Documents = {
     "\n  mutation updatePostEditTitle($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n": types.updatePostEditTitleDocument,
     "\n    query getPostIsCriticism($args: JSON) {\n      PostIsCriticism(args: $args)\n    }\n    ": types.getPostIsCriticismDocument,
     "\n    mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {\n      autosaveRevision(postId: $postId, contents: $contents) {\n        ...RevisionEdit\n      }\n    }\n  ": types.autosaveRevisionDocument,
+    "\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n    }\n  }\n": types.HocuspocusAuthQueryDocument,
     "\n    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {\n      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {\n        ...PostsEdit\n      }\n    }\n  ": types.LinkSharingQueryDocument,
     "\n  query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {\n    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...RevisionMetadataWithChangeMetrics\n      }\n      totalCount\n    }\n  }\n": types.multiRevisionPostVersionHistoryQueryDocument,
     "\n  query PostVersionHistory($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionDisplay\n        ...RevisionMetadata\n      }\n    }\n  }\n": types.PostVersionHistoryDocument,
@@ -1093,7 +1101,6 @@ const documents: Documents = {
     "\n  query TagVersionHistory($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionDisplay\n      }\n    }\n  }\n": types.TagVersionHistoryDocument,
     "\n    mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {\n      revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {\n        ...TagPageFragment\n      }\n    }\n  ": types.revertToRevisionDocument,
     "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n": types.createElicitQuestionCreateClaimDialogDocument,
-    "\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n      wsUrl\n      documentName\n    }\n  }\n": types.HocuspocusAuthQueryDocument,
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": types.ConvertDocumentDocument,
     "\n  query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostEventsHomeQueryDocument,
     "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": types.updateUserEventsHomeDocument,
@@ -1171,6 +1178,7 @@ const documents: Documents = {
     "\n  query LlmConversationsViewingPage($documentId: String) {\n    llmConversation(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...LlmConversationsWithMessagesFragment\n      }\n    }\n  }\n": types.LlmConversationsViewingPageDocument,
     "\n  query PostSummaryDialog($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostWithGeneratedSummary\n      }\n    }\n  }\n": types.PostSummaryDialogDocument,
     "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n": types.updateUserLayoutDocument,
+    "\n  query GetReviewResultsTableData($year: Int!) {\n    ReviewResultsTableData(year: $year) {\n      year\n      results {\n        rank\n        title\n        postUrl\n        authorName\n        coauthorNames\n        votes\n      }\n    }\n  }\n": types.GetReviewResultsTableDataDocument,
     "\n  query PostLinkPreviewSequence($documentId: String, $allowNull: Boolean) {\n    sequence(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {\n      result {\n        ...SequencesPageFragment\n      }\n    }\n  }\n": types.PostLinkPreviewSequenceDocument,
     "\n  query PostLinkPreviewComment($documentId: String, $allowNull: Boolean) {\n    comment(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.PostLinkPreviewCommentDocument,
     "\n  query PostLinkPreviewPost($documentId: String, $allowNull: Boolean) {\n    post(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.PostLinkPreviewPostDocument,
@@ -1279,7 +1287,7 @@ const documents: Documents = {
     "\n  query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...FrontpageShortformComments\n      }\n      totalCount\n    }\n  }\n": types.multiCommentQuickTakesSectionQueryDocument,
     "\n  query multiTaguseQuickTakesTagsQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagPreviewFragment\n      }\n      totalCount\n    }\n  }\n": types.multiTaguseQuickTakesTagsQueryDocument,
     "\n  query multiPostRecentDiscussionThreadsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean, $commentsLimit: Int, $maxAgeHours: Int, $af: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsRecentDiscussion\n      }\n      totalCount\n    }\n  }\n": types.multiPostRecentDiscussionThreadsListQueryDocument,
-    "\n    query CuratedAndPopularThisWeek($limit: Int) {\n      CuratedAndPopularThisWeek(limit: $limit) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  ": types.CuratedAndPopularThisWeekDocument,
+    "\n    query CuratedAndPopularThisWeek($limit: Int, $af: Boolean) {\n      CuratedAndPopularThisWeek(limit: $limit, af: $af) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  ": types.CuratedAndPopularThisWeekDocument,
     "\n  query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": types.multiPostRecommendationsSamplePageQueryDocument,
     "\n  query WelcomePostItem($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.WelcomePostItemDocument,
     "\n      mutation observeRecommendation($postId: String!) {\n        observeRecommendation(postId: $postId)\n      }\n    ": types.observeRecommendationDocument,
@@ -2279,6 +2287,18 @@ export function gql(source: "\n  query PostLLMScoreQuery($postId: String!) {\n  
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query llmPolicyViolationTemplateQuery($selector: SelectorInput) {\n    moderationTemplate(selector: $selector) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query llmPolicyViolationTemplateQuery($selector: SelectorInput) {\n    moderationTemplate(selector: $selector) {\n      result {\n        ...ModerationTemplateFragment\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation unlistLlmPost($postId: String!, $modCommentHtml: String!) {\n    unlistLlmPost(postId: $postId, modCommentHtml: $modCommentHtml)\n  }\n"): (typeof documents)["\n  mutation unlistLlmPost($postId: String!, $modCommentHtml: String!) {\n    unlistLlmPost(postId: $postId, modCommentHtml: $modCommentHtml)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation unapproveUserLlmPolicyViolation($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation unapproveUserLlmPolicyViolation($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    mutation markAsReadOrUnread($postId: String, $isRead: Boolean) {\n      markAsReadOrUnread(postId: $postId, isRead: $isRead)\n    }\n  "): (typeof documents)["\n    mutation markAsReadOrUnread($postId: String, $isRead: Boolean) {\n      markAsReadOrUnread(postId: $postId, isRead: $isRead)\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -2459,6 +2479,10 @@ export function gql(source: "\n    mutation autosaveRevision($postId: String!, $
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n    }\n  }\n"): (typeof documents)["\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {\n      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {\n        ...PostsEdit\n      }\n    }\n  "): (typeof documents)["\n    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {\n      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {\n        ...PostsEdit\n      }\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -2492,10 +2516,6 @@ export function gql(source: "\n    mutation revertToRevision($tagId: String!, $r
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n      wsUrl\n      documentName\n    }\n  }\n"): (typeof documents)["\n  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {\n    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {\n      token\n      wsUrl\n      documentName\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2804,6 +2824,10 @@ export function gql(source: "\n  query PostSummaryDialog($documentId: String) {\
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersCurrent\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query GetReviewResultsTableData($year: Int!) {\n    ReviewResultsTableData(year: $year) {\n      year\n      results {\n        rank\n        title\n        postUrl\n        authorName\n        coauthorNames\n        votes\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetReviewResultsTableData($year: Int!) {\n    ReviewResultsTableData(year: $year) {\n      year\n      results {\n        rank\n        title\n        postUrl\n        authorName\n        coauthorNames\n        votes\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -3239,7 +3263,7 @@ export function gql(source: "\n  query multiPostRecentDiscussionThreadsListQuery
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n    query CuratedAndPopularThisWeek($limit: Int) {\n      CuratedAndPopularThisWeek(limit: $limit) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  "): (typeof documents)["\n    query CuratedAndPopularThisWeek($limit: Int) {\n      CuratedAndPopularThisWeek(limit: $limit) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  "];
+export function gql(source: "\n    query CuratedAndPopularThisWeek($limit: Int, $af: Boolean) {\n      CuratedAndPopularThisWeek(limit: $limit, af: $af) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  "): (typeof documents)["\n    query CuratedAndPopularThisWeek($limit: Int, $af: Boolean) {\n      CuratedAndPopularThisWeek(limit: $limit, af: $af) {\n        results {\n          ...PostsListWithVotes\n        }\n      }\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

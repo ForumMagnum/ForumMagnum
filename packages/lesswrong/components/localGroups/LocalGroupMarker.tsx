@@ -40,9 +40,7 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   const { html = "" } = group.contents || {}
   const htmlBody = {__html: html};
 
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const GroupIcon = () => isEAForum()
+  const groupIcon = isEAForum()
     ? <ForumIcon icon="Star" className={classes.eaIcon}/>
     : <GroupIconSVG className={classes.icon}/>;
 
@@ -54,7 +52,7 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
       offsetTop={-15}
     >
       <span onClick={() => handleMarkerClick(group._id)}>
-        <GroupIcon/>
+        {groupIcon}
       </span>
     </Marker>
     {infoOpen && 

@@ -347,6 +347,13 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   debouncedCheckMarkdownImgErrs;
   debouncedValidateEditor: typeof this.validateCkEditor
 
+  /**
+   * For the Lexical editor: a function that generates HTML with all suggested
+   * edits rejected. Set by the inner Lexical Editor component via a callback,
+   * and invoked in `submitData` to populate `dataWithDiscardedSuggestions`.
+   */
+  private _lexicalGetDataWithDiscardedSuggestions: (() => string | undefined) | null = null;
+
   constructor(props: EditorProps) {
     super(props)
 
@@ -396,8 +403,11 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     switch(this.props.value.type) {
       case "markdown":
       case "html":
+        data = this.props.value.value;
+        break
       case "lexical":
         data = this.props.value.value;
+        dataWithDiscardedSuggestions = this._lexicalGetDataWithDiscardedSuggestions?.();
         break
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
@@ -597,6 +607,10 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
+  setLexicalDataWithDiscardedSuggestionsGetter = (fn: (() => string | undefined) | null) => {
+    this._lexicalGetDataWithDiscardedSuggestions = fn;
+  }
+
   renderLexicalEditor = (contents: EditorContents) => {
     const { _classes: classes, placeholder, commentEditor, documentId, collectionName } = this.props;
     const value = (typeof contents?.value === 'string') ? contents.value : "";
@@ -611,6 +625,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         onReady={() => {
           // Lexical editor is ready
         }}
+        onGetDataWithDiscardedSuggestions={this.setLexicalDataWithDiscardedSuggestionsGetter}
         commentEditor={commentEditor}
         documentId={documentId}
         collectionName={collectionName}

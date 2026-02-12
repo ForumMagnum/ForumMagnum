@@ -41,13 +41,23 @@
  */
 export const acceptsSchemaHash = "8f9b37b6b8213a24c21dba39e77f7bbb";
 
-import PageCache from "../../server/collections/pagecache/collection"
-import { createTable, dropTable } from "./meta/utils"
-
 export const up = async ({db}: MigrationContext) => {
-  await createTable(db, PageCache)
+  await db.none(`
+    CREATE TABLE IF NOT EXISTS "PageCache" (
+      _id varchar(27) PRIMARY KEY,
+      "path" text,
+      "abTestGroups" jsonb,
+      "bundleHash" text,
+      "renderedAt" timestamptz,
+      "ttlMs" double precision,
+      "renderResult" jsonb,
+      "schemaVersion" double precision DEFAULT 1,
+      "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP,
+      "legacyData" jsonb
+    );
+  `);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropTable(db, PageCache)
+  await db.none('DROP TABLE IF EXISTS "PageCache";');
 }

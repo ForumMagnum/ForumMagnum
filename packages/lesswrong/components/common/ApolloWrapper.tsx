@@ -20,27 +20,15 @@ import { HTMLInjector } from '../hooks/useInjectHTML';
 // Disabling the warnings should basically be harmless as long as they're still enabled in the codegen context.
 disableFragmentWarnings();
 
-const makeApolloClientForServer = async ({ loginToken, searchParams }: {
-  loginToken: string|null,
-  searchParams: Record<string,string>,
-}): Promise<{ client: ApolloClient, context: ResolverContext }> => {
+const makeApolloClientForServer = async (searchParamsStr: string, requestId: string): Promise<{ client: ApolloClient, context: ResolverContext }> => {
   if (!isServer) {
     throw new Error("Not server");
   }
 
-  const { cookies, headers } = await import("next/headers");
-  const { getApolloClientForSSRWithContext } = await import('@/server/rendering/ssrApolloClient');
-  const [serverCookies, serverHeaders] = await Promise.all([
-    cookies(),
-    headers()
-  ]);
-
-  return await getApolloClientForSSRWithContext({
-    loginToken,
-    cookies: serverCookies,
-    headers: serverHeaders,
-    searchParams,
-  });
+  const { getResolverContextForSSR, getApolloClientForSSRWithContext } = await import('@/server/rendering/ssrApolloClient');
+  const context = await getResolverContextForSSR(searchParamsStr, requestId);
+  const client = await getApolloClientForSSRWithContext(context);
+  return { client, context };
 }
 
 function makeApolloClientForClient({ loginToken }: {
@@ -67,8 +55,9 @@ function makeApolloClientForClient({ loginToken }: {
   return client;
 }
 
-export const ApolloWrapper = ({ loginToken, searchParams, children }: React.PropsWithChildren<{
+export const ApolloWrapper = ({ loginToken, requestId, searchParams, children }: React.PropsWithChildren<{
   loginToken: string|null,
+  requestId: string,
   searchParams: Record<string, string>,
 }>) => {
   // Either this is an SSR context, in which case constructing an apollo client
@@ -80,8 +69,9 @@ export const ApolloWrapper = ({ loginToken, searchParams, children }: React.Prop
   // if it was client code, which fails at compile time (but it doesn't bundle
   // it this way if it's imported dynamically).
   if (isServer) {
+    const searchParamsStr = JSON.stringify(searchParams);
     return (
-      <ApolloWrapperServer loginToken={loginToken} searchParams={searchParams}>
+      <ApolloWrapperServer searchParamsStr={searchParamsStr} requestId={requestId}>
         {children}
       </ApolloWrapperServer>
     );
@@ -107,19 +97,19 @@ const ApolloWrapperClient = ({ loginToken, searchParams, children }: React.Props
   );
 }
 
-const ApolloWrapperServer = React.memo(({ loginToken, searchParams, children }: React.PropsWithChildren<{
-  loginToken: string|null,
-  searchParams: Record<string, string>,
+const ApolloWrapperServer = ({ searchParamsStr, requestId, children }: React.PropsWithChildren<{
+  searchParamsStr: string,
+  requestId: string,
 }>) => {
   // Construct an apollo-client for use in SSR. This is split into two
   // components, one of which creates a promise and one of which calls use()
   // on the promise, because otherwise we get double-construction (and doubling
   // of context-setup-related queries and CPU usage).
-  const apolloClientAndContextPromise = makeApolloClientForServer({ loginToken, searchParams });
+  const apolloClientAndContextPromise = useMemo(() => makeApolloClientForServer(searchParamsStr, requestId), [searchParamsStr, requestId]);
   return <ApolloWrapperServerAsync clientAndContextPromise={apolloClientAndContextPromise}>
     {children}
   </ApolloWrapperServerAsync>
-})
+}
 
 const ApolloWrapperServerAsync = React.memo(({ clientAndContextPromise, children }: {
   clientAndContextPromise: Promise<{ client: ApolloClient, context: ResolverContext }>

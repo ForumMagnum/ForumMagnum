@@ -20,6 +20,7 @@ import FormatDate from "../common/FormatDate";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum } from '@/lib/instanceSettings';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const SunshineCurationPostsListUpdateMutation = gql(`
   mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -54,27 +55,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeForCuration}: {
+const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
   classes: ClassesType<typeof styles>,
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
-  timeForCuration?: boolean,
 }) => {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   const [updatePost] = useMutation(SunshineCurationPostsListUpdateMutation);
-
-  const handleCurate = () => {
-    void updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: {
-          reviewForCuratedUserId: currentUser!._id,
-          curatedDate: new Date(),
-        }
-      }
-    })
-  }
 
   const handleDisregardForCurated = () => {
     void updatePost({
@@ -118,7 +106,8 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
 
   // De-emphasize posts that are 30+ days old
   const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
-  const isOldPost = post.postedAt && (Date.now() - new Date(post.postedAt).getTime()) > thirtyDaysInMs;
+  const now = useCurrentTime();
+  const isOldPost = post.postedAt && (now.getTime() - new Date(post.postedAt).getTime()) > thirtyDaysInMs;
 
   return (
     <span {...eventHandlers} className={isOldPost ? classes.oldPost : undefined}>
@@ -172,11 +161,6 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
             :
             <SidebarAction title="Unendorse Curation" onClick={handleUnsuggestCurated}>
               <ForumIcon icon="Undo"/>
-            </SidebarAction>
-          }
-          { timeForCuration && canCurate &&
-            <SidebarAction title="Curate Post" onClick={handleCurate}>
-              <ForumIcon icon="Star" />
             </SidebarAction>
           }
           { canCurate && <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>

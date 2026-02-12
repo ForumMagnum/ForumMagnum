@@ -871,21 +871,6 @@ interface DbNotification extends DbObject {
   waitingForBatch: boolean
 }
 
-type PageCacheCollection = PgCollection<"PageCache">;
-
-interface DbPageCacheEntry extends DbObject {
-  __collectionName?: "PageCache"
-  abTestGroups: any
-  bundleHash: string
-  createdAt: Date
-  expiresAt: Date
-  legacyData: any | null
-  path: string
-  renderResult: RenderResultFieldType
-  renderedAt: Date
-  ttlMs: number
-}
-
 type PetrovDayActionsCollection = PgCollection<"PetrovDayActions">;
 
 interface DbPetrovDayAction extends DbObject {
@@ -2402,7 +2387,6 @@ interface CollectionsByName {
   ModeratorActions: ModeratorActionsCollection
   MultiDocuments: MultiDocumentsCollection
   Notifications: NotificationsCollection
-  PageCache: PageCacheCollection
   PetrovDayActions: PetrovDayActionsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
@@ -2499,7 +2483,6 @@ interface ObjectsByCollectionName {
   ModeratorActions: DbModeratorAction
   MultiDocuments: DbMultiDocument
   Notifications: DbNotification
-  PageCache: DbPageCacheEntry
   PetrovDayActions: DbPetrovDayAction
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
@@ -2596,7 +2579,6 @@ interface ObjectsByTypeName {
   ModeratorAction: DbModeratorAction
   MultiDocument: DbMultiDocument
   Notification: DbNotification
-  PageCacheEntry: DbPageCacheEntry
   PetrovDayAction: DbPetrovDayAction
   PetrovDayLaunch: DbPetrovDayLaunch
   PodcastEpisode: DbPodcastEpisode

@@ -10,6 +10,8 @@ import {
   INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
+  $createListItemNode,
+  $createListNode,
 } from '@lexical/list';
 import {$isDecoratorBlockNode} from '@lexical/react/LexicalDecoratorBlockNode';
 import {
@@ -32,6 +34,8 @@ import {
   SKIP_DOM_SELECTION_TAG,
   SKIP_SELECTION_FOCUS_TAG,
 } from 'lexical';
+import type { BlockType } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
+import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 
 import {
   DEFAULT_FONT_SIZE,
@@ -44,6 +48,61 @@ export enum UpdateFontSizeType {
   increment = 1,
   decrement,
 }
+
+export const applyBlockTypeChange = (
+  editor: LexicalEditor,
+  blockType: BlockType,
+) => {
+  const handled = editor.dispatchCommand(SET_BLOCK_TYPE_COMMAND, blockType);
+  if (handled) {
+    return;
+  }
+  editor.update(() => {
+    $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
+    const selection = $getSelection();
+    if (!selection) {
+      return;
+    }
+    if (blockType === 'paragraph') {
+      $setBlocksType(selection, () => $createParagraphNode());
+      return;
+    }
+    if (blockType === 'quote') {
+      $setBlocksType(selection, () => $createQuoteNode());
+      return;
+    }
+    if (blockType === 'code') {
+      if (!$isRangeSelection(selection) || selection.isCollapsed()) {
+        $setBlocksType(selection, () => $createCodeNode());
+      } else {
+        const textContent = selection.getTextContent();
+        const codeNode = $createCodeNode();
+        selection.insertNodes([codeNode]);
+        const updatedSelection = $getSelection();
+        if ($isRangeSelection(updatedSelection)) {
+          updatedSelection.insertRawText(textContent);
+        }
+      }
+      return;
+    }
+    if (
+      blockType === 'h1' ||
+      blockType === 'h2' ||
+      blockType === 'h3' ||
+      blockType === 'h4' ||
+      blockType === 'h5' ||
+      blockType === 'h6'
+    ) {
+      $setBlocksType(selection, () => $createHeadingNode(blockType));
+      return;
+    }
+    if (blockType === 'bullet' || blockType === 'number' || blockType === 'check') {
+      const list = $createListNode(blockType);
+      list.append($createListItemNode());
+      $setBlocksType(selection, () => list);
+    }
+  });
+};
 
 /**
  * Calculates the new font size based on the update type.
@@ -169,11 +228,7 @@ export const updateFontSize = (
 };
 
 export const formatParagraph = (editor: LexicalEditor) => {
-  editor.update(() => {
-    $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
-    const selection = $getSelection();
-    $setBlocksType(selection, () => $createParagraphNode());
-  });
+  applyBlockTypeChange(editor, 'paragraph');
 };
 
 export const formatHeading = (
@@ -182,11 +237,7 @@ export const formatHeading = (
   headingSize: HeadingTagType,
 ) => {
   if (blockType !== headingSize) {
-    editor.update(() => {
-      $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
-      const selection = $getSelection();
-      $setBlocksType(selection, () => $createHeadingNode(headingSize));
-    });
+    applyBlockTypeChange(editor, headingSize);
   }
 };
 
@@ -228,11 +279,7 @@ export const formatNumberedList = (
 
 export const formatQuote = (editor: LexicalEditor, blockType: string) => {
   if (blockType !== 'quote') {
-    editor.update(() => {
-      $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
-      const selection = $getSelection();
-      $setBlocksType(selection, () => $createQuoteNode());
-    });
+    applyBlockTypeChange(editor, 'quote');
   } else {
     // I hope this doesn't have any unintended effects?  I don't think you can have complicated nested block types inside of block quotes...
     formatParagraph(editor);
@@ -241,24 +288,7 @@ export const formatQuote = (editor: LexicalEditor, blockType: string) => {
 
 export const formatCode = (editor: LexicalEditor, blockType: string) => {
   if (blockType !== 'code') {
-    editor.update(() => {
-      $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
-      let selection = $getSelection();
-      if (!selection) {
-        return;
-      }
-      if (!$isRangeSelection(selection) || selection.isCollapsed()) {
-        $setBlocksType(selection, () => $createCodeNode());
-      } else {
-        const textContent = selection.getTextContent();
-        const codeNode = $createCodeNode();
-        selection.insertNodes([codeNode]);
-        selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          selection.insertRawText(textContent);
-        }
-      }
-    });
+    applyBlockTypeChange(editor, 'code');
   }
 };
 

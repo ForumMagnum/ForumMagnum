@@ -152,6 +152,13 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, res
     disableRecommendation: {$ne: true},
   }
 
+  if (algorithm.af) {
+    recommendationFilter = {
+      ...recommendationFilter,
+      af: true,
+    };
+  }
+
   if (isEAForum()) {
     recommendationFilter = {$and: [
       recommendationFilter,
@@ -171,6 +178,7 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, res
         {
           ...getDefaultViewSelector(PostsViews, resolverContext), // Ensure drafts are still excluded
           defaultRecommendation: true,
+          ...(algorithm.af ? {af: true} : {}),
         },
       ],
     };
@@ -381,11 +389,14 @@ export const graphqlQueries = {
 
       if (recommendationsAlgorithmHasStrategy(algorithm)) {
         const service = new RecommendationService();
-        return service.recommend(
+        const strategy = algorithm.af
+          ? {...algorithm.strategy, af: true}
+          : algorithm.strategy;
+        return await service.recommend(
           currentUser,
           clientId,
           count,
-          algorithm.strategy,
+          strategy,
           algorithm.disableFallbacks,
         );
       }

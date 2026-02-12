@@ -111,9 +111,3 @@ export const setAtPath = <T extends {}, V extends AnyBecauseHard>(
   }
   return value;
 }
-
-/**
- * This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
- * the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
- */
-export const apolloSSRFlag = (ssr: boolean) => ssr || !isServer;

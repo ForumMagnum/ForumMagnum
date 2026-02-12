@@ -18,6 +18,7 @@ import {
   $getTableRowIndexFromTableCellNode,
   $isTableCellNode,
   $isTableRowNode,
+  $isTableNode,
   getDOMCellFromTarget,
   getTableElement,
   TableNode,
@@ -27,6 +28,7 @@ import {
   $getNearestNodeFromDOMNode,
   isHTMLElement,
   SKIP_SCROLL_INTO_VIEW_TAG,
+  $getNodeByKey,
 } from 'lexical';
 
 import {
@@ -102,16 +104,25 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
         }
         setHasTable(tableKeys.size > 0);
       }),
-      editor.registerNodeTransform(TableNode, (tableNode) => {
-        if (tableNode.getColWidths()) {
-          return tableNode;
+      editor.registerUpdateListener(({dirtyElements, tags}) => {
+        if (tags.has('collaboration')) {
+          return;
         }
+        editor.update(() => {
+          for (const key of dirtyElements.keys()) {
+            const tableNode = $getNodeByKey(key);
+            if ($isTableNode(tableNode)) {
+              if (tableNode.getColWidths()) {
+                continue;
+              }
 
-        const numColumns = tableNode.getColumnCount();
-        const columnWidth = MIN_COLUMN_WIDTH;
+              const numColumns = tableNode.getColumnCount();
+              const columnWidth = MIN_COLUMN_WIDTH;
 
-        tableNode.setColWidths(Array(numColumns).fill(columnWidth));
-        return tableNode;
+              tableNode.setColWidths(Array(numColumns).fill(columnWidth));
+            }
+          }
+        });
       }),
     );
   }, [editor]);

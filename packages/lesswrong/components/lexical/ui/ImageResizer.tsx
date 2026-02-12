@@ -6,7 +6,7 @@
  *
  */
 
-import type {LexicalEditor} from 'lexical';
+import type {LexicalEditor, NodeKey} from 'lexical';
 import React, { type JSX } from 'react';
 
 import {calculateZoomLevel} from '@lexical/utils';
@@ -14,6 +14,7 @@ import {calculateZoomLevel} from '@lexical/utils';
 import {useRef} from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
+import { SET_IMAGE_SIZE_COMMAND } from '../plugins/ImagesPlugin/commands';
 
 const styles = defineStyles('LexicalImageResizer', (theme: ThemeType) => ({
   controlWrapper: {
@@ -84,6 +85,7 @@ const Direction = {
 };
 
 export default function ImageResizer({
+  nodeKey,
   onResizeStart,
   onResizeEnd,
   imageRef,
@@ -91,6 +93,7 @@ export default function ImageResizer({
 }: {
   editor: LexicalEditor;
   imageRef: {current: null | HTMLElement};
+  nodeKey: NodeKey;
   onResizeEnd: (widthPercent: number | null) => void;
   onResizeStart: () => void;
 }): JSX.Element {
@@ -324,6 +327,10 @@ export default function ImageResizer({
         ? clamp(widthPercent, (minWidth / maxWidthContainer) * 100, 100)
         : null;
 
+      editor.dispatchCommand(SET_IMAGE_SIZE_COMMAND, {
+        nodeKey,
+        widthPercent: clampedWidthPercent,
+      });
       onResizeEnd(clampedWidthPercent);
 
       document.removeEventListener('pointermove', handlePointerMove);

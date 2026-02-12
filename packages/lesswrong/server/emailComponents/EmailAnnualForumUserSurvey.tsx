@@ -1,6 +1,6 @@
 import React from "react";
 import { defineStyles } from "@/components/hooks/defineStyles";
-import { EmailContextType, useEmailStyles } from "./emailContext";
+import { EmailContextType, emailUseStyles } from "./emailContext";
 
 const styles = defineStyles("EmailAnnualForumUserSurvey", (theme: ThemeType) => ({
   root: {
@@ -20,7 +20,7 @@ export const EmailAnnualForumUserSurvey = ({ user, emailContext }: {
   user: DbUser
   emailContext: EmailContextType
 }) => {
-  const classes = useEmailStyles(styles, emailContext);
+  const classes = emailUseStyles(styles, emailContext);
   const surveyLink = 'https://forms.cea.community/forum-survey-2024?utm_source=ea_forum&utm_medium=email&utm_campaign=survey_reminder'
 
   return (

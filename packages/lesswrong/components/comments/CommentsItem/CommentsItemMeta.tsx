@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
-import { useCommentLink, useCommentLinkState } from "./useCommentLink";
+import { CommentLinkWrapper, useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
 import { useFilteredCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -193,7 +193,6 @@ export const CommentsItemMeta = ({
     scrollIntoView,
     scrollOnClick: postPage && !isParentComment,
   };
-  const CommentLinkWrapper = useCommentLink(commentLinkProps);
 
   /**
    * Show the moderator comment annotation if:
@@ -328,7 +327,7 @@ export const CommentsItemMeta = ({
       {(rightSectionElements || isFriendlyUI() || menuVisible) && <span className={classes.rightSection}>
         {rightSectionElements}
         {isFriendlyUI() &&
-          <CommentLinkWrapper>
+          <CommentLinkWrapper {...commentLinkProps}>
             <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
           </CommentLinkWrapper>
         }

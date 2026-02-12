@@ -165,7 +165,10 @@ export default function AutocompletePlugin(): JSX.Element | null {
         $clearSuggestion();
       }
     }
-    function handleUpdate() {
+    function handleUpdate({tags}: {tags: Set<string>}) {
+      if (tags.has('collaboration')) {
+        return;
+      }
       editor.update(() => {
         const selection = $getSelection();
         const [hasMatch, match] = $search(selection);
