@@ -1000,7 +1000,7 @@ export default function ProfilePage() {
                       <div className={classes.sidebarStatRow}>{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
                     )}
                     {user.createdAt && (
-                      <div className={classes.sidebarStatRow}>Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
+                      <div className={classes.sidebarStatRow} suppressHydrationWarning>Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
                     )}
                   </div>
                 )}

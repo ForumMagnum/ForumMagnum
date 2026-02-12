@@ -269,24 +269,28 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   },
 }));
 
-type TopPostsManagerClasses = Record<string, string>;
+const SwapIcon = () => {
+  const classes = useStyles(styles);
+  return (
+    <svg className={classes.swapIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 7.5L8 7.5M21 7.5L16.6667 3M21 7.5L16.6667 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M4 16.5L17 16.5M4 16.5L8.33333 21M4 16.5L8.33333 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+};
 
-const SwapIcon = ({ classes }: { classes: TopPostsManagerClasses }) => (
-  <svg className={classes.swapIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M21 7.5L8 7.5M21 7.5L16.6667 3M21 7.5L16.6667 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M4 16.5L17 16.5M4 16.5L8.33333 21M4 16.5L8.33333 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const DragDots = ({ classes }: { classes: TopPostsManagerClasses }) => (
-  <div className={classes.dragDots}>
-    <span />
-    <span />
-    <span />
-    <span />
-    <span />
-  </div>
-);
+const DragDots = () => {
+  const classes = useStyles(styles);
+  return (
+    <div className={classes.dragDots}>
+      <span />
+      <span />
+      <span />
+      <span />
+      <span />
+    </div>
+  );
+};
 
 function computePlacement(anchorEl: HTMLElement): PopperPlacementType {
   const rect = anchorEl.getBoundingClientRect();
@@ -324,7 +328,6 @@ function SortablePostRow({
   isSwapActive,
   activeDragId,
   onSwapClick,
-  classes,
 }: {
   post: PostItem;
   index: number;
@@ -332,8 +335,8 @@ function SortablePostRow({
   isSwapActive: boolean;
   activeDragId: string | null;
   onSwapClick: (index: number, anchorEl: HTMLElement) => void;
-  classes: TopPostsManagerClasses;
 }) {
+  const classes = useStyles(styles);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const {
     attributes,
@@ -377,7 +380,7 @@ function SortablePostRow({
           {...attributes}
           {...listeners}
         >
-          <DragDots classes={classes} />
+          <DragDots />
         </div>
         <div className={classes.postContent} onClick={handleContentClick}>
           <span className={classes.postTitle}>
@@ -393,7 +396,7 @@ function SortablePostRow({
             onClick={(e) => onSwapClick(index, e.currentTarget)}
             type="button"
           >
-            <SwapIcon classes={classes} />
+            <SwapIcon />
           </button>
         )}
       </div>
@@ -629,7 +632,6 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
                 isSwapActive={swapSlotIndex === index}
                 activeDragId={activeDragId}
                 onSwapClick={handleSwapClick}
-                classes={classes}
               />
             ))}
           </div>
