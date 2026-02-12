@@ -44,6 +44,7 @@ const SEQUENCES_LIMIT = 6;
 const BIO_COLLAPSED_WORD_LIMIT = 60;
 const POST_SUMMARY_WORD_LIMIT = 50;
 const SORT_PANEL_CLOSE_MS = 300;
+const SEPARATOR_LINE_PATTERN = /^[\s\-_=*~]{8,}$/;
 
 const DEFAULT_PREVIEWS = [
   "/profile-placeholder-1.png",
@@ -75,15 +76,54 @@ function hashString(s: string): number {
   return Math.abs(h);
 }
 
+function cleanPostPreviewText(rawText: string): string {
+  if (!rawText) return "";
+  const normalized = rawText.replace(/\r\n?/g, "\n");
+  const cleanedLines = normalized
+    .split("\n")
+    .map((line) => line.replace(/[^\S\n]+/g, " ").trim())
+    .map((line) => (SEPARATOR_LINE_PATTERN.test(line) ? "" : line));
+  return cleanedLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function truncatePreviewTextByWords(text: string, wordLimit: number): string {
+  if (!text) return "";
+  const tokens = text.match(/\S+|\s+/g) ?? [];
+  let wordCount = 0;
+  let result = "";
+
+  for (const token of tokens) {
+    if (/^\s+$/.test(token)) {
+      result += token;
+      continue;
+    }
+
+    if (wordCount >= wordLimit) {
+      return `${result.trimEnd()}...`;
+    }
+
+    result += token;
+    wordCount += 1;
+  }
+
+  return result.trimEnd();
+}
+
+function collapsePreviewParagraphsForList(text: string): string {
+  if (!text) return "";
+  // Flatten paragraph/line breaks for list items while leaving visible
+  // separation where breaks used to be.
+  return text.replace(/\n+/g, "   ").replace(/ {4,}/g, "   ").trim();
+}
+
 function getPostSummary(post: { contents?: { plaintextDescription?: string | null } | null }): string {
-  const fullSummary = (post?.contents?.plaintextDescription ?? "").trim();
-  const words = fullSummary.split(/\s+/);
-  if (words.length <= POST_SUMMARY_WORD_LIMIT) return fullSummary;
-  return words.slice(0, POST_SUMMARY_WORD_LIMIT).join(" ") + "...";
+  const fullSummary = cleanPostPreviewText(post?.contents?.plaintextDescription ?? "");
+  const singleParagraphSummary = collapsePreviewParagraphsForList(fullSummary);
+  return truncatePreviewTextByWords(singleParagraphSummary, POST_SUMMARY_WORD_LIMIT);
 }
 
 function getTopPostSummary(post: { contents?: { plaintextDescription?: string | null } | null }): string {
-  return (post?.contents?.plaintextDescription ?? "").trim();
+  return cleanPostPreviewText(post?.contents?.plaintextDescription ?? "");
 }
 
 function getDefaultPreview(postId: string): string {
@@ -113,16 +153,58 @@ function getPostImageUrl(
     ? topPostDefaultImages[topPostIndex % topPostDefaultImages.length]
     : getDefaultPreview(post?._id ?? "0");
   const url = post?.socialPreviewData?.imageUrl;
-  if (!url || !url.trim()) return fallback;
+  const trimmedUrl = url?.trim();
+  if (!trimmedUrl) return fallback;
+  if (trimmedUrl === "null" || trimmedUrl === "undefined") return fallback;
   // Google-hosted images (Docs embeds, profile photos) don't render well as
   // post preview cards, so fall back to a placeholder instead
-  if (url.includes("lh3.googleusercontent.com") || url.includes("docs.google.com")) {
+  if (trimmedUrl.includes("lh3.googleusercontent.com") || trimmedUrl.includes("docs.google.com")) {
     return fallback;
   }
-  if (url.includes("res.cloudinary.com") && url.includes("/upload/")) {
-    return url.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
+  if (trimmedUrl.includes("res.cloudinary.com") && trimmedUrl.includes("/upload/")) {
+    // Some legacy posts have an empty cloudinary public ID, which yields
+    // URLs like `.../upload/.../` that render as broken images.
+    const urlWithoutQuery = trimmedUrl.split(/[?#]/)[0];
+    if (urlWithoutQuery.endsWith("/")) return fallback;
+    return trimmedUrl.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
   }
-  return url;
+  return trimmedUrl;
+}
+
+function getPostBackgroundImage(
+  post: PostWithPreview,
+  topPostDefaultImages: string[],
+  topPostIndex?: number,
+): string {
+  const fallback = topPostIndex !== undefined
+    ? topPostDefaultImages[topPostIndex % topPostDefaultImages.length]
+    : getDefaultPreview(post?._id ?? "0");
+  const imageUrl = getPostImageUrl(post, topPostDefaultImages, topPostIndex);
+  if (imageUrl === fallback) return cssUrl(fallback);
+  // Keep a fallback layer so broken/404 primary URLs still render a placeholder.
+  return `${cssUrl(imageUrl)}, ${cssUrl(fallback)}`;
+}
+
+function cssUrl(url: string): string {
+  // Use double-quoted CSS url(...) with JS escaping to avoid breakage from apostrophes.
+  return `url(${JSON.stringify(url)})`;
+}
+
+function getListPostImageUrl(post: PostWithPreview): string | null {
+  const rawUrl = post?.socialPreviewData?.imageUrl;
+  const imageUrl = rawUrl?.trim();
+  if (!imageUrl || imageUrl === "null" || imageUrl === "undefined") return null;
+  // List items should only show explicit per-post images, not placeholders.
+  if (imageUrl.includes("/profile-placeholder-")) return null;
+  if (imageUrl.includes("lh3.googleusercontent.com") || imageUrl.includes("docs.google.com")) {
+    return null;
+  }
+  if (imageUrl.includes("res.cloudinary.com") && imageUrl.includes("/upload/")) {
+    const urlWithoutQuery = imageUrl.split(/[?#]/)[0];
+    if (urlWithoutQuery.endsWith("/")) return null;
+    return imageUrl.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
+  }
+  return imageUrl;
 }
 
 function formatReadableDate(date: Date | string): string {
@@ -421,7 +503,7 @@ export default function ProfilePage() {
                   <div
                     className={classes.postImage}
                     style={{
-                      backgroundImage: `url('${getPostImageUrl(topPost, topPostDefaultImages, 0)}')`,
+                      backgroundImage: getPostBackgroundImage(topPost, topPostDefaultImages, 0),
                     }}
                   ></div>
                 </Link>
@@ -429,7 +511,7 @@ export default function ProfilePage() {
 
               <div className={classes.smallArticlesGrid}>
                 {smallArticles.map((post, idx) => {
-                  const imageUrl = getPostImageUrl(post, topPostDefaultImages, idx + 1);
+                  const imageBackground = getPostBackgroundImage(post, topPostDefaultImages, idx + 1);
                   return (
                     <article key={post._id} className={classes.smallArticle}>
                       <Link
@@ -438,7 +520,7 @@ export default function ProfilePage() {
                       >
                         <div
                           className={classes.smallArticleImage}
-                          style={{ backgroundImage: `url('${imageUrl}')` }}
+                          style={{ backgroundImage: imageBackground }}
                         ></div>
                         <div className={classes.smallArticleContent}>
                           <h3 className={classes.smallArticleTitle}>
@@ -624,9 +706,10 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 )}
-                {listPosts.map((post, index) => {
+                {listPosts.map((post) => {
                   const summary = getPostSummary(post);
-                  const imageUrl = getPostImageUrl(post, topPostDefaultImages);
+                  const imageUrl = getListPostImageUrl(post);
+                  const hasListImage = !!imageUrl;
                   const isPinned = !!pinnedPostIds?.includes(post._id);
                   return (
                     <article key={post._id} className={classes.listArticle}>
@@ -635,30 +718,54 @@ export default function ProfilePage() {
                         className={classes.articleLink}
                       >
                         <div className={classes.listArticleContent}>
-                          <h3 className={classes.listArticleTitle}>
-                            {isPinned && (
-                              <span className={classes.pinnedIcon} aria-hidden="true">
-                                <PinIcon className={classes.pinnedIconSvg} />
-                              </span>
+                          <div className={classNames(classes.listArticleBody, !hasListImage && classes.listArticleBodyNoImage)}>
+                            <div className={classNames(classes.listArticleText, !hasListImage && classes.listArticleTextNoImage)}>
+                              {isPinned && (
+                                <div className={classes.listArticleTopMeta}>
+                                  <div className={classes.listArticleTopMetaLeft}>
+                                    <span className={classes.listPinnedBadge}>
+                                      <span className={classes.pinnedIcon} aria-hidden="true">
+                                        <PinIcon className={classes.pinnedIconSvg} />
+                                      </span>
+                                      <span>Pinned</span>
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+                              <h3 className={classes.listArticleTitle}>
+                                <span className={classes.listArticleTitleText}>{post.title}</span>
+                              </h3>
+                              {summary && (
+                                <div className={classNames(
+                                  classes.listArticleSummaryWrapper,
+                                  !hasListImage && classes.listArticleSummaryWrapperNoImage,
+                                )}>
+                                  <p className={classNames(
+                                    classes.listArticleSummary,
+                                    !hasListImage && classes.listArticleSummaryNoImage,
+                                  )}>{summary}</p>
+                                </div>
+                              )}
+                              <div className={classNames(classes.listArticleMeta)}>
+                                <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
+                                  <span className={classes.listDate}>{formatReadableDate(post.postedAt!)}</span>
+                                </LWTooltip>
+                                <span className={classes.listMetaDivider} aria-hidden="true">•</span>
+                                <LWTooltip title="Karma score">
+                                  <span className={classes.listKarma}>{post.baseScore ?? 0}</span>
+                                </LWTooltip>
+                              </div>
+                            </div>
+                            {hasListImage && (
+                              <div
+                                className={classes.listArticleImage}
+                                style={{
+                                  backgroundImage: cssUrl(imageUrl),
+                                }}
+                              ></div>
                             )}
-                            <span className={classes.listArticleTitleText}>{post.title}</span>
-                          </h3>
-                          {summary && <p className={classes.listArticleSummary}>{summary}</p>}
-                          <div className={classes.listArticleMeta}>
-                            <LWTooltip title="Karma score">
-                              <span className={classes.listKarma}>{post.baseScore ?? 0}</span>
-                            </LWTooltip>
-                            <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
-                              <span className={classes.listDate}>{formatReadableDate(post.postedAt!)}</span>
-                            </LWTooltip>
                           </div>
                         </div>
-                        <div
-                          className={classes.listArticleImage}
-                          style={imageUrl ? {
-                            backgroundImage: `url('${imageUrl}')`,
-                          } : undefined}
-                        ></div>
                       </Link>
                     </article>
                   );
@@ -695,7 +802,7 @@ export default function ProfilePage() {
                           <div
                             className={classes.sequenceCardImage}
                             style={{
-                              backgroundImage: `url('https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}')`,
+                              backgroundImage: cssUrl(`https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}`),
                             }}
                           ></div>
                           <div className={classes.sequenceCardContent}>
