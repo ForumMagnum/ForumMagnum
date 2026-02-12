@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Page() {
-  return <RouteRoot metadata={{ subtitle: 'HPMoR', subtitleLink: '/hpmor' }}>
+  return <RouteRoot subtitle={{ title: 'HPMoR', link: '/hpmor' }}>
     <Hpmor />
   </RouteRoot>;
 }

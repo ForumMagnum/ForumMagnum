@@ -21,3 +21,17 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+Contains code derived from Proton WebClients (https://github.com/ProtonMail/WebClients).
+Copyright (c) Proton AG. Licensed under GPL-3.0 (see packages/lesswrong/lib/vendor/proton/LICENSE-GPL3).
+Modified by the LessWrong team, 2026.
+
+The derived code is located in:
+- packages/lesswrong/lib/vendor/proton/
+- packages/lesswrong/components/editor/lexicalPlugins/suggestedEdits/
+- packages/lesswrong/components/editor/lexicalPlugins/suggestions/
+
+Not all files in these directories are derived from Proton; files that are original to
+ForumMagnum retain their original copyright and license.

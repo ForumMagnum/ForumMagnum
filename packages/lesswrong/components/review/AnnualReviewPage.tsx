@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { getReviewPhase, getReviewYearFromString } from '@/lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
@@ -18,8 +17,10 @@ import ReviewVotingExpandedPost from "./ReviewVotingExpandedPost";
 import ReviewsPage from "./ReviewsPage";
 import ReviewPhaseInformation from "./ReviewPhaseInformation";
 import QuickReviewPage from "./QuickReviewPage";
+import { useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AnnualReviewPage", (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "space-around",
@@ -129,15 +130,14 @@ const styles = (theme: ThemeType) => ({
     gridTemplateColumns: '1fr 3fr',
     gap: 16,
   }
-});
+}));
 
-export const AnnualReviewPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const AnnualReviewPage = ({year}: {year: string}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
-  const { params, query, location } = useLocation()
-  const reviewYear = getReviewYearFromString(params.year)
+  const { query, location } = useLocation()
+  const reviewYear = getReviewYearFromString(year)
 
   // Derive activeTab from the current pathname
   let activeTab: 'reviewVoting' | 'nominatePosts' | 'reviews' | 'quickReview' | null = null;
@@ -179,11 +179,11 @@ export const AnnualReviewPage = ({classes}: {
   
   if (!reviewYear) {
     return <SingleColumnSection>
-      {params.year} is not a valid review year.
+      {year} is not a valid review year.
     </SingleColumnSection>
   }
 
-  if (!currentUser) {
+  if (!currentUser && activeTab !== 'reviews') {
     return <SingleColumnSection>
       You must be logged in to view the annual review.
     </SingleColumnSection>
@@ -233,6 +233,6 @@ export const AnnualReviewPage = ({classes}: {
   </div>
 }
 
-export default registerComponent('AnnualReviewPage', AnnualReviewPage, {styles});
+export default AnnualReviewPage;
 
 

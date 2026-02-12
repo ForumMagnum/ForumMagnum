@@ -706,8 +706,6 @@ type HomepageCommunityEventPostsResult {
 
 type HocuspocusAuth {
   token: String!
-  wsUrl: String!
-  documentName: String!
 }
 
 type DigestHighlightsResult {
@@ -1285,6 +1283,7 @@ extend type Mutation {
   approveUserCurrentContentOnly(userId: String!): Boolean!
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+  unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
 }
 
 extend type Mutation {
@@ -1399,6 +1398,24 @@ extend type Query {
 
 extend type Query {
   RevisionsDiff(collectionName: String!, fieldName: String!, id: String, beforeRev: String, afterRev: String!, trim: Boolean): String
+}
+
+type ReviewResultsPostEntry {
+  rank: Int!
+  title: String!
+  postUrl: String!
+  authorName: String!
+  coauthorNames: [String!]!
+  votes: [Float!]!
+}
+
+type ReviewResultsTableData {
+  year: Int!
+  results: [ReviewResultsPostEntry!]!
+}
+
+extend type Query {
+  ReviewResultsTableData(year: Int!): ReviewResultsTableData
 }
 
 extend type Mutation {
@@ -7989,6 +8006,7 @@ type User {
   oldSlugs: [String!]!
   biography(version: String): Revision
   biography_latest: String
+  pinnedPostIds: [String!]!
   username: String
   emails: [JSON!]
   isAdmin: Boolean!
@@ -10465,6 +10483,7 @@ input CreateUserDataInput {
   howICanHelpOthers: CreateRevisionDataInput
   slug: String
   biography: CreateRevisionDataInput
+  pinnedPostIds: [String!]
   username: String
   isAdmin: Boolean
   displayName: String!
@@ -10626,6 +10645,7 @@ input UpdateUserDataInput {
   howICanHelpOthers: CreateRevisionDataInput
   slug: String
   biography: CreateRevisionDataInput
+  pinnedPostIds: [String!]
   username: String
   isAdmin: Boolean
   displayName: String

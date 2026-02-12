@@ -4,7 +4,7 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client/react";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useNavigate } from "../../lib/routeUtil";
 import { TagForm } from './TagForm';
 import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
@@ -26,9 +26,7 @@ export const EditTagForm = ({tag, successCallback, cancelCallback, changeCallbac
   />
 }
 
-const EditTagPage = () => {
-  const { params } = useLocation();
-  const { slug } = params;
+const EditTagPage = ({slug}: {slug: string}) => {
   const { tag, loading } = useTagBySlug(slug, "TagEditFragment");
   const navigate = useNavigate();
   const client = useApolloClient()

@@ -9,7 +9,7 @@ import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/componen
 import { SSRMetadata, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/vulcan-core/appContext';
-import { parsePath } from '@/lib/vulcan-lib/routes';
+import { parsePath } from '@/lib/routeChecks/parseRoute';
 import { MessageContextProvider } from '@/components/layout/FlashMessages';
 import { UserContextProvider } from '../common/withUser';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
@@ -20,7 +20,7 @@ import { isClient, isServer } from '@/lib/executionEnvironment';
 import Cookies from 'universal-cookie';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 
-import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { initClientOnce } from '@/client/initClient';
 

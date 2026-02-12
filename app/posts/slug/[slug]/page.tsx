@@ -2,7 +2,7 @@ import React from "react";
 import PostsSingleSlugRedirect from '@/components/posts/PostsSingleSlugRedirect';
 import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
 
 // TODO: this route previously used PostsPageHeaderTitle for its metadata, but that was nonsensical because
 // it was using a slug to then do a permanent redirect, and PostsPageHeaderTitle needs an _id or postId
@@ -11,13 +11,14 @@ import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgrou
 
 assertRouteHasWhiteBackground("/posts/slug/[slug]");
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params;
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      noFooter: hasPostRecommendations(),
-    }}
+    noFooter={hasPostRecommendations()}
   >
-    <PostsSingleSlugRedirect />
+    <PostsSingleSlugRedirect slug={slug} />
   </RouteRoot>;
 }

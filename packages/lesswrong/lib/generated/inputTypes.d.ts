@@ -78,6 +78,7 @@ interface Query {
   SearchSynonyms: Array<string>;
   getCrosspost: any;
   RevisionsDiff: string | null;
+  ReviewResultsTableData: ReviewResultsTableData | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
   getBookWordCount: number | null;
@@ -275,6 +276,7 @@ interface Mutation {
   approveUserCurrentContentOnly: boolean;
   rerunLlmCheck: AutomatedContentEvaluation;
   runLlmCheckForDocument: AutomatedContentEvaluation;
+  unlistLlmPost: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -915,8 +917,6 @@ interface HomepageCommunityEventPostsResult {
 
 interface HocuspocusAuth {
   token: string;
-  wsUrl: string;
-  documentName: string;
 }
 
 interface DigestHighlightsResult {
@@ -1266,6 +1266,20 @@ interface RssPostChangeInfo {
   isChanged: boolean;
   newHtml: string;
   htmlDiff: string;
+}
+
+interface ReviewResultsPostEntry {
+  rank: number;
+  title: string;
+  postUrl: string;
+  authorName: string;
+  coauthorNames: Array<string>;
+  votes: Array<number>;
+}
+
+interface ReviewResultsTableData {
+  year: number;
+  results: Array<ReviewResultsPostEntry>;
 }
 
 interface FeedSpotlightMetaInfo {
@@ -7360,6 +7374,7 @@ interface User {
   oldSlugs: Array<string>;
   biography: Revision | null;
   biography_latest: string | null;
+  pinnedPostIds: Array<string>;
   username: string | null;
   emails: Array<any> | null;
   isAdmin: boolean;
@@ -9541,6 +9556,7 @@ interface CreateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
+  pinnedPostIds?: Array<string> | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName: string;
@@ -9702,6 +9718,7 @@ interface UpdateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
+  pinnedPostIds?: Array<string> | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName?: string | null;
@@ -10036,6 +10053,8 @@ interface GraphQLTypeMap {
   ToggleBookmarkOutput: ToggleBookmarkOutput;
   SetIsBookmarkedOutput: SetIsBookmarkedOutput;
   RssPostChangeInfo: RssPostChangeInfo;
+  ReviewResultsPostEntry: ReviewResultsPostEntry;
+  ReviewResultsTableData: ReviewResultsTableData;
   FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;

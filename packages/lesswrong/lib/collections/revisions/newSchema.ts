@@ -330,8 +330,8 @@ const schema = {
       resolver: ({ html }) => {
         if (!html) return "";
         const mainTextHtml = sanitizeHtml(html, {
-          allowedTags: sanitizeAllowedTags.filter((tag) => tag !== "blockquote" && tag !== "img"),
-          nonTextTags: ["blockquote", "img", "style"],
+          allowedTags: sanitizeAllowedTags.filter((tag) => tag !== "blockquote"),
+          nonTextTags: ["blockquote", "style"],
           exclusiveFilter: function (element) {
             return (
               element.attribs?.class === "spoilers" ||
@@ -341,7 +341,7 @@ const schema = {
           },
         });
         const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH);
-        return htmlToTextDefault(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
+        return htmlToTextDefault(truncatedHtml, { fallbackToImageText: true }).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
       },
     },
   },

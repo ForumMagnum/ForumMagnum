@@ -1,8 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useLocation } from '../../lib/routeUtil'
 import { useTagBySlug } from './useTag';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -10,8 +8,10 @@ import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings
 import SingleColumnSection from "../common/SingleColumnSection";
 import TagDiscussionSection from "./TagDiscussionSection";
 import ContentStyles from "../common/ContentStyles";
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagDiscussionPage", (theme: ThemeType) => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
@@ -22,13 +22,10 @@ const styles = (theme: ThemeType) => ({
   description: {
     marginBottom: 18,
   },
-});
+}));
 
-const TagDiscussionPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const { params } = useLocation();
-  const { slug } = params;
+const TagDiscussionPage = ({slug}: {slug: string}) => {
+  const classes = useStyles(styles);
   const { tag } = useTagBySlug(slug, "TagFragment");
   return (
     <SingleColumnSection>
@@ -44,7 +41,4 @@ const TagDiscussionPage = ({classes}: {
   );
 }
 
-export default registerComponent("TagDiscussionPage", TagDiscussionPage, {styles});
-
-
-
+export default TagDiscussionPage;

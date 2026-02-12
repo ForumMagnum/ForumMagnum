@@ -1,6 +1,5 @@
-import { legacyRouteAcronym } from '@/components/linkPreview/parseRouteWithErrors';
 import { classifyHost } from '@/lib/routeUtil';
-import { parseRoute, parsePath, type RouterLocation } from '@/lib/vulcan-lib/routes';
+import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
 import { getUrlClass } from '../utils/getUrlClass';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 

@@ -1,21 +1,23 @@
 import React from "react";
 import TagPageRouter from '@/components/tagging/TagPageRouter';
-import { TagPageTitle } from '@/components/tagging/TagPageTitle';
+import { TagPageSubtitle } from '@/components/tagging/TagPageSubtitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import PermanentRedirect from "@/components/common/PermanentRedirect";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 
 assertRouteHasWhiteBackground("/w/[slug]");
 
-export default async function Page({ params, searchParams }: { params: Promise<{ slug: string }>, searchParams: Promise<{ startPath?: string }> }) {
-  // enableResourcePrefetch was: function
-
+export default async function Page({ params, searchParams }: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ startPath?: string }>
+}) {
   const [{ slug }, searchParamValues] = await Promise.all([params, searchParams]);
+
   // This needs to be an `in` because startPath will be an empty string,
   // for legacy Arbital compatibility reasons.
   if ('startPath' in searchParamValues && slug in GUIDE_PATH_PAGES_MAPPING) {
@@ -28,11 +30,8 @@ export default async function Page({ params, searchParams }: { params: Promise<{
   
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      titleComponent: TagPageTitle,
-      subtitleComponent: TagPageTitle
-    }}
+    subtitle={TagPageSubtitle}
   >
-    <TagPageRouter />
+    <TagPageRouter slug={slug} />
   </RouteRoot>
 }

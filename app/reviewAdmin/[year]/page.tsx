@@ -9,8 +9,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields('Review Admin Dashboard'));
 }
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ year: string }>
+}) {
+  const { year } = await params;
   return <RouteRoot>
-    <ReviewAdminDashboard />
+    <ReviewAdminDashboard year={year} />
   </RouteRoot>;
 }

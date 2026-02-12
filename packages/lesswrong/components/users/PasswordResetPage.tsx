@@ -1,16 +1,15 @@
 "use client";
-
 import React, { useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useLocation } from '../../lib/routeUtil';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import type { UseEmailTokenResult } from '@/server/emails/emailTokens';
 import { emailTokenResultComponents } from './emailTokens';
 import SingleColumnSection from "../common/SingleColumnSection";
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PasswordResetPage", (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle
   },
@@ -35,18 +34,16 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     fontSize: '1rem'
   }, 
-})
+}));
 
-const PasswordResetPage = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const PasswordResetPage = ({token}: {token: string}) => {
+  const classes = useStyles(styles);
   const [emailTokenMutation] = useMutation(gql(`
     mutation usePasswordResetEmailToken($token: String, $args: JSON) {
       useEmailToken(token: $token, args: $args)
     }
   `));
   const [useTokenResult, setUseTokenResult] = useState<UseEmailTokenResult | null>(null)
-  const { params: { token } } = useLocation()
   const [ password, setPassword ] = useState("")
   const submitFunction = async () => {
     const result = await emailTokenMutation({ variables: { token, args: { password }}})
@@ -63,6 +60,6 @@ const PasswordResetPage = ({classes}: {
   </SingleColumnSection>
 }
 
-export default registerComponent("PasswordResetPage", PasswordResetPage, { styles });
+export default PasswordResetPage;
 
 

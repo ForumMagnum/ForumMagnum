@@ -22,9 +22,10 @@ import {
 import { allPostsParams } from '@/lib/collections/posts/helpers';
 import qs from 'qs';
 import moment from 'moment';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
-function isWithin24Hours(date: moment.Moment) {
-  const diff = date.diff(new Date());
+function isWithin24Hours(now: Date, date: moment.Moment) {
+  const diff = date.diff(now);
   return diff > 0 && diff < (24 * 60 * 60 * 1000);
 }
 
@@ -236,6 +237,7 @@ const phaseConfigs: Partial<Record<ReviewPhase, PhaseConfig>> = {
 
 export const AnnualReviewSidebarBanner = () => {
   const classes = useStyles(styles);
+  const now = useCurrentTime();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   
@@ -294,7 +296,7 @@ export const AnnualReviewSidebarBanner = () => {
             {config.buttonLabel}
           </a>
 
-          {isWithin24Hours(end) && (
+          {isWithin24Hours(now, end) && (
             <span className={classes.timeRemaining}>{end.fromNow()} remaining</span>
           )}
         </div>

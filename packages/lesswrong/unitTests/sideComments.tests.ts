@@ -1,6 +1,7 @@
 import chai from 'chai';
 import { QuoteShardSettings, getCommentQuotedBlockID, commentToQuoteShards, annotateMatchedSpans, matchSideComments } from '../server/sideComments';
 import { cheerioParseAndMarkOffsets } from '../server/utils/htmlUtil';
+import { type Element } from 'cheerio';
 
 const testQuoteShardSettings: QuoteShardSettings = {
   minLength: 5,
@@ -151,8 +152,8 @@ describe('annotateMatchedSpans', () => {
 describe('cheerioParseAndMarkOffsets', () => {
   const html = '<p>Lorem <em>ipsum</em> dolor</p>';
   const parsed = cheerioParseAndMarkOffsets(html);
-  const em = parsed('em')[0] as cheerio.TagElement;
-  const p = parsed('p')[0] as cheerio.TagElement;
+  const em = parsed('em')[0] as Element;
+  const p = parsed('p')[0] as Element;
   
   it('marks offsets of text nodes', () => {
     chai.assert.equal((em.children[0] as any).offset, 13);

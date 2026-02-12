@@ -10,20 +10,6 @@ class TagsRepo extends AbstractRepo<"Tags"> {
     super(Tags);
   }
 
-  async tagRouteWillDefinitelyReturn200(slug: string): Promise<boolean> {
-    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
-      -- SequencesRepo.sequenceRouteWillDefinitelyReturn200
-      SELECT EXISTS(
-        SELECT 1
-        FROM "Tags"
-        WHERE "slug" = $1 AND ${getViewableTagsSelector()}
-      )
-    `, [slug]);
-
-    return res?.exists ?? false;
-  }
-
-
   private getSearchDocumentQuery(): string {
     return `
       -- TagsRepo.getSearchDocumentQuery

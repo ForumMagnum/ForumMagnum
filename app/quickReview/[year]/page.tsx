@@ -9,8 +9,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields('Review Quick Page'));
 }
 
-export default function Page() {
-  return <RouteRoot metadata={{ subtitle: 'Quick Review Page' }}>
-    <AnnualReviewPage />
+export default async function Page({ params }: {
+  params: Promise<{ year: string }>
+}) {
+  const { year } = await params;
+  return <RouteRoot subtitle="Quick Review Page">
+    <AnnualReviewPage year={year} />
   </RouteRoot>;
 }

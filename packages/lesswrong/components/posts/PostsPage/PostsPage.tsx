@@ -282,7 +282,8 @@ function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurr
 }
 
 
-const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
+const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}: {
+  sequenceIdFromUrl: string|null,
   refetch: () => void,
   embedded?: boolean,
 } & (
@@ -331,7 +332,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   }, [post, showEmbeddedPlayer, captureEvent, setCookie]);
 
   const getSequenceId = () => {
-    return params.sequenceId || fullPost?.canonicalSequenceId || null;
+    return sequenceIdFromUrl || fullPost?.canonicalSequenceId || null;
   }
 
   // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route
@@ -339,7 +340,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
 
   const isReviewWinner = ('reviewWinner' in post) && post.reviewWinner;
-  const showSplashPageHeader = isLWorAF() && !!isReviewWinner && !params.sequenceId;
+  const showSplashPageHeader = isLWorAF() && !!isReviewWinner && !sequenceIdFromUrl;
 
   useEffect(() => {
     if (!query[SHARE_POPUP_QUERY_PARAM]) return;

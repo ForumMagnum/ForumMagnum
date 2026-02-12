@@ -329,6 +329,12 @@ export class ImageNode extends ElementNode {
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const imgElement = document.createElement('img');
+    // Set loading="lazy" BEFORE src so the browser defers the fetch until the
+    // element is near the viewport. Since exportDOM elements live in a
+    // detached container (never rendered), the fetch never happens.
+    // This gets stripped out by the server-side sanitization,
+    // so it doesn't affect published documents.
+    imgElement.setAttribute('loading', 'lazy');
     imgElement.setAttribute('src', this.__src);
     imgElement.setAttribute('alt', this.__altText);
     if (typeof this.__width === 'number') {
@@ -688,3 +694,4 @@ export function $isImageNode(
 ): node is ImageNode {
   return node instanceof ImageNode;
 }
+
