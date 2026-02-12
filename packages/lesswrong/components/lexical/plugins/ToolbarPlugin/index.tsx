@@ -1505,12 +1505,12 @@ export default function ToolbarPlugin({
                     <DropDownItemText>{`Insert footnote ${item.index}`}</DropDownItemText>
                   </DropDownItem>
                 ))}
-                <DropDownItem
+                {/* <DropDownItem
                   onClick={() => dispatchToolbarCommand(INSERT_PAGE_BREAK)}
                   >
                   <ScissorsIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Page Break</DropDownItemText>
-                </DropDownItem>
+                </DropDownItem> */}
                 <DropDownItem
                   onClick={() => {
                     showModal('Insert Image', (onClose) => (
