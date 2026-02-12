@@ -154,7 +154,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       opacity: 0.85,
       display: "block",
       filter: "none",
-      mixBlendMode: "multiply",
+      mixBlendMode: theme.dark ? "normal" : "multiply",
     },
   },
   emptyStateDescription: {
@@ -214,7 +214,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     fontSize: 14,
     aspectRatio: "3 / 2",
     transition: "opacity 0.15s ease",
-    mixBlendMode: "multiply",
+    mixBlendMode: theme.dark ? "normal" : "multiply",
   },
   postTitle: {
     fontFamily: theme.typography.headerStyle.fontFamily,
@@ -324,7 +324,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     borderRadius: 4,
     overflow: "hidden",
     transition: "opacity 0.15s ease",
-    mixBlendMode: "multiply",
+    mixBlendMode: theme.dark ? "normal" : "multiply",
   },
   smallArticleContent: {
     padding: "15px 0 0 0",
