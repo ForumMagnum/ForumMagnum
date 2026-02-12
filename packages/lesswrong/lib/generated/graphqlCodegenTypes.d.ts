@@ -13224,62 +13224,62 @@ type SequenceMetadataQueryVariables = Exact<{
 
 type SequenceMetadataQuery = SequenceMetadataQuery_Query;
 
-type HabrykaDynamicUserQueryQuery_users_MultiUserOutput_results_User = (
+type ProfileUserQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & UsersProfile
 );
 
-type HabrykaDynamicUserQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<HabrykaDynamicUserQueryQuery_users_MultiUserOutput_results_User> };
+type ProfileUserQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<ProfileUserQueryQuery_users_MultiUserOutput_results_User> };
 
-type HabrykaDynamicUserQueryQuery_Query = { __typename?: 'Query', users: HabrykaDynamicUserQueryQuery_users_MultiUserOutput | null };
+type ProfileUserQueryQuery_Query = { __typename?: 'Query', users: ProfileUserQueryQuery_users_MultiUserOutput | null };
 
 
-type HabrykaDynamicUserQueryQueryVariables = Exact<{
+type ProfileUserQueryQueryVariables = Exact<{
   selector: InputMaybe<UserSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
   enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-type HabrykaDynamicUserQueryQuery = HabrykaDynamicUserQueryQuery_Query;
+type ProfileUserQueryQuery = ProfileUserQueryQuery_Query;
 
-type HabrykaDynamicPostsQueryQuery_posts_MultiPostOutput_results_Post = (
+type ProfilePostsQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsList
 );
 
-type HabrykaDynamicPostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<HabrykaDynamicPostsQueryQuery_posts_MultiPostOutput_results_Post> };
+type ProfilePostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ProfilePostsQueryQuery_posts_MultiPostOutput_results_Post> };
 
-type HabrykaDynamicPostsQueryQuery_Query = { __typename?: 'Query', posts: HabrykaDynamicPostsQueryQuery_posts_MultiPostOutput | null };
+type ProfilePostsQueryQuery_Query = { __typename?: 'Query', posts: ProfilePostsQueryQuery_posts_MultiPostOutput | null };
 
 
-type HabrykaDynamicPostsQueryQueryVariables = Exact<{
+type ProfilePostsQueryQueryVariables = Exact<{
   selector: InputMaybe<PostSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
   enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-type HabrykaDynamicPostsQueryQuery = HabrykaDynamicPostsQueryQuery_Query;
+type ProfilePostsQueryQuery = ProfilePostsQueryQuery_Query;
 
-type HabrykaDynamicSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
+type ProfileSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
   { __typename?: 'Sequence' }
   & SequenceContinueReadingFragment
 );
 
-type HabrykaDynamicSequencesQueryQuery_sequences_MultiSequenceOutput = { __typename?: 'MultiSequenceOutput', totalCount: number | null, results: Array<HabrykaDynamicSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence> };
+type ProfileSequencesQueryQuery_sequences_MultiSequenceOutput = { __typename?: 'MultiSequenceOutput', totalCount: number | null, results: Array<ProfileSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence> };
 
-type HabrykaDynamicSequencesQueryQuery_Query = { __typename?: 'Query', sequences: HabrykaDynamicSequencesQueryQuery_sequences_MultiSequenceOutput | null };
+type ProfileSequencesQueryQuery_Query = { __typename?: 'Query', sequences: ProfileSequencesQueryQuery_sequences_MultiSequenceOutput | null };
 
 
-type HabrykaDynamicSequencesQueryQueryVariables = Exact<{
+type ProfileSequencesQueryQueryVariables = Exact<{
   selector: InputMaybe<SequenceSelector>;
   limit: InputMaybe<Scalars['Int']['input']>;
   enableTotal: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-type HabrykaDynamicSequencesQueryQuery = HabrykaDynamicSequencesQueryQuery_Query;
+type ProfileSequencesQueryQuery = ProfileSequencesQueryQuery_Query;
 
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 

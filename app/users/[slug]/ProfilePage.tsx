@@ -98,6 +98,8 @@ function getPostImageUrl(
     : getDefaultPreview(post?._id ?? "0");
   const url = post?.socialPreviewData?.imageUrl;
   if (!url || !url.trim()) return fallback;
+  // Google-hosted images (Docs embeds, profile photos) don't render well as
+  // post preview cards, so fall back to a placeholder instead
   if (url.includes("lh3.googleusercontent.com") || url.includes("docs.google.com")) {
     return fallback;
   }
@@ -128,8 +130,40 @@ function bioNeedsTruncation(bio: string): boolean {
 
 type ProfileTab = "posts" | "sequences" | "feed";
 
-const HabrykaUserQuery = gql(`
-  query HabrykaDynamicUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+function switchTab(
+  tab: ProfileTab,
+  tabsRef: React.RefObject<HTMLDivElement | null>,
+  setActiveTab: (tab: ProfileTab) => void,
+) {
+  // Preserve scroll position relative to tabs when switching
+  const tabsTop = tabsRef.current?.getBoundingClientRect().top ?? 0;
+  setActiveTab(tab);
+  requestAnimationFrame(() => {
+    if (tabsRef.current) {
+      const newTabsTop = tabsRef.current.getBoundingClientRect().top;
+      window.scrollBy(0, newTabsTop - tabsTop);
+    }
+  });
+}
+
+function toggleSortPanel(
+  sortPanelOpen: boolean,
+  setSortPanelOpen: (open: boolean) => void,
+  setSortPanelClosing: (closing: boolean) => void,
+) {
+  if (sortPanelOpen) {
+    setSortPanelClosing(true);
+    setTimeout(() => {
+      setSortPanelOpen(false);
+      setSortPanelClosing(false);
+    }, SORT_PANEL_CLOSE_MS);
+  } else {
+    setSortPanelOpen(true);
+  }
+}
+
+const ProfileUserQuery = gql(`
+  query ProfileUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
     users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...UsersProfile
@@ -139,8 +173,8 @@ const HabrykaUserQuery = gql(`
   }
 `);
 
-const HabrykaPostsQuery = gql(`
-  query HabrykaDynamicPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+const ProfilePostsQuery = gql(`
+  query ProfilePostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
     posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...PostsList
@@ -150,8 +184,8 @@ const HabrykaPostsQuery = gql(`
   }
 `);
 
-const HabrykaSequencesQuery = gql(`
-  query HabrykaDynamicSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {
+const ProfileSequencesQuery = gql(`
+  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {
     sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...SequenceContinueReadingFragment
@@ -177,31 +211,10 @@ export default function ProfilePage() {
   const { params } = useLocation();
   const slug = slugify(params.slug);
 
-  const handleTabSwitch = (tab: ProfileTab) => {
-    // Preserve scroll position relative to tabs when switching
-    const tabsTop = tabsRef.current?.getBoundingClientRect().top ?? 0;
-    setActiveTab(tab);
-    requestAnimationFrame(() => {
-      if (tabsRef.current) {
-        const newTabsTop = tabsRef.current.getBoundingClientRect().top;
-        window.scrollBy(0, newTabsTop - tabsTop);
-      }
-    });
-  };
+  const handleTabSwitch = (tab: ProfileTab) => switchTab(tab, tabsRef, setActiveTab);
+  const handleSortPanelToggle = () => toggleSortPanel(sortPanelOpen, setSortPanelOpen, setSortPanelClosing);
 
-  const handleSortPanelToggle = () => {
-    if (sortPanelOpen) {
-      setSortPanelClosing(true);
-      setTimeout(() => {
-        setSortPanelOpen(false);
-        setSortPanelClosing(false);
-      }, SORT_PANEL_CLOSE_MS);
-    } else {
-      setSortPanelOpen(true);
-    }
-  };
-
-  const { data: userData, loading: userLoading } = useQuery(HabrykaUserQuery, {
+  const { data: userData, loading: userLoading } = useQuery(ProfileUserQuery, {
     variables: {
       selector: { usersProfile: { slug } },
       limit: 1,
@@ -215,40 +228,44 @@ export default function ProfilePage() {
   const pinnedPostIds = user?.pinnedPostIds;
   const hasPinnedPosts = pinnedPostIds && pinnedPostIds.length >= TOP_POSTS_LIMIT;
 
-  const { data: topPostsData } = useQuery(HabrykaPostsQuery, {
+  const { data: topPostsData } = useQuery(ProfilePostsQuery, {
     skip: !userId || hasPinnedPosts,
     variables: {
       selector: userId ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } } : undefined,
       limit: TOP_POSTS_LIMIT,
       enableTotal: false,
     },
+    fetchPolicy: "cache-and-network",
   });
 
-  const { data: pinnedPostsData } = useQuery(HabrykaPostsQuery, {
+  const { data: pinnedPostsData } = useQuery(ProfilePostsQuery, {
     skip: !hasPinnedPosts,
     variables: {
       selector: hasPinnedPosts ? { default: { exactPostIds: pinnedPostIds } } : undefined,
       limit: TOP_POSTS_LIMIT,
       enableTotal: false,
     },
+    fetchPolicy: "cache-and-network",
   });
 
-  const { data: recentPostsData, loading: recentPostsLoading } = useQuery(HabrykaPostsQuery, {
+  const { data: recentPostsData, loading: recentPostsLoading } = useQuery(ProfilePostsQuery, {
     skip: !userId,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: "new", excludeEvents: true } } : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy: sortBy, excludeEvents: true } } : undefined,
       limit: RECENT_POSTS_LIMIT,
       enableTotal: false,
     },
+    fetchPolicy: "cache-and-network",
   });
 
-  const { data: sequencesData } = useQuery(HabrykaSequencesQuery, {
+  const { data: sequencesData } = useQuery(ProfileSequencesQuery, {
     skip: !userId,
     variables: {
       selector: userId ? { userProfile: { userId } } : undefined,
       limit: SEQUENCES_LIMIT,
       enableTotal: false,
     },
+    fetchPolicy: "cache-and-network",
   });
 
 
@@ -276,7 +293,7 @@ export default function ProfilePage() {
     if (!hasPosts) {
       setActiveTab("feed");
     }
-  }, [recentPostsLoading, userId, hasPosts, setActiveTab]);
+  }, [recentPostsLoading, userId, hasPosts]);
 
   const currentUser = useCurrentUser();
   const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
@@ -497,7 +514,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div id="page" className={classes.page} data-el="page">
+    <div className={classes.page}>
       <div className={classes.profileContent}>
         <main className={classes.profileMain}>
           <div className={classes.profileHeader}>
@@ -748,7 +765,7 @@ export default function ProfilePage() {
                 {listPosts.map((post, index) => {
                   const summary = getPostSummary(post);
                   const imageUrl = getPostImageUrl(post, topPostDefaultImages);
-                  const isPinned = !!post.shortform;
+                  const isPinned = !!pinnedPostIds?.includes(post._id);
                   return (
                     <article key={post._id} className={classes.listArticle}>
                       <a

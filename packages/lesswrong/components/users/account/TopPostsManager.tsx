@@ -117,8 +117,6 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     background: theme.palette.background.pageActiveAreaBackground,
     flex: 1,
   },
-  postItemDragging: {},
-  postItemPlaceholder: {},
   postNumber: {
     fontSize: "0.875rem",
     fontWeight: 600,
@@ -370,10 +368,7 @@ function SortablePostRow({
       <div
         ref={setSortableAndCardRef}
         style={cardStyle}
-        className={classNames(classes.postItem, {
-          [classes.postItemDragging]: isDragging,
-          [classes.postItemPlaceholder]: isPlaceholder && !isDragging,
-        })}
+        className={classes.postItem}
       >
         <div
           className={classNames(classes.dragHandle, { [classes.dragHandleActive]: isDragging })}
@@ -458,7 +453,7 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
           selector: { _id: userId },
           data: { pinnedPostIds: newIds },
         },
-        refetchQueries: ['HabrykaDynamicUserQuery'],
+        refetchQueries: ['ProfileUserQuery'],
       });
     } catch (e) {
       // eslint-disable-next-line no-console
