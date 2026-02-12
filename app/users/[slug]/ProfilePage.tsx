@@ -23,13 +23,16 @@ import { ExpandedDate } from "@/components/common/FormatDate";
 import UserMetaInfo from "@/components/users/UserMetaInfo";
 import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
+import ContentStyles from "@/components/common/ContentStyles";
+import { ContentItemBody } from "@/components/contents/ContentItemBody";
 import { Link } from "@/lib/reactRouterWrapper";
 import { PinIcon } from "@/components/icons/pinIcon";
 import moment from "moment";
-import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
+import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from "@/lib/instanceSettings";
 import { relativeTimeToLongFormat, useCurrentTime } from "@/lib/utils/timeUtil";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
 import { SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
+import { truncate } from "@/lib/editor/ellipsize";
 import { profileStyles } from "./profileStyles";
 
 // ── Constants ──
@@ -38,7 +41,7 @@ const INITIAL_POSTS_TO_SHOW = 7;
 const TOP_POSTS_LIMIT = 4;
 const RECENT_POSTS_LIMIT = 50;
 const SEQUENCES_LIMIT = 6;
-const BIO_WORD_LIMIT = 45;
+const BIO_COLLAPSED_WORD_LIMIT = 60;
 const POST_SUMMARY_WORD_LIMIT = 50;
 const SORT_PANEL_CLOSE_MS = 300;
 
@@ -130,15 +133,8 @@ function formatReadableDate(date: Date | string): string {
   return m.format("MMM D, YYYY");
 }
 
-function truncateBio(bio: string, expanded: boolean): string {
-  if (expanded) return bio;
-  const words = bio.split(/\s+/);
-  if (words.length <= BIO_WORD_LIMIT) return bio;
-  return words.slice(0, BIO_WORD_LIMIT).join(" ") + "...";
-}
-
-function bioNeedsTruncation(bio: string): boolean {
-  return bio.split(/\s+/).length > BIO_WORD_LIMIT;
+function getCollapsedBioHtml(htmlBio: string, wordLimit: number): string {
+  return truncate(htmlBio, wordLimit, "words");
 }
 
 type ProfileTab = "posts" | "sequences" | "feed";
@@ -358,7 +354,11 @@ export default function ProfilePage() {
   const canMessageUser = !!user && !!currentUser && !isOwnProfile;
 
   const username = user ? userGetDisplayName(user) : "Loading...";
-  const bio = user?.biography?.plaintextDescription;
+  const bioHtml = user?.htmlBio ?? "";
+  const collapsedBioHtml = getCollapsedBioHtml(bioHtml, BIO_COLLAPSED_WORD_LIMIT);
+  const displayBioHtml = bioExpanded ? bioHtml : collapsedBioHtml;
+  const showBioExpand = !!bioHtml && collapsedBioHtml !== bioHtml;
+  const bioNoFollow = (user?.karma ?? 0) < nofollowKarmaThreshold.get();
 
   if (userLoading || !user) {
     return <div className={classes.profileContent}>
@@ -460,7 +460,7 @@ export default function ProfilePage() {
             </>
           )}
 
-          {(bio || user) && (
+          {(bioHtml || user) && (
             <div className={classes.mobileProfileBio}>
               <h4 className={classes.mobileProfileName}>{username}</h4>
               <div className={classNames(classes.mobileProfileActions, classes.sidebarActions)}>
@@ -481,12 +481,16 @@ export default function ProfilePage() {
                   <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
                 )}
               </div>
-              {bio && (
-                <p className={classes.sidebarAuthorBio}>
-                  {truncateBio(bio, bioExpanded)}
-                </p>
+              {bioHtml && (
+                <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+                  <ContentItemBody
+                    className={classes.sidebarAuthorBio}
+                    dangerouslySetInnerHTML={{ __html: displayBioHtml }}
+                    nofollow={bioNoFollow}
+                  />
+                </ContentStyles>
               )}
-              {bio && bioNeedsTruncation(bio) && (
+              {showBioExpand && (
                 <div className={classes.readMore}>
                   <a
                     href="#"
@@ -777,7 +781,7 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              <aside className={classNames(classes.postsSidebar, bio && classes.postsSidebarHasBio)}>
+              <aside className={classNames(classes.postsSidebar, bioHtml && classes.postsSidebarHasBio)}>
                 <div className={classes.sidebarActions}>
                   {canSubscribeToUser ? (
                     <UserNotifyDropdown
@@ -796,17 +800,21 @@ export default function ProfilePage() {
                     <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
                   )}
                 </div>
-                {bio && (
+                {bioHtml && (
                   <div className={classes.sidebarBioSection}>
                     <div 
                       ref={bioRef}
                       className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}
                     >
-                      <p className={classes.sidebarAuthorBio}>
-                        {bio}
-                      </p>
+                      <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+                        <ContentItemBody
+                          className={classes.sidebarAuthorBio}
+                          dangerouslySetInnerHTML={{ __html: displayBioHtml }}
+                          nofollow={bioNoFollow}
+                        />
+                      </ContentStyles>
                     </div>
-                    {bioNeedsTruncation(bio) && (
+                    {showBioExpand && (
                       <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
                         <a 
                           href="#" 
