@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useLayoutEffect, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useLocation } from "@/lib/routeUtil";
@@ -37,7 +37,6 @@ const SEQUENCES_LIMIT = 6;
 const BIO_WORD_LIMIT = 45;
 const POST_SUMMARY_WORD_LIMIT = 50;
 const SORT_PANEL_CLOSE_MS = 300;
-const FONT_LOAD_TIMEOUT_MS = 1000;
 
 const DEFAULT_PREVIEWS = [
   "/profile-placeholder-1.png",
@@ -301,6 +300,10 @@ export default function ProfilePage() {
   const hasPosts = recentPosts.length > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
 
+  // The default tab is "posts", but if the user has no posts we switch to the
+  // "feed" tab instead. We need to wait until the posts query finishes loading
+  // before we can make that determination, and we only want to do it once (not
+  // on every re-render), hence the ref guard.
   const tabInitialized = useRef(false);
   useEffect(() => {
     if (tabInitialized.current) return;
@@ -319,208 +322,6 @@ export default function ProfilePage() {
 
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bio = user?.biography?.plaintextDescription;
-
-
-  useLayoutEffect(() => {
-    const truncateToLines = (node: HTMLElement, maxLines: number) => {
-      const fullText = node.dataset.fullText ?? node.textContent ?? "";
-      if (!fullText) {
-        return;
-      }
-
-      if (!node.dataset.fullText) {
-        node.dataset.fullText = fullText;
-      }
-
-      node.textContent = fullText;
-      const style = window.getComputedStyle(node);
-      const lineHeight = Number.parseFloat(style.lineHeight);
-      const paddingBottom = Number.parseFloat(style.paddingBottom);
-      if (!Number.isFinite(lineHeight)) {
-        return;
-      }
-
-      const maxHeight = (lineHeight * maxLines) - paddingBottom - 8;
-      if (node.scrollHeight <= maxHeight + paddingBottom) {
-        return;
-      }
-
-      const ellipsis = "...";
-      let low = 0;
-      let high = fullText.length;
-
-      while (low < high) {
-        const mid = Math.ceil((low + high) / 2);
-        node.textContent = `${fullText.slice(0, mid).trimEnd()}${ellipsis}`;
-        if (node.scrollHeight <= maxHeight + paddingBottom) {
-          low = mid;
-        } else {
-          high = mid - 1;
-        }
-      }
-
-      let truncated = fullText.slice(0, Math.max(1, low)).trimEnd();
-      const lastSpace = truncated.lastIndexOf(" ");
-      if (lastSpace > Math.max(0, truncated.length - 20)) {
-        truncated = truncated.slice(0, lastSpace).trimEnd();
-      }
-      node.textContent = `${truncated}${ellipsis}`;
-    };
-
-    const truncateToFit = (node: HTMLElement) => {
-      const fullText = node.dataset.fullText ?? node.textContent ?? "";
-      if (!fullText) {
-        return;
-      }
-
-      if (!node.dataset.fullText) {
-        node.dataset.fullText = fullText;
-      }
-
-      // On mobile/responsive (below the stacking breakpoint), skip JS
-      // truncation and let CSS line-clamp handle it instead
-      if (window.innerWidth <= 750) {
-        node.style.display = "";
-        node.style.position = "";
-        node.style.height = "";
-        node.style.flex = "";
-        node.style.width = "";
-        node.textContent = fullText;
-        return;
-      }
-
-      // Reset all inline styles before measuring so CSS takes over and we
-      // get accurate flex-allocated dimensions
-      node.style.display = "";
-      node.style.flex = "";
-      node.style.position = "";
-      node.style.height = "";
-      node.style.width = "";
-      node.textContent = fullText;
-
-      const style = window.getComputedStyle(node);
-      const lineHeight = Number.parseFloat(style.lineHeight);
-      if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
-        return;
-      }
-
-      // In a flex container, clientHeight is the allocated space (our budget)
-      const availableHeight = node.clientHeight;
-      const flexWidth = node.clientWidth;
-      if (availableHeight <= 0 || flexWidth <= 0) {
-        return;
-      }
-
-      // Subtract a small buffer so descenders on the last line aren't clipped
-      const descenderBuffer = 4;
-      const maxLines = Math.floor((availableHeight - descenderBuffer) / lineHeight);
-      if (maxLines < 2) {
-        node.textContent = "";
-        node.style.display = "none";
-        return;
-      }
-
-      const targetHeight = lineHeight * maxLines;
-
-      // Temporarily take element out of flex flow so scrollHeight reflects
-      // actual content height rather than being clamped to clientHeight.
-      // Lock the width to match the flex-allocated width so line wrapping
-      // is identical during measurement and final display.
-      node.style.position = "absolute";
-      node.style.height = "auto";
-      node.style.flex = "none";
-      node.style.width = `${flexWidth}px`;
-
-      const naturalHeight = node.scrollHeight;
-
-      if (naturalHeight <= targetHeight + 1) {
-        // Content fits — restore with flex: none so element shrinks to content
-        node.style.position = "";
-        node.style.height = "";
-        node.style.flex = "none";
-        node.style.width = "";
-        return;
-      }
-
-      const ellipsis = "...";
-      let low = 0;
-      let high = fullText.length;
-
-      while (low < high) {
-        const mid = Math.ceil((low + high) / 2);
-        node.textContent = `${fullText.slice(0, mid).trimEnd()}${ellipsis}`;
-        if (node.scrollHeight <= targetHeight + 1) {
-          low = mid;
-        } else {
-          high = mid - 1;
-        }
-      }
-
-      let truncated = fullText.slice(0, Math.max(1, low)).trimEnd();
-      const lastSpace = truncated.lastIndexOf(" ");
-      if (lastSpace > Math.max(0, truncated.length - 20)) {
-        truncated = truncated.slice(0, lastSpace).trimEnd();
-      }
-      node.textContent = `${truncated}${ellipsis}`;
-
-      // Restore layout but keep flex: none so the element shrinks to its
-      // truncated content height instead of stretching to fill the container
-      node.style.position = "";
-      node.style.height = "";
-      node.style.flex = "none";
-      node.style.width = "";
-    };
-
-    const updateOverflowIndicators = () => {
-      const postTitleNodes = document.querySelectorAll<HTMLElement>(".post-title");
-      postTitleNodes.forEach((node) => truncateToLines(node, 4));
-
-      const summaryNodes = document.querySelectorAll<HTMLElement>(".post-summary");
-      summaryNodes.forEach((node) => truncateToFit(node));
-
-      const titleNodes = document.querySelectorAll<HTMLElement>(
-        ".list-article-title-text"
-      );
-
-      titleNodes.forEach((node) => truncateToLines(node, 4));
-    };
-
-    const scheduleUpdate = () => window.requestAnimationFrame(updateOverflowIndicators);
-
-    document.documentElement.classList.remove("truncation-ready");
-    document.documentElement.classList.remove("dates-ready");
-
-    // Run immediately to attempt truncation before paint, then schedule
-    // a follow-up via rAF in case CSS wasn't applied yet
-    updateOverflowIndicators();
-    scheduleUpdate();
-
-    const finalizeTruncation = () => {
-      updateOverflowIndicators();
-      document.documentElement.classList.add("truncation-ready");
-      document.documentElement.classList.add("dates-ready");
-    };
-
-    // Re-run after web fonts load (may change line widths/heights)
-    // Add timeout fallback in case fonts take too long
-    const fontTimeout = setTimeout(finalizeTruncation, FONT_LOAD_TIMEOUT_MS);
-    
-    if (document.fonts && "ready" in document.fonts) {
-      void document.fonts.ready.then(() => {
-        clearTimeout(fontTimeout);
-        finalizeTruncation();
-      });
-    } else {
-      scheduleUpdate();
-      window.requestAnimationFrame(() => {
-        clearTimeout(fontTimeout);
-        finalizeTruncation();
-      });
-    }
-
-    window.addEventListener("resize", scheduleUpdate);
-    return () => window.removeEventListener("resize", scheduleUpdate);
-  }, [activeTab, topPost?._id]);
 
   if (userLoading || !user) {
     return <div className={classes.profileContent}>
@@ -564,10 +365,10 @@ export default function ProfilePage() {
                   className={classNames(classes.postArticle, classes.postArticleTop)}
                 >
                   <div className={classes.postContent}>
-                    <h2 className={classNames("post-title", classes.postTitle, classes.topPostTitle)}>
+                    <h2 className={classNames(classes.postTitle, classes.topPostTitle)}>
                       {topPost.title}
                     </h2>
-                    <p className={classNames("post-summary", classes.postSummary)}>{getTopPostSummary(topPost)}</p>
+                    <p className={classes.postSummary}>{getTopPostSummary(topPost)}</p>
                     <div className={classes.postMetaBar}>
                       <LWTooltip title="Karma score">
                         <span className={classes.karmaScore}>{topPost.baseScore ?? 0}</span>
@@ -801,7 +602,7 @@ export default function ProfilePage() {
                                 </svg>
                               </span>
                             )}
-                            <span className={classNames("list-article-title-text", classes.listArticleTitleText)}>{post.title}</span>
+                            <span className={classes.listArticleTitleText}>{post.title}</span>
                           </h3>
                           {summary && <p className={classes.listArticleSummary}>{summary}</p>}
                           <div className={classes.listArticleMeta}>

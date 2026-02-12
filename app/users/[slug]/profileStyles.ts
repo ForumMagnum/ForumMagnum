@@ -230,6 +230,10 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     maxWidth: "100%",
     paddingLeft: 0,
     flexShrink: 0,
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 4,
+    overflow: "hidden",
   },
   topPostTitle: {
     fontSize: 34,
@@ -245,13 +249,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     flex: 1,
     minHeight: 0,
     overflow: "hidden",
-    transition: "opacity 0.2s ease-in",
-    "html:not(.dates-ready) &": {
-      opacity: 0,
-    },
-    "html.dates-ready &": {
-      opacity: 1,
-    },
   },
   postMetaBar: {
     display: "flex",
@@ -260,13 +257,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     fontSize: 13,
     color: theme.palette.text.dim,
     flexShrink: 0,
-    transition: "opacity 0.2s ease-in",
-    "html:not(.dates-ready) &": {
-      opacity: 0,
-    },
-    "html.dates-ready &": {
-      opacity: 1,
-    },
   },
   karmaScore: {
     fontSize: 13,
@@ -340,13 +330,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "flex",
     alignItems: "baseline",
     gap: 10,
-    transition: "opacity 0.2s ease-in",
-    "html:not(.dates-ready) &": {
-      opacity: 0,
-    },
-    "html.dates-ready &": {
-      opacity: 1,
-    },
   },
   smallKarma: {
     fontFamily: theme.typography.fontFamily,
@@ -401,7 +384,10 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     whiteSpace: "normal",
   },
   listArticleTitleText: {
-    display: "block",
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 4,
+    overflow: "hidden",
     flex: 1,
     minWidth: 0,
     position: "relative",
@@ -435,13 +421,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     alignItems: "baseline",
     gap: 10,
     marginTop: -2,
-    transition: "opacity 0.2s ease-in",
-    "html:not(.dates-ready) &": {
-      opacity: 0,
-    },
-    "html.dates-ready &": {
-      opacity: 1,
-    },
   },
   listKarma: {
     fontFamily: theme.typography.fontFamily,
