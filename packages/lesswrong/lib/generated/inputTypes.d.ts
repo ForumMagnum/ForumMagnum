@@ -7375,6 +7375,7 @@ interface User {
   biography: Revision | null;
   biography_latest: string | null;
   pinnedPostIds: Array<string>;
+  hideProfileTopPosts: boolean;
   username: string | null;
   emails: Array<any> | null;
   isAdmin: boolean;
@@ -9557,6 +9558,7 @@ interface CreateUserDataInput {
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
   pinnedPostIds?: Array<string> | null;
+  hideProfileTopPosts?: boolean | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName: string;
@@ -9719,6 +9721,7 @@ interface UpdateUserDataInput {
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
   pinnedPostIds?: Array<string> | null;
+  hideProfileTopPosts?: boolean | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName?: string | null;

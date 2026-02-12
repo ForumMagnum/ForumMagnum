@@ -8007,6 +8007,7 @@ type User {
   biography(version: String): Revision
   biography_latest: String
   pinnedPostIds: [String!]!
+  hideProfileTopPosts: Boolean!
   username: String
   emails: [JSON!]
   isAdmin: Boolean!
@@ -10484,6 +10485,7 @@ input CreateUserDataInput {
   slug: String
   biography: CreateRevisionDataInput
   pinnedPostIds: [String!]
+  hideProfileTopPosts: Boolean
   username: String
   isAdmin: Boolean
   displayName: String!
@@ -10646,6 +10648,7 @@ input UpdateUserDataInput {
   slug: String
   biography: CreateRevisionDataInput
   pinnedPostIds: [String!]
+  hideProfileTopPosts: Boolean
   username: String
   isAdmin: Boolean
   displayName: String
