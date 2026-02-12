@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useLocation } from "@/lib/routeUtil";
@@ -24,12 +24,12 @@ import UserMetaInfo from "@/components/users/UserMetaInfo";
 import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
 import { Link } from "@/lib/reactRouterWrapper";
+import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
+import { PROFILE_TAB_PREFERENCE_COOKIE } from "@/lib/cookies/cookies";
 import { PinIcon } from "@/components/icons/pinIcon";
 import moment from "moment";
 import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
 import { relativeTimeToLongFormat, useCurrentTime } from "@/lib/utils/timeUtil";
-import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
-import { SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
 import { profileStyles } from "./profileStyles";
 
 // ── Constants ──
@@ -143,29 +143,29 @@ function bioNeedsTruncation(bio: string): boolean {
 
 type ProfileTab = "posts" | "sequences" | "feed";
 
-function parseProfileTab(value: unknown): ProfileTab | null {
-  if (value === "posts" || value === "sequences" || value === "feed") {
-    return value;
+type PostsSortBy = "new" | "top" | "topInflation" | "recentComments" | "old" | "magic";
+type FeedSortBy = "recent" | "top";
+type FeedFilter = "all" | "posts" | "quickTakes" | "comments";
+
+interface ProfileTabPreference {
+  tab: "posts" | "feed";
+  postSort?: PostsSortBy;
+  feedSort?: FeedSortBy;
+  feedFilter?: FeedFilter;
+}
+
+function parseTabPreference(raw: string | undefined): ProfileTabPreference | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && (parsed.tab === "posts" || parsed.tab === "feed")) {
+      return parsed;
+    }
+  } catch {
+    // Invalid cookie value
   }
   return null;
 }
-
-function getInitialProfileTab({
-  preferredTab,
-  hasPosts,
-  hasSequences,
-}: {
-  preferredTab: ProfileTab | null;
-  hasPosts: boolean;
-  hasSequences: boolean;
-}): ProfileTab {
-  if (preferredTab === "sequences" && hasSequences) return "sequences";
-  if (preferredTab === "posts" && hasPosts) return "posts";
-  if (preferredTab === "feed") return "feed";
-  if (!hasPosts) return "feed";
-  return "posts";
-}
-
 function switchTab(
   tab: ProfileTab,
   tabsRef: React.RefObject<HTMLDivElement | null>,
@@ -234,27 +234,79 @@ const ProfileSequencesQuery = gql(`
 
 export default function ProfilePage() {
   const classes = useStyles(profileStyles);
-  const [cookies, setCookie] = useCookiesWithConsent([SELECTED_PROFILE_TAB_COOKIE]);
-  const [activeTab, setActiveTab] = useState<ProfileTab>(
-    () => parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]) ?? "posts"
+  const [cookies, setCookie] = useCookiesWithConsent([PROFILE_TAB_PREFERENCE_COOKIE]);
+  const profileTabPrefCookie = cookies[PROFILE_TAB_PREFERENCE_COOKIE];
+  const savedPref = useMemo(
+    () => parseTabPreference(profileTabPrefCookie),
+    [profileTabPrefCookie],
   );
+
+  const [activeTab, setActiveTab] = useState<ProfileTab>(savedPref?.tab ?? "posts");
   const [bioExpanded, setBioExpanded] = useState(false);
   const [postsToShow, setPostsToShow] = useState(INITIAL_POSTS_TO_SHOW);
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
   const [sortPanelClosing, setSortPanelClosing] = useState(false);
-  const [sortBy, setSortBy] = useState<"new" | "top" | "topInflation" | "recentComments" | "old" | "magic">("new");
-  const [feedSortBy, setFeedSortBy] = useState<"recent" | "top">("recent");
-  const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
+  const [sortBy, setSortBy] = useState<PostsSortBy>(savedPref?.postSort ?? "new");
+  const [feedSortBy, setFeedSortBy] = useState<FeedSortBy>(savedPref?.feedSort ?? "recent");
+  const [feedFilter, setFeedFilter] = useState<FeedFilter>(savedPref?.feedFilter ?? "all");
   const bioRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const { params } = useLocation();
   const slug = slugify(params.slug);
 
+  const tabInitialized = useRef(false);
+
+  // When navigating between profiles (slug changes), re-apply the saved
+  // tab/filter preference. useState initializers only run on mount, but
+  // client-side navigation reuses the same component instance.
+  const prevSlugRef = useRef(slug);
+  useEffect(() => {
+    if (prevSlugRef.current === slug) return;
+    prevSlugRef.current = slug;
+    tabInitialized.current = false;
+    setActiveTab(savedPref?.tab ?? "posts");
+    setSortBy(savedPref?.postSort ?? "new");
+    setFeedSortBy(savedPref?.feedSort ?? "recent");
+    setFeedFilter(savedPref?.feedFilter ?? "all");
+    setPostsToShow(INITIAL_POSTS_TO_SHOW);
+    setBioExpanded(false);
+  }, [slug, savedPref]);
+
+  // Cookie values can become available after initial render (consent/cookie hook
+  // hydration). Re-apply persisted tab/sort/filter for the current profile when
+  // that happens.
+  useEffect(() => {
+    if (!savedPref) return;
+    setActiveTab(savedPref.tab);
+    setSortBy(savedPref.postSort ?? "new");
+    setFeedSortBy(savedPref.feedSort ?? "recent");
+    setFeedFilter(savedPref.feedFilter ?? "all");
+  }, [savedPref]);
+
+  // Save tab preference to cookie. Called from click handlers so the cookie
+  // is written at interaction time, not via a syncing useEffect.
+  const saveTabPref = (overrides: Partial<ProfileTabPreference>) => {
+    const tab = overrides.tab ?? (activeTab === "sequences" ? undefined : activeTab);
+    if (!tab) return; // Don't persist sequences tab
+    const pref: ProfileTabPreference = {
+      tab,
+      postSort: overrides.postSort ?? sortBy,
+      feedSort: overrides.feedSort ?? feedSortBy,
+      feedFilter: overrides.feedFilter ?? feedFilter,
+    };
+    setCookie(PROFILE_TAB_PREFERENCE_COOKIE, JSON.stringify(pref), { path: "/" });
+  };
+
   const handleTabSwitch = (tab: ProfileTab) => {
-    setCookie(SELECTED_PROFILE_TAB_COOKIE, tab, { path: "/" });
     switchTab(tab, tabsRef, setActiveTab);
+    if (tab !== "sequences") {
+      saveTabPref({ tab });
+    }
   };
   const handleSortPanelToggle = () => toggleSortPanel(sortPanelOpen, setSortPanelOpen, setSortPanelClosing);
+  const handleSetSortBy = (sort: PostsSortBy) => { setSortBy(sort); saveTabPref({ postSort: sort }); };
+  const handleSetFeedSortBy = (sort: FeedSortBy) => { setFeedSortBy(sort); saveTabPref({ feedSort: sort }); };
+  const handleSetFeedFilter = (filter: FeedFilter) => { setFeedFilter(filter); saveTabPref({ feedFilter: filter }); };
 
   const { data: userData, loading: userLoading } = useQuery(ProfileUserQuery, {
     variables: {
@@ -333,23 +385,18 @@ export default function ProfilePage() {
   const hasPosts = recentPosts.length > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
   const hasSequences = sequences.length > 0;
-  const preferredProfileTab = parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]);
 
-  // The default tab is "posts", but if the user has no posts we switch to the
-  // "feed" tab instead. We need to wait until the posts query finishes loading
-  // before we can make that determination. If the user has a saved preference,
-  // restore it when that tab is available for this profile.
-  const tabInitialized = useRef(false);
+  // On first load, if there's no saved preference and the user has no posts,
+  // switch to the "feed" tab. If there IS a saved preference, it was already
+  // applied via the initial useState values above.
   useEffect(() => {
     if (tabInitialized.current) return;
-    if (recentPostsLoading || sequencesLoading || !userId) return;
+    if (recentPostsLoading || !userId) return;
     tabInitialized.current = true;
-    setActiveTab(getInitialProfileTab({
-      preferredTab: preferredProfileTab,
-      hasPosts,
-      hasSequences,
-    }));
-  }, [recentPostsLoading, sequencesLoading, userId, hasPosts, hasSequences, preferredProfileTab]);
+    if (!savedPref && !hasPosts) {
+      setActiveTab("feed");
+    }
+  }, [recentPostsLoading, userId, hasPosts, savedPref]);
 
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
@@ -381,7 +428,10 @@ export default function ProfilePage() {
               />
             </h1>
             {isOwnProfile && (
-              <Link to="/account?highlightField=pinnedPostIds" className={classes.profileEditButton}>
+              <Link
+                to="/account?highlightField=pinnedPostIds"
+                className={classes.profileEditButton}
+              >
                 Edit
               </Link>
             )}
@@ -568,42 +618,42 @@ export default function ProfilePage() {
                       <div className={classes.sortPanelHeader}>Sorted by:</div>
                       <button
                         className={classNames(classes.sortPanelOption, sortBy === "new" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("new")}
+                        onClick={() => handleSetSortBy("new")}
                         type="button"
                       >
                         New
                       </button>
                       <button
                         className={classNames(classes.sortPanelOption, sortBy === "old" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("old")}
+                        onClick={() => handleSetSortBy("old")}
                         type="button"
                       >
                         Old
                       </button>
                       <button
                         className={classNames(classes.sortPanelOption, sortBy === "magic" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("magic")}
+                        onClick={() => handleSetSortBy("magic")}
                         type="button"
                       >
                         Magic (New & Upvoted)
                       </button>
                       <button
                         className={classNames(classes.sortPanelOption, sortBy === "top" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("top")}
+                        onClick={() => handleSetSortBy("top")}
                         type="button"
                       >
                         Top
                       </button>
                       <button
                         className={classNames(classes.sortPanelOption, sortBy === "topInflation" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("topInflation")}
+                        onClick={() => handleSetSortBy("topInflation")}
                         type="button"
                       >
                         Top (Inflation Adjusted)
                       </button>
                       <button
                         className={classNames(classes.sortPanelOption, sortBy === "recentComments" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("recentComments")}
+                        onClick={() => handleSetSortBy("recentComments")}
                         type="button"
                       >
                         Recent Comments
@@ -712,14 +762,14 @@ export default function ProfilePage() {
                       <div className={classes.sortPanelHeader}>Sorted by:</div>
                       <button
                         className={classNames(classes.sortPanelOption, feedSortBy === "recent" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedSortBy("recent")}
+                        onClick={() => handleSetFeedSortBy("recent")}
                         type="button"
                       >
                         New
                       </button>
                       <button
                         className={classNames(classes.sortPanelOption, feedSortBy === "top" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedSortBy("top")}
+                        onClick={() => handleSetFeedSortBy("top")}
                         type="button"
                       >
                         Top
@@ -729,28 +779,28 @@ export default function ProfilePage() {
                       <div className={classes.sortPanelHeader}>Show:</div>
                       <button
                         className={classNames(classes.sortPanelOption, feedFilter === "all" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedFilter("all")}
+                        onClick={() => handleSetFeedFilter("all")}
                         type="button"
                       >
                         All
                       </button>
                       <button
                         className={classNames(classes.sortPanelOption, feedFilter === "comments" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedFilter("comments")}
+                        onClick={() => handleSetFeedFilter("comments")}
                         type="button"
                       >
                         Comments
                       </button>
                       <button
                         className={classNames(classes.sortPanelOption, feedFilter === "quickTakes" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedFilter("quickTakes")}
+                        onClick={() => handleSetFeedFilter("quickTakes")}
                         type="button"
                       >
                         Quick takes
                       </button>
                       <button
                         className={classNames(classes.sortPanelOption, feedFilter === "posts" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedFilter("posts")}
+                        onClick={() => handleSetFeedFilter("posts")}
                         type="button"
                       >
                         Posts
