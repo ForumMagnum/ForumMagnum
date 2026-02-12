@@ -28,6 +28,8 @@ import { PinIcon } from "@/components/icons/pinIcon";
 import moment from "moment";
 import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
 import { relativeTimeToLongFormat, useCurrentTime } from "@/lib/utils/timeUtil";
+import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
+import { SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
 import { profileStyles } from "./profileStyles";
 
 // ── Constants ──
@@ -141,6 +143,29 @@ function bioNeedsTruncation(bio: string): boolean {
 
 type ProfileTab = "posts" | "sequences" | "feed";
 
+function parseProfileTab(value: unknown): ProfileTab | null {
+  if (value === "posts" || value === "sequences" || value === "feed") {
+    return value;
+  }
+  return null;
+}
+
+function getInitialProfileTab({
+  preferredTab,
+  hasPosts,
+  hasSequences,
+}: {
+  preferredTab: ProfileTab | null;
+  hasPosts: boolean;
+  hasSequences: boolean;
+}): ProfileTab {
+  if (preferredTab === "sequences" && hasSequences) return "sequences";
+  if (preferredTab === "posts" && hasPosts) return "posts";
+  if (preferredTab === "feed") return "feed";
+  if (!hasPosts) return "feed";
+  return "posts";
+}
+
 function switchTab(
   tab: ProfileTab,
   tabsRef: React.RefObject<HTMLDivElement | null>,
@@ -209,7 +234,10 @@ const ProfileSequencesQuery = gql(`
 
 export default function ProfilePage() {
   const classes = useStyles(profileStyles);
-  const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
+  const [cookies, setCookie] = useCookiesWithConsent([SELECTED_PROFILE_TAB_COOKIE]);
+  const [activeTab, setActiveTab] = useState<ProfileTab>(
+    () => parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]) ?? "posts"
+  );
   const [bioExpanded, setBioExpanded] = useState(false);
   const [postsToShow, setPostsToShow] = useState(INITIAL_POSTS_TO_SHOW);
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
@@ -222,7 +250,10 @@ export default function ProfilePage() {
   const { params } = useLocation();
   const slug = slugify(params.slug);
 
-  const handleTabSwitch = (tab: ProfileTab) => switchTab(tab, tabsRef, setActiveTab);
+  const handleTabSwitch = (tab: ProfileTab) => {
+    setCookie(SELECTED_PROFILE_TAB_COOKIE, tab, { path: "/" });
+    switchTab(tab, tabsRef, setActiveTab);
+  };
   const handleSortPanelToggle = () => toggleSortPanel(sortPanelOpen, setSortPanelOpen, setSortPanelClosing);
 
   const { data: userData, loading: userLoading } = useQuery(ProfileUserQuery, {
@@ -269,7 +300,7 @@ export default function ProfilePage() {
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: sequencesData } = useQuery(ProfileSequencesQuery, {
+  const { data: sequencesData, loading: sequencesLoading } = useQuery(ProfileSequencesQuery, {
     skip: !userId,
     variables: {
       selector: userId ? { userProfile: { userId } } : undefined,
@@ -301,20 +332,24 @@ export default function ProfilePage() {
   const hasEnoughTopPosts = topPosts.length >= 4;
   const hasPosts = recentPosts.length > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
+  const hasSequences = sequences.length > 0;
+  const preferredProfileTab = parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]);
 
   // The default tab is "posts", but if the user has no posts we switch to the
   // "feed" tab instead. We need to wait until the posts query finishes loading
-  // before we can make that determination, and we only want to do it once (not
-  // on every re-render), hence the ref guard.
+  // before we can make that determination. If the user has a saved preference,
+  // restore it when that tab is available for this profile.
   const tabInitialized = useRef(false);
   useEffect(() => {
     if (tabInitialized.current) return;
-    if (recentPostsLoading || !userId) return;
+    if (recentPostsLoading || sequencesLoading || !userId) return;
     tabInitialized.current = true;
-    if (!hasPosts) {
-      setActiveTab("feed");
-    }
-  }, [recentPostsLoading, userId, hasPosts]);
+    setActiveTab(getInitialProfileTab({
+      preferredTab: preferredProfileTab,
+      hasPosts,
+      hasSequences,
+    }));
+  }, [recentPostsLoading, sequencesLoading, userId, hasPosts, hasSequences, preferredProfileTab]);
 
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
@@ -485,7 +520,7 @@ export default function ProfilePage() {
                   >
                     All posts
                   </button>
-                  {sequences.length > 0 && (
+                  {hasSequences && (
                     <button
                       className={classNames(classes.profileTab, activeTab === "sequences" && classes.profileTabActive)}
                       data-tab="sequences"
