@@ -109,9 +109,17 @@ function truncatePreviewTextByWords(text: string, wordLimit: number): string {
   return result.trimEnd();
 }
 
+function collapsePreviewParagraphsForList(text: string): string {
+  if (!text) return "";
+  // Flatten paragraph/line breaks for list items while leaving visible
+  // separation where breaks used to be.
+  return text.replace(/\n+/g, "   ").replace(/ {4,}/g, "   ").trim();
+}
+
 function getPostSummary(post: { contents?: { plaintextDescription?: string | null } | null }): string {
   const fullSummary = cleanPostPreviewText(post?.contents?.plaintextDescription ?? "");
-  return truncatePreviewTextByWords(fullSummary, POST_SUMMARY_WORD_LIMIT);
+  const singleParagraphSummary = collapsePreviewParagraphsForList(fullSummary);
+  return truncatePreviewTextByWords(singleParagraphSummary, POST_SUMMARY_WORD_LIMIT);
 }
 
 function getTopPostSummary(post: { contents?: { plaintextDescription?: string | null } | null }): string {
