@@ -4,6 +4,7 @@ import { MarkdownNode } from "./MarkdownNode";
 import { MarkdownUserLink } from "./MarkdownUserLink";
 import { MarkdownDate } from "./MarkdownDate";
 import { tagUrlBaseSetting } from "@/lib/instanceSettings";
+import { MarkdownCommentsList, type MarkdownCommentData } from "./MarkdownCommentsList";
 
 interface MarkdownPostTag {
   _id: string
@@ -35,9 +36,20 @@ export interface MarkdownPostDetailData {
   coauthors?: MarkdownPostUser[] | null
   tags?: MarkdownPostTag[] | null
   contents?: MarkdownPostContents | null
+  commentCount?: number | null
 }
 
-export function MarkdownPostDetail({ post }: { post: MarkdownPostDetailData }) {
+export function MarkdownPostDetail({
+  post,
+  topComments = [],
+  compactMode = false,
+  bodyMarkdown,
+}: {
+  post: MarkdownPostDetailData
+  topComments?: MarkdownCommentData[]
+  compactMode?: boolean
+  bodyMarkdown?: string
+}) {
   const tagUrlBase = tagUrlBaseSetting.get();
   const isCurated = !!post.curatedDate;
   const frontpageLabel = post.frontpageDate ? "Frontpage" : "Personal Blog";
@@ -75,6 +87,7 @@ export function MarkdownPostDetail({ post }: { post: MarkdownPostDetailData }) {
           ))
           : null}
         <li>{frontpageLabel}</li>
+        <li>Comments: {post.commentCount ?? 0}</li>
         <li>
           Post URL (HTML):{" "}
           <a href={`/posts/${post._id}/${post.slug}`}>{`/posts/${post._id}/${post.slug}`}</a>
@@ -83,8 +96,28 @@ export function MarkdownPostDetail({ post }: { post: MarkdownPostDetailData }) {
           Post URL (Markdown):{" "}
           <a href={`/api/post/${post.slug}`}>{`/api/post/${post.slug}`}</a>
         </li>
+        <li>
+          Comments URL (Markdown):{" "}
+          <a href={`/api/post/${post.slug}/comments`}>{`/api/post/${post.slug}/comments`}</a>
+        </li>
+        <li>
+          Post URL (Markdown, compact):{" "}
+          <a href={`/api/post/${post.slug}?compact=1`}>{`/api/post/${post.slug}?compact=1`}</a>
+        </li>
+        {compactMode ? <li>Mode: compact</li> : null}
       </ul>
-      <MarkdownNode markdown={post.contents?.agentMarkdown ?? ""} />
+      <MarkdownNode markdown={bodyMarkdown ?? post.contents?.agentMarkdown ?? ""} />
+      {topComments.length > 0 ? (
+        <>
+          <h2>Top Comments Index</h2>
+          <MarkdownCommentsList
+            comments={topComments}
+            includeBodies={false}
+            markdownRouteBase={`/api/post/${post.slug}/comments`}
+            htmlRouteBase={`/posts/${post._id}/${post.slug}/comment`}
+          />
+        </>
+      ) : null}
     </div>
   );
 }

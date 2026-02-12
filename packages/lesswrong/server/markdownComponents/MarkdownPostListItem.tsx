@@ -16,6 +16,17 @@ const buildUserLinkList = (users: UsersMinimumInfo[]): React.ReactNode[] => {
   return nodes;
 };
 
+const sanitizeExcerptForAgents = (excerpt: string): string => {
+  return excerpt
+    // remove raw HTML table blocks, which are usually token-heavy and low-value in previews
+    .replaceAll(/<table[\s\S]*?<\/table>/g, "")
+    // remove markdown image embeds in preview snippets
+    .replaceAll(/!\[[^\]]*]\([^)]+\)/g, "")
+    // collapse repeated blank lines after stripping
+    .replaceAll(/\n{3,}/g, "\n\n")
+    .trim();
+};
+
 export function MarkdownPostListItem({
   post,
   includeExcerpt = true,
@@ -26,7 +37,8 @@ export function MarkdownPostListItem({
   const isCurated = !!post.curatedDate;
   const isLinkpost = post.postCategory === "linkpost";
   const coauthors = post.coauthors ?? [];
-  const excerpt = post.contents?.agentMarkdownExcerpt ?? null;
+  const rawExcerpt = post.contents?.agentMarkdownExcerpt ?? null;
+  const excerpt = rawExcerpt ? sanitizeExcerptForAgents(rawExcerpt) : null;
 
   return (
     <div>

@@ -101,7 +101,14 @@ function requestPrefersMarkdown(request: NextRequest): boolean {
   const acceptHeader = request.headers.get("accept")?.toLowerCase() ?? "";
   const wantsHtml = acceptHeader.includes("text/html") || acceptHeader.includes("application/xhtml+xml");
   const wantsMarkdown = acceptHeader.includes("text/markdown") || acceptHeader.includes("text/plain");
-  return wantsMarkdown && !wantsHtml;
+  const wildcardOnly = acceptHeader
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .every((part) => part.startsWith("*/*"));
+
+  // curl's default Accept header is `*/*`; for markdown-capable routes, prefer markdown.
+  return (wantsMarkdown || wildcardOnly) && !wantsHtml;
 }
 
 function getMarkdownRewriteResponse(request: NextRequest, addedClientId: string | null): NextResponse | null {

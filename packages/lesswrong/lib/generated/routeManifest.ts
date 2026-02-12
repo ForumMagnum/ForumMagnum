@@ -122,8 +122,38 @@ export const routeTrie = {
         "latest": {
           "hasRoute": true
         },
+        "post": {
+          "dynamicChild": {
+            "paramName": "idOrSlug",
+            "child": {
+              "staticChildren": {
+                "comments": {
+                  "dynamicChild": {
+                    "paramName": "commentId",
+                    "child": {
+                      "hasRoute": true
+                    }
+                  },
+                  "hasRoute": true
+                }
+              },
+              "lowerCase": {
+                "comments": "comments"
+              },
+              "hasRoute": true
+            }
+          }
+        },
         "recent": {
           "hasRoute": true
+        },
+        "tag": {
+          "dynamicChild": {
+            "paramName": "slug",
+            "child": {
+              "hasRoute": true
+            }
+          }
         },
         "autocomplete": {
           "hasRoute": true
@@ -270,7 +300,9 @@ export const routeTrie = {
         "curated": "curated",
         "home": "home",
         "latest": "latest",
+        "post": "post",
         "recent": "recent",
+        "tag": "tag",
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",
@@ -285,12 +317,6 @@ export const routeTrie = {
         "sendllmchat": "sendLlmChat",
         "streamgraphql": "streamGraphql",
         "v2": "v2"
-      },
-      "dynamicChild": {
-        "paramName": "idOrSlug",
-        "child": {
-          "hasRoute": true
-        }
       },
       "catchAll": {
         "paramName": "path",

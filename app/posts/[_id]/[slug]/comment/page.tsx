@@ -11,7 +11,7 @@ assertRouteAttributes("/posts/[_id]/[slug]/comment", {
   hasLinkPreview: true,
   hasPingbacks: false,
   hasLeftNavigationColumn: false,
-  hasMarkdownVersion: false,
+  hasMarkdownVersion: true,
 });
 
 export default async function Page({ params }: {
