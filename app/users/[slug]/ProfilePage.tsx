@@ -26,6 +26,7 @@ import NewConversationButton from "@/components/messaging/NewConversationButton"
 import { Link } from "@/lib/reactRouterWrapper";
 import { PinIcon } from "@/components/icons/pinIcon";
 import moment from "moment";
+import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
 import { useCurrentTime } from "@/lib/utils/timeUtil";
 import { profileStyles } from "./profileStyles";
 
@@ -642,7 +643,7 @@ export default function ProfilePage() {
               >
                 <div className={classes.sequencesGrid}>
                   {sequences.map((sequence) => {
-                    const imageId = sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg";
+                    const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get();
                     return (
                       <article key={sequence._id} className={classes.sequenceCard}>
                         <Link
