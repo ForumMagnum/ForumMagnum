@@ -437,7 +437,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
       {isInitialLoading && <div className={classes.loading}>
         <Loading />
       </div>}
-      <div className={classes.feedContent}>
+      {!isInitialLoading && <div className={classes.feedContent}>
         {mixedFeed.map((item, index) => (
           <UserContentFeedItem 
             key={item.type === 'post' ? `post-${item.data._id}` : `comment-${item.data._id}`}
@@ -448,7 +448,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
         ))}
         {hasMoreRemote && <div ref={sentinelRef} style={{height: 1}} />}
         {loadingMore && <div className={classes.loading}><Loading /></div>}
-      </div>
+      </div>}
     </div>
   );
 };
