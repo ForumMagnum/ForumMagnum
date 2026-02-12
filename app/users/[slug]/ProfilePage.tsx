@@ -25,6 +25,7 @@ import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
 import { Link } from "@/lib/reactRouterWrapper";
 import moment from "moment";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 import { profileStyles } from "./profileStyles";
 
 // ── Constants ──
@@ -311,6 +312,7 @@ export default function ProfilePage() {
   }, [recentPostsLoading, userId, hasPosts]);
 
   const currentUser = useCurrentUser();
+  const now = useCurrentTime();
   const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
   const canSubscribeToUser = !!user && !isOwnProfile;
   const canMessageUser = !!user && !!currentUser && !isOwnProfile;
@@ -1000,7 +1002,7 @@ export default function ProfilePage() {
                       <div className={classes.sidebarStatRow}>{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
                     )}
                     {user.createdAt && (
-                      <div className={classes.sidebarStatRow} suppressHydrationWarning>Member for {moment(new Date(user.createdAt)).fromNow(true)}</div>
+                      <div className={classes.sidebarStatRow}>Member for {moment(now).from(moment(new Date(user.createdAt)), true)}</div>
                     )}
                   </div>
                 )}
