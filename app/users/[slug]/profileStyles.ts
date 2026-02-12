@@ -866,6 +866,11 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       overflow: "hidden",
       textOverflow: "ellipsis",
     },
+    postSummaryWrapper: {
+      flex: "none",
+      minHeight: "auto",
+      marginBottom: 16,
+    },
   },
   "@media (max-width: 630px)": {
     profileMain: {
