@@ -38,7 +38,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     marginBottom: 15,
     paddingBottom: 10,
     // Intentional custom warm divider for profile page tone
-    borderBottom: "1px solid rgba(140,110,70,.14)",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
     display: "grid",
     gridTemplateColumns: "1fr auto 1fr",
     alignItems: "center",
@@ -295,7 +297,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   smallArticlesGrid: {
     marginTop: 30,
     paddingBottom: 30,
-    borderBottom: "1px solid rgba(140,110,70,.14)",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
     display: "grid",
     gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
     gap: 20,
