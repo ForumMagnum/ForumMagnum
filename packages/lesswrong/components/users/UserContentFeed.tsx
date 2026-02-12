@@ -137,6 +137,7 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
     skip: !topLevelId,
     notifyOnNetworkStatusChange: false,
     fetchPolicy: 'cache-first',
+    ssr: false,
   });
 
   // Build ancestry chain: results in array of comments from root down to focused comment
