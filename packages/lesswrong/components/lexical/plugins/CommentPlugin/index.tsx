@@ -69,7 +69,6 @@ import { $isSuggestionNode } from '@/components/editor/lexicalPlugins/suggestedE
 import {
   Comment,
   Comments,
-  CommentStore,
   createComment,
   createThread,
   Thread,
@@ -95,39 +94,6 @@ import { useCurrentCollaboratorId, useCollaboratorIdentity, useCanRejectSuggesti
 import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
-  addCommentBox: {
-    display: 'block',
-    position: 'fixed',
-    borderRadius: 20,
-    backgroundColor: theme.palette.grey[0],
-    width: 40,
-    height: 60,
-    boxShadow: `0 0 3px ${theme.palette.greyAlpha(0.2)}`,
-    zIndex: 10,
-    '@media (max-width: 600px)': {
-      display: 'none',
-    },
-  },
-  addCommentBoxButton: {
-    borderRadius: 20,
-    border: 0,
-    background: 'none',
-    width: 40,
-    height: 60,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: theme.palette.grey[100],
-    },
-  },
-  addCommentIcon: {
-    display: 'inline-block',
-    height: 20,
-    width: 20,
-    verticalAlign: '-10px',
-  },
   commentInputBox: {
     display: 'block',
     position: 'absolute',
@@ -654,54 +620,6 @@ export type HideThreadPayload = { threadId: string };
 export const HIDE_THREAD_COMMAND: LexicalCommand<HideThreadPayload> = createCommand(
   'HIDE_THREAD_COMMAND',
 );
-
-function AddCommentBox({
-  anchorKey,
-  editor,
-  onAddComment,
-}: {
-  anchorKey: NodeKey;
-  editor: LexicalEditor;
-  onAddComment: () => void;
-}): JSX.Element {
-  const classes = useStyles(styles);
-  const boxRef = useRef<HTMLDivElement>(null);
-
-  const updatePosition = useCallback(() => {
-    const boxElem = boxRef.current;
-    const rootElement = editor.getRootElement();
-    const anchorElement = editor.getElementByKey(anchorKey);
-
-    if (boxElem !== null && rootElement !== null && anchorElement !== null) {
-      const {right} = rootElement.getBoundingClientRect();
-      const {top} = anchorElement.getBoundingClientRect();
-      boxElem.style.left = `${right - 20}px`;
-      boxElem.style.top = `${top - 30}px`;
-    }
-  }, [anchorKey, editor]);
-
-  useEffect(() => {
-    window.addEventListener('resize', updatePosition);
-
-    return () => {
-      window.removeEventListener('resize', updatePosition);
-    };
-  }, [editor, updatePosition]);
-
-  useLayoutEffect(() => {
-    updatePosition();
-  }, [anchorKey, editor, updatePosition]);
-
-  return (
-    <div className={classes.addCommentBox} ref={boxRef}>
-      <button
-        className={classes.addCommentBoxButton}
-        onClick={onAddComment}>
-        <ChatLeftTextIcon className={classes.addCommentIcon} />
-      </button>
-    </div>
-  );
-}
 
 function EscapeHandlerPlugin({
   onEscape,

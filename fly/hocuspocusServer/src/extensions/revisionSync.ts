@@ -1,7 +1,8 @@
 import {
   Extension,
-  afterStoreDocumentPayload,
-  afterLoadDocumentPayload,
+  type afterStoreDocumentPayload,
+  type afterLoadDocumentPayload,
+  type beforeUnloadDocumentPayload,
 } from '@hocuspocus/server';
 import * as Y from 'yjs';
 
@@ -99,6 +100,13 @@ export class RevisionSyncExtension implements Extension {
    * The actual webhook call only happens when a timer fires.
    */
   async afterStoreDocument({ documentName }: afterStoreDocumentPayload): Promise<void> {
+    // Only the main post document should trigger revision snapshots.
+    // Subdocuments (e.g. comments) have their own callbacks and should not
+    // enqueue document.updated webhooks.
+    if (documentName.includes('/')) {
+      return;
+    }
+
     const existing = this.pendingRevisions.get(documentName);
 
     // Always clear and reset the idle timer
@@ -135,7 +143,7 @@ export class RevisionSyncExtension implements Extension {
    * Called before a document is unloaded from memory (all users disconnected).
    * Flushes any pending revision and cleans up the comment observer.
    */
-  async beforeUnloadDocument({ documentName }: afterStoreDocumentPayload): Promise<void> {
+  async beforeUnloadDocument({ documentName }: beforeUnloadDocumentPayload): Promise<void> {
     await this.flushRevision(documentName);
     this.cleanupCommentObserver(documentName);
   }

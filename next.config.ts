@@ -55,10 +55,6 @@ const nextConfig: NextConfig = {
     serverSourceMaps: true,
     turbopackFileSystemCacheForDev: true,
   },
-
-  outputFileTracingIncludes: {
-    '/graphql': ['./node_modules/mathjax/unpacked/*.js', './node_modules/mathjax/unpacked/**/*.js']
-  },
   
   turbopack: {
     resolveAlias: {

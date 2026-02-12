@@ -25,6 +25,19 @@ export function documentNameToPostId(documentName: string): string {
 }
 
 /**
+ * Converts a Hocuspocus document name to the YjsDocuments documentId format.
+ * Examples:
+ *   - "post-abc" -> "abc"
+ *   - "post-abc/comments" -> "abc/comments"
+ */
+function documentNameToDocumentId(documentName: string): string {
+  if (!documentName.startsWith('post-')) {
+    throw new Error(`Invalid document name: ${documentName}`);
+  }
+  return documentName.slice('post-'.length);
+}
+
+/**
  * Verifies the shared secret used to authenticate requests from the
  * Hocuspocus server to the ForumMagnum webhook endpoint.
  */
@@ -43,7 +56,7 @@ export function verifyHocuspocusWebhookSecret(providedSecret: string): boolean {
  * Returns null if the document doesn't exist.
  */
 export async function readYjsState(documentName: string): Promise<Uint8Array | null> {
-  const documentId = documentNameToPostId(documentName);
+  const documentId = documentNameToDocumentId(documentName);
   const yjsDocument = await YjsDocuments.findOne({ documentId });
   if (!yjsDocument) return null;
   return new Uint8Array(yjsDocument.yjsState);
