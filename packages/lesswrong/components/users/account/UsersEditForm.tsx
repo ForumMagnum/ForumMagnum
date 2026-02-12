@@ -273,7 +273,11 @@ const UsersForm = ({
       </div>
 
       <LegacyFormGroupLayout label={preferredHeadingCase("Profile")} startCollapsed={highlightedField !== "pinnedPostIds"}>
-        <TopPostsManager userId={form.state.values._id} pinnedPostIds={form.state.values.pinnedPostIds} />
+        <form.Field name="pinnedPostIds">
+          {(field) => (
+            <TopPostsManager userId={form.state.values._id} field={field} />
+          )}
+        </form.Field>
         
         {!isEAForum() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">

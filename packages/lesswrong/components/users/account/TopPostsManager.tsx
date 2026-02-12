@@ -24,8 +24,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useMutation } from "@apollo/client/react";
 import PopperCard from "@/components/common/PopperCard";
+import type { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import type { Placement as PopperPlacementType } from "popper.js";
 import { prettyScrollbars } from "@/themes/styleUtils";
 
@@ -35,17 +35,6 @@ const UserTopPostsQuery = gql(`
     posts(selector: $selector, limit: $limit) {
       results {
         ...PostsList
-      }
-    }
-  }
-`);
-
-const UpdatePinnedPostIdsMutation = gql(`
-  mutation UpdatePinnedPostIds($selector: SelectorInput!, $data: UpdateUserDataInput!) {
-    updateUser(selector: $selector, data: $data) {
-      data {
-        _id
-        pinnedPostIds
       }
     }
   }
@@ -404,9 +393,9 @@ function SortablePostRow({
   );
 }
 
-export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }: { userId: string; pinnedPostIds?: string[] | null }) => {
+export const TopPostsManager = ({ userId, field }: { userId: string; field: TypedFieldApi<string[] | null | undefined> }) => {
   const classes = useStyles(styles);
-  const [orderedPostIds, setOrderedPostIds] = useState<string[]>(initialPinnedPostIds ?? []);
+  const orderedPostIds = useMemo(() => field.state.value ?? [], [field.state.value]);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [swapSlotIndex, setSwapSlotIndex] = useState<number | null>(null);
   const [swapAnchorEl, setSwapAnchorEl] = useState<HTMLElement | null>(null);
@@ -420,8 +409,6 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
   const pointer = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
   const keyboard = useSensor(KeyboardSensor);
   const sensors = useSensors(mouse, pointer, keyboard);
-
-  const [updatePinnedPosts] = useMutation(UpdatePinnedPostIdsMutation);
 
   const { data, loading } = useQuery(UserTopPostsQuery, {
     variables: { 
@@ -451,21 +438,6 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
 
   const postIds = postsToShow.map(p => p._id);
 
-  const persistPinnedPosts = useCallback(async (newIds: string[]) => {
-    try {
-      await updatePinnedPosts({
-        variables: {
-          selector: { _id: userId },
-          data: { pinnedPostIds: newIds },
-        },
-        refetchQueries: ['ProfileUserQuery'],
-      });
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to save pinned posts:', e);
-    }
-  }, [userId, updatePinnedPosts]);
-
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveDragId(event.active.id as string);
   }, []);
@@ -478,21 +450,18 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
       const oldIndex = currentIds.indexOf(active.id as string);
       const newIndex = currentIds.indexOf(over.id as string);
       if (oldIndex !== -1 && newIndex !== -1) {
-        const newOrder = arrayMove(currentIds, oldIndex, newIndex);
-        setOrderedPostIds(newOrder);
-        void persistPinnedPosts(newOrder);
+        field.handleChange(arrayMove(currentIds, oldIndex, newIndex));
       }
     }
-  }, [orderedPostIds, postIds, persistPinnedPosts]);
+  }, [orderedPostIds, postIds, field]);
 
   const handleDragCancel = useCallback(() => {
     setActiveDragId(null);
   }, []);
 
   const handleRestoreDefaults = useCallback(() => {
-    setOrderedPostIds([]);
-    void persistPinnedPosts([]);
-  }, [persistPinnedPosts]);
+    field.handleChange([]);
+  }, [field]);
 
   const handleSwapClick = useCallback((index: number, anchorEl: HTMLElement) => {
     setSwapSlotIndex(prevIndex => {
@@ -525,12 +494,11 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
     const currentIds = orderedPostIds.length > 0 ? orderedPostIds : postIds;
     const newIds = [...currentIds];
     newIds[swapSlotIndex] = postId;
-    setOrderedPostIds(newIds);
-    void persistPinnedPosts(newIds);
+    field.handleChange(newIds);
     setSwapSlotIndex(null);
     setSwapAnchorEl(null);
     setSearch("");
-  }, [swapSlotIndex, orderedPostIds, postIds, persistPinnedPosts]);
+  }, [swapSlotIndex, orderedPostIds, postIds, field]);
 
   const filteredPosts = useMemo(() => {
     if (!search.trim()) return allPosts;
