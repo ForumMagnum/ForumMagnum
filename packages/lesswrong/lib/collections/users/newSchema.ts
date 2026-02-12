@@ -332,6 +332,7 @@ const schema = {
     },
     graphql: {
       outputType: "[String!]!",
+      inputType: "[String!]",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],

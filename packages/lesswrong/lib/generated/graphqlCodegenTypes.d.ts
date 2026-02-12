@@ -2043,7 +2043,7 @@ type CreateUserDataInput = {
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   petrovOptOut?: InputMaybe<Scalars['Boolean']['input']>;
-  pinnedPostIds: Array<Scalars['String']['input']>;
+  pinnedPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
   postGlossariesPinned?: InputMaybe<Scalars['Boolean']['input']>;
   postingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
   previousDisplayName?: InputMaybe<Scalars['String']['input']>;

@@ -9554,7 +9554,7 @@ interface CreateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
-  pinnedPostIds: Array<string>;
+  pinnedPostIds?: Array<string> | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName: string;
