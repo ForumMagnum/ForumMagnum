@@ -132,6 +132,11 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { MenuItem } from "@/components/common/Menus";
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
+  '@keyframes sentinelCursorBlink': {
+    to: {
+      visibility: 'hidden',
+    },
+  },
   editorContainer: {
     background: theme.palette.grey[0],
     position: 'relative',
@@ -322,6 +327,29 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     '& hr.selected': {
       outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
       outlineOffset: '-2px',
+    },
+    // Sentinel paragraphs are structural gap nodes used for block cursor
+    // navigation. Keep their styles theme-aware so the cursor indicator is
+    // visible in dark mode.
+    '& .sentinel-paragraph': {
+      margin: 0,
+      padding: 0,
+      lineHeight: 0,
+      fontSize: 0,
+      position: 'relative',
+      minHeight: 0,
+      caretColor: 'transparent',
+      outline: 'none',
+    },
+    '& .sentinel-paragraph.sentinel-focused::before': {
+      content: '""',
+      display: 'block',
+      position: 'absolute',
+      top: -1,
+      left: 0,
+      right: 0,
+      borderTop: `1px solid ${theme.palette.text.normal}`,
+      animation: '$sentinelCursorBlink 1.1s steps(2, start) infinite',
     },
     // Hide the marker on wrapper list items that only contain a nested list
     // (no text content of their own). Without this, the wrapper's marker
