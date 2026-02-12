@@ -73,6 +73,8 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     justifySelf: "end",
     position: "relative",
     top: 3,
+    padding: "6px 10px",
+    border: "1px solid",
     fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     fontWeight: 400,
@@ -172,7 +174,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     marginTop: 0,
     display: "grid",
     gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
-    gap: 20,
+    gap: 25,
     paddingBottom: 30,
     borderBottom: "1px solid rgba(140,110,70,.14)",
     overflow: "visible",
@@ -302,7 +304,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       : "1px solid rgba(140,110,70,.14)",
     display: "grid",
     gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
-    gap: 20,
+    gap: 25,
   },
   smallArticle: {
     gridColumn: "span 2",
@@ -600,7 +602,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   allPostsContainer: {
     display: "grid",
     gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
-    gap: 20,
+    gap: 25,
     minHeight: "100vh",
   },
   postsList: {

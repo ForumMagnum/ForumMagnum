@@ -87,10 +87,43 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
       },
     },
   },
+  hideButton: {
+    padding: "6px 16px",
+    position: "relative" as const,
+    top: 5,
+    fontSize: "0.8125rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 500,
+    letterSpacing: "0.02857em",
+    textTransform: "uppercase" as const,
+    borderRadius: 4,
+    background: "transparent",
+    cursor: "pointer",
+    border: `1px solid ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main,
+    "&:hover": {
+      backgroundColor: `color-mix(in srgb, ${theme.palette.primary.main} 8%, transparent)`,
+    },
+  },
+  hideButtonActive: {
+    border: `1px solid ${theme.palette.grey[500]}`,
+    color: theme.palette.grey[700],
+    background: theme.palette.grey[100],
+  },
+  headerButtons: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing.unit,
+  },
   postList: {
     display: "flex",
     flexDirection: "column",
     gap: theme.spacing.unit,
+  },
+  postListDisabled: {
+    opacity: 0.45,
+    pointerEvents: "none",
+    filter: "grayscale(0.2)",
   },
   postRow: {
     display: "flex",
@@ -393,7 +426,15 @@ function SortablePostRow({
   );
 }
 
-export const TopPostsManager = ({ userId, field }: { userId: string; field: TypedFieldApi<string[] | null | undefined> }) => {
+export const TopPostsManager = ({
+  userId,
+  field,
+  hideField,
+}: {
+  userId: string;
+  field: TypedFieldApi<string[] | null | undefined>;
+  hideField: TypedFieldApi<boolean | null | undefined>;
+}) => {
   const classes = useStyles(styles);
   const orderedPostIds = useMemo(() => field.state.value ?? [], [field.state.value]);
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
@@ -424,25 +465,32 @@ export const TopPostsManager = ({ userId, field }: { userId: string; field: Type
   const allPosts = useMemo(() => data?.posts?.results ?? [], [data?.posts?.results]);
   const postCount = allPosts.length;
 
-  const hasCustomization = orderedPostIds.length > 0;
-
   // For 2-4 posts, show all posts (no swap buttons)
   // For 5+ posts, show top 4 with swap buttons
   const defaultPosts = postCount <= 4 ? allPosts.slice(0, postCount) : allPosts.slice(0, 4);
+  const defaultPostIds = defaultPosts.map((post) => post._id);
   const showSwapButtons = postCount >= 5;
+  const topPostsHidden = hideField.state.value ?? false;
+  const hasCustomization = orderedPostIds.length > 0 && orderedPostIds.join(",") !== defaultPostIds.join(",");
 
   // Use custom order if set, otherwise default
-  const postsToShow = orderedPostIds.length > 0
-    ? orderedPostIds.map(id => allPosts.find(p => p._id === id)).filter((p): p is NonNullable<typeof p> => !!p)
+  const postsToShow = !topPostsHidden
+    ? (
+      orderedPostIds.length > 0
+        ? orderedPostIds.map(id => allPosts.find(p => p._id === id)).filter((p): p is NonNullable<typeof p> => !!p)
+        : defaultPosts
+    )
     : defaultPosts;
 
   const postIds = postsToShow.map(p => p._id);
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
+    if (topPostsHidden) return;
     setActiveDragId(event.active.id as string);
-  }, []);
+  }, [topPostsHidden]);
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
+    if (topPostsHidden) return;
     setActiveDragId(null);
     const { active, over } = event;
     if (over && active.id !== over.id) {
@@ -453,17 +501,30 @@ export const TopPostsManager = ({ userId, field }: { userId: string; field: Type
         field.handleChange(arrayMove(currentIds, oldIndex, newIndex));
       }
     }
-  }, [orderedPostIds, postIds, field]);
+  }, [orderedPostIds, postIds, field, topPostsHidden]);
 
   const handleDragCancel = useCallback(() => {
     setActiveDragId(null);
   }, []);
 
   const handleRestoreDefaults = useCallback(() => {
-    field.handleChange([]);
-  }, [field]);
+    hideField.handleChange(false);
+    field.handleChange(defaultPostIds);
+  }, [field, hideField, defaultPostIds]);
+
+  const handleHideTopPosts = useCallback(() => {
+    hideField.handleChange(true);
+    setSwapSlotIndex(null);
+    setSwapAnchorEl(null);
+    setSearch("");
+  }, [hideField]);
+
+  const handleShowTopPosts = useCallback(() => {
+    hideField.handleChange(false);
+  }, [hideField]);
 
   const handleSwapClick = useCallback((index: number, anchorEl: HTMLElement) => {
+    if (topPostsHidden) return;
     setSwapSlotIndex(prevIndex => {
       if (prevIndex === index) {
         setSwapAnchorEl(null);
@@ -480,7 +541,7 @@ export const TopPostsManager = ({ userId, field }: { userId: string; field: Type
       return index;
     });
     setSearch("");
-  }, []);
+  }, [topPostsHidden]);
 
   const handleCloseSearch = useCallback(() => {
     setSwapSlotIndex(null);
@@ -489,16 +550,18 @@ export const TopPostsManager = ({ userId, field }: { userId: string; field: Type
   }, []);
 
   const handleSwapSelect = useCallback((postId: string) => {
+    if (topPostsHidden) return;
     if (swapSlotIndex === null) return;
     if (postIds.includes(postId)) return;
     const currentIds = orderedPostIds.length > 0 ? orderedPostIds : postIds;
     const newIds = [...currentIds];
     newIds[swapSlotIndex] = postId;
+    hideField.handleChange(false);
     field.handleChange(newIds);
     setSwapSlotIndex(null);
     setSwapAnchorEl(null);
     setSearch("");
-  }, [swapSlotIndex, orderedPostIds, postIds, field]);
+  }, [swapSlotIndex, orderedPostIds, postIds, field, hideField, topPostsHidden]);
 
   const filteredPosts = useMemo(() => {
     if (!search.trim()) return allPosts;
@@ -574,13 +637,23 @@ export const TopPostsManager = ({ userId, field }: { userId: string; field: Type
       </PopperCard>
       <div className={classes.header}>
         <div className={classes.title}>Swap top posts</div>
-        <button
-          className={classes.restoreButton}
-          disabled={!hasCustomization}
-          onClick={handleRestoreDefaults}
-        >
-          Restore defaults
-        </button>
+        <div className={classes.headerButtons}>
+          <button
+            className={classNames(classes.hideButton, topPostsHidden && classes.hideButtonActive)}
+            onClick={topPostsHidden ? handleShowTopPosts : handleHideTopPosts}
+            type="button"
+          >
+            {topPostsHidden ? "Show top posts" : "Hide top posts"}
+          </button>
+          <button
+            className={classes.restoreButton}
+            disabled={!hasCustomization || topPostsHidden}
+            onClick={handleRestoreDefaults}
+            type="button"
+          >
+            Restore defaults
+          </button>
+        </div>
       </div>
       <DndContext
         sensors={sensors}
@@ -590,7 +663,7 @@ export const TopPostsManager = ({ userId, field }: { userId: string; field: Type
         onDragCancel={handleDragCancel}
       >
         <SortableContext items={postIds} strategy={verticalListSortingStrategy}>
-          <div className={classes.postList}>
+          <div className={classNames(classes.postList, topPostsHidden && classes.postListDisabled)}>
             {postsToShow.map((post, index) => (
               <SortablePostRow
                 key={post._id}

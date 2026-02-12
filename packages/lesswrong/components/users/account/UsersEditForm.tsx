@@ -274,8 +274,16 @@ const UsersForm = ({
 
       <LegacyFormGroupLayout label={preferredHeadingCase("Profile")} startCollapsed={highlightedField !== "pinnedPostIds"}>
         <form.Field name="pinnedPostIds">
-          {(field) => (
-            <TopPostsManager userId={form.state.values._id} field={field} />
+          {(pinnedPostIdsField) => (
+            <form.Field name="hideProfileTopPosts">
+              {(hideTopPostsField) => (
+                <TopPostsManager
+                  userId={form.state.values._id}
+                  field={pinnedPostIdsField}
+                  hideField={hideTopPostsField}
+                />
+              )}
+            </form.Field>
           )}
         </form.Field>
         

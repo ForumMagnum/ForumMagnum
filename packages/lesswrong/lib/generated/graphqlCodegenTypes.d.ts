@@ -1977,6 +1977,7 @@ type CreateUserDataInput = {
   hideMeetupsPoke?: InputMaybe<Scalars['Boolean']['input']>;
   hideNavigationSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   hidePostsRecommendations?: InputMaybe<Scalars['Boolean']['input']>;
+  hideProfileTopPosts?: InputMaybe<Scalars['Boolean']['input']>;
   hideSubscribePoke?: InputMaybe<Scalars['Boolean']['input']>;
   hideSunshineSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
@@ -12287,6 +12288,7 @@ type UpdateUserDataInput = {
   hideMeetupsPoke?: InputMaybe<Scalars['Boolean']['input']>;
   hideNavigationSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   hidePostsRecommendations?: InputMaybe<Scalars['Boolean']['input']>;
+  hideProfileTopPosts?: InputMaybe<Scalars['Boolean']['input']>;
   hideSubscribePoke?: InputMaybe<Scalars['Boolean']['input']>;
   hideSunshineSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
@@ -12598,6 +12600,7 @@ type User = {
   hideMeetupsPoke?: Maybe<Scalars['Boolean']['output']>;
   hideNavigationSidebar?: Maybe<Scalars['Boolean']['output']>;
   hidePostsRecommendations: Scalars['Boolean']['output'];
+  hideProfileTopPosts: Scalars['Boolean']['output'];
   hideSubscribePoke?: Maybe<Scalars['Boolean']['output']>;
   hideSunshineSidebar?: Maybe<Scalars['Boolean']['output']>;
   hideTaggingProgressBar?: Maybe<Scalars['Boolean']['output']>;
@@ -26906,7 +26909,7 @@ type UsersProfile_User_moderationGuidelines_Revision = (
 );
 
 type UsersProfile = (
-  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
   & UsersMinimumInfo
 );
 
