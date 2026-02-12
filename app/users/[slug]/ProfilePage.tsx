@@ -348,7 +348,6 @@ const ProfileCommentDiamondsQuery = gql(`
   }
 `);
 
-
 export default function ProfilePage() {
   const classes = useStyles(profileStyles);
   const [cookies, setCookie] = useCookiesWithConsent([SELECTED_PROFILE_TAB_COOKIE]);
