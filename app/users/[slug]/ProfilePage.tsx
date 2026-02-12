@@ -23,6 +23,7 @@ import { ExpandedDate } from "@/components/common/FormatDate";
 import UserMetaInfo from "@/components/users/UserMetaInfo";
 import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
+import { Link } from "@/lib/reactRouterWrapper";
 import moment from "moment";
 import { profileStyles } from "./profileStyles";
 
@@ -82,6 +83,10 @@ function getDefaultPreview(postId: string): string {
   return DEFAULT_PREVIEWS[hashString(postId) % DEFAULT_PREVIEWS.length];
 }
 
+// When posts lack a social preview image, we show placeholder images instead.
+// This shuffles the placeholders deterministically (seeded by the first post's
+// ID) so each user's profile gets a consistent but varied arrangement -- the
+// same user always sees the same placeholders, but different profiles differ.
 function buildTopPostDefaultImages(topPosts: ReadonlyArray<PostWithPreview>): string[] {
   const seed = hashString(topPosts[0]?._id ?? "seed");
   const arr = [...DEFAULT_PREVIEWS];
@@ -536,9 +541,9 @@ export default function ProfilePage() {
               />
             </h1>
             {isOwnProfile && (
-              <a href="/account" className={classes.profileEditButton}>
+              <Link to="/account" className={classes.profileEditButton}>
                 Edit
-              </a>
+              </Link>
             )}
           </div>
 
@@ -552,8 +557,8 @@ export default function ProfilePage() {
               </div>
 
               {topPost && topPost.slug && (
-                <a
-                  href={postGetPageUrl(topPost)}
+                <Link
+                  to={postGetPageUrl(topPost)}
                   className={classNames(classes.postArticle, classes.postArticleTop)}
                 >
                   <div className={classes.postContent}>
@@ -576,7 +581,7 @@ export default function ProfilePage() {
                       backgroundImage: `url('${getPostImageUrl(topPost, topPostDefaultImages, 0)}')`,
                     }}
                   ></div>
-                </a>
+                </Link>
               )}
 
               <div className={classes.smallArticlesGrid}>
@@ -584,8 +589,8 @@ export default function ProfilePage() {
                   const imageUrl = getPostImageUrl(post, topPostDefaultImages, idx + 1);
                   return (
                     <article key={post._id} className={classes.smallArticle}>
-                      <a
-                        href={postGetPageUrl(post)}
+                      <Link
+                        to={postGetPageUrl(post)}
                         className={classes.articleLink}
                       >
                         <div
@@ -605,7 +610,7 @@ export default function ProfilePage() {
                             </LWTooltip>
                           </div>
                         </div>
-                      </a>
+                      </Link>
                     </article>
                   );
                 })}
@@ -778,8 +783,8 @@ export default function ProfilePage() {
                   const isPinned = !!pinnedPostIds?.includes(post._id);
                   return (
                     <article key={post._id} className={classes.listArticle}>
-                      <a
-                        href={postGetPageUrl(post)}
+                      <Link
+                        to={postGetPageUrl(post)}
                         className={classes.articleLink}
                       >
                         <div className={classes.listArticleContent}>
@@ -812,7 +817,7 @@ export default function ProfilePage() {
                             backgroundImage: `url('${imageUrl}')`,
                           } : undefined}
                         ></div>
-                      </a>
+                      </Link>
                     </article>
                   );
                 })}
@@ -841,8 +846,8 @@ export default function ProfilePage() {
                     const imageId = sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg";
                     return (
                       <article key={sequence._id} className={classes.sequenceCard}>
-                        <a
-                          href={sequenceGetPageUrl(sequence)}
+                        <Link
+                          to={sequenceGetPageUrl(sequence)}
                           className={classes.articleLink}
                         >
                           <div
@@ -854,7 +859,7 @@ export default function ProfilePage() {
                           <div className={classes.sequenceCardContent}>
                             <h3 className={classes.sequenceCardTitle}>{sequence.title}</h3>
                           </div>
-                        </a>
+                        </Link>
                       </article>
                     );
                   })}
