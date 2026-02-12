@@ -27,7 +27,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { PinIcon } from "@/components/icons/pinIcon";
 import moment from "moment";
 import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
-import { useCurrentTime } from "@/lib/utils/timeUtil";
+import { relativeTimeToLongFormat, useCurrentTime } from "@/lib/utils/timeUtil";
 import { profileStyles } from "./profileStyles";
 
 // ── Constants ──
@@ -802,7 +802,9 @@ export default function ProfilePage() {
                       <div className={classes.sidebarStatRow}>{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
                     )}
                     {user.createdAt && (
-                      <div className={classes.sidebarStatRow}>Member for {moment(now).from(moment(new Date(user.createdAt)), true)}</div>
+                      <div className={classes.sidebarStatRow}>
+                        Member for {relativeTimeToLongFormat(moment(now).from(moment(new Date(user.createdAt)), true))}
+                      </div>
                     )}
                   </div>
                 )}
