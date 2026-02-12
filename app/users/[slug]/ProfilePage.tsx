@@ -541,7 +541,7 @@ export default function ProfilePage() {
               />
             </h1>
             {isOwnProfile && (
-              <Link to="/account" className={classes.profileEditButton}>
+              <Link to="/account?highlightField=pinnedPostIds" className={classes.profileEditButton}>
                 Edit
               </Link>
             )}

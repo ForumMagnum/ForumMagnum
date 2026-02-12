@@ -272,7 +272,7 @@ const UsersForm = ({
         </div>}
       </div>
 
-      <LegacyFormGroupLayout label={preferredHeadingCase("Profile")} startCollapsed={false}>
+      <LegacyFormGroupLayout label={preferredHeadingCase("Profile")} startCollapsed={highlightedField !== "pinnedPostIds"}>
         <TopPostsManager userId={form.state.values._id} pinnedPostIds={form.state.values.pinnedPostIds} />
         
         {!isEAForum() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
@@ -298,7 +298,7 @@ const UsersForm = ({
         </div>}
       </LegacyFormGroupLayout>
 
-      {isLWorAF() && <LegacyFormGroupLayout label={preferredHeadingCase("Alignment Forum")} startCollapsed={false}>
+      {isLWorAF() && <LegacyFormGroupLayout label={preferredHeadingCase("Alignment Forum")} startCollapsed={true}>
         <div className={classes.fieldWrapper}>
           <form.Field name="fullName">
             {(field) => (
