@@ -46,13 +46,17 @@ const DEFAULT_PREVIEWS = [
 
 // ── Helper functions ──
 
+// Post shape used by the profile page helper functions. Fields are optional
+// to accommodate the DeepPartialObject wrapper that useQuery applies.
 interface PostWithPreview {
   _id: string;
-  title: string;
-  baseScore: number | null;
-  postedAt: string;
-  contents: { plaintextDescription: string } | null;
-  socialPreviewData: { imageUrl: string | null } | null;
+  slug: string;
+  title?: string | null;
+  shortform?: boolean | null;
+  baseScore?: number | null;
+  postedAt?: string | null;
+  contents?: { plaintextDescription?: string | null } | null;
+  socialPreviewData?: { imageUrl?: string | null } | null;
 }
 
 function hashString(s: string): number {
@@ -63,14 +67,14 @@ function hashString(s: string): number {
   return Math.abs(h);
 }
 
-function getPostSummary(post: PostWithPreview): string {
+function getPostSummary(post: { contents?: { plaintextDescription?: string | null } | null }): string {
   const fullSummary = (post?.contents?.plaintextDescription ?? "").trim();
   const words = fullSummary.split(/\s+/);
   if (words.length <= POST_SUMMARY_WORD_LIMIT) return fullSummary;
   return words.slice(0, POST_SUMMARY_WORD_LIMIT).join(" ") + "...";
 }
 
-function getTopPostSummary(post: PostWithPreview): string {
+function getTopPostSummary(post: { contents?: { plaintextDescription?: string | null } | null }): string {
   return (post?.contents?.plaintextDescription ?? "").trim();
 }
 
@@ -78,7 +82,7 @@ function getDefaultPreview(postId: string): string {
   return DEFAULT_PREVIEWS[hashString(postId) % DEFAULT_PREVIEWS.length];
 }
 
-function buildTopPostDefaultImages(topPosts: Array<{ _id: string }>): string[] {
+function buildTopPostDefaultImages(topPosts: ReadonlyArray<PostWithPreview>): string[] {
   const seed = hashString(topPosts[0]?._id ?? "seed");
   const arr = [...DEFAULT_PREVIEWS];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -229,7 +233,7 @@ export default function ProfilePage() {
   const hasPinnedPosts = pinnedPostIds && pinnedPostIds.length >= TOP_POSTS_LIMIT;
 
   const { data: topPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !userId || hasPinnedPosts,
+    skip: !userId || !!hasPinnedPosts,
     variables: {
       selector: userId ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } } : undefined,
       limit: TOP_POSTS_LIMIT,
@@ -269,14 +273,20 @@ export default function ProfilePage() {
   });
 
 
-  // When using pinnedPostIds, reorder results to match the pinned order
+  // When using pinnedPostIds, reorder results to match the pinned order.
+  // The PostsList fragment guarantees all PostWithPreview fields exist at
+  // runtime, but useQuery wraps them in DeepPartialObject which makes
+  // every field optional. We narrow once here so helper functions get
+  // properly typed inputs.
+  const pinnedResults = (pinnedPostsData?.posts?.results ?? []) as PostWithPreview[];
+  const topResults = (topPostsData?.posts?.results ?? []) as PostWithPreview[];
   const topPosts = hasPinnedPosts
-    ? pinnedPostIds.map(id => (pinnedPostsData?.posts?.results ?? []).find(p => p._id === id)).filter((p): p is NonNullable<typeof p> => !!p)
-    : (topPostsData?.posts?.results ?? []);
+    ? pinnedPostIds.map(id => pinnedResults.find(p => p._id === id)).filter((p): p is PostWithPreview => !!p)
+    : topResults;
   const topPost = topPosts[0];
   const smallArticles = topPosts.slice(1, TOP_POSTS_LIMIT);
   const topPostDefaultImages = buildTopPostDefaultImages(topPosts);
-  const recentPosts = recentPostsData?.posts?.results ?? [];
+  const recentPosts = (recentPostsData?.posts?.results ?? []) as PostWithPreview[];
   const listPosts = recentPosts.slice(0, postsToShow);
   const hasMorePosts = recentPosts.length > postsToShow;
   const sequences = sequencesData?.sequences?.results ?? [];
@@ -541,7 +551,7 @@ export default function ProfilePage() {
                 </LWTooltip>
               </div>
 
-              {topPost && (
+              {topPost && topPost.slug && (
                 <a
                   href={postGetPageUrl(topPost)}
                   className={classNames(classes.postArticle, classes.postArticleTop)}

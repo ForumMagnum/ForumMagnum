@@ -333,7 +333,7 @@ const schema = {
       outputType: "[String!]",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
-      canCreate: [userOwns, "admins"],
+      canCreate: ["admins"],
       validation: {
         optional: true,
       },
