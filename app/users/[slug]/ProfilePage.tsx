@@ -237,9 +237,10 @@ const ProfileSequencesQuery = gql(`
 export default function ProfilePage() {
   const classes = useStyles(profileStyles);
   const [cookies, setCookie] = useCookiesWithConsent([PROFILE_TAB_PREFERENCE_COOKIE]);
+  const profileTabPrefCookie = cookies[PROFILE_TAB_PREFERENCE_COOKIE];
   const savedPref = useMemo(
-    () => parseTabPreference(cookies[PROFILE_TAB_PREFERENCE_COOKIE]),
-    [cookies[PROFILE_TAB_PREFERENCE_COOKIE]],
+    () => parseTabPreference(profileTabPrefCookie),
+    [profileTabPrefCookie],
   );
 
   const [activeTab, setActiveTab] = useState<ProfileTab>(savedPref?.tab ?? "posts");
