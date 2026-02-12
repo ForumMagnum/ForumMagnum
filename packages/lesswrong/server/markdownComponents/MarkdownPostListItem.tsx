@@ -16,7 +16,13 @@ const buildUserLinkList = (users: UsersMinimumInfo[]): React.ReactNode[] => {
   return nodes;
 };
 
-export function MarkdownPostListItem({ post }: { post: MarkdownPostsList}) {
+export function MarkdownPostListItem({
+  post,
+  includeExcerpt = true,
+}: {
+  post: MarkdownPostsList
+  includeExcerpt?: boolean
+}) {
   const isCurated = !!post.curatedDate;
   const isLinkpost = post.postCategory === "linkpost";
   const coauthors = post.coauthors ?? [];
@@ -24,9 +30,9 @@ export function MarkdownPostListItem({ post }: { post: MarkdownPostsList}) {
 
   return (
     <div>
-      <h2>
+      <h3>
         <a href={`/api/post/${post.slug}`}>{post.title}</a>
-      </h2>
+      </h3>
       <div>
         By <MarkdownUserLink user={post.user} />
         {coauthors.length > 0 ? <> with {buildUserLinkList(coauthors)}</> : null}
@@ -45,7 +51,7 @@ export function MarkdownPostListItem({ post }: { post: MarkdownPostsList}) {
           <MarkdownPostTagsList post={post} />
         </li>
       </ul>
-      {excerpt && <MarkdownNode markdown={excerpt} indentLevel={1} />}
+      {includeExcerpt && excerpt && <MarkdownNode markdown={excerpt} indentLevel={1} />}
       <div>Read more: <a href={`/api/post/${post.slug}`}>{`/api/post/${post.slug}`}</a></div>
     </div>
   );

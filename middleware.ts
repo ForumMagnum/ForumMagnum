@@ -215,8 +215,15 @@ async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBuf
 
 export const config: MiddlewareConfig = {
   matcher: [
+    {
+      source: "/",
+      missing: [
+        { type: 'header', key: 'next-router-state-tree' },
+        { type: 'header', key: 'accept', value: '^text/html,.*' },
+      ],
+    },
     /*
-     * Match all request paths except for / (exact match) and the ones starting with:
+     * Match all request paths except for the ones starting with:
      * - api (a subset of API routes)
      * - auth (auth routes)
      * - graphql, analyticsEvent, ckeditor-token, feed.xml (high-volume API routes)
@@ -228,7 +235,10 @@ export const config: MiddlewareConfig = {
      */
     {
       source: "/((?!api|$|auth|graphql|graphql2|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
-      missing: [{ type: 'header', key: 'next-router-state-tree' }],
+      missing: [
+        { type: 'header', key: 'next-router-state-tree' },
+        { type: 'header', key: 'accept', value: '^text/html,.*' },
+      ],
     }
   ]
 }

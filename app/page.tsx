@@ -11,7 +11,7 @@ assertRouteAttributes("/", {
   hasLinkPreview: false,
   hasPingbacks: false,
   hasLeftNavigationColumn: true,
-  hasMarkdownVersion: false,
+  hasMarkdownVersion: true,
 });
 
 export default async function Home() {

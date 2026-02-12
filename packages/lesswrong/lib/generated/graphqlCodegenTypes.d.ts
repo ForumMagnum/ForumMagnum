@@ -13201,24 +13201,6 @@ type YjsDocument = {
   createdAt: Scalars['Date']['output'];
 };
 
-type MarkdownLatestPostsQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & MarkdownPostsList
-);
-
-type MarkdownLatestPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownLatestPostsQuery_posts_MultiPostOutput_results_Post> };
-
-type MarkdownLatestPostsQuery_Query = { __typename?: 'Query', posts: MarkdownLatestPostsQuery_posts_MultiPostOutput | null };
-
-
-type MarkdownLatestPostsQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type MarkdownLatestPostsQuery = MarkdownLatestPostsQuery_Query;
-
 type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
 
 type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_coauthors_User = { __typename?: 'User', slug: string, displayName: string };
@@ -13240,6 +13222,64 @@ type PostMarkdownApiQueryVariables = Exact<{
 
 
 type PostMarkdownApiQuery = PostMarkdownApiQuery_Query;
+
+type MarkdownFrontPageQuery_currentSpotlight_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
+
+type MarkdownFrontPageQuery_currentSpotlight_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, title: string };
+
+type MarkdownFrontPageQuery_currentSpotlight_Spotlight_tag_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string };
+
+type MarkdownFrontPageQuery_currentSpotlight_Spotlight = { __typename?: 'Spotlight', _id: string, customTitle: string | null, customSubtitle: string | null, post: MarkdownFrontPageQuery_currentSpotlight_Spotlight_post_Post | null, sequence: MarkdownFrontPageQuery_currentSpotlight_Spotlight_sequence_Sequence | null, tag: MarkdownFrontPageQuery_currentSpotlight_Spotlight_tag_Tag | null };
+
+type MarkdownFrontPageQuery_curated_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownFrontPageQuery_curated_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownFrontPageQuery_curated_MultiPostOutput_results_Post> };
+
+type MarkdownFrontPageQuery_recent_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownFrontPageQuery_recent_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownFrontPageQuery_recent_MultiPostOutput_results_Post> };
+
+type MarkdownFrontPageQuery_latest_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownFrontPageQuery_latest_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownFrontPageQuery_latest_MultiPostOutput_results_Post> };
+
+type MarkdownFrontPageQuery_Query = { __typename?: 'Query', currentSpotlight: MarkdownFrontPageQuery_currentSpotlight_Spotlight | null, curated: MarkdownFrontPageQuery_curated_MultiPostOutput | null, recent: MarkdownFrontPageQuery_recent_MultiPostOutput | null, latest: MarkdownFrontPageQuery_latest_MultiPostOutput | null };
+
+
+type MarkdownFrontPageQueryVariables = Exact<{
+  recentLimit: InputMaybe<Scalars['Int']['input']>;
+  latestLimit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownFrontPageQuery = MarkdownFrontPageQuery_Query;
+
+type MarkdownLatestPostsQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownLatestPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownLatestPostsQuery_posts_MultiPostOutput_results_Post> };
+
+type MarkdownLatestPostsQuery_Query = { __typename?: 'Query', posts: MarkdownLatestPostsQuery_posts_MultiPostOutput | null };
+
+
+type MarkdownLatestPostsQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownLatestPostsQuery = MarkdownLatestPostsQuery_Query;
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 

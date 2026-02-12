@@ -13,6 +13,7 @@ const defineMarkdownRouteMapping = <const TRouteMapping extends MarkdownRouteMap
 ) => routeMarkdownMapping;
 
 export const routeMarkdownMapping = defineMarkdownRouteMapping({
+  "/": () => "/api/home",
   "/posts/[_id]": ({ _id }) => `/api/post/${_id}`,
   "/posts/[_id]/[slug]": ({ _id, slug }) => `/api/post/${slug || _id}`,
   "/posts/slug/[slug]": ({ slug }) => `/api/post/${slug}`,

@@ -116,6 +116,9 @@ export const routeTrie = {
         "curated": {
           "hasRoute": true
         },
+        "home": {
+          "hasRoute": true
+        },
         "latest": {
           "hasRoute": true
         },
@@ -197,14 +200,6 @@ export const routeTrie = {
         "notificationEvents": {
           "hasRoute": true
         },
-        "post": {
-          "dynamicChild": {
-            "paramName": "idOrSlug",
-            "child": {
-              "hasRoute": true
-            }
-          }
-        },
         "quit": {
           "hasRoute": true
         },
@@ -273,6 +268,7 @@ export const routeTrie = {
       "lowerCase": {
         "skill.md": "SKILL.md",
         "curated": "curated",
+        "home": "home",
         "latest": "latest",
         "recent": "recent",
         "autocomplete": "autocomplete",
@@ -283,13 +279,18 @@ export const routeTrie = {
         "health": "health",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
-        "post": "post",
         "quit": "quit",
         "registerclientid": "registerClientId",
         "search": "search",
         "sendllmchat": "sendLlmChat",
         "streamgraphql": "streamGraphql",
         "v2": "v2"
+      },
+      "dynamicChild": {
+        "paramName": "idOrSlug",
+        "child": {
+          "hasRoute": true
+        }
       },
       "catchAll": {
         "paramName": "path",
