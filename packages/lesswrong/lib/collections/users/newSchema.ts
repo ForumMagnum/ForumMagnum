@@ -331,13 +331,10 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "[String!]",
+      outputType: "[String!]!",
       canRead: ["guests"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
     },
   },
   

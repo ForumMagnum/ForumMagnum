@@ -8004,7 +8004,7 @@ type User {
   oldSlugs: [String!]!
   biography(version: String): Revision
   biography_latest: String
-  pinnedPostIds: [String!]
+  pinnedPostIds: [String!]!
   username: String
   emails: [JSON!]
   isAdmin: Boolean!
@@ -10481,7 +10481,7 @@ input CreateUserDataInput {
   howICanHelpOthers: CreateRevisionDataInput
   slug: String
   biography: CreateRevisionDataInput
-  pinnedPostIds: [String!]
+  pinnedPostIds: [String!]!
   username: String
   isAdmin: Boolean
   displayName: String!

@@ -2046,7 +2046,7 @@ export type CreateUserDataInput = {
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   petrovOptOut?: InputMaybe<Scalars['Boolean']['input']>;
-  pinnedPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  pinnedPostIds: Array<Scalars['String']['input']>;
   postGlossariesPinned?: InputMaybe<Scalars['Boolean']['input']>;
   postingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
   previousDisplayName?: InputMaybe<Scalars['String']['input']>;
@@ -12699,7 +12699,7 @@ export type User = {
   petrovLaunchCodeDate: Maybe<Scalars['Date']['output']>;
   petrovOptOut: Scalars['Boolean']['output'];
   petrovPressedButtonDate: Maybe<Scalars['Date']['output']>;
-  pinnedPostIds: Maybe<Array<Scalars['String']['output']>>;
+  pinnedPostIds: Array<Scalars['String']['output']>;
   postCount: Scalars['Float']['output'];
   postGlossariesPinned: Maybe<Scalars['Boolean']['output']>;
   postingDisabled: Maybe<Scalars['Boolean']['output']>;
@@ -20202,7 +20202,7 @@ export type UpdatePinnedPostIdsMutationVariables = Exact<{
 }>;
 
 
-export type UpdatePinnedPostIdsMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: { __typename?: 'User', _id: string, pinnedPostIds: Array<string> | null } | null } | null };
+export type UpdatePinnedPostIdsMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserOutput', data: { __typename?: 'User', _id: string, pinnedPostIds: Array<string> } | null } | null };
 
 export type UsersAccountManagementGetUserBySlugQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -21770,7 +21770,7 @@ export type UserTagRelDetails = { __typename?: 'UserTagRel', _id: string, userId
 export type UsersMinimumInfo = { __typename?: 'User', _id: string, slug: string, createdAt: string, username: string | null, displayName: string, profileImageId: string | null, karma: number, afKarma: number, deleted: boolean, isAdmin: boolean, htmlBio: string, jobTitle: string | null, organization: string | null, postCount: number, commentCount: number, sequenceCount: number, afPostCount: number, afCommentCount: number, spamRiskScore: number, tagRevisionCount: number, reviewedByUserId: string | null };
 
 export type UsersProfile = (
-  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string> | null, biography: (
+  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, biography: (
     { __typename?: 'Revision' }
     & RevisionDisplay
   ) | null, howOthersCanHelpMe: (
