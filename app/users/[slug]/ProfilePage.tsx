@@ -27,7 +27,6 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
 import { PROFILE_TAB_PREFERENCE_COOKIE } from "@/lib/cookies/cookies";
 import { PinIcon } from "@/components/icons/pinIcon";
-import EAButton from "@/components/ea-forum/EAButton";
 import moment from "moment";
 import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
 import { relativeTimeToLongFormat, useCurrentTime } from "@/lib/utils/timeUtil";
@@ -429,13 +428,12 @@ export default function ProfilePage() {
               />
             </h1>
             {isOwnProfile && (
-              <EAButton
-                variant="outlined"
-                href="/account?highlightField=pinnedPostIds"
+              <Link
+                to="/account?highlightField=pinnedPostIds"
                 className={classes.profileEditButton}
               >
                 Edit
-              </EAButton>
+              </Link>
             )}
           </div>
 
