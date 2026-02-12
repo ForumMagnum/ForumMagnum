@@ -78,6 +78,12 @@ export const HIDE_WELCOME_BOX_COOKIE = registerCookie({
 
 export const HIDE_MAP_COOKIE = registerCookie({name: `hideMapFromFrontpage`, type: "necessary", description: "Stores whether the user has hidden the map from the frontpage."});
 
+export const PROFILE_TAB_PREFERENCE_COOKIE = registerCookie({
+  name: "profileTabPref",
+  type: "functional",
+  description: "Remembers the user's preferred tab and filter/sort on profile pages",
+});
+
 export const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
 registerCookie({
   name: `${HIDE_COLLECTION_ITEM_PREFIX}[*]`,

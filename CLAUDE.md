@@ -392,6 +392,19 @@ Migrations are run before the new version is deployed, without downtime, so if a
 
 ---
 
+## Page Backgrounds
+
+Pages get one of three background tiers, managed by a central route list:
+- **`whiteBackground`** (`#ffffff` light / `#000000` dark) -- post pages, account settings
+- **`greyBackground`** (`#f8f4ee` light / `#262626` dark) -- homepage, default
+- **`creamBackground`** (`#fcfbf8` light / `#262626` dark) -- profile page
+
+To set a page's background: add the route to `routesWithWhiteBackground` or `routesWithCreamBackground` in `@/components/layout/routeBackgroundColors.ts`. Grey is the default for unlisted routes. The CSS is in `@/components/layout/pageBackground.css`, and the class is applied to `<body>` by `PageBackgroundWrapper.tsx` (SSR) and `PageBackgroundColorSwitcher.tsx` (client nav).
+
+Do NOT pass `backgroundColor` to `<Header>` for light-colored page backgrounds -- it triggers contrast-text mode which turns all header icons/text white (designed for dark backgrounds like the Wrapped page). For light page backgrounds, override the header color via `pageBackground.css` instead.
+
+---
+
 ## Server and Client Code
 
 Files in app/ are React server components and route handlers.
@@ -451,19 +464,23 @@ Helper functions used on both the client and server:
 - `userIsAdmin(user)` - Check admin status
 - `userOwns(user, document)` - Check ownership
 
+**Important**: `userOwns` can only be used in `canRead` and `canUpdate` permissions, NOT in `canCreate`. On create, the document doesn't exist yet so `userOwns` has nothing to check against. Using `userOwns` in `canCreate` causes cascading TypeScript errors across the entire codebase because it changes the generated type signatures. Use `["members"]` or `["admins"]` for `canCreate` instead.
+
 ---
 
 ## Component Styling
 
-We use jss for styling.  Define styles like so:
+All component styling must use JSS via `defineStyles` and `useStyles`. Do NOT write CSS files for component styles. The only acceptable CSS is font `@import`/`@font-face` declarations (which cannot be expressed in JSS) and global page-chrome overrides that target elements outside any component (e.g. body/header rules in `pageBackground.css`).
+
+Define styles like so:
 ```typescript
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-const styles = defineStyles('ComponentName', (theme: ThemeType) => {
+const styles = defineStyles('ComponentName', (theme: ThemeType) => ({
   root: {
     width: '100%',
     background: theme.palette.greyAlpha(0.1)
   },
-});
+}));
 ```
 
 Then, inside the component:
@@ -476,22 +493,44 @@ const TestComponent = () => {
 If an element has multiple classes or conditional classes, combine them them with the `classNames` function.
 If a component needs HoCs or memoization applied, use `export default registerComponent("TestComponent", TestComponent, {})`, but only wrap components this way if an HoC or memoization is used.
 The registerComponent wrapper can take a {styles} option, in which case it calls defineStyles and useStyles in an HoC and passes the result as a prop named `classes`. This method is deprecated; when writing new components you should use `defineStyles` and `useStyles` directly.
+Sub-components that need the same styles should each call `useStyles(styles)` internally rather than receiving `classes` as a prop. JSS caches the generated styles, so multiple `useStyles` calls with the same `styles` object have negligible overhead.
 Do not use inline the `style` attribute on JSX elements for styling purposes unless you need to do something dynamic that would be deeply impractical to implement with jss classes.
 
-Colors are defined as part of the theme, as `theme.palette.colorName`; see `@/themes/defaultPalette.ts`. If you use a palette color, it will be automatically inverted in dark mode.  Whenever possible, prefer to use existing colors defined in our palette.  For greyscale, use the methods defined in `defaultShadePalette`:
-```
-  const greyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
-  const inverseGreyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
-  return {
-    // ...
-    greyAlpha,
-    inverseGreyAlpha,
-    boxShadowColor: (alpha: number) => greyAlpha(alpha),
-    greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
-```
-Those are available via `theme.palette`.
+### Fonts: Use Theme Typography
 
-If you for some reason need to use a color that does not come from the palette, use either `light-dark(lightModeColor,darkModeColor)`, or, if the component is used in an always-light or always-dark component so that it doesn't need to be inverted, add `allowNonThemeColors:true` as an option in the second argument of `defineStyles`.
+Never hardcode font-family strings. Use theme typography references:
+- `theme.typography.fontFamily` -- the site's sans-serif stack (UI text, labels, meta)
+- `theme.typography.headerStyle.fontFamily` -- serif with ETBookRoman (titles, headings)
+- `theme.typography.postStyle.fontFamily` -- serif without ETBookRoman (post body text, summaries)
+- `theme.typography.commentStyle.fontFamily` -- comment text
+
+The font stacks are defined in `@/themes/siteThemes/lesswrongTheme.ts` and the actual font files are loaded globally via TypeKit (`@/themes/globalStyles/externalStyles.ts`) and JSS `@font-face` declarations in `Layout.tsx`. Do not add custom `@import` or `@font-face` declarations in component CSS files.
+
+### Colors: No Hard-Coded Values
+
+Never write raw `rgba(...)`, `rgb(...)`, or hex color literals in JSS styles. Always use theme tokens or palette helpers. This ensures dark mode works correctly and keeps colors maintainable.
+
+For greyscale with alpha, use the helpers in `@/themes/defaultShadePalette`:
+- `theme.palette.greyAlpha(alpha)` -- black with alpha
+- `theme.palette.inverseGreyAlpha(alpha)` -- white with alpha
+- `theme.palette.boxShadowColor(alpha)` -- for box-shadow values
+- `theme.palette.greyBorder(thickness, alpha)` -- shorthand for grey borders
+
+For named colors, see `@/themes/defaultPalette.ts`. If you use a palette color, it will be automatically inverted in dark mode.
+
+If you for some reason need to use a color that does not come from the palette, use either `light-dark(lightModeColor,darkModeColor)`, or, if the component is used in an always-light or always-dark component so that it doesn't need to be inverted, add `allowNonThemeColors:true` as an option in the second argument of `defineStyles`. If a truly custom color is needed (e.g. a warm-toned divider that isn't a simple grey), extract it to a `const` at the top of the styles file so it's defined once, and add a comment explaining why it's custom.
+
+### Dark Mode
+
+For non-color properties that need to differ between light and dark mode (e.g. `mixBlendMode`, `filter`, `opacity`), use the `theme.dark` boolean:
+```typescript
+mixBlendMode: theme.dark ? "normal" : "multiply",
+```
+The style system generates separate CSS blocks for each theme via `@media (prefers-color-scheme)`, so conditional expressions on `theme.dark` produce the correct per-theme output automatically.
+
+### Prefer CSS Over JS for Visual Effects
+
+Use native CSS features instead of JavaScript DOM manipulation for visual effects like text truncation, overflow, and clamping. For example, use CSS `-webkit-line-clamp` instead of measuring `scrollHeight` and binary-searching through text content in `useLayoutEffect`. CSS handles font loading, window resizing, and dark mode automatically with zero JavaScript.
 
 `theme.spacing.unit` is deprecated and has the value 8.
 
@@ -513,6 +552,8 @@ export type RouterLocation = {
 
 See `@/components/next/ClientAppGenerator.tsx` for more details about how the value returned by it is computed, if anything unusual comes up.
 
+All `<a>` elements pointing to within-LW URLs must use `<Link to={...}>` from `@/lib/reactRouterWrapper` instead of `<a href={...}>`. This enables client-side navigation without full page reloads. Raw `<a>` tags should only be used for external URLs or as unstyled wrappers inside other interactive components (e.g. inside a button component that handles its own navigation).
+
 Use `useNavigate` for performing client-side navigations.  You need to preserve all parts of the path that you don't want changed, i.e. just providing a hash will delete any query parameters if they aren't also provided.  See `@/lib/routeUtil.tsx` for more details if needed.
 
 ---
@@ -529,6 +570,17 @@ Strongly prefer to avoid declaring inline functions that capture scope; declare 
 If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
 Prefer interfaces to types where possible.
 Do not create barrel import/export files.
+
+Before implementing functionality, check whether the codebase already has a utility, hook, setting, or component that serves the same purpose. Use the existing abstraction rather than reimplementing it. For example, use `defaultSequenceBannerIdSetting.get()` instead of hard-coding `"sequences/vnyzzznenju0hzdv6pqb.jpg"`, or use an existing truncation component instead of writing a new one from scratch.
+
+Do not use `document.querySelectorAll` (or similar DOM query methods) with hard-coded string class names to find and manipulate elements. Use React refs for imperative DOM access, or prefer declarative CSS solutions over imperative JavaScript.
+
+### Hydration Mismatches
+
+LessWrong customizes `moment`'s relative time strings on the client (e.g. "14y" instead of "14 years") but this customization isn't loaded during SSR. Elements that display relative dates via `moment().fromNow()` should use `suppressHydrationWarning` to avoid React hydration errors:
+```typescript
+<span suppressHydrationWarning>{moment(date).fromNow()}</span>
+```
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 
