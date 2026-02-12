@@ -630,34 +630,8 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   feedList: {
     gridColumn: "1 / 5",
     "& .UserContentFeed-feedContent": {
-      paddingTop: 25,
-      gap: 22,
       marginLeft: 0,
       marginRight: 0,
-    },
-    "& .UltraFeedPostItem-root, & .UltraFeedCommentItem-root, & .UltraFeedThreadItem-root": {
-      border: `1px solid ${theme.palette.greyAlpha(0.06)}`,
-      borderRadius: 4,
-      boxShadow: "0 1px 4px rgba(0,0,0,.05)",
-      padding: "25px 25px 8px 25px",
-      background: "rgba(255,255,255,1)",
-    },
-    "& .FeedContentBody-root": {
-      maxHeight: 200,
-      overflow: "hidden",
-      position: "relative",
-    },
-    "& .FeedContentBody-root > .ContentStyles-base": {
-      minHeight: "0 !important",
-      display: "block !important",
-    },
-    "& .UltraFeedCommentItem-contentWrapper": {
-      marginTop: 8,
-      marginBottom: 8,
-    },
-    "& .UltraFeedPostItem-footer, & .UltraFeedCommentItem-footer": {
-      marginTop: 4,
-      marginBottom: 8,
     },
   },
   sequencesGrid: {
