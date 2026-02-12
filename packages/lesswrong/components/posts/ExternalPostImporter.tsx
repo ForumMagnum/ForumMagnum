@@ -14,7 +14,7 @@ import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { makeEditorConfig } from '../editor/editorConfigs';
-import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { userHasLexicalEditor } from '../editor/Editor';
 import LexicalEditor from '../editor/LexicalEditor';
 
 const PostsListUpdateMutation = gql(`
@@ -150,12 +150,12 @@ const ImportedPostEditor = ({
   post,
   onContentChange,
   classes,
-  isAdmin,
+  useLexical,
 }: {
   post: ExternalPostImportData['post'];
   onContentChange: (updatedContent: string) => void;
   classes: ClassesType<typeof styles>;
-  isAdmin: boolean;
+  useLexical: boolean;
 }) => {
   const [editorValue, setEditorValue] = useState<string>(post.content || '');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
@@ -168,7 +168,7 @@ const ImportedPostEditor = ({
   return (
     <div className={classes.editorContainer}>
       <ContentStyles contentType="post">
-        {isAdmin ? (
+        {useLexical ? (
           <LexicalEditor
             data={editorValue}
             placeholder="Edit the imported post..."
@@ -202,12 +202,12 @@ const CommentEditor = ({
   onPublish,
   onCancel,
   classes,
-  isAdmin,
+  useLexical,
 }: {
   onPublish: (commentContent: string) => void;
   onCancel: () => void;
   classes: ClassesType<typeof styles>;
-  isAdmin: boolean;
+  useLexical: boolean;
 }) => {
   const [commentValue, setCommentValue] = useState<string>('');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
@@ -218,7 +218,7 @@ const CommentEditor = ({
   return (
     <div className={classes.commentEditorContainer}>
       <ContentStyles contentType="comment">
-        {isAdmin ? (
+        {useLexical ? (
           <LexicalEditor
             data={commentValue}
             placeholder="Write a review about the imported post..."
@@ -275,8 +275,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
   const { flash } = useMessages();
 
   const currentUser = useCurrentUser();
-  const isAdmin = userIsAdmin(currentUser);
-  const editorType = isAdmin ? 'lexical' : 'ckEditorMarkup';
+  const editorType = userHasLexicalEditor(currentUser) ? 'lexical' : 'ckEditorMarkup';
 
   const [importUrlAsDraftPost, { data, loading, error }] = useMutation(gql(`
     mutation importUrlAsDraftPost($url: String!) {
@@ -447,7 +446,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
             post={post}
             onContentChange={setPostContent}
             classes={classes}
-            isAdmin={isAdmin}
+            useLexical={editorType === 'lexical'}
           />
           <Typography variant="body2">
             To nominate a linkpost for the Annual Review, you must write your own review it.<br />
@@ -457,7 +456,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
             onPublish={handlePublish}
             onCancel={handleImportDifferentPost}
             classes={classes}
-            isAdmin={isAdmin}
+            useLexical={editorType === 'lexical'}
           />
           {publishingPost && <Loading />}
         </div>

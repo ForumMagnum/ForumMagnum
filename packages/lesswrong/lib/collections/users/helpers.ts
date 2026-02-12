@@ -349,7 +349,7 @@ export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): str
 }
 
 
-export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
+export const userUseMarkdownPostEditor = (user: UsersCurrent|DbUser|null): boolean => {
   if (!user) {
     return false;
   }

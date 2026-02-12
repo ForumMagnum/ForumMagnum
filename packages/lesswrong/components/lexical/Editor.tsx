@@ -117,7 +117,7 @@ import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedir
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
 import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
 import { EditorUserMode, type EditorUserModeType } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
-import { TOGGLE_SUGGESTION_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
+import { SET_USER_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
 import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
 import {
@@ -128,8 +128,15 @@ import {
 import { getDataWithDiscardedSuggestions } from '../editor/lexicalPlugins/suggestedEdits/getDataWithDiscardedSuggestions';
 import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import { MenuItem } from "@/components/common/Menus";
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
+  '@keyframes sentinelCursorBlink': {
+    to: {
+      visibility: 'hidden',
+    },
+  },
   editorContainer: {
     background: theme.palette.grey[0],
     position: 'relative',
@@ -321,6 +328,29 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
       outlineOffset: '-2px',
     },
+    // Sentinel paragraphs are structural gap nodes used for block cursor
+    // navigation. Keep their styles theme-aware so the cursor indicator is
+    // visible in dark mode.
+    '& .sentinel-paragraph': {
+      margin: 0,
+      padding: 0,
+      lineHeight: 0,
+      fontSize: 0,
+      position: 'relative',
+      minHeight: 0,
+      caretColor: 'transparent',
+      outline: 'none',
+    },
+    '& .sentinel-paragraph.sentinel-focused::before': {
+      content: '""',
+      display: 'block',
+      position: 'absolute',
+      top: -1,
+      left: 0,
+      right: 0,
+      borderTop: `1px solid ${theme.palette.text.normal}`,
+      animation: '$sentinelCursorBlink 1.1s steps(2, start) infinite',
+    },
     // Hide the marker on wrapper list items that only contain a nested list
     // (no text content of their own). Without this, the wrapper's marker
     // (e.g. "2.") appears on the same line as the nested list's first item
@@ -341,33 +371,20 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },
-  suggestionModeToggle: {
+  userModeToggle: {
     display: 'flex',
     justifyContent: 'flex-end',
     marginBottom: 6,
   },
-  suggestionModeButton: {
-    border: 0,
-    borderRadius: 6,
-    padding: '6px 10px',
+  userModeSelect: {
+    padding: '4px 8px',
     cursor: 'pointer',
-    background: theme.palette.grey[200],
+    background: theme.palette.grey[0],
     color: theme.palette.grey[900],
-    fontSize: 12,
-    fontWeight: 600,
-    '&:hover:not(:disabled)': {
-      background: theme.palette.grey[300],
-    },
-    '&:disabled': {
-      cursor: 'not-allowed',
-      opacity: 0.7,
-    },
-  },
-  suggestionModeButtonActive: {
-    background: theme.palette.primary.main,
-    color: theme.palette.grey[0],
+    fontSize: 13,
+    fontWeight: 500,
+    outline: 'none',
     '&:hover': {
-      background: theme.palette.primary.dark,
     },
   },
   editorScroller: {
@@ -489,10 +506,18 @@ export default function Editor({
   
   // Callback for handling the first sync with the collaboration server.
   // If the Yjs document is empty and we have initial HTML, bootstrap from it.
-  const handleCollaborationSync = useCallback((doc: Doc, isFirstSync: boolean) => {
-    if (!isFirstSync) return;
-    
+  const handleCollaborationSync = useCallback((doc: Doc, isFirstSync: boolean, docId: string) => {
     const htmlToBootstrap = initialHtmlRef.current;
+    const stateSize = Y.encodeStateAsUpdate(doc).length;
+
+    if (docId !== COLLAB_DOC_ID) return;
+    if (!isFirstSync) return;
+
+    // If the synced main doc already has substantive Yjs content, never
+    // bootstrap from initialHtml. This prevents stale page-prop HTML from
+    // overwriting restored server state.
+    if (stateSize > 2) return;
+    
     if (!htmlToBootstrap?.trim()) return;
     if (!isYjsDocEmpty(doc)) return;
     
@@ -522,9 +547,9 @@ export default function Editor({
     if (collaborationConfig) {
       const configWithSyncHandler: CollaborationConfig = {
         ...collaborationConfig,
-        onSynced: (doc, isFirstSync) => {
-          handleCollaborationSync(doc, isFirstSync);
-          collaborationConfig.onSynced?.(doc, isFirstSync);
+        onSynced: (doc, isFirstSync, docId) => {
+          handleCollaborationSync(doc, isFirstSync, docId);
+          collaborationConfig.onSynced?.(doc, isFirstSync, docId);
         },
       };
       setCollaborationConfig(configWithSyncHandler);
@@ -584,11 +609,26 @@ export default function Editor({
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
-  // Initialize suggestion mode based on access level:
-  // - Users with "comment" access (but not "edit") should start in Suggesting mode
+  // Initialize user mode based on access level:
   // - Users with "edit" access start in Editing mode
+  // - Users with "comment" access (but not "edit") start in Suggesting mode
+  // - Users with "read" access (but not "comment") start in Viewing mode
   const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
-  const [isSuggestionMode, setIsSuggestionMode] = useState(!canEdit);
+  const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
+  const [userMode, setUserMode] = useState<EditorUserModeType>(() => {
+    if (canEdit) return EditorUserMode.Edit;
+    if (canComment) return EditorUserMode.Suggest;
+    return EditorUserMode.View;
+  });
+  const isSuggestionMode = userMode === EditorUserMode.Suggest;
+  const isViewingMode = userMode === EditorUserMode.View;
+  
+  // Set editor editability based on user mode.
+  // In viewing mode the editor is non-editable, which disables toolbars,
+  // image resizers, table hover actions, and other interactive features.
+  useEffect(() => {
+    editor.setEditable(!isViewingMode);
+  }, [editor, isViewingMode]);
   
   const collaboratorIdentity: CollaboratorIdentity | null = useMemo(() => {
     if (!collaborationConfig || !accessLevel) return null;
@@ -598,11 +638,13 @@ export default function Editor({
       accessLevel,
     };
   }, [collaborationConfig, accessLevel]);
+  
   const handleUserModeChange = useCallback((mode: EditorUserModeType) => {
-    setIsSuggestionMode(mode === EditorUserMode.Suggest);
+    setUserMode(mode);
   }, []);
-  const handleToggleSuggestionMode = useCallback(() => {
-    editor.dispatchCommand(TOGGLE_SUGGESTION_MODE_COMMAND, undefined);
+
+  const handleSetUserMode = useCallback((mode: EditorUserModeType) => {
+    editor.dispatchCommand(SET_USER_MODE_COMMAND, mode);
   }, [editor]);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
@@ -635,19 +677,20 @@ export default function Editor({
   return (
     <>
       {isRichText && collaborationConfig && (
-        <div className={classes.suggestionModeToggle}>
-          <button
-            type="button"
-            className={classNames(
-              classes.suggestionModeButton,
-              isSuggestionMode && classes.suggestionModeButtonActive,
-            )}
-            onClick={handleToggleSuggestionMode}
-            disabled={!canEdit}
-            title={!canEdit ? 'You have comment access only - edits are shown as suggestions' : undefined}
+        <div className={classes.userModeToggle}>
+          <Select
+            className={classes.userModeSelect}
+            value={userMode}
+            onChange={(e) => handleSetUserMode(e.target.value as EditorUserModeType)}
           >
-            {isSuggestionMode ? 'Suggesting' : 'Editing'}
-          </button>
+            <MenuItem value={EditorUserMode.View}>Viewing</MenuItem>
+            <MenuItem value={EditorUserMode.Suggest} disabled={!canComment}>
+              Suggesting
+            </MenuItem>
+            <MenuItem value={EditorUserMode.Edit} disabled={!canEdit}>
+              Editing
+            </MenuItem>
+          </Select>
         </div>
       )}
       {isRichText && (
@@ -700,6 +743,7 @@ export default function Editor({
                 )}
               <SuggestedEditsPlugin
                 isSuggestionMode={isSuggestionMode}
+                userMode={userMode}
                 onUserModeChange={handleUserModeChange}
               />
               </CommentStoreProvider>
@@ -837,7 +881,7 @@ export default function Editor({
                 /> */}
               </>
             )}
-            {floatingAnchorElem && !isSmallWidthViewport && (
+            {floatingAnchorElem && !isSmallWidthViewport && isEditable && (
               <>
                 {!isCommentEditor && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
                 <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />

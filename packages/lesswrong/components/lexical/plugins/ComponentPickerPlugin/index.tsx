@@ -261,11 +261,11 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
       onSelect: () =>
         editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined),
     }),
-    new ComponentPickerOption('Page Break', {
-      icon: <ScissorsIcon style={iconStyle} />,
-      keywords: ['page break', 'divider'],
-      onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
-    }),
+    // new ComponentPickerOption('Page Break', {
+    //   icon: <ScissorsIcon style={iconStyle} />,
+    //   keywords: ['page break', 'divider'],
+    //   onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
+    // }),
     // new ComponentPickerOption('Excalidraw', {
     //   icon: <Diagram2Icon style={iconStyle} />,
     //   keywords: ['excalidraw', 'diagram', 'drawing'],

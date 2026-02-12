@@ -392,6 +392,7 @@ interface Mutation {
 interface ContentType {
   type: string;
   data: ContentTypeData;
+  yjsState: string | null;
 }
 
 interface SelectorInput {
@@ -8955,6 +8956,7 @@ interface ReportOutput {
 interface ContentTypeInput {
   type: string;
   data: ContentTypeData;
+  yjsState?: string | null;
 }
 
 interface CreateRevisionDataInput {

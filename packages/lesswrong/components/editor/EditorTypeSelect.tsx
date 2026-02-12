@@ -1,5 +1,5 @@
 import React from 'react'
-import { EditorContents, EditorTypeString, EditorChangeEvent, nonAdminEditors, adminEditors, getEditorTypeToDisplayMap } from './Editor';
+import { EditorContents, EditorTypeString, EditorChangeEvent, getEditorsForUser, getEditorTypeToDisplayMap } from './Editor';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
@@ -28,8 +28,8 @@ const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
     }
   });
   
-  if (!currentUser?.markDownPostEditor && !currentUser?.isAdmin) return null
-  const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
+  if (!currentUser?.markDownPostEditor && !currentUser?.isAdmin && !currentUser?.beta) return null
+  const editors = getEditorsForUser(currentUser)
   
   return <>
     {loading && <Loading/>}

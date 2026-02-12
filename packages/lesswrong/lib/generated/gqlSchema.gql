@@ -13,6 +13,7 @@ scalar ContentTypeData
 type ContentType {
   type: String!
   data: ContentTypeData!
+  yjsState: String
 }
 
 input SelectorInput {
@@ -9786,6 +9787,7 @@ extend type Mutation {
 input ContentTypeInput {
   type: String!
   data: ContentTypeData!
+  yjsState: String
 }
 
 input CreateRevisionDataInput {

@@ -34,7 +34,7 @@ import type { SuggestionThreadController } from '@/components/editor/lexicalPlug
 import { reportError } from '@/lib/vendor/proton/reportError'
 import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext'
 import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext'
-import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND, TOGGLE_SUGGESTION_MODE_COMMAND } from './Commands'
+import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND, SET_USER_MODE_COMMAND } from './Commands'
 import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST, QUOTE } from '@lexical/markdown'
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, type ListItemNode } from '@lexical/list'
 import { $isEmptyListItemExceptForSuggestions, hasChildComments } from './Utils'
@@ -381,13 +381,9 @@ export function SuggestionModePlugin({
   useEffect(() => {
     return mergeRegister(
       editor.registerCommand(
-        TOGGLE_SUGGESTION_MODE_COMMAND,
-        () => {
-          if (isSuggestionMode) {
-            onUserModeChange(EditorUserMode.Edit)
-            return true
-          }
-          onUserModeChange(EditorUserMode.Suggest)
+        SET_USER_MODE_COMMAND,
+        (mode) => {
+          onUserModeChange(mode)
           return true
         },
         COMMAND_PRIORITY_CRITICAL,
@@ -474,7 +470,7 @@ export function SuggestionModePlugin({
         });
       }),
     )
-  }, [editor, isSuggestionMode, onUserModeChange, suggestionModeLogger, commentStore, canAcceptOrReject, canRejectSuggestion])
+  }, [editor, onUserModeChange, suggestionModeLogger, commentStore, canAcceptOrReject, canRejectSuggestion])
 
   useEffect(() => {
     if (!isSuggestionMode) {
@@ -895,7 +891,7 @@ export function SuggestionModePlugin({
           suggestionModeLogger.info('Editor is composing, disabling suggestion mode')
           editor.setEditable(false)
           editor._compositionKey = null
-          onUserModeChange(EditorUserMode.Preview)
+          onUserModeChange(EditorUserMode.View)
           createNotification({
             messageString: `The language you're using isn't currently supported in suggestion mode. Please switch to edit mode or change the language.`,
             type: 'error'
