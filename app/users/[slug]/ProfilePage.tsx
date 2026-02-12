@@ -167,7 +167,6 @@ function parseTabPreference(raw: string | undefined): ProfileTabPreference | nul
   }
   return null;
 }
-
 function switchTab(
   tab: ProfileTab,
   tabsRef: React.RefObject<HTMLDivElement | null>,
@@ -354,7 +353,7 @@ export default function ProfilePage() {
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: sequencesData } = useQuery(ProfileSequencesQuery, {
+  const { data: sequencesData, loading: sequencesLoading } = useQuery(ProfileSequencesQuery, {
     skip: !userId,
     variables: {
       selector: userId ? { userProfile: { userId } } : undefined,
@@ -386,6 +385,7 @@ export default function ProfilePage() {
   const hasEnoughTopPosts = topPosts.length >= 4;
   const hasPosts = recentPosts.length > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
+  const hasSequences = sequences.length > 0;
 
   // On first load, if there's no saved preference and the user has no posts,
   // switch to the "feed" tab. If there IS a saved preference, it was already
@@ -398,7 +398,6 @@ export default function ProfilePage() {
       setActiveTab("feed");
     }
   }, [recentPostsLoading, userId, hasPosts, savedPref]);
-
 
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
@@ -573,7 +572,7 @@ export default function ProfilePage() {
                   >
                     All posts
                   </button>
-                  {sequences.length > 0 && (
+                  {hasSequences && (
                     <button
                       className={classNames(classes.profileTab, activeTab === "sequences" && classes.profileTabActive)}
                       data-tab="sequences"

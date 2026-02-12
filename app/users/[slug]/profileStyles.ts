@@ -28,7 +28,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   profileMain: {
     width: "100%",
-    maxWidth: 842,
+    maxWidth: 1100,
     margin: "0 auto",
     padding: "53px 80px 60px 80px",
     color: theme.palette.text.normal,
@@ -234,8 +234,8 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     overflow: "hidden",
   },
   topPostTitle: {
-    fontSize: 34,
-    lineHeight: 1.15,
+    fontSize: 44,
+    lineHeight: 1.1,
   },
   postSummaryWrapper: {
     flex: "1 1 0",
@@ -249,7 +249,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   postSummary: {
     fontFamily: theme.typography.postStyle.fontFamily,
-    fontSize: 15,
+    fontSize: 16.8,
     fontWeight: 400,
     lineHeight: 1.6,
     color: theme.palette.text.slightlyDim2,

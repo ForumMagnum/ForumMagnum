@@ -180,6 +180,12 @@ export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
   description: "Stores the selected tab for logged out users"
 });
 
+export const SELECTED_PROFILE_TAB_COOKIE = registerCookie({
+  name: "selected_profile_tab",
+  type: "functional",
+  description: "Stores the selected profile page tab (posts, sequences, or feed)",
+});
+
 export const HIDE_EAG_BANNER_COOKIE = registerCookie({
   name: "hide_eag_banner",
   type: "necessary",
