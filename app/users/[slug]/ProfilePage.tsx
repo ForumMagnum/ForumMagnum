@@ -370,7 +370,9 @@ export default function ProfilePage() {
                     <h2 className={classNames(classes.postTitle, classes.topPostTitle)}>
                       {topPost.title}
                     </h2>
-                    <p className={classes.postSummary}>{getTopPostSummary(topPost)}</p>
+                    <div className={classes.postSummaryWrapper}>
+                      <p className={classes.postSummary}>{getTopPostSummary(topPost)}</p>
+                    </div>
                     <div className={classes.postMetaBar}>
                       <LWTooltip title="Karma score">
                         <span className={classes.karmaScore}>{topPost.baseScore ?? 0}</span>
