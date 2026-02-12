@@ -113,7 +113,13 @@ export const routeTrie = {
         "SKILL.md": {
           "hasRoute": true
         },
+        "curated": {
+          "hasRoute": true
+        },
         "latest": {
+          "hasRoute": true
+        },
+        "recent": {
           "hasRoute": true
         },
         "autocomplete": {
@@ -266,7 +272,9 @@ export const routeTrie = {
       },
       "lowerCase": {
         "skill.md": "SKILL.md",
+        "curated": "curated",
         "latest": "latest",
+        "recent": "recent",
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",
@@ -282,6 +290,12 @@ export const routeTrie = {
         "sendllmchat": "sendLlmChat",
         "streamgraphql": "streamGraphql",
         "v2": "v2"
+      },
+      "catchAll": {
+        "paramName": "path",
+        "child": {
+          "hasRoute": true
+        }
       },
       "hasRoute": true
     },
@@ -437,6 +451,9 @@ export const routeTrie = {
         "emailHistory": {
           "hasPage": true
         },
+        "markdownApi": {
+          "hasPage": true
+        },
         "notificationEmailPreview": {
           "hasPage": true
         },
@@ -446,6 +463,7 @@ export const routeTrie = {
       },
       "lowerCase": {
         "emailhistory": "emailHistory",
+        "markdownapi": "markdownApi",
         "notificationemailpreview": "notificationEmailPreview",
         "query-waterfall": "query-waterfall"
       }

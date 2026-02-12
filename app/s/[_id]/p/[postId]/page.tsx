@@ -2,9 +2,15 @@ import React from "react";
 import SequencesPost from '@/components/sequences/SequencesPost';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-assertRouteHasWhiteBackground("/s/[_id]/p/[postId]");
+assertRouteAttributes("/s/[_id]/p/[postId]", {
+  whiteBackground: true,
+  hasLinkPreview: true,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string; postId: string }>(({ postId }) => postId);
 

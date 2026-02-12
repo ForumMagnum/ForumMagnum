@@ -3,6 +3,15 @@ import TagHistoryPage from '@/components/tagging/history/TagHistoryPage';
 import { TagHistoryPageSubtitle } from '@/components/tagging/TagHistoryPageSubtitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+
+assertRouteAttributes("/w/[slug]/history", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug, { historyPage: true, noIndex: true });
 

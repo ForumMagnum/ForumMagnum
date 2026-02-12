@@ -11,6 +11,15 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { notFound } from "next/navigation";
 import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
 import { runQuery } from "@/server/vulcan-lib/query";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+
+assertRouteAttributes("/s/[_id]", {
+  whiteBackground: false,
+  hasLinkPreview: true,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 const SequenceMetadataQuery = gql(`
   query SequenceMetadata($sequenceId: String) {

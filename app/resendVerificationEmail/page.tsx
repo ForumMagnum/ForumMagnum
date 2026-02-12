@@ -4,9 +4,15 @@ import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sh
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-assertRouteHasWhiteBackground("/resendVerificationEmail");
+assertRouteAttributes("/resendVerificationEmail", {
+  whiteBackground: true,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields('Email Verification'));

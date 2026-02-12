@@ -3,6 +3,15 @@ import { getSiteUrl } from "@/lib/vulcan-lib/utils";
 import SingleColumnSection from "@/components/common/SingleColumnSection";
 import { escapeHtml } from "@/lib/utils/sanitize";
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+
+assertRouteAttributes("/debug/markdownApi", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 const DEFAULT_MARKDOWN_URL = "/api/SKILL.md";
 

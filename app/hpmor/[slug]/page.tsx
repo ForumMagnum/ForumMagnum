@@ -4,13 +4,19 @@ import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sh
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields('HPMoR'));
 }
 
-assertRouteHasWhiteBackground("/hpmor/[slug]");
+assertRouteAttributes("/hpmor/[slug]", {
+  whiteBackground: true,
+  hasLinkPreview: true,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export default async function Page({ params }: {
   params: Promise<{ slug: string }>

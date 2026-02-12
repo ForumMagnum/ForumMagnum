@@ -6,11 +6,17 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import PermanentRedirect from "@/components/common/PermanentRedirect";
-import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 
-assertRouteHasWhiteBackground("/w/[slug]");
+assertRouteAttributes("/w/[slug]", {
+  whiteBackground: true,
+  hasLinkPreview: true,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export default async function Page({ params, searchParams }: {
   params: Promise<{ slug: string }>
