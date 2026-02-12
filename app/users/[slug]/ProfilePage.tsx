@@ -307,6 +307,13 @@ export default function ProfilePage() {
   // before we can make that determination, and we only want to do it once (not
   // on every re-render), hence the ref guard.
   const tabInitialized = useRef(false);
+
+  // Reset tabInitialized when navigating to a different profile
+  useEffect(() => {
+    tabInitialized.current = false;
+  }, [userId]);
+
+
   useEffect(() => {
     if (tabInitialized.current) return;
     if (recentPostsLoading || !userId) return;
