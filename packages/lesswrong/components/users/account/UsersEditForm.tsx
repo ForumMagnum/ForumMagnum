@@ -7,6 +7,7 @@ import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { useSetTheme, useAbstractThemeOptions } from '@/components/themes/useTheme';
+import { TopPostsManager } from './TopPostsManager';
 
 import { configureDatadogRum } from '@/client/datadogRum';
 import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
@@ -161,8 +162,6 @@ const UsersForm = ({
   
   const formType = 'edit';
 
-  initialData?.banned
-
   const {
     onSubmitCallback: onSubmitBiographyCallback,
     onSuccessCallback: onSuccessBiographyCallback,
@@ -236,6 +235,7 @@ const UsersForm = ({
       void form.handleSubmit();
     }}>
       {displayedErrorComponent}
+
       <div className={classes.defaultGroup}>
         {!isFriendlyUI() && <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
@@ -243,17 +243,6 @@ const UsersForm = ({
               <MuiTextField
                 field={field}
                 label="Display name"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {userIsAdminOrMod(currentUser) && <div className={classes.fieldWrapper}>
-          <form.Field name="previousDisplayName">
-            {(field) => (
-              <MuiTextField
-                field={field}
-                label="Previous display name"
               />
             )}
           </form.Field>
@@ -271,17 +260,25 @@ const UsersForm = ({
           </form.Field>
         </div>
 
-        {isLWorAF() && <div className={classes.fieldWrapper}>
-          <form.Field name="fullName">
+        {userIsAdminOrMod(currentUser) && <div className={classes.fieldWrapper}>
+          <form.Field name="previousDisplayName">
             {(field) => (
               <MuiTextField
                 field={field}
-                label="Full name"
+                label="Previous display name"
               />
             )}
           </form.Field>
         </div>}
+      </div>
 
+      <LegacyFormGroupLayout label={preferredHeadingCase("Profile")} startCollapsed={highlightedField !== "pinnedPostIds"}>
+        <form.Field name="pinnedPostIds">
+          {(field) => (
+            <TopPostsManager userId={form.state.values._id} field={field} />
+          )}
+        </form.Field>
+        
         {!isEAForum() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
@@ -303,7 +300,20 @@ const UsersForm = ({
             )}
           </form.Field>
         </div>}
-      </div>
+      </LegacyFormGroupLayout>
+
+      {isLWorAF() && <LegacyFormGroupLayout label={preferredHeadingCase("Alignment Forum")} startCollapsed={true}>
+        <div className={classes.fieldWrapper}>
+          <form.Field name="fullName">
+            {(field) => (
+              <MuiTextField
+                field={field}
+                label="Full name"
+              />
+            )}
+          </form.Field>
+        </div>
+      </LegacyFormGroupLayout>}
 
       <LegacyFormGroupLayout label={preferredHeadingCase("Site Customizations")} startCollapsed={true && highlightedField !== "googleLocation"}>
         {!isLWorAF() && <div className={classes.fieldWrapper}>

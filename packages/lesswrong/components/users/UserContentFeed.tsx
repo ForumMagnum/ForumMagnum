@@ -190,13 +190,16 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
 }
 
 
+type SortMode = 'recent' | 'top';
+type FilterMode = 'all' | 'posts' | 'quickTakes' | 'comments';
+
 interface UserContentFeedProps {
   userId: string;
   initialLimit?: number;
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
+  externalSortMode?: SortMode;
+  externalFilter?: FilterMode;
 }
-
-type SortMode = 'recent' | 'top';
 
 type PostItem = PostsListWithVotes;
 type CommentItem = CommentsList & { post: PostItem | null };
@@ -237,11 +240,17 @@ const UserContentFeedItem = ({ item, index, feedSettings }: {
   }
 };
 
-const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: UserContentFeedProps) => {
+const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, externalSortMode, externalFilter }: UserContentFeedProps) => {
   const classes = useStyles(userContentFeedStyles);
-  const [sortMode, setSortMode] = useState<SortMode>('recent');
+  const [internalSortMode, setInternalSortMode] = useState<SortMode>('recent');
+  const sortMode = externalSortMode ?? internalSortMode;
+  const setSortMode = setInternalSortMode;
+  const filter = externalFilter ?? 'all';
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  const skipPosts = filter === 'comments';
+  const skipComments = filter === 'posts' || filter === 'quickTakes';
 
   const postsSortBy = sortMode === 'recent' ? 'new' : 'top';
   const commentsSortBy = sortMode === 'recent' ? 'new' : 'top';
@@ -254,7 +263,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
     USER_POSTS_QUERY,
     {
       variables: { userId, limit: initialLimit, sortedBy: postsSortBy },
-      skip: !userId,
+      skip: !userId || skipPosts,
       fetchPolicy: 'cache-and-network',
       itemsPerPage: 10,
     }
@@ -268,7 +277,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
     USER_COMMENTS_QUERY,
     {
       variables: { userId, limit: initialLimit, sortBy: commentsSortBy },
-      skip: !userId,
+      skip: !userId || skipComments,
       fetchPolicy: 'cache-and-network',
       itemsPerPage: 10,
     }
@@ -277,17 +286,19 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
   const mixedFeed = useMemo(() => {
     const items: FeedItem[] = [];
     
-    const posts = postsData?.posts?.results ?? [];
-    const comments = commentsData?.comments?.results ?? [];
+    const posts = skipPosts ? [] : (postsData?.posts?.results ?? []);
+    const comments = skipComments ? [] : (commentsData?.comments?.results ?? []);
     
     posts.forEach(post => {
-      if (post?.postedAt) {
-        items.push({
-          type: 'post',
-          data: post,
-          postedAt: new Date(post.postedAt)
-        });
-      }
+      if (!post?.postedAt) return;
+      const isShortform = !!post.shortform;
+      if (filter === 'posts' && isShortform) return;
+      if (filter === 'quickTakes' && !isShortform) return;
+      items.push({
+        type: 'post',
+        data: post,
+        postedAt: new Date(post.postedAt)
+      });
     });
     
     comments.forEach(comment => {
@@ -311,10 +322,10 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
     }
     
     return items;
-  }, [postsData, commentsData, sortMode]);
+  }, [postsData, commentsData, sortMode, filter, skipPosts, skipComments]);
 
-  const postsHasMore = !postsLoadMoreProps.hidden;
-  const commentsHasMore = !commentsLoadMoreProps.hidden;
+  const postsHasMore = !skipPosts && !postsLoadMoreProps.hidden;
+  const commentsHasMore = !skipComments && !commentsLoadMoreProps.hidden;
   const hasMoreRemote = postsHasMore || commentsHasMore;
 
   const { settings: feedSettings } = useUltraFeedSettings();
@@ -369,10 +380,10 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
     if (newMode !== sortMode) {
       setSortMode(newMode);
     }
-  }, [sortMode]);
+  }, [sortMode, setSortMode]);
 
-  const isLoading = postsLoading || commentsLoading;
-  const hasNoContent = !isLoading && mixedFeed.length === 0;
+  const isInitialLoading = ((!skipPosts && postsLoading) || (!skipComments && commentsLoading)) && mixedFeed.length === 0;
+  const hasNoContent = !isInitialLoading && mixedFeed.length === 0;
 
   if (hasNoContent) {
     return null;
@@ -380,51 +391,53 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
 
   return (
     <div className={classes.root}>
-      {/* Sort mode tabs */}
-      <div className={classes.sortToggle}>
-        <div
-          onClick={(e) => {
-            e.preventDefault();
-            handleSortModeChange('recent');
-          }}
-          className={classNames(
-            classes.sortButton,
-            sortMode === 'recent'
-              ? classes.sortButtonActive
-              : classes.sortButtonInactive
-          )}
-        >
-          <div className={classes.tabLabel}>
-            Recent
-            {sortMode === 'recent' && (
-              <div className={classes.tabUnderline} />
+      {/* Sort mode tabs - hidden when externally controlled */}
+      {!externalSortMode && (
+        <div className={classes.sortToggle}>
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              handleSortModeChange('recent');
+            }}
+            className={classNames(
+              classes.sortButton,
+              sortMode === 'recent'
+                ? classes.sortButtonActive
+                : classes.sortButtonInactive
             )}
+          >
+            <div className={classes.tabLabel}>
+              Recent
+              {sortMode === 'recent' && (
+                <div className={classes.tabUnderline} />
+              )}
+            </div>
+          </div>
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              handleSortModeChange('top');
+            }}
+            className={classNames(
+              classes.sortButton,
+              sortMode === 'top'
+                ? classes.sortButtonActive
+                : classes.sortButtonInactive
+            )}
+          >
+            <div className={classes.tabLabel}>
+              Top
+              {sortMode === 'top' && (
+                <div className={classes.tabUnderline} />
+              )}
+            </div>
           </div>
         </div>
-        <div
-          onClick={(e) => {
-            e.preventDefault();
-            handleSortModeChange('top');
-          }}
-          className={classNames(
-            classes.sortButton,
-            sortMode === 'top'
-              ? classes.sortButtonActive
-              : classes.sortButtonInactive
-          )}
-        >
-          <div className={classes.tabLabel}>
-            Top
-            {sortMode === 'top' && (
-              <div className={classes.tabUnderline} />
-            )}
-          </div>
-        </div>
-      </div>
-      {isLoading && <div className={classes.loading}>
+      )}
+      {isInitialLoading && <div className={classes.loading}>
         <Loading />
       </div>}
-      {!isLoading && <div className={classes.feedContent}>
+      {!isInitialLoading && <div className={classes.feedContent}>
         {mixedFeed.map((item, index) => (
           <UserContentFeedItem 
             key={item.type === 'post' ? `post-${item.data._id}` : `comment-${item.data._id}`}
@@ -434,6 +447,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
           />
         ))}
         {hasMoreRemote && <div ref={sentinelRef} style={{height: 1}} />}
+        {loadingMore && <div className={classes.loading}><Loading /></div>}
       </div>}
     </div>
   );
