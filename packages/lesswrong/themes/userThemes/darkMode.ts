@@ -225,6 +225,7 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
     background: {
       default: shadePalette.grey[100],
       contrastInDarkMode: shadePalette.grey[100],
+      profilePageBackground: "#262626",
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",

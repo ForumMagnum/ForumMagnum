@@ -18,6 +18,7 @@ import { ModerationTemplateSunshineItem } from './ModerationTemplateSunshineItem
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useAppendToEditor, AppendToEditorProvider } from '../editor/AppendToEditorContext';
 import { getHighlightedTemplateNames } from './supermod/templateHighlightRules';
+import FormatDate from '../common/FormatDate';
 
 const ConversationsListMultiQuery = gql(`
   query multiConversationSunshineUserMessagesQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -55,9 +56,12 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   conversationHeader: {
     display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
     cursor: "pointer",
+    width: "100%",
   },
   expandIcon: {
+    marginLeft: "auto",
     height: 16,
     width: 16,
     cursor: "pointer",
@@ -68,6 +72,7 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   linkIcon: {
     height: 12,
     width: 12,
+    color: theme.palette.grey[600],
     cursor: "pointer",
     "&:hover": {
       opacity: 0.7,
@@ -106,6 +111,10 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
       backgroundColor: theme.palette.greyAlpha(0.1),
     },
   },
+  date: {
+    color: theme.palette.grey[600],
+    fontSize: 10,
+  }
 }));
 
 interface SunshineUserMessagesProps {
@@ -231,26 +240,30 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     {results?.map(conversation => {
       const isExpanded = expandedConversationId === conversation._id;
       return (
-        <div key={conversation._id} className={classes.conversationItem}>
-          <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
-            <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
-            <span>
-              Conversation with{" "} 
-              {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
-                return <MetaInfo key={`${conversation._id}${participant._id}`}>
-                  <UsersName simple user={participant}/>
-                </MetaInfo>
-              })}
-            </span>
-            <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
-            <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
-              <ForumIcon icon="Link" className={classes.linkIcon} />
-            </Link> 
+        <LWTooltip key={conversation._id} placement="left-start" tooltip={false} title={<div><ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth /></div>}>
+          <div  className={classes.conversationItem}>
+            <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
+              <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
+              <span>
+                Conversation with{" "} 
+                {conversation.participants?.filter(participant => participant._id !== user._id).map(participant => {
+                  return <MetaInfo key={`${conversation._id}${participant._id}`}>
+                    <UsersName simple user={participant}/>
+                  </MetaInfo>
+                })}
+              </span>
+              {conversation.latestActivity && <span className={classes.date}><FormatDate date={conversation.latestActivity} /></span>}
+              <Link to={`/inbox?isModInbox=true&conversation=${conversation._id}`} onClick={(e) => e.stopPropagation()}>
+                <ForumIcon icon="Link" className={classes.linkIcon} />
+              </Link> 
+              <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
+
+            </div>
+            {isExpanded && (
+              <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
+            )}
           </div>
-          {isExpanded && (
-            <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
-          )}
-        </div>
+        </LWTooltip>
       );
     })}
     {embeddedConversationId ? (

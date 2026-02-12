@@ -3,6 +3,9 @@
  * pure-white boxes on top of (eg, the front page page). Some pages instead have
  * a pure-white background instead (eg, post pages).
  *
+ * A third tier, "cream", is used for pages with a warm off-white background
+ * (eg, the profile page).
+ *
  * Because this is a handled by the root layout rather than the route component,
  * we have a list of white-background routes here. In the route component, call
  * assertRouteAttributes to enforce that route-attributes are consistent with
@@ -59,8 +62,16 @@ type RouteAttributes<Pathname extends NextExistingRoute> = {
   hasLeftNavigationColumn: Pathname extends LeftNavigationRoutePattern ? true : false,
 };
 
+const routesWithCreamBackground = [
+  "/users/[slug]",
+] as const;
+
 export function routeHasWhiteBackground(pathname: string): boolean {
   return isOnRoutesList(pathname, routesWithWhiteBackground);
+}
+
+export function routeHasCreamBackground(pathname: string): boolean {
+  return isOnRoutesList(pathname, routesWithCreamBackground);
 }
 
 function isOnRoutesList(pathname: string, routes: readonly string[]): boolean {
