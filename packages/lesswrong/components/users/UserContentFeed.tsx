@@ -380,7 +380,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
     if (newMode !== sortMode) {
       setSortMode(newMode);
     }
-  }, [sortMode]);
+  }, [sortMode, setSortMode]);
 
   const isInitialLoading = ((!skipPosts && postsLoading) || (!skipComments && commentsLoading)) && mixedFeed.length === 0;
   const hasNoContent = !isInitialLoading && mixedFeed.length === 0;

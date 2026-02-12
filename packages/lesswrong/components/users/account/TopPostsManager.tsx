@@ -431,7 +431,7 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
     fetchPolicy: "network-only",
   });
 
-  const allPosts = data?.posts?.results ?? [];
+  const allPosts = useMemo(() => data?.posts?.results ?? [], [data?.posts?.results]);
   const postCount = allPosts.length;
 
   const hasCustomization = orderedPostIds !== null;
@@ -477,7 +477,7 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
       if (oldIndex !== -1 && newIndex !== -1) {
         const newOrder = arrayMove(currentIds, oldIndex, newIndex);
         setOrderedPostIds(newOrder);
-        persistPinnedPosts(newOrder);
+        void persistPinnedPosts(newOrder);
       }
     }
   }, [orderedPostIds, postIds, persistPinnedPosts]);
@@ -488,7 +488,7 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
 
   const handleRestoreDefaults = useCallback(() => {
     setOrderedPostIds(null);
-    persistPinnedPosts(null);
+    void persistPinnedPosts(null);
   }, [persistPinnedPosts]);
 
   const handleSwapClick = useCallback((index: number, anchorEl: HTMLElement) => {
@@ -523,7 +523,7 @@ export const TopPostsManager = ({ userId, pinnedPostIds: initialPinnedPostIds }:
     const newIds = [...currentIds];
     newIds[swapSlotIndex] = postId;
     setOrderedPostIds(newIds);
-    persistPinnedPosts(newIds);
+    void persistPinnedPosts(newIds);
     setSwapSlotIndex(null);
     setSwapAnchorEl(null);
     setSearch("");
