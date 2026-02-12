@@ -6,6 +6,7 @@ import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE } from "../../lib/cookies/cookies";
 import moment from "moment";
 import ForumDropdown from "../common/ForumDropdown";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -104,9 +105,10 @@ const PostsListViewToggle = ({classes}: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const now = useCurrentTime();
   const showFlag = data.viewCount < 4 &&
     moment(data.firstViewedAt).add(1, "month").isAfter(moment()) &&
-    new Date() < new Date("2024-05-31");
+    now < new Date("2024-05-31");
 
   const {getView, setView} = usePostsListView();
   const view = getView();

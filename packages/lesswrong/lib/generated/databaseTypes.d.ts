@@ -1781,6 +1781,7 @@ interface DbUser extends DbObject {
   hideMeetupsPoke: boolean
   hideNavigationSidebar: boolean | null
   hidePostsRecommendations: boolean
+  hideProfileTopPosts: boolean
   hideSubscribePoke: boolean
   hideSunshineSidebar: boolean
   hideTaggingProgressBar: boolean | null
@@ -2238,6 +2239,7 @@ interface DbUser extends DbObject {
   petrovLaunchCodeDate: Date | null
   petrovOptOut: boolean
   petrovPressedButtonDate: Date | null
+  pinnedPostIds: Array<string>
   postCount: number
   postGlossariesPinned: boolean
   postingDisabled: boolean | null

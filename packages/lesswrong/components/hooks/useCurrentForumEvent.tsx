@@ -2,6 +2,7 @@ import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect
 import { hasForumEvents } from "../../lib/betas";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const ForumEventsDisplayMultiQuery = gql(`
   query multiForumEventuseCurrentForumEventQuery($selector: ForumEventSelector, $limit: Int, $enableTotal: Boolean) {
@@ -49,7 +50,7 @@ export const CurrentAndRecentForumEventsProvider: FC<{
   
   // Derive the current forum event as the first event whose endDate is in the
   // future -- we know the start date is in the past from the view query.
-  const now = new Date();
+  const now = useCurrentTime();
   const currentForumEvent = forumEvents.find(event => !event.endDate || new Date(event.endDate) >= now) || null;
 
   const isEventPost = useCallback((
@@ -71,7 +72,7 @@ export const CurrentAndRecentForumEventsProvider: FC<{
   }, [forumEvents, currentForumEvent]);
 
   const eventEnded = currentForumEvent
-    ? currentForumEvent.endDate && new Date(currentForumEvent.endDate) < new Date()
+    ? currentForumEvent.endDate && new Date(currentForumEvent.endDate) < now
     : true;
 
   // Refetch on mount if forum events are enabled, and when the current event ends

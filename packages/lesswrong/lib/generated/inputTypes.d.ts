@@ -7373,6 +7373,8 @@ interface User {
   oldSlugs: Array<string>;
   biography: Revision | null;
   biography_latest: string | null;
+  pinnedPostIds: Array<string>;
+  hideProfileTopPosts: boolean;
   username: string | null;
   emails: Array<any> | null;
   isAdmin: boolean;
@@ -9555,6 +9557,8 @@ interface CreateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
+  pinnedPostIds?: Array<string> | null;
+  hideProfileTopPosts?: boolean | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName: string;
@@ -9716,6 +9720,8 @@ interface UpdateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
+  pinnedPostIds?: Array<string> | null;
+  hideProfileTopPosts?: boolean | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName?: string | null;

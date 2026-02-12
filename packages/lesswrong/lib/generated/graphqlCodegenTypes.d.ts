@@ -1979,6 +1979,7 @@ type CreateUserDataInput = {
   hideMeetupsPoke?: InputMaybe<Scalars['Boolean']['input']>;
   hideNavigationSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   hidePostsRecommendations?: InputMaybe<Scalars['Boolean']['input']>;
+  hideProfileTopPosts?: InputMaybe<Scalars['Boolean']['input']>;
   hideSubscribePoke?: InputMaybe<Scalars['Boolean']['input']>;
   hideSunshineSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2045,6 +2046,7 @@ type CreateUserDataInput = {
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   petrovOptOut?: InputMaybe<Scalars['Boolean']['input']>;
+  pinnedPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
   postGlossariesPinned?: InputMaybe<Scalars['Boolean']['input']>;
   postingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
   previousDisplayName?: InputMaybe<Scalars['String']['input']>;
@@ -12288,6 +12290,7 @@ type UpdateUserDataInput = {
   hideMeetupsPoke?: InputMaybe<Scalars['Boolean']['input']>;
   hideNavigationSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   hidePostsRecommendations?: InputMaybe<Scalars['Boolean']['input']>;
+  hideProfileTopPosts?: InputMaybe<Scalars['Boolean']['input']>;
   hideSubscribePoke?: InputMaybe<Scalars['Boolean']['input']>;
   hideSunshineSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
@@ -12363,6 +12366,7 @@ type UpdateUserDataInput = {
   petrovLaunchCodeDate?: InputMaybe<Scalars['Date']['input']>;
   petrovOptOut?: InputMaybe<Scalars['Boolean']['input']>;
   petrovPressedButtonDate?: InputMaybe<Scalars['Date']['input']>;
+  pinnedPostIds?: InputMaybe<Array<Scalars['String']['input']>>;
   postGlossariesPinned?: InputMaybe<Scalars['Boolean']['input']>;
   postingDisabled?: InputMaybe<Scalars['Boolean']['input']>;
   previousDisplayName?: InputMaybe<Scalars['String']['input']>;
@@ -12598,6 +12602,7 @@ type User = {
   hideMeetupsPoke?: Maybe<Scalars['Boolean']['output']>;
   hideNavigationSidebar?: Maybe<Scalars['Boolean']['output']>;
   hidePostsRecommendations: Scalars['Boolean']['output'];
+  hideProfileTopPosts: Scalars['Boolean']['output'];
   hideSubscribePoke?: Maybe<Scalars['Boolean']['output']>;
   hideSunshineSidebar?: Maybe<Scalars['Boolean']['output']>;
   hideTaggingProgressBar?: Maybe<Scalars['Boolean']['output']>;
@@ -12696,6 +12701,7 @@ type User = {
   petrovLaunchCodeDate?: Maybe<Scalars['Date']['output']>;
   petrovOptOut: Scalars['Boolean']['output'];
   petrovPressedButtonDate?: Maybe<Scalars['Date']['output']>;
+  pinnedPostIds: Array<Scalars['String']['output']>;
   postCount: Scalars['Float']['output'];
   postGlossariesPinned?: Maybe<Scalars['Boolean']['output']>;
   postingDisabled?: Maybe<Scalars['Boolean']['output']>;
@@ -13246,6 +13252,63 @@ type SequenceMetadataQueryVariables = Exact<{
 
 
 type SequenceMetadataQuery = SequenceMetadataQuery_Query;
+
+type ProfileUserQueryQuery_users_MultiUserOutput_results_User = (
+  { __typename?: 'User' }
+  & UsersProfile
+);
+
+type ProfileUserQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<ProfileUserQueryQuery_users_MultiUserOutput_results_User> };
+
+type ProfileUserQueryQuery_Query = { __typename?: 'Query', users: ProfileUserQueryQuery_users_MultiUserOutput | null };
+
+
+type ProfileUserQueryQueryVariables = Exact<{
+  selector: InputMaybe<UserSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type ProfileUserQueryQuery = ProfileUserQueryQuery_Query;
+
+type ProfilePostsQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type ProfilePostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ProfilePostsQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type ProfilePostsQueryQuery_Query = { __typename?: 'Query', posts: ProfilePostsQueryQuery_posts_MultiPostOutput | null };
+
+
+type ProfilePostsQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type ProfilePostsQueryQuery = ProfilePostsQueryQuery_Query;
+
+type ProfileSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
+  { __typename?: 'Sequence' }
+  & SequenceContinueReadingFragment
+);
+
+type ProfileSequencesQueryQuery_sequences_MultiSequenceOutput = { __typename?: 'MultiSequenceOutput', totalCount: number | null, results: Array<ProfileSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence> };
+
+type ProfileSequencesQueryQuery_Query = { __typename?: 'Query', sequences: ProfileSequencesQueryQuery_sequences_MultiSequenceOutput | null };
+
+
+type ProfileSequencesQueryQueryVariables = Exact<{
+  selector: InputMaybe<SequenceSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type ProfileSequencesQueryQuery = ProfileSequencesQueryQuery_Query;
 
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 
@@ -24492,6 +24555,24 @@ type updateUserDeleteAccountSectionMutationVariables = Exact<{
 
 type updateUserDeleteAccountSectionMutation = updateUserDeleteAccountSectionMutation_Mutation;
 
+type UserTopPostsForManagerQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type UserTopPostsForManagerQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<UserTopPostsForManagerQuery_posts_MultiPostOutput_results_Post> };
+
+type UserTopPostsForManagerQuery_Query = { __typename?: 'Query', posts: UserTopPostsForManagerQuery_posts_MultiPostOutput | null };
+
+
+type UserTopPostsForManagerQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type UserTopPostsForManagerQuery = UserTopPostsForManagerQuery_Query;
+
 type UsersAccountManagementGetUserBySlugQuery_GetUserBySlug_User = (
   { __typename?: 'User' }
   & UsersEdit
@@ -26834,7 +26915,7 @@ type UsersProfile_User_moderationGuidelines_Revision = (
 );
 
 type UsersProfile = (
-  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
   & UsersMinimumInfo
 );
 
