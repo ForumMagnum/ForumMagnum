@@ -2,13 +2,12 @@
 
 import React, { useState } from "react";
 import classNames from "classnames";
+import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { Link } from "@/lib/reactRouterWrapper";
 import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import {
-  ProfileCommentDiamondDataQueryDocument,
-  ProfilePostDiamondDataQueryDocument,
   type ProfileCommentDiamondDataQueryQuery,
   type ProfilePostDiamondDataQueryQuery,
 } from "@/lib/generated/gql-codegen/graphql";
@@ -17,6 +16,33 @@ const DIAMONDS_INITIAL = 250;
 const DIAMONDS_SHOW_ALL_LIMIT = 2000;
 const COMMENT_DIAMONDS_INITIAL = 500;
 const COMMENT_DIAMONDS_SHOW_ALL_LIMIT = 20000;
+
+const ProfilePostDiamondDataQuery = gql(`
+  query ProfilePostDiamondDataQuery($userId: String!, $postLimit: Int!) {
+    profileDiamondData: ProfileDiamondData(userId: $userId, postLimit: $postLimit, commentLimit: 1) {
+      posts {
+        id
+        date
+        karma
+        isReviewWinner
+        isCurated
+      }
+    }
+  }
+`);
+
+const ProfileCommentDiamondDataQuery = gql(`
+  query ProfileCommentDiamondDataQuery($userId: String!, $commentLimit: Int!) {
+    profileDiamondData: ProfileDiamondData(userId: $userId, postLimit: 1, commentLimit: $commentLimit) {
+      comments {
+        id
+        date
+        karma
+        postId
+      }
+    }
+  }
+`);
 
 type ProfilePostDiamonds = ProfilePostDiamondDataQueryQuery["profileDiamondData"]["posts"];
 type ProfileCommentDiamonds = ProfileCommentDiamondDataQueryQuery["profileDiamondData"]["comments"];
@@ -71,7 +97,7 @@ function useProfileDiamondDataWithLoadMore({
     data: postDiamondData,
     previousData: previousPostDiamondData,
     loading: postDiamondLoading,
-  } = useQuery(ProfilePostDiamondDataQueryDocument, {
+  } = useQuery(ProfilePostDiamondDataQuery, {
     skip: !userId,
     variables: {
       userId,
@@ -84,7 +110,7 @@ function useProfileDiamondDataWithLoadMore({
     data: commentDiamondData,
     previousData: previousCommentDiamondData,
     loading: commentDiamondLoading,
-  } = useQuery(ProfileCommentDiamondDataQueryDocument, {
+  } = useQuery(ProfileCommentDiamondDataQuery, {
     skip: !userId,
     variables: {
       userId,
