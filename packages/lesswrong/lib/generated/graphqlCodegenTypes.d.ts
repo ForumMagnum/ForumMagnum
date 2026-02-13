@@ -7723,19 +7723,26 @@ type ProfileCommentDiamond = {
   postId: Scalars['String']['output'];
 };
 
-type ProfileDiamondDataResult = {
-  __typename?: 'ProfileDiamondDataResult';
-  comments: Array<ProfileCommentDiamond>;
-  posts: Array<ProfilePostDiamond>;
+type ProfileDiamondCommentsResult = {
+  __typename?: 'ProfileDiamondCommentsResult';
+  results: Array<ProfileCommentDiamond>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type ProfileDiamondPostsResult = {
+  __typename?: 'ProfileDiamondPostsResult';
+  results: Array<ProfilePostDiamond>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
 type ProfilePostDiamond = {
   __typename?: 'ProfilePostDiamond';
+  _id: Scalars['String']['output'];
   date: Scalars['Date']['output'];
-  id: Scalars['String']['output'];
   isCurated: Scalars['Boolean']['output'];
   isReviewWinner: Scalars['Boolean']['output'];
   karma: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
 };
 
 type Query = {
@@ -7783,7 +7790,8 @@ type Query = {
   PostsUserCommentedOn?: Maybe<UserReadHistoryResult>;
   PostsWithActiveDiscussion?: Maybe<PostsWithActiveDiscussionResult>;
   PostsWithApprovedJargon?: Maybe<PostsWithApprovedJargonResult>;
-  ProfileDiamondData: ProfileDiamondDataResult;
+  ProfileDiamondComments: ProfileDiamondCommentsResult;
+  ProfileDiamondPosts: ProfileDiamondPostsResult;
   RandomTag: Tag;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
   RecentlyActiveDialogues?: Maybe<RecentlyActiveDialoguesResult>;
@@ -8142,9 +8150,14 @@ type QueryPostsWithApprovedJargonArgs = {
 };
 
 
-type QueryProfileDiamondDataArgs = {
-  commentLimit: Scalars['Int']['input'];
-  postLimit: Scalars['Int']['input'];
+type QueryProfileDiamondCommentsArgs = {
+  limit: Scalars['Int']['input'];
+  userId: Scalars['String']['input'];
+};
+
+
+type QueryProfileDiamondPostsArgs = {
+  limit: Scalars['Int']['input'];
   userId: Scalars['String']['input'];
 };
 
@@ -13282,31 +13295,31 @@ type SequenceMetadataQueryVariables = Exact<{
 
 type SequenceMetadataQuery = SequenceMetadataQuery_Query;
 
-type ProfilePostDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult_posts_ProfilePostDiamond = { __typename?: 'ProfilePostDiamond', id: string, date: string, karma: number, isReviewWinner: boolean, isCurated: boolean };
+type ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult_results_ProfilePostDiamond = { __typename?: 'ProfilePostDiamond', _id: string, slug: string, date: string, karma: number, isReviewWinner: boolean, isCurated: boolean };
 
-type ProfilePostDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult = { __typename?: 'ProfileDiamondDataResult', posts: Array<ProfilePostDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult_posts_ProfilePostDiamond> };
+type ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult = { __typename?: 'ProfileDiamondPostsResult', totalCount: number | null, results: Array<ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult_results_ProfilePostDiamond> };
 
-type ProfilePostDiamondDataQueryQuery_Query = { __typename?: 'Query', profileDiamondData: ProfilePostDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult };
+type ProfilePostDiamondDataQueryQuery_Query = { __typename?: 'Query', ProfileDiamondPosts: ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult };
 
 
 type ProfilePostDiamondDataQueryQueryVariables = Exact<{
   userId: Scalars['String']['input'];
-  postLimit: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
 }>;
 
 
 type ProfilePostDiamondDataQueryQuery = ProfilePostDiamondDataQueryQuery_Query;
 
-type ProfileCommentDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult_comments_ProfileCommentDiamond = { __typename?: 'ProfileCommentDiamond', id: string, date: string, karma: number, postId: string };
+type ProfileCommentDiamondDataQueryQuery_ProfileDiamondComments_ProfileDiamondCommentsResult_results_ProfileCommentDiamond = { __typename?: 'ProfileCommentDiamond', id: string, date: string, karma: number, postId: string };
 
-type ProfileCommentDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult = { __typename?: 'ProfileDiamondDataResult', comments: Array<ProfileCommentDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult_comments_ProfileCommentDiamond> };
+type ProfileCommentDiamondDataQueryQuery_ProfileDiamondComments_ProfileDiamondCommentsResult = { __typename?: 'ProfileDiamondCommentsResult', totalCount: number | null, results: Array<ProfileCommentDiamondDataQueryQuery_ProfileDiamondComments_ProfileDiamondCommentsResult_results_ProfileCommentDiamond> };
 
-type ProfileCommentDiamondDataQueryQuery_Query = { __typename?: 'Query', profileDiamondData: ProfileCommentDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult };
+type ProfileCommentDiamondDataQueryQuery_Query = { __typename?: 'Query', ProfileDiamondComments: ProfileCommentDiamondDataQueryQuery_ProfileDiamondComments_ProfileDiamondCommentsResult };
 
 
 type ProfileCommentDiamondDataQueryQueryVariables = Exact<{
   userId: Scalars['String']['input'];
-  commentLimit: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
 }>;
 
 

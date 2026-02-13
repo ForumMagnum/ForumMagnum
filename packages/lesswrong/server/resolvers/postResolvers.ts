@@ -205,7 +205,8 @@ export type PostIsCriticismRequest = {
 }
 
 interface ProfilePostDiamondRow {
-  id: string;
+  _id: string;
+  slug: string;
   date: Date;
   karma: number;
   isReviewWinner: boolean;
@@ -219,66 +220,85 @@ interface ProfileCommentDiamondRow {
   postId: string;
 }
 
-async function getProfileDiamondPosts(userId: string, limit: number): Promise<ProfilePostDiamondRow[]> {
+async function getProfileDiamondPosts(userId: string, limit: number): Promise<{ results: ProfilePostDiamondRow[], totalCount: number }> {
   const db = getSqlClientOrThrow();
-  return await db.any<ProfilePostDiamondRow>(`
-    -- postResolvers.getProfileDiamondPosts
-    SELECT
-      p."_id" AS "id",
-      p."postedAt" AS "date",
-      p."baseScore" AS "karma",
-      EXISTS(
-        SELECT 1
-        FROM "ReviewWinners" rw
-        WHERE rw."postId" = p."_id"
-      ) AS "isReviewWinner",
-      p."curatedDate" IS NOT NULL AS "isCurated"
-    FROM "Posts" p
-    WHERE
-      ${getViewablePostsSelector("p")}
-      AND (
-        p."userId" = $(userId)
-        OR p."coauthorUserIds" @> ARRAY[$(userId)]::TEXT[]
-      )
-      AND p."rejected" IS NOT TRUE
-    ORDER BY p."postedAt" DESC
-    LIMIT $(limit)
-  `, { userId, limit });
+  const whereClause = `
+    ${getViewablePostsSelector("p")}
+    AND (
+      p."userId" = $(userId)
+      OR p."coauthorUserIds" @> ARRAY[$(userId)]::TEXT[]
+    )
+    AND p."rejected" IS NOT TRUE
+  `;
+  const [results, countRow] = await Promise.all([
+    db.any<ProfilePostDiamondRow>(`
+      -- postResolvers.getProfileDiamondPosts
+      SELECT
+        p."_id" AS "_id",
+        p."slug" AS "slug",
+        p."postedAt" AS "date",
+        p."baseScore" AS "karma",
+        EXISTS(
+          SELECT 1
+          FROM "ReviewWinners" rw
+          WHERE rw."postId" = p."_id"
+        ) AS "isReviewWinner",
+        p."curatedDate" IS NOT NULL AS "isCurated"
+      FROM "Posts" p
+      WHERE ${whereClause}
+      ORDER BY p."postedAt" DESC
+      LIMIT $(limit)
+    `, { userId, limit }),
+    db.one<{ count: string }>(`
+      -- postResolvers.getProfileDiamondPostsCount
+      SELECT COUNT(*) AS "count"
+      FROM "Posts" p
+      WHERE ${whereClause}
+    `, { userId }),
+  ]);
+  return { results, totalCount: parseInt(countRow.count) };
 }
 
-async function getProfileDiamondComments(userId: string, limit: number): Promise<ProfileCommentDiamondRow[]> {
-  const comments = await Comments.find(
-    {
-      userId,
-      postId: { $ne: null },
-      postedAt: { $ne: null },
-      deletedPublic: false,
-      rejected: { $ne: true },
-      draft: { $ne: true },
-      debateResponse: { $ne: true },
-      authorIsUnreviewed: { $ne: true },
-    },
-    {
-      sort: { isPinnedOnProfile: -1, postedAt: -1 },
-      limit,
-    },
-    {
-      _id: 1,
-      postedAt: 1,
-      baseScore: 1,
-      postId: 1,
-    }
-  ).fetch();
+async function getProfileDiamondComments(userId: string, limit: number): Promise<{ results: ProfileCommentDiamondRow[], totalCount: number }> {
+  const selector = {
+    userId,
+    postId: { $ne: null },
+    postedAt: { $ne: null },
+    deletedPublic: false,
+    rejected: { $ne: true },
+    draft: { $ne: true },
+    debateResponse: { $ne: true },
+    authorIsUnreviewed: { $ne: true },
+  };
 
-  return comments.flatMap((comment): ProfileCommentDiamondRow[] => {
-    if (!comment._id || !comment.postId || !comment.postedAt) return [];
-    return [{
+  const [comments, totalCount] = await Promise.all([
+    Comments.find(
+      selector,
+      {
+        sort: { isPinnedOnProfile: -1, postedAt: -1 },
+        limit,
+      },
+      {
+        _id: 1,
+        postedAt: 1,
+        baseScore: 1,
+        postId: 1,
+      }
+    ).fetch(),
+    Comments.find(selector).count(),
+  ]);
+
+  const results = comments.map((comment) => {
+    if (!comment._id || !comment.postId || !comment.postedAt) return;
+    return {
       id: comment._id,
       date: comment.postedAt,
       karma: comment.baseScore ?? 0,
       postId: comment.postId,
-    }];
-  });
+    };
+  }).filter((comment): comment is ProfileCommentDiamondRow => !!comment);
+
+  return { results, totalCount };
 }
 
 export const postGqlQueries = {
@@ -330,24 +350,29 @@ export const postGqlQueries = {
 
     return await postIsCriticism(args, currentUser._id)
   },
-  async ProfileDiamondData(
+  async ProfileDiamondPosts(
     root: void,
     {
       userId,
-      postLimit,
-      commentLimit,
+      limit,
     }: {
       userId: string,
-      postLimit: number,
-      commentLimit: number,
+      limit: number,
     },
-    context: ResolverContext,
   ) {
-    const [posts, comments] = await Promise.all([
-      getProfileDiamondPosts(userId, postLimit),
-      getProfileDiamondComments(userId, commentLimit),
-    ]);
-    return { posts, comments };
+    return await getProfileDiamondPosts(userId, limit);
+  },
+  async ProfileDiamondComments(
+    root: void,
+    {
+      userId,
+      limit,
+    }: {
+      userId: string,
+      limit: number,
+    },
+  ) {
+    return await getProfileDiamondComments(userId, limit);
   },
   async DigestPosts(root: void, {num}: {num: number}, context: ResolverContext) {
     const { repos } = context
@@ -598,7 +623,8 @@ export const postGqlTypeDefs = gql`
     ): UserReadHistoryResult
 
     PostIsCriticism(args: JSON): Boolean
-    ProfileDiamondData(userId: String!, postLimit: Int!, commentLimit: Int!): ProfileDiamondDataResult!
+    ProfileDiamondPosts(userId: String!, limit: Int!): ProfileDiamondPostsResult!
+    ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
     DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
     DigestPosts(num: Int): [Post!]
 
@@ -649,13 +675,19 @@ export const postGqlTypeDefs = gql`
     attributionId: String
   }
 
-  type ProfileDiamondDataResult {
-    posts: [ProfilePostDiamond!]!
-    comments: [ProfileCommentDiamond!]!
+  type ProfileDiamondPostsResult {
+    results: [ProfilePostDiamond!]!
+    totalCount: Int
+  }
+
+  type ProfileDiamondCommentsResult {
+    results: [ProfileCommentDiamond!]!
+    totalCount: Int
   }
 
   type ProfilePostDiamond {
-    id: String!
+    _id: String!
+    slug: String!
     date: Date!
     karma: Int!
     isReviewWinner: Boolean!

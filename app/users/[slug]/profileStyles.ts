@@ -906,9 +906,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   diamondsSectionHeader: {
     display: "flex",
-    alignItems: "baseline",
+    alignItems: "center",
     justifyContent: "space-between",
-    minHeight: 17,
+    height: 20,
     marginBottom: 8,
     paddingBottom: 6,
     borderBottom: theme.palette.type === "dark"
@@ -1017,6 +1017,12 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     "&:hover": {
       opacity: 1,
     },
+  },
+  sidebarActionHidden: {
+    visibility: "hidden",
+  },
+  loadMoreLoading: {
+    marginRight: 0,
   },
   "@media (max-width: 900px)": {
     profileMain: {

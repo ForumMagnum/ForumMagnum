@@ -874,22 +874,28 @@ export default function ProfilePage() {
 
             <aside className={classNames(classes.postsSidebar, bioHtml && classes.postsSidebarHasBio)}>
               <div className={classes.sidebarAuthorBlock}>
-                  <div className={classes.diamondsSectionTitle}>Bio</div>
-                  <div className={classes.sidebarBioMeta}>
-                    {canSubscribeToUser && (
-                      <UserNotifyDropdown
-                        user={user}
-                        popperPlacement="bottom-start"
-                        className={classes.sidebarMetaAction}
-                      />
-                    )}
-                    {canMessageUser && (
-                      <NewConversationButton user={user} currentUser={currentUser}>
-                        <a className={classes.sidebarMetaAction}>Message</a>
-                      </NewConversationButton>
-                    )}
-                  </div>
+                <h4 className={classes.sidebarAuthorName}>
+                  <UsersNameWithModal
+                    user={user}
+                    className={classes.sidebarAuthorNameLink}
+                    tooltipPlacement="bottom-start"
+                  />
+                </h4>
+                <div className={classes.sidebarBioMeta}>
+                  {canSubscribeToUser && (
+                    <UserNotifyDropdown
+                      user={user}
+                      popperPlacement="bottom-start"
+                      className={classes.sidebarSubscribe}
+                    />
+                  )}
+                  {canMessageUser && (
+                    <NewConversationButton user={user} currentUser={currentUser}>
+                      <a className={classes.sidebarMore}>Message</a>
+                    </NewConversationButton>
+                  )}
                 </div>
+              </div>
                 <div className={classes.sidebarBioSection}>
                   <div 
                     ref={bioRef}
@@ -925,8 +931,6 @@ export default function ProfilePage() {
                     <ProfileDiamondSections
                       key={userId}
                       userId={userId}
-                      postCount={user.postCount ?? 0}
-                      commentCount={user.commentCount ?? 0}
                       classes={classes}
                     />
                   </Suspense>

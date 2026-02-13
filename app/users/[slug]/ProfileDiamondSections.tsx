@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import classNames from "classnames";
 import { gql } from "@/lib/generated/gql-codegen";
-import { useQuery } from "@/lib/crud/useQuery";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import LoadMore from "@/components/common/LoadMore";
 import { Link } from "@/lib/reactRouterWrapper";
 import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
-import {
-  type ProfileCommentDiamondDataQueryQuery,
-  type ProfilePostDiamondDataQueryQuery,
-} from "@/lib/generated/gql-codegen/graphql";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 
 const DIAMONDS_INITIAL = 250;
 const DIAMONDS_SHOW_ALL_LIMIT = 2000;
@@ -18,61 +16,42 @@ const COMMENT_DIAMONDS_INITIAL = 500;
 const COMMENT_DIAMONDS_SHOW_ALL_LIMIT = 20000;
 
 const ProfilePostDiamondDataQuery = gql(`
-  query ProfilePostDiamondDataQuery($userId: String!, $postLimit: Int!) {
-    profileDiamondData: ProfileDiamondData(userId: $userId, postLimit: $postLimit, commentLimit: 1) {
-      posts {
-        id
+  query ProfilePostDiamondDataQuery($userId: String!, $limit: Int!) {
+    ProfileDiamondPosts(userId: $userId, limit: $limit) {
+      results {
+        _id
+        slug
         date
         karma
         isReviewWinner
         isCurated
       }
+      totalCount
     }
   }
 `);
 
 const ProfileCommentDiamondDataQuery = gql(`
-  query ProfileCommentDiamondDataQuery($userId: String!, $commentLimit: Int!) {
-    profileDiamondData: ProfileDiamondData(userId: $userId, postLimit: 1, commentLimit: $commentLimit) {
-      comments {
+  query ProfileCommentDiamondDataQuery($userId: String!, $limit: Int!) {
+    ProfileDiamondComments(userId: $userId, limit: $limit) {
+      results {
         id
         date
         karma
         postId
       }
+      totalCount
     }
   }
 `);
 
-type ProfilePostDiamonds = ProfilePostDiamondDataQueryQuery["profileDiamondData"]["posts"];
-type ProfileCommentDiamonds = ProfileCommentDiamondDataQueryQuery["profileDiamondData"]["comments"];
-
 interface ProfileDiamondSectionsProps {
   userId: string;
-  postCount: number;
-  commentCount: number;
   classes: Record<string, string>;
-}
-
-interface UseProfileDiamondDataWithLoadMoreProps {
-  userId: string;
-  postCount: number;
-  commentCount: number;
 }
 
 function formatCountWithCommas(count: number): string {
   return count.toLocaleString();
-}
-
-function getPostDiamondClasses(isReviewWinner: boolean, isCurated: boolean) {
-  const isGold = isReviewWinner || isCurated;
-  const isSolid = true;
-  return { isGold, isSolid };
-}
-
-function getCommentDiamondClasses() {
-  const isSolid = true;
-  return { isSolid };
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -85,74 +64,65 @@ function getDiamondKarmaStyle(karma: number, isGold: boolean, maxKarmaForFullOpa
   return { opacity: alpha };
 }
 
-function useProfileDiamondDataWithLoadMore({
-  userId,
-  postCount,
-  commentCount,
-}: UseProfileDiamondDataWithLoadMoreProps) {
-  const [showAllPostDiamonds, setShowAllPostDiamonds] = useState(false);
-  const [showAllCommentDiamonds, setShowAllCommentDiamonds] = useState(false);
-
+function useProfileDiamondDataWithLoadMore(userId: string) {
   const {
     data: postDiamondData,
     previousData: previousPostDiamondData,
-    loading: postDiamondLoading,
-  } = useQuery(ProfilePostDiamondDataQuery, {
+    loadMoreProps: postDiamondsLoadMoreProps,
+  } = useQueryWithLoadMore(ProfilePostDiamondDataQuery, {
     skip: !userId,
     variables: {
       userId,
-      postLimit: showAllPostDiamonds ? DIAMONDS_SHOW_ALL_LIMIT : DIAMONDS_INITIAL,
+      limit: DIAMONDS_INITIAL,
     },
     fetchPolicy: "cache-and-network",
+    itemsPerPage: DIAMONDS_SHOW_ALL_LIMIT - DIAMONDS_INITIAL,
+    ssr: false,
   });
 
   const {
     data: commentDiamondData,
     previousData: previousCommentDiamondData,
-    loading: commentDiamondLoading,
-  } = useQuery(ProfileCommentDiamondDataQuery, {
+    loadMoreProps: commentDiamondsLoadMoreProps,
+  } = useQueryWithLoadMore(ProfileCommentDiamondDataQuery, {
     skip: !userId,
     variables: {
       userId,
-      commentLimit: showAllCommentDiamonds ? COMMENT_DIAMONDS_SHOW_ALL_LIMIT : COMMENT_DIAMONDS_INITIAL,
+      limit: COMMENT_DIAMONDS_INITIAL,
     },
     fetchPolicy: "cache-and-network",
+    itemsPerPage: COMMENT_DIAMONDS_SHOW_ALL_LIMIT - COMMENT_DIAMONDS_INITIAL,
+    ssr: false,
   });
 
-  const diamondPosts = postDiamondData?.profileDiamondData?.posts
-    ?? previousPostDiamondData?.profileDiamondData?.posts
+  const diamondPosts = postDiamondData?.ProfileDiamondPosts?.results
+    ?? previousPostDiamondData?.ProfileDiamondPosts?.results
     ?? [];
-  const commentDiamonds = commentDiamondData?.profileDiamondData?.comments
-    ?? previousCommentDiamondData?.profileDiamondData?.comments
+  const commentDiamonds = commentDiamondData?.ProfileDiamondComments?.results
+    ?? previousCommentDiamondData?.ProfileDiamondComments?.results
     ?? [];
 
-  const postDiamondCount = Math.max(diamondPosts.length, postCount);
-  const commentDiamondCount = Math.max(commentDiamonds.length, commentCount);
-  const canShowAllPostDiamonds = postCount > DIAMONDS_INITIAL;
-  const canShowAllCommentDiamonds = commentCount > COMMENT_DIAMONDS_INITIAL;
-  const isPostDiamondsLoading = showAllPostDiamonds && postDiamondLoading;
-  const isCommentDiamondsLoading = showAllCommentDiamonds && commentDiamondLoading;
+  const postDiamondCount = postDiamondData?.ProfileDiamondPosts?.totalCount
+    ?? previousPostDiamondData?.ProfileDiamondPosts?.totalCount
+    ?? 0;
+  const commentDiamondCount = commentDiamondData?.ProfileDiamondComments?.totalCount
+    ?? previousCommentDiamondData?.ProfileDiamondComments?.totalCount
+    ?? 0;
 
   return {
     diamondPosts,
     commentDiamonds,
     postDiamondCount,
     commentDiamondCount,
-    canShowAllPostDiamonds,
-    canShowAllCommentDiamonds,
-    isPostDiamondsLoading,
-    isCommentDiamondsLoading,
-    showAllPostDiamonds,
-    showAllCommentDiamonds,
-    setShowAllPostDiamonds,
-    setShowAllCommentDiamonds,
+    canShowAllPostDiamonds: postDiamondCount > DIAMONDS_INITIAL,
+    canShowAllCommentDiamonds: commentDiamondCount > COMMENT_DIAMONDS_INITIAL,
+    postDiamondsLoadMoreProps,
+    commentDiamondsLoadMoreProps,
   };
 }
 
 export default function ProfileDiamondSections({
   userId,
-  postCount,
-  commentCount,
   classes,
 }: ProfileDiamondSectionsProps) {
   const {
@@ -162,17 +132,9 @@ export default function ProfileDiamondSections({
     commentDiamondCount,
     canShowAllPostDiamonds,
     canShowAllCommentDiamonds,
-    isPostDiamondsLoading,
-    isCommentDiamondsLoading,
-    showAllPostDiamonds,
-    showAllCommentDiamonds,
-    setShowAllPostDiamonds,
-    setShowAllCommentDiamonds,
-  } = useProfileDiamondDataWithLoadMore({
-    userId,
-    postCount,
-    commentCount,
-  });
+    postDiamondsLoadMoreProps,
+    commentDiamondsLoadMoreProps,
+  } = useProfileDiamondDataWithLoadMore(userId);
 
   return (
     <>
@@ -183,41 +145,29 @@ export default function ProfileDiamondSections({
               Posts <span className={classes.diamondsSectionCount}>({formatCountWithCommas(postDiamondCount)})</span>
             </div>
             {canShowAllPostDiamonds && (
-              showAllPostDiamonds ? (
-                isPostDiamondsLoading ? (
-                  <span className={classNames(classes.readMoreLink, classes.sidebarActionDisabled)}>
-                    Loading...
-                  </span>
-                ) : (
-                  <span
-                    className={classNames(classes.readMoreLink, classes.sidebarActionDisabled)}
-                    style={{ visibility: "hidden" }}
-                  >
-                    Loading...
-                  </span>
-                )
-              ) : (
-                <a
-                  href="#"
-                  className={classes.readMoreLink}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setShowAllPostDiamonds(true);
-                  }}
-                >
+              postDiamondsLoadMoreProps.hidden ? (
+                <span className={classNames(classes.readMoreLink, classes.sidebarActionHidden)}>
                   Show all
-                </a>
+                </span>
+              ) : (
+                <LoadMore
+                  {...postDiamondsLoadMoreProps}
+                  totalCount={undefined}
+                  className={classes.readMoreLink}
+                  loadingClassName={classes.loadMoreLoading}
+                  message="Show all"
+                />
               )
             )}
           </div>
           <div className={classes.diamondsGrid}>
             {diamondPosts.map((post) => {
-              const { isGold, isSolid } = getPostDiamondClasses(post.isReviewWinner, post.isCurated);
-              const postUrl = `/posts/${post.id}`;
+              const isGold = post.isReviewWinner || post.isCurated;
+              const postUrl = postGetPageUrl(post);
               return (
                 <PostsTooltip
-                  key={post.id}
-                  postId={post.id}
+                  key={post._id}
+                  postId={post._id}
                   placement="bottom-start"
                   As="span"
                 >
@@ -225,7 +175,7 @@ export default function ProfileDiamondSections({
                     to={postUrl}
                     className={classNames(
                       classes.diamondLink,
-                      isSolid ? classes.diamondSolid : classes.diamondHollow,
+                      classes.diamondSolid,
                       isGold && classes.diamondGold,
                     )}
                     style={getDiamondKarmaStyle(post.karma, isGold)}
@@ -243,37 +193,23 @@ export default function ProfileDiamondSections({
               Comments <span className={classes.diamondsSectionCount}>({formatCountWithCommas(commentDiamondCount)})</span>
             </div>
             {canShowAllCommentDiamonds && (
-              showAllCommentDiamonds ? (
-                isCommentDiamondsLoading ? (
-                  <span className={classNames(classes.readMoreLink, classes.sidebarActionDisabled)}>
-                    Loading...
-                  </span>
-                ) : (
-                  <span
-                    className={classNames(classes.readMoreLink, classes.sidebarActionDisabled)}
-                    style={{ visibility: "hidden" }}
-                  >
-                    Loading...
-                  </span>
-                )
-              ) : (
-                <a
-                  href="#"
-                  className={classes.readMoreLink}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setShowAllCommentDiamonds(true);
-                  }}
-                >
+              commentDiamondsLoadMoreProps.hidden ? (
+                <span className={classNames(classes.readMoreLink, classes.sidebarActionHidden)}>
                   Show all
-                </a>
+                </span>
+              ) : (
+                <LoadMore
+                  {...commentDiamondsLoadMoreProps}
+                  totalCount={undefined}
+                  className={classes.readMoreLink}
+                  loadingClassName={classes.loadMoreLoading}
+                  message="Show all"
+                />
               )
             )}
           </div>
           <div className={classes.diamondsGrid}>
             {commentDiamonds.map((comment) => {
-              if (!comment.postId) return null;
-              const { isSolid } = getCommentDiamondClasses();
               const commentUrl = commentGetPageUrlFromIds({
                 postId: comment.postId,
                 commentId: comment.id,
@@ -290,7 +226,7 @@ export default function ProfileDiamondSections({
                     to={commentUrl}
                     className={classNames(
                       classes.diamondLink,
-                      isSolid ? classes.diamondSolid : classes.diamondHollow,
+                      classes.diamondSolid,
                     )}
                     style={getDiamondKarmaStyle(comment.karma, false, 50)}
                   />
