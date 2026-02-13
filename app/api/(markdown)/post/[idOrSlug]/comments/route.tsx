@@ -144,7 +144,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ idOr
         </div>
       ) : null}
       <div>
-        For reaction user names, use <code>?includeReactionUsers=1</code>.
+        {includeReactionUsers
+          ? "Reaction user names: included."
+          : <>For reaction user names, use <code>?includeReactionUsers=1</code>.</>}
       </div>
       <MarkdownCommentsList
         comments={comments}

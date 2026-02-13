@@ -6,8 +6,9 @@ import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 type UrlRewriter = (urlParams: Record<string,string>) => string
 
 export const routeUrlMapping: Record<string,UrlRewriter> = {
-  '/posts/:_id/:slug?': ({_id, slug}) => `/api/post/${slug}`,
-  '/posts/slug/:slug?': ({_id, slug}) => `/api/post/${slug}`,
+  // Prefer canonical _id for post links to avoid stale/mismatched slugs.
+  '/posts/:_id/:slug?': ({_id, slug}) => `/api/post/${_id || slug}`,
+  '/posts/slug/:slug?': ({slug}) => `/api/post/${slug}`,
 }
 
 export const parseRouteWithErrors = <const T extends string[] | [] = []>(onsiteUrl: string) => {

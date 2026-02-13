@@ -9,7 +9,7 @@ assertRouteAttributes("/about", {
   hasLinkPreview: false,
   hasPingbacks: true,
   hasLeftNavigationColumn: false,
-  hasMarkdownVersion: false,
+  hasMarkdownVersion: true,
 });
 
 export default function Page() {

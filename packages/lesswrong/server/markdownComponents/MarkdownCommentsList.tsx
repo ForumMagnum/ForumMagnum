@@ -81,6 +81,10 @@ const aggregateCommentReactions = (comment: MarkdownCommentData): {
   return { wholeCommentReactions, quoteReactions };
 };
 
+const getReactionTotal = (reactions: Record<string, AggregatedReactionInfo>): number => {
+  return Object.values(reactions).reduce((sum, info) => sum + info.netCount, 0);
+};
+
 const renderReactionSummary = (
   reactions: Record<string, AggregatedReactionInfo>,
   includeReactionUsers: boolean
@@ -168,6 +172,14 @@ export const MarkdownCommentsList = ({
       {comments.map((comment) => {
         const depth = computeDepth(comment, commentsById, memoizedDepth);
         const { wholeCommentReactions, quoteReactions } = aggregateCommentReactions(comment);
+        const sortedQuoteReactionEntries = Object.entries(quoteReactions).sort((a, b) => {
+          const totalA = getReactionTotal(a[1]);
+          const totalB = getReactionTotal(b[1]);
+          if (totalA !== totalB) {
+            return totalB - totalA;
+          }
+          return a[0].localeCompare(b[0]);
+        });
         const approvalVoteCount = comment.extendedScore?.approvalVoteCount;
         return (
           <div key={comment._id}>
@@ -181,6 +193,12 @@ export const MarkdownCommentsList = ({
               {approvalVoteCount !== undefined ? <li>Approval votes: {approvalVoteCount}</li> : null}
               {comment.voteCount !== undefined && comment.voteCount !== null ? <li>Total votes: {comment.voteCount}</li> : null}
               {depth > 0 ? <li>Reply depth: {depth}</li> : null}
+              {comment.parentCommentId ? (
+                <li>
+                  Parent comment (Markdown):{" "}
+                  <a href={`${markdownRouteBase}/${comment.parentCommentId}`}>{`${markdownRouteBase}/${comment.parentCommentId}`}</a>
+                </li>
+              ) : null}
               <li>
                 HTML permalink:{" "}
                 <a href={`${htmlRouteBase}/${comment._id}`}>{`${htmlRouteBase}/${comment._id}`}</a>
@@ -200,7 +218,7 @@ export const MarkdownCommentsList = ({
               <div>
                 <div>Reactions by quoted text:</div>
                 <ul>
-                  {Object.entries(quoteReactions).map(([quote, reactions]) => (
+                  {sortedQuoteReactionEntries.map(([quote, reactions]) => (
                     <li key={quote}>
                       <div>"{truncateForDisplay(quote.replaceAll("\n", " "), 180)}"</div>
                       {renderReactionSummary(reactions, includeReactionUsers)}

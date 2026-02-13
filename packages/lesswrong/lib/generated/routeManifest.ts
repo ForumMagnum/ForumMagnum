@@ -113,7 +113,16 @@ export const routeTrie = {
         "SKILL.md": {
           "hasRoute": true
         },
+        "about": {
+          "hasRoute": true
+        },
+        "contact": {
+          "hasRoute": true
+        },
         "curated": {
+          "hasRoute": true
+        },
+        "faq": {
           "hasRoute": true
         },
         "home": {
@@ -148,6 +157,14 @@ export const routeTrie = {
           "hasRoute": true
         },
         "tag": {
+          "dynamicChild": {
+            "paramName": "slug",
+            "child": {
+              "hasRoute": true
+            }
+          }
+        },
+        "user": {
           "dynamicChild": {
             "paramName": "slug",
             "child": {
@@ -297,12 +314,16 @@ export const routeTrie = {
       },
       "lowerCase": {
         "skill.md": "SKILL.md",
+        "about": "about",
+        "contact": "contact",
         "curated": "curated",
+        "faq": "faq",
         "home": "home",
         "latest": "latest",
         "post": "post",
         "recent": "recent",
         "tag": "tag",
+        "user": "user",
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",

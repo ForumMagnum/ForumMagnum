@@ -13420,6 +13420,66 @@ type MarkdownTagPostsQueryVariables = Exact<{
 
 type MarkdownTagPostsQuery = MarkdownTagPostsQuery_Query;
 
+type MarkdownUserProfileQuery_users_MultiUserOutput_results_User = { __typename?: 'User', _id: string, slug: string, displayName: string, username: string | null, bio: string | null, karma: number, afKarma: number, postCount: number, commentCount: number, createdAt: string };
+
+type MarkdownUserProfileQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<MarkdownUserProfileQuery_users_MultiUserOutput_results_User> };
+
+type MarkdownUserProfileQuery_Query = { __typename?: 'Query', users: MarkdownUserProfileQuery_users_MultiUserOutput | null };
+
+
+type MarkdownUserProfileQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+type MarkdownUserProfileQuery = MarkdownUserProfileQuery_Query;
+
+type MarkdownUserProfilePostsQuery_topPosts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownUserProfilePostsQuery_topPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownUserProfilePostsQuery_topPosts_MultiPostOutput_results_Post> };
+
+type MarkdownUserProfilePostsQuery_recentPosts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownUserProfilePostsQuery_recentPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownUserProfilePostsQuery_recentPosts_MultiPostOutput_results_Post> };
+
+type MarkdownUserProfilePostsQuery_Query = { __typename?: 'Query', topPosts: MarkdownUserProfilePostsQuery_topPosts_MultiPostOutput | null, recentPosts: MarkdownUserProfilePostsQuery_recentPosts_MultiPostOutput | null };
+
+
+type MarkdownUserProfilePostsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  postsLimit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownUserProfilePostsQuery = MarkdownUserProfilePostsQuery_Query;
+
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
+
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string };
+
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, postedAt: string, baseScore: number | null, voteCount: number, parentCommentId: string | null, user: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_user_User | null, post: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post | null, contents: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null };
+
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment> };
+
+type MarkdownUserProfileRecentCommentsQuery_Query = { __typename?: 'Query', comments: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput | null };
+
+
+type MarkdownUserProfileRecentCommentsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  commentsLimit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownUserProfileRecentCommentsQuery = MarkdownUserProfileRecentCommentsQuery_Query;
+
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = { __typename?: 'Localgroup', _id: string, name: string, bannerImageId: string | null, contents: LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision | null };

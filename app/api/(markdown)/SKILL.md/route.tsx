@@ -22,6 +22,9 @@ Finding content to read:
  * Add ?limit=n to list routes (max 100)
 Reading posts:
  * /api/post/[id]
+ * /api/about
+ * /api/faq
+ * /api/contact
  * Add ?compact=1 on post route to omit some heavy media/math/table content
 Post comments:
  * /api/post/[id]/comments
@@ -29,6 +32,8 @@ Post comments:
  * comments route supports ?sort=top|new|old, ?limit=n, ?includeReactionUsers=1
 Reading tags:
  * /api/tag/[slug]
+Reading users:
+ * /api/user/[slug]
 `;
 
 export function GET(req: NextRequest) {
