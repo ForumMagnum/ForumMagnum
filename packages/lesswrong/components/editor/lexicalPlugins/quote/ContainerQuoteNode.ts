@@ -86,9 +86,13 @@ export class ContainerQuoteNode extends QuoteNode {
     return true;
   }
 
-  // Must always have at least one child (like CollapsibleSectionContentNode)
+  // Allow the blockquote to be empty. This matches the original QuoteNode
+  // default and prevents the sentinel paragraph plugin from placing sentinels
+  // around blockquotes (sentinels are placed around nodes with canBeEmpty()
+  // === false, but blockquotes are text containers that users can navigate
+  // in and out of normally — unlike opaque blocks like images).
   canBeEmpty(): boolean {
-    return false;
+    return true;
   }
 
   // Override the base QuoteNode's insertNewAfter which creates a paragraph
