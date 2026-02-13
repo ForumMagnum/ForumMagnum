@@ -1075,6 +1075,7 @@ export default function ProfilePage() {
                     <div className={classes.diamondsGrid}>
                       {diamondPosts.map((post) => {
                         const { isGold, isSolid } = getPostDiamondClasses(post.karma, post.isReviewWinner, post.isCurated);
+                        const postUrl = `/posts/${post.id}`;
                         return (
                           <PostsTooltip
                             key={post.id}
@@ -1082,7 +1083,8 @@ export default function ProfilePage() {
                             placement="bottom-start"
                             As="span"
                           >
-                            <span
+                            <Link
+                              to={postUrl}
                               className={classNames(
                                 classes.diamondLink,
                                 isSolid ? classes.diamondSolid : classes.diamondHollow,
