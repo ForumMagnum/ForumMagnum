@@ -20,6 +20,7 @@ import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { getCollaborativeEditorAccessWithKey } from '@/lib/collections/posts/collabEditingPermissions';
+import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
 import jwt from 'jsonwebtoken';
 
 interface PostWithApprovedJargon {
@@ -416,13 +417,18 @@ export const postGqlMutations = {
     // Converting to ckeditor markup does some thing like removing styles to standardise
     // the result, so we always want to do this first before converting to whatever format the user
     // is using
-    const ckEditorMarkup = await convertImportedGoogleDocMarkdown({ markdown, postId: finalPostId })
-    //const ckEditorMarkup = await convertImportedGoogleDoc({ html, postId: finalPostId })
+    const importedHtml = await convertImportedGoogleDocMarkdown({ markdown, postId: finalPostId })
+    //const importedHtml = await convertImportedGoogleDoc({ html, postId: finalPostId })
     const commitMessage = `[Google Doc import]`
-    const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
+    const fallbackRichTextEditorType = getUserDefaultRichTextEditor(currentUser);
 
     if (postId) {
       const previousRev = await getLatestRev(postId, "contents", context)
+      const previousEditorType = previousRev?.originalContents?.type;
+      const richTextEditorType = (previousEditorType === "lexical" || previousEditorType === "ckEditorMarkup")
+        ? previousEditorType
+        : fallbackRichTextEditorType;
+      const originalContents = { type: richTextEditorType, data: importedHtml, yjsState: null };
       // Revision type controls whether we increase the major or minor version
       // number; if we increase the major version number it flags it to
       // end-users and shows a version-history dropdown. This was built
@@ -444,13 +450,14 @@ export const postGqlMutations = {
         version: getNextVersion(previousRev, revisionType, true),
         updateType: revisionType,
         commitMessage,
-        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", ckEditorMarkup),
+        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", importedHtml),
       };
 
       await createRevision({ data: newRevision }, context);
 
       return await Posts.findOne({_id: postId})
     } else {
+      const originalContents = { type: fallbackRichTextEditorType, data: importedHtml, yjsState: null };
       let afField = {};
       if (isAF()) {
         afField = !userCanDo(currentUser, 'posts.alignment.new')

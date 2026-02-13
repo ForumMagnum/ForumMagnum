@@ -5,11 +5,11 @@ import type { NextConfig } from 'next';
 import type { WebpackConfigContext } from 'next/dist/server/config-shared';
 
 const serverExternalPackages = [
-  'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
+  'superagent-proxy', 'gpt-3-encoder', 'mathjax-full', 'turndown', 'cloudinary',
   '@aws-sdk/client-cloudfront', 'auth0', 'jimp', 'juice', '@sentry/nextjs',
   'request', 'stripe', 'openai', 'twitter-api-v2', 'draft-js', 'draft-convert', 'csso',
   'js-tiktoken', 'cheerio', '@elastic/elasticsearch', '@googlemaps/google-maps-services-js',
-  'intercom-client',
+  'intercom-client', 'jsdom',
   // Needs to be external for email-rendering to be able to use prerenderToNodeStream,
   // because nextjs bundles a version of react-dom which omits react-dom/static (and
   // doesn't provide anything in its place that would work for server-component email
@@ -55,10 +55,6 @@ const nextConfig: NextConfig = {
     serverSourceMaps: true,
     turbopackFileSystemCacheForDev: true,
   },
-
-  outputFileTracingIncludes: {
-    '/graphql': ['./node_modules/mathjax/unpacked/*.js', './node_modules/mathjax/unpacked/**/*.js']
-  },
   
   turbopack: {
     resolveAlias: {
@@ -77,6 +73,9 @@ const nextConfig: NextConfig = {
       '@/*': './packages/lesswrong/*',
 
       'superagent-proxy': './packages/lesswrong/stubs/emptyModule.js',
+      'jsdom': {
+        browser: './packages/lesswrong/stubs/emptyModule.js',
+      },
     },
   },
   serverExternalPackages,

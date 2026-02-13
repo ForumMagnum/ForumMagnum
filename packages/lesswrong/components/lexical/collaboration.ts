@@ -9,7 +9,7 @@
 import React, { createContext, useCallback, useContext } from 'react';
 import {Provider} from '@lexical/yjs';
 import {HocuspocusProvider} from '@hocuspocus/provider';
-import {Doc} from 'yjs';
+import {Doc, encodeStateAsUpdate} from 'yjs';
 import {IndexeddbPersistence} from 'y-indexeddb';
 import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 
@@ -23,8 +23,8 @@ export interface CollaborationConfig {
     id: string;
     name: string;
   };
-  /** Called when the initial sync with the server completes. Receives the Y.Doc for bootstrap detection. */
-  onSynced?: (doc: Doc, isFirstSync: boolean) => void;
+  /** Called when sync with the server completes. `docId` is 'main' or a sub-doc id like 'comments'. */
+  onSynced?: (doc: Doc, isFirstSync: boolean, docId: string) => void;
   onError?: (error: Error) => void;
 }
 
@@ -92,7 +92,8 @@ export function setCollaborationConfig(config: CollaborationConfig | null): void
   _collaborationConfig = config;
 }
 
-// Track IndexedDB persistence instances so we can clean them up
+// Track provider and IndexedDB persistence instances so we can clean them up
+const providerInstances = new Map<string, HocuspocusProvider>();
 const persistenceInstances = new Map<string, IndexeddbPersistence>();
 
 // Version suffix for IndexedDB keys - increment when making breaking changes
@@ -206,7 +207,7 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
   // Initialize persistence if needed.
   // For 'main', we wait for IndexedDB to sync (or fail) before connecting.
   // For others, we proceed immediately.
-  const readyPromise = id === 'main' 
+  const readyPromise = id === 'main'
     ? setupPersistence(documentName, doc, config)
     : Promise.resolve();
 
@@ -224,7 +225,7 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
     onSynced: () => {
       const isFirstSync = !hasReceivedFirstSync;
       hasReceivedFirstSync = true;
-      config.onSynced?.(doc, isFirstSync);
+      config.onSynced?.(doc, isFirstSync, id);
     },
 
     onAuthenticationFailed: ({ reason }) => {
@@ -244,10 +245,64 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
     await originalConnect();
   };
 
+  // Track the provider so we can disconnect it during restores
+  providerInstances.set(documentName, provider);
+
   // HocuspocusProvider uses 'document' property, but Lexical's code expects 'doc'
   (provider as AnyBecauseHard).doc = provider.document;
 
   // HocuspocusProvider is compatible with Lexical's Provider at runtime,
   // but has slightly different awareness typing (Awareness | null vs Awareness)
   return provider as Provider & HocuspocusProvider;
+}
+
+/**
+ * Disconnect all Hocuspocus providers and clear IndexedDB persistence
+ * for the given post. Call this before a restore operation to prevent
+ * the client's old Yjs state from being synced back to the server
+ * when it auto-reconnects.
+ */
+export async function disconnectCollaborationForPost(postId: string): Promise<void> {
+  const baseDocumentName = `post-${postId}`;
+
+  // Disconnect all providers whose document name starts with this post's prefix
+  // (covers the main editor and any sub-documents like comments)
+  for (const [documentName, provider] of providerInstances) {
+    if (documentName === baseDocumentName || documentName.startsWith(`${baseDocumentName}/`)) {
+      provider.configuration.preserveConnection = false;
+      provider.destroy();
+      providerInstances.delete(documentName);
+    }
+  }
+
+  // Clear IndexedDB persistence to prevent stale state from being loaded on page reload
+  for (const [indexedDbKey, persistence] of persistenceInstances) {
+    if (indexedDbKey.startsWith(baseDocumentName)) {
+      await persistence.clearData();
+      await persistence.destroy();
+      persistenceInstances.delete(indexedDbKey);
+    }
+  }
+}
+
+/**
+ * Get the current Yjs state for a post's main document as a base64 string.
+ * Returns null if no active provider exists (e.g., non-collaborative editor).
+ *
+ * Used by the client-side save flow to include the Yjs snapshot in
+ * originalContents so that revisions created by updatePost (manual save,
+ * publish, etc.) also have a restorable Yjs state.
+ */
+export function getYjsStateBase64ForPost(postId: string): string | null {
+  const provider = providerInstances.get(`post-${postId}`);
+  if (!provider) return null;
+
+  const doc = provider.document;
+  const state = encodeStateAsUpdate(doc);
+  // Browser-safe base64 encoding (btoa operates on binary strings)
+  let binaryStr = '';
+  for (let i = 0; i < state.length; i++) {
+    binaryStr += String.fromCharCode(state[i]);
+  }
+  return btoa(binaryStr);
 }

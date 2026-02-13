@@ -8,6 +8,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { restrictViewableFields } from '@/lib/vulcan-users/restrictViewableFields';
 import { revisionIsChange } from '../editor/make_editable_callbacks';
 import { pushRevisionToCkEditor } from './ckEditorApi';
+import { pushRevisionToLexicalCollab } from '../hocuspocus/hocuspocusCallbacks';
 import gql from 'graphql-tag';
 import { updatePost } from '../collections/posts/mutations';
 
@@ -124,12 +125,21 @@ export const ckEditorCallbacksGraphQLMutations = {
     if (!revision.originalContents) throw new Error("Missing originalContents");
     if (revision.documentId !== post._id) throw new Error("Revision is not for this post");
     
-    // Is the selected revision a CkEditor collaborative editing revision?
-    if (revision.originalContents.type === "ckEditorMarkup" && isCollaborative(post, "contents")) {
+    const isCollabPost = isCollaborative(post, "contents");
+
+    if (isCollabPost && revision.originalContents.type === "ckEditorMarkup") {
+      // CKEditor collaborative post: push to CKEditor Cloud Services
       // eslint-disable-next-line no-console
       console.log("Reverting to a CkEditor collaborative revision");
       await pushRevisionToCkEditor(post._id, revision.originalContents.data);
+    } else if (revision.originalContents.type === "lexical") {
+      // Lexical collaborative post: send the revision's stored Yjs state
+      // to the Hocuspocus server, which replaces the live document state.
+      // eslint-disable-next-line no-console
+      console.log("Reverting to a Lexical collaborative revision");
+      await pushRevisionToLexicalCollab(post._id, revision._id);
     } else {
+      // Non-collaborative post (or cross-format restore on a collab post)
       // eslint-disable-next-line no-console
       console.log("Reverting to a non-collaborative revision");
       if (await revisionIsChange(revision, "contents", context)) {

@@ -1,4 +1,4 @@
-import { DbTestObject, testTable, runTestCases, testTable5, DbTestObject5 } from "@/server/sql/tests/testHelpers";
+import { DbTestObject, testTable, runTestCases, testTable5, DbTestObject5, testTable6, DbTestObject6 } from "@/server/sql/tests/testHelpers";
 import UpdateQuery from "@/server/sql/UpdateQuery";
 
 describe("UpdateQuery", () => {
@@ -115,6 +115,13 @@ describe("UpdateQuery", () => {
       getQuery: () => new UpdateQuery<DbTestObject5>(testTable5, {_id: "abc"}, {$set: {jsonField: new Date('2025-01-01')}}),
       expectedSql: `UPDATE "TestCollection5" SET "jsonField" = $1::JSONB WHERE "_id" = $2 RETURNING "_id"`,
       expectedArgs: [JSON.stringify(new Date('2025-01-01')), "abc"],
+    },
+    {
+      name: "can correctly use BYTEA type hint for a binary field instead of JSONB",
+      getQuery: () => new UpdateQuery<DbTestObject6>(testTable6 as AnyBecauseTodo, {_id: "abc"}, {$set: {binaryField: new Uint8Array(Buffer.from("hello"))}}),
+      expectedSql: `UPDATE "TestCollection6" SET "binaryField" = $1::BYTEA WHERE "_id" = $2 RETURNING "_id"`,
+      // This expects a Buffer rather than a Uint8Array because pg-promise expects a Buffer, and we do that conversion in Query.ts
+      expectedArgs: [Buffer.from("hello"), "abc"],
     },
   ]);
 });
