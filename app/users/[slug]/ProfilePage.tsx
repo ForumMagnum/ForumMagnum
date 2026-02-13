@@ -434,6 +434,7 @@ export default function ProfilePage() {
 
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bioHtml = user?.htmlBio ?? "";
+  const hasBio = !!bioHtml;
   const collapsedBioHtml = getCollapsedBioHtml(bioHtml, BIO_COLLAPSED_WORD_LIMIT);
   const displayBioHtml = bioExpanded ? bioHtml : collapsedBioHtml;
   const showBioExpand = !!bioHtml && collapsedBioHtml !== bioHtml;
@@ -872,7 +873,7 @@ export default function ProfilePage() {
             </div>
             </div>
 
-            <aside className={classNames(classes.postsSidebar, bioHtml && classes.postsSidebarHasBio)}>
+            <aside className={classNames(classes.postsSidebar, hasBio && classes.postsSidebarHasBio)}>
               <div className={classes.sidebarAuthorBlock}>
                 <h4 className={classes.sidebarAuthorName}>
                   <UsersNameWithModal
@@ -897,33 +898,40 @@ export default function ProfilePage() {
                 </div>
               </div>
                 <div className={classes.sidebarBioSection}>
-                  <div 
-                    ref={bioRef}
-                    className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}
-                  >
-                    <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
-                      {bioHtml && (
+                  {!hasBio && (
+                    <div className={classes.sidebarMetaInfo}>
+                      <UserMetaInfo user={user} hidePostCount hideCommentCount omegaAlignment="inline" />
+                    </div>
+                  )}
+                  {hasBio && (
+                    <>
+                      <div 
+                        ref={bioRef}
+                        className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}
+                      >
+                        <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
                         <ContentItemBody
                           className={classes.sidebarAuthorBio}
                           dangerouslySetInnerHTML={{ __html: displayBioHtml }}
                           nofollow={bioNoFollow}
                         />
+                        </ContentStyles>
+                      </div>
+                      {showBioExpand && (
+                        <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
+                          <a 
+                            href="#" 
+                            className={classes.readMoreLink}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setBioExpanded(!bioExpanded);
+                            }}
+                          >
+                            {bioExpanded ? "See less" : "See more"}
+                          </a>
+                        </div>
                       )}
-                    </ContentStyles>
-                  </div>
-                  {showBioExpand && (
-                    <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
-                      <a 
-                        href="#" 
-                        className={classes.readMoreLink}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setBioExpanded(!bioExpanded);
-                        }}
-                      >
-                        {bioExpanded ? "See less" : "See more"}
-                      </a>
-                    </div>
+                    </>
                   )}
                 </div>
                 {userId && (

@@ -834,6 +834,16 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   sidebarBioSection: {
     marginTop: 8,
   },
+  sidebarMetaInfo: {
+    color: theme.palette.text.dim,
+    "& > div": {
+      flexWrap: "wrap",
+      gap: "4px 0",
+    },
+    "& > div > div": {
+      marginRight: "14px !important",
+    },
+  },
   sidebarBioMeta: {
     display: "flex",
     alignItems: "baseline",
