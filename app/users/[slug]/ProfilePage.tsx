@@ -923,6 +923,7 @@ export default function ProfilePage() {
                 {userId && (
                   <Suspense fallback={null}>
                     <ProfileDiamondSections
+                      key={userId}
                       userId={userId}
                       postCount={user.postCount ?? 0}
                       commentCount={user.commentCount ?? 0}

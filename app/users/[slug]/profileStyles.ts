@@ -908,6 +908,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "flex",
     alignItems: "baseline",
     justifyContent: "space-between",
+    minHeight: 17,
     marginBottom: 8,
     paddingBottom: 6,
     borderBottom: theme.palette.type === "dark"

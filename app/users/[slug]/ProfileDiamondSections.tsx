@@ -1,47 +1,37 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import classNames from "classnames";
-import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { Link } from "@/lib/reactRouterWrapper";
 import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
-import type { ProfileDiamondDataQueryQuery } from "@/lib/generated/gql-codegen/graphql";
+import {
+  ProfileCommentDiamondDataQueryDocument,
+  ProfilePostDiamondDataQueryDocument,
+  type ProfileCommentDiamondDataQueryQuery,
+  type ProfilePostDiamondDataQueryQuery,
+} from "@/lib/generated/gql-codegen/graphql";
 
 const DIAMONDS_INITIAL = 250;
 const DIAMONDS_SHOW_ALL_LIMIT = 2000;
 const COMMENT_DIAMONDS_INITIAL = 500;
 const COMMENT_DIAMONDS_SHOW_ALL_LIMIT = 20000;
 
-const ProfileDiamondDataQuery = gql(`
-  query ProfileDiamondDataQuery($userId: String!, $postLimit: Int!, $commentLimit: Int!) {
-    profileDiamondData: ProfileDiamondData(userId: $userId, postLimit: $postLimit, commentLimit: $commentLimit) {
-      posts {
-        id
-        date
-        karma
-        isReviewWinner
-        isCurated
-      }
-      comments {
-        id
-        date
-        karma
-        postId
-      }
-    }
-  }
-`);
-
-type ProfilePostDiamonds = ProfileDiamondDataQueryQuery["profileDiamondData"]["posts"];
-type ProfileCommentDiamonds = ProfileDiamondDataQueryQuery["profileDiamondData"]["comments"];
+type ProfilePostDiamonds = ProfilePostDiamondDataQueryQuery["profileDiamondData"]["posts"];
+type ProfileCommentDiamonds = ProfileCommentDiamondDataQueryQuery["profileDiamondData"]["comments"];
 
 interface ProfileDiamondSectionsProps {
   userId: string;
   postCount: number;
   commentCount: number;
   classes: Record<string, string>;
+}
+
+interface UseProfileDiamondDataWithLoadMoreProps {
+  userId: string;
+  postCount: number;
+  commentCount: number;
 }
 
 function formatCountWithCommas(count: number): string {
@@ -69,74 +59,94 @@ function getDiamondKarmaStyle(karma: number, isGold: boolean, maxKarmaForFullOpa
   return { opacity: alpha };
 }
 
+function useProfileDiamondDataWithLoadMore({
+  userId,
+  postCount,
+  commentCount,
+}: UseProfileDiamondDataWithLoadMoreProps) {
+  const [showAllPostDiamonds, setShowAllPostDiamonds] = useState(false);
+  const [showAllCommentDiamonds, setShowAllCommentDiamonds] = useState(false);
+
+  const {
+    data: postDiamondData,
+    previousData: previousPostDiamondData,
+    loading: postDiamondLoading,
+  } = useQuery(ProfilePostDiamondDataQueryDocument, {
+    skip: !userId,
+    variables: {
+      userId,
+      postLimit: showAllPostDiamonds ? DIAMONDS_SHOW_ALL_LIMIT : DIAMONDS_INITIAL,
+    },
+    fetchPolicy: "cache-and-network",
+  });
+
+  const {
+    data: commentDiamondData,
+    previousData: previousCommentDiamondData,
+    loading: commentDiamondLoading,
+  } = useQuery(ProfileCommentDiamondDataQueryDocument, {
+    skip: !userId,
+    variables: {
+      userId,
+      commentLimit: showAllCommentDiamonds ? COMMENT_DIAMONDS_SHOW_ALL_LIMIT : COMMENT_DIAMONDS_INITIAL,
+    },
+    fetchPolicy: "cache-and-network",
+  });
+
+  const diamondPosts = postDiamondData?.profileDiamondData?.posts
+    ?? previousPostDiamondData?.profileDiamondData?.posts
+    ?? [];
+  const commentDiamonds = commentDiamondData?.profileDiamondData?.comments
+    ?? previousCommentDiamondData?.profileDiamondData?.comments
+    ?? [];
+
+  const postDiamondCount = Math.max(diamondPosts.length, postCount);
+  const commentDiamondCount = Math.max(commentDiamonds.length, commentCount);
+  const canShowAllPostDiamonds = postCount > DIAMONDS_INITIAL;
+  const canShowAllCommentDiamonds = commentCount > COMMENT_DIAMONDS_INITIAL;
+  const isPostDiamondsLoading = showAllPostDiamonds && postDiamondLoading;
+  const isCommentDiamondsLoading = showAllCommentDiamonds && commentDiamondLoading;
+
+  return {
+    diamondPosts,
+    commentDiamonds,
+    postDiamondCount,
+    commentDiamondCount,
+    canShowAllPostDiamonds,
+    canShowAllCommentDiamonds,
+    isPostDiamondsLoading,
+    isCommentDiamondsLoading,
+    showAllPostDiamonds,
+    showAllCommentDiamonds,
+    setShowAllPostDiamonds,
+    setShowAllCommentDiamonds,
+  };
+}
+
 export default function ProfileDiamondSections({
   userId,
   postCount,
   commentCount,
   classes,
 }: ProfileDiamondSectionsProps) {
-  const [showAllPostDiamonds, setShowAllPostDiamonds] = useState(false);
-  const [showAllCommentDiamonds, setShowAllCommentDiamonds] = useState(false);
-  const [postShowAllPending, setPostShowAllPending] = useState(false);
-  const [commentShowAllPending, setCommentShowAllPending] = useState(false);
-  const [cachedDiamondPosts, setCachedDiamondPosts] = useState<ProfilePostDiamonds>([]);
-  const [cachedCommentDiamonds, setCachedCommentDiamonds] = useState<ProfileCommentDiamonds>([]);
-
-  const { data: profileDiamondData, loading: profileDiamondLoading } = useQuery(ProfileDiamondDataQuery, {
-    skip: !userId,
-    variables: {
-      userId,
-      postLimit: showAllPostDiamonds ? DIAMONDS_SHOW_ALL_LIMIT : DIAMONDS_INITIAL,
-      commentLimit: showAllCommentDiamonds ? COMMENT_DIAMONDS_SHOW_ALL_LIMIT : COMMENT_DIAMONDS_INITIAL,
-    },
-    fetchPolicy: "cache-and-network",
+  const {
+    diamondPosts,
+    commentDiamonds,
+    postDiamondCount,
+    commentDiamondCount,
+    canShowAllPostDiamonds,
+    canShowAllCommentDiamonds,
+    isPostDiamondsLoading,
+    isCommentDiamondsLoading,
+    showAllPostDiamonds,
+    showAllCommentDiamonds,
+    setShowAllPostDiamonds,
+    setShowAllCommentDiamonds,
+  } = useProfileDiamondDataWithLoadMore({
+    userId,
+    postCount,
+    commentCount,
   });
-
-  const queriedDiamondPosts = profileDiamondData?.profileDiamondData?.posts;
-  const queriedCommentDiamonds = profileDiamondData?.profileDiamondData?.comments;
-
-  useEffect(() => {
-    setCachedDiamondPosts([]);
-    setCachedCommentDiamonds([]);
-    setShowAllPostDiamonds(false);
-    setShowAllCommentDiamonds(false);
-    setPostShowAllPending(false);
-    setCommentShowAllPending(false);
-  }, [userId]);
-
-  useEffect(() => {
-    if (!queriedDiamondPosts) return;
-    setCachedDiamondPosts(queriedDiamondPosts);
-  }, [queriedDiamondPosts]);
-
-  useEffect(() => {
-    if (!queriedCommentDiamonds) return;
-    setCachedCommentDiamonds(queriedCommentDiamonds);
-  }, [queriedCommentDiamonds]);
-
-  useEffect(() => {
-    if (!showAllPostDiamonds || !postShowAllPending) return;
-    if (!profileDiamondLoading) {
-      setPostShowAllPending(false);
-    }
-  }, [showAllPostDiamonds, postShowAllPending, profileDiamondLoading]);
-
-  useEffect(() => {
-    if (!showAllCommentDiamonds || !commentShowAllPending) return;
-    if (!profileDiamondLoading) {
-      setCommentShowAllPending(false);
-    }
-  }, [showAllCommentDiamonds, commentShowAllPending, profileDiamondLoading]);
-
-  const diamondPosts = cachedDiamondPosts;
-  const postDiamondCount = Math.max(diamondPosts.length, postCount);
-  const canShowAllPostDiamonds = postCount > DIAMONDS_INITIAL;
-  const isPostDiamondsLoading = postShowAllPending && profileDiamondLoading;
-
-  const commentDiamonds = cachedCommentDiamonds;
-  const commentDiamondCount = Math.max(commentDiamonds.length, commentCount);
-  const canShowAllCommentDiamonds = commentCount > COMMENT_DIAMONDS_INITIAL;
-  const isCommentDiamondsLoading = commentShowAllPending && profileDiamondLoading;
 
   return (
     <>
@@ -159,7 +169,6 @@ export default function ProfileDiamondSections({
                   className={classes.readMoreLink}
                   onClick={(e) => {
                     e.preventDefault();
-                    setPostShowAllPending(true);
                     setShowAllPostDiamonds(true);
                   }}
                 >
@@ -213,7 +222,6 @@ export default function ProfileDiamondSections({
                   className={classes.readMoreLink}
                   onClick={(e) => {
                     e.preventDefault();
-                    setCommentShowAllPending(true);
                     setShowAllCommentDiamonds(true);
                   }}
                 >
@@ -224,6 +232,7 @@ export default function ProfileDiamondSections({
           </div>
           <div className={classes.diamondsGrid}>
             {commentDiamonds.map((comment) => {
+              if (!comment.postId) return null;
               const { isSolid } = getCommentDiamondClasses();
               const commentUrl = commentGetPageUrlFromIds({
                 postId: comment.postId,
