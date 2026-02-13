@@ -15,7 +15,7 @@ assertRouteAttributes("/codex/[slug]", {
   hasLinkPreview: true,
   hasPingbacks: true,
   hasLeftNavigationColumn: false,
-  hasMarkdownVersion: false,
+  hasMarkdownVersion: true,
 });
 
 export default async function Page({ params }: {

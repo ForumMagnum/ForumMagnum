@@ -13204,6 +13204,50 @@ type YjsDocument = {
   createdAt: Scalars['Date']['output'];
 };
 
+type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextDescription: string };
+
+type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence = { __typename?: 'Sequence', _id: string, title: string };
+
+type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book = { __typename?: 'Book', _id: string, title: string | null, number: number | null, postIds: Array<string>, sequenceIds: Array<string>, sequences: Array<MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence> };
+
+type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection = { __typename?: 'Collection', _id: string, slug: string, title: string, firstPageLink: string, contents: MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_contents_Revision | null, books: Array<MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book> };
+
+type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput = { __typename?: 'SingleCollectionOutput', result: MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection | null };
+
+type MarkdownCollectionByDocumentIdQuery_Query = { __typename?: 'Query', collection: MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput | null };
+
+
+type MarkdownCollectionByDocumentIdQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type MarkdownCollectionByDocumentIdQuery = MarkdownCollectionByDocumentIdQuery_Query;
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_posts_Post = { __typename?: 'Post', _id: string, slug: string };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence_chapters_Chapter_posts_Post = { __typename?: 'Post', _id: string, slug: string };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence_chapters_Chapter = { __typename?: 'Chapter', _id: string, posts: Array<MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence_chapters_Chapter_posts_Post> };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence = { __typename?: 'Sequence', _id: string, chapters: Array<MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence_chapters_Chapter> };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book = { __typename?: 'Book', _id: string, posts: Array<MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_posts_Post>, sequences: Array<MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence> };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection = { __typename?: 'Collection', _id: string, books: Array<MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book> };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput = { __typename?: 'SingleCollectionOutput', result: MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection | null };
+
+type MarkdownCollectionPostsByDocumentIdQuery_Query = { __typename?: 'Query', collection: MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput | null };
+
+
+type MarkdownCollectionPostsByDocumentIdQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type MarkdownCollectionPostsByDocumentIdQuery = MarkdownCollectionPostsByDocumentIdQuery_Query;
+
 type MarkdownFrontPageQuery_currentSpotlight_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
 
 type MarkdownFrontPageQuery_currentSpotlight_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, title: string };
@@ -13333,37 +13377,6 @@ type PostMarkdownCommentsOldQueryVariables = Exact<{
 
 type PostMarkdownCommentsOldQuery = PostMarkdownCommentsOldQuery_Query;
 
-type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
-
-type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_coauthors_User = { __typename?: 'User', slug: string, displayName: string };
-
-type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_tags_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string };
-
-type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null };
-
-type PostMarkdownApiQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, commentCount: number, baseScore: number, postedAt: string, draft: boolean | null, curatedDate: string | null, frontpageDate: string | null, postCategory: PostCategory, url: string | null, title: string, user: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_user_User | null, coauthors: Array<PostMarkdownApiQuery_post_SinglePostOutput_result_Post_coauthors_User> | null, tags: Array<PostMarkdownApiQuery_post_SinglePostOutput_result_Post_tags_Tag>, contents: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
-
-type PostMarkdownApiQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMarkdownApiQuery_post_SinglePostOutput_result_Post | null };
-
-type PostMarkdownApiQuery_comments_MultiCommentOutput_results_Comment_user_User = { __typename?: 'User', slug: string, displayName: string };
-
-type PostMarkdownApiQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string };
-
-type PostMarkdownApiQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, parentCommentId: string | null, postedAt: string, baseScore: number | null, voteCount: number, votingSystem: string, extendedScore: any | null, user: PostMarkdownApiQuery_comments_MultiCommentOutput_results_Comment_user_User | null, contents: PostMarkdownApiQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null };
-
-type PostMarkdownApiQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<PostMarkdownApiQuery_comments_MultiCommentOutput_results_Comment> };
-
-type PostMarkdownApiQuery_Query = { __typename?: 'Query', post: PostMarkdownApiQuery_post_SinglePostOutput | null, comments: PostMarkdownApiQuery_comments_MultiCommentOutput | null };
-
-
-type PostMarkdownApiQueryVariables = Exact<{
-  _id: Scalars['String']['input'];
-  commentsLimit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type PostMarkdownApiQuery = PostMarkdownApiQuery_Query;
-
 type MarkdownLatestPostsQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & MarkdownPostsList
@@ -13381,6 +13394,34 @@ type MarkdownLatestPostsQueryVariables = Exact<{
 
 
 type MarkdownLatestPostsQuery = MarkdownLatestPostsQuery_Query;
+
+type MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextDescription: string };
+
+type MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, createdAt: string, postsCount: number, user: MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence_user_User | null, contents: MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
+
+type MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence | null };
+
+type MarkdownSequenceByIdQuery_chapters_MultiChapterOutput_results_Chapter_posts_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownSequenceByIdQuery_chapters_MultiChapterOutput_results_Chapter = { __typename?: 'Chapter', _id: string, title: string | null, number: number | null, posts: Array<MarkdownSequenceByIdQuery_chapters_MultiChapterOutput_results_Chapter_posts_Post> };
+
+type MarkdownSequenceByIdQuery_chapters_MultiChapterOutput = { __typename?: 'MultiChapterOutput', results: Array<MarkdownSequenceByIdQuery_chapters_MultiChapterOutput_results_Chapter> };
+
+type MarkdownSequenceByIdQuery_Query = { __typename?: 'Query', sequence: MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput | null, chapters: MarkdownSequenceByIdQuery_chapters_MultiChapterOutput | null };
+
+
+type MarkdownSequenceByIdQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+  chapterLimit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownSequenceByIdQuery = MarkdownSequenceByIdQuery_Query;
 
 type MarkdownTagBySlugQuery_tags_MultiTagOutput_results_Tag_parentTag_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string };
 

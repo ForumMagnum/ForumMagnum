@@ -4,7 +4,6 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest } from "next/server";
 import { MarkdownPostDetail } from "@/server/markdownComponents/MarkdownPostDetail";
-import { gql } from "@/lib/generated/gql-codegen";
 
 const truthyValues = new Set(["1", "true", "yes", "on"]);
 
@@ -22,8 +21,8 @@ function compactifyPostMarkdown(markdown: string): string {
     .trim();
 }
 
-const PostMarkdownQuery = gql(`
-  query PostMarkdownApi($_id: String!, $commentsLimit: Int) {
+const PostMarkdownQuery = `
+  query PostMarkdownApi($_id: String!, $commentsLimit: Int, $sequenceId: String) {
     post(selector: {_id: $_id}) {
       result {
         _id
@@ -41,6 +40,20 @@ const PostMarkdownQuery = gql(`
         tags { _id name slug }
         title
         contents { agentMarkdown }
+        sequence(sequenceId: $sequenceId) {
+          _id
+          title
+        }
+        prevPost(sequenceId: $sequenceId) {
+          _id
+          slug
+          title
+        }
+        nextPost(sequenceId: $sequenceId) {
+          _id
+          slug
+          title
+        }
       }
     }
     comments(selector: { postCommentsTop: { postId: $_id } }, limit: $commentsLimit) {
@@ -57,9 +70,20 @@ const PostMarkdownQuery = gql(`
       }
     }
   }
-`);
+`;
 
-export async function renderPostMarkdownByIdOrSlug(req: NextRequest, idOrSlug: string): Promise<Response> {
+interface RenderPostMarkdownOptions {
+  sequenceId?: string
+  htmlPathOverride?: string
+  markdownPathOverride?: string
+  commentsMarkdownPathOverride?: string
+}
+
+export async function renderPostMarkdownByIdOrSlug(
+  req: NextRequest,
+  idOrSlug: string,
+  options?: RenderPostMarkdownOptions
+): Promise<Response> {
   if (!idOrSlug) {
     return new Response("No ID or slug provided", { status: 400 });
   }
@@ -73,10 +97,11 @@ export async function renderPostMarkdownByIdOrSlug(req: NextRequest, idOrSlug: s
   const { data } = await runQuery(PostMarkdownQuery, {
     _id: rawPost._id,
     commentsLimit: 50,
+    sequenceId: options?.sequenceId,
   }, resolverContext);
   const post = data?.post?.result;
   const topComments = (data?.comments?.results ?? [])
-    .filter((comment) => !comment.parentCommentId)
+    .filter((comment: { parentCommentId?: string | null }) => !comment.parentCommentId)
     .slice(0, compactMode ? 3 : 5);
 
   if (!post) {
@@ -88,6 +113,17 @@ export async function renderPostMarkdownByIdOrSlug(req: NextRequest, idOrSlug: s
     : (post.contents?.agentMarkdown ?? "");
 
   return await markdownResponse(
-    <MarkdownPostDetail post={post} topComments={topComments} compactMode={compactMode} bodyMarkdown={bodyMarkdown} />
+    <MarkdownPostDetail
+      post={post}
+      topComments={topComments}
+      compactMode={compactMode}
+      bodyMarkdown={bodyMarkdown}
+      sequence={post.sequence}
+      prevPost={post.prevPost}
+      nextPost={post.nextPost}
+      htmlPathOverride={options?.htmlPathOverride}
+      markdownPathOverride={options?.markdownPathOverride}
+      commentsMarkdownPathOverride={options?.commentsMarkdownPathOverride}
+    />
   );
 }

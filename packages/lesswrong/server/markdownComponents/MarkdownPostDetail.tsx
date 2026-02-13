@@ -21,6 +21,17 @@ interface MarkdownPostContents {
   agentMarkdown?: string | null
 }
 
+interface MarkdownSequenceSummary {
+  _id: string
+  title?: string | null
+}
+
+interface MarkdownSequenceNeighborPost {
+  _id: string
+  slug: string
+  title: string
+}
+
 export interface MarkdownPostDetailData {
   _id: string
   slug: string
@@ -44,16 +55,36 @@ export function MarkdownPostDetail({
   topComments = [],
   compactMode = false,
   bodyMarkdown,
+  sequence,
+  prevPost,
+  nextPost,
+  htmlPathOverride,
+  markdownPathOverride,
+  commentsMarkdownPathOverride,
 }: {
   post: MarkdownPostDetailData
   topComments?: MarkdownCommentData[]
   compactMode?: boolean
   bodyMarkdown?: string
+  sequence?: MarkdownSequenceSummary | null
+  prevPost?: MarkdownSequenceNeighborPost | null
+  nextPost?: MarkdownSequenceNeighborPost | null
+  htmlPathOverride?: string
+  markdownPathOverride?: string
+  commentsMarkdownPathOverride?: string
 }) {
   const tagUrlBase = tagUrlBaseSetting.get();
   const isCurated = !!post.curatedDate;
   const frontpageLabel = post.frontpageDate ? "Frontpage" : "Personal Blog";
   const isLinkpost = post.postCategory === "linkpost";
+  const htmlPath = htmlPathOverride ?? `/posts/${post._id}/${post.slug}`;
+  const markdownPath = markdownPathOverride ?? `/api/post/${post.slug}`;
+  const commentsMarkdownPath = commentsMarkdownPathOverride ?? `/api/post/${post.slug}/comments`;
+
+  const prevHtmlPath = sequence && prevPost ? `/s/${sequence._id}/p/${prevPost._id}` : null;
+  const prevMarkdownPath = sequence && prevPost ? `/api/sequence/${sequence._id}/post/${prevPost._id}` : null;
+  const nextHtmlPath = sequence && nextPost ? `/s/${sequence._id}/p/${nextPost._id}` : null;
+  const nextMarkdownPath = sequence && nextPost ? `/api/sequence/${sequence._id}/post/${nextPost._id}` : null;
 
   return (
     <div>
@@ -90,20 +121,38 @@ export function MarkdownPostDetail({
         <li>Comments: {post.commentCount ?? 0}</li>
         <li>
           Post URL (HTML):{" "}
-          <a href={`/posts/${post._id}/${post.slug}`}>{`/posts/${post._id}/${post.slug}`}</a>
+          <a href={htmlPath}>{htmlPath}</a>
         </li>
         <li>
           Post URL (Markdown):{" "}
-          <a href={`/api/post/${post.slug}`}>{`/api/post/${post.slug}`}</a>
+          <a href={markdownPath}>{markdownPath}</a>
         </li>
         <li>
           Comments URL (Markdown):{" "}
-          <a href={`/api/post/${post.slug}/comments`}>{`/api/post/${post.slug}/comments`}</a>
+          <a href={commentsMarkdownPath}>{commentsMarkdownPath}</a>
         </li>
         <li>
           Post URL (Markdown, compact):{" "}
           <a href={`/api/post/${post.slug}?compact=1`}>{`/api/post/${post.slug}?compact=1`}</a>
         </li>
+        {sequence ? (
+          <li>
+            Sequence: <a href={`/s/${sequence._id}`}>{sequence.title ?? sequence._id}</a>{" "}
+            (<a href={`/api/sequence/${sequence._id}`}>Markdown</a>)
+          </li>
+        ) : null}
+        {prevPost && prevHtmlPath && prevMarkdownPath ? (
+          <li>
+            Previous in sequence: <a href={prevHtmlPath}>{prevPost.title}</a>{" "}
+            (<a href={prevMarkdownPath}>Markdown</a>)
+          </li>
+        ) : null}
+        {nextPost && nextHtmlPath && nextMarkdownPath ? (
+          <li>
+            Next in sequence: <a href={nextHtmlPath}>{nextPost.title}</a>{" "}
+            (<a href={nextMarkdownPath}>Markdown</a>)
+          </li>
+        ) : null}
         {compactMode ? <li>Mode: compact</li> : null}
       </ul>
       <MarkdownNode markdown={bodyMarkdown ?? post.contents?.agentMarkdown ?? ""} />

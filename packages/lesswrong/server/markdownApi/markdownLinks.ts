@@ -9,6 +9,14 @@ export const routeUrlMapping: Record<string,UrlRewriter> = {
   // Prefer canonical _id for post links to avoid stale/mismatched slugs.
   '/posts/:_id/:slug?': ({_id, slug}) => `/api/post/${_id || slug}`,
   '/posts/slug/:slug?': ({slug}) => `/api/post/${slug}`,
+  '/s/:_id': ({_id}) => `/api/sequence/${_id}`,
+  '/s/:_id/p/:postId': ({_id, postId}) => `/api/sequence/${_id}/post/${postId}`,
+  '/rationality': () => '/api/rationality',
+  '/rationality/:slug': ({slug}) => `/api/rationality/${slug}`,
+  '/codex': () => '/api/codex',
+  '/codex/:slug': ({slug}) => `/api/codex/${slug}`,
+  '/hpmor': () => '/api/hpmor',
+  '/hpmor/:slug': ({slug}) => `/api/hpmor/${slug}`,
 }
 
 export const parseRouteWithErrors = <const T extends string[] | [] = []>(onsiteUrl: string) => {

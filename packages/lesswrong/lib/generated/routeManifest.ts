@@ -116,6 +116,15 @@ export const routeTrie = {
         "about": {
           "hasRoute": true
         },
+        "codex": {
+          "dynamicChild": {
+            "paramName": "slug",
+            "child": {
+              "hasRoute": true
+            }
+          },
+          "hasRoute": true
+        },
         "contact": {
           "hasRoute": true
         },
@@ -126,6 +135,15 @@ export const routeTrie = {
           "hasRoute": true
         },
         "home": {
+          "hasRoute": true
+        },
+        "hpmor": {
+          "dynamicChild": {
+            "paramName": "slug",
+            "child": {
+              "hasRoute": true
+            }
+          },
           "hasRoute": true
         },
         "latest": {
@@ -153,8 +171,38 @@ export const routeTrie = {
             }
           }
         },
+        "rationality": {
+          "dynamicChild": {
+            "paramName": "slug",
+            "child": {
+              "hasRoute": true
+            }
+          },
+          "hasRoute": true
+        },
         "recent": {
           "hasRoute": true
+        },
+        "sequence": {
+          "dynamicChild": {
+            "paramName": "id",
+            "child": {
+              "staticChildren": {
+                "post": {
+                  "dynamicChild": {
+                    "paramName": "postId",
+                    "child": {
+                      "hasRoute": true
+                    }
+                  }
+                }
+              },
+              "lowerCase": {
+                "post": "post"
+              },
+              "hasRoute": true
+            }
+          }
         },
         "tag": {
           "dynamicChild": {
@@ -315,13 +363,17 @@ export const routeTrie = {
       "lowerCase": {
         "skill.md": "SKILL.md",
         "about": "about",
+        "codex": "codex",
         "contact": "contact",
         "curated": "curated",
         "faq": "faq",
         "home": "home",
+        "hpmor": "hpmor",
         "latest": "latest",
         "post": "post",
+        "rationality": "rationality",
         "recent": "recent",
+        "sequence": "sequence",
         "tag": "tag",
         "user": "user",
         "autocomplete": "autocomplete",

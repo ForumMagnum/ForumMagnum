@@ -22,6 +22,9 @@ Finding content to read:
  * Add ?limit=n to list routes (max 100)
 Reading posts:
  * /api/post/[id]
+ * /api/rationality/[slug]
+ * /api/codex/[slug]
+ * /api/hpmor/[slug]
  * /api/about
  * /api/faq
  * /api/contact
@@ -34,6 +37,13 @@ Reading tags:
  * /api/tag/[slug]
 Reading users:
  * /api/user/[slug]
+Reading sequences:
+ * /api/sequence/[id]
+ * /api/sequence/[id]/post/[postId]
+Reading collections:
+ * /api/rationality
+ * /api/codex
+ * /api/hpmor
 `;
 
 export function GET(req: NextRequest) {

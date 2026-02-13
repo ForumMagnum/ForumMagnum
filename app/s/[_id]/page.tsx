@@ -18,7 +18,7 @@ assertRouteAttributes("/s/[_id]", {
   hasLinkPreview: true,
   hasPingbacks: false,
   hasLeftNavigationColumn: false,
-  hasMarkdownVersion: false,
+  hasMarkdownVersion: true,
 });
 
 const SequenceMetadataQuery = gql(`

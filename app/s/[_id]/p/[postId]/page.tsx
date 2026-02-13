@@ -9,7 +9,7 @@ assertRouteAttributes("/s/[_id]/p/[postId]", {
   hasLinkPreview: true,
   hasPingbacks: true,
   hasLeftNavigationColumn: false,
-  hasMarkdownVersion: false,
+  hasMarkdownVersion: true,
 });
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string; postId: string }>(({ postId }) => postId);
