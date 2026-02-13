@@ -379,6 +379,8 @@ export default function ProfilePage() {
   const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
   const [showAllPostDiamonds, setShowAllPostDiamonds] = useState(false);
   const [showAllCommentDiamonds, setShowAllCommentDiamonds] = useState(false);
+  const [postShowAllPending, setPostShowAllPending] = useState(false);
+  const [commentShowAllPending, setCommentShowAllPending] = useState(false);
   const [cachedDiamondPosts, setCachedDiamondPosts] = useState<ProfilePostDiamonds>([]);
   const [cachedCommentDiamonds, setCachedCommentDiamonds] = useState<ProfileCommentDiamonds>([]);
   const bioRef = useRef<HTMLDivElement>(null);
@@ -467,7 +469,23 @@ export default function ProfilePage() {
     setCachedCommentDiamonds([]);
     setShowAllPostDiamonds(false);
     setShowAllCommentDiamonds(false);
+    setPostShowAllPending(false);
+    setCommentShowAllPending(false);
   }, [userId]);
+
+  useEffect(() => {
+    if (!showAllPostDiamonds || !postShowAllPending) return;
+    if (!profileDiamondLoading) {
+      setPostShowAllPending(false);
+    }
+  }, [showAllPostDiamonds, postShowAllPending, profileDiamondLoading]);
+
+  useEffect(() => {
+    if (!showAllCommentDiamonds || !commentShowAllPending) return;
+    if (!profileDiamondLoading) {
+      setCommentShowAllPending(false);
+    }
+  }, [showAllCommentDiamonds, commentShowAllPending, profileDiamondLoading]);
 
   useEffect(() => {
     if (!queriedDiamondPosts) return;
@@ -502,14 +520,14 @@ export default function ProfilePage() {
   const userPostCount = user ? (user.postCount ?? 0) : 0;
   const postDiamondCount = Math.max(allDiamondPosts.length, userPostCount);
   const canShowAllPostDiamonds = userPostCount > DIAMONDS_INITIAL;
-  const isPostDiamondsLoading = showAllPostDiamonds && profileDiamondLoading;
+  const isPostDiamondsLoading = postShowAllPending && profileDiamondLoading;
 
   const allCommentDiamonds = cachedCommentDiamonds;
   const commentDiamonds = allCommentDiamonds;
   const userCommentCount = user ? (user.commentCount ?? 0) : 0;
   const commentDiamondCount = Math.max(allCommentDiamonds.length, userCommentCount);
   const canShowAllCommentDiamonds = userCommentCount > COMMENT_DIAMONDS_INITIAL;
-  const isCommentDiamondsLoading = showAllCommentDiamonds && profileDiamondLoading;
+  const isCommentDiamondsLoading = commentShowAllPending && profileDiamondLoading;
 
   const hasEnoughTopPosts = !hideTopPosts && topPosts.length >= 4;
   const hasPosts = recentPosts.length > 0;
@@ -1045,6 +1063,7 @@ export default function ProfilePage() {
                             className={classes.readMoreLink}
                             onClick={(e) => {
                               e.preventDefault();
+                              setPostShowAllPending(true);
                               setShowAllPostDiamonds(true);
                             }}
                           >
@@ -1096,6 +1115,7 @@ export default function ProfilePage() {
                             className={classes.readMoreLink}
                             onClick={(e) => {
                               e.preventDefault();
+                              setCommentShowAllPending(true);
                               setShowAllCommentDiamonds(true);
                             }}
                           >
