@@ -170,6 +170,7 @@ export default function ProfileDiamondSections({
                   postId={post._id}
                   placement="bottom-start"
                   As="span"
+                  clickable
                 >
                   <Link
                     to={postUrl}
@@ -221,6 +222,7 @@ export default function ProfileDiamondSections({
                   commentId={comment.id}
                   placement="bottom-start"
                   As="span"
+                  clickable
                 >
                   <Link
                     to={commentUrl}
