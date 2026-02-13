@@ -238,7 +238,7 @@ function getDiamondKarmaStyle(karma: number, isGold: boolean, maxKarmaForFullOpa
   if (isGold) return undefined;
   // Keep a fixed base green and vary only transparency by karma.
   // >=maxKarmaForFullOpacity is fully opaque, low karma remains faint.
-  const alpha = 0.2 + 0.8 * clamp(karma / maxKarmaForFullOpacity, 0, 1);
+  const alpha = 0.2 + (0.8 * clamp((karma / maxKarmaForFullOpacity), 0, 1));
   return { opacity: alpha };
 }
 
