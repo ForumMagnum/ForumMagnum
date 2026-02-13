@@ -162,7 +162,14 @@ export default function ProfileDiamondSections({
                   <span className={classNames(classes.readMoreLink, classes.sidebarActionDisabled)}>
                     Loading...
                   </span>
-                ) : null
+                ) : (
+                  <span
+                    className={classNames(classes.readMoreLink, classes.sidebarActionDisabled)}
+                    style={{ visibility: "hidden" }}
+                  >
+                    Loading...
+                  </span>
+                )
               ) : (
                 <a
                   href="#"
@@ -215,7 +222,14 @@ export default function ProfileDiamondSections({
                   <span className={classNames(classes.readMoreLink, classes.sidebarActionDisabled)}>
                     Loading...
                   </span>
-                ) : null
+                ) : (
+                  <span
+                    className={classNames(classes.readMoreLink, classes.sidebarActionDisabled)}
+                    style={{ visibility: "hidden" }}
+                  >
+                    Loading...
+                  </span>
+                )
               ) : (
                 <a
                   href="#"

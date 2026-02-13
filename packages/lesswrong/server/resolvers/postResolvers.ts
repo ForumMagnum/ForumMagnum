@@ -1,4 +1,5 @@
 import { Posts } from '../../server/collections/posts/collection';
+import { Comments } from '../../server/collections/comments/collection';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
 import { buildRevision } from '../editor/conversionUtils';
@@ -21,7 +22,7 @@ import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { getCollaborativeEditorAccessWithKey } from '@/lib/collections/posts/collabEditingPermissions';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
-import { getViewableCommentsSelector, getViewablePostsSelector } from '@/server/repos/helpers';
+import { getViewablePostsSelector } from '@/server/repos/helpers';
 import jwt from 'jsonwebtoken';
 
 interface PostWithApprovedJargon {
@@ -237,7 +238,7 @@ async function getProfileDiamondPosts(userId: string, limit: number): Promise<Pr
       ${getViewablePostsSelector("p")}
       AND (
         p."userId" = $(userId)
-        OR $(userId) = ANY(COALESCE(p."coauthorUserIds", '{}'))
+        OR p."coauthorUserIds" @> ARRAY[$(userId)]::TEXT[]
       )
       AND p."rejected" IS NOT TRUE
     ORDER BY p."postedAt" DESC
@@ -246,24 +247,38 @@ async function getProfileDiamondPosts(userId: string, limit: number): Promise<Pr
 }
 
 async function getProfileDiamondComments(userId: string, limit: number): Promise<ProfileCommentDiamondRow[]> {
-  const db = getSqlClientOrThrow();
-  return await db.any<ProfileCommentDiamondRow>(`
-    -- postResolvers.getProfileDiamondComments
-    SELECT
-      c."_id" AS "id",
-      c."postedAt" AS "date",
-      c."baseScore" AS "karma",
-      c."postId" AS "postId"
-    FROM "Comments" c
-    WHERE
-      c."userId" = $(userId)
-      AND c."postId" IS NOT NULL
-      AND c."postedAt" IS NOT NULL
-      AND c."deletedPublic" IS FALSE
-      AND ${getViewableCommentsSelector("c")}
-    ORDER BY c."isPinnedOnProfile" DESC, c."postedAt" DESC
-    LIMIT $(limit)
-  `, { userId, limit });
+  const comments = await Comments.find(
+    {
+      userId,
+      postId: { $ne: null },
+      postedAt: { $ne: null },
+      deletedPublic: false,
+      rejected: { $ne: true },
+      draft: { $ne: true },
+      debateResponse: { $ne: true },
+      authorIsUnreviewed: { $ne: true },
+    },
+    {
+      sort: { isPinnedOnProfile: -1, postedAt: -1 },
+      limit,
+    },
+    {
+      _id: 1,
+      postedAt: 1,
+      baseScore: 1,
+      postId: 1,
+    }
+  ).fetch();
+
+  return comments.flatMap((comment): ProfileCommentDiamondRow[] => {
+    if (!comment._id || !comment.postId || !comment.postedAt) return [];
+    return [{
+      id: comment._id,
+      date: comment.postedAt,
+      karma: comment.baseScore ?? 0,
+      postId: comment.postId,
+    }];
+  });
 }
 
 export const postGqlQueries = {
