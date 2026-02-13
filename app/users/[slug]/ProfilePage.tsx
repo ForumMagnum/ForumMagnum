@@ -219,6 +219,29 @@ function getCollapsedBioHtml(htmlBio: string, wordLimit: number): string {
   return truncate(htmlBio, wordLimit, "words");
 }
 
+function getPostDiamondClasses(karma: number, isReviewWinner: boolean, isCurated: boolean) {
+  const isGold = isReviewWinner || isCurated;
+  const isSolid = true;
+  return { isGold, isSolid };
+}
+
+function getCommentDiamondClasses(karma: number) {
+  const isSolid = true;
+  return { isSolid };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getDiamondKarmaStyle(karma: number, isGold: boolean, maxKarmaForFullOpacity = 100): React.CSSProperties | undefined {
+  if (isGold) return undefined;
+  // Keep a fixed base green and vary only transparency by karma.
+  // >=maxKarmaForFullOpacity is fully opaque, low karma remains faint.
+  const alpha = 0.2 + 0.8 * clamp(karma / maxKarmaForFullOpacity, 0, 1);
+  return { opacity: alpha };
+}
+
 type ProfileTab = "posts" | "sequences" | "feed";
 
 function parseProfileTab(value: unknown): ProfileTab | null {
@@ -314,35 +337,21 @@ const DIAMONDS_INITIAL = 250;
 const COMMENT_DIAMONDS_LIMIT = 10000;
 const COMMENT_DIAMONDS_INITIAL = 200;
 
-const ProfileDiamondsQuery = gql(`
-  query ProfileDiamondsQuery($selector: PostSelector, $limit: Int) {
-    posts(selector: $selector, limit: $limit) {
-      results {
-        ...PostsMinimumInfo
-        baseScore
-        reviewWinner {
-          _id
-        }
+const ProfileDiamondDataQuery = gql(`
+  query ProfileDiamondDataQuery($userId: String!, $postLimit: Int!, $commentLimit: Int!) {
+    profileDiamondData: ProfileDiamondData(userId: $userId, postLimit: $postLimit, commentLimit: $commentLimit) {
+      posts {
+        id
+        date
+        karma
+        isReviewWinner
+        isCurated
       }
-    }
-  }
-`);
-
-const ProfileCommentDiamondsQuery = gql(`
-  query ProfileCommentDiamondsQuery($selector: CommentSelector, $limit: Int) {
-    comments(selector: $selector, limit: $limit) {
-      results {
-        _id
-        baseScore
+      comments {
+        id
+        date
+        karma
         postId
-        post {
-          _id
-          slug
-        }
-        tag {
-          slug
-        }
-        tagCommentType
       }
     }
   }
@@ -429,20 +438,12 @@ export default function ProfilePage() {
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: diamondsData } = useQuery(ProfileDiamondsQuery, {
+  const { data: profileDiamondData } = useQuery(ProfileDiamondDataQuery, {
     skip: !userId,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: "new", excludeEvents: true } } : undefined,
-      limit: DIAMONDS_LIMIT,
-    },
-    fetchPolicy: "cache-and-network",
-  });
-
-  const { data: commentDiamondsData } = useQuery(ProfileCommentDiamondsQuery, {
-    skip: !userId,
-    variables: {
-      selector: userId ? { profileComments: { userId, sortBy: "new" } } : undefined,
-      limit: COMMENT_DIAMONDS_LIMIT,
+      userId: userId ?? "",
+      postLimit: DIAMONDS_LIMIT,
+      commentLimit: COMMENT_DIAMONDS_LIMIT,
     },
     fetchPolicy: "cache-and-network",
   });
@@ -465,15 +466,13 @@ export default function ProfilePage() {
   const hasMorePosts = recentPosts.length > postsToShow;
   const sequences = sequencesData?.sequences?.results ?? [];
 
-  const allDiamondPosts = (diamondsData?.posts?.results ?? []).filter(
-    (p) => p && !p.draft && !p.shortform
-  );
+  const allDiamondPosts = profileDiamondData?.profileDiamondData?.posts ?? [];
   const diamondPosts = showAllPostDiamonds
     ? allDiamondPosts
     : allDiamondPosts.slice(0, DIAMONDS_INITIAL);
   const hasMorePostDiamonds = allDiamondPosts.length > DIAMONDS_INITIAL;
 
-  const allCommentDiamonds = commentDiamondsData?.comments?.results ?? [];
+  const allCommentDiamonds = profileDiamondData?.profileDiamondData?.comments ?? [];
   const commentDiamonds = showAllCommentDiamonds
     ? allCommentDiamonds
     : allCommentDiamonds.slice(0, COMMENT_DIAMONDS_INITIAL);
@@ -1015,23 +1014,21 @@ export default function ProfilePage() {
                     </div>
                     <div className={classes.diamondsGrid}>
                       {diamondPosts.map((post) => {
-                        const isReviewWinner = !!post.reviewWinner;
-                        const isHighKarma = (post.baseScore ?? 0) > 50;
-                        const isSolid = isReviewWinner || isHighKarma;
+                        const { isGold, isSolid } = getPostDiamondClasses(post.karma, post.isReviewWinner, post.isCurated);
                         return (
                           <PostsTooltip
-                            key={post._id}
-                            postId={post._id}
+                            key={post.id}
+                            postId={post.id}
                             placement="bottom-start"
                             As="span"
                           >
-                            <Link
-                              to={postGetPageUrl(post)}
+                            <span
                               className={classNames(
                                 classes.diamondLink,
                                 isSolid ? classes.diamondSolid : classes.diamondHollow,
-                                isReviewWinner && classes.diamondGold,
+                                isGold && classes.diamondGold,
                               )}
+                              style={getDiamondKarmaStyle(post.karma, isGold)}
                             />
                           </PostsTooltip>
                         );
@@ -1060,21 +1057,16 @@ export default function ProfilePage() {
                     </div>
                     <div className={classes.diamondsGrid}>
                       {commentDiamonds.map((comment) => {
-                        const score = comment.baseScore ?? 0;
-                        const isGold = score > 80;
-                        const isSolid = score > 20;
+                        const { isSolid } = getCommentDiamondClasses(comment.karma);
                         const commentUrl = commentGetPageUrlFromIds({
-                          postId: comment.post?._id,
-                          postSlug: comment.post?.slug,
-                          tagSlug: comment.tag?.slug,
-                          tagCommentType: comment.tagCommentType,
-                          commentId: comment._id,
+                          postId: comment.postId,
+                          commentId: comment.id,
                         });
                         return (
                           <PostsTooltip
-                            key={comment._id}
-                            postId={comment.post?._id ?? undefined}
-                            commentId={comment._id}
+                            key={comment.id}
+                            postId={comment.postId}
+                            commentId={comment.id}
                             placement="bottom-start"
                             As="span"
                           >
@@ -1083,8 +1075,8 @@ export default function ProfilePage() {
                               className={classNames(
                                 classes.diamondLink,
                                 isSolid ? classes.diamondSolid : classes.diamondHollow,
-                                isGold && classes.diamondGold,
                               )}
+                              style={getDiamondKarmaStyle(comment.karma, false, 50)}
                             />
                           </PostsTooltip>
                         );

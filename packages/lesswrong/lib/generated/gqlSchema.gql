@@ -634,6 +634,7 @@ extend type Query {
   UserReadHistory(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostsUserCommentedOn(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostIsCriticism(args: JSON): Boolean
+  ProfileDiamondData(userId: String!, postLimit: Int!, commentLimit: Int!): ProfileDiamondDataResult!
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
@@ -682,6 +683,26 @@ type RecombeeRecommendedPost {
 type VertexRecommendedPost {
   post: Post!
   attributionId: String
+}
+
+type ProfileDiamondDataResult {
+  posts: [ProfilePostDiamond!]!
+  comments: [ProfileCommentDiamond!]!
+}
+
+type ProfilePostDiamond {
+  id: String!
+  date: Date!
+  karma: Int!
+  isReviewWinner: Boolean!
+  isCurated: Boolean!
+}
+
+type ProfileCommentDiamond {
+  id: String!
+  date: Date!
+  karma: Int!
+  postId: String!
 }
 
 type PostWithApprovedJargon {

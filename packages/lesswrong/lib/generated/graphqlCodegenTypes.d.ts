@@ -7715,6 +7715,29 @@ type PostsWithApprovedJargonResult = {
   results: Array<PostWithApprovedJargon>;
 };
 
+type ProfileCommentDiamond = {
+  __typename?: 'ProfileCommentDiamond';
+  date: Scalars['Date']['output'];
+  id: Scalars['String']['output'];
+  karma: Scalars['Int']['output'];
+  postId: Scalars['String']['output'];
+};
+
+type ProfileDiamondDataResult = {
+  __typename?: 'ProfileDiamondDataResult';
+  comments: Array<ProfileCommentDiamond>;
+  posts: Array<ProfilePostDiamond>;
+};
+
+type ProfilePostDiamond = {
+  __typename?: 'ProfilePostDiamond';
+  date: Scalars['Date']['output'];
+  id: Scalars['String']['output'];
+  isCurated: Scalars['Boolean']['output'];
+  isReviewWinner: Scalars['Boolean']['output'];
+  karma: Scalars['Int']['output'];
+};
+
 type Query = {
   __typename?: 'Query';
   ActiveTagCount: Scalars['Int']['output'];
@@ -7760,6 +7783,7 @@ type Query = {
   PostsUserCommentedOn?: Maybe<UserReadHistoryResult>;
   PostsWithActiveDiscussion?: Maybe<PostsWithActiveDiscussionResult>;
   PostsWithApprovedJargon?: Maybe<PostsWithApprovedJargonResult>;
+  ProfileDiamondData: ProfileDiamondDataResult;
   RandomTag: Tag;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
   RecentlyActiveDialogues?: Maybe<RecentlyActiveDialoguesResult>;
@@ -8115,6 +8139,13 @@ type QueryPostsWithActiveDiscussionArgs = {
 
 type QueryPostsWithApprovedJargonArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QueryProfileDiamondDataArgs = {
+  commentLimit: Scalars['Int']['input'];
+  postLimit: Scalars['Int']['input'];
+  userId: Scalars['String']['input'];
 };
 
 
@@ -13308,44 +13339,23 @@ type ProfileSequencesQueryQueryVariables = Exact<{
 
 type ProfileSequencesQueryQuery = ProfileSequencesQueryQuery_Query;
 
-type ProfileDiamondsQueryQuery_posts_MultiPostOutput_results_Post_reviewWinner_ReviewWinner = { __typename?: 'ReviewWinner', _id: string };
+type ProfileDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult_posts_ProfilePostDiamond = { __typename?: 'ProfilePostDiamond', id: string, date: string, karma: number, isReviewWinner: boolean, isCurated: boolean };
 
-type ProfileDiamondsQueryQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post', baseScore: number, reviewWinner: ProfileDiamondsQueryQuery_posts_MultiPostOutput_results_Post_reviewWinner_ReviewWinner | null }
-  & PostsMinimumInfo
-);
+type ProfileDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult_comments_ProfileCommentDiamond = { __typename?: 'ProfileCommentDiamond', id: string, date: string, karma: number, postId: string };
 
-type ProfileDiamondsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ProfileDiamondsQueryQuery_posts_MultiPostOutput_results_Post> };
+type ProfileDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult = { __typename?: 'ProfileDiamondDataResult', posts: Array<ProfileDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult_posts_ProfilePostDiamond>, comments: Array<ProfileDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult_comments_ProfileCommentDiamond> };
 
-type ProfileDiamondsQueryQuery_Query = { __typename?: 'Query', posts: ProfileDiamondsQueryQuery_posts_MultiPostOutput | null };
+type ProfileDiamondDataQueryQuery_Query = { __typename?: 'Query', profileDiamondData: ProfileDiamondDataQueryQuery_profileDiamondData_ProfileDiamondDataResult };
 
 
-type ProfileDiamondsQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
+type ProfileDiamondDataQueryQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  postLimit: Scalars['Int']['input'];
+  commentLimit: Scalars['Int']['input'];
 }>;
 
 
-type ProfileDiamondsQueryQuery = ProfileDiamondsQueryQuery_Query;
-
-type ProfileCommentDiamondsQueryQuery_comments_MultiCommentOutput_results_Comment_post_Post = { __typename?: 'Post', _id: string, slug: string };
-
-type ProfileCommentDiamondsQueryQuery_comments_MultiCommentOutput_results_Comment_tag_Tag = { __typename?: 'Tag', slug: string };
-
-type ProfileCommentDiamondsQueryQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, baseScore: number | null, postId: string | null, tagCommentType: TagCommentType, post: ProfileCommentDiamondsQueryQuery_comments_MultiCommentOutput_results_Comment_post_Post | null, tag: ProfileCommentDiamondsQueryQuery_comments_MultiCommentOutput_results_Comment_tag_Tag | null };
-
-type ProfileCommentDiamondsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<ProfileCommentDiamondsQueryQuery_comments_MultiCommentOutput_results_Comment> };
-
-type ProfileCommentDiamondsQueryQuery_Query = { __typename?: 'Query', comments: ProfileCommentDiamondsQueryQuery_comments_MultiCommentOutput | null };
-
-
-type ProfileCommentDiamondsQueryQueryVariables = Exact<{
-  selector: InputMaybe<CommentSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type ProfileCommentDiamondsQueryQuery = ProfileCommentDiamondsQueryQuery_Query;
+type ProfileDiamondDataQueryQuery = ProfileDiamondDataQueryQuery_Query;
 
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 

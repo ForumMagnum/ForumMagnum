@@ -20,6 +20,8 @@ import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { getCollaborativeEditorAccessWithKey } from '@/lib/collections/posts/collabEditingPermissions';
+import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
+import { getViewableCommentsSelector, getViewablePostsSelector } from '@/server/repos/helpers';
 import jwt from 'jsonwebtoken';
 
 interface PostWithApprovedJargon {
@@ -201,6 +203,69 @@ export type PostIsCriticismRequest = {
   body: string
 }
 
+interface ProfilePostDiamondRow {
+  id: string;
+  date: Date;
+  karma: number;
+  isReviewWinner: boolean;
+  isCurated: boolean;
+}
+
+interface ProfileCommentDiamondRow {
+  id: string;
+  date: Date;
+  karma: number;
+  postId: string;
+}
+
+async function getProfileDiamondPosts(userId: string, limit: number): Promise<ProfilePostDiamondRow[]> {
+  const db = getSqlClientOrThrow();
+  return await db.any<ProfilePostDiamondRow>(`
+    -- postResolvers.getProfileDiamondPosts
+    SELECT
+      p."_id" AS "id",
+      p."postedAt" AS "date",
+      p."baseScore" AS "karma",
+      EXISTS(
+        SELECT 1
+        FROM "ReviewWinners" rw
+        WHERE rw."postId" = p."_id"
+      ) AS "isReviewWinner",
+      p."curatedDate" IS NOT NULL AS "isCurated"
+    FROM "Posts" p
+    WHERE
+      ${getViewablePostsSelector("p")}
+      AND (
+        p."userId" = $(userId)
+        OR $(userId) = ANY(COALESCE(p."coauthorUserIds", '{}'))
+      )
+      AND p."rejected" IS NOT TRUE
+    ORDER BY p."postedAt" DESC
+    LIMIT $(limit)
+  `, { userId, limit });
+}
+
+async function getProfileDiamondComments(userId: string, limit: number): Promise<ProfileCommentDiamondRow[]> {
+  const db = getSqlClientOrThrow();
+  return await db.any<ProfileCommentDiamondRow>(`
+    -- postResolvers.getProfileDiamondComments
+    SELECT
+      c."_id" AS "id",
+      c."postedAt" AS "date",
+      c."baseScore" AS "karma",
+      c."postId" AS "postId"
+    FROM "Comments" c
+    WHERE
+      c."userId" = $(userId)
+      AND c."postId" IS NOT NULL
+      AND c."postedAt" IS NOT NULL
+      AND c."deletedPublic" IS FALSE
+      AND ${getViewableCommentsSelector("c")}
+    ORDER BY c."isPinnedOnProfile" DESC, c."postedAt" DESC
+    LIMIT $(limit)
+  `, { userId, limit });
+}
+
 export const postGqlQueries = {
   async UserReadHistory(
     root: void,
@@ -249,6 +314,25 @@ export const postGqlQueries = {
     }
 
     return await postIsCriticism(args, currentUser._id)
+  },
+  async ProfileDiamondData(
+    root: void,
+    {
+      userId,
+      postLimit,
+      commentLimit,
+    }: {
+      userId: string,
+      postLimit: number,
+      commentLimit: number,
+    },
+    context: ResolverContext,
+  ) {
+    const [posts, comments] = await Promise.all([
+      getProfileDiamondPosts(userId, postLimit),
+      getProfileDiamondComments(userId, commentLimit),
+    ]);
+    return { posts, comments };
   },
   async DigestPosts(root: void, {num}: {num: number}, context: ResolverContext) {
     const { repos } = context
@@ -499,6 +583,7 @@ export const postGqlTypeDefs = gql`
     ): UserReadHistoryResult
 
     PostIsCriticism(args: JSON): Boolean
+    ProfileDiamondData(userId: String!, postLimit: Int!, commentLimit: Int!): ProfileDiamondDataResult!
     DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
     DigestPosts(num: Int): [Post!]
 
@@ -547,6 +632,26 @@ export const postGqlTypeDefs = gql`
   type VertexRecommendedPost {
     post: Post!
     attributionId: String
+  }
+
+  type ProfileDiamondDataResult {
+    posts: [ProfilePostDiamond!]!
+    comments: [ProfileCommentDiamond!]!
+  }
+
+  type ProfilePostDiamond {
+    id: String!
+    date: Date!
+    karma: Int!
+    isReviewWinner: Boolean!
+    isCurated: Boolean!
+  }
+
+  type ProfileCommentDiamond {
+    id: String!
+    date: Date!
+    karma: Int!
+    postId: String!
   }
 
   type PostWithApprovedJargon {
