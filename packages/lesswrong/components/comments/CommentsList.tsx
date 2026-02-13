@@ -56,7 +56,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   
   useOnSearchHotkey(() => setExpandAllThreads(true));
   const renderExpandOptions = () => {
-    if  (totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
+    if (!treeOptions.post?.shortform && totalComments > POST_COMMENT_COUNT_TRUNCATE_THRESHOLD) {
       const expandTooltip = `Posts with more than ${POST_COMMENT_COUNT_TRUNCATE_THRESHOLD} comments automatically truncate replies with less than ${TRUNCATION_KARMA_THRESHOLD} karma. Click or press ⌘F to expand all.`
 
       return <div className={classes.expandOptions}>
@@ -127,6 +127,3 @@ export default registerComponent('CommentsList', CommentsListFn, {
   hocs: [withErrorBoundary],
   areEqual: "auto",
 });
-
-
-
