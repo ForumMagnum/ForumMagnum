@@ -83,7 +83,7 @@ import {
   $suggestTableRowDeletion,
 } from './handleTables'
 import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
-import { $setBlocksTypeAsSuggestion } from './setBlocksTypeAsSuggestion'
+import { $setBlocksTypeAsSuggestion, $wrapInQuoteAsSuggestion } from './setBlocksTypeAsSuggestion'
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode'
 import { $insertDividerAsSuggestion } from './insertDividerAsSuggestion'
 import { HR } from '@/components/lexical/plugins/MarkdownTransformers'
@@ -811,8 +811,8 @@ export function SuggestionModePlugin({
                 // Remove the "> " text
                 const [leadingNode] = anchorNode.splitText(anchorOffset)
                 leadingNode.remove()
-                // Convert to blockquote as suggestion
-                $setBlocksTypeAsSuggestion('quote', addCreatedIDtoSet, suggestionModeLogger)
+                // Wrap in blockquote as suggestion (always wrap, not toggle)
+                $wrapInQuoteAsSuggestion(addCreatedIDtoSet, suggestionModeLogger)
                 return
               }
             }

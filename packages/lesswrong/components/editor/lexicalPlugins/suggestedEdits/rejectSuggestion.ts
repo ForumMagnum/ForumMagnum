@@ -1,6 +1,6 @@
 import { $createListItemNode, $isListItemNode, $isListNode } from '@lexical/list'
 import type { ElementNode } from 'lexical'
-import { $nodesOfType, $isElementNode, $isTextNode } from 'lexical'
+import { $nodesOfType, $isElementNode, $isTextNode, $isRootOrShadowRoot } from 'lexical'
 import { $generateNodesFromSerializedNodes } from '@lexical/clipboard'
 import { $unwrapSuggestionNode } from './Utils'
 import { ProtonNode, $isSuggestionNode } from './ProtonNode'
@@ -21,6 +21,7 @@ import {
 } from './Types'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import { $isNonInlineLeafElement } from '@/lib/vendor/proton/isNonInlineLeafElement'
+import { $createContainerQuoteNode, $isContainerQuoteNode } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode'
 
 export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolean {
   const nodes = $nodesOfType(ProtonNode)
@@ -194,6 +195,29 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
       }
     } else if (suggestionType === 'delete-table-column') {
       node.remove()
+    } else if (suggestionType === 'quote-wrap') {
+      // Reject quote wrap: unwrap children from the quote and remove it
+      const quoteNode = $findMatchingParent(node, $isContainerQuoteNode)
+      node.remove()
+      if (quoteNode) {
+        const children = quoteNode.getChildren()
+        for (const child of children) {
+          quoteNode.insertBefore(child)
+        }
+        quoteNode.remove()
+      }
+    } else if (suggestionType === 'quote-unwrap') {
+      // Reject quote unwrap: re-wrap the block in a ContainerQuoteNode
+      const block = $findMatchingParent(node, (n) => {
+        const parent = n.getParent()
+        return parent !== null && $isRootOrShadowRoot(parent)
+      })
+      node.remove()
+      if (block) {
+        const quoteNode = $createContainerQuoteNode()
+        block.insertBefore(quoteNode)
+        quoteNode.append(block)
+      }
     } else if (suggestionType === 'block-type-change') {
       const block = $findMatchingParent(node, $isNonInlineLeafElement)
       if (!block) {

@@ -5,7 +5,8 @@ import {
   createCommand,
 } from 'lexical';
 import type { HeadingTagType } from '@lexical/rich-text';
-import { $createHeadingNode, $createQuoteNode, $isHeadingNode, $isQuoteNode } from '@lexical/rich-text';
+import { $createHeadingNode, $isHeadingNode, $isQuoteNode } from '@lexical/rich-text';
+import { $createContainerQuoteNode } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode';
 import type { ListType } from '@lexical/list';
 import { $createListItemNode, $createListNode, $isListItemNode, $isListNode } from '@lexical/list';
 import { $createCodeNode, $isCodeNode } from '@lexical/code';
@@ -15,7 +16,7 @@ export type BlockType = 'paragraph' | 'code' | 'quote' | HeadingTagType | ListTy
 export const blockTypeToCreateElementFn: { [k in BlockType]: () => ElementNode } = {
   paragraph: () => $createParagraphNode(),
   code: () => $createCodeNode(),
-  quote: () => $createQuoteNode(),
+  quote: () => $createContainerQuoteNode(),
   h1: () => $createHeadingNode('h1'),
   h2: () => $createHeadingNode('h2'),
   h3: () => $createHeadingNode('h3'),
