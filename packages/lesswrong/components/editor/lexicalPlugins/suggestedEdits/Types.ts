@@ -23,6 +23,8 @@ export type SuggestionType =
   | 'delete-table-column'
   | 'duplicate-table-column'
   | 'block-type-change'
+  | 'quote-wrap'
+  | 'quote-unwrap'
   | 'clear-formatting'
   | 'align-change'
   | 'insert-image'
@@ -47,6 +49,8 @@ export const SuggestionTypesThatCanBeEmpty: SuggestionType[] = [
   'delete-table-column',
   'duplicate-table-column',
   'block-type-change',
+  'quote-wrap',
+  'quote-unwrap',
   'align-change',
 ]
 
@@ -61,6 +65,8 @@ export const SuggestionTypesThatAffectWholeParent: SuggestionType[] = [
   'delete-table-column',
   'duplicate-table-column',
   'block-type-change',
+  'quote-wrap',
+  'quote-unwrap',
   'align-change',
 ]
 

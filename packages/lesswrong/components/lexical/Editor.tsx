@@ -58,6 +58,7 @@ import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
 import CodeHighlightPrismPlugin from './plugins/CodeHighlightPrismPlugin';
 // import CodeHighlightShikiPlugin from './plugins/CodeHighlightShikiPlugin';
 import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
+import ContainerQuotePlugin from '../editor/lexicalPlugins/quote/ContainerQuotePlugin';
 import CommentPlugin from './plugins/CommentPlugin';
 import { CommentStoreProvider } from './commenting/CommentStoreContext';
 import { MarkNodesProvider } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
@@ -299,7 +300,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
         outlineOffset: '-2px',
       },
     },
-    '& p:has(> ins.block-type-change.target-paragraph), & blockquote:has(> ins.block-type-change.target-quote)': {
+    '& p:has(> ins.block-type-change.target-paragraph)': {
       background: theme.palette.background.diffInserted,
       height: '26px',
     },
@@ -309,8 +310,17 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
         color: theme.palette.primary.main,
       },
     },
-    '& blockquote:has(> ins.block-type-change.target-quote)': {
-      background: theme.palette.background.diffInserted,
+    // Quote wrap suggestion: the blockquote exists with the suggestion marker
+    // inside a child paragraph. Show a green left box-shadow (mimicking the
+    // blockquote's left border) to indicate the quote is being added.
+    '& blockquote:has(ins.quote-wrap)': {
+      borderLeftColor: theme.palette.primary.main,
+    },
+    // Quote unwrap suggestion: the blockquote was removed, so the block is
+    // now at root level. Show a red left box-shadow where the quote border
+    // used to be.
+    '& :has(> ins.quote-unwrap)': {
+      boxShadow: `-3px 0 0 0 ${theme.palette.error.main}`,
     },
     '& del': {
       background: theme.palette.background.diffDeleted,
@@ -858,6 +868,7 @@ export default function Editor({
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />
             <CollapsibleSectionsPlugin />
+            <ContainerQuotePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
             <FootnotesPlugin />

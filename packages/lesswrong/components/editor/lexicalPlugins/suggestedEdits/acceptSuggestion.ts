@@ -112,6 +112,12 @@ export function $acceptSuggestion(suggestionID: string): boolean {
       }
     } else if (suggestionType === 'block-type-change') {
       node.remove()
+    } else if (suggestionType === 'quote-wrap') {
+      // Accept quote wrap: just remove the marker, the quote stays
+      node.remove()
+    } else if (suggestionType === 'quote-unwrap') {
+      // Accept quote unwrap: just remove the marker, the unwrapped state stays
+      node.remove()
     } else if (suggestionType === 'align-change') {
       node.remove()
     } else if (suggestionType === 'clear-formatting') {
