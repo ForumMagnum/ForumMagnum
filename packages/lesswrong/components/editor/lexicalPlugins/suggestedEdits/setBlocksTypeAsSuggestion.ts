@@ -13,7 +13,7 @@ import { $isNonInlineLeafElement } from '@/lib/vendor/proton/isNonInlineLeafElem
 import type { BlockTypeChangeSuggestionProperties } from './Types'
 import { $removeSuggestionNodeAndResolveIfNeeded } from './removeSuggestionNodeAndResolveIfNeeded'
 import { $isEmptyListItemExceptForSuggestions } from './Utils'
-import { $createContainerQuoteNode, $isContainerQuoteNode } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode'
+import { type ContainerQuoteNode, $isContainerQuoteNode, $wrapInQuote, $unwrapQuote } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode'
 
 /**
  * Handles quote wrapping as a suggestion. Wraps the selected block(s) in a
@@ -43,9 +43,7 @@ export function $wrapInQuoteAsSuggestion(
   }
 
   const suggestionID = generateUUID()
-  const quoteNode = $createContainerQuoteNode()
-  block.insertBefore(quoteNode)
-  quoteNode.append(block)
+  $wrapInQuote([block])
 
   // Place suggestion marker inside the first leaf block inside the quote
   const firstLeaf = $findMatchingParent(anchorNode, $isNonInlineLeafElement)
@@ -63,7 +61,7 @@ export function $wrapInQuoteAsSuggestion(
  * ContainerQuoteNode and inserts a 'quote-unwrap' suggestion marker.
  */
 function $unwrapFromQuoteAsSuggestion(
-  quoteNode: import('@/components/editor/lexicalPlugins/quote/ContainerQuoteNode').ContainerQuoteNode,
+  quoteNode: ContainerQuoteNode,
   onSuggestionCreation: (id: string) => void,
   logger: Logger,
 ): boolean {
@@ -73,13 +71,7 @@ function $unwrapFromQuoteAsSuggestion(
   }
 
   const suggestionID = generateUUID()
-  const children = quoteNode.getChildren()
-
-  // Move children out before the quote
-  for (const child of children) {
-    quoteNode.insertBefore(child)
-  }
-  quoteNode.remove()
+  $unwrapQuote(quoteNode)
 
   // Place suggestion marker inside the first moved-out block
   const anchorNode = selection.anchor.getNode()

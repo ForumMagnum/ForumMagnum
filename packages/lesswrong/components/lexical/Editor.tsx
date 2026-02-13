@@ -310,10 +310,17 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
         color: theme.palette.primary.main,
       },
     },
-    // Quote wrap/unwrap suggestion styling (ContainerQuoteNode is a shadow root,
-    // so the suggestion marker is inside a child paragraph, not a direct child)
+    // Quote wrap suggestion: the blockquote exists with the suggestion marker
+    // inside a child paragraph. Show a green left box-shadow (mimicking the
+    // blockquote's left border) to indicate the quote is being added.
     '& blockquote:has(ins.quote-wrap)': {
-      background: theme.palette.background.diffInserted,
+      borderLeftColor: theme.palette.primary.main,
+    },
+    // Quote unwrap suggestion: the blockquote was removed, so the block is
+    // now at root level. Show a red left box-shadow where the quote border
+    // used to be.
+    '& :has(> ins.quote-unwrap)': {
+      boxShadow: `-3px 0 0 0 ${theme.palette.error.main}`,
     },
     '& del': {
       background: theme.palette.background.diffDeleted,

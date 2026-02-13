@@ -21,7 +21,7 @@ import {
 } from './Types'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import { $isNonInlineLeafElement } from '@/lib/vendor/proton/isNonInlineLeafElement'
-import { $createContainerQuoteNode, $isContainerQuoteNode } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode'
+import { $isContainerQuoteNode, $wrapInQuote, $unwrapQuote } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode'
 
 export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolean {
   const nodes = $nodesOfType(ProtonNode)
@@ -200,11 +200,7 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
       const quoteNode = $findMatchingParent(node, $isContainerQuoteNode)
       node.remove()
       if (quoteNode) {
-        const children = quoteNode.getChildren()
-        for (const child of children) {
-          quoteNode.insertBefore(child)
-        }
-        quoteNode.remove()
+        $unwrapQuote(quoteNode)
       }
     } else if (suggestionType === 'quote-unwrap') {
       // Reject quote unwrap: re-wrap the block in a ContainerQuoteNode
@@ -214,9 +210,7 @@ export function $rejectSuggestion(suggestionID: string, logger?: Logger): boolea
       })
       node.remove()
       if (block) {
-        const quoteNode = $createContainerQuoteNode()
-        block.insertBefore(quoteNode)
-        quoteNode.append(block)
+        $wrapInQuote([block])
       }
     } else if (suggestionType === 'block-type-change') {
       const block = $findMatchingParent(node, $isNonInlineLeafElement)

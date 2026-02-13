@@ -40,13 +40,6 @@ export function generateSuggestionSummary(
         const props = node.getSuggestionChangedProperties<BlockTypeChangeSuggestionProperties>()
         type = getBlockTypeChangeSummaryType(props)
       }
-      // quote-wrap and quote-unwrap map to insert-blockquote and remove-blockquote
-      if (currentType === 'quote-wrap') {
-        type = 'quote-wrap'
-      }
-      if (currentType === 'quote-unwrap') {
-        type = 'quote-unwrap'
-      }
 
       let content = node.getTextContent().slice(0, TextContentLimit)
 

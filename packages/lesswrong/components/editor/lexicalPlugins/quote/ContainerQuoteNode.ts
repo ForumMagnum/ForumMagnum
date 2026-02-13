@@ -70,11 +70,7 @@ export class ContainerQuoteNode extends QuoteNode {
   }
 
   static importJSON(serializedNode: SerializedQuoteNode): ContainerQuoteNode {
-    const node = $createContainerQuoteNode();
-    node.setDirection(serializedNode.direction);
-    node.setFormat(serializedNode.format);
-    node.setIndent(serializedNode.indent);
-    return node;
+    return $createContainerQuoteNode().updateFromJSON(serializedNode);
   }
 
   exportJSON(): SerializedElementNode {
@@ -114,13 +110,7 @@ export class ContainerQuoteNode extends QuoteNode {
   // start of the first child inside the quote, unwrap the quote's children
   // out of the quote and remove the (now empty) quote.
   collapseAtStart(): true {
-    const children = this.getChildren();
-    if (children.length > 0) {
-      for (const child of children) {
-        this.insertBefore(child);
-      }
-    }
-    this.remove();
+    $unwrapQuote(this);
     return true;
   }
 
@@ -144,7 +134,6 @@ function convertBlockquoteElement(domNode: HTMLElement): DOMConversionOutput {
   const node = $createContainerQuoteNode();
 
   // Check if this blockquote has any block-level children
-  
   let hasBlockChildren = false;
   for (let i = 0; i < domNode.childNodes.length; i++) {
     const child = domNode.childNodes[i];
@@ -182,4 +171,32 @@ export function $isContainerQuoteNode(
   node: LexicalNode | null | undefined,
 ): node is ContainerQuoteNode {
   return node instanceof ContainerQuoteNode;
+}
+
+/**
+ * Wraps the given block node(s) in a new ContainerQuoteNode. The quote is
+ * inserted before the first block, and all blocks are appended into it.
+ *
+ * @param blocks - One or more nodes to wrap. Must be in document order.
+ * @returns The newly created ContainerQuoteNode.
+ */
+export function $wrapInQuote(blocks: LexicalNode[]): ContainerQuoteNode {
+  const quoteNode = $createContainerQuoteNode();
+  blocks[0].insertBefore(quoteNode);
+  for (const block of blocks) {
+    quoteNode.append(block);
+  }
+  return quoteNode;
+}
+
+/**
+ * Unwraps a ContainerQuoteNode by moving all its children out before it,
+ * then removing the (now empty) quote.
+ */
+export function $unwrapQuote(quoteNode: ContainerQuoteNode): void {
+  const children = quoteNode.getChildren();
+  for (const child of children) {
+    quoteNode.insertBefore(child);
+  }
+  quoteNode.remove();
 }

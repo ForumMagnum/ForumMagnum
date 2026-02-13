@@ -17,7 +17,6 @@ import {$isDecoratorBlockNode} from '@lexical/react/LexicalDecoratorBlockNode';
 import {
   $createHeadingNode,
   $isHeadingNode,
-  $isQuoteNode,
   HeadingTagType,
 } from '@lexical/rich-text';
 import {$patchStyleText, $setBlocksType} from '@lexical/selection';
@@ -36,7 +35,7 @@ import {
 } from 'lexical';
 import type { BlockType } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
-import { $createContainerQuoteNode, $isContainerQuoteNode } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode';
+import { $isContainerQuoteNode, $wrapInQuote, $unwrapQuote } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode';
 
 import {
   DEFAULT_FONT_SIZE,
@@ -248,12 +247,7 @@ function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
   // Check if we're already inside a quote
   const existingQuote = $findMatchingParent(anchorNode, $isContainerQuoteNode);
   if (existingQuote) {
-    // Unwrap: move all children out after the quote
-    const children = existingQuote.getChildren();
-    for (const child of children) {
-      existingQuote.insertBefore(child);
-    }
-    existingQuote.remove();
+    $unwrapQuote(existingQuote);
     return;
   }
 
@@ -280,13 +274,7 @@ function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
     return a.isBefore(b) ? -1 : 1;
   });
 
-  const quoteNode = $createContainerQuoteNode();
-  // Insert the quote before the first selected element
-  sortedElements[0].insertBefore(quoteNode);
-  // Move all selected elements into the quote
-  for (const element of sortedElements) {
-    quoteNode.append(element);
-  }
+  $wrapInQuote(sortedElements);
 }
 
 export const formatParagraph = (editor: LexicalEditor) => {
@@ -413,14 +401,7 @@ export const clearFormatting = (
         } else if ($isHeadingNode(node)) {
           node.replace($createParagraphNode(), true);
         } else if ($isContainerQuoteNode(node)) {
-          // Unwrap shadow-root quote: move children out and remove the quote
-          const children = node.getChildren();
-          for (const child of children) {
-            node.insertBefore(child);
-          }
-          node.remove();
-        } else if ($isQuoteNode(node)) {
-          node.replace($createParagraphNode(), true);
+          $unwrapQuote(node);
         } else if ($isDecoratorBlockNode(node)) {
           node.setFormat('');
         }
