@@ -31,6 +31,8 @@ interface Query {
   UserReadHistory: UserReadHistoryResult | null;
   PostsUserCommentedOn: UserReadHistoryResult | null;
   PostIsCriticism: boolean | null;
+  ProfileDiamondPosts: ProfileDiamondPostsResult;
+  ProfileDiamondComments: ProfileDiamondCommentsResult;
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
@@ -894,6 +896,32 @@ interface RecombeeRecommendedPost {
 interface VertexRecommendedPost {
   post: Post;
   attributionId: string | null;
+}
+
+interface ProfileDiamondPostsResult {
+  results: Array<ProfilePostDiamond>;
+  totalCount: number | null;
+}
+
+interface ProfileDiamondCommentsResult {
+  results: Array<ProfileCommentDiamond>;
+  totalCount: number | null;
+}
+
+interface ProfilePostDiamond {
+  _id: string;
+  slug: string;
+  date: Date;
+  karma: number;
+  isReviewWinner: boolean;
+  isCurated: boolean;
+}
+
+interface ProfileCommentDiamond {
+  id: string;
+  date: Date;
+  karma: number;
+  postId: string;
 }
 
 interface PostWithApprovedJargon {
@@ -9997,6 +10025,10 @@ interface GraphQLTypeMap {
   DigestPlannerPost: DigestPlannerPost;
   RecombeeRecommendedPost: RecombeeRecommendedPost;
   VertexRecommendedPost: VertexRecommendedPost;
+  ProfileDiamondPostsResult: ProfileDiamondPostsResult;
+  ProfileDiamondCommentsResult: ProfileDiamondCommentsResult;
+  ProfilePostDiamond: ProfilePostDiamond;
+  ProfileCommentDiamond: ProfileCommentDiamond;
   PostWithApprovedJargon: PostWithApprovedJargon;
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
