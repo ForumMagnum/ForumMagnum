@@ -26,6 +26,8 @@ export type SuggestionSummaryType =
   | 'insert-blockquote'
   | 'remove-list'
   | 'remove-blockquote'
+  | 'quote-wrap'
+  | 'quote-unwrap'
   | 'clear-formatting'
   | 'align-change'
   | 'replace'

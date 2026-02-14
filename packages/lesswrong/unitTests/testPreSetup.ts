@@ -7,4 +7,4 @@ filterConsoleLogSpam();
 // Workaround for TextEncoder being missing from the environment that jest
 // sets up for unit tests, which causes a crash on import of pg-promise.
 import { TextEncoder } from 'util';
-global.TextEncoder = TextEncoder;
+Object.assign(global, { TextEncoder });

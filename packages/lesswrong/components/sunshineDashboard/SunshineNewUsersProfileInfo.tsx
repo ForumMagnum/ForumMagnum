@@ -28,18 +28,18 @@ const styles = defineStyles("SunshineNewUsersProfileInfo", (theme: ThemeType) =>
   }
 }))
 
-const SunshineNewUsersProfileInfo = ({userId}: {userId: string}) => {
+const SunshineNewUsersProfileInfo = ({userId, startExpanded = false}: {userId: string, startExpanded?: boolean}) => {
   const currentUser = useCurrentUser()
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null
   }
   
-  return <SunshineNewUsersProfileInfoInner userId={userId}/>
+  return <SunshineNewUsersProfileInfoInner userId={userId} startExpanded={startExpanded}/>
 }
 
-const SunshineNewUsersProfileInfoInner = ({userId}: {userId: string}) => {
+const SunshineNewUsersProfileInfoInner = ({userId, startExpanded = false}: {userId: string, startExpanded?: boolean}) => {
   const classes = useStyles(styles);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(startExpanded);
   const currentUser = useCurrentUser()
 
   const { refetch, data } = useQuery(SunshineUsersListQuery, {
@@ -63,5 +63,4 @@ const SunshineNewUsersProfileInfoInner = ({userId}: {userId: string}) => {
 }
 
 export default SunshineNewUsersProfileInfo;
-
 

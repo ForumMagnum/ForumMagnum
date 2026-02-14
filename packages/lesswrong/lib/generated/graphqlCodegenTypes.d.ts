@@ -1109,11 +1109,13 @@ type ContentType = {
   __typename?: 'ContentType';
   data: Scalars['ContentTypeData']['output'];
   type: Scalars['String']['output'];
+  yjsState?: Maybe<Scalars['String']['output']>;
 };
 
 type ContentTypeInput = {
   data: Scalars['ContentTypeData']['input'];
   type: Scalars['String']['input'];
+  yjsState?: InputMaybe<Scalars['String']['input']>;
 };
 
 type Conversation = {
@@ -16041,8 +16043,12 @@ type HocuspocusAuthQueryQueryVariables = Exact<{
 
 type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
 
+type LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision_originalContents_ContentType = { __typename?: 'ContentType', type: string };
+
+type LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision = { __typename?: 'Revision', originalContents: LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision_originalContents_ContentType };
+
 type LinkSharingQueryQuery_getLinkSharedPost_Post = (
-  { __typename?: 'Post' }
+  { __typename?: 'Post', contents: LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision | null }
   & PostsEdit
 );
 

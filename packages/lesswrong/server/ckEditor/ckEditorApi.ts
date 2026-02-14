@@ -138,6 +138,7 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
   const newOriginalContents = {
     data: html,
     type: "ckEditorMarkup",
+    yjsState: null,
   }
   
   if (!previousRev || !isEqual(newOriginalContents, previousRev.originalContents)) {

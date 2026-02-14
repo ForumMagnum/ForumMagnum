@@ -450,7 +450,10 @@ const LexicalEditor = ({
     if (shouldEnableCollaboration) return;
     const lastEmitted = lastEmittedHtmlRef.current;
     if (lastEmitted !== null && data === lastEmitted) return;
-    if ((initialHtmlRef.current ?? '') === data) return;
+    // Only suppress the no-op "same as initial" case before any user edits.
+    // After edits, a reset back to the initial value (often "") is a real
+    // external update (e.g. successful form submit) and must remount.
+    if (lastEmitted === null && (initialHtmlRef.current ?? '') === data) return;
     initialHtmlRef.current = data;
     setEditorVersion((prev) => prev + 1);
   }, [shouldEnableCollaboration, data]);

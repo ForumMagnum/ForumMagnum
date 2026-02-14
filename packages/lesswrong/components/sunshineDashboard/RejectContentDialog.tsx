@@ -8,23 +8,18 @@ import { Link } from '../../lib/reactRouterWrapper';
 import LWTooltip from "../common/LWTooltip";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
-import { getCkCommentEditor } from '../../lib/wrapCkEditor';
-import type { Editor } from '@ckeditor/ckeditor5-core';
 import LWDialog from '../common/LWDialog';
 import { makeSortableListComponent } from '../form-components/sortableList';
 import ForumIcon from '../common/ForumIcon';
 import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
 import { useCurrentUser } from '../common/withUser';
-import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import KeystrokeDisplay from './supermod/KeystrokeDisplay';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { makeEditorConfig } from '../editor/editorConfigs';
 import { focusLexicalEditor } from '../editor/focusLexicalEditor';
 import dynamic from 'next/dynamic';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
-const CKEditor  = dynamic(() => import('@/lib/vendor/ckeditor5-react/ckeditor'));
 
 const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
   dialogContent: {
@@ -61,9 +56,6 @@ const styles = defineStyles('RejectContentDialog', (theme: ThemeType) => ({
   editorContainer: {
     marginTop: 10,
     minHeight: 150,
-    '& .ck-editor__editable': {
-      minHeight: 150,
-    },
   },
   hideEditorContainer: {
     display: 'none'
@@ -271,11 +263,9 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const isAdmin = userIsAdmin(currentUser);
   const [selections, setSelections] = useState<Record<string,boolean>>({});
   const [hideTextField, setHideTextField] = useState(true);
   const [rejectedReason, setRejectedReason] = useState('');
-  const [editor, setEditor] = useState<Editor | null>(null);
   const [lexicalEditorVersion, setLexicalEditorVersion] = useState(0);
   const [hiddenTemplateIds, setHiddenTemplateIds] = useState<Set<string>>(new Set());
   const [templateOrder, setTemplateOrder] = useState<string[]>([]);
@@ -426,30 +416,9 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
     }</ul>`;
 
     setRejectedReason(composedReason);
-    if (isAdmin) {
-      setLexicalEditorVersion((prev) => prev + 1);
-      focusLexicalEditor(editorContainerRef.current);
-    } else if (editor) {
-      editor.setData(composedReason);
-    }
-  }, [editor, isAdmin, rejectionReasons, selections]);
-
-  const CommentEditor = getCkCommentEditor();
-
-  const editorConfig = makeEditorConfig({
-    toolbar: [
-      'bold',
-      'italic',
-      '|',
-      'link',
-      '|',
-      'bulletedList',
-      'numberedList',
-      '|',
-      'blockQuote',
-    ],
-    placeholder: 'Enter rejection reason...',
-  });
+    setLexicalEditorVersion((prev) => prev + 1);
+    focusLexicalEditor(editorContainerRef.current);
+  }, [rejectionReasons, selections]);
 
   // Standard rejection intro that will be prepended to the message
   const standardIntroHtml = `
@@ -493,16 +462,12 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
         setTimeout(() => {
           editorContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           setTimeout(() => {
-            if (isAdmin) {
-              focusLexicalEditor(editorContainerRef.current);
-            } else {
-              editor?.focus();
-            }
+            focusLexicalEditor(editorContainerRef.current);
           }, 300);
         }, 0);
         break;
     }
-  }, [visibleTemplates, selectedIndex, selections, composeRejectedReason, rejectedReason, hideTextField, editor, handleClick, isAdmin]);
+  }, [visibleTemplates, selectedIndex, selections, composeRejectedReason, rejectedReason, hideTextField, handleClick]);
 
   useGlobalKeydown(useCallback((e: KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -605,29 +570,14 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
       </div>
 
       <ContentStyles contentType='comment'>
-        {isAdmin ? (
-          <LexicalEditor
-            key={lexicalEditorVersion}
-            data={rejectedReason}
-            placeholder="Enter rejection reason..."
-            onChange={setRejectedReason}
-            onReady={() => {}}
-            commentEditor
-          />
-        ) : (
-          <CKEditor
-            editor={CommentEditor}
-            data={rejectedReason}
-            config={editorConfig}
-            onReady={(editor: Editor) => {
-              setEditor(editor);
-            }}
-            onChange={(event: any, editor: Editor) => {
-              const data = editor.getData();
-              setRejectedReason(data);
-            }}
-          />
-        )}
+        <LexicalEditor
+          key={lexicalEditorVersion}
+          data={rejectedReason}
+          placeholder="Enter rejection reason..."
+          onChange={setRejectedReason}
+          onReady={() => {}}
+          commentEditor
+        />
       </ContentStyles>
     </div>
     </div>

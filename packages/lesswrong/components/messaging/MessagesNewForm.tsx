@@ -11,6 +11,7 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
+import { getUserDefaultEditor } from "../editor/Editor";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
@@ -258,6 +259,8 @@ export const MessagesNewForm = ({
   formStyle?: FormDisplayMode;
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const initialEditorType = getUserDefaultEditor(currentUser);
   
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
@@ -286,7 +289,7 @@ export const MessagesNewForm = ({
           conversationId,
           contents: {
             originalContents: {
-              type: "ckEditorMarkup",
+              type: initialEditorType,
               data: templateHtml ?? '',
             },
           },

@@ -68,6 +68,8 @@ export const SuggestionSummaryText: Record<SuggestionSummaryType, string> = {
   // Blockquote operations
   'insert-blockquote': 'Insert Blockquote',
   'remove-blockquote': 'Remove Blockquote',
+  'quote-wrap': 'Insert Blockquote',
+  'quote-unwrap': 'Remove Blockquote',
 }
 
 /**

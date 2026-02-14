@@ -525,7 +525,7 @@ Never apply `as any` type casts, and try very hard to avoid any other type casts
 
 Never add new inline dynamic imports (i.e. `await import(...)` or `require(...)`).
 Strongly prefer to avoid writing classes to encapsulate functionality.  Write top-level functions and only export those that are meant to be used by other parts of the codebase.
-Strongly prefer to avoid declaring inline functions that capture scope; declare them at the top of the module and pass in all the necessary dependencies.
+Strongly prefer to avoid declaring inline functions that capture scope; declare them at the top of the module and pass in all the necessary dependencies.  This does not include standard React component patterns like `useEffect` callbacks and defining event handlers inside of the component; those are fine.
 If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
 Prefer interfaces to types where possible.
 Do not create barrel import/export files.

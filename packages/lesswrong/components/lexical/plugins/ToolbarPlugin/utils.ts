@@ -16,19 +16,18 @@ import {
 import {$isDecoratorBlockNode} from '@lexical/react/LexicalDecoratorBlockNode';
 import {
   $createHeadingNode,
-  $createQuoteNode,
   $isHeadingNode,
-  $isQuoteNode,
   HeadingTagType,
 } from '@lexical/rich-text';
 import {$patchStyleText, $setBlocksType} from '@lexical/selection';
 import {$isTableSelection} from '@lexical/table';
-import {$getNearestBlockElementAncestorOrThrow} from '@lexical/utils';
+import {$findMatchingParent, $getNearestBlockElementAncestorOrThrow} from '@lexical/utils';
 import {
   $addUpdateTag,
   $createParagraphNode,
   $getSelection,
   $isRangeSelection,
+  $isRootOrShadowRoot,
   $isTextNode,
   LexicalEditor,
   SKIP_DOM_SELECTION_TAG,
@@ -36,6 +35,7 @@ import {
 } from 'lexical';
 import type { BlockType } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
+import { $isContainerQuoteNode, $wrapInQuote, $unwrapQuote } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode';
 
 import {
   DEFAULT_FONT_SIZE,
@@ -68,7 +68,7 @@ export const applyBlockTypeChange = (
       return;
     }
     if (blockType === 'quote') {
-      $setBlocksType(selection, () => $createQuoteNode());
+      $wrapOrUnwrapQuote(selection);
       return;
     }
     if (blockType === 'code') {
@@ -227,6 +227,56 @@ export const updateFontSize = (
   }
 };
 
+/**
+ * Wraps the selected block(s) in a ContainerQuoteNode, or unwraps them if
+ * already inside a quote.
+ *
+ * For wrapping: finds the top-level element(s) from the selection and moves
+ * them into a new ContainerQuoteNode.
+ *
+ * For unwrapping: moves the quote's children out after the quote and removes
+ * the empty quote node.
+ */
+function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
+  if (!$isRangeSelection(selection)) {
+    return;
+  }
+
+  const anchorNode = selection.anchor.getNode();
+
+  // Check if we're already inside a quote
+  const existingQuote = $findMatchingParent(anchorNode, $isContainerQuoteNode);
+  if (existingQuote) {
+    $unwrapQuote(existingQuote);
+    return;
+  }
+
+  // Wrap: find the top-level element(s) in the selection and wrap in a quote
+  const nodes = selection.getNodes();
+  // Collect unique top-level block elements
+  const topLevelElements = new Set<import('lexical').LexicalNode>();
+  for (const node of nodes) {
+    const topLevel = $findMatchingParent(node, (n) => {
+      const parent = n.getParent();
+      return parent !== null && $isRootOrShadowRoot(parent);
+    });
+    if (topLevel) {
+      topLevelElements.add(topLevel);
+    }
+  }
+
+  if (topLevelElements.size === 0) {
+    return;
+  }
+
+  // Sort by position in the document
+  const sortedElements = Array.from(topLevelElements).sort((a, b) => {
+    return a.isBefore(b) ? -1 : 1;
+  });
+
+  $wrapInQuote(sortedElements);
+}
+
 export const formatParagraph = (editor: LexicalEditor) => {
   applyBlockTypeChange(editor, 'paragraph');
 };
@@ -278,12 +328,9 @@ export const formatNumberedList = (
 };
 
 export const formatQuote = (editor: LexicalEditor, blockType: string) => {
-  if (blockType !== 'quote') {
-    applyBlockTypeChange(editor, 'quote');
-  } else {
-    // I hope this doesn't have any unintended effects?  I don't think you can have complicated nested block types inside of block quotes...
-    formatParagraph(editor);
-  }
+  // With ContainerQuoteNode as a shadow root, this is always a toggle
+  // (wrap/unwrap), regardless of the current block type.
+  applyBlockTypeChange(editor, 'quote');
 };
 
 export const formatCode = (editor: LexicalEditor, blockType: string) => {
@@ -351,8 +398,10 @@ export const clearFormatting = (
             nearestBlockElement.setIndent(0);
           }
           node = textNode;
-        } else if ($isHeadingNode(node) || $isQuoteNode(node)) {
+        } else if ($isHeadingNode(node)) {
           node.replace($createParagraphNode(), true);
+        } else if ($isContainerQuoteNode(node)) {
+          $unwrapQuote(node);
         } else if ($isDecoratorBlockNode(node)) {
           node.setFormat('');
         }
