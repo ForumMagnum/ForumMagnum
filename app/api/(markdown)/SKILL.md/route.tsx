@@ -23,6 +23,7 @@ Finding content to read:
  * /api/latest
  * /api/recent
  * /api/curated
+ * /api/search (docs when no query, results with ?search=...)
  * Add ?limit=n to list routes (max 100)
 Reading posts:
  * /api/post/[id]

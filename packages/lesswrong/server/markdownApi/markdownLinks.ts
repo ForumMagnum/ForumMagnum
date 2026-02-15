@@ -1,5 +1,6 @@
 import { classifyHost } from '@/lib/routeUtil';
 import { parseRoute, parsePath } from '@/lib/routeChecks/parseRoute';
+import { getMarkdownPathname } from '@/lib/routeChecks/markdownVersionRoutes';
 import { getUrlClass } from '../utils/getUrlClass';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 
@@ -17,6 +18,7 @@ export const routeUrlMapping: Record<string,UrlRewriter> = {
   '/codex/:slug': ({slug}) => `/api/codex/${slug}`,
   '/hpmor': () => '/api/hpmor',
   '/hpmor/:slug': ({slug}) => `/api/hpmor/${slug}`,
+  '/search': () => '/api/search',
 }
 
 export const parseRouteWithErrors = <const T extends string[] | [] = []>(onsiteUrl: string) => {
@@ -34,15 +36,9 @@ export function linkToMarkdownApiLink(link: string): string {
   if (hostType!=="onsite") return link;
 
   const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
-  const parsedUrl = parseRoute({
-    location: parsePath(onsiteUrl),
-    onError: (pathname) => {},
-    routePatterns: Object.keys(routeUrlMapping).reverse() as (keyof typeof routeUrlMapping)[]
-  });
-
-  if (parsedUrl.routePattern && routeUrlMapping[parsedUrl.routePattern]) {
-    const mappedUrl = routeUrlMapping[parsedUrl.routePattern](parsedUrl.params);
-    return mappedUrl;
+  const markdownPath = getMarkdownPathname(linkTargetAbsolute.pathname);
+  if (markdownPath) {
+    return `${markdownPath}${linkTargetAbsolute.search}${linkTargetAbsolute.hash}`;
   }
 
   return onsiteUrl;
