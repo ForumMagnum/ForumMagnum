@@ -14,6 +14,9 @@ import SectionTitle from "../common/SectionTitle";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+import { useDialog } from '../common/withDialog';
+import SectionButton from '../common/SectionButton';
+import NewDialogueDialog from '../posts/NewDialogueDialog';
 
 const PostsListWithVotesQuery = gql(`
   query DialoguesPage($documentId: String) {
@@ -61,6 +64,7 @@ const DialoguesPage = () => {
   const myDialogues = myDialoguesData?.MyDialogues?.results;
 
   const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
 
   const renderMyDialogues = currentUser && myDialogues?.length
 
@@ -84,7 +88,14 @@ const DialoguesPage = () => {
               title={<LWTooltip placement="top-start" title={myDialoguesTooltip}>
                 My Dialogues (Drafts & Published)
               </LWTooltip>}
-            />
+            >
+              <SectionButton onClick={() => openDialog({
+                name: "NewDialogueDialog",
+                contents: ({onClose}) => <NewDialogueDialog onClose={onClose}/>
+              })}>
+                New Dialogue
+              </SectionButton>
+            </SectionTitle>
           {myDialogues?.map((post: PostsListWithVotes, i: number) =>
             <PostsItem
               key={post._id} post={post}
@@ -122,5 +133,3 @@ const DialoguesPage = () => {
 export default registerComponent('DialoguesPage', DialoguesPage, {
   hocs: [withErrorBoundary]
 });
-
-
