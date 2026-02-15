@@ -17,6 +17,7 @@ import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import { useDialog } from '../common/withDialog';
 import SectionButton from '../common/SectionButton';
 import NewDialogueDialog from '../posts/NewDialogueDialog';
+import LoginPopup from '../users/LoginPopup';
 
 const PostsListWithVotesQuery = gql(`
   query DialoguesPage($documentId: String) {
@@ -68,6 +69,19 @@ const DialoguesPage = () => {
 
   const renderMyDialogues = currentUser && myDialogues?.length
 
+  const handleNewDialogueClick = () => {
+    if (!currentUser) {
+      openDialog({name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
+      });
+      return;
+    }
+    openDialog({
+      name: "NewDialogueDialog",
+      contents: ({onClose}) => <NewDialogueDialog onClose={onClose}/>
+    });
+  }
+
   const { data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: "kQuSZG8ibfW6fJYmo" },
   });
@@ -89,10 +103,7 @@ const DialoguesPage = () => {
                 My Dialogues (Drafts & Published)
               </LWTooltip>}
             >
-              <SectionButton onClick={() => openDialog({
-                name: "NewDialogueDialog",
-                contents: ({onClose}) => <NewDialogueDialog onClose={onClose}/>
-              })}>
+              <SectionButton onClick={handleNewDialogueClick}>
                 New Dialogue
               </SectionButton>
             </SectionTitle>
@@ -112,7 +123,11 @@ const DialoguesPage = () => {
           title={<LWTooltip placement="top-start" title={dialoguesTooltip}>
             Dialogues
           </LWTooltip>}
-        />
+        >
+          {!renderMyDialogues && <SectionButton onClick={handleNewDialogueClick}>
+            New Dialogue
+          </SectionButton>}
+        </SectionTitle>
         {announcementPost && <PostsItem
           key={"kQuSZG8ibfW6fJYmo"} post={announcementPost} forceSticky
         />}
