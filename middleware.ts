@@ -33,16 +33,24 @@ function urlIsAbsolute(url: string): boolean {
 export async function middleware(request: NextRequest) {
   const clientIdCookie = request.cookies.get(CLIENT_ID_COOKIE);
   const addedClientId = clientIdCookie ? null : randomId();
+  const requestPathHasMarkdownVersion = !!getMarkdownPathname(request.nextUrl.pathname);
   
   const isForwarded = request.headers.get(ForwardingHeaderName);
   if (isForwarded) {
     return NextResponse.next();
   }
   
-  if (requestPrefersMarkdown(request)) {
+  const markdownNegotiation = getMarkdownNegotiationMode(request);
+  if (markdownNegotiation) {
     const markdownRewrite = getMarkdownRewriteResponse(request, addedClientId);
     if (markdownRewrite) {
       return markdownRewrite;
+    }
+    if (markdownNegotiation === "explicit") {
+      const markdownUnavailableRewrite = getMarkdownUnavailableRewriteResponse(request, addedClientId);
+      if (markdownUnavailableRewrite) {
+        return markdownUnavailableRewrite;
+      }
     }
   }
 
@@ -64,6 +72,11 @@ export async function middleware(request: NextRequest) {
     
     const originalBody = forwardedFetchResponse.body;
     if (!originalBody) {
+      if (requestPathHasMarkdownVersion) {
+        const nextResponse = new NextResponse(null, { headers: forwardedFetchResponse.headers, status: forwardedFetchResponse.status });
+        addVaryHeader(nextResponse, "accept");
+        return nextResponse;
+      }
       return forwardedFetchResponse;
     }
     const [statusCodeFinderStream, responseStream] = originalBody.tee();
@@ -80,6 +93,9 @@ export async function middleware(request: NextRequest) {
       const status = statusFromStream ? statusFromStream.status : forwardedFetchResponse.status;
   
       const nextResponse = new NextResponse(responseStream, { headers: forwardedFetchResponse.headers, status });
+      if (requestPathHasMarkdownVersion) {
+        addVaryHeader(nextResponse, "accept");
+      }
       if (addedClientId) {
         return addClientIdToResponseHeaders(nextResponse, addedClientId);
       }
@@ -90,6 +106,9 @@ export async function middleware(request: NextRequest) {
       addClientIdToRequest(request, addedClientId);
     }
     const nextResponse = NextResponse.next();
+    if (requestPathHasMarkdownVersion) {
+      addVaryHeader(nextResponse, "accept");
+    }
     if (addedClientId) {
       addClientIdToResponseHeaders(nextResponse, addedClientId);
     }
@@ -97,18 +116,91 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-function requestPrefersMarkdown(request: NextRequest): boolean {
-  const acceptHeader = request.headers.get("accept")?.toLowerCase() ?? "";
-  const wantsHtml = acceptHeader.includes("text/html") || acceptHeader.includes("application/xhtml+xml");
-  const wantsMarkdown = acceptHeader.includes("text/markdown") || acceptHeader.includes("text/plain");
-  const wildcardOnly = acceptHeader
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .every((part) => part.startsWith("*/*"));
+type MarkdownNegotiationMode = "explicit";
 
-  // curl's default Accept header is `*/*`; for markdown-capable routes, prefer markdown.
-  return (wantsMarkdown || wildcardOnly) && !wantsHtml;
+interface ParsedAcceptRange {
+  mediaType: string
+  mediaSubtype: string
+  q: number
+  index: number
+}
+
+function parseAcceptHeader(acceptHeader: string): ParsedAcceptRange[] {
+  return acceptHeader
+    .split(",")
+    .map((rawPart, index) => ({ rawPart: rawPart.trim(), index }))
+    .filter(({ rawPart }) => rawPart.length > 0)
+    .map(({ rawPart, index }) => {
+      const [mediaTypePart, ...params] = rawPart.split(";").map((part) => part.trim());
+      const [mediaType = "*", mediaSubtype = "*"] = mediaTypePart.toLowerCase().split("/");
+      const qParam = params.find((part) => part.toLowerCase().startsWith("q="));
+      const parsedQ = qParam ? Number.parseFloat(qParam.slice(2)) : 1;
+      const q = Number.isFinite(parsedQ) ? Math.min(Math.max(parsedQ, 0), 1) : 1;
+      return { mediaType, mediaSubtype, q, index };
+    });
+}
+
+function acceptsMediaRange(range: ParsedAcceptRange, mediaType: string, mediaSubtype: string): boolean {
+  const typeMatches = range.mediaType === "*" || range.mediaType === mediaType;
+  const subtypeMatches = range.mediaSubtype === "*" || range.mediaSubtype === mediaSubtype;
+  return typeMatches && subtypeMatches;
+}
+
+function getRangeSpecificity(range: ParsedAcceptRange): number {
+  if (range.mediaType === "*" && range.mediaSubtype === "*") {
+    return 0;
+  }
+  if (range.mediaSubtype === "*") {
+    return 1;
+  }
+  return 2;
+}
+
+function getEffectiveQForMediaType(ranges: ParsedAcceptRange[], mediaTypeWithSubtype: string): number {
+  const [mediaType, mediaSubtype] = mediaTypeWithSubtype.split("/");
+  const matchingRanges = ranges.filter((range) => acceptsMediaRange(range, mediaType, mediaSubtype));
+  if (matchingRanges.length === 0) {
+    return 0;
+  }
+  matchingRanges.sort((a, b) => {
+    const specificityDelta = getRangeSpecificity(b) - getRangeSpecificity(a);
+    if (specificityDelta !== 0) {
+      return specificityDelta;
+    }
+    return a.index - b.index;
+  });
+  return matchingRanges[0].q;
+}
+
+function getMarkdownNegotiationMode(request: NextRequest): MarkdownNegotiationMode | null {
+  const formatOverride = request.nextUrl.searchParams.get("format")?.toLowerCase();
+  if (formatOverride === "markdown" || formatOverride === "md") {
+    return "explicit";
+  }
+  if (formatOverride === "html") {
+    return null;
+  }
+
+  const acceptHeader = request.headers.get("accept")?.toLowerCase() ?? "";
+  if (!acceptHeader.trim()) {
+    return null;
+  }
+
+  const parsedRanges = parseAcceptHeader(acceptHeader);
+  const markdownPreference = Math.max(
+    getEffectiveQForMediaType(parsedRanges, "text/markdown"),
+    getEffectiveQForMediaType(parsedRanges, "text/plain")
+  );
+  const htmlPreference = Math.max(
+    getEffectiveQForMediaType(parsedRanges, "text/html"),
+    getEffectiveQForMediaType(parsedRanges, "application/xhtml+xml")
+  );
+
+  // For ambiguous or wildcard-only requests, default to HTML.
+  if (markdownPreference > 0 && markdownPreference > htmlPreference) {
+    return "explicit";
+  }
+  return null;
 }
 
 function getMarkdownRewriteResponse(request: NextRequest, addedClientId: string | null): NextResponse | null {
@@ -119,10 +211,40 @@ function getMarkdownRewriteResponse(request: NextRequest, addedClientId: string 
 
   const rewrittenUrl = new URL(markdownPathname, request.url);
   const response = NextResponse.rewrite(rewrittenUrl);
+  addVaryHeader(response, "accept");
   if (addedClientId) {
     return addClientIdToResponseHeaders(response, addedClientId);
   }
   return response;
+}
+
+function getMarkdownUnavailableRewriteResponse(request: NextRequest, addedClientId: string | null): NextResponse {
+  const unavailableUrl = new URL("/api/markdown-unavailable", request.url);
+  const rewriteHeaders = new Headers(request.headers);
+  rewriteHeaders.set("x-markdown-unavailable-from", request.nextUrl.pathname);
+  const response = NextResponse.rewrite(unavailableUrl, {
+    request: { headers: rewriteHeaders },
+  });
+  addVaryHeader(response, "accept");
+  if (addedClientId) {
+    return addClientIdToResponseHeaders(response, addedClientId);
+  }
+  return response;
+}
+
+function addVaryHeader(response: NextResponse, headerName: string) {
+  const existingVary = response.headers.get("vary");
+  if (!existingVary) {
+    response.headers.set("vary", headerName);
+    return;
+  }
+  const existingParts = existingVary
+    .split(",")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
+  if (!existingParts.includes(headerName.toLowerCase())) {
+    response.headers.set("vary", `${existingVary}, ${headerName}`);
+  }
 }
 
 function shouldProxyForStatusCode(req: NextRequest) {
@@ -226,7 +348,6 @@ export const config: MiddlewareConfig = {
       source: "/",
       missing: [
         { type: 'header', key: 'next-router-state-tree' },
-        { type: 'header', key: 'accept', value: '^text/html,.*' },
       ],
     },
     /*
@@ -244,7 +365,6 @@ export const config: MiddlewareConfig = {
       source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
       missing: [
         { type: 'header', key: 'next-router-state-tree' },
-        { type: 'header', key: 'accept', value: '^text/html,.*' },
       ],
     }
   ]

@@ -149,6 +149,9 @@ export const routeTrie = {
         "latest": {
           "hasRoute": true
         },
+        "markdown-unavailable": {
+          "hasRoute": true
+        },
         "post": {
           "dynamicChild": {
             "paramName": "idOrSlug",
@@ -370,6 +373,7 @@ export const routeTrie = {
         "home": "home",
         "hpmor": "hpmor",
         "latest": "latest",
+        "markdown-unavailable": "markdown-unavailable",
         "post": "post",
         "rationality": "rationality",
         "recent": "recent",

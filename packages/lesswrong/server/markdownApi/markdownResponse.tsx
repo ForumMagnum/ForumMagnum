@@ -2,6 +2,7 @@ import React from "react";
 import { htmlToMarkdown } from "../editor/conversionUtils";
 import { renderToString } from "../emails/renderEmail";
 import { NextResponse } from "next/server";
+import { siteUrlSetting } from "@/lib/instanceSettings";
 
 export const markdownClasses: Record<string, string> = {
   title: "markdown-title",
@@ -18,6 +19,14 @@ export async function markdownResponse(reactTree: React.ReactNode): Promise<Resp
 }
 
 export async function renderReactToMarkdown(reactTree: React.ReactNode): Promise<string> {
-  const html = await renderToString(reactTree)
+  const html = await renderToString(<div>
+    <div>{reactTree}</div>
+
+    <h3>Navigation</h3>
+    <ul>
+      <li><a href={`${siteUrlSetting.get()}/api/home`}>Front page</a></li>
+      <li><a href={`${siteUrlSetting.get()}/api/SKILL.md`}>Markdown API documentation</a></li>
+    </ul>
+  </div>)
   return htmlToMarkdown(html)
 }
