@@ -4,17 +4,20 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import { Typography } from "../common/Typography";
+import Divider from '../common/Divider';
 
 const styles = defineStyles("SequenceV2PostSection", (theme: ThemeType) => ({
   root: {
-    marginTop: 44,
+    marginTop: 64,
   },
   title: {
-    marginBottom: 8,
+    marginTop: 64,
+    marginBottom: 64,
     fontSize: 50,
     maxWidth: 720,
     marginLeft: "auto",
     marginRight: "auto",
+    textAlign: "center",
     ...theme.typography.headerStyle,
   },
   author: {
@@ -46,6 +49,7 @@ const SequenceV2PostSection = ({anchor, title, html, showAuthor, authorName}: {
         description={`post ${anchor}`}
       />
     </ContentStyles>
+    <Divider />
   </div>
 };
 

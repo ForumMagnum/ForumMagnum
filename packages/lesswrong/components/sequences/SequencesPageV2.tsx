@@ -20,6 +20,7 @@ import SequenceV2ChapterSection from "./SequenceV2ChapterSection";
 import SequenceV2PostSection from "./SequenceV2PostSection";
 import SequenceV2FixedToC from "./SequenceV2FixedToC";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import Divider from '../common/Divider';
 
 type SequenceV2Sequence = {
   _id: string,
@@ -273,6 +274,7 @@ const SequencesPageV2 = ({ documentId }: {
     <div className={classes.readingRoot}>
       <div className={classes.readingWidth}>
         <SequenceV2CenterToC sections={tocSections} sequenceTitle={sequence.title} />
+        <Divider  margin={96} wings={false}/>
         <div id="postContent" className={classes.postContent}>
           <div id="postBody">
             {chapters.map((chapter) => {
@@ -280,12 +282,12 @@ const SequencesPageV2 = ({ documentId }: {
               const chapterDescriptionHtml = chapter.contents?.html ?? null;
               const shouldShowChapterSection = !!(chapter.title || chapter.subtitle || chapterDescriptionHtml);
               return <div key={chapter._id}>
-                <SequenceV2ChapterSection
+                {chapter.title !== sequence.title && <SequenceV2ChapterSection
                   anchor={chapterAnchor}
                   title={chapter.title}
                   subtitle={chapter.subtitle}
                   descriptionHtml={chapterDescriptionHtml}
-                />
+                />}
                 {chapter.posts.map((post) => {
                   const postAnchor = `post-${post._id}`;
                   const html = post.contents?.html ?? "";
