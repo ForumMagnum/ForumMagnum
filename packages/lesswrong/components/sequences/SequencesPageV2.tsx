@@ -21,12 +21,14 @@ import SequenceV2PostSection from "./SequenceV2PostSection";
 import SequenceV2FixedToC from "./SequenceV2FixedToC";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import Divider from '../common/Divider';
+import FormatDate from "../common/FormatDate";
 
 type SequenceV2Sequence = {
   _id: string,
   title: string,
   draft: boolean,
   userId: string,
+  createdAt?: Date|string|null,
   user?: { _id: string, displayName: string, karma?: number|null }|null,
   bannerImageId?: string|null,
   gridImageId?: string|null,
@@ -59,6 +61,7 @@ const SequenceV2Query = gql(`
         title
         draft
         userId
+        createdAt
         user {
           _id
           displayName
@@ -157,6 +160,13 @@ const styles = defineStyles("SequencesPageV2", (theme: ThemeType) => ({
     fontSize: 24,
     ...theme.typography.postStyle,
     marginTop: 24,
+    marginBottom: 8,
+    zIndex: 1,
+    position: "relative",
+  },
+  publishDate: {
+    fontSize: 16,
+    ...theme.typography.postStyle,
     marginBottom: 64,
     zIndex: 1,
     position: "relative",
@@ -261,6 +271,9 @@ const SequencesPageV2 = ({ documentId }: {
       </Typography>
       <div className={classes.author}>
         {sequence.user?.displayName ? `By ${sequence.user.displayName}` : ""}
+      </div>
+      <div className={classes.publishDate}>
+        {sequence.createdAt && <>Published on <FormatDate date={sequence.createdAt} format="MMM DD, YYYY" tooltip={false}/></>}
       </div>
       {descriptionHtml && <ContentStyles contentType="post" className={classes.description}>
         <ContentItemBody
