@@ -2,9 +2,6 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { AbortSignal } from "node-abort-controller";
 import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache';
-// See https://github.com/openai/openai-node#customizing-the-fetch-client
-// eslint-disable-next-line no-restricted-imports
-import "openai/shims/node";
 
 // This is needed because one of the tests imports `gpt-3-encoder`, which relies on `TexttDecoder`
 // https://stackoverflow.com/a/68468204

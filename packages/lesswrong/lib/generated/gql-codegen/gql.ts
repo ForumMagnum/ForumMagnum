@@ -940,6 +940,8 @@ type Documents = {
     "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.singlePublishedPostForLLMQueryDocument,
     "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.multiPostsForLLMQueryDocument,
     "\n      query GetReviewWinners {\n        GetAllReviewWinners {\n          ...PostsTopItemInfo\n        }\n      }\n    ": typeof types.GetReviewWinnersDocument,
+    "\n  query postWithMarkdownForCoverImage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        _id\n        title\n        contents {\n          markdown\n        }\n      }\n    }\n  }\n": typeof types.postWithMarkdownForCoverImageDocument,
+    "\n  query postsWithMarkdownForCoverImage($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        _id\n        title\n        contents {\n          markdown\n        }\n      }\n    }\n  }\n": typeof types.postsWithMarkdownForCoverImageDocument,
     "\n  query CommentsForEmbeddings($selector: CommentSelector) {\n    comments(selector: $selector) {\n      results {\n        _id\n        postedAt\n        contents {\n          _id\n          html\n        }\n        user {\n          _id\n          displayName\n          username\n          fullName\n        }\n        post {\n          _id\n          title\n        }\n      }\n    }\n  }\n": typeof types.CommentsForEmbeddingsDocument,
 };
 const documents: Documents = {
@@ -1869,6 +1871,8 @@ const documents: Documents = {
     "\n  query singlePublishedPostForLLMQuery($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.singlePublishedPostForLLMQueryDocument,
     "\n  query multiPostsForLLMQuery($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        ...PostsPage\n      }\n    }\n  }\n": types.multiPostsForLLMQueryDocument,
     "\n      query GetReviewWinners {\n        GetAllReviewWinners {\n          ...PostsTopItemInfo\n        }\n      }\n    ": types.GetReviewWinnersDocument,
+    "\n  query postWithMarkdownForCoverImage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        _id\n        title\n        contents {\n          markdown\n        }\n      }\n    }\n  }\n": types.postWithMarkdownForCoverImageDocument,
+    "\n  query postsWithMarkdownForCoverImage($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        _id\n        title\n        contents {\n          markdown\n        }\n      }\n    }\n  }\n": types.postsWithMarkdownForCoverImageDocument,
     "\n  query CommentsForEmbeddings($selector: CommentSelector) {\n    comments(selector: $selector) {\n      results {\n        _id\n        postedAt\n        contents {\n          _id\n          html\n        }\n        user {\n          _id\n          displayName\n          username\n          fullName\n        }\n        post {\n          _id\n          title\n        }\n      }\n    }\n  }\n": types.CommentsForEmbeddingsDocument,
 };
 
@@ -5590,6 +5594,14 @@ export function gql(source: "\n  query multiPostsForLLMQuery($input: MultiPostIn
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n      query GetReviewWinners {\n        GetAllReviewWinners {\n          ...PostsTopItemInfo\n        }\n      }\n    "): (typeof documents)["\n      query GetReviewWinners {\n        GetAllReviewWinners {\n          ...PostsTopItemInfo\n        }\n      }\n    "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query postWithMarkdownForCoverImage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        _id\n        title\n        contents {\n          markdown\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query postWithMarkdownForCoverImage($input: SinglePostInput) {\n    post(input: $input) {\n      result {\n        _id\n        title\n        contents {\n          markdown\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query postsWithMarkdownForCoverImage($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        _id\n        title\n        contents {\n          markdown\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query postsWithMarkdownForCoverImage($input: MultiPostInput) {\n    posts(input: $input) {\n      results {\n        _id\n        title\n        contents {\n          markdown\n        }\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

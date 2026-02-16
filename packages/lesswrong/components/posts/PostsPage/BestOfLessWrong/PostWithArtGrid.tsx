@@ -53,7 +53,7 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
   },
   imageTooltipContainer: {
     width: 800,
-    height: 400,
+    height: 'fit-content',
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     position: 'relative',
     boxShadow: theme.palette.boxShadow.lwCard,

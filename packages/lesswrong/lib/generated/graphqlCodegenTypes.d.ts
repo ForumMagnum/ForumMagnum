@@ -27641,6 +27641,38 @@ type GetReviewWinnersQueryVariables = Exact<{ [key: string]: never; }>;
 
 type GetReviewWinnersQuery = GetReviewWinnersQuery_Query;
 
+type postWithMarkdownForCoverImageQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', markdown: string | null };
+
+type postWithMarkdownForCoverImageQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, contents: postWithMarkdownForCoverImageQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+
+type postWithMarkdownForCoverImageQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: postWithMarkdownForCoverImageQuery_post_SinglePostOutput_result_Post | null };
+
+type postWithMarkdownForCoverImageQuery_Query = { __typename?: 'Query', post: postWithMarkdownForCoverImageQuery_post_SinglePostOutput | null };
+
+
+type postWithMarkdownForCoverImageQueryVariables = Exact<{
+  input: InputMaybe<SinglePostInput>;
+}>;
+
+
+type postWithMarkdownForCoverImageQuery = postWithMarkdownForCoverImageQuery_Query;
+
+type postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput_results_Post_contents_Revision = { __typename?: 'Revision', markdown: string | null };
+
+type postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, title: string, contents: postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput_results_Post_contents_Revision | null };
+
+type postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput_results_Post> };
+
+type postsWithMarkdownForCoverImageQuery_Query = { __typename?: 'Query', posts: postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput | null };
+
+
+type postsWithMarkdownForCoverImageQueryVariables = Exact<{
+  input: InputMaybe<MultiPostInput>;
+}>;
+
+
+type postsWithMarkdownForCoverImageQuery = postsWithMarkdownForCoverImageQuery_Query;
+
 type CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null };
 
 type CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_user_User = { __typename?: 'User', _id: string, displayName: string, username: string | null, fullName: string | null };

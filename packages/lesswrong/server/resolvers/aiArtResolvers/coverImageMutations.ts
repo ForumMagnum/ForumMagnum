@@ -13,7 +13,7 @@ export const generateCoverImagesForPostGraphQLMutations = {
     if (!currentUser || !userIsAdmin(currentUser)) {
       throw new Error('You must be an admin to generate cover images');
     }
-    const { generateCoverImagesForPost } = await import('@/server/scripts/generativeModels/coverImages-2023Review');
+    const { generateCoverImagesForPost } = await import('@/server/scripts/generativeModels/coverImageGeneration');
     try {
       const results = await generateCoverImagesForPost(postId, prompt);
       const reviewWinnerArts = results.map(result => result.reviewWinnerArt);
