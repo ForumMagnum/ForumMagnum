@@ -115,7 +115,7 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, cont
 
   const flaggedUserReports = await Reports.find({reportedUserId: user._id, closedAt: {$exists: false}}).fetch();
   //eslint-disable-next-line no-console
-  console.info(`Marking reports for user ${user._id} as reviewed: `, flaggedUserReports);
+  console.info(`Auto-closing reports for user ${user._id} due to user deletion: `, flaggedUserReports);
   for (let report of flaggedUserReports) {
     await updateReport({
       data: {
