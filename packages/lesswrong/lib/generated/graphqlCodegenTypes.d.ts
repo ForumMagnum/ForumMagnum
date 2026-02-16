@@ -20700,7 +20700,7 @@ type SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence_contents_
   & RevisionDisplay
 );
 
-type SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, draft: boolean, userId: string, bannerImageId: string | null, gridImageId: string | null, user: SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence_user_User | null, contents: SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
+type SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, draft: boolean, createdAt: string, userId: string, bannerImageId: string | null, gridImageId: string | null, user: SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence_user_User | null, contents: SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
 
 type SequenceV2PageQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence | null };
 

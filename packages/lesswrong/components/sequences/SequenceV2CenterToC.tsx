@@ -113,7 +113,7 @@ const SequenceV2CenterToC = ({sections, sequenceTitle}: {
       }
       return <div key={section.anchor} className={classNames(classes.row, isChapter ? classes.chapterRow : classes.postRow)}>
         {!isChapter && <span className={classes.postNumber}>{toRomanNumeral(postNumberWithinChapter)}. </span>}
-        <a href={`#${section.anchor}`} className={classNames(classes.post, isChapter ? classes.chapterTitle : classes.postTitle)}>{section.title}</a>
+        <a href={`#${section.anchor}`} className={classNames(isChapter ? classes.chapterTitle : classes.postTitle)}>{section.title}</a>
       </div>
     })}
   </div>

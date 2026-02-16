@@ -29,6 +29,7 @@ const styles = defineStyles("SequenceV2PostSection", (theme: ThemeType) => ({
     maxWidth: 720,
     marginLeft: "auto",
     marginRight: "auto",
+    textAlign: "left",
   },
 }));
 
