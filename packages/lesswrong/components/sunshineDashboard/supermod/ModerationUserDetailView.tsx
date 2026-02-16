@@ -8,7 +8,7 @@ import ModerationUndoHistory from './ModerationUndoHistory';
 import ModerationUserInfoColumn from './ModerationUserInfoColumn';
 import { prettyScrollbars } from '@/themes/styleUtils';
 
-const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
+const styles = defineStyles('ModerationUserDetailView', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
     display: 'flex',
@@ -41,7 +41,7 @@ const styles = defineStyles('ModerationDetailView', (theme: ThemeType) => ({
   }
 }));
 
-const ModerationDetailView = ({ 
+const ModerationUserDetailView = ({ 
   user,
   posts,
   comments,
@@ -115,4 +115,4 @@ const ModerationDetailView = ({
   );
 };
 
-export default ModerationDetailView;
+export default ModerationUserDetailView;
