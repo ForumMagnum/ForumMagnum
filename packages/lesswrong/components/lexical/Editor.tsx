@@ -289,9 +289,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
         margin: 0,
       },
     },
-    '& .llm-content-block': {
-      margin: '1em 0',
-    },
     '& .llm-content-block-header': {
       transform: 'unset',
       display: 'flex',
@@ -327,7 +324,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       },
     },
     '& .llm-content-block-content': {
-      padding: '0.5em 0',
       outline: 'none',
       '& > p:first-child': {
         marginTop: 0,

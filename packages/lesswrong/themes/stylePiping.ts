@@ -274,7 +274,6 @@ const footnoteStyles = (_theme: ThemeType) => ({
 const llmContentBlockStyles = (theme: ThemeType) => ({
   '& .llm-content-block': {
     position: 'relative',
-    margin: '1em 0',
     borderTop: `1px solid ${theme.palette.greyAlpha(0.2)}`,
     borderBottom: `1px solid ${theme.palette.greyAlpha(0.2)}`,
     // The model name label is rendered as a pseudo-element so it sits on
@@ -291,12 +290,15 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
       paddingLeft: 4,
       paddingRight: 4,
     },
-    '& > .llm-content-block-content > p:first-child': {
-      marginTop: '1em',
+    '& > .llm-content-block-content > :first-child': {
+      marginTop: 18,
+    },
+    '& > .llm-content-block-content > :last-child': {
+      marginBottom: 18,
     },
     '& > .llm-content-block-content > p:last-child': {
       // The line height of the paragraph elements make it so that there's more visual whitespace beneath text in paragraphs than above, so we need to adjust a bit to make it look symmetrical
-      marginBottom: 'calc(1em - 3px)',
+      marginBottom: 15,
     },
   },
 });
