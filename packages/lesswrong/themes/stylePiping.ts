@@ -295,7 +295,7 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
       marginTop: '1em',
     },
     '& > .llm-content-block-content > p:last-child': {
-      marginBottom: '1em',
+      marginBottom: 'calc(1em - 3px)',
     },
   },
 });
