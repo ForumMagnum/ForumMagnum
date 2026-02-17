@@ -112,6 +112,7 @@ import LWArtifactsPlugin from './embeds/LWArtifactsEmbed/LWArtifactsPlugin';
 import ContentEditable from './ui/ContentEditable';
 import { FootnotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
+import LLMContentBlockPlugin from '../editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
 import ReviewResultsPlugin from './embeds/ReviewResultsEmbed/ReviewResultsPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
@@ -286,6 +287,53 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       flex: 1,
       '& p': {
         margin: 0,
+      },
+    },
+    '& .llm-content-block': {
+      margin: '1em 0',
+    },
+    '& .llm-content-block-header': {
+      transform: 'unset',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '0.85em',
+      color: theme.palette.grey[600],
+      height: 0,
+    },
+    '& .llm-content-block-model-input': {
+      backgroundColor: theme.palette.panelBackground.default,
+      color: theme.palette.grey[600],
+      fontSize: 'inherit',
+      fontFamily: 'inherit',
+      padding: '0px 4px',
+      borderRadius: 3,
+      appearance: 'none',
+      WebkitAppearance: 'none',
+      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'right 4px center',
+      backgroundSize: '10px',
+      '&::-webkit-calendar-picker-indicator': {
+        display: 'none !important',
+      },
+      '&:hover, &:focus': {
+        backgroundColor: theme.palette.panelBackground.default,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'right 4px center',
+        backgroundSize: '10px',
+        color: theme.palette.grey[800],
+      },
+    },
+    '& .llm-content-block-content': {
+      padding: '0.5em 0',
+      outline: 'none',
+      '& > p:first-child': {
+        marginTop: 0,
+      },
+      '& > p:last-child': {
+        marginBottom: 0,
       },
     },
     '& ins': {
@@ -874,6 +922,7 @@ export default function Editor({
             <FootnotesPlugin />
             <MentionsPlugin />
             <SpoilersPlugin isSuggestionMode={isSuggestionMode} />
+            <LLMContentBlockPlugin isSuggestionMode={isSuggestionMode} />
             <ClaimsPlugin />
             <ReviewResultsPlugin />
             <RemoveRedirectPlugin />

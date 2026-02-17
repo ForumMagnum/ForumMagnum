@@ -222,6 +222,13 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           }
         }
       }
+      if (classNames.includes("llm-content-block")) {
+        const modelName = attribs['data-model-name'] || 'Unknown Model';
+        result = [
+          <div key="llm-header" className="llm-content-block-header">{modelName}</div>,
+          ...(Array.isArray(result) ? result : [result]),
+        ];
+      }
       if (classNames.includes("strawpoll-embed")) {
         result = <WrappedStrawPoll>
           {result}

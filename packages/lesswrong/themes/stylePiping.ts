@@ -271,6 +271,34 @@ const footnoteStyles = (_theme: ThemeType) => ({
   },
 });
 
+const llmContentBlockStyles = (theme: ThemeType) => ({
+  '& .llm-content-block': {
+    margin: '1em 0',
+    borderTop: `1px solid ${theme.palette.greyAlpha(0.2)}`,
+    borderBottom: `1px solid ${theme.palette.greyAlpha(0.2)}`,
+    textAlign: 'center',
+  },
+  '& .llm-content-block-header': {
+    fontSize: '0.85em',
+    color: theme.palette.greyAlpha(0.5),
+    display: 'inline-block',
+    backgroundColor: theme.palette.panelBackground.default,
+    paddingLeft: 4,
+    paddingRight: 4,
+    transform: 'translateY(-50%)',
+  },
+  '& .llm-content-block-content': {
+    padding: '0.5em 0',
+    textAlign: 'initial',
+    '& > p:first-child': {
+      marginTop: 0,
+    },
+    '& > p:last-child': {
+      marginBottom: 0,
+    },
+  },
+});
+
 const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& .detailsBlock': {
     // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
@@ -609,6 +637,7 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
+    ...llmContentBlockStyles(theme),
     ...conditionallyVisibleBlockStyles(theme),
     ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
