@@ -13,6 +13,7 @@ import {
   createCommand,
   type LexicalCommand,
   type LexicalNode,
+  type LexicalEditor,
 } from 'lexical';
 import { mergeRegister, $insertNodeToNearestRoot } from '@lexical/utils';
 import {
@@ -30,6 +31,19 @@ import {
   $isLLMContentBlockContentNode,
 } from './LLMContentBlockContentNode';
 import { useMessages } from '@/components/common/withMessages';
+
+/**
+ * The header's React component (rendered by DecoratorNode.decorate()) needs to
+ * know whether the editor is in suggestion mode so it can make the model-name
+ * input read-only. DecoratorNode.decorate() has no way to receive plugin props,
+ * so we share the value via a WeakMap keyed by editor instance — the plugin
+ * writes it, the header component reads it.
+ */
+const editorSuggestionModeMap = new WeakMap<LexicalEditor, boolean>();
+
+export function isEditorInSuggestionMode(editor: LexicalEditor): boolean {
+  return editorSuggestionModeMap.get(editor) ?? false;
+}
 
 export const INSERT_LLM_CONTENT_BLOCK_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_LLM_CONTENT_BLOCK_COMMAND'
@@ -123,6 +137,10 @@ interface LLMContentBlockPluginProps {
 export default function LLMContentBlockPlugin({ isSuggestionMode }: LLMContentBlockPluginProps): null {
   const [editor] = useLexicalComposerContext();
   const { flash } = useMessages();
+
+  useEffect(() => {
+    editorSuggestionModeMap.set(editor, isSuggestionMode ?? false);
+  }, [editor, isSuggestionMode]);
 
   useEffect(() => {
     if (!editor.hasNodes([LLMContentBlockNode, LLMContentBlockContentNode])) {

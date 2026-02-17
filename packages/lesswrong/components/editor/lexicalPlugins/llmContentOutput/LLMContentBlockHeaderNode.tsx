@@ -12,6 +12,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $isLLMContentBlockNode,
 } from './LLMContentBlockNode';
+import { isEditorInSuggestionMode } from './LLMContentBlockPlugin';
 
 export type SerializedLLMContentBlockHeaderNode = SerializedLexicalNode;
 
@@ -77,6 +78,7 @@ function LLMContentBlockHeaderComponent({
 }: LLMContentBlockHeaderComponentProps) {
   const [editor] = useLexicalComposerContext();
   const inputRef = useRef<HTMLInputElement>(null);
+  const isSuggestionMode = isEditorInSuggestionMode(editor);
 
   // Writing to the Lexical node (via editor.update → setModelName) triggers
   // an async decorate() cycle that re-renders this component with the new
@@ -116,7 +118,8 @@ function LLMContentBlockHeaderComponent({
         value={localValue}
         onChange={handleChange}
         placeholder="Unknown Model"
-        list={`llm-model-list-${containerNodeKey}`}
+        readOnly={isSuggestionMode}
+        list={isSuggestionMode ? undefined : `llm-model-list-${containerNodeKey}`}
       />
       <datalist id={`llm-model-list-${containerNodeKey}`}>
         {LLM_MODEL_OPTIONS.map((option) => (

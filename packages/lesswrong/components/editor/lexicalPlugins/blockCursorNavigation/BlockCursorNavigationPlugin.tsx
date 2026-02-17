@@ -26,7 +26,9 @@ import {
   $isElementNode,
   $isRangeSelection,
   $isRootNode,
+  COMMAND_PRIORITY_LOW,
   HISTORY_MERGE_TAG,
+  KEY_BACKSPACE_COMMAND,
   type LexicalEditor,
   type LexicalNode,
 } from 'lexical';
@@ -330,6 +332,41 @@ export default function BlockCursorNavigationPlugin(): null {
           {tag: SENTINEL_RECONCILE_TAG},
         );
       }),
+
+      // Backspace on a sentinel after a block-level element: delete the
+      // preceding block element and its contents. The sentinel exists to
+      // provide a cursor position next to elements the browser can't natively
+      // place a cursor beside; backspace here means "delete that element."
+      editor.registerCommand(
+        KEY_BACKSPACE_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+            return false;
+          }
+
+          const anchorNode = selection.anchor.getNode();
+          const sentinel = $isSentinelParagraphNode(anchorNode)
+            ? anchorNode
+            : $isSentinelParagraphNode(anchorNode.getParent())
+              ? anchorNode.getParent()
+              : null;
+
+          if (!sentinel) {
+            return false;
+          }
+
+          const prevSibling = sentinel.getPreviousSibling();
+          if (prevSibling && $needsBlockCursor(prevSibling)) {
+            event.preventDefault();
+            prevSibling.remove();
+            return true;
+          }
+
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
 
       // Sentinel promotion: when user types into a sentinel, promote it to
       // a real ParagraphNode
