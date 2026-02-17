@@ -59,8 +59,6 @@ export async function getPangramEvaluation(revision: DbRevision): Promise<Pangra
   }
 
   const htmlWithoutLLMBlocks = stripLLMContentBlocks(revision.html ?? '');
-
-  console.log({ html: revision.html, htmlWithoutLLMBlocks });
   
   const markdown = dataToMarkdown(htmlWithoutLLMBlocks, "html");
   // This should get the first 4-5k words.  There are longer posts but
