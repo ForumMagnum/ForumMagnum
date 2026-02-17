@@ -215,6 +215,13 @@ function $handleDeleteInput(
       return true
     }
 
+    // If the previous sibling is a sentinel, just move the cursor there
+    // instead of creating a join suggestion across the sentinel boundary.
+    if ($isSentinelParagraphNode(previousSibling)) {
+      previousSibling.selectEnd()
+      return true
+    }
+
     const previousBlock = $getPreviousNonInlineLeafElement(currentBlock)
     if (previousBlock) {
       if (previousBlock.isEmpty()) {

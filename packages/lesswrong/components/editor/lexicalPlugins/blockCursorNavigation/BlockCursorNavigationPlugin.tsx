@@ -33,6 +33,7 @@ import {
   type LexicalNode,
 } from 'lexical';
 import {useEffect} from 'react';
+import {$isListNode} from '@lexical/list';
 import {$isFootnoteSectionNode} from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
 import {
   $createSentinelParagraphNode,
@@ -55,10 +56,13 @@ const SENTINEL_RECONCILE_TAG = 'sentinel-reconcile';
 const SENTINEL_FOCUSED_CLASS = 'sentinel-focused';
 
 /**
- * Mirrors Lexical's internal `needsBlockCursor` check. Returns true for
- * block-level nodes that the browser can't natively place a cursor
- * before/after: DecoratorNodes (like HorizontalRuleNode) and ElementNodes
- * with canBeEmpty()=false (like ImageNode).
+ * Returns true for block-level nodes that the browser can't natively place
+ * a cursor before/after: DecoratorNodes (like HorizontalRuleNode) and
+ * ElementNodes with canBeEmpty()=false (like ImageNode, LLMContentBlockNode).
+ *
+ * Lists are excluded despite having canBeEmpty()=false — the browser handles
+ * cursor placement around lists natively, and sentinels would interfere with
+ * normal backspace-to-merge behavior between a paragraph and the preceding list.
  */
 function $needsBlockCursor(
   node: LexicalNode | null,
@@ -68,6 +72,9 @@ function $needsBlockCursor(
   }
   if ($isDecoratorNode(node)) {
     return !node.isInline();
+  }
+  if ($isListNode(node)) {
+    return false;
   }
   return $isElementNode(node) && !node.canBeEmpty() && !node.isInline();
 }
@@ -333,10 +340,9 @@ export default function BlockCursorNavigationPlugin(): null {
         );
       }),
 
-      // Backspace on a sentinel after a block-level element: delete the
-      // preceding block element and its contents. The sentinel exists to
-      // provide a cursor position next to elements the browser can't natively
-      // place a cursor beside; backspace here means "delete that element."
+      // Sentinel-aware backspace handling:
+      // 1. Cursor in a sentinel after a block element → delete the block element
+      // 2. Cursor at start of a paragraph after a sentinel → move cursor to sentinel
       editor.registerCommand(
         KEY_BACKSPACE_COMMAND,
         (event) => {
@@ -352,15 +358,32 @@ export default function BlockCursorNavigationPlugin(): null {
               ? anchorNode.getParent()
               : null;
 
-          if (!sentinel) {
+          // Case 1: cursor is inside a sentinel — delete the preceding block element
+          if (sentinel) {
+            const prevSibling = sentinel.getPreviousSibling();
+            if (prevSibling && $needsBlockCursor(prevSibling)) {
+              event.preventDefault();
+              prevSibling.remove();
+              return true;
+            }
             return false;
           }
 
-          const prevSibling = sentinel.getPreviousSibling();
-          if (prevSibling && $needsBlockCursor(prevSibling)) {
-            event.preventDefault();
-            prevSibling.remove();
-            return true;
+          // Case 2: cursor at start of a non-sentinel block whose previous
+          // sibling is a sentinel — move cursor into the sentinel instead of
+          // merging across it
+          if (selection.anchor.offset === 0) {
+            const block = $isElementNode(anchorNode)
+              ? anchorNode
+              : anchorNode.getParent();
+            if (block && $isElementNode(block)) {
+              const prevSibling = block.getPreviousSibling();
+              if ($isSentinelParagraphNode(prevSibling)) {
+                event.preventDefault();
+                prevSibling.selectEnd();
+                return true;
+              }
+            }
           }
 
           return false;
