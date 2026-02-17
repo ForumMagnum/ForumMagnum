@@ -9,10 +9,20 @@ import {
   $getNodeByKey,
 } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import {
   $isLLMContentBlockNode,
 } from './LLMContentBlockNode';
 import { isEditorInSuggestionMode } from './LLMContentBlockPlugin';
+
+const headerStyles = defineStyles('LLMContentBlockHeader', () => ({
+  measureSpan: {
+    position: 'absolute',
+    visibility: 'hidden',
+    whiteSpace: 'pre',
+  },
+}));
 
 export type SerializedLLMContentBlockHeaderNode = SerializedLexicalNode;
 
@@ -72,12 +82,16 @@ function useStopEventPropagation(ref: React.RefObject<HTMLInputElement | null>) 
   }, [ref]);
 }
 
+const PLACEHOLDER = 'Unknown Model';
+
 function LLMContentBlockHeaderComponent({
   modelName,
   containerNodeKey,
 }: LLMContentBlockHeaderComponentProps) {
   const [editor] = useLexicalComposerContext();
+  const classes = useStyles(headerStyles);
   const inputRef = useRef<HTMLInputElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
   const isSuggestionMode = isEditorInSuggestionMode(editor);
 
   // Writing to the Lexical node (via editor.update → setModelName) triggers
@@ -86,12 +100,21 @@ function LLMContentBlockHeaderComponent({
   // would be a visible flash where the input reverts to the old value before
   // the re-render arrives. Local state gives the input an immediate update.
   const [localValue, setLocalValue] = useState(modelName);
+  const [inputWidth, setInputWidth] = useState<number | undefined>(undefined);
 
   // Re-sync when the Lexical node is updated by something other than this
   // input (e.g. undo/redo, collaboration).
   useEffect(() => {
     setLocalValue(modelName);
   }, [modelName]);
+
+  // Measure the hidden span to size the input to its content, plus extra
+  // space for the dropdown arrow (10px icon + 4px right offset + 2px buffer).
+  useEffect(() => {
+    if (measureRef.current) {
+      setInputWidth(measureRef.current.offsetWidth + 16);
+    }
+  }, [localValue]);
 
   useStopEventPropagation(inputRef);
 
@@ -111,15 +134,22 @@ function LLMContentBlockHeaderComponent({
 
   return (
     <>
+      <span
+        ref={measureRef}
+        className={classNames('llm-content-block-model-input', classes.measureSpan)}
+      >
+        {localValue || PLACEHOLDER}
+      </span>
       <input
         ref={inputRef}
         type="text"
         className="llm-content-block-model-input"
         value={localValue}
         onChange={handleChange}
-        placeholder="Unknown Model"
+        placeholder={PLACEHOLDER}
         readOnly={isSuggestionMode}
         list={isSuggestionMode ? undefined : `llm-model-list-${containerNodeKey}`}
+        style={{ width: inputWidth }}
       />
       <datalist id={`llm-model-list-${containerNodeKey}`}>
         {LLM_MODEL_OPTIONS.map((option) => (
