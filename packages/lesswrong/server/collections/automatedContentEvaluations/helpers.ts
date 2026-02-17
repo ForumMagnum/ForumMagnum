@@ -1,4 +1,5 @@
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
+import { cheerioParse } from "@/server/utils/htmlUtil";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod";
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
@@ -40,13 +41,28 @@ export interface PangramEvaluationResult {
   pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; }[] | null;
 }
 
+/**
+ * Strip LLM content blocks from HTML before sending to Pangram. These blocks
+ * contain content that the user has explicitly labeled as AI-generated, so
+ * including them would skew the AI detection scores.
+ */
+function stripLLMContentBlocks(html: string): string {
+  const $ = cheerioParse(html);
+  $('div.llm-content-block').remove();
+  return $.html();
+}
+
 export async function getPangramEvaluation(revision: DbRevision): Promise<PangramEvaluationResult> {
   const key = process.env.PANGRAM_API_KEY;
   if (!key) {
     throw new Error("PANGRAM_API_KEY is not configured");
   }
 
-  const markdown = dataToMarkdown(revision.html, "html");
+  const htmlWithoutLLMBlocks = stripLLMContentBlocks(revision.html ?? '');
+
+  console.log({ html: revision.html, htmlWithoutLLMBlocks });
+  
+  const markdown = dataToMarkdown(htmlWithoutLLMBlocks, "html");
   // This should get the first 4-5k words.  There are longer posts but
   // it doesn't seem like it'll often be useful to check them in their
   // entirety, and every 1k words is more $$$.

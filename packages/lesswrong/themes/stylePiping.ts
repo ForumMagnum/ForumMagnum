@@ -273,28 +273,29 @@ const footnoteStyles = (_theme: ThemeType) => ({
 
 const llmContentBlockStyles = (theme: ThemeType) => ({
   '& .llm-content-block': {
+    position: 'relative',
     margin: '1em 0',
     borderTop: `1px solid ${theme.palette.greyAlpha(0.2)}`,
     borderBottom: `1px solid ${theme.palette.greyAlpha(0.2)}`,
-    textAlign: 'center',
-  },
-  '& .llm-content-block-header': {
-    fontSize: '0.85em',
-    color: theme.palette.greyAlpha(0.5),
-    display: 'inline-block',
-    backgroundColor: theme.palette.panelBackground.default,
-    paddingLeft: 4,
-    paddingRight: 4,
-    transform: 'translateY(-50%)',
-  },
-  '& .llm-content-block-content': {
-    padding: '0.5em 0',
-    textAlign: 'initial',
-    '& > p:first-child': {
-      marginTop: 0,
+    // The model name label is rendered as a pseudo-element so it sits on
+    // the top border without consuming any vertical space inside the block.
+    '&::before': {
+      content: 'attr(data-model-name)',
+      position: 'absolute',
+      top: 0,
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      fontSize: '0.85em',
+      color: theme.palette.greyAlpha(0.5),
+      backgroundColor: theme.palette.panelBackground.default,
+      paddingLeft: 4,
+      paddingRight: 4,
     },
-    '& > p:last-child': {
-      marginBottom: 0,
+    '& > .llm-content-block-content > p:first-child': {
+      marginTop: '1em',
+    },
+    '& > .llm-content-block-content > p:last-child': {
+      marginBottom: '1em',
     },
   },
 });

@@ -110,14 +110,6 @@ export class LLMContentBlockNode extends ElementNode {
 function convertLLMContentBlockElement(domNode: HTMLElement): DOMConversionOutput {
   const modelName = domNode.getAttribute('data-model-name') ?? DEFAULT_MODEL_NAME;
   const node = $createLLMContentBlockNode(modelName);
-
-  // Remove the header div so Lexical does not import it as content.
-  // The ensure-structure transform in the plugin will add a header node.
-  const headerDiv = domNode.querySelector('.llm-content-block-header');
-  if (headerDiv) {
-    headerDiv.remove();
-  }
-
   return { node };
 }
 

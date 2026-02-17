@@ -174,7 +174,6 @@ export const sanitize = function(s: string): string {
         'table-cell-action-button-container',
         'table-cell-resizer',
         'llm-content-block',
-        'llm-content-block-header',
         'llm-content-block-content',
         /arb-custom-script-[a-zA-Z0-9]*/,
       ],

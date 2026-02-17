@@ -223,11 +223,11 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         }
       }
       if (classNames.includes("llm-content-block")) {
-        const modelName = attribs['data-model-name'] || 'Unknown Model';
-        result = [
-          <div key="llm-header" className="llm-content-block-header">{modelName}</div>,
-          ...(Array.isArray(result) ? result : [result]),
-        ];
+        // Ensure data-model-name has a value so the CSS ::before pseudo-element
+        // (which reads it via attr()) shows a label even when no model was specified.
+        if (!attribs['data-model-name']) {
+          attribs['data-model-name'] = 'Unknown Model';
+        }
       }
       if (classNames.includes("strawpoll-embed")) {
         result = <WrappedStrawPoll>
