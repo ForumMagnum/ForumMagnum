@@ -223,8 +223,8 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         }
       }
       if (classNames.includes("llm-content-block")) {
-        // Ensure data-model-name has a value so the CSS ::before pseudo-element
-        // (which reads it via attr()) shows a label even when no model was specified.
+        // Ensure data-model-name has a value so the inline model label rendered
+        // by CSS ::before (via attr()) is visible even when unspecified.
         if (!attribs['data-model-name']) {
           attribs['data-model-name'] = 'Unknown Model';
         }

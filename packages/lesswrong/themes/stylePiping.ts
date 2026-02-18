@@ -273,32 +273,91 @@ const footnoteStyles = (_theme: ThemeType) => ({
 
 const llmContentBlockStyles = (theme: ThemeType) => ({
   '& .llm-content-block': {
+    margin: '1em 0',
     position: 'relative',
-    borderTop: `1px solid ${theme.palette.greyAlpha(0.2)}`,
-    borderBottom: `1px solid ${theme.palette.greyAlpha(0.2)}`,
-    // The model name label is rendered as a pseudo-element so it sits on
-    // the top border without consuming any vertical space inside the block.
+    fontFamily: '"cronos-pro", serif',
+    fontSize: 19.3,
+    fontWeight: 400,
+    opacity: 0.94,
+    // Render the model label inline so the content starts immediately after it.
     '&::before': {
       content: 'attr(data-model-name)',
-      position: 'absolute',
-      top: 0,
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
+      display: 'inline-block',
+      lineHeight: 1.3,
       fontSize: '0.85em',
-      color: theme.palette.greyAlpha(0.5),
-      backgroundColor: theme.palette.panelBackground.default,
-      paddingLeft: 4,
-      paddingRight: 4,
+      color: theme.palette.greyAlpha(0.6),
+      paddingRight: 6,
+      borderRight: `1px solid ${theme.palette.grey[400]}`,
+      fontWeight: 600,
+      fontVariant: 'small-caps',
     },
-    '& > .llm-content-block-content > :first-child': {
-      marginTop: 18,
+    '&:has(> .llm-content-block-content > p:first-child)::before': {
+      float: 'left',
+      marginRight: 8,
+      marginBottom: 0,
     },
-    '& > .llm-content-block-content > :last-child': {
-      marginBottom: 18,
+    '&:not(:has(> .llm-content-block-content > p:first-child))::before': {
+      float: 'none',
+      display: 'block',
+      width: 'fit-content',
+      marginRight: 0,
+      marginTop: '1em',
+      marginBottom: '1em',
     },
-    '& > .llm-content-block-content > p:last-child': {
-      // The line height of the paragraph elements make it so that there's more visual whitespace beneath text in paragraphs than above, so we need to adjust a bit to make it look symmetrical
-      marginBottom: 15,
+    '& > .llm-content-block-content': {
+      '& > :first-child': {
+        marginTop: 0,
+      },
+      '& > :last-child': {
+        marginBottom: 0,
+      },
+    },
+    '&:has(> .llm-content-block-content > p:last-child) > .llm-content-block-content > p:last-child::after': {
+      content: '"⊙"',
+      color: theme.palette.greyAlpha(0.55),
+      fontSize: '0.85em',
+      paddingLeft: 3,
+      marginLeft: 9,
+      borderLeft: `1px solid ${theme.palette.grey[400]}`,
+      fontWeight: 300,
+      letterSpacing: 2.1,
+      opacity: 0.6,
+    },
+    '& > .llm-content-block-content > p:last-child:has(> br:only-child)': {
+      display: 'inline-block',
+      margin: 0,
+      minWidth: '0.6em',
+    },
+    '& > .llm-content-block-content > p:last-child:has(> br:only-child) > br:only-child': {
+      display: 'none',
+    },
+    '& > .llm-content-block-content > p:last-child:has(> br:only-child)::after': {
+      content: '"⊙"',
+      display: 'inline-block',
+      color: theme.palette.greyAlpha(0.55),
+      fontSize: '0.85em',
+      lineHeight: 'inherit',
+      paddingLeft: 3,
+      marginLeft: 0,
+      borderLeft: `1px solid ${theme.palette.grey[400]}`,
+      fontWeight: 300,
+      letterSpacing: 2.1,
+      opacity: 0.6,
+    },
+    '&:not(:has(> .llm-content-block-content > p:last-child)) > .llm-content-block-content::after': {
+      content: '"⊙"',
+      display: 'block',
+      width: 'fit-content',
+      color: theme.palette.greyAlpha(0.55),
+      fontSize: '0.85em',
+      lineHeight: 1.3,
+      marginTop: '1em',
+      marginBottom: '1em',
+      paddingLeft: 3,
+      borderLeft: `1px solid ${theme.palette.grey[400]}`,
+      fontWeight: 300,
+      letterSpacing: 2.1,
+      opacity: 0.6,
     },
   },
 });

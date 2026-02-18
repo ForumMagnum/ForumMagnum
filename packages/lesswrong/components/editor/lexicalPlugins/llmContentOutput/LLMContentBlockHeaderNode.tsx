@@ -108,11 +108,11 @@ function LLMContentBlockHeaderComponent({
     setLocalValue(modelName);
   }, [modelName]);
 
-  // Measure the hidden span to size the input to its content, plus extra
-  // space for the dropdown arrow (10px icon + 4px right offset + 2px buffer).
+  // Measure the hidden span to size the input to its content, with a small
+  // buffer so editing doesn't clip the final character.
   useEffect(() => {
     if (measureRef.current) {
-      setInputWidth(measureRef.current.offsetWidth + 16);
+      setInputWidth(measureRef.current.offsetWidth + 4);
     }
   }, [localValue]);
 
