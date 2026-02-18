@@ -246,8 +246,20 @@ export default () => createJestConfig({
   //
   // This block needs to live here because otherwise it gets overriden by the
   // default `transformIgnorePatterns` from `createJestConfig`.
+  const transpileNodeModules = [
+    "react-instantsearch",
+    "@extractus",
+    "bellajs",
+    "react-error-boundary",
+    "jsdom",
+    "html-encoding-sniffer",
+    "@exodus/bytes",
+    "@csstools/*",
+    "parse5",
+  ];
+  
   config.transformIgnorePatterns = [
-    "/node_modules/(?!(react-instantsearch|@extractus|bellajs|react-error-boundary)/)"
+    `/node_modules/(?!(?:${transpileNodeModules.join("|")})/)`,
   ];
   return config;
 });

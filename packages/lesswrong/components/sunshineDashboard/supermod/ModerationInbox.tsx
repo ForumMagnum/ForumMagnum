@@ -8,7 +8,7 @@ import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import ModerationInboxList, { GroupEntry } from './ModerationInboxList';
-import ModerationDetailView from './ModerationDetailView';
+import ModerationUserDetailView from './ModerationUserDetailView';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
@@ -345,7 +345,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
-            <ModerationDetailView 
+            <ModerationUserDetailView 
               currentUser={currentUser}
               user={openedUser}
               posts={userPosts}

@@ -26,35 +26,54 @@ import {
   PASTE_COMMAND,
 } from 'lexical';
 import {useMemo} from 'react';
+import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
 import { ScissorsIcon } from '../../icons/ScissorsIcon';
 import { CopyIcon } from '../../icons/CopyIcon';
 import { ClipboardIcon } from '../../icons/ClipboardIcon';
 import { TrashIcon } from '../../icons/TrashIcon';
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand';
 
-export default function ContextMenuPlugin(): JSX.Element {
+export default function ContextMenuPlugin({
+  isSuggestionMode = false,
+}: {
+  isSuggestionMode?: boolean;
+}): JSX.Element {
   const [editor] = useLexicalComposerContext();
+  const isEditable = useLexicalEditable();
 
   const iconStyle = useMemo(() => ({ width: 16, height: 16, marginRight: 8, opacity: 0.6 }), []);
+  const disabledIconStyle = useMemo(() => ({ width: 16, height: 16, marginRight: 8, opacity: 0.3 }), []);
 
   const items = useMemo(() => {
     return [
       new NodeContextMenuOption(`Remove Link`, {
         $onSelect: () => {
-          editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+          if (!isEditable) return;
+          if (isSuggestionMode) {
+            editor.dispatchCommand(LINK_CHANGE_COMMAND, {
+              text: null,
+              linkNode: null,
+              url: null,
+              linkTextNode: null,
+            });
+          } else {
+            editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+          }
         },
-        $showOn: (node: LexicalNode) => $isLinkNode(node.getParent()),
-        disabled: false,
-        icon: <span style={iconStyle} />,
+        $showOn: (node: LexicalNode) => isEditable && $isLinkNode(node.getParent()),
+        disabled: !isEditable,
+        icon: <span style={isEditable ? iconStyle : disabledIconStyle} />,
       }),
       new NodeContextMenuSeparator({
-        $showOn: (node: LexicalNode) => $isLinkNode(node.getParent()),
+        $showOn: (node: LexicalNode) => isEditable && $isLinkNode(node.getParent()),
       }),
       new NodeContextMenuOption(`Cut`, {
         $onSelect: () => {
+          if (!isEditable) return;
           editor.dispatchCommand(CUT_COMMAND, null);
         },
-        disabled: false,
-        icon: <ScissorsIcon style={iconStyle} />,
+        disabled: !isEditable,
+        icon: <ScissorsIcon style={isEditable ? iconStyle : disabledIconStyle} />,
       }),
       new NodeContextMenuOption(`Copy`, {
         $onSelect: () => {
@@ -65,6 +84,7 @@ export default function ContextMenuPlugin(): JSX.Element {
       }),
       new NodeContextMenuOption(`Paste`, {
         $onSelect: () => {
+          if (!isEditable) return;
           void navigator.clipboard.read().then(async function (...args) {
             const data = new DataTransfer();
 
@@ -92,11 +112,12 @@ export default function ContextMenuPlugin(): JSX.Element {
             editor.dispatchCommand(PASTE_COMMAND, event);
           });
         },
-        disabled: false,
-        icon: <ClipboardIcon style={iconStyle} />,
+        disabled: !isEditable,
+        icon: <ClipboardIcon style={isEditable ? iconStyle : disabledIconStyle} />,
       }),
       new NodeContextMenuOption(`Paste as Plain Text`, {
         $onSelect: () => {
+          if (!isEditable) return;
           void navigator.clipboard.read().then(async function (...args) {
             const permission = await navigator.permissions.query({
               // @ts-expect-error These types are incorrect.
@@ -118,12 +139,13 @@ export default function ContextMenuPlugin(): JSX.Element {
             editor.dispatchCommand(PASTE_COMMAND, event);
           });
         },
-        disabled: false,
-        icon: <ClipboardIcon style={iconStyle} />,
+        disabled: !isEditable,
+        icon: <ClipboardIcon style={isEditable ? iconStyle : disabledIconStyle} />,
       }),
       new NodeContextMenuSeparator(),
       new NodeContextMenuOption(`Delete Node`, {
         $onSelect: () => {
+          if (!isEditable) return;
           const selection = $getSelection();
           if ($isRangeSelection(selection)) {
             const currentNode = selection.anchor.getNode();
@@ -141,11 +163,11 @@ export default function ContextMenuPlugin(): JSX.Element {
             });
           }
         },
-        disabled: false,
-        icon: <TrashIcon style={iconStyle} />,
+        disabled: !isEditable,
+        icon: <TrashIcon style={isEditable ? iconStyle : disabledIconStyle} />,
       }),
     ];
-  }, [editor, iconStyle]);
+  }, [editor, iconStyle, disabledIconStyle, isEditable, isSuggestionMode]);
 
   return (
     <NodeContextMenuPlugin

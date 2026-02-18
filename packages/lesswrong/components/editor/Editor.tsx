@@ -9,6 +9,8 @@ import { isClient } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { getUserABTestGroup } from '@/lib/abTestImpl';
+import { lexicalEditorABTest } from '@/lib/abTests';
 import { rootStyles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
@@ -19,6 +21,7 @@ import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
 import dynamic from 'next/dynamic';
+import { getYjsStateBase64ForPost } from '../lexical/collaboration';
 
 const CKCommentEditor = dynamic(() => import("./CKCommentEditor"));
 const CKPostEditor = dynamic(() => import("./CKPostEditor"));
@@ -199,12 +202,38 @@ export const getEditorTypeToDisplayMap = (): Record<LegacyEditorTypeString,{name
   lexical: {name: 'Lexical', postfix: '[Experimental]'},
 });
 
-export const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
-export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'lexical']
+const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
+const betaEditors: EditorTypeString[] = ['ckEditorMarkup', 'lexical']
+const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'lexical']
+
+/** Whether a user should have access to the Lexical editor (as a default or selectable option). */
+export function userHasLexicalEditor(user: UsersCurrent | DbUser | null): boolean {
+  if (!user) return false;
+  if (userIsAdmin(user)) return true;
+  if (user.beta) {
+    const abTestGroup = getUserABTestGroup({ user }, lexicalEditorABTest);
+    return abTestGroup === "lexical";
+  }
+  return false;
+}
+
+/** Returns the list of editors available to the given user. */
+export function getEditorsForUser(user: UsersCurrent | DbUser | null): EditorTypeString[] {
+  if (user && userIsAdmin(user)) {
+    return adminEditors;
+  }
+  if (user?.beta) {
+    if (userUseMarkdownPostEditor(user)) {
+      return ['markdown', ...betaEditors];
+    }
+    return betaEditors;
+  }
+  return nonAdminEditors;
+}
 
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
-  if (user && userIsAdmin(user)) return "lexical"
+  if (userHasLexicalEditor(user)) return "lexical"
   return "ckEditorMarkup"
 }
 
@@ -347,6 +376,13 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   debouncedCheckMarkdownImgErrs;
   debouncedValidateEditor: typeof this.validateCkEditor
 
+  /**
+   * For the Lexical editor: a function that generates HTML with all suggested
+   * edits rejected. Set by the inner Lexical Editor component via a callback,
+   * and invoked in `submitData` to populate `dataWithDiscardedSuggestions`.
+   */
+  private _lexicalGetDataWithDiscardedSuggestions: (() => string | undefined) | null = null;
+
   constructor(props: EditorProps) {
     super(props)
 
@@ -391,13 +427,22 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   submitData = async () => {
     let data: any = null
     let dataWithDiscardedSuggestions
+    let yjsState: string | null = null
     const { updateType, commitMessage, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()
     switch(this.props.value.type) {
       case "markdown":
       case "html":
+        data = this.props.value.value;
+        break
       case "lexical":
         data = this.props.value.value;
+        dataWithDiscardedSuggestions = this._lexicalGetDataWithDiscardedSuggestions?.();
+        // For Lexical posts, capture the current Yjs state so
+        // the revision created by updatePost has a restorable snapshot.
+        if (this.props.document?._id) {
+          yjsState = getYjsStateBase64ForPost(this.props.document._id);
+        }
         break
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
@@ -412,7 +457,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
 
     return {
-      originalContents: {type, data},
+      originalContents: {type, data, ...(yjsState ? { yjsState } : {})},
       commitMessage, updateType,
       dataWithDiscardedSuggestions
     };
@@ -597,6 +642,10 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
+  setLexicalDataWithDiscardedSuggestionsGetter = (fn: (() => string | undefined) | null) => {
+    this._lexicalGetDataWithDiscardedSuggestions = fn;
+  }
+
   renderLexicalEditor = (contents: EditorContents) => {
     const { _classes: classes, placeholder, commentEditor, documentId, collectionName } = this.props;
     const value = (typeof contents?.value === 'string') ? contents.value : "";
@@ -611,6 +660,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         onReady={() => {
           // Lexical editor is ready
         }}
+        onGetDataWithDiscardedSuggestions={this.setLexicalDataWithDiscardedSuggestionsGetter}
         commentEditor={commentEditor}
         documentId={documentId}
         collectionName={collectionName}

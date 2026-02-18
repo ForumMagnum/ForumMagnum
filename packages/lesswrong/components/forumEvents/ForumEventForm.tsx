@@ -24,6 +24,7 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { withDateFields } from "@/lib/utils/dateUtils";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const ForumEventsEditUpdateMutation = gql(`
   mutation updateForumEventForumEventForm($selector: SelectorInput!, $data: UpdateForumEventDataInput!) {
@@ -87,12 +88,13 @@ const InnerForumEventForm = ({
   const [create] = useMutation(ForumEventsEditMutation);
 
   const [mutate] = useMutation(ForumEventsEditUpdateMutation);
+  const now = useCurrentTime();
 
   const form = useForm({
     defaultValues: {
       ...initialData,
       customComponent: 'GivingSeason2024Banner' as const,
-      startDate: initialData?.startDate ?? new Date(),
+      startDate: initialData?.startDate ?? now,
       title: initialData?.title ?? '',
     },
     onSubmit: async ({ value, formApi }) => {

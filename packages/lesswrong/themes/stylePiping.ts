@@ -559,15 +559,6 @@ const baseBodyStyles = (theme: ThemeType) => ({
     width: 'fit-content',
     height: 'fit-content',
   },
-  // Many column tables should overflow instead of squishing
-  //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
-  //    squishy tables (which is the default behavior above)
-  '& figure.table:has(> table > tbody > tr > td + td + td + td)': {
-    overflowX: 'auto',
-    '& table': {
-      width: 700,
-    },
-  },
   '& td, & th': {
     ...tableCellStyles(theme)
   },
@@ -588,6 +579,13 @@ const baseBodyStyles = (theme: ThemeType) => ({
   },
   '& ol > li > ol > li > ol': {
     listStyle: 'lower-roman',
+  },
+  // Hide the marker on Lexical wrapper list items that only contain a nested
+  // list (no text content of their own). Without this, the wrapper's marker
+  // (e.g. "2.") appears on the same line as the nested list's first item
+  // (e.g. "a."), making them look squished together.
+  '& .nested-list-item': {
+    listStyleType: 'none',
   },
   "& u": {
     textDecoration: "none",

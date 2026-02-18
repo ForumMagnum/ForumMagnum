@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; version?: string; classes: ClassesType<typeof styles> }) => {
+const GoogleDocImportButton = ({ postId, version, classes }: { postId: string; version?: string; classes: ClassesType<typeof styles> }) => {
   const [googleDocUrl, setGoogleDocUrl] = useState("");
   const [open, setOpen] = useState(false)
   const anchorEl = useRef<HTMLDivElement | null>(null)

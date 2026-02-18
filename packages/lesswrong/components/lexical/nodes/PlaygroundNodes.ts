@@ -6,7 +6,7 @@
  *
  */
 
-import type {Klass, LexicalNode} from 'lexical';
+import type {Klass, LexicalNode, LexicalNodeConfig} from 'lexical';
 
 import {CodeHighlightNode, CodeNode} from '@lexical/code';
 import {HashtagNode} from '@lexical/hashtag';
@@ -15,8 +15,10 @@ import {ListItemNode, ListNode} from '@lexical/list';
 import {MarkNode} from '@lexical/mark';
 import {OverflowNode} from '@lexical/overflow';
 import {HorizontalRuleNode} from '@lexical/react/LexicalHorizontalRuleNode';
-import {HeadingNode, QuoteNode} from '@lexical/rich-text';
+import {HeadingNode} from '@lexical/rich-text';
 import {TableCellNode, TableNode, TableRowNode} from '@lexical/table';
+
+import { ContainerQuoteNode } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode';
 
 import { CollapsibleSectionContainerNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContainerNode';
 import { CollapsibleSectionContentNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode';
@@ -56,12 +58,18 @@ import { FootnoteContentNode } from '@/components/editor/lexicalPlugins/footnote
 import { FootnoteItemNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode';
 import { FootnoteReferenceNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteReferenceNode';
 import { FootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
+import { ProtonNode } from '@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode';
+import { ReviewResultsTableNode } from '../embeds/ReviewResultsEmbed/ReviewResultsTableNode';
+import { SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 
-const PlaygroundNodes: Array<Klass<LexicalNode>> = [
+const PlaygroundNodes: Array<LexicalNodeConfig> = [
   HeadingNode,
   ListNode,
   ListItemNode,
-  QuoteNode,
+  // ContainerQuoteNode replaces the built-in QuoteNode. It acts as a shadow
+  // root so block-level content (lists, collapsible sections, etc.) can be
+  // nested inside blockquotes. Registered directly (same type 'quote').
+  ContainerQuoteNode,
   CodeNode,
   TableNode,
   TableCellNode,
@@ -115,6 +123,9 @@ const PlaygroundNodes: Array<Klass<LexicalNode>> = [
   FootnoteBackLinkNode,
   SpoilerNode,
   ClaimNode,
+  ProtonNode,
+  SentinelParagraphNode,
+  ReviewResultsTableNode,
 ];
 
 export default PlaygroundNodes;

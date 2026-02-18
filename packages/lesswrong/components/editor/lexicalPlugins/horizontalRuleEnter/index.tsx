@@ -5,13 +5,14 @@ import {
   KEY_ENTER_COMMAND,
   COMMAND_PRIORITY_LOW,
   $createParagraphNode,
-  $isParagraphNode
+  $isParagraphNode,
+  type BaseSelection
 } from 'lexical';
 import { $createHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import { useEffect } from 'react';
 import { HR } from '../../../lexical/plugins/MarkdownTransformers';
 
-function $getTopLevelParagraph(selection: any) {
+export function $getTopLevelParagraphForHR(selection: BaseSelection | null) {
   if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
     return null;
   }
@@ -34,7 +35,7 @@ export default function HorizontalRuleEnterPlugin() {
         let shouldHandle = false;
         editor.getEditorState().read(() => {
           const selection = $getSelection();
-          const paragraphElement = $getTopLevelParagraph(selection);
+          const paragraphElement = $getTopLevelParagraphForHR(selection);
           if (!paragraphElement) {
             return;
           }
@@ -51,7 +52,7 @@ export default function HorizontalRuleEnterPlugin() {
 
         editor.update(() => {
           const selection = $getSelection();
-          const paragraphElement = $getTopLevelParagraph(selection);
+          const paragraphElement = $getTopLevelParagraphForHR(selection);
           if (!paragraphElement) {
             return;
           }

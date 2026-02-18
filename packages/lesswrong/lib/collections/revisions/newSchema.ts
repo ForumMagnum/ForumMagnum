@@ -209,11 +209,17 @@ const schema = {
         // suggestion. Original contents is only visible to people who are invited
         // to collaborative editing. (This is only relevant for posts, but supporting
         // it means we need originalContents to default to unviewable)
+        let contents: ContentType;
         if (document.collectionName === "Posts" && document.documentId) {
           const post = await context.loaders["Posts"].load(document.documentId);
-          return getOriginalContents(context.currentUser, post, document.originalContents, context);
+          contents = await getOriginalContents(context.currentUser, post, document.originalContents, context);
+        } else {
+          contents = document.originalContents ?? { type: 'ckEditorMarkup', data: '' };
         }
-        return document.originalContents ?? { type: 'ckEditorMarkup', data: '' };
+        // Strip yjsState from the GraphQL output — it's a large base64 blob
+        // only needed server-side for restore operations, not by clients.
+        const { yjsState, ...rest } = contents;
+        return rest;
       },
     },
   },
@@ -305,8 +311,8 @@ const schema = {
       resolver: ({ html }) => {
         if (!html) return "";
         const mainTextHtml = sanitizeHtml(html, {
-          allowedTags: sanitizeAllowedTags.filter((tag) => tag !== "blockquote" && tag !== "img"),
-          nonTextTags: ["blockquote", "img", "style"],
+          allowedTags: sanitizeAllowedTags.filter((tag) => tag !== "blockquote"),
+          nonTextTags: ["blockquote", "style"],
           exclusiveFilter: function (element) {
             return (
               element.attribs?.class === "spoilers" ||
@@ -316,7 +322,7 @@ const schema = {
           },
         });
         const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH);
-        return htmlToTextDefault(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
+        return htmlToTextDefault(truncatedHtml, { fallbackToImageText: true }).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
       },
     },
   },

@@ -3107,6 +3107,8 @@ CREATE TABLE "Users" (
   "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "biography" JSONB,
   "biography_latest" TEXT,
+  "pinnedPostIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "hideProfileTopPosts" BOOL NOT NULL DEFAULT FALSE,
   "username" TEXT,
   "emails" JSONB[],
   "isAdmin" BOOL NOT NULL DEFAULT FALSE,

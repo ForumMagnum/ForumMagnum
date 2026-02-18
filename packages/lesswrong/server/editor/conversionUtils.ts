@@ -1,4 +1,3 @@
-import { trimLatexAndAddCSS, preProcessLatex } from './latexUtils';
 import { randomId } from '../../lib/random';
 import { convertFromRaw } from 'draft-js';
 import { draftToHTML } from '../draftConvert';
@@ -8,8 +7,16 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
-import escape from 'lodash/escape';
 import { getMarkdownIt } from '@/lib/utils/markdownItPlugins';
+import type { Cheerio, CheerioAPI, Element as CheerioElement } from 'cheerio';
+import type { DataNode } from 'domhandler';
+import { mathjax } from 'mathjax-full/js/mathjax.js';
+import { TeX } from 'mathjax-full/js/input/tex.js';
+import { CHTML } from 'mathjax-full/js/output/chtml.js';
+import { type LiteAdaptor, liteAdaptor } from 'mathjax-full/js/adaptors/liteAdaptor.js';
+import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html.js';
+import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
+import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
 
 let _turndownService: TurndownService|null = null;
 function getTurndown(): TurndownService {
@@ -24,7 +31,7 @@ function getTurndown(): TurndownService {
       filter: (node, options) => node.classList?.contains('footnote-reference'),
       replacement: (content, node) => {
         // Use the data-footnote-id attribute to get the footnote id
-        const id = (node as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
+        const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
         return `[^${id}]`
       }
     })
@@ -33,10 +40,10 @@ function getTurndown(): TurndownService {
       filter: (node, options) => node.classList?.contains('footnote-item'),
       replacement: (content, node) => {
         // Use the data-footnote-id attribute to get the footnote id
-        const id = (node as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
+        const id = (node as unknown as Element).getAttribute('data-footnote-id') || 'MISSING-ID'
     
         // Get the content of the footnote by getting the content of the footnote-content div
-        const text = (node as Element).querySelector('.footnote-content')?.textContent || ''
+        const text = (node as unknown as Element).querySelector('.footnote-content')?.textContent || ''
         return `[^${id}]: ${text} \n\n`
       }
     })
@@ -74,54 +81,91 @@ function getTurndown(): TurndownService {
   return _turndownService;
 }
 
-export function mjPagePromise(html: string, beforeSerializationCallback: (dom: any, css: string) => any): Promise<string> {
-  // Takes in HTML and replaces LaTeX with CommonHTML snippets
-  // https://github.com/pkra/mathjax-node-page
-  return new Promise((resolve, reject) => {
-    let finished = false;
+let _mathjax3: {
+  adaptor: LiteAdaptor;
+  tex: TeX<unknown, unknown, unknown>;
+  chtml: CHTML<LiteElement, unknown, unknown>;
+} | null = null;
 
-    if (!isAnyTest) {
-      setTimeout(() => {
-        if (!finished) {
-          const errorMessage = `Timed out in mjpage when processing html: ${html}`;
-          captureException(new Error(errorMessage));
-          // eslint-disable-next-line no-console
-          console.error(errorMessage);
-          finished = true;
-          resolve(html);
-        }
-      }, 10000);
+function getMathjax3() {
+  if (_mathjax3) return _mathjax3;
+
+  const adaptor = liteAdaptor();
+  // eslint-disable-next-line babel/new-cap
+  RegisterHTMLHandler(adaptor);
+
+  const tex = new TeX({
+    packages: AllPackages,
+  });
+
+  const chtml = new CHTML<LiteElement, unknown, unknown>({
+    fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2',
+    scale: 0.92
+  });
+
+  _mathjax3 = { adaptor, tex, chtml };
+  return _mathjax3;
+}
+
+/**
+ * Render LaTeX math expressions in an HTML fragment using MathJax 3.
+ *
+ * Replaces inline (\(...\)) and display ($$...$$ / \[...\]) TeX delimiters
+ * with pre-rendered CHTML elements. The required MathJax CSS is inlined
+ * before the first rendered element so that it travels with the content
+ * into RSS feeds, scrapers, etc.
+ */
+export function renderMathInHtml(html: string): string {
+  if (isAnyTest) return html;
+
+  try {
+    const { adaptor, tex, chtml } = getMathjax3();
+
+    const doc = mathjax.document(html, {
+      InputJax: tex,
+      OutputJax: chtml,
+    });
+
+    doc.render();
+
+    const renderedHtml: string = adaptor.innerHTML(adaptor.body(doc.document));
+    const css: string = adaptor.textContent(chtml.styleSheet(doc));
+
+    if (!css || !renderedHtml.includes('mjx-container')) {
+      return renderedHtml;
     }
 
-    const errorHandler = (id: AnyBecauseTodo, wrapperNode: AnyBecauseTodo, sourceFormula: AnyBecauseTodo, sourceFormat: AnyBecauseTodo, errors: AnyBecauseTodo) => {
-      // This error handler runs for each LaTeX formula with an error in the
-      // document, and provides a JSDOM node for the element that wraps the
-      // formula. We handle this by making a (text) error message, and adding
-      // it as text in the DOM under wrapperNode.
-      // We use innerHTML and escape with `lodash/escape` rather than using
-      // innerText (which would normally be safer) because JSDOM doesn't seem
-      // to have innerText as a writeable prop.
+    // Inline the CSS with the first MathJax element so it's included in
+    // RSS feeds, external scrapers, etc. (same rationale as the old
+    // trimLatexAndAddCSS callback used with mathjax-node-page).
+    const $ = cheerioParse(renderedHtml);
+    // Parity with old trimLatexAndAddCSS(): drop empty display equations.
+    // These can occasionally arise from malformed/empty TeX blocks.
+    $('mjx-container[display="true"]').each((_, elem) => {
+      const node = $(elem);
+      if (node.text().trim() === '') {
+        node.remove();
+      }
+    });
 
-      // eslint-disable-next-line no-console
-      console.log("Error in Mathjax handling: ", id, wrapperNode, sourceFormula, sourceFormat, errors)
-
-      const errorMessage = "Invalid LaTeX $"+sourceFormula+": "+errors;
-      wrapperNode.innerHTML = escape(errorMessage);
+    const firstMathContainer = $('mjx-container').first();
+    if (firstMathContainer.length > 0) {
+      const styleNode = $('<style></style>').text(css);
+      firstMathContainer.before(styleNode);
+      return $.html();
     }
 
-    const callbackAndMarkFinished = (dom: any, css: string) => {
-      finished = true;
-      return beforeSerializationCallback(dom, css);
-    };
-
-    const { mjpage } = require('mathjax-node-page')
-    mjpage(html, { fragment: true, errorHandler, format: ["MathML", "TeX"] } , {html: true, css: true}, resolve)
-      .on('beforeSerialization', callbackAndMarkFinished);
-  })
+    return renderedHtml;
+  } catch (err) {
+    captureException(err);
+    // eslint-disable-next-line no-console
+    console.error('Error rendering math with MathJax:', err);
+    return html;
+  }
 }
 
 // Adapted from: https://github.com/cheeriojs/cheerio/issues/748
-export const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
+export const cheerioWrapAll = (toWrap: Cheerio<AnyBecauseHard>, wrapper: string, $: CheerioAPI) => {
   if (toWrap.length < 1) {
     return toWrap;
   }
@@ -153,8 +197,8 @@ function wrapSpoilerTags(html: string): string {
 
   // Iterate through spoiler elements, collecting them into groups. We do this
   // the hard way, because cheerio's sibling-selectors don't seem to work right.
-  let spoilerBlockGroups: Array<cheerio.Element[]> = [];
-  let currentBlockGroup: cheerio.Element[] = [];
+  let spoilerBlockGroups: Array<CheerioElement[]> = [];
+  let currentBlockGroup: CheerioElement[] = [];
   $(`.${spoilerClass}`).each(function(this: any) {
     const element = this;
     if (!(element?.previousSibling && $(element.previousSibling).hasClass(spoilerClass))) {
@@ -222,7 +266,7 @@ const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
   return $("#root").html() || ""
 }
 
-const removeLeadingEmptyParagraphsAndBreaks = (elements: cheerio.Element[], $: cheerio.Root) => {
+const removeLeadingEmptyParagraphsAndBreaks = (elements: CheerioElement[], $: CheerioAPI) => {
    for (const elem of elements) {
     if (isEmptyParagraphOrBreak(elem)) {
       $(elem).remove()
@@ -232,10 +276,10 @@ const removeLeadingEmptyParagraphsAndBreaks = (elements: cheerio.Element[], $: c
   }
 }
 
-const isEmptyParagraphOrBreak = (elem: cheerio.Element) => {
+const isEmptyParagraphOrBreak = (elem: CheerioElement) => {
   if (elem.type === 'tag' && elem.name === "p") {
     if (elem.children?.length === 0) return true
-    if (elem.children?.length === 1 && elem.children[0]?.type === "text" && elem.children[0]?.data?.trim() === "") return true
+    if (elem.children?.length === 1 && elem.children[0]?.type === "text" && (elem.children[0] as DataNode)?.data?.trim() === "") return true
     return false
   }
   if (elem.type === 'tag' && elem.name === "br") return true
@@ -243,8 +287,7 @@ const isEmptyParagraphOrBreak = (elem: cheerio.Element) => {
 }
 
 export async function draftJSToHtmlWithLatex(draftJS: AnyBecauseTodo) {
-  const draftJSWithLatex = await preProcessLatex(draftJS)
-  const html = draftToHTML(convertFromRaw(draftJSWithLatex))
+  const html = draftToHTML(convertFromRaw(draftJS))
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   return wrapSpoilerTags(trimmedHtml)
 }
@@ -264,14 +307,14 @@ export function markdownToHtmlNoLaTeX(markdown: string): string {
   return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 
-export async function markdownToHtml(markdown: string, options?: {
+export function markdownToHtml(markdown: string, options?: {
   skipMathjax?: boolean
-}): Promise<string> {
+}): string {
   const html = markdownToHtmlNoLaTeX(markdown)
   if (options?.skipMathjax) {
     return html;
   } else {
-    return await mjPagePromise(html, trimLatexAndAddCSS)
+    return renderMathInHtml(html)
   }
 }
 
@@ -284,7 +327,51 @@ async function ckEditorMarkupToHtml(markup: string, context: ResolverContext, sk
   if (skipMathjax) {
     return hydratedHtml;
   } else {
-    return await mjPagePromise(hydratedHtml, trimLatexAndAddCSS)
+    return renderMathInHtml(hydratedHtml)
+  }
+}
+
+/**
+ * This is mostly a fallback, since we should already be stripping
+ * private lexical markup on the client using `getDataWithDiscardedSuggestions`.
+ * This doesn't have correct rejection semantics, since it only handles
+ * plain insertions/deletions properly and not property changes,
+ * which are rendered as `ins` wrappers that would cause the changed
+ * element to be deleted here.  This is fine as a last-ditch
+ * saving throw but ideally this should be a no-op.
+ */
+function removePrivateLexicalMarkup(markup: string): string {
+  const $ = cheerioParse(markup);
+
+  const insCount = $('ins').length;
+  const delCount = $('del').length;
+  if (insCount > 0 || delCount > 0) {
+    const error = new Error(
+      `removePrivateLexicalMarkup: unexpected suggestion markup (${insCount} ins, ${delCount} del). ` +
+      `This means dataWithDiscardedSuggestions was not provided by the client, or the client's implementation is incorrect; falling back to lossy server-side stripping.`
+    );
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+    captureException(error);
+  }
+
+  // Suggested edits leave `ins` and `del` wrappers in the markup, and comments leave `mark` wrapper.
+  // We want to remove all the wrappers, and in the case of insertions, delete the content, to prevent
+  // leaking any suggested edits that haven't been explicitly accepted to readers.
+  $('ins').remove();
+  $('del').unwrap();
+  $('mark').unwrap();
+  return $.html();
+}
+
+function lexicalMarkupToHtml(markup: string, context: ResolverContext, skipMathjax?: boolean): string {
+  const html = sanitize(markup);
+  const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html);
+  const strippedHtml = removePrivateLexicalMarkup(trimmedHtml);
+  if (skipMathjax) {
+    return strippedHtml;
+  } else {
+    return renderMathInHtml(strippedHtml);
   }
 }
 
@@ -296,20 +383,20 @@ interface DataToHTMLOptions {
 export async function dataToHTML(data: AnyBecauseTodo, type: string, context: ResolverContext, options?: DataToHTMLOptions) {
   switch (type) {
     case "html":
-    case "lexical":
-      // Lexical content is stored as HTML
       const maybeSanitized = options?.sanitize ? sanitize(data) : data;
       if (options?.skipMathjax) {
         return maybeSanitized;
       } else {
-        return await mjPagePromise(maybeSanitized, trimLatexAndAddCSS)
+        return renderMathInHtml(maybeSanitized)
       }
+    case "lexical":
+      return lexicalMarkupToHtml(data, context, !!options?.skipMathjax)
     case "ckEditorMarkup":
       return await ckEditorMarkupToHtml(data, context, !!options?.skipMathjax)
     case "draftJS":
       return await draftJSToHtmlWithLatex(data);
     case "markdown":
-      return await markdownToHtml(data, { skipMathjax: options?.skipMathjax })
+      return markdownToHtml(data, { skipMathjax: options?.skipMathjax })
     default: throw new Error(`Unrecognized format: ${type}`);
   }
 }
@@ -354,7 +441,7 @@ export async function dataToCkEditor(data: AnyBecauseTodo, type: string) {
     case "draftJS":
       return await draftJSToHtmlWithLatex(data);
     case "markdown":
-      return await markdownToHtml(data)
+      return markdownToHtml(data)
     default: throw new Error(`Unrecognized format: ${type}`);
   }
 }

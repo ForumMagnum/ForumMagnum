@@ -31,6 +31,8 @@ interface Query {
   UserReadHistory: UserReadHistoryResult | null;
   PostsUserCommentedOn: UserReadHistoryResult | null;
   PostIsCriticism: boolean | null;
+  ProfileDiamondPosts: ProfileDiamondPostsResult;
+  ProfileDiamondComments: ProfileDiamondCommentsResult;
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
@@ -78,6 +80,7 @@ interface Query {
   SearchSynonyms: Array<string>;
   getCrosspost: any;
   RevisionsDiff: string | null;
+  ReviewResultsTableData: ReviewResultsTableData | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
   getBookWordCount: number | null;
@@ -275,6 +278,7 @@ interface Mutation {
   approveUserCurrentContentOnly: boolean;
   rerunLlmCheck: AutomatedContentEvaluation;
   runLlmCheckForDocument: AutomatedContentEvaluation;
+  unlistLlmPost: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
@@ -390,6 +394,7 @@ interface Mutation {
 interface ContentType {
   type: string;
   data: ContentTypeData;
+  yjsState: string | null;
 }
 
 interface SelectorInput {
@@ -893,6 +898,32 @@ interface VertexRecommendedPost {
   attributionId: string | null;
 }
 
+interface ProfileDiamondPostsResult {
+  results: Array<ProfilePostDiamond>;
+  totalCount: number | null;
+}
+
+interface ProfileDiamondCommentsResult {
+  results: Array<ProfileCommentDiamond>;
+  totalCount: number | null;
+}
+
+interface ProfilePostDiamond {
+  _id: string;
+  slug: string;
+  date: Date;
+  karma: number;
+  isReviewWinner: boolean;
+  isCurated: boolean;
+}
+
+interface ProfileCommentDiamond {
+  id: string;
+  date: Date;
+  karma: number;
+  postId: string;
+}
+
 interface PostWithApprovedJargon {
   post: Post;
   jargonTerms: Array<JargonTerm>;
@@ -915,8 +946,6 @@ interface HomepageCommunityEventPostsResult {
 
 interface HocuspocusAuth {
   token: string;
-  wsUrl: string;
-  documentName: string;
 }
 
 interface DigestHighlightsResult {
@@ -1266,6 +1295,20 @@ interface RssPostChangeInfo {
   isChanged: boolean;
   newHtml: string;
   htmlDiff: string;
+}
+
+interface ReviewResultsPostEntry {
+  rank: number;
+  title: string;
+  postUrl: string;
+  authorName: string;
+  coauthorNames: Array<string>;
+  votes: Array<number>;
+}
+
+interface ReviewResultsTableData {
+  year: number;
+  results: Array<ReviewResultsPostEntry>;
 }
 
 interface FeedSpotlightMetaInfo {
@@ -7359,6 +7402,8 @@ interface User {
   oldSlugs: Array<string>;
   biography: Revision | null;
   biography_latest: string | null;
+  pinnedPostIds: Array<string>;
+  hideProfileTopPosts: boolean;
   username: string | null;
   emails: Array<any> | null;
   isAdmin: boolean;
@@ -8940,6 +8985,7 @@ interface ReportOutput {
 interface ContentTypeInput {
   type: string;
   data: ContentTypeData;
+  yjsState?: string | null;
 }
 
 interface CreateRevisionDataInput {
@@ -9542,6 +9588,8 @@ interface CreateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
+  pinnedPostIds?: Array<string> | null;
+  hideProfileTopPosts?: boolean | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName: string;
@@ -9703,6 +9751,8 @@ interface UpdateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
+  pinnedPostIds?: Array<string> | null;
+  hideProfileTopPosts?: boolean | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName?: string | null;
@@ -9978,6 +10028,10 @@ interface GraphQLTypeMap {
   DigestPlannerPost: DigestPlannerPost;
   RecombeeRecommendedPost: RecombeeRecommendedPost;
   VertexRecommendedPost: VertexRecommendedPost;
+  ProfileDiamondPostsResult: ProfileDiamondPostsResult;
+  ProfileDiamondCommentsResult: ProfileDiamondCommentsResult;
+  ProfilePostDiamond: ProfilePostDiamond;
+  ProfileCommentDiamond: ProfileCommentDiamond;
   PostWithApprovedJargon: PostWithApprovedJargon;
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
@@ -10037,6 +10091,8 @@ interface GraphQLTypeMap {
   ToggleBookmarkOutput: ToggleBookmarkOutput;
   SetIsBookmarkedOutput: SetIsBookmarkedOutput;
   RssPostChangeInfo: RssPostChangeInfo;
+  ReviewResultsPostEntry: ReviewResultsPostEntry;
+  ReviewResultsTableData: ReviewResultsTableData;
   FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;

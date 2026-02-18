@@ -20,7 +20,6 @@ const styles = (theme: ThemeType) => ({
   },
   omegaIcon: {
     fontWeight: 600,
-    marginTop: -4,
     height: "1rem",
     width: "1rem",
     position: "relative",
@@ -30,6 +29,9 @@ const styles = (theme: ThemeType) => ({
       '"Book Antiqua"',
       'Georgia',
       'serif'].join(','),
+  },
+  omegaIconLegacy: {
+    marginTop: -4,
   },
   info: {
     display: "flex",
@@ -46,10 +48,23 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoOnSmallScreen, infoClassName, classes}: {
+export const UserMetaInfo = ({
+  user,
+  hideAfKarma,
+  hideWikiContribution,
+  hidePostCount,
+  hideCommentCount,
+  omegaAlignment = "legacy",
+  hideInfoOnSmallScreen,
+  infoClassName,
+  classes,
+}: {
   user: UsersMinimumInfo,
   hideAfKarma?: boolean,
   hideWikiContribution?: boolean,
+  hidePostCount?: boolean,
+  hideCommentCount?: boolean,
+  omegaAlignment?: "legacy" | "inline",
   hideInfoOnSmallScreen?: boolean,
   infoClassName?: string,
   classes: ClassesType<typeof styles>,
@@ -64,14 +79,14 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoO
         <div>{karma}</div>
       </div>}
       {!hideAfKarma && afKarma > 0 && <div className={infoClasses}>
-        <div className={classes.omegaIcon}>Ω</div>
+        <div className={classNames(classes.omegaIcon, omegaAlignment === "legacy" && classes.omegaIconLegacy)}>Ω</div>
         <div>{afKarma}</div>
       </div>}
-      {(postCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
+      {!hidePostCount && (postCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
         <DescriptionIcon className={classes.icon} /> 
         {postCount}
       </div>}
-      {(commentCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
+      {!hideCommentCount && (commentCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
         <MessageIcon className={classes.icon} />
         {commentCount}
       </div>}

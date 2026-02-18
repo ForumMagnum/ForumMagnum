@@ -1,5 +1,4 @@
-import { mjPagePromise } from '../editor/conversionUtils';
-import { trimLatexAndAddCSS } from '../editor/latexUtils';
+import { renderMathInHtml } from '../editor/conversionUtils';
 import { ArbitalCaches } from '../collections/arbitalCache/collection';
 import gql from 'graphql-tag';
 import { getMarkdownItArbital } from '@/lib/utils/markdownItPlugins';
@@ -91,7 +90,7 @@ async function fetchArbitalPageAsHtml(pageAlias: string): Promise<ArbitalPageDat
   let htmlWithLaTeX: string;
   try {
     const htmlNoLaTeX = getMarkdownItArbital().render(fixedMarkdown)
-    htmlWithLaTeX = await mjPagePromise(htmlNoLaTeX, trimLatexAndAddCSS)
+    htmlWithLaTeX = renderMathInHtml(htmlNoLaTeX)
   } catch(e) {
     throw new Error(`Error during Arbital hover-preview markdown/LaTeX conversion for "${pageAlias}"`);
   }

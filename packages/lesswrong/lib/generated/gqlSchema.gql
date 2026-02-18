@@ -13,6 +13,7 @@ scalar ContentTypeData
 type ContentType {
   type: String!
   data: ContentTypeData!
+  yjsState: String
 }
 
 input SelectorInput {
@@ -634,6 +635,8 @@ extend type Query {
   UserReadHistory(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostsUserCommentedOn(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostIsCriticism(args: JSON): Boolean
+  ProfileDiamondPosts(userId: String!, limit: Int!): ProfileDiamondPostsResult!
+  ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
@@ -684,6 +687,32 @@ type VertexRecommendedPost {
   attributionId: String
 }
 
+type ProfileDiamondPostsResult {
+  results: [ProfilePostDiamond!]!
+  totalCount: Int
+}
+
+type ProfileDiamondCommentsResult {
+  results: [ProfileCommentDiamond!]!
+  totalCount: Int
+}
+
+type ProfilePostDiamond {
+  _id: String!
+  slug: String!
+  date: Date!
+  karma: Int!
+  isReviewWinner: Boolean!
+  isCurated: Boolean!
+}
+
+type ProfileCommentDiamond {
+  id: String!
+  date: Date!
+  karma: Int!
+  postId: String!
+}
+
 type PostWithApprovedJargon {
   post: Post!
   jargonTerms: [JargonTerm!]!
@@ -706,8 +735,6 @@ type HomepageCommunityEventPostsResult {
 
 type HocuspocusAuth {
   token: String!
-  wsUrl: String!
-  documentName: String!
 }
 
 type DigestHighlightsResult {
@@ -1285,6 +1312,7 @@ extend type Mutation {
   approveUserCurrentContentOnly(userId: String!): Boolean!
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+  unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
 }
 
 extend type Mutation {
@@ -1399,6 +1427,24 @@ extend type Query {
 
 extend type Query {
   RevisionsDiff(collectionName: String!, fieldName: String!, id: String, beforeRev: String, afterRev: String!, trim: Boolean): String
+}
+
+type ReviewResultsPostEntry {
+  rank: Int!
+  title: String!
+  postUrl: String!
+  authorName: String!
+  coauthorNames: [String!]!
+  votes: [Float!]!
+}
+
+type ReviewResultsTableData {
+  year: Int!
+  results: [ReviewResultsPostEntry!]!
+}
+
+extend type Query {
+  ReviewResultsTableData(year: Int!): ReviewResultsTableData
 }
 
 extend type Mutation {
@@ -7988,6 +8034,8 @@ type User {
   oldSlugs: [String!]!
   biography(version: String): Revision
   biography_latest: String
+  pinnedPostIds: [String!]!
+  hideProfileTopPosts: Boolean!
   username: String
   emails: [JSON!]
   isAdmin: Boolean!
@@ -9768,6 +9816,7 @@ extend type Mutation {
 input ContentTypeInput {
   type: String!
   data: ContentTypeData!
+  yjsState: String
 }
 
 input CreateRevisionDataInput {
@@ -10466,6 +10515,8 @@ input CreateUserDataInput {
   howICanHelpOthers: CreateRevisionDataInput
   slug: String
   biography: CreateRevisionDataInput
+  pinnedPostIds: [String!]
+  hideProfileTopPosts: Boolean
   username: String
   isAdmin: Boolean
   displayName: String!
@@ -10627,6 +10678,8 @@ input UpdateUserDataInput {
   howICanHelpOthers: CreateRevisionDataInput
   slug: String
   biography: CreateRevisionDataInput
+  pinnedPostIds: [String!]
+  hideProfileTopPosts: Boolean
   username: String
   isAdmin: Boolean
   displayName: String

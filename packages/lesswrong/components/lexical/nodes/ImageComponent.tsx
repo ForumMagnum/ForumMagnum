@@ -21,7 +21,6 @@ import {
   $isTextNode,
   $setSelection,
   CLICK_COMMAND,
-  COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
   createCommand,
@@ -44,8 +43,7 @@ import {
 
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-// import brokenImage from '../images/image-broken.svg';
-import { ImageBrokenIcon } from '../icons/ImageBrokenIcon';
+import { useMessages } from '@/components/common/withMessages';
 import useModal from '../hooks/useModal';
 import ImageResizer from '../ui/ImageResizer';
 import Button from '../ui/Button';
@@ -56,6 +54,7 @@ import { ChatSquareQuoteIcon } from '../icons/ChatSquareQuoteIcon';
 import { FileEarmarkTextIcon } from '../icons/FileEarmarkTextIcon';
 import {$isImageNode} from './ImageNode';
 import { INSERT_INLINE_COMMENT_AT_COMMAND } from '../plugins/CommentPlugin';
+import { SET_IMAGE_CAPTION_VISIBILITY_COMMAND } from '../plugins/ImagesPlugin/commands';
 
 const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
   imageContainer: {
@@ -141,7 +140,6 @@ function useSuspenseImage(src: string): ImageStatus {
   } else if (!cached) {
     cached = new Promise<ImageStatus>((resolve) => {
       const img = new Image();
-      img.src = src;
       img.onload = () =>
         resolve({
           error: false,
@@ -149,6 +147,7 @@ function useSuspenseImage(src: string): ImageStatus {
           width: img.naturalWidth,
         });
       img.onerror = () => resolve({error: true});
+      img.src = src;
     }).then((rval) => {
       imageCache.set(src, rval);
       return rval;
@@ -181,7 +180,7 @@ function LazyImage({
   srcSet?: string | null;
   width: 'inherit' | number;
   onError: () => void;
-}): JSX.Element {
+}): JSX.Element | null {
   const isSVGImage = isSVG(src);
   const status = useSuspenseImage(src);
 
@@ -192,7 +191,7 @@ function LazyImage({
   }, [status.error, onError]);
 
   if (status.error) {
-    return <ImageBrokenIcon />;
+    return null;
   }
 
   const widthAttribute =
@@ -215,21 +214,6 @@ function LazyImage({
     />
   );
 }
-
-// function BrokenImage(): JSX.Element {
-//   return (
-//     <img
-//       src={brokenImage}
-//       style={{
-//         height: 200,
-//         opacity: 0.2,
-//         width: 200,
-//       }}
-//       draggable="false"
-//       alt="Broken image"
-//     />
-//   );
-// }
 
 function noop() {}
 
@@ -297,7 +281,21 @@ export default function ImageComponent({
   const [editor] = useLexicalComposerContext();
   const [isLoadError, setIsLoadError] = useState<boolean>(false);
   const isEditable = useLexicalEditable();
+  const { flash } = useMessages();
   const [modal, showModal] = useModal();
+
+  useEffect(() => {
+    if (isLoadError) {
+      flash({ messageString: 'Failed to load image', type: 'error' });
+      editor.update(() => {
+        const node = $getNodeByKey(imageNodeKey);
+        if ($isImageNode(node)) {
+          node.remove();
+        }
+      });
+    }
+  }, [isLoadError, editor, imageNodeKey, flash]);
+
   const isInNodeSelection = useMemo(
     () =>
       isSelected &&
@@ -560,36 +558,30 @@ export default function ImageComponent({
   }, [editor, $onEnter, $onEscape, onClick, onRightClick]);
 
   const setShowCaption = (show: boolean) => {
-    editor.update(() => {
-      const node = $getNodeByKey(imageNodeKey);
-      if ($isImageNode(node)) {
-        node.setShowCaption(show);
-        if (show) {
+    editor.dispatchCommand(SET_IMAGE_CAPTION_VISIBILITY_COMMAND, {
+      nodeKey: imageNodeKey,
+      showCaption: show,
+    });
+    if (show) {
+      editor.update(() => {
+        const node = $getNodeByKey(imageNodeKey);
+        if ($isImageNode(node)) {
           const captionNode = node.getCaptionNode();
           captionNode?.selectEnd();
         }
-      }
-    });
+      });
+    }
     if (show && editor.isEditable()) {
       editor.getRootElement()?.focus();
     }
   };
 
 
-  const onResizeEnd = (
-    nextWidthPercent: number | null,
-  ) => {
+  const onResizeEnd = () => {
     // Delay hiding the resize bars for click case
     setTimeout(() => {
       setIsResizing(false);
     }, 200);
-
-    editor.update(() => {
-      const node = $getNodeByKey(imageNodeKey);
-      if ($isImageNode(node)) {
-        node.setWidthPercent(nextWidthPercent);
-      }
-    });
   };
 
   const onResizeStart = () => {
@@ -644,80 +636,78 @@ export default function ImageComponent({
   };
   return (
     <Suspense fallback={null}>
-      <>
-        {modal}
-        <div className={classes.imageContainer}>
-          {showToolbar && (
-            <div className={classes.toolbar}>
-              <button
-                type="button"
-                className={classes.toolbarButton}
-                onClick={openAltTextModal}
-                title="Edit image alt text">
-                <FileEarmarkTextIcon className={classes.toolbarIcon} />
-                Alt
-              </button>
-              <button
-                type="button"
-                className={classes.toolbarButton}
-                onClick={openCommentInput}
-                title="Add comment">
-                <ChatLeftTextIcon className={classes.toolbarIcon} />
-                Comment
-              </button>
-              <button
-                type="button"
-                className={classNames(
-                  classes.toolbarButton,
-                  { [classes.toolbarButtonActive]: isCaptionButtonActive },
-                )}
-                onClick={() => setShowCaption(!showCaption)}
-                disabled={!captionsEnabled}
-                title={showCaption ? 'Hide caption' : 'Show caption'}>
-                <ChatSquareQuoteIcon className={classes.toolbarIcon} />
-                Caption
-              </button>
-            </div>
-          )}
-          <div
-            draggable={draggable}
-            className={classNames(
-              classes.imageWrapper,
-              {
-                [classes.resizing]: isResizing,
-                [classes.imageWrapperFocused]: isFocused,
-              },
-            )}>
-            {isLoadError ? (
-              <ImageBrokenIcon />
-            ) : (
-              <LazyImage
-                className={classNames(
-                  classes.imageElement,
-                  isFocused
-                    ? `focused ${isInNodeSelection ? 'draggable' : ''}`
-                    : null,
-                )}
-                src={src}
-                srcSet={srcSet ?? undefined}
-                altText={altText}
-                imageRef={imageRef}
-                width={width}
-                maxWidth={maxWidth}
-                onError={() => setIsLoadError(true)}
-              />
-            )}
-            {resizable && isInNodeSelection && isFocused && (
-              <ImageResizer
-                editor={editor}
-                imageRef={imageRef}
-                onResizeStart={onResizeStart}
-                onResizeEnd={onResizeEnd}
-              />
-            )}
+      {modal}
+      <div className={classes.imageContainer}>
+        {showToolbar && (
+          <div className={classes.toolbar}>
+            <button
+              type="button"
+              className={classes.toolbarButton}
+              onClick={openAltTextModal}
+              title="Edit image alt text">
+              <FileEarmarkTextIcon className={classes.toolbarIcon} />
+              Alt
+            </button>
+            <button
+              type="button"
+              className={classes.toolbarButton}
+              onClick={openCommentInput}
+              title="Add comment">
+              <ChatLeftTextIcon className={classes.toolbarIcon} />
+              Comment
+            </button>
+            <button
+              type="button"
+              className={classNames(
+                classes.toolbarButton,
+                { [classes.toolbarButtonActive]: isCaptionButtonActive },
+              )}
+              onClick={() => setShowCaption(!showCaption)}
+              disabled={!captionsEnabled}
+              title={showCaption ? 'Hide caption' : 'Show caption'}>
+              <ChatSquareQuoteIcon className={classes.toolbarIcon} />
+              Caption
+            </button>
           </div>
+        )}
+        <div
+          key="image-wrapper"
+          draggable={draggable}
+          className={classNames(
+            classes.imageWrapper,
+            {
+              [classes.resizing]: isResizing,
+              [classes.imageWrapperFocused]: isFocused,
+            },
+          )}>
+          {!isLoadError && (
+            <LazyImage
+              className={classNames(
+                classes.imageElement,
+                isFocused
+                  ? `focused ${isInNodeSelection ? 'draggable' : ''}`
+                  : null,
+              )}
+              src={src}
+              srcSet={srcSet ?? undefined}
+              altText={altText}
+              imageRef={imageRef}
+              width={width}
+              maxWidth={maxWidth}
+              onError={() => setIsLoadError(true)}
+            />
+          )}
+          {resizable && isInNodeSelection && isFocused && (
+            <ImageResizer
+              editor={editor}
+              imageRef={imageRef}
+              nodeKey={imageNodeKey}
+              onResizeStart={onResizeStart}
+              onResizeEnd={onResizeEnd}
+            />
+          )}
         </div>
-      </>
+      </div>
     </Suspense>
   );
 }

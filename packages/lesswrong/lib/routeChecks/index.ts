@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
-import { matchPath } from 'react-router'
+import { matchPath } from '../vendor/react-router/matchPath';
 import { isAF, taggingNamePluralSetting } from "../instanceSettings";
 
 function pathnameMatchesRoutePath(pathname: string, routePath: string) {
@@ -19,6 +18,15 @@ export const isStandaloneRoute = (pathname: string) => ['/crosspostLogin', '/gro
 export const isStaticHeaderRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/admin/digests/:num');
 
 export const isFullscreenRoute = (pathname: string) => ["/inbox", "/inbox/:_id", "/moderatorInbox", "/conversation"].some(route => pathnameMatchesRoutePath(pathname, route));
+
+export const isRouteWithLeftNavigationColumn = (pathname: string) => [
+  "/",
+  "/allPosts",
+  "/questions",
+  "/quicktakes",
+  "/collections/:_id",
+  "/library",
+].some(route => pathnameMatchesRoutePath(pathname, route));
 
 // ea-forum-look-here There was some special casing in Layout specific to the
 // subforum2 route. We dropped that route entirely along with its special
