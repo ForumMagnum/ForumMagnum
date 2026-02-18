@@ -94,6 +94,7 @@ export const UsersProfile = gql(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     pinnedPostIds
+    hideProfileTopPosts
   }
 `)
 

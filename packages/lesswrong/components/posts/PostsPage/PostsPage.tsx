@@ -339,8 +339,9 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
 
-  const isReviewWinner = ('reviewWinner' in post) && post.reviewWinner;
-  const showSplashPageHeader = isLWorAF() && !!isReviewWinner && !sequenceIdFromUrl;
+  const reviewWinner = fullPost?.reviewWinner;
+  const hasReviewWinnerArt = !!reviewWinner?.reviewWinnerArt?.splashArtImageUrl;
+  const showSplashPageHeader = isLWorAF() && hasReviewWinnerArt && !params.sequenceId;
 
   useEffect(() => {
     if (!query[SHARE_POPUP_QUERY_PARAM]) return;

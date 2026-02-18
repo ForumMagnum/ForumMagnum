@@ -85,7 +85,7 @@ export const revisionResolversGraphQLMutations = {
 
     const newRevision: Partial<DbRevision> = {
       ...await buildRevision({
-        originalContents: { type: contents.type, data: contents.value },
+        originalContents: { type: contents.type, data: contents.value, yjsState: null },
         currentUser,
         context,
       }),

@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { Suspense, useState, useRef, useEffect } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
-import { useLocation } from "@/lib/routeUtil";
-import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import { userCanEditUser, userGetDisplayName } from "@/lib/collections/users/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
+import { userGetEditUrl } from "@/lib/vulcan-users/helpers";
+import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { getUserFromResults } from "@/components/users/UsersProfile";
 import { useCurrentUser } from "@/components/common/withUser";
-import { slugify } from "@/lib/utils/slugify";
 import classNames from "classnames";
 import { useStyles } from "@/components/hooks/useStyles";
 import Loading from "@/components/vulcan-core/Loading";
@@ -25,14 +25,16 @@ import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
 import ContentStyles from "@/components/common/ContentStyles";
 import { ContentItemBody } from "@/components/contents/ContentItemBody";
+import SunshineNewUsersProfileInfo from "@/components/sunshineDashboard/SunshineNewUsersProfileInfo";
+import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
+import SupervisorAccountIcon from "@/lib/vendor/@material-ui/icons/src/SupervisorAccount";
 import { Link } from "@/lib/reactRouterWrapper";
-import { PinIcon } from "@/components/icons/pinIcon";
 import moment from "moment";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from "@/lib/instanceSettings";
-import { relativeTimeToLongFormat, useCurrentTime } from "@/lib/utils/timeUtil";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
 import { SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
 import { truncate } from "@/lib/editor/ellipsize";
+import ProfileDiamondSections from "./ProfileDiamondSections";
 import { profileStyles } from "./profileStyles";
 
 // ── Constants ──
@@ -44,6 +46,7 @@ const SEQUENCES_LIMIT = 6;
 const BIO_COLLAPSED_WORD_LIMIT = 60;
 const POST_SUMMARY_WORD_LIMIT = 50;
 const SORT_PANEL_CLOSE_MS = 300;
+const SEPARATOR_LINE_PATTERN = /^[\s\-_=*~]{8,}$/;
 
 const DEFAULT_PREVIEWS = [
   "/profile-placeholder-1.png",
@@ -75,15 +78,54 @@ function hashString(s: string): number {
   return Math.abs(h);
 }
 
+function cleanPostPreviewText(rawText: string): string {
+  if (!rawText) return "";
+  const normalized = rawText.replace(/\r\n?/g, "\n");
+  const cleanedLines = normalized
+    .split("\n")
+    .map((line) => line.replace(/[^\S\n]+/g, " ").trim())
+    .map((line) => (SEPARATOR_LINE_PATTERN.test(line) ? "" : line));
+  return cleanedLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+function truncatePreviewTextByWords(text: string, wordLimit: number): string {
+  if (!text) return "";
+  const tokens = text.match(/\S+|\s+/g) ?? [];
+  let wordCount = 0;
+  let result = "";
+
+  for (const token of tokens) {
+    if (/^\s+$/.test(token)) {
+      result += token;
+      continue;
+    }
+
+    if (wordCount >= wordLimit) {
+      return `${result.trimEnd()}...`;
+    }
+
+    result += token;
+    wordCount += 1;
+  }
+
+  return result.trimEnd();
+}
+
+function collapsePreviewParagraphsForList(text: string): string {
+  if (!text) return "";
+  // Flatten paragraph/line breaks for list items while leaving visible
+  // separation where breaks used to be.
+  return text.replace(/\n+/g, "   ").replace(/ {4,}/g, "   ").trim();
+}
+
 function getPostSummary(post: { contents?: { plaintextDescription?: string | null } | null }): string {
-  const fullSummary = (post?.contents?.plaintextDescription ?? "").trim();
-  const words = fullSummary.split(/\s+/);
-  if (words.length <= POST_SUMMARY_WORD_LIMIT) return fullSummary;
-  return words.slice(0, POST_SUMMARY_WORD_LIMIT).join(" ") + "...";
+  const fullSummary = cleanPostPreviewText(post?.contents?.plaintextDescription ?? "");
+  const singleParagraphSummary = collapsePreviewParagraphsForList(fullSummary);
+  return truncatePreviewTextByWords(singleParagraphSummary, POST_SUMMARY_WORD_LIMIT);
 }
 
 function getTopPostSummary(post: { contents?: { plaintextDescription?: string | null } | null }): string {
-  return (post?.contents?.plaintextDescription ?? "").trim();
+  return cleanPostPreviewText(post?.contents?.plaintextDescription ?? "");
 }
 
 function getDefaultPreview(postId: string): string {
@@ -113,16 +155,58 @@ function getPostImageUrl(
     ? topPostDefaultImages[topPostIndex % topPostDefaultImages.length]
     : getDefaultPreview(post?._id ?? "0");
   const url = post?.socialPreviewData?.imageUrl;
-  if (!url || !url.trim()) return fallback;
+  const trimmedUrl = url?.trim();
+  if (!trimmedUrl) return fallback;
+  if (trimmedUrl === "null" || trimmedUrl === "undefined") return fallback;
   // Google-hosted images (Docs embeds, profile photos) don't render well as
   // post preview cards, so fall back to a placeholder instead
-  if (url.includes("lh3.googleusercontent.com") || url.includes("docs.google.com")) {
+  if (trimmedUrl.includes("lh3.googleusercontent.com") || trimmedUrl.includes("docs.google.com")) {
     return fallback;
   }
-  if (url.includes("res.cloudinary.com") && url.includes("/upload/")) {
-    return url.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
+  if (trimmedUrl.includes("res.cloudinary.com") && trimmedUrl.includes("/upload/")) {
+    // Some legacy posts have an empty cloudinary public ID, which yields
+    // URLs like `.../upload/.../` that render as broken images.
+    const urlWithoutQuery = trimmedUrl.split(/[?#]/)[0];
+    if (urlWithoutQuery.endsWith("/")) return fallback;
+    return trimmedUrl.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
   }
-  return url;
+  return trimmedUrl;
+}
+
+function getPostBackgroundImage(
+  post: PostWithPreview,
+  topPostDefaultImages: string[],
+  topPostIndex?: number,
+): string {
+  const fallback = topPostIndex !== undefined
+    ? topPostDefaultImages[topPostIndex % topPostDefaultImages.length]
+    : getDefaultPreview(post?._id ?? "0");
+  const imageUrl = getPostImageUrl(post, topPostDefaultImages, topPostIndex);
+  if (imageUrl === fallback) return cssUrl(fallback);
+  // Keep a fallback layer so broken/404 primary URLs still render a placeholder.
+  return `${cssUrl(imageUrl)}, ${cssUrl(fallback)}`;
+}
+
+function cssUrl(url: string): string {
+  // Use double-quoted CSS url(...) with JS escaping to avoid breakage from apostrophes.
+  return `url(${JSON.stringify(url)})`;
+}
+
+function getListPostImageUrl(post: PostWithPreview): string | null {
+  const rawUrl = post?.socialPreviewData?.imageUrl;
+  const imageUrl = rawUrl?.trim();
+  if (!imageUrl || imageUrl === "null" || imageUrl === "undefined") return null;
+  // List items should only show explicit per-post images, not placeholders.
+  if (imageUrl.includes("/profile-placeholder-")) return null;
+  if (imageUrl.includes("lh3.googleusercontent.com") || imageUrl.includes("docs.google.com")) {
+    return null;
+  }
+  if (imageUrl.includes("res.cloudinary.com") && imageUrl.includes("/upload/")) {
+    const urlWithoutQuery = imageUrl.split(/[?#]/)[0];
+    if (urlWithoutQuery.endsWith("/")) return null;
+    return imageUrl.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
+  }
+  return imageUrl;
 }
 
 function formatReadableDate(date: Date | string): string {
@@ -227,7 +311,6 @@ const ProfileSequencesQuery = gql(`
   }
 `);
 
-
 export default function ProfilePage({slug}: {
   slug: string
 }) {
@@ -240,6 +323,7 @@ export default function ProfilePage({slug}: {
   const [postsToShow, setPostsToShow] = useState(INITIAL_POSTS_TO_SHOW);
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
   const [sortPanelClosing, setSortPanelClosing] = useState(false);
+  const [showModerationTools, setShowModerationTools] = useState(false);
   const [sortBy, setSortBy] = useState<"new" | "top" | "topInflation" | "recentComments" | "old" | "magic">("new");
   const [feedSortBy, setFeedSortBy] = useState<"recent" | "top">("recent");
   const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
@@ -264,10 +348,11 @@ export default function ProfilePage({slug}: {
   const user = getUserFromResults(userData?.users?.results);
   const userId = user?._id;
   const pinnedPostIds = user?.pinnedPostIds ?? [];
+  const hideTopPosts = user?.hideProfileTopPosts ?? false;
   const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
 
   const { data: topPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !userId || !!hasPinnedPosts,
+    skip: !userId || !!hasPinnedPosts || hideTopPosts,
     variables: {
       selector: userId ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } } : undefined,
       limit: TOP_POSTS_LIMIT,
@@ -277,7 +362,7 @@ export default function ProfilePage({slug}: {
   });
 
   const { data: pinnedPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !hasPinnedPosts,
+    skip: !hasPinnedPosts || hideTopPosts,
     variables: {
       selector: hasPinnedPosts ? { default: { exactPostIds: pinnedPostIds } } : undefined,
       limit: TOP_POSTS_LIMIT,
@@ -306,7 +391,6 @@ export default function ProfilePage({slug}: {
     fetchPolicy: "cache-and-network",
   });
 
-
   // When using pinnedPostIds, reorder results to match the pinned order.
   // The PostsList fragment guarantees all PostWithPreview fields exist at
   // runtime, but useQuery wraps them in DeepPartialObject which makes
@@ -325,7 +409,7 @@ export default function ProfilePage({slug}: {
   const hasMorePosts = recentPosts.length > postsToShow;
   const sequences = sequencesData?.sequences?.results ?? [];
 
-  const hasEnoughTopPosts = topPosts.length >= 4;
+  const hasEnoughTopPosts = !hideTopPosts && topPosts.length >= 4;
   const hasPosts = recentPosts.length > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
   const hasSequences = sequences.length > 0;
@@ -348,13 +432,15 @@ export default function ProfilePage({slug}: {
   }, [recentPostsLoading, sequencesLoading, userId, hasPosts, hasSequences, preferredProfileTab]);
 
   const currentUser = useCurrentUser();
-  const now = useCurrentTime();
   const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
+  const canEditProfile = !!user && userCanEditUser(currentUser, user);
+  const canModerateUserProfile = userIsAdminOrMod(currentUser);
   const canSubscribeToUser = !!user && !isOwnProfile;
   const canMessageUser = !!user && !!currentUser && !isOwnProfile;
 
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bioHtml = user?.htmlBio ?? "";
+  const hasBio = !!bioHtml;
   const collapsedBioHtml = getCollapsedBioHtml(bioHtml, BIO_COLLAPSED_WORD_LIMIT);
   const displayBioHtml = bioExpanded ? bioHtml : collapsedBioHtml;
   const showBioExpand = !!bioHtml && collapsedBioHtml !== bioHtml;
@@ -380,12 +466,40 @@ export default function ProfilePage({slug}: {
                 tooltipPlacement="bottom-start"
               />
             </h1>
-            {isOwnProfile && (
-              <Link to="/account?highlightField=pinnedPostIds" className={classes.profileEditButton}>
-                Edit
-              </Link>
+            {(canEditProfile || canModerateUserProfile) && (
+              <div className={classes.profileHeaderActions}>
+                {canEditProfile && (
+                  <LWTooltip title="Edit profile" placement="bottom">
+                    <Link
+                      to={userGetEditUrl(user)}
+                      className={classes.profileActionIconLink}
+                      aria-label={`Edit ${username}'s profile`}
+                    >
+                      <EditIcon className={classes.profileActionIcon} />
+                    </Link>
+                  </LWTooltip>
+                )}
+                {canModerateUserProfile && (
+                  <LWTooltip title={showModerationTools ? "Hide moderation tools" : "Show moderation tools"} placement="bottom">
+                    <button
+                      type="button"
+                      className={classes.profileActionIconButton}
+                      aria-label={showModerationTools ? "Hide moderation tools" : "Show moderation tools"}
+                      aria-expanded={showModerationTools}
+                      onClick={() => setShowModerationTools((open) => !open)}
+                    >
+                      <SupervisorAccountIcon className={classes.profileActionIcon} />
+                    </button>
+                  </LWTooltip>
+                )}
+              </div>
             )}
           </div>
+          {canModerateUserProfile && showModerationTools && userId && (
+            <div className={classes.sunshineToolsSection}>
+              <SunshineNewUsersProfileInfo userId={userId} startExpanded />
+            </div>
+          )}
 
           {hasEnoughTopPosts && (
             <>
@@ -420,7 +534,7 @@ export default function ProfilePage({slug}: {
                   <div
                     className={classes.postImage}
                     style={{
-                      backgroundImage: `url('${getPostImageUrl(topPost, topPostDefaultImages, 0)}')`,
+                      backgroundImage: getPostBackgroundImage(topPost, topPostDefaultImages, 0),
                     }}
                   ></div>
                 </Link>
@@ -428,7 +542,7 @@ export default function ProfilePage({slug}: {
 
               <div className={classes.smallArticlesGrid}>
                 {smallArticles.map((post, idx) => {
-                  const imageUrl = getPostImageUrl(post, topPostDefaultImages, idx + 1);
+                  const imageBackground = getPostBackgroundImage(post, topPostDefaultImages, idx + 1);
                   return (
                     <article key={post._id} className={classes.smallArticle}>
                       <Link
@@ -437,7 +551,7 @@ export default function ProfilePage({slug}: {
                       >
                         <div
                           className={classes.smallArticleImage}
-                          style={{ backgroundImage: `url('${imageUrl}')` }}
+                          style={{ backgroundImage: imageBackground }}
                         ></div>
                         <div className={classes.smallArticleContent}>
                           <h3 className={classes.smallArticleTitle}>
@@ -462,24 +576,26 @@ export default function ProfilePage({slug}: {
 
           {(bioHtml || user) && (
             <div className={classes.mobileProfileBio}>
-              <h4 className={classes.mobileProfileName}>{username}</h4>
-              <div className={classNames(classes.mobileProfileActions, classes.sidebarActions)}>
-                {canSubscribeToUser ? (
-                  <UserNotifyDropdown
-                    user={user}
-                    popperPlacement="bottom-start"
-                    className={classes.sidebarSubscribe}
-                  />
-                ) : (
-                  <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
-                )}
-                {canMessageUser ? (
-                  <NewConversationButton user={user} currentUser={currentUser}>
-                    <a className={classes.sidebarMore}>Message</a>
-                  </NewConversationButton>
-                ) : (
-                  <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
-                )}
+              <div className={classes.mobileProfileHeaderRow}>
+                <h4 className={classes.mobileProfileName}>{username}</h4>
+                <div className={classes.mobileProfileActions}>
+                  {canSubscribeToUser ? (
+                    <UserNotifyDropdown
+                      user={user}
+                      popperPlacement="bottom-start"
+                      className={classes.sidebarSubscribe}
+                    />
+                  ) : (
+                    <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
+                  )}
+                  {canMessageUser ? (
+                    <NewConversationButton user={user} currentUser={currentUser}>
+                      <a className={classes.sidebarMore}>Message</a>
+                    </NewConversationButton>
+                  ) : (
+                    <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
+                  )}
+                </div>
               </div>
               {bioHtml && (
                 <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
@@ -513,6 +629,7 @@ export default function ProfilePage({slug}: {
           )}
 
           <section className={classes.allPostsSection}>
+            <div className={classes.allPostsLeftColumn}>
             <div className={classes.allPostsHeader} ref={tabsRef}>
               <div className={classes.allPostsLeftHeader}>
                 <div className={classes.profileTabs}>
@@ -555,13 +672,6 @@ export default function ProfilePage({slug}: {
                   </div>
                 )}
               </div>
-              <h4 className={classes.sidebarAuthorName}>
-                <UsersNameWithModal
-                  user={user}
-                  className={classes.sidebarAuthorNameLink}
-                  tooltipPlacement="bottom-start"
-                />
-              </h4>
             </div>
 
             <div className={classes.allPostsContainer}>
@@ -623,10 +733,10 @@ export default function ProfilePage({slug}: {
                     </div>
                   </div>
                 )}
-                {listPosts.map((post, index) => {
+                {listPosts.map((post) => {
                   const summary = getPostSummary(post);
-                  const imageUrl = getPostImageUrl(post, topPostDefaultImages);
-                  const isPinned = !!pinnedPostIds?.includes(post._id);
+                  const imageUrl = getListPostImageUrl(post);
+                  const hasListImage = !!imageUrl;
                   return (
                     <article key={post._id} className={classes.listArticle}>
                       <Link
@@ -634,30 +744,42 @@ export default function ProfilePage({slug}: {
                         className={classes.articleLink}
                       >
                         <div className={classes.listArticleContent}>
-                          <h3 className={classes.listArticleTitle}>
-                            {isPinned && (
-                              <span className={classes.pinnedIcon} aria-hidden="true">
-                                <PinIcon className={classes.pinnedIconSvg} />
-                              </span>
+                          <div className={classNames(classes.listArticleBody, !hasListImage && classes.listArticleBodyNoImage)}>
+                            <div className={classNames(classes.listArticleText, !hasListImage && classes.listArticleTextNoImage)}>
+                              <h3 className={classes.listArticleTitle}>
+                                <span className={classes.listArticleTitleText}>{post.title}</span>
+                              </h3>
+                              {summary && (
+                                <div className={classNames(
+                                  classes.listArticleSummaryWrapper,
+                                  !hasListImage && classes.listArticleSummaryWrapperNoImage,
+                                )}>
+                                  <p className={classNames(
+                                    classes.listArticleSummary,
+                                    !hasListImage && classes.listArticleSummaryNoImage,
+                                  )}>{summary}</p>
+                                </div>
+                              )}
+                              <div className={classNames(classes.listArticleMeta)}>
+                                <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
+                                  <span className={classes.listDate}>{formatReadableDate(post.postedAt!)}</span>
+                                </LWTooltip>
+                                <span className={classes.listMetaDivider} aria-hidden="true">•</span>
+                                <LWTooltip title="Karma score">
+                                  <span className={classes.listKarma}>{post.baseScore ?? 0}</span>
+                                </LWTooltip>
+                              </div>
+                            </div>
+                            {hasListImage && (
+                              <div
+                                className={classes.listArticleImage}
+                                style={{
+                                  backgroundImage: cssUrl(imageUrl),
+                                }}
+                              ></div>
                             )}
-                            <span className={classes.listArticleTitleText}>{post.title}</span>
-                          </h3>
-                          {summary && <p className={classes.listArticleSummary}>{summary}</p>}
-                          <div className={classes.listArticleMeta}>
-                            <LWTooltip title="Karma score">
-                              <span className={classes.listKarma}>{post.baseScore ?? 0}</span>
-                            </LWTooltip>
-                            <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
-                              <span className={classes.listDate}>{formatReadableDate(post.postedAt!)}</span>
-                            </LWTooltip>
                           </div>
                         </div>
-                        <div
-                          className={classes.listArticleImage}
-                          style={imageUrl ? {
-                            backgroundImage: `url('${imageUrl}')`,
-                          } : undefined}
-                        ></div>
                       </Link>
                     </article>
                   );
@@ -694,7 +816,7 @@ export default function ProfilePage({slug}: {
                           <div
                             className={classes.sequenceCardImage}
                             style={{
-                              backgroundImage: `url('https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}')`,
+                              backgroundImage: cssUrl(`https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}`),
                             }}
                           ></div>
                           <div className={classes.sequenceCardContent}>
@@ -780,79 +902,80 @@ export default function ProfilePage({slug}: {
                   </UltraFeedContextProvider>
                 )}
               </div>
+            </div>
+            </div>
 
-              <aside className={classNames(classes.postsSidebar, bioHtml && classes.postsSidebarHasBio)}>
-                <div className={classes.sidebarActions}>
-                  {canSubscribeToUser ? (
+            <aside className={classNames(classes.postsSidebar, hasBio && classes.postsSidebarHasBio)}>
+              <div className={classes.sidebarAuthorBlock}>
+                <h4 className={classes.sidebarAuthorName}>
+                  <UsersNameWithModal
+                    user={user}
+                    className={classes.sidebarAuthorNameLink}
+                    tooltipPlacement="bottom-start"
+                  />
+                </h4>
+                <div className={classes.sidebarBioMeta}>
+                  {canSubscribeToUser && (
                     <UserNotifyDropdown
                       user={user}
                       popperPlacement="bottom-start"
                       className={classes.sidebarSubscribe}
                     />
-                  ) : (
-                    <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
                   )}
-                  {canMessageUser ? (
+                  {canMessageUser && (
                     <NewConversationButton user={user} currentUser={currentUser}>
                       <a className={classes.sidebarMore}>Message</a>
                     </NewConversationButton>
-                  ) : (
-                    <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
                   )}
                 </div>
-                {bioHtml && (
-                  <div className={classes.sidebarBioSection}>
-                    <div 
-                      ref={bioRef}
-                      className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}
-                    >
-                      <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+              </div>
+                <div className={classes.sidebarBioSection}>
+                  {!hasBio && (
+                    <div className={classes.sidebarMetaInfo}>
+                      <UserMetaInfo user={user} hidePostCount hideCommentCount omegaAlignment="inline" />
+                    </div>
+                  )}
+                  {hasBio && (
+                    <>
+                      <div 
+                        ref={bioRef}
+                        className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}
+                      >
+                        <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
                         <ContentItemBody
                           className={classes.sidebarAuthorBio}
                           dangerouslySetInnerHTML={{ __html: displayBioHtml }}
                           nofollow={bioNoFollow}
                         />
-                      </ContentStyles>
-                    </div>
-                    {showBioExpand && (
-                      <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
-                        <a 
-                          href="#" 
-                          className={classes.readMoreLink}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setBioExpanded(!bioExpanded);
-                          }}
-                        >
-                          {bioExpanded ? "See less" : "See more"}
-                        </a>
+                        </ContentStyles>
                       </div>
-                    )}
-                  </div>
+                      {showBioExpand && (
+                        <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
+                          <a 
+                            href="#" 
+                            className={classes.readMoreLink}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setBioExpanded(!bioExpanded);
+                            }}
+                          >
+                            {bioExpanded ? "See less" : "See more"}
+                          </a>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                {userId && (
+                  <Suspense fallback={null}>
+                    <ProfileDiamondSections
+                      key={userId}
+                      userId={userId}
+                      classes={classes}
+                    />
+                  </Suspense>
                 )}
-                {user && (
-                  <div className={classes.sidebarStats}>
-                    {(user.karma ?? 0) !== 0 && (
-                      <div className={classes.sidebarStatRow}>{(user.karma ?? 0).toLocaleString()} karma</div>
-                    )}
-                    {(user.afKarma ?? 0) > 0 && (
-                      <div className={classes.sidebarStatRow}>{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
-                    )}
-                    {(user.postCount ?? 0) > 0 && (
-                      <div className={classes.sidebarStatRow}>{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
-                    )}
-                    {(user.commentCount ?? 0) > 0 && (
-                      <div className={classes.sidebarStatRow}>{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
-                    )}
-                    {user.createdAt && (
-                      <div className={classes.sidebarStatRow}>
-                        Member for {relativeTimeToLongFormat(moment(now).from(moment(new Date(user.createdAt)), true))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </aside>
-            </div>
+            </aside>
           </section>
         </main>
       </div>

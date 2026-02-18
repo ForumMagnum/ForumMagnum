@@ -63,4 +63,21 @@ export const twoLineEventsSidebarABTest = new ABTest({
   },
 });
 
-export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest];
+export const lexicalEditorABTest = new ABTest({
+  name: "lexicalEditorABTest",
+  active: true,
+  affectsLoggedOut: false,
+  description: "Controls whether beta users get the Lexical editor by default. Users can override their group to switch back to CKEditor.",
+  groups: {
+    ckEditor: {
+      description: "Use CKEditor (classic editor)",
+      weight: 0,
+    },
+    lexical: {
+      description: "Use Lexical editor",
+      weight: 1,
+    },
+  },
+});
+
+export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest, lexicalEditorABTest];

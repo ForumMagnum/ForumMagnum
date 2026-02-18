@@ -147,23 +147,6 @@ function InnerEditorFormComponent<S, R>({
   const registerAppendToEditor = appendToEditorContext?.registerAppendToEditor;
   
 
-  useEffect(() => {
-    if (!registerAppendToEditor) return;
-    if (editorRef.current) {
-      registerAppendToEditor((html: string) => {
-        const ckEditorReference = editorRef.current?.state?.ckEditorReference;
-        if (ckEditorReference) {
-          const currentData = ckEditorReference.getData() || '';
-          const separator = currentData.trim() ? '<p><br></p>' : '';
-          ckEditorReference.data.set(currentData + separator + html);
-        }
-      });
-    }
-    return () => {
-      registerAppendToEditor(() => {});
-    };
-  }, [registerAppendToEditor]);
-  
   const { captureEvent } = useTracking()
 
   const localStorageIdGenerator = getLocalStorageId ?? getDefaultLocalStorageIdGenerator(collectionName);
@@ -203,6 +186,13 @@ function InnerEditorFormComponent<S, R>({
 
   const defaultEditorType = getUserDefaultEditor(currentUser);
   const currentEditorType = contents.type || defaultEditorType;
+  const isLexicalCollaborativeDocument = (
+    collectionName === 'Posts'
+    && fieldName === 'contents'
+    && currentEditorType === 'lexical'
+    && !!document?._id
+  );
+  const suppressLocalStorageRestore = isCollabEditor || isLexicalCollaborativeDocument;
 
   // We used to show this warning to a variety of editor types, but now we only want
   // to show it to people using the html editor. Converting from markdown to ckEditor
@@ -338,7 +328,7 @@ function InnerEditorFormComponent<S, R>({
     // Afterwards, check whatever revision was loaded for display
     // This may or may not be the most recent one) against current content
     // If different, save a new revision
-    if (userHasPostAutosave(currentUser) && collectionName === 'Posts' && fieldName === 'contents' && !isEqual(autosaveContentsRef.current, newContents)) {
+    if (userHasPostAutosave(currentUser) && collectionName === 'Posts' && fieldName === 'contents' && !isEqual(autosaveContentsRef.current, newContents) && newContents.type === 'ckEditorMarkup') {
       // In order to avoid recreating this function (which is throttled) each time the contents change,
       // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
       // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
@@ -424,6 +414,35 @@ function InnerEditorFormComponent<S, R>({
       }
     }
   });
+
+  useEffect(() => {
+    if (!registerAppendToEditor) return;
+    registerAppendToEditor((html: string) => {
+      const editor = editorRef.current;
+      const activeType = editor?.props?.value?.type;
+      const ckEditorReference = editor?.state?.ckEditorReference;
+
+      if (activeType === 'ckEditorMarkup' && ckEditorReference) {
+        const currentData = ckEditorReference.getData() || '';
+        const separator = currentData.trim() ? '<p><br></p>' : '';
+        ckEditorReference.data.set(currentData + separator + html);
+        return;
+      }
+
+      if (activeType === 'lexical') {
+        const currentData = editor?.props?.value?.value ?? '';
+        const separator = currentData.trim() ? '<p><br></p>' : '';
+        wrappedSetContents({
+          contents: { type: 'lexical', value: `${currentData}${separator}${html}` },
+          autosave: true,
+        });
+      }
+    });
+
+    return () => {
+      registerAppendToEditor(() => {});
+    };
+  }, [registerAppendToEditor, wrappedSetContents]);
   
   const hasGeneratedFirstToC = useRef({generated: false});
   useEffect(() => {
@@ -449,17 +468,17 @@ function InnerEditorFormComponent<S, R>({
   }, [fieldName, hasUnsavedDataRef]);
   
   const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
-    if (isCollabEditor) {
+    if (suppressLocalStorageRestore) {
       // If in collab editing mode, we can't edit the editor contents.
       flash("Restoring from local storage is not supported in the collaborative editor. Use the Version History button to restore old versions.");
     } else {
       wrappedSetContents({contents: newState, autosave: false});
       // TODO: Focus editor
     }
-  }, [wrappedSetContents, flash, isCollabEditor]);
+  }, [wrappedSetContents, flash, suppressLocalStorageRestore]);
 
   const onRestoreNewPostLegacy = useCallback((newState: EditorContents) => {
-    if (isCollabEditor) {
+    if (suppressLocalStorageRestore) {
       // If in collab editing mode, we can't edit the editor contents.
       flash("Restoring from local storage is not supported in the collaborative editor. Use the Version History button to restore old versions.");
     } else {
@@ -467,7 +486,7 @@ function InnerEditorFormComponent<S, R>({
       getNewPostLocalStorageHandlers(currentEditorType).reset();
       // TODO: Focus editor
     }
-  }, [wrappedSetContents, flash, isCollabEditor, currentEditorType, getNewPostLocalStorageHandlers]);
+  }, [wrappedSetContents, flash, suppressLocalStorageRestore, currentEditorType, getNewPostLocalStorageHandlers]);
   
   
   useEffect(() => {
@@ -562,7 +581,7 @@ function InnerEditorFormComponent<S, R>({
         value={contents} setValue={wrappedSetContents}
       />
     }
-    {!isCollabEditor && <LocalStorageCheck
+    {!suppressLocalStorageRestore && <LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
       onRestoreNewPostLegacy={onRestoreNewPostLegacy}

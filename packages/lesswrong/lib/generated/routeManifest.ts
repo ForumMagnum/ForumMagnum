@@ -527,6 +527,9 @@ export const routeTrie = {
       },
       "hasPage": true
     },
+    "hocuspocusWebhook": {
+      "hasPage": true
+    },
     "hpmor": {
       "dynamicChild": {
         "paramName": "slug",
@@ -1004,6 +1007,7 @@ export const routeTrie = {
     "groups": "groups",
     "groups-map": "groups-map",
     "highlights": "highlights",
+    "hocuspocuswebhook": "hocuspocusWebhook",
     "hpmor": "hpmor",
     "inbox": "inbox",
     "item": "item",

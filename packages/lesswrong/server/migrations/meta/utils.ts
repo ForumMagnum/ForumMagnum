@@ -309,7 +309,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
             : {
               html: "",
               wordCount: 0,
-              originalContents: {type: "ckEditorMarkup", data: ""},
+              originalContents: {type: "ckEditorMarkup", data: "", yjsState: null},
               editedAt: new Date(),
               userId,
             };

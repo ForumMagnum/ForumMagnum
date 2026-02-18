@@ -604,7 +604,7 @@ export const frontpageDaysAgoCutoffSetting = new PublicInstanceSetting<number>('
 export const databaseDebuggersSetting = new PublicInstanceSetting<string[]>('debuggers', [], "optional");
 
 // 'Maximum documents per request'
-export const maxDocumentsPerRequestSetting = new PublicInstanceSetting<number>('maxDocumentsPerRequest', 5000, "optional");
+export const maxDocumentsPerRequestSetting = new PublicInstanceSetting<number>('maxDocumentsPerRequest', 10000, "optional");
 
 export const addNewReactKarmaThreshold = new PublicInstanceSetting("reacts.addNewReactKarmaThreshold", 100, "optional");
 export const addNameToExistingReactKarmaThreshold = new PublicInstanceSetting("reacts.addNameToExistingReactKarmaThreshold", 20, "optional");

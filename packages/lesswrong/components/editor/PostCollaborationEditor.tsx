@@ -22,7 +22,6 @@ import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
 import PostVersionHistoryButton from './PostVersionHistory';
 import { gql } from '@/lib/generated/gql-codegen';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
-import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import dynamic from 'next/dynamic';
 
 const CKPostEditor = dynamic(() => import("./CKPostEditor"));
@@ -45,12 +44,11 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-// Editor that _only_ gives people access to the ckEditor, without any other post options
+// Editor that gives people access to the collaborative editor (Lexical or CKEditor, depending on the post's current editor type)
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const isAdmin = userIsAdmin(currentUser);
 
   const { query: { postId, key } } = useLocation();
 
@@ -58,6 +56,11 @@ const PostCollaborationEditor = ({ classes }: {
     query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {
       getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {
         ...PostsEdit
+        contents {
+          originalContents {
+            type
+          }
+        }
       }
     }
   `), {
@@ -69,10 +72,12 @@ const PostCollaborationEditor = ({ classes }: {
     ssr: true,
   });
 
-  // Many downstream components expect something with `contents`, which PostsEdit doesn't have.
-  // I don't know whether a bunch of this functionality was just broken in the context of the collaborative editor
-  // because the types used to be wrong, or if none of it mattered.
-  const post: PostsPage | undefined = data?.getLinkSharedPost ? { ...data.getLinkSharedPost, contents: null } : undefined;
+  const queryResult = data?.getLinkSharedPost;
+
+  // Many downstream components expect something with `contents`, which we don't fetch in full.
+  // Things seem to work anyways; I don't know whether a bunch of that functionality was just
+  // broken in the context of the collaborative editor because the types used to be wrong, or if none of it mattered.
+  const post: PostsPage | undefined = queryResult ? { ...queryResult, contents: null } : undefined;
   
   // Error handling and loading state
   if (!postId) {
@@ -117,6 +122,11 @@ const PostCollaborationEditor = ({ classes }: {
     return <ForeignCrosspostEditForm post={post} />;
   }
 
+    // Determine which editor to use based on the post's most recent revision.
+    // By the time we get here, `queryResult` should never be null.
+    const postEditorType = queryResult?.contents?.originalContents?.type;
+    const useLexical = postEditorType === 'lexical';  
+
   return <>
     <StatusCodeSetter status={200}/>
     <SingleColumnSection>
@@ -128,7 +138,7 @@ const PostCollaborationEditor = ({ classes }: {
       </div>*/}
       <ContentStyles className={classes.editor} contentType="post">
         <DeferRender ssr={false}>
-          {isAdmin ? (
+          {useLexical ? (
             <LexicalEditor
               data={''}
               placeholder="Start writing..."

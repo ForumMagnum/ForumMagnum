@@ -1,5 +1,7 @@
 import React from 'react';
 import PopupCommentEditor from "./PopupCommentEditor";
+import { useCurrentUser } from "../common/withUser";
+import { getUserDefaultRichTextEditor } from "@/lib/editor/defaultRichTextEditor";
 
 /**
  * ReplyCommentDialog: A floating comment editor created by clicking the comment
@@ -16,6 +18,9 @@ const ReplyCommentDialog = ({post, initialHtml, onClose}: {
   parentComment?: CommentsList,
   onClose: () => void,
 }) => {
+  const currentUser = useCurrentUser();
+  const defaultEditorType = getUserDefaultRichTextEditor(currentUser);
+
   return <PopupCommentEditor
     title={"New Comment: " + post.title}
     onClose={onClose}
@@ -24,7 +29,7 @@ const ReplyCommentDialog = ({post, initialHtml, onClose}: {
       prefilledProps: {
         contents: {
           originalContents: {
-            type: "ckEditorMarkup",
+            type: defaultEditorType,
             data: initialHtml,
           }
         },

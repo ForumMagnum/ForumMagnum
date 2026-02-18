@@ -338,6 +338,22 @@ const schema = {
       canCreate: ["admins"],
     },
   },
+
+  // hideProfileTopPosts: If true, hide the featured top-posts section on profile pages.
+  hideProfileTopPosts: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins"],
+      canCreate: ["admins"],
+    },
+  },
   
   username: {
     database: {
