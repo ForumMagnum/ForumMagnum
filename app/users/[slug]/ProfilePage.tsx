@@ -3,6 +3,7 @@
 import React, { Suspense, useState, useRef } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery, useSuspenseQuery } from "@/lib/crud/useQuery";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { userCanEditUser, userGetDisplayName } from "@/lib/collections/users/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
@@ -38,12 +39,12 @@ import ProfileDiamondSections from "./ProfileDiamondSections";
 import { profileStyles } from "./profileStyles";
 import Error404 from "@/components/common/Error404";
 import { StatusCodeSetter } from "@/components/next/StatusCodeSetter";
+import LoadMore from "@/components/common/LoadMore";
 
 // ── Constants ──
 
 const INITIAL_POSTS_TO_SHOW = 7;
 const TOP_POSTS_LIMIT = 4;
-const RECENT_POSTS_LIMIT = 50;
 const SEQUENCES_LIMIT = 6;
 const BIO_COLLAPSED_WORD_LIMIT = 60;
 const POST_SUMMARY_WORD_LIMIT = 50;
@@ -403,9 +404,9 @@ function ProfilePageInner({user}: {
             </Suspense>
           </div>}
 
-          <Suspense>
+          {!user.hideProfileTopPosts && <Suspense>
             <UserProfileTopPostsSection user={user}/>
-          </Suspense>
+          </Suspense>}
 
           <Suspense>
             <ProfilePageMobileBio user={user} bioNoFollow={bioNoFollow}/>
@@ -468,9 +469,9 @@ function ProfilePageInner({user}: {
                 classes.sequencesList, classes.tabPanel,
                 activeTab === "sequences" && classes.tabPanelActive
               )}>
-                <Suspense>
+                {activeTab === "sequences" && <Suspense>
                   <ProfilePageSequencesTab user={user} />
-                </Suspense>
+                </Suspense>}
               </div>
 
               <div className={classNames(
@@ -478,9 +479,9 @@ function ProfilePageInner({user}: {
                 classes.tabPanel,
                 activeTab === "feed" && classes.tabPanelActive
               )}>
-                <Suspense>
+                {activeTab === "feed" && <Suspense>
                   <ProfilePageFeedTab user={user} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
-                </Suspense>
+                </Suspense>}
               </div>
             </div>
             </div>
@@ -497,13 +498,12 @@ function ProfilePageInner({user}: {
 
 function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
   const classes = useStyles(profileStyles);
-  const userId = user?._id;
-  const pinnedPostIds = user?.pinnedPostIds ?? [];
-  const hideTopPosts = user?.hideProfileTopPosts ?? false;
+  const userId = user._id;
+  const pinnedPostIds = user.pinnedPostIds ?? [];
   const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
 
   const { data: pinnedPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !hasPinnedPosts || hideTopPosts,
+    skip: !hasPinnedPosts,
     variables: {
       selector: hasPinnedPosts ? { default: { exactPostIds: pinnedPostIds } } : undefined,
       limit: TOP_POSTS_LIMIT,
@@ -512,7 +512,7 @@ function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
     fetchPolicy: "cache-and-network",
   });
   const { data: topPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !userId || !!hasPinnedPosts || hideTopPosts,
+    skip: !!hasPinnedPosts,
     variables: {
       selector: userId ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } } : undefined,
       limit: TOP_POSTS_LIMIT,
@@ -537,7 +537,6 @@ function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
   const topPostDefaultImages = buildTopPostDefaultImages(topPosts);
   const hasEnoughTopPosts = topPosts.length >= 4;
 
-  if (hideTopPosts) return null;
   if (!hasEnoughTopPosts) return null;
 
   return (
@@ -854,23 +853,20 @@ function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, sortPan
   sortPanelClosing: boolean
 }) {
   const classes = useStyles(profileStyles);
-  const [postsToShow, setPostsToShow] = useState(INITIAL_POSTS_TO_SHOW);
   const userId = user._id;
 
-  const { data: recentPostsData, loading: recentPostsLoading } = useQuery(ProfilePostsQuery, {
+  const { data: recentPostsData, loading: recentPostsLoading, loadMoreProps } = useQueryWithLoadMore(ProfilePostsQuery, {
     skip: !userId,
     variables: {
       selector: userId ? { userPosts: { userId, sortedBy: sortBy, excludeEvents: true } } : undefined,
-      limit: RECENT_POSTS_LIMIT,
-      enableTotal: false,
+      limit: INITIAL_POSTS_TO_SHOW,
+      enableTotal: true,
     },
+    itemsPerPage: INITIAL_POSTS_TO_SHOW,
     fetchPolicy: "cache-and-network",
   });
   const recentPosts = recentPostsData?.posts?.results ?? [];
-
   const hasPosts = user.postCount > 0;
-  const listPosts = recentPosts.slice(0, postsToShow);
-  const hasMorePosts = recentPosts.length > postsToShow;
 
   return <>
     {(sortPanelOpen || sortPanelClosing) && (
@@ -930,7 +926,7 @@ function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, sortPan
         </div>
       </div>
     )}
-    {listPosts.map((post) => {
+    {recentPosts.map((post) => {
       const summary = getPostSummary(post);
       const imageUrl = getListPostImageUrl(post);
       const hasListImage = !!imageUrl;
@@ -982,20 +978,7 @@ function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, sortPan
       );
     })}
 
-    {hasMorePosts && (
-      <div className={classes.readMore}>
-        <a 
-          href="#" 
-          className={classes.readMoreLink}
-          onClick={(e) => {
-            e.preventDefault();
-            setPostsToShow(prev => prev + INITIAL_POSTS_TO_SHOW);
-          }}
-        >
-          See more
-        </a>
-      </div>
-    )}
+    <LoadMore {...loadMoreProps} />
   </>
 }
 
