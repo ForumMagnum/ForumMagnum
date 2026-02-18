@@ -347,29 +347,6 @@ export default function ProfilePage({slug}: {
 
   const user = getUserFromResults(userData?.users?.results);
   const userId = user?._id;
-  const pinnedPostIds = user?.pinnedPostIds ?? [];
-  const hideTopPosts = user?.hideProfileTopPosts ?? false;
-  const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
-
-  const { data: topPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !userId || !!hasPinnedPosts || hideTopPosts,
-    variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } } : undefined,
-      limit: TOP_POSTS_LIMIT,
-      enableTotal: false,
-    },
-    fetchPolicy: "cache-and-network",
-  });
-
-  const { data: pinnedPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !hasPinnedPosts || hideTopPosts,
-    variables: {
-      selector: hasPinnedPosts ? { default: { exactPostIds: pinnedPostIds } } : undefined,
-      limit: TOP_POSTS_LIMIT,
-      enableTotal: false,
-    },
-    fetchPolicy: "cache-and-network",
-  });
 
   const { data: recentPostsData, loading: recentPostsLoading } = useQuery(ProfilePostsQuery, {
     skip: !userId,
@@ -391,25 +368,11 @@ export default function ProfilePage({slug}: {
     fetchPolicy: "cache-and-network",
   });
 
-  // When using pinnedPostIds, reorder results to match the pinned order.
-  // The PostsList fragment guarantees all PostWithPreview fields exist at
-  // runtime, but useQuery wraps them in DeepPartialObject which makes
-  // every field optional. We narrow once here so helper functions get
-  // properly typed inputs.
-  const pinnedResults = (pinnedPostsData?.posts?.results ?? []) as PostWithPreview[];
-  const topResults = (topPostsData?.posts?.results ?? []) as PostWithPreview[];
-  const topPosts = hasPinnedPosts
-    ? pinnedPostIds.map(id => pinnedResults.find(p => p._id === id)).filter((p): p is PostWithPreview => !!p)
-    : topResults;
-  const topPost = topPosts[0];
-  const smallArticles = topPosts.slice(1, TOP_POSTS_LIMIT);
-  const topPostDefaultImages = buildTopPostDefaultImages(topPosts);
   const recentPosts = (recentPostsData?.posts?.results ?? []) as PostWithPreview[];
   const listPosts = recentPosts.slice(0, postsToShow);
   const hasMorePosts = recentPosts.length > postsToShow;
   const sequences = sequencesData?.sequences?.results ?? [];
 
-  const hasEnoughTopPosts = !hideTopPosts && topPosts.length >= 4;
   const hasPosts = recentPosts.length > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
   const hasSequences = sequences.length > 0;
@@ -501,78 +464,9 @@ export default function ProfilePage({slug}: {
             </div>
           )}
 
-          {hasEnoughTopPosts && (
-            <>
-              <div className={classes.topPostsIndicator}>
-                <LWTooltip title="Based on karma" placement="bottom">
-                  <span className={classNames(classes.topPostsLabel, classes.topPostsLabelPlural)}>Top posts</span>
-                  <span className={classNames(classes.topPostsLabel, classes.topPostsLabelSingular)}>Top post</span>
-                </LWTooltip>
-              </div>
-
-              {topPost && topPost.slug && (
-                <Link
-                  to={postGetPageUrl(topPost)}
-                  className={classNames(classes.postArticle, classes.postArticleTop)}
-                >
-                  <div className={classes.postContent}>
-                    <h2 className={classNames(classes.postTitle, classes.topPostTitle)}>
-                      {topPost.title}
-                    </h2>
-                    <div className={classes.postSummaryWrapper}>
-                      <p className={classes.postSummary}>{getTopPostSummary(topPost)}</p>
-                    </div>
-                    <div className={classes.postMetaBar}>
-                      <LWTooltip title="Karma score">
-                        <span className={classes.karmaScore}>{topPost.baseScore ?? 0}</span>
-                      </LWTooltip>
-                      <LWTooltip title={<ExpandedDate date={topPost.postedAt!} />}>
-                        <span className={classes.postDate}>{formatReadableDate(topPost.postedAt!)}</span>
-                      </LWTooltip>
-                    </div>
-                  </div>
-                  <div
-                    className={classes.postImage}
-                    style={{
-                      backgroundImage: getPostBackgroundImage(topPost, topPostDefaultImages, 0),
-                    }}
-                  ></div>
-                </Link>
-              )}
-
-              <div className={classes.smallArticlesGrid}>
-                {smallArticles.map((post, idx) => {
-                  const imageBackground = getPostBackgroundImage(post, topPostDefaultImages, idx + 1);
-                  return (
-                    <article key={post._id} className={classes.smallArticle}>
-                      <Link
-                        to={postGetPageUrl(post)}
-                        className={classes.articleLink}
-                      >
-                        <div
-                          className={classes.smallArticleImage}
-                          style={{ backgroundImage: imageBackground }}
-                        ></div>
-                        <div className={classes.smallArticleContent}>
-                          <h3 className={classes.smallArticleTitle}>
-                            {post.title}
-                          </h3>
-                          <div className={classes.smallArticleMeta}>
-                            <LWTooltip title="Karma score">
-                              <span className={classes.smallKarma}>{post.baseScore ?? 0}</span>
-                            </LWTooltip>
-                            <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
-                              <span className={classes.smallDate}>{formatReadableDate(post.postedAt!)}</span>
-                            </LWTooltip>
-                          </div>
-                        </div>
-                      </Link>
-                    </article>
-                  );
-                })}
-              </div>
-            </>
-          )}
+          <Suspense>
+            <UserProfileTopPostsSection user={user}/>
+          </Suspense>
 
           {(bioHtml || user) && (
             <div className={classes.mobileProfileBio}>
@@ -981,4 +875,123 @@ export default function ProfilePage({slug}: {
       </div>
     </div>
   );
+}
+
+function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
+  const classes = useStyles(profileStyles);
+  const userId = user?._id;
+  const pinnedPostIds = user?.pinnedPostIds ?? [];
+  const hideTopPosts = user?.hideProfileTopPosts ?? false;
+  const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
+
+  const { data: pinnedPostsData } = useQuery(ProfilePostsQuery, {
+    skip: !hasPinnedPosts || hideTopPosts,
+    variables: {
+      selector: hasPinnedPosts ? { default: { exactPostIds: pinnedPostIds } } : undefined,
+      limit: TOP_POSTS_LIMIT,
+      enableTotal: false,
+    },
+    fetchPolicy: "cache-and-network",
+  });
+  const { data: topPostsData } = useQuery(ProfilePostsQuery, {
+    skip: !userId || !!hasPinnedPosts || hideTopPosts,
+    variables: {
+      selector: userId ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } } : undefined,
+      limit: TOP_POSTS_LIMIT,
+      enableTotal: false,
+    },
+    fetchPolicy: "cache-and-network",
+  });
+
+
+  // When using pinnedPostIds, reorder results to match the pinned order.
+  // The PostsList fragment guarantees all PostWithPreview fields exist at
+  // runtime, but useQuery wraps them in DeepPartialObject which makes
+  // every field optional. We narrow once here so helper functions get
+  // properly typed inputs.
+  const pinnedResults = (pinnedPostsData?.posts?.results ?? []) as PostWithPreview[];
+  const topResults = (topPostsData?.posts?.results ?? []) as PostWithPreview[];
+  const topPosts = hasPinnedPosts
+    ? pinnedPostIds.map(id => pinnedResults.find(p => p._id === id)).filter((p): p is PostWithPreview => !!p)
+    : topResults;
+  const topPost = topPosts[0];
+  const smallArticles = topPosts.slice(1, TOP_POSTS_LIMIT);
+  const topPostDefaultImages = buildTopPostDefaultImages(topPosts);
+  const hasEnoughTopPosts = topPosts.length >= 4;
+
+  if (hideTopPosts) return null;
+  if (!hasEnoughTopPosts) return null;
+
+  return (
+    <>
+      <div className={classes.topPostsIndicator}>
+        <LWTooltip title="Based on karma" placement="bottom">
+          <span className={classNames(classes.topPostsLabel, classes.topPostsLabelPlural)}>Top posts</span>
+          <span className={classNames(classes.topPostsLabel, classes.topPostsLabelSingular)}>Top post</span>
+        </LWTooltip>
+      </div>
+
+      {topPost && topPost.slug && (
+        <Link
+          to={postGetPageUrl(topPost)}
+          className={classNames(classes.postArticle, classes.postArticleTop)}
+        >
+          <div className={classes.postContent}>
+            <h2 className={classNames(classes.postTitle, classes.topPostTitle)}>
+              {topPost.title}
+            </h2>
+            <div className={classes.postSummaryWrapper}>
+              <p className={classes.postSummary}>{getTopPostSummary(topPost)}</p>
+            </div>
+            <div className={classes.postMetaBar}>
+              <LWTooltip title="Karma score">
+                <span className={classes.karmaScore}>{topPost.baseScore ?? 0}</span>
+              </LWTooltip>
+              <LWTooltip title={<ExpandedDate date={topPost.postedAt!} />}>
+                <span className={classes.postDate}>{formatReadableDate(topPost.postedAt!)}</span>
+              </LWTooltip>
+            </div>
+          </div>
+          <div
+            className={classes.postImage}
+            style={{
+              backgroundImage: getPostBackgroundImage(topPost, topPostDefaultImages, 0),
+            }}
+          ></div>
+        </Link>
+      )}
+
+      <div className={classes.smallArticlesGrid}>
+        {smallArticles.map((post, idx) => {
+          const imageBackground = getPostBackgroundImage(post, topPostDefaultImages, idx + 1);
+          return (
+            <article key={post._id} className={classes.smallArticle}>
+              <Link
+                to={postGetPageUrl(post)}
+                className={classes.articleLink}
+              >
+                <div
+                  className={classes.smallArticleImage}
+                  style={{ backgroundImage: imageBackground }}
+                ></div>
+                <div className={classes.smallArticleContent}>
+                  <h3 className={classes.smallArticleTitle}>
+                    {post.title}
+                  </h3>
+                  <div className={classes.smallArticleMeta}>
+                    <LWTooltip title="Karma score">
+                      <span className={classes.smallKarma}>{post.baseScore ?? 0}</span>
+                    </LWTooltip>
+                    <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
+                      <span className={classes.smallDate}>{formatReadableDate(post.postedAt!)}</span>
+                    </LWTooltip>
+                  </div>
+                </div>
+              </Link>
+            </article>
+          );
+        })}
+      </div>
+    </>
+  )
 }
