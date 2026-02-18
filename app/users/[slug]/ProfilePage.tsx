@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useRef } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
-import { useQuery } from "@/lib/crud/useQuery";
+import { useQuery, useSuspenseQuery } from "@/lib/crud/useQuery";
 import { userCanEditUser, userGetDisplayName } from "@/lib/collections/users/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
@@ -37,6 +37,7 @@ import { truncate } from "@/lib/editor/ellipsize";
 import ProfileDiamondSections from "./ProfileDiamondSections";
 import { profileStyles } from "./profileStyles";
 import Error404 from "@/components/common/Error404";
+import { StatusCodeSetter } from "@/components/next/StatusCodeSetter";
 
 // ── Constants ──
 
@@ -317,7 +318,7 @@ export default function ProfilePage({slug}: {
 }) {
   const classes = useStyles(profileStyles);
 
-  const { data: userData, loading: userLoading } = useQuery(ProfileUserQuery, {
+  const { data: userData } = useSuspenseQuery(ProfileUserQuery, {
     variables: {
       selector: { usersProfile: { slug } },
       limit: 1,
@@ -325,15 +326,9 @@ export default function ProfilePage({slug}: {
     },
     fetchPolicy: "cache-and-network",
   });
-
   const user = getUserFromResults(userData?.users?.results);
-  if (userLoading) {
-    return <div className={classes.profileContent}>
-      <main className={classes.profileMain}>
-        <Loading />
-      </main>
-    </div>;
-  } else if (!user) {
+
+  if (!user) {
     return <div className={classes.profileContent}>
       <main className={classes.profileMain}>
         <Error404 />
@@ -341,7 +336,10 @@ export default function ProfilePage({slug}: {
     </div>;
   }
 
-  return <ProfilePageInner user={user} />;
+  return <>
+    <StatusCodeSetter status={200}/>
+    <ProfilePageInner user={user} />;
+  </>
 }
 
 type AllPostsTabSortingMode = "new" | "top" | "topInflation" | "recentComments" | "old" | "magic";
@@ -391,21 +389,27 @@ function ProfilePageInner({user}: {
                 tooltipPlacement="bottom-start"
               />
             </h1>
-            <ProfileHeaderActions
-              user={user}
-              showModerationTools={showModerationTools}
-              setShowModerationTools={setShowModerationTools}
-            />
+            <Suspense>
+              <ProfileHeaderActions
+                user={user}
+                showModerationTools={showModerationTools}
+                setShowModerationTools={setShowModerationTools}
+              />
+            </Suspense>
           </div>
           {canModerateUserProfile && showModerationTools && <div className={classes.sunshineToolsSection}>
-            <SunshineNewUsersProfileInfo userId={userId} startExpanded />
+            <Suspense fallback={<Loading/>}>
+              <SunshineNewUsersProfileInfo userId={userId} startExpanded />
+            </Suspense>
           </div>}
 
           <Suspense>
             <UserProfileTopPostsSection user={user}/>
           </Suspense>
 
-          <ProfilePageMobileBio user={user} bioNoFollow={bioNoFollow}/>
+          <Suspense>
+            <ProfilePageMobileBio user={user} bioNoFollow={bioNoFollow}/>
+          </Suspense>
 
           <section className={classes.allPostsSection}>
             <div className={classes.allPostsLeftColumn}>
@@ -455,14 +459,18 @@ function ProfilePageInner({user}: {
 
             <div className={classes.allPostsContainer}>
               <div className={classNames(classes.postsList, classes.tabPanel, activeTab === "posts" && classes.tabPanelActive)}>
-                <ProfilePageAllPostsTab user={user} sortBy={sortBy} setSortBy={setSortBy} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
+                <Suspense>
+                  <ProfilePageAllPostsTab user={user} sortBy={sortBy} setSortBy={setSortBy} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
+                </Suspense>
               </div>
 
               <div className={classNames(
                 classes.sequencesList, classes.tabPanel,
                 activeTab === "sequences" && classes.tabPanelActive
               )}>
-                <ProfilePageSequencesTab user={user} />
+                <Suspense>
+                  <ProfilePageSequencesTab user={user} />
+                </Suspense>
               </div>
 
               <div className={classNames(
@@ -470,12 +478,16 @@ function ProfilePageInner({user}: {
                 classes.tabPanel,
                 activeTab === "feed" && classes.tabPanelActive
               )}>
-                <ProfilePageFeedTab user={user} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
+                <Suspense>
+                  <ProfilePageFeedTab user={user} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
+                </Suspense>
               </div>
             </div>
             </div>
 
-            <ProfilePageSidebar user={user} bioNoFollow={bioNoFollow}/>
+            <Suspense>
+              <ProfilePageSidebar user={user} bioNoFollow={bioNoFollow}/>
+            </Suspense>
           </section>
         </main>
       </div>
