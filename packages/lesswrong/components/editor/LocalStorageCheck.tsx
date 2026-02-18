@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
+import { SerializedEditorContents, deserializeEditorContents, EditorContents, getEditorsForUser } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { preferredHeadingCase } from '@/themes/forumTheme';
@@ -72,7 +72,7 @@ const restorableStateHasMetadata = (savedState: any) => {
 type GetLocalStorageHandlers = (editorType?: string) => any;
 
 const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: GetLocalStorageHandlers): RestorableState|null => {
-  const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
+  const editors = getEditorsForUser(currentUser)
   
   for (const editorType of editors) {
     const savedState = getLocalStorageHandlers(editorType).get();

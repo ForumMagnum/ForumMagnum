@@ -1,7 +1,7 @@
 import React from "react";
 import PostCollaborationEditor from '@/components/editor/PostCollaborationEditor';
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
 
 assertRouteHasWhiteBackground("/collaborateOnPost");
 

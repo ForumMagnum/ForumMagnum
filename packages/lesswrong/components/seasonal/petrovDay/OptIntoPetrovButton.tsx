@@ -9,6 +9,7 @@ import LoginPopupButton from "../../users/LoginPopupButton";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionOptIntoPetrovButtonQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -220,7 +221,8 @@ const OptIntoPetrovButton = ({classes }: {
     }
   }
 
-  const buttonPressedInLastWeek = (!!petrovPressedButtonDate && new Date().getTime() - new Date(petrovPressedButtonDate).getTime() < 7 * 24 * 60 * 60 * 1000)
+  const now = useCurrentTime();
+  const buttonPressedInLastWeek = (!!petrovPressedButtonDate && now.getTime() - new Date(petrovPressedButtonDate).getTime() < 7 * 24 * 60 * 60 * 1000)
 
   const renderButtonAsPressed = buttonPressedInLastWeek || pressed
     

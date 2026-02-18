@@ -1,7 +1,7 @@
 import Table from "../Table";
 import Query from "../Query";
 import { createCollection } from "@/lib/vulcan-lib/collections";
-import { testSchema, testSchema2, testSchema3, testSchema4, testSchema5 } from "./testSchemas";
+import { testSchema, testSchema2, testSchema3, testSchema4, testSchema5, testSchema6 } from "./testSchemas";
 
 export type DbTestObject = {
   _id: string,
@@ -86,12 +86,28 @@ export const TestCollection5 = createCollection({
 export const testTable5 = Table.fromCollection<CollectionNameString, DbTestObject5>(TestCollection5);
 (TestCollection5 as any).getTable = () => testTable5;
 
+export type DbTestObject6 = {
+  _id: string,
+  binaryField?: Buffer,
+  schemaVersion: number,
+};
+
+export const TestCollection6 = createCollection({
+  collectionName: "TestCollection6" as CollectionNameString,
+  typeName: "TestCollection6",
+  schema: testSchema6,
+});
+
+export const testTable6 = Table.fromCollection<CollectionNameString, DbTestObject6>(TestCollection6);
+(TestCollection6 as any).getTable = () => testTable6;
+
 export const testCollections = {
   TestCollection,
   TestCollection2,
   TestCollection3,
   TestCollection4,
   TestCollection5,
+  TestCollection6,
 };
 
 

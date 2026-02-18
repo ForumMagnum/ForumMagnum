@@ -17,6 +17,8 @@ import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import EAButton from "./EAButton";
+import { useStyles } from "../hooks/useStyles";
+import { defineStyles } from "../hooks/defineStyles";
 
 const DigestsMinimumInfoMultiQuery = gql(`
   query multiDigestEADigestPageQuery($selector: DigestSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,7 +31,7 @@ const DigestsMinimumInfoMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EADigestPage", (theme: ThemeType) => ({
   root: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
@@ -174,15 +176,14 @@ const styles = (theme: ThemeType) => ({
     objectFit: 'cover',
     zIndex: -2,
   },
-});
+}));
 
-const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const EADigestPage = ({digestNum}: {digestNum: number}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
-  const { params } = useLocation()
   const { flash } = useMessages()
   const { captureEvent } = useTracking()
-  const digestNum = parseInt(params.num)
   
   // get the digest based on the num from the URL
   const { data: dataDigests, loading: digestLoading } = useQuery(DigestsMinimumInfoMultiQuery, {
@@ -332,6 +333,6 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-export default registerComponent("EADigestPage", EADigestPage, {styles});
+export default EADigestPage;
 
 

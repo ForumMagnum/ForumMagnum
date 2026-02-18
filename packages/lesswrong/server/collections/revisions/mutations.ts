@@ -97,6 +97,7 @@ export const graphqlRevisionTypeDefs = gql`
   input ContentTypeInput {
     type: String!
     data: ContentTypeData!
+    yjsState: String
   }
 
   input CreateRevisionDataInput {

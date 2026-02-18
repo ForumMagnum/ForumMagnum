@@ -1299,6 +1299,7 @@ async function importRevisions<N extends CollectionNameString>({
           originalContents: {
             type: "ckEditorMarkup",
             data: ckEditorMarkup,
+            yjsState: null,
           },
           currentUser: revisionCreator,
           context: resolverContext,

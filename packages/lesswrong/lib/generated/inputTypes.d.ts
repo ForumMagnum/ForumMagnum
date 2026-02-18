@@ -32,6 +32,8 @@ interface Query {
   UserReadHistory: UserReadHistoryResult | null;
   PostsUserCommentedOn: UserReadHistoryResult | null;
   PostIsCriticism: boolean | null;
+  ProfileDiamondPosts: ProfileDiamondPostsResult;
+  ProfileDiamondComments: ProfileDiamondCommentsResult;
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
@@ -393,6 +395,7 @@ interface Mutation {
 interface ContentType {
   type: string;
   data: ContentTypeData;
+  yjsState: string | null;
 }
 
 interface SelectorInput {
@@ -908,6 +911,32 @@ interface RecombeeRecommendedPost {
 interface VertexRecommendedPost {
   post: Post;
   attributionId: string | null;
+}
+
+interface ProfileDiamondPostsResult {
+  results: Array<ProfilePostDiamond>;
+  totalCount: number | null;
+}
+
+interface ProfileDiamondCommentsResult {
+  results: Array<ProfileCommentDiamond>;
+  totalCount: number | null;
+}
+
+interface ProfilePostDiamond {
+  _id: string;
+  slug: string;
+  date: Date;
+  karma: number;
+  isReviewWinner: boolean;
+  isCurated: boolean;
+}
+
+interface ProfileCommentDiamond {
+  id: string;
+  date: Date;
+  karma: number;
+  postId: string;
 }
 
 interface PostWithApprovedJargon {
@@ -6865,6 +6894,8 @@ interface Tag {
   userId: string | null;
   user: User | null;
   adminOnly: boolean;
+  removalResistant: boolean;
+  authorOnly: boolean;
   canEditUserIds: Array<string> | null;
   charsAdded: number | null;
   charsRemoved: number | null;
@@ -7387,6 +7418,8 @@ interface User {
   oldSlugs: Array<string>;
   biography: Revision | null;
   biography_latest: string | null;
+  pinnedPostIds: Array<string>;
+  hideProfileTopPosts: boolean;
   username: string | null;
   emails: Array<any> | null;
   isAdmin: boolean;
@@ -8968,6 +9001,7 @@ interface ReportOutput {
 interface ContentTypeInput {
   type: string;
   data: ContentTypeData;
+  yjsState?: string | null;
 }
 
 interface CreateRevisionDataInput {
@@ -9319,6 +9353,8 @@ interface CreateTagDataInput {
   defaultOrder?: number | null;
   descriptionTruncationCount?: number | null;
   adminOnly?: boolean | null;
+  removalResistant?: boolean | null;
+  authorOnly?: boolean | null;
   canEditUserIds?: Array<string> | null;
   reviewedByUserId?: string | null;
   wikiGrade?: number | null;
@@ -9359,6 +9395,8 @@ interface UpdateTagDataInput {
   defaultOrder?: number | null;
   descriptionTruncationCount?: number | null;
   adminOnly?: boolean | null;
+  removalResistant?: boolean | null;
+  authorOnly?: boolean | null;
   canEditUserIds?: Array<string> | null;
   deleted?: boolean | null;
   needsReview?: boolean | null;
@@ -9568,6 +9606,8 @@ interface CreateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
+  pinnedPostIds?: Array<string> | null;
+  hideProfileTopPosts?: boolean | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName: string;
@@ -9729,6 +9769,8 @@ interface UpdateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
+  pinnedPostIds?: Array<string> | null;
+  hideProfileTopPosts?: boolean | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName?: string | null;
@@ -10005,6 +10047,10 @@ interface GraphQLTypeMap {
   DigestPlannerPost: DigestPlannerPost;
   RecombeeRecommendedPost: RecombeeRecommendedPost;
   VertexRecommendedPost: VertexRecommendedPost;
+  ProfileDiamondPostsResult: ProfileDiamondPostsResult;
+  ProfileDiamondCommentsResult: ProfileDiamondCommentsResult;
+  ProfilePostDiamond: ProfilePostDiamond;
+  ProfileCommentDiamond: ProfileCommentDiamond;
   PostWithApprovedJargon: PostWithApprovedJargon;
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;

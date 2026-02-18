@@ -8,13 +8,11 @@
 
 import React, { type JSX } from 'react';
 
-import {$createCodeNode} from '@lexical/code';
 import {
   // INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
 } from '@lexical/list';
-import {INSERT_EMBED_COMMAND} from '@lexical/react/LexicalAutoEmbedPlugin';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/react/LexicalHorizontalRuleNode';
 import {
@@ -22,15 +20,9 @@ import {
   MenuOption,
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
-import {$createHeadingNode, $createQuoteNode} from '@lexical/rich-text';
-import {$setBlocksType} from '@lexical/selection';
 import {INSERT_TABLE_COMMAND} from '@lexical/table';
 import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
-import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 import {
-  $createParagraphNode,
-  $getSelection,
-  $isRangeSelection,
   LexicalEditor,
   TextNode,
 } from 'lexical';
@@ -39,16 +31,9 @@ import * as ReactDOM from 'react-dom';
 
 import useModal from '../../hooks/useModal';
 import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
-// import catTypingGif from '../../images/cat-typing.gif';
-// import {EmbedConfigs} from '../AutoEmbedPlugin';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
-import {INSERT_DATETIME_COMMAND} from '../DateTimePlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
-// import {INSERT_EXCALIDRAW_COMMAND} from '../ExcalidrawPlugin';
-import {INSERT_IMAGE_COMMAND, InsertImageDialog} from '../ImagesPlugin';
-// import InsertLayoutDialog from '../LayoutPlugin/InsertLayoutDialog';
-import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
-// import {InsertPollDialog} from '../PollPlugin';
+import {InsertImageDialog} from '../ImagesPlugin';
 
 import { TableIcon } from '../../icons/TableIcon';
 import { TextParagraphIcon } from '../../icons/TextParagraphIcon';
@@ -57,17 +42,13 @@ import { TypeH2Icon } from '../../icons/TypeH2Icon';
 import { TypeH3Icon } from '../../icons/TypeH3Icon';
 import { ListOlIcon } from '../../icons/ListOlIcon';
 import { ListUlIcon } from '../../icons/ListUlIcon';
-// import { SquareCheckIcon } from '../../icons/SquareCheckIcon';
 import { ChatSquareQuoteIcon } from '../../icons/ChatSquareQuoteIcon';
 import { CodeIcon } from '../../icons/CodeIcon';
 import { HorizontalRuleIcon } from '../../icons/HorizontalRuleIcon';
-import { ScissorsIcon } from '../../icons/ScissorsIcon';
 import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
-import { CalendarIcon } from '../../icons/CalendarIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
-// import { ThreeColumnsIcon } from '../../icons/ThreeColumnsIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { useCurrentUser } from '@/components/common/withUser';
@@ -261,11 +242,11 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
       onSelect: () =>
         editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined),
     }),
-    new ComponentPickerOption('Page Break', {
-      icon: <ScissorsIcon style={iconStyle} />,
-      keywords: ['page break', 'divider'],
-      onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
-    }),
+    // new ComponentPickerOption('Page Break', {
+    //   icon: <ScissorsIcon style={iconStyle} />,
+    //   keywords: ['page break', 'divider'],
+    //   onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
+    // }),
     // new ComponentPickerOption('Excalidraw', {
     //   icon: <Diagram2Icon style={iconStyle} />,
     //   keywords: ['excalidraw', 'diagram', 'drawing'],

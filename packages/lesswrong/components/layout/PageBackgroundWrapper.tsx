@@ -2,7 +2,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
-import { routeHasWhiteBackground } from './routeBackgroundColors';
+import { routeHasWhiteBackground, routeHasCreamBackground } from '@/lib/routeChecks/routeBackgroundColors';
 import { isClient } from '@/lib/executionEnvironment';
 import "./pageBackground.css";
 
@@ -46,12 +46,15 @@ export function BodyWithBackgroundColor({children}: {
   children: React.ReactNode
 }) {
   const pathname = usePrerenderablePathname();
-  const isWhiteBackground = routeHasWhiteBackground(pathname);
+  const isCreamBackground = routeHasCreamBackground(pathname);
+  const isWhiteBackground = !isCreamBackground && routeHasWhiteBackground(pathname);
+  const isGreyBackground = !isCreamBackground && !isWhiteBackground;
   const themeClassname = isClient && getThemeClassnameFromCookie();
   
   return <body suppressHydrationWarning className={classNames(
     isWhiteBackground && "whiteBackground",
-    !isWhiteBackground && "greyBackground",
+    isGreyBackground && "greyBackground",
+    isCreamBackground && "creamBackground",
     themeClassname,
   )}>
     <script>{themeSelectorScript}</script>

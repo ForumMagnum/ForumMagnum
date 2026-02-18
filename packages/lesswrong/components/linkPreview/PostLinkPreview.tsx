@@ -17,12 +17,11 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import SequencesTooltip from "../sequences/SequencesTooltip";
 import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
-import { apolloSSRFlag } from '@/lib/helpers';
-import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import { linkStyles } from './linkStyles';
 import LWTooltip from '../common/LWTooltip';
 import ConversationPreview from '../messaging/ConversationPreview';
-import type { LinkPreviewComponent } from './parseRouteWithErrors';
+import type { LinkPreviewComponent, RoutePreviewParams } from '@/lib/routeChecks/hoverPreviewRoutes';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
@@ -94,7 +93,7 @@ export const PostLinkPreview = ({href, originalHref, targetLocation, id, classNa
       allowNull: true,
     },
     fetchPolicy: 'cache-first',
-    ssr: apolloSSRFlag(false),
+    ssr: false,
   });
   const post = data?.post?.result;
   
@@ -113,15 +112,16 @@ export const PostLinkPreview = ({href, originalHref, targetLocation, id, classNa
   </PostLinkPreviewVariantCheck>
 }
 
-export const PostLinkPreviewSequencePost: LinkPreviewComponent = ({href, originalHref, targetLocation, id, className, children}: {
+export const PostLinkPreviewSequencePost: LinkPreviewComponent<'/s/[_id]/p/[postId]'> = ({href, originalHref, targetLocation, params, id, className, children}: {
   href: string,
   originalHref: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/s/[_id]/p/[postId]'>,
   id: string,
   className?: string,
   children: ReactNode,
 }) => {
-  const postID = targetLocation.params.postId;
+  const postID = params.postId;
 
   const { loading, error, data } = useQuery(PostsListQuery, {
     variables: { documentId: postID, allowNull: true },
@@ -139,15 +139,16 @@ export const PostLinkPreviewSequencePost: LinkPreviewComponent = ({href, origina
   </PostLinkPreviewVariantCheck>
 }
 
-export const PostLinkPreviewSlug: LinkPreviewComponent = ({href, originalHref, targetLocation, id, className, children}: {
+export const PostLinkPreviewSlug: LinkPreviewComponent<'/highlights/[slug]' | '/hpmor/[slug]' | '/codex/[slug]' | '/rationality/[slug]' | '/posts/slug/[slug]'> = ({href, originalHref, targetLocation, params, id, className, children}: {
   href: string,
   originalHref: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/highlights/[slug]' | '/hpmor/[slug]' | '/codex/[slug]' | '/rationality/[slug]' | '/posts/slug/[slug]'>,
   id: string,
   className?: string,
   children: ReactNode,
 }) => {
-  const slug = targetLocation.params.slug;
+  const slug = params.slug;
   const { post, error } = usePostBySlug({ slug, ssr: false });
 
   return <PostLinkPreviewVariantCheck href={href} originalHref={originalHref} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
@@ -155,15 +156,16 @@ export const PostLinkPreviewSlug: LinkPreviewComponent = ({href, originalHref, t
   </PostLinkPreviewVariantCheck>
 }
 
-export const PostLinkPreviewLegacy: LinkPreviewComponent = ({href, originalHref, targetLocation, id, className, children}: {
+export const PostLinkPreviewLegacy: LinkPreviewComponent<'/lw/[id]' | '/lw/[id]/[slug]'> = ({href, originalHref, targetLocation, params, id, className, children}: {
   href: string,
   originalHref: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/lw/[id]' | '/lw/[id]/[slug]'>,
   id: string,
   className?: string,
   children: ReactNode,
 }) => {
-  const legacyId = targetLocation.params.id;
+  const legacyId = params.id;
   const { post, error } = usePostByLegacyId({ legacyId, ssr: false });
 
   return <PostLinkPreviewVariantCheck href={href} originalHref={originalHref} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
@@ -171,15 +173,16 @@ export const PostLinkPreviewLegacy: LinkPreviewComponent = ({href, originalHref,
   </PostLinkPreviewVariantCheck>
 }
 
-export const CommentLinkPreviewLegacy: LinkPreviewComponent = ({href, targetLocation, id, className, children}: {
+export const CommentLinkPreviewLegacy: LinkPreviewComponent<'/lw/[id]/[slug]/[commentId]'> = ({href, targetLocation, params, id, className, children}: {
   href: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/lw/[id]/[slug]/[commentId]'>,
   id: string,
   className?: string,
   children: ReactNode,
 }) => {
-  const legacyPostId = targetLocation.params.id;
-  const legacyCommentId = targetLocation.params.commentId;
+  const legacyPostId = params.id;
+  const legacyCommentId = params.commentId;
 
   const { post, error: postError } = usePostByLegacyId({ legacyId: legacyPostId, ssr: false });
   const { comment, error: commentError } = useCommentByLegacyId({ legacyId: legacyCommentId, ssr: false });
@@ -195,15 +198,16 @@ export const CommentLinkPreviewLegacy: LinkPreviewComponent = ({href, targetLoca
   </PostLinkPreviewWithPost>
 }
 
-export const PostCommentLinkPreviewGreaterWrong: LinkPreviewComponent = ({href, targetLocation, id, className, children}: {
+export const PostCommentLinkPreviewGreaterWrong: LinkPreviewComponent<'/posts/[_id]/[slug]/comment' | '/posts/[_id]/[slug]/comment/[commentId]'> = ({href, targetLocation, params, id, className, children}: {
   href: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/posts/[_id]/[slug]/comment' | '/posts/[_id]/[slug]/comment/[commentId]'>,
   id: string,
   className?: string,
   children: ReactNode
 }) => {
-  const postId = targetLocation.params._id;
-  const commentId = targetLocation.params.commentId;
+  const postId = params._id;
+  const commentId = 'commentId' in params ? params.commentId : targetLocation.params.commentId;
 
   const { loading, data, error   } = useQuery(PostsListQuery, {
     variables: { documentId: postId, allowNull: true },
@@ -366,15 +370,15 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, className, chil
   );
 }
 
-export const SequencePreview: LinkPreviewComponent = ({targetLocation, href, className, children}: {
-  targetLocation: RouterLocation,
+export const SequencePreview: LinkPreviewComponent<'/sequences/[_id]' | '/s/[_id]'> = ({params, href, className, children}: {
+  params: RoutePreviewParams<'/sequences/[_id]' | '/s/[_id]'>,
   href: string,
   className?: string,
   children: ReactNode,
 }) => {
   const classes = useStyles(linkStyles);
   
-  const sequenceId = targetLocation.params._id;
+  const sequenceId = params._id;
 
   const { loading, data, error  } = useQuery(SequencesPageFragmentQuery, {
     variables: { documentId: sequenceId, allowNull: true },
@@ -400,13 +404,15 @@ export const SequencePreview: LinkPreviewComponent = ({targetLocation, href, cla
   );
 }
 
-export const MessagePreview = ({href, targetLocation, id, className, children}: {
+export const MessagePreview: LinkPreviewComponent<'/inbox' | '/inbox/[conversationId]'> = ({href, targetLocation, params, id, className, children}: {
   href: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/inbox' | '/inbox/[conversationId]'>,
   id?: string,
   className?: string,
   children: ReactNode,
 }) => {
+  void params;
   return (
     <LWTooltip
       tooltip={false}

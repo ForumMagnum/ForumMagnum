@@ -295,5 +295,6 @@ export const tableNameToCollectionName = {
     testcollection3: 'TestCollection3',
     testcollection4: 'TestCollection4',
     testcollection5: 'TestCollection5',
+    testcollection6: 'TestCollection6',
   } : {}),
 } as const;

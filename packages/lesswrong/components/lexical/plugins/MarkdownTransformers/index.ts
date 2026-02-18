@@ -13,6 +13,7 @@ import {
   ELEMENT_TRANSFORMERS,
   ElementTransformer,
   MULTILINE_ELEMENT_TRANSFORMERS,
+  QUOTE as BUILTIN_QUOTE,
   TEXT_FORMAT_TRANSFORMERS,
   TEXT_MATCH_TRANSFORMERS,
   TextMatchTransformer,
@@ -43,6 +44,8 @@ import {
   $isTextNode,
   LexicalNode,
 } from 'lexical';
+import { $isQuoteNode } from '@lexical/rich-text';
+import { ContainerQuoteNode, $createContainerQuoteNode } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode';
 
 import {
   $createMathNode,
@@ -425,6 +428,58 @@ const mapToTableCells = (textContent: string): Array<TableCellNode> | null => {
   return match[1].split('|').map((text) => $createTableCell(text));
 };
 
+/**
+ * Custom QUOTE transformer for shadow-root ContainerQuoteNode.
+ *
+ * The built-in QUOTE transformer creates a QuoteNode with inline children.
+ * With our ContainerQuoteNode (shadow root), children must be block-level
+ * (ParagraphNode, ListNode, etc.), so we wrap inline content in a paragraph.
+ */
+export const CONTAINER_QUOTE: ElementTransformer = {
+  dependencies: [ContainerQuoteNode],
+  export: (node, exportChildren) => {
+    if (!$isQuoteNode(node)) {
+      return null;
+    }
+    const lines = exportChildren(node).split('\n');
+    const output: string[] = [];
+    for (const line of lines) {
+      output.push('> ' + line);
+    }
+    return output.join('\n');
+  },
+  regExp: /^>\s/,
+  replace: (parentNode, children, _match, isImport) => {
+    if (isImport) {
+      const previousNode = parentNode.getPreviousSibling();
+      if ($isQuoteNode(previousNode)) {
+        // For import: merge consecutive `> ` lines into the same quote
+        // by adding a new paragraph with the children
+        const paragraph = $createParagraphNode();
+        paragraph.append(...children);
+        previousNode.append(paragraph);
+        parentNode.remove();
+        return;
+      }
+    }
+    const quoteNode = $createContainerQuoteNode();
+    const paragraph = $createParagraphNode();
+    paragraph.append(...children);
+    quoteNode.append(paragraph);
+    parentNode.replace(quoteNode);
+    if (!isImport) {
+      paragraph.select(0, 0);
+    }
+  },
+  type: 'element',
+};
+
+// Filter out the built-in QUOTE transformer from ELEMENT_TRANSFORMERS
+// since we replace it with CONTAINER_QUOTE
+const ELEMENT_TRANSFORMERS_WITHOUT_QUOTE = ELEMENT_TRANSFORMERS.filter(
+  (t) => t !== BUILTIN_QUOTE,
+);
+
 const TEXT_FORMAT_TRANSFORMERS_WITHOUT_HIGHLIGHT = TEXT_FORMAT_TRANSFORMERS.filter((transformer) => !transformer.format.includes('highlight'));
 
 export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
@@ -436,7 +491,8 @@ export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
   EQUATION,
   // TWEET,
   CHECK_LIST,
-  ...ELEMENT_TRANSFORMERS,
+  CONTAINER_QUOTE,
+  ...ELEMENT_TRANSFORMERS_WITHOUT_QUOTE,
   ...MULTILINE_ELEMENT_TRANSFORMERS,
   ...TEXT_FORMAT_TRANSFORMERS_WITHOUT_HIGHLIGHT,
   ...TEXT_MATCH_TRANSFORMERS,

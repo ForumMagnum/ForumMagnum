@@ -535,6 +535,7 @@ declare global {
       paper: ColorString,
       contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
+      profilePageBackground: ColorString,
       hover?: ColorString,
       translucentBackground: ColorString,
       translucentBackgroundHeavy: ColorString,

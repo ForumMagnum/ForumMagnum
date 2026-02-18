@@ -1316,6 +1316,7 @@ interface DbRevision extends DbObject {
   originalContents: {
     type: string,
     data: string,
+    yjsState: string | null,
   } | null
   score: number
   skipAttributions: boolean
@@ -1534,6 +1535,7 @@ interface DbTag extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any | null
   afVoteCount: number | null
+  authorOnly: boolean
   autoTagModel: string | null
   autoTagPrompt: string | null
   bannerImageId: string | null
@@ -1575,6 +1577,7 @@ interface DbTag extends DbObject {
   pingbacks: any | null
   postCount: number
   postsDefaultSortOrder: string | null
+  removalResistant: boolean
   reviewedByUserId: string | null
   score: number
   shortName: string | null
@@ -1802,6 +1805,7 @@ interface DbUser extends DbObject {
   hideMeetupsPoke: boolean
   hideNavigationSidebar: boolean | null
   hidePostsRecommendations: boolean
+  hideProfileTopPosts: boolean
   hideSubscribePoke: boolean
   hideSunshineSidebar: boolean
   hideTaggingProgressBar: boolean | null
@@ -2259,6 +2263,7 @@ interface DbUser extends DbObject {
   petrovLaunchCodeDate: Date | null
   petrovOptOut: boolean
   petrovPressedButtonDate: Date | null
+  pinnedPostIds: Array<string>
   postCount: number
   postGlossariesPinned: boolean
   postingDisabled: boolean | null

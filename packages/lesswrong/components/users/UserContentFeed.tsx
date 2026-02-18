@@ -39,6 +39,17 @@ const USER_COMMENTS_QUERY = gql(`
   }
 `);
 
+const COMMENTS_LIST_MULTI_QUERY = gql(`
+  query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
+    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...CommentsList
+      }
+      totalCount
+    }
+  }
+`);
+
 const THREAD_BY_TOPLEVEL_QUERY = gql(`
   query UserContentFeedThread($topLevelCommentId: String!, $limit: Int) {
     comments(selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: $topLevelCommentId } }, limit: $limit) {
@@ -126,6 +137,7 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
     skip: !topLevelId,
     notifyOnNetworkStatusChange: false,
     fetchPolicy: 'cache-first',
+    ssr: false,
   });
 
   // Build ancestry chain: results in array of comments from root down to focused comment
@@ -138,7 +150,8 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
       byId[c._id] = c;
     });
     
-    let current = comment;
+    // Prefer the thread-fetched copy when available so we keep richer fields (e.g. post metadata).
+    let current = byId[comment._id] ?? comment;
     const seen = new Set<string>();
     
     while (current) {
@@ -190,13 +203,16 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
 }
 
 
+type SortMode = 'recent' | 'top';
+type FilterMode = 'all' | 'posts' | 'quickTakes' | 'comments';
+
 interface UserContentFeedProps {
   userId: string;
   initialLimit?: number;
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
+  externalSortMode?: SortMode;
+  externalFilter?: FilterMode;
 }
-
-type SortMode = 'recent' | 'top';
 
 type PostItem = PostsListWithVotes;
 type CommentItem = CommentsList & { post: PostItem | null };
@@ -237,14 +253,24 @@ const UserContentFeedItem = ({ item, index, feedSettings }: {
   }
 };
 
-const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: UserContentFeedProps) => {
+const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, externalSortMode, externalFilter }: UserContentFeedProps) => {
   const classes = useStyles(userContentFeedStyles);
-  const [sortMode, setSortMode] = useState<SortMode>('recent');
+  const [internalSortMode, setInternalSortMode] = useState<SortMode>('recent');
+  const sortMode = externalSortMode ?? internalSortMode;
+  const setSortMode = setInternalSortMode;
+  const filter = externalFilter ?? 'all';
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
+  const skipPosts = filter === 'comments';
+  const skipProfileComments = filter === 'posts' || filter === 'quickTakes';
+  const skipShortformComments = filter === 'posts';
+
   const postsSortBy = sortMode === 'recent' ? 'new' : 'top';
   const commentsSortBy = sortMode === 'recent' ? 'new' : 'top';
+  const shortformSelector = sortMode === 'top'
+    ? ({ topShortform: { userId } })
+    : ({ shortform: { userId } });
 
   const { 
     data: postsData, 
@@ -254,21 +280,35 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
     USER_POSTS_QUERY,
     {
       variables: { userId, limit: initialLimit, sortedBy: postsSortBy },
-      skip: !userId,
+      skip: !userId || skipPosts,
       fetchPolicy: 'cache-and-network',
       itemsPerPage: 10,
     }
   );
 
   const { 
-    data: commentsData, 
-    loading: commentsLoading, 
-    loadMoreProps: commentsLoadMoreProps 
+    data: profileCommentsData, 
+    loading: profileCommentsLoading, 
+    loadMoreProps: profileCommentsLoadMoreProps 
   } = useQueryWithLoadMore(
     USER_COMMENTS_QUERY,
     {
       variables: { userId, limit: initialLimit, sortBy: commentsSortBy },
-      skip: !userId,
+      skip: !userId || skipProfileComments,
+      fetchPolicy: 'cache-and-network',
+      itemsPerPage: 10,
+    }
+  );
+
+  const { 
+    data: shortformCommentsData, 
+    loading: shortformCommentsLoading, 
+    loadMoreProps: shortformCommentsLoadMoreProps 
+  } = useQueryWithLoadMore(
+    COMMENTS_LIST_MULTI_QUERY,
+    {
+      variables: { selector: shortformSelector, limit: initialLimit, enableTotal: true },
+      skip: !userId || skipShortformComments,
       fetchPolicy: 'cache-and-network',
       itemsPerPage: 10,
     }
@@ -277,27 +317,48 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
   const mixedFeed = useMemo(() => {
     const items: FeedItem[] = [];
     
-    const posts = postsData?.posts?.results ?? [];
-    const comments = commentsData?.comments?.results ?? [];
+    const posts = skipPosts ? [] : (postsData?.posts?.results ?? []);
+    const profileComments = (skipProfileComments ? [] : (profileCommentsData?.comments?.results ?? [])) as CommentItem[];
+    const shortformComments = skipShortformComments
+      ? []
+      : (shortformCommentsData?.comments?.results ?? []).map((comment) => ({ ...comment, post: null })) as CommentItem[];
+    const shortformCommentIds = new Set(shortformComments.map((comment) => comment._id));
+    const comments: CommentItem[] = (() => {
+      if (filter === 'quickTakes') {
+        return shortformComments;
+      }
+      if (filter === 'comments') {
+        return profileComments.filter((comment) => !shortformCommentIds.has(comment._id));
+      }
+      const merged: CommentItem[] = [];
+      const seenCommentIds = new Set<string>();
+      [...profileComments, ...shortformComments].forEach((comment) => {
+        if (seenCommentIds.has(comment._id)) return;
+        seenCommentIds.add(comment._id);
+        merged.push(comment);
+      });
+      return merged;
+    })();
     
     posts.forEach(post => {
-      if (post?.postedAt) {
-        items.push({
-          type: 'post',
-          data: post,
-          postedAt: new Date(post.postedAt)
-        });
-      }
+      if (!post?.postedAt) return;
+      const isShortform = !!post.shortform;
+      if (filter === 'posts' && isShortform) return;
+      if (filter === 'quickTakes' && !isShortform) return;
+      items.push({
+        type: 'post',
+        data: post,
+        postedAt: new Date(post.postedAt)
+      });
     });
     
     comments.forEach(comment => {
-      if (comment?.postedAt) {
-        items.push({
-          type: 'comment',
-          data: comment,
-          postedAt: new Date(comment.postedAt)
-        });
-      }
+      if (!comment?.postedAt) return;
+      items.push({
+        type: 'comment',
+        data: comment,
+        postedAt: new Date(comment.postedAt)
+      });
     });
     
     if (sortMode === 'recent') {
@@ -311,11 +372,12 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
     }
     
     return items;
-  }, [postsData, commentsData, sortMode]);
+  }, [postsData, profileCommentsData, shortformCommentsData, sortMode, filter, skipPosts, skipProfileComments, skipShortformComments]);
 
-  const postsHasMore = !postsLoadMoreProps.hidden;
-  const commentsHasMore = !commentsLoadMoreProps.hidden;
-  const hasMoreRemote = postsHasMore || commentsHasMore;
+  const postsHasMore = !skipPosts && !postsLoadMoreProps.hidden;
+  const profileCommentsHasMore = !skipProfileComments && !profileCommentsLoadMoreProps.hidden;
+  const shortformCommentsHasMore = !skipShortformComments && !shortformCommentsLoadMoreProps.hidden;
+  const hasMoreRemote = postsHasMore || profileCommentsHasMore || shortformCommentsHasMore;
 
   const { settings: feedSettings } = useUltraFeedSettings();
 
@@ -329,14 +391,17 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
       if (postsHasMore) {
         promises.push(postsLoadMoreProps.loadMore());
       }
-      if (commentsHasMore) {
-        promises.push(commentsLoadMoreProps.loadMore());
+      if (profileCommentsHasMore) {
+        promises.push(profileCommentsLoadMoreProps.loadMore());
+      }
+      if (shortformCommentsHasMore) {
+        promises.push(shortformCommentsLoadMoreProps.loadMore());
       }
       await Promise.all(promises);
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMoreRemote, postsHasMore, commentsHasMore, postsLoadMoreProps, commentsLoadMoreProps]);
+  }, [loadingMore, hasMoreRemote, postsHasMore, profileCommentsHasMore, shortformCommentsHasMore, postsLoadMoreProps, profileCommentsLoadMoreProps, shortformCommentsLoadMoreProps]);
 
   // Set up infinite scroll
   useEffect(() => {
@@ -369,10 +434,14 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
     if (newMode !== sortMode) {
       setSortMode(newMode);
     }
-  }, [sortMode]);
+  }, [sortMode, setSortMode]);
 
-  const isLoading = postsLoading || commentsLoading;
-  const hasNoContent = !isLoading && mixedFeed.length === 0;
+  const isInitialLoading = (
+    (!skipPosts && postsLoading) ||
+    (!skipProfileComments && profileCommentsLoading) ||
+    (!skipShortformComments && shortformCommentsLoading)
+  ) && mixedFeed.length === 0;
+  const hasNoContent = !isInitialLoading && mixedFeed.length === 0;
 
   if (hasNoContent) {
     return null;
@@ -380,51 +449,53 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
 
   return (
     <div className={classes.root}>
-      {/* Sort mode tabs */}
-      <div className={classes.sortToggle}>
-        <div
-          onClick={(e) => {
-            e.preventDefault();
-            handleSortModeChange('recent');
-          }}
-          className={classNames(
-            classes.sortButton,
-            sortMode === 'recent'
-              ? classes.sortButtonActive
-              : classes.sortButtonInactive
-          )}
-        >
-          <div className={classes.tabLabel}>
-            Recent
-            {sortMode === 'recent' && (
-              <div className={classes.tabUnderline} />
+      {/* Sort mode tabs - hidden when externally controlled */}
+      {!externalSortMode && (
+        <div className={classes.sortToggle}>
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              handleSortModeChange('recent');
+            }}
+            className={classNames(
+              classes.sortButton,
+              sortMode === 'recent'
+                ? classes.sortButtonActive
+                : classes.sortButtonInactive
             )}
+          >
+            <div className={classes.tabLabel}>
+              Recent
+              {sortMode === 'recent' && (
+                <div className={classes.tabUnderline} />
+              )}
+            </div>
+          </div>
+          <div
+            onClick={(e) => {
+              e.preventDefault();
+              handleSortModeChange('top');
+            }}
+            className={classNames(
+              classes.sortButton,
+              sortMode === 'top'
+                ? classes.sortButtonActive
+                : classes.sortButtonInactive
+            )}
+          >
+            <div className={classes.tabLabel}>
+              Top
+              {sortMode === 'top' && (
+                <div className={classes.tabUnderline} />
+              )}
+            </div>
           </div>
         </div>
-        <div
-          onClick={(e) => {
-            e.preventDefault();
-            handleSortModeChange('top');
-          }}
-          className={classNames(
-            classes.sortButton,
-            sortMode === 'top'
-              ? classes.sortButtonActive
-              : classes.sortButtonInactive
-          )}
-        >
-          <div className={classes.tabLabel}>
-            Top
-            {sortMode === 'top' && (
-              <div className={classes.tabUnderline} />
-            )}
-          </div>
-        </div>
-      </div>
-      {isLoading && <div className={classes.loading}>
+      )}
+      {isInitialLoading && <div className={classes.loading}>
         <Loading />
       </div>}
-      {!isLoading && <div className={classes.feedContent}>
+      {!isInitialLoading && <div className={classes.feedContent}>
         {mixedFeed.map((item, index) => (
           <UserContentFeedItem 
             key={item.type === 'post' ? `post-${item.data._id}` : `comment-${item.data._id}`}
@@ -434,6 +505,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
           />
         ))}
         {hasMoreRemote && <div ref={sentinelRef} style={{height: 1}} />}
+        {loadingMore && <div className={classes.loading}><Loading /></div>}
       </div>}
     </div>
   );
@@ -442,5 +514,3 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef }: User
 
 
 export default UserContentFeed;
-
-

@@ -1,5 +1,4 @@
 import React from "react"
-import { registerComponent } from "@/lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLocation } from "@/lib/routeUtil";
 import { useCurrentUser } from "@/components/common/withUser";
@@ -13,8 +12,10 @@ import LoginForm from "../../users/LoginForm";
 import WrappedApp from "./WrappedApp";
 import Loading from "../../vulcan-core/Loading";
 import WrappedWelcomeMessage from "./WrappedWelcomeMessage";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useStyles } from "@/components/hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EAForumWrappedPage", (theme: ThemeType) => ({
   root: {
     minHeight: "100vh",
     maxHeight: "100vh",
@@ -43,13 +44,11 @@ const styles = (theme: ThemeType) => ({
       marginRight: -8,
     },
   },
-});
+}));
 
-const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const {params} = useLocation();
+const EAForumWrappedPage = ({year: rawYear}: {year: number}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-
-  const rawYear = parseInt(params.year);
   const year = isWrappedYear(rawYear) ? rawYear : 2024;
 
   const {data} = useForumWrapped({
@@ -119,10 +118,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   )
 }
 
-export default registerComponent(
-  "EAForumWrappedPage",
-  EAForumWrappedPage,
-  {styles},
-);
+export default EAForumWrappedPage;
 
 

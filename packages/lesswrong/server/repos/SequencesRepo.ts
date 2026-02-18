@@ -10,19 +10,6 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
     super(Sequences);
   }
 
-  async sequenceRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
-    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
-      -- SequencesRepo.sequenceRouteWillDefinitelyReturn200
-      SELECT EXISTS(
-        SELECT 1
-        FROM "Sequences"
-        WHERE "_id" = $1 AND ${getViewableSequencesSelector()}
-      )
-    `, [id]);
-
-    return res?.exists ?? false;
-  }
-
   private getSearchDocumentQuery(): string {
     return `
       -- SequencesRepo.getSearchDocumentQuery

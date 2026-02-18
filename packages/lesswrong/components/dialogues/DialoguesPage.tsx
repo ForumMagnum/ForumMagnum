@@ -14,6 +14,10 @@ import SectionTitle from "../common/SectionTitle";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+import { useDialog } from '../common/withDialog';
+import SectionButton from '../common/SectionButton';
+import NewDialogueDialog from '../posts/NewDialogueDialog';
+import LoginPopup from '../users/LoginPopup';
 
 const PostsListWithVotesQuery = gql(`
   query DialoguesPage($documentId: String) {
@@ -61,8 +65,22 @@ const DialoguesPage = () => {
   const myDialogues = myDialoguesData?.MyDialogues?.results;
 
   const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
 
   const renderMyDialogues = currentUser && myDialogues?.length
+
+  const handleNewDialogueClick = () => {
+    if (!currentUser) {
+      openDialog({name: "LoginPopup",
+        contents: ({onClose}) => <LoginPopup onClose={onClose}/>
+      });
+      return;
+    }
+    openDialog({
+      name: "NewDialogueDialog",
+      contents: ({onClose}) => <NewDialogueDialog onClose={onClose}/>
+    });
+  }
 
   const { data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: "kQuSZG8ibfW6fJYmo" },
@@ -84,7 +102,11 @@ const DialoguesPage = () => {
               title={<LWTooltip placement="top-start" title={myDialoguesTooltip}>
                 My Dialogues (Drafts & Published)
               </LWTooltip>}
-            />
+            >
+              <SectionButton onClick={handleNewDialogueClick}>
+                New Dialogue
+              </SectionButton>
+            </SectionTitle>
           {myDialogues?.map((post: PostsListWithVotes, i: number) =>
             <PostsItem
               key={post._id} post={post}
@@ -101,7 +123,11 @@ const DialoguesPage = () => {
           title={<LWTooltip placement="top-start" title={dialoguesTooltip}>
             Dialogues
           </LWTooltip>}
-        />
+        >
+          {!renderMyDialogues && <SectionButton onClick={handleNewDialogueClick}>
+            New Dialogue
+          </SectionButton>}
+        </SectionTitle>
         {announcementPost && <PostsItem
           key={"kQuSZG8ibfW6fJYmo"} post={announcementPost} forceSticky
         />}
@@ -122,5 +148,3 @@ const DialoguesPage = () => {
 export default registerComponent('DialoguesPage', DialoguesPage, {
   hocs: [withErrorBoundary]
 });
-
-

@@ -17,7 +17,7 @@ import qs from 'qs'
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {isFriendlyUI} from '../../themes/forumTheme'
-import { RouterLocation } from "../../lib/vulcan-lib/routes";
+import { RouterLocation } from "../../lib/routeChecks/parseRoute";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { TooltipSpan } from '../common/FMTooltip';

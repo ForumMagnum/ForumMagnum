@@ -1,8 +1,8 @@
-import { applyParamsToPathname, compilePath, matchPath } from '@/lib/vendor/react-router/matchPath';
-import type { Request, Response } from 'express';
+import { applyParamsToPathname, matchPath } from '@/lib/vendor/react-router/matchPath';
 import { captureException } from '@/lib/sentryWrapper';
-import { isClient } from '../executionEnvironment';
-import { redirects } from "@/lib/redirects";
+import { isClient } from '@/lib/executionEnvironment';
+import { redirects } from "@/lib/routeChecks/redirects";
+import { routePatternToReactRouterPath } from '@/lib/routeChecks/routePatternFormat';
 import qs from 'qs';
 
 export type PingbackDocument = {
@@ -118,7 +118,7 @@ export function parseRoute<Patterns extends string[]>({ location, onError = null
 
 
   const params = routePattern !== undefined
-    ? matchPath<Record<string, string>>(pathname, { path: routePattern, exact: true, strict: false })!.params
+    ? matchPath<Record<string, string>>(pathname, { path: routePatternToReactRouterPath(routePattern), exact: true, strict: false })!.params
     : {};
 
   const query = parseQuery({ ...parsedPath, search, hash });
@@ -151,7 +151,7 @@ function applyRedirectsTo(pathname: string): string {
 
 function getPatternMatchingPathname<Patterns extends string[]>(pathname: string, routePatterns: Patterns): Patterns[number] | undefined {
   return routePatterns.find((routePattern) => matchPath(pathname, {
-    path: routePattern,
+    path: routePatternToReactRouterPath(routePattern),
     exact: true,
     strict: false,
   }));

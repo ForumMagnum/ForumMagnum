@@ -127,7 +127,7 @@ making it easier to quickly make a call for each post.
 date rather than ReviewYear, i.e. 2 years after a ReviewYear)
 
 */
-export const BestOfLessWrongAdmin = () => { 
+export const BestOfLessWrongAdmin = ({year}: {year: string}) => { 
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -140,8 +140,6 @@ export const BestOfLessWrongAdmin = () => {
   `));
   const reviewWinners = data?.GetAllReviewWinners ?? [];
   const reviewWinnersWithoutArt = reviewWinners.filter((reviewWinner: PostsTopItemInfo) => !reviewWinner.reviewWinner?.reviewWinnerArt);
-
-  const { params: { year } } = useLocation()
 
   const { data: dataReviewWinnerArtImages, loading: imagesLoading, refetch: refetchImages } = useQuery(ReviewWinnerArtImagesMultiQuery, {
     variables: {

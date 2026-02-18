@@ -18,6 +18,7 @@ import {
   YArrayEvent,
   YMapEvent,
   YEvent,
+  Doc,
 } from 'yjs';
 import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
@@ -138,7 +139,7 @@ export class CommentStore {
   _editor: LexicalEditor;
   _comments: Comments;
   _changeListeners: Set<() => void>;
-  _collabProvider: null | Provider;
+  _collabProvider: null | Provider & HocuspocusProvider;
   _isSynced: boolean;
 
   constructor(editor: LexicalEditor) {
@@ -402,19 +403,16 @@ export class CommentStore {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _getCollabComments(): null | YArray<any> {
     const provider = this._collabProvider;
     if (provider !== null) {
       // @ts-expect-error doc does exist
-      const doc = provider.doc;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return doc.get('comments', YArray) as YArray<any>;
+      const doc: Doc = provider.doc;
+      return doc.get('comments', YArray);
     }
     return null;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _createCollabSharedMap(commentOrThread: Comment | Thread): YMap<any> {
     const sharedMap = new YMap();
     const type = commentOrThread.type;

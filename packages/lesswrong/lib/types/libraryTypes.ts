@@ -17,14 +17,6 @@ declare module "turndown-plugin-gfm" {
   export const gfm: AnyBecauseTodo
 }
 
-declare module "mathjax-node" {
-  const mjAPI: AnyBecauseTodo
-  export default mjAPI
-}
-declare module "mathjax-node-page" {
-  export const mjpage: AnyBecauseTodo
-}
-
 declare module "universal-cookie-express" {
   const universalCookieExpress: AnyBecauseTodo
   export default universalCookieExpress

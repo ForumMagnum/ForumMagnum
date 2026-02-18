@@ -1,4 +1,4 @@
-import { $getRoot, $getSelection, $isRangeSelection } from 'lexical'
+import { $getRoot, $getSelection, $isRangeSelection, $isRootOrShadowRoot } from 'lexical'
 import type { BlockType } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import { $getElementBlockType, blockTypeToCreateElementFn } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import { generateUUID } from '@/lib/vendor/proton/generateUUID'
@@ -13,6 +13,77 @@ import { $isNonInlineLeafElement } from '@/lib/vendor/proton/isNonInlineLeafElem
 import type { BlockTypeChangeSuggestionProperties } from './Types'
 import { $removeSuggestionNodeAndResolveIfNeeded } from './removeSuggestionNodeAndResolveIfNeeded'
 import { $isEmptyListItemExceptForSuggestions } from './Utils'
+import { type ContainerQuoteNode, $isContainerQuoteNode, $wrapInQuote, $unwrapQuote } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode'
+
+/**
+ * Handles quote wrapping as a suggestion. Wraps the selected block(s) in a
+ * ContainerQuoteNode and inserts a 'quote-wrap' suggestion marker.
+ *
+ * Exported so the markdown shortcut handler can always wrap (rather than
+ * toggle, which is what $setBlocksTypeAsSuggestion does).
+ */
+export function $wrapInQuoteAsSuggestion(
+  onSuggestionCreation: (id: string) => void,
+  logger: Logger,
+): boolean {
+  const selection = $getSelection()
+  if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+    return true
+  }
+
+  const anchorNode = selection.anchor.getNode()
+  // Find the top-level block (child of root or shadow root)
+  const block = $findMatchingParent(anchorNode, (n) => {
+    const parent = n.getParent()
+    return parent !== null && $isRootOrShadowRoot(parent)
+  })
+  if (!block) {
+    logger.info('Could not find top-level block for quote wrap')
+    return true
+  }
+
+  const suggestionID = generateUUID()
+  $wrapInQuote([block])
+
+  // Place suggestion marker inside the first leaf block inside the quote
+  const firstLeaf = $findMatchingParent(anchorNode, $isNonInlineLeafElement)
+  if (firstLeaf) {
+    const suggestionNode = $createSuggestionNode(suggestionID, 'quote-wrap', {})
+    $insertFirst(firstLeaf, suggestionNode)
+  }
+
+  onSuggestionCreation(suggestionID)
+  return true
+}
+
+/**
+ * Handles quote unwrapping as a suggestion. Moves all children out of the
+ * ContainerQuoteNode and inserts a 'quote-unwrap' suggestion marker.
+ */
+function $unwrapFromQuoteAsSuggestion(
+  quoteNode: ContainerQuoteNode,
+  onSuggestionCreation: (id: string) => void,
+  logger: Logger,
+): boolean {
+  const selection = $getSelection()
+  if (!$isRangeSelection(selection)) {
+    return true
+  }
+
+  const suggestionID = generateUUID()
+  $unwrapQuote(quoteNode)
+
+  // Place suggestion marker inside the first moved-out block
+  const anchorNode = selection.anchor.getNode()
+  const firstLeaf = $findMatchingParent(anchorNode, $isNonInlineLeafElement)
+  if (firstLeaf) {
+    const suggestionNode = $createSuggestionNode(suggestionID, 'quote-unwrap', {})
+    $insertFirst(firstLeaf, suggestionNode)
+  }
+
+  onSuggestionCreation(suggestionID)
+  return true
+}
 
 export function $setBlocksTypeAsSuggestion(
   blockType: BlockType,
@@ -25,6 +96,19 @@ export function $setBlocksTypeAsSuggestion(
   if (selection === null) {
     logger.info('No selection found to set blocks type')
     return true
+  }
+
+  // Special handling for quote: wrap/unwrap instead of block-type replacement
+  if (blockType === 'quote') {
+    if (!$isRangeSelection(selection)) {
+      return true
+    }
+    const anchorNode = selection.anchor.getNode()
+    const existingQuote = $findMatchingParent(anchorNode, $isContainerQuoteNode)
+    if (existingQuote) {
+      return $unwrapFromQuoteAsSuggestion(existingQuote, onSuggestionCreation, logger)
+    }
+    return $wrapInQuoteAsSuggestion(onSuggestionCreation, logger)
   }
 
   if (blockType === 'code') {

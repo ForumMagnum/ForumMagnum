@@ -1,4 +1,4 @@
-import React, {ComponentProps, useState, useEffect, useRef, useMemo} from 'react';
+import React, {ComponentProps, useState, useEffect, useRef, useMemo, Suspense} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -10,7 +10,7 @@ import { useMessages } from '../common/withMessages';
 import { afNonMemberDisplayInitialPopup, useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
-import { isInFuture } from '../../lib/utils/timeUtil';
+import { isInFuture, useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -175,7 +175,8 @@ const CommentsNewForm = ({
 }: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
-  const commentSubmitStartTimeRef = useRef(Date.now());
+  const now = useCurrentTime();
+  const commentSubmitStartTimeRef = useRef(now.getTime());
   
   const { refetch, data } = useQuery(UsersCurrentCommentRateLimitQuery, {
     variables: { documentId: currentUser?._id, postId: post?._id },
@@ -206,6 +207,7 @@ const CommentsNewForm = ({
   const isMinimalist = formStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [commentFormInstance, setCommentFormInstance] = useState(0)
   const [_,setForceRefreshState] = useState(0);
 
   const { openDialog } = useDialog();
@@ -250,6 +252,9 @@ const CommentsNewForm = ({
       void successCallback(comment);
     }
     setLoading(false)
+    // Remount the form after successful submission so editor/form state does
+    // not persist between comments.
+    setCommentFormInstance((prev) => prev + 1);
     const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
     captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
     void refetch();
@@ -292,7 +297,7 @@ const CommentsNewForm = ({
   const hideDate = hideUnreviewedAuthorCommentsSettings.get();
   const commentWillBeHidden = (
     hideDate
-    && new Date(hideDate) < new Date()
+    && new Date(hideDate) < now
     && currentUser
     && !currentUser.isReviewed
   );
@@ -367,6 +372,7 @@ const CommentsNewForm = ({
             ev.preventDefault()
           }}>
             <CommentForm
+              key={commentFormInstance}
               prefilledProps={prefilledProps}
               commentSubmitProps={commentSubmitProps}
               // Note: This is overly restrictive at the moment to focus on the core use case first, many of these would work
