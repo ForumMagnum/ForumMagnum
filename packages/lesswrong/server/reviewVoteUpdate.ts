@@ -102,7 +102,7 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
   console.log("finished updating review vote toals")
 } 
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm repl"
 export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
   const votes = await ReviewVotes.find({year: REVIEW_YEAR+""}).fetch()
 
@@ -371,7 +371,7 @@ const createReviewWinner = async (post: DbPost, idx: number, category: ReviewWin
 
 // This is for manually checking what the default assignments for post categories are, 
 // to sanity check that they make sense before running the final "createReviewWinners" script
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm repl"
 export const checkReviewWinners = async () => {
   const posts = await getReviewWinnerPosts()
   const {coreTags, aiStrategyTags} = await fetchCategoryAssignmentTags()

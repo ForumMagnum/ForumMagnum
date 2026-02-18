@@ -85,7 +85,7 @@ export class PostEditor extends BalloonBlockEditorBase {}
 export class PostEditorCollaboration extends BalloonBlockEditorBase {}
 
 // NOTE: If you make changes to this file, you must then run:
-// `yarn run rebuild-ckeditor`
+// `npm run rebuild-ckeditor`
 
 const sharedPlugins = [
   Autosave,

@@ -1,5 +1,5 @@
 /**
- * Generated on 2024-02-01T21:06:58.588Z by `yarn makemigrations`
+ * Generated on 2024-02-01T21:06:58.588Z by `npm makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/rbloom/git/lesswrongSuite/LessWrong2/schema/accepted_schema.sql b/Users/rbloom/git/lesswrongSuite/LessWrong2/schema/schema_to_accept.sql
@@ -36,7 +36,7 @@
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "f3add36e62e14d409e005ef7ed969bb2";
 

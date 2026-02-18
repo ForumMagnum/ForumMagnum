@@ -121,7 +121,7 @@ async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
 /**
  * Permanently delete a user from the forum, this is sufficient to comply with GDPR deletion
  * requests if their forum account and associated services is the only data we have for them
- * Exported to allow running with "yarn repl"
+ * Exported to allow running with "npm repl"
  */
 export async function permanentlyDeleteUserById(userId: string, options?: DeleteOptions) {
   const user = await Users.findOne({_id: userId})

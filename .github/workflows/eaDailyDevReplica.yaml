@@ -14,4 +14,4 @@ jobs:
     - name: Replicate Script
       env:
         PG_URL: ${{ secrets.EA_DEV_REPLICA_PG_URL }}
-      run: yarn ea-replicate-dev-db
+      run: npm run ea-replicate-dev-db

@@ -3,7 +3,7 @@ import { ArrayType, BoolType, StringType } from "../../server/sql/Type";
 import { addRemovedField, dropRemovedField } from "./meta/utils";
 
 /**
- * Generated on 2024-04-16T15:17:09.648Z by `yarn makemigrations`
+ * Generated on 2024-04-16T15:17:09.648Z by `npm makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/sarah/EAForum/schema/accepted_schema.sql b/Users/sarah/EAForum/schema/schema_to_accept.sql
@@ -38,7 +38,7 @@ import { addRemovedField, dropRemovedField } from "./meta/utils";
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "8365aace030196807258e6ab633a5466";
 

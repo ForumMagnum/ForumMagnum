@@ -1,5 +1,5 @@
 /**
- * Generated on 2023-11-30T14:04:04.033Z by `yarn makemigrations`
+ * Generated on 2023-11-30T14:04:04.033Z by `npm makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/wh/Documents/code/ForumMagnum/schema/accepted_schema.sql b/Users/wh/Documents/code/ForumMagnum/schema/schema_to_accept.sql
@@ -29,7 +29,7 @@
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "edca7fde4fce09bf9031f2f3f9b18fda";
 

@@ -1,5 +1,5 @@
 /**
- * Generated on 2023-07-19T20:21:58.027Z by `yarn makemigrations`
+ * Generated on 2023-07-19T20:21:58.027Z by `npm makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/jbabcock/repositories/Lesserwrong/LessWrong2/schema/accepted_schema.sql b/Users/jbabcock/repositories/Lesserwrong/LessWrong2/schema/schema_to_accept.sql

@@ -1,5 +1,5 @@
 /**
- * Generated on 2024-09-04T20:55:02.054Z by `yarn makemigrations`
+ * Generated on 2024-09-04T20:55:02.054Z by `npm makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/benpace/LessWrongAll/LessWrongCode/ForumMagnum/schema/accepted_schema.sql b/Users/benpace/LessWrongAll/LessWrongCode/ForumMagnum/schema/schema_to_accept.sql
@@ -40,7 +40,7 @@
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "f857f474b5a374350cc1797a5d9240fa";
 

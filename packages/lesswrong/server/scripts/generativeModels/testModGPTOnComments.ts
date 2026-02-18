@@ -10,7 +10,7 @@ import { PostsPage } from '@/lib/collections/posts/fragments';
 
 /**
  * This was written for the EA Forum to test out having GPT-4o help moderate comments.
- * Exported to allow running manually with "yarn repl"
+ * Exported to allow running manually with "npm repl"
  */
 export const testModGPT = wrapVulcanAsyncScript(
   'testModGPT',

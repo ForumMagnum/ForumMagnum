@@ -6,7 +6,7 @@ import { backgroundTask } from "../utils/backgroundTask";
 
 const AVERAGING_WINDOW_MS = 1000 * 60 * 60 * 24 * 28; // 28 days
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm repl"
 export async function refreshKarmaInflation() {
   // eslint-disable-next-line no-console
   console.log("Refreshing karma inflation");

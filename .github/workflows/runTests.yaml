@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
-    - run: yarn run eslint
+    - run: npm run eslint
 
   runTypecheck:
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
-    - run: yarn run tsc
+    - run: npm run tsc
 
   checkCodeGeneration:
     runs-on: ubuntu-latest
@@ -63,14 +63,14 @@ jobs:
     - name: Create database connection string file
       run: echo "postgres://postgres:password@localhost:5433/postgres" > dev-pg-conn.txt 
     - name: Run code generation (EA Forum)
-      run: yarn generate test ea
+      run: npm run generate -- test ea
     - name: Throw if code changed
-      run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "Changes detected - run yarn generate"; exit 1; fi
+      run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "Changes detected - run npm run generate"; exit 1; fi
     - name: Switch forum type
       run: |
         sed -i -e 's/"forumType": "EAForum"/"forumType": "LessWrong"/g' settings-test.json
     - name: Run code generation (LessWrong)
-      run: yarn generate test lw
+      run: npm run generate -- test lw
     - name: Throw if forum schemas differ
       run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "LessWrong/EA Forum database schemas differ"; exit 1; fi
 
@@ -117,11 +117,11 @@ jobs:
     #     psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
     #     psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
     # - name: Install browsers
-    #   run: yarn playwright install ${{ matrix.project }} --with-deps
+    #   run: npm exec -- playwright install ${{ matrix.project }} --with-deps
     # - name: Build project
-    #   run: yarn next build
+    #   run: npm exec -- next build
     # - name: Run playwright tests
-    #   run: yarn playwright test --project ${{ matrix.project }}
+    #   run: npm exec -- playwright test --project ${{ matrix.project }}
     # - name: Upload playwright report
     #   if: failure()
     #   uses: actions/upload-artifact@v4
@@ -190,11 +190,11 @@ jobs:
     #     psql postgres://postgres:password@localhost:5434/postgres -f schema/accepted_schema.sql
     #     psql postgres://postgres:password@localhost:5434/postgres -f playwright/fixtures.sql
     # - name: Install browsers
-    #   run: yarn playwright install chromium --with-deps
+    #   run: npm exec -- playwright install chromium --with-deps
     # - name: Build project
-    #   run: yarn next build
+    #   run: npm exec -- next build
     # - name: Run crossposting tests
-    #   run: yarn playwright-test-crosspost
+    #   run: npm run playwright-test-crosspost
     # - name: Upload crosspost report
     #   if: failure()
     #   uses: actions/upload-artifact@v4
@@ -215,7 +215,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
-    - run: yarn run unit-ci
+    - run: npm run unit-ci
     - uses: actions/upload-artifact@v4
       if: failure()
       with:
@@ -263,9 +263,9 @@ jobs:
         npm install --global vercel@latest
         vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
     - name: Setup database schema
-      run: yarn create-integration-db-ci
-    - name: yarn run integration-ci
-      run: yarn run integration-ci
+      run: npm run create-integration-db-ci
+    - name: npm run integration-ci
+      run: npm run integration-ci
     - name: Save coverage report
       uses: coverallsapp/github-action@v2
       with:
@@ -309,7 +309,7 @@ jobs:
     - name: Execute Accepted Schema
       run: psql $PG_URL -f ./schema/accepted_schema.sql
     - name: Run Database Bootstrap
-      run: yarn repl dev lw packages/lesswrong/server/migrations/meta/umzug.ts 'skipMigrationsAfterDatabaseInit()'
+      run: npm run repl -- dev lw packages/lesswrong/server/migrations/meta/umzug.ts 'skipMigrationsAfterDatabaseInit()'
 
   uploadCoverageReports:
     needs: [runUnitTests, runIntegrationTests]

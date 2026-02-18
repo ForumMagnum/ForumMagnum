@@ -195,7 +195,7 @@ export async function maybeAutoFrontpagePost(postId: string, context: ResolverCo
  * whether frontpageDate is set) for posts published after the model was trained.
  *
  * Usage:
- *   yarn repl prod packages/lesswrong/server/frontpageClassifier/predictions.ts "analyzeClassifierAccuracy()"
+ *   npm repl prod packages/lesswrong/server/frontpageClassifier/predictions.ts "analyzeClassifierAccuracy()"
  *
  * @param startDate - Start of the analysis period (default: model training date)
  * @param endDate - End of the analysis period (default: now)

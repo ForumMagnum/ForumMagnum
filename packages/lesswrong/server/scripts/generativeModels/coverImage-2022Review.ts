@@ -270,7 +270,7 @@ async function generateCoverImages({limit = 2}: {
   }, Promise.resolve([]) as Promise<string[]>)
 }
 
-// Exported to allow running manually with yarn repl
+// Exported to allow running manually with npm repl
 export async function coverImages () {
   if (!myMidjourneyAPIKeySetting.get()) {
     throw new Error('No MyMidjourney API key found!');

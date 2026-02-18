@@ -5,7 +5,7 @@ import { loggerConstructor } from "@/lib/utils/logging";
  * Run Mailgun validations repeatedly until the queue is empty.
  *
  * Intended usage:
- * - via `yarn repl` (call `runMailgunValidationsUntilDone()`)
+ * - via `npm repl` (call `runMailgunValidationsUntilDone()`)
  * - or imported into a one-off admin script
  */
 export async function runMailgunValidationsUntilDone(args?: {

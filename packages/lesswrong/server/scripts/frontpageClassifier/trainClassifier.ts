@@ -2,7 +2,7 @@
  * Script to train a frontpage classifier using post embeddings
  *
  * Usage:
- * yarn repl prod packages/lesswrong/server/scripts/frontpageClassifier/trainClassifier.ts "trainFrontpageClassifier()"
+ * npm repl prod packages/lesswrong/server/scripts/frontpageClassifier/trainClassifier.ts "trainFrontpageClassifier()"
  */
 
 /* eslint-disable no-console */

@@ -6,7 +6,7 @@ import { parseSemver } from "@/lib/editor/utils";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { updateTag } from "../collections/tags/mutations";
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm repl"
 export const convertTagsToCkEditor = async (conversionUserSlug?: string) => {
   const conversionUser = await Users.findOne({ slug: conversionUserSlug ?? "lesswrong-internal" });
   if (!conversionUser) {

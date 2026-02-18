@@ -2,7 +2,7 @@ import Books from "../../server/collections/books/collection";
 import { addField } from "./meta/utils";
 
 /**
- * Generated on 2022-12-07T03:00:42.348Z by `yarn makemigrations`
+ * Generated on 2022-12-07T03:00:42.348Z by `npm makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/jpaddison/cea/Forum/ForumMagnum/schema/accepted_schema.sql b/Users/jpaddison/cea/Forum/ForumMagnum/schema/schema_to_accept.sql
@@ -32,7 +32,7 @@ import { addField } from "./meta/utils";
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable if you wish
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "346664785a7ca60371b76fd9d92a4f30";
 

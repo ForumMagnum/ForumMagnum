@@ -286,7 +286,7 @@ export async function validateAndStoreMailgunValidation(args: {
 
 /**
  * Backfill: validates up to N eligible emails that we haven't validated yet.
- * Intended to be called from a one-off script (e.g. via yarn repl).
+ * Intended to be called from a one-off script (e.g. via npm repl).
  */
 export async function runMailgunValidationsBatch(args?: {
   limit?: number;

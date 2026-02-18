@@ -1,5 +1,5 @@
 /**
- * Generated on 2023-12-20T21:25:20.939Z by `yarn makemigrations`
+ * Generated on 2023-12-20T21:25:20.939Z by `npm makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/jacob/Documents/lw_big/ForumMagnum/schema/accepted_schema.sql b/Users/jacob/Documents/lw_big/ForumMagnum/schema/schema_to_accept.sql

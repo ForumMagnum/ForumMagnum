@@ -9,8 +9,8 @@ You will need to add instance settings for the `cloudId`, `username` and
 
 You can then run (replace "dev" with "staging" or "prod" as applicable)
 ```
-yarn repl dev packages/lesswrong/server/scripts/elastic.ts 'configureIndexes()'
-yarn repl dev packages/lesswrong/server/scripts/elastic.ts 'exportAll()'
+npm repl dev packages/lesswrong/server/scripts/elastic.ts 'configureIndexes()'
+npm repl dev packages/lesswrong/server/scripts/elastic.ts 'exportAll()'
 ```
 to initialize the indexes and export the data (which may take some time).
 

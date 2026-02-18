@@ -1,5 +1,5 @@
 /**
- * Generated on 2024-01-26T22:55:42.263Z by `yarn makemigrations`
+ * Generated on 2024-01-26T22:55:42.263Z by `npm makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/schema/accepted_schema.sql b/schema/schema_to_accept.sql

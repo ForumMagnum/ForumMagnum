@@ -6,7 +6,7 @@
  * form‑spec parts of collection schemas.
  *
  * USAGE:
- *    yarn repl dev packages/lesswrong/server/scripts/migrateSmartForms.ts "generateDiffedForms()"
+ *    npm repl dev packages/lesswrong/server/scripts/migrateSmartForms.ts "generateDiffedForms()"
  *
  * OUTPUT:
  *    ./generatedForms-diff.tsx  – contains one TanStack form component per

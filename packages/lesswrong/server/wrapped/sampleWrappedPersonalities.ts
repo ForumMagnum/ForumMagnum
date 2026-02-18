@@ -15,7 +15,7 @@ const getRelevantUsers = async (year: WrappedYear, totalUsers?: number) => {
   return totalUsers ? sampleSize(totalUsers, users) : users;
 }
 
-// Exported to allow running from "yarn repl"
+// Exported to allow running from "npm repl"
 export const sampleWrappedPersonalities = async (
   year: WrappedYear,
   totalUsers?: number,
@@ -59,7 +59,7 @@ export const sampleWrappedPersonalities = async (
   console.log(csv);
 }
 
-// Exported to allow running from "yarn repl"
+// Exported to allow running from "npm repl"
 export const sampleWrappedEngagement = async (
   year: WrappedYear,
   totalUsers?: number,

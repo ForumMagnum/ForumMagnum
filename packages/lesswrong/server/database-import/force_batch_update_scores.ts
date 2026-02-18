@@ -3,7 +3,7 @@ import { Posts } from '../../server/collections/posts/collection'
 import { wrapVulcanAsyncScript } from '../scripts/utils'
 import { batchUpdateScore } from '../updateScores';
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm repl"
 export const forceBatchUpdateScores = wrapVulcanAsyncScript('forceBatchUpdateScores', async () => {
   // Posts
   const nActivePostsUpdated = await batchUpdateScore({

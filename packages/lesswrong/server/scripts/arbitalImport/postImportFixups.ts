@@ -8,7 +8,7 @@ import { runSqlQuery } from "@/server/sql/sqlClient";
 import keyBy from "lodash/keyBy";
 import reverse from "lodash/reverse";
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm repl"
 export const removeUnapprovedEdits = async (mysqlConnectionString: string) => {
   const database = await connectAndLoadArbitalDatabase(mysqlConnectionString);
   const revisionIdsToDelete: string[] = [];
