@@ -49,11 +49,13 @@ import { CardChecklistIcon } from '../../icons/CardChecklistIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
 import { FileImageIcon } from '../../icons/FileImageIcon';
 import { CaretRightFillIcon } from '../../icons/CaretRightFillIcon';
+import ForumIcon from '@/components/common/ForumIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { InsertReviewResultsDialog } from '../../embeds/ReviewResultsEmbed/InsertReviewResultsDialog';
+import { INSERT_LLM_CONTENT_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
 import {
   typeaheadPopover,
   typeaheadList,
@@ -342,6 +344,12 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
       keywords: ['collapse', 'collapsible', 'toggle'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined),
+    }),
+    new ComponentPickerOption('LLM Content', {
+      icon: <ForumIcon icon="Robot" style={iconStyle} />,
+      keywords: ['ai', 'llm', 'model', 'generated', 'language model', 'chatbot'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_LLM_CONTENT_BLOCK_COMMAND, undefined),
     }),
     // new ComponentPickerOption('Columns Layout', {
     //   icon: <ThreeColumnsIcon style={iconStyle} />,
