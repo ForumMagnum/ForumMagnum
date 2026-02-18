@@ -420,6 +420,13 @@ export default function ProfilePage({slug}: {
   // before we can make that determination. If the user has a saved preference,
   // restore it when that tab is available for this profile.
   const tabInitialized = useRef(false);
+
+  // Reset tabInitialized when navigating to a different profile
+  useEffect(() => {
+    tabInitialized.current = false;
+  }, [userId]);
+
+
   useEffect(() => {
     if (tabInitialized.current) return;
     if (recentPostsLoading || sequencesLoading || !userId) return;
