@@ -3,7 +3,6 @@
 import React, { Suspense, useState, useRef, useEffect } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
-import { useLocation } from "@/lib/routeUtil";
 import { userCanEditUser, userGetDisplayName } from "@/lib/collections/users/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
@@ -11,7 +10,6 @@ import { userGetEditUrl } from "@/lib/vulcan-users/helpers";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { getUserFromResults } from "@/components/users/UsersProfile";
 import { useCurrentUser } from "@/components/common/withUser";
-import { slugify } from "@/lib/utils/slugify";
 import classNames from "classnames";
 import { useStyles } from "@/components/hooks/useStyles";
 import Loading from "@/components/vulcan-core/Loading";
@@ -313,7 +311,9 @@ const ProfileSequencesQuery = gql(`
   }
 `);
 
-export default function ProfilePage() {
+export default function ProfilePage({slug}: {
+  slug: string
+}) {
   const classes = useStyles(profileStyles);
   const [cookies, setCookie] = useCookiesWithConsent([SELECTED_PROFILE_TAB_COOKIE]);
   const [activeTab, setActiveTab] = useState<ProfileTab>(
@@ -329,8 +329,6 @@ export default function ProfilePage() {
   const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
   const bioRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
-  const { params } = useLocation();
-  const slug = slugify(params.slug);
 
   const handleTabSwitch = (tab: ProfileTab) => {
     setCookie(SELECTED_PROFILE_TAB_COOKIE, tab, { path: "/" });

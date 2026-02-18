@@ -5,10 +5,13 @@ import ProfilePage from "./ProfilePage";
 
 export const generateMetadata = generateUserPageMetadata;
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params;
   return <RouteRoot
     delayedStatusCode
   >
-    <ProfilePage />
+    <ProfilePage slug={slug}/>
   </RouteRoot>;
 }

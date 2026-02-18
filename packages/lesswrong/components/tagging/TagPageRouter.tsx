@@ -35,9 +35,9 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
 /**
  * Wrapper component for routing to either the subforum page or the ordinary tag page.
  */
-const TagPageRouter = () => {
+const TagPageRouter = ({slug}: {slug: string}) => {
   const TagPage = isFriendlyUI() ? EATagPage : LWTagPage;
-  const { query, params: { slug } } = useLocation();
+  const { query } = useLocation();
 
   const { version: queryVersion, revision: queryRevision } = query;
   const revision = queryVersion ?? queryRevision ?? undefined;
@@ -58,7 +58,7 @@ const TagPageRouter = () => {
   });
   
   if (!hasSubforums()) {
-    return <TagPage/>;
+    return <TagPage slug={slug}/>;
   }
 
   if (!tag || loadingTag) return null;
@@ -83,10 +83,10 @@ const TagPageRouter = () => {
   }*/
 
   if (tag.isSubforum) {
-    return <TagSubforumPage2/>
+    return <TagSubforumPage2 slug={slug}/>
   }
 
-  return <TagPage/>
+  return <TagPage slug={slug}/>
 }
 
 export default TagPageRouter;

@@ -3,10 +3,8 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from '@/lib/crud/useQuery';
 import { Link } from "@/lib/reactRouterWrapper";
 import { useCurrentUser } from "../common/withUser";
-import { useLocation } from "@/lib/routeUtil";
 import { SurveyQuestionFormat, surveyQuestionFormats } from "@/lib/collections/surveyQuestions/constants";
 import type { SettingsOption } from "@/lib/collections/posts/dropdownOptions";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen";
 import Error404 from "../common/Error404";
 import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
@@ -17,6 +15,8 @@ import ForumDropdown from "../common/ForumDropdown";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import SingleColumnSection from "../common/SingleColumnSection";
+import { useStyles } from "../hooks/useStyles";
+import { defineStyles } from "../hooks/defineStyles";
 
 const SurveyMinimumInfoQuery = gql(`
   query SurveyEditPage($documentId: String) {
@@ -28,7 +28,7 @@ const SurveyMinimumInfoQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SurveyEditPage", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     paddingTop: 30,
@@ -96,7 +96,7 @@ const styles = (theme: ThemeType) => ({
   submit: {
     width: 100,
   },
-});
+}));
 
 const formatOptions: Record<string, SettingsOption> = Object.fromEntries(
   Object
@@ -112,11 +112,11 @@ export type SurveyQuestionInfo = {
   format: SurveyQuestionFormat,
 }
 
-const SurveyForm = ({survey, refetch, classes}: {
+const SurveyForm = ({survey, refetch}: {
   survey: SurveyMinimumInfo,
   refetch?: () => Promise<AnyBecauseHard>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState(survey.name);
@@ -270,10 +270,8 @@ const SurveyForm = ({survey, refetch, classes}: {
   );
 }
 
-const SurveyEditor = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const {params: {id}} = useLocation();
+const SurveyEditor = ({id}: {id: string}) => {
+  const classes = useStyles(styles);
   const { loading, refetch, data } = useQuery(SurveyMinimumInfoQuery, {
     variables: { documentId: id },
   });
@@ -294,25 +292,19 @@ const SurveyEditor = ({classes}: {
         <div className={classes.secondaryText}>Survey not found</div>
       }
       {survey &&
-        <SurveyForm survey={survey} refetch={refetch} classes={classes} />
+        <SurveyForm survey={survey} refetch={refetch} />
       }
     </SingleColumnSection>
   );
 }
 
-const SurveyEditPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const SurveyEditPage = ({id}: {id: string}) => {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
-    ? <SurveyEditor classes={classes} />
+    ? <SurveyEditor id={id}/>
     : <Error404 />;
 }
 
-export default registerComponent(
-  "SurveyEditPage",
-  SurveyEditPage,
-  {styles},
-);
+export default SurveyEditPage;
 
 

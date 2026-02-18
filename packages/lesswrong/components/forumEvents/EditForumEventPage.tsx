@@ -5,17 +5,17 @@ import { useLocation } from "../../lib/routeUtil";
 import SingleColumnSection from "../common/SingleColumnSection";
 import ForumEventForm from "./ForumEventForm";
 import PermanentRedirect from "../common/PermanentRedirect";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useStyles } from "@/components/hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EditForumEventPage", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
-});
+}));
 
-export const EditForumEventPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
-  const {params: {documentId}} = useLocation();
+export const EditForumEventPage = ({documentId}: {documentId: string}) => {
+  const classes = useStyles(styles);
   if (documentId?.length !== 17) {
     return <PermanentRedirect status={307} url="/adminForumEvents" />
   }
@@ -30,10 +30,6 @@ export const EditForumEventPage = ({classes}: {
   );
 }
 
-export default registerComponent(
-  "EditForumEventPage",
-  EditForumEventPage,
-  {styles},
-);
+export default EditForumEventPage;
 
 

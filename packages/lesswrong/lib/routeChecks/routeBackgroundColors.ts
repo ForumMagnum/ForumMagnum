@@ -8,13 +8,19 @@
  *
  * Because this is a handled by the root layout rather than the route component,
  * we have a list of white-background routes here. In the route component, call
- * assertRouteHasWhiteBackground to enforce that it's in this list.
+ * assertRouteAttributes to enforce that route-attributes are consistent with
+ * centralized route lists.
  */
+import type { ParamMap } from '../../../../.next/types/routes';
+import type { RoutePreviewPattern } from './hoverPreviewRoutes';
+import type { PingbackRoutePattern } from './pingbackRoutes';
+import type { LeftNavigationRoutePattern } from './index';
+
+type NextExistingRoute = keyof ParamMap;
+
 const routesWithWhiteBackground = [
   "/about",
   "/account",
-  "/bestoflesswrong/2018",
-  "/bestoflesswrong/2019",
   "/books/2018",
   "/books/2019",
   "/codex/[slug]",
@@ -37,7 +43,6 @@ const routesWithWhiteBackground = [
   "/posts/[_id]/[slug]",
   "/posts/[_id]",
   "/posts/slug/[slug]",
-  "/posts/slug",
   "/rationality/[slug]",
   "/resendVerificationEmail",
   "/s/[_id]/p/[postId]",
@@ -46,7 +51,16 @@ const routesWithWhiteBackground = [
   "/w/[slug]",
   "/w/[slug]/discussion",
   "/w/create"
-] as const;
+] as const satisfies readonly NextExistingRoute[];
+
+type WhiteBackgroundRoutePattern = typeof routesWithWhiteBackground[number];
+
+type RouteAttributes<Pathname extends NextExistingRoute> = {
+  whiteBackground: Pathname extends WhiteBackgroundRoutePattern ? true : false,
+  hasLinkPreview: Pathname extends RoutePreviewPattern ? true : false,
+  hasPingbacks: Pathname extends PingbackRoutePattern ? true : false,
+  hasLeftNavigationColumn: Pathname extends LeftNavigationRoutePattern ? true : false,
+};
 
 const routesWithCreamBackground = [
   "/users/[slug]",
@@ -73,4 +87,12 @@ function isOnRoutesList(pathname: string, routes: readonly string[]): boolean {
 }
 
 export function assertRouteHasWhiteBackground(pathname: typeof routesWithWhiteBackground[number]) {
+}
+
+export function assertRouteAttributes<Pathname extends NextExistingRoute>(
+  pathname: Pathname,
+  routeAttributes: RouteAttributes<Pathname>
+) {
+  void pathname;
+  void routeAttributes;
 }

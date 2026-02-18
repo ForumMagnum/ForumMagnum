@@ -44,6 +44,8 @@ import ContentStyles from "../common/ContentStyles";
 import CommentsListCondensed from "../common/CommentsListCondensed";
 import { StructuredData } from "../common/StructuredData";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useStyles } from "../hooks/useStyles";
+import { defineStyles } from "../hooks/defineStyles";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagEATagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -75,7 +77,7 @@ const sidePaddingStyle = (theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EATagPage", (theme: ThemeType) => ({
   rootGivenImage: {
     marginTop: 185,
     [theme.breakpoints.down('sm')]: {
@@ -200,13 +202,13 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle
   },
   ...tagPageHeaderStyles(theme),
-});
+}));
 
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
-  classes: ClassesType<typeof styles>,
-}> = ({tag, query, classes}) => {
+}> = ({tag, query}) => {
+  const classes = useStyles(styles);
   if (isFriendlyUI()) {
     return (
       <>
@@ -228,11 +230,10 @@ const PostsListHeading: FC<{
   );
 }
 
-const EATagPage = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const EATagPage = ({slug}: {slug: string}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const { query, params: { slug } } = useLocation();
+  const { query } = useLocation();
   const [editing, setEditing] = useState(!!query.edit)
   
   // Support URLs with ?version=1.2.3 or with ?revision=1.2.3 (we were previously inconsistent, ?version is now preferred)
@@ -472,7 +473,7 @@ const EATagPage = ({classes}: {
           {!tag.wikiOnly && <>
             <AnalyticsContext pageSectionContext="tagsSection">
               <PostsList2
-                header={<PostsListHeading tag={tag} query={query} classes={classes} />}
+                header={<PostsListHeading tag={tag} query={query} />}
                 terms={terms}
                 enableTotal
                 tagId={tag._id}
@@ -505,6 +506,6 @@ const EATagPage = ({classes}: {
   </AnalyticsContext>
 }
 
-export default registerComponent("EATagPage", EATagPage, {styles});
+export default EATagPage;
 
 

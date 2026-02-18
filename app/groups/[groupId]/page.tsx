@@ -56,10 +56,13 @@ export async function generateMetadata({ params, searchParams }: { params: Promi
   }
 }
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ groupId: string }>
+}) {
+  const { groupId } = await params;
   return <RouteRoot delayedStatusCode
     subtitle={{ title: 'Community', link: '/community' }}
   >
-    <LocalGroupSingle />
+    <LocalGroupSingle groupId={groupId} />
   </RouteRoot>;
 }
