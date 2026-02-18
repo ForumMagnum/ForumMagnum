@@ -376,29 +376,6 @@ function ProfilePageInner({user}: {
   const userId = user?._id;
   const bioNoFollow = user.karma < nofollowKarmaThreshold.get();
 
-  const { data: recentPostsData, loading: recentPostsLoading } = useQuery(ProfilePostsQuery, {
-    skip: !userId,
-    variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: sortBy, excludeEvents: true } } : undefined,
-      limit: RECENT_POSTS_LIMIT,
-      enableTotal: false,
-    },
-    fetchPolicy: "cache-and-network",
-  });
-
-  const { data: sequencesData, loading: sequencesLoading } = useQuery(ProfileSequencesQuery, {
-    skip: !userId,
-    variables: {
-      selector: userId ? { userProfile: { userId } } : undefined,
-      limit: SEQUENCES_LIMIT,
-      enableTotal: false,
-    },
-    fetchPolicy: "cache-and-network",
-  });
-
-  const recentPosts = recentPostsData?.posts?.results ?? [];
-  const sequences = sequencesData?.sequences?.results ?? [];
-
   const currentUser = useCurrentUser();
   const canModerateUserProfile = userIsAdminOrMod(currentUser);
 
@@ -478,14 +455,14 @@ function ProfilePageInner({user}: {
 
             <div className={classes.allPostsContainer}>
               <div className={classNames(classes.postsList, classes.tabPanel, activeTab === "posts" && classes.tabPanelActive)}>
-                <ProfilePageAllPostsTab user={user} recentPosts={recentPosts} recentPostsLoading={recentPostsLoading} sortBy={sortBy} setSortBy={setSortBy} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
+                <ProfilePageAllPostsTab user={user} sortBy={sortBy} setSortBy={setSortBy} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
               </div>
 
               <div className={classNames(
                 classes.sequencesList, classes.tabPanel,
                 activeTab === "sequences" && classes.tabPanelActive
               )}>
-                <ProfilePageSequencesTab user={user} sequences={sequences} />
+                <ProfilePageSequencesTab user={user} />
               </div>
 
               <div className={classNames(
@@ -815,11 +792,23 @@ function ProfilePageMobileBio({user, bioNoFollow}: {
   </div>
 }
 
-function ProfilePageSequencesTab({user, sequences}: {
+function ProfilePageSequencesTab({user}: {
   user: UsersProfile
-  sequences: SequenceContinueReadingFragment[]
 }) {
   const classes = useStyles(profileStyles);
+  const userId = user._id;
+
+  const { data: sequencesData, loading: sequencesLoading } = useQuery(ProfileSequencesQuery, {
+    skip: !userId,
+    variables: {
+      selector: userId ? { userProfile: { userId } } : undefined,
+      limit: SEQUENCES_LIMIT,
+      enableTotal: false,
+    },
+    fetchPolicy: "cache-and-network",
+  });
+  const sequences = sequencesData?.sequences?.results ?? [];
+
   return <div className={classes.sequencesGrid}>
     {sequences.map((sequence) => {
       const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get();
@@ -845,10 +834,8 @@ function ProfilePageSequencesTab({user, sequences}: {
   </div>
 }
 
-function ProfilePageAllPostsTab({user, recentPosts, recentPostsLoading, sortBy, setSortBy, sortPanelOpen, sortPanelClosing}: {
+function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, sortPanelClosing}: {
   user: UsersProfile
-  recentPosts: PostWithPreview[]
-  recentPostsLoading: boolean
   sortBy: AllPostsTabSortingMode
   setSortBy: React.Dispatch<React.SetStateAction<AllPostsTabSortingMode>>
   sortPanelOpen: boolean
@@ -856,6 +843,19 @@ function ProfilePageAllPostsTab({user, recentPosts, recentPostsLoading, sortBy, 
 }) {
   const classes = useStyles(profileStyles);
   const [postsToShow, setPostsToShow] = useState(INITIAL_POSTS_TO_SHOW);
+  const userId = user._id;
+
+  const { data: recentPostsData, loading: recentPostsLoading } = useQuery(ProfilePostsQuery, {
+    skip: !userId,
+    variables: {
+      selector: userId ? { userPosts: { userId, sortedBy: sortBy, excludeEvents: true } } : undefined,
+      limit: RECENT_POSTS_LIMIT,
+      enableTotal: false,
+    },
+    fetchPolicy: "cache-and-network",
+  });
+  const recentPosts = recentPostsData?.posts?.results ?? [];
+
   const hasPosts = user.postCount > 0;
   const listPosts = recentPosts.slice(0, postsToShow);
   const hasMorePosts = recentPosts.length > postsToShow;
