@@ -102,7 +102,7 @@ const SequenceV2CenterToC = ({sections, sequenceTitle}: {
 
   return <div className={classes.root}>
     {sections.map((section) => {
-      const isChapter = section.level <= 1;
+      const isChapter = section.anchor.startsWith("chapter-");
       if (isChapter && section.title === sequenceTitle) {
         return null;
       }

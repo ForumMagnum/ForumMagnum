@@ -8,7 +8,7 @@ import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
 import DeferRender from '../common/DeferRender';
 import CloudinaryImage from "../common/CloudinaryImage";
-import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -22,6 +22,7 @@ import SequenceV2FixedToC from "./SequenceV2FixedToC";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import Divider from '../common/Divider';
 import FormatDate from '../common/FormatDate';
+import classNames from 'classnames';
 
 type SequenceV2Sequence = {
   _id: string,
@@ -105,12 +106,15 @@ const SequenceV2Query = gql(`
 const styles = defineStyles("SequencesPageV2", (theme: ThemeType) => ({
   root: {
     position: "relative",
-    paddingTop: `calc(var(--header-height) + 380px)`,
-    backgroundColor: "#fff",
+    paddingTop: `calc(var(--header-height) + 180px)`,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
     marginTop: -theme.spacing.mainLayoutPaddingTop,
     [theme.breakpoints.down('sm')]: {
       marginTop: theme.isFriendlyUI ? 0 : -10,
     },
+  },
+  rootWithBanner: {
+    paddingTop: `calc(var(--header-height) + 380px)`,
   },
   banner: {
     position: "absolute",
@@ -136,7 +140,7 @@ const styles = defineStyles("SequencesPageV2", (theme: ThemeType) => ({
     right: 0,
     bottom: 0,
     height: "90%",
-    background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,.85) 80%, #fff 100%)",
+    background: `linear-gradient(to bottom, ${theme.palette.inverseGreyAlpha(0)} 0%, ${theme.palette.inverseGreyAlpha(0.85)} 80%, ${theme.palette.background.pageActiveAreaBackground} 100%)`,
     pointerEvents: "none",
   },
   header: {
@@ -188,7 +192,7 @@ const styles = defineStyles("SequencesPageV2", (theme: ThemeType) => ({
     display: "block",
     fontSize: 15,
     ...theme.typography.postStyle,
-    marginBottom: 72,
+    marginBottom: 140,
     marginTop: 4,
     color: theme.palette.grey[800],
     zIndex: 1,
@@ -242,7 +246,7 @@ const SequencesPageV2 = ({ documentId }: {
   if (!canEdit && sequence.draft)
     throw new Error('This sequence is a draft and is not publicly visible')
 
-  const bannerId = sequence.bannerImageId || defaultSequenceBannerIdSetting.get();
+  const bannerId = sequence.bannerImageId;
   const socialImageId = sequence.gridImageId || sequence.bannerImageId;
   const socialImageUrl = socialImageId ? makeCloudinaryImageUrl(socialImageId, {
     c: "fill",
@@ -255,7 +259,7 @@ const SequencesPageV2 = ({ documentId }: {
   const descriptionHtml = sequence.contents?.html ?? "";
   const sequenceAuthorKarma = sequence.user?.karma ?? 0;
 
-  const main = <div className={classes.root}>
+  const main = <div className={classNames(classes.root, { [classes.rootWithBanner]: !!bannerId })}>
     <StatusCodeSetter status={200}/>
     {bannerId && <div className={classes.banner}>
       <DeferRender ssr={false}>
@@ -277,36 +281,38 @@ const SequencesPageV2 = ({ documentId }: {
         {sequence.user?.displayName ? `By ${sequence.user.displayName}` : ""}
       </div>
       {sequence.createdAt ? <span className={classes.publishDate}>Published <FormatDate date={sequence.createdAt} format="MMM DD, YYYY" tooltip={false}/></span> : ""}
-        <SequenceV2CenterToC sections={tocSections} sequenceTitle={sequence.title} />
-        <Divider  margin={96} wings={false}/>
-            {chapters.map((chapter) => {
-              const chapterAnchor = `chapter-${chapter._id}`;
-              const chapterDescriptionHtml = chapter.contents?.html ?? null;
-              const shouldShowChapterSection = !!(chapter.title || chapter.subtitle || chapterDescriptionHtml);
-              return <div key={chapter._id}>
-                {chapter.title !== sequence.title && <SequenceV2ChapterSection
-                  anchor={chapterAnchor}
-                  title={chapter.title}
-                  subtitle={chapter.subtitle}
-                  descriptionHtml={chapterDescriptionHtml}
-                />}
-                {chapter.posts.map((post) => {
-                  const postAnchor = `post-${post._id}`;
-                  const html = post.contents?.html ?? "";
-                  const showAuthor = post.userId !== sequence.userId;
-                  return <SequenceV2PostSection
-                    key={post._id}
-                    anchor={postAnchor}
-                    title={post.title}
-                    html={html}
-                    showAuthor={showAuthor}
-                    authorName={post.user?.displayName}
-                  />
-                })}
-                {!shouldShowChapterSection && <div/>}
-              </div>
-            })}
-          </div>
+      <SequenceV2CenterToC sections={tocSections} sequenceTitle={sequence.title} />
+      <Divider  margin={96} />
+          {chapters.map((chapter, chapterIndex) => {
+            const chapterAnchor = `chapter-${chapter._id}`;
+            const chapterDescriptionHtml = chapter.contents?.html ?? null;
+            const shouldShowChapterSection = !!(chapter.title || chapter.subtitle || chapterDescriptionHtml);
+            return <div key={chapter._id}>
+              {chapter.title !== sequence.title && <SequenceV2ChapterSection
+                anchor={chapterAnchor}
+                title={chapter.title}
+                subtitle={chapter.subtitle}
+                descriptionHtml={chapterDescriptionHtml}
+                index={chapterIndex}
+              />}
+              {chapter.posts.map((post, postIndex) => {
+                const postAnchor = `post-${post._id}`;
+                const html = post.contents?.html ?? "";
+                const showAuthor = post.userId !== sequence.userId;
+                return <SequenceV2PostSection
+                  key={post._id}
+                  anchor={postAnchor}
+                  title={post.title}
+                  html={html}
+                  showAuthor={showAuthor}
+                  authorName={post.user?.displayName}
+                  index={postIndex}
+                />
+              })}
+              {!shouldShowChapterSection && <div/>}
+            </div>
+          })}
+        </div>
       </div>
 
   return <AnalyticsContext pageContext="sequencesPageV2" sequenceId={sequence._id}>
