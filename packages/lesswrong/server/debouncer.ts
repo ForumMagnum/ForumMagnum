@@ -256,7 +256,7 @@ export const dispatchPendingEvents = async () => {
  * before then. If no date is given, dispatch any pending events, regardless of
  * their timer. You would do this interactively if you're testing and don't
  * want to wait.
- * Exported to allow running manually with "npm run repl --"
+ * Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
  */
 export const forcePendingEvents = async (
   {upToDate, delay}:

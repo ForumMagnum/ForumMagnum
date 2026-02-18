@@ -23,19 +23,19 @@ export interface ProjectEnv extends CommandLineOptions {
 function printReplHelpText() {
   // eslint-disable-next-line no-console
   console.log(
-`Usage: npm run repl -- [mode] [forum-type]
-Or: npm run repl -- [mode] [forum-type] [filename] [js]
+`Usage: npm run repl [mode] [forum-type]
+Or: npm run repl [mode] [forum-type] [filename] [js]
 
 [mode] is "dev", "prod", "local", etc.
 [forum-type] is "lw", "ea", or "af" (optional).
 
 Examples:
   To make a REPL connecting to the LW dev DB:
-    npm run repl -- dev lw
+    npm run repl dev lw
   To run exampleFunction from packages/lesswrong/server/scripts/example.ts:
-    npm run repl -- dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'
+    npm run repl dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'
   To run a function which is the default export from packages/lesswrong/server/scripts/example.ts:
-    npm run repl -- dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'
+    npm run repl dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'
 `);
 }
 

@@ -6,7 +6,7 @@ import { createSqlConnection } from "../sqlConnection";
  * the server running well - you almost certainly don't want to run this in prod, but
  * it's useful for debugging.
  *
- * Exported to allow running manually with "npm run repl --"
+ * Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
  */
 export const deletePgIndexes = async () => {
   const sql = await createSqlConnection();

@@ -3,7 +3,7 @@ import RecommendationService from "../recommendations/RecommendationService";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 
-// Exported to allow use in "npm run repl --"
+// Exported to allow use in "npm run repl <mode> [forum-type] [file] [js]"
 export const randomRecommendationSamples = async () => {
   let cutoff = new Date();
   cutoff = new Date(cutoff.setFullYear(cutoff.getFullYear() - 1));

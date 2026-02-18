@@ -9,7 +9,7 @@ import { getSqlClientOrThrow } from "../sql/sqlClient";
 
 /**
  * Translates a mongo find query to SQL for debugging purposes.  Requires a server running because the query builder uses collections, etc.
- * Exported to allow running manually with "npm run repl --"
+ * Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
  */
 export const findToSQL = ({ tableName, selector, options }: { tableName: CollectionNameString, selector: AnyBecauseTodo, options?: MongoFindOptions<DbObject> }) => {
   const table = Table.fromCollection(getCollection(tableName));
@@ -22,7 +22,7 @@ export const findToSQL = ({ tableName, selector, options }: { tableName: Collect
 
 /**
  * Translates a mongo insert query to SQL for debugging purposes.  Requires a server running because the query builder uses collections, etc.
- * Exported to allow running manually with "npm run repl --"
+ * Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
  */
 export const insertToSQL = <N extends CollectionNameString>({ tableName, data, options }: { tableName: N, data: InsertionRecord<ObjectsByCollectionName[N]>, options?: MongoFindOptions<ObjectsByCollectionName[N]> }) => {
   const table = Table.fromCollection(getCollection(tableName));

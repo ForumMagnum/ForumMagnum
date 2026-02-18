@@ -843,7 +843,7 @@ function sortTagsByIdOrder(tags: DbTag[], orderIds: string[]): DbTag[] {
   return filterNonnull(orderIds.map(id => tagsByIdMap[id]));
 }
 
-// Exported to allow running from "npm run repl --"
+// Exported to allow running from "npm run repl <mode> [forum-type] [file] [js]"
 export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
   const context = createAdminContext();
   const tag = await Tags.findOne({slug: tagSlug});
@@ -863,7 +863,7 @@ export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
   );
 }
 
-// Exported to allow running from "npm run repl --"
+// Exported to allow running from "npm run repl <mode> [forum-type] [file] [js]"
 export const recomputeDenormalizedContributorsAndAttributionsOn = async (tagSlug: string) => {
   const resolverContext = createAdminContext();
   const { Tags } = resolverContext;

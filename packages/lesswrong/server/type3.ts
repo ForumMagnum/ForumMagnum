@@ -72,7 +72,7 @@ export const regenerateType3Audio = async (document: DbPost | DbTag, collectionN
   captureEvent("regenerateType3Audio", {documentId: document._id, collectionName, ...body});
 }
 
-// Exported to allow running with "npm run repl --"
+// Exported to allow running with "npm run repl <mode> [forum-type] [file] [js]"
 export const regenerateType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags') => {
   const document = await (collectionName === 'Posts' 
     ? Posts.findOne({_id: documentId})
@@ -94,7 +94,7 @@ const deleteType3Audio = async (document: DocumentWithAudio, collectionName: 'Po
   captureEvent("deleteType3Audio", {documentId: document._id, collectionName, ...body});
 }
 
-// Exported to allow running with "npm run repl --"
+// Exported to allow running with "npm run repl <mode> [forum-type] [file] [js]"
 export const deleteType3AudioForDocumentId = async (documentId: string, collectionName: 'Posts' | 'Tags') => {
   const document = await (collectionName === 'Posts' 
     ? Posts.findOne({_id: documentId})
@@ -105,7 +105,7 @@ export const deleteType3AudioForDocumentId = async (documentId: string, collecti
   await deleteType3Audio(document, collectionName);
 }
 
-// Exported to allow running with "npm run repl --"
+// Exported to allow running with "npm run repl <mode> [forum-type] [file] [js]"
 export const regenerateAllType3AudioForUser = async (userId: string) => {
   const posts = await Posts.find({
     userId

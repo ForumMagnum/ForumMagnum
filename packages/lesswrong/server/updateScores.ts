@@ -121,7 +121,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   return updatedDocumentsCounter;
 }
 
-// Exported to allow running manually with "npm run repl --"
+// Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
 export const batchUpdateScoreByName = ({collectionName, inactive = false, forceUpdate = false}: BatchUpdateParams & { collectionName: VoteableCollectionName }) => {
   const collection = getCollection(collectionName);
   return batchUpdateScore({collection, inactive, forceUpdate});

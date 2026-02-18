@@ -32,7 +32,7 @@ export const allUserProfileFields = [
   ...editableUserProfileFields,
 ];
 
-// Exported to allow running with "npm run repl --"
+// Exported to allow running with "npm run repl <mode> [forum-type] [file] [js]"
 export const backfillUserProfileUpdatedAt = async () => {
   const db = getSqlClientOrThrow();
 

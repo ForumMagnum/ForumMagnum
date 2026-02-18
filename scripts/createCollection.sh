@@ -6,7 +6,7 @@ if [ -z "$1" ]; then
 fi
 
 export SKIP_VERCEL_CODE_PULL=true
-npm run repl -- dev "packages/lesswrong/server/codegen/generateNewCollection.ts" "generateNewCollection(\"$1\")"
+npm run repl dev "packages/lesswrong/server/codegen/generateNewCollection.ts" "generateNewCollection(\"$1\")"
 status=$?
 
 if [ $status -eq 0 ]; then

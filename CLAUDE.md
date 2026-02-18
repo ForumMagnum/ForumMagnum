@@ -386,7 +386,7 @@ Also updates:
 
 ## Migrations
 
-A migration is required for any change that modifies the database schema. Automatic migrations are at `@/server/migrations/yyyymmddThhmmss.migrationName.ts`; these are run automatically when a new version is deployed, inside a github action runner. Migrations are created from a template by running `npm run migrate -- create migrationName`. There are also "manual migrations", which are run manually by developers with `npm run repl --`. Manual migrations are used when a migration performs operations that could time out if run inside a github action runner.
+A migration is required for any change that modifies the database schema. Automatic migrations are at `@/server/migrations/yyyymmddThhmmss.migrationName.ts`; these are run automatically when a new version is deployed, inside a github action runner. Migrations are created from a template by running `npm run migrate -- create migrationName`. There are also "manual migrations", which are run manually by developers with `npm run repl <mode> [forum-type] [file] [js]`. Manual migrations are used when a migration performs operations that could time out if run inside a github action runner.
 
 Migrations are run before the new version is deployed, without downtime, so if a migration modifies the database schema it must be backwards-compatible with the immediately preceding deployment. Eg, if a new column is added it must have a default value, and if a column is deleted it must have already been unused. If a schema change can't be made backwards-compatible, this might require using a manual migration that will be run after deployment finishes, or splitting a PR into two stages that will be deployed separately.
 

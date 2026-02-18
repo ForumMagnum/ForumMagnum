@@ -5,7 +5,7 @@ import { loggerConstructor } from "@/lib/utils/logging";
  * Run Mailgun validations repeatedly until the queue is empty.
  *
  * Intended usage:
- * - via `npm run repl --` (call `runMailgunValidationsUntilDone()`)
+ * - via `npm run repl <mode> [forum-type] [file] [js]` (call `runMailgunValidationsUntilDone()`)
  * - or imported into a one-off admin script
  */
 export async function runMailgunValidationsUntilDone(args?: {

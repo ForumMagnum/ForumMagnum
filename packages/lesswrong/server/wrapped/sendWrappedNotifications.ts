@@ -33,7 +33,7 @@ export const getWrappedUsers = async (
   }, {}, {_id: 1, slug: 1, unsubscribeFromAll: 1}).fetch();
 }
 
-// Exported to allow running from "npm run repl --"
+// Exported to allow running from "npm run repl <mode> [forum-type] [file] [js]"
 export const sendWrappedNotifications = async (year: WrappedYear) => {
   const users = await getWrappedUsers(year);
   const emailUsers = users.filter(({unsubscribeFromAll}) => !unsubscribeFromAll);

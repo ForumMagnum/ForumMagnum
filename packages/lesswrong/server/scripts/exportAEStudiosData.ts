@@ -140,7 +140,7 @@ function createAEPostRecord({ post, tags, authors, upvoteCount }: CreateAEPostRe
   };
 }
 
-// Exported to allow running manually with "npm run repl --"
+// Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
 export async function exportAECommentRecords(offsetDate?: Date) {
   const db = getSqlClientOrThrow();
   const context = createAnonymousContext();
@@ -193,7 +193,7 @@ export async function exportAECommentRecords(offsetDate?: Date) {
   }
 }
 
-// Exported to allow running manually with "npm run repl --"
+// Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
 export async function exportAEPostRecords(offsetDate?: Date) {
   const db = getSqlClientOrThrow();
 

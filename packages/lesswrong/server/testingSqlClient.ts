@@ -157,7 +157,7 @@ type DropAndCreatePgArgs = {
   dropExisting?: boolean,
 }
 
-// Exported to allow running with "npm run repl --"
+// Exported to allow running with "npm run repl <mode> [forum-type] [file] [js]"
 export const dropAndCreatePg = async ({templateId, dropExisting}: DropAndCreatePgArgs) => {
   // eslint-disable-next-line no-console
   console.log("Creating PG database");

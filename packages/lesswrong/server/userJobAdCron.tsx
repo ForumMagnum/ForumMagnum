@@ -9,7 +9,7 @@ import { isEAForum } from '../lib/instanceSettings';
 import { EmailJobAdReminder } from './emailComponents/EmailJobAdReminder';
 import { backgroundTask } from './utils/backgroundTask';
 
-// Exported to allow running with "npm run repl --"
+// Exported to allow running with "npm run repl <mode> [forum-type] [file] [js]"
 export const sendJobAdReminderEmails = async () => {
   if (!isEAForum()) return
 

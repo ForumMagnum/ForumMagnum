@@ -47,7 +47,7 @@ type Entry<N extends CollectionNameString> = [
 
 /**
  * Please ensure that we know that the user is who they say they are!
- * Exported to allow running with "npm run repl --".
+ * Exported to allow running with "npm run repl <mode> [forum-type] [file] [js]".
  */
 export const exportUserData = async (
   selector: {_id?: string, slug?: string, email?: string},
