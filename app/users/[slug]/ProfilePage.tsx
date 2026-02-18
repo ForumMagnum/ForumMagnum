@@ -396,7 +396,6 @@ export default function ProfilePage({slug}: {
 
   const currentUser = useCurrentUser();
   const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
-  const canEditProfile = !!user && userCanEditUser(currentUser, user);
   const canModerateUserProfile = userIsAdminOrMod(currentUser);
   const canSubscribeToUser = !!user && !isOwnProfile;
   const canMessageUser = !!user && !!currentUser && !isOwnProfile;
@@ -429,34 +428,11 @@ export default function ProfilePage({slug}: {
                 tooltipPlacement="bottom-start"
               />
             </h1>
-            {(canEditProfile || canModerateUserProfile) && (
-              <div className={classes.profileHeaderActions}>
-                {canEditProfile && (
-                  <LWTooltip title="Edit profile" placement="bottom">
-                    <Link
-                      to={userGetEditUrl(user)}
-                      className={classes.profileActionIconLink}
-                      aria-label={`Edit ${username}'s profile`}
-                    >
-                      <EditIcon className={classes.profileActionIcon} />
-                    </Link>
-                  </LWTooltip>
-                )}
-                {canModerateUserProfile && (
-                  <LWTooltip title={showModerationTools ? "Hide moderation tools" : "Show moderation tools"} placement="bottom">
-                    <button
-                      type="button"
-                      className={classes.profileActionIconButton}
-                      aria-label={showModerationTools ? "Hide moderation tools" : "Show moderation tools"}
-                      aria-expanded={showModerationTools}
-                      onClick={() => setShowModerationTools((open) => !open)}
-                    >
-                      <SupervisorAccountIcon className={classes.profileActionIcon} />
-                    </button>
-                  </LWTooltip>
-                )}
-              </div>
-            )}
+            <ProfileHeaderActions
+              user={user}
+              showModerationTools={showModerationTools}
+              setShowModerationTools={setShowModerationTools}
+            />
           </div>
           {canModerateUserProfile && showModerationTools && userId && (
             <div className={classes.sunshineToolsSection}>
@@ -993,5 +969,48 @@ function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
         })}
       </div>
     </>
+  )
+}
+
+function ProfileHeaderActions({user, showModerationTools, setShowModerationTools}: {
+  user: UsersProfile
+  showModerationTools: boolean
+  setShowModerationTools: React.Dispatch<React.SetStateAction<boolean>>
+}) {
+  const classes = useStyles(profileStyles);
+  const currentUser = useCurrentUser();
+  const canEditProfile = !!user && userCanEditUser(currentUser, user);
+  const canModerateUserProfile = userIsAdminOrMod(currentUser);
+  const username = userGetDisplayName(user);
+
+  if (!canEditProfile && !canModerateUserProfile) return null;
+
+  return (
+    <div className={classes.profileHeaderActions}>
+      {canEditProfile && (
+        <LWTooltip title="Edit profile" placement="bottom">
+          <Link
+            to={userGetEditUrl(user)}
+            className={classes.profileActionIconLink}
+            aria-label={`Edit ${username}'s profile`}
+          >
+            <EditIcon className={classes.profileActionIcon} />
+          </Link>
+        </LWTooltip>
+      )}
+      {canModerateUserProfile && (
+        <LWTooltip title={showModerationTools ? "Hide moderation tools" : "Show moderation tools"} placement="bottom">
+          <button
+            type="button"
+            className={classes.profileActionIconButton}
+            aria-label={showModerationTools ? "Hide moderation tools" : "Show moderation tools"}
+            aria-expanded={showModerationTools}
+            onClick={() => setShowModerationTools((open) => !open)}
+          >
+            <SupervisorAccountIcon className={classes.profileActionIcon} />
+          </button>
+        </LWTooltip>
+      )}
+    </div>
   )
 }
