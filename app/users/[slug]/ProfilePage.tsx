@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useState, useRef, useEffect } from "react";
+import React, { Suspense, useState, useRef } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { userCanEditUser, userGetDisplayName } from "@/lib/collections/users/helpers";
@@ -351,9 +351,16 @@ function ProfilePageInner({user}: {
 }) {
   const classes = useStyles(profileStyles);
   const [cookies, setCookie] = useCookiesWithConsent([SELECTED_PROFILE_TAB_COOKIE]);
-  const [activeTab, setActiveTab] = useState<ProfileTab>(
-    () => parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]) ?? "posts"
-  );
+  const hasPosts = user.postCount > 0;
+  const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
+  const hasSequences = user.sequenceCount > 0;
+
+  const [activeTab, setActiveTab] = useState<ProfileTab>(getInitialProfileTab({
+    preferredTab: parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]),
+    hasPosts: user.postCount > 0,
+    hasSequences: user.sequenceCount > 0,
+  }));
+
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
   const [sortPanelClosing, setSortPanelClosing] = useState(false);
   const [showModerationTools, setShowModerationTools] = useState(false);
@@ -391,27 +398,6 @@ function ProfilePageInner({user}: {
 
   const recentPosts = recentPostsData?.posts?.results ?? [];
   const sequences = sequencesData?.sequences?.results ?? [];
-
-  const hasPosts = user.postCount > 0;
-  const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
-  const hasSequences = user.sequenceCount > 0;
-  const preferredProfileTab = parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]);
-
-  // The default tab is "posts", but if the user has no posts we switch to the
-  // "feed" tab instead. We need to wait until the posts query finishes loading
-  // before we can make that determination. If the user has a saved preference,
-  // restore it when that tab is available for this profile.
-  const tabInitialized = useRef(false);
-  useEffect(() => {
-    if (tabInitialized.current) return;
-    if (recentPostsLoading || sequencesLoading || !userId) return;
-    tabInitialized.current = true;
-    setActiveTab(getInitialProfileTab({
-      preferredTab: preferredProfileTab,
-      hasPosts,
-      hasSequences,
-    }));
-  }, [recentPostsLoading, sequencesLoading, userId, hasPosts, hasSequences, preferredProfileTab]);
 
   const currentUser = useCurrentUser();
   const canModerateUserProfile = userIsAdminOrMod(currentUser);
