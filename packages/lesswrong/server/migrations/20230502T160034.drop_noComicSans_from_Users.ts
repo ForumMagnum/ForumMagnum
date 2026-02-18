@@ -1,5 +1,5 @@
 /**
- * Generated on 2023-05-02T16:00:34.965Z by `npm makemigrations`
+ * Generated on 2023-05-02T16:00:34.965Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/sarah/EAForum/schema/accepted_schema.sql b/Users/sarah/EAForum/schema/schema_to_accept.sql
@@ -20,7 +20,7 @@
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "5d840ee3f919bdbf70df33e470b65666";
 

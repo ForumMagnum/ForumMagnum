@@ -2,7 +2,7 @@ import Digests from "@/server/collections/digests/collection";
 import { addField, dropField } from "./meta/utils";
 
 /**
- * Generated on 2024-06-12T17:35:25.639Z by `npm makemigrations`
+ * Generated on 2024-06-12T17:35:25.639Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/sarah/EAForum/schema/accepted_schema.sql b/Users/sarah/EAForum/schema/schema_to_accept.sql
@@ -23,7 +23,7 @@ import { addField, dropField } from "./meta/utils";
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "c1dd7ed968b6af5a78625296b5e5fec0";
 

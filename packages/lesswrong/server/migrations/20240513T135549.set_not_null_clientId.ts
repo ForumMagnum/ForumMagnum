@@ -2,7 +2,7 @@ import { ClientIds } from "../../server/collections/clientIds/collection";
 import { updateIndexes } from "./meta/utils";
 
 /**
- * Generated on 2024-05-01T13:57:58.420Z by `npm makemigrations`
+ * Generated on 2024-05-01T13:57:58.420Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/wh/Documents/code/ForumMagnum/schema/accepted_schema.sql b/Users/wh/Documents/code/ForumMagnum/schema/schema_to_accept.sql
@@ -32,7 +32,7 @@ import { updateIndexes } from "./meta/utils";
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "aa1eac5798b9679483aaff7b85ba1e8e";
 

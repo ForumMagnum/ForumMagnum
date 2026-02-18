@@ -4,7 +4,7 @@ import { updateIndexes } from "./meta/utils";
 const idxName = 'idx_idx_ClientIds_clientId_unique'
 
 /**
- * Generated on 2024-05-26T11:13:08.146Z by `npm makemigrations`
+ * Generated on 2024-05-26T11:13:08.146Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/wh/Documents/code/ForumMagnum/schema/accepted_schema.sql b/Users/wh/Documents/code/ForumMagnum/schema/schema_to_accept.sql
@@ -41,7 +41,7 @@ const idxName = 'idx_idx_ClientIds_clientId_unique'
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "6fc595baf02ccdf4ffdf8777a5981d32";
 

@@ -2,7 +2,7 @@ import { addField, dropField } from "./meta/utils";
 import { Users } from '../../server/collections/users/collection';
 
 /**
- * Generated on 2023-11-17T21:54:06.721Z by `npm makemigrations`
+ * Generated on 2023-11-17T21:54:06.721Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/jbabcock/repositories/Lesserwrong/LessWrong2/schema/accepted_schema.sql b/Users/jbabcock/repositories/Lesserwrong/LessWrong2/schema/schema_to_accept.sql
@@ -32,7 +32,7 @@ import { Users } from '../../server/collections/users/collection';
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "cdea3c2caa55eb651988dcb30e827b07";
 

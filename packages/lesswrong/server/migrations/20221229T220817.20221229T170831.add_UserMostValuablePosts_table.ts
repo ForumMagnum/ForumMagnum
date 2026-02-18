@@ -2,7 +2,7 @@ import UserMostValuablePosts from "../../server/collections/userMostValuablePost
 import { createTable, dropTable } from "./meta/utils";
 
 /**
- * Generated on 2022-12-29T22:08:17.869Z by `npm makemigrations`
+ * Generated on 2022-12-29T22:08:17.869Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/sarah/EAForum/schema/accepted_schema.sql b/Users/sarah/EAForum/schema/schema_to_accept.sql
@@ -37,7 +37,7 @@ import { createTable, dropTable } from "./meta/utils";
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable if you wish
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "f9a5c9f182dad6b94bd1361b603906fd";
 

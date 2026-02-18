@@ -1,5 +1,5 @@
 /**
- * Generated on 2023-08-24T15:54:36.914Z by `npm makemigrations`
+ * Generated on 2023-08-24T15:54:36.914Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * --- Overall schema hash: 87520014b627c9ee151523bd05e7bdae

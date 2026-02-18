@@ -1,6 +1,6 @@
 /**
  * NB: Shenanagins were had after generation
- * Generated on 2023-01-20T17:29:21.905Z by `npm makemigrations`
+ * Generated on 2023-01-20T17:29:21.905Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/jpaddison/cea/Forum/ForumMagnum/schema/accepted_schema.sql b/Users/jpaddison/cea/Forum/ForumMagnum/schema/schema_to_accept.sql
@@ -30,7 +30,7 @@
  * - [x] Write a migration to represent these changes
  * - [x] Rename this file to something more readable if you wish
  * - [x] Uncomment `acceptsSchemaHash` below
- * - [x] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [x] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "f167b9a94ae9eebe159267d6ca82d3a4";
 

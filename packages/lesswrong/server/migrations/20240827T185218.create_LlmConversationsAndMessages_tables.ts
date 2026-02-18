@@ -3,7 +3,7 @@ import LlmMessages from "@/server/collections/llmMessages/collection";
 import { createTable, updateIndexes, dropTable } from "./meta/utils";
 
 /**
- * Generated on 2024-08-27T18:52:18.338Z by `npm makemigrations`
+ * Generated on 2024-08-27T18:52:18.338Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/robert/Documents/repos/ForumMagnum/schema/accepted_schema.sql b/Users/robert/Documents/repos/ForumMagnum/schema/schema_to_accept.sql
@@ -64,7 +64,7 @@ import { createTable, updateIndexes, dropTable } from "./meta/utils";
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "e4f656b97627c2f035fdee90d49cb5dc";
 

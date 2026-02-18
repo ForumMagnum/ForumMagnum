@@ -1,5 +1,5 @@
 /**
- * Generated on 2024-01-11T00:33:12.446Z by `npm makemigrations`
+ * Generated on 2024-01-11T00:33:12.446Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * ***Diff too large to display***
@@ -9,7 +9,7 @@
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "2431de6961ce37514d54a17a5ca14adc";
 

@@ -2,7 +2,7 @@ import LlmConversations from "@/server/collections/llmConversations/collection";
 import { updateFieldType } from "./meta/utils";
 
 /**
- * Generated on 2024-08-28T23:08:39.282Z by `npm makemigrations`
+ * Generated on 2024-08-28T23:08:39.282Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/rbloom/git/lesswrongSuite/LessWrong2/schema/accepted_schema.sql b/Users/rbloom/git/lesswrongSuite/LessWrong2/schema/schema_to_accept.sql
@@ -32,7 +32,7 @@ import { updateFieldType } from "./meta/utils";
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "3da0f2961c017b248168aeaa90955305";
 

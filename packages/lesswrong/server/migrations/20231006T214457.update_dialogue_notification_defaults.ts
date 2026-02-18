@@ -1,7 +1,7 @@
 import Users from "../../server/collections/users/collection";
 import {updateDefaultValue} from "./meta/utils";
 /**
- * Generated on 2023-10-06T21:44:57.384Z by `npm makemigrations`
+ * Generated on 2023-10-06T21:44:57.384Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * ***Diff too large to display***
@@ -11,7 +11,7 @@ import {updateDefaultValue} from "./meta/utils";
  * - [ ] Write a migration to represent these changes
  * - [ ] Rename this file to something more readable
  * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `npm acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "d42e531dd915561448e15e72551b1d71";
 
