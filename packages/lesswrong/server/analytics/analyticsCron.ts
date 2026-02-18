@@ -101,7 +101,7 @@ async function updatePostViewTimes({earliestStartDate, latestEndDate, force, dry
  *   force: Whether to force the full recalculation of data even if it already exists
  *   dryRun: Whether to simulate the update without writing anything
  *
- * Exported to allow running from "npm repl".
+ * Exported to allow running from "npm run repl --".
  */
 export async function updateAnalyticsCollections(props: {startDate?: string, endDate?: string, force?: boolean, dryRun?: boolean}) {
   const { startDate, endDate, force, dryRun } = props ?? {}

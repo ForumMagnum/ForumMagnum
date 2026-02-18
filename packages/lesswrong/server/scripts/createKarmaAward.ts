@@ -41,7 +41,7 @@ const createKarmaAwardForUser = async (userId: string, karmaAmount: 100|1000, re
   backgroundTask(performVoteServer({documentId: post._id, voteType: "bigUpvote", user: karmaAwardGivingUser, collection: Posts, skipRateLimits: true}));
 }
 
-// Exported to allow running manually with "npm repl"
+// Exported to allow running manually with "npm run repl --"
 export const createKarmaAwards = async (userIds: string[], karmaAmount: 100|1000, reason: string) => {
   for (const userId of userIds) {
     backgroundTask(createKarmaAwardForUser(userId, karmaAmount, reason));

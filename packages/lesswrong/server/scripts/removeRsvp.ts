@@ -1,6 +1,6 @@
 import { Posts } from "../../server/collections/posts/collection";
 
-// Exported to allow running manually with "npm repl"
+// Exported to allow running manually with "npm run repl --"
 export const removeRsvp = async (eventId: string, userNameOrId: string) => {
   const event = await Posts.findOne({_id: eventId});
   if (!event) {

@@ -9,7 +9,7 @@ import { backgroundTask } from './utils/backgroundTask';
 
 /**
  * Sends emails to inactive users with a link to a feedback survey
- * Exported to allow running with "npm repl".
+ * Exported to allow running with "npm run repl --".
  */
 export const sendInactiveUserSurveyEmails = async () => {
   if (!isEAForum()) return

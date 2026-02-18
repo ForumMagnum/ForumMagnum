@@ -57,7 +57,7 @@ GROUP BY
   by_date.view_date;
 `;
 
-// Exported to allow running with "npm repl"
+// Exported to allow running with "npm run repl --"
 export const triggerWrappedRefresh = async (recreateViews = false) => {
   // Analytics DB is not available in e2e tests
   if (isE2E) {

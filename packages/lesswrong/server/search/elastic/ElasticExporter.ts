@@ -27,9 +27,9 @@ const HTML_FIELDS = [
 
 /**
  * Class containing functions for exporting to the ElasticSearch index. Most
- * methods are suitable for calling with "npm repl"; some are also called
+ * methods are suitable for calling with "npm run repl --"; some are also called
  * automatically. To invoke manually, your invocation will look something like:
- *    npm repl dev packages/lesswrong/server/search/elastic/ElasticExporter.ts 'new ElasticExporter().recreateIndex("Posts")'
+ *    npm run repl -- dev packages/lesswrong/server/search/elastic/ElasticExporter.ts 'new ElasticExporter().recreateIndex("Posts")'
  */
 export class ElasticExporter {
   constructor(

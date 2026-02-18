@@ -227,7 +227,7 @@ const getEmbeddingsForPosts = async (
   return embeddingsWithHashes;
 }
 
-// Exported to allow running manually with npm repl
+// Exported to allow running manually with npm run repl --
 export const updatePostEmbeddings = async (postId: string) => {
   if (!isEmbeddingsAPIEnabled()) {
     return;
@@ -251,7 +251,7 @@ const batchUpdatePostEmbeddings = async (postIds: string[]) => {
   await Promise.all(updates);
 }
 
-// Exported to allow running manually with npm repl
+// Exported to allow running manually with npm run repl --
 export const updateAllPostEmbeddings = async () => {
   await forEachDocumentBatchInCollection({
     collection: Posts,
@@ -273,7 +273,7 @@ export const updateAllPostEmbeddings = async () => {
   });
 }
 
-// Exported to allow running manually with npm repl
+// Exported to allow running manually with npm run repl --
 export const updateMissingPostEmbeddings = async () => {
   const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
 

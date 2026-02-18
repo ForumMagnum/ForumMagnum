@@ -5,7 +5,7 @@ import Tags from "../../server/collections/tags/collection";
 import Users from "../../server/collections/users/collection";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 
-// Exported to allow running manually with "npm repl"
+// Exported to allow running manually with "npm run repl --"
 export async function bestOfLessWrongTagUpdate () {
   const tag = await Tags.findOne({slug: "best-of-lesswrong"});
   const user = await Users.findOne({displayName: "Raemon"});

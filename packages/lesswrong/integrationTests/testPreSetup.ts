@@ -22,7 +22,7 @@ function ensureLocalPgUrlForIntegrationTests(): void {
     throw new Error(
       `Refusing to run integration tests against non-local PG_URL.\n` +
         `PG_URL=${pgUrl}\n` +
-        `Set PG_URL=${DEFAULT_LOCAL_TEST_PG_URL} (start docker with \`npm integration-db-up\`),\n` +
+        `Set PG_URL=${DEFAULT_LOCAL_TEST_PG_URL} (start docker with \`npm run integration-db-up\`),\n` +
         `or set ALLOW_REMOTE_TEST_DB=1 to override (not recommended).`,
     );
   }

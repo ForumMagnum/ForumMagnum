@@ -6,7 +6,7 @@ import fs from 'fs';
 
 const RELATIVE_TO = '2023-07-01T00:00:00.000Z';
 
-// Exported to allow running manually with "npm repl"
+// Exported to allow running manually with "npm run repl --"
 export const generateInflationAdjustedKarmaReport = async ({threshold = 100, relativeTo = RELATIVE_TO}: {threshold?: number, relativeTo?: string}) => {
   const karmaInflationSeries = getKarmaInflationSeries();
 

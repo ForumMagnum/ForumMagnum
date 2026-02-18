@@ -154,7 +154,7 @@ const checkVotes = async (db: Db, postId: string) => {
 }
 
 const helpMessage = `
-Usage: npm brigader-check [POST_ID] [USER_ID]
+Usage: npm run brigader-check -- [POST_ID] [USER_ID]
 
  - POST_ID specifies the post to check
  - USER_ID is optional and will check the voting of the given user on the post

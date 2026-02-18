@@ -21,7 +21,7 @@ const postEndMarker  = "===TAGS===";
  * Given a list of items and a list of weights, shuffle and partition the items
  * into disjoint sets with size proportional to weight. Used for dividing data
  * into train and test.
- * Exported to allow running with "npm repl"
+ * Exported to allow running with "npm run repl --"
  */
 export function weightedPartition<T>(list: T[], weights: number[]): T[][]
 {
@@ -49,7 +49,7 @@ export function weightedPartition<T>(list: T[], weights: number[]): T[][]
   return result;
 }
 
-// Exported to allow running with "npm repl"
+// Exported to allow running with "npm run repl --"
 export async function generateCandidateSetsForTagClassification(): Promise<void> {
   const startDate = new Date("2022-11-01");
   const endDate = new Date("2023-11-01");
@@ -119,7 +119,7 @@ async function generateClassifierTuningFile({description, posts, postBodyCache, 
   fs.writeFileSync(outputFilename, result.join('\n'));
 }
 
-// Exported to allow running with "npm repl"
+// Exported to allow running with "npm run repl --"
 export const generateTagClassifierData = async (args: {
   tagSlug?: string
   trainingSetFilename?: string,
@@ -191,7 +191,7 @@ export const generateTagClassifierData = async (args: {
   }
 }
 
-// Exported to allow running with "npm repl"
+// Exported to allow running with "npm run repl --"
 export const generateIsFrontpageClassifierData = async () => {
   const trainingSetFilename = "ml/tagClassificationPostIds.train.json";
   const testSetFilename = "ml/tagClassificationPostIds.test.json";
@@ -234,7 +234,7 @@ export const generateIsFrontpageClassifierData = async () => {
   });
 }
 
-// Exported to allow running with "npm repl"
+// Exported to allow running with "npm run repl --"
 export const evaluateTagModels = async (testSetPostIdsFilename: string, outputFilename: string) => {
   const context = createAnonymousContext();
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
@@ -277,7 +277,7 @@ export const evaluateTagModels = async (testSetPostIdsFilename: string, outputFi
   fs.writeFileSync(outputFilename, sb.join(''));
 }
 
-// Exported to allow running with "npm repl"
+// Exported to allow running with "npm run repl --"
 export const evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, outputFilename: string) => {
   const context = createAnonymousContext();
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
@@ -347,7 +347,7 @@ export const evaluateFrontPageClassifier = async (testSetPostIdsFilename: string
 }
 
 
-// Exported to allow running with "npm repl"
+// Exported to allow running with "npm run repl --"
 export async function printLanguageModelTemplate(templateName: string) {
   const context = createAnonymousContext();
   const template = await wikiSlugToTemplate("lm-config-autotag", context);

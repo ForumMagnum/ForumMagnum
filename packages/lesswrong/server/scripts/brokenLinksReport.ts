@@ -116,7 +116,7 @@ const checkPost = async (post: FetchedFragment<PostsPage, 'Posts'>) => {
   }
 };
 
-// Exported to allow running manually with "npm repl"
+// Exported to allow running manually with "npm run repl --"
 export const findBrokenLinks = async (
   startDate: Date, endDate: Date,
   output: string|((message: string) => void)

@@ -78,7 +78,7 @@ psql forummagnum -f ./schema/accepted_schema.sql
 TODOs:
 
 * You won't have any database settings yet. TODO: add instructions.
-  * Then run `npm ea-load-dev-db <settings file>` to load the database settings
+  * Then run `npm run ea-load-dev-db -- <settings file>` to load the database settings
     from the file. (TODO: example of the file)
 
 ### Creating branch-specific development databases
@@ -88,10 +88,10 @@ desirable to do this work without changing schemas in shared database instances
 that other developers are working on. To solve this problem, we have a script
 that can be used to create temporary clones of the dev database. The following
 commands are supported:
- - `npm branchdb create` clones a new dev database for the current git branch
- - `npm branchdb drop` drops the cloned database for the current git branch
- - `npm branchdb clean` drops all cloned dev databases created by this git clone
- - `npm branchdb list` lists all cloned dev databases created by this git clone
+ - `npm run branchdb -- create` clones a new dev database for the current git branch
+ - `npm run branchdb -- drop` drops the cloned database for the current git branch
+ - `npm run branchdb -- clean` drops all cloned dev databases created by this git clone
+ - `npm run branchdb -- list` lists all cloned dev databases created by this git clone
 
 ### Start the development server
 
@@ -99,7 +99,7 @@ Your postgres URL for the locally-running database will be
 postgres://localhost/forummagnum.
 
 ```
-npm start-local-db --postgresUrl $YOUR_LOCAL_POSTGRES_URL
+npm run start-local-db -- --postgresUrl $YOUR_LOCAL_POSTGRES_URL
 ```
 
 Next, select which website you are working on. If you're making a new site, open
@@ -116,7 +116,7 @@ that says `"forumType": "LessWrong"` to the correct forum.
 Or, if (and only if!) you have access to CEA's ForumCredentials repository, use
 
 ```
-npm ea-start
+npm run ea-start
 ```
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
@@ -221,14 +221,14 @@ run multiple times should instead be implemented as a server script.
 
 After making any change that alters the database schema (eg; adding tables,
 adding fields, adding indexes, adding postgres functions, etc.) you must run
-`npm generate` to update the current SQL schema and Typescript types, and
+`npm run generate` to update the current SQL schema and Typescript types, and
 commit the results to the Git repo.
 
-* Run pending migrations with `npm migrate up [dev|staging|prod]`
-* Revert migrations with `npm migrate down [dev|staging|prod]`, but note that we treat down migrations as optionally so this may or may not work as expected
-* Create a new migration with `npm migrate create my_new_migration`
-* View pending migrations with `npm migrate pending [dev|staging|prod]`
-* View executed migrations with `npm migrate executed [dev|staging|prod]`
+* Run pending migrations with `npm run migrate -- up [dev|staging|prod]`
+* Revert migrations with `npm run migrate -- down [dev|staging|prod]`, but note that we treat down migrations as optionally so this may or may not work as expected
+* Create a new migration with `npm run migrate -- create my_new_migration`
+* View pending migrations with `npm run migrate -- pending [dev|staging|prod]`
+* View executed migrations with `npm run migrate -- executed [dev|staging|prod]`
 
 Instead of using \[dev|staging|prod\] above, you can also manually pass in a
 postgres connection string through a `PG_URL` environment variable. Use that
@@ -241,35 +241,35 @@ We use [Jest](https://jestjs.io/) for unit and integration testing, and [Playwri
 
 ### Jest
 
-* Run the unit test suite with `npm unit`
-* Run the integration test suite with `npm integration` (you may need to run `npm create-integration-db` first so that the db is up-to-date)
+* Run the unit test suite with `npm run unit`
+* Run the integration test suite with `npm run integration` (you may need to run `npm run create-integration-db` first so that the db is up-to-date)
 
-Both commands support a `-watch` suffix to watch the file system, and a `-coverage` suffix to generate a code coverage report. After generating both code coverage reports they can be combined into a single report with `npm combine-coverage`.
+Both commands support a `-watch` suffix to watch the file system, and a `-coverage` suffix to generate a code coverage report. After generating both code coverage reports they can be combined into a single report with `npm run combine-coverage`.
 
 ### Playwright
 
 There is some one-time setup before you can run the playwright tests:
  * Install `docker` (`brew install --cask docker` on OSX) and start the daemon
- * Download the Postgres `docker` image with `npm playwright-db` (you can Ctrl+C to exit the container once it has successfully downloaded and started)
- * Install the browsers with `npm playwright install`
+ * Download the Postgres `docker` image with `npm run playwright-db` (you can Ctrl+C to exit the container once it has successfully downloaded and started)
+ * Install the browsers with `npm exec -- playwright install`
 
-You can then run the tests with `npm playwright test` - you can run specific tests with the `-g` flag.
+You can then run the tests with `npm exec -- playwright test` - you can run specific tests with the `-g` flag.
 
-You can also open the Playwright UI with `npm playwright test --ui`, but note that unlike in CLI mode this won't automatically start the database and server so you'll also need to run `npm playwright-db` and `npm start-playwright` in 2 separate terminals.
+You can also open the Playwright UI with `npm exec -- playwright test --ui`, but note that unlike in CLI mode this won't automatically start the database and server so you'll also need to run `npm run playwright-db` and `npm run start-playwright` in 2 separate terminals.
 
 For information on how to create Playwright tests see [their documentation](https://playwright.dev/docs/writing-tests) and the existing tests in the `playwright` directory.
 
 The server can be accessed at `localhost:3456` for debugging.
 
 You can open the tests in a normal browser (for instance, to access the DOM
-inspector or debugger) with `PWDEBUG=console npm playwright test`. It's strongly
+inspector or debugger) with `PWDEBUG=console npm exec -- playwright test`. It's strongly
 recommended to use the `-g` to only run a single test, as each test will open
 in a separate browser window.
 
 Warning: The current playwright implementation is new and there are still some
 teething problems with starting the server correctly. If the tests routinely
 fail to start, remove the `webservers` section from `playwright.config.ts` and
-instead run `npm playwright-db` and `npm start-playwright` in separate
+instead run `npm run playwright-db` and `npm run start-playwright` in separate
 terminals while running the tests.
 
 ### Where to branch off of

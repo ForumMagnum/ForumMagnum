@@ -49,7 +49,7 @@ registerMigration({
   }
 })
 
-// Exported to allow running manually with "npm repl"
+// Exported to allow running manually with "npm run repl --"
 export const checkForMissingValues = async () => {
   for(let collection of getAllCollections()) {
     const schema = getSchema(collection.collectionName);

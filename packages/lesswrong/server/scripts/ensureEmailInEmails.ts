@@ -8,7 +8,7 @@ import { backgroundTask } from '../utils/backgroundTask';
  * by appending it to the array if it is not already there
  * and it is not in another user's "emails" array.
  *
- * Exported to allow running manually with "npm repl"
+ * Exported to allow running manually with "npm run repl --"
  */
 export const ensureEmailInEmails = wrapVulcanAsyncScript(
   'ensureEmailInEmails',
