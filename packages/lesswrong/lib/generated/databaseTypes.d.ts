@@ -1513,6 +1513,7 @@ interface DbTag extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any | null
   afVoteCount: number | null
+  authorOnly: boolean
   autoTagModel: string | null
   autoTagPrompt: string | null
   bannerImageId: string | null

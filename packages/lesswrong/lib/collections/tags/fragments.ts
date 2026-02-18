@@ -78,6 +78,7 @@ export const TagFragment = gql(`
       editedAt
     }
     canVoteOnRels
+    authorOnly
   }
 `)
 
@@ -147,6 +148,7 @@ export const TagPreviewFragment = gql(`
       htmlHighlight
     }
     canVoteOnRels
+    authorOnly
     isArbitalImport
   }
 `)
@@ -166,6 +168,7 @@ export const TagSectionPreviewFragment = gql(`
       htmlHighlightStartingAtHash(hash: $hash)
     }
     canVoteOnRels
+    authorOnly
   }
 `)
 
@@ -300,6 +303,7 @@ export const TagPageFragment = gql(`
       }
     }
     canVoteOnRels
+    authorOnly
     forceAllowType3Audio
     textLastUpdatedAt
   }
@@ -345,6 +349,7 @@ export const TagPageWithRevisionFragment = gql(`
       }
     }
     canVoteOnRels
+    authorOnly
     forceAllowType3Audio
   }
 `)
@@ -387,6 +392,7 @@ export const TagEditFragment = gql(`
     introSequenceId
     canVoteOnRels
     removalResistant
+    authorOnly
     
     autoTagModel
     autoTagPrompt

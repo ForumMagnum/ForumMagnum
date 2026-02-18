@@ -361,6 +361,19 @@ export const TagForm = ({
           </div>
 
           <div className={classes.fieldWrapper}>
+            <form.Field name="authorOnly">
+              {(field) => (
+                <LWTooltip title="Only post authors and moderators can apply, remove, or vote on this tag when used on posts." placement="left-start" inlineBlock={false}>
+                  <FormComponentCheckbox
+                    field={field}
+                    label="Author-only"
+                  />
+                </LWTooltip>
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
             <form.Field name="canEditUserIds">
               {(field) => (
                 <LWTooltip title="Only these authors will be able to edit the topic" placement="left-start" inlineBlock={false}>

@@ -1857,6 +1857,7 @@ type CreateSurveyScheduleInput = {
 
 type CreateTagDataInput = {
   adminOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  authorOnly?: InputMaybe<Scalars['Boolean']['input']>;
   autoTagModel?: InputMaybe<Scalars['String']['input']>;
   autoTagPrompt?: InputMaybe<Scalars['String']['input']>;
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
@@ -10995,6 +10996,7 @@ type Tag = {
   afExtendedScore?: Maybe<Scalars['JSON']['output']>;
   afVoteCount?: Maybe<Scalars['Float']['output']>;
   arbitalLinkedPages?: Maybe<ArbitalLinkedPages>;
+  authorOnly: Scalars['Boolean']['output'];
   autoTagModel?: Maybe<Scalars['String']['output']>;
   autoTagPrompt?: Maybe<Scalars['String']['output']>;
   bannerImageId?: Maybe<Scalars['String']['output']>;
@@ -12205,6 +12207,7 @@ type UpdateSurveyScheduleInput = {
 
 type UpdateTagDataInput = {
   adminOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  authorOnly?: InputMaybe<Scalars['Boolean']['input']>;
   autoTagModel?: InputMaybe<Scalars['String']['input']>;
   autoTagPrompt?: InputMaybe<Scalars['String']['input']>;
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
@@ -26637,7 +26640,7 @@ type TagFragment_Tag_subTags_Tag = (
 type TagFragment_Tag_description_Revision = { __typename?: 'Revision', _id: string, html: string | null, htmlHighlight: string, plaintextDescription: string, version: string, editedAt: string };
 
 type TagFragment = (
-  { __typename?: 'Tag', canVoteOnRels: Array<TagRelVoteGroup> | null, parentTag: TagFragment_Tag_parentTag_Tag | null, subTags: Array<TagFragment_Tag_subTags_Tag>, description: TagFragment_Tag_description_Revision | null }
+  { __typename?: 'Tag', canVoteOnRels: Array<TagRelVoteGroup> | null, authorOnly: boolean, parentTag: TagFragment_Tag_parentTag_Tag | null, subTags: Array<TagFragment_Tag_subTags_Tag>, description: TagFragment_Tag_description_Revision | null }
   & TagDetailsFragment
 );
 
@@ -26703,7 +26706,7 @@ type TagPreviewFragment_Tag_subTags_Tag = (
 type TagPreviewFragment_Tag_description_Revision = { __typename?: 'Revision', _id: string, htmlHighlight: string };
 
 type TagPreviewFragment = (
-  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<TagRelVoteGroup> | null, isArbitalImport: boolean | null, parentTag: TagPreviewFragment_Tag_parentTag_Tag | null, subTags: Array<TagPreviewFragment_Tag_subTags_Tag>, description: TagPreviewFragment_Tag_description_Revision | null }
+  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<TagRelVoteGroup> | null, authorOnly: boolean, isArbitalImport: boolean | null, parentTag: TagPreviewFragment_Tag_parentTag_Tag | null, subTags: Array<TagPreviewFragment_Tag_subTags_Tag>, description: TagPreviewFragment_Tag_description_Revision | null }
   & TagBasicInfo
 );
 
@@ -26720,7 +26723,7 @@ type TagSectionPreviewFragment_Tag_subTags_Tag = (
 type TagSectionPreviewFragment_Tag_description_Revision = { __typename?: 'Revision', _id: string, htmlHighlightStartingAtHash: string };
 
 type TagSectionPreviewFragment = (
-  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<TagRelVoteGroup> | null, parentTag: TagSectionPreviewFragment_Tag_parentTag_Tag | null, subTags: Array<TagSectionPreviewFragment_Tag_subTags_Tag>, description: TagSectionPreviewFragment_Tag_description_Revision | null }
+  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<TagRelVoteGroup> | null, authorOnly: boolean, parentTag: TagSectionPreviewFragment_Tag_parentTag_Tag | null, subTags: Array<TagSectionPreviewFragment_Tag_subTags_Tag>, description: TagSectionPreviewFragment_Tag_description_Revision | null }
   & TagBasicInfo
 );
 
@@ -26810,7 +26813,7 @@ type TagPageFragment_Tag_contributors_TagContributorsList_contributors_TagContri
 type TagPageFragment_Tag_contributors_TagContributorsList = { __typename?: 'TagContributorsList', totalCount: number, contributors: Array<TagPageFragment_Tag_contributors_TagContributorsList_contributors_TagContributor> };
 
 type TagPageFragment = (
-  { __typename?: 'Tag', tableOfContents: any | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, forceAllowType3Audio: boolean, textLastUpdatedAt: string | null, subforumIntroPost: TagPageFragment_Tag_subforumIntroPost_Post | null, subforumWelcomeText: TagPageFragment_Tag_subforumWelcomeText_Revision | null, contributors: TagPageFragment_Tag_contributors_TagContributorsList }
+  { __typename?: 'Tag', tableOfContents: any | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, authorOnly: boolean, forceAllowType3Audio: boolean, textLastUpdatedAt: string | null, subforumIntroPost: TagPageFragment_Tag_subforumIntroPost_Post | null, subforumWelcomeText: TagPageFragment_Tag_subforumWelcomeText_Revision | null, contributors: TagPageFragment_Tag_contributors_TagContributorsList }
   & TagWithFlagsFragment
 );
 
@@ -26842,7 +26845,7 @@ type TagPageWithRevisionFragment_Tag_contributors_TagContributorsList_contributo
 type TagPageWithRevisionFragment_Tag_contributors_TagContributorsList = { __typename?: 'TagContributorsList', totalCount: number, contributors: Array<TagPageWithRevisionFragment_Tag_contributors_TagContributorsList_contributors_TagContributor> };
 
 type TagPageWithRevisionFragment = (
-  { __typename?: 'Tag', tableOfContents: any | null, textLastUpdatedAt: string | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, forceAllowType3Audio: boolean, subforumIntroPost: TagPageWithRevisionFragment_Tag_subforumIntroPost_Post | null, subforumWelcomeText: TagPageWithRevisionFragment_Tag_subforumWelcomeText_Revision | null, contributors: TagPageWithRevisionFragment_Tag_contributors_TagContributorsList }
+  { __typename?: 'Tag', tableOfContents: any | null, textLastUpdatedAt: string | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, authorOnly: boolean, forceAllowType3Audio: boolean, subforumIntroPost: TagPageWithRevisionFragment_Tag_subforumIntroPost_Post | null, subforumWelcomeText: TagPageWithRevisionFragment_Tag_subforumWelcomeText_Revision | null, contributors: TagPageWithRevisionFragment_Tag_contributors_TagContributorsList }
   & TagWithFlagsAndRevisionFragment
 );
 
@@ -26884,7 +26887,7 @@ type TagEditFragment_Tag_moderationGuidelines_Revision = (
 );
 
 type TagEditFragment = (
-  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, removalResistant: boolean, autoTagModel: string | null, autoTagPrompt: string | null, parentTag: TagEditFragment_Tag_parentTag_Tag | null, description: TagEditFragment_Tag_description_Revision | null, subforumWelcomeText: TagEditFragment_Tag_subforumWelcomeText_Revision | null, moderationGuidelines: TagEditFragment_Tag_moderationGuidelines_Revision | null }
+  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, removalResistant: boolean, authorOnly: boolean, autoTagModel: string | null, autoTagPrompt: string | null, parentTag: TagEditFragment_Tag_parentTag_Tag | null, description: TagEditFragment_Tag_description_Revision | null, subforumWelcomeText: TagEditFragment_Tag_subforumWelcomeText_Revision | null, moderationGuidelines: TagEditFragment_Tag_moderationGuidelines_Revision | null }
   & TagDetailsFragment
 );
 

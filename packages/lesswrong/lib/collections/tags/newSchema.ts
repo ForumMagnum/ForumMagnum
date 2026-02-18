@@ -393,6 +393,24 @@ const schema = {
       },
     },
   },
+  authorOnly: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"],
+      canUpdate: ["admins", "sunshineRegiment"],
+      canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   canEditUserIds: {
     database: {
       type: "VARCHAR(27)[]",
