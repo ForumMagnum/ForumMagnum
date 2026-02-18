@@ -36,6 +36,7 @@ import { SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
 import { truncate } from "@/lib/editor/ellipsize";
 import ProfileDiamondSections from "./ProfileDiamondSections";
 import { profileStyles } from "./profileStyles";
+import Error404 from "@/components/common/Error404";
 
 // ── Constants ──
 
@@ -315,24 +316,6 @@ export default function ProfilePage({slug}: {
   slug: string
 }) {
   const classes = useStyles(profileStyles);
-  const [cookies, setCookie] = useCookiesWithConsent([SELECTED_PROFILE_TAB_COOKIE]);
-  const [activeTab, setActiveTab] = useState<ProfileTab>(
-    () => parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]) ?? "posts"
-  );
-  const [postsToShow, setPostsToShow] = useState(INITIAL_POSTS_TO_SHOW);
-  const [sortPanelOpen, setSortPanelOpen] = useState(false);
-  const [sortPanelClosing, setSortPanelClosing] = useState(false);
-  const [showModerationTools, setShowModerationTools] = useState(false);
-  const [sortBy, setSortBy] = useState<"new" | "top" | "topInflation" | "recentComments" | "old" | "magic">("new");
-  const [feedSortBy, setFeedSortBy] = useState<"recent" | "top">("recent");
-  const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
-  const tabsRef = useRef<HTMLDivElement>(null);
-
-  const handleTabSwitch = (tab: ProfileTab) => {
-    setCookie(SELECTED_PROFILE_TAB_COOKIE, tab, { path: "/" });
-    switchTab(tab, tabsRef, setActiveTab);
-  };
-  const handleSortPanelToggle = () => toggleSortPanel(sortPanelOpen, setSortPanelOpen, setSortPanelClosing);
 
   const { data: userData, loading: userLoading } = useQuery(ProfileUserQuery, {
     variables: {
@@ -344,8 +327,47 @@ export default function ProfilePage({slug}: {
   });
 
   const user = getUserFromResults(userData?.users?.results);
+  if (userLoading) {
+    return <div className={classes.profileContent}>
+      <main className={classes.profileMain}>
+        <Loading />
+      </main>
+    </div>;
+  } else if (!user) {
+    return <div className={classes.profileContent}>
+      <main className={classes.profileMain}>
+        <Error404 />
+      </main>
+    </div>;
+  }
+
+  return <ProfilePageInner user={user} />;
+}
+
+type AllPostsTabSortingMode = "new" | "top" | "topInflation" | "recentComments" | "old" | "magic";
+
+function ProfilePageInner({user}: {
+  user: UsersProfile
+}) {
+  const classes = useStyles(profileStyles);
+  const [cookies, setCookie] = useCookiesWithConsent([SELECTED_PROFILE_TAB_COOKIE]);
+  const [activeTab, setActiveTab] = useState<ProfileTab>(
+    () => parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]) ?? "posts"
+  );
+  const [sortPanelOpen, setSortPanelOpen] = useState(false);
+  const [sortPanelClosing, setSortPanelClosing] = useState(false);
+  const [showModerationTools, setShowModerationTools] = useState(false);
+  const [sortBy, setSortBy] = useState<AllPostsTabSortingMode>("new");
+  const tabsRef = useRef<HTMLDivElement>(null);
+
+  const handleTabSwitch = (tab: ProfileTab) => {
+    setCookie(SELECTED_PROFILE_TAB_COOKIE, tab, { path: "/" });
+    switchTab(tab, tabsRef, setActiveTab);
+  };
+  const handleSortPanelToggle = () => toggleSortPanel(sortPanelOpen, setSortPanelOpen, setSortPanelClosing);
+
   const userId = user?._id;
-  const bioNoFollow = (user?.karma ?? 0) < nofollowKarmaThreshold.get();
+  const bioNoFollow = user.karma < nofollowKarmaThreshold.get();
 
   const { data: recentPostsData, loading: recentPostsLoading } = useQuery(ProfilePostsQuery, {
     skip: !userId,
@@ -367,14 +389,12 @@ export default function ProfilePage({slug}: {
     fetchPolicy: "cache-and-network",
   });
 
-  const recentPosts = (recentPostsData?.posts?.results ?? []) as PostWithPreview[];
-  const listPosts = recentPosts.slice(0, postsToShow);
-  const hasMorePosts = recentPosts.length > postsToShow;
+  const recentPosts = recentPostsData?.posts?.results ?? [];
   const sequences = sequencesData?.sequences?.results ?? [];
 
-  const hasPosts = recentPosts.length > 0;
+  const hasPosts = user.postCount > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
-  const hasSequences = sequences.length > 0;
+  const hasSequences = user.sequenceCount > 0;
   const preferredProfileTab = parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]);
 
   // The default tab is "posts", but if the user has no posts we switch to the
@@ -394,18 +414,7 @@ export default function ProfilePage({slug}: {
   }, [recentPostsLoading, sequencesLoading, userId, hasPosts, hasSequences, preferredProfileTab]);
 
   const currentUser = useCurrentUser();
-  const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
   const canModerateUserProfile = userIsAdminOrMod(currentUser);
-
-  const username = user ? userGetDisplayName(user) : "Loading...";
-
-  if (userLoading || !user || !userId) {
-    return <div className={classes.profileContent}>
-      <main className={classes.profileMain}>
-        <Loading />
-      </main>
-    </div>;
-  }
 
   return (
     <div className={classes.page}>
@@ -433,7 +442,7 @@ export default function ProfilePage({slug}: {
             <UserProfileTopPostsSection user={user}/>
           </Suspense>
 
-          <ProfilePageMobileBio user={user}/>
+          <ProfilePageMobileBio user={user} bioNoFollow={bioNoFollow}/>
 
           <section className={classes.allPostsSection}>
             <div className={classes.allPostsLeftColumn}>
@@ -483,158 +492,14 @@ export default function ProfilePage({slug}: {
 
             <div className={classes.allPostsContainer}>
               <div className={classNames(classes.postsList, classes.tabPanel, activeTab === "posts" && classes.tabPanelActive)}>
-                {(sortPanelOpen || sortPanelClosing) && (
-                  <div className={classNames(classes.sortPanel, sortPanelClosing && classes.sortPanelClosing)}>
-                    <div className={classes.sortPanelSection}>
-                      <div className={classes.sortPanelHeader}>Sorted by:</div>
-                      <button
-                        className={classNames(classes.sortPanelOption, sortBy === "new" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("new")}
-                        type="button"
-                      >
-                        New
-                      </button>
-                      <button
-                        className={classNames(classes.sortPanelOption, sortBy === "old" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("old")}
-                        type="button"
-                      >
-                        Old
-                      </button>
-                      <button
-                        className={classNames(classes.sortPanelOption, sortBy === "magic" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("magic")}
-                        type="button"
-                      >
-                        Magic (New & Upvoted)
-                      </button>
-                      <button
-                        className={classNames(classes.sortPanelOption, sortBy === "top" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("top")}
-                        type="button"
-                      >
-                        Top
-                      </button>
-                      <button
-                        className={classNames(classes.sortPanelOption, sortBy === "topInflation" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("topInflation")}
-                        type="button"
-                      >
-                        Top (Inflation Adjusted)
-                      </button>
-                      <button
-                        className={classNames(classes.sortPanelOption, sortBy === "recentComments" && classes.sortPanelOptionSelected)}
-                        onClick={() => setSortBy("recentComments")}
-                        type="button"
-                      >
-                        Recent Comments
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {!hasPosts && !recentPostsLoading && (
-                  <div className={classes.emptyStateContainer}>
-                    <p className={classes.emptyStateDescription}>{username} has not written any posts yet.</p>
-                    <div className={classes.emptyStateImage}>
-                      <img src="/profile-placeholder-2.png" alt="" />
-                    </div>
-                  </div>
-                )}
-                {listPosts.map((post) => {
-                  const summary = getPostSummary(post);
-                  const imageUrl = getListPostImageUrl(post);
-                  const hasListImage = !!imageUrl;
-                  return (
-                    <article key={post._id} className={classes.listArticle}>
-                      <Link
-                        to={postGetPageUrl(post)}
-                        className={classes.articleLink}
-                      >
-                        <div className={classes.listArticleContent}>
-                          <div className={classNames(classes.listArticleBody, !hasListImage && classes.listArticleBodyNoImage)}>
-                            <div className={classNames(classes.listArticleText, !hasListImage && classes.listArticleTextNoImage)}>
-                              <h3 className={classes.listArticleTitle}>
-                                <span className={classes.listArticleTitleText}>{post.title}</span>
-                              </h3>
-                              {summary && (
-                                <div className={classNames(
-                                  classes.listArticleSummaryWrapper,
-                                  !hasListImage && classes.listArticleSummaryWrapperNoImage,
-                                )}>
-                                  <p className={classNames(
-                                    classes.listArticleSummary,
-                                    !hasListImage && classes.listArticleSummaryNoImage,
-                                  )}>{summary}</p>
-                                </div>
-                              )}
-                              <div className={classNames(classes.listArticleMeta)}>
-                                <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
-                                  <span className={classes.listDate}>{formatReadableDate(post.postedAt!)}</span>
-                                </LWTooltip>
-                                <span className={classes.listMetaDivider} aria-hidden="true">•</span>
-                                <LWTooltip title="Karma score">
-                                  <span className={classes.listKarma}>{post.baseScore ?? 0}</span>
-                                </LWTooltip>
-                              </div>
-                            </div>
-                            {hasListImage && (
-                              <div
-                                className={classes.listArticleImage}
-                                style={{
-                                  backgroundImage: cssUrl(imageUrl),
-                                }}
-                              ></div>
-                            )}
-                          </div>
-                        </div>
-                      </Link>
-                    </article>
-                  );
-                })}
-
-                {hasMorePosts && (
-                  <div className={classes.readMore}>
-                    <a 
-                      href="#" 
-                      className={classes.readMoreLink}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setPostsToShow(prev => prev + INITIAL_POSTS_TO_SHOW);
-                      }}
-                    >
-                      See more
-                    </a>
-                  </div>
-                )}
+                <ProfilePageAllPostsTab user={user} recentPosts={recentPosts} recentPostsLoading={recentPostsLoading} sortBy={sortBy} setSortBy={setSortBy} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
               </div>
 
               <div className={classNames(
                 classes.sequencesList, classes.tabPanel,
                 activeTab === "sequences" && classes.tabPanelActive
               )}>
-                <div className={classes.sequencesGrid}>
-                  {sequences.map((sequence) => {
-                    const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get();
-                    return (
-                      <article key={sequence._id} className={classes.sequenceCard}>
-                        <Link
-                          to={sequenceGetPageUrl(sequence)}
-                          className={classes.articleLink}
-                        >
-                          <div
-                            className={classes.sequenceCardImage}
-                            style={{
-                              backgroundImage: cssUrl(`https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}`),
-                            }}
-                          />
-                          <div className={classes.sequenceCardContent}>
-                            <h3 className={classes.sequenceCardTitle}>{sequence.title}</h3>
-                          </div>
-                        </Link>
-                      </article>
-                    );
-                  })}
-                </div>
+                <ProfilePageSequencesTab user={user} sequences={sequences} />
               </div>
 
               <div className={classNames(
@@ -642,75 +507,7 @@ export default function ProfilePage({slug}: {
                 classes.tabPanel,
                 activeTab === "feed" && classes.tabPanelActive
               )}>
-                {(sortPanelOpen || sortPanelClosing) && (
-                  <div className={classNames(classes.sortPanel, classes.sortPanelMulti, sortPanelClosing && classes.sortPanelClosing)}>
-                    <div className={classes.sortPanelSection}>
-                      <div className={classes.sortPanelHeader}>Sorted by:</div>
-                      <button
-                        className={classNames(classes.sortPanelOption, feedSortBy === "recent" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedSortBy("recent")}
-                        type="button"
-                      >
-                        New
-                      </button>
-                      <button
-                        className={classNames(classes.sortPanelOption, feedSortBy === "top" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedSortBy("top")}
-                        type="button"
-                      >
-                        Top
-                      </button>
-                    </div>
-                    <div className={classes.sortPanelSection}>
-                      <div className={classes.sortPanelHeader}>Show:</div>
-                      <button
-                        className={classNames(classes.sortPanelOption, feedFilter === "all" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedFilter("all")}
-                        type="button"
-                      >
-                        All
-                      </button>
-                      <button
-                        className={classNames(classes.sortPanelOption, feedFilter === "comments" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedFilter("comments")}
-                        type="button"
-                      >
-                        Comments
-                      </button>
-                      <button
-                        className={classNames(classes.sortPanelOption, feedFilter === "quickTakes" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedFilter("quickTakes")}
-                        type="button"
-                      >
-                        Quick takes
-                      </button>
-                      <button
-                        className={classNames(classes.sortPanelOption, feedFilter === "posts" && classes.sortPanelOptionSelected)}
-                        onClick={() => setFeedFilter("posts")}
-                        type="button"
-                      >
-                        Posts
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {!hasFeedContent && (
-                  <div className={classes.emptyStateContainer}>
-                    <p className={classes.emptyStateDescription}>{username} hasn&apos;t written anything yet.</p>
-                    <div className={classes.emptyStateImage}>
-                      <img src="/profile-placeholder-4.png" alt="" />
-                    </div>
-                  </div>
-                )}
-                {hasFeedContent && (
-                  <UltraFeedContextProvider openInNewTab={true}>
-                    <UltraFeedObserverProvider incognitoMode={false}>
-                      <OverflowNavObserverProvider>
-                        <UserContentFeed userId={userId} externalSortMode={feedSortBy} externalFilter={feedFilter} />
-                      </OverflowNavObserverProvider>
-                    </UltraFeedObserverProvider>
-                  </UltraFeedContextProvider>
-                )}
+                <ProfilePageFeedTab user={user} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
               </div>
             </div>
             </div>
@@ -1030,4 +827,262 @@ function ProfilePageMobileBio({user, bioNoFollow}: {
       <UserMetaInfo user={user} />
     </div>}
   </div>
+}
+
+function ProfilePageSequencesTab({user, sequences}: {
+  user: UsersProfile
+  sequences: SequenceContinueReadingFragment[]
+}) {
+  const classes = useStyles(profileStyles);
+  return <div className={classes.sequencesGrid}>
+    {sequences.map((sequence) => {
+      const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get();
+      return (
+        <article key={sequence._id} className={classes.sequenceCard}>
+          <Link
+            to={sequenceGetPageUrl(sequence)}
+            className={classes.articleLink}
+          >
+            <div
+              className={classes.sequenceCardImage}
+              style={{
+                backgroundImage: cssUrl(`https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}`),
+              }}
+            />
+            <div className={classes.sequenceCardContent}>
+              <h3 className={classes.sequenceCardTitle}>{sequence.title}</h3>
+            </div>
+          </Link>
+        </article>
+      );
+    })}
+  </div>
+}
+
+function ProfilePageAllPostsTab({user, recentPosts, recentPostsLoading, sortBy, setSortBy, sortPanelOpen, sortPanelClosing}: {
+  user: UsersProfile
+  recentPosts: PostWithPreview[]
+  recentPostsLoading: boolean
+  sortBy: AllPostsTabSortingMode
+  setSortBy: React.Dispatch<React.SetStateAction<AllPostsTabSortingMode>>
+  sortPanelOpen: boolean
+  sortPanelClosing: boolean
+}) {
+  const classes = useStyles(profileStyles);
+  const [postsToShow, setPostsToShow] = useState(INITIAL_POSTS_TO_SHOW);
+  const hasPosts = user.postCount > 0;
+  const listPosts = recentPosts.slice(0, postsToShow);
+  const hasMorePosts = recentPosts.length > postsToShow;
+
+  return <>
+    {(sortPanelOpen || sortPanelClosing) && (
+      <div className={classNames(classes.sortPanel, sortPanelClosing && classes.sortPanelClosing)}>
+        <div className={classes.sortPanelSection}>
+          <div className={classes.sortPanelHeader}>Sorted by:</div>
+          <button
+            className={classNames(classes.sortPanelOption, sortBy === "new" && classes.sortPanelOptionSelected)}
+            onClick={() => setSortBy("new")}
+            type="button"
+          >
+            New
+          </button>
+          <button
+            className={classNames(classes.sortPanelOption, sortBy === "old" && classes.sortPanelOptionSelected)}
+            onClick={() => setSortBy("old")}
+            type="button"
+          >
+            Old
+          </button>
+          <button
+            className={classNames(classes.sortPanelOption, sortBy === "magic" && classes.sortPanelOptionSelected)}
+            onClick={() => setSortBy("magic")}
+            type="button"
+          >
+            Magic (New & Upvoted)
+          </button>
+          <button
+            className={classNames(classes.sortPanelOption, sortBy === "top" && classes.sortPanelOptionSelected)}
+            onClick={() => setSortBy("top")}
+            type="button"
+          >
+            Top
+          </button>
+          <button
+            className={classNames(classes.sortPanelOption, sortBy === "topInflation" && classes.sortPanelOptionSelected)}
+            onClick={() => setSortBy("topInflation")}
+            type="button"
+          >
+            Top (Inflation Adjusted)
+          </button>
+          <button
+            className={classNames(classes.sortPanelOption, sortBy === "recentComments" && classes.sortPanelOptionSelected)}
+            onClick={() => setSortBy("recentComments")}
+            type="button"
+          >
+            Recent Comments
+          </button>
+        </div>
+      </div>
+    )}
+    {!hasPosts && !recentPostsLoading && (
+      <div className={classes.emptyStateContainer}>
+        <p className={classes.emptyStateDescription}>{userGetDisplayName(user)} has not written any posts yet.</p>
+        <div className={classes.emptyStateImage}>
+          <img src="/profile-placeholder-2.png" alt="" />
+        </div>
+      </div>
+    )}
+    {listPosts.map((post) => {
+      const summary = getPostSummary(post);
+      const imageUrl = getListPostImageUrl(post);
+      const hasListImage = !!imageUrl;
+      return (
+        <article key={post._id} className={classes.listArticle}>
+          <Link
+            to={postGetPageUrl(post)}
+            className={classes.articleLink}
+          >
+            <div className={classes.listArticleContent}>
+              <div className={classNames(classes.listArticleBody, !hasListImage && classes.listArticleBodyNoImage)}>
+                <div className={classNames(classes.listArticleText, !hasListImage && classes.listArticleTextNoImage)}>
+                  <h3 className={classes.listArticleTitle}>
+                    <span className={classes.listArticleTitleText}>{post.title}</span>
+                  </h3>
+                  {summary && (
+                    <div className={classNames(
+                      classes.listArticleSummaryWrapper,
+                      !hasListImage && classes.listArticleSummaryWrapperNoImage,
+                    )}>
+                      <p className={classNames(
+                        classes.listArticleSummary,
+                        !hasListImage && classes.listArticleSummaryNoImage,
+                      )}>{summary}</p>
+                    </div>
+                  )}
+                  <div className={classNames(classes.listArticleMeta)}>
+                    <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
+                      <span className={classes.listDate}>{formatReadableDate(post.postedAt!)}</span>
+                    </LWTooltip>
+                    <span className={classes.listMetaDivider} aria-hidden="true">•</span>
+                    <LWTooltip title="Karma score">
+                      <span className={classes.listKarma}>{post.baseScore ?? 0}</span>
+                    </LWTooltip>
+                  </div>
+                </div>
+                {hasListImage && (
+                  <div
+                    className={classes.listArticleImage}
+                    style={{
+                      backgroundImage: cssUrl(imageUrl),
+                    }}
+                  ></div>
+                )}
+              </div>
+            </div>
+          </Link>
+        </article>
+      );
+    })}
+
+    {hasMorePosts && (
+      <div className={classes.readMore}>
+        <a 
+          href="#" 
+          className={classes.readMoreLink}
+          onClick={(e) => {
+            e.preventDefault();
+            setPostsToShow(prev => prev + INITIAL_POSTS_TO_SHOW);
+          }}
+        >
+          See more
+        </a>
+      </div>
+    )}
+  </>
+}
+
+function ProfilePageFeedTab({user, sortPanelOpen, sortPanelClosing}: {
+  user: UsersProfile,
+  sortPanelOpen: boolean,
+  sortPanelClosing: boolean
+}) {
+  const classes = useStyles(profileStyles);
+  const [feedSortBy, setFeedSortBy] = useState<"recent" | "top">("recent");
+  const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
+
+  const hasPosts = user.postCount > 0;
+  // FIXME: This is missing some other content types. The there-is-nothing handler should be coming from MixedTypeFeed.
+  const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
+
+  return <>
+    {(sortPanelOpen || sortPanelClosing) && (
+      <div className={classNames(classes.sortPanel, classes.sortPanelMulti, sortPanelClosing && classes.sortPanelClosing)}>
+        <div className={classes.sortPanelSection}>
+          <div className={classes.sortPanelHeader}>Sorted by:</div>
+          <button
+            className={classNames(classes.sortPanelOption, feedSortBy === "recent" && classes.sortPanelOptionSelected)}
+            onClick={() => setFeedSortBy("recent")}
+            type="button"
+          >
+            New
+          </button>
+          <button
+            className={classNames(classes.sortPanelOption, feedSortBy === "top" && classes.sortPanelOptionSelected)}
+            onClick={() => setFeedSortBy("top")}
+            type="button"
+          >
+            Top
+          </button>
+        </div>
+        <div className={classes.sortPanelSection}>
+          <div className={classes.sortPanelHeader}>Show:</div>
+          <button
+            className={classNames(classes.sortPanelOption, feedFilter === "all" && classes.sortPanelOptionSelected)}
+            onClick={() => setFeedFilter("all")}
+            type="button"
+          >
+            All
+          </button>
+          <button
+            className={classNames(classes.sortPanelOption, feedFilter === "comments" && classes.sortPanelOptionSelected)}
+            onClick={() => setFeedFilter("comments")}
+            type="button"
+          >
+            Comments
+          </button>
+          <button
+            className={classNames(classes.sortPanelOption, feedFilter === "quickTakes" && classes.sortPanelOptionSelected)}
+            onClick={() => setFeedFilter("quickTakes")}
+            type="button"
+          >
+            Quick takes
+          </button>
+          <button
+            className={classNames(classes.sortPanelOption, feedFilter === "posts" && classes.sortPanelOptionSelected)}
+            onClick={() => setFeedFilter("posts")}
+            type="button"
+          >
+            Posts
+          </button>
+        </div>
+      </div>
+    )}
+    {!hasFeedContent && (
+      <div className={classes.emptyStateContainer}>
+        <p className={classes.emptyStateDescription}>{userGetDisplayName(user)} hasn&apos;t written anything yet.</p>
+        <div className={classes.emptyStateImage}>
+          <img src="/profile-placeholder-4.png" alt="" />
+        </div>
+      </div>
+    )}
+    {hasFeedContent && (
+      <UltraFeedContextProvider openInNewTab={true}>
+        <UltraFeedObserverProvider incognitoMode={false}>
+          <OverflowNavObserverProvider>
+            <UserContentFeed userId={user._id} externalSortMode={feedSortBy} externalFilter={feedFilter} />
+          </OverflowNavObserverProvider>
+        </UltraFeedObserverProvider>
+      </UltraFeedContextProvider>
+    )}
+  </>
 }
