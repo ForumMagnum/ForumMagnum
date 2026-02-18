@@ -635,6 +635,8 @@ extend type Query {
   UserReadHistory(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostsUserCommentedOn(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostIsCriticism(args: JSON): Boolean
+  ProfileDiamondPosts(userId: String!, limit: Int!): ProfileDiamondPostsResult!
+  ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
@@ -683,6 +685,32 @@ type RecombeeRecommendedPost {
 type VertexRecommendedPost {
   post: Post!
   attributionId: String
+}
+
+type ProfileDiamondPostsResult {
+  results: [ProfilePostDiamond!]!
+  totalCount: Int
+}
+
+type ProfileDiamondCommentsResult {
+  results: [ProfileCommentDiamond!]!
+  totalCount: Int
+}
+
+type ProfilePostDiamond {
+  _id: String!
+  slug: String!
+  date: Date!
+  karma: Int!
+  isReviewWinner: Boolean!
+  isCurated: Boolean!
+}
+
+type ProfileCommentDiamond {
+  id: String!
+  date: Date!
+  karma: Int!
+  postId: String!
 }
 
 type PostWithApprovedJargon {
@@ -7433,6 +7461,8 @@ type Tag {
   userId: String
   user: User
   adminOnly: Boolean!
+  removalResistant: Boolean!
+  authorOnly: Boolean!
   canEditUserIds: [String!]
   charsAdded: Float
   charsRemoved: Float
@@ -10188,6 +10218,8 @@ input CreateTagDataInput {
   defaultOrder: Float
   descriptionTruncationCount: Float
   adminOnly: Boolean
+  removalResistant: Boolean
+  authorOnly: Boolean
   canEditUserIds: [String!]
   reviewedByUserId: String
   wikiGrade: Int
@@ -10228,6 +10260,8 @@ input UpdateTagDataInput {
   defaultOrder: Float
   descriptionTruncationCount: Float
   adminOnly: Boolean
+  removalResistant: Boolean
+  authorOnly: Boolean
   canEditUserIds: [String!]
   deleted: Boolean
   needsReview: Boolean

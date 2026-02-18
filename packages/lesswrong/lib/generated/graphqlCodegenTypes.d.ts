@@ -1857,6 +1857,7 @@ type CreateSurveyScheduleInput = {
 
 type CreateTagDataInput = {
   adminOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  authorOnly?: InputMaybe<Scalars['Boolean']['input']>;
   autoTagModel?: InputMaybe<Scalars['String']['input']>;
   autoTagPrompt?: InputMaybe<Scalars['String']['input']>;
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
@@ -1876,6 +1877,7 @@ type CreateTagDataInput = {
   name: Scalars['String']['input'];
   parentTagId?: InputMaybe<Scalars['String']['input']>;
   postsDefaultSortOrder?: InputMaybe<Scalars['String']['input']>;
+  removalResistant?: InputMaybe<Scalars['Boolean']['input']>;
   reviewedByUserId?: InputMaybe<Scalars['String']['input']>;
   shortName?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
@@ -7717,6 +7719,36 @@ type PostsWithApprovedJargonResult = {
   results: Array<PostWithApprovedJargon>;
 };
 
+type ProfileCommentDiamond = {
+  __typename?: 'ProfileCommentDiamond';
+  date: Scalars['Date']['output'];
+  id: Scalars['String']['output'];
+  karma: Scalars['Int']['output'];
+  postId: Scalars['String']['output'];
+};
+
+type ProfileDiamondCommentsResult = {
+  __typename?: 'ProfileDiamondCommentsResult';
+  results: Array<ProfileCommentDiamond>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type ProfileDiamondPostsResult = {
+  __typename?: 'ProfileDiamondPostsResult';
+  results: Array<ProfilePostDiamond>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type ProfilePostDiamond = {
+  __typename?: 'ProfilePostDiamond';
+  _id: Scalars['String']['output'];
+  date: Scalars['Date']['output'];
+  isCurated: Scalars['Boolean']['output'];
+  isReviewWinner: Scalars['Boolean']['output'];
+  karma: Scalars['Int']['output'];
+  slug: Scalars['String']['output'];
+};
+
 type Query = {
   __typename?: 'Query';
   ActiveTagCount: Scalars['Int']['output'];
@@ -7762,6 +7794,8 @@ type Query = {
   PostsUserCommentedOn?: Maybe<UserReadHistoryResult>;
   PostsWithActiveDiscussion?: Maybe<PostsWithActiveDiscussionResult>;
   PostsWithApprovedJargon?: Maybe<PostsWithApprovedJargonResult>;
+  ProfileDiamondComments: ProfileDiamondCommentsResult;
+  ProfileDiamondPosts: ProfileDiamondPostsResult;
   RandomTag: Tag;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
   RecentlyActiveDialogues?: Maybe<RecentlyActiveDialoguesResult>;
@@ -8117,6 +8151,18 @@ type QueryPostsWithActiveDiscussionArgs = {
 
 type QueryPostsWithApprovedJargonArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QueryProfileDiamondCommentsArgs = {
+  limit: Scalars['Int']['input'];
+  userId: Scalars['String']['input'];
+};
+
+
+type QueryProfileDiamondPostsArgs = {
+  limit: Scalars['Int']['input'];
+  userId: Scalars['String']['input'];
 };
 
 
@@ -10952,6 +10998,7 @@ type Tag = {
   afExtendedScore?: Maybe<Scalars['JSON']['output']>;
   afVoteCount?: Maybe<Scalars['Float']['output']>;
   arbitalLinkedPages?: Maybe<ArbitalLinkedPages>;
+  authorOnly: Scalars['Boolean']['output'];
   autoTagModel?: Maybe<Scalars['String']['output']>;
   autoTagPrompt?: Maybe<Scalars['String']['output']>;
   bannerImageId?: Maybe<Scalars['String']['output']>;
@@ -11003,6 +11050,7 @@ type Tag = {
   postCount: Scalars['Float']['output'];
   postsDefaultSortOrder?: Maybe<Scalars['String']['output']>;
   recentComments: Array<Comment>;
+  removalResistant: Scalars['Boolean']['output'];
   reviewedByUser?: Maybe<User>;
   reviewedByUserId?: Maybe<Scalars['String']['output']>;
   schemaVersion: Scalars['Float']['output'];
@@ -12161,6 +12209,7 @@ type UpdateSurveyScheduleInput = {
 
 type UpdateTagDataInput = {
   adminOnly?: InputMaybe<Scalars['Boolean']['input']>;
+  authorOnly?: InputMaybe<Scalars['Boolean']['input']>;
   autoTagModel?: InputMaybe<Scalars['String']['input']>;
   autoTagPrompt?: InputMaybe<Scalars['String']['input']>;
   bannerImageId?: InputMaybe<Scalars['String']['input']>;
@@ -12184,6 +12233,7 @@ type UpdateTagDataInput = {
   noindex?: InputMaybe<Scalars['Boolean']['input']>;
   parentTagId?: InputMaybe<Scalars['String']['input']>;
   postsDefaultSortOrder?: InputMaybe<Scalars['String']['input']>;
+  removalResistant?: InputMaybe<Scalars['Boolean']['input']>;
   reviewedByUserId?: InputMaybe<Scalars['String']['input']>;
   shortName?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
@@ -13571,6 +13621,36 @@ type SequenceMetadataQueryVariables = Exact<{
 
 
 type SequenceMetadataQuery = SequenceMetadataQuery_Query;
+
+type ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult_results_ProfilePostDiamond = { __typename?: 'ProfilePostDiamond', _id: string, slug: string, date: string, karma: number, isReviewWinner: boolean, isCurated: boolean };
+
+type ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult = { __typename?: 'ProfileDiamondPostsResult', totalCount: number | null, results: Array<ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult_results_ProfilePostDiamond> };
+
+type ProfilePostDiamondDataQueryQuery_Query = { __typename?: 'Query', ProfileDiamondPosts: ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult };
+
+
+type ProfilePostDiamondDataQueryQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+
+type ProfilePostDiamondDataQueryQuery = ProfilePostDiamondDataQueryQuery_Query;
+
+type ProfileCommentDiamondDataQueryQuery_ProfileDiamondComments_ProfileDiamondCommentsResult_results_ProfileCommentDiamond = { __typename?: 'ProfileCommentDiamond', id: string, date: string, karma: number, postId: string };
+
+type ProfileCommentDiamondDataQueryQuery_ProfileDiamondComments_ProfileDiamondCommentsResult = { __typename?: 'ProfileDiamondCommentsResult', totalCount: number | null, results: Array<ProfileCommentDiamondDataQueryQuery_ProfileDiamondComments_ProfileDiamondCommentsResult_results_ProfileCommentDiamond> };
+
+type ProfileCommentDiamondDataQueryQuery_Query = { __typename?: 'Query', ProfileDiamondComments: ProfileCommentDiamondDataQueryQuery_ProfileDiamondComments_ProfileDiamondCommentsResult };
+
+
+type ProfileCommentDiamondDataQueryQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+
+type ProfileCommentDiamondDataQueryQuery = ProfileCommentDiamondDataQueryQuery_Query;
 
 type ProfileUserQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
@@ -26888,7 +26968,7 @@ type TagFragment_Tag_subTags_Tag = (
 type TagFragment_Tag_description_Revision = { __typename?: 'Revision', _id: string, html: string | null, htmlHighlight: string, plaintextDescription: string, version: string, editedAt: string };
 
 type TagFragment = (
-  { __typename?: 'Tag', canVoteOnRels: Array<TagRelVoteGroup> | null, parentTag: TagFragment_Tag_parentTag_Tag | null, subTags: Array<TagFragment_Tag_subTags_Tag>, description: TagFragment_Tag_description_Revision | null }
+  { __typename?: 'Tag', canVoteOnRels: Array<TagRelVoteGroup> | null, authorOnly: boolean, parentTag: TagFragment_Tag_parentTag_Tag | null, subTags: Array<TagFragment_Tag_subTags_Tag>, description: TagFragment_Tag_description_Revision | null }
   & TagDetailsFragment
 );
 
@@ -26954,7 +27034,7 @@ type TagPreviewFragment_Tag_subTags_Tag = (
 type TagPreviewFragment_Tag_description_Revision = { __typename?: 'Revision', _id: string, htmlHighlight: string };
 
 type TagPreviewFragment = (
-  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<TagRelVoteGroup> | null, isArbitalImport: boolean | null, parentTag: TagPreviewFragment_Tag_parentTag_Tag | null, subTags: Array<TagPreviewFragment_Tag_subTags_Tag>, description: TagPreviewFragment_Tag_description_Revision | null }
+  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<TagRelVoteGroup> | null, authorOnly: boolean, isArbitalImport: boolean | null, parentTag: TagPreviewFragment_Tag_parentTag_Tag | null, subTags: Array<TagPreviewFragment_Tag_subTags_Tag>, description: TagPreviewFragment_Tag_description_Revision | null }
   & TagBasicInfo
 );
 
@@ -26971,7 +27051,7 @@ type TagSectionPreviewFragment_Tag_subTags_Tag = (
 type TagSectionPreviewFragment_Tag_description_Revision = { __typename?: 'Revision', _id: string, htmlHighlightStartingAtHash: string };
 
 type TagSectionPreviewFragment = (
-  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<TagRelVoteGroup> | null, parentTag: TagSectionPreviewFragment_Tag_parentTag_Tag | null, subTags: Array<TagSectionPreviewFragment_Tag_subTags_Tag>, description: TagSectionPreviewFragment_Tag_description_Revision | null }
+  { __typename?: 'Tag', isRead: boolean | null, canVoteOnRels: Array<TagRelVoteGroup> | null, authorOnly: boolean, parentTag: TagSectionPreviewFragment_Tag_parentTag_Tag | null, subTags: Array<TagSectionPreviewFragment_Tag_subTags_Tag>, description: TagSectionPreviewFragment_Tag_description_Revision | null }
   & TagBasicInfo
 );
 
@@ -27061,7 +27141,7 @@ type TagPageFragment_Tag_contributors_TagContributorsList_contributors_TagContri
 type TagPageFragment_Tag_contributors_TagContributorsList = { __typename?: 'TagContributorsList', totalCount: number, contributors: Array<TagPageFragment_Tag_contributors_TagContributorsList_contributors_TagContributor> };
 
 type TagPageFragment = (
-  { __typename?: 'Tag', tableOfContents: any | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, forceAllowType3Audio: boolean, textLastUpdatedAt: string | null, subforumIntroPost: TagPageFragment_Tag_subforumIntroPost_Post | null, subforumWelcomeText: TagPageFragment_Tag_subforumWelcomeText_Revision | null, contributors: TagPageFragment_Tag_contributors_TagContributorsList }
+  { __typename?: 'Tag', tableOfContents: any | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, authorOnly: boolean, forceAllowType3Audio: boolean, textLastUpdatedAt: string | null, subforumIntroPost: TagPageFragment_Tag_subforumIntroPost_Post | null, subforumWelcomeText: TagPageFragment_Tag_subforumWelcomeText_Revision | null, contributors: TagPageFragment_Tag_contributors_TagContributorsList }
   & TagWithFlagsFragment
 );
 
@@ -27093,7 +27173,7 @@ type TagPageWithRevisionFragment_Tag_contributors_TagContributorsList_contributo
 type TagPageWithRevisionFragment_Tag_contributors_TagContributorsList = { __typename?: 'TagContributorsList', totalCount: number, contributors: Array<TagPageWithRevisionFragment_Tag_contributors_TagContributorsList_contributors_TagContributor> };
 
 type TagPageWithRevisionFragment = (
-  { __typename?: 'Tag', tableOfContents: any | null, textLastUpdatedAt: string | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, forceAllowType3Audio: boolean, subforumIntroPost: TagPageWithRevisionFragment_Tag_subforumIntroPost_Post | null, subforumWelcomeText: TagPageWithRevisionFragment_Tag_subforumWelcomeText_Revision | null, contributors: TagPageWithRevisionFragment_Tag_contributors_TagContributorsList }
+  { __typename?: 'Tag', tableOfContents: any | null, textLastUpdatedAt: string | null, postsDefaultSortOrder: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, authorOnly: boolean, forceAllowType3Audio: boolean, subforumIntroPost: TagPageWithRevisionFragment_Tag_subforumIntroPost_Post | null, subforumWelcomeText: TagPageWithRevisionFragment_Tag_subforumWelcomeText_Revision | null, contributors: TagPageWithRevisionFragment_Tag_contributors_TagContributorsList }
   & TagWithFlagsAndRevisionFragment
 );
 
@@ -27135,7 +27215,7 @@ type TagEditFragment_Tag_moderationGuidelines_Revision = (
 );
 
 type TagEditFragment = (
-  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, autoTagModel: string | null, autoTagPrompt: string | null, parentTag: TagEditFragment_Tag_parentTag_Tag | null, description: TagEditFragment_Tag_description_Revision | null, subforumWelcomeText: TagEditFragment_Tag_subforumWelcomeText_Revision | null, moderationGuidelines: TagEditFragment_Tag_moderationGuidelines_Revision | null }
+  { __typename?: 'Tag', isPostType: boolean, parentTagId: string | null, subforumIntroPostId: string | null, tagFlagsIds: Array<string>, postsDefaultSortOrder: string | null, introSequenceId: string | null, canVoteOnRels: Array<TagRelVoteGroup> | null, removalResistant: boolean, authorOnly: boolean, autoTagModel: string | null, autoTagPrompt: string | null, parentTag: TagEditFragment_Tag_parentTag_Tag | null, description: TagEditFragment_Tag_description_Revision | null, subforumWelcomeText: TagEditFragment_Tag_subforumWelcomeText_Revision | null, moderationGuidelines: TagEditFragment_Tag_moderationGuidelines_Revision | null }
   & TagDetailsFragment
 );
 
