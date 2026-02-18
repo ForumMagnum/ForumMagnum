@@ -2,7 +2,7 @@
 
 set -euxo pipefail
 
-# Default to local docker DB for local runs (same port as `yarn playwright-db`)
+# Default to local docker DB for local runs (same port as `npm run playwright-db`)
 : "${PG_URL:=postgres://postgres:password@localhost:5433/postgres}"
 
 if [[ -z "${CI:-}" ]]; then
@@ -13,8 +13,8 @@ if [[ -z "${CI:-}" ]]; then
   fi
 fi
 
-# yarn ea-start-testing-db &
-yarn next dev --turbopack &
+# npm run ea-start-testing-db &
+npm exec -- next dev --turbopack &
 ./scripts/timeout.sh 120 ./scripts/waitForServer.sh
 curl --fail -X POST http://localhost:3000/api/dropAndCreatePg \
 	-d '{"templateId": "jest_template"}' \

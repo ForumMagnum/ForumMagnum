@@ -1,5 +1,5 @@
 /**
- * Usage: yarn migrate up|down|pending|executed [dev|staging|prod] [forumType]
+ * Usage: npm run upload-ckeditor-bundle
  *
  * If no environment is specified, you can use the environment variables PG_URL
  * and SETTINGS_FILE
@@ -53,7 +53,7 @@ const fetchImports = async () => {
     const { exists } = await checkEditorBundle(ckEditorBundleVersion);
     if (!exists) {
       console.log(`ckEditor bundle version ${ckEditorBundleVersion} not yet uploaded; building now`);
-      await execAsync(`cd ckEditor && yarn && yarn build`);
+      await execAsync(`cd ckEditor && npm install && npm run build`);
       await uploadEditorBundle(ckEditorBundleVersion);
     }
   } catch (e) {

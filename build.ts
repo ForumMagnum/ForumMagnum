@@ -53,7 +53,7 @@ const defaultCommandLineOptions: CommandLineOptions = {
   vite: false,
   noSshTunnel: false,
 }
-const helpText = (argv0: string) => `usage: yarn ts-node build-esbuild.ts [options]`
+const helpText = (argv0: string) => `usage: npm exec -- ts-node build-esbuild.ts [options]`
 
 function parseCommandLine(argv: string[]): [CommandLineOptions,string[]] {
   let result: CommandLineOptions = defaultCommandLineOptions

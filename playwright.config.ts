@@ -16,7 +16,7 @@ const getWebServers = () => {
 
   if (!process.env.CI) {
     webServers.push({
-      command: "yarn playwright-db",
+      command: "npm run playwright-db",
       port: 5433,
       reuseExistingServer: true,
       stdout: "ignore",
@@ -29,7 +29,7 @@ const getWebServers = () => {
     webServers.push({
       // NOTE: we assume fly/hocuspocusServer already has dependencies installed locally.
       // (It is a separate project with its own node_modules.)
-      command: `cd fly/hocuspocusServer && yarn build && E2E=true PORT=${HOCUSPOCUS_PORT} DATABASE_URL=${PLAYWRIGHT_DB_URL} HOCUSPOCUS_JWT_SECRET=${HOCUSPOCUS_JWT_SECRET} node dist/index.js`,
+      command: `cd fly/hocuspocusServer && npm run build && E2E=true PORT=${HOCUSPOCUS_PORT} DATABASE_URL=${PLAYWRIGHT_DB_URL} HOCUSPOCUS_JWT_SECRET=${HOCUSPOCUS_JWT_SECRET} node dist/index.js`,
       // Important: use an HTTP healthcheck rather than only checking that the port is open.
       // Otherwise Playwright can incorrectly treat a crashed/incorrect process as "available",
       // leading to ws://localhost:${HOCUSPOCUS_PORT} connection refused during the test.
@@ -42,8 +42,8 @@ const getWebServers = () => {
 
   webServers.push({
     command: ENABLE_HOCUSPOCUS
-      ? `PORT=3456 E2E=true PG_URL=${PLAYWRIGHT_DB_URL} HOCUSPOCUS_URL=${HOCUSPOCUS_URL} HOCUSPOCUS_JWT_SECRET=${HOCUSPOCUS_JWT_SECRET} yarn next dev --turbopack`
-      : `PORT=3456 E2E=true PG_URL=${PLAYWRIGHT_DB_URL} yarn next dev --turbopack`,
+      ? `PORT=3456 E2E=true PG_URL=${PLAYWRIGHT_DB_URL} HOCUSPOCUS_URL=${HOCUSPOCUS_URL} HOCUSPOCUS_JWT_SECRET=${HOCUSPOCUS_JWT_SECRET} npm exec -- next dev --turbopack`
+      : `PORT=3456 E2E=true PG_URL=${PLAYWRIGHT_DB_URL} npm exec -- next dev --turbopack`,
     url: "http://localhost:3456",
     reuseExistingServer: true,
     stdout: ENABLE_HOCUSPOCUS ? "pipe" : "ignore",
@@ -53,7 +53,7 @@ const getWebServers = () => {
   if (process.env.CROSSPOST_TEST) {
     if (!process.env.CI) {
       webServers.push({
-        command: "yarn playwright-db-crosspost",
+        command: "npm run playwright-db-crosspost",
         port: 5434,
         reuseExistingServer: true,
         stdout: "ignore",
@@ -62,7 +62,7 @@ const getWebServers = () => {
     }
 
     webServers.push({
-      command: "yarn start-playwright-crosspost",
+      command: "npm run start-playwright-crosspost",
       url: "http://localhost:3467",
       reuseExistingServer: true,
       stdout: "ignore",
