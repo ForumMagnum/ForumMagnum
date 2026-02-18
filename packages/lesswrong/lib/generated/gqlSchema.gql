@@ -7459,6 +7459,8 @@ type Tag {
   userId: String
   user: User
   adminOnly: Boolean!
+  removalResistant: Boolean!
+  authorOnly: Boolean!
   canEditUserIds: [String!]
   charsAdded: Float
   charsRemoved: Float
@@ -10214,6 +10216,8 @@ input CreateTagDataInput {
   defaultOrder: Float
   descriptionTruncationCount: Float
   adminOnly: Boolean
+  removalResistant: Boolean
+  authorOnly: Boolean
   canEditUserIds: [String!]
   reviewedByUserId: String
   wikiGrade: Int
@@ -10254,6 +10258,8 @@ input UpdateTagDataInput {
   defaultOrder: Float
   descriptionTruncationCount: Float
   adminOnly: Boolean
+  removalResistant: Boolean
+  authorOnly: Boolean
   canEditUserIds: [String!]
   deleted: Boolean
   needsReview: Boolean
