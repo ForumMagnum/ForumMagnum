@@ -327,7 +327,6 @@ export default function ProfilePage({slug}: {
   const [sortBy, setSortBy] = useState<"new" | "top" | "topInflation" | "recentComments" | "old" | "magic">("new");
   const [feedSortBy, setFeedSortBy] = useState<"recent" | "top">("recent");
   const [feedFilter, setFeedFilter] = useState<"all" | "posts" | "quickTakes" | "comments">("all");
-  const bioRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
 
   const handleTabSwitch = (tab: ProfileTab) => {
@@ -408,7 +407,7 @@ export default function ProfilePage({slug}: {
   const showBioExpand = !!bioHtml && collapsedBioHtml !== bioHtml;
   const bioNoFollow = (user?.karma ?? 0) < nofollowKarmaThreshold.get();
 
-  if (userLoading || !user) {
+  if (userLoading || !user || !userId) {
     return <div className={classes.profileContent}>
       <main className={classes.profileMain}>
         <Loading />
@@ -434,69 +433,59 @@ export default function ProfilePage({slug}: {
               setShowModerationTools={setShowModerationTools}
             />
           </div>
-          {canModerateUserProfile && showModerationTools && userId && (
-            <div className={classes.sunshineToolsSection}>
-              <SunshineNewUsersProfileInfo userId={userId} startExpanded />
-            </div>
-          )}
+          {canModerateUserProfile && showModerationTools && <div className={classes.sunshineToolsSection}>
+            <SunshineNewUsersProfileInfo userId={userId} startExpanded />
+          </div>}
 
           <Suspense>
             <UserProfileTopPostsSection user={user}/>
           </Suspense>
 
-          {(bioHtml || user) && (
-            <div className={classes.mobileProfileBio}>
-              <div className={classes.mobileProfileHeaderRow}>
-                <h4 className={classes.mobileProfileName}>{username}</h4>
-                <div className={classes.mobileProfileActions}>
-                  {canSubscribeToUser ? (
-                    <UserNotifyDropdown
-                      user={user}
-                      popperPlacement="bottom-start"
-                      className={classes.sidebarSubscribe}
-                    />
-                  ) : (
-                    <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
-                  )}
-                  {canMessageUser ? (
-                    <NewConversationButton user={user} currentUser={currentUser}>
-                      <a className={classes.sidebarMore}>Message</a>
-                    </NewConversationButton>
-                  ) : (
-                    <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
-                  )}
-                </div>
-              </div>
-              {bioHtml && (
-                <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
-                  <ContentItemBody
-                    className={classes.sidebarAuthorBio}
-                    dangerouslySetInnerHTML={{ __html: displayBioHtml }}
-                    nofollow={bioNoFollow}
+          {(bioHtml || user) && <div className={classes.mobileProfileBio}>
+            <div className={classes.mobileProfileHeaderRow}>
+              <h4 className={classes.mobileProfileName}>{username}</h4>
+              <div className={classes.mobileProfileActions}>
+                {canSubscribeToUser ? (
+                  <UserNotifyDropdown
+                    user={user}
+                    popperPlacement="bottom-start"
+                    className={classes.sidebarSubscribe}
                   />
-                </ContentStyles>
-              )}
-              {showBioExpand && (
-                <div className={classes.readMore}>
-                  <a
-                    href="#"
-                    className={classes.readMoreLink}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setBioExpanded(!bioExpanded);
-                    }}
-                  >
-                    {bioExpanded ? "See less" : "See more"}
-                  </a>
-                </div>
-              )}
-              {user && (
-                <div className={classes.mobileMetaInfo}>
-                  <UserMetaInfo user={user} />
-                </div>
-              )}
+                ) : (
+                  <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
+                )}
+                {canMessageUser ? (
+                  <NewConversationButton user={user} currentUser={currentUser}>
+                    <a className={classes.sidebarMore}>Message</a>
+                  </NewConversationButton>
+                ) : (
+                  <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
+                )}
+              </div>
             </div>
-          )}
+            {bioHtml && <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+              <ContentItemBody
+                className={classes.sidebarAuthorBio}
+                dangerouslySetInnerHTML={{ __html: displayBioHtml }}
+                nofollow={bioNoFollow}
+              />
+            </ContentStyles>}
+            {showBioExpand && <div className={classes.readMore}>
+              <a
+                href="#"
+                className={classes.readMoreLink}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setBioExpanded(!bioExpanded);
+                }}
+              >
+                {bioExpanded ? "See less" : "See more"}
+              </a>
+            </div>}
+            {user && <div className={classes.mobileMetaInfo}>
+              <UserMetaInfo user={user} />
+            </div>}
+          </div>}
 
           <section className={classes.allPostsSection}>
             <div className={classes.allPostsLeftColumn}>
@@ -671,9 +660,10 @@ export default function ProfilePage({slug}: {
                 )}
               </div>
 
-              <div
-                className={classNames(classes.sequencesList, classes.tabPanel, activeTab === "sequences" && classes.tabPanelActive)}
-              >
+              <div className={classNames(
+                classes.sequencesList, classes.tabPanel,
+                activeTab === "sequences" && classes.tabPanelActive
+              )}>
                 <div className={classes.sequencesGrid}>
                   {sequences.map((sequence) => {
                     const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get();
@@ -688,7 +678,7 @@ export default function ProfilePage({slug}: {
                             style={{
                               backgroundImage: cssUrl(`https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}`),
                             }}
-                          ></div>
+                          />
                           <div className={classes.sequenceCardContent}>
                             <h3 className={classes.sequenceCardTitle}>{sequence.title}</h3>
                           </div>
@@ -699,9 +689,11 @@ export default function ProfilePage({slug}: {
                 </div>
               </div>
 
-              <div
-                className={classNames(classes.feedList, classes.tabPanel, activeTab === "feed" && classes.tabPanelActive)}
-              >
+              <div className={classNames(
+                classes.feedList,
+                classes.tabPanel,
+                activeTab === "feed" && classes.tabPanelActive
+              )}>
                 {(sortPanelOpen || sortPanelClosing) && (
                   <div className={classNames(classes.sortPanel, classes.sortPanelMulti, sortPanelClosing && classes.sortPanelClosing)}>
                     <div className={classes.sortPanelSection}>
@@ -762,7 +754,7 @@ export default function ProfilePage({slug}: {
                     </div>
                   </div>
                 )}
-                {hasFeedContent && userId && (
+                {hasFeedContent && (
                   <UltraFeedContextProvider openInNewTab={true}>
                     <UltraFeedObserverProvider incognitoMode={false}>
                       <OverflowNavObserverProvider>
@@ -785,66 +777,55 @@ export default function ProfilePage({slug}: {
                   />
                 </h4>
                 <div className={classes.sidebarBioMeta}>
-                  {canSubscribeToUser && (
-                    <UserNotifyDropdown
-                      user={user}
-                      popperPlacement="bottom-start"
-                      className={classes.sidebarSubscribe}
-                    />
-                  )}
-                  {canMessageUser && (
-                    <NewConversationButton user={user} currentUser={currentUser}>
-                      <a className={classes.sidebarMore}>Message</a>
-                    </NewConversationButton>
-                  )}
+                  {canSubscribeToUser && <UserNotifyDropdown
+                    user={user}
+                    popperPlacement="bottom-start"
+                    className={classes.sidebarSubscribe}
+                  />}
+                  {canMessageUser && <NewConversationButton user={user} currentUser={currentUser}>
+                    <a className={classes.sidebarMore}>Message</a>
+                  </NewConversationButton>}
                 </div>
               </div>
-                <div className={classes.sidebarBioSection}>
-                  {!hasBio && (
-                    <div className={classes.sidebarMetaInfo}>
-                      <UserMetaInfo user={user} hidePostCount hideCommentCount omegaAlignment="inline" />
+
+              <div className={classes.sidebarBioSection}>
+                {!hasBio && <div className={classes.sidebarMetaInfo}>
+                  <UserMetaInfo user={user} hidePostCount hideCommentCount omegaAlignment="inline" />
+                </div>}
+
+                {hasBio && <>
+                  <div className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}>
+                    <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+                      <ContentItemBody
+                        className={classes.sidebarAuthorBio}
+                        dangerouslySetInnerHTML={{ __html: displayBioHtml }}
+                        nofollow={bioNoFollow}
+                      />
+                    </ContentStyles>
+                  </div>
+                  {showBioExpand && (
+                    <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
+                      <a 
+                        href="#" 
+                        className={classes.readMoreLink}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setBioExpanded(!bioExpanded);
+                        }}
+                      >
+                        {bioExpanded ? "See less" : "See more"}
+                      </a>
                     </div>
                   )}
-                  {hasBio && (
-                    <>
-                      <div 
-                        ref={bioRef}
-                        className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}
-                      >
-                        <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
-                        <ContentItemBody
-                          className={classes.sidebarAuthorBio}
-                          dangerouslySetInnerHTML={{ __html: displayBioHtml }}
-                          nofollow={bioNoFollow}
-                        />
-                        </ContentStyles>
-                      </div>
-                      {showBioExpand && (
-                        <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
-                          <a 
-                            href="#" 
-                            className={classes.readMoreLink}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setBioExpanded(!bioExpanded);
-                            }}
-                          >
-                            {bioExpanded ? "See less" : "See more"}
-                          </a>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-                {userId && (
-                  <Suspense fallback={null}>
-                    <ProfileDiamondSections
-                      key={userId}
-                      userId={userId}
-                      classes={classes}
-                    />
-                  </Suspense>
-                )}
+                </>}
+              </div>
+              <Suspense>
+                <ProfileDiamondSections
+                  key={userId}
+                  userId={userId}
+                  classes={classes}
+                />
+              </Suspense>
             </aside>
           </section>
         </main>
