@@ -148,7 +148,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       captureException(`Got a ${collectionName} multi request with conflicting term and resolverArg keys: ${conflictingKeys.join(', ')}`);
       throwError({
         id: 'app.conflicting_term_and_resolver_arg_keys',
-        data: { terms, otherQueryVariables, collectionName },
+        data: { terms, otherQueryVariables, collectionName, conflictingKeys },
       });
     }
 

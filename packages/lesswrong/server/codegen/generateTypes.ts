@@ -78,11 +78,10 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
   //
   // We could hoist this to `generateTypes` to re-use the list of files in `generateFragmentTypes`,
   // but the scanning is ~100ms and doesn't seem worth it.
-  const filesContainingGql = getFilesMaybeContainingGql("packages/lesswrong");
-  const otherFilesContainingGql = getFilesMaybeContainingGql("app");
+  const filesContainingGql = getFilesMaybeContainingGql(["packages/lesswrong", "app"]);
   const modifiedConfig = {
     ...graphqlCodegenConfig,
-    documents: [...filesContainingGql, ...otherFilesContainingGql],
+    documents: filesContainingGql.map(path => escapePathForGraphqlCodegenConfig(path)),
   };
   
   // Generate files, which land in tempPath
@@ -110,12 +109,25 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
   }
 }
 
+function escapePathForGraphqlCodegenConfig(path: string) {
+  // We give the graphql-codegen library an exact list of files we want it to look at,
+  // because we have pre-filtered with a search for performance, but the graphql-codegen
+  // config slot that we're putting the paths into takes glob expressions and will get
+  // confused by directory names containing parentheses (ie, nextjs route groups). Work
+  // around this by replacing the parentheses with '*'.
+  if (path.includes('(') || path.includes(')')) {
+    const escaped = path.replace(/(\(|\))/g, '*');
+    return escaped;
+  }
+  return path;
+}
+
 function fileMightIncludeGql(filePath: string) {
   const content = fs.readFileSync(filePath, 'utf-8').toLowerCase();
   return content.includes('gql`') || content.includes('gql(');
 }
 
-function getFilesMaybeContainingGql(dir: string) {
+function getFilesMaybeContainingGql(roots: string|string[]) {
   const files: string[] = [];
   
   function traverse(currentDir: string) {
@@ -139,7 +151,13 @@ function getFilesMaybeContainingGql(dir: string) {
     }
   }
   
-  traverse(dir);
+  if (Array.isArray(roots)) {
+    for (const root of roots) {
+      traverse(root);
+    }
+  } else {
+    traverse(roots);
+  }
   // These two files contain dynamically concatenated gql strings, which graphql-codegen isn't a fan of.
   // Filtering them out is fine as long as we don't define any gql types/operations in them which we need to be codegen'd.
   return files.filter(f => !f.endsWith('paginatedResolver.ts') && !f.endsWith('votingGraphQL.ts'));;

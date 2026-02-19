@@ -6,12 +6,21 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { unstable_cache } from 'next/cache';
 import ModerationPageContent from "./ModerationPageContent";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields('Moderation Log'), {
     robots: { index: false },
   });
 }
+
+assertRouteAttributes("/moderation", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export default async function Page({
   searchParams,

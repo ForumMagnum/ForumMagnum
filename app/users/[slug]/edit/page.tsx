@@ -4,13 +4,19 @@ import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sh
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields('Account Settings'));
 }
 
-assertRouteHasWhiteBackground("/users/[slug]/edit");
+assertRouteAttributes("/users/[slug]/edit", {
+  whiteBackground: true,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export default async function Page({ params }: {
   params: Promise<{ slug: string }>
@@ -20,4 +26,3 @@ export default async function Page({ params }: {
     <UsersAccount slug={slug} />
   </RouteRoot>;
 }
-

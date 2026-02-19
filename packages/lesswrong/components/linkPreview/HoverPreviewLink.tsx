@@ -12,8 +12,8 @@ import CrossSiteLinkPreview from '@/components/linkPreview/CrossSiteLinkPreview'
 import FootnotePreview from "./FootnotePreview";
 import { NoSideItems } from '../contents/SideItems';
 
-import { parseRouteWithErrors } from './parseRouteWithErrors';
 import { routePreviewComponentMapping, type LinkPreviewComponent } from '@/lib/routeChecks/hoverPreviewRoutes';
+import { parseRouteWithErrors } from '../../lib/routeChecks/parseRouteWithErrors';
 
 export const linkIsExcludedFromPreview = (url: string): boolean => {
   // Don't try to preview special JS links

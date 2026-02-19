@@ -3,7 +3,7 @@ import PostsSingle from '../../../../packages/lesswrong/components/posts/PostsSi
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteAttributes } from "@/lib/routeChecks/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
 
@@ -12,6 +12,7 @@ assertRouteAttributes("/posts/[_id]/[slug]", {
   hasLinkPreview: true,
   hasPingbacks: true,
   hasLeftNavigationColumn: false,
+  hasMarkdownVersion: true,
 });
 
 export default async function PostPage({ params }: {

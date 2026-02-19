@@ -53,14 +53,7 @@ const routesWithWhiteBackground = [
   "/w/create"
 ] as const satisfies readonly NextExistingRoute[];
 
-type WhiteBackgroundRoutePattern = typeof routesWithWhiteBackground[number];
-
-type RouteAttributes<Pathname extends NextExistingRoute> = {
-  whiteBackground: Pathname extends WhiteBackgroundRoutePattern ? true : false,
-  hasLinkPreview: Pathname extends RoutePreviewPattern ? true : false,
-  hasPingbacks: Pathname extends PingbackRoutePattern ? true : false,
-  hasLeftNavigationColumn: Pathname extends LeftNavigationRoutePattern ? true : false,
-};
+export type WhiteBackgroundRoutePattern = typeof routesWithWhiteBackground[number];
 
 const routesWithCreamBackground = [
   "/users/[slug]",
@@ -87,12 +80,4 @@ function isOnRoutesList(pathname: string, routes: readonly string[]): boolean {
 }
 
 export function assertRouteHasWhiteBackground(pathname: typeof routesWithWhiteBackground[number]) {
-}
-
-export function assertRouteAttributes<Pathname extends NextExistingRoute>(
-  pathname: Pathname,
-  routeAttributes: RouteAttributes<Pathname>
-) {
-  void pathname;
-  void routeAttributes;
 }
