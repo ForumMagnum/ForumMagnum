@@ -8,6 +8,15 @@ import { cloudinaryCloudNameSetting, taglineSetting } from "@/lib/instanceSettin
 import RouteRoot from "@/components/layout/RouteRoot";
 import { notFound } from "next/navigation";
 import { runQuery } from "@/server/vulcan-lib/query";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+
+assertRouteAttributes("/groups/[groupId]", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 const LocalgroupMetadataQuery = gql(`
   query LocalgroupMetadata($groupId: String) {

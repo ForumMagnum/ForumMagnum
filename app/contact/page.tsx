@@ -2,9 +2,15 @@ import React from "react";
 import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
 import RouteRoot from "@/components/layout/RouteRoot";
 import { contactPostIdSetting } from "@/lib/instanceSettings";
-import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-assertRouteHasWhiteBackground("/contact");
+assertRouteAttributes("/contact", {
+  whiteBackground: true,
+  hasLinkPreview: false,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: true,
+});
 
 export default function Page() {
   return <RouteRoot delayedStatusCode>

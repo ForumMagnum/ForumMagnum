@@ -9697,6 +9697,8 @@ type Revision = {
   afBaseScore?: Maybe<Scalars['Float']['output']>;
   afExtendedScore?: Maybe<Scalars['JSON']['output']>;
   afVoteCount?: Maybe<Scalars['Float']['output']>;
+  agentMarkdown?: Maybe<Scalars['String']['output']>;
+  agentMarkdownExcerpt?: Maybe<Scalars['String']['output']>;
   baseScore: Scalars['Float']['output'];
   changeMetrics: Scalars['JSON']['output'];
   ckEditorMarkup?: Maybe<Scalars['String']['output']>;
@@ -13253,6 +13255,351 @@ type YjsDocument = {
   _id: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
 };
+
+type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextDescription: string };
+
+type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence = { __typename?: 'Sequence', _id: string, title: string };
+
+type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book = { __typename?: 'Book', _id: string, title: string | null, number: number | null, postIds: Array<string>, sequenceIds: Array<string>, sequences: Array<MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence> };
+
+type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection = { __typename?: 'Collection', _id: string, slug: string, title: string, firstPageLink: string, contents: MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_contents_Revision | null, books: Array<MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book> };
+
+type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput = { __typename?: 'SingleCollectionOutput', result: MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection | null };
+
+type MarkdownCollectionByDocumentIdQuery_Query = { __typename?: 'Query', collection: MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput | null };
+
+
+type MarkdownCollectionByDocumentIdQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type MarkdownCollectionByDocumentIdQuery = MarkdownCollectionByDocumentIdQuery_Query;
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_posts_Post = { __typename?: 'Post', _id: string, slug: string };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence_chapters_Chapter_posts_Post = { __typename?: 'Post', _id: string, slug: string };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence_chapters_Chapter = { __typename?: 'Chapter', _id: string, posts: Array<MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence_chapters_Chapter_posts_Post> };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence = { __typename?: 'Sequence', _id: string, chapters: Array<MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence_chapters_Chapter> };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book = { __typename?: 'Book', _id: string, posts: Array<MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_posts_Post>, sequences: Array<MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence> };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection = { __typename?: 'Collection', _id: string, books: Array<MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book> };
+
+type MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput = { __typename?: 'SingleCollectionOutput', result: MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection | null };
+
+type MarkdownCollectionPostsByDocumentIdQuery_Query = { __typename?: 'Query', collection: MarkdownCollectionPostsByDocumentIdQuery_collection_SingleCollectionOutput | null };
+
+
+type MarkdownCollectionPostsByDocumentIdQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type MarkdownCollectionPostsByDocumentIdQuery = MarkdownCollectionPostsByDocumentIdQuery_Query;
+
+type MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput_results_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, slug: string, title: string, location: string | null, startTime: string | null, endTime: string | null, onlineEvent: boolean, globalEvent: boolean, user: MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput_results_Post_user_User | null };
+
+type MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput_results_Post> };
+
+type MarkdownCommunityPageQuery_globalEvents_MultiPostOutput_results_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type MarkdownCommunityPageQuery_globalEvents_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, slug: string, title: string, location: string | null, startTime: string | null, endTime: string | null, onlineEvent: boolean, globalEvent: boolean, user: MarkdownCommunityPageQuery_globalEvents_MultiPostOutput_results_Post_user_User | null };
+
+type MarkdownCommunityPageQuery_globalEvents_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownCommunityPageQuery_globalEvents_MultiPostOutput_results_Post> };
+
+type MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput_results_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, slug: string, title: string, location: string | null, startTime: string | null, endTime: string | null, onlineEvent: boolean, globalEvent: boolean, user: MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput_results_Post_user_User | null };
+
+type MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput_results_Post> };
+
+type MarkdownCommunityPageQuery_Query = { __typename?: 'Query', upcomingInPerson: MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput | null, globalEvents: MarkdownCommunityPageQuery_globalEvents_MultiPostOutput | null, nearbyInPerson?: MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput | null };
+
+
+type MarkdownCommunityPageQueryVariables = Exact<{
+  defaultLimit: InputMaybe<Scalars['Int']['input']>;
+  nearbyLimit: InputMaybe<Scalars['Int']['input']>;
+  lat: InputMaybe<Scalars['Float']['input']>;
+  lng: InputMaybe<Scalars['Float']['input']>;
+  hasCoordinates: Scalars['Boolean']['input'];
+}>;
+
+
+type MarkdownCommunityPageQuery = MarkdownCommunityPageQuery_Query;
+
+type MarkdownFrontPageQuery_currentSpotlight_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
+
+type MarkdownFrontPageQuery_currentSpotlight_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, title: string };
+
+type MarkdownFrontPageQuery_currentSpotlight_Spotlight_tag_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string };
+
+type MarkdownFrontPageQuery_currentSpotlight_Spotlight = { __typename?: 'Spotlight', _id: string, customTitle: string | null, customSubtitle: string | null, post: MarkdownFrontPageQuery_currentSpotlight_Spotlight_post_Post | null, sequence: MarkdownFrontPageQuery_currentSpotlight_Spotlight_sequence_Sequence | null, tag: MarkdownFrontPageQuery_currentSpotlight_Spotlight_tag_Tag | null };
+
+type MarkdownFrontPageQuery_curated_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownFrontPageQuery_curated_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownFrontPageQuery_curated_MultiPostOutput_results_Post> };
+
+type MarkdownFrontPageQuery_recent_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownFrontPageQuery_recent_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownFrontPageQuery_recent_MultiPostOutput_results_Post> };
+
+type MarkdownFrontPageQuery_latest_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownFrontPageQuery_latest_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownFrontPageQuery_latest_MultiPostOutput_results_Post> };
+
+type MarkdownFrontPageQuery_Query = { __typename?: 'Query', currentSpotlight: MarkdownFrontPageQuery_currentSpotlight_Spotlight | null, curated: MarkdownFrontPageQuery_curated_MultiPostOutput | null, recent: MarkdownFrontPageQuery_recent_MultiPostOutput | null, latest: MarkdownFrontPageQuery_latest_MultiPostOutput | null };
+
+
+type MarkdownFrontPageQueryVariables = Exact<{
+  recentLimit: InputMaybe<Scalars['Int']['input']>;
+  latestLimit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownFrontPageQuery = MarkdownFrontPageQuery_Query;
+
+type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownFragment
+);
+
+type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type PostMarkdownCommentByIdQuery_Query = { __typename?: 'Query', comment: PostMarkdownCommentByIdQuery_comment_SingleCommentOutput | null };
+
+
+type PostMarkdownCommentByIdQueryVariables = Exact<{
+  commentId: Scalars['String']['input'];
+}>;
+
+
+type PostMarkdownCommentByIdQuery = PostMarkdownCommentByIdQuery_Query;
+
+type PostMarkdownCommentsPostQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, title: string, commentCount: number };
+
+type PostMarkdownCommentsPostQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMarkdownCommentsPostQuery_post_SinglePostOutput_result_Post | null };
+
+type PostMarkdownCommentsPostQuery_Query = { __typename?: 'Query', post: PostMarkdownCommentsPostQuery_post_SinglePostOutput | null };
+
+
+type PostMarkdownCommentsPostQueryVariables = Exact<{
+  _id: Scalars['String']['input'];
+}>;
+
+
+type PostMarkdownCommentsPostQuery = PostMarkdownCommentsPostQuery_Query;
+
+type PostMarkdownCommentsTopQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownFragment
+);
+
+type PostMarkdownCommentsTopQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<PostMarkdownCommentsTopQuery_comments_MultiCommentOutput_results_Comment> };
+
+type PostMarkdownCommentsTopQuery_Query = { __typename?: 'Query', comments: PostMarkdownCommentsTopQuery_comments_MultiCommentOutput | null };
+
+
+type PostMarkdownCommentsTopQueryVariables = Exact<{
+  _id: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type PostMarkdownCommentsTopQuery = PostMarkdownCommentsTopQuery_Query;
+
+type PostMarkdownCommentsNewQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownFragment
+);
+
+type PostMarkdownCommentsNewQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<PostMarkdownCommentsNewQuery_comments_MultiCommentOutput_results_Comment> };
+
+type PostMarkdownCommentsNewQuery_Query = { __typename?: 'Query', comments: PostMarkdownCommentsNewQuery_comments_MultiCommentOutput | null };
+
+
+type PostMarkdownCommentsNewQueryVariables = Exact<{
+  _id: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type PostMarkdownCommentsNewQuery = PostMarkdownCommentsNewQuery_Query;
+
+type PostMarkdownCommentsOldQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownFragment
+);
+
+type PostMarkdownCommentsOldQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<PostMarkdownCommentsOldQuery_comments_MultiCommentOutput_results_Comment> };
+
+type PostMarkdownCommentsOldQuery_Query = { __typename?: 'Query', comments: PostMarkdownCommentsOldQuery_comments_MultiCommentOutput | null };
+
+
+type PostMarkdownCommentsOldQueryVariables = Exact<{
+  _id: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type PostMarkdownCommentsOldQuery = PostMarkdownCommentsOldQuery_Query;
+
+type MarkdownLatestPostsQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownLatestPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownLatestPostsQuery_posts_MultiPostOutput_results_Post> };
+
+type MarkdownLatestPostsQuery_Query = { __typename?: 'Query', posts: MarkdownLatestPostsQuery_posts_MultiPostOutput | null };
+
+
+type MarkdownLatestPostsQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownLatestPostsQuery = MarkdownLatestPostsQuery_Query;
+
+type MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextDescription: string };
+
+type MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, createdAt: string, postsCount: number, user: MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence_user_User | null, contents: MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
+
+type MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput_result_Sequence | null };
+
+type MarkdownSequenceByIdQuery_chapters_MultiChapterOutput_results_Chapter_posts_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownSequenceByIdQuery_chapters_MultiChapterOutput_results_Chapter = { __typename?: 'Chapter', _id: string, title: string | null, number: number | null, posts: Array<MarkdownSequenceByIdQuery_chapters_MultiChapterOutput_results_Chapter_posts_Post> };
+
+type MarkdownSequenceByIdQuery_chapters_MultiChapterOutput = { __typename?: 'MultiChapterOutput', results: Array<MarkdownSequenceByIdQuery_chapters_MultiChapterOutput_results_Chapter> };
+
+type MarkdownSequenceByIdQuery_Query = { __typename?: 'Query', sequence: MarkdownSequenceByIdQuery_sequence_SingleSequenceOutput | null, chapters: MarkdownSequenceByIdQuery_chapters_MultiChapterOutput | null };
+
+
+type MarkdownSequenceByIdQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+  chapterLimit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownSequenceByIdQuery = MarkdownSequenceByIdQuery_Query;
+
+type MarkdownTagBySlugQuery_tags_MultiTagOutput_results_Tag_parentTag_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string };
+
+type MarkdownTagBySlugQuery_tags_MultiTagOutput_results_Tag_subTags_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string };
+
+type MarkdownTagBySlugQuery_tags_MultiTagOutput_results_Tag_description_Revision = { __typename?: 'Revision', _id: string, agentMarkdown: string | null };
+
+type MarkdownTagBySlugQuery_tags_MultiTagOutput_results_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string, subtitle: string | null, wikiOnly: boolean, parentTag: MarkdownTagBySlugQuery_tags_MultiTagOutput_results_Tag_parentTag_Tag | null, subTags: Array<MarkdownTagBySlugQuery_tags_MultiTagOutput_results_Tag_subTags_Tag>, description: MarkdownTagBySlugQuery_tags_MultiTagOutput_results_Tag_description_Revision | null };
+
+type MarkdownTagBySlugQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<MarkdownTagBySlugQuery_tags_MultiTagOutput_results_Tag> };
+
+type MarkdownTagBySlugQuery_Query = { __typename?: 'Query', tags: MarkdownTagBySlugQuery_tags_MultiTagOutput | null };
+
+
+type MarkdownTagBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+type MarkdownTagBySlugQuery = MarkdownTagBySlugQuery_Query;
+
+type MarkdownTagPostsQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownTagPostsQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownTagPostsQuery_posts_MultiPostOutput_results_Post> };
+
+type MarkdownTagPostsQuery_Query = { __typename?: 'Query', posts: MarkdownTagPostsQuery_posts_MultiPostOutput | null };
+
+
+type MarkdownTagPostsQueryVariables = Exact<{
+  tagId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownTagPostsQuery = MarkdownTagPostsQuery_Query;
+
+type MarkdownUserProfileQuery_users_MultiUserOutput_results_User = { __typename?: 'User', _id: string, slug: string, displayName: string, username: string | null, bio: string | null, karma: number, afKarma: number, postCount: number, commentCount: number, createdAt: string };
+
+type MarkdownUserProfileQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<MarkdownUserProfileQuery_users_MultiUserOutput_results_User> };
+
+type MarkdownUserProfileQuery_Query = { __typename?: 'Query', users: MarkdownUserProfileQuery_users_MultiUserOutput | null };
+
+
+type MarkdownUserProfileQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+type MarkdownUserProfileQuery = MarkdownUserProfileQuery_Query;
+
+type MarkdownUserProfilePostsQuery_topPosts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownUserProfilePostsQuery_topPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownUserProfilePostsQuery_topPosts_MultiPostOutput_results_Post> };
+
+type MarkdownUserProfilePostsQuery_recentPosts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & MarkdownPostsList
+);
+
+type MarkdownUserProfilePostsQuery_recentPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownUserProfilePostsQuery_recentPosts_MultiPostOutput_results_Post> };
+
+type MarkdownUserProfilePostsQuery_Query = { __typename?: 'Query', topPosts: MarkdownUserProfilePostsQuery_topPosts_MultiPostOutput | null, recentPosts: MarkdownUserProfilePostsQuery_recentPosts_MultiPostOutput | null };
+
+
+type MarkdownUserProfilePostsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  postsLimit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownUserProfilePostsQuery = MarkdownUserProfilePostsQuery_Query;
+
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
+
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string };
+
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, postedAt: string, baseScore: number | null, voteCount: number, parentCommentId: string | null, user: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_user_User | null, post: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post | null, contents: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null };
+
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment> };
+
+type MarkdownUserProfileRecentCommentsQuery_Query = { __typename?: 'Query', comments: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput | null };
+
+
+type MarkdownUserProfileRecentCommentsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  commentsLimit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MarkdownUserProfileRecentCommentsQuery = MarkdownUserProfileRecentCommentsQuery_Query;
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
@@ -25444,6 +25791,12 @@ type SuggestAlignmentComment = (
   & CommentsList
 );
 
+type CommentsMarkdownFragment_Comment_user_User = { __typename?: 'User', _id: string, slug: string, displayName: string };
+
+type CommentsMarkdownFragment_Comment_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string };
+
+type CommentsMarkdownFragment = { __typename?: 'Comment', _id: string, postId: string | null, parentCommentId: string | null, postedAt: string, baseScore: number | null, voteCount: number, votingSystem: string, extendedScore: any | null, user: CommentsMarkdownFragment_Comment_user_User | null, contents: CommentsMarkdownFragment_Comment_contents_Revision | null };
+
 type ConversationsMinimumInfo = { __typename?: 'Conversation', _id: string, createdAt: string | null, latestActivity: string | null, title: string | null, participantIds: Array<string> | null, archivedByIds: Array<string>, messageCount: number, moderator: boolean | null };
 
 type ConversationsList_Conversation_participants_User = (
@@ -25873,6 +26226,15 @@ type PostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutpu
 
 type PostsList = (
   { __typename?: 'Post', deletedDraft: boolean, isBookmarked: boolean, bannedUserIds: Array<string> | null, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
+  & PostsListBase
+);
+
+type MarkdownPostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, agentMarkdownExcerpt: string | null };
+
+type MarkdownPostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
+
+type MarkdownPostsList = (
+  { __typename?: 'Post', isBookmarked: boolean, contents: MarkdownPostsList_Post_contents_Revision | null, fmCrosspost: MarkdownPostsList_Post_fmCrosspost_CrosspostOutput | null }
   & PostsListBase
 );
 
