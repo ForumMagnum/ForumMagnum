@@ -47,4 +47,4 @@ runs:
 
     - name: Generate Next.js route types
       shell: bash
-      run: npm run next typegen .
+      run: next typegen .
