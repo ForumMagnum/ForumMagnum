@@ -64,6 +64,9 @@ const styles = (_theme: ThemeType) => ({
     height: 12,
     width: 12,
   },
+  postTitle: {
+    fontSize: 28,
+  }
 });
 
 const SunshineReportedItem = ({report, classes, currentUser, refetch}: {
@@ -145,7 +148,9 @@ const SunshineReportedItem = ({report, classes, currentUser, refetch}: {
               comment={comment}
             />}
             {post && !comment && <div>
-              <PostsTitle post={post}/>
+              <div className={classes.postTitle}>
+                <PostsTitle post={post}/>
+              </div>
               <PostsHighlight post={post} maxLengthWords={600}/>
             </div>}
             {reportedUser && <SunshineNewUsersInfo user={reportedUser} currentUser={currentUser} refetch={refetch}/>}
@@ -182,5 +187,3 @@ const SunshineReportedItem = ({report, classes, currentUser, refetch}: {
 export default registerComponent('SunshineReportedItem', SunshineReportedItem, {
   styles, hocs: [withErrorBoundary]
 });
-
-

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { Suspense, useState, useRef, useEffect } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useLocation } from "@/lib/routeUtil";
@@ -33,10 +33,10 @@ import SupervisorAccountIcon from "@/lib/vendor/@material-ui/icons/src/Superviso
 import { Link } from "@/lib/reactRouterWrapper";
 import moment from "moment";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from "@/lib/instanceSettings";
-import { relativeTimeToLongFormat, useCurrentTime } from "@/lib/utils/timeUtil";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
 import { SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
 import { truncate } from "@/lib/editor/ellipsize";
+import ProfileDiamondSections from "./ProfileDiamondSections";
 import { profileStyles } from "./profileStyles";
 
 // ── Constants ──
@@ -313,7 +313,6 @@ const ProfileSequencesQuery = gql(`
   }
 `);
 
-
 export default function ProfilePage() {
   const classes = useStyles(profileStyles);
   const [cookies, setCookie] = useCookiesWithConsent([SELECTED_PROFILE_TAB_COOKIE]);
@@ -394,7 +393,6 @@ export default function ProfilePage() {
     fetchPolicy: "cache-and-network",
   });
 
-
   // When using pinnedPostIds, reorder results to match the pinned order.
   // The PostsList fragment guarantees all PostWithPreview fields exist at
   // runtime, but useQuery wraps them in DeepPartialObject which makes
@@ -436,7 +434,6 @@ export default function ProfilePage() {
   }, [recentPostsLoading, sequencesLoading, userId, hasPosts, hasSequences, preferredProfileTab]);
 
   const currentUser = useCurrentUser();
-  const now = useCurrentTime();
   const isOwnProfile = !!(currentUser && user && currentUser._id === user._id);
   const canEditProfile = !!user && userCanEditUser(currentUser, user);
   const canModerateUserProfile = userIsAdminOrMod(currentUser);
@@ -445,6 +442,7 @@ export default function ProfilePage() {
 
   const username = user ? userGetDisplayName(user) : "Loading...";
   const bioHtml = user?.htmlBio ?? "";
+  const hasBio = !!bioHtml;
   const collapsedBioHtml = getCollapsedBioHtml(bioHtml, BIO_COLLAPSED_WORD_LIMIT);
   const displayBioHtml = bioExpanded ? bioHtml : collapsedBioHtml;
   const showBioExpand = !!bioHtml && collapsedBioHtml !== bioHtml;
@@ -580,24 +578,26 @@ export default function ProfilePage() {
 
           {(bioHtml || user) && (
             <div className={classes.mobileProfileBio}>
-              <h4 className={classes.mobileProfileName}>{username}</h4>
-              <div className={classNames(classes.mobileProfileActions, classes.sidebarActions)}>
-                {canSubscribeToUser ? (
-                  <UserNotifyDropdown
-                    user={user}
-                    popperPlacement="bottom-start"
-                    className={classes.sidebarSubscribe}
-                  />
-                ) : (
-                  <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
-                )}
-                {canMessageUser ? (
-                  <NewConversationButton user={user} currentUser={currentUser}>
-                    <a className={classes.sidebarMore}>Message</a>
-                  </NewConversationButton>
-                ) : (
-                  <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
-                )}
+              <div className={classes.mobileProfileHeaderRow}>
+                <h4 className={classes.mobileProfileName}>{username}</h4>
+                <div className={classes.mobileProfileActions}>
+                  {canSubscribeToUser ? (
+                    <UserNotifyDropdown
+                      user={user}
+                      popperPlacement="bottom-start"
+                      className={classes.sidebarSubscribe}
+                    />
+                  ) : (
+                    <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
+                  )}
+                  {canMessageUser ? (
+                    <NewConversationButton user={user} currentUser={currentUser}>
+                      <a className={classes.sidebarMore}>Message</a>
+                    </NewConversationButton>
+                  ) : (
+                    <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
+                  )}
+                </div>
               </div>
               {bioHtml && (
                 <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
@@ -631,6 +631,7 @@ export default function ProfilePage() {
           )}
 
           <section className={classes.allPostsSection}>
+            <div className={classes.allPostsLeftColumn}>
             <div className={classes.allPostsHeader} ref={tabsRef}>
               <div className={classes.allPostsLeftHeader}>
                 <div className={classes.profileTabs}>
@@ -673,13 +674,6 @@ export default function ProfilePage() {
                   </div>
                 )}
               </div>
-              <h4 className={classes.sidebarAuthorName}>
-                <UsersNameWithModal
-                  user={user}
-                  className={classes.sidebarAuthorNameLink}
-                  tooltipPlacement="bottom-start"
-                />
-              </h4>
             </div>
 
             <div className={classes.allPostsContainer}>
@@ -910,79 +904,80 @@ export default function ProfilePage() {
                   </UltraFeedContextProvider>
                 )}
               </div>
+            </div>
+            </div>
 
-              <aside className={classNames(classes.postsSidebar, bioHtml && classes.postsSidebarHasBio)}>
-                <div className={classes.sidebarActions}>
-                  {canSubscribeToUser ? (
+            <aside className={classNames(classes.postsSidebar, hasBio && classes.postsSidebarHasBio)}>
+              <div className={classes.sidebarAuthorBlock}>
+                <h4 className={classes.sidebarAuthorName}>
+                  <UsersNameWithModal
+                    user={user}
+                    className={classes.sidebarAuthorNameLink}
+                    tooltipPlacement="bottom-start"
+                  />
+                </h4>
+                <div className={classes.sidebarBioMeta}>
+                  {canSubscribeToUser && (
                     <UserNotifyDropdown
                       user={user}
                       popperPlacement="bottom-start"
                       className={classes.sidebarSubscribe}
                     />
-                  ) : (
-                    <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
                   )}
-                  {canMessageUser ? (
+                  {canMessageUser && (
                     <NewConversationButton user={user} currentUser={currentUser}>
                       <a className={classes.sidebarMore}>Message</a>
                     </NewConversationButton>
-                  ) : (
-                    <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
                   )}
                 </div>
-                {bioHtml && (
-                  <div className={classes.sidebarBioSection}>
-                    <div 
-                      ref={bioRef}
-                      className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}
-                    >
-                      <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+              </div>
+                <div className={classes.sidebarBioSection}>
+                  {!hasBio && (
+                    <div className={classes.sidebarMetaInfo}>
+                      <UserMetaInfo user={user} hidePostCount hideCommentCount omegaAlignment="inline" />
+                    </div>
+                  )}
+                  {hasBio && (
+                    <>
+                      <div 
+                        ref={bioRef}
+                        className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}
+                      >
+                        <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
                         <ContentItemBody
                           className={classes.sidebarAuthorBio}
                           dangerouslySetInnerHTML={{ __html: displayBioHtml }}
                           nofollow={bioNoFollow}
                         />
-                      </ContentStyles>
-                    </div>
-                    {showBioExpand && (
-                      <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
-                        <a 
-                          href="#" 
-                          className={classes.readMoreLink}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setBioExpanded(!bioExpanded);
-                          }}
-                        >
-                          {bioExpanded ? "See less" : "See more"}
-                        </a>
+                        </ContentStyles>
                       </div>
-                    )}
-                  </div>
+                      {showBioExpand && (
+                        <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
+                          <a 
+                            href="#" 
+                            className={classes.readMoreLink}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setBioExpanded(!bioExpanded);
+                            }}
+                          >
+                            {bioExpanded ? "See less" : "See more"}
+                          </a>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+                {userId && (
+                  <Suspense fallback={null}>
+                    <ProfileDiamondSections
+                      key={userId}
+                      userId={userId}
+                      classes={classes}
+                    />
+                  </Suspense>
                 )}
-                {user && (
-                  <div className={classes.sidebarStats}>
-                    {(user.karma ?? 0) !== 0 && (
-                      <div className={classes.sidebarStatRow}>{(user.karma ?? 0).toLocaleString()} karma</div>
-                    )}
-                    {(user.afKarma ?? 0) > 0 && (
-                      <div className={classes.sidebarStatRow}>{(user.afKarma ?? 0).toLocaleString()} alignment forum karma</div>
-                    )}
-                    {(user.postCount ?? 0) > 0 && (
-                      <div className={classes.sidebarStatRow}>{user.postCount} {user.postCount === 1 ? "post" : "posts"}</div>
-                    )}
-                    {(user.commentCount ?? 0) > 0 && (
-                      <div className={classes.sidebarStatRow}>{user.commentCount} {user.commentCount === 1 ? "comment" : "comments"}</div>
-                    )}
-                    {user.createdAt && (
-                      <div className={classes.sidebarStatRow}>
-                        Member for {relativeTimeToLongFormat(moment(now).from(moment(new Date(user.createdAt)), true))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </aside>
-            </div>
+            </aside>
           </section>
         </main>
       </div>
