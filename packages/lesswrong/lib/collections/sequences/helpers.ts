@@ -1,5 +1,5 @@
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import type { RouterLocation } from '../../vulcan-lib/routes';
+import type { RouterLocation } from '../../routeChecks/parseRoute';
 import type { Request, Response } from 'express';
 import { getWithLoader } from '@/lib/loaders';
 
@@ -47,10 +47,4 @@ export const getSequenceCollectionBooks = async function(sequenceId: string, con
   const { _id: collectionId } = collection;
 
   return context.Books.find({ collectionId }, { sort: { number: 1 } }).fetch();
-}
-
-export const sequenceRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
-  const sequenceId = parsedRoute.params._id;
-  if (!sequenceId) return false;
-  return await context.repos.sequences.sequenceRouteWillDefinitelyReturn200(sequenceId);
 }

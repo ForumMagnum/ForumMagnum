@@ -66,7 +66,7 @@ export const sanitize = function(s: string): string {
       span: ['style', 'id', 'role', 'class'],
       pre: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck'],
       code: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props', 'data-review-results'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props', 'data-review-results', 'data-model-name'],
       a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
@@ -173,6 +173,8 @@ export const sanitize = function(s: string): string {
         'table-scroll-middle',
         'table-cell-action-button-container',
         'table-cell-resizer',
+        'llm-content-block',
+        'llm-content-block-content',
         /arb-custom-script-[a-zA-Z0-9]*/,
       ],
       table: [

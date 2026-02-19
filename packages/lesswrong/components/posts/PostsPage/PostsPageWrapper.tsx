@@ -102,6 +102,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
     <PostsPage
       fullPost={post}
       postPreload={postPreloadWithSequence ?? undefined}
+      sequenceIdFromUrl={sequenceId}
       refetch={refetch}
       embedded={embedded}
     />

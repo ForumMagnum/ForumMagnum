@@ -52,9 +52,4 @@ export const ForumEventBanner = () => {
   }
 }
 
-export default registerComponent(
-  "ForumEventBanner",
-  ForumEventBanner,
-);
-
-
+export default ForumEventBanner;

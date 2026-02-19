@@ -2822,6 +2822,8 @@ CREATE TABLE "Tags" (
   "postCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "userId" VARCHAR(27),
   "adminOnly" BOOL NOT NULL DEFAULT FALSE,
+  "removalResistant" BOOL NOT NULL DEFAULT FALSE,
+  "authorOnly" BOOL NOT NULL DEFAULT FALSE,
   "canEditUserIds" VARCHAR(27) [],
   "charsAdded" DOUBLE PRECISION,
   "charsRemoved" DOUBLE PRECISION,

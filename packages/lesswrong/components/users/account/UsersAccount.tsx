@@ -1,6 +1,4 @@
 "use client";
-
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '@/lib/routeUtil';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
@@ -11,8 +9,10 @@ import UsersEditForm from "./UsersEditForm";
 import UsersAccountManagement from "./UsersAccountManagement";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import { Typography } from "../../common/Typography";
+import { useStyles } from '../../hooks/useStyles';
+import { defineStyles } from '../../hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UsersAccount", (theme: ThemeType) => ({
   root: {
     width: "60%",
     maxWidth: 600,
@@ -32,17 +32,18 @@ const styles = (theme: ThemeType) => ({
       paddingLeft: "4px",
     },
   },
-})
+}))
 
-const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { params } = useLocation();
+const UsersAccount = ({slug}: {slug: string|null}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const terms = { slug: params.slug ?? currentUser?.slug };
+  const slugWithFallback = slug ?? currentUser?.slug;
 
-  if (!terms.slug || !userCanEditUser(currentUser, terms)) {
+  if (!slugWithFallback || !userCanEditUser(currentUser, {slug: slugWithFallback})) {
     return <ErrorAccessDenied />;
   }
 
+  const terms = { slug: slugWithFallback };
   return (
     <div className={classes.root}>
       <Typography variant="display2" className={classes.header}>
@@ -61,8 +62,4 @@ const UsersAccount = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-export default registerComponent('UsersAccount', UsersAccount, { styles });
-
-
-
-
+export default UsersAccount;

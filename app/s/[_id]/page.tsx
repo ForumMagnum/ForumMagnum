@@ -79,8 +79,12 @@ export async function generateMetadata({ params, searchParams }: {
   }
 }
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ _id: string }>
+}) {
+  const { _id } = await params;
+  
   return <RouteRoot delayedStatusCode subtitle={SequencesPageSubtitle}>
-    <SequencesSingle />
+    <SequencesSingle _id={_id} />
   </RouteRoot>;
 }

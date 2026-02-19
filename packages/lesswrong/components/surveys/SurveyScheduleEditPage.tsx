@@ -276,9 +276,8 @@ const SurveySchedulesForm = ({
   );
 };
 
-const SurveyScheduleEditor = () => {
+const SurveyScheduleEditor = ({id}: {id: string|null}) => {
   const classes = useStyles(styles);
-  const { params: { id } } = useLocation();
   const navigate = useNavigate();
   const isNewForm = !id;
 
@@ -305,16 +304,13 @@ const SurveyScheduleEditor = () => {
   );
 }
 
-const SurveyScheduleEditPage = () => {
+const SurveyScheduleEditPage = ({id}: {id: string|null}) => {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
-    ? <SurveyScheduleEditor />
+    ? <SurveyScheduleEditor id={id} />
     : <Error404 />;
 }
 
-export default registerComponent(
-  "SurveyScheduleEditPage",
-  SurveyScheduleEditPage,
-);
+export default SurveyScheduleEditPage;
 
 

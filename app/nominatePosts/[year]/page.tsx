@@ -9,8 +9,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields('Nominate Posts'));
 }
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ year: string }>
+}) {
+  const { year } = await params;
   return <RouteRoot>
-    <AnnualReviewPage />
+    <AnnualReviewPage year={year} />
   </RouteRoot>
 }

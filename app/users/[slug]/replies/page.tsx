@@ -9,8 +9,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields('User Comment Replies'));
 }
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params;
   return <RouteRoot>
-    <UserCommentsReplies />
+    <UserCommentsReplies slug={slug} />
   </RouteRoot>
 }

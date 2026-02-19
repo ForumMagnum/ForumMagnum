@@ -2,8 +2,11 @@ import React from "react";
 import EmailTokenPage from '@/components/users/EmailTokenPage';
 import RouteRoot from "@/components/layout/RouteRoot";
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ token: string }>
+}) {
+  const { token } = await params;
   return <RouteRoot>
-    <EmailTokenPage />
+    <EmailTokenPage token={token} />
   </RouteRoot>
 }

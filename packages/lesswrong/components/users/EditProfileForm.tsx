@@ -509,17 +509,16 @@ const UserProfileForm = ({
   );
 };
 
-const EditProfileForm = () => {
+const EditProfileForm = ({slug}: {slug: string}) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const navigate = useNavigate();
-  const { params } = useLocation()
   const [cookies, setCookie] = useCookiesWithConsent([
     HIDE_IMPORT_EAG_PROFILE,
   ]);
   let terms: {slug?: string, documentId?: string} = {}
-  if (params.slug) {
-    terms.slug = params.slug
+  if (slug) {
+    terms.slug = slug
   } else if (currentUser) {
     terms.documentId = currentUser._id
   }
