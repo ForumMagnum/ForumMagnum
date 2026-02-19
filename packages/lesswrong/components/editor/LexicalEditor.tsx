@@ -355,6 +355,11 @@ const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExpo
     const adjustedLineCount = Math.max(1, lines.length - trailingLineCountAdjustment);
     const lineCount = adjustedLineCount;
     output.element.setAttribute('data-gutter', formatCodeGutter(lineCount));
+    // Set the digit count so CSS can compute gutter width dynamically.
+    const digitCount = String(lineCount).length;
+    if (digitCount > 1) {
+      output.element.style.setProperty('--gutter-chars', String(digitCount));
+    }
   }
   return output;
 };

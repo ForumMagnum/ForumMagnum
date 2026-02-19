@@ -13,6 +13,7 @@ import { ReviewResultsTableDisplay, type ReviewResultsEntry } from './ReviewResu
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes } from './CollapsedFootnotes';
 import { WrappedStrawPoll } from './WrappedStrawPoll';
+import { WrappedIframeWidget } from './WrappedIframeWidget';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { useTracking } from '@/lib/analyticsEvents';
 import repeat from 'lodash/repeat';
@@ -265,6 +266,10 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
             {result}
           </ContentCodeBlockWithMenu>
         );
+      }
+
+      if (TagName === 'iframe' && attribs['data-lexical-iframe-widget']) {
+        return <WrappedIframeWidget attribs={attribs} />;
       }
 
       if (root && ['p','div','table','figure'].includes(TagName)) {

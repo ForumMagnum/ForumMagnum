@@ -60,6 +60,7 @@ import { FootnoteReferenceNode } from '@/components/editor/lexicalPlugins/footno
 import { FootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
 import { ProtonNode } from '@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode';
 import { ReviewResultsTableNode } from '../embeds/ReviewResultsEmbed/ReviewResultsTableNode';
+import { IframeWidgetNode } from '../embeds/IframeWidgetEmbed/IframeWidgetNode';
 import { SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode';
 
 const PlaygroundNodes: Array<LexicalNodeConfig> = [
@@ -126,6 +127,7 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = [
   ProtonNode,
   SentinelParagraphNode,
   ReviewResultsTableNode,
+  IframeWidgetNode,
 ];
 
 export default PlaygroundNodes;
