@@ -498,13 +498,6 @@ function startMidjourneyBridge(): Promise<void> {
   });
 }
 
-function stopMidjourneyBridge() {
-  if (mjBridgeServer) {
-    mjBridgeServer.close();
-    mjBridgeServer = null;
-  }
-}
-
 /** Returns the JS snippet to paste/inject into the browser console. */
 function getMjBridgeClientScript(): string {
   return `(async function mjBridge() {
@@ -814,10 +807,13 @@ async function getArtForEssayMidjourney(essay: Essay, prompts: string[], tracker
 
     // Save each of the 4 grid images as a separate ReviewWinnerArt
     const results: EssayResult[] = [];
-    for (const imageUrl of imageUrls) {
-      const reviewWinnerArt = await saveImageAsReviewWinnerArt(currentPrompt, essay, imageUrl);
-      results.push({ title: essay.title, prompt: currentPrompt, imageUrl, reviewWinnerArt });
-    }
+    const reviewWinnerArtResults = await Promise.all(
+      imageUrls.map(async (imageUrl) => {
+        const reviewWinnerArt = await saveImageAsReviewWinnerArt(currentPrompt, essay, imageUrl);
+        return { title: essay.title, prompt: currentPrompt, imageUrl, reviewWinnerArt };
+      })
+    );
+    results.push(...reviewWinnerArtResults);
     return results;
   });
 
@@ -895,18 +891,14 @@ export const getReviewWinnerArts = async () => {
   }
 
   const tracker = createUsageTracker(OPENAI_MODEL);
-  try {
-    const results = await Promise.all(batch.map(essay => getArtForEssay(openAiClient, essay, tracker)));
-    const totalImages = results.reduce((sum, r) => sum + r.length, 0);
+  const results = await Promise.all(batch.map(essay => getArtForEssay(openAiClient, essay, tracker)));
+  const totalImages = results.reduce((sum, r) => sum + r.length, 0);
 
-    // eslint-disable-next-line no-console
-    console.log(`\nGenerated ${totalImages} images for ${results.length} essays`);
-    // eslint-disable-next-line no-console
-    console.timeEnd('getReviewWinnerArts');
-    printUsageSummary(tracker);
-  } finally {
-    stopMidjourneyBridge();
-  }
+  // eslint-disable-next-line no-console
+  console.log(`\nGenerated ${totalImages} images for ${results.length} essays`);
+  // eslint-disable-next-line no-console
+  console.timeEnd('getReviewWinnerArts');
+  printUsageSummary(tracker);
 };
 
 /**
@@ -951,17 +943,13 @@ export const generateCoverImagesForPost = async (postId: string, prompt?: string
   }
 
   const tracker = createUsageTracker(OPENAI_MODEL);
-  try {
-    const results = await getArtForEssay(openAiClient, essay, tracker, prompt);
+  const results = await getArtForEssay(openAiClient, essay, tracker, prompt);
 
-    // eslint-disable-next-line no-console
-    console.timeEnd('generateCoverImagesForPost');
-    printUsageSummary(tracker);
+  // eslint-disable-next-line no-console
+  console.timeEnd('generateCoverImagesForPost');
+  printUsageSummary(tracker);
 
-    return results;
-  } finally {
-    stopMidjourneyBridge();
-  }
+  return results;
 };
 
 /**
@@ -991,4 +979,3 @@ export const previewIllustrations = async (postId: string, count = 3): Promise<s
   return prompts;
 };
 
-// gvNnE6Th594kfdB3z

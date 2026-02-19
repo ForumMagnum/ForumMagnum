@@ -1,7 +1,7 @@
 import ReviewWinners from "../../server/collections/reviewWinners/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { BEST_OF_LESSWRONG_PUBLISH_YEAR } from "../../lib/reviewUtils";
+import { ReviewYear } from "../../lib/reviewUtils";
 
 class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
   constructor() {
@@ -60,14 +60,14 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
     });
   }
 
-  async getAllReviewWinnerPosts(): Promise<DbPost[]> {
+  async getAllReviewWinnerPosts(reviewYear: ReviewYear): Promise<DbPost[]> {
     const reviewWinnerPosts = await this.getRawDb().any<DbPost>(`
       SELECT p.*
       FROM "ReviewWinners" rw
       JOIN "Posts" p
       ON rw."postId" = p._id
-      WHERE rw."reviewYear" <= $1
-    `, [BEST_OF_LESSWRONG_PUBLISH_YEAR]);
+      WHERE rw."reviewYear" = $1
+    `, [reviewYear]);
 
     return reviewWinnerPosts;
   }
