@@ -9,9 +9,7 @@ export default async function Page({ params }: {
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params;
-  return <RouteRoot
-    delayedStatusCode
-  >
+  return <RouteRoot>
     <ProfilePage slug={slug}/>
   </RouteRoot>;
 }
