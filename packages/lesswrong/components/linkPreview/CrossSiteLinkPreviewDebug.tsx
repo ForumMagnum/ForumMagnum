@@ -2,9 +2,10 @@
 
 import React from "react";
 import { useQuery } from "@/lib/crud/useQuery";
-import { CrossSiteLinkPreviewDebugQueryDocument } from "@/lib/generated/gql-codegen/graphql";
+import { CrossSiteLinkPreviewDebugQueryDocument, CrossSiteLinkPreviewQueryDocument } from "@/lib/generated/gql-codegen/graphql";
 import LWDialog from "@/components/common/LWDialog";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import ContentStyles from "@/components/common/ContentStyles";
 
 const styles = defineStyles("CrossSiteLinkPreviewDebug", (theme: ThemeType) => ({
   dialogPaper: {
@@ -42,6 +43,13 @@ const styles = defineStyles("CrossSiteLinkPreviewDebug", (theme: ThemeType) => (
       fontSize: "0.82rem",
     },
   },
+  renderedHtml: {
+    marginTop: theme.spacing.unit,
+    "& p": {
+      marginTop: theme.spacing.unit / 2,
+      marginBottom: theme.spacing.unit / 2,
+    },
+  },
 }));
 
 function getDebugBlockValue(value: string | null | undefined): string {
@@ -56,10 +64,19 @@ const CrossSiteLinkPreviewDebugContent = ({ url }: { url: string }) => {
       includeDebug: true,
     },
     ssr: false,
-    fetchPolicy: "cache-first",
+    fetchPolicy: "cache-and-network",
+  });
+  const { data: fullPreviewData } = useQuery(CrossSiteLinkPreviewQueryDocument, {
+    variables: {
+      url,
+      forceRefetch: false,
+    },
+    ssr: false,
+    fetchPolicy: "cache-and-network",
   });
 
   const previewData = data?.crossSiteLinkPreview;
+  const previewHtml = fullPreviewData?.crossSiteLinkPreview?.html;
   const title = previewData?.title || url;
 
   return (
@@ -86,6 +103,18 @@ const CrossSiteLinkPreviewDebugContent = ({ url }: { url: string }) => {
         <strong>Description Source</strong>
         <pre>{loading ? "Loading..." : getDebugBlockValue(previewData?.debugHtmlSource)}</pre>
       </div>
+      <div className={classes.debugBlock}>
+        <strong>Rendered Description HTML</strong>
+        <pre>{loading ? "Loading..." : getDebugBlockValue(previewHtml)}</pre>
+      </div>
+      {previewHtml && (
+        <div className={classes.debugBlock}>
+          <strong>Rendered Preview</strong>
+          <ContentStyles contentType="comment" className={classes.renderedHtml}>
+            <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+          </ContentStyles>
+        </div>
+      )}
     </div>
   );
 };

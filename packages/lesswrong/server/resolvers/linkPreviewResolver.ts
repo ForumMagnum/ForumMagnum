@@ -153,6 +153,126 @@ function extractDescription($: CheerioAPI): ExtractedValue {
   ]);
 }
 
+function descriptionLooksUseful(description: string | null | undefined): boolean {
+  if (!description) {
+    return false;
+  }
+  const trimmed = description.trim();
+  if (trimmed.length < 12) {
+    return false;
+  }
+  if (/^[.\u2026\s-]+$/.test(trimmed)) {
+    return false;
+  }
+  return true;
+}
+
+function isWikipediaUrl(pageUrl: string | null | undefined): boolean {
+  if (!pageUrl) {
+    return false;
+  }
+  try {
+    const parsed = new URL(pageUrl);
+    return parsed.hostname.endsWith(".wikipedia.org");
+  } catch {
+    return false;
+  }
+}
+
+function cleanBodyText(text: string): string {
+  return text
+    .replace(/\[(\d+|citation needed)\]/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractWikipediaBodyDescription($: CheerioAPI): ExtractedValue {
+  const selectors = [
+    "#mw-content-text .mw-parser-output > p",
+    ".mw-parser-output > p",
+    "#mw-content-text p",
+  ];
+  for (const selector of selectors) {
+    const paragraphs = $(selector);
+    for (const paragraph of paragraphs.toArray()) {
+      const selected = $(paragraph);
+      const cleaned = cleanBodyText(selected.text());
+      if (cleaned.length >= 80) {
+        return {
+          value: truncate(cleaned),
+          source: truncate($.html(selected)),
+        };
+      }
+    }
+  }
+  return {
+    value: null,
+    source: null,
+  };
+}
+
+function isLikelySubstackPage($: CheerioAPI, pageUrl: string): boolean {
+  const hasSubstackMarkup = $(".available-content .body.markup").length > 0
+    || $("article.newsletter-post").length > 0;
+  if (hasSubstackMarkup) {
+    return true;
+  }
+  try {
+    const parsed = new URL(pageUrl);
+    return parsed.hostname.endsWith(".substack.com");
+  } catch {
+    return false;
+  }
+}
+
+function extractSubstackBodyDescription($: CheerioAPI): ExtractedValue {
+  const selectors = [
+    ".available-content .body.markup > p",
+    ".available-content .body > p",
+    "article.newsletter-post p",
+  ];
+  for (const selector of selectors) {
+    const paragraphs = $(selector);
+    for (const paragraph of paragraphs.toArray()) {
+      const selected = $(paragraph);
+      const cleaned = cleanBodyText(selected.text());
+      if (cleaned.length >= 80) {
+        return {
+          value: truncate(cleaned),
+          source: truncate($.html(selected)),
+        };
+      }
+    }
+  }
+  return {
+    value: null,
+    source: null,
+  };
+}
+
+function extractDescriptionWithFallback($: CheerioAPI, pageUrl: string): ExtractedValue {
+  const fromMeta = extractDescription($);
+  if (descriptionLooksUseful(fromMeta.value)) {
+    return fromMeta;
+  }
+  if (isWikipediaUrl(pageUrl)) {
+    return extractWikipediaBodyDescription($);
+  }
+  if (isLikelySubstackPage($, pageUrl)) {
+    const fromBody = extractSubstackBodyDescription($);
+    if (fromBody.value) {
+      return fromBody;
+    }
+  }
+  if (fromMeta.value) {
+    return fromMeta;
+  }
+  return {
+    value: null,
+    source: null,
+  };
+}
+
 function normalizeForComparison(text: string): string {
   return text.trim().replace(/\s+/g, " ").toLowerCase();
 }
@@ -405,7 +525,7 @@ async function writeResultToCache({
   });
 }
 
-function parsePreviewFromHtml(rawHtml: string): {
+function parsePreviewFromHtml(rawHtml: string, pageUrl: string): {
   title: string | null;
   imageUrl: string | null;
   sanitizedHtml: string | null;
@@ -416,7 +536,7 @@ function parsePreviewFromHtml(rawHtml: string): {
   const $ = cheerioParse(rawHtml);
   const title = extractTitle($);
   const image = extractImageUrl($);
-  const description = extractDescription($);
+  const description = extractDescriptionWithFallback($, pageUrl);
   const siteName = extractMetaContent($, ["meta[property='og:site_name']"]).value;
 
   return {
@@ -467,7 +587,7 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
 
   try {
     const remoteHtml = await fetchRemoteHtml(normalizedUrl);
-    const parsed = parsePreviewFromHtml(remoteHtml);
+    const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
     const hasPreviewData = !!(parsed.title || parsed.imageUrl || parsed.sanitizedHtml);
     if (!hasPreviewData) {
       throw new Error("No previewable metadata found");
@@ -514,6 +634,21 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
     cacheVersion: LINK_PREVIEW_CACHE_VERSION,
     fetchedAt: null,
     nextRefreshAt: null,
+  };
+}
+
+export async function debugParseCrossSitePreview(url: string) {
+  const normalizedUrl = normalizePreviewUrl(url);
+  const remoteHtml = await fetchRemoteHtml(normalizedUrl);
+  const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
+  return {
+    url: normalizedUrl,
+    title: parsed.title,
+    imageUrl: parsed.imageUrl,
+    html: parsed.sanitizedHtml,
+    debugTitleSource: parsed.debugTitleSource,
+    debugImageSource: parsed.debugImageSource,
+    debugHtmlSource: parsed.debugHtmlSource,
   };
 }
 

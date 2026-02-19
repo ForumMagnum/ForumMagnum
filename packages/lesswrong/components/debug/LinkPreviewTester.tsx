@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import HoverPreviewLink from "@/components/linkPreview/HoverPreviewLink";
 import CrossSiteLinkPreviewDebug from "@/components/linkPreview/CrossSiteLinkPreviewDebug";
-import { routePreviewComponentMapping } from "@/components/linkPreview/parseRouteWithErrors";
+import { routePreviewComponentMapping } from "@/lib/routeChecks/hoverPreviewRoutes";
 
 const sampleOffsiteUrls = [
   "https://en.wikipedia.org/wiki/The_Example",

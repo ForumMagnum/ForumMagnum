@@ -101,7 +101,7 @@ export const CrossSiteLinkPreview = ({
     },
     skip: !hover,
     ssr: false,
-    fetchPolicy: "cache-first",
+    fetchPolicy: "cache-and-network",
   });
 
   const previewData = data?.crossSiteLinkPreview;
