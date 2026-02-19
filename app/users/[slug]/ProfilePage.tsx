@@ -480,26 +480,15 @@ export default function ProfilePage({slug}: {
                   </LWTooltip>
                 )}
                 {canModerateUserProfile && (
-                  <LWTooltip title={showModerationTools ? "Hide moderation tools" : "Show moderation tools"} placement="bottom">
-                    <button
-                      type="button"
-                      className={classes.profileActionIconButton}
-                      aria-label={showModerationTools ? "Hide moderation tools" : "Show moderation tools"}
-                      aria-expanded={showModerationTools}
-                      onClick={() => setShowModerationTools((open) => !open)}
-                    >
+                  <LWTooltip title={"View in Supermod"} placement="bottom">
+                    <Link to={`/admin/supermod/?user=${userId}`} className={classes.profileActionIconLink} aria-label={`View ${username}'s profile in Supermod`}>
                       <SupervisorAccountIcon className={classes.profileActionIcon} />
-                    </button>
+                    </Link>
                   </LWTooltip>
                 )}
               </div>
             )}
           </div>
-          {canModerateUserProfile && showModerationTools && userId && (
-            <div className={classes.sunshineToolsSection}>
-              <SunshineNewUsersProfileInfo userId={userId} startExpanded />
-            </div>
-          )}
 
           {hasEnoughTopPosts && (
             <>
