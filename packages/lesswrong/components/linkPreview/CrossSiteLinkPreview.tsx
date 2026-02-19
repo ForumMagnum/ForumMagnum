@@ -147,13 +147,15 @@ export const CrossSiteLinkPreview = ({
     },
     skip: !hover,
     ssr: false,
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: "cache-first",
   });
 
   const previewData = data?.crossSiteLinkPreview;
   const imageLayout = getPreviewImageLayout(previewData?.imageWidth, previewData?.imageHeight);
   const showSideImage = !!previewData?.imageUrl && imageLayout === "side";
   const showBannerImage = !!previewData?.imageUrl && imageLayout === "banner";
+  const hasStructuredPreviewData = !!(previewData?.title || previewData?.html || previewData?.imageUrl);
+  const showInlineError = !loading && !!previewData?.error && hasStructuredPreviewData;
 
   const onForceRefetch = async () => {
     await refetch({
@@ -210,13 +212,13 @@ export const CrossSiteLinkPreview = ({
               </div>
             )}
 
-            {(loading || (!previewData?.html && !previewData?.imageUrl && !previewData?.title)) && (
+            {loading && (
               <div className={classes.loadingOrError}>
-                {loading ? "Loading preview..." : (previewData?.error || "No preview available")}
+                Loading preview...
               </div>
             )}
 
-            {previewData?.error && !loading && (
+            {showInlineError && (
               <div className={classes.loadingOrError}>
                 {previewData.error}
               </div>
