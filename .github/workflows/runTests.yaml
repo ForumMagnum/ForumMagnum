@@ -309,7 +309,7 @@ jobs:
     - name: Execute Accepted Schema
       run: psql $PG_URL -f ./schema/accepted_schema.sql
     - name: Run Database Bootstrap
-      run: npm run repl -- dev lw packages/lesswrong/server/migrations/meta/umzug.ts 'skipMigrationsAfterDatabaseInit()'
+      run: npm run repl dev lw packages/lesswrong/server/migrations/meta/umzug.ts 'skipMigrationsAfterDatabaseInit()'
 
   uploadCoverageReports:
     needs: [runUnitTests, runIntegrationTests]
