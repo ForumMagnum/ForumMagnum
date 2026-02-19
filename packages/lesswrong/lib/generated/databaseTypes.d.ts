@@ -673,9 +673,13 @@ interface DbLinkPreviewCaches extends DbObject {
   debugTitleSource: string | null
   error: string | null
   fetchedAt: Date | null
+  imageHeight: number | null
   imageUrl: string | null
+  imageWidth: number | null
   legacyData: any | null
+  mirroredImageUrl: string | null
   nextRefreshAt: Date
+  originalImageUrl: string | null
   remoteHtml: string | null
   requestStartedAt: Date
   sanitizedHtml: string | null

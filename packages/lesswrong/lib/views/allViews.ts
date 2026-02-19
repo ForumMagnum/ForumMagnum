@@ -99,6 +99,7 @@ export const allViews = {
   Images: new CollectionViewSet('Images', {}),
   JargonTerms: JargonTermsViews,
   LegacyData: new CollectionViewSet('LegacyData', {}),
+  LinkPreviewCaches: new CollectionViewSet('LinkPreviewCaches', {}),
   LlmConversations: LlmConversationsViews,
   LlmMessages: new CollectionViewSet('LlmMessages', {}),
   Localgroups: LocalgroupsViews,

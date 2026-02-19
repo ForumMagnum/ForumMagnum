@@ -2165,8 +2165,12 @@ type CrossSiteLinkPreviewData = {
   error?: Maybe<Scalars['String']['output']>;
   fetchedAt?: Maybe<Scalars['Date']['output']>;
   html?: Maybe<Scalars['String']['output']>;
+  imageHeight?: Maybe<Scalars['Int']['output']>;
   imageUrl?: Maybe<Scalars['String']['output']>;
+  imageWidth?: Maybe<Scalars['Int']['output']>;
+  mirroredImageUrl?: Maybe<Scalars['String']['output']>;
   nextRefreshAt?: Maybe<Scalars['Date']['output']>;
+  originalImageUrl?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
 };
@@ -17543,27 +17547,27 @@ type GetReviewResultsTableDataQueryVariables = Exact<{
 
 type GetReviewResultsTableDataQuery = GetReviewResultsTableDataQuery_Query;
 
-type CrossSiteLinkPreviewQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData = { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, html: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null };
+type CrossSiteLinkPreviewWithImageDimensionsQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData = { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, imageWidth: number | null, imageHeight: number | null, html: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null };
 
-type CrossSiteLinkPreviewQueryQuery_Query = { __typename?: 'Query', crossSiteLinkPreview: CrossSiteLinkPreviewQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData | null };
+type CrossSiteLinkPreviewWithImageDimensionsQueryQuery_Query = { __typename?: 'Query', crossSiteLinkPreview: CrossSiteLinkPreviewWithImageDimensionsQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData | null };
 
 
-type CrossSiteLinkPreviewQueryQueryVariables = Exact<{
+type CrossSiteLinkPreviewWithImageDimensionsQueryQueryVariables = Exact<{
   url: Scalars['String']['input'];
   forceRefetch: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-type CrossSiteLinkPreviewQueryQuery = CrossSiteLinkPreviewQueryQuery_Query;
+type CrossSiteLinkPreviewWithImageDimensionsQueryQuery = CrossSiteLinkPreviewWithImageDimensionsQueryQuery_Query;
 
-type CrossSiteLinkPreviewDebugQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData = { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null, debugTitleSource: string | null, debugImageSource: string | null, debugHtmlSource: string | null };
+type CrossSiteLinkPreviewDebugQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData = { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, imageWidth: number | null, imageHeight: number | null, html: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null, debugTitleSource: string | null, debugImageSource: string | null, debugHtmlSource: string | null };
 
 type CrossSiteLinkPreviewDebugQueryQuery_Query = { __typename?: 'Query', crossSiteLinkPreview: CrossSiteLinkPreviewDebugQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData | null };
 
 
 type CrossSiteLinkPreviewDebugQueryQueryVariables = Exact<{
   url: Scalars['String']['input'];
-  includeDebug: InputMaybe<Scalars['Boolean']['input']>;
+  forceRefetch: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 

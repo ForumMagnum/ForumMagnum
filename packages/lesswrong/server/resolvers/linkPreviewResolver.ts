@@ -1,20 +1,29 @@
 import gql from "graphql-tag";
 import { sanitize } from "@/lib/utils/sanitize";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { cloudinaryCloudNameSetting } from "@/lib/instanceSettings";
+import { Images } from "@/server/collections/images/collection";
+import { cloudinaryApiKey, cloudinaryApiSecret } from "@/server/databaseSettings";
 import { cheerioParse } from "@/server/utils/htmlUtil";
 import type { CheerioAPI } from 'cheerio';
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { randomId } from "@/lib/random";
 
-const LINK_PREVIEW_CACHE_VERSION = 1;
+const LINK_PREVIEW_CACHE_VERSION = 2;
 const LINK_PREVIEW_REQUEST_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const LINK_PREVIEW_FETCH_TIMEOUT_MS = 8000;
+const LINK_PREVIEW_IMAGE_FETCH_TIMEOUT_MS = 8000;
 const MAX_REMOTE_HTML_LENGTH = 300_000;
+const MAX_IMAGE_PROBE_BYTES = 262_144;
 const MAX_EXCERPT_LENGTH = 3000;
 
 interface LinkPreviewResult {
   title: string | null;
   imageUrl: string | null;
+  originalImageUrl?: string | null;
+  mirroredImageUrl?: string | null;
+  imageWidth?: number | null;
+  imageHeight?: number | null;
   html: string | null;
   error: string | null;
   status: "success" | "error" | "in_progress";
@@ -29,6 +38,10 @@ interface LinkPreviewResult {
 interface LinkPreviewCacheRow {
   title: string | null;
   imageUrl: string | null;
+  originalImageUrl?: string | null;
+  mirroredImageUrl?: string | null;
+  imageWidth?: number | null;
+  imageHeight?: number | null;
   sanitizedHtml: string | null;
   error: string | null;
   status: "success" | "error" | "in_progress";
@@ -45,10 +58,27 @@ interface ExtractedValue {
   source: string | null;
 }
 
+interface ExtractedImageSize {
+  width: number;
+  height: number;
+}
+
+interface ResolvedPreviewImage {
+  imageUrl: string | null;
+  originalImageUrl: string | null;
+  mirroredImageUrl: string | null;
+  imageWidth: number | null;
+  imageHeight: number | null;
+}
+
 export const crossSiteLinkPreviewGraphQLTypeDefs = gql`
   type CrossSiteLinkPreviewData {
     title: String
     imageUrl: String
+    originalImageUrl: String
+    mirroredImageUrl: String
+    imageWidth: Int
+    imageHeight: Int
     html: String
     error: String
     status: String
@@ -138,11 +168,21 @@ function extractTitle($: CheerioAPI): ExtractedValue {
 }
 
 function extractImageUrl($: CheerioAPI): ExtractedValue {
-  return extractMetaContent($, [
+  const fromMeta = extractMetaContent($, [
     "meta[property='og:image']",
     "meta[name='twitter:image']",
     "meta[itemprop='image']",
   ]);
+  if (!fromMeta.value) {
+    return fromMeta;
+  }
+  if (isBlankImageFilename(fromMeta.value)) {
+    return {
+      value: null,
+      source: null,
+    };
+  }
+  return fromMeta;
 }
 
 function extractDescription($: CheerioAPI): ExtractedValue {
@@ -165,6 +205,19 @@ function descriptionLooksUseful(description: string | null | undefined): boolean
     return false;
   }
   return true;
+}
+
+function isBlankImageFilename(imageUrl: string): boolean {
+  try {
+    const parsed = new URL(imageUrl);
+    const pathname = parsed.pathname ?? "";
+    const filename = pathname.split("/").pop() ?? "";
+    return /^blank\.[a-z0-9]+$/i.test(filename);
+  } catch {
+    const withoutQueryOrHash = imageUrl.split(/[?#]/)[0] ?? "";
+    const filename = withoutQueryOrHash.split("/").pop() ?? "";
+    return /^blank\.[a-z0-9]+$/i.test(filename);
+  }
 }
 
 function isWikipediaUrl(pageUrl: string | null | undefined): boolean {
@@ -339,6 +392,234 @@ function buildSanitizedPreviewHtml({
   return sanitize(`<div>${pieces.join("")}</div>`);
 }
 
+function getCloudinaryCredentials():
+  { cloud_name: string; api_key: string; api_secret: string } | null {
+  const cloudName = cloudinaryCloudNameSetting.get();
+  const apiKey = cloudinaryApiKey.get();
+  const apiSecret = cloudinaryApiSecret.get();
+  if (!cloudName || !apiKey || !apiSecret) {
+    return null;
+  }
+  return {
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+  };
+}
+
+function parsePngDimensions(bytes: Uint8Array): ExtractedImageSize | null {
+  if (bytes.length < 24) {
+    return null;
+  }
+  const pngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  for (let i = 0; i < pngSignature.length; i += 1) {
+    if (bytes[i] !== pngSignature[i]) {
+      return null;
+    }
+  }
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const width = view.getUint32(16, false);
+  const height = view.getUint32(20, false);
+  if (!width || !height) {
+    return null;
+  }
+  return { width, height };
+}
+
+function parseGifDimensions(bytes: Uint8Array): ExtractedImageSize | null {
+  if (bytes.length < 10) {
+    return null;
+  }
+  const header = String.fromCharCode(...bytes.slice(0, 6));
+  if (header !== "GIF87a" && header !== "GIF89a") {
+    return null;
+  }
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const width = view.getUint16(6, true);
+  const height = view.getUint16(8, true);
+  if (!width || !height) {
+    return null;
+  }
+  return { width, height };
+}
+
+function parseJpegDimensions(bytes: Uint8Array): ExtractedImageSize | null {
+  if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) {
+    return null;
+  }
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  let offset = 2;
+  while (offset + 9 < bytes.length) {
+    if (bytes[offset] !== 0xff) {
+      offset += 1;
+      continue;
+    }
+    const marker = bytes[offset + 1];
+    if (marker === 0xd8 || marker === 0xd9) {
+      offset += 2;
+      continue;
+    }
+    if (offset + 3 >= bytes.length) {
+      return null;
+    }
+    const segmentLength = view.getUint16(offset + 2, false);
+    if (segmentLength < 2) {
+      return null;
+    }
+    const isStartOfFrame = (
+      (marker >= 0xc0 && marker <= 0xc3)
+      || (marker >= 0xc5 && marker <= 0xc7)
+      || (marker >= 0xc9 && marker <= 0xcb)
+      || (marker >= 0xcd && marker <= 0xcf)
+    );
+    if (isStartOfFrame) {
+      if (offset + 8 >= bytes.length) {
+        return null;
+      }
+      const height = view.getUint16(offset + 5, false);
+      const width = view.getUint16(offset + 7, false);
+      if (!width || !height) {
+        return null;
+      }
+      return { width, height };
+    }
+    offset += 2 + segmentLength;
+  }
+  return null;
+}
+
+function parseWebpDimensions(bytes: Uint8Array): ExtractedImageSize | null {
+  if (bytes.length < 30) {
+    return null;
+  }
+  const riff = String.fromCharCode(...bytes.slice(0, 4));
+  const webp = String.fromCharCode(...bytes.slice(8, 12));
+  if (riff !== "RIFF" || webp !== "WEBP") {
+    return null;
+  }
+  const chunkType = String.fromCharCode(...bytes.slice(12, 16));
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (chunkType === "VP8X" && bytes.length >= 30) {
+    const width = 1 + bytes[24] + (bytes[25] << 8) + (bytes[26] << 16);
+    const height = 1 + bytes[27] + (bytes[28] << 8) + (bytes[29] << 16);
+    if (!width || !height) {
+      return null;
+    }
+    return { width, height };
+  }
+  if (chunkType === "VP8L" && bytes.length >= 25) {
+    const bits = view.getUint32(21, true);
+    const width = (bits & 0x3fff) + 1;
+    const height = ((bits >> 14) & 0x3fff) + 1;
+    if (!width || !height) {
+      return null;
+    }
+    return { width, height };
+  }
+  return null;
+}
+
+function parseImageDimensions(bytes: Uint8Array): ExtractedImageSize | null {
+  return parsePngDimensions(bytes)
+    ?? parseJpegDimensions(bytes)
+    ?? parseGifDimensions(bytes)
+    ?? parseWebpDimensions(bytes);
+}
+
+async function fetchImageDimensions(url: string): Promise<ExtractedImageSize | null> {
+  const abortController = new AbortController();
+  const timeout = setTimeout(() => abortController.abort(), LINK_PREVIEW_IMAGE_FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      signal: abortController.signal,
+      redirect: "follow",
+      headers: {
+        "User-Agent": "LessWrong-LinkPreviewBot/1.0 (+https://www.lesswrong.com)",
+        "Accept": "image/*,*/*;q=0.1",
+        "Range": `bytes=0-${MAX_IMAGE_PROBE_BYTES - 1}`,
+      },
+    });
+    if (!response.ok) {
+      return null;
+    }
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType && !contentType.toLowerCase().startsWith("image/")) {
+      return null;
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    return parseImageDimensions(new Uint8Array(arrayBuffer));
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function mirrorImageToCloudinary(originalImageUrl: string): Promise<string | null> {
+  const existingMirror = await Images.findOne({
+    identifier: originalImageUrl,
+    identifierType: "originalUrl",
+  });
+  if (existingMirror?.cdnHostedUrl) {
+    return existingMirror.cdnHostedUrl;
+  }
+
+  const credentials = getCloudinaryCredentials();
+  if (!credentials) {
+    return null;
+  }
+
+  const cloudinary = await import("cloudinary");
+  const uploadResult = await cloudinary.v2.uploader.upload(originalImageUrl, {
+    folder: "mirroredLinkPreviewImages",
+    ...credentials,
+  });
+  const mirroredImageUrl = cloudinary.v2.url(uploadResult.public_id, {
+    ...credentials,
+    quality: "auto",
+    fetch_format: "auto",
+    secure: true,
+  });
+
+  await Images.rawInsert({
+    identifier: originalImageUrl,
+    identifierType: "originalUrl",
+    cdnHostedUrl: mirroredImageUrl,
+    originalUrl: null,
+  });
+
+  return mirroredImageUrl;
+}
+
+async function resolvePreviewImage(rawImageUrl: string | null): Promise<ResolvedPreviewImage> {
+  if (!rawImageUrl) {
+    return {
+      imageUrl: null,
+      originalImageUrl: null,
+      mirroredImageUrl: null,
+      imageWidth: null,
+      imageHeight: null,
+    };
+  }
+
+  let mirroredImageUrl: string | null = null;
+  try {
+    mirroredImageUrl = await mirrorImageToCloudinary(rawImageUrl);
+  } catch {
+    mirroredImageUrl = null;
+  }
+
+  const imageUrl = mirroredImageUrl ?? rawImageUrl;
+  const dimensions = await fetchImageDimensions(imageUrl) ?? await fetchImageDimensions(rawImageUrl);
+  return {
+    imageUrl,
+    originalImageUrl: rawImageUrl,
+    mirroredImageUrl,
+    imageWidth: dimensions?.width ?? null,
+    imageHeight: dimensions?.height ?? null,
+  };
+}
+
 function getPreviewProjection(includeDebug: boolean): string {
   const debugColumns = includeDebug
     ? `, "debugTitleSource", "debugImageSource", "debugHtmlSource"`
@@ -347,6 +628,10 @@ function getPreviewProjection(includeDebug: boolean): string {
     SELECT
       "title",
       "imageUrl",
+      "originalImageUrl",
+      "mirroredImageUrl",
+      "imageWidth",
+      "imageHeight",
       "sanitizedHtml",
       "error",
       "status",
@@ -371,6 +656,10 @@ function toResolverResult(row: LinkPreviewCacheRow | null): LinkPreviewResult | 
   return {
     title: row.title,
     imageUrl: row.imageUrl,
+    originalImageUrl: row.originalImageUrl ?? null,
+    mirroredImageUrl: row.mirroredImageUrl ?? null,
+    imageWidth: row.imageWidth ?? null,
+    imageHeight: row.imageHeight ?? null,
     html: row.sanitizedHtml,
     error: row.error,
     status: row.status,
@@ -470,6 +759,10 @@ async function writeResultToCache({
   url,
   title,
   imageUrl,
+  originalImageUrl,
+  mirroredImageUrl,
+  imageWidth,
+  imageHeight,
   sanitizedHtml,
   error,
   status,
@@ -481,6 +774,10 @@ async function writeResultToCache({
   url: string;
   title: string | null;
   imageUrl: string | null;
+  originalImageUrl: string | null;
+  mirroredImageUrl: string | null;
+  imageWidth: number | null;
+  imageHeight: number | null;
   sanitizedHtml: string | null;
   error: string | null;
   status: "success" | "error";
@@ -499,6 +796,10 @@ async function writeResultToCache({
       "status" = $(status),
       "title" = $(title),
       "imageUrl" = $(imageUrl),
+      "originalImageUrl" = $(originalImageUrl),
+      "mirroredImageUrl" = $(mirroredImageUrl),
+      "imageWidth" = $(imageWidth),
+      "imageHeight" = $(imageHeight),
       "sanitizedHtml" = $(sanitizedHtml),
       "error" = $(error),
       "fetchedAt" = $(now),
@@ -513,6 +814,10 @@ async function writeResultToCache({
     status,
     title,
     imageUrl,
+    originalImageUrl,
+    mirroredImageUrl,
+    imageWidth,
+    imageHeight,
     sanitizedHtml,
     error,
     now,
@@ -588,7 +893,8 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
   try {
     const remoteHtml = await fetchRemoteHtml(normalizedUrl);
     const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
-    const hasPreviewData = !!(parsed.title || parsed.imageUrl || parsed.sanitizedHtml);
+    const resolvedImage = await resolvePreviewImage(parsed.imageUrl);
+    const hasPreviewData = !!(parsed.title || resolvedImage.imageUrl || parsed.sanitizedHtml);
     if (!hasPreviewData) {
       throw new Error("No previewable metadata found");
     }
@@ -596,7 +902,11 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
     await writeResultToCache({
       url: normalizedUrl,
       title: parsed.title,
-      imageUrl: parsed.imageUrl,
+      imageUrl: resolvedImage.imageUrl,
+      originalImageUrl: resolvedImage.originalImageUrl,
+      mirroredImageUrl: resolvedImage.mirroredImageUrl,
+      imageWidth: resolvedImage.imageWidth,
+      imageHeight: resolvedImage.imageHeight,
       sanitizedHtml: parsed.sanitizedHtml,
       error: null,
       status: "success",
@@ -610,6 +920,10 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
       url: normalizedUrl,
       title: null,
       imageUrl: null,
+      originalImageUrl: null,
+      mirroredImageUrl: null,
+      imageWidth: null,
+      imageHeight: null,
       sanitizedHtml: null,
       error: error instanceof Error ? truncate(error.message) : "Unknown preview error",
       status: "error",
@@ -641,10 +955,15 @@ export async function debugParseCrossSitePreview(url: string) {
   const normalizedUrl = normalizePreviewUrl(url);
   const remoteHtml = await fetchRemoteHtml(normalizedUrl);
   const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
+  const resolvedImage = await resolvePreviewImage(parsed.imageUrl);
   return {
     url: normalizedUrl,
     title: parsed.title,
-    imageUrl: parsed.imageUrl,
+    imageUrl: resolvedImage.imageUrl,
+    originalImageUrl: resolvedImage.originalImageUrl,
+    mirroredImageUrl: resolvedImage.mirroredImageUrl,
+    imageWidth: resolvedImage.imageWidth,
+    imageHeight: resolvedImage.imageHeight,
     html: parsed.sanitizedHtml,
     debugTitleSource: parsed.debugTitleSource,
     debugImageSource: parsed.debugImageSource,

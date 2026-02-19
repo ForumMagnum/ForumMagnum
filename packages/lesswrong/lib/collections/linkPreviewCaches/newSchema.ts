@@ -53,6 +53,30 @@ const schema = {
       nullable: true,
     },
   },
+  originalImageUrl: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+  },
+  mirroredImageUrl: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+  },
+  imageWidth: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+  },
+  imageHeight: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+  },
   sanitizedHtml: {
     database: {
       type: "TEXT",

@@ -2,7 +2,8 @@
 
 import React, { ReactNode, useRef, useState } from "react";
 import { useQuery } from "@/lib/crud/useQuery";
-import { CrossSiteLinkPreviewQueryDocument } from "@/lib/generated/gql-codegen/graphql";
+import classNames from "classnames";
+import { gql } from "@/lib/generated/gql-codegen";
 import { Card } from "@/components/widgets/Paper";
 import { useHover } from "@/components/common/withHover";
 import LWPopper from "@/components/common/LWPopper";
@@ -49,8 +50,24 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit,
   },
-  html: {
+  contentRow: {
+    display: "flex",
+    gap: theme.spacing.unit * 1.5,
+    alignItems: "flex-start",
     marginTop: theme.spacing.unit,
+  },
+  textColumn: {
+    flex: 1,
+    minWidth: 0,
+  },
+  sideImage: {
+    width: 120,
+    height: 120,
+    borderRadius: theme.borderRadius.default,
+    objectFit: "cover",
+    flexShrink: 0,
+  },
+  html: {
     "& p": {
       marginTop: theme.spacing.unit / 2,
       marginBottom: theme.spacing.unit / 2,
@@ -65,6 +82,35 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
 function getDisplayTitle(title: string | null | undefined, href: string): string {
   return title || href;
 }
+
+type PreviewImageLayout = "banner" | "side";
+
+function getPreviewImageLayout(imageWidth: number | null | undefined, imageHeight: number | null | undefined): PreviewImageLayout {
+  if (!imageWidth || !imageHeight || imageHeight <= 0) {
+    return "banner";
+  }
+  const aspectRatio = imageWidth / imageHeight;
+  if (aspectRatio >= 1.35) {
+    return "banner";
+  }
+  return "side";
+}
+
+const CrossSiteLinkPreviewQuery = gql(`
+  query CrossSiteLinkPreviewWithImageDimensionsQuery($url: String!, $forceRefetch: Boolean) {
+    crossSiteLinkPreview(url: $url, forceRefetch: $forceRefetch, includeDebug: false) {
+      title
+      imageUrl
+      imageWidth
+      imageHeight
+      html
+      error
+      status
+      fetchedAt
+      nextRefreshAt
+    }
+  }
+`);
 
 export const CrossSiteLinkPreview = ({
   href,
@@ -94,7 +140,7 @@ export const CrossSiteLinkPreview = ({
     },
   });
 
-  const { data, loading, refetch } = useQuery(CrossSiteLinkPreviewQueryDocument, {
+  const { data, loading, refetch } = useQuery(CrossSiteLinkPreviewQuery, {
     variables: {
       url: href,
       forceRefetch: false,
@@ -105,6 +151,9 @@ export const CrossSiteLinkPreview = ({
   });
 
   const previewData = data?.crossSiteLinkPreview;
+  const imageLayout = getPreviewImageLayout(previewData?.imageWidth, previewData?.imageHeight);
+  const showSideImage = !!previewData?.imageUrl && imageLayout === "side";
+  const showBannerImage = !!previewData?.imageUrl && imageLayout === "banner";
 
   const onForceRefetch = async () => {
     await refetch({
@@ -142,14 +191,23 @@ export const CrossSiteLinkPreview = ({
               )}
             </div>
 
-            {previewData?.imageUrl && (
+            {showBannerImage && previewData.imageUrl && (
               <img src={previewData.imageUrl} alt="" className={classes.image} />
             )}
-
-            {previewData?.html && (
-              <ContentStyles contentType="comment" className={classes.html}>
-                <div dangerouslySetInnerHTML={{ __html: previewData.html }} />
-              </ContentStyles>
+            {(previewData?.html || showSideImage) && (
+              <div className={classNames({ [classes.contentRow]: showSideImage })}>
+                {previewData?.html && (
+                  <ContentStyles
+                    contentType="comment"
+                    className={classNames(classes.html, { [classes.textColumn]: showSideImage })}
+                  >
+                    <div dangerouslySetInnerHTML={{ __html: previewData.html }} />
+                  </ContentStyles>
+                )}
+                {showSideImage && (
+                  <img src={previewData.imageUrl!} alt="" className={classes.sideImage} />
+                )}
+              </div>
             )}
 
             {(loading || (!previewData?.html && !previewData?.imageUrl && !previewData?.title)) && (

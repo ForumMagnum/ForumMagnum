@@ -801,6 +801,10 @@ interface ArbitalPageData {
 interface CrossSiteLinkPreviewData {
   title: string | null;
   imageUrl: string | null;
+  originalImageUrl: string | null;
+  mirroredImageUrl: string | null;
+  imageWidth: number | null;
+  imageHeight: number | null;
   html: string | null;
   error: string | null;
   status: string | null;

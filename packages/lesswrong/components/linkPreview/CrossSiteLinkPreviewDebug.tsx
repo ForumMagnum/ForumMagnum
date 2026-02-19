@@ -2,10 +2,10 @@
 
 import React from "react";
 import { useQuery } from "@/lib/crud/useQuery";
-import { CrossSiteLinkPreviewDebugQueryDocument, CrossSiteLinkPreviewQueryDocument } from "@/lib/generated/gql-codegen/graphql";
 import LWDialog from "@/components/common/LWDialog";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ContentStyles from "@/components/common/ContentStyles";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const styles = defineStyles("CrossSiteLinkPreviewDebug", (theme: ThemeType) => ({
   dialogPaper: {
@@ -56,17 +56,35 @@ function getDebugBlockValue(value: string | null | undefined): string {
   return value || "(not found)";
 }
 
+const CrossSiteLinkPreviewDebugQuery = gql(`
+  query CrossSiteLinkPreviewDebugQuery($url: String!, $forceRefetch: Boolean) {
+    crossSiteLinkPreview(url: $url, forceRefetch: $forceRefetch, includeDebug: true) {
+      title
+      imageUrl
+      imageWidth
+      imageHeight
+      html
+      error
+      status
+      fetchedAt
+      nextRefreshAt
+      debugTitleSource
+      debugImageSource
+      debugHtmlSource
+    }
+  }
+`);
+
 const CrossSiteLinkPreviewDebugContent = ({ url }: { url: string }) => {
   const classes = useStyles(styles);
-  const { data, loading } = useQuery(CrossSiteLinkPreviewDebugQueryDocument, {
+  const { data, loading } = useQuery(CrossSiteLinkPreviewDebugQuery, {
     variables: {
       url,
-      includeDebug: true,
     },
     ssr: false,
     fetchPolicy: "cache-and-network",
   });
-  const { data: fullPreviewData } = useQuery(CrossSiteLinkPreviewQueryDocument, {
+  const { data: fullPreviewData } = useQuery(CrossSiteLinkPreviewDebugQuery, {
     variables: {
       url,
       forceRefetch: false,
