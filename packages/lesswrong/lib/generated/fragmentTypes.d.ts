@@ -32,6 +32,7 @@ interface FragmentTypes {
   CommentsListWithModGPTAnalysis: CommentsListWithModGPTAnalysis
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
+  CommentsMarkdownFragment: CommentsMarkdownFragment
   ConceptItemFragment: ConceptItemFragment
   ConversationsList: ConversationsList
   ConversationsListWithReadStatus: ConversationsListWithReadStatus
@@ -251,7 +252,7 @@ interface FragmentTypesByCollection {
   CkEditorUserSessions: "CkEditorUserSessionInfo"
   ClientIds: "ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"SunshineCommentsList"|"UltraFeedComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"CommentsMarkdownFragment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"SunshineCommentsList"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CurationNotices: "CurationNoticesFragment"
   DigestPosts: "DigestPostsMinimumInfo"
@@ -333,6 +334,7 @@ interface CollectionNamesByFragmentName {
   CommentsListWithModGPTAnalysis: "Comments"
   CommentsListWithParentMetadata: "Comments"
   CommentsListWithTopLevelComment: "Comments"
+  CommentsMarkdownFragment: "Comments"
   ConceptItemFragment: "Tags"
   ConversationsList: "Conversations"
   ConversationsListWithReadStatus: "Conversations"

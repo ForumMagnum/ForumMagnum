@@ -4,7 +4,7 @@ import { MarkdownNode } from "./MarkdownNode";
 import { MarkdownUserLink } from "./MarkdownUserLink";
 import { MarkdownDate } from "./MarkdownDate";
 import { tagUrlBaseSetting } from "@/lib/instanceSettings";
-import { MarkdownCommentsList, type MarkdownCommentData } from "./MarkdownCommentsList";
+import { MarkdownCommentsList } from "./MarkdownCommentsList";
 
 interface MarkdownPostTag {
   _id: string
@@ -67,7 +67,7 @@ export function MarkdownPostDetail({
   commentsMarkdownPathOverride,
 }: {
   post: MarkdownPostDetailData
-  topComments?: MarkdownCommentData[]
+  topComments?: CommentsMarkdownFragment[]
   compactMode?: boolean
   bodyMarkdown?: string
   sequence?: MarkdownSequenceSummary | null

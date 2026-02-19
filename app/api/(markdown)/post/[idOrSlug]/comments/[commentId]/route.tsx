@@ -10,16 +10,7 @@ const COMMENT_QUERY = gql(`
   query PostMarkdownCommentById($commentId: String!) {
     comment(selector: {_id: $commentId}) {
       result {
-        _id
-        postId
-        parentCommentId
-        postedAt
-        baseScore
-        voteCount
-        votingSystem
-        extendedScore
-        user { slug displayName }
-        contents { agentMarkdown plaintextMainText }
+        ...CommentsMarkdownFragment
       }
     }
   }

@@ -13372,11 +13372,10 @@ type MarkdownFrontPageQueryVariables = Exact<{
 
 type MarkdownFrontPageQuery = MarkdownFrontPageQuery_Query;
 
-type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment_user_User = { __typename?: 'User', slug: string, displayName: string };
-
-type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string };
-
-type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment = { __typename?: 'Comment', _id: string, postId: string | null, parentCommentId: string | null, postedAt: string, baseScore: number | null, voteCount: number, votingSystem: string, extendedScore: any | null, user: PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment_user_User | null, contents: PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment_contents_Revision | null };
+type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownFragment
+);
 
 type PostMarkdownCommentByIdQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: PostMarkdownCommentByIdQuery_comment_SingleCommentOutput_result_Comment | null };
 
@@ -13404,11 +13403,10 @@ type PostMarkdownCommentsPostQueryVariables = Exact<{
 
 type PostMarkdownCommentsPostQuery = PostMarkdownCommentsPostQuery_Query;
 
-type PostMarkdownCommentsTopQuery_comments_MultiCommentOutput_results_Comment_user_User = { __typename?: 'User', slug: string, displayName: string };
-
-type PostMarkdownCommentsTopQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string };
-
-type PostMarkdownCommentsTopQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, parentCommentId: string | null, postedAt: string, baseScore: number | null, voteCount: number, votingSystem: string, extendedScore: any | null, user: PostMarkdownCommentsTopQuery_comments_MultiCommentOutput_results_Comment_user_User | null, contents: PostMarkdownCommentsTopQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null };
+type PostMarkdownCommentsTopQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownFragment
+);
 
 type PostMarkdownCommentsTopQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<PostMarkdownCommentsTopQuery_comments_MultiCommentOutput_results_Comment> };
 
@@ -13423,11 +13421,10 @@ type PostMarkdownCommentsTopQueryVariables = Exact<{
 
 type PostMarkdownCommentsTopQuery = PostMarkdownCommentsTopQuery_Query;
 
-type PostMarkdownCommentsNewQuery_comments_MultiCommentOutput_results_Comment_user_User = { __typename?: 'User', slug: string, displayName: string };
-
-type PostMarkdownCommentsNewQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string };
-
-type PostMarkdownCommentsNewQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, parentCommentId: string | null, postedAt: string, baseScore: number | null, voteCount: number, votingSystem: string, extendedScore: any | null, user: PostMarkdownCommentsNewQuery_comments_MultiCommentOutput_results_Comment_user_User | null, contents: PostMarkdownCommentsNewQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null };
+type PostMarkdownCommentsNewQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownFragment
+);
 
 type PostMarkdownCommentsNewQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<PostMarkdownCommentsNewQuery_comments_MultiCommentOutput_results_Comment> };
 
@@ -13442,11 +13439,10 @@ type PostMarkdownCommentsNewQueryVariables = Exact<{
 
 type PostMarkdownCommentsNewQuery = PostMarkdownCommentsNewQuery_Query;
 
-type PostMarkdownCommentsOldQuery_comments_MultiCommentOutput_results_Comment_user_User = { __typename?: 'User', slug: string, displayName: string };
-
-type PostMarkdownCommentsOldQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string };
-
-type PostMarkdownCommentsOldQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, parentCommentId: string | null, postedAt: string, baseScore: number | null, voteCount: number, votingSystem: string, extendedScore: any | null, user: PostMarkdownCommentsOldQuery_comments_MultiCommentOutput_results_Comment_user_User | null, contents: PostMarkdownCommentsOldQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null };
+type PostMarkdownCommentsOldQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownFragment
+);
 
 type PostMarkdownCommentsOldQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<PostMarkdownCommentsOldQuery_comments_MultiCommentOutput_results_Comment> };
 
@@ -25794,6 +25790,12 @@ type SuggestAlignmentComment = (
   { __typename?: 'Comment', suggestForAlignmentUserIds: Array<string>, post: SuggestAlignmentComment_Comment_post_Post | null, suggestForAlignmentUsers: Array<SuggestAlignmentComment_Comment_suggestForAlignmentUsers_User> }
   & CommentsList
 );
+
+type CommentsMarkdownFragment_Comment_user_User = { __typename?: 'User', _id: string, slug: string, displayName: string };
+
+type CommentsMarkdownFragment_Comment_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string };
+
+type CommentsMarkdownFragment = { __typename?: 'Comment', _id: string, postId: string | null, parentCommentId: string | null, postedAt: string, baseScore: number | null, voteCount: number, votingSystem: string, extendedScore: any | null, user: CommentsMarkdownFragment_Comment_user_User | null, contents: CommentsMarkdownFragment_Comment_contents_Revision | null };
 
 type ConversationsMinimumInfo = { __typename?: 'Conversation', _id: string, createdAt: string | null, latestActivity: string | null, title: string | null, participantIds: Array<string> | null, archivedByIds: Array<string>, messageCount: number, moderator: boolean | null };
 

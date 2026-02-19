@@ -2,29 +2,7 @@ import React from "react";
 import { MarkdownDate } from "./MarkdownDate";
 import { MarkdownNode } from "./MarkdownNode";
 import { MarkdownUserLink } from "./MarkdownUserLink";
-
-export interface MarkdownCommentData {
-  _id: string
-  parentCommentId?: string | null
-  postedAt: string | Date
-  baseScore?: number | null
-  voteCount?: number | null
-  votingSystem?: string | null
-  extendedScore?: {
-    approvalVoteCount?: number
-    reacts?: Record<string, Array<{
-      userId: string
-      displayName?: string | null
-      reactType: "created" | "seconded" | "disagreed"
-      quotes?: string[]
-    }>>
-  } | null
-  user: UsersMinimumInfo | null
-  contents?: {
-    agentMarkdown?: string | null
-    plaintextMainText?: string | null
-  } | null
-}
+import type { NamesAttachedReactionsScore } from "@/lib/voting/namesAttachedReactions";
 
 interface AggregatedReactionInfo {
   netCount: number
@@ -44,13 +22,14 @@ const truncateForDisplay = (text: string, maxLength: number): string => {
   return `${text.slice(0, maxLength).trimEnd()}...`;
 };
 
-const aggregateCommentReactions = (comment: MarkdownCommentData): {
+const aggregateCommentReactions = (comment: CommentsMarkdownFragment): {
   wholeCommentReactions: Record<string, AggregatedReactionInfo>
   quoteReactions: Record<string, Record<string, AggregatedReactionInfo>>
 } => {
   const wholeCommentReactions: Record<string, AggregatedReactionInfo> = {};
   const quoteReactions: Record<string, Record<string, AggregatedReactionInfo>> = {};
-  const reacts = comment.extendedScore?.reacts ?? {};
+  const extendedScore: NamesAttachedReactionsScore = comment.extendedScore;
+  const reacts = extendedScore?.reacts ?? {};
 
   for (const [reactionName, reactions] of Object.entries(reacts)) {
     for (const reaction of reactions ?? []) {
@@ -115,7 +94,7 @@ const truncatePlaintext = (text: string, maxLength: number): string => {
   return `${text.slice(0, maxLength).trimEnd()}...`;
 };
 
-const getCommentBodyMarkdown = (comment: MarkdownCommentData): string => {
+const getCommentBodyMarkdown = (comment: CommentsMarkdownFragment): string => {
   const markdown = comment.contents?.agentMarkdown?.trim();
   if (markdown) {
     return markdown;
@@ -128,8 +107,8 @@ const getCommentBodyMarkdown = (comment: MarkdownCommentData): string => {
 };
 
 const computeDepth = (
-  comment: MarkdownCommentData,
-  commentsById: Map<string, MarkdownCommentData>,
+  comment: CommentsMarkdownFragment,
+  commentsById: Map<string, CommentsMarkdownFragment>,
   memoizedDepth: Map<string, number>
 ): number => {
   const memoized = memoizedDepth.get(comment._id);
@@ -158,7 +137,7 @@ export const MarkdownCommentsList = ({
   markdownRouteBase,
   htmlRouteBase,
 }: {
-  comments: MarkdownCommentData[]
+  comments: CommentsMarkdownFragment[]
   includeBodies?: boolean
   includeReactionUsers?: boolean
   markdownRouteBase: string

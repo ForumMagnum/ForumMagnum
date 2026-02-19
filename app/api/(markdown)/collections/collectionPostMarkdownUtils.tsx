@@ -43,7 +43,7 @@ interface MatchedCollectionPost {
 }
 
 function findCollectionPostBySlug(
-  collection: MarkdownCollectionPostsByDocumentIdQuery["collection"] extends { result: infer TResult } ? TResult : never,
+  collection: NonNullable<MarkdownCollectionPostsByDocumentIdQuery["collection"]>["result"],
   slug: string
 ): MatchedCollectionPost | null {
   for (const book of collection?.books ?? []) {

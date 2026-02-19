@@ -44,15 +44,7 @@ const TOP_COMMENTS_QUERY = gql(`
   query PostMarkdownCommentsTop($_id: String!, $limit: Int) {
     comments(selector: { postCommentsTop: { postId: $_id } }, limit: $limit) {
       results {
-        _id
-        parentCommentId
-        postedAt
-        baseScore
-        voteCount
-        votingSystem
-        extendedScore
-        user { slug displayName }
-        contents { agentMarkdown plaintextMainText }
+        ...CommentsMarkdownFragment
       }
     }
   }
@@ -62,15 +54,7 @@ const NEW_COMMENTS_QUERY = gql(`
   query PostMarkdownCommentsNew($_id: String!, $limit: Int) {
     comments(selector: { postCommentsNew: { postId: $_id } }, limit: $limit) {
       results {
-        _id
-        parentCommentId
-        postedAt
-        baseScore
-        voteCount
-        votingSystem
-        extendedScore
-        user { slug displayName }
-        contents { agentMarkdown plaintextMainText }
+        ...CommentsMarkdownFragment
       }
     }
   }
@@ -80,15 +64,7 @@ const OLD_COMMENTS_QUERY = gql(`
   query PostMarkdownCommentsOld($_id: String!, $limit: Int) {
     comments(selector: { postCommentsOld: { postId: $_id } }, limit: $limit) {
       results {
-        _id
-        parentCommentId
-        postedAt
-        baseScore
-        voteCount
-        votingSystem
-        extendedScore
-        user { slug displayName }
-        contents { agentMarkdown plaintextMainText }
+        ...CommentsMarkdownFragment
       }
     }
   }
