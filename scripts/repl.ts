@@ -11,7 +11,9 @@ async function replMain() {
   const projectEnvSettings = await loadReplEnv();
   const { environment, codegen } = projectEnvSettings;
 
-  console.log('Running REPL in mode', environment);
+  if (!projectEnvSettings.codegen) {
+    console.log('Running REPL in mode', environment);
+  }
 
   initGlobals(environment==="prod", { bundleIsCodegen: codegen });
   initConsole();
@@ -36,7 +38,9 @@ async function replMain() {
     if (projectEnvSettings.command) {
       try {
         const result = await repl.evalCode(projectEnvSettings.command);
-        console.log(result);
+        if (result !== undefined) {
+          console.log(result);
+        }
       } catch(e) {
         console.error(e);
       } finally {
@@ -45,7 +49,9 @@ async function replMain() {
     } else if (defaultExport && typeof defaultExport==='function') {
       try {
         const result = await defaultExport();
-        console.log(result);
+        if (result !== undefined) {
+          console.log(result);
+        }
       } catch(e) {
         console.error(e);
       } finally {

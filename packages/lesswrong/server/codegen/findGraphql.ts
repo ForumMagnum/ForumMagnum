@@ -3,8 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import keyBy from 'lodash/keyBy';
 import { extractFragmentName } from '@/lib/fragments/fragmentWrapper';
-import gql from 'graphql-tag';
-import { type DocumentNode, Kind, FragmentDefinitionNode } from 'graphql';
+import { parse, type DocumentNode, Kind, FragmentDefinitionNode } from 'graphql';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 
 function fileMightIncludeFragment(filePath: string): boolean {
@@ -113,7 +112,7 @@ export function findFragmentsInSource(collectionNameToTypeName: Record<string, s
   allFragmentsInSource = keyBy(filterNonnull(foundFragmentStrings.map(f => {
     let parsedFragment: DocumentNode;
     try {
-      parsedFragment = gql(f);
+      parsedFragment = parse(f);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(`Error parsing fragment: ${f}`, e);

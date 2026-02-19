@@ -82,6 +82,7 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
   const otherFilesContainingGql = getFilesMaybeContainingGql("app");
   const modifiedConfig = {
     ...graphqlCodegenConfig,
+    silent: true,
     documents: [...filesContainingGql, ...otherFilesContainingGql],
   };
   
@@ -97,6 +98,9 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
     if (outputPath === "./packages/lesswrong/lib/generated/gql-codegen/graphql.ts") {
       outputContent = normalizeFragments(fileOutput.filename);
     }
+    if (outputPath === "./packages/lesswrong/lib/generated/gql-codegen/gql.ts") {
+      outputContent = hardenGeneratedGqlFallback(outputContent);
+    }
     outputContent = outputContent.replace("InputMaybe<T> = Maybe<T>", "InputMaybe<T> = T | null | undefined");
 
     if (outputPath === "./packages/lesswrong/lib/generated/gql-codegen/graphqlCodegenTypes.d.ts") {
@@ -108,6 +112,58 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
 
     writeIfChanged(outputContent, outputPath);
   }
+}
+
+function hardenGeneratedGqlFallback(outputContent: string): string {
+  if (!outputContent.includes("export function gql(source: string) {")) {
+    return outputContent;
+  }
+
+  const fallbackCacheDeclarations = `const parsedDocumentCache = new Map<string, unknown>();
+let hasWarnedAboutUnknownDocument = false;`;
+  const unknownOverloadSignature = "export function gql(source: string): unknown;";
+
+  let transformedOutput = outputContent;
+  if (!transformedOutput.includes("import gqlTag from 'graphql-tag';")) {
+    transformedOutput = transformedOutput.replace(
+      /import\s+\{\s*TypedDocumentNode as DocumentNode\s*\}\s+from\s+['"]@graphql-typed-document-node\/core['"];?/,
+      "$&\nimport gqlTag from 'graphql-tag';",
+    );
+  }
+  if (
+    transformedOutput.includes(unknownOverloadSignature) &&
+    !transformedOutput.includes("const parsedDocumentCache = new Map<string, unknown>();")
+  ) {
+    transformedOutput = transformedOutput.replace(
+      unknownOverloadSignature,
+      `${fallbackCacheDeclarations}\n\n${unknownOverloadSignature}`,
+    );
+  }
+
+  transformedOutput = transformedOutput.replace(
+    "export function gql(source: string) {\n  return (documents as any)[source] ?? {};\n}",
+    `export function gql(source: string) {
+  const knownDocument = (documents as Record<string, unknown>)[source];
+  if (knownDocument) {
+    return knownDocument;
+  }
+
+  if (!hasWarnedAboutUnknownDocument && process.env.NODE_ENV !== 'production') {
+    hasWarnedAboutUnknownDocument = true;
+    // eslint-disable-next-line no-console
+    console.warn("Unknown GraphQL document string encountered. Types may be stale; run 'yarn generate'.");
+  }
+
+  let parsedDocument = parsedDocumentCache.get(source);
+  if (!parsedDocument) {
+    parsedDocument = gqlTag(source);
+    parsedDocumentCache.set(source, parsedDocument);
+  }
+  return parsedDocument;
+}`,
+  );
+
+  return transformedOutput;
 }
 
 function fileMightIncludeGql(filePath: string) {
