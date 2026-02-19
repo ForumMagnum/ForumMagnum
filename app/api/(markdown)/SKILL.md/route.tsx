@@ -18,7 +18,6 @@ get Markdown pages (pages that don't have a markdown version will return a 406
 status code with a message.) If your "Accept" header is "*/*",
 
 Finding content to read:
- * /api/front
  * /api/home
  * /api/latest
  * /api/recent
