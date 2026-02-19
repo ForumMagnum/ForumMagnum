@@ -13,6 +13,19 @@ export type RouteNode = {
 
 export const routeTrie = {
   "staticChildren": {
+    ".well-known": {
+      "staticChildren": {
+        "ai-agents.json": {
+          "hasRoute": true
+        }
+      },
+      "lowerCase": {
+        "ai-agents.json": "ai-agents.json"
+      }
+    },
+    "SKILL.md": {
+      "hasRoute": true
+    },
     "abTestGroups": {
       "hasPage": true
     },
@@ -125,11 +138,28 @@ export const routeTrie = {
           },
           "hasRoute": true
         },
+        "community": {
+          "hasRoute": true
+        },
         "contact": {
           "hasRoute": true
         },
         "curated": {
           "hasRoute": true
+        },
+        "events": {
+          "dynamicChild": {
+            "paramName": "id",
+            "child": {
+              "dynamicChild": {
+                "paramName": "slug",
+                "child": {
+                  "hasRoute": true
+                }
+              },
+              "hasRoute": true
+            }
+          }
         },
         "faq": {
           "hasRoute": true
@@ -367,8 +397,10 @@ export const routeTrie = {
         "skill.md": "SKILL.md",
         "about": "about",
         "codex": "codex",
+        "community": "community",
         "contact": "contact",
         "curated": "curated",
+        "events": "events",
         "faq": "faq",
         "home": "home",
         "hpmor": "hpmor",
@@ -1102,6 +1134,8 @@ export const routeTrie = {
     }
   },
   "lowerCase": {
+    ".well-known": ".well-known",
+    "skill.md": "SKILL.md",
     "abtestgroups": "abTestGroups",
     "about": "about",
     "account": "account",

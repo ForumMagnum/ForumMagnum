@@ -13300,6 +13300,38 @@ type MarkdownCollectionPostsByDocumentIdQueryVariables = Exact<{
 
 type MarkdownCollectionPostsByDocumentIdQuery = MarkdownCollectionPostsByDocumentIdQuery_Query;
 
+type MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput_results_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, slug: string, title: string, location: string | null, startTime: string | null, endTime: string | null, onlineEvent: boolean, globalEvent: boolean, user: MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput_results_Post_user_User | null };
+
+type MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput_results_Post> };
+
+type MarkdownCommunityPageQuery_globalEvents_MultiPostOutput_results_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type MarkdownCommunityPageQuery_globalEvents_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, slug: string, title: string, location: string | null, startTime: string | null, endTime: string | null, onlineEvent: boolean, globalEvent: boolean, user: MarkdownCommunityPageQuery_globalEvents_MultiPostOutput_results_Post_user_User | null };
+
+type MarkdownCommunityPageQuery_globalEvents_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownCommunityPageQuery_globalEvents_MultiPostOutput_results_Post> };
+
+type MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput_results_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, slug: string, title: string, location: string | null, startTime: string | null, endTime: string | null, onlineEvent: boolean, globalEvent: boolean, user: MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput_results_Post_user_User | null };
+
+type MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput_results_Post> };
+
+type MarkdownCommunityPageQuery_Query = { __typename?: 'Query', upcomingInPerson: MarkdownCommunityPageQuery_upcomingInPerson_MultiPostOutput | null, globalEvents: MarkdownCommunityPageQuery_globalEvents_MultiPostOutput | null, nearbyInPerson?: MarkdownCommunityPageQuery_nearbyInPerson_MultiPostOutput | null };
+
+
+type MarkdownCommunityPageQueryVariables = Exact<{
+  defaultLimit: InputMaybe<Scalars['Int']['input']>;
+  nearbyLimit: InputMaybe<Scalars['Int']['input']>;
+  lat: InputMaybe<Scalars['Float']['input']>;
+  lng: InputMaybe<Scalars['Float']['input']>;
+  hasCoordinates: Scalars['Boolean']['input'];
+}>;
+
+
+type MarkdownCommunityPageQuery = MarkdownCommunityPageQuery_Query;
+
 type MarkdownFrontPageQuery_currentSpotlight_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
 
 type MarkdownFrontPageQuery_currentSpotlight_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, title: string };

@@ -43,6 +43,10 @@ export interface MarkdownPostDetailData {
   frontpageDate?: string | Date | null
   postCategory?: string | null
   url?: string | null
+  isEvent?: boolean | null
+  location?: string | null
+  startTime?: string | Date | null
+  endTime?: string | Date | null
   user: MarkdownPostUser | null
   coauthors?: MarkdownPostUser[] | null
   tags?: MarkdownPostTag[] | null
@@ -77,9 +81,11 @@ export function MarkdownPostDetail({
   const isCurated = !!post.curatedDate;
   const frontpageLabel = post.frontpageDate ? "Frontpage" : "Personal Blog";
   const isLinkpost = post.postCategory === "linkpost";
+  const isEvent = !!post.isEvent;
   const htmlPath = htmlPathOverride ?? `/posts/${post._id}/${post.slug}`;
   const markdownPath = markdownPathOverride ?? `/api/post/${post.slug}`;
   const commentsMarkdownPath = commentsMarkdownPathOverride ?? `/api/post/${post.slug}/comments`;
+  const compactPath = markdownPath.includes("?") ? `${markdownPath}&compact=1` : `${markdownPath}?compact=1`;
 
   const prevHtmlPath = sequence && prevPost ? `/s/${sequence._id}/p/${prevPost._id}` : null;
   const prevMarkdownPath = sequence && prevPost ? `/api/sequence/${sequence._id}/post/${prevPost._id}` : null;
@@ -104,6 +110,9 @@ export function MarkdownPostDetail({
         </li>
         <li><MarkdownDate date={post.postedAt} /></li>
         <li>{post.baseScore ?? 0} points</li>
+        {isEvent && post.location ? <li>Location: {post.location}</li> : null}
+        {isEvent && post.startTime ? <li>Starts: <MarkdownDate date={post.startTime} /></li> : null}
+        {isEvent && post.endTime ? <li>Ends: <MarkdownDate date={post.endTime} /></li> : null}
         {isLinkpost && post.url && (
           <li>
             Linkpost: <a href={post.url}>{post.url}</a>
@@ -133,7 +142,7 @@ export function MarkdownPostDetail({
         </li>
         <li>
           Post URL (Markdown, compact):{" "}
-          <a href={`/api/post/${post.slug}?compact=1`}>{`/api/post/${post.slug}?compact=1`}</a>
+          <a href={compactPath}>{compactPath}</a>
         </li>
         {sequence ? (
           <li>

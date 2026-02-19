@@ -35,6 +35,10 @@ const PostMarkdownQuery = `
         frontpageDate
         postCategory
         url
+        isEvent
+        location
+        startTime
+        endTime
         user { slug displayName }
         coauthors { slug displayName }
         tags { _id name slug }

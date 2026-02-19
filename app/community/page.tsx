@@ -15,7 +15,7 @@ assertRouteAttributes("/community", {
   hasLinkPreview: false,
   hasPingbacks: false,
   hasLeftNavigationColumn: false,
-  hasMarkdownVersion: false,
+  hasMarkdownVersion: true,
 });
 
 export default function Page() {

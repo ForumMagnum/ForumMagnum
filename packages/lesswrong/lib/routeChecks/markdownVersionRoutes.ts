@@ -18,6 +18,7 @@ export const routeMarkdownMapping = defineMarkdownRouteMapping({
   "/faq": () => "/api/faq",
   "/contact": () => "/api/contact",
   "/search": () => "/api/search",
+  "/community": () => "/api/community",
   "/rationality": () => "/api/rationality",
   "/rationality/[slug]": ({ slug }) => `/api/rationality/${slug}`,
   "/codex": () => "/api/codex",
@@ -26,6 +27,8 @@ export const routeMarkdownMapping = defineMarkdownRouteMapping({
   "/hpmor/[slug]": ({ slug }) => `/api/hpmor/${slug}`,
   "/users/[slug]": ({ slug }) => `/api/user/${slug}`,
   "/w/[slug]": ({ slug }) => `/api/tag/${slug}`,
+  "/events/[_id]": ({ _id }) => `/api/events/${_id}`,
+  "/events/[_id]/[slug]": ({ _id, slug }) => `/api/events/${_id}/${slug}`,
   "/posts/[_id]": ({ _id }) => `/api/post/${_id}`,
   // Prefer canonical _id when present to avoid stale/mismatched slugs rewriting to the wrong post.
   "/posts/[_id]/[slug]": ({ _id }) => `/api/post/${_id}`,

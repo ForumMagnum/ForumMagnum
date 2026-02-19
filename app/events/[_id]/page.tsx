@@ -12,7 +12,7 @@ assertRouteAttributes("/events/[_id]", {
   hasLinkPreview: true,
   hasPingbacks: true,
   hasLeftNavigationColumn: false,
-  hasMarkdownVersion: false,
+  hasMarkdownVersion: true,
 });
 
 export default async function Page({ params }: { params: Promise<{ _id: string }> }) {

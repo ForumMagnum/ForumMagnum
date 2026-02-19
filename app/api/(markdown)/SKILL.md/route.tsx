@@ -24,9 +24,12 @@ Finding content to read:
  * /api/recent
  * /api/curated
  * /api/search (docs when no query, results with ?search=...)
+ * /api/community (?lat=..&lng=.. for nearby in-person events)
  * Add ?limit=n to list routes (max 100)
 Reading posts:
  * /api/post/[id]
+ * /api/events/[id]
+ * /api/events/[id]/[slug]
  * /api/rationality/[slug]
  * /api/codex/[slug]
  * /api/hpmor/[slug]
