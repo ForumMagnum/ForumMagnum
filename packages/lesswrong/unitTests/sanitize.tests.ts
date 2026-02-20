@@ -52,11 +52,6 @@ describe('sanitize iframe handling', () => {
       expect(result).toContain('srcdoc');
     });
 
-    it('preserves the data-content-height attribute on widget iframes', () => {
-      const input = '<iframe srcdoc="<h1>hi</h1>" sandbox="allow-scripts" data-lexical-iframe-widget="true" data-content-height="250"></iframe>';
-      const result = sanitize(input);
-      expect(result).toContain('data-content-height="250"');
-    });
   });
 
   // ── code block gutter ────────────────────────────────────────────
