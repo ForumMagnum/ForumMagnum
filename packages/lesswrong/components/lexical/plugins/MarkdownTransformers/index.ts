@@ -150,14 +150,13 @@ export const EQUATION: TextMatchTransformer = {
     return `$${node.getEquation()}$`;
   },
   importRegExp: /\$([^$]+?)\$/,
-  regExp: /\$([^$]+?)\$ $/,
+  regExp: /\$(\S[^$]*?\S|\S)\$$/,
   replace: (textNode, match) => {
     const [, equation] = match;
     const equationNode = $createMathNode(equation, true);
     textNode.replace(equationNode);
-    equationNode.insertAfter($createTextNode(' '));
   },
-  trigger: ' ',
+  trigger: '$',
   type: 'text-match',
 };
 
@@ -491,6 +490,20 @@ export const PLAYGROUND_TRANSFORMERS: Array<Transformer> = [
   FOOTNOTE,
   EQUATION,
   // TWEET,
+  CHECK_LIST,
+  CONTAINER_QUOTE,
+  ...ELEMENT_TRANSFORMERS_WITHOUT_QUOTE,
+  ...MULTILINE_ELEMENT_TRANSFORMERS,
+  ...TEXT_FORMAT_TRANSFORMERS_WITHOUT_HIGHLIGHT,
+  ...TEXT_MATCH_TRANSFORMERS,
+];
+
+export const PLAYGROUND_SHORTCUT_TRANSFORMERS: Array<Transformer> = [
+  TABLE,
+  HR,
+  IMAGE,
+  EMOJI,
+  FOOTNOTE,
   CHECK_LIST,
   CONTAINER_QUOTE,
   ...ELEMENT_TRANSFORMERS_WITHOUT_QUOTE,
