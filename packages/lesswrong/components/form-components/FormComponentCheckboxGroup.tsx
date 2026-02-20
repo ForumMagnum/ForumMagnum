@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import without from 'lodash/without';
@@ -81,7 +81,7 @@ export const FormComponentCheckboxGroup = ({ field, label, options }: {
   options: Array<{value: string, label: string}>
 }) => {
   const classes = useStyles(styles);
-  const value = field.state.value ?? [];
+  const value = useMemo(() => field.state.value ?? [], [field.state.value]);
 
   const toggleOption = useCallback((optionValue: string) => {
     const newValue = value.includes(optionValue)

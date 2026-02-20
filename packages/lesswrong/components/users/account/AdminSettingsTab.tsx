@@ -1,11 +1,10 @@
 import React from 'react';
 import { isEAForum, isLWorAF } from '@/lib/instanceSettings';
-import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { getAllUserGroups, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { SOCIAL_MEDIA_PROFILE_FIELDS } from '@/lib/collections/users/helpers';
 import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
 import PrefixedInput from '@/components/form-components/PrefixedInput';
-import { getAllUserGroups } from '@/lib/vulcan-users/permissions';
 import SettingsSection from './SettingsSection';
 import SettingsTextRow from './SettingsTextRow';
 import SettingsToggleRow from './SettingsToggleRow';
