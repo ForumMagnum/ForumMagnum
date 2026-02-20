@@ -1,6 +1,5 @@
 "use client";
 import React from 'react';
-import { useLocation } from '@/lib/routeUtil';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { preferredHeadingCase } from '@/themes/forumTheme';
 import { useCurrentUser } from '@/components/common/withUser';
@@ -8,29 +7,42 @@ import { hasAccountDeletionFlow } from '@/lib/betas';
 import UsersEditForm from "./UsersEditForm";
 import UsersAccountManagement from "./UsersAccountManagement";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
-import { Typography } from "../../common/Typography";
 import { useStyles } from '../../hooks/useStyles';
 import { defineStyles } from '../../hooks/defineStyles';
 
 const styles = defineStyles("UsersAccount", (theme: ThemeType) => ({
   root: {
-    width: "60%",
-    maxWidth: 600,
+    width: "90%",
+    maxWidth: 960,
     margin: "auto",
     marginBottom: 100,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
+      paddingLeft: 16,
+      paddingRight: 16,
     },
   },
   header: {
-    margin: 0,
-    paddingTop: theme.isFriendlyUI ? '32px' : '16px',
+    paddingTop: theme.isFriendlyUI ? '32px' : '48px',
     paddingBottom: theme.isFriendlyUI ? '16px' : '32px',
-    paddingLeft: theme.isFriendlyUI ? '4px' : '16px',
-    paddingRight: '16px',
     [theme.breakpoints.down('xs')]: {
-      paddingLeft: "4px",
+      paddingTop: 28,
+      paddingBottom: 20,
     },
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 400,
+    fontFamily: theme.typography.headerStyle?.fontFamily,
+    color: theme.palette.grey[900],
+    margin: 0,
+    letterSpacing: '-0.01em',
+  },
+  subtitle: {
+    fontSize: 14,
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.grey[500],
+    marginTop: 6,
   },
 }))
 
@@ -44,20 +56,22 @@ const UsersAccount = ({slug}: {slug: string|null}) => {
   }
 
   const terms = { slug: slugWithFallback };
+
+  const accountManagement = hasAccountDeletionFlow()
+    ? <UsersAccountManagement terms={terms} />
+    : null;
+
   return (
     <div className={classes.root}>
-      <Typography variant="display2" className={classes.header}>
-        {preferredHeadingCase("Account Settings")}
-      </Typography>
-      <UsersEditForm terms={terms} />
-      {hasAccountDeletionFlow() && (
-        <>
-          <Typography variant="display2" className={classes.header}>
-            {preferredHeadingCase("Manage Account")}
-          </Typography>
-          <UsersAccountManagement terms={terms} />
-        </>
-      )}
+      <div className={classes.header}>
+        <h1 className={classes.title}>
+          {preferredHeadingCase("Account Settings")}
+        </h1>
+        <div className={classes.subtitle}>
+          Manage your account, profile, and preferences
+        </div>
+      </div>
+      <UsersEditForm terms={terms} accountManagement={accountManagement} />
     </div>
   );
 };
