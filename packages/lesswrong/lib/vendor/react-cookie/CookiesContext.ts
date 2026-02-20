@@ -1,7 +1,12 @@
 import * as React from 'react';
-import Cookies from "universal-cookie";
+import Cookies, { Cookie } from "universal-cookie";
 
-const CookiesContext = React.createContext<Cookies | null>(null);
+export interface CookiesStore {
+  cookies: Cookies;
+  initialCookies: Record<string, Cookie>;
+}
+
+const CookiesContext = React.createContext<CookiesStore | null>(null);
 
 export const { Provider, Consumer } = CookiesContext;
 export default CookiesContext;
