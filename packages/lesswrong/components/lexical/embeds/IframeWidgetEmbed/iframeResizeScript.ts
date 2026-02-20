@@ -2,7 +2,7 @@
  * Auto-resize script injected into iframe widget srcdoc at render time.
  * Uses ResizeObserver + postMessage to communicate content height to the parent.
  * This script is NOT stored in user content — it's injected by the editor component
- * and the reader-side WrappedIframeWidget component.
+ * and the reader-side HydratedIframeWidget component.
  */
 
 const RESIZE_SCRIPT = `<script>
