@@ -1,4 +1,4 @@
-import type { RouterLocation } from '../../lib/vulcan-lib/routes';
+import type { RouterLocation } from '../../lib/routeChecks/parseRoute';
 import type { JssStylesCallback } from '@/lib/jssStyles';
 import type { StyleDefinition } from '@/server/styleGeneration';
 

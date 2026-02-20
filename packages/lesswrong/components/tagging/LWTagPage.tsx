@@ -540,11 +540,11 @@ function getTagQueryOptions(
   return { tagFragmentName, tagQueryOptions: { extraVariables } };
 }
 
-const LWTagPage = () => {
+const LWTagPage = ({slug}: {slug: string}) => {
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
-  const { query, params: { slug } } = useLocation();
+  const { query } = useLocation();
   const lensSlug = query.lens ?? query.l;
   // const { onOpenEditor } = useContext(TagEditorContext);
   

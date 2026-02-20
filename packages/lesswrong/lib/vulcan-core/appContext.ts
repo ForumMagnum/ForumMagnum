@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import type { RouterLocation } from '../vulcan-lib/routes';
+import type { RouterLocation } from '../routeChecks/parseRoute';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export interface ServerRequestStatusContextType {

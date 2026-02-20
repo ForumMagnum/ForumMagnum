@@ -5,6 +5,12 @@ import type { Redirect } from "next/dist/lib/load-custom-routes";
  * next.config.js (which performs the redirects themselves). Because this is
  * used in the nextjs config, it runs at build time and is very limited in
  * what it can do/import.
+ *
+ * Note that this uses :param style for parameterized routes, while most other
+ * things is [param] style to match how things are represented in the app/
+ * directory and in .next/types/routes.d.ts. This table can't be converted
+ * into that format because it makes heavy use of wildcards, optional segments,
+ * and other features that [param] style can't represent.
  */
 export const redirects = [
   {

@@ -8,13 +8,19 @@
  *
  * Because this is a handled by the root layout rather than the route component,
  * we have a list of white-background routes here. In the route component, call
- * assertRouteHasWhiteBackground to enforce that it's in this list.
+ * assertRouteAttributes to enforce that route-attributes are consistent with
+ * centralized route lists.
  */
+import type { ParamMap } from '../../../../.next/types/routes';
+import type { RoutePreviewPattern } from './hoverPreviewRoutes';
+import type { PingbackRoutePattern } from './pingbackRoutes';
+import type { LeftNavigationRoutePattern } from './index';
+
+type NextExistingRoute = keyof ParamMap;
+
 const routesWithWhiteBackground = [
   "/about",
   "/account",
-  "/bestoflesswrong/2018",
-  "/bestoflesswrong/2019",
   "/books/2018",
   "/books/2019",
   "/codex/[slug]",
@@ -37,7 +43,6 @@ const routesWithWhiteBackground = [
   "/posts/[_id]/[slug]",
   "/posts/[_id]",
   "/posts/slug/[slug]",
-  "/posts/slug",
   "/rationality/[slug]",
   "/resendVerificationEmail",
   "/s/[_id]/p/[postId]",
@@ -46,7 +51,9 @@ const routesWithWhiteBackground = [
   "/w/[slug]",
   "/w/[slug]/discussion",
   "/w/create"
-] as const;
+] as const satisfies readonly NextExistingRoute[];
+
+export type WhiteBackgroundRoutePattern = typeof routesWithWhiteBackground[number];
 
 const routesWithCreamBackground = [
   "/users/[slug]",

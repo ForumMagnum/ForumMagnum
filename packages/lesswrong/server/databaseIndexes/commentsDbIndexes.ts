@@ -136,5 +136,19 @@ export function getDbIndexesOnComments() {
     WHERE "deleted" IS TRUE;
   `);
 
+  // Speeds up moderation log rejected-comments pagination and avoids explicit sort work.
+  indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_rejected_postedAt"
+    ON "Comments" ("postedAt" DESC NULLS LAST)
+    WHERE "rejected" IS TRUE;
+  `);
+
+  // Speeds up moderation log public-deleted-comments pagination with matching filter + sort.
+  indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_deletedPublic_deletedDate"
+    ON "Comments" ("deletedDate" DESC NULLS LAST)
+    WHERE "deleted" IS TRUE AND "deletedPublic" IS TRUE;
+  `);
+
   return indexSet;
 }

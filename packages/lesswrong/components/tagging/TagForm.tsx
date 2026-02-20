@@ -348,6 +348,32 @@ export const TagForm = ({
           </div>
 
           <div className={classes.fieldWrapper}>
+            <form.Field name="removalResistant">
+              {(field) => (
+                <LWTooltip title="If a moderator or high-karma user upvotes this tag on a post, it can only be removed by a moderator downvote." placement="left-start" inlineBlock={false}>
+                  <FormComponentCheckbox
+                    field={field}
+                    label="Removal-resistant"
+                  />
+                </LWTooltip>
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="authorOnly">
+              {(field) => (
+                <LWTooltip title="Only post authors and moderators can apply, remove, or vote on this tag when used on posts." placement="left-start" inlineBlock={false}>
+                  <FormComponentCheckbox
+                    field={field}
+                    label="Author-only"
+                  />
+                </LWTooltip>
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
             <form.Field name="canEditUserIds">
               {(field) => (
                 <LWTooltip title="Only these authors will be able to edit the topic" placement="left-start" inlineBlock={false}>

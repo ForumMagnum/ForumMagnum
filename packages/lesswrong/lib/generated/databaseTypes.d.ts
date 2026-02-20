@@ -1522,6 +1522,7 @@ interface DbTag extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any | null
   afVoteCount: number | null
+  authorOnly: boolean
   autoTagModel: string | null
   autoTagPrompt: string | null
   bannerImageId: string | null
@@ -1563,6 +1564,7 @@ interface DbTag extends DbObject {
   pingbacks: any | null
   postCount: number
   postsDefaultSortOrder: string | null
+  removalResistant: boolean
   reviewedByUserId: string | null
   score: number
   shortName: string | null

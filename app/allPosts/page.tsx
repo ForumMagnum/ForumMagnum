@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { siteNameWithArticleSetting } from "@/lib/instanceSettings";
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge(
@@ -14,6 +15,14 @@ export async function generateMetadata(): Promise<Metadata> {
     getPageTitleFields('All Posts')
   );
 }
+
+assertRouteAttributes("/allPosts", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: true,
+  hasMarkdownVersion: false,
+});
 
 export default function Page() {
   return <RouteRoot>

@@ -282,7 +282,8 @@ function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurr
 }
 
 
-const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
+const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}: {
+  sequenceIdFromUrl: string|null,
   refetch: () => void,
   embedded?: boolean,
 } & (
@@ -331,7 +332,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   }, [post, showEmbeddedPlayer, captureEvent, setCookie]);
 
   const getSequenceId = () => {
-    return params.sequenceId || fullPost?.canonicalSequenceId || null;
+    return sequenceIdFromUrl || fullPost?.canonicalSequenceId || null;
   }
 
   // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route

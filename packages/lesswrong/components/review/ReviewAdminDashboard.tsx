@@ -1,20 +1,19 @@
 "use client";
 
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { useLocation } from '../../lib/routeUtil';
 import FormatDate from "../common/FormatDate";
 import PostsItemMetaInfo from "../posts/PostsItemMetaInfo";
 import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
 import { Typography } from "../common/Typography";
-import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const reviewAdminDashboardMultiQuery = gql(`
   query multiReviewVoteReviewAdminDashboardQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -27,7 +26,7 @@ const reviewAdminDashboardMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReviewAdminDashboard", (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "space-around"
@@ -51,11 +50,11 @@ const styles = (theme: ThemeType) => ({
   voteCount: {
     width: 75
   }
-})
+}));
 
-const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const ReviewAdminDashboard = ({year}: {year: string}) => {
   const currentUser = useCurrentUser()
-  const { params: {year} } = useLocation()
+  const classes = useStyles(styles);
   
   const [sortField, setSortField] = useState('votes');
 
@@ -190,6 +189,6 @@ const ReviewAdminDashboard = ({classes}: {classes: ClassesType<typeof styles>}) 
   </div>
 }
 
-export default registerComponent('ReviewAdminDashboard', ReviewAdminDashboard, {styles});
+export default ReviewAdminDashboard;
 
 

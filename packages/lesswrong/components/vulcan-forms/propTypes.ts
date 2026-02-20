@@ -1,7 +1,7 @@
 /** PropTypes for documentation purpose (not tested yet) */
 import { WatchQueryFetchPolicy } from '@apollo/client';
 import PropTypes from 'prop-types';
-import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import type { History } from 'history'
 
 export const fieldProps = {

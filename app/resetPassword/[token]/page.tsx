@@ -1,10 +1,21 @@
 import React from "react";
 import PasswordResetPage from '@/components/users/PasswordResetPage';
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
+assertRouteAttributes("/resetPassword/[token]", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ token: string }>
+}) {
+  const { token } = await params;
   return <RouteRoot>
-    <PasswordResetPage />
+    <PasswordResetPage token={token} />
   </RouteRoot>
 }
