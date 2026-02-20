@@ -3,7 +3,7 @@ import { userCanStartConversations } from "@/lib/collections/conversations/helpe
 import schema from "@/lib/collections/conversations/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
-import { conversationEditNotification, flagOrBlockUserOnManyDMs, sendUserLeavingConversationNotication } from "@/server/callbacks/conversationCallbacks";
+import { conversationEditNotification, sendUserLeavingConversationNotication } from "@/server/callbacks/conversationCallbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -37,8 +37,6 @@ export async function createConversation({ data }: CreateConversationInput, cont
 
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
-  await flagOrBlockUserOnManyDMs({ currentConversation: data, currentUser, context });
-
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Conversations', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
@@ -58,8 +56,6 @@ export async function updateConversation({ selector, data }: { data: UpdateConve
   const { oldDocument } = updateCallbackProperties;
 
   data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
-
-  await flagOrBlockUserOnManyDMs({ currentConversation: data, oldConversation: oldDocument, currentUser, context });
 
   let updatedDocument = await updateAndReturnDocument(data, Conversations, conversationSelector, context);
 

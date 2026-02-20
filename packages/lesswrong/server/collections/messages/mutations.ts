@@ -8,6 +8,7 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { flagOrBlockUserOnManyDMs } from "@/server/utils/dmMessagingModeration";
 import gql from "graphql-tag";
 
 async function newCheck(user: DbUser | null, document: DbMessage | null, context: ResolverContext) {
@@ -29,7 +30,7 @@ async function editCheck(user: DbUser | null, document: DbMessage | null, contex
 }
 
 export async function createMessage({ data }: CreateMessageInput, context: ResolverContext) {
-  const { currentUser } = context;
+  const { currentUser, Conversations } = context;
 
   const callbackProps = await getLegacyCreateCallbackProps('Messages', {
     context,
@@ -40,6 +41,17 @@ export async function createMessage({ data }: CreateMessageInput, context: Resol
   assignUserIdToData(data, currentUser, schema);
 
   data = callbackProps.document;
+
+  if (!data.conversationId) {
+    throw new Error("Messages must belong to a conversation");
+  }
+
+  const conversation = await Conversations.findOne({ _id: data.conversationId });
+  if (!conversation) {
+    throw new Error(`Conversation ${data.conversationId} does not exist`);
+  }
+
+  await flagOrBlockUserOnManyDMs({ conversation, currentUser, context });
 
   checkIfNewMessageIsEmpty(data);
 
