@@ -5,6 +5,8 @@ import { Cookie, CookieSetOptions, CookieGetOptions } from 'universal-cookie';
 import CookiesContext from './CookiesContext';
 import isEqual from 'lodash/isEqual';
 
+const defaultOptions = { doNotUpdate: true };
+
 export default function useCookies<T extends string, U extends Record<string, unknown> = { [K in T]?: any }>(
   dependencies?: T[],
   options?: CookieGetOptions,
@@ -19,13 +21,11 @@ export default function useCookies<T extends string, U extends Record<string, un
   }
 
   const { cookies, initialCookies } = store;
-  const defaultOptions = { doNotUpdate: true };
   const dependencySet = useMemo(() => dependencies ? new Set(dependencies) : null, [dependencies]);
-  const getOptions = { ...defaultOptions, ...options };
 
   const getAllCookies = useCallback(
-    () => cookies.getAll(getOptions) as U,
-    [cookies, getOptions],
+    () => cookies.getAll({...defaultOptions, ...options}) as U,
+    [cookies, options],
   );
 
   const initialSnapshotRef = useRef<U>(initialCookies as U);
@@ -61,7 +61,10 @@ export default function useCookies<T extends string, U extends Record<string, un
     getSnapshot,
     () => initialSnapshotRef.current,
   );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const setCookie = useCallback(cookies.set.bind(cookies), [cookies]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const removeCookie = useCallback(cookies.remove.bind(cookies), [cookies]);
 
   return [allCookies, setCookie, removeCookie];
