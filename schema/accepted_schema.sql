@@ -3552,6 +3552,17 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_deletedDate" ON "Comments" ("deletedDat
 WHERE
   "deleted" IS TRUE;
 
+-- CustomIndex "idx_Comments_rejected_postedAt"
+CREATE INDEX IF NOT EXISTS "idx_Comments_rejected_postedAt" ON "Comments" ("postedAt" DESC NULLS LAST)
+WHERE
+  "rejected" IS TRUE;
+
+-- CustomIndex "idx_Comments_deletedPublic_deletedDate"
+CREATE INDEX IF NOT EXISTS "idx_Comments_deletedPublic_deletedDate" ON "Comments" ("deletedDate" DESC NULLS LAST)
+WHERE
+  "deleted" IS TRUE AND
+  "deletedPublic" IS TRUE;
+
 -- CustomIndex "idx_posts_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
 
@@ -3564,6 +3575,11 @@ CREATE INDEX IF NOT EXISTS "idx_Posts_max_postedAt_mostRecentPublishedDialogueRe
 )
 WHERE
   "collabEditorDialogue" IS TRUE;
+
+-- CustomIndex "idx_Posts_rejected_postedAt"
+CREATE INDEX IF NOT EXISTS "idx_Posts_rejected_postedAt" ON "Posts" ("postedAt" DESC NULLS LAST)
+WHERE
+  "rejected" IS TRUE;
 
 -- CustomIndex "idx_tags_pingbacks"
 CREATE INDEX IF NOT EXISTS idx_tags_pingbacks ON "Tags" USING gin (pingbacks);
@@ -3613,6 +3629,11 @@ WHERE
   "unsubscribeFromAll" IS NOT TRUE AND
   "deleted" IS NOT TRUE AND
   "email" IS NOT NULL;
+
+-- CustomIndex "idx_Users_banned_karma"
+CREATE INDEX IF NOT EXISTS "idx_Users_banned_karma" ON "Users" ("karma" DESC NULLS LAST, "banned")
+WHERE
+  "banned" IS NOT NULL;
 
 -- CustomIndex "idx_Users_tsvector_jobTitle"
 CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_jobTitle" ON "Users" (TO_TSVECTOR('english', "jobTitle"))
