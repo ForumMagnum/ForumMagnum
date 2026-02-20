@@ -150,13 +150,14 @@ export const EQUATION: TextMatchTransformer = {
     return `$${node.getEquation()}$`;
   },
   importRegExp: /\$([^$]+?)\$/,
-  regExp: /\$([^$]+?)\$$/,
+  regExp: /\$([^$]+?)\$ $/,
   replace: (textNode, match) => {
     const [, equation] = match;
     const equationNode = $createMathNode(equation, true);
     textNode.replace(equationNode);
+    equationNode.insertAfter($createTextNode(' '));
   },
-  trigger: '$',
+  trigger: ' ',
   type: 'text-match',
 };
 
