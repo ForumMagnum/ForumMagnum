@@ -268,10 +268,10 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       opacity: 0.6,
       fontSize: 'initial',
       lineHeight: 'normal',
-      '&:hover': {
-        background: theme.palette.grey[300],
-        opacity: 0.8,
-      },
+    },
+    '& .iframe-widget-wrapper:hover .iframe-widget-toggle': {
+      background: theme.palette.grey[300],
+      opacity: 0.8,
     },
     // Icon visibility: show eye icon in code view, code icon in preview view.
     // Selectors use wrapper (not container) because the toggle is a wrapper child.

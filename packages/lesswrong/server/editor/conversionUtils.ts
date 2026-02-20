@@ -17,6 +17,7 @@ import { type LiteAdaptor, liteAdaptor } from 'mathjax-full/js/adaptors/liteAdap
 import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html.js';
 import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
+import IframeWidgetSrcdocs from '@/server/collections/iframeWidgetSrcdocs/collection';
 
 let _turndownService: TurndownService|null = null;
 function getTurndown(): TurndownService {
@@ -373,6 +374,40 @@ function lexicalMarkupToHtml(markup: string, context: ResolverContext, skipMathj
   } else {
     return renderMathInHtml(strippedHtml);
   }
+}
+
+export async function extractAndReplaceIframeWidgets(html: string, revisionId: string): Promise<string> {
+  const $ = cheerioParse(html);
+  const srcdocsToInsert: DbInsertion<DbIframeWidgetSrcdoc>[] = [];
+
+  $('iframe[data-lexical-iframe-widget]').each((_, element) => {
+    const iframe = $(element);
+    const srcdoc = iframe.attr('srcdoc') ?? '';
+    if (!srcdoc) {
+      return;
+    }
+
+    const srcdocId = randomId();
+    srcdocsToInsert.push({
+      _id: srcdocId,
+      createdAt: new Date(),
+      schemaVersion: 1,
+      revisionId,
+      html: srcdoc,
+    });
+
+    const replacementDiv = $('<div></div>')
+      .addClass('iframe-widget')
+      .attr('data-iframe-widget-id', srcdocId);
+    iframe.replaceWith(replacementDiv);
+  });
+
+  await IframeWidgetSrcdocs.rawRemove({ revisionId });
+  if (srcdocsToInsert.length === 0) {
+    return html;
+  }
+  await IframeWidgetSrcdocs.rawInsertMany(srcdocsToInsert);
+  return $.html();
 }
 
 interface DataToHTMLOptions {

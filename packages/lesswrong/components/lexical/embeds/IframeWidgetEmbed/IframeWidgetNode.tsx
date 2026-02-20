@@ -53,17 +53,10 @@ function createCodeIcon(): SVGSVGElement {
   return svg;
 }
 
-// ── Serialized Type ─────────────────────────────────────────────────
-
 export type SerializedIframeWidgetNode = Spread<
-  {
-    contentHeight: number | null;
-    htmlCode?: string; // Legacy field for backwards compat with old DecoratorBlockNode format
-  },
+  {},
   SerializedCodeNode
 >;
-
-// ── DOM Conversion ──────────────────────────────────────────────────
 
 function $convertIframeWidgetElement(
   domNode: HTMLElement,
@@ -79,15 +72,10 @@ function $convertIframeWidgetElement(
   if (!iframe.hasAttribute('data-lexical-iframe-widget')) {
     return null;
   }
-  const contentHeightStr = iframe.getAttribute('data-content-height');
-  const contentHeight = contentHeightStr ? parseInt(contentHeightStr, 10) : null;
-
-  const node = $createIframeWidgetNode(contentHeight);
+  const node = $createIframeWidgetNode();
   node.append($createTextNode(htmlCode));
   return {node};
 }
-
-// ── Toggle handler ──────────────────────────────────────────────────
 
 function getTextContentFromLexical(container: HTMLElement): string | null {
   const editor = getNearestEditorFromDOMNode(container);
@@ -149,8 +137,6 @@ function handleToggleClick(wrapper: HTMLElement) {
   }
 }
 
-// ── Resize handler ──────────────────────────────────────────────────
-
 function setupResizeHandler(iframe: HTMLIFrameElement) {
   function handler(event: MessageEvent) {
     if (!iframe.isConnected) {
@@ -172,19 +158,16 @@ function setupResizeHandler(iframe: HTMLIFrameElement) {
 // ── Node Class ──────────────────────────────────────────────────────
 
 export class IframeWidgetNode extends CodeNode {
-  __contentHeight: number | null;
-
   static getType(): string {
     return 'iframe-widget';
   }
 
   static clone(node: IframeWidgetNode): IframeWidgetNode {
-    return new IframeWidgetNode(node.__contentHeight, node.__language, node.__key);
+    return new IframeWidgetNode(node.__language, node.__key);
   }
 
-  constructor(contentHeight?: number | null, language?: string | null, key?: NodeKey) {
+  constructor(language?: string | null, key?: NodeKey) {
     super(language ?? 'html', key);
-    this.__contentHeight = contentHeight ?? null;
   }
 
   // Prevent Backspace at start from converting to paragraph
@@ -223,7 +206,7 @@ export class IframeWidgetNode extends CodeNode {
     iframe.style.display = 'block';
     iframe.style.width = '100%';
     iframe.style.border = 'none';
-    iframe.style.height = `${this.__contentHeight ?? (hasContent ? DEFAULT_HEIGHT : 60)}px`;
+    iframe.style.height = `${hasContent ? DEFAULT_HEIGHT : 60}px`;
     previewDiv.appendChild(iframe);
     container.appendChild(previewDiv);
 
@@ -284,9 +267,7 @@ export class IframeWidgetNode extends CodeNode {
     iframe.setAttribute('srcdoc', this.getTextContent());
     iframe.setAttribute('sandbox', 'allow-scripts');
     iframe.setAttribute('title', 'Embedded widget');
-    const h = this.__contentHeight ?? DEFAULT_HEIGHT;
-    iframe.setAttribute('data-content-height', String(h));
-    iframe.setAttribute('style', `width: 100%; height: ${h}px; border: 1px solid #ccc; border-radius: 4px;`);
+    iframe.setAttribute('style', `width: 100%; height: ${DEFAULT_HEIGHT}px; border: 1px solid #ccc; border-radius: 4px;`);
     return {element: iframe};
   }
 
@@ -305,13 +286,7 @@ export class IframeWidgetNode extends CodeNode {
   }
 
   static importJSON(serializedNode: SerializedIframeWidgetNode): IframeWidgetNode {
-    const node = $createIframeWidgetNode(serializedNode.contentHeight);
-
-    // Backwards compatibility: old format stored code as a property, not as children
-    if (serializedNode.htmlCode) {
-      node.append($createTextNode(serializedNode.htmlCode));
-    }
-
+    const node = $createIframeWidgetNode();
     return node.updateFromJSON(serializedNode);
   }
 
@@ -322,23 +297,13 @@ export class IframeWidgetNode extends CodeNode {
   exportJSON(): SerializedIframeWidgetNode {
     return {
       ...super.exportJSON(),
-      contentHeight: this.__contentHeight,
     };
-  }
-
-  getContentHeight(): number | null {
-    return this.__contentHeight;
-  }
-
-  setContentHeight(height: number): void {
-    const writable = this.getWritable();
-    writable.__contentHeight = height;
   }
 
 }
 
-export function $createIframeWidgetNode(contentHeight?: number | null): IframeWidgetNode {
-  return new IframeWidgetNode(contentHeight);
+export function $createIframeWidgetNode(): IframeWidgetNode {
+  return new IframeWidgetNode();
 }
 
 export function $isIframeWidgetNode(

@@ -2889,6 +2889,18 @@ type HomepageCommunityEventPostsResult = {
   posts: Array<Post>;
 };
 
+type IframeWidgetSrcdoc = {
+  __typename?: 'IframeWidgetSrcdoc';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  html: Scalars['String']['output'];
+  revisionId: Scalars['String']['output'];
+};
+
+type IframeWidgetSrcdocSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
 type Images = {
   __typename?: 'Images';
   _id: Scalars['String']['output'];
@@ -3853,6 +3865,12 @@ type MultiGoogleServiceAccountSessionInput = {
 type MultiGoogleServiceAccountSessionOutput = {
   __typename?: 'MultiGoogleServiceAccountSessionOutput';
   results: Array<GoogleServiceAccountSession>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type MultiIframeWidgetSrcdocOutput = {
+  __typename?: 'MultiIframeWidgetSrcdocOutput';
+  results: Array<IframeWidgetSrcdoc>;
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -7883,6 +7901,8 @@ type Query = {
   getSequenceStats?: Maybe<SequenceStats>;
   googleServiceAccountSession?: Maybe<SingleGoogleServiceAccountSessionOutput>;
   googleServiceAccountSessions?: Maybe<MultiGoogleServiceAccountSessionOutput>;
+  iframeWidgetSrcdoc?: Maybe<SingleIframeWidgetSrcdocOutput>;
+  iframeWidgetSrcdocs?: Maybe<MultiIframeWidgetSrcdocOutput>;
   jargonTerm?: Maybe<SingleJargonTermOutput>;
   jargonTerms?: Maybe<MultiJargonTermOutput>;
   lWEvent?: Maybe<SingleLWEventOutput>;
@@ -8767,6 +8787,19 @@ type QuerygoogleServiceAccountSessionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<GoogleServiceAccountSessionSelector>;
+};
+
+
+type QueryiframeWidgetSrcdocArgs = {
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryiframeWidgetSrcdocsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<IframeWidgetSrcdocSelector>;
 };
 
 
@@ -10171,6 +10204,11 @@ type SingleGoogleServiceAccountSessionInput = {
 type SingleGoogleServiceAccountSessionOutput = {
   __typename?: 'SingleGoogleServiceAccountSessionOutput';
   result?: Maybe<GoogleServiceAccountSession>;
+};
+
+type SingleIframeWidgetSrcdocOutput = {
+  __typename?: 'SingleIframeWidgetSrcdocOutput';
+  result?: Maybe<IframeWidgetSrcdoc>;
 };
 
 type SingleJargonTermInput = {
@@ -14868,6 +14906,20 @@ type ElicitPredictionMutationVariables = Exact<{
 
 
 type ElicitPredictionMutation = ElicitPredictionMutation_Mutation;
+
+type IframeWidgetSrcdocQueryQuery_iframeWidgetSrcdoc_SingleIframeWidgetSrcdocOutput_result_IframeWidgetSrcdoc = { __typename?: 'IframeWidgetSrcdoc', _id: string, html: string };
+
+type IframeWidgetSrcdocQueryQuery_iframeWidgetSrcdoc_SingleIframeWidgetSrcdocOutput = { __typename?: 'SingleIframeWidgetSrcdocOutput', result: IframeWidgetSrcdocQueryQuery_iframeWidgetSrcdoc_SingleIframeWidgetSrcdocOutput_result_IframeWidgetSrcdoc | null };
+
+type IframeWidgetSrcdocQueryQuery_Query = { __typename?: 'Query', iframeWidgetSrcdoc: IframeWidgetSrcdocQueryQuery_iframeWidgetSrcdoc_SingleIframeWidgetSrcdocOutput | null };
+
+
+type IframeWidgetSrcdocQueryQueryVariables = Exact<{
+  widgetId: Scalars['String']['input'];
+}>;
+
+
+type IframeWidgetSrcdocQueryQuery = IframeWidgetSrcdocQueryQuery_Query;
 
 type RecentlyActiveDialoguesQuery_RecentlyActiveDialogues_RecentlyActiveDialoguesResult_results_Post = (
   { __typename?: 'Post' }

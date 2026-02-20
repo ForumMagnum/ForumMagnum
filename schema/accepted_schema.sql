@@ -975,6 +975,17 @@ CREATE TABLE "GoogleServiceAccountSessions" (
   "revoked" BOOL NOT NULL
 );
 
+-- Table "IframeWidgetSrcdocs"
+CREATE TABLE "IframeWidgetSrcdocs" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "revisionId" VARCHAR(27) NOT NULL,
+  "html" TEXT NOT NULL
+);
+
+-- Index "idx_IframeWidgetSrcdocs_revisionId"
+CREATE INDEX IF NOT EXISTS "idx_IframeWidgetSrcdocs_revisionId" ON "IframeWidgetSrcdocs" USING btree ("revisionId");
+
 -- Table "Images"
 CREATE TABLE "Images" (
   _id VARCHAR(27) PRIMARY KEY,
