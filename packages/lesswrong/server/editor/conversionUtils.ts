@@ -17,6 +17,16 @@ import { type LiteAdaptor, liteAdaptor } from 'mathjax-full/js/adaptors/liteAdap
 import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html.js';
 import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
+import { ServerSafeNode } from '@/lib/domParser';
+
+const blockTags = new Set([
+  'ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'DIV', 'DL', 'DT', 'DD', 'FIELDSET',
+  'FIGCAPTION', 'FIGURE', 'FOOTER', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
+  'HEADER', 'HR', 'LI', 'MAIN', 'NAV', 'NOSCRIPT', 'OL', 'P', 'PRE', 'SECTION',
+  'TABLE', 'TFOOT', 'UL',
+]);
+
+const isBlockTag = (nodeName: string): boolean => blockTags.has(nodeName);
 
 let _turndownService: TurndownService|null = null;
 function getTurndown(): TurndownService {
@@ -24,9 +34,46 @@ function getTurndown(): TurndownService {
     const TurndownService = require('turndown');
     const {gfm} = require('turndown-plugin-gfm');
 
-    const turndownService: TurndownService = new TurndownService()
+    const indentMarkdown = (markdown: string, indentLevel: number): string => {
+      if (indentLevel <= 0) return markdown;
+      const prefix = "\t".repeat(indentLevel);
+      return markdown
+        .split("\n")
+        .map((line) => (line.length ? `${prefix}${line}` : line))
+        .join("\n");
+    };
+
+    const turndownService: TurndownService = new TurndownService({
+      blankReplacement: (content: string, node: Node) => {
+        if (hasDataMarkdownAttribute(node)) {
+          const element = node as Element;
+          const markdown = element.getAttribute('data-markdown') ?? '';
+          const indentLevel = Number.parseInt(element.getAttribute('data-indent-level') ?? "0", 10) || 0;
+          const indentedMarkdown = indentMarkdown(unescape(markdown), indentLevel);
+          return `\n\n${indentedMarkdown}\n\n`
+        }
+        if (node?.nodeType === ServerSafeNode.ELEMENT_NODE && isBlockTag(node.nodeName)) {
+          return '\n\n'
+        }
+        return ''
+      },
+    })
     turndownService.use(gfm); // Add support for strikethrough and tables
     turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
+    turndownService.addRule('raw-markdown', {
+      filter: (node, options) => hasDataMarkdownAttribute(node),
+      replacement: (content, node) => {
+        const element = node as Element;
+        const markdown = element.getAttribute('data-markdown') ?? '';
+        const indentLevel = Number.parseInt(element.getAttribute('data-indent-level') ?? "0", 10) || 0;
+        const indentedMarkdown = indentMarkdown(unescape(markdown), indentLevel);
+        return `\n\n${indentedMarkdown}\n\n`
+      }
+    })
+    turndownService.addRule('markdown-title', {
+      filter: (node, options) => node.classList?.contains('markdown-title'),
+      replacement: (content) => `# ${content.trim()}\n\n`,
+    })
     turndownService.addRule('footnote-ref', {
       filter: (node, options) => node.classList?.contains('footnote-reference'),
       replacement: (content, node) => {
@@ -59,12 +106,28 @@ function getTurndown(): TurndownService {
       filter: ['i'],
       replacement: (content) => `*${content}*`
     })
-    //If we have a math-tex block, we want to leave it as is without escaping it
+    const unescapeMarkdownInMath = (text: string): string =>
+      text.replace(/\\([ \\!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])/g, '$1');
+
+    const convertMathDelimiters = (text: string): string | null => {
+      const trimmed = text.trim();
+      const inlineMatch = trimmed.match(/^\\\\?\\\(([\s\S]*?)\\\\?\\\)$/);
+      if (inlineMatch) {
+        return `$${unescapeMarkdownInMath(inlineMatch[1])}$`;
+      }
+      const blockMatch = trimmed.match(/^\\\\?\\\[([\s\S]*?)\\\\?\\\]$/);
+      if (blockMatch) {
+        return `\n\n$$\n${unescapeMarkdownInMath(blockMatch[1])}\n$$\n\n`;
+      }
+      return null;
+    };
+
+    //If we have a math-tex block, we want to convert it to markdown math delimiters
     turndownService.addRule('latex-spans', {
       filter: (node, options) => node.classList?.contains('math-tex'),
       replacement: (content) => {
-        // Leave the first three and last three characters alone, and then replace every escaped markdown control character with its unescaped version
-        return content.slice(0, 3) + content.slice(3, -3).replace(/\\([ \\!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])/g, '$1') + content.slice(-3)
+        const converted = convertMathDelimiters(content);
+        return converted ?? content;
       }
     })
     
@@ -79,6 +142,12 @@ function getTurndown(): TurndownService {
     _turndownService = turndownService;
   }
   return _turndownService;
+}
+
+function hasDataMarkdownAttribute(node: Node): boolean {
+  return node?.nodeType === ServerSafeNode.ELEMENT_NODE
+    && typeof (node as Element).getAttribute === 'function'
+    && (node as Element).getAttribute('data-markdown') !== null
 }
 
 let _mathjax3: {

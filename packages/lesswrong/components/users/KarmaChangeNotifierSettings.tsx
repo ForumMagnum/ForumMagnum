@@ -12,26 +12,40 @@ import { karmaChangeNotifierDefaultSettings, KarmaChangeUpdateFrequency, type Ka
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { Typography } from "../common/Typography";
+
 import { MenuItem } from "../common/Menus";
 
 const styles = defineStyles('KarmaChangeNotifierSettings', (theme: ThemeType) => ({
   root: {
-    paddingLeft: 8,
-    paddingRight: 8,
+    fontFamily: theme.typography.fontFamily,
   },
   heading: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.grey[800],
+  },
+  description: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.grey[600],
+    lineHeight: 1.5,
+    marginTop: 4,
   },
   radioGroup: {
     display: "flex",
     flexDirection: 'column',
     flexWrap: 'wrap',
-    marginTop: 4,
-    paddingLeft: 24,
+    marginTop: 8,
+    gap: 2,
   },
   radioButton: {
     padding: 4,
+  },
+  radioLabel: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.grey[700],
   },
   inline: {
     display: "inline",
@@ -40,7 +54,14 @@ const styles = defineStyles('KarmaChangeNotifierSettings', (theme: ThemeType) =>
     paddingRight: 4,
   },
   showNegative: {
-    paddingLeft: 16,
+    marginTop: 4,
+  },
+  warningText: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    color: theme.palette.grey[500],
+    fontStyle: 'italic',
+    marginTop: 4,
   },
 }));
 
@@ -169,16 +190,14 @@ const KarmaChangeNotifierSettings = ({
   </span>
   
   return <div className={classes.root}>
-    <Typography variant="body1" className={classes.heading}>
+    <div className={classes.heading}>
       Vote and Reaction Notifications
-    </Typography>
-    <Typography variant="body2">
+    </div>
+    <div className={classes.description}>
       Shows reactions, upvotes and downvotes on your posts and comments on top of the
       page. By default, this is on but only updates once per day, to avoid
-      creating a distracting temptation to frequently recheck it. Can be
-      set to real time (removing the batching), disabled (to remove it
-      from the header entirely), or to some other update interval.
-    </Typography>
+      creating a distracting temptation to frequently recheck it.
+    </div>
     <div className={classes.radioGroup}>
       {Object.entries(getKarmaNotificationTimingChoices()).map(([key, timingChoice]) =>
         <FormControlLabel
@@ -192,10 +211,10 @@ const KarmaChangeNotifierSettings = ({
             />
           }
           label={
-            <Typography className={classes.inline} variant="body2" component="span">
+            <span className={classes.radioLabel}>
               {timingChoice.label}
               {(settings.updateFrequency === key) ? batchTimingChoices : null}
-            </Typography>
+            </span>
           }
           classes={{
             label: null as any,
@@ -203,28 +222,28 @@ const KarmaChangeNotifierSettings = ({
         />
       )}
     </div>
-    
-    { (settings.updateFrequency==="realtime") && <span>
-      Warning: Immediate karma updates may lead to over-updating on tiny amounts
-      of feedback, and to checking the site frequently when you'd rather be
-      doing something else.
-    </span> }
-    {
-      <FormControlLabel
-        control={<Checkbox
-          id="showNegativeCheckbox"
-          classes={{root: classes.checkbox}}
-          checked={settings.showNegativeKarma}
-          onChange={(event, checked) => modifyValue({showNegativeKarma: checked})}
-        />}
-        label={
-          <Typography variant="body2" className={classes.inline}>
-            Show negative karma notifications
-          </Typography>
-        }
-        className={classes.showNegative}
-      />
-    }
+
+    {(settings.updateFrequency==="realtime") && (
+      <div className={classes.warningText}>
+        Warning: Immediate karma updates may lead to over-updating on tiny amounts
+        of feedback, and to checking the site frequently when you'd rather be
+        doing something else.
+      </div>
+    )}
+    <FormControlLabel
+      control={<Checkbox
+        id="showNegativeCheckbox"
+        classes={{root: classes.checkbox}}
+        checked={settings.showNegativeKarma}
+        onChange={(event, checked) => modifyValue({showNegativeKarma: checked})}
+      />}
+      label={
+        <span className={classes.radioLabel}>
+          Show negative karma notifications
+        </span>
+      }
+      className={classes.showNegative}
+    />
   </div>
 };
 
