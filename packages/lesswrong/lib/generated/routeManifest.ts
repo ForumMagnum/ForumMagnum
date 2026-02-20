@@ -711,6 +711,9 @@ export const routeTrie = {
       },
       "hasPage": true
     },
+    "hyperdense": {
+      "hasPage": true
+    },
     "inbox": {
       "hasPage": true
     },
@@ -1183,6 +1186,7 @@ export const routeTrie = {
     "highlights": "highlights",
     "hocuspocuswebhook": "hocuspocusWebhook",
     "hpmor": "hpmor",
+    "hyperdense": "hyperdense",
     "inbox": "inbox",
     "item": "item",
     "leaderboard": "leaderboard",
