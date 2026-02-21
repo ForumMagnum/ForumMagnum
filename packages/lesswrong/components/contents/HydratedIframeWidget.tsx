@@ -1,5 +1,5 @@
 'use client';
-import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -27,7 +27,7 @@ const styles = defineStyles('HydratedIframeWidget', () => ({
   },
   iframe: {
     width: '100%',
-    border: '1px solid #ccc',
+    border: 'none',
     borderRadius: 4,
   },
 }));
@@ -54,10 +54,15 @@ function InlineIframeWidget({ srcdoc, title }: {
     setHeight(clampHeight(event.data.height));
   }, []);
 
-  useEffect(() => {
+  const requestResize = useCallback(() => {
+    iframeRef.current?.contentWindow?.postMessage({ type: 'iframe-widget-request-resize' }, '*');
+  }, []);
+
+  useLayoutEffect(() => {
     window.addEventListener('message', handleMessage);
+    requestResize();
     return () => window.removeEventListener('message', handleMessage);
-  }, [handleMessage]);
+  }, [handleMessage, requestResize]);
 
   return (
     <iframe
@@ -67,6 +72,7 @@ function InlineIframeWidget({ srcdoc, title }: {
       data-lexical-iframe-widget="true"
       className={classes.iframe}
       style={{height}}
+      onLoad={requestResize}
       ref={iframeRef}
     />
   );

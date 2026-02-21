@@ -23,6 +23,11 @@ const RESIZE_SCRIPT = `<script>
       raf = requestAnimationFrame(postHeight);
     }).observe(document.documentElement);
   }
+  window.addEventListener('message', function(event) {
+    if (event.data?.type === 'iframe-widget-request-resize') {
+      postHeight();
+    }
+  });
   window.addEventListener('resize', postHeight);
 })();
 </script>`;

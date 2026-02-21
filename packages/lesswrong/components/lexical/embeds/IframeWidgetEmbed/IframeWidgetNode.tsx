@@ -138,11 +138,18 @@ function handleToggleClick(wrapper: HTMLElement) {
 }
 
 function setupResizeHandler(iframe: HTMLIFrameElement) {
+  // Track whether the iframe was ever attached to the DOM, so we can
+  // distinguish "not yet connected" (during createDOM, before Lexical inserts
+  // the element) from "was connected but has since been removed" (cleanup).
+  let wasConnected = false;
   function handler(event: MessageEvent) {
     if (!iframe.isConnected) {
-      window.removeEventListener('message', handler);
+      if (wasConnected) {
+        window.removeEventListener('message', handler);
+      }
       return;
     }
+    wasConnected = true;
     if (event.source !== iframe.contentWindow) {
       return;
     }
@@ -154,8 +161,6 @@ function setupResizeHandler(iframe: HTMLIFrameElement) {
   }
   window.addEventListener('message', handler);
 }
-
-// ── Node Class ──────────────────────────────────────────────────────
 
 export class IframeWidgetNode extends CodeNode {
   static getType(): string {
