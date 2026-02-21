@@ -25,14 +25,19 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ShortformThreadList = ({ classes }: {
+const ShortformThreadList = ({ classes, userId, showQuickTakeEntry = true }: {
   classes: ClassesType<typeof styles>,
+  userId?: string,
+  showQuickTakeEntry?: boolean,
 }) => {
   const currentUser = useCurrentUser();
+  const shortformSelector = userId
+    ? { shortform: { userId } }
+    : { shortform: {} };
   
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
     variables: {
-      selector: { shortform: {} },
+      selector: shortformSelector,
       limit: 20,
       enableTotal: false,
     },
@@ -43,7 +48,7 @@ const ShortformThreadList = ({ classes }: {
 
   return (
     <div>
-      {(userCanQuickTake(currentUser) || !currentUser) &&
+      {showQuickTakeEntry && (userCanQuickTake(currentUser) || !currentUser) &&
         <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
       }
 

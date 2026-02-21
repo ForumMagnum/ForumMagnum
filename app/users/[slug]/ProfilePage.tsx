@@ -40,6 +40,7 @@ import { profileStyles } from "./profileStyles";
 import Error404 from "@/components/common/Error404";
 import { StatusCodeSetter } from "@/components/next/StatusCodeSetter";
 import LoadMore from "@/components/common/LoadMore";
+import ShortformThreadList from "@/components/shortform/ShortformThreadList";
 
 // ── Constants ──
 
@@ -224,10 +225,10 @@ function getCollapsedBioHtml(htmlBio: string, wordLimit: number): string {
   return truncate(htmlBio, wordLimit, "words");
 }
 
-type ProfileTab = "posts" | "sequences" | "feed";
+type ProfileTab = "posts" | "sequences" | "quickTakes" | "feed";
 
 function parseProfileTab(value: unknown): ProfileTab | null {
-  if (value === "posts" || value === "sequences" || value === "feed") {
+  if (value === "posts" || value === "sequences" || value === "quickTakes" || value === "feed") {
     return value;
   }
   return null;
@@ -244,6 +245,7 @@ function getInitialProfileTab({
 }): ProfileTab {
   if (preferredTab === "sequences" && hasSequences) return "sequences";
   if (preferredTab === "posts" && hasPosts) return "posts";
+  if (preferredTab === "quickTakes") return "quickTakes";
   if (preferredTab === "feed") return "feed";
   if (!hasPosts) return "feed";
   return "posts";
@@ -436,6 +438,14 @@ function ProfilePageInner({user}: {
                     </button>
                   )}
                   <button
+                    className={classNames(classes.profileTab, activeTab === "quickTakes" && classes.profileTabActive)}
+                    data-tab="quickTakes"
+                    type="button"
+                    onClick={() => handleTabSwitch("quickTakes")}
+                  >
+                    Quick takes
+                  </button>
+                  <button
                     className={classNames(classes.profileTab, activeTab === "feed" && classes.profileTabActive)}
                     data-tab="feed"
                     type="button"
@@ -471,6 +481,15 @@ function ProfilePageInner({user}: {
               )}>
                 {activeTab === "sequences" && <Suspense>
                   <ProfilePageSequencesTab user={user} />
+                </Suspense>}
+              </div>
+
+              <div className={classNames(
+                classes.tabPanel,
+                activeTab === "quickTakes" && classes.tabPanelActive
+              )}>
+                {activeTab === "quickTakes" && <Suspense>
+                  <ShortformThreadList userId={user._id} showQuickTakeEntry={false} />
                 </Suspense>}
               </div>
 
