@@ -749,6 +749,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       marginRight: 0,
     },
   },
+  profileFeedTopMargin: {
+    marginTop: 16,
+  },
   sequencesGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)",

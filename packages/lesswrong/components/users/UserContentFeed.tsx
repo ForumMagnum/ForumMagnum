@@ -117,6 +117,10 @@ export const userContentFeedStyles = defineStyles("UserContentFeed", (theme: The
     marginRight: 8,
     gap: 8,
   },
+  feedContentNoSideMargins: {
+    marginLeft: 0,
+    marginRight: 0,
+  },
   loading: {
     padding: 40,
     display: 'flex',
@@ -212,6 +216,7 @@ interface UserContentFeedProps {
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
   externalSortMode?: SortMode;
   externalFilter?: FilterMode;
+  removeSideMargins?: boolean;
 }
 
 type PostItem = PostsListWithVotes;
@@ -253,7 +258,7 @@ const UserContentFeedItem = ({ item, index, feedSettings }: {
   }
 };
 
-const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, externalSortMode, externalFilter }: UserContentFeedProps) => {
+const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, externalSortMode, externalFilter, removeSideMargins = false }: UserContentFeedProps) => {
   const classes = useStyles(userContentFeedStyles);
   const [internalSortMode, setInternalSortMode] = useState<SortMode>('recent');
   const sortMode = externalSortMode ?? internalSortMode;
@@ -495,7 +500,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
       {isInitialLoading && <div className={classes.loading}>
         <Loading />
       </div>}
-      {!isInitialLoading && <div className={classes.feedContent}>
+      {!isInitialLoading && <div className={classNames(classes.feedContent, removeSideMargins && classes.feedContentNoSideMargins)}>
         {mixedFeed.map((item, index) => (
           <UserContentFeedItem 
             key={item.type === 'post' ? `post-${item.data._id}` : `comment-${item.data._id}`}

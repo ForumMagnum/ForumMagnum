@@ -40,7 +40,6 @@ import { profileStyles } from "./profileStyles";
 import Error404 from "@/components/common/Error404";
 import { StatusCodeSetter } from "@/components/next/StatusCodeSetter";
 import LoadMore from "@/components/common/LoadMore";
-import ShortformThreadList from "@/components/shortform/ShortformThreadList";
 
 // ── Constants ──
 
@@ -457,7 +456,7 @@ function ProfilePageInner({user}: {
                     type="button"
                     onClick={() => handleTabSwitch("feed")}
                   >
-                    Feed
+                    All
                   </button>
                 </div>
                 {((activeTab === "posts" && hasPosts) || (activeTab === "feed" && hasFeedContent) || activeTab === "sequences") && (
@@ -495,7 +494,7 @@ function ProfilePageInner({user}: {
                 activeTab === "quickTakes" && classes.tabPanelActive
               )}>
                 {activeTab === "quickTakes" && <Suspense>
-                  <ShortformThreadList userId={user._id} showQuickTakeEntry={false} showPostTitle={false} limit={10} />
+                  <ProfilePageQuickTakesTab user={user} />
                 </Suspense>}
               </div>
 
@@ -1085,10 +1084,30 @@ function ProfilePageFeedTab({user, sortPanelOpen, sortPanelClosing}: {
       <UltraFeedContextProvider openInNewTab={true}>
         <UltraFeedObserverProvider incognitoMode={false}>
           <OverflowNavObserverProvider>
-            <UserContentFeed userId={user._id} externalSortMode={feedSortBy} externalFilter={feedFilter} />
+            <div className={classes.profileFeedTopMargin}>
+              <UserContentFeed userId={user._id} externalSortMode={feedSortBy} externalFilter={feedFilter} />
+            </div>
           </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
       </UltraFeedContextProvider>
     )}
   </>
+}
+
+function ProfilePageQuickTakesTab({user}: {
+  user: UsersProfile,
+}) {
+  const classes = useStyles(profileStyles);
+
+  return (
+    <UltraFeedContextProvider openInNewTab={true}>
+      <UltraFeedObserverProvider incognitoMode={false}>
+        <OverflowNavObserverProvider>
+          <div className={classes.profileFeedTopMargin}>
+            <UserContentFeed userId={user._id} externalSortMode="recent" externalFilter="quickTakes" removeSideMargins={true} />
+          </div>
+        </OverflowNavObserverProvider>
+      </UltraFeedObserverProvider>
+    </UltraFeedContextProvider>
+  );
 }
