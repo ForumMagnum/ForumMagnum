@@ -247,11 +247,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
-    const queueUser = allOrderedUsers.find(u => u._id === state.openedUserId);
-    if (queueUser) return queueUser;
-    if (directUser && directUser._id === state.openedUserId) return directUser;
-    return null;
-  }, [state.openedUserId, allOrderedUsers, directUser]);
+    return allOrderedUsers.find(u => u._id === state.openedUserId) ?? null;
+  }, [state.openedUserId, allOrderedUsers]);
 
   const sidebarUser = useMemo(() => {
     if (openedUser) return openedUser;
