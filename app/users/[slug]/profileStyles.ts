@@ -613,7 +613,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   profileTabs: {
     display: "flex",
-    gap: 18,
+    gap: 22,
     margin: 0,
   },
   profileTab: {

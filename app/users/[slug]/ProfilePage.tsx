@@ -238,14 +238,16 @@ function getInitialProfileTab({
   preferredTab,
   hasPosts,
   hasSequences,
+  hasQuickTakes,
 }: {
   preferredTab: ProfileTab | null;
   hasPosts: boolean;
   hasSequences: boolean;
+  hasQuickTakes: boolean;
 }): ProfileTab {
   if (preferredTab === "sequences" && hasSequences) return "sequences";
   if (preferredTab === "posts" && hasPosts) return "posts";
-  if (preferredTab === "quickTakes") return "quickTakes";
+  if (preferredTab === "quickTakes" && hasQuickTakes) return "quickTakes";
   if (preferredTab === "feed") return "feed";
   if (!hasPosts) return "feed";
   return "posts";
@@ -355,11 +357,13 @@ function ProfilePageInner({user}: {
   const hasPosts = user.postCount > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
   const hasSequences = user.sequenceCount > 0;
+  const hasQuickTakes = !!user.shortformFeedId;
 
   const [activeTab, setActiveTab] = useState<ProfileTab>(getInitialProfileTab({
     preferredTab: parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]),
     hasPosts: user.postCount > 0,
     hasSequences: user.sequenceCount > 0,
+    hasQuickTakes,
   }));
 
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
@@ -425,7 +429,7 @@ function ProfilePageInner({user}: {
                     type="button"
                     onClick={() => handleTabSwitch("posts")}
                   >
-                    All posts
+                    Posts
                   </button>
                   {hasSequences && (
                     <button
@@ -437,14 +441,16 @@ function ProfilePageInner({user}: {
                       Sequences
                     </button>
                   )}
-                  <button
-                    className={classNames(classes.profileTab, activeTab === "quickTakes" && classes.profileTabActive)}
-                    data-tab="quickTakes"
-                    type="button"
-                    onClick={() => handleTabSwitch("quickTakes")}
-                  >
-                    Quick takes
-                  </button>
+                  {hasQuickTakes && (
+                    <button
+                      className={classNames(classes.profileTab, activeTab === "quickTakes" && classes.profileTabActive)}
+                      data-tab="quickTakes"
+                      type="button"
+                      onClick={() => handleTabSwitch("quickTakes")}
+                    >
+                      Quick takes
+                    </button>
+                  )}
                   <button
                     className={classNames(classes.profileTab, activeTab === "feed" && classes.profileTabActive)}
                     data-tab="feed"
@@ -489,7 +495,7 @@ function ProfilePageInner({user}: {
                 activeTab === "quickTakes" && classes.tabPanelActive
               )}>
                 {activeTab === "quickTakes" && <Suspense>
-                  <ShortformThreadList userId={user._id} showQuickTakeEntry={false} />
+                  <ShortformThreadList userId={user._id} showQuickTakeEntry={false} showPostTitle={false} limit={10} />
                 </Suspense>}
               </div>
 

@@ -25,10 +25,12 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const ShortformThreadList = ({ classes, userId, showQuickTakeEntry = true }: {
+const ShortformThreadList = ({ classes, userId, showQuickTakeEntry = true, showPostTitle = true, limit = 20 }: {
   classes: ClassesType<typeof styles>,
   userId?: string,
   showQuickTakeEntry?: boolean,
+  showPostTitle?: boolean,
+  limit?: number,
 }) => {
   const currentUser = useCurrentUser();
   const shortformSelector = userId
@@ -38,7 +40,7 @@ const ShortformThreadList = ({ classes, userId, showQuickTakeEntry = true }: {
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
     variables: {
       selector: shortformSelector,
-      limit: 20,
+      limit,
       enableTotal: false,
     },
     fetchPolicy: 'cache-and-network',
@@ -59,6 +61,7 @@ const ShortformThreadList = ({ classes, userId, showQuickTakeEntry = true }: {
         return <div key={comment._id} className={classes.shortformItem}>
           <CommentOnPostWithReplies comment={comment} post={comment.post} commentNodeProps={{
             treeOptions: {
+              showPostTitle,
               refetch
             }
           }}/>
@@ -70,5 +73,3 @@ const ShortformThreadList = ({ classes, userId, showQuickTakeEntry = true }: {
 }
 
 export default registerComponent('ShortformThreadList', ShortformThreadList, {styles});
-
-
