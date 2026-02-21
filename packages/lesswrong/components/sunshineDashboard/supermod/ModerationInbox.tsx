@@ -67,16 +67,6 @@ const SingleUserSupermodQuery = gql(`
   }
 `);
 
-const SingleUserBySlugSupermodQuery = gql(`
-  query singleUserBySlugSupermodQuery($slug: String) {
-    user(input: { selector: { slug: $slug } }) {
-      result {
-        ...SunshineUsersList
-      }
-    }
-  }
-`);
-
 const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   root: {
     width: '100%',
@@ -426,8 +416,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
 const ModerationInbox = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const navigate = useNavigate();
-  const { query, location } = useLocation();
+  const { query } = useLocation();
 
   const { data: usersData, loading: usersLoading } = useQuery(SunshineUsersListMultiQuery, {
     variables: {
@@ -456,32 +445,13 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const userIdFromQuery = query.user || null;
-  const userSlugFromQuery = query.userSlug || null;
+  const initialOpenedUserId = query.user || null;
 
   const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
-    variables: { documentId: userIdFromQuery },
-    skip: !userIdFromQuery,
+    variables: { documentId: initialOpenedUserId },
+    skip: !initialOpenedUserId,
     fetchPolicy: 'cache-and-network',
   });
-
-  const { data: slugUserData, loading: slugUserLoading } = useQuery(SingleUserBySlugSupermodQuery, {
-    variables: { slug: userSlugFromQuery },
-    skip: !userSlugFromQuery || !!userIdFromQuery,
-    fetchPolicy: 'cache-and-network',
-  });
-
-  useEffect(() => {
-    const slugResolvedUserId = slugUserData?.user?.result?._id;
-    if (!userIdFromQuery && userSlugFromQuery && slugResolvedUserId) {
-      navigate({
-        ...location,
-        search: `?user=${slugResolvedUserId}`,
-      }, { replace: true });
-    }
-  }, [userIdFromQuery, userSlugFromQuery, slugUserData, navigate, location]);
-
-  const initialOpenedUserId = userIdFromQuery ?? slugUserData?.user?.result?._id ?? null;
 
   // This is just to pre-fetch the core tags so that they're available when you open the posts tab
   useCoreTags();
@@ -490,14 +460,12 @@ const ModerationInbox = () => {
   const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
   const classifiedPosts = useMemo(() => classifiedPostsData?.posts?.results ?? [], [classifiedPostsData]);
 
-  const resolvedDirectUserData = userSlugFromQuery && !userIdFromQuery ? slugUserData : directUserData;
-
   const directUser = useMemo(() => {
     if (!initialOpenedUserId) return null;
     const alreadyInQueue = users.some(u => u._id === initialOpenedUserId);
     if (alreadyInQueue) return null;
-    return resolvedDirectUserData?.user?.result ?? null;
-  }, [initialOpenedUserId, users, resolvedDirectUserData]);
+    return directUserData?.user?.result ?? null;
+  }, [initialOpenedUserId, users, directUserData]);
 
   useHydrateModerationPostCache(posts);
   useHydrateModerationPostCache(classifiedPosts);
@@ -506,7 +474,7 @@ const ModerationInbox = () => {
     return null;
   }
 
-  if ((usersLoading && !usersData) || (postsLoading && !postsData) || (classifiedPostsLoading && !classifiedPostsData) || (directUserLoading && !directUserData) || (slugUserLoading && !slugUserData)) {
+  if ((usersLoading && !usersData) || (postsLoading && !postsData) || (classifiedPostsLoading && !classifiedPostsData) || (directUserLoading && !directUserData)) {
     return (
       <div className={classes.loading}>
         <Loading />

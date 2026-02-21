@@ -22577,23 +22577,6 @@ type singleUserSupermodQueryQueryVariables = Exact<{
 
 type singleUserSupermodQueryQuery = singleUserSupermodQueryQuery_Query;
 
-type singleUserBySlugSupermodQueryQuery_user_SingleUserOutput_result_User = (
-  { __typename?: 'User' }
-  & SunshineUsersList
-);
-
-type singleUserBySlugSupermodQueryQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: singleUserBySlugSupermodQueryQuery_user_SingleUserOutput_result_User | null };
-
-type singleUserBySlugSupermodQueryQuery_Query = { __typename?: 'Query', user: singleUserBySlugSupermodQueryQuery_user_SingleUserOutput | null };
-
-
-type singleUserBySlugSupermodQueryQueryVariables = Exact<{
-  slug: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type singleUserBySlugSupermodQueryQuery = singleUserBySlugSupermodQueryQuery_Query;
-
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & SunshineUsersList
