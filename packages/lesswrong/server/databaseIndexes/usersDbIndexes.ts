@@ -85,6 +85,14 @@ export function getDbIndexesOnUsers() {
   indexSet.addIndex("Users", { afSubmittedApplication:1, reviewForAlignmentForumUserId:1, groups:1, createdAt:1 });
   indexSet.addIndex("Users", {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
+
+  // Speeds up moderation log globally banned users list ordering and filtering.
+  indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_banned_karma"
+    ON "Users" ("karma" DESC NULLS LAST, "banned")
+    WHERE "banned" IS NOT NULL;
+  `);
+
   return mergeDatabaseIndexSets([ 
     indexSet,
     getFacetFieldIndexes(),

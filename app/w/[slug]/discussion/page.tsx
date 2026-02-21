@@ -3,11 +3,17 @@ import TagDiscussionPage from '@/components/tagging/TagDiscussionPage';
 import { TagPageSubtitle } from '@/components/tagging/TagPageSubtitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/lib/routeChecks/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 
-assertRouteHasWhiteBackground("/w/[slug]/discussion");
+assertRouteAttributes("/w/[slug]/discussion", {
+  whiteBackground: true,
+  hasLinkPreview: true,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export default async function Page({ params }: {
   params: Promise<{ slug: string }>

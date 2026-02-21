@@ -109,7 +109,7 @@ function addEmailBoilerplate({ css, title, body }: {
   `;
 }
 
-async function renderToString(component: React.ReactNode) {
+export async function renderToString(component: React.ReactNode) {
   const { prelude } = await prerenderToNodeStream(component);
 
   return new Promise<string>((resolve, reject) => {
