@@ -208,11 +208,15 @@ export function renderMathInHtml(html: string): string {
     // RSS feeds, external scrapers, etc. (same rationale as the old
     // trimLatexAndAddCSS callback used with mathjax-node-page).
     const $ = cheerioParse(renderedHtml);
-    // Parity with old trimLatexAndAddCSS(): drop empty display equations.
-    // These can occasionally arise from malformed/empty TeX blocks.
+    // Drop only truly empty display equations.
+    // In MathJax v3, valid display equations can have empty text() while still
+    // containing rendered child nodes (<mjx-math>...), so text().trim()===""
+    // alone is not a safe emptiness check.
     $('mjx-container[display="true"]').each((_, elem) => {
       const node = $(elem);
-      if (node.text().trim() === '') {
+      const hasRenderedChildren = node.children().length > 0;
+      const hasMeaningfulText = node.text().trim() !== '';
+      if (!hasRenderedChildren && !hasMeaningfulText) {
         node.remove();
       }
     });
