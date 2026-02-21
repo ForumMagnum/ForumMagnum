@@ -137,19 +137,18 @@ function handleToggleClick(wrapper: HTMLElement) {
   }
 }
 
-function setupResizeHandler(iframe: HTMLIFrameElement) {
-  // Track whether the iframe was ever attached to the DOM, so we can
-  // distinguish "not yet connected" (during createDOM, before Lexical inserts
-  // the element) from "was connected but has since been removed" (cleanup).
-  let wasConnected = false;
+const resizeHandlers = new Map<string, (event: MessageEvent) => void>();
+
+export function cleanupResizeHandler(key: string) {
+  const handler = resizeHandlers.get(key);
+  if (handler) {
+    window.removeEventListener('message', handler);
+    resizeHandlers.delete(key);
+  }
+}
+
+function setupResizeHandler(iframe: HTMLIFrameElement, key: string) {
   function handler(event: MessageEvent) {
-    if (!iframe.isConnected) {
-      if (wasConnected) {
-        window.removeEventListener('message', handler);
-      }
-      return;
-    }
-    wasConnected = true;
     if (event.source !== iframe.contentWindow) {
       return;
     }
@@ -160,6 +159,7 @@ function setupResizeHandler(iframe: HTMLIFrameElement) {
     iframe.style.height = `${newHeight}px`;
   }
   window.addEventListener('message', handler);
+  resizeHandlers.set(key, handler);
 }
 
 export class IframeWidgetNode extends CodeNode {
@@ -234,7 +234,7 @@ export class IframeWidgetNode extends CodeNode {
     wrapper.appendChild(toggle);
     wrapper.appendChild(container);
 
-    setupResizeHandler(iframe);
+    setupResizeHandler(iframe, this.__key);
 
     // Default view: code if empty, preview if has content.
     // data-view is set on both wrapper (for icon visibility CSS) and

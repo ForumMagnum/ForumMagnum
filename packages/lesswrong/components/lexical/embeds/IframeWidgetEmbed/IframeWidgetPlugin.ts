@@ -15,7 +15,7 @@ import {
 import {useEffect} from 'react';
 import {useMessages} from '@/components/common/withMessages';
 
-import {$createIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
+import {$createIframeWidgetNode, IframeWidgetNode, cleanupResizeHandler} from './IframeWidgetNode';
 
 export const INSERT_IFRAME_WIDGET_COMMAND: LexicalCommand<string | undefined> = createCommand(
   'INSERT_IFRAME_WIDGET_COMMAND',
@@ -88,7 +88,9 @@ export default function IframeWidgetPlugin({ isSuggestionMode }: { isSuggestionM
       editor.registerMutationListener(IframeWidgetNode, (mutations) => {
         editor.getEditorState().read(() => {
           for (const [key, type] of mutations) {
-            if (type !== 'destroyed') {
+            if (type === 'destroyed') {
+              cleanupResizeHandler(key);
+            } else {
               const node = $getNodeByKey(key);
               if (node instanceof IframeWidgetNode) {
                 updateIframeWidgetGutter(node, editor);

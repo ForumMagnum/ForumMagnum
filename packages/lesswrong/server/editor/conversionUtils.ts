@@ -471,7 +471,6 @@ export async function extractAndReplaceIframeWidgets(html: string, revisionId: s
     iframe.replaceWith(replacementDiv);
   });
 
-  await IframeWidgetSrcdocs.rawRemove({ revisionId });
   if (srcdocsToInsert.length === 0) {
     return html;
   }

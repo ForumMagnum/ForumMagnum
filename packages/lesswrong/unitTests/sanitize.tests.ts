@@ -124,9 +124,9 @@ describe('sanitize iframe handling', () => {
   // ── mixed / adversarial cases ──────────────────────────────────────
 
   describe('adversarial cases', () => {
-    it('strips srcdoc iframe that also has a src (marker present)', () => {
+    it('strips src attribute from srcdoc iframe (marker present)', () => {
       // An iframe with srcdoc takes the srcdoc path in the transformer.
-      // The marker is present so it should be preserved with forced sandbox.
+      // The marker is present so it should be preserved (with forced sandbox and stripped src).
       const input = '<iframe src="https://evil.com" srcdoc="<h1>hi</h1>" sandbox="allow-scripts" data-lexical-iframe-widget="true"></iframe>';
       const result = sanitize(input);
       // Should be treated as a srcdoc widget (marker present), sandbox forced
