@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import classNames from 'classnames';
 import { reCaptchaSiteKeySetting, isAF, isEAForum } from '../../lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
@@ -21,10 +22,9 @@ const styles = (theme: ThemeType) => ({
   root: {
     wordBreak: "normal",
     padding: 16,
-    marginTop: 0,
-    marginBottom: 0,
+    margin: '0 auto',
     width: 252
-  }, 
+  },
   input: {
     font: 'inherit',
     color: 'inherit',
@@ -33,7 +33,21 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
     padding: 8,
     backgroundColor: theme.palette.panelBackground.darken03,
-    width: '100%'
+    width: '100%',
+    border: theme.palette.border.slightlyFaint,
+    borderRadius: 3,
+    transition: 'border-color 0.15s ease',
+    '&:focus': {
+      outline: 'none',
+      borderColor: theme.palette.primary.main,
+    },
+    '&:disabled': {
+      opacity: 0.6,
+      cursor: 'not-allowed',
+    },
+    '&::placeholder': {
+      color: theme.palette.text.dim,
+    },
   },
   submit: {
     font: 'inherit',
@@ -45,11 +59,29 @@ const styles = (theme: ThemeType) => ({
     height: 32,
     marginTop: 16,
     cursor: 'pointer',
-    fontSize: '1rem'
-  }, 
+    fontSize: '1rem',
+    border: theme.palette.border.slightlyFaint,
+    borderRadius: 3,
+    transition: 'background 0.15s ease, opacity 0.15s ease',
+    '&:hover': {
+      background: theme.palette.grey[300],
+    },
+  },
+  submitDisabled: {
+    opacity: 0.6,
+    cursor: 'not-allowed',
+    '&:hover': {
+      background: theme.palette.grey[200],
+    },
+  },
   error: {
-    padding: 8,
-    color: theme.palette.error.main 
+    padding: '6px 10px',
+    marginTop: 10,
+    color: theme.palette.error.main,
+    backgroundColor: theme.palette.panelBackground.darken04,
+    borderRadius: 3,
+    fontSize: '0.9rem',
+    textAlign: 'center',
   },
   options: {
     display: 'flex',
@@ -102,6 +134,12 @@ const currentActionToButtonText: Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
+const currentActionToSubmittingText: Record<possibleActions, string> = {
+  login: "Logging in...",
+  signup: "Signing up...",
+  pwReset: "Requesting reset...",
+}
+
 type LoginFormProps = {
   startingState?: possibleActions,
   immediateRedirect?: boolean,
@@ -128,6 +166,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   const { flash } = useMessages();
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
   const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(hasSubscribeToCuratedCheckbox)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [_, setCookie] = useCookies(["loginToken"]);
 
   const saveLoginToken = useCallback((token: string) => {
@@ -173,45 +212,58 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   
   const submitFunction = async (e: AnyBecauseTodo) => {
     e.preventDefault();
-    const signupAbTestKey = getUserABTestKey({clientId});
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setDisplayedError(null);
 
-    if (currentAction === 'login') {
-      const { data, error } = await loginMutation({
-        variables: { username, password }
-      })
-      if (error) {
-        showError(error);
-      }
-      if (data?.login?.token) {
-        saveLoginToken(data.login.token);
-        location.reload()
-      }
-    } else if (currentAction === 'signup') {
-      const { data, error } = await signupMutation({
-        variables: {
-          email, username, password,
-          reCaptchaToken: reCaptchaToken.current,
-          abTestKey: signupAbTestKey,
-          subscribeToCurated
+    try {
+      const signupAbTestKey = getUserABTestKey({clientId});
+
+      if (currentAction === 'login') {
+        const { data, error } = await loginMutation({
+          variables: { username, password }
+        })
+        if (error) {
+          showError(error);
+          return;
         }
-      })
-      if (error) {
-        showError(error);
+        if (data?.login?.token) {
+          saveLoginToken(data.login.token);
+          location.reload()
+          return;
+        }
+      } else if (currentAction === 'signup') {
+        const { data, error } = await signupMutation({
+          variables: {
+            email, username, password,
+            reCaptchaToken: reCaptchaToken.current,
+            abTestKey: signupAbTestKey,
+            subscribeToCurated
+          }
+        })
+        if (error) {
+          showError(error);
+          return;
+        }
+        if (data?.signup?.token) {
+          saveLoginToken(data.signup.token);
+          location.reload()
+          return;
+        }
+      } else if (currentAction === 'pwReset') {
+        const { data, error } = await pwResetMutation({
+          variables: { email }
+        })
+        if (error) {
+          showError(error);
+          return;
+        }
+        if (data?.resetPassword) {
+          flash(data?.resetPassword)
+        }
       }
-      if (data?.signup?.token) {
-        saveLoginToken(data.signup.token);
-        location.reload()
-      }
-    } else if (currentAction === 'pwReset') {
-      const { data, error } = await pwResetMutation({
-        variables: { email }
-      })
-      if (error) {
-        showError(error);
-      }
-      if (data?.resetPassword) {
-        flash(data?.resetPassword)
-      }
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -220,7 +272,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>
     </DeferRender>}
     <form className={classes.root} onSubmit={submitFunction}>
-      {["signup", "pwReset"].includes(currentAction) && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
+      {["signup", "pwReset"].includes(currentAction) && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} disabled={isSubmitting} />}
       {["signup", "login"].includes(currentAction) && <>
         <input
           value={username} type="text" name="username"
@@ -228,6 +280,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
           placeholder={currentAction === "signup" ? "username" : "username or email"}
           className={classes.input}
           onChange={event => setUsername(event.target.value)}
+          disabled={isSubmitting}
         />
         <input
           value={password} type="password" name="password"
@@ -235,17 +288,24 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
           placeholder={(currentAction==="signup") ? "create password" : "password"}
           className={classes.input}
           onChange={event => setPassword(event.target.value)}
+          disabled={isSubmitting}
         />
       </>}
-      <input type="submit" className={classes.submit} value={currentActionToButtonText[currentAction]} />
-      
+      <input
+        type="submit"
+        className={classNames(classes.submit, { [classes.submitDisabled]: isSubmitting })}
+        value={isSubmitting ? currentActionToSubmittingText[currentAction] : currentActionToButtonText[currentAction]}
+        disabled={isSubmitting}
+      />
+      {displayedError && <div className={classes.error}>{displayedError}</div>}
+
       {currentAction === "signup" && hasSubscribeToCuratedCheckbox &&
         <SignupSubscribeToCurated defaultValue={subscribeToCurated} onChange={(checked: boolean) => setSubscribeToCurated(checked)} />
       }
       <div className={classes.options}>
-        {currentAction !== "login" && <span className={classes.toggle} onClick={() => setCurrentAction("login")}> Log In </span>}
-        {currentAction !== "signup" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span>}
-        {currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span>}
+        {currentAction !== "login" && <span className={classes.toggle} onClick={() => { setCurrentAction("login"); setDisplayedError(null); }}> Log In </span>}
+        {currentAction !== "signup" && <span className={classes.toggle} onClick={() => { setCurrentAction("signup"); setDisplayedError(null); }}> Sign Up </span>}
+        {currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => { setCurrentAction("pwReset"); setDisplayedError(null); }}> Reset Password </span>}
       </div>
       {hasOauthSection && <>
         <div className={classes.oAuthComment}>...or continue with</div>
@@ -254,7 +314,6 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
           <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
         </div>
       </>}
-      {displayedError && <div className={classes.error}>{displayedError}</div>}
     </form>
   </ContentStyles>;
 }

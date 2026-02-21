@@ -5,11 +5,11 @@ import { useNavigate } from '../../lib/routeUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import LoginForm from "./LoginForm";
 
-const styles = defineStyles("LoginPage", (theme: ThemeType) => ({
+const styles = defineStyles("LoginPage", () => ({
   root: {
     display: "flex",
     justifyContent: "center",
-    alignItems: "flex-start",
+    alignItems: "center",
     height: "100vh",
   },
 }));
