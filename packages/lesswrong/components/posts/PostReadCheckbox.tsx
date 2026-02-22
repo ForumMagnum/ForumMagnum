@@ -1,21 +1,18 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { gql } from '@/lib/generated/gql-codegen';
 import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
-import { useItemsRead } from '../hooks/useRecordPostView';
-import classNames from 'classnames';
-import LWTooltip from "../common/LWTooltip";
 import { useMutation } from "@apollo/client/react";
-import { gql } from '@/lib/generated/gql-codegen';
+import classNames from 'classnames';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import LWTooltip from "../common/LWTooltip";
+import { useItemsRead } from '../hooks/useRecordPostView';
 
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
   },
   read: {
-    color: theme.isFriendlyUI
-      ? theme.palette.primary.main
-      : theme.palette.primary.light,
+    color: theme.palette.primary.light,
   },
   unread: {
     color: theme.palette.grey[400],

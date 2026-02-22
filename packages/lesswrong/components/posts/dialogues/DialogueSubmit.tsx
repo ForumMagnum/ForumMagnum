@@ -1,17 +1,16 @@
-import React from 'react';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import classNames from 'classnames';
-import { useCurrentUser } from "../../common/withUser";
-import { isLW } from "../../../lib/instanceSettings";
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import { EditorContext } from '../EditorContext';
-import { useNavigate } from '../../../lib/routeUtil';
-import type { TypedFormApi } from '../../tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '@/lib/collections/posts/helpers';
-import { defineStyles, useStyles } from '../../hooks/useStyles';
-import Row from "../../common/Row";
-import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { useMutation } from "@apollo/client/react";
+import classNames from 'classnames';
+import React from 'react';
+import { isLW } from "../../../lib/instanceSettings";
+import { useNavigate } from '../../../lib/routeUtil';
+import Row from "../../common/Row";
+import { useCurrentUser } from "../../common/withUser";
+import { defineStyles, useStyles } from '../../hooks/useStyles';
+import type { TypedFormApi } from '../../tanstack-form-components/BaseAppForm';
+import { EditorContext } from '../EditorContext';
 
 const CommentEditMutation = gql(`
   mutation createCommentDialogueSubmit($data: CreateCommentDataInput!) {
@@ -26,35 +25,25 @@ const CommentEditMutation = gql(`
 export const styles = defineStyles('DialogueSubmit', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: theme.isFriendlyUI ? 14 : 16,
+    fontSize: 16,
     marginLeft: 5,
-    ...(theme.isFriendlyUI ? {
-      textTransform: 'none',
-    } : {
-      paddingBottom: 4,
-      fontWeight: 500,
-      "&:hover": {
-        background: theme.palette.buttons.hoverGrayHighlight,
-      }
-    })
+    ...({
+          paddingBottom: 4,
+          fontWeight: 500,
+          "&:hover": {
+            background: theme.palette.buttons.hoverGrayHighlight,
+          }
+        })
   },
   secondaryButton: {
-    ...(theme.isFriendlyUI ? {
-      color: theme.palette.grey[680],
-      padding: '8px 12px'
-    } : {
-      color: theme.palette.text.dim40,
-    })
+    ...({
+            color: theme.palette.text.dim40,
+          })
   },
   submitButton: {
-    ...(theme.isFriendlyUI ? {
-      backgroundColor: theme.palette.buttons.alwaysPrimary,
-      color: theme.palette.text.alwaysWhite,
-      boxShadow: 'none',
-      marginLeft: 10,
-    } : {
-      color: theme.palette.secondary.main
-    })
+    ...({
+            color: theme.palette.secondary.main
+          })
   },
 }));
 
@@ -94,7 +83,7 @@ export const DialogueSubmit = ({
   const submitWithoutConfirmation = () => formApi.setFieldValue('draft', false);
 
   const requireConfirmation = isLW() && !!document.debate;
-  const showShortformButton = !!userShortformId && !isFriendlyUI();
+  const showShortformButton = !!userShortformId;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   return (
@@ -140,10 +129,7 @@ export const DialogueSubmit = ({
         onClick={onSubmitClick}
         disabled={disabled}
         className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-        {...(isFriendlyUI() ? {
-          variant: "contained",
-          color: "primary",
-        } : {})}
+        {...({})}
       >
         {submitLabel}
       </Button>

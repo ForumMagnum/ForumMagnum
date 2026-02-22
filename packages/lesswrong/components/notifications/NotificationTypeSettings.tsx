@@ -1,24 +1,24 @@
-import React, { useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import withErrorBoundary from '../common/withErrorBoundary';
-import {
-  DayOfWeek,
-  NotificationTypeSettings,
-  NotificationBatchingFrequency,
-  NotificationChannel,
-  NotificationChannelSettings,
-  LegacyNotificationTypeSettings,
-  legacyToNewNotificationTypeSettings
-} from "@/lib/collections/users/notificationFieldHelpers";
-import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
-import BatchTimePicker, { PickedTime } from '../common/BatchTimePicker';
-import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditableUser } from '@/lib/collections/users/helpers';
-import { Typography } from "../common/Typography";
+import {
+    DayOfWeek,
+    LegacyNotificationTypeSettings,
+    legacyToNewNotificationTypeSettings,
+    NotificationBatchingFrequency,
+    NotificationChannel,
+    NotificationChannelSettings,
+    NotificationTypeSettings
+} from "@/lib/collections/users/notificationFieldHelpers";
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import classNames from 'classnames';
+import { useCallback } from 'react';
+import { getNotificationTypeByUserSetting } from '../../lib/notificationTypes';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import BatchTimePicker, { PickedTime } from '../common/BatchTimePicker';
 import { MenuItem } from "../common/Menus";
 import ToggleSwitch from "../common/ToggleSwitch";
+import { Typography } from "../common/Typography";
+import withErrorBoundary from '../common/withErrorBoundary';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,8 +29,7 @@ const styles = (theme: ThemeType) => ({
     gap: "8px"
   },
   label: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-  },
+},
   channelLabel: {
     fontSize: 13
   },

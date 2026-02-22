@@ -1,15 +1,14 @@
-import { PostAnalyticsResult } from "../../components/hooks/usePostAnalytics";
-import { isEAForum } from "../../lib/instanceSettings";
-import { getAnalyticsConnection } from "../analytics/postgresConnection";
-import  camelCase  from "lodash/camelCase";
-import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
-import { AnalyticsSeriesValue, MultiPostAnalyticsResult, PostAnalytics2Result } from "../../components/hooks/useAnalytics";
-import Posts from "../../server/collections/posts/collection";
-import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
-import moment from "moment";
-import groupBy from "lodash/groupBy";
-import { generateDateSeries } from "../../lib/helpers";
 import gql from "graphql-tag";
+import camelCase from "lodash/camelCase";
+import groupBy from "lodash/groupBy";
+import moment from "moment";
+import { AnalyticsSeriesValue, MultiPostAnalyticsResult, PostAnalytics2Result } from "../../components/hooks/useAnalytics";
+import { PostAnalyticsResult } from "../../components/hooks/usePostAnalytics";
+import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
+import { generateDateSeries } from "../../lib/helpers";
+import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
+import Posts from "../../server/collections/posts/collection";
+import { getAnalyticsConnection } from "../analytics/postgresConnection";
 
 /**
  * Based on an analytics query, returns a function that runs that query
@@ -188,7 +187,7 @@ export const analyticsGraphQLQueries = {
     const post = await context.loaders.Posts.load(postId);
     // check that the current user has permission to view post metrics
     // LW doesn't want to show this to authors, but we'll let admins see it
-    if (!isEAForum() && !currentUser.isAdmin) {
+    if (!currentUser.isAdmin) {
       throw new Error("Permission denied");
     }
     // Maybe check for karma level here?

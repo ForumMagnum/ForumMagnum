@@ -1,11 +1,10 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { useCurrentUser } from '../common/withUser';
+import classNames from 'classnames';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
+import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 const USER_SETTING_NAMES = {
   showDialogues: 'showDialoguesList',
@@ -17,7 +16,6 @@ const USER_SETTING_NAMES = {
 const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
-    marginTop: theme.isFriendlyUI ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,

@@ -1,16 +1,16 @@
 import React, { ReactNode } from "react";
-import { rootStyles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { rootStyles as onboardingInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import SectionTitle from "../common/SectionTitle";
 
-const styles = defineStyles('FormComponentFriendlyTextInput', (theme: ThemeType) => ({
+const styles = defineStyles('FormComponentTextInput', (theme: ThemeType) => ({
   label: {
     fontSize: 12,
   },
   textField: {
-    ...friendlyInputStyles(theme),
+    ...onboardingInputStyles(theme),
     "& .MuiInputBase-input": {
       padding: 0,
       fontSize: 14,
@@ -22,7 +22,7 @@ const styles = defineStyles('FormComponentFriendlyTextInput', (theme: ThemeType)
   },
 }));
 
-export const FormComponentFriendlyTextInput = ({
+export const FormComponentTextInput = ({
   updateCurrentValue,
   value,
   label,

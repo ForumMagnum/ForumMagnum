@@ -1,7 +1,5 @@
 import { defineStyles } from '@/components/hooks/useStyles';
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
-import { isEAForum } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '@/themes/forumTheme';
 
 export const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => ({
   root: {
@@ -15,7 +13,7 @@ export const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => 
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
+    color: theme.palette.header.text,
     ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
     }),
@@ -37,12 +35,10 @@ export const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => 
     textAlign: "right",
   },
   votedItemReacts: {
-    marginLeft: isEAForum() ? 12 : 6,
+    marginLeft: 6,
   },
   individualAddedReact: {
-    color: isEAForum() ? theme.palette.primary.main : undefined,
-    marginLeft: 2,
-    marginRight: isEAForum() ? 6 : undefined,
+    marginLeft: 2
   },
   votedItemDescription: {
     display: "inline-block",

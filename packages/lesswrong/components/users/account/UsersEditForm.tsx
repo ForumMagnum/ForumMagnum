@@ -1,36 +1,35 @@
 import { useMessages } from '@/components/common/withMessages';
-import React, { useCallback } from 'react';
-import { EditableUser, getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
-import { useMutation, useApolloClient } from '@apollo/client/react';
-import { useQuery } from "@/lib/crud/useQuery"
-import { useSetTheme, useAbstractThemeOptions } from '@/components/themes/useTheme';
+import { useAbstractThemeOptions, useSetTheme } from '@/components/themes/useTheme';
+import { EditableUser, getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
+import { useQuery } from "@/lib/crud/useQuery";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { useApolloClient, useMutation } from '@apollo/client/react';
+import React, { useCallback } from 'react';
 
 import { configureDatadogRum } from '@/client/datadogRum';
 
-import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
-import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
+import { useTracking } from '@/lib/analyticsEvents';
+import { gql } from "@/lib/generated/gql-codegen";
+import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
+import { withDateFields } from '@/lib/utils/dateUtils';
+import { userIsAdmin, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
-import { userIsAdmin, userIsMemberOf } from '@/lib/vulcan-users/permissions';
-import Loading from "../../vulcan-core/Loading";
 import Error404 from "../../common/Error404";
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
-import { withDateFields } from '@/lib/utils/dateUtils';
-import { gql } from "@/lib/generated/gql-codegen";
-import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { useTracking } from '@/lib/analyticsEvents';
+import Loading from "../../vulcan-core/Loading";
 import AccountSettingsSidebar, { type SettingsTabId } from './AccountSettingsSidebar';
 import AccountSettingsTab from './AccountSettingsTab';
-import ProfileSettingsTab from './ProfileSettingsTab';
-import PreferencesSettingsTab from './PreferencesSettingsTab';
-import NotificationsSettingsTab from './NotificationsSettingsTab';
-import ModerationSettingsTab from './ModerationSettingsTab';
 import AdminSettingsTab from './AdminSettingsTab';
+import ModerationSettingsTab from './ModerationSettingsTab';
+import NotificationsSettingsTab from './NotificationsSettingsTab';
+import PreferencesSettingsTab from './PreferencesSettingsTab';
+import ProfileSettingsTab from './ProfileSettingsTab';
 import type { SettingsFormApi } from './settingsTabTypes';
 
 const UsersEditUpdateMutation = gql(`
@@ -156,38 +155,28 @@ function getTabForField(fieldName: string | null | undefined): SettingsTabId | n
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      "& .form-submit": {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-end",
-        marginRight: 5,
-      },
-    }),
-  },
+},
   fieldWrapper: {
     marginTop: 14,
     marginBottom: 14,
   },
   submitButton: {
-    ...(theme.isFriendlyUI
-      ? submitButtonStyles(theme)
-      : {
-          fontFamily: theme.typography.fontFamily,
-          border: `1px solid ${theme.palette.primary.main}`,
-          color: theme.palette.primary.main,
-          padding: '8px 24px',
-          fontSize: 14,
-          fontWeight: 500,
-          lineHeight: '1.4',
-          borderRadius: 6,
-          textTransform: 'none',
-          background: 'none',
-          '&:hover': {
-            background: theme.palette.primary.main,
-            color: theme.palette.text.alwaysWhite,
-          },
-        }
+    ...({
+                fontFamily: theme.typography.fontFamily,
+                border: `1px solid ${theme.palette.primary.main}`,
+                color: theme.palette.primary.main,
+                padding: '8px 24px',
+                fontSize: 14,
+                fontWeight: 500,
+                lineHeight: '1.4',
+                borderRadius: 6,
+                textTransform: 'none',
+                background: 'none',
+                '&:hover': {
+                  background: theme.palette.primary.main,
+                  color: theme.palette.text.alwaysWhite,
+                },
+              }
     ),
   },
   layout: {

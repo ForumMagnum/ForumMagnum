@@ -1,17 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import withErrorBoundary from "../common/withErrorBoundary";
-import { useLocation } from "../../lib/routeUtil";
-import { useTracking } from "../../lib/analyticsEvents";
-import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
-import stringify from "json-stringify-deterministic";
-import MessagesNewForm from "./MessagesNewForm";
-import Error404 from "../common/Error404";
-import Loading from "../vulcan-core/Loading";
-import MessageItem from "./MessageItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import stringify from "json-stringify-deterministic";
+import React, { useEffect, useRef, useState } from "react";
+import { useTracking } from "../../lib/analyticsEvents";
+import { useLocation } from "../../lib/routeUtil";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import Error404 from "../common/Error404";
+import withErrorBoundary from "../common/withErrorBoundary";
 import { SideItemsContainer } from "../contents/SideItems.tsx";
+import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
+import Loading from "../vulcan-core/Loading";
+import MessageItem from "./MessageItem";
+import MessagesNewForm from "./MessagesNewForm";
 
 const messageListFragmentMultiQuery = gql(`
   query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {
@@ -39,13 +39,10 @@ const styles = (theme: ThemeType) => ({
       // on mobile. This fixes that.
       display: "flex",
     },
-    ...(theme.isFriendlyUI ? {
-      padding: '18px 0px',
-      marginTop: "auto",
-    } : {
-      padding: '8px 0px',
-      backgroundColor: theme.palette.background.paper,
-    })
+    ...({
+          padding: '8px 0px',
+          backgroundColor: theme.palette.background.paper,
+        })
   },
   backButton: {
     color: theme.palette.lwTertiary.main,

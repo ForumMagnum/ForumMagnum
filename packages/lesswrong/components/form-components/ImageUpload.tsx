@@ -1,18 +1,17 @@
-import React, { FC } from 'react';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ImageIcon from '@/lib/vendor/@material-ui/icons/src/Image';
 import classNames from 'classnames';
+import { FC } from 'react';
+import { userHasDefaultProfilePhotos } from '../../lib/betas';
+import CloudinaryImage2 from "../common/CloudinaryImage2";
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
-import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import UsersProfileImage from "../users/UsersProfileImage";
-import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ImageUploadDefaultsDialog from "./ImageUploadDefaultsDialog";
 
 
@@ -137,11 +136,6 @@ const TriggerButton: FC<{
   const classes = useStyles(styles);
   let mainClass = classes.button;
   let showIcon = true;
-  if (isFriendlyUI() && imageType === "profileImageId") {
-    label = "profile image";
-    mainClass = classes.profileImageButton;
-    showIcon = false;
-  }
   return (
     <Button
       onClick={uploadImage}
@@ -167,9 +161,7 @@ const RemoveButton: FC<{
     return null;
   }
 
-  const mainClass = isFriendlyUI() && imageType === "profileImageId"
-    ? classes.removeProfileImageButton
-    : classes.removeButton;
+  const mainClass = classes.removeButton;
   return (
     <Button
       title="Remove"
@@ -222,7 +214,7 @@ export const ImageUpload = ({
   const formPreviewSize = formPreviewSizeByImageType[imageType];
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
 
-  const showUserProfileImage = isFriendlyUI() && imageType === "profileImageId";
+  const showUserProfileImage = false;
 
   return (
     <div className={classes.root}>

@@ -1,56 +1,55 @@
-import React, { use, createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { Link } from '../../lib/reactRouterWrapper';
-import Headroom from '../../lib/react-headroom'
-import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
-import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
-import { useCurrentUserId, useFilteredCurrentUser, useGetCurrentUser } from '../common/withUser';
-import { SidebarsContext } from './SidebarsWrapper';
-import withErrorBoundary from '../common/withErrorBoundary';
-import classNames from 'classnames';
-import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, hasProminentLogoSetting } from '@/lib/instanceSettings';
-import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { useLocation } from '../../lib/routeUtil';
-import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
-import { hasForumEvents } from '@/lib/betas';
-import SearchBar from "@/components/common/SearchBar";
-import UsersMenu from "../users/UsersMenu";
-import { LWUsersAccountMenu, EAUsersAccountMenu } from "../users/UsersAccountMenu";
-import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
-import { ICON_ONLY_NAVIGATION_BREAKPOINT } from "@/components/common/TabNavigationMenu/NavigationStandalone";
-import NavigationDrawer from "@/components/common/TabNavigationMenu/NavigationDrawer";
-import { KarmaChangeNotifier } from "../users/karmaChanges/KarmaChangeNotifier";
-import HeaderSubtitle from "@/components/common/HeaderSubtitle";
-import { Typography } from "@/components/common/Typography";
 import ForumIcon from "@/components/common/ForumIcon";
-import SiteLogo from "../ea-forum/SiteLogo";
-import MessagesMenuButton from "../messaging/MessagesMenuButton";
+import HeaderSubtitle from "@/components/common/HeaderSubtitle";
+import SearchBar from "@/components/common/SearchBar";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { isHomeRoute } from '@/lib/routeChecks';
-import { forumSelect } from '@/lib/forumTypeUtils';
-import NotificationsMenu from "../notifications/NotificationsMenu";
-import { IsLlmChatSidebarOpenContext } from './Layout';
-import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
-import FundraiserBanner from '../common/FundraiserBanner';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import NavigationDrawer from "@/components/common/TabNavigationMenu/NavigationDrawer";
+import { ICON_ONLY_NAVIGATION_BREAKPOINT } from "@/components/common/TabNavigationMenu/NavigationStandalone";
+import { Typography } from "@/components/common/Typography";
+import { hasForumEvents } from '@/lib/betas';
 import { HIDE_FUNDRAISER_BANNER_COOKIE } from '@/lib/cookies/cookies';
-import { useStyles, defineStyles } from '../hooks/useStyles';
-import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
-import { HideNavigationSidebarContext } from './HideNavigationSidebarContextProvider';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
+import { forumSelect } from '@/lib/forumTypeUtils';
 import { gql } from '@/lib/generated/gql-codegen';
+import { forumHeaderTitleSetting, forumShortTitleSetting, hasProminentLogoSetting } from '@/lib/instanceSettings';
+import { isHomeRoute } from '@/lib/routeChecks';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
+import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
+import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
+import classNames from 'classnames';
+import React, { createContext, use, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
+import Headroom from '../../lib/react-headroom';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import FundraiserBanner from '../common/FundraiserBanner';
+import withErrorBoundary from '../common/withErrorBoundary';
+import { useCurrentUserId, useFilteredCurrentUser, useGetCurrentUser } from '../common/withUser';
+import SiteLogo from "../ea-forum/SiteLogo";
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
+import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import MessagesMenuButton from "../messaging/MessagesMenuButton";
+import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import NotificationsMenu from "../notifications/NotificationsMenu";
+import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
+import { KarmaChangeNotifier } from "../users/karmaChanges/KarmaChangeNotifier";
+import { LWUsersAccountMenu } from "../users/UsersAccountMenu";
+import UsersMenu from "../users/UsersMenu";
+import { HideNavigationSidebarContext } from './HideNavigationSidebarContextProvider';
+import { IsLlmChatSidebarOpenContext } from './Layout';
+import { SidebarsContext } from './SidebarsWrapper';
 
 /** Height of the fundraiser banner */
 export const FUNDRAISER_BANNER_HEIGHT = 34;
 export const FUNDRAISER_BANNER_HEIGHT_MOBILE = 32;
-/** Height of top header (without fundraiser banner). On Book UI sites, this is for desktop only */
-const getHeaderHeight = () => isBookUI() ? 64 : 66;
-/** Height of top header on mobile (without fundraiser banner). On Friendly UI sites, this is the same as the HEADER_HEIGHT */
-const getMobileHeaderHeight = () => isBookUI() ? 56 : 66;
+/** Height of top header (without fundraiser banner). */
+const getHeaderHeight = () => 64;
+/** Height of top header on mobile (without fundraiser banner). */
+const getMobileHeaderHeight = () => 56;
 
 
 const textColorOverrideStyles = ({
@@ -166,17 +165,7 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     boxSizing: "border-box",
     flexShrink: 0,
     flexDirection: "column",
-    ...(theme.isFriendlyUI ? {
-      maxWidth: "100vw",
-      overflow: "hidden",
-      padding: '1px 20px',
-      [theme.breakpoints.down('sm')]: {
-        padding: '1px 11px',
-      },
-      [theme.breakpoints.down('xs')]: {
-        padding: '9px 11px',
-      },
-    } : {}),
+    ...({}),
   },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
@@ -221,8 +210,7 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     },
     display: 'flex',
     alignItems: 'center',
-    fontWeight: theme.isFriendlyUI ? 400 : undefined,
-    height: theme.isFriendlyUI ? undefined : '19px',
+    height: '19px',
     
     ...(theme.isAF && {
       top: 0,
@@ -272,8 +260,7 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     marginLeft: "auto",
-    display: "flex",
-    alignItems: theme.isFriendlyUI ? 'center' : undefined,
+    display: "flex"
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
@@ -410,9 +397,9 @@ const Header = ({
     }
   }, [pathname, hash]);
 
-  const hasNotificationsPopover = isFriendlyUI();
-  const hasKarmaChangeNotifier = !isFriendlyUI() && isLoggedIn && !usernameUnset;
-  const hasMessagesButton = isFriendlyUI() && isLoggedIn && !usernameUnset;
+  const hasNotificationsPopover = false;
+  const hasKarmaChangeNotifier = isLoggedIn && !usernameUnset;
+  const hasMessagesButton = false;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -514,41 +501,36 @@ const Header = ({
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isFriendlyUI() && !hideNavigationSidebar)
-          ? <ForumIcon icon="CloseMenu" className={classes.icon} />
-          : <ForumIcon icon="Menu" className={classes.icon} />}
+        {<ForumIcon icon="Menu" className={classes.icon} />}
       </IconButton>}
     </React.Fragment>
   )
 
-  const usersMenuClass = isFriendlyUI() ? classes.hideXsDown : classes.hideMdDown
+  const usersMenuClass = classes.hideMdDown
   const usersMenuNode = isLoggedIn && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
     </AnalyticsContext>
   </div>
 
-  const loginButtonNode = isFriendlyUI() ? <EAUsersAccountMenu /> : <LWUsersAccountMenu />;
+  const loginButtonNode = <LWUsersAccountMenu />;
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-    {!isFriendlyUI() && usersMenuNode}
+    {usersMenuNode}
     {!isLoggedIn && loginButtonNode}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
-      className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {isLoggedIn && !usernameUnset && <NotificationsMenuButton
       toggle={handleNotificationToggle}
       open={notificationOpen}
-      className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {hasMessagesButton && <SuspenseWrapper name="MesagesMenuButton">
       <MessagesMenuButton
-        className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
       />
     </SuspenseWrapper>}
-    {isFriendlyUI() && usersMenuNode}
+    {false}
   </div>
 
   // the left side nav menu
@@ -617,7 +599,7 @@ const Header = ({
             )}
             style={headerStyle}
           >
-            <Toolbar disableGutters={isFriendlyUI()}>
+            <Toolbar disableGutters={false}>
               {navigationMenuButton}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
@@ -673,4 +655,3 @@ export default registerComponent('Header', Header, {
   areEqual: "auto",
   hocs: [withErrorBoundary]
 });
-

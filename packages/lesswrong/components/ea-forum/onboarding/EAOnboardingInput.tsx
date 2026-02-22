@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { useStyles } from "@/components/hooks/useStyles";
 
-// These styles are also used by `EAOnboardingSelect`
+// Shared styling used by EA-themed text inputs.
 export const rootStyles = (theme: ThemeType) => ({
   width: "100%",
   padding: "16px",

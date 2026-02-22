@@ -1,41 +1,40 @@
 "use client";
 
-import React, { useMemo, useState } from 'react'
-import { useTagBySlug } from '../useTag';
-import { useLocation } from '../../../lib/routeUtil';
-import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
-import keyBy from 'lodash/keyBy';
-import { RevealHiddenBlocks, RevealHiddenBlocksContext } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
+import DeferRender from '@/components/common/DeferRender';
+import { TagHistoryFeedQuery } from '@/components/common/feeds/feedQueries';
+import { RevealHiddenBlocks } from '@/components/editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
 import { hasWikiLenses } from '@/lib/betas';
 import { defaultTagHistorySettings, tagGetUrl } from '@/lib/collections/tags/helpers';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import classNames from 'classnames';
-import DeferRender from '@/components/common/DeferRender';
-import ErrorPage from "../../common/ErrorPage";
-import Error404 from "../../common/Error404";
-import SettingsButton from "../../icons/SettingsButton";
-import UsersName from "../../users/UsersName";
-import SingleColumnSection from "../../common/SingleColumnSection";
-import { MixedTypeFeed } from "../../common/MixedTypeFeed";
-import TagRevisionItem from "../TagRevisionItem";
-import LensRevisionItem from "./LensRevisionItem";
-import SummaryRevisionItem from "./SummaryRevisionItem";
-import FormatDate from "../../common/FormatDate";
+import keyBy from 'lodash/keyBy';
+import { useMemo, useState } from 'react';
+import { useLocation } from '../../../lib/routeUtil';
 import CommentsNode from "../../comments/CommentsNode";
-import Loading from "../../vulcan-core/Loading";
-import LinkToPost from "../../linkPreview/LinkToPost";
-import SingleLineFeedEvent from "../../common/SingleLineFeedEvent";
-import SectionTitle from "../../common/SectionTitle";
+import Error404 from "../../common/Error404";
+import ErrorPage from "../../common/ErrorPage";
+import FormatDate from "../../common/FormatDate";
 import ForumIcon from "../../common/ForumIcon";
 import { MenuItem } from "../../common/Menus";
-import { TagHistoryFeedQuery } from '@/components/common/feeds/feedQueries';
+import { MixedTypeFeed } from "../../common/MixedTypeFeed";
+import SectionTitle from "../../common/SectionTitle";
+import SingleColumnSection from "../../common/SingleColumnSection";
+import SingleLineFeedEvent from "../../common/SingleLineFeedEvent";
+import SettingsButton from "../../icons/SettingsButton";
+import LinkToPost from "../../linkPreview/LinkToPost";
+import UsersName from "../../users/UsersName";
+import Loading from "../../vulcan-core/Loading";
+import TagRevisionItem from "../TagRevisionItem";
+import { useTagBySlug } from '../useTag';
+import LensRevisionItem from "./LensRevisionItem";
+import SummaryRevisionItem from "./SummaryRevisionItem";
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-  },
+},
   feed: {
     ...theme.typography.body2,
   },

@@ -7,7 +7,6 @@ export const recommendationStrategyNames = new TupleSet([
   "moreFromTag",
   "newAndUpvotedInTag",
   "bestOf",
-  "wrapped",
   "tagWeightedCollabFilter",
   "collabFilter",
   "feature",
@@ -46,8 +45,6 @@ export interface StrategySettings {
   bias?: number,
   /** Limit recommendations to Alignment Forum posts. */
   af?: boolean,
-  /** Target year for the EA Forum wrapped strategy */
-  year?: number,
   /** Weighted scoring factors for defining a recommendation algorithm. */
   features?: WeightedFeature[],
   /** The tag to generate recommendations (only used by some some strategies). */

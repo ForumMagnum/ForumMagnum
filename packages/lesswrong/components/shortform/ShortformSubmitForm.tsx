@@ -1,13 +1,11 @@
-import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
 import type {
-  CommentCancelCallback,
-  CommentSuccessCallback,
+    CommentCancelCallback,
+    CommentSuccessCallback,
 } from '../comments/CommentsNewForm';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import ForumIcon from "../common/ForumIcon";
+import { useCurrentUser } from '../common/withUser';
+import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,10 +25,10 @@ const styles = (theme: ThemeType) => ({
   },
   newQuickTake: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: theme.isFriendlyUI ? 700 : 500,
+    fontWeight: 500,
     fontSize: 20,
     color: theme.palette.grey[1000],
-    margin: theme.isFriendlyUI ? 20 : '16px 20px 16px 0px',
+    margin: '16px 20px 16px 0px',
   },
   quickTakesRoot: {
     background: "transparent",
@@ -72,9 +70,9 @@ const ShortformSubmitForm = ({
         className={classes.quickTakesRoot}
         successCallback={successCallback}
         cancelCallback={cancelCallback}
-        defaultExpanded={isFriendlyUI() || defaultExpanded}
+        defaultExpanded={defaultExpanded}
         defaultFocus
-        submitButtonAtBottom={isFriendlyUI() || submitButtonAtBottom}
+        submitButtonAtBottom={submitButtonAtBottom}
       />
     </div>
   );

@@ -1,26 +1,24 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { gql } from "@/lib/generated/gql-codegen";
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { useMutation } from "@apollo/client/react";
+import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { Link } from '../../lib/reactRouterWrapper'
-import { useCurrentUser } from '../common/withUser';
-import { useHover } from '../common/withHover'
-import withErrorBoundary from '../common/withErrorBoundary'
-import classNames from 'classnames';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import CurationNoticesItem from "../admin/CurationNoticesItem";
-import SunshineListItem from "./SunshineListItem";
-import SidebarHoverOver from "./SidebarHoverOver";
+import FormatDate from "../common/FormatDate";
+import ForumIcon from "../common/ForumIcon";
 import { Typography } from "../common/Typography";
+import withErrorBoundary from '../common/withErrorBoundary';
+import { useHover } from '../common/withHover';
+import { useCurrentUser } from '../common/withUser';
 import PostsHighlight from "../posts/PostsHighlight";
-import SidebarInfo from "./SidebarInfo";
 import SidebarAction from "./SidebarAction";
 import SidebarActionMenu from "./SidebarActionMenu";
-import ForumIcon from "../common/ForumIcon";
-import FormatDate from "../common/FormatDate";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum } from '@/lib/instanceSettings';
-import { useCurrentTime } from '@/lib/utils/timeUtil';
+import SidebarHoverOver from "./SidebarHoverOver";
+import SidebarInfo from "./SidebarInfo";
+import SunshineListItem from "./SunshineListItem";
 
 const SunshineCurationPostsListUpdateMutation = gql(`
   mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -40,16 +38,16 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 2
   },
-  postTitle: theme.isFriendlyUI ? {} : {
-    ...theme.typography.body2,
-    ...theme.typography.postStyle,
-    fontSize: "1rem",
-    fontWeight: 500,
-  },
-  titleWithCurationNotice: theme.isFriendlyUI ? {} : {
-    color: 'green',
-    fontWeight: 600,
-  },
+  postTitle: {
+      ...theme.typography.body2,
+      ...theme.typography.postStyle,
+      fontSize: "1rem",
+      fontWeight: 500,
+    },
+  titleWithCurationNotice: {
+      color: 'green',
+      fontWeight: 600,
+    },
   oldPost: {
     opacity: 0.5,
   },
@@ -102,7 +100,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
   }
 
   // On the EA Forum, only admins can curate and remove from curation suggestions
-  const canCurate = isEAForum() ? currentUser?.isAdmin : true;
+  const canCurate = true;
 
   // De-emphasize posts that are 30+ days old
   const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;

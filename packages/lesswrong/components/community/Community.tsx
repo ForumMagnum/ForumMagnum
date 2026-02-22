@@ -1,35 +1,35 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useUserLocation } from '../hooks/useUserLocation';
-import { useCurrentUser } from '../common/withUser';
-import { useDialog } from '../common/withDialog'
-import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
-import Geosuggest from 'react-geosuggest';
-import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
+import { Chip } from "@/components/widgets/Chip";
+import { gql } from "@/lib/generated/gql-codegen";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
 import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
-import { Chip } from "@/components/widgets/Chip";
+import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
+import { useMutation } from "@apollo/client/react";
+import React, { useEffect, useRef, useState } from 'react';
+import Geosuggest from 'react-geosuggest';
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import ForumIcon from "../common/ForumIcon";
+import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent';
+import { useUserLocation } from '../hooks/useUserLocation';
 import EventNotificationsDialog from "../localGroups/EventNotificationsDialog";
-import LoginPopup from "../users/LoginPopup";
+import GroupFormLink from "../localGroups/GroupFormLink";
 import SetPersonalMapLocationDialog from "../localGroups/SetPersonalMapLocationDialog";
+import LoginPopup from "../users/LoginPopup";
 import CommunityBanner from "./modules/CommunityBanner";
+import CommunityMembers from "./modules/CommunityMembers";
+import DistanceUnitToggle from "./modules/DistanceUnitToggle";
 import LocalGroups from "./modules/LocalGroups";
 import OnlineGroups from "./modules/OnlineGroups";
-import CommunityMembers from "./modules/CommunityMembers";
-import GroupFormLink from "../localGroups/GroupFormLink";
-import DistanceUnitToggle from "./modules/DistanceUnitToggle";
-import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
-import { defineStyles } from '@/components/hooks/defineStyles';
-import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersProfileUpdateMutation = gql(`
   mutation updateUserCommunity($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -57,16 +57,12 @@ const styles = defineStyles("Community", (theme: ThemeType) => ({
       marginTop: 30,
     },
     [theme.breakpoints.up('sm')]: {
-      marginTop: theme.isFriendlyUI ? 20 : undefined,
-    },
+},
   },
   sectionHeading: {
     ...theme.typography.headline,
     fontSize: 34,
-    margin: 0,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    margin: 0
   },
   sectionDescription: {
     ...theme.typography.commentStyle,
@@ -171,7 +167,7 @@ const styles = defineStyles("Community", (theme: ThemeType) => ({
   },
   localGroupsBtn: {
     textTransform: 'none',
-    fontSize: theme.isFriendlyUI ? 13 : 12,
+    fontSize: 12,
   },
   localGroupsBtnIcon: {
     fontSize: 15,
@@ -203,7 +199,7 @@ const styles = defineStyles("Community", (theme: ThemeType) => ({
   eventsPageLink: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.text.invertedBackgroundText,
-    fontSize: theme.isFriendlyUI ? 14 : 13,
+    fontSize: 13,
     padding: '8px 16px',
     borderRadius: 4,
     marginTop: 10

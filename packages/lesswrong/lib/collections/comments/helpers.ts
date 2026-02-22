@@ -1,11 +1,11 @@
-import { isAF, isEAForum, taggingNameSetting, commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
-import { getSiteUrl } from '../../vulcan-lib/utils';
-import { postGetPageUrl } from '../posts/helpers';
-import { userCanDo } from '../../vulcan-users/permissions';
-import { userGetDisplayName } from "../users/helpers";
-import { tagGetCommentLink } from '../tags/helpers';
-import { TagCommentType } from './types';
+import { hideUnreviewedAuthorCommentsSettings, isAF, taggingNameSetting } from '@/lib/instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
+import { getSiteUrl } from '../../vulcan-lib/utils';
+import { userCanDo } from '../../vulcan-users/permissions';
+import { postGetPageUrl } from '../posts/helpers';
+import { tagGetCommentLink } from '../tags/helpers';
+import { userGetDisplayName } from "../users/helpers";
+import { TagCommentType } from './types';
 
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment, context: ResolverContext): Promise<string> {
@@ -83,7 +83,6 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
 export const commentGetDefaultView = (post: PostsDetails|PostsList|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
   const fallback = forumSelect({
     AlignmentForum: "afPostCommentsTop",
-    EAForum: "postCommentsMagic",
     default: "postCommentsTop",
   });
   const postSortOrder = (post && 'commentSortOrder' in post) ? post.commentSortOrder : null;
@@ -133,7 +132,7 @@ export async function getVotingSystemNameForDocument(document: VoteableType, col
     return "namesAttachedReactions";
   }
   if ((document as DbComment).tagId) {
-    return isEAForum() ? "eaEmojis" : "namesAttachedReactions";
+    return "namesAttachedReactions";
   }
   if ((document as DbComment).postId) {
     const post = await context.loaders.Posts.load((document as DbComment).postId!);

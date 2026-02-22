@@ -1,26 +1,25 @@
-import React, { useState } from 'react';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useCurrentUser } from '../common/withUser';
+import { useState } from 'react';
 import Geosuggest from 'react-geosuggest';
+import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 // These imports need to be separate to satisfy eslint, for some reason
-import type { Suggest } from 'react-geosuggest';
-import { DialogActions } from '../widgets/DialogActions';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
-import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
-import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
-import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
-import { isEAForum } from '../../lib/instanceSettings';
-import deepmerge from 'deepmerge';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
-import Loading from "../vulcan-core/Loading";
-import { Typography } from "../common/Typography";
+import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
+import deepmerge from 'deepmerge';
+import type { Suggest } from 'react-geosuggest';
 import LWDialog from "../common/LWDialog";
+import { Typography } from "../common/Typography";
+import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import Loading from "../vulcan-core/Loading";
+import { DialogActions } from '../widgets/DialogActions';
 
 const MAX_NOTIFICATION_RADIUS = 300;
 
@@ -174,16 +173,16 @@ const EventNotificationsDialog = ({ onClose }: {
             }}
           />
         </div>
-        {!isEAForum() && <div className={classes.peopleThreshold}>
-          <InputLabel className={classes.peopleThresholdText}>
-            <Checkbox
-              className={classes.peopleThresholdCheckbox}
-              checked={notifyPeopleCheckboxState}
-              onChange={(e) => setNotifyPeopleCheckboxState(!!e.target.checked)}
-            />
-            Notify me when there are {peopleThresholdInput} or more people in my area
-          </InputLabel>
-        </div>}
+        {<div className={classes.peopleThreshold}>
+                        <InputLabel className={classes.peopleThresholdText}>
+                          <Checkbox
+                            className={classes.peopleThresholdCheckbox}
+                            checked={notifyPeopleCheckboxState}
+                            onChange={(e) => setNotifyPeopleCheckboxState(!!e.target.checked)}
+                          />
+                          Notify me when there are {peopleThresholdInput} or more people in my area
+                        </InputLabel>
+                      </div>}
         <DialogActions className={classes.actions}>
           {currentUser?.nearbyEventsNotifications && <a className={classes.removeButton} onClick={()=>{
             void updateCurrentUser({

@@ -1,14 +1,13 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, { useMemo } from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import classNames from 'classnames';
-import { useItemsRead } from '../hooks/useRecordPostView';
-import LWTooltip from "../common/LWTooltip";
-import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
-import LoginToTrack from "./LoginToTrack";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
+import classNames from 'classnames';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import LWTooltip from "../common/LWTooltip";
+import { useItemsRead } from '../hooks/useRecordPostView';
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import LoginToTrack from "./LoginToTrack";
 
 const GET_BOOK_WORD_COUNT = gql(`
   query GetBookWordCount($bookId: String!) {
@@ -34,15 +33,10 @@ const styles = (theme: ThemeType) => ({
   },
   read: {
     ...(
-      theme.isFriendlyUI
-        ? {
-          backgroundColor: theme.palette.primary.main,
-          border: theme.palette.primary.dark,
-        }
-        : {
-          backgroundColor: theme.palette.primary.light,
-          border: theme.palette.primary.main,
-        }
+      {
+                    backgroundColor: theme.palette.primary.light,
+                    border: theme.palette.primary.main,
+                  }
     ),
     opacity: .6
   },

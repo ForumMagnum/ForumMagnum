@@ -27,7 +27,6 @@ export const localAfProdDb = merge({
   testServer: true,
   debug: false,
   expectedDatabaseId: "production",
-  fmCrosspost: { siteName: "the EA Forum", baseUrl: "https://forum.effectivealtruism.org/" },
   recombee: {
     databaseId: "lightcone-infrastructure-lesswrong-prod-2",
     publicApiToken: "sb95OJbQ7mKLQAm1abPog2m5vCPj7XqZlVYdHGyANcjzqaHT5fX6HEgB0vCfiLav"

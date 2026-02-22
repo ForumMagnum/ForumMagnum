@@ -1,9 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import classNames from 'classnames'
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import classNames from 'classnames';
+import React from 'react';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
 const localGroupsHomeFragmentQuery = gql(`
   query PostsGroupDetails($documentId: String) {
@@ -26,16 +26,14 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.smallCaps,
   },
   notRecentDiscussionTitle: {
-    fontFamily: theme.isFriendlyUI
-      ? theme.palette.fonts.sansSerifStack
-      : theme.typography.body1.fontFamily,
+    fontFamily: theme.typography.body1.fontFamily,
   },
   recentDiscussionTitle: {
     fontSize: 16,
     fontFamily: theme.typography.fontFamily
   },
   root: {
-    marginBottom: theme.isFriendlyUI ? 5 : 12, 
+    marginBottom: 12, 
     marginTop: 10
   }
 })

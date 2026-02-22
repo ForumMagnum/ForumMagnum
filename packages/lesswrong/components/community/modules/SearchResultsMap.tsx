@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Marker as BadlyTypedMarker } from 'react-map-gl';
-import { connectHits } from 'react-instantsearch-dom';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
-import type { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
+import React, { useEffect, useState } from 'react';
+import type { Hit } from 'react-instantsearch-core';
+import { connectHits } from 'react-instantsearch-dom';
+import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import StyledMapPopup from "../../localGroups/StyledMapPopup";
 import { type MapboxViewport, WrappedReactMapGL } from '../WrappedReactMapGL';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
@@ -27,7 +27,7 @@ const styles = defineStyles("SearchResultsMap", (theme: ThemeType) => ({
     display: 'flex',
     columnGap: 10,
     alignItems: 'center',
-    color: theme.isFriendlyUI ? undefined : theme.palette.text.alwaysBlack,
+    color: theme.palette.text.alwaysBlack,
   },
   profileImage: {
     'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),

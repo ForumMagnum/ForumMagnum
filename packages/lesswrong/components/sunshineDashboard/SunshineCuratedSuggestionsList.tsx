@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
-import classNames from 'classnames';
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import { Link } from '@/lib/reactRouterWrapper';
-import SunshineListTitle from "./SunshineListTitle";
-import SunshineCuratedSuggestionsItem from "./SunshineCuratedSuggestionsItem";
-import MetaInfo from "../common/MetaInfo";
+import classNames from 'classnames';
+import { useState } from 'react';
+import { isLWorAF } from '../../lib/instanceSettings';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import FormatDate from "../common/FormatDate";
+import ForumIcon from "../common/ForumIcon";
 import LoadMore from "../common/LoadMore";
 import LWTooltip from "../common/LWTooltip";
-import ForumIcon from "../common/ForumIcon";
-import { useQuery } from "@/lib/crud/useQuery";
-import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen";
-import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import MetaInfo from "../common/MetaInfo";
+import { useCurrentUser } from '../common/withUser';
+import SunshineCuratedSuggestionsItem from "./SunshineCuratedSuggestionsItem";
+import SunshineListTitle from "./SunshineListTitle";
 
 const PostsListMultiQuery = gql(`
   query multiPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -70,11 +69,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const shouldShow = (atBottom: boolean, timeForCuration: boolean, currentUser: UsersCurrent | null, hasCurationDrafts: boolean) => {
-  if (isEAForum()) {
-    return !atBottom && (currentUser?.isAdmin || userIsMemberOf(currentUser, 'canSuggestCuration'));
-  } else {
-    return (atBottom === hasCurationDrafts) || timeForCuration;
-  }
+  return (atBottom === hasCurationDrafts) || timeForCuration;
 }
 
 const hasCurationDrafts = (results: SunshineCurationPostsList[] | undefined): boolean => {

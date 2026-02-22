@@ -1,42 +1,41 @@
+import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
+import { FormComponentQuickTakesTags } from "@/components/form-components/FormComponentQuickTakesTags";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
+import { useTracking } from "@/lib/analyticsEvents";
+import { hasDraftComments } from '@/lib/betas';
+import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
+import { commentAllowTitle } from "@/lib/collections/comments/helpers";
+import { getCommentEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { gql } from "@/lib/generated/gql-codegen";
+import { isAF, isLWorAF, quickTakesTagsEnabledSetting } from "@/lib/instanceSettings";
+import type { ReviewYear } from "@/lib/reviewUtils";
+import { withDateFields } from "@/lib/utils/dateUtils";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { isFriendlyUI } from "@/themes/forumTheme";
+import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
+import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
+import { useMutation } from "@apollo/client/react";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useCallback } from "react";
-import { defineStyles, useStyles } from "../hooks/useStyles";
-import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { MuiTextField } from "@/components/form-components/MuiTextField";
-import { getCommentEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
-import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
-import { FormComponentQuickTakesTags } from "@/components/form-components/FormComponentQuickTakesTags";
-import { commentAllowTitle } from "@/lib/collections/comments/helpers";
-import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { quickTakesTagsEnabledSetting, isAF, isLWorAF } from "@/lib/instanceSettings";
-import type { ReviewYear } from "@/lib/reviewUtils";
-import { useCurrentUser } from "../common/withUser";
-import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
-import { useDialog } from "../common/withDialog";
-import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
-import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
-import LoginPopup from "../users/LoginPopup";
-import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
+import { useDialog } from "../common/withDialog";
+import { useCurrentUser } from "../common/withUser";
+import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
 import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
-import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { withDateFields } from "@/lib/utils/dateUtils";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
-import { hasDraftComments } from '@/lib/betas';
-import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
-import { useTracking } from "@/lib/analyticsEvents";
-import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
-import AutoEmailSubscribeCheckbox from "./AutoEmailSubscribeCheckbox";
+import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 import { CommentsListMultiQuery, postCommentsThreadQuery } from "../posts/queries";
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import LoginPopup from "../users/LoginPopup";
+import Loading from "../vulcan-core/Loading";
+import AutoEmailSubscribeCheckbox from "./AutoEmailSubscribeCheckbox";
+import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { CommentsListWithParentMetadataMultiQuery, DraftCommentsQuery } from "./queries";
 
 const CommentsListUpdateMutation = gql(`
@@ -84,42 +83,21 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
   submitQuickTakesNewForm: {
     background: theme.palette.grey[100],
   },
-  submitQuickTakesButtonAtBottom: theme.isFriendlyUI
-    ? {
-      marginTop: 20,
-      padding: 20,
-      borderTop: `1px solid ${theme.palette.grey[300]}`,
-    }
-    : {},
-  formButton: theme.isFriendlyUI ? {
-    fontSize: 14,
-    textTransform: 'none',
-    padding: '6px 12px',
-    borderRadius: 6,
-    boxShadow: 'none',
-    marginLeft: 8,
-  } : {
-    fontSize: "16px",
-    color: theme.palette.lwTertiary.main,
-    marginLeft: "5px",
-    "&:hover": {
-      opacity: .5,
+  submitQuickTakesButtonAtBottom: {},
+  formButton: {
+      fontSize: "16px",
+      color: theme.palette.lwTertiary.main,
+      marginLeft: "5px",
+      "&:hover": {
+        opacity: .5,
+      },
     },
-  },
   cancelButton: {
-    color: theme.isFriendlyUI ? undefined : theme.palette.grey[400],
+    color: theme.palette.grey[400],
   },
-  submitButton: theme.isFriendlyUI ? {
-    backgroundColor: theme.palette.buttons.alwaysPrimary,
-    color: theme.palette.text.alwaysWhite,
-    '&:disabled': {
-      backgroundColor: theme.palette.buttons.alwaysPrimary,
-      color: theme.palette.text.alwaysWhite,
-      opacity: .5,
-    }
-  } : {
-    padding: '8px',
-  },
+  submitButton: {
+      padding: '8px',
+    },
   submitMinimalist: {
     height: 'fit-content',
     marginTop: "auto",
@@ -208,8 +186,8 @@ const CommentSubmit = ({
   const { openDialog } = useDialog();
 
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-  const cancelBtnProps: InnerButtonProps = isFriendlyUI() && !isMinimalist ? { variant: "contained" } : {};
-  const submitBtnProps: InnerButtonProps = isFriendlyUI() && !isMinimalist ? { variant: "contained", color: "primary" } : {};
+  const cancelBtnProps: InnerButtonProps = {};
+  const submitBtnProps: InnerButtonProps = {};
 
   const actualSubmitDisabled = formDisabledDueToRateLimit || loading || !formCanSubmit || formIsSubmitting;
   if (actualSubmitDisabled) {
@@ -222,7 +200,7 @@ const CommentSubmit = ({
     <div
       className={classNames(classes.submit, {
         [classes.submitMinimalist]: isMinimalist,
-        [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI()),
+        [classes.submitQuickTakes]: isQuickTake,
         [classes.submitQuickTakesNewForm]: isQuickTake && formType === 'new',
         [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
       })}

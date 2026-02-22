@@ -108,12 +108,6 @@ export const SHOW_RECOMMENDATIONS_SECTION_COOKIE = registerCookie({
   description: "Controls whether the recommendations ('Classic posts') section on the frontpage is shown or hidden",
 });
 
-export const HIDE_IMPORT_EAG_PROFILE = registerCookie({
-  name: "hide_import_eag_profile",
-  type: "necessary",
-  description: "Controls whether the EAG profile import banner is shown or hidden on the edit profile page",
-});
-
 export const HIDE_MORE_FROM_THE_FORUM_RECOMMENDATIONS_COOKIE = registerCookie({
   name: "hide_more_from_the_forum_recommendations",
   type: "necessary",
@@ -393,4 +387,3 @@ registerCookie({
                "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
                "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
 });
-

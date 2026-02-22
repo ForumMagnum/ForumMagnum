@@ -1,25 +1,20 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import React, { useCallback } from 'react';
-import classNames from 'classnames';
-import { useLocation } from '../../../lib/routeUtil';
-import { MenuTabRegular } from './menuTabs';
-import { forumSelect } from '../../../lib/forumTypeUtils';
-import { useCurrentUser } from '../withUser';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
-import TabNavigationSubItem from "./TabNavigationSubItem";
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import classNames from 'classnames';
+import React, { useCallback } from 'react';
+import { forumSelect } from '../../../lib/forumTypeUtils';
+import { useLocation } from '../../../lib/routeUtil';
 import LWTooltip from "../LWTooltip";
 import { MenuItemLink } from "../Menus";
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { useCurrentUser } from '../withUser';
+import { MenuTabRegular } from './menuTabs';
+import TabNavigationSubItem from "./TabNavigationSubItem";
 
 export const iconWidth = 30
 
-const getIconTransform = () => forumSelect({
-  LessWrong: "scale(0.8)",
-  EAForum: "scale(0.7)",
-  default: undefined,
-});
+const getIconTransform = () => "scale(0.8)";
 
 const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   selected: {
@@ -27,12 +22,12 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
       opacity: 1,
     },
     '& $navText': {
-      color: theme.palette.grey[theme.isFriendlyUI ? 1000 : 900],
+      color: theme.palette.grey[900],
       fontWeight: 600,
     },
   },
   menuItem: {
-    width: theme.isFriendlyUI ? 210 : 190,
+    width: 190,
   },
   desktopOnly: {
     [theme.breakpoints.down("xs")]: {
@@ -41,16 +36,10 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   },
   navButton: {
     '&:hover': {
-      opacity: theme.isFriendlyUI ? 1 : 0.6,
-      color: theme.isFriendlyUI ? theme.palette.grey[800] : undefined,
-      backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
-      
-      ...(theme.isFriendlyUI && {
-        paddingTop: 10,
-        paddingBottom: 10,
-      }),
+      opacity: 0.6,
+      backgroundColor: 'transparent'
     },
-    color: theme.palette.grey[theme.isFriendlyUI ? 600 : 800],
+    color: theme.palette.grey[800],
     ...(theme.forumType === "LessWrong"
       ? {
         paddingTop: 7,
@@ -72,8 +61,7 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     paddingLeft: 0,
     paddingRight: 0,
     '&:hover': {
-      backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
-      opacity: theme.isFriendlyUI ? 1 : undefined,
+      backgroundColor: 'transparent'
     }
   },
   icon: {
@@ -83,13 +71,10 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     marginRight: 16,
     display: "inline",
     "& svg": {
-      fill: theme.isFriendlyUI ? undefined : "currentColor",
-      color: theme.isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
+      fill: "currentColor",
+      color: theme.palette.icon.navigationSidebarIcon,
       transform: getIconTransform(),
-    },
-    ...(theme.isFriendlyUI && {
-      opacity: 1,
-    }),
+    }
   },
   iconOnlyIcon: {
     marginRight: 0,
@@ -117,8 +102,7 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   },
   selectedIcon: {
     "& svg": {
-      color: theme.isFriendlyUI ? theme.palette.grey[1000] : undefined,
-    },
+},
   },
   navText: {
     ...theme.typography.body2,
@@ -143,8 +127,7 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     }
   },
   tooltip: {
-    maxWidth: theme.isFriendlyUI ? 190 : undefined,
-  },
+},
   flag: {
     padding: "2px 4px",
     marginLeft: 10,
@@ -193,7 +176,7 @@ const parseCookie = (
 }
 
 const useFlag = (tab: MenuTabRegular): {
-  flag: string | undefined,
+  flag?: string,
   onClickFlag?: () => void,
 } => {
   const now = useCurrentTime();
@@ -208,7 +191,7 @@ const useFlag = (tab: MenuTabRegular): {
     );
     const MS_PER_28_DAYS = 2_628_000_000;
     if (clickedAt || firstViewedAt < new Date(now.getTime() - MS_PER_28_DAYS)) {
-      return {flag: undefined};
+      return {};
     }
     return {
       flag,
@@ -308,5 +291,4 @@ const TabNavigationItem = ({tab, onClick, className, iconOnlyNavigationEnabled}:
 }
 
 export default TabNavigationItem;
-
 

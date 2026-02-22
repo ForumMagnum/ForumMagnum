@@ -1,14 +1,13 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
 import classNames from 'classnames';
-import { queryIsUpdating } from './queryStatusUtils'
-import {useTracking} from "../../lib/analyticsEvents";
-import { LoadMoreCallback } from '../hooks/useQueryWithLoadMore';
-import { useIsFirstRender } from "../hooks/useFirstRender";
+import React from 'react';
+import { useTracking } from "../../lib/analyticsEvents";
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import Loading from "../vulcan-core/Loading";
+import { useIsFirstRender } from "../hooks/useFirstRender";
 import type { WrappedFetchMore } from '../hooks/useQueryWithLoadMore';
+import { LoadMoreCallback } from '../hooks/useQueryWithLoadMore';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import Loading from "../vulcan-core/Loading";
+import { queryIsUpdating } from './queryStatusUtils';
 
 const styles = defineStyles("LoadMore", (theme: ThemeType) => ({
   root: {
@@ -20,13 +19,7 @@ const styles = defineStyles("LoadMore", (theme: ThemeType) => ({
     }),
     display: "inline-block",
     minHeight: 20,
-    ...(theme.isFriendlyUI
-      ? {
-        fontSize: 14,
-        fontWeight: 600,
-        lineHeight: "24px",
-      }
-      : {}),
+    ...({}),
     ...(theme.isAF && {
       fontWeight: 500,
     }),

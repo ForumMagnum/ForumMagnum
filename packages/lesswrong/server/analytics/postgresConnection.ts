@@ -1,11 +1,11 @@
-import { isAnyTest } from "../../lib/executionEnvironment";
+import fs from "fs";
+import path from "path";
 import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
-import { connectionStringSetting, mirrorConnectionSettingString, sslSetting } from "../databaseSettings";
-import { isEAForum, sslCAFileSetting } from "../../lib/instanceSettings";
-import fs from "fs";
+import { isAnyTest } from "../../lib/executionEnvironment";
+import { sslCAFileSetting } from "../../lib/instanceSettings";
 import { getInstanceSettingsFilePath } from "../commandLine";
-import path from "path";
+import { connectionStringSetting, mirrorConnectionSettingString, sslSetting } from "../databaseSettings";
 
 export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
 declare global {
@@ -36,7 +36,7 @@ const getFullCAFilePath = (): string | null => {
 let missingConnectionStringWarned = false;
 
 function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null {
-  if (isAnyTest && !isEAForum()) {
+  if (isAnyTest) {
     return null;
   }
   if (!connectionString) {

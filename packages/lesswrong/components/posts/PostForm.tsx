@@ -1,40 +1,37 @@
-import { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
-import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { isLWorAF, isEAForum, fmCrosspostSiteNameSetting, fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
-import { preferredHeadingCase } from "@/themes/forumTheme";
-import { useForm } from "@tanstack/react-form";
-import classNames from "classnames";
-import React, { useState } from "react";
-import { useCurrentUser } from "../common/withUser";
-import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
-import { EditTitle } from "../editor/EditTitle";
-import { PostSharingSettings } from "../editor/PostSharingSettings";
-import { EditPostCategory } from "../form-components/EditPostCategory";
-import { SelectLocalgroup } from "../form-components/SelectLocalgroup";
-import { defineStyles, useStyles } from "../hooks/useStyles";
-import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { LocationFormComponent } from "@/components/form-components/LocationFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { MultiSelectButtons } from "@/components/form-components/MultiSelectButtons";
-import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
-import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
+import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
+import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
+import { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { gql } from "@/lib/generated/gql-codegen";
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isLWorAF } from "@/lib/instanceSettings";
+import { preferredHeadingCase } from "@/themes/forumTheme";
+import { useMutation } from "@apollo/client/react";
+import { useForm } from "@tanstack/react-form";
+import classNames from "classnames";
+import { useState } from "react";
+import Error404 from "../common/Error404";
+import LWTooltip from "../common/LWTooltip";
+import { useCurrentUser } from "../common/withUser";
+import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
+import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
+import { EditTitle } from "../editor/EditTitle";
+import { PostSharingSettings } from "../editor/PostSharingSettings";
+import { EditPostCategory } from "../form-components/EditPostCategory";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
+import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
+import { SelectLocalgroup } from "../form-components/SelectLocalgroup";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 import { DialogueSubmit } from "./dialogues/DialogueSubmit";
+import PostFormSecondaryGroups from "./PostFormSecondaryGroups";
 import { PostSubmit } from "./PostSubmit";
 import { SubmitToFrontpageCheckbox } from "./SubmitToFrontpageCheckbox";
-import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import LWTooltip from "../common/LWTooltip";
-import Error404 from "../common/Error404";
-import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
-import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
-import PostFormSecondaryGroups from "./PostFormSecondaryGroups";
-import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
-import { EVENT_TYPES } from "@/lib/collections/posts/constants";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
   mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -175,7 +172,7 @@ const PostForm = ({
   const isEvent = !!initialData.isEvent;
   const isDialogue = !!initialData.collabEditorDialogue;
 
-  const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent);
+  const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue);
 
   const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
   const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
@@ -332,18 +329,6 @@ const PostForm = ({
           </form.Field>
         </div>
 
-        {!isLWorAF() && <div className={classes.fieldWrapper}>
-          <form.Field name="eventType">
-            {(field) => (
-              <FormComponentSelect
-                field={field}
-                options={EVENT_TYPES}
-                label="Event Format"
-              />
-            )}
-          </form.Field>
-        </div>}
-
         <div className={classes.fieldWrapper}>
           <form.Field name="activateRSVPs">
             {(field) => (
@@ -482,18 +467,7 @@ const PostForm = ({
           </form.Field>
         </div>
 
-        {isEAForum() && <div className={classes.fieldWrapper}>
-          <form.Field name="eventImageId">
-            {(field) => (
-              <LWTooltip title="Recommend 1920x1005 px, 1.91:1 aspect ratio (same as Facebook)" placement="left-start" inlineBlock={false}>
-                <ImageUpload
-                  field={field}
-                  label="Event Image"
-                />
-              </LWTooltip>
-            )}
-          </form.Field>
-        </div>}
+        {false}
 
         {isLWorAF() && <div className={classes.fieldWrapper}>
           <form.Field name="types">
@@ -525,5 +499,4 @@ const PostForm = ({
 };
 
 export default PostForm;
-
 

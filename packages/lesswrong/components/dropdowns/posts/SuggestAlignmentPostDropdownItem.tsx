@@ -1,7 +1,6 @@
 import React from 'react';
 import { userCanSuggestPostForAlignment } from '../../../lib/alignment-forum/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { isLWorAF } from '../../../lib/instanceSettings';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen/gql";
@@ -23,7 +22,6 @@ const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const [updatePost] = useMutation(PostsListUpdateMutation);
 
   if (
-    !isLWorAF() ||
     !currentUser ||
     !userCanSuggestPostForAlignment({currentUser, post})
   ) {
@@ -64,4 +62,3 @@ const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
 }
 
 export default SuggestAlignmentPostDropdownItem;
-

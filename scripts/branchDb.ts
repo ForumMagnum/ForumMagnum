@@ -108,9 +108,7 @@ class BranchDbBuilder {
     if (!this.pgUrl) {
       throw new Error("Missing Postgres URL");
     }
-    // TODO: For now this is hard coded for the EA forum - work out a nice
-    // way to make this generic (read from settings-dev.json maybe?).
-    this.templateDbName = "eaforum_dev_replica";
+    this.templateDbName = process.env.BRANCH_DB_TEMPLATE_DB ?? "lesswrong_dev_replica";
   }
 
   private log(...args: any[]): void {

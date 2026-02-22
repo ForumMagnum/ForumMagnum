@@ -1,22 +1,21 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
-import { useHover } from '../common/withHover';
 import classNames from 'classnames';
-import withErrorBoundary from '../common/withErrorBoundary';
-import { commentGetKarma } from '../../lib/collections/comments/helpers'
-import { isMobile } from '../../lib/utils/isMobile'
-import { CommentTreeOptions } from './commentTree';
-import CoreTagIcon, { getCoreTagIconMap } from '../tagging/CoreTagIcon';
-import { metaNoticeStyles } from "./CommentsItem/metaNoticeStyles";
-import FormatDate from "../common/FormatDate";
-import ShowParentComment from "./ShowParentComment";
-import CommentUserName from "./CommentsItem/CommentUserName";
-import CommentShortformIcon from "./CommentsItem/CommentShortformIcon";
-import PostsItemComments from "../posts/PostsItemComments";
+import { commentGetKarma } from '../../lib/collections/comments/helpers';
+import { isMobile } from '../../lib/utils/isMobile';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import ContentStyles from "../common/ContentStyles";
+import FormatDate from "../common/FormatDate";
 import LWPopper from "../common/LWPopper";
-import CommentsNode from "./CommentsNode";
+import withErrorBoundary from '../common/withErrorBoundary';
+import { useHover } from '../common/withHover';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import PostsItemComments from "../posts/PostsItemComments";
+import CoreTagIcon, { getCoreTagIconMap } from '../tagging/CoreTagIcon';
+import CommentShortformIcon from "./CommentsItem/CommentShortformIcon";
+import CommentUserName from "./CommentsItem/CommentUserName";
+import { metaNoticeStyles } from "./CommentsItem/metaNoticeStyles";
+import CommentsNode from "./CommentsNode";
+import { CommentTreeOptions } from './commentTree';
+import ShowParentComment from "./ShowParentComment";
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -31,8 +30,7 @@ export const singleLineStyles = (theme: ThemeType) => ({
   paddingLeft: theme.spacing.unit,
   paddingRight: theme.spacing.unit,
   color: theme.palette.text.dim60,
-  whiteSpace: "nowrap",
-  fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+  whiteSpace: "nowrap"
 })
 
 const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({

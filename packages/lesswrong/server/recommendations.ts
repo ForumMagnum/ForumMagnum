@@ -1,22 +1,20 @@
-import { Posts } from '../server/collections/posts/collection';
+import { PostsViews } from '@/lib/collections/posts/views';
+import gql from 'graphql-tag';
 import sortBy from 'lodash/sortBy';
-import { accessFilterSingle, accessFilterMultiple } from '../lib/utils/schemaUtils';
-import { setUserPartiallyReadSequences } from './partiallyReadSequences';
-import { WeightedList } from './weightedList';
 import {
-  DefaultRecommendationsAlgorithm,
-  RecommendationsAlgorithm,
-  recommendationsAlgorithmHasStrategy,
+    DefaultRecommendationsAlgorithm,
+    RecommendationsAlgorithm,
+    recommendationsAlgorithmHasStrategy,
 } from '../lib/collections/users/recommendationSettings';
-import { isEAForum } from '../lib/instanceSettings';
-import SelectQuery from "./sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
+import { accessFilterMultiple, accessFilterSingle } from '../lib/utils/schemaUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/helpers';
+import { Posts } from '../server/collections/posts/collection';
+import { setUserPartiallyReadSequences } from './partiallyReadSequences';
 import RecommendationService from './recommendations/RecommendationService';
 import PgCollection from './sql/PgCollection';
-import gql from 'graphql-tag';
-import { PostsViews } from '@/lib/collections/posts/views';
+import SelectQuery from "./sql/SelectQuery";
+import { WeightedList } from './weightedList';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -81,12 +79,6 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
   }
   // NOTE: this section is currently unused and should probably be removed -Ray
   if (algorithm.reviewReviews) {
-    if (isEAForum()) {
-      return {
-        postedAt: {$lt: new Date(`${(algorithm.reviewReviews as number) + 1}-01-01`)},
-        positiveReviewVoteCount: {$gte: getPositiveVoteThreshold()}, // EA-forum look here
-      }
-    }
     return {
       postedAt: {
         $gt: new Date(`${algorithm.reviewReviews}-01-01`),
@@ -105,9 +97,6 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
     }
   }
   if (algorithm.reviewNominations) {
-    if (isEAForum()) {
-      return {postedAt: {$lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)}}
-    }
     return {
       isEvent: false,
       postedAt: {$gt: new Date(`${algorithm.reviewNominations}-01-01`), $lt: new Date(`${(algorithm.reviewNominations as number) + 1}-01-01`)},
@@ -158,17 +147,6 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, res
       af: true,
     };
   }
-
-  if (isEAForum()) {
-    recommendationFilter = {$and: [
-      recommendationFilter,
-      {$or: [
-        {[`tagRelevance.${EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID}`]: {$exists: false}},
-        {[`tagRelevance.${EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID}`]: {$lt: 1}},
-      ]},
-    ]};
-  }
-
   if (algorithm.excludeDefaultRecommendations) {
     return recommendationFilter
   } else {

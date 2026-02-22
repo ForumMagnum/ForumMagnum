@@ -1,12 +1,11 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import type { Hit } from 'react-instantsearch-core';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import type { Hit } from 'react-instantsearch-core';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import FormatDate from "../common/FormatDate";
+import MetaInfo from "../common/MetaInfo";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import PostsTitle from "../posts/PostsTitle";
-import MetaInfo from "../common/MetaInfo";
-import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -19,8 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
   postLink: {
     float:"right",
-    marginRight: theme.spacing.unit,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    marginRight: theme.spacing.unit
   },
   titleRow: {
     textOverflow: "ellipsis",

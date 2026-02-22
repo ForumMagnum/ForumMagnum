@@ -1,28 +1,27 @@
+import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { hasSidenotes } from "@/lib/betas";
-import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
-import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
+import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels } from "@/lib/collections/posts/constants";
+import { EditablePost, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
+import { userCanCommentLock } from "@/lib/collections/users/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting } from "@/lib/instanceSettings";
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isLWorAF, taggingNamePluralCapitalSetting } from "@/lib/instanceSettings";
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwns } from "@/lib/vulcan-users/permissions";
-import { isFriendlyUI } from "@/themes/forumTheme";
+import { commentBodyStyles } from "@/themes/stylePiping";
 import classNames from "classnames";
-import React, { useState } from "react";
+import { useState } from "react";
+import LWTooltip from "../common/LWTooltip";
+import { AddOnSubmitCallback, AddOnSuccessCallback, EditorFormComponent } from "../editor/EditorFormComponent";
 import { CoauthorsListEditor } from "../form-components/CoauthorsListEditor";
 import { FMCrosspostControl } from "../form-components/FMCrosspostControl";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { PodcastEpisodeInput } from "../form-components/PodcastEpisodeInput";
 import { SocialPreviewUpload } from "../form-components/SocialPreviewUpload";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { AddOnSubmitCallback, AddOnSuccessCallback, EditorFormComponent } from "../editor/EditorFormComponent";
-import { MuiTextField } from "@/components/form-components/MuiTextField";
-import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import FooterTagList from "../tagging/FooterTagList";
-import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { commentBodyStyles } from "@/themes/stylePiping";
-import LWTooltip from "../common/LWTooltip";
-import { userCanCommentLock } from "@/lib/collections/users/helpers";
 import { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
 
 const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
@@ -161,10 +160,10 @@ const PostFormSecondaryGroups = ({
   const canSeeHighlight = isAdminOrMod; // same condition as render guard
   const canSeeAdmin = isAdminOrMod;
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters');
-  const canSeeModeration = !isFriendlyUI();
+  const canSeeModeration = true;
   // const canSeeGlossary = userCanCreateAndEditJargonTerms(currentUser);
   const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
-  const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
+  const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue));
 
   type formGroupType = 'Tags' | 'Coauthors' | 'Link Preview' | 'Moderation' | 'Options' | 'Admin' | 'Audio' | 'Glossary';
 
@@ -204,7 +203,7 @@ const PostFormSecondaryGroups = ({
 
   const [expandedFormGroup, setExpandedFormGroup] = useState<formGroupType>(secondaryFormGroups[0].label);
 
-  const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent);
+  const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue);
 
   const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
   const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
@@ -389,16 +388,7 @@ const PostFormSecondaryGroups = ({
             </form.Field>
           </div>
 
-          {isEAForum() && <div className={classes.fieldWrapper}>
-            <form.Field name="hideFromPopularComments">
-              {(field) => (
-                <FormComponentCheckbox
-                  field={field}
-                  label="Hide comments on this post from Popular Comments"
-                />
-              )}
-            </form.Field>
-          </div>}
+          {false}
 
           {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
             <form.Field name="slug">
@@ -572,16 +562,16 @@ const PostFormSecondaryGroups = ({
           </div>}
 
           {/* On the EA forum, only admins can set the curated date, not mods */}
-          {(!isEAForum() || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
-            <form.Field name="curatedDate">
-              {(field) => (
-                <FormComponentDatePicker
-                  field={field}
-                  label="Curated date"
-                />
-              )}
-            </form.Field>
-          </div>}
+          {<div className={classes.fieldWrapper}>
+                              <form.Field name="curatedDate">
+                                {(field) => (
+                                  <FormComponentDatePicker
+                                    field={field}
+                                    label="Curated date"
+                                  />
+                                )}
+                              </form.Field>
+                            </div>}
 
           <div className={classes.fieldWrapper}>
             <form.Field name="metaDate">
@@ -594,16 +584,16 @@ const PostFormSecondaryGroups = ({
             </form.Field>
           </div>
 
-          {(!isEAForum() || userIsAdmin(currentUser)) && <div className={classes.fieldWrapper}>
-            <form.Field name="reviewForCuratedUserId">
-              {(field) => (
-                <MuiTextField
-                  field={field}
-                  label="Curated Review UserId"
-                />
-              )}
-            </form.Field>
-          </div>}
+          {<div className={classes.fieldWrapper}>
+                              <form.Field name="reviewForCuratedUserId">
+                                {(field) => (
+                                  <MuiTextField
+                                    field={field}
+                                    label="Curated Review UserId"
+                                  />
+                                )}
+                              </form.Field>
+                            </div>}
 
           {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
             <form.Field name="commentSortOrder">
@@ -693,28 +683,28 @@ const PostFormSecondaryGroups = ({
 
         {expandedFormGroup === 'Moderation' && <div className={classes.formGroup}>
           <h3 className={classes.formGroupTitle}>Moderation</h3>
-          {!isFriendlyUI() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
-            <form.Field name="moderationGuidelines">
-              {(field) => (
-                <EditorFormComponent
-                  field={field}
-                  name="moderationGuidelines"
-                  formType={formType}
-                  document={form.state.values}
-                  addOnSubmitCallback={addOnSubmitCallbackModerationGuidelines}
-                  addOnSuccessCallback={addOnSuccessCallbackModerationGuidelines}
-                  hintText={getDefaultEditorPlaceholder()}
-                  fieldName="moderationGuidelines"
-                  collectionName="Posts"
-                  commentEditor={true}
-                  commentStyles={true}
-                  hideControls={false}
-                />
-              )}
-            </form.Field>
-          </div>}
+          {<div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+                              <form.Field name="moderationGuidelines">
+                                {(field) => (
+                                  <EditorFormComponent
+                                    field={field}
+                                    name="moderationGuidelines"
+                                    formType={formType}
+                                    document={form.state.values}
+                                    addOnSubmitCallback={addOnSubmitCallbackModerationGuidelines}
+                                    addOnSuccessCallback={addOnSuccessCallbackModerationGuidelines}
+                                    hintText={getDefaultEditorPlaceholder()}
+                                    fieldName="moderationGuidelines"
+                                    collectionName="Posts"
+                                    commentEditor={true}
+                                    commentStyles={true}
+                                    hideControls={false}
+                                  />
+                                )}
+                              </form.Field>
+                            </div>}
 
-          {!isFriendlyUI() && !isDialogue && <div className={classes.fieldWrapper}>
+          {!isDialogue && <div className={classes.fieldWrapper}>
             <form.Field name="moderationStyle">
               {(field) => (
                 <FormComponentSelect
@@ -726,7 +716,7 @@ const PostFormSecondaryGroups = ({
             </form.Field>
           </div>}
 
-          {!isEAForum() && !isDialogue && <div className={classes.fieldWrapper}>
+          {!isDialogue && <div className={classes.fieldWrapper}>
             <form.Field name="ignoreRateLimits">
               {(field) => (
                 <LWTooltip title="Allow rate-limited users to comment freely on this post" placement="left-start" inlineBlock={false}>
@@ -772,16 +762,7 @@ const PostFormSecondaryGroups = ({
             </form.Field>
           </div>}
 
-          {isEAForum() && (userIsAdmin(currentUser) || postCanEditHideCommentKarma(currentUser, form.state.values)) && <div className={classes.fieldWrapper}>
-            <form.Field name="hideCommentKarma">
-              {(field) => (
-                <FormComponentCheckbox
-                  field={field}
-                  label="Hide comment karma"
-                />
-              )}
-            </form.Field>
-          </div>}
+          {false}
         </div>}
 
         {/* {expandedFormGroup === 'Glossary' && userCanCreateAndEditJargonTerms(currentUser) && <div className={classes.formGroup}>

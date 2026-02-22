@@ -1,15 +1,14 @@
-import { Notifications } from '../../server/collections/notifications/collection';
-import { NotificationDisplay } from '../../lib/notificationTypes';
 import type { NotificationCountsResult } from '@/components/hooks/useUnreadNotifications';
+import { defaultNotificationsView } from '@/lib/collections/notifications/views';
+import gql from "graphql-tag";
+import type { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { isDialogueParticipant } from '../../lib/collections/posts/helpers';
+import { NotificationDisplay } from '../../lib/notificationTypes';
+import { Notifications } from '../../server/collections/notifications/collection';
+import { handleDialogueHtml } from '../editor/conversionUtils';
 import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
 import { cheerioParse } from '../utils/htmlUtil';
-import type { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
-import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import gql from "graphql-tag"
-import { defaultNotificationsView, NotificationsViews } from '@/lib/collections/notifications/views';
 
 const {Query: NotificationDisplaysQuery, typeDefs: NotificationDisplaysTypeDefs} = createPaginatedResolver({
   name: "NotificationDisplays",
@@ -111,33 +110,19 @@ export const notificationResolversGqlQueries = {
     };
     const lastNotificationsCheck = currentUser.lastNotificationsCheck;
 
-    // In bookUI, notifications are considered "read" iif they were created
-    // before the current user's `lastNotificationsCheck`. The value of
-    // `unreadPrivateMessages` is ignored and not used in the UI.
-    // In friendlyUI, the same is true for most notifications, but new message
-    // notifications are handled separately - they bypass
-    // `lastNotificationsCheck` and instead use the `viewed` field on the
-    // notification, so `unreadPrivateMessages` can be displayed independently.
+    // Notifications are considered "read" iif they were created before the
+    // current user's `lastNotificationsCheck`. `unreadPrivateMessages` is
+    // currently unused and always 0.
     const [
       unreadPrivateMessages,
       newNotifications,
     ] = await Promise.all([
-      isFriendlyUI()
-        ? Notifications.find({
-          ...selector,
-          type: "newMessage",
-          viewed: {$ne: true},
-        }).count()
-        : Promise.resolve(0),
+      Promise.resolve(0),
       Notifications.find({
         ...selector,
         ...(lastNotificationsCheck && {
           createdAt: {$gt: lastNotificationsCheck},
-        }),
-        ...(isFriendlyUI() && {
-          type: {$ne: "newMessage"},
-          viewed: {$ne: true},
-        }),
+        })
       }).fetch(),
     ]);
 

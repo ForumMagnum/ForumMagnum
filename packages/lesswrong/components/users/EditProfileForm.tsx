@@ -1,38 +1,32 @@
-import React from 'react';
-import { useCurrentUser } from '../common/withUser';
-import { SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetProfileUrl, CAREER_STAGES, PROGRAM_PARTICIPATION } from '../../lib/collections/users/helpers';
-import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
-import { userHasEagProfileImport } from '../../lib/betas';
-import moment from 'moment';
-import { isBookUI, isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { Link } from "../../lib/reactRouterWrapper";
-import { useLocation, useNavigate } from "../../lib/routeUtil";
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { useForm } from '@tanstack/react-form';
-import classNames from 'classnames';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
+import { ImageUpload } from '@/components/form-components/ImageUpload';
+import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
-import { ImageUpload } from '@/components/form-components/ImageUpload';
-import { FormComponentFriendlyTextInput } from '../form-components/FormComponentFriendlyTextInput';
-import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
-import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
-import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
-import { SelectLocalgroup } from '../form-components/SelectLocalgroup';
-import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { FormComponentFriendlyDisplayNameInput } from '../form-components/FormComponentFriendlyDisplayNameInput';
-import Error404 from "../common/Error404";
-import FormGroupFriendlyUserProfile from "../form-components/FormGroupFriendlyUserProfile";
-import TagMultiselect from "../form-components/TagMultiselect";
-import PrefixedInput from "../form-components/PrefixedInput";
-import { Typography } from "../common/Typography";
-import ForumIcon from "../common/ForumIcon";
-import Loading from "../vulcan-core/Loading";
-import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { preferredHeadingCase } from '@/themes/forumTheme';
+import { useMutation } from "@apollo/client/react";
+import { useForm } from '@tanstack/react-form';
+import classNames from 'classnames';
+import { CAREER_STAGES, PROGRAM_PARTICIPATION, SOCIAL_MEDIA_PROFILE_FIELDS, userCanEditUser, userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { Link } from "../../lib/reactRouterWrapper";
+import { useNavigate } from "../../lib/routeUtil";
+import Error404 from "../common/Error404";
+import { Typography } from "../common/Typography";
+import { useCurrentUser } from '../common/withUser';
+import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
+import { FormComponentDisplayNameInput } from '../form-components/FormComponentDisplayNameInput';
+import { FormComponentTextInput } from '../form-components/FormComponentTextInput';
+import FormGroupUserProfile from "../form-components/FormGroupUserProfile";
+import PrefixedInput from "../form-components/PrefixedInput";
+import { SelectLocalgroup } from '../form-components/SelectLocalgroup';
+import TagMultiselect from "../form-components/TagMultiselect";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import Loading from "../vulcan-core/Loading";
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserEditProfileForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -63,17 +57,10 @@ const GetUserBySlugQuery = gql(`
 `);
 
 const styles = defineStyles('EditProfileForm', (theme: ThemeType) => ({
-  root: theme.isFriendlyUI
-    ? {
-      margin: "0 auto",
-      maxWidth: 700,
-      marginTop: 32,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }
-    : {
-      margin: "0 auto",
-      maxWidth: 800,
-    },
+  root: {
+          margin: "0 auto",
+          maxWidth: 800,
+        },
   heading: {
     marginTop: 0,
     [theme.breakpoints.down('sm')]: {
@@ -86,40 +73,6 @@ const styles = defineStyles('EditProfileForm', (theme: ThemeType) => ({
     lineHeight: '20px',
     color: theme.palette.grey[700],
     marginBottom: 40
-  },
-  eagImport: {
-    display: "flex",
-    alignItems: "center",
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 14,
-    fontWeight: 500,
-    color: theme.palette.primary.main,
-    background: theme.palette.primaryAlpha(0.05),
-    padding: 16,
-    margin: "16px 0",
-    borderRadius: theme.borderRadius.default,
-  },
-  importTextDesktop: {
-    flexGrow: 1,
-    marginLeft: 6,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none'
-    },
-  },
-  importTextMobile: {
-    flexGrow: 1,
-    display: 'none',
-    [theme.breakpoints.down('sm')]: {
-      display: 'inline',
-      marginLeft: 6,
-    },
-  },
-  importLink: {
-    textDecoration: "underline",
-  },
-  dismissImport: {
-    height: 16,
-    cursor: "pointer",
   },
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
@@ -266,7 +219,7 @@ const UserProfileForm = ({
     }}>
       {displayedErrorComponent}
       <div className={classes.topOfFormMargin} />
-      <FormGroupFriendlyUserProfile>
+      <FormGroupUserProfile>
         <div className={classes.fieldWrapper}>
           <form.Field name="profileImageId">
             {(field) => (
@@ -282,20 +235,20 @@ const UserProfileForm = ({
         <div className={classes.fieldWrapper}>
           <form.Field name="displayName">
             {(field) => (
-              <FormComponentFriendlyDisplayNameInput
+              <FormComponentDisplayNameInput
                 field={field}
                 label="Display name"
               />
             )}
           </form.Field>
         </div>
-      </FormGroupFriendlyUserProfile>
+      </FormGroupUserProfile>
 
-      <FormGroupFriendlyUserProfile label={preferredHeadingCase("General Info")}>
-        <div className={classNames('form-component-FormComponentFriendlyTextInput', classes.fieldWrapper)}>
+      <FormGroupUserProfile label={preferredHeadingCase("General Info")}>
+        <div className={classNames('form-component-FormComponentTextInput', classes.fieldWrapper)}>
           <form.Field name="jobTitle">
             {(field) => (
-              <FormComponentFriendlyTextInput
+              <FormComponentTextInput
                 value={field.state.value}
                 updateCurrentValue={field.handleChange}
                 label="Role"
@@ -304,10 +257,10 @@ const UserProfileForm = ({
           </form.Field>
         </div>
 
-        <div className={classNames('form-component-FormComponentFriendlyTextInput', classes.fieldWrapper)}>
+        <div className={classNames('form-component-FormComponentTextInput', classes.fieldWrapper)}>
           <form.Field name="organization">
             {(field) => (
-              <FormComponentFriendlyTextInput
+              <FormComponentTextInput
                 value={field.state.value}
                 updateCurrentValue={field.handleChange}
                 label="Organization"
@@ -342,9 +295,9 @@ const UserProfileForm = ({
             )}
           </form.Field>
         </div>
-      </FormGroupFriendlyUserProfile>
+      </FormGroupUserProfile>
 
-      <FormGroupFriendlyUserProfile label={preferredHeadingCase("About You")}>
+      <FormGroupUserProfile label={preferredHeadingCase("About You")}>
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
           <form.Field name="biography">
             {(field) => (
@@ -419,9 +372,9 @@ const UserProfileForm = ({
             )}
           </form.Field>
         </div>
-      </FormGroupFriendlyUserProfile>
+      </FormGroupUserProfile>
 
-      <FormGroupFriendlyUserProfile label={preferredHeadingCase(isFriendlyUI() ? "Social Media" : "My Social Media")}>
+      <FormGroupUserProfile label={preferredHeadingCase("My Social Media")}>
         {urlFields.map((urlFieldName, idx) => (
           <div className={classes.fieldWrapper} key={idx}>
             <form.Field name={urlFieldName}>
@@ -454,9 +407,9 @@ const UserProfileForm = ({
             )}
           </form.Field>
         </div>
-      </FormGroupFriendlyUserProfile>
+      </FormGroupUserProfile>
 
-      <FormGroupFriendlyUserProfile label={preferredHeadingCase("Participation")}>
+      <FormGroupUserProfile label={preferredHeadingCase("Participation")}>
         <div className={classes.noTopFieldWrapper}>
           <form.Field name="organizerOfGroupIds">
             {(field) => (
@@ -489,13 +442,13 @@ const UserProfileForm = ({
             )}
           </form.Field>
         </div>
-      </FormGroupFriendlyUserProfile>
+      </FormGroupUserProfile>
 
       <div className="form-submit">
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
             <Button
-              variant={isBookUI() ? 'outlined' : undefined}
+              variant="outlined"
               type="submit"
               disabled={!canSubmit || isSubmitting}
               className={classNames("primary-form-submit-button", classes.submitButton)}
@@ -513,9 +466,6 @@ const EditProfileForm = ({slug}: {slug: string}) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const navigate = useNavigate();
-  const [cookies, setCookie] = useCookiesWithConsent([
-    HIDE_IMPORT_EAG_PROFILE,
-  ]);
   let terms: {slug?: string, documentId?: string} = {}
   if (slug) {
     terms.slug = slug
@@ -557,48 +507,19 @@ const EditProfileForm = ({slug}: {slug: string}) => {
     </div>
   }
 
-  const showEAGImport = userHasEagProfileImport(currentUser) &&
-    cookies[HIDE_IMPORT_EAG_PROFILE] !== "true" &&
-    (terms.slug === currentUser.slug || terms.documentId === currentUser._id);
-
-  const dismissEAGImport = () => {
-    setCookie(HIDE_IMPORT_EAG_PROFILE, "true", {
-      expires: moment().add(30, 'days').toDate(),
-      path: "/",
-    });
-  }
-
   return (
     <div className={classes.root}>
       <Typography
         variant="display3"
-        gutterBottom={!isFriendlyUI()}
+        gutterBottom={true}
         className={classes.heading}
       >
-        {preferredHeadingCase(isFriendlyUI() ? "Edit Profile" : "Edit Public Profile")}
+        {preferredHeadingCase("Edit Public Profile")}
       </Typography>
 
-      {!isEAForum() &&
-        <div className={classes.subheading}>
-          All fields are optional.
-        </div>
-      }
-
-      {showEAGImport &&
-        <div className={classes.eagImport}>
-          <span className={classes.importTextDesktop}>
-            You can <Link to="/profile/import" className={classes.importLink}>import profile data</Link>
-            {" "}from your latest EA Global application.
-          </span>
-          <span className={classes.importTextMobile}>
-            To import EA Global data, please view this page on desktop.
-          </span>
-          <ForumIcon
-            icon="Close"
-            onClick={dismissEAGImport}
-            className={classes.dismissImport}
-          />
-        </div>
+      {<div className={classes.subheading}>
+                    All fields are optional.
+                  </div>
       }
 
       {(!skipSlugLoading && loadingUserBySlug) && <Loading />}

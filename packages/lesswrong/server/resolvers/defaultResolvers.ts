@@ -1,24 +1,24 @@
+import { visitorGetsDynamicFrontpage } from "@/lib/betas";
 import { getMultiResolverName, getSingleResolverName } from "@/lib/crud/utils";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
-import { isEAForum, maxAllowedApiSkip } from "@/lib/instanceSettings";
+import { maxAllowedApiSkip } from "@/lib/instanceSettings";
+import { getWithCustomLoader } from "@/lib/loaders";
+import { captureException } from "@/lib/sentryWrapper";
 import { asyncFilter } from "@/lib/utils/asyncUtils";
 import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
 import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
+import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 import { Pluralize } from "@/lib/vulcan-lib/pluralize";
 import { CamelCaseify, convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils";
 import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '@/lib/vulcan-users/restrictViewableFields';
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { throwError } from "@/server/vulcan-lib/errors";
-import { captureException } from "@/lib/sentryWrapper";
-import { GraphQLError, Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
+import { Kind, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
 import isEqual from "lodash/isEqual";
-import { getCollectionAccessFilter } from "../permissions/accessFilters";
-import { getSqlClientOrThrow } from "../sql/sqlClient";
-import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 import UserActivities from "../collections/useractivities/collection";
-import { visitorGetsDynamicFrontpage } from "@/lib/betas";
-import { getWithCustomLoader } from "@/lib/loaders";
+import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { enableCustomSqlResolvers } from "../sql/ProjectionContext";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 
 
 const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInfo, resultFieldName: string, typeName: string) => {
@@ -340,7 +340,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     // (will throw an error if check doesn't pass)
     const checkAccess = getCollectionAccessFilter(collectionName);
     if (checkAccess) {
-      const reasonDenied: {reason?: string} = {reason: undefined};
+      const reasonDenied: {reason?: string} = {};
       const canAccess = await checkAccess(currentUser, doc as AnyBecauseHard, context, reasonDenied)
       if (!canAccess) {
         if (reasonDenied.reason) {
@@ -431,7 +431,7 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
 }
 
 async function getUserActivity(user: DbUser|null, clientId: string|null): Promise<DbUserActivity|null> {
-  if ((user || clientId) && (isEAForum() || visitorGetsDynamicFrontpage(user))) {
+  if ((user || clientId) && (visitorGetsDynamicFrontpage(user))) {
     if (user) {
       return await UserActivities.findOne({visitorId: user._id, type: 'userId'});
     } else if (clientId) {

@@ -1,22 +1,20 @@
-import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { useState } from 'react';
 import { useNavigate } from '../../lib/routeUtil';
-import ShortformSubmitForm from "./ShortformSubmitForm";
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import LWDialog from "../common/LWDialog";
+import ShortformSubmitForm from "./ShortformSubmitForm";
 
 const styles = (theme: ThemeType) => ({
   content: {
     // This subselector is needed to beat the specificity of the default
     // MUI styles
     "&:first-child": {
-      padding: theme.isFriendlyUI ? 0 : "0 20px 20px",
+      padding: "0 20px 20px",
     },
   },
   dialogPaper: {
-    maxWidth: theme.isFriendlyUI ? 750 : undefined,
-  },
+},
 });
 
 const NewShortformDialog = ({onClose, classes}: {
@@ -30,7 +28,7 @@ const NewShortformDialog = ({onClose, classes}: {
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth={isFriendlyUI() ? "md" : "sm"}
+      maxWidth={"sm"}
       disableBackdropClick={true}
       disableEscapeKeyDown={true}
       paperClassName={classes.dialogPaper}
@@ -39,14 +37,14 @@ const NewShortformDialog = ({onClose, classes}: {
         <ShortformSubmitForm
           successCallback={() => {
             onClose();
-            navigate(isFriendlyUI() ? '/quicktakes' : '/shortform');
+            navigate('/shortform');
           }}
           cancelCallback={() => {
             setOpen(false);
             onClose?.();
           }}
-          defaultExpanded={!isFriendlyUI()}
-          submitButtonAtBottom={!isFriendlyUI()}
+          defaultExpanded={true}
+          submitButtonAtBottom={true}
         />
       </DialogContent>
     </LWDialog>

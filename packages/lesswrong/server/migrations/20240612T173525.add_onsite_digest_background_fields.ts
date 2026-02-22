@@ -1,6 +1,3 @@
-import Digests from "@/server/collections/digests/collection";
-import { addField, dropField } from "./meta/utils";
-
 /**
  * Generated on 2024-06-12T17:35:25.639Z by `yarn makemigrations`
  * The following schema changes were detected:
@@ -28,12 +25,11 @@ import { addField, dropField } from "./meta/utils";
 export const acceptsSchemaHash = "c1dd7ed968b6af5a78625296b5e5fec0";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Digests, "onsiteImageId");
-  await addField(db, Digests, "onsitePrimaryColor");
+  await db.none(`ALTER TABLE "Digests" ADD COLUMN IF NOT EXISTS "onsiteImageId" varchar(27)`);
+  await db.none(`ALTER TABLE "Digests" ADD COLUMN IF NOT EXISTS "onsitePrimaryColor" text`);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, Digests, "onsiteImageId");
-  await dropField(db, Digests, "onsitePrimaryColor");
+  await db.none(`ALTER TABLE "Digests" DROP COLUMN IF EXISTS "onsiteImageId"`);
+  await db.none(`ALTER TABLE "Digests" DROP COLUMN IF EXISTS "onsitePrimaryColor"`);
 }
-

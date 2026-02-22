@@ -1,33 +1,31 @@
-import React, { CSSProperties, FC, PropsWithChildren } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import classNames from 'classnames';
-import { useCurrentUser, useCurrentUserId } from "../common/withUser";
-import { useLocation } from '../../lib/routeUtil';
-import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { amaTagIdSetting, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import { getCommunityPath } from '@/lib/pathConstants';
-import { InteractionWrapper } from '../common/useClickableCell';
-import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
-import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { useTheme } from '../themes/useTheme';
-import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
-import ForumIcon from "../common/ForumIcon";
-import TagsTooltip from "../tagging/TagsTooltip";
-import { amaTagIdSetting, annualReviewAnnouncementPostPathSetting, openThreadTagIdSetting, startHerePostIdSetting, isEAForum } from '@/lib/instanceSettings';
-import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
-import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
-import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
+import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
+import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
+import classNames from 'classnames';
+import { CSSProperties, FC, PropsWithChildren } from 'react';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import ForumIcon from "../common/ForumIcon";
+import { InteractionWrapper } from '../common/useClickableCell';
+import { useCurrentUserId } from "../common/withUser";
+import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
+import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
+import TagsTooltip from "../tagging/TagsTooltip";
+import { useTheme } from '../themes/useTheme';
+import { CuratedIcon, PostsItemIcons } from "./PostsItemIcons";
 
 const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
     lineHeight: "1.7rem",
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
@@ -52,27 +50,19 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: theme.isFriendlyUI ? 2 : undefined,
-    paddingRight: theme.isFriendlyUI ? 8 : 10,
+    paddingRight: 10,
     position: "relative",
     top: 2,
     color: theme.palette.icon["dim4"],
   },
-  stickyIcon: theme.isFriendlyUI
-    ? {
-      width: 16,
-      height: 16,
-      padding: 1.5,
-      color: theme.palette.primary.main,
-    }
-    : {
-      "--icon-size": "1.2rem",
-    },
+  stickyIcon: {
+        "--icon-size": "1.2rem",
+      },
   primaryIcon: {
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
-    width: theme.isFriendlyUI ? 26 : "auto",
+    width: "auto",
     position: "relative",
     verticalAlign: "middle",
   },
@@ -82,19 +72,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.text.normal,
     }
   },
-  eaTitleDesktopEllipsis: theme.isFriendlyUI ? {
-    '&:hover': {
-      opacity: 0.5
-    },
-    '& a': {
-      opacity: 1
-    },
-    [theme.breakpoints.up("sm")]: {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
-  } : {},
+  eaTitleDesktopEllipsis: {},
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
       display: "none",
@@ -152,17 +130,8 @@ const tagSettingIcons = new Map([
   [openThreadTagIdSetting, AllInclusiveIcon],
 ]);
 
-// Cute hack
-const reviewPostIdSetting = {
-  get: () => isEAForum() ?
-    annualReviewAnnouncementPostPathSetting.get()?.match(/^\/posts\/([a-zA-Z\d]+)/)?.[1] :
-    null
-}
-
 const idSettingIcons = new Map([
   [startHerePostIdSetting, ArrowForwardIcon],
-  // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
-  [reviewPostIdSetting, StarIcon]
 ]);
 
 const postIcon = (post: PostsBase|PostsListBase) => {
@@ -323,5 +292,4 @@ const PostsTitle = ({
 }
 
 export default registerComponent('PostsTitle', PostsTitle, {styles});
-
 

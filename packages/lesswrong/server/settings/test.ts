@@ -1,15 +1,15 @@
 export const testSettings = {
-  forumType: process.env.FORUM_TYPE ?? "EAForum",
+  forumType: process.env.FORUM_TYPE ?? "LessWrong",
   hasEvents: true,
-  title: "EAForum Test",
-  tagline: "Effective Altruism research, discussion and community updates",
-  faviconUrl: "https://www.effectivealtruism.org/favicon-16x16.png",
+  title: "LessWrong Test",
+  tagline: "LessWrong",
+  faviconUrl: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico",
   forumSettings: {
-    tabTitle: "EA Forum Test",
-    headerTitle: "EA Forum Test",
-    shortForumTitle: "EA Forum"
+    tabTitle: "LessWrong Test",
+    headerTitle: "LessWrong Test",
+    shortForumTitle: "LessWrong"
   },
-  siteNameWithArticle: "the EA Forum",
+  siteNameWithArticle: "LessWrong",
   siteUrl: "http://localhost:3456",
   
   debug: false,
@@ -22,7 +22,7 @@ export const testSettings = {
   disableEnsureIndex: true,
   disableElastic: true,
   fmCrosspost: {
-    siteName: "LessWrong Test",
+    siteName: "Alignment Forum Test",
     baseUrl: "http://localhost:3467/"
   }
 };

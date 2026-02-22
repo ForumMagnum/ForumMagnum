@@ -1,21 +1,21 @@
-import React, { useContext, useRef, useState } from 'react'
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { ckEditorUploadUrlOverrideSetting, ckEditorUploadUrlSetting, ckEditorWebsocketUrlOverrideSetting, ckEditorWebsocketUrlSetting, isLWorAF } from '@/lib/instanceSettings';
+import type { Editor } from '@ckeditor/ckeditor5-core';
+import { useContext, useRef, useState } from 'react';
+import { generateTokenRequest } from '../../lib/ckEditorUtils';
+import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig';
+import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
+import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
-import { generateTokenRequest } from '../../lib/ckEditorUtils';
-import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
-import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
-import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
-import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
-import type { Editor } from '@ckeditor/ckeditor5-core';
+import { useDialog } from '../common/withDialog';
+import { useCommandPalette } from '../hooks/useCommandPalette';
+import { useStyles } from '../hooks/useStyles';
 import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
 import { CkEditorPortalContext } from './CKEditorPortalProvider';
-import { useDialog } from '../common/withDialog';
-import { claimsConfig } from './claims/claimsConfig';
-import { useStyles } from '../hooks/useStyles';
 import { ckEditorPluginStyles } from './ckEditorStyles';
+import { claimsConfig } from './claims/claimsConfig';
 import { augmentEditor } from './editorAugmentations';
-import { useCommandPalette } from '../hooks/useCommandPalette';
 import { makeEditorConfig } from './editorConfigs';
 
 // Uncomment the import and the line below to activate the debugger
@@ -38,7 +38,7 @@ const getCommentEditorToolbarConfig = () => ({
     'math',
     // Similar to the post editor, we don't have the collapsible sections plugin in the selected-text toolbar,
     // because the behavior of creating a collapsible section while text is selected is non-obvious and we want to fix it first
-    ...(isEAForum() ? ['imageUpload', 'ctaButtonToolbarItem', 'pollToolbarItem'] : []),
+    ...([]),
     'footnote',
     ...(isLWorAF() ? ['collapsibleSectionButton'] : []),
     ...(isLWorAF() ? ['insertClaimButton'] : []),

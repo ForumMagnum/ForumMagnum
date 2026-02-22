@@ -1,30 +1,29 @@
-import React, {ComponentProps, useState, useEffect, useRef, useMemo, Suspense} from 'react';
-import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser'
-import withErrorBoundary from '../common/withErrorBoundary'
-import { useDialog } from '../common/withDialog';
-import { isLWorAF, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
-import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
-import { useMessages } from '../common/withMessages';
-import { afNonMemberDisplayInitialPopup, useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { TagCommentType } from '../../lib/collections/comments/types';
-import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
-import { isInFuture, useCurrentTime } from '../../lib/utils/timeUtil';
-import moment from 'moment';
-import { useTracking } from "../../lib/analyticsEvents";
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getCommentsNewFormPadding } from '@/lib/collections/comments/constants';
-import { CommentForm, type CommentInteractionType } from './CommentForm';
-import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
-import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
-import RecaptchaWarning from "../common/RecaptchaWarning";
-import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
-import RateLimitWarning from "../editor/RateLimitWarning";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { hideUnreviewedAuthorCommentsSettings, isLWorAF } from '@/lib/instanceSettings';
 import { useLocation } from '@/lib/routeUtil';
+import classNames from 'classnames';
+import moment from 'moment';
+import React, { ComponentProps, useEffect, useMemo, useRef, useState } from 'react';
+import { afNonMemberDisplayInitialPopup, useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { useTracking } from "../../lib/analyticsEvents";
+import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
+import { TagCommentType } from '../../lib/collections/comments/types';
+import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
+import { isInFuture, useCurrentTime } from '../../lib/utils/timeUtil';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { userCanDo } from '../../lib/vulcan-users/permissions';
+import RecaptchaWarning from "../common/RecaptchaWarning";
+import { useDialog } from '../common/withDialog';
+import withErrorBoundary from '../common/withErrorBoundary';
+import { useMessages } from '../common/withMessages';
+import { useCurrentUser } from '../common/withUser';
+import RateLimitWarning from "../editor/RateLimitWarning";
+import NewCommentModerationWarning from "../sunshineDashboard/NewCommentModerationWarning";
+import { CommentForm, type CommentInteractionType } from './CommentForm';
+import ModerationGuidelinesBox from "./ModerationGuidelines/ModerationGuidelinesBox";
+import NewUserGuidelinesDialog from "./NewUserGuidelinesDialog";
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {
@@ -40,11 +39,7 @@ export type FormDisplayMode = "default" | "minimalist"
 
 
 const styles = (theme: ThemeType) => ({
-  root: theme.isFriendlyUI ? {
-    '& .form-component-EditorFormComponent': {
-      marginTop: 0
-    }
-  } : {},
+  root: {},
   rootMinimalist: {
     '& .form-input': {
       width: "100%",
@@ -64,17 +59,7 @@ const styles = (theme: ThemeType) => ({
       borderTopRightRadius: theme.borderRadius.quickTakesEntry,
     },
   },
-  quickTakesSubmitButtonAtBottom: theme.isFriendlyUI
-    ? {
-      "& .form-component-EditorFormComponent": {
-        background: "transparent",
-        borderRadius: theme.borderRadius.quickTakesEntry,
-      },
-      "& .form-input": {
-        padding: "0 20px",
-      },
-    }
-    : {},
+  quickTakesSubmitButtonAtBottom: {},
   loadingRoot: {
     opacity: 0.5
   },
@@ -116,9 +101,9 @@ const shouldOpenNewUserGuidelinesDialog = (
 
 const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
   if (isAnswer) {
-    return isFriendlyUI() ? 'Add answer' : 'Submit';
+    return 'Submit';
   }
-  if (!isFriendlyUI()) return 'Submit'
+  return 'Submit'
   return isQuickTake ? 'Publish' : 'Comment'
 }
 
@@ -308,7 +293,7 @@ const CommentsNewForm = ({
   }), [isMinimalist, overrideHintText]);
 
   const answerFormProps = useMemo(() => isAnswer
-    ? {editorHintText: isFriendlyUI() && isAnswer ? 'Write a new answer...' : undefined}
+    ? {}
     : {}, [isAnswer]);
 
   const parentDocumentId = post?._id || tag?._id
@@ -380,7 +365,7 @@ const CommentsNewForm = ({
               interactionType={interactionType}
               alignmentForumPost={post?.af}
               hideAlignmentForumCheckbox={hideAlignmentForumCheckbox}
-              quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI())}
+              quickTakesFormGroup={isQuickTake}
               formClassName={mergedFormProps.formClassName}
               editorHintText={mergedFormProps.editorHintText}
               commentMinimalistStyle={mergedFormProps.commentMinimalistStyle}

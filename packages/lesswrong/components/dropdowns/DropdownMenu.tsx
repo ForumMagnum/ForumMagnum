@@ -1,16 +1,10 @@
-import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import { ReactNode } from "react";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      padding: 6,
-      borderRadius: theme.borderRadius.default,
-      backgroundColor: theme.palette.dropdown.background,
-      border: `1px solid ${theme.palette.dropdown.border}`,
-    }),
-  },
+},
 });
 
 const DropdownMenu = ({children, className, classes}: {

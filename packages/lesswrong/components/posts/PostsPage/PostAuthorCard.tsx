@@ -1,14 +1,11 @@
-import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { Link } from '../../../lib/reactRouterWrapper';
 import { truncate } from '../../../lib/editor/ellipsize';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import { Typography } from "../../common/Typography";
+import { Link } from '../../../lib/reactRouterWrapper';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import ContentStyles from "../../common/ContentStyles";
+import { Typography } from "../../common/Typography";
 import NewConversationButton from "../../messaging/NewConversationButton";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
-import CloudinaryImage2 from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,18 +76,7 @@ const PostAuthorCard = ({author, currentUser, classes}: {
     <div className={classes.root}>
       <Typography variant="subheading" component="div" className={classes.about}>About the author</Typography>
       <div className={classes.usernameRow}>
-        {isFriendlyUI() && author.profileImageId && <Link
-          to={`/users/${author.slug}?from=post_author_card`}
-          className={classes.photoLink}
-        >
-          <CloudinaryImage2
-            height={40}
-            width={40}
-            imgProps={{q: '100'}}
-            publicId={author.profileImageId}
-            className={classes.photo}
-          />
-        </Link>}
+        {false}
         <Typography variant="headline" component="div" className={classes.username}>
           <Link to={`/users/${author.slug}?from=post_author_card`}>
             {author.displayName}

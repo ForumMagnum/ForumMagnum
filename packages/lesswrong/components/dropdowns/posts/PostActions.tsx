@@ -1,34 +1,33 @@
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 import React from 'react';
-import { useCurrentUser } from '../../common/withUser';
-import { isBookUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
-import MoveToDraftDropdownItem from "./MoveToDraftDropdownItem";
-import BookmarkDropdownItem from "./BookmarkDropdownItem";
-import SuggestCuratedDropdownItem from "./SuggestCuratedDropdownItem";
-import SuggestAlignmentPostDropdownItem from "./SuggestAlignmentPostDropdownItem";
-import ReportPostDropdownItem from "./ReportPostDropdownItem";
-import DeleteDraftDropdownItem from "./DeleteDraftDropdownItem";
-import SetSideItemVisibility from "./SetSideItemVisibility";
-import { ResyncRssDropdownItem } from "./ResyncRssDropdownItem";
-import MarkAsReadDropdownItem from "./MarkAsReadDropdownItem";
-import SummarizeDropdownItem from "./SummarizeDropdownItem";
-import MoveToFrontpageDropdownItem from "./MoveToFrontpageDropdownItem";
-import MoveToAlignmentPostDropdownItem from "./MoveToAlignmentPostDropdownItem";
-import ShortformDropdownItem from "./ShortformDropdownItem";
+import { useCurrentUser } from '../../common/withUser';
 import DropdownMenu from "../DropdownMenu";
-import EditTagsDropdownItem from "./EditTagsDropdownItem";
-import EditPostDropdownItem from "./EditPostDropdownItem";
-import DuplicateEventDropdownItem from "./DuplicateEventDropdownItem";
-import PostAnalyticsDropdownItem from "./PostAnalyticsDropdownItem";
-import ExcludeFromRecommendationsDropdownItem from "./ExcludeFromRecommendationsDropdownItem";
 import ApproveNewUserDropdownItem from "./ApproveNewUserDropdownItem";
-import { PostSubscriptionsDropdownItem } from "./PostSubscriptionsDropdownItem";
+import BookmarkDropdownItem from "./BookmarkDropdownItem";
+import DeleteDraftDropdownItem from "./DeleteDraftDropdownItem";
 import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownItem";
+import DuplicateEventDropdownItem from "./DuplicateEventDropdownItem";
+import EditPostDropdownItem from "./EditPostDropdownItem";
+import EditTagsDropdownItem from "./EditTagsDropdownItem";
+import ExcludeFromRecommendationsDropdownItem from "./ExcludeFromRecommendationsDropdownItem";
 import HideFrontPageButton from './HideFrontpagePostDropdownItem';
 import LLMScoreDropdownItem from "./LLMScoreDropdownItem";
 import LlmPolicyViolationDropdownItem from "./LlmPolicyViolationDropdownItem";
-import { defineStyles } from '@/components/hooks/defineStyles';
-import { useStyles } from '@/components/hooks/useStyles';
+import MarkAsReadDropdownItem from "./MarkAsReadDropdownItem";
+import MoveToAlignmentPostDropdownItem from "./MoveToAlignmentPostDropdownItem";
+import MoveToDraftDropdownItem from "./MoveToDraftDropdownItem";
+import MoveToFrontpageDropdownItem from "./MoveToFrontpageDropdownItem";
+import PostAnalyticsDropdownItem from "./PostAnalyticsDropdownItem";
+import { PostSubscriptionsDropdownItem } from "./PostSubscriptionsDropdownItem";
+import ReportPostDropdownItem from "./ReportPostDropdownItem";
+import { ResyncRssDropdownItem } from "./ResyncRssDropdownItem";
+import SetSideItemVisibility from "./SetSideItemVisibility";
+import ShortformDropdownItem from "./ShortformDropdownItem";
+import SuggestAlignmentPostDropdownItem from "./SuggestAlignmentPostDropdownItem";
+import SuggestCuratedDropdownItem from "./SuggestCuratedDropdownItem";
+import SummarizeDropdownItem from "./SummarizeDropdownItem";
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -39,7 +38,7 @@ export const IsRecommendationContext = React.createContext<boolean>(false);
 
 const styles = defineStyles("PostActions", (theme: ThemeType) => ({
   root: {
-    minWidth: theme.isFriendlyUI ? undefined : 300,
+    minWidth: 300,
     maxWidth: "calc(100vw - 100px)",
   },
 }))

@@ -1,14 +1,11 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import type { Placement as PopperPlacementType } from "popper.js";
+import { useCallback, useRef, useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import { userHasSubscribeTabFeed } from '../../lib/betas';
-import { useCurrentUser } from '../common/withUser';
-import type { Placement as PopperPlacementType } from "popper.js"
-import { isFriendlyUI } from '../../themes/forumTheme';
-import EAButton from "../ea-forum/EAButton";
-import ForumIcon from "../common/ForumIcon";
-import PopperCard from "../common/PopperCard";
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import LWClickAwayListener from "../common/LWClickAwayListener";
+import PopperCard from "../common/PopperCard";
+import { useCurrentUser } from '../common/withUser';
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 
@@ -26,7 +23,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 6,
   },
   dropdown: {
-    width: theme.isFriendlyUI ? 200 : 220,
+    width: 220,
     maxWidth: "100vw",
   },
 });
@@ -34,7 +31,6 @@ const styles = (theme: ThemeType) => ({
 /**
  * Displays a "Get notified" button that lets the user subscribe to be notified
  * when the given user has published a new post or a new comment.
- * Currently only used in the FriendlyUsersProfile.
  */
 const UserNotifyDropdown = ({
   user,
@@ -57,25 +53,11 @@ const UserNotifyDropdown = ({
     captureEvent("subscribeClick", {open, itemType: "user", userId: user._id});
     setIsOpen(open);
   }, [user._id, captureEvent]);
-  const ButtonComponent = isFriendlyUI() 
-    ?  <EAButton
-          style="grey"
-          onClick={() => handleSetOpen(!isOpen)}
-        >
-          <span className={classes.buttonContent}>
-            <ForumIcon icon="BellBorder" className={classes.buttonIcon} />
-            Get notified
-            <ForumIcon
-              icon="ThickChevronDown"
-              className={classes.buttonIcon}
-            />
-          </span>
-        </EAButton>
-    : <div>
-        <a onClick={() => handleSetOpen(!isOpen)}>
-          Subscribe
-        </a>
-    </div>
+  const ButtonComponent = <div>
+          <a onClick={() => handleSetOpen(!isOpen)}>
+            Subscribe
+          </a>
+      </div>
   
 
   return (
@@ -94,19 +76,19 @@ const UserNotifyDropdown = ({
             {userHasSubscribeTabFeed(currentUser) && <NotifyMeToggleDropdownItem
               document={user}
               title="Include in Subscribed tab"
-              useCheckboxIcon={!isFriendlyUI()}
+              useCheckboxIcon={true}
               subscriptionType="newActivityForFeed"
             />}
             <NotifyMeToggleDropdownItem
               document={user}
-              title={isFriendlyUI() ? "New posts" : "Notify on posts"}
-              useCheckboxIcon={!isFriendlyUI()}
+              title={"Notify on posts"}
+              useCheckboxIcon={true}
               subscriptionType="newPosts"
             />
             <NotifyMeToggleDropdownItem
               document={user}
-              title={isFriendlyUI() ? "New comments" : "Notify on comments"}
-              useCheckboxIcon={!isFriendlyUI()}
+              title={"Notify on comments"}
+              useCheckboxIcon={true}
               subscriptionType="newUserComments"
             />
           </DropdownMenu>
@@ -117,5 +99,4 @@ const UserNotifyDropdown = ({
 }
 
 export default registerComponent('UserNotifyDropdown', UserNotifyDropdown, {styles});
-
 

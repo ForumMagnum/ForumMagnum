@@ -1,30 +1,25 @@
-import React, { Ref } from 'react';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { useLocation } from '../../../lib/routeUtil';
-import classNames from 'classnames';
-import { MenuTabRegular } from './menuTabs';
-import { TooltipRef } from '../FMTooltip';
-import TabNavigationSubItem from "./TabNavigationSubItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+import { Ref } from 'react';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { useLocation } from '../../../lib/routeUtil';
+import { TooltipRef } from '../FMTooltip';
+import { MenuTabRegular } from './menuTabs';
+import TabNavigationSubItem from "./TabNavigationSubItem";
 
 const smallIconSize = 23
 
 const styles = defineStyles("TabNavigationFooterItem", (theme: ThemeType) => ({
   selected: {
     '& $icon': {
-      opacity: 1,
-      color: theme.isFriendlyUI ? theme.palette.text.alwaysWhite : undefined,
+      opacity: 1
     },
     '& $navText': {
-      color: theme.isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[900],
+      color: theme.palette.grey[900],
       fontWeight: 600,
     },
-    backgroundColor: theme.palette.grey[400],
-    
-    ...(theme.isFriendlyUI && {
-      backgroundColor: theme.palette.secondary.main
-    }),
+    backgroundColor: theme.palette.grey[400]
   },
   navButton: {
     paddingTop: theme.spacing.unit,
@@ -36,31 +31,22 @@ const styles = defineStyles("TabNavigationFooterItem", (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "column",
-    ...(theme.isFriendlyUI
-      ? {
-        color: theme.palette.grey[600],
-        "&:hover": {
-          opacity: 1,
-          color: theme.palette.grey[800],
-        },
-      }
-      : {}),
+    ...({}),
   },
   icon: {
     display: "block",
-    opacity: theme.isFriendlyUI ? 1 : 0.45,
+    opacity: 0.45,
     width: smallIconSize,
     height: smallIconSize,
     '& svg': {
       width: smallIconSize,
       height: smallIconSize,
-      fill: theme.isFriendlyUI ? undefined : "currentColor",
-      color: theme.isFriendlyUI ? "inherit" : undefined,
+      fill: "currentColor"
     }
   },
   navText: {
     ...theme.typography.body2,
-    color: theme.isFriendlyUI ? "inherit" : theme.palette.grey[700],
+    color: theme.palette.grey[700],
     fontSize: '.8rem',
   },
   homeIcon: {

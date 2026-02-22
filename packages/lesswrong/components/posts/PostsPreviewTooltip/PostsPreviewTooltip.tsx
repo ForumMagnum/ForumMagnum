@@ -1,6 +1,4 @@
-import React, { FC } from "react";
-import { isFriendlyUI } from "../../../themes/forumTheme";
-import EAPostsPreviewTooltip from "./EAPostsPreviewTooltip";
+import { FC } from "react";
 import LWPostsPreviewTooltip from "./LWPostsPreviewTooltip";
 
 export interface DialogueMessageInfo {
@@ -17,6 +15,4 @@ export type PostsPreviewTooltipProps = {
 }
 
 export const PostsPreviewTooltip: FC<PostsPreviewTooltipProps> = (props) =>
-  isFriendlyUI()
-    ? <EAPostsPreviewTooltip {...props} />
-    : <LWPostsPreviewTooltip {...props} />;
+  <LWPostsPreviewTooltip {...props} />;

@@ -1,24 +1,20 @@
-import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import Info from '@/lib/vendor/@material-ui/icons/src/Info';
-import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
-import { useCurrentUser } from '../../common/withUser';
-import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../lib/reviewUtils';
-import { forumSelect } from "../../../lib/forumTypeUtils";
-import { Link } from '../../../lib/reactRouterWrapper';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import UsersNameDisplay from "../../users/UsersNameDisplay";
-import AlignmentPendingApprovalMessage from "../../alignment-forum/AlignmentPendingApprovalMessage";
-import LinkPostMessage from "../LinkPostMessage";
-import PostsRevisionMessage from "./PostsRevisionMessage";
-import LWTooltip from "../../common/LWTooltip";
-import PostPageReviewButton from "./PostPageReviewButton";
-import RejectionNotice from "./RejectionNotice";
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/components/posts/PostsPage/constants';
+import Info from '@/lib/vendor/@material-ui/icons/src/Info';
+import { forumSelect } from "../../../lib/forumTypeUtils";
+import { siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { getReviewPhase, postEligibleForReview, reviewIsActive } from '../../../lib/reviewUtils';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import AlignmentPendingApprovalMessage from "../../alignment-forum/AlignmentPendingApprovalMessage";
+import LWTooltip from "../../common/LWTooltip";
+import { useCurrentUser } from '../../common/withUser';
+import UsersNameDisplay from "../../users/UsersNameDisplay";
+import LinkPostMessage from "../LinkPostMessage";
+import PostPageReviewButton from "./PostPageReviewButton";
+import PostsRevisionMessage from "./PostsRevisionMessage";
+import RejectionNotice from "./RejectionNotice";
 
-const getShortformDraftMessage = () => isFriendlyUI()
-  ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
-  : "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
+const getShortformDraftMessage = () => "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
 
 const styles = (theme: ThemeType) => ({
   reviewInfo: {
@@ -33,10 +29,7 @@ const styles = (theme: ThemeType) => ({
   contentNotice: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
-    maxWidth: 600,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    maxWidth: 600
   },
   infoIcon: {
     width: 16,
@@ -48,7 +41,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 const getForumNewUserProcessingTime = () => forumSelect({
-  EAForum: 24,
   LessWrong: 72,
   AlignmentForum: 72,
   default: 24
@@ -90,7 +82,7 @@ const PostBodyPrefix = ({post, query, classes}: {
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    {(isFriendlyUI() || ((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD)) && <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI()} />}
+    {(((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD)) && <LinkPostMessage post={post} negativeTopMargin={false} />}
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }

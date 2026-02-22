@@ -1,34 +1,33 @@
-import React, { Component, MutableRefObject } from 'react';
-import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
-import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
-import classNames from 'classnames';
-import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import debounce from 'lodash/debounce';
-import { isClient } from '../../lib/executionEnvironment';
-import { isEAForum } from '../../lib/instanceSettings';
-import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
-import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { getUserABTestGroup } from '@/lib/abTestImpl';
 import { lexicalEditorABTest } from '@/lib/abTests';
-import { rootStyles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
-import {checkEditorValid} from './validation'
-import ContentStyles from "../common/ContentStyles";
-import WarningBanner from "../common/WarningBanner";
-import { Typography } from "../common/Typography";
-import { MenuItem } from "../common/Menus";
-import Loading from "../vulcan-core/Loading";
-import SectionTitle from "../common/SectionTitle";
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import classNames from 'classnames';
+import debounce from 'lodash/debounce';
 import dynamic from 'next/dynamic';
+import React, { Component, MutableRefObject } from 'react';
+import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
+import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
+import { isClient } from '../../lib/executionEnvironment';
+import { ckEditorStyles, editorStyles } from '../../themes/stylePiping';
+import ContentStyles from "../common/ContentStyles";
+import { MenuItem } from "../common/Menus";
+import SectionTitle from "../common/SectionTitle";
+import { Typography } from "../common/Typography";
+import WarningBanner from "../common/WarningBanner";
+import { rootStyles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import { getYjsStateBase64ForPost } from '../lexical/collaboration';
+import Loading from "../vulcan-core/Loading";
+import { checkEditorValid } from './validation';
 
 const CKCommentEditor = dynamic(() => import("./CKCommentEditor"));
 const CKPostEditor = dynamic(() => import("./CKPostEditor"));
 const LexicalEditor = dynamic(() => import("./LexicalEditor"));
 
-const getPostEditorHeight = () => isEAForum() ? 250 : 400;
-const getQuestionEditorHeight = () => isEAForum() ? 150 : 400;
+const getPostEditorHeight = () => 400;
+const getQuestionEditorHeight = () => 400;
 const commentEditorHeight = 100;
 const quickTakesEditorHeight = 100;
 const commentMinimalistEditorHeight = 28;
@@ -189,7 +188,7 @@ export const styles = (theme: ThemeType) => ({
 
 const autosaveInterval = 3000; //milliseconds
 const validationInterval = 500; //milliseconds
-export const getCkEditorName = () => isEAForum() ? 'EA Forum Docs' : 'LessWrong Docs'
+export const getCkEditorName = () => 'LessWrong Docs'
 
 export type EditorTypeString = "html"|"markdown"|"ckEditorMarkup"|"lexical";
 export type LegacyEditorTypeString = EditorTypeString|"draftJS";

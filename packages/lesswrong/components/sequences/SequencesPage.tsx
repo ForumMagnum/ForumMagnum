@@ -1,34 +1,33 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
-import { useCurrentUser } from '../common/withUser';
-import { sectionFooterLeftStyles } from '../users/UsersProfile'
-import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
-import { allowSubscribeToSequencePosts } from '../../lib/betas';
-import { Link } from '../../lib/reactRouterWrapper';
-import DeferRender from '../common/DeferRender';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { ChaptersForm } from './ChaptersForm';
-import Error404 from "../common/Error404";
-import Loading from "../vulcan-core/Loading";
-import SequencesEditForm from "./SequencesEditForm";
+import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
+import { useCallback, useRef, useState } from 'react';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { allowSubscribeToSequencePosts } from '../../lib/betas';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
+import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import CloudinaryImage from "../common/CloudinaryImage";
-import SingleColumnSection from "../common/SingleColumnSection";
-import SectionSubtitle from "../common/SectionSubtitle";
-import ChaptersList from "./ChaptersList";
-import FormatDate from "../common/FormatDate";
-import SectionFooter from "../common/SectionFooter";
-import UsersName from "../users/UsersName";
-import { ContentItemBody } from "../contents/ContentItemBody";
-import { Typography } from "../common/Typography";
-import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
-import NotifyMeButton from "../notifications/NotifyMeButton";
+import DeferRender from '../common/DeferRender';
+import Error404 from "../common/Error404";
+import FormatDate from "../common/FormatDate";
+import SectionButton from "../common/SectionButton";
+import SectionFooter from "../common/SectionFooter";
+import SectionSubtitle from "../common/SectionSubtitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { Typography } from "../common/Typography";
+import { useCurrentUser } from '../common/withUser';
+import { ContentItemBody } from "../contents/ContentItemBody";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import NotifyMeButton from "../notifications/NotifyMeButton";
+import UsersName from "../users/UsersName";
+import { sectionFooterLeftStyles } from '../users/UsersProfile';
+import Loading from "../vulcan-core/Loading";
+import { ChaptersForm } from './ChaptersForm';
+import ChaptersList from "./ChaptersList";
+import SequencesEditForm from "./SequencesEditForm";
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesPage($documentId: String) {
@@ -61,7 +60,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType) => ({
   root: {
-    paddingTop: theme.isFriendlyUI ? `calc(270px + var(--header-height))` : 380,
+    paddingTop: 380,
   },
   deletedText: {
     paddingTop: 20,
@@ -101,7 +100,7 @@ const styles = (theme: ThemeType) => ({
   description: {
     marginTop: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit/2,
-    marginBottom: theme.isFriendlyUI ? 40 : theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
   },
   banner: {
     position: "absolute",
@@ -140,8 +139,8 @@ const styles = (theme: ThemeType) => ({
       marginTop: -100,
     },
     [theme.breakpoints.down('xs')]: {
-      marginTop: theme.isFriendlyUI ? undefined : theme.spacing.unit,
-      padding: theme.isFriendlyUI ? 16 : theme.spacing.unit
+      marginTop: theme.spacing.unit,
+      padding: theme.spacing.unit
     },
   },
   leftAction: {
@@ -308,7 +307,7 @@ const SequencesPage = ({ documentId, classes }: {
                   subscribeMessage="Get notified"
                   unsubscribeMessage="Notifications set"
                   showIcon
-                  asButton={isFriendlyUI()}
+                  asButton={false}
                   hideFlashes
                 />
               </AnalyticsContext>

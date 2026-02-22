@@ -264,7 +264,6 @@ export async function triggerCommentAutomodIfNeeded(comment: DbVoteableType, vot
 
   const automodRule = forumSelect<VoteableAutomodRule>({
     LessWrong: hasMultipleDownvotes,
-    EAForum: isDownvotedBelowBar(-10),
     default: () => false
   });
   

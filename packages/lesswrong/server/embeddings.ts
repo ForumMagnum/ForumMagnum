@@ -1,24 +1,23 @@
+import md5 from "md5";
+import { inspect } from "util";
+import { isAnyTest, isE2E } from "../lib/executionEnvironment";
+import { htmlToTextDefault } from "../lib/htmlToText";
+import { isLWorAF } from "../lib/instanceSettings";
 import Posts from "../server/collections/posts/collection";
+import { getOpenAI, isOpenAIAPIEnabled } from "./languageModels/languageModelIntegration";
+import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
 import PostEmbeddingsRepo from "./repos/PostEmbeddingsRepo";
 import PostsRepo from "./repos/PostsRepo";
-import { forEachDocumentBatchInCollection } from "./manualMigrations/migrationUtils";
-import { getOpenAI, isOpenAIAPIEnabled } from "./languageModels/languageModelIntegration";
-import { htmlToTextDefault } from "../lib/htmlToText";
-import { inspect } from "util";
-import md5 from "md5";
-import { isAnyTest, isE2E } from "../lib/executionEnvironment";
-import { isEAForum, isLWorAF } from "../lib/instanceSettings";
 // Avoid importing all of js-tiktoken and defer until usage, it's very large and increases bundle size noticeably
 // eslint-disable-next-line no-restricted-imports
-import { type TiktokenModel } from "js-tiktoken/lite";
-import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
-import mapValues from "lodash/mapValues";
-import chunk from "lodash/chunk";
-import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/newSchema";
-import { forumSelect } from "@/lib/forumTypeUtils";
 import { PostsPage } from "@/lib/collections/posts/fragments";
+import { type TiktokenModel } from "js-tiktoken/lite";
+import chunk from "lodash/chunk";
+import mapValues from "lodash/mapValues";
+import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/newSchema";
+import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 
-export const hasEmbeddingsForRecommendations = () => (isEAForum() || isLWorAF()) && !isE2E;
+export const hasEmbeddingsForRecommendations = () => (isLWorAF()) && !isE2E;
 
 const LEGACY_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
 const DEFAULT_EMBEDDINGS_MODEL = "text-embedding-3-large";
@@ -30,21 +29,12 @@ const TOKENIZER_MODEL: TiktokenModel = 'text-embedding-ada-002'
 
 const DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS = 8191;
   
-export const getEmbeddingsSettings = () => forumSelect({
-  "EAForum": {
-    "tokenizerModel": TOKENIZER_MODEL,
-    "embeddingModel": LEGACY_EMBEDDINGS_MODEL,
-    "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
-    "dimensions": null,
-    "supportsBatchUpdate": false,
-  },
-  "default": {
-    "tokenizerModel": TOKENIZER_MODEL,
-    "embeddingModel": DEFAULT_EMBEDDINGS_MODEL,
-    "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
-    "dimensions": EMBEDDINGS_VECTOR_SIZE,
-    "supportsBatchUpdate": true,
-  }
+export const getEmbeddingsSettings = () => ({
+  tokenizerModel: TOKENIZER_MODEL,
+  embeddingModel: DEFAULT_EMBEDDINGS_MODEL,
+  maxTokens: DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
+  dimensions: EMBEDDINGS_VECTOR_SIZE,
+  supportsBatchUpdate: true,
 })
 
 type EmbeddingsResult = {

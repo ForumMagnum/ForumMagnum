@@ -1,32 +1,30 @@
-import classNames from 'classnames';
-import React, { useCallback, useState } from 'react';
-import { useLocation } from '../../../lib/routeUtil';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { EditTagForm } from '../EditTagPage';
-import { useApolloClient } from '@apollo/client/react';
-import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
-import { taggingNamePluralSetting } from '../../../lib/instanceSettings';
-import { truncate } from '../../../lib/editor/ellipsize';
-import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from '../TagPageUtils';
-import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
 import { MAX_COLUMN_WIDTH } from '@/components/posts/PostsPage/constants';
-import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
-import { useCurrentUser } from '../../common/withUser';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
-import PostsList2 from "../../posts/PostsList2";
-import { ContentItemBody } from "../../contents/ContentItemBody";
-import AddPostsToTag from "../AddPostsToTag";
-import UsersNameDisplay from "../../users/UsersNameDisplay";
-import TagDiscussionSection from "../TagDiscussionSection";
-import TagPageButtonRow from "../TagPageButtonRow";
-import TagIntroSequence from "../TagIntroSequence";
-import SectionTitle from "../../common/SectionTitle";
-import ContentStyles from "../../common/ContentStyles";
-import Loading from "../../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useApolloClient } from '@apollo/client/react';
+import classNames from 'classnames';
+import { useCallback, useState } from 'react';
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
+import { truncate } from '../../../lib/editor/ellipsize';
+import { taggingNamePluralSetting } from '../../../lib/instanceSettings';
+import { useLocation } from '../../../lib/routeUtil';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import ContentStyles from "../../common/ContentStyles";
+import SectionTitle from "../../common/SectionTitle";
+import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
+import { useCurrentUser } from '../../common/withUser';
+import { ContentItemBody } from "../../contents/ContentItemBody";
+import PostsList2 from "../../posts/PostsList2";
+import PostsListSortDropdown from "../../posts/PostsListSortDropdown";
+import UsersNameDisplay from "../../users/UsersNameDisplay";
+import Loading from "../../vulcan-core/Loading";
+import AddPostsToTag from "../AddPostsToTag";
+import { EditTagForm } from '../EditTagPage';
+import TagDiscussionSection from "../TagDiscussionSection";
+import TagIntroSequence from "../TagIntroSequence";
+import TagPageButtonRow from "../TagPageButtonRow";
+import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from '../TagPageUtils';
 
 const TagEditFragmentQuery = gql(`
   query SubforumWikiTab($documentId: String) {
@@ -99,15 +97,9 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if(isFriendlyUI()) {
-    description = truncated
-      ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
-      : htmlWithAnchors;
-  } else {
-    description = (truncated && !tag.wikiOnly)
-      ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
-      : htmlWithAnchors
-  }
+  description = (truncated && !tag.wikiOnly)
+          ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+          : htmlWithAnchors
 
   const editTagForm = editableTag
     ? <EditTagForm

@@ -1,10 +1,7 @@
-import React from 'react';
-import { isEAForum, isLWorAF } from '@/lib/instanceSettings';
-import { getAllUserGroups, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
-import { SOCIAL_MEDIA_PROFILE_FIELDS } from '@/lib/collections/users/helpers';
-import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
 import { FormComponentCheckboxGroup } from '@/components/form-components/FormComponentCheckboxGroup';
-import PrefixedInput from '@/components/form-components/PrefixedInput';
+import { FormComponentDatePicker } from '@/components/form-components/FormComponentDateTime';
+import { isLWorAF } from '@/lib/instanceSettings';
+import { getAllUserGroups, userIsAdmin, userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import SettingsSection from './SettingsSection';
 import SettingsTextRow from './SettingsTextRow';
 import SettingsToggleRow from './SettingsToggleRow';
@@ -45,20 +42,7 @@ const AdminSettingsTab = ({
           </form.Field>
         )}
 
-        {isEAForum() && (
-          <div className={fieldWrapperClass}>
-            <form.Field name="twitterProfileURLAdmin">
-              {(field) => (
-                <PrefixedInput
-                  field={field}
-                  inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL}
-                  heading="Social media (private, for admin use)"
-                  smallBottomMargin={false}
-                />
-              )}
-            </form.Field>
-          </div>
-        )}
+        {false}
 
         <form.Field name="shortformFeedId">
           {(field) => (

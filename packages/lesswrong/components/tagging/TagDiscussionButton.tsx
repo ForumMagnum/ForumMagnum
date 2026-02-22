@@ -1,14 +1,13 @@
-import React from "react";
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { Link } from "../../lib/reactRouterWrapper";
-import CommentOutlinedIcon from "@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined";
-import { useHover } from "../common/withHover";
-import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
-import classNames from "classnames";
-import TagDiscussion from "./TagDiscussion";
-import PopperCard from "../common/PopperCard";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import CommentOutlinedIcon from "@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined";
+import classNames from "classnames";
+import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
+import { Link } from "../../lib/reactRouterWrapper";
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import PopperCard from "../common/PopperCard";
+import { useHover } from "../common/withHover";
+import TagDiscussion from "./TagDiscussion";
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionButtonQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -40,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   discussionCount: {
     [theme.breakpoints.down('sm')]: {
       alignSelf: "flex-start", //appears too low when there's no label
-      marginTop: theme.isFriendlyUI ? undefined : -2,
+      marginTop: -2,
     }
   },
   discussionCountWithoutLabel: {

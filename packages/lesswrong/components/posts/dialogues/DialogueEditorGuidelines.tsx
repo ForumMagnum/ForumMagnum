@@ -1,30 +1,19 @@
-import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { commentBodyStyles } from '../../../themes/stylePiping';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { commentBodyStyles } from '../../../themes/stylePiping';
 
 const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[60],
-    ...(theme.isFriendlyUI
-      ? {
-        padding: "16px 16px 0",
-        borderRadius: theme.borderRadius.default,
-      } : {
-        paddingLeft: 16,
-        paddingTop: 12,
-      }),
+    ...({
+            paddingLeft: 16,
+            paddingTop: 12,
+          }),
     '& ul': {
       paddingLeft: 20
     }
   },
-  title: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontWeight: 600,
-      marginBottom: 8,
-    }
-    : {},
+  title: {},
   info: {
     color: theme.palette.grey[600],
     ...commentBodyStyles(theme),

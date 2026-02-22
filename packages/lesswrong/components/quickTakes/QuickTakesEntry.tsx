@@ -1,15 +1,15 @@
-import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useQuickTakesTags } from "./useQuickTakesTags";
-import CommentsNewForm, {
-  CommentCancelCallback,
-  CommentSuccessCallback } from "../comments/CommentsNewForm";
+import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import classNames from "classnames";
-import { isFriendlyUI } from "../../themes/forumTheme";
+import { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import CommentsNewForm, {
+    CommentCancelCallback,
+    CommentSuccessCallback
+} from "../comments/CommentsNewForm";
 import { useDialog } from "../common/withDialog";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
-import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import LoginPopup from "../users/LoginPopup";
+import { useQuickTakesTags } from "./useQuickTakesTags";
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -26,9 +26,7 @@ const styles = (theme: ThemeType) => ({
   },
   commentEditor: {
     "& .ck-placeholder": {
-      marginTop: theme.isFriendlyUI ? "-3px !important" : undefined,
       "&::before": {
-        color: theme.isFriendlyUI ? theme.palette.grey[600] : undefined,
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontSize: 14,
         fontWeight: 500,
@@ -151,14 +149,10 @@ const QuickTakesEntry = ({
 
     isUnexpandedClickRef.current = false;
 
-    if (isFriendlyUI()) {
-      onSignup();
-    } else {
-      openDialog({
-        name: "LoginPopup",
-        contents: ({onClose}) => <LoginPopup onClose={onClose} />
-      });
-    }
+    openDialog({
+              name: "LoginPopup",
+              contents: ({onClose}) => <LoginPopup onClose={onClose} />
+            });
   }, [currentUser, openDialog, onSignup, expanded]);
 
   useEffect(() => {
@@ -182,7 +176,7 @@ const QuickTakesEntry = ({
   }
 
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
-  const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI();
+  const showNewUserMessage = !currentUser?.reviewedByUserId;
   return <div className={classNames(classes.root, className)} ref={ref}>
     {/* TODO: Write a better message for new users */}
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}

@@ -1,13 +1,11 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { Link } from '../../lib/reactRouterWrapper';
-import type { Hit } from 'react-instantsearch-core';
 import LocalLibraryIcon from '@/lib/vendor/@material-ui/icons/src/LocalLibrary';
 import { Snippet } from 'react-instantsearch-dom';
-import { SearchHitComponentProps } from './types';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import FormatDate from "../common/FormatDate";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
+import { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,9 +20,6 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     fontSize: "1.25rem",
     ...theme.typography.smallCaps,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
     marginRight: 8,
     textDecoration: "none",
     "& a:hover": {

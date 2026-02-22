@@ -1,21 +1,20 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { reCaptchaSiteKeySetting, isAF, isEAForum } from '../../lib/instanceSettings';
-import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useMessages } from '../common/withMessages';
-import { getUserABTestKey } from '../../lib/abTestImpl';
-import { useClientId } from '../hooks/useClientId.ts';
-import { useLocation } from '../../lib/routeUtil';
-import {isFriendlyUI} from '../../themes/forumTheme.ts'
-import ContentStyles from "../common/ContentStyles";
-import ReCaptcha from "../common/ReCaptcha";
-import Loading from "../vulcan-core/Loading";
-import EALoginPopover from "../ea-forum/auth/EALoginPopover";
-import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
-import DeferRender from '../common/DeferRender';
-import { ErrorLike } from '@apollo/client';
 import useCookies from '@/lib/vendor/react-cookie/useCookies.tsx';
+import { ErrorLike } from '@apollo/client';
+import { useMutation } from "@apollo/client/react";
+import { useCallback, useRef, useState } from 'react';
+import { getUserABTestKey } from '../../lib/abTestImpl';
+import { isAF, reCaptchaSiteKeySetting } from '../../lib/instanceSettings';
+import { useLocation } from '../../lib/routeUtil';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import ContentStyles from "../common/ContentStyles";
+import DeferRender from '../common/DeferRender';
+import ReCaptcha from "../common/ReCaptcha";
+import { useMessages } from '../common/withMessages';
+import EALoginPopover from "../ea-forum/auth/EALoginPopover";
+import { useClientId } from '../hooks/useClientId.ts';
+import Loading from "../vulcan-core/Loading";
+import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -110,15 +109,12 @@ type LoginFormProps = {
 }
 
 const LoginForm = (props: LoginFormProps) => {
-  if (isFriendlyUI()) {
-    return <LoginFormEA {...props} />
-  }
   return <LoginFormDefault {...props} />
 }
 
 const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
-  const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
-  const hasOauthSection = !isEAForum();
+  const hasSubscribeToCuratedCheckbox = !isAF();
+  const hasOauthSection = true;
 
   const { pathname } = useLocation()
   const reCaptchaToken = useRef<string|null>(null);

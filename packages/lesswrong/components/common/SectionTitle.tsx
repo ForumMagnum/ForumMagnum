@@ -1,21 +1,11 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
 import { slugify } from '@/lib/utils/slugify';
 import { Typography } from "./Typography";
 
-export const sectionTitleStyle = (theme: ThemeType) => (theme.isEAForum ? { 
-  margin: 0,
-  fontFamily: theme.palette.fonts.sansSerifStack,
-  fontSize: "14px",
-  lineHeight: "21px",
-  fontWeight: 700,
-  letterSpacing: "0.03em",
-  color: theme.palette.grey[600],
-  textTransform: "uppercase",
-} : {
+export const sectionTitleStyle = (theme: ThemeType) => ({
   margin: 0,
   ...theme.typography.headerStyle,
   fontSize: "2.3rem",
@@ -99,5 +89,3 @@ const SectionTitle = ({
 }
 
 export default registerComponent('SectionTitle', SectionTitle, {styles, stylePriority: -1});
-
-

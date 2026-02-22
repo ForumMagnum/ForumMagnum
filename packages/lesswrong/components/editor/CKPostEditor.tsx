@@ -1,42 +1,41 @@
-import React, { useRef, useState, useEffect, useContext, useCallback } from 'react'
-import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
-import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
-import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
-import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting, ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
-import EditorTopBar, { CollaborationMode } from './EditorTopBar';
-import { useSubscribedLocation } from '../../lib/routeUtil';
-import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
-import { useCurrentUser } from '../common/withUser';
-import { useMessages } from '../common/withMessages';
-import sortBy from 'lodash/sortBy'
-import uniqBy from 'lodash/uniqBy';
-import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { useMutation } from "@apollo/client/react";
-import { useQuery } from "@/lib/crud/useQuery"
-import { gql } from "@/lib/generated/gql-codegen";
-import type { Command, Editor } from '@ckeditor/ckeditor5-core';
-import type { ModelNode as Node, ModelRootElement as RootElement, ModelWriter as Writer, ModelElement as CKElement, ModelSelection as Selection, ModelDocumentFragment as DocumentFragment } from '@ckeditor/ckeditor5-engine';
-import { EditorContext } from '../posts/EditorContext';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
-import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
-import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
-import type { ConditionalVisibilityPluginConfiguration  } from './conditionalVisibilityBlock/conditionalVisibility';
-import { CkEditorPortalContext } from './CKEditorPortalProvider';
-import { useDialog } from '../common/withDialog';
-import { claimsConfig } from './claims/claimsConfig';
 import { useCkEditorInspector } from '@/client/useCkEditorInspector';
-import EditConditionalVisibility from "./conditionalVisibilityBlock/EditConditionalVisibility";
-import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuidelines";
-import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
-import { useStyles } from '../hooks/useStyles';
-import { ckEditorPluginStyles } from './ckEditorStyles';
-import classNames from 'classnames';
+import { useQuery } from "@/lib/crud/useQuery";
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { gql } from "@/lib/generated/gql-codegen";
 import { sleep } from '@/lib/helpers';
-import { useEditorCommands } from './EditorCommandsContext';
-import { CkEditorShortcut, augmentEditor } from './editorAugmentations';
+import { ckEditorUploadUrlOverrideSetting, ckEditorUploadUrlSetting, ckEditorWebsocketUrlOverrideSetting, ckEditorWebsocketUrlSetting, isLWorAF } from '@/lib/instanceSettings';
+import { useMutation } from "@apollo/client/react";
+import type { Command, Editor } from '@ckeditor/ckeditor5-core';
+import type { ModelElement as CKElement, ModelDocumentFragment as DocumentFragment, ModelNode as Node, ModelRootElement as RootElement, ModelSelection as Selection, ModelWriter as Writer } from '@ckeditor/ckeditor5-engine';
+import classNames from 'classnames';
+import sortBy from 'lodash/sortBy';
+import uniqBy from 'lodash/uniqBy';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { generateTokenRequest, getCKEditorDocumentId } from '../../lib/ckEditorUtils';
+import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
+import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig';
+import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
+import { useSubscribedLocation } from '../../lib/routeUtil';
+import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
+import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
+import { useDialog } from '../common/withDialog';
+import { useMessages } from '../common/withMessages';
+import { useCurrentUser } from '../common/withUser';
 import { useCommandPalette } from '../hooks/useCommandPalette';
+import { useStyles } from '../hooks/useStyles';
+import { useSyncCkEditorPlaceholder } from '../hooks/useSyncCkEditorPlaceholder';
+import { EditorContext } from '../posts/EditorContext';
+import DialogueEditorFeedback from "../posts/dialogues/DialogueEditorFeedback";
+import DialogueEditorGuidelines from "../posts/dialogues/DialogueEditorGuidelines";
+import { CkEditorPortalContext } from './CKEditorPortalProvider';
+import { useEditorCommands } from './EditorCommandsContext';
+import EditorTopBar, { CollaborationMode } from './EditorTopBar';
+import { ckEditorPluginStyles } from './ckEditorStyles';
+import { claimsConfig } from './claims/claimsConfig';
+import EditConditionalVisibility from "./conditionalVisibilityBlock/EditConditionalVisibility";
+import type { ConditionalVisibilityPluginConfiguration } from './conditionalVisibilityBlock/conditionalVisibility';
+import { CkEditorShortcut, augmentEditor } from './editorAugmentations';
 import { makeEditorConfig } from './editorConfigs';
 
 // If any custom commands' execute methods change their signatures, we need to update this declaration
@@ -346,7 +345,7 @@ const getPostEditorToolbarConfig = () => ({
       'horizontalLine',
       'mathDisplay',
       'mediaEmbed',
-      ...(isEAForum() ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : ['collapsibleSectionButton']),
+      ...(['collapsibleSectionButton']),
       //...(isLWorAF() ? ['conditionallyVisibleSectionButton'] : []),
       'footnote',
       ...(isLWorAF() ? ['insertClaimButton'] : []),
@@ -377,7 +376,7 @@ const getPostEditorToolbarConfig = () => ({
       'math',
       // We don't have the collapsible sections plugin in the selected-text toolbar yet,
       // because the behavior of creating a collapsible section is non-obvious and we want to fix it first
-      ...(isEAForum() ? ['ctaButtonToolbarItem', 'pollToolbarItem'] : []),
+      ...([]),
       'footnote',
       ...(isLWorAF() ? ['insertClaimButton'] : []),
     ],
@@ -847,7 +846,7 @@ const CKPostEditor = ({
       }}
       config={editorConfig}
     />}
-    {"collabEditorDialogue" in postOrSequence && postOrSequence.collabEditorDialogue && !isFriendlyUI
+    {"collabEditorDialogue" in postOrSequence && postOrSequence.collabEditorDialogue
       ? <DialogueEditorFeedback post={postOrSequence} /> 
       : null
     }
@@ -855,4 +854,3 @@ const CKPostEditor = ({
 }
 
 export default CKPostEditor;
-

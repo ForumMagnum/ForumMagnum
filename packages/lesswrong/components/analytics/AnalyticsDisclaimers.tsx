@@ -1,34 +1,24 @@
-import React from "react";
-import moment from "moment";
-import { forumSelect } from "../../lib/forumTypeUtils";
-import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
-import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import moment from "moment";
+import { forumSelect } from "../../lib/forumTypeUtils";
+import { Typography } from "../common/Typography";
 
 const getMissingClientRangeText = () => forumSelect({
-  EAForum: "Jan 11th - Jun 14th of 2021",
   LWAF: "late 2020 - early 2021",
   default: null,
 });
 const getMissingClientLastDay = () => forumSelect({
-  EAForum: "2021-06-14",
   LWAF: "2021-05-01",
   default: null,
 });
 const getDataCollectionFirstDay = () => forumSelect({
-  EAForum: "on Feb 19th, 2020",
   LWAF: "around the start of 2020",
   default: null,
 });
 
 const styles = defineStyles("AnalyticsDisclaimers", (theme: ThemeType) => ({
-  root: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      margin: `0 ${GRAPH_LEFT_MARGIN}px`,
-    }
-    : {},
+  root: {},
 }));
 
 const AnalyticsDisclaimers = ({earliestDate}: {

@@ -1,21 +1,18 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import React from 'react';
-import { Link } from '../../../lib/reactRouterWrapper';
 import { Card } from "@/components/widgets/Paper";
-import CardContent from '@/lib/vendor/@material-ui/core/src/CardContent';
-import { useTimezone } from '../../common/withTimezone';
-import { isEAForum } from '../../../lib/instanceSettings';
-import { getDefaultEventImg } from './HighlightedEventCard';
-import { useCurrentUser } from '../../common/withUser';
-import classNames from 'classnames';
 import { getCommunityPath } from '@/lib/pathConstants';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import CardContent from '@/lib/vendor/@material-ui/core/src/CardContent';
+import classNames from 'classnames';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import { useTimezone } from '../../common/withTimezone';
+import { useCurrentUser } from '../../common/withUser';
 import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
 import PostsItemTooltipWrapper from "../../posts/PostsItemTooltipWrapper";
-import CloudinaryImage2 from "../../common/CloudinaryImage2";
-import VirtualProgramCard from "./VirtualProgramCard";
+import { getDefaultEventImg } from './HighlightedEventCard';
 import PrettyEventDateTime from "./PrettyEventDateTime";
-import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const styles = (theme: ThemeType) => ({
   noResults: {
@@ -79,10 +76,7 @@ const styles = (theme: ThemeType) => ({
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
     marginTop: 8,
-    marginBottom: 0,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    marginBottom: 0
   },
   eventCardLocation: {
     ...theme.typography.commentStyle,
@@ -177,23 +171,9 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   })
   
   // on the EA Forum, insert card(s) advertising Virtual Programs
-  if (isEAForum() && !hideSpecialCards) {
-    // NOTE: splice() will just insert the card at the end of the list if the first param > length
-    if (currentUser) {
-      // for logged in users, just display the In-Depth / Precipice VP card
-      eventCards.splice(2, 0, <VirtualProgramCard key="advancedVP" program="advanced" />)
-    } else {
-      // for logged logged out users, display both VP cards
-      eventCards.splice(2, 0, <VirtualProgramCard key="introVP" program="intro" />)
-      // we try to space out the two cards
-      eventCards.splice(5, 0, <VirtualProgramCard key="advancedVP" program="advanced" />)
-    }
-  }
-  
   if (!eventCards.length) {
     // link to the Community page when there are no events to show
     const communityName = forumSelect({
-      EAForum: "EA Community",
       LessWrong: "LessWrong Community",
       default: "Community",
     })

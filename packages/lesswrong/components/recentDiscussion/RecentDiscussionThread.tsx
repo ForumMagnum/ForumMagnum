@@ -1,33 +1,30 @@
-import React from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
 import classNames from 'classnames';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import withErrorBoundary from '../common/withErrorBoundary'
+import withErrorBoundary from '../common/withErrorBoundary';
 
-import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { Link } from '../../lib/reactRouterWrapper';
+import CommentsNode from "../comments/CommentsNode";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentUser } from '../common/withUser';
-import { isFriendlyUI } from '@/themes/forumTheme';
+import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import PostsGroupDetails from "../posts/PostsGroupDetails";
+import PostsHighlight from "../posts/PostsHighlight";
+import PostsItemMeta from "../posts/PostsItemMeta";
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';
-import PostsGroupDetails from "../posts/PostsGroupDetails";
-import PostsItemMeta from "../posts/PostsItemMeta";
-import CommentsNode from "../comments/CommentsNode";
-import PostsHighlight from "../posts/PostsHighlight";
-import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+    marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius["small"],
   },
   plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
@@ -91,10 +88,10 @@ const styles = (theme: ThemeType) => ({
     }
   },
   post: {
-    paddingTop: theme.isFriendlyUI ? 12 : 18,
+    paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius["small"],
     marginBottom: 4,
     
     [theme.breakpoints.down('xs')]: {
@@ -114,13 +111,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
     display: "block",
     fontSize: "2rem",
-    ...(theme.isFriendlyUI ? {
-      fontSize: 22,
-      fontWeight: 600,
-      lineHeight: 1.25,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      marginBottom: 10,
-    } : {})
+    ...({})
   },
   smallerTitle: {
     fontSize: '1.5rem',
@@ -234,7 +225,7 @@ const RecentDiscussionThread = ({
             </div>}
           </div>
           <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
-            <PostsItemMeta post={post} hideTags={!isFriendlyUI()}/>
+            <PostsItemMeta post={post} hideTags={true}/>
           </div>
         </div>
         <div className={highlightClasses}>

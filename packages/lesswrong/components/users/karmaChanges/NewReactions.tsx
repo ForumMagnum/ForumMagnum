@@ -1,12 +1,10 @@
-import React from 'react';
 import LWTooltip from '@/components/common/LWTooltip';
-import ReactionIcon from '@/components/votes/ReactionIcon';
-import UsersName from '../UsersName';
-import { isEAForum } from '@/lib/instanceSettings';
-import { eaAnonymousEmojiPalette, eaEmojiPalette } from '@/lib/voting/eaEmojiPalette';
-import { styles } from './styles';
 import { useStyles } from '@/components/hooks/useStyles';
+import ReactionIcon from '@/components/votes/ReactionIcon';
+import { eaEmojiPalette } from '@/lib/voting/eaEmojiPalette';
 import type { ReactionChange } from '@/server/collections/users/karmaChangesGraphQL';
+import UsersName from '../UsersName';
+import { styles } from './styles';
 
 
 export const NewReactions = ({ reactionChanges }: {
@@ -24,11 +22,6 @@ export const NewReactions = ({ reactionChanges }: {
       // On EAF, if the emoji is not in the list of non-anonymous reacts (eaEmojiPalette),
       // then make sure not to show any usernames of voters. They should not be available here anyway,
       // but we also don't want to show [anonymous], so we disable the tooltip altogether.
-      if (!EAEmojiComponent && isEAForum()) {
-        EAEmojiComponent = eaAnonymousEmojiPalette.find(emoji => emoji.name === reactionType)?.Component;
-        disableTooltip = true;
-      }
-
       return <span
         className={classes.individualAddedReact}
         key={reactionType}
@@ -41,8 +34,8 @@ export const NewReactions = ({ reactionChanges }: {
             </>)}
           disabled={disableTooltip}
         >
-          {(EAEmojiComponent && isEAForum()) ? <EAEmojiComponent /> : <ReactionIcon
-            react={reactionType} />}
+          {<ReactionIcon
+                          react={reactionType} />}
         </LWTooltip>
       </span>;
     })}

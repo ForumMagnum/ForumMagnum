@@ -1,16 +1,16 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import React, { FC, MouseEvent, useState, useCallback } from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
-import classNames from 'classnames';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import ContentStyles from "../common/ContentStyles";
-import LinkPostMessage from "./LinkPostMessage";
+import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
+import classNames from 'classnames';
+import { FC, MouseEvent, useCallback, useState } from 'react';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import ContentItemTruncated from "../common/ContentItemTruncated";
+import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
+import LinkPostMessage from "./LinkPostMessage";
 
 const PostsExpandedHighlightQuery = gql(`
   query PostsHighlight($documentId: String) {
@@ -25,7 +25,6 @@ const PostsExpandedHighlightQuery = gql(`
 const styles = (theme: ThemeType) => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     '&& a, && a:hover': {
       color: theme.palette.primary.main,
     },
@@ -64,9 +63,7 @@ const TruncatedSuffix: FC<{
   }
   return (
     <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
-      {isFriendlyUI()
-        ? "Continue reading"
-        : `(Continue Reading${moreWordsText})`
+      {`(Continue Reading${moreWordsText})`
       }
     </Link>
   );

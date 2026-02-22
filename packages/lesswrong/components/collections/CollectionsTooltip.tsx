@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import { Card } from "@/components/widgets/Paper";
-import { FRIENDLY_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
+import { HOVER_OVER_WIDTH } from "../common/HoverOver";
 import HoverOver from "../common/HoverOver";
 import UsersName from "../users/UsersName";
 import ContentStyles from "../common/ContentStyles";
@@ -13,7 +13,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles("CollectionsTooltip", (theme: ThemeType) => ({
   root: {
     padding: 16,
-    width: FRIENDLY_HOVER_OVER_WIDTH,
+    width: HOVER_OVER_WIDTH,
   },
   title: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -79,5 +79,4 @@ const CollectionsTooltip = ({collection, children}: {
 }
 
 export default CollectionsTooltip;
-
 

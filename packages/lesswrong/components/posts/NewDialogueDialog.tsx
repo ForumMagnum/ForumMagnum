@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { DialogActions } from '../widgets/DialogActions';
-import { useMessages } from '../common/withMessages';
-import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import { useNavigate } from '../../lib/routeUtil';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import UserMultiselect from "../form-components/UserMultiselect";
-import LWDialog from "../common/LWDialog";
-import Loading from "../vulcan-core/Loading";
-import EAButton from "../ea-forum/EAButton";
-import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
+import { useMutation } from "@apollo/client/react";
+import { useState } from 'react';
+import { useNavigate } from '../../lib/routeUtil';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import LWDialog from "../common/LWDialog";
+import { useMessages } from '../common/withMessages';
+import UserMultiselect from "../form-components/UserMultiselect";
+import Loading from "../vulcan-core/Loading";
+import { DialogActions } from '../widgets/DialogActions';
 
 const PostsEditMutation = gql(`
   mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {
@@ -26,12 +25,11 @@ const PostsEditMutation = gql(`
 const styles = (theme: ThemeType) => ({
   dialog: {
     padding: 24,
-    paddingBottom: theme.isFriendlyUI ? undefined : 12,
+    paddingBottom: 12,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.text.normal,
     "& .MuiDialogActions-root": {
-      margin: theme.isFriendlyUI ? 0 : undefined,
-    },
+},
   },
   inputRow: {
     marginBottom: 12,
@@ -113,7 +111,7 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
     }
   }
 
-  const ButtonComponent = isFriendlyUI() ? EAButton : Button;
+  const ButtonComponent = Button;
   return <LWDialog
     open={true}
     onClose={onClose}

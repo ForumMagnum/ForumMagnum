@@ -1,13 +1,11 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import withErrorBoundary from '../common/withErrorBoundary';
-import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import type { Placement as PopperPlacementType } from "popper.js"
-import { useBookmark } from '../hooks/useBookmark';
-import LWTooltip from '../common/LWTooltip';
-import ForumIcon from '../common/ForumIcon';
 import { BookmarkableCollectionName } from '@/lib/collections/bookmarks/constants';
+import classNames from 'classnames';
+import type { Placement as PopperPlacementType } from "popper.js";
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import ForumIcon from '../common/ForumIcon';
+import LWTooltip from '../common/LWTooltip';
+import withErrorBoundary from '../common/withErrorBoundary';
+import { useBookmark } from '../hooks/useBookmark';
 const styles = (theme: ThemeType) => ({
   container: {
     cursor: "pointer",
@@ -23,12 +21,6 @@ const styles = (theme: ThemeType) => ({
       transform: "translateY(6px)",
       marginLeft: -3,
       marginRight: -3,
-    },
-  },
-  iconWithTextFriendlyUI: {
-    '& svg': {
-      transform: "translateY(5px)",
-      marginRight: -1,
     },
   },
 })
@@ -60,7 +52,6 @@ const BookmarkButton = ({
       <Component onClick={toggleBookmark} className={classNames({
         [classes.container]: !withText,
         [classes.iconWithText]: withText,
-        [classes.iconWithTextFriendlyUI]: withText && isFriendlyUI(),
       })}>
         <ForumIcon
           icon={icon}
@@ -75,5 +66,4 @@ export default registerComponent('BookmarkButton', BookmarkButton, {
   styles,
   hocs: [withErrorBoundary],
 });
-
 

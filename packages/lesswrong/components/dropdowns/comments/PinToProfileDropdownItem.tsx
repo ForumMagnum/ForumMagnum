@@ -1,10 +1,9 @@
-import React, { useCallback } from 'react';
+import { gql } from "@/lib/generated/gql-codegen";
+import { useMutation } from "@apollo/client/react";
+import { useCallback } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentPinToProfileDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -17,9 +16,7 @@ const CommentsListUpdateMutation = gql(`
 `);
 
 const styles = (theme: ThemeType) => ({
-  icon: theme.isFriendlyUI
-    ? {fontSize: "18px"}
-    : {},
+  icon: {},
 });
 
 const PinToProfileDropdownItem = ({comment, post, classes}: {
@@ -47,7 +44,7 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
   }
 
   const username = isCommentAuthor
-    ? isFriendlyUI() ? "your" : "my"
+    ? "my"
     : `${comment.user?.displayName}'s`;
 
   const title = comment.isPinnedOnProfile

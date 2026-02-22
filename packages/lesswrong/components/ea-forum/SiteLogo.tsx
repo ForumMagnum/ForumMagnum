@@ -3,19 +3,14 @@
  *
  * Could easily be adapted for other Forums
  */
-import React from 'react';
-import { getLogoUrl } from '../../lib/vulcan-lib/utils';
-import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
-import { lightbulbIcon } from '../icons/lightbulbIcon';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { forumTitleSetting } from '../../lib/instanceSettings';
+import { getLogoUrl } from '../../lib/vulcan-lib/utils';
 
 const styles = defineStyles("SiteLogo", (theme: ThemeType) => ({
   root: {
-    height: theme.isEAForum ? 34 : 48,
-    [theme.breakpoints.down('sm')]: {
-      height: theme.isEAForum ? 30 : 48,
-    },
+    height: 48,
   },
   icon: {
     width: 34,
@@ -30,10 +25,6 @@ const SiteLogo = ({eaContrast}: {
 }) => {
   const classes = useStyles(styles);
   // Use this icon when we want version of the EAF logo with an editable (usually white) color
-  if (isEAForum() && eaContrast) {
-    return <div className={classes.icon}>{lightbulbIcon}</div>
-  }
-
   if (!getLogoUrl()) return null
 
   return <img
@@ -45,5 +36,4 @@ const SiteLogo = ({eaContrast}: {
 }
 
 export default SiteLogo;
-
 

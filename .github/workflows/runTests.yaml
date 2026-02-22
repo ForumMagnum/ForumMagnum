@@ -2,8 +2,6 @@ name: Run tests
 on:
   push:
   pull_request:
-    branches-ignore:
-      - ea-deploy
   workflow_dispatch:
 env:
   BROWSERSLIST_IGNORE_OLD_DATA: 1
@@ -62,17 +60,10 @@ jobs:
       run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
     - name: Create database connection string file
       run: echo "postgres://postgres:password@localhost:5433/postgres" > dev-pg-conn.txt 
-    - name: Run code generation (EA Forum)
-      run: yarn generate test ea
+    - name: Run code generation
+      run: yarn generate test lw
     - name: Throw if code changed
       run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "Changes detected - run yarn generate"; exit 1; fi
-    - name: Switch forum type
-      run: |
-        sed -i -e 's/"forumType": "EAForum"/"forumType": "LessWrong"/g' settings-test.json
-    - name: Run code generation (LessWrong)
-      run: yarn generate test lw
-    - name: Throw if forum schemas differ
-      run: if [[ `git status --porcelain ./schema ./packages` ]]; then git status --porcelain ./schema ./packages; echo "LessWrong/EA Forum database schemas differ"; exit 1; fi
 
   runPlaywrightTests:
     # Pin Ubuntu to 22.04 to avoid a problem installing browser dependencies.

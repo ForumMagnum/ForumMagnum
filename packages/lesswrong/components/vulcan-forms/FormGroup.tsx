@@ -1,4 +1,3 @@
-import React from 'react';
 import classNames from 'classnames';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
@@ -18,8 +17,7 @@ const styles = defineStyles("FormGroupHeader", (theme: ThemeType) => ({
   },
   formSectionHeadingTitle: {
     marginBottom: 5,
-    fontSize: "1.25rem",
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
+    fontSize: "1.25rem"
   },
 }));
 

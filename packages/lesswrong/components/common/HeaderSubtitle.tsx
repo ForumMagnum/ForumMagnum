@@ -1,14 +1,13 @@
-import React from 'react';
-import HeaderEventSubtitle from "./HeaderEventSubtitle";
+import { useSubtitlePortal } from '@/components/layout/SubtitlePortalContext';
 import { defineStyles } from '../hooks/useStyles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
-import { useSubtitlePortal } from '@/components/layout/SubtitlePortalContext';
+import HeaderEventSubtitle from "./HeaderEventSubtitle";
 
 export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
-    textTransform: theme.isFriendlyUI ? undefined : 'uppercase',
+    textTransform: 'uppercase',
     color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },

@@ -1,8 +1,6 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { usePostReadProgress } from '../usePostReadProgress';
-import { isBookUI } from '@/themes/forumTheme';
-import { isServer } from '@/lib/executionEnvironment';
 
 const styles = defineStyles("ReadingProgressBar", (theme: ThemeType) => ({
   readingProgressBar: {
@@ -23,7 +21,7 @@ const styles = defineStyles("ReadingProgressBar", (theme: ThemeType) => ({
 export const ReadingProgressBar = ({post}: {
   post: PostsListWithVotes
 }) => {
-  const disableProgressBar = (isBookUI() || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
+  const disableProgressBar = true;
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),

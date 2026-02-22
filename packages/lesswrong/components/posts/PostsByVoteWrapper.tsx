@@ -1,6 +1,4 @@
 import React from 'react';
-import { isLWorAF } from '@/lib/instanceSettings';
-import PostsByVote from "./PostsByVote";
 import ErrorBoundary from "../common/ErrorBoundary";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
@@ -46,24 +44,16 @@ const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=fal
   const postIds = (votes ?? []).map(vote=>vote.documentId)
 
   return <ErrorBoundary>
-    {isLWorAF() ? <LWPostsByVote
+    <LWPostsByVote
       postIds={postIds}
       year={year}
       limit={limit}
       showMostValuableCheckbox={showMostValuableCheckbox}
       hideEmptyStateText={hideEmptyStateText}
       postItemClassName={postItemClassName}
-    /> : <PostsByVote
-      postIds={postIds}
-      year={year}
-      limit={limit}
-      showMostValuableCheckbox={showMostValuableCheckbox}
-      hideEmptyStateText={hideEmptyStateText}
-      postItemClassName={postItemClassName}
-    />}
+    />
   </ErrorBoundary>
 }
 
 export default PostsByVoteWrapper;
-
 

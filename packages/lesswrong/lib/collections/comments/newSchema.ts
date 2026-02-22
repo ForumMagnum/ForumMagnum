@@ -1,25 +1,24 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { documentIsNotDeleted, userIsAdminOrMod, userOwns } from "../../vulcan-users/permissions";
-import {
-  accessFilterMultiple,
-  arrayOfForeignKeysOnCreate,
-  generateIdResolverMulti,
-  generateIdResolverSingle,
-  getDenormalizedCountOfReferencesGetValue,
-  getDenormalizedFieldOnCreate,
-  getDenormalizedFieldOnUpdate
-} from "../../utils/schemaUtils";
-import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { isEAForum, isLWorAF } from "../../instanceSettings";
-import { commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
-import { viewTermsToQuery } from "../../utils/viewUtils";
-import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
-import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
-import { customBaseScoreReadAccess } from "./voting";
-import { CommentsViews } from "./views";
 import { getWithLoader } from "../../loaders";
+import {
+    accessFilterMultiple,
+    arrayOfForeignKeysOnCreate,
+    generateIdResolverMulti,
+    generateIdResolverSingle,
+    getDenormalizedCountOfReferencesGetValue,
+    getDenormalizedFieldOnCreate,
+    getDenormalizedFieldOnUpdate
+} from "../../utils/schemaUtils";
+import { viewTermsToQuery } from "../../utils/viewUtils";
+import { userGetDisplayNameById } from "../../vulcan-users/helpers";
+import { documentIsNotDeleted, userIsAdminOrMod, userOwns } from "../../vulcan-users/permissions";
+import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
+import { commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
+import { CommentsViews } from "./views";
+import { customBaseScoreReadAccess } from "./voting";
 
 function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
@@ -44,7 +43,7 @@ async function isParentPostKarmaHidden(comment: DbComment, context: ResolverCont
 };
 
 function canReadUser(user: DbUser | null, comment: DbComment) {
-  return isEAForum() ? documentIsNotDeleted(user, comment) : true;
+  return true;
 }
 
 async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
@@ -1249,13 +1248,7 @@ const schema = {
       outputType: "JSON",
       canRead: ["guests"],
       resolver: async (comment, _, context) => {
-        const { extendedScore } = comment;
-        if (!isEAForum() || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
-          return {};
-        }
-        if (!comment.postId) return {};
-        const reactors = await context.repos.posts.getCommentEmojiReactorsWithCache(comment.postId);
-        return reactors[comment._id] ?? {};
+        return {};
       },
     },
   },
@@ -1450,7 +1443,6 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (comment, args, context) => {
-        if (!isLWorAF()) return null;
         const { AutomatedContentEvaluations, Revisions } = context;
         const revisionIds = (await Revisions.find({
           documentId: comment._id,

@@ -1,24 +1,23 @@
-import React, { MouseEvent, useCallback, useState } from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { MouseEvent, useCallback, useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
-import EAButton from "../ea-forum/EAButton";
-import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import LWPopper from "../common/LWPopper";
-import LoginForm from "./LoginForm";
-import { Paper } from '../widgets/Paper';
+import EAButton from "../ea-forum/EAButton";
+import EALoginPopover from "../ea-forum/auth/EALoginPopover";
+import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
+import { Paper } from '../widgets/Paper';
+import LoginForm from "./LoginForm";
 
 const styles = defineStyles('UsersAccountMenu', (theme: ThemeType) => ({
   root: {
-    marginTop: theme.isFriendlyUI ? undefined : 5,
+    marginTop: 5,
   },
   userButton: {
     fontSize: '14px',
-    fontWeight: theme.isFriendlyUI ? undefined : 400,
+    fontWeight: 400,
     opacity: .8,
     color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
   },

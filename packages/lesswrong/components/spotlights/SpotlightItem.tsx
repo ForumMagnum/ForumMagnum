@@ -1,39 +1,38 @@
+import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from "@/lib/generated/gql-codegen";
+import { withDateFields } from '@/lib/utils/dateUtils';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit';
-import PublishIcon from '@/lib/vendor/@material-ui/icons/src/Publish';
-import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
+import EditIcon from '@/lib/vendor/@material-ui/icons/src/Edit';
+import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
+import PublishIcon from '@/lib/vendor/@material-ui/icons/src/Publish';
+import { useMutation } from "@apollo/client/react";
 import classNames from 'classnames';
+import range from 'lodash/range';
 import React, { CSSProperties, useCallback, useState } from 'react';
+import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { postBodyStyles } from '../../themes/stylePiping';
-import { useCurrentUser } from '../common/withUser';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
-import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
-import { AnalyticsContext } from '@/lib/analyticsEvents';
-import MetaInfo from "../common/MetaInfo";
-import FormatDate from "../common/FormatDate";
-import AnalyticsTracker from "../common/AnalyticsTracker";
-import { ContentItemBody } from "../contents/ContentItemBody";
-import CloudinaryImage2 from "../common/CloudinaryImage2";
-import SpotlightEditorStyles from "./SpotlightEditorStyles";
-import { SpotlightStartOrContinueReading } from "./SpotlightStartOrContinueReading";
-import { Typography } from "../common/Typography";
-import LWTooltip from "../common/LWTooltip";
-import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client/react";
-import { useQuery } from '@/lib/crud/useQuery';
-import { gql } from "@/lib/generated/gql-codegen";
-import { withDateFields } from '@/lib/utils/dateUtils';
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import { SuspenseWrapper } from '../common/SuspenseWrapper';
-import range from 'lodash/range';
 import { CommentByIdSuspense } from '../comments/CommentById';
 import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
+import AnalyticsTracker from "../common/AnalyticsTracker";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import FormatDate from "../common/FormatDate";
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { Typography } from "../common/Typography";
+import { useCurrentUser } from '../common/withUser';
+import { ContentItemBody } from "../contents/ContentItemBody";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import SpotlightEditorStyles from "./SpotlightEditorStyles";
+import { SpotlightStartOrContinueReading } from "./SpotlightStartOrContinueReading";
+import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 
 import dynamic from 'next/dynamic';
 const SpotlightForm = dynamic(() => import('./SpotlightForm').then(mod => ({ default: mod.SpotlightForm })), { ssr: false });
@@ -106,15 +105,12 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
       opacity: .2
     },
     '&:hover $closeButton': {
-      ...(theme.isFriendlyUI ? {
-        color: theme.palette.grey[100],
-        background: theme.palette.panelBackground.default,
-      } : {
-        // This button is on top of an image that doesn't invert in dark mode, so
-        // we can't use palette-colors that invert
-        color: theme.palette.type==="dark" ? "rgba(0,0,0,.7)" : theme.palette.grey[400],
-        background: theme.palette.type==="dark" ? "white" : theme.palette.panelBackground.default,
-      }),
+      ...({
+                // This button is on top of an image that doesn't invert in dark mode, so
+                // we can't use palette-colors that invert
+                color: theme.palette.type==="dark" ? "rgba(0,0,0,.7)" : theme.palette.grey[400],
+                background: theme.palette.type==="dark" ? "white" : theme.palette.panelBackground.default,
+              }),
     }
   },
   contentContainer: {
@@ -133,7 +129,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
-    color: theme.isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[300],
+    color: theme.palette.grey[300],
     zIndex: theme.zIndexes.spotlightItemCloseButton,
   },
   hideButton: {
@@ -158,7 +154,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     position: "relative",
     zIndex: theme.zIndexes.spotlightItem,
     // Drop shadow that helps the text stand out from the background image
-    textShadow: theme.isFriendlyUI ? undefined : `
+    textShadow: `
       0px 0px 10px ${theme.palette.background.default},
       0px 0px 20px ${theme.palette.background.default}
     `,
@@ -185,39 +181,15 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       display: "none"
     },
-    ...(theme.isFriendlyUI ? {
-      fontSize: 13,
-      fontWeight: 500,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      color: theme.palette.text.alwaysWhite,
-      marginTop: 8,
-      maxWidth: TEXT_WIDTH,
-      "& a": {
-        color: theme.palette.text.alwaysWhite,
-        textDecoration: "underline",
-        "&:hover": {
-          opacity: 0.8,
-          color: `${theme.palette.text.alwaysWhite} !important`,
-        },
-        "&:visited": {
-          color: theme.palette.text.alwaysWhite,
-        },
-      },
-    } : {}),
+    ...({}),
   },
   title: {
     ...theme.typography.postStyle,
-    ...(theme.isFriendlyUI
-      ? {
-        fontSize: 22,
-        fontWeight: 700,
-        color: theme.palette.text.alwaysWhite,
-      }
-      : {
-        fontSize: 20,
-        fontVariant: "small-caps",
-        lineHeight: "1.2em",
-      }
+    ...({
+            fontSize: 20,
+            fontVariant: "small-caps",
+            lineHeight: "1.2em",
+          }
     ),
     display: "flex",
     alignItems: "center"
@@ -225,35 +197,22 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
   subtitle: {
     ...theme.typography.postStyle,
     ...theme.typography.italic,
-    ...(theme.isFriendlyUI ? {
-      fontSize: 13,
-      fontWeight: 500,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      color: theme.palette.text.alwaysWhite,
-      marginTop: 8,
-      maxWidth: TEXT_WIDTH,
-    } : {
-      minHeight: 25,
-      color: theme.palette.grey[700],
-      fontSize: 15,
-      marginTop: -1,
-    }),
+    ...({
+          minHeight: 25,
+          color: theme.palette.grey[700],
+          fontSize: 15,
+          marginTop: -1,
+        }),
   },
   image: {
     height: "100%",
     position: "absolute",
     top: 0,
     right: 0,
-    ...(theme.isFriendlyUI
-      ? {
-          borderRadius: theme.borderRadius.default,
-          width: "100%",
-          objectFit: "cover",
-        }
-      : {
-          borderTopRightRadius: theme.borderRadius.default,
-          borderBottomRightRadius: theme.borderRadius.default,
-        }),
+    ...({
+              borderTopRightRadius: theme.borderRadius.default,
+              borderBottomRightRadius: theme.borderRadius.default,
+            }),
   },
   imageFade: buildFadeMask([
     "transparent 0",
@@ -575,7 +534,7 @@ export const SpotlightItem = ({
               {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
                 {subtitleComponent}
               </div>}
-              {(spotlight.description?.html || isBookUI()) && <div className={classes.description}>
+              <div className={classes.description}>
                 {(editDescription && editableSpotlight) ? 
                   <div className={classes.editDescription}>
                     <SpotlightForm
@@ -590,7 +549,7 @@ export const SpotlightItem = ({
                     description={`${spotlight.documentType} ${spotlightDocument?._id}`}
                   />
                 }
-              </div>}
+              </div>
               {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
                 by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
               </Typography>}
@@ -615,23 +574,15 @@ export const SpotlightItem = ({
           </div>
           {spotlightReviews.length > 0 && <SpotlightReviews reviewIds={spotlightReviews.map(r=>r._id)}/>}
           {hideBanner && (
-            isFriendlyUI()
-              ? (
-                <ForumIcon
-                  icon="Close"
-                  onClick={hideBanner}
-                  className={classes.hideButton}
-                />
-              )
-              : (
-                <div className={classes.closeButtonWrapper}>
-                  <LWTooltip title="Hide this spotlight" placement="right">
-                    <Button className={classes.closeButton} onClick={hideBanner}>
-                      <ForumIcon icon="Close" />
-                    </Button>
-                  </LWTooltip>
-                </div>
-              )
+            (
+                                      <div className={classes.closeButtonWrapper}>
+                                        <LWTooltip title="Hide this spotlight" placement="right">
+                                          <Button className={classes.closeButton} onClick={hideBanner}>
+                                            <ForumIcon icon="Close" />
+                                          </Button>
+                                        </LWTooltip>
+                                      </div>
+                                    )
             )
           }
           <div className={classes.editAllButton}>
@@ -720,4 +671,3 @@ const SpotlightReviewComment = ({id}: {
     />
   </div>
 }
-

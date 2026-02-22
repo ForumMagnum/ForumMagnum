@@ -1,13 +1,11 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { SidebarsContext } from '@/components/layout/SidebarsWrapper';
+import classNames from 'classnames';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isClient } from '../../../lib/executionEnvironment';
-import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import ForumIcon from "../../common/ForumIcon";
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -166,7 +164,7 @@ export const ToCColumn = ({
     shouldHideToggleContentsButton,
   );
   const [hidden, setHidden] = useState(false);
-  const hideable = isFriendlyUI() && !notHideable && !!tableOfContents;
+  const hideable = false;
 
   useEffect(() => {
     const handler = () => setHideTocButtonHidden(

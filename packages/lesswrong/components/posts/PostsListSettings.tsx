@@ -1,21 +1,19 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { QueryLink } from '../../lib/reactRouterWrapper'
+import classNames from 'classnames';
+import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views';
+import { QueryLink } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
-import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
-import { getSortOrderOptions, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
-import { isEAForum } from '../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../themes/forumTheme';
-import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
-import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
+import { getSortOrderOptions, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
+import { timeframeSettings as defaultTimeframes, timeframeLabels, TimeframeSettingType } from "./timeframeUtils";
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -58,26 +56,6 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
     events: eventsFilter,
     linkpost: linkpostsFilter,
   },
-  "EAForum": {
-    all: {
-      label: "All posts",
-      tooltip: "Includes personal blogposts as well as frontpage, questions, and community posts."
-    },
-    frontpage: {
-      label: "Frontpage",
-      tooltip: "Posts about research and other work in high-impact cause areas."
-    },
-    curated: {
-      label: "Curated",
-      tooltip: "Posts chosen by the moderation team to be well written and important (approximately weekly)"
-    },
-    questions: {
-      label: "Questions",
-      tooltip: "Open questions and answers, ranging from newcomer questions to important unsolved scientific problems."
-    },
-    events: eventsFilter,
-    linkpost: linkpostsFilter,
-  },
   "default": {
     all: {
       label: "All Posts",
@@ -103,11 +81,10 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginTop: theme.isFriendlyUI ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: theme.isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
+    padding: "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
@@ -119,8 +96,7 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
   },
   checkbox: {
-    padding: "1px 12px 0 0",
-    paddingRight: theme.isFriendlyUI ? 6 : undefined,
+    padding: "1px 12px 0 0"
   },
   checkboxGroup: {
     display: "flex",
@@ -243,26 +219,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
             </QueryLink>
           </TooltipSpan>
 
-          {isEAForum() && <TooltipSpan
-            title={<div>
-              <div>By default, Community posts are shown.</div>
-              <div>Toggle to hide them.</div>
-            </div>}
-            placement="left-start"
-          >
-            <QueryLink
-              className={classes.checkboxGroup}
-              onClick={() => setSetting('hideCommunity', !currentHideCommunity)}
-              query={{hideCommunity: !currentHideCommunity}}
-              merge
-              rel="nofollow"
-            >
-              <Checkbox classes={{root: classes.checkbox}} checked={!currentHideCommunity}/>
-              <MetaInfo>
-                Show community
-              </MetaInfo>
-            </QueryLink>
-          </TooltipSpan>}
+          {false}
         </div>
       </div>
   );

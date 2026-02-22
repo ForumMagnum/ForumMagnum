@@ -1,31 +1,30 @@
-import React, { useState, useCallback, useRef, useEffect, useContext, Suspense } from 'react';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { debateEditorPlaceholder, getDefaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
-import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
-import { useCurrentUser } from '../common/withUser';
-import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
-import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum } from '../../lib/instanceSettings';
+import { useLazyQuery, useMutation } from '@apollo/client/react';
+import isEqual from 'lodash/isEqual';
+import { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
+import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { isCollaborative, PostCategory } from '../../lib/collections/posts/helpers';
+import ErrorBoundary from "../common/ErrorBoundary";
 import { AutosaveEditorStateContext, DynamicTableOfContentsContext } from '../common/sharedContexts';
-import { AppendToEditorContext } from './AppendToEditorContext';
-import isEqual from 'lodash/isEqual';
-import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
+import { useCurrentUser } from '../common/withUser';
 import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
+import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import PostsEditBotTips from "../posts/PostsEditBotTips";
+import { AppendToEditorContext } from './AppendToEditorContext';
+import { Editor, EditorChangeEvent, EditorContents, EditorTypeString, getBlankEditorContents, getInitialEditorContents, getUserDefaultEditor, isBlank, isValidEditorType, serializeEditorContents, shouldSubmitContents, styles, type LegacyEditorTypeString } from './Editor';
+import EditorTypeSelect from "./EditorTypeSelect";
 import LastEditedInWarning from "./LastEditedInWarning";
 import LocalStorageCheck from "./LocalStorageCheck";
-import EditorTypeSelect from "./EditorTypeSelect";
-import PostsEditBotTips from "../posts/PostsEditBotTips";
-import ErrorBoundary from "../common/ErrorBoundary";
 import PostVersionHistoryButton from './PostVersionHistory';
 
 const autosaveInterval = 3000; //milliseconds
@@ -246,16 +245,7 @@ function InnerEditorFormComponent<S, R>({
     const conflictingCardVisible = updatedFormType === 'new' && cookies[HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE] !== 'true'
     // We're currently skipping linkposts, since the linked post's author is
     // not always the same person posting it on the forum.
-    if (
-      !isEAForum() ||
-      collectionName !== 'Posts' ||
-      conflictingCardVisible ||
-      document.isEvent ||
-      document.debate ||
-      document.shortform ||
-      document.url ||
-      criticismTipsDismissed
-    ) return
+    return
 
     void checkPostIsCriticism({variables: { args: {
       _id: document._id,

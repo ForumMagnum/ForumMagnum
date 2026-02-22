@@ -1,28 +1,27 @@
-import React from 'react';
-import { useDialog } from '../common/withDialog';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers'
-import { useCurrentUser } from '../common/withUser';
-import { Link } from '../../lib/reactRouterWrapper';
-import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
-import EditOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/EditOutlined';
-import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock';
-import { userHasNewTagSubscriptions } from '../../lib/betas';
-import classNames from 'classnames';
-import { useTagBySlug } from './useTag';
-import { tagGetHistoryUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
-import { isLWorAF } from '@/lib/instanceSettings';
-import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
-import LoginPopup from "../users/LoginPopup";
-import NewLensDialog from "./lenses/NewLensDialog";
-import LWTooltip from "../common/LWTooltip";
-import NotifyMeButton from "../notifications/NotifyMeButton";
-import TagDiscussionButton from "./TagDiscussionButton";
-import { ContentItemBody } from "../contents/ContentItemBody";
+import type { TagLens } from '@/lib/arbital/useTagLenses';
+import EditOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/EditOutlined';
+import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
+import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock';
+import classNames from 'classnames';
+import React from 'react';
+import { userHasNewTagSubscriptions } from '../../lib/betas';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
+import { getTagMinimumKarmaPermissions, isTagAllowedType3Audio, tagGetHistoryUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
+import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
+import { ContentItemBody } from "../contents/ContentItemBody";
+import NotifyMeButton from "../notifications/NotifyMeButton";
+import LoginPopup from "../users/LoginPopup";
 import { TagOrLensLikeButton } from "./lenses/LensTab";
+import NewLensDialog from "./lenses/NewLensDialog";
+import TagDiscussionButton from "./TagDiscussionButton";
 import { TagPageActionsMenuButton } from "./TagPageActionsMenu";
+import { useTagBySlug } from './useTag';
 
 const PODCAST_ICON_SIZE = 20;
 const PODCAST_ICON_PADDING = 3;
@@ -30,15 +29,12 @@ const PODCAST_ICON_PADDING = 3;
 const styles = (theme: ThemeType) => ({
   buttonsRow: {
     ...theme.typography.body2,
-    marginTop: theme.isFriendlyUI ? 2 : undefined,
-    marginBottom: theme.isFriendlyUI ? 16 : undefined,
     color: theme.palette.grey[700],
     display: "flex",
     flexWrap: "wrap",
     columnGap: 16,
     [theme.breakpoints.down('xs')]: {
-      marginTop: theme.isFriendlyUI ? 8 : undefined,
-    },
+},
     '& svg': {
       height: 20,
       width: 20,
@@ -86,14 +82,13 @@ const styles = (theme: ThemeType) => ({
   },
   subscribeToWrapper: {
     display: "flex !important",
-    ...(theme.isFriendlyUI ? {
-    } : {
-      marginLeft: -2,
-      marginRight: -5,
-      '& .MuiListItemIcon-root': {
-        marginRight: "unset !important",
-      },
-    }),
+    ...({
+          marginLeft: -2,
+          marginRight: -5,
+          '& .MuiListItemIcon-root': {
+            marginRight: "unset !important",
+          },
+        }),
   },
   subscribeTo: {
   },
@@ -115,7 +110,7 @@ const styles = (theme: ThemeType) => ({
     width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
     height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
     padding: PODCAST_ICON_PADDING,
-    transform: theme.isFriendlyUI ? undefined : `translateY(-3px)`,
+    transform: `translateY(-3px)`,
     marginRight: -3
   },
   audioIconOn: {
@@ -213,10 +208,9 @@ const TagPageButtonRow = ({
   const canCreateLens = !editing
     && canEdit
     && (!!refetchTag && !!updateSelectedLens)
-    && (undeletedLensCount < 5)
-    && isLWorAF();
+    && (undeletedLensCount < 5);
 
-  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || (numFlags && !isLWorAF()) || beginnersGuideContentTag
+  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>
     {noEditNotAuthor && <>
       <div>
@@ -229,13 +223,6 @@ const TagPageButtonRow = ({
       You must have at least {getTagMinimumKarmaPermissions().edit} karma to edit this topic
     </div>
     <br />
-    </>}
-    {!!numFlags && !isLWorAF() && <>
-      <div>
-        This article has the following flag{tag.tagFlagsIds?.length > 1 ? "s" : ""}:{' '}
-        {tag.tagFlags.map((flag, i) => <span key={flag._id}>{flag.name}{(i + 1) < tag.tagFlags?.length && ", "}</span>)}
-      </div>
-      <br />
     </>}
     <ContentItemBody
       dangerouslySetInnerHTML={{ __html: beginnersGuideContentTag?.description?.html || "" }}
@@ -313,15 +300,13 @@ const TagPageButtonRow = ({
         </a>
       </LWTooltip>}
       
-      {isLWorAF() && <TagPageActionsMenuButton
+      <TagPageActionsMenuButton
         tagOrLens={selectedLens}
         createLens={canCreateLens ? handleNewLensClick : null}
         handleEditClick={!editing && canEdit ? handleEditClick : null}
-      />}
+      />
     </div>
   </AnalyticsContext>
 }
 
 export default registerComponent("TagPageButtonRow", TagPageButtonRow, { styles });
-
-

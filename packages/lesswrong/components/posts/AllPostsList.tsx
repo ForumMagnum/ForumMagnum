@@ -1,25 +1,23 @@
-import React from "react";
-import { useTimezone } from "../common/withTimezone";
-import { useLocation } from "../../lib/routeUtil";
-import { AllowHidingFrontPagePostsContext } from "../dropdowns/posts/PostActions";
+import { forumAllPostsNumDaysSetting, forumAllPostsNumMonthsSetting, forumAllPostsNumWeeksSetting, forumAllPostsNumYearsSetting } from '@/lib/instanceSettings';
+import { returnIfValidNumber } from "@/lib/utils/typeGuardUtils";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import {
-  DEFAULT_LOW_KARMA_THRESHOLD,
-  MAX_LOW_KARMA_THRESHOLD,
+    DEFAULT_LOW_KARMA_THRESHOLD,
+    MAX_LOW_KARMA_THRESHOLD,
 } from "../../lib/collections/posts/views";
-import {
-  getBeforeDefault,
-  getAfterDefault,
-  timeframeToTimeBlock,
-  TimeframeType,
-} from "./timeframeUtils";
-import { forumAllPostsNumDaysSetting, forumAllPostsNumMonthsSetting, forumAllPostsNumWeeksSetting, forumAllPostsNumYearsSetting } from '@/lib/instanceSettings';
+import { useLocation } from "../../lib/routeUtil";
+import { useTimezone } from "../common/withTimezone";
+import { AllowHidingFrontPagePostsContext } from "../dropdowns/posts/PostActions";
+import PostsList2 from "./PostsList2";
 import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import PostsTimeframeList from "./PostsTimeframeList";
 import PostsTimeframeListExponential from "./PostsTimeframeListExponential";
-import PostsList2 from "./PostsList2";
-import { returnIfValidNumber } from "@/lib/utils/typeGuardUtils";
+import {
+    getAfterDefault,
+    getBeforeDefault,
+    timeframeToTimeBlock,
+    TimeframeType,
+} from "./timeframeUtils";
 
 const AllPostsList = ({
   currentTimeframe,
@@ -66,8 +64,8 @@ const AllPostsList = ({
             ...baseTerms,
             limit: 50
           }}
-          dimWhenLoading={showSettings && !isFriendlyUI()}
-          showLoading={isFriendlyUI()}
+          dimWhenLoading={showSettings}
+          showLoading={false}
         />
       </AnalyticsContext>
     );
@@ -142,7 +140,7 @@ const AllPostsList = ({
             timeframe={currentTimeframe as TimeframeType}
             postListParameters={postListParameters}
             numTimeBlocks={numTimeBlocks}
-            dimWhenLoading={showSettings && !isFriendlyUI()}
+            dimWhenLoading={showSettings}
             after={after}
             before={before}
             reverse={query.reverse === "true"}

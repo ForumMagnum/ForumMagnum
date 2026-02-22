@@ -1,20 +1,19 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useLayoutEffect, useContext } from 'react';
+import { useTracking } from '@/lib/analyticsEvents';
+import { isClient, isServer } from '@/lib/executionEnvironment';
+import stringify from 'json-stringify-deterministic';
+import moment from 'moment';
+import { useServerInsertedHTML } from 'next/navigation';
+import React, { useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { getForumTheme } from '../../themes/forumTheme';
 import { abstractThemeToConcrete, getThemeOptions } from '../../themes/themeNames';
-import moment from 'moment';
-import { isEAForum } from '../../lib/instanceSettings';
-import { THEME_COOKIE } from '../../lib/cookies/cookies';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import stringify from 'json-stringify-deterministic';
-import { ThemeContext } from './useTheme';
-import { isClient, isServer } from '@/lib/executionEnvironment';
-import { useTracking } from '@/lib/analyticsEvents';
-import { createStylesContext, regeneratePageStyles, serverEmbeddedStyles, StylesContext, useStyles, type StylesContextType } from '../hooks/useStyles';
-import { useServerInsertedHTML } from 'next/navigation';
-import { defineStyles, setClientMountedStyles } from '../hooks/defineStyles';
 import { useCurrentUser } from '../common/withUser';
+import { setClientMountedStyles } from '../hooks/defineStyles';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { createStylesContext, regeneratePageStyles, serverEmbeddedStyles, StylesContext, type StylesContextType } from '../hooks/useStyles';
+import { ThemeContext } from './useTheme';
 
 export const ThemeContextProvider = ({children}: {
   children: React.ReactNode,
@@ -28,16 +27,12 @@ export const ThemeContextProvider = ({children}: {
   const prefersDarkMode = usePrefersDarkMode();
 
   useEffect(() => {
-    if (isEAForum()) {
-      removeCookie(THEME_COOKIE, {path: "/"});
-    } else {
-      if (stringify(themeOptions) !== themeCookie) {
-        setCookie(THEME_COOKIE, stringify(themeOptions), {
-          path: "/",
-          expires: moment().add(2, 'years').toDate(),
-        });
-      }
-    }
+    if (stringify(themeOptions) !== themeCookie) {
+              setCookie(THEME_COOKIE, stringify(themeOptions), {
+                path: "/",
+                expires: moment().add(2, 'years').toDate(),
+              });
+            }
   }, [themeOptions, themeCookie, setCookie, removeCookie]);
   
   const concreteThemeOptions = abstractThemeToConcrete(themeOptions, prefersDarkMode);

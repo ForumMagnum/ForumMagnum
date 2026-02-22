@@ -1,14 +1,12 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
-import {useCurrentUser} from '../common/withUser';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import type { ConnectedUserInfo } from './CKPostEditor';
-import PresenceList from "./PresenceList";
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
+import { useCurrentUser } from '../common/withUser';
+import type { ConnectedUserInfo } from './CKPostEditor';
+import PresenceList from "./PresenceList";
 
 const styles = (theme: ThemeType) => ({
   editorTopBar: {
@@ -61,11 +59,6 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   const canCommentOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "comment");
   const canEditOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "edit");
   const alwaysShownUserIds = [post.userId ?? '', ...post.coauthorUserIds]
-
-  if (isFriendlyUI() && post.collabEditorDialogue) {
-    return null;
-  }
-
   return <div className={classes.editorTopBar}>
     <div className={classes.presenceList}>
       <PresenceList connectedUsers={connectedUsers} alwaysShownUserIds={alwaysShownUserIds}/>

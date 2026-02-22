@@ -5,7 +5,6 @@ import {
 import MoreFromAuthorStrategy from "./MoreFromAuthorStrategy";
 import MoreFromTagStrategy from "./MoreFromTagStrategy";
 import BestOfStrategy from "./BestOfStrategy";
-import WrappedStrategy from "./WrappedStrategy";
 import CollabFilterStrategy from "./CollabFilterStrategy";
 import TagWeightedCollabFilterStrategy from "./TagWeightedCollabFilter";
 import RecommendationStrategy, { RecommendationResult } from "./RecommendationStrategy";
@@ -36,7 +35,6 @@ class RecommendationService {
     moreFromTag: MoreFromTagStrategy,
     moreFromAuthor: MoreFromAuthorStrategy,
     bestOf: BestOfStrategy,
-    wrapped: WrappedStrategy,
     tagWeightedCollabFilter: TagWeightedCollabFilterStrategy,
     collabFilter: CollabFilterStrategy,
     feature: FeatureStrategy,

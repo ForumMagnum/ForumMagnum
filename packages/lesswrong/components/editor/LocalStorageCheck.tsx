@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { SerializedEditorContents, deserializeEditorContents, EditorContents, getEditorsForUser } from './Editor';
-import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { preferredHeadingCase } from '@/themes/forumTheme';
+import { useState } from 'react';
 import ForumIcon from "../common/ForumIcon";
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useCurrentUser } from '../common/withUser';
 import { useEffectOnce } from '../hooks/useEffectOnce';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { deserializeEditorContents, EditorContents, getEditorsForUser, SerializedEditorContents } from './Editor';
 
 const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: theme.isFriendlyUI ? 8 : 10,
+    columnGap: 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.primaryAlert,
     fontSize: 14,
@@ -34,24 +34,17 @@ const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
     color: theme.palette.text.primaryAlert,
     whiteSpace: 'nowrap',
     paddingLeft: 6,
-    paddingRight: 2,
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
+    paddingRight: 2
   },
   restoreBody: {
     maxHeight: '1.5em',
     lineHeight: '1.5em',
     fontSize: '1.1rem',
     overflow: 'hidden',
-    ...(theme.isFriendlyUI
-      ? {
-        color: theme.palette.text.primaryAlert,
-        fontWeight: 500,
-        opacity: 0.75,
-      }
-      : {
-        color: theme.palette.grey[500],
-        padding: '0 4px',
-      }),
+    ...({
+            color: theme.palette.grey[500],
+            padding: '0 4px',
+          }),
   },
   closeIcon: {
     fontSize: 16,

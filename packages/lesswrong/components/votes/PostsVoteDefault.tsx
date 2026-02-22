@@ -1,15 +1,14 @@
-import React, { Ref } from 'react';
-import classNames from 'classnames';
-import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
-import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
-import { VotingSystem } from '@/lib/voting/votingSystemTypes';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
-import OverallVoteButton from "./OverallVoteButton";
-import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { VotingSystem } from '@/lib/voting/votingSystemTypes';
+import classNames from 'classnames';
+import { Ref } from 'react';
+import { isAF } from '../../lib/instanceSettings';
+import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
+import { Typography } from "../common/Typography";
+import OverallVoteButton from "./OverallVoteButton";
+import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
+import { useVote } from './withVote';
 
 const styles = defineStyles("PostsVoteDefault", (theme: ThemeType) => ({
   voteBlock: {
@@ -47,20 +46,10 @@ const styles = defineStyles("PostsVoteDefault", (theme: ThemeType) => ({
     margin: '0 12px'
   },
   voteScore: {
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[500],
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    color: theme.palette.grey[500],
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: theme.isFriendlyUI ? '50%' : '55%',
-    
-    ...(theme.isFriendlyUI && {
-      paddingTop:4,
-      paddingBottom:2,
-      paddingLeft:1,
-      paddingRight:0,
-      fontSize: '50%',
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    fontSize: '55%'
   },
   voteScoreFooter: {
     fontSize: 18,
@@ -82,7 +71,7 @@ const styles = defineStyles("PostsVoteDefault", (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
     marginLeft: 0,
-    paddingTop: theme.isFriendlyUI ? 12 : 0
+    paddingTop: 0
   },
 }));
 
@@ -104,7 +93,7 @@ const PostsVoteDefault = ({
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
 
-  let tooltipPlacement: "left"|"right"|"top" = isFriendlyUI() ? "left" : "right";
+  let tooltipPlacement: "left"|"right"|"top" = "right";
   if (useHorizontalLayout) {
     tooltipPlacement = "top";
   }

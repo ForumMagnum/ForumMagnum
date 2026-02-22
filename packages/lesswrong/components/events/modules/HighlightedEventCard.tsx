@@ -1,14 +1,13 @@
-import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { Link } from '../../../lib/reactRouterWrapper';
 import { Card } from "@/components/widgets/Paper";
-import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
-import { useTracking } from '../../../lib/analyticsEvents';
-import Loading from "../../vulcan-core/Loading";
-import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
-import PrettyEventDateTime from "./PrettyEventDateTime";
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { useTracking } from '../../../lib/analyticsEvents';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { useTimezone } from '../../common/withTimezone';
+import AddToCalendarButton from "../../posts/AddToCalendar/AddToCalendarButton";
+import Loading from "../../vulcan-core/Loading";
+import PrettyEventDateTime from "./PrettyEventDateTime";
 
 // space pic for events with no img
 export const getDefaultEventImg = (width: number, blur?: boolean) => {
@@ -86,9 +85,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     marginTop: 0,
     marginBottom: 10,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
     [theme.breakpoints.down('sm')]: {
       fontSize: 32,
     }

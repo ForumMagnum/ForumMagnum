@@ -19,7 +19,7 @@ export const sharedSettings = {
     afterTime: 1727400080403,
     beforeTime: 1727376805595,
     petrovPostId: "6LJ6xcHEjKF9zWKzs",
-    petrovServerUrl: "https://forum.effectivealtruism.org/graphql",
+    petrovServerUrl: "https://www.lesswrong.com/graphql",
     petrovGamePostId: "KTEciTeFwL2tTujZk"
   },
   reacts: {

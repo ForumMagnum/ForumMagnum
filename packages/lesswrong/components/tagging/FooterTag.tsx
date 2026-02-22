@@ -1,30 +1,25 @@
-import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useExperimentalTagStyleSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { useCurrentUser } from '../common/withUser';
-import CoreTagIcon, { getCoreTagIconMap } from './CoreTagIcon';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import TagsTooltip, { TagsTooltipPreviewWrapper } from './TagsTooltip';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Link } from '../../lib/reactRouterWrapper';
 import ForumIcon from "../common/ForumIcon";
+import { useCurrentUser } from '../common/withUser';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import CoreTagIcon, { getCoreTagIconMap } from './CoreTagIcon';
+import TagsTooltip, { TagsTooltipPreviewWrapper } from './TagsTooltip';
 
 export const tagStyle = (theme: ThemeType) => ({
-  marginRight: theme.isFriendlyUI ? 3 : undefined,
   padding: 5,
   paddingLeft: 6,
   paddingRight: 6,
-  marginBottom: theme.isFriendlyUI ? 8 : undefined,
   fontWeight: theme.typography.body1.fontWeight,
   backgroundColor: theme.palette.tag.background,
   border: theme.palette.tag.border,
   color: theme.palette.tag.text,
   borderRadius: 3,
   ...theme.typography.commentStyle,
-  cursor: "pointer",
-  whiteSpace: theme.isFriendlyUI ? "nowrap": undefined,
+  cursor: "pointer"
 })
 
 const newTagStyle = (theme: ThemeType) => ({
@@ -66,15 +61,14 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
       opacity: 1,
       backgroundColor: theme.palette.tag.backgroundHover,
     },
-    "& a:hover": theme.isFriendlyUI ? {opacity: 1} : {},
+    "& a:hover": {},
     ...(useExperimentalTagStyleSetting.get() && theme.isBookUI
       ? newTagStyle(theme)
       : tagStyle(theme)
     )
   },
   tooltip: {
-    marginTop: theme.isFriendlyUI ? 6 : undefined,
-  },
+},
   core: {
     ...coreTagStyle(theme),
   },
@@ -82,7 +76,6 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
     position: "relative",
     display: "inline-block",
     minWidth: 20,
-    margin: theme.isFriendlyUI ? "0 3px 0 6px" : undefined,
     "& svg": {
       position: "absolute",
       top: -13,
@@ -166,9 +159,7 @@ const FooterTag = ({
 
   const showIcon = Boolean(tag.core && !smallText && getCoreTagIconMap()[tag.slug] && !hideIcon);
 
-  const tagName = isFriendlyUI() && smallText
-    ? tag.shortName || tag.name
-    : tag.name;
+  const tagName = tag.name;
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>

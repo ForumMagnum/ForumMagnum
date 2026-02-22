@@ -1,22 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useCurrentUser } from '../common/withUser';
+import { useEffect, useState } from 'react';
 import Geosuggest from 'react-geosuggest';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 // These imports need to be separate to satisfy eslint, for some reason
-import type { Suggest } from 'react-geosuggest';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { DialogActions } from '../widgets/DialogActions';
 import { DialogTitle } from "@/components/widgets/DialogTitle";
-import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
-import { sharedStyles } from './EventNotificationsDialog'
-import { useGoogleMaps } from '../form-components/LocationFormComponent'
-import { isEAForum } from '../../lib/instanceSettings';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import Loading from "../vulcan-core/Loading";
-import { Typography } from "../common/Typography";
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import type { Suggest } from 'react-geosuggest';
 import LWDialog from "../common/LWDialog";
+import { Typography } from "../common/Typography";
+import { useGoogleMaps } from '../form-components/LocationFormComponent';
+import Loading from "../vulcan-core/Loading";
+import { DialogActions } from '../widgets/DialogActions';
+import { sharedStyles } from './EventNotificationsDialog';
 
 const UsersEditQuery = gql(`
   query SetPersonalMapLocationDialog($documentId: String) {
@@ -87,15 +86,15 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
             initialValue={label}
           /> : <Loading/>}
         </div>
-        {!isEAForum() && <TextField
-            label={`Description (Make sure to mention whether you want to organize events)}`}
-            value={mapText || ""}
-            onChange={e => setMapText(e.target.value)}
-            fullWidth
-            multiline
-            rows={4}
-            rowsMax={100}
-          />}
+        {<TextField
+                          label={`Description (Make sure to mention whether you want to organize events)}`}
+                          value={mapText || ""}
+                          onChange={e => setMapText(e.target.value)}
+                          fullWidth
+                          multiline
+                          rows={4}
+                          rowsMax={100}
+                        />}
         <DialogActions className={classes.actions}>
           {currentUser.mapLocation && <a className={classes.removeButton} onClick={()=>{
             void updateCurrentUser({mapLocation: null})

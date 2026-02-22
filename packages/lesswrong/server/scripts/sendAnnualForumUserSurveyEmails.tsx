@@ -1,9 +1,7 @@
-import React from 'react';
-import { isEAForum } from "@/lib/instanceSettings";
 import { loggerConstructor } from "@/lib/utils/logging";
-import UsersRepo from "../repos/UsersRepo";
-import { wrapAndSendEmail } from "../emails/renderEmail";
 import Users from '@/server/collections/users/collection';
+import { wrapAndSendEmail } from "../emails/renderEmail";
+import UsersRepo from "../repos/UsersRepo";
 import { EmailAnnualForumUserSurvey } from './../emailComponents/EmailAnnualForumUserSurvey';
 
 /**
@@ -19,7 +17,7 @@ import { EmailAnnualForumUserSurvey } from './../emailComponents/EmailAnnualForu
  * Exported to allow running manually with "yarn repl"
  */
 export const sendUserSurveyEmails = async (limit=10) => {
-  if (!isEAForum()) return
+  return
   
   const logger = loggerConstructor(`sendUserSurveyEmails`)
   

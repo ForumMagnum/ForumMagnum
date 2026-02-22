@@ -33,13 +33,16 @@
  */
 export const acceptsSchemaHash = "9ebb51a67d889b5907585d2a7073434d";
 
-import UserJobAds from "../../server/collections/userJobAds/collection"
-import { addField, dropField } from "./meta/utils"
-
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, UserJobAds, "reminderSetAt")
+  await db.none(`
+    ALTER TABLE "UserJobAds"
+    ADD COLUMN IF NOT EXISTS "reminderSetAt" timestamptz
+  `);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, UserJobAds, "reminderSetAt")
+  await db.none(`
+    ALTER TABLE "UserJobAds"
+    DROP COLUMN IF EXISTS "reminderSetAt"
+  `);
 }

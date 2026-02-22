@@ -1,25 +1,23 @@
-import React, {FC, useCallback, useState} from 'react';
-import { useDialog } from '../common/withDialog';
-import { useMessages } from '../common/withMessages';
-import { userCanUseSharing } from '../../lib/betas';
-import { useCurrentUser } from '../common/withUser';
-import { SharingSettings, defaultSharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
+import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
+import { moderationEmail } from '@/lib/instanceSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
-import { moderationEmail } from '@/lib/instanceSettings';
+import { FC, useCallback, useState } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { userCanUseSharing } from '../../lib/betas';
+import { defaultSharingSettings, SharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import { EditablePost, getPostCollaborateUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
-import { getCkEditorName } from './Editor';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import ForumIcon from "../common/ForumIcon";
-import LWTooltip from "../common/LWTooltip";
-import EAButton from "../ea-forum/EAButton";
-import { EditableUsersList } from "./EditableUsersList";
 import LWDialog from "../common/LWDialog";
+import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
+import { useDialog } from '../common/withDialog';
+import { useMessages } from '../common/withMessages';
+import { useCurrentUser } from '../common/withUser';
+import EAButton from "../ea-forum/EAButton";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { EditableUsersList } from "./EditableUsersList";
+import { getCkEditorName } from './Editor';
 
 const styles = defineStyles('PostSharingSettings', (theme: ThemeType) => ({
   linkSharingPreview: {
@@ -86,18 +84,12 @@ const PostSharingIcon: FC<{
   className?: string,
   onClick?: () => void,
 }> = (props) => {
-  return isFriendlyUI()
-    ? (
-      <ForumIcon icon="Share" {...props} />
-    )
-    : (
-      <PersonAddIcon {...props} />
-    );
+  return (
+        <PersonAddIcon {...props} />
+      );
 }
 
-const getNoSharePermissionTooltip = () => isFriendlyUI()
-  ? "You need at least 1 karma or to be approved by a moderator to share this post"
-  : "You need at least 1 karma or to be approved by a mod to share";
+const getNoSharePermissionTooltip = () => "You need at least 1 karma or to be approved by a mod to share";
 
 interface PostSharingSettingsProps {
   field: TypedFieldApi<SharingSettings, EditablePost, PostSubmitMeta>;

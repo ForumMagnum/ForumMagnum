@@ -515,23 +515,6 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     }
   }
 
-  async getDigestPlannerVotesForPosts(postIds: string[]): Promise<Array<PostVoteCounts>> {
-    return this.getRawDb().manyOrNone(`
-      -- VotesRepo.getDigestPlannerVotesForPosts
-      SELECT p._id as "postId",
-        count(v._id) FILTER(WHERE v."voteType" = 'smallUpvote') as "smallUpvoteCount",
-        count(v._id) FILTER(WHERE v."voteType" = 'bigUpvote') as "bigUpvoteCount",
-        count(v._id) FILTER(WHERE v."voteType" = 'smallDownvote') as "smallDownvoteCount",
-        count(v._id) FILTER(WHERE v."voteType" = 'bigDownvote') as "bigDownvoteCount"
-      FROM "Posts" p
-      JOIN "Votes" v tablesample system(50) ON v."documentId" = p."_id"
-      WHERE p._id IN ($1:csv)
-        AND v."collectionName" = 'Posts'
-        AND v.cancelled = false
-      GROUP BY p._id
-    `, [postIds], "getDigestPlannerVotesForPosts");
-  }
-
   async getDocumentKarmaChangePerDay({ documentIds, startDate, endDate }: { documentIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; karma_change: string }[]> {
     if (!documentIds.length) return []
     

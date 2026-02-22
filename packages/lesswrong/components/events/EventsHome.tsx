@@ -1,36 +1,35 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, { useState, useEffect } from 'react';
-import { useUserLocation } from '../hooks/useUserLocation';
-import { useCurrentUser } from '../common/withUser';
-import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
-import { useDialog } from '../common/withDialog'
-import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
-import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
-import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
-import Geosuggest from 'react-geosuggest';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { isEAForum } from '../../lib/instanceSettings';
 import { EVENT_TYPES } from "@/lib/collections/posts/constants";
-import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import ListItemText from '@/lib/vendor/@material-ui/core/src/ListItemText';
+import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import classNames from 'classnames';
+import React, { useEffect, useState } from 'react';
+import Geosuggest from 'react-geosuggest';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent';
+import { useUserLocation } from '../hooks/useUserLocation';
 
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useMutation } from "@apollo/client/react";
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import ForumIcon from "../common/ForumIcon";
+import { MenuItem } from "../common/Menus";
+import DistanceUnitToggle from "../community/modules/DistanceUnitToggle";
 import EventNotificationsDialog from "../localGroups/EventNotificationsDialog";
 import LoginPopup from "../users/LoginPopup";
-import HighlightedEventCard from "./modules/HighlightedEventCard";
-import EventCards from "./modules/EventCards";
 import Loading from "../vulcan-core/Loading";
-import DistanceUnitToggle from "../community/modules/DistanceUnitToggle";
-import { MenuItem } from "../common/Menus";
-import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
-import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import EventCards from "./modules/EventCards";
+import HighlightedEventCard from "./modules/HighlightedEventCard";
 
 const PostsListMultiQuery = gql(`
   query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -73,10 +72,7 @@ const styles = (theme: ThemeType) => ({
     flex: 'none',
     ...theme.typography.headline,
     fontSize: 34,
-    margin: 0,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    margin: 0
   },
   sectionDescription: {
     ...theme.typography.commentStyle,
@@ -354,9 +350,7 @@ const EventsHome = ({classes}: {
   // on the EA Forum, we insert some special event cards (ex. Intro VP card)
   let numSpecialCards = currentUser ? 1 : 2
   // hide them on other forums, and when certain filters are set
-  if (!isEAForum() || modeFilter === 'in-person' || (formatFilter.length > 0 && !formatFilter.includes('course'))) {
-    numSpecialCards = 0
-  }
+  numSpecialCards = 0
 
   const filters: Omit<PostsViewTerms, 'view'> = {}
   if (modeFilter === 'in-person') {

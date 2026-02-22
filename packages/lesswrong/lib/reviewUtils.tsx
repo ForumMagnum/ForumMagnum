@@ -1,10 +1,10 @@
+import round from "lodash/round";
+import moment from "moment";
 import React from 'react';
-import round from "lodash/round"
-import moment from "moment"
-import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
-import { TupleSet, UnionOf } from './utils/typeGuardUtils';
+import { isDevelopment } from './executionEnvironment';
+import { isLWorAF } from "./instanceSettings";
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
-import { isDevelopment } from './executionEnvironment'; 
+import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
 /* 
 NOTES FOR REVIEW ENDING
@@ -66,7 +66,7 @@ export function getReviewLink(year: string): string {
 
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
-export const getReviewNameInSitu = () => isEAForum() ? 'Decade Review' : `${REVIEW_YEAR} Review`
+export const getReviewNameInSitu = () => `${REVIEW_YEAR} Review`
 
 export const reviewElectionName = `reviewVoting${REVIEW_YEAR}`
 
@@ -182,7 +182,6 @@ export function reviewIsActive(): boolean {
 export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
   if (!currentUser) return false;
   if (isLWorAF() && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR}-01-01`))) return false
-  if (isEAForum() && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
   return true
 }
 
@@ -237,7 +236,6 @@ export function canNominate (currentUser: UsersCurrent|null, post: PostsListBase
 export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   if (!currentUser) return false
   if (isLWorAF() && moment.utc(currentUser.createdAt).isAfter(moment.utc(`${REVIEW_YEAR+1}-01-01`))) return false
-  if (isEAForum() && moment.utc(currentUser.createdAt).isAfter(getReviewStart(REVIEW_YEAR))) return false
   return true
 }
 

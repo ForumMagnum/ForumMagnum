@@ -1,5 +1,3 @@
-import { isLWorAF } from "../lib/instanceSettings";
-
 type ColorTuple=[number,number,number,number]; //RGBA, all channels floating point zero to one
 
 function fromHexDigit(s: string, offset: number): number {
@@ -72,13 +70,9 @@ export function colorToString(color: ColorTuple): string
 
 // HACK: Gamma here is tuned empirically for a visual result, not based on
 // anything principled.
-const getGamma = () => !isLWorAF() ? 1.24 : 1.5;
+const getGamma = () => 1.5;
 
-const applyInversionBias = (color: number) => (
-  !isLWorAF()
-    ? ((0.92 * color) + 0.08)
-    : color
-);
+const applyInversionBias = (color: number) => color;
 
 const invertChannel = (channel: number) => {
   const linearized = Math.pow(channel, getGamma());

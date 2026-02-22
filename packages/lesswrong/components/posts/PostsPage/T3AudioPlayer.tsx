@@ -1,10 +1,9 @@
-import React, { useRef } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useTracking } from "../../../lib/analyticsEvents";
-import classNames from 'classnames';
-import { useEventListener } from '../../hooks/useEventListener';
-import { isEAForum } from '@/lib/instanceSettings';
 import { useExternalScript } from '@/components/hooks/useExternalScript';
+import classNames from 'classnames';
+import { useRef } from 'react';
+import { useTracking } from "../../../lib/analyticsEvents";
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { useEventListener } from '../../hooks/useEventListener';
 
 const styles = (theme: ThemeType) => ({
   embeddedPlayer: {
@@ -55,7 +54,7 @@ export const T3AudioPlayer = ({classes, showEmbeddedPlayer, documentId, collecti
     <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
       {type3scriptLoaded && (
         /* @ts-ignore */
-        isEAForum() ? <type-3-player analytics="custom" sticky="true" header-play-buttons="true" title=""></type-3-player> : <type-3-player sticky="true" analytics="custom"></type-3-player>
+        <type-3-player sticky="true" analytics="custom"></type-3-player>
       )}
     </div>
   </div>

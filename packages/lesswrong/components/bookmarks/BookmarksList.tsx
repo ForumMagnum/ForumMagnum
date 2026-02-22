@@ -1,16 +1,14 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
-import withErrorBoundary from '../common/withErrorBoundary';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { isEAForum } from '../../lib/instanceSettings';
-import PostsLoading from "../posts/PostsLoading";
-import PostsItem from "../posts/PostsItem";
-import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import LoadMore from "../common/LoadMore";
+import withErrorBoundary from '../common/withErrorBoundary';
+import { useCurrentUser } from '../common/withUser';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import PostsItem from "../posts/PostsItem";
+import PostsLoading from "../posts/PostsLoading";
 
 const BookmarksWithDocumentFragmentMultiQuery = gql(`
   query multiBookmarkBookmarksListQuery($selector: BookmarkSelector, $limit: Int, $enableTotal: Boolean) {
@@ -61,9 +59,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false}:
   return <AnalyticsContext pageSubSectionContext="bookmarksList">
     <div>
       {showMessageIfEmpty && !loading && !bookmarkedPosts?.length && <div className={classes.empty}>
-        {isEAForum()
-          ? "You haven't saved any posts yet."
-          : "You haven't bookmarked any posts yet."
+        {"You haven't bookmarked any posts yet."
         }
       </div>}
       {loading && !bookmarkedPosts?.length && <PostsLoading placeholderCount={5} />}

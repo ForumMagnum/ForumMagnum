@@ -101,11 +101,9 @@ export const alignmentForumTheme: SiteThemeSpecification = {
     },
 
     isBookUI: true,
-    isFriendlyUI: false,
     isLW: false,
     isAF: true,
     isLWorAF: true,
-    isEAForum: false,
   }),
 };
 

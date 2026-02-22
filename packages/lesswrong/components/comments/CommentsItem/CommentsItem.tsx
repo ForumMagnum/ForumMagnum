@@ -1,39 +1,39 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import type { TagCommentType } from '@/lib/collections/comments/types';
+import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import classNames from 'classnames';
+import startCase from 'lodash/startCase';
+import dynamic from 'next/dynamic';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
+import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
+import { Link } from '../../../lib/reactRouterWrapper';
+import { eligibleToNominate, getReviewNameInSitu, shouldShowReviewVotePrompt } from '../../../lib/reviewUtils';
+import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import CommentExcerpt from "../../common/excerpts/CommentExcerpt";
+import ForumIcon from "../../common/ForumIcon";
+import LWHelpIcon from "../../common/LWHelpIcon";
+import LWTooltip from "../../common/LWTooltip";
 import withErrorBoundary from '../../common/withErrorBoundary';
 import { useCurrentUserId, useFilteredCurrentUser } from '../../common/withUser';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import type { CommentTreeOptions } from '../commentTree';
-import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
-import { eligibleToNominate, getReviewNameInSitu, shouldShowReviewVotePrompt } from '../../../lib/reviewUtils';
-import startCase from 'lodash/startCase';
-import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
-import CommentsItemMeta from './CommentsItemMeta';
-import { metaNoticeStyles } from "./metaNoticeStyles";
-import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
-import { useVote } from '../../votes/withVote';
-import { VotingProps } from '../../votes/votingProps';
-import type { TagCommentType } from '@/lib/collections/comments/types';
 import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
-import CommentsEditForm from "../CommentsEditForm";
-import CommentExcerpt from "../../common/excerpts/CommentExcerpt";
-import CommentBody from "./CommentBody";
-import CommentsNewForm from "../CommentsNewForm";
-import ParentCommentSingle from "../ParentCommentSingle";
-import ForumIcon from "../../common/ForumIcon";
-import CommentDiscussionIcon from "./CommentDiscussionIcon";
-import LWTooltip from "../../common/LWTooltip";
 import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
 import ReviewVotingWidget from "../../review/ReviewVotingWidget";
-import LWHelpIcon from "../../common/LWHelpIcon";
 import CoreTagIcon from "../../tagging/CoreTagIcon";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
+import { VotingProps } from '../../votes/votingProps';
+import { useVote } from '../../votes/withVote';
+import CommentsEditForm from "../CommentsEditForm";
+import CommentsNewForm from "../CommentsNewForm";
+import type { CommentTreeOptions } from '../commentTree';
+import ParentCommentSingle from "../ParentCommentSingle";
+import CommentBody from "./CommentBody";
 import CommentBottom from "./CommentBottom";
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import dynamic from 'next/dynamic';
+import CommentDiscussionIcon from "./CommentDiscussionIcon";
+import CommentsItemMeta from './CommentsItemMeta';
+import { metaNoticeStyles } from "./metaNoticeStyles";
 
 const RejectedReasonDisplay = dynamic(() => import("../../sunshineDashboard/RejectedReasonDisplay"));
 
@@ -72,9 +72,8 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   replyLink: {
     marginRight: 8,
     display: "inline",
-    fontWeight: theme.isFriendlyUI ? 600 : theme.typography.body1.fontWeight,
+    fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
-    fontSize: theme.isFriendlyUI ? "1.1rem" : undefined,
     "@media print": {
       display: "none",
     },
@@ -87,7 +86,7 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     marginTop: 2,
     marginBottom: 8,
     border: theme.palette.border.normal,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 0,
+    borderRadius: 0,
   },
   replyFormMinimalist: {
     borderRadius: theme.borderRadius.small,
@@ -103,15 +102,9 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: theme.isFriendlyUI
-    ? {
-      width: 16,
-      height: 16,
-      padding: 1.5,
-    }
-    : {
-      "--icon-size": "12px",
-    },
+  pinnedIcon: {
+        "--icon-size": "12px",
+      },
   title: {
     ...theme.typography.display2,
     ...theme.typography.postStyle,
@@ -213,7 +206,7 @@ export const CommentsItem = ({
   const classes = useStyles(styles);
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
-  const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
+  const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit);
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const isMinimalist = treeOptions.formStyle === "minimalist"
   const currentUserId = useCurrentUserId();

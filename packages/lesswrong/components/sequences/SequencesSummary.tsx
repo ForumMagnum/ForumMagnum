@@ -1,19 +1,17 @@
-import React, { FC, ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
-import { Link } from '../../lib/reactRouterWrapper';
-import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
-import UsersName from "../users/UsersName";
-import SequencesSmallPostLink from "./SequencesSmallPostLink";
-import ChapterTitle from "./ChapterTitle";
-import Loading from "../vulcan-core/Loading";
-import ContentStyles from "../common/ContentStyles";
-import ContentItemTruncated from "../common/ContentItemTruncated";
-import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { FC, ReactNode } from 'react';
+import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import ContentItemTruncated from "../common/ContentItemTruncated";
+import ContentStyles from "../common/ContentStyles";
+import LWTooltip from "../common/LWTooltip";
+import UsersName from "../users/UsersName";
+import Loading from "../vulcan-core/Loading";
+import ChapterTitle from "./ChapterTitle";
+import SequencesSmallPostLink from "./SequencesSmallPostLink";
 
 const ChaptersFragmentMultiQuery = gql(`
   query multiChapterSequencesSummaryQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,18 +27,12 @@ const ChaptersFragmentMultiQuery = gql(`
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
-    width: theme.isFriendlyUI ? FRIENDLY_HOVER_OVER_WIDTH : 450,
+    width: 450,
   },
   title: {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
-    ...theme.typography.smallCaps,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: "1.3rem",
-      fontWeight: 700,
-      lineHeight: "130%",
-    }),
+    ...theme.typography.smallCaps
   },
   description: {
     ...theme.typography.body2,
@@ -49,23 +41,14 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 8,
   },
   author: {
-    color: theme.palette.text.dim,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 13,
-      fontWeight: 500,
-      marginTop: 10,
-      marginBottom: 14,
-    }),
+    color: theme.palette.text.dim
   },
-  wordcount: theme.isFriendlyUI
-    ? {}
-    : {
-      ...theme.typography.commentStyle,
-      color: theme.palette.grey[500],
-      marginTop: 12,
-      fontSize: "1rem"
-    },
+  wordcount: {
+        ...theme.typography.commentStyle,
+        color: theme.palette.grey[500],
+        marginTop: 12,
+        fontSize: "1rem"
+      },
   morePosts: {
     color: theme.palette.grey[600],
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -80,21 +63,11 @@ const SequenceMeta: FC<{
   wordCountNode: ReactNode,
   classes: ClassesType<typeof styles>,
 }> = ({user, postCount, wordCountNode, classes}) => {
-  return isFriendlyUI()
-    ? (
-      <div className={classes.author}>
-        <UsersName user={user} />
-        {" · "}
-        {postCount} post{postCount === 1 ? "" : "s"}
-        {" · "}
-        {wordCountNode}
-      </div>
-    )
-    : (
-      <div className={classes.author}>
-        by <UsersName user={user} />
-      </div>
-    );
+  return (
+        <div className={classes.author}>
+          by <UsersName user={user} />
+        </div>
+      );
 }
 
 const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
@@ -173,18 +146,17 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
         classes={classes}
       />
     }
-    {!isFriendlyUI() &&
-      <ContentStyles contentType="postHighlight" className={classes.description}>
-        <ContentItemTruncated
-          maxLengthWords={100}
-          graceWords={20}
-          rawWordCount={sequence?.contents?.wordCount || 0}
-          expanded={false}
-          getTruncatedSuffix={() => null}
-          dangerouslySetInnerHTML={{__html: sequence?.contents?.htmlHighlight || ""}}
-          description={`sequence ${sequence?._id}`}
-        />
-      </ContentStyles>
+    {<ContentStyles contentType="postHighlight" className={classes.description}>
+              <ContentItemTruncated
+                maxLengthWords={100}
+                graceWords={20}
+                rawWordCount={sequence?.contents?.wordCount || 0}
+                expanded={false}
+                getTruncatedSuffix={() => null}
+                dangerouslySetInnerHTML={{__html: sequence?.contents?.htmlHighlight || ""}}
+                description={`sequence ${sequence?._id}`}
+              />
+            </ContentStyles>
     }
     {/* show a loading spinner if either sequences hasn't loaded or chapters haven't loaded */}
     {(!sequence || (!chapters && chaptersLoading)) && <Loading/>}
@@ -197,7 +169,7 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
         classes={classes}
       />
     }
-    {!isFriendlyUI() && wordCountNode}
+    {wordCountNode}
   </Card>;
 }
 

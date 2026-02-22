@@ -1,13 +1,12 @@
-import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import classNames from 'classnames';
-import type { CoreReadingCollection } from '../sequences/LWCoreReading';
-import LinkCard from "../common/LinkCard";
-import CloudinaryImage from "../common/CloudinaryImage";
-import UsersName from "../users/UsersName";
-import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+import { Link } from '../../lib/reactRouterWrapper';
+import CloudinaryImage from "../common/CloudinaryImage";
+import LinkCard from "../common/LinkCard";
+import { Typography } from "../common/Typography";
+import type { CoreReadingCollection } from '../sequences/LWCoreReading';
+import UsersName from "../users/UsersName";
 
 const styles = defineStyles("CollectionsCard", (theme: ThemeType) => ({
   root: {
@@ -40,8 +39,7 @@ const styles = defineStyles("CollectionsCard", (theme: ThemeType) => ({
     paddingTop: theme.spacing.unit*1.5
   },
   title: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-  },
+},
   mergeTitle: {
     display: "inline",
     marginRight: 10,
@@ -52,10 +50,7 @@ const styles = defineStyles("CollectionsCard", (theme: ThemeType) => ({
   author: {
     ...theme.typography.postStyle,
     marginBottom:theme.spacing.unit,
-    display: "inline-block",
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    display: "inline-block"
   },
   media: {
     '& img':{

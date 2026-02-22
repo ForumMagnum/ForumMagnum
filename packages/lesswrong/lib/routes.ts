@@ -1,5 +1,5 @@
 // import {
-//   aboutPostIdSetting, contactPostIdSetting, faqPostIdSetting, forumTypeSetting, hasEventsSetting, introPostIdSetting, isEAForum, isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalSetting, taggingNameCapitalizedWithPluralizationChoice, taggingNameIsSet,
+//   aboutPostIdSetting, contactPostIdSetting, faqPostIdSetting, forumTypeSetting, hasEventsSetting, introPostIdSetting, isLW, isLWorAF, tagUrlBaseSetting, taggingNameCapitalSetting, taggingNameCapitalizedWithPluralizationChoice, taggingNameIsSet,
 //   taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting,
 //   blackBarTitle, legacyRouteAcronymSetting
 // } from './instanceSettings';
@@ -9,7 +9,6 @@
 // import pickBy from 'lodash/pickBy';
 // import qs from 'qs';
 // import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
-// // import EASequencesHome, { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 // import { forumSpecificRoutes } from './forumSpecificRoutes';
 // import { hasPostRecommendations, hasSurveys } from './betas';
 // import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
@@ -51,14 +50,6 @@
 // // import Community from '@/components/community/Community';
 // // import CommunityMembersFullMap from '@/components/community/modules/CommunityMembersFullMap';
 // // import DialoguesPage from '@/components/dialogues/DialoguesPage';
-// // import EditDigest from '@/components/ea-forum/digest/EditDigest';
-// // import EABestOfPage from '@/components/ea-forum/EABestOfPage';
-// // import EADigestPage from '@/components/ea-forum/EADigestPage';
-// // import EAHome from '@/components/ea-forum/EAHome';
-// // import EATermsOfUsePage from '@/components/ea-forum/EATermsOfUsePage';
-// // import InstagramLandingPage from '@/components/ea-forum/InstagramLandingPage';
-// // import EAGApplicationImportFormWrapper from '@/components/ea-forum/users/EAGApplicationImportForm';
-// // import EAForumWrappedPage from '@/components/ea-forum/wrapped/EAForumWrappedPage';
 // // import PostCollaborationEditor from '@/components/editor/PostCollaborationEditor';
 // // import EventsHome from '@/components/events/EventsHome';
 // // import AdminForumEventsPage from '@/components/forumEvents/AdminForumEventsPage';
@@ -162,13 +153,12 @@
 // // import UsersSingle from '@/components/users/UsersSingle';
 // // import UsersViewABTests from '@/components/users/UsersViewABTests';
 // // import ViewSubscriptionsPage from '@/components/users/ViewSubscriptionsPage';
-// // import Digests from '@/components/ea-forum/digest/Digests';
 // // import EAAllTagsPage from '@/components/tagging/EAAllTagsPage';
 // // import AllWikiTagsPage from '@/components/tagging/AllWikiTagsPage';
 // import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './pathConstants';
 // // import Leaderboard from '@/components/users/Leaderboard';
 
-// const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum() ? 'Groups' : 'Community' };
+// const communitySubtitle = { subtitleLink: communityPath, subtitle: 'Community' };
 
 // const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 // const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
@@ -528,7 +518,7 @@
 //     // subtitleComponent: TagPageTitle,
 //     // previewComponent: TagHoverPreview,
 //     background: isLWorAF() ? "white" : undefined,
-//     noIndex: isEAForum(),
+//     noIndex: false,
 //     getPingback: (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
 //   },
 //   {
@@ -649,9 +639,9 @@
 //   {
 //     name: 'tagsAll',
 //     path: getAllTagsPath(),
-//     // component: isEAForum() ? EAAllTagsPage : AllWikiTagsPage,
-//     title: isEAForum() ? `${taggingNamePluralCapitalSetting.get()} — Main Page` : "Concepts Portal",
-//     description: isEAForum() ? `Browse the core ${taggingNamePluralSetting.get()} discussed on the EA Forum and an organised wiki of key ${taggingNameSetting.get()} pages` : undefined,
+//     // component: AllWikiTagsPage,
+//     title: "Concepts Portal",
+//     description: undefined,
 //     hasLeftNavigationColumn: false,
 //     navigationFooterBar: true,
 //   },
@@ -745,7 +735,6 @@
 //     {
 //       name: 'termsOfUse',
 //       path: '/termsOfUse',
-//       // component: EATermsOfUsePage,
 //     },
 //     {
 //       name: 'privacyPolicy',
@@ -763,7 +752,6 @@
 //     {
 //       name: 'BestOf',
 //       path: '/best-of',
-//       // component: EABestOfPage,
 //       title: 'Best of the Forum',
 //       subtitle: 'Best of the Forum',
 //       subtitleLink: '/best-of',
@@ -771,13 +759,11 @@
 //     {
 //       name: 'BestOfCamelCase',
 //       path: '/bestOf',
-//       // component: EABestOfPage,
 //       redirect: () => '/best-of',
 //     },
 //     {
 //       name: 'digest',
 //       path: '/digests/:num',
-//       // component: EADigestPage,
 //     },
 //     {
 //       name: 'contact',
@@ -801,8 +787,6 @@
 //       name: 'eaLibrary',
 //       path: '/library',
 //       title: 'Library',
-//       // description: eaSequencesHomeDescription,
-//       // component: EASequencesHome,
 //       hasLeftNavigationColumn: true,
 //       navigationFooterBar: true,
 //     },
@@ -854,13 +838,6 @@
 //       background: 'white',
 //     },
 //     {
-//       name: 'ImportProfile',
-//       path: '/profile/import',
-//       // component: EAGApplicationImportFormWrapper,
-//       title: 'Import Profile',
-//       background: 'white',
-//     },
-//     {
 //       name: "userAnalytics",
 //       path:'/users/:slug/stats',
 //       // component: AuthorAnalyticsPage,
@@ -875,10 +852,6 @@
 //       name: "openThread",
 //       path:'/open-thread',
 //       // component: CurrentOpenThreadPage,
-//     },
-//     {
-//       name: 'EAGApplicationData',
-//       path: '/api/eag-application-data'
 //     },
 //     {
 //       name: 'subforum',
@@ -908,41 +881,10 @@
 //       navigationFooterBar: true,
 //     },
 //     {
-//       name: 'EAForumWrapped',
-//       path: '/wrapped/:year?',
-//       // component: EAForumWrappedPage,
-//       title: 'EA Forum Wrapped',
-//       noFooter: true,
-//     },
-//     {
-//       name: 'Instagram landing page',
-//       path: '/instagram',
-//       // component: InstagramLandingPage,
-//       title: 'Instagram Links',
-//       noFooter: true,
-//     },
-//     {
 //       name: 'Twitter tools',
 //       path: '/admin/twitter',
 //       // component: TwitterAdmin,
 //       title: 'Twitter tools',
-//       isAdmin: true,
-//     },
-//     {
-//       name: 'Digests',
-//       path: '/admin/digests',
-//       // component: Digests,
-//       title: 'Digests',
-//       isAdmin: true,
-//     },
-//     {
-//       name: 'EditDigest',
-//       path: '/admin/digests/:num',
-//       // component: EditDigest,
-//       title: 'Edit Digest',
-//       subtitle: 'Digests',
-//       subtitleLink: '/admin/digests',
-//       staticHeader: true,
 //       isAdmin: true,
 //     },
 //     {

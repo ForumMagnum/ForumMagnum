@@ -1,10 +1,10 @@
-import React, { useState, useCallback, ReactNode, useMemo, useContext, type ReactElement, useEffect } from 'react';
-import { MessageFunctionsContext } from '@/components/common/withMessages';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { Snackbar } from '../widgets/Snackbar';
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import { Paper } from '@/components/widgets/Paper';
 import { Typography } from "@/components/common/Typography";
+import { MessageFunctionsContext } from '@/components/common/withMessages';
+import { Paper } from '@/components/widgets/Paper';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useState, type ReactElement } from 'react';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { Snackbar } from '../widgets/Snackbar';
 
 const styles = defineStyles("FlashMessages", (theme) => ({
   root: {
@@ -26,8 +26,7 @@ const styles = defineStyles("FlashMessages", (theme) => ({
   },
   message: {
     padding: '8px 0',
-    color: theme.palette.text.maxIntensity,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    color: theme.palette.text.maxIntensity
   },
   action: {
     display: 'flex',

@@ -1,14 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { getHashLinkOnClick } from '../common/HashLink';
+import { truncate } from '../../lib/editor/ellipsize';
 import { isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/routeUtil';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import TagExcerpt from "../common/excerpts/TagExcerpt";
-import { ContentItemBody } from "../contents/ContentItemBody";
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import ContentStyles from "../common/ContentStyles";
+import { getHashLinkOnClick } from '../common/HashLink';
+import { ContentItemBody } from "../contents/ContentItemBody";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,18 +55,6 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   if (!tag) {
     return null
   }
-
-  if (isFriendlyUI()) {
-    return (
-      <TagExcerpt
-        tag={tag}
-        lines={4}
-        hideMultimedia
-        hideMoreLink
-      />
-    );
-  }
-
   const showCustomDescriptionHighlight = isLW() && tag.core && !hash;
 
   let highlight: string | undefined;

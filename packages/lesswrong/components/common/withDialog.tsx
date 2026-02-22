@@ -1,6 +1,6 @@
-import React, { useMemo, useCallback, useState } from 'react';
-import { hookToHoc } from '../../lib/hocUtils';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
+import { hookToHoc } from '../../lib/hocUtils';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 
 export type DialogContentsFn = (args: {onClose: () => void}) => React.ReactNode
@@ -36,7 +36,7 @@ export const DialogManager = ({children}: {
       captureEvent("dialogBox", {open: true, dialogName: name})
       setDialogName(name);
       setDialogContents(() => contents);
-      setCloseOnNavigate(closeOnNavigate || false)
+      setCloseOnNavigate(!!closeOnNavigate)
     },
     closeDialog: closeDialog,
     isDialogOpen: dialogName !== null,

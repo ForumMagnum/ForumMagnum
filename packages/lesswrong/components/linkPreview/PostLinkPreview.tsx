@@ -1,29 +1,28 @@
-import React, { ReactNode } from 'react';
-import { useQuery } from "@/lib/crud/useQuery";
 import { Card } from "@/components/widgets/Paper";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import type { LinkPreviewComponent, RoutePreviewParams } from '@/lib/routeChecks/hoverPreviewRoutes';
+import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { getUrlClass } from '@/server/utils/getUrlClass';
+import classNames from 'classnames';
+import { ReactNode } from 'react';
+import { isClient } from '../../lib/executionEnvironment';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import { useCommentByLegacyId } from '../comments/useComment';
-import { useHover } from '../common/withHover';
-import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
-import { isClient } from '../../lib/executionEnvironment';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import classNames from 'classnames';
-import { ArbitalLogo } from '../icons/ArbitalLogo';
-import { gql } from "@/lib/generated/gql-codegen";
-import { defineStyles, useStyles } from '../hooks/useStyles';
 import AnalyticsTracker from "../common/AnalyticsTracker";
-import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
-import SequencesTooltip from "../sequences/SequencesTooltip";
-import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
-import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
-import { linkStyles } from './linkStyles';
+import LWPopper from "../common/LWPopper";
 import LWTooltip from '../common/LWTooltip';
+import { useHover } from '../common/withHover';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { ArbitalLogo } from '../icons/ArbitalLogo';
 import ConversationPreview from '../messaging/ConversationPreview';
-import type { LinkPreviewComponent, RoutePreviewParams } from '@/lib/routeChecks/hoverPreviewRoutes';
-import { getSiteUrl } from '@/lib/vulcan-lib/utils';
-import { getUrlClass } from '@/server/utils/getUrlClass';
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
+import SequencesTooltip from "../sequences/SequencesTooltip";
+import { linkStyles } from './linkStyles';
 
 
 const SequencesPageFragmentQuery = gql(`
@@ -329,7 +328,7 @@ const PostLinkPreviewWithPost = ({href, post, id, className, children}: {
       post={post}
       hash={hash}
       placement="bottom-start"
-      clickable={!isFriendlyUI()}
+      clickable={true}
       As="span"
     >
       <Link className={classNames(classes.link, visited && "visited", className)} to={href} id={id} smooth>
@@ -361,7 +360,7 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, className, chil
       comment={comment}
       placement="bottom-start"
       As="span"
-      clickable={!isFriendlyUI()}
+      clickable={true}
     >
       <Link className={classNames(classes.link, className)} to={href} id={id}>
         {children}

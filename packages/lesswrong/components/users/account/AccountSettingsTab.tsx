@@ -1,13 +1,12 @@
-import React from 'react';
-import { isEAForum } from '@/lib/instanceSettings';
-import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { hasAccountDeletionFlow } from '@/lib/betas';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { preferredHeadingCase } from '@/themes/forumTheme';
+import React from 'react';
 import SettingsSection from './SettingsSection';
 import SettingsTextRow from './SettingsTextRow';
 import SettingsToggleRow from './SettingsToggleRow';
 import type { SettingsTabProps } from './settingsTabTypes';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('AccountSettingsTab', (theme: ThemeType) => ({
   resetButtonWrapper: {
@@ -51,23 +50,23 @@ const AccountSettingsTab = ({
   return (
     <div>
       <SettingsSection title="Basic Info">
-        {!isFriendlyUI() && (
-          <form.Field name="displayName">
-            {(field) => (
-              <SettingsTextRow
-                field={field}
-                label="Display name"
-                description="The name shown on your posts and comments"
-              />
-            )}
-          </form.Field>
-        )}
+        {(
+                        <form.Field name="displayName">
+                          {(field) => (
+                            <SettingsTextRow
+                              field={field}
+                              label="Display name"
+                              description="The name shown on your posts and comments"
+                            />
+                          )}
+                        </form.Field>
+                      )}
 
         <form.Field name="email">
           {(field) => (
             <SettingsTextRow
               field={field}
-              disabled={isEAForum() && !form.state.values.hasAuth0Id}
+              disabled={false}
               label="Email"
               type="email"
               description="Used for notifications and account recovery"
@@ -76,7 +75,7 @@ const AccountSettingsTab = ({
         </form.Field>
       </SettingsSection>
 
-      {isCurrentUser && !isEAForum() && (
+      {isCurrentUser && (
         <SettingsSection title="Security">
           <div className={classes.resetButtonWrapper}>
             <Button

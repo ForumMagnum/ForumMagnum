@@ -1,17 +1,16 @@
 "use client";
 
-import React from 'react';
+import { hasForumEvents, hasSurveys, hasTwitterFeatures } from '../../lib/betas';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { useCurrentUser } from '../common/withUser';
-import { hasDigests, hasForumEvents, hasSurveys, hasTwitterFeatures } from '../../lib/betas';
-import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 import SingleColumnSection from "../common/SingleColumnSection";
-import AdminMetadata from "./AdminMetadata";
-import Loading from "../vulcan-core/Loading";
-import { useStyles } from '../hooks/useStyles';
+import { useCurrentUser } from '../common/withUser';
 import { defineStyles } from '../hooks/defineStyles';
+import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
+import { useStyles } from '../hooks/useStyles';
+import Loading from "../vulcan-core/Loading";
+import AdminMetadata from "./AdminMetadata";
 
 const styles = defineStyles("AdminHome", (theme: ThemeType) => ({
   adminHomeOrModerationLogPage: {
@@ -70,8 +69,6 @@ const AdminHome = () => {
 
       <h3>Site Admin</h3>
       <ul>
-        {isEAForum() && <li><Link className={classes.link} to="/admin/election-candidates">Donation Election Candidates</Link></li>}
-        {hasDigests() && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
         {hasTwitterFeatures() && <li><Link className={classes.link} to="/admin/twitter">Twitter tools</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
         {hasSurveys() && <li><Link className={classes.link} to="/admin/surveys">Surveys</Link></li>}
@@ -107,5 +104,3 @@ const AdminHome = () => {
 }
 
 export default AdminHome;
-
-

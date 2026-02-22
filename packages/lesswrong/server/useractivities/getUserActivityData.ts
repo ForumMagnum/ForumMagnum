@@ -12,13 +12,6 @@ export interface ActivityWindowData {
  * When running this script locally we want it to use the real analytics events
  */
 const getLiveEnvDescriptions = () => forumSelect<Record<string, string>>({
-  EAForum: {
-    "production": 'production',
-    "staging": 'staging',
-    "dev": 'development',
-    "local-dev-prod-db": 'production', // prod running locally
-    "local-dev-staging-db": 'staging', // staging running locally
-  },
   LessWrong: {
     "lesswrong.com": 'lesswrong.com',
     "dev": 'development',

@@ -4,7 +4,7 @@ import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
 import { getInstanceSettings } from './getInstanceSettings';
-import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/forumTypeUtils';
+import { forumTypeSetting, isAF, isLW, isLWorAF } from '@/lib/forumTypeUtils';
 import type { FilterTag } from './filterSettings';
 import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';
 
@@ -102,12 +102,12 @@ export class PublicInstanceSetting<SettingValueType> {
   Public Instance Settings
 */
 
-export const allForumTypes = new TupleSet(["LessWrong","AlignmentForum","EAForum"] as const);
+export const allForumTypes = new TupleSet(["LessWrong","AlignmentForum"] as const);
 export type ForumTypeString = UnionOf<typeof allForumTypes>;
-// export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
+// export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum}
 
 // eslint-disable-next-line no-barrel-files/no-barrel-files
-export { forumTypeSetting, isLW, isEAForum, isAF, isLWorAF };
+export { forumTypeSetting, isLW, isAF, isLWorAF };
 
 export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs
 
@@ -125,7 +125,7 @@ export const taggingNameCapitalSetting = {get: () => startCase(taggingNameSettin
 export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting.get())}
 export const taggingNamePluralCapitalSetting = {get: () => pluralize(startCase(taggingNameSetting.get()))}
 export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
-export const taggingNameIsPluralized = {get: () => !isLWorAF() && taggingNameIsSet.get()};
+export const taggingNameIsPluralized = {get: () => false};
 export const taggingNameCapitalizedWithPluralizationChoice = { get: () => {
   if (taggingNameIsPluralized.get()) {
     return taggingNamePluralCapitalSetting.get();
@@ -150,9 +150,8 @@ export const tagUrlBaseSetting = {get: () => {
   return taggingNameSetting.get();
 }}
 
-// NB: Now that neither LW nor the EAForum use this setting, it's a matter of
-// time before it falls out of date. Nevertheless, I expect any newly-created
-// forums to use this setting.
+// NB: This setting is currently unused on LW/AF and may fall out of date.
+// Nevertheless, it can still be useful for newly-created forums.
 export const hasEventsSetting = new PublicInstanceSetting<boolean>('hasEvents', true, 'optional') // Whether the current connected server has events activated
 
 export const hasRejectedContentSectionSetting = new PublicInstanceSetting<boolean>('hasRejectedContentSection', false, 'optional');
@@ -248,7 +247,7 @@ export const recombeeDatabaseIdSetting = new PublicInstanceSetting<string | null
 export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.publicApiToken', null, "optional");
 export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");
 
-export const isDatadogEnabled = () => isEAForum();
+export const isDatadogEnabled = () => false;
 
 export type PostFeedDetails = {
   name: string,
@@ -302,8 +301,6 @@ export const twitterBotKarmaThresholdSetting = new PublicInstanceSetting<number>
 export const airtableApiKeySetting = new PublicInstanceSetting<string | null>('airtable.apiKey', null, "optional");
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning");
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning");
-
-export const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional"); // Post ID for the first post in the EAHomeHandbook Sequence
 
 export const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional");
 

@@ -1,30 +1,28 @@
-import { userIsSubforumModerator, getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
-import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { isEAForum, isLW, isLWorAF } from "@/lib/instanceSettings";
-import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { useForm } from "@tanstack/react-form";
-import classNames from "classnames";
-import React from "react";
-import { defineStyles, useStyles } from "../hooks/useStyles";
-import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
-import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
-import { ImageUpload } from "@/components/form-components/ImageUpload";
-import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
-import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
+import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { TagSelect } from "@/components/form-components/TagSelect";
 import { FormUserMultiselect } from "@/components/form-components/UserMultiselect";
-import SummariesEditForm from "./SummariesEditForm";
-import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import LWTooltip from "../common/LWTooltip";
-import Error404 from "../common/Error404";
-import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client/react";
+import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
+import { cancelButtonStyles, submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
+import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
+import { getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { gql } from "@/lib/generated/gql-codegen";
+import { isLW, isLWorAF } from "@/lib/instanceSettings";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
+import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
+import { useMutation } from "@apollo/client/react";
+import { useForm } from "@tanstack/react-form";
+import classNames from "classnames";
 import ContentStyles from "../common/ContentStyles";
+import Error404 from "../common/Error404";
+import LWTooltip from "../common/LWTooltip";
+import { useCurrentUser } from "../common/withUser";
+import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import SummariesEditForm from "./SummariesEditForm";
 
 const TagWithFlagsFragmentUpdateMutation = gql(`
   mutation updateTagTagForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {
@@ -72,19 +70,8 @@ type ShowSubforumWelcomeTextFieldProps = {
   editingTag: UpdateTagDataInput;
 });
 
-function showSubforumWelcomeTextField({ currentUser, editingTag }: ShowSubforumWelcomeTextFieldProps) {
-  if (!isEAForum()) {
-    return false;
-  }
-
-  if (!editingTag) {
-    return userIsAdminOrMod(currentUser);
-  }
-
-  let { subforumModeratorIds } = editingTag;
-  subforumModeratorIds ??= [];
-
-  return userIsSubforumModerator(currentUser, { subforumModeratorIds }) || userIsAdminOrMod(currentUser);
+function showSubforumWelcomeTextField(_props: ShowSubforumWelcomeTextFieldProps) {
+  return false;
 }
 
 const wikiGradeDefinitions = {
@@ -288,16 +275,7 @@ export const TagForm = ({
             </form.Field>
           </div>
 
-          {isEAForum() && <div className={classes.fieldWrapper}>
-            <form.Field name="isPostType">
-              {(field) => (
-                <FormComponentCheckbox
-                  field={field}
-                  label="Is post type"
-                />
-              )}
-            </form.Field>
-          </div>}
+          {false}
 
           <div className={classes.fieldWrapper}>
             <form.Field name="suggestedAsFilter">
@@ -431,31 +409,9 @@ export const TagForm = ({
             </form.Field>
           </div>}
 
-          {isEAForum() && <div className={classes.fieldWrapper}>
-            <form.Field name="bannerImageId">
-              {(field) => (
-                <LWTooltip title="Minimum 200x600 px" placement="left-start" inlineBlock={false}>
-                  <ImageUpload
-                    field={field}
-                    label="Banner Image"
-                  />
-                </LWTooltip>
-              )}
-            </form.Field>
-          </div>}
+          {false}
 
-          {isEAForum() && <div className={classes.fieldWrapper}>
-            <form.Field name="squareImageId">
-              {(field) => (
-                <LWTooltip title="Minimum 200x200 px" placement="left-start" inlineBlock={false}>
-                  <ImageUpload
-                    field={field}
-                    label="Square Image"
-                  />
-                </LWTooltip>
-              )}
-            </form.Field>
-          </div>}
+          {false}
 
           <div className={classes.fieldWrapper}>
             <form.Field name="introSequenceId">

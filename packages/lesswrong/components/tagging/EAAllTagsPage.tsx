@@ -1,26 +1,26 @@
-import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useTagBySlug } from './useTag';
-import { EditTagForm } from './EditTagPage';
-import { userCanEditTagPortal } from '../../lib/betas'
-import { useCurrentUser } from '../common/withUser';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { Link } from '../../lib/reactRouterWrapper';
-import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
-import { useDialog } from '../common/withDialog';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import LoginPopup from "../users/LoginPopup";
-import AllTagsAlphabetical from "./AllTagsAlphabetical";
-import SectionButton from "../common/SectionButton";
-import SectionTitle from "../common/SectionTitle";
-import { ContentItemBody } from "../contents/ContentItemBody";
-import ContentStyles from "../common/ContentStyles";
-import Loading from "../vulcan-core/Loading";
-import CoreTagsSection from "./CoreTagsSection";
-import SingleColumnSection from "../common/SingleColumnSection";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
+import { useState } from 'react';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { userCanEditTagPortal } from '../../lib/betas';
+import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import ContentStyles from "../common/ContentStyles";
+import SectionButton from "../common/SectionButton";
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
+import { ContentItemBody } from "../contents/ContentItemBody";
+import LoginPopup from "../users/LoginPopup";
+import Loading from "../vulcan-core/Loading";
+import AllTagsAlphabetical from "./AllTagsAlphabetical";
+import CoreTagsSection from "./CoreTagsSection";
+import { EditTagForm } from './EditTagPage';
+import { useTagBySlug } from './useTag';
 
 const TagEditFragmentQuery = gql(`
   query EAAllTagsPage($documentId: String) {
@@ -59,14 +59,7 @@ const styles = (theme: ThemeType) => ({
         width: '100% !important',
         height: 'inherit !important'
       }
-    },
-    ...(theme.isFriendlyUI && {
-      background: theme.palette.grey[0],
-      marginTop: 'unset',
-      marginBottom: 'unset',
-      padding: '20px',
-      boxShadow: `0 1px 5px ${theme.palette.greyAlpha(.025)}`,
-    }),
+    }
   },
   edit: {
     float: "right",

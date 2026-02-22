@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
-import withErrorBoundary from '../common/withErrorBoundary'
+import { withDateFields } from '@/lib/utils/dateUtils';
+import { useEffect, useState } from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import LoadMore from "../common/LoadMore";
+import withErrorBoundary from '../common/withErrorBoundary';
 import ContentType from "../posts/PostsPage/ContentType";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
-import LoadMore from "../common/LoadMore";
-import { withDateFields } from '@/lib/utils/dateUtils';
 
 const INITIAL_LIMIT = 5
 
 const styles = (theme: ThemeType) => ({
   subtitle: {
-    marginTop: theme.isFriendlyUI ? 20 : 6,
+    marginTop: 6,
     marginBottom: 6
   },
 });

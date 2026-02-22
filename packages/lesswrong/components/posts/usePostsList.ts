@@ -1,15 +1,14 @@
-import {useState, useCallback, ReactNode} from 'react'
-import { useCurrentUser } from "../common/withUser";
-import sortBy from 'lodash/sortBy';
-import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
-import { useOnMountTracking } from "../../lib/analyticsEvents";
-import type { Placement as PopperPlacementType } from "popper.js"
-import { isFriendlyUI } from "../../themes/forumTheme";
-import { PostsItemConfig } from "./usePostsItem";
-import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { gql } from "@/lib/generated/gql-codegen";
-import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+import sortBy from 'lodash/sortBy';
 import uniqBy from 'lodash/uniqBy';
+import type { Placement as PopperPlacementType } from "popper.js";
+import { ReactNode, useCallback, useState } from 'react';
+import { useOnMountTracking } from "../../lib/analyticsEvents";
+import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
+import { useCurrentUser } from "../common/withUser";
+import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
+import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+import { PostsItemConfig } from "./usePostsItem";
 
 const postsListWithVotesQuery = gql(`
   query postsListWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -104,9 +103,7 @@ export type PostsListConfig = {
   repeatedPostsPrecedence?: number
 }
 
-const getDefaultTooltipPlacement = () => isFriendlyUI()
-  ? "bottom-start"
-  : "bottom-end";
+const getDefaultTooltipPlacement = (): PopperPlacementType => "bottom-end";
 
 export const usePostsList = <TagId extends string | undefined = undefined>({
   children,

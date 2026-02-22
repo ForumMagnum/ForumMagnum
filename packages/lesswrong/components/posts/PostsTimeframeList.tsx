@@ -1,14 +1,14 @@
+import classNames from 'classnames';
 import React, { useState } from 'react';
 import moment from '../../lib/moment-timezone';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import classNames from 'classnames';
-import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
+import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils';
 
-import PostsTimeBlock, { PostsTimeBlockShortformOption } from './PostsTimeBlock';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Typography } from "../common/Typography";
+import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
+import PostsTimeBlock, { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 
 const styles = (theme: ThemeType) => ({
   loading: {
@@ -17,11 +17,7 @@ const styles = (theme: ThemeType) => ({
   loadMore: {
     ...theme.typography.postStyle,
     color: theme.palette.primary.main,
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {}),
+    ...({}),
   }
 })
 
@@ -133,17 +129,6 @@ export const getTimeBlockTitle = (
   if (timeframe === 'monthly') {
     return startDate.format('MMMM YYYY');
   }
-
-  if (isFriendlyUI()) {
-    const result = size === 'smUp'
-      ? startDate.format('ddd, D MMM YYYY')
-      : startDate.format('dddd, D MMMM YYYY');
-    if (timeframe === 'weekly') {
-      return `Week of ${result}`;
-    }
-    return isToday(startDate) ? result.replace(/.*,/, "Today,") : result;
-  }
-
   const result = size === 'smUp'
     ? startDate.format('ddd, MMM Do YYYY')
     : startDate.format('dddd, MMMM Do YYYY');

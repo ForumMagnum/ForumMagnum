@@ -1,7 +1,6 @@
+import { useUserLocation } from '@/components/hooks/useUserLocation';
 import React from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { useUserLocation } from '@/components/hooks/useUserLocation';
-import { isEAForum } from '../../../lib/instanceSettings';
 import TabNavigationEventsList from "../../localGroups/TabNavigationEventsList";
 import { SuspenseWrapper } from '../SuspenseWrapper';
 import { useCurrentUser } from '../withUser';
@@ -17,7 +16,7 @@ export const EventsList = ({onClick}: {
       view: 'nearbyEvents',
       lat: lat,
       lng: lng,
-      limit: isEAForum() ? 2 : 4,
+      limit: 4,
     }
     return <span>
       <AnalyticsContext pageSubSectionContext="menuEventsList">
@@ -41,7 +40,7 @@ export const EventsList = ({onClick}: {
     <AnalyticsContext pageSubSectionContext="menuEventsList">
       <SuspenseWrapper name="TabNavigationEventsList">
         <TabNavigationEventsList onClick={onClick} terms={globalTerms} />
-        {!isEAForum() && <TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
+        {<TabNavigationEventsList onClick={onClick} terms={eventsListTerms} />}
       </SuspenseWrapper>
     </AnalyticsContext>
   </span>

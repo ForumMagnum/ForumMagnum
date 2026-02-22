@@ -1,22 +1,40 @@
-import React from "react";
-import { usesCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
+import { userCanPassivelyGenerateJargonTerms, usesCurationEmailsCron } from "@/lib/betas";
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/constants";
-import { Posts } from "@/server/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
-import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/errors";
+import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
-import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
-import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting, recombeeEnabledSetting, isLW } from '@/lib/instanceSettings';
+import { eaFrontpageDateDefault, isLW, recombeeEnabledSetting, requireReviewToFrontpagePostsSetting } from '@/lib/instanceSettings';
+import { captureException } from "@/lib/sentryWrapper";
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { Posts } from "@/server/collections/posts/collection";
+import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
+import difference from 'lodash/difference';
+import isEqual from 'lodash/isEqual';
+import union from 'lodash/union';
+import moment from "moment";
+import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
+import { createConversation } from "../collections/conversations/mutations";
+import CurationEmails from "../collections/curationEmails/collection";
+import { updateDialogueCheck } from "../collections/dialogueChecks/mutations";
+import { updateDialogueMatchPreference } from "../collections/dialogueMatchPreferences/mutations";
+import { createMessage } from "../collections/messages/mutations";
+import { createModeratorAction } from "../collections/moderatorActions/mutations";
+import { updateNotification } from "../collections/notifications/mutations";
+import { createPostRelation } from "../collections/postRelations/mutations";
+import { updatePost } from "../collections/posts/mutations";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
 import { autoFrontpageSetting, tagBotActiveTimeSetting } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
+import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
+import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { updatePostEmbeddings } from "../embeddings";
 import { fetchFragmentSingle } from "../fetchFragment";
+import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/errors";
+import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
 import { checkFrontpage, checkTags, getAutoAppliedTags, getTagBotAccount } from "../languageModels/autoTagCallbacks";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
@@ -29,32 +47,13 @@ import { createNewJargonTerms } from "../resolvers/jargonResolvers/jargonTermMut
 import { moveImageToCloudinary } from "../scripts/convertImagesToCloudinary";
 import { updatePostDenormalizedTags } from "../tagging/helpers";
 import { addOrUpvoteTag } from "../tagging/tagsGraphQL";
-import { cheerioParse } from "../utils/htmlUtil";
-import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
-import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { captureException } from "@/lib/sentryWrapper";
-import moment from "moment";
-import difference from 'lodash/difference';
-import union from 'lodash/union';
-import isEqual from 'lodash/isEqual';
-import { getRejectionMessage, generateLinkSharingKey } from "./helpers";
-import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
-import { createConversation } from "../collections/conversations/mutations";
-import { createMessage } from "../collections/messages/mutations";
-import { createModeratorAction } from "../collections/moderatorActions/mutations";
-import { createPostRelation } from "../collections/postRelations/mutations";
-import { updatePost } from "../collections/posts/mutations";
-import { updateDialogueMatchPreference } from "../collections/dialogueMatchPreferences/mutations";
-import { updateDialogueCheck } from "../collections/dialogueChecks/mutations";
-import { updateNotification } from "../collections/notifications/mutations";
-import { EmailCuratedAuthors } from "../emailComponents/EmailCuratedAuthors";
-import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
-import { PostsHTML } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
-import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
-import CurationEmails from "../collections/curationEmails/collection";
-import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
+import { cheerioParse } from "../utils/htmlUtil";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
+import { generateLinkSharingKey, getRejectionMessage } from "./helpers";
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 
 /**
@@ -549,7 +548,7 @@ export async function applyNewPostTags(post: DbPost, props: AfterCreateCallbackP
   if (post.tagRelevance) {
     // Convert tag relevances in a new-post submission to creating new TagRel objects, and upvoting them.
     const tagsToApply = Object.keys(post.tagRelevance);
-    post = {...post, tagRelevance: undefined};
+    post = {...post};
     await utils.bulkApplyPostTags({postId: post._id, tagsToApply, currentUser, context})
   }
 
@@ -893,9 +892,7 @@ export async function sendRejectionPM({ post, currentUser, context }: {post: DbP
   let messageContents = getRejectionMessage(rejectedContentLink, post.rejectedReason)
 
   // FYI EA Forum: Decide if you want this to always send emails the way you do for deletion. We think it's better not to.
-  const noEmail = isEAForum()
-  ? false 
-  : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+  const noEmail = !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
   const adminAccount = currentUser ?? await getAdminTeamAccount(context);
   if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
   await utils.sendPostRejectionPM({

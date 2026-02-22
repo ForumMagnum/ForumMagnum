@@ -1,12 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
+import classNames from 'classnames';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
-import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
-import classNames from 'classnames';
-import {isFriendlyUI} from '../../themes/forumTheme.ts'
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import FormatDate from "../common/FormatDate";
-import UsersProfileImage from "../users/UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
@@ -91,11 +88,7 @@ const ExpandedUsersConversationSearchHit = ({
   return (
     <div className={classNames(className, classes.root)}>
       <div onClick={() => onSelect(user)} className={classes.link}>
-        {isFriendlyUI() && (
-          <div className={classes.profilePhotoCol}>
-            <UsersProfileImage user={user} size={36} />
-          </div>
-        )}
+        {false}
         <div>
           <div className={classes.displayNameRow}>
             <span className={classes.displayName}>{user.displayName}</span>

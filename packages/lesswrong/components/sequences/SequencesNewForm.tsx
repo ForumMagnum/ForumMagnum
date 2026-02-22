@@ -1,11 +1,10 @@
 "use client";
 
-import { useMessages } from '../common/withMessages';
-import React from 'react';
-import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
-import { SequencesForm } from './SequencesForm';
+import { useMessages } from '../common/withMessages';
+import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { SequencesForm } from './SequencesForm';
 
 // Also used by SequencesEditForm
 export const styles = defineStyles("SequencesNewForm", (theme: ThemeType) => ({
@@ -113,7 +112,7 @@ export const styles = defineStyles("SequencesNewForm", (theme: ThemeType) => ({
         },
         "& .form-input-errors": {
           position: "absolute",
-          top: theme.isFriendlyUI ? 84 : 45,
+          top: 45,
           left: 7,
           textAlign: "left",
         }

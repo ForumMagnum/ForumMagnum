@@ -1,11 +1,10 @@
-import React from 'react';
-import { QueryLink } from '../../lib/reactRouterWrapper'
-import classNames from 'classnames'
+import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
-import { TooltipSpan } from './FMTooltip';
-import MetaInfo from "./MetaInfo";
+import { QueryLink } from '../../lib/reactRouterWrapper';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import { TooltipSpan } from './FMTooltip';
+import MetaInfo from "./MetaInfo";
 
 const styles = defineStyles("SettingsColumn", (theme: ThemeType) => ({
   selectionList: {
@@ -20,8 +19,8 @@ const styles = defineStyles("SettingsColumn", (theme: ThemeType) => ({
     '&&': {
       // Increase specifity to remove import-order conflict with MetaInfo
       display: "block",
-      fontStyle: theme.isFriendlyUI ? undefined : "italic",
-      fontWeight: theme.isFriendlyUI ? undefined : 600,
+      fontStyle: "italic",
+      fontWeight: 600,
       marginBottom: theme.spacing.unit/2
     },
   },

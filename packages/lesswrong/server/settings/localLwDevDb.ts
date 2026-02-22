@@ -31,7 +31,6 @@ export const localLwDevDb = merge({
     uploadUrl: "https://39669.cke-cs.com/easyimage/upload/",
     webSocketUrl: "wss://39669.cke-cs.com/ws"
   },
-  fmCrosspost: { siteName: "the EA Forum", baseUrl: "http://localhost:4000/" },
   allowTypeIIIPlayer: true,
   hasRejectedContentSection: true,
   hasCuratedPosts: true,

@@ -1,23 +1,21 @@
-import React, { MutableRefObject } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import type { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
-import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
-import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { Link } from '../../lib/reactRouterWrapper';
-import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import {
-  SearchIndexCollectionName,
-  ElasticSorting,
-  elasticCollectionIsCustomSortable,
-  formatElasticSorting,
-  getElasticSortingsForCollection,
-} from '../../lib/search/searchUtil';
-import { getCommunityPath } from '@/lib/pathConstants';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import TagMultiselect from "../form-components/TagMultiselect";
-import { Typography } from "../common/Typography";
-import { MenuItem } from "../common/Menus";
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import React, { MutableRefObject } from 'react';
+import { ClearRefinements, NumericMenu, ToggleRefinement, connectRefinementList } from 'react-instantsearch-dom';
+import type { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
+import { taggingNamePluralSetting } from '../../lib/instanceSettings';
+import {
+    ElasticSorting,
+    SearchIndexCollectionName,
+    elasticCollectionIsCustomSortable,
+    formatElasticSorting,
+    getElasticSortingsForCollection,
+} from '../../lib/search/searchUtil';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import ForumIcon from "../common/ForumIcon";
+import { MenuItem } from "../common/Menus";
+import { Typography } from "../common/Typography";
+import TagMultiselect from "../form-components/TagMultiselect";
 
 const styles = (theme: ThemeType) => ({
   filtersColumn: {
@@ -166,9 +164,7 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
     />}
     <ClearRefinements />
 
-    {tab === 'Users' && isEAForum() && <div className={classes.mapLink}>
-      <Link to={`${getCommunityPath()}#individuals`}>View community map</Link>
-    </div>}
+    {false}
 
     {elasticCollectionIsCustomSortable(tab) &&
       <>

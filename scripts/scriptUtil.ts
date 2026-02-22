@@ -26,7 +26,7 @@ export const initGlobals = (isProd: boolean, globalOverrides?: Record<string, un
   });
 }
 
-const forumTypes = ["lw", "ea", "af"] as const;
+const forumTypes = ["lw", "af"] as const;
 export type ForumType = typeof forumTypes[number];
 const environmentTypes = ["dev", "local", "staging", "prod", "xpost", "test"] as const;
 export type EnvironmentType = typeof environmentTypes[number];
@@ -35,7 +35,6 @@ const getCredentialsBase = (forumType: ForumType): string => {
   const memorizedBases: Record<ForumType, string> = {
     lw: "..",
     af: "..",
-    ea: "..",
   };
   return process.env.GITHUB_WORKSPACE ?? memorizedBases[forumType];
 }
@@ -45,7 +44,6 @@ const credentialsPath = (forumType: ForumType) => {
   const memorizedRepoNames: Record<ForumType, string> = {
     lw: '/LessWrong-Credentials',
     af: '/LessWrong-Credentials',
-    ea: '/ForumCredentials',
   };
   const repoName = memorizedRepoNames[forumType];
   return `${base}${repoName}`;
@@ -88,9 +86,6 @@ export const getDatabaseConfigFromModeAndForumType = (mode: EnvironmentType, for
     af: {
       db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
       noSshTunnel: true, //workaround for a timing issue
-    },
-    ea: {
-      postgresUrlFile: `${credentialsPath(forumType)}/${mode}-pg-conn.txt`,
     },
   };
   const configPath = memorizedConfigPaths[forumType];

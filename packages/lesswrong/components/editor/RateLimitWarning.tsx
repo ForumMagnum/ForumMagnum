@@ -1,9 +1,6 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import moment from 'moment';
 import AlarmIcon from '@/lib/vendor/@material-ui/icons/src/Alarm';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import WarningBanner from "../common/WarningBanner";
+import moment from 'moment';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 
@@ -56,18 +53,10 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, c
   }
 
   let message = `<p>You can submit again in ${getTimeUntilNextPost()}.</p> ${rateLimitMessage ?? ''}`
-  if (isFriendlyUI()) {
-    message = `Please wait ${getTimeUntilNextPost()} before ${contentType === 'comment' ? 'commenting' : 'posting'} again. ${rateLimitMessage ?? ''}`
-  }
-
-  if (isFriendlyUI()) {
-    return <WarningBanner message={message}/>
-  } else {
-    return <ContentStyles contentType="comment" className={classes.lwBanner}>
-      <AlarmIcon className={classes.icon} />
-      <ContentItemBody dangerouslySetInnerHTML={{__html: message }}/>
-    </ContentStyles>
-  }
+  return <ContentStyles contentType="comment" className={classes.lwBanner}>
+          <AlarmIcon className={classes.icon} />
+          <ContentItemBody dangerouslySetInnerHTML={{__html: message }}/>
+        </ContentStyles>
 }
 
 export default registerComponent('RateLimitWarning', RateLimitWarning, {styles});

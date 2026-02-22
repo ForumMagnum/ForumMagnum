@@ -13,7 +13,7 @@ if [[ -z "${CI:-}" ]]; then
   fi
 fi
 
-# yarn ea-start-testing-db &
+# yarn start-playwright &
 yarn next dev --turbopack &
 ./scripts/timeout.sh 120 ./scripts/waitForServer.sh
 curl --fail -X POST http://localhost:3000/api/dropAndCreatePg \

@@ -1,35 +1,31 @@
-import React, { FC, ReactNode, useCallback, useState } from "react";
-import { useTagPreview } from "./useTag";
-import { Link } from '../../lib/reactRouterWrapper';
-import classNames from "classnames";
-import type { Placement as PopperPlacementType } from "popper.js"
-import { defineStyles, useStyles } from "../hooks/useStyles";
-import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
-import { tagGetUrl } from "@/lib/collections/tags/helpers";
-import { useTagPageContext } from "./TagPageContext";
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
-import { TagHoverPreview } from "./TagHoverPreview";
-import Loading from "../vulcan-core/Loading";
-import { Typography } from "../common/Typography";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import classNames from "classnames";
+import type { Placement as PopperPlacementType } from "popper.js";
+import { FC, ReactNode, useCallback, useState } from "react";
+import { Link } from '../../lib/reactRouterWrapper';
 import ContentStyles from "../common/ContentStyles";
 import HoverOver from "../common/HoverOver";
-import TagRelCard from "./TagRelCard";
-import TagPreview from "./TagPreview";
 import LWClickAwayListener from "../common/LWClickAwayListener";
+import { Typography } from "../common/Typography";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import Loading from "../vulcan-core/Loading";
+import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
+import { TagHoverPreview } from "./TagHoverPreview";
+import { useTagPageContext } from "./TagPageContext";
+import TagPreview from "./TagPreview";
+import TagRelCard from "./TagRelCard";
+import { useTagPreview } from "./useTag";
 
 const styles = defineStyles("TagsTooltip", theme => ({
-  tooltip: theme.isFriendlyUI
-    ? {}
-    : {
-      padding: 0,
-      background: theme.palette.panelBackground.default,
-      boxShadow: theme.palette.boxShadow.lwTagHoverOver,
-    },
-  tooltipTitle: theme.isFriendlyUI
-    ? {}
-    : {
-      maxWidth: "unset",
-    },
+  tooltip: {
+          padding: 0,
+          background: theme.palette.panelBackground.default,
+          boxShadow: theme.palette.boxShadow.lwTagHoverOver,
+        },
+  tooltipTitle: {
+        maxWidth: "unset",
+      },
   loading: {
     paddingLeft: 16,
     paddingRight: 32,

@@ -1,89 +1,86 @@
-import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { getResponseCounts, isDialogueParticipant } from '../../../lib/collections/posts/helpers';
-import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
-import { useCurrentUser } from '../../common/withUser';
-import withErrorBoundary from '../../common/withErrorBoundary'
-import { useRecordPostView } from '../../hooks/useRecordPostView';
-import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isAF, isEAForum, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
+import DeferRender from '@/components/common/DeferRender';
+import { StructuredData } from '@/components/common/StructuredData';
+import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
+import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
+import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useVote } from '@/components/votes/withVote';
+import { useQuery } from "@/lib/crud/useQuery";
+import { isAF, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
+import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
+import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
+import { NetworkStatus } from "@apollo/client";
 import classNames from 'classnames';
-import { hasPostRecommendations, commentsTableOfContentsEnabled, hasSidenotes } from '../../../lib/betas';
-import { useDialog } from '../../common/withDialog';
-import { PostsPageContext } from './PostsPageContext';
-import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
-import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
-import { isValidCommentView } from '../../../lib/commentViewOptions';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
-import { unflattenComments } from '../../../lib/utils/unflatten';
-import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
-import { ImageProvider } from './ImageContext';
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { commentsTableOfContentsEnabled, hasPostRecommendations, hasSidenotes } from '../../../lib/betas';
+import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers';
 import { getMarketInfo, highlightMarket } from '../../../lib/collections/posts/annualReviewMarkets';
-import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
-import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
-import { useVote } from '@/components/votes/withVote';
-import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
-import DeferRender from '@/components/common/DeferRender';
-import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
-import PostsBottomBar from '../PostsBottomBar';
-import LWPostsPageHeader, { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
-import { useCommentLinkState } from '@/components/comments/CommentsItem/useCommentLink';
-import { useCurrentTime } from '@/lib/utils/timeUtil';
-import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
-import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
-import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
-import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
-import SharePostPopup from "../SharePostPopup";
-import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
-import MultiToCLayout from "../TableOfContents/MultiToCLayout";
-import PostsPagePostHeader from "./PostsPagePostHeader";
-import PostsPagePostFooter from "./PostsPagePostFooter";
-import PostBodyPrefix from "./PostBodyPrefix";
-import CommentPermalink from "../../comments/CommentPermalink";
-import ToCColumn from "../TableOfContents/ToCColumn";
-import WelcomeBox from "./WelcomeBox";
-import TableOfContents from "../TableOfContents/TableOfContents";
-import RSVPs from "./RSVPs";
-import CloudinaryImage2 from "../../common/CloudinaryImage2";
-import ContentStyles from "../../common/ContentStyles";
-import PostBody from "./PostBody";
-import { CommentOnSelectionContentWrapper } from "../../comments/CommentOnSelection";
-import PermanentRedirect from "../../common/PermanentRedirect";
-import DebateBody from "../../comments/DebateBody";
-import PostsPageRecommendationsList from "../../recommendations/PostsPageRecommendationsList";
-import PostSideRecommendations from "../../recommendations/PostSideRecommendations";
-import PostBottomRecommendations from "../../recommendations/PostBottomRecommendations";
-import { NotifyMeDropdownItem } from "../../dropdowns/NotifyMeDropdownItem";
-import Row from "../../common/Row";
-import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
-import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
+import { getResponseCounts, isDialogueParticipant } from '../../../lib/collections/posts/helpers';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
+import { isValidCommentView } from '../../../lib/commentViewOptions';
+import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
+import { unflattenComments } from '../../../lib/utils/unflatten';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
+import { CommentOnSelectionContentWrapper } from "../../comments/CommentOnSelection";
+import CommentPermalink from "../../comments/CommentPermalink";
 import CommentsListSection from "../../comments/CommentsListSection";
 import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
-import { MaybeStickyDigestAd } from "../../ea-forum/digestAd/StickyDigestAd";
+import DebateBody from "../../comments/DebateBody";
+import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
 import AttributionInViewTracker from "../../common/AttributionInViewTracker";
-import ForumEventPostPagePollSection from "../../forumEvents/ForumEventPostPagePollSection";
-import NotifyMeButton from "../../notifications/NotifyMeButton";
-import LWTooltip from "../../common/LWTooltip";
-import PostsPageDate from "./PostsPageDate";
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import ContentStyles from "../../common/ContentStyles";
 import FundraisingThermometer from "../../common/FundraisingThermometer";
-import PostPageReviewButton from "./PostPageReviewButton";
+import LWTooltip from "../../common/LWTooltip";
+import PermanentRedirect from "../../common/PermanentRedirect";
+import Row from "../../common/Row";
+import { useDialog } from '../../common/withDialog';
+import withErrorBoundary from '../../common/withErrorBoundary';
+import { useCurrentUser } from '../../common/withUser';
+import { SideItemsContainer, SideItemsSidebar } from "../../contents/SideItems";
+import { NotifyMeDropdownItem } from "../../dropdowns/NotifyMeDropdownItem";
+import ForumEventPostPagePollSection from "../../forumEvents/ForumEventPostPagePollSection";
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
+import { useRecordPostView } from '../../hooks/useRecordPostView';
+import NotifyMeButton from "../../notifications/NotifyMeButton";
+import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
+import PostBottomRecommendations from "../../recommendations/PostBottomRecommendations";
+import PostSideRecommendations from "../../recommendations/PostSideRecommendations";
+import PostsPageRecommendationsList from "../../recommendations/PostsPageRecommendationsList";
+import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
-import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
-import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint } from './constants';
-import { getPostDescription, getStructuredData } from './structuredData';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { ReadingProgressBar } from './ReadingProgressBar';
-import { StructuredData } from '@/components/common/StructuredData';
-import { LWCommentCount } from '../TableOfContents/LWCommentCount';
-import { NetworkStatus } from "@apollo/client";
-import { useQuery } from "@/lib/crud/useQuery"
-import { returnIfValidNumber } from '@/lib/utils/typeGuardUtils';
-import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
+import PostsBottomBar from '../PostsBottomBar';
 import { CommentsListMultiQuery, postCommentsThreadQuery } from '../queries';
+import SharePostPopup from "../SharePostPopup";
+import { LWCommentCount } from '../TableOfContents/LWCommentCount';
+import MultiToCLayout from "../TableOfContents/MultiToCLayout";
+import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHeading';
+import TableOfContents from "../TableOfContents/TableOfContents";
+import ToCColumn from "../TableOfContents/ToCColumn";
+import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
+import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint } from './constants';
+import { ImageProvider } from './ImageContext';
+import LWPostsPageHeader, { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
+import PostBody from "./PostBody";
+import PostBodyPrefix from "./PostBodyPrefix";
+import PostPageReviewButton from "./PostPageReviewButton";
+import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { PostsPageContext } from './PostsPageContext';
+import PostsPageDate from "./PostsPageDate";
+import PostsPagePostFooter from "./PostsPagePostFooter";
+import { ReadingProgressBar } from './ReadingProgressBar';
+import RSVPs from "./RSVPs";
+import { getPostDescription, getStructuredData } from './structuredData';
+import WelcomeBox from "./WelcomeBox";
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
@@ -107,20 +104,10 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   centralColumn: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    maxWidth: CENTRAL_COLUMN_WIDTH, // this necessary in both friendly and non-friendly UI to prevent Comment Permalinks from overflowing the page
-    ...(theme.isFriendlyUI && {
-      [theme.breakpoints.down('sm')]: {
-        // This can only be used when display: "block" is applied, otherwise the 100% confuses the
-        // grid layout into adding loads of left margin
-        maxWidth: `min(100%, ${CENTRAL_COLUMN_WIDTH}px)`,
-      }
-    }),
+    maxWidth: CENTRAL_COLUMN_WIDTH
   },
   postBody: {
-    ...(theme.isFriendlyUI && {
-      width: "100%",
-    }),
-  },
+},
   audioPlayerHidden: {
     // Only show the play button next to headings if the audio player is visible
     '& .t3a-heading-play-button': {
@@ -128,8 +115,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     },
   },
   postContent: {
-    marginBottom: theme.isFriendlyUI ? 40 : undefined
-  },
+},
   betweenPostAndComments: {
     minHeight: 24,
   },
@@ -145,8 +131,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     },
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
-    position: "relative",
-    paddingTop: theme.isFriendlyUI ? 16 : undefined
+    position: "relative"
   },
   noCommentsPlaceholder: {
     marginTop: 60,
@@ -248,7 +233,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   dateAtBottom: {
     color: theme.palette.text.dim3,
-    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.typography.body2.fontSize,
     cursor: 'default'
   },
   reviewVoting: {
@@ -360,7 +345,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     // Remove "sharePopup" from query once the popup is open, to prevent accidentally
     // sharing links with the popup open
     const currentQuery = isEmpty(query) ? {} : query
-    const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
+    const newQuery = {...currentQuery}
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   }, [navigate, location.location, openDialog, fullPost, query]);
 
@@ -435,8 +420,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     
     if (currentQuery[RECOMBEE_RECOMM_ID_QUERY_PARAM]) {
       const newQuery = {
-        ...currentQuery,
-        [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined,
+        ...currentQuery
       };
       navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
     }
@@ -505,20 +489,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const rawComments = rawData?.comments?.results;
   const loadingMore = networkStatus === NetworkStatus.fetchMore;
 
-  // If the user has just posted a comment, and they are sorting by magic, put it at the top of the list for them
-  const comments = useMemo(() => {
-    if (!isEAForum() || !rawComments || view !== "postCommentsMagic") return rawComments;
-
-    const recentUserComments = rawComments
-      .filter((c) => c.userId === currentUser?._id && now.getTime() - new Date(c.postedAt).getTime() < 60000)
-      .sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
-
-    if (!recentUserComments.length) return rawComments;
-
-    return [...recentUserComments, ...rawComments.filter((c) => !recentUserComments.includes(c))];
-    // Ignore `now` to make this more stable
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, rawComments, currentUser?._id]);
+  const comments = useMemo(() => rawComments, [rawComments]);
 
   const displayedPublicCommentCount = comments?.filter(c => commentIncludedInCounts(c))?.length ?? 0;
   const { commentCount: totalComments } = getResponseCounts({ post, answers })
@@ -586,7 +557,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
               className={classes.headerImage}
             />
           </div>}
-          {isBookUI() && <LWPostsPageHeader
+          <LWPostsPageHeader
             post={post}
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
@@ -594,14 +565,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             annualReviewMarketInfo={marketInfo}
             showSplashPageHeader={showSplashPageHeader}
-            />}
-          {!isBookUI() && <PostsPagePostHeader
-            post={post}
-            answers={answers ?? []}
-            showEmbeddedPlayer={showEmbeddedPlayer}
-            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-            dialogueResponses={debateResponses} 
-            annualReviewMarketInfo={marketInfo}/>}
+          />
           {(post._id === 'eKGdCNdKjvTBG9i6y') &&
             <FundraisingThermometer onPost />}
         </div>
@@ -653,9 +617,9 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       classes.postBody,
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
-      {isBookUI() && header}
+      {header}
       {/* Body */}
-      {fullPost && isEAForum() && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
+      {false}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
       {!post.debate && <ContentStyles
         contentType="post"
@@ -673,7 +637,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
                 isOldVersion={isOldVersion}
                 voteProps={voteProps}
               />
-              {post.isEvent && isBookUI() && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
+              {post.isEvent && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
               }
               </>
             }
@@ -696,7 +660,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
         </div>
       </Row>}
 
-      {post.isEvent && post.group && isBookUI() &&
+      {post.isEvent && post.group &&
           <Row justifyContent="center">
             <div className={classes.bottomOfPostSubscribe}>
               <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
@@ -770,11 +734,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
             {isAF() && <AFUnreviewedCommentCount post={post}/>}
           </Suspense>
           </AnalyticsContext>
-          {isFriendlyUI() && Math.max(post.commentCount, comments?.length ?? 0) < 1 &&
-            <div className={classes.noCommentsPlaceholder}>
-              <div>No comments on this post yet.</div>
-              <div>Be the first to respond.</div>
-            </div>
+          {false
           }
         </div>
       </AttributionInViewTracker>
@@ -836,7 +796,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
         </ToCColumn>
     }
   
-    {isEAForum() && <DeferRender ssr={false}><MaybeStickyDigestAd post={post} /></DeferRender>}
+    {false}
     {hasPostRecommendations() && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <Suspense>
         <PostBottomRecommendations
@@ -858,4 +818,3 @@ export default registerComponent('PostsPage', PostsPage, {
   hocs: [withErrorBoundary],
   areEqual: "auto",
 });
-

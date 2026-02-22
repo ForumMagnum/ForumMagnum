@@ -1,31 +1,29 @@
-import React, { useMemo } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { getResponseCounts, parseUnsafeUrl, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
-import { isServer } from '../../../lib/executionEnvironment';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { useMemo } from 'react';
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
-import PostsPageTitle from "./PostsPageTitle";
-import PostsAuthors from "./PostsAuthors";
+import { getResponseCounts, parseUnsafeUrl, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { extractVersionsFromSemver } from '../../../lib/editor/utils';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import ForumIcon from "../../common/ForumIcon";
 import LWTooltip from "../../common/LWTooltip";
-import PostsPageDate from "./PostsPageDate";
-import CrosspostHeaderIcon from "./CrosspostHeaderIcon";
 import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
-import PostsVote from "../../votes/PostsVote";
-import PostsGroupDetails from "../PostsGroupDetails";
-import PostsTopSequencesNav from "./PostsTopSequencesNav";
-import PostsPageEventData from "./PostsPageEventData";
+import GroupLinks from "../../localGroups/GroupLinks";
 import FooterTagList from "../../tagging/FooterTagList";
+import PostsVote from "../../votes/PostsVote";
 import AddToCalendarButton from "../AddToCalendar/AddToCalendarButton";
 import BookmarkButton from "../BookmarkButton";
-import ForumIcon from "../../common/ForumIcon";
-import GroupLinks from "../../localGroups/GroupLinks";
+import PostsGroupDetails from "../PostsGroupDetails";
 import SharePostButton from "../SharePostButton";
 import AudioToggle from "./AudioToggle";
-import ReadTime from "./ReadTime";
 import { CommentsLink } from './CommentsLink';
+import CrosspostHeaderIcon from "./CrosspostHeaderIcon";
+import PostsAuthors from "./PostsAuthors";
+import PostsPageDate from "./PostsPageDate";
+import PostsPageEventData from "./PostsPageEventData";
+import PostsPageTitle from "./PostsPageTitle";
+import PostsTopSequencesNav from "./PostsTopSequencesNav";
+import ReadTime from "./ReadTime";
 
 const SECONDARY_SPACING = 20;
 
@@ -35,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.isFriendlyUI ? 20 : theme.spacing.unit*2,
+    marginBottom: theme.spacing.unit*2,
   },
   headerLeft: {
     width: "100%"
@@ -43,9 +41,7 @@ const styles = (theme: ThemeType) => ({
   headerVote: {
     textAlign: 'center',
     fontSize: 42,
-    position: theme.isFriendlyUI ? 'absolute' : "relative",
-    top: theme.isFriendlyUI ? 0 : undefined,
-    left: theme.isFriendlyUI ? -93 : undefined,
+    position: "relative",
     [theme.breakpoints.down("sm")]: {
       position: 'relative',
       top: 'auto',
@@ -60,12 +56,9 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'baseline',
     columnGap: SECONDARY_SPACING,
     flexWrap: 'wrap',
-    fontSize: theme.isFriendlyUI ? theme.typography.body1.fontSize : '1.4rem',
-    fontWeight: theme.isFriendlyUI ? 450 : undefined,
+    fontSize: '1.4rem',
     fontFamily: theme.typography.uiSecondary.fontFamily,
-    color: theme.palette.text.dim3,
-    paddingBottom: theme.isFriendlyUI ? 12 : undefined,
-    borderBottom: theme.isFriendlyUI ? theme.palette.border.grey300 : undefined
+    color: theme.palette.text.dim3
   },
   secondaryInfo: {
     flexGrow: 1,
@@ -91,12 +84,11 @@ const styles = (theme: ThemeType) => ({
     columnGap: SECONDARY_SPACING
   },
   secondaryInfoLink: {
-    fontWeight: theme.isFriendlyUI ? 450 : undefined,
-    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
   actions: {
-    color: theme.isFriendlyUI ? undefined : theme.palette.grey[500],
+    color: theme.palette.grey[500],
     "&:hover": {
       opacity: 0.5,
     },
@@ -150,7 +142,7 @@ const styles = (theme: ThemeType) => ({
   tagSection: {
     flex: 1,
     display: "flex",
-    flexDirection: theme.isFriendlyUI ? "column" : "row",
+    flexDirection: "row",
     height: "100%",
   }
 });
@@ -185,7 +177,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     commentCount,
   } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
 
-  const minimalSecondaryInfo = post.isEvent || (isFriendlyUI() && post.shortform);
+  const minimalSecondaryInfo = post.isEvent;
 
   const answersNode = !post.question || minimalSecondaryInfo
     ? null
@@ -202,7 +194,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={isBookUI()} flip={true}/>
+        <PostActionsButton post={post} includeBookmark flip={true}/>
       </AnalyticsContext>
     </span>
 
@@ -279,5 +271,4 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
 export default registerComponent(
   'PostsPagePostHeader', PostsPagePostHeader, {styles}
 );
-
 

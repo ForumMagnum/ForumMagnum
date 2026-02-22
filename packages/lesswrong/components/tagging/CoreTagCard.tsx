@@ -1,8 +1,7 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { Link } from '../../lib/reactRouterWrapper';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { siteImageSetting } from '@/lib/instanceSettings';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import SubscribeButton from "./SubscribeButton";
 
@@ -37,10 +36,10 @@ const styles = (theme: ThemeType) => ({
     minWidth: 0, // required for text-overflow to work
   },
   title: {
-    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "headline"],
+    ...theme.typography["headline"],
     fontSize: 16,
     lineHeight: "20px",
-    fontWeight: theme.isFriendlyUI ? 600 : 700,
+    fontWeight: 700,
     whiteSpace: "nowrap",
     overflow: "hidden",
   },

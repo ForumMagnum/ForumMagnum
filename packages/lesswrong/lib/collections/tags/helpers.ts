@@ -1,21 +1,15 @@
+import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
+import type { TagLens } from "@/lib/arbital/useTagLenses";
+import { allowTypeIIIPlayerSetting, siteUrlSetting, tagUrlBaseSetting } from '@/lib/instanceSettings';
 import qs from "qs";
+import { preferredHeadingCase } from "../../../themes/forumTheme";
 import { forumSelect } from "../../forumTypeUtils";
-import { siteUrlSetting, tagUrlBaseSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
-import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
-import type { RouterLocation } from '../../routeChecks/parseRoute';
-import type { Request, Response } from 'express';
-import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
-import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
 
 export const getTagMinimumKarmaPermissions = () => forumSelect({
   // Topic spampocalypse defense
-  EAForum: {
-    new: 1,
-    edit: 1,
-  },
   LessWrong: {
     new: 1,
     edit: 1,
@@ -113,8 +107,8 @@ export function stableSortTags<
     const tagRelB = b.tagRel;
 
     if (tagA.core !== tagB.core) {
-      // Core tags come first with isFriendlyUI(), last otherwise
-      return (tagA.core ? -1 : 1) * (isFriendlyUI() ? 1 : -1);
+      // Core tags are listed after non-core tags.
+      return tagA.core ? 1 : -1;
     }
 
     if (tagRelA && tagRelB) {
@@ -154,4 +148,3 @@ export const defaultTagHistorySettings: TagHistorySettings = {
   showMetadata: true,
   lensId: "all",
 };
-

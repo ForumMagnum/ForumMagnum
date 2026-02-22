@@ -19,8 +19,7 @@ import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 // lw-look-here
 const defaultReviewerByForum: ForumOptions<string | null> = {
   LessWrong: "XtphY3uYHwruKqDyG",
-  AlignmentForum: null,            // Shoudn't be necessary to set
-  EAForum: '9qZsZAzbC2zxsPHzN',    // JP
+  AlignmentForum: null,            // Shoudn't be necessary to set    // JP
   default: null,
 }
 const defaultReviewer = () => forumSelect(defaultReviewerByForum)

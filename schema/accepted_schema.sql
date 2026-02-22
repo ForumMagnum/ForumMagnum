@@ -731,38 +731,6 @@ CREATE TABLE "DialogueMatchPreferences" (
 -- Index "idx_DialogueMatchPreferences_dialogueCheckId"
 CREATE INDEX IF NOT EXISTS "idx_DialogueMatchPreferences_dialogueCheckId" ON "DialogueMatchPreferences" USING btree ("dialogueCheckId");
 
--- Table "DigestPosts"
-CREATE TABLE "DigestPosts" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "digestId" VARCHAR(27) NOT NULL,
-  "postId" VARCHAR(27) NOT NULL,
-  "emailDigestStatus" TEXT,
-  "onsiteDigestStatus" TEXT
-);
-
--- Index "idx_DigestPosts_digestId"
-CREATE INDEX IF NOT EXISTS "idx_DigestPosts_digestId" ON "DigestPosts" USING btree ("digestId");
-
--- Table "Digests"
-CREATE TABLE "Digests" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "num" DOUBLE PRECISION NOT NULL,
-  "startDate" TIMESTAMPTZ NOT NULL,
-  "endDate" TIMESTAMPTZ,
-  "publishedDate" TIMESTAMPTZ,
-  "onsiteImageId" TEXT,
-  "onsitePrimaryColor" TEXT
-);
-
--- Index "idx_Digests_num"
-CREATE INDEX IF NOT EXISTS "idx_Digests_num" ON "Digests" USING btree ("num");
-
 -- Table "ElectionCandidates"
 CREATE TABLE "ElectionCandidates" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -2999,47 +2967,6 @@ CREATE TABLE "UserActivities" (
 
 -- Index "idx_UserActivities_visitorId_type"
 CREATE INDEX IF NOT EXISTS "idx_UserActivities_visitorId_type" ON "UserActivities" USING btree ("visitorId", "type");
-
--- Table "UserEAGDetails"
-CREATE TABLE "UserEAGDetails" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "userId" VARCHAR(27) NOT NULL,
-  "careerStage" TEXT[],
-  "countryOrRegion" TEXT,
-  "nearestCity" TEXT,
-  "willingnessToRelocate" JSONB,
-  "experiencedIn" TEXT[],
-  "interestedIn" TEXT[],
-  "lastUpdated" TIMESTAMPTZ NOT NULL
-);
-
--- Index "idx_UserEAGDetails_userId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserEAGDetails_userId" ON "UserEAGDetails" USING btree ("userId");
-
--- Table "UserJobAds"
-CREATE TABLE "UserJobAds" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "userId" VARCHAR(27) NOT NULL,
-  "jobName" TEXT NOT NULL,
-  "adState" TEXT NOT NULL,
-  "reminderSetAt" TIMESTAMPTZ,
-  "lastUpdated" TIMESTAMPTZ NOT NULL
-);
-
--- Index "idx_UserJobAds_userId_jobName"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserJobAds_userId_jobName" ON "UserJobAds" USING btree ("userId", "jobName");
-
--- Index "idx_UserJobAds_userId"
-CREATE INDEX IF NOT EXISTS "idx_UserJobAds_userId" ON "UserJobAds" USING btree ("userId");
-
--- Index "idx_UserJobAds_jobName_adState"
-CREATE INDEX IF NOT EXISTS "idx_UserJobAds_jobName_adState" ON "UserJobAds" USING btree ("jobName", "adState");
 
 -- Table "UserMostValuablePosts"
 CREATE TABLE "UserMostValuablePosts" (

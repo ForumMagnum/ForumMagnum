@@ -1,4 +1,3 @@
-import { isFriendlyUI } from '@/themes/forumTheme';
 import React, { FC, MouseEvent } from 'react';
 
 
@@ -19,7 +18,7 @@ export const CommentsLink: FC<{
     }
   };
   return (
-    <a className={className} {...(isFriendlyUI() ? { onClick } : { href: anchor })}>
+    <a className={className} {...({ href: anchor })}>
       {children}
     </a>
   );

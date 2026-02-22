@@ -1,5 +1,4 @@
-import { isFriendlyUI } from '@/themes/forumTheme';
-import { taggingNamePluralSetting, isEAForum } from './instanceSettings';
+import { taggingNamePluralSetting } from './instanceSettings';
 import { pluralize } from './vulcan-lib/pluralize';
 
 const knownTagNames = ['tag', 'topic', 'concept', 'wikitag'];
@@ -8,7 +7,7 @@ const knownTagNames = ['tag', 'topic', 'concept', 'wikitag'];
  */
 
 export const getAllTagsPath = () => {
-  return isFriendlyUI() ? `/${taggingNamePluralSetting.get()}` : `/${taggingNamePluralSetting.get()}/all`;
+  return `/${taggingNamePluralSetting.get()}/all`;
 };
 /**
  * Get all the paths that should redirect to the all tags page. This is all combinations of
@@ -22,4 +21,4 @@ export const getAllTagsRedirectPaths: () => string[] = () => {
   return redirectPaths;
 };
 
-export const getCommunityPath = () => isEAForum() ? '/groups' : '/community';
+export const getCommunityPath = () => '/community';

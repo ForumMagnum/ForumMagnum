@@ -19,28 +19,6 @@ import classNames from 'classnames';
 
 // Mapping from tag slug to icon
 export const getCoreTagIconMap = () => forumSelect<Record<string, FC<{className?: string}>>>({
-  EAForum: {
-    'biosecurity-and-pandemics': DnaIcon,
-    'existential-risk': MushroomCloudIcon,
-    'global-catastrophic-risk': MushroomCloudIcon, // (Possibly) replacing existential-risk
-    'cause-prioritization': CausePrioIcon,
-    'moral-philosophy': ScrollIcon,
-    'philosophy': ScrollIcon, // Replacing moral-philosophy
-    'wild-animal-welfare': BirdIcon,
-    'farmed-animal-welfare': ChickenIcon,
-    'animal-welfare': BirdIcon, // Replacing wild-animal-welfare and farmed-animal-welfare
-    'effective-altruism-groups': GroupsIcon,
-    'building-effective-altruism': GroupsIcon,
-    'community': LotusOutlineIcon,
-    'career-choice': ChoiceIcon,
-    'taking-action': ChoiceIcon, // Doesn't exist yet, but may be replacing career-choice
-    'ai-risk': AiIcon,
-    'ai-safety': AiIcon, // Replacing ai-risk
-    'global-health-and-development': GhdIcon,
-    'policy': PolicyIcon,
-    'effective-giving': GiveIcon,
-    'forecasting-and-estimation': TelescopeIcon,
-  },
   default: {}
 })
 

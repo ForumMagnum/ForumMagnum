@@ -1,9 +1,8 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
-import Answer from "./Answer";
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import SectionTitle from "../common/SectionTitle";
+import Answer from "./Answer";
 import AnswersSorting from "./AnswersSorting";
 
 const styles = (theme: ThemeType) => ({
@@ -21,11 +20,7 @@ const styles = (theme: ThemeType) => ({
   answersSorting:{
     ...theme.typography.body1,
     color: theme.palette.text.secondary,
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {}),
+    ...({}),
   },
   loading: {
     opacity: .5,

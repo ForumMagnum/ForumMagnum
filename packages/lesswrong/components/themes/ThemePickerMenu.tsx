@@ -1,19 +1,19 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { ThemeMetadata, getThemeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
-import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import { ThemeContext } from './useTheme';
-import { useCurrentUser } from '../common/withUser';
-import { isMobile } from '../../lib/utils/isMobile'
-import { Paper }from '@/components/widgets/Paper';
+import { Paper } from '@/components/widgets/Paper';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
+import React from 'react';
+import { ForumTypeString, allForumTypes, forumTypeSetting, isLWorAF } from '../../lib/instanceSettings';
+import { isMobile } from '../../lib/utils/isMobile';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { AbstractThemeOptions, ThemeMetadata, getForumType, getThemeMetadata } from '../../themes/themeNames';
+import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import { Typography } from "../common/Typography";
-import DropdownMenu from "../dropdowns/DropdownMenu";
-import DropdownItem from "../dropdowns/DropdownItem";
+import { useCurrentUser } from '../common/withUser';
 import DropdownDivider from "../dropdowns/DropdownDivider";
-import ForumIcon from "../common/ForumIcon";
+import DropdownItem from "../dropdowns/DropdownItem";
+import DropdownMenu from "../dropdowns/DropdownMenu";
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { ThemeContext } from './useTheme';
 
 const styles = (theme: ThemeType) => ({
   check: {
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
   infoIcon: {
     fontSize: 14,
-    marginLeft: theme.isFriendlyUI ? 6 : 0,
+    marginLeft: 0,
   },
 })
 
@@ -44,11 +44,6 @@ const ThemePickerMenu = ({children, classes}: {
   const selectedForumTheme = getForumType(currentThemeOptions);
 
   const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
-    if (isEAForum() && currentUser) {
-      void updateCurrentUser({
-        theme: newThemeOptions as DbUser['theme'],
-      });
-    }
   }
   
   // When switching theme on desktop, stop event propagation so that the

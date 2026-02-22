@@ -1,36 +1,26 @@
 "use client";
 
-import React, { Ref, useCallback, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useLocation } from '../../lib/routeUtil';
-import { useCurrentUser } from '../common/withUser';
-import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
+import { Ref, useCallback, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views';
+import { useLocation } from '../../lib/routeUtil';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { TooltipRef } from '../common/FMTooltip';
-import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
-import SortButton from "../icons/SortButton";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import SettingsButton from "../icons/SettingsButton";
-import PostsListSettings from "./PostsListSettings";
 import AllPostsList from "./AllPostsList";
+import PostsListSettings from "./PostsListSettings";
 
 const styles = (theme: ThemeType) => ({
   title: {
     cursor: "pointer",
-    "& .SectionTitle-title": theme.isFriendlyUI
-      ? {
-        color: theme.palette.grey[1000],
-        textTransform: "none",
-        fontWeight: 600,
-        fontSize: 28,
-        letterSpacing: "0",
-        lineHeight: "34px",
-      }
-      : {},
+    "& .SectionTitle-title": {},
   },
   divider: {
     border: "none",
@@ -40,7 +30,7 @@ const styles = (theme: ThemeType) => ({
 
 const formatSort = (sorting: PostSortingMode) => {
   const sort = getSortOrderOptions()[sorting].label
-  return isFriendlyUI() ? sort : `Sorted by ${sort}`;
+  return `Sorted by ${sort}`;
 }
 
 const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
@@ -69,9 +59,9 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
   const currentSorting = (query.sortedBy   || currentUser?.allPostsSorting   || 'magic') as PostSortingMode;
   const currentFilter = query.filter       || currentUser?.allPostsFilter    || 'all';
   const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
-    currentUser?.allPostsShowLowKarma || false;
-  const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false;
-  const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false;
+      !!currentUser?.allPostsShowLowKarma;
+  const currentIncludeEvents = (query.includeEvents === 'true') || !!currentUser?.allPostsIncludeEvents;
+  const currentHideCommunity = (query.hideCommunity === 'true') || !!currentUser?.allPostsHideCommunity;
   return (
     <>
       <AnalyticsContext pageContext="allPostsPage">
@@ -83,14 +73,12 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
           >
             {(ref: Ref<HTMLDivElement>) => <div ref={ref} className={classes.title} onClick={toggleSettings}>
               <SectionTitle title={preferredHeadingCase("All Posts")}>
-                {isFriendlyUI() ?
-                  <SortButton label={formatSort(currentSorting)} /> :
-                  <SettingsButton label={`Sorted by ${ getSortOrderOptions()[currentSorting].label }`}/>
+                {<SettingsButton label={`Sorted by ${ getSortOrderOptions()[currentSorting].label }`}/>
                 }
               </SectionTitle>
             </div>}
           </TooltipRef>
-          {isFriendlyUI() && !showSettings && <hr className={classes.divider} />}
+          {false}
           <PostsListSettings
             hidden={!showSettings}
             currentTimeframe={currentTimeframe}
@@ -125,6 +113,5 @@ export default registerComponent(
   AllPostsPage,
   {styles},
 );
-
 
 

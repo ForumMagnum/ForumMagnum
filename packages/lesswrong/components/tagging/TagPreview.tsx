@@ -1,20 +1,18 @@
-import React, { Fragment, useState } from 'react';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
-import { tagPostTerms } from './TagPageUtils';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
-import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import classNames from 'classnames';
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import TagPreviewDescription, { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
-import startCase from 'lodash/startCase';
-import { htmlToTextDefault } from '@/lib/htmlToText';
-import TagSmallPostLink from "./TagSmallPostLink";
-import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import classNames from 'classnames';
+import startCase from 'lodash/startCase';
+import { Fragment, useState } from 'react';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { Link } from '../../lib/reactRouterWrapper';
+import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
+import { HOVER_OVER_WIDTH } from '../common/HoverOver';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import Loading from "../vulcan-core/Loading";
+import { tagPostTerms } from './TagPageUtils';
+import TagPreviewDescription, { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
+import TagSmallPostLink from "./TagSmallPostLink";
 
 const PostsListMultiQuery = gql(`
   query multiPostTagPreviewQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,28 +27,24 @@ const PostsListMultiQuery = gql(`
 
 const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI ? {
-      paddingTop: 8,
-      paddingLeft: 16,
-      paddingRight: 16,
-    } : {
-      width: 500,
-      paddingBottom: 8,
-    }),
+    ...({
+            width: 500,
+            paddingBottom: 8,
+          }),
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }
   },
   rootEAWidth: {
-    width: FRIENDLY_HOVER_OVER_WIDTH,
+    width: HOVER_OVER_WIDTH,
   },
   mainContent: {
-    ...(!theme.isFriendlyUI && {
-      paddingLeft: 16,
-      paddingRight: 16,
-      maxHeight: 600,
-      overflowY: 'auto',
-    }),
+    ...({
+            paddingLeft: 16,
+            paddingRight: 16,
+            maxHeight: 600,
+            overflowY: 'auto',
+          }),
   },
   title: {
     ...theme.typography.commentStyle,
@@ -64,7 +58,6 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
   relatedTagWrapper: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     fontSize: "1.1rem",
     color: theme.palette.grey[900],
     display: '-webkit-box',
@@ -138,7 +131,7 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     },
   },
   description: {
-    ...(!theme.isFriendlyUI && { marginTop: 16 }),
+    ...({ marginTop: 16 }),
   },
 }));
 
@@ -163,10 +156,6 @@ function tagNameIsBoldedAnywhere(html: string, rawTagName: string): boolean {
 /* from the main description.
 */
 const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] }) => {
-  if (isFriendlyUI()) {
-    return false;
-  }
-
   const tooltipText = tag.summaries?.[0]?.contents?.html ?? getTagDescriptionHtmlHighlight(tag);
   if (!tooltipText) {
     return true;
@@ -207,7 +196,7 @@ const TagPreview = ({
     setForceOpen?.(true);
   };
 
-  const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI();
+  const showPosts = postCount > 0 && !!tag?._id;
   const { view, limit, ...selectorTerms } = tagPostTerms(tag);
   const { data } = useQuery(PostsListMultiQuery, {
     variables: {
@@ -241,7 +230,6 @@ const TagPreview = ({
   )) ?? [];
 
   const showRelatedTags =
-    !isFriendlyUI() &&
     !hideRelatedTags &&
     !!(tag.parentTag || tag.subTags.length);
 
@@ -256,7 +244,7 @@ const TagPreview = ({
   const hasMultipleSummaries = summaryTabs.length > 1;
   return (
     <div className={classNames(classes.root, {
-      [classes.rootEAWidth]: isFriendlyUI() && hasDescription,
+      [classes.rootEAWidth]: false,
     })}>
       {hasMultipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
@@ -339,14 +327,7 @@ const TagPreview = ({
           }
         </>
         }
-        {isFriendlyUI() &&
-          <div className={classNames(classes.footerCount, {
-            [classes.footerMarginTop]: hasDescription,
-          })}>
-            <Link to={tagGetUrl(tag)}>
-              View all {tag.postCount} posts
-            </Link>
-          </div>
+        {false
         }
       </div>
     </div>

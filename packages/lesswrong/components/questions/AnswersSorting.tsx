@@ -1,15 +1,14 @@
-import React from 'react';
-import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
-import InlineSelect, { Option } from '../common/InlineSelect';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import qs from 'qs';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import InlineSelect, { Option } from '../common/InlineSelect';
 
 const getSortingNames = () => ({
-  'top': isFriendlyUI() ? 'Top' : 'top scoring',
-  'magic': isFriendlyUI() ? 'New & upvoted' : 'magic (new & upvoted)',
-  'newest': isFriendlyUI() ? 'New' : 'newest',
-  'oldest': isFriendlyUI() ? 'Old' : 'oldest',
+  'top': 'top scoring',
+  'magic': 'magic (new & upvoted)',
+  'newest': 'newest',
+  'oldest': 'oldest',
   'recentComments': preferredHeadingCase('latest reply'),
 })
 

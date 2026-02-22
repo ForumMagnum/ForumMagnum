@@ -1,15 +1,13 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import classNames from 'classnames';
+import React from 'react';
 import { SubscriptionType } from '../../lib/collections/subscriptions/helpers';
-import { useNotifyMe } from '../hooks/useNotifyMe';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import LWTooltip from "../common/LWTooltip";
-import Loading from "../vulcan-core/Loading";
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
-import EAButton from "../ea-forum/EAButton";
+import { useNotifyMe } from '../hooks/useNotifyMe';
+import Loading from "../vulcan-core/Loading";
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
@@ -23,11 +21,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5
     }
   },
-  icon: theme.isFriendlyUI ? {
-    color: theme.palette.grey[900],
-    fontSize: 16,
-    marginRight: 6,
-  } : {},
+  icon: {},
   hideLabelOnMobile: {
     [theme.breakpoints.down('sm')]: { //optimized for tag page
       display: "none"
@@ -119,13 +113,11 @@ const NotifyMeButton = ({
       </a>
     </MenuItem>
   } else if (asButton) {
-    maybeMenuItemButton = isFriendlyUI() ? (
-      <EAButton style="grey" onClick={onSubscribe}>{button}</EAButton>
-    ) : (
-      <button onClick={onSubscribe} className={classNames(className, classes.root)}>
-        {button}
-      </button>
-    )
+    maybeMenuItemButton = (
+          <button onClick={onSubscribe} className={classNames(className, classes.root)}>
+            {button}
+          </button>
+        )
   } else {
     maybeMenuItemButton = <a onClick={onSubscribe} className={classNames(className, classes.root)}>
       {button}

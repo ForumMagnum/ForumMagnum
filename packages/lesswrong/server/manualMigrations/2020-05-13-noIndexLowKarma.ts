@@ -10,7 +10,6 @@ const dateFormat = 'YYYY-MM-DD'
 const launchDateByForum: ForumOptions<string> = {
   LessWrong: 'TODO', // lw-look-here
   AlignmentForum: "Don't",
-  EAForum: '2014-09-10',
   default: "ahhhhh",
 }
 const launchDate = () => forumSelect(launchDateByForum)

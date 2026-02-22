@@ -1,48 +1,44 @@
-import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from '@apollo/server';
+import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext } from '@apollo/server';
 import { expressMiddleware } from '@as-integrations/express5';
-import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import { GraphQLFormattedError } from 'graphql';
 // import { handleRequest } from './rendering/renderPage';
 import cors from 'cors';
 import { isDevelopment } from '../lib/executionEnvironment';
 // import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
-import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql'; 
-import { configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
-import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
-import universalCookiesMiddleware from 'universal-cookie-express';
 import { formatError } from 'apollo-errors';
+import universalCookiesMiddleware from 'universal-cookie-express';
+import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq } from './vulcan-lib/apollo-server/getUserFromReq';
+import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 // import { getIsolationScope } from '@sentry/nextjs';
-import path from 'path'
-import { expressSessionSecretSetting, botProtectionCommentRedirectSetting } from './databaseSettings';
+import path from 'path';
+import { botProtectionCommentRedirectSetting, expressSessionSecretSetting } from './databaseSettings';
 // import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
-import { logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import expressSession from 'express-session';
-import MongoStore from './vendor/ConnectMongo/MongoStore';
-import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
-import { getEAGApplicationData } from './zohoUtils';
-import { addTestingRoutes } from './testingSqlClient';
-import { addCrosspostRoutes } from './fmCrosspost/routes';
-import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
-import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../server/collections/sessions/collection';
 import { botRedirectMiddleware } from './botRedirect';
+import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
+import { datadogMiddleware } from './datadog/datadogMiddleware';
+import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { hstsMiddleware } from './hsts';
-import { getClientBundle } from './utils/bundleUtils';
-import ElasticController from './search/elastic/ElasticController';
+import { logGraphqlQueryFinished, logGraphqlQueryStarted } from './logging';
 import { closePerfMetric, openPerfMetric } from './perfMetrics';
+import ElasticController from './search/elastic/ElasticController';
+import { addTestingRoutes } from './testingSqlClient';
+import MongoStore from './vendor/ConnectMongo/MongoStore';
 // import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { addCacheControlMiddleware } from './cacheControlMiddleware';
-import { getSqlClientOrThrow } from './sql/sqlClient';
-import { getCommandLineArguments } from './commandLine';
-import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
-import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
-import express from 'express';
-export const app = express();
+import { defaultNotificationsView } from '@/lib/collections/notifications/views';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
-import { requestToNextRequest } from './utils/requestToNextRequest';
-import { defaultNotificationsView, NotificationsViews } from '@/lib/collections/notifications/views';
+import express from 'express';
+import { isDatadogEnabled, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
+import { addCacheControlMiddleware } from './cacheControlMiddleware';
 import Notifications from './collections/notifications/collection';
-import { isFriendlyUI } from '@/themes/forumTheme';
+import { getCommandLineArguments } from './commandLine';
+import { getSqlClientOrThrow } from './sql/sqlClient';
+import { requestToNextRequest } from './utils/requestToNextRequest';
+import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
+export const app = express();
 
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -258,27 +254,6 @@ export async function startWebserver() {
     passHeader: "'Authorization': localStorage['Meteor.loginToken']", // eslint-disable-line quotes
   }));
   
-  app.get('/api/eag-application-data', async function(req, res, next) {
-    if (!isEAForum()) {
-      next()
-      return
-    }
-    
-    const currentUser = await getUserFromReq(requestToNextRequest(req))
-    if (!currentUser) {
-      res.status(403).send("Not logged in")
-      return
-    }
-
-    const userEmail = getUserEmail(currentUser)
-    if (!userEmail) {
-      res.status(403).send("User does not have email")
-      return
-    }
-    
-    const eagApp = await getEAGApplicationData(userEmail)
-  })
-
   addCrosspostRoutes(app);
   addTestingRoutes(app);
 
@@ -331,11 +306,7 @@ export async function startWebserver() {
       ...selector,
       ...(lastNotificationsCheck && {
         createdAt: {$gt: lastNotificationsCheck},
-      }),
-      ...(isFriendlyUI() && {
-        type: {$ne: "newMessage"},
-        viewed: {$ne: true},
-      }),
+      })
     }).count();
 
     response.status(200).json({ unreadNotificationCount });
@@ -387,4 +358,3 @@ export function prefilterHandleRequest(req: express.Request, res: express.Respon
 
   return false;
 }
-

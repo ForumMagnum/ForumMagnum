@@ -1,30 +1,28 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React, { useState, useCallback, useRef, useMemo } from 'react';
-import withErrorBoundary from '../common/withErrorBoundary'
-import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
-import classNames from 'classnames';
-import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
-import { CommentLinkWrapper, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { CommentTreeNode } from '../../lib/utils/unflatten';
-import type { ContentItemBodyImperative } from '../contents/contentBodyUtil';
-import { useVote } from '../votes/withVote';
-import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
-import type { CommentTreeOptions } from '../comments/commentTree';
 import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
+import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
+import classNames from 'classnames';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { CommentTreeNode } from '../../lib/utils/unflatten';
+import { getVotingSystemByName } from '../../lib/voting/getVotingSystem';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import CommentsEditForm from "../comments/CommentsEditForm";
-import SmallSideVote from "../votes/SmallSideVote";
-import AnswerCommentsList from "./AnswerCommentsList";
-import CommentsMenu from "../dropdowns/comments/CommentsMenu";
-import ForumIcon from "../common/ForumIcon";
 import CommentBody from "../comments/CommentsItem/CommentBody";
-import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
-import UsersName from "../users/UsersName";
-import { Typography } from "../common/Typography";
 import CommentBottom from "../comments/CommentsItem/CommentBottom";
+import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
+import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
+import { useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
 import CommentsNewForm from "../comments/CommentsNewForm";
+import type { CommentTreeOptions } from '../comments/commentTree';
+import { Typography } from "../common/Typography";
+import withErrorBoundary from '../common/withErrorBoundary';
+import type { ContentItemBodyImperative } from '../contents/contentBodyUtil';
+import CommentsMenu from "../dropdowns/comments/CommentsMenu";
+import UsersName from "../users/UsersName";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
+import SmallSideVote from "../votes/SmallSideVote";
+import { useVote } from '../votes/withVote';
+import AnswerCommentsList from "./AnswerCommentsList";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -51,11 +49,7 @@ const styles = (theme: ThemeType) => ({
     display: 'inline-block',
     fontWeight: 600,
     ...theme.typography.postStyle,
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {}),
+    ...({}),
   },
   date: {
     display: 'inline-block',
@@ -71,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexGrow: 1,
     position: "relative",
-    top: theme.isFriendlyUI ? 0 : -4,
+    top: -4,
   },
   footer: {
     marginTop: 5,
@@ -171,9 +165,7 @@ const Answer = ({ comment, post, childComments, classes }: {
     setReplyFormIsOpen(false);
   }, []);
 
-  const menuIcon = isFriendlyUI()
-    ? undefined
-    : <MoreHorizIcon />;
+  const menuIcon = <MoreHorizIcon />;
 
   const treeOptions: CommentTreeOptions = useMemo(() => ({
     postPage: true,
@@ -192,10 +184,7 @@ const Answer = ({ comment, post, childComments, classes }: {
           <Typography variant="body2" className={classes.deleted}>
             Answer was deleted
           </Typography>
-          {isFriendlyUI() &&
-            <CommentLinkWrapper comment={comment} post={post}>
-              <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
-            </CommentLinkWrapper>
+          {false
           }
           <CommentsMenu
             className={classes.menu}
@@ -220,10 +209,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                 <span className={classes.vote}>
                   <SmallSideVote document={comment} collectionName="Comments"/>
                 </span>
-                {isFriendlyUI() &&
-                  <CommentLinkWrapper comment={comment} post={post}>
-                    <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
-                  </CommentLinkWrapper>
+                {false
                 }
                 <CommentsMenu
                   className={classes.menu}

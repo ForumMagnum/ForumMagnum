@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 
 import classNames from 'classnames';
 import { CommentTreeNode, addGapIndicators, flattenCommentBranch, unflattenComments } from '../../lib/utils/unflatten';
-import withErrorBoundary from '../common/withErrorBoundary'
+import withErrorBoundary from '../common/withErrorBoundary';
 
-import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import type { CommentTreeOptions } from '../comments/commentTree';
-import { useRecentDiscussionThread } from './useRecentDiscussionThread';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
 import CommentsNode from "../comments/CommentsNode";
-import FeedPostsHighlight from "../posts/FeedPostsHighlight";
+import type { CommentTreeOptions } from '../comments/commentTree';
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import FeedPostCardMeta from "../posts/FeedPostCardMeta";
+import FeedPostsHighlight from "../posts/FeedPostsHighlight";
+import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius["small"],
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
       paddingLeft: 16,

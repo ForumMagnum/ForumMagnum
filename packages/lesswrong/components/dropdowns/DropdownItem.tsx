@@ -1,40 +1,21 @@
-import React, { FC, ReactElement, MouseEvent, PropsWithChildren, ReactNode } from "react";
-import ForumIcon, { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@/lib/vendor/@material-ui/core/src/ListItemIcon";
-import { Link } from "../../lib/reactRouterWrapper";
-import type { HashLinkProps } from "../common/HashLink";
 import classNames from "classnames";
-import { MenuItem } from "../common/Menus";
-import Loading from "../vulcan-core/Loading";
+import { FC, MouseEvent, PropsWithChildren, ReactElement, ReactNode } from "react";
+import { Link } from "../../lib/reactRouterWrapper";
+import ForumIcon, { ForumIconName } from "../common/ForumIcon";
+import type { HashLinkProps } from "../common/HashLink";
 import LWTooltip from "../common/LWTooltip";
+import { MenuItem } from "../common/Menus";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import Loading from "../vulcan-core/Loading";
 
 const styles = defineStyles("DropdownItem", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      "&:hover": {
-        opacity: 1,
-      },
-    }),
-  },
+},
   main: {
-    ...(theme.isFriendlyUI && {
-      borderRadius: theme.borderRadius.default,
-      padding: 8,
-      "&:hover": {
-        background: theme.palette.dropdown.hoverBackground,
-        "& svg": {
-          color: theme.palette.grey[1000],
-        },
-      },
-      "& .ForumIcon-root": {
-        fontSize: theme.isFriendlyUI ? 20 : undefined,
-      },
-    }),
-  },
+},
   noIcon: {
-    paddingLeft: theme.isFriendlyUI ? 12 : undefined,
-  },
+},
   title: {
     flexGrow: 1,
     overflowX: "clip",

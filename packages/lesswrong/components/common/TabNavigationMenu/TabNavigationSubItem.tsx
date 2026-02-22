@@ -1,12 +1,12 @@
-import React from 'react';
-import classNames from 'classnames'
-import { iconWidth } from './TabNavigationItem'
-import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+import React from 'react';
+import { iconWidth } from './TabNavigationItem';
+import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 
 const iconPadding = (theme: ThemeType) =>
-  theme.isFriendlyUI ? theme.spacing.unit / 2 : iconWidth + (theme.spacing.unit * 2);
+  iconWidth + (theme.spacing.unit * 2);
 
 const styles = defineStyles("TabNavigationSubItem", (theme: ThemeType) => ({
   root: {
@@ -15,7 +15,7 @@ const styles = defineStyles("TabNavigationSubItem", (theme: ThemeType) => ({
     paddingBottom: theme.spacing.unit,
     // padding reflects how large an icon+padding is
     paddingLeft: (theme.spacing.unit*2) + iconPadding(theme),
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[700],
+    color: theme.palette.grey[700],
     ...(theme.isBookUI && theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
@@ -27,8 +27,7 @@ const styles = defineStyles("TabNavigationSubItem", (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     overflow: "hidden",
     '&:hover': {
-      opacity: theme.isFriendlyUI ? 1 : 0.6,
-      color: theme.isFriendlyUI ? theme.palette.grey[800] : undefined,
+      opacity: 0.6
     },
     boxSizing: "content-box"
   }

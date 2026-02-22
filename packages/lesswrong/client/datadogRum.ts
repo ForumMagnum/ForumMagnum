@@ -1,9 +1,9 @@
+import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '@/lib/instanceSettings';
 import { EditableUser, getUserEmail } from '../lib/collections/users/helpers';
-import { isEAForum, ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '@/lib/instanceSettings';
 import { getCookiePreferences } from '../lib/cookies/utils';
-import { isE2E, isServer } from '../lib/executionEnvironment';
+import { isServer } from '../lib/executionEnvironment';
 
-const hasDatadog = () => isEAForum() && !isE2E;
+const hasDatadog = () => false;
 
 let datadogInitialized = false;
 

@@ -1,12 +1,11 @@
-import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import type { CoreReadingCollection } from '../sequences/LWCoreReading';
-import CloudinaryImage from "../common/CloudinaryImage";
-import LinkCard from "../common/LinkCard";
-import UsersName from "../users/UsersName";
-import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { Link } from '../../lib/reactRouterWrapper';
+import CloudinaryImage from "../common/CloudinaryImage";
+import LinkCard from "../common/LinkCard";
+import { Typography } from "../common/Typography";
+import type { CoreReadingCollection } from '../sequences/LWCoreReading';
+import UsersName from "../users/UsersName";
 
 const styles = defineStyles("BigCollectionsCard", (theme: ThemeType) => ({
   root: {
@@ -47,10 +46,7 @@ const styles = defineStyles("BigCollectionsCard", (theme: ThemeType) => ({
   },
   author: {
     ...theme.typography.postStyle,
-    marginBottom:theme.spacing.unit,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    marginBottom:theme.spacing.unit
   },
   media: {
     height:271,

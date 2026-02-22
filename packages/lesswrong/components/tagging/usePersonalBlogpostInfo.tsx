@@ -16,14 +16,6 @@ const lwafPersonalBlogpostInfo = {
 const personalBlogpostInfo: ForumOptions<{name: string, tooltip: React.JSX.Element}> = {
   LessWrong: lwafPersonalBlogpostInfo,
   AlignmentForum: lwafPersonalBlogpostInfo,
-  EAForum: {
-    name: "Personal",
-    tooltip: <div>
-      <div>
-        By default, the home page only displays Frontpage Posts, which are selected by moderators as especially interesting or useful to people with interest in doing good effectively. Personal posts get to have looser standards of relevance, and may include topics that could lead to more emotive or heated discussion (e.g. politics), which are generally excluded from Frontpage.
-      </div>
-    </div>
-  },
   default: {
     name: "Personal",
     tooltip: <div>

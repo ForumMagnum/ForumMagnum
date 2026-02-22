@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
-import { DialogContent } from "@/components/widgets/DialogContent";
-import { isFriendlyUI } from '@/themes/forumTheme';
-import { Link } from '@/lib/reactRouterWrapper';
-import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useMessages } from '@/components/common/withMessages';
-import LWDialog from "../../common/LWDialog";
-import EAButton from "../../ea-forum/EAButton";
-import Loading from "../../vulcan-core/Loading";
-import { Typography } from "../../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
+import { Link } from '@/lib/reactRouterWrapper';
+import { useState } from 'react';
+import LWDialog from "../../common/LWDialog";
+import { Typography } from "../../common/Typography";
+import EAButton from "../../ea-forum/EAButton";
+import Loading from "../../vulcan-core/Loading";
 
 const styles = defineStyles("DeleteAccountConfirmationModal", (theme: ThemeType) => ({
   dialogPaper: {
@@ -59,7 +58,7 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction}: {
       open={true}
       onClose={onClose}
       fullWidth
-      maxWidth={isFriendlyUI() ? "md" : "sm"}
+      maxWidth={"sm"}
       paperClassName={classes.dialogPaper}
     >
       <DialogContent>

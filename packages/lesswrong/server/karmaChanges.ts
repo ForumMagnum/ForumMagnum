@@ -1,13 +1,12 @@
-import moment from '../lib/moment-timezone';
-import { compile as compileHtmlToText } from 'html-to-text'
-import sumBy from 'lodash/sumBy';
-import type {
-  KarmaChangesArgs,
-  AnyKarmaChange,
-} from './collections/users/karmaChangesGraphQL';
-import { isFriendlyUI } from '../themes/forumTheme';
-import type VotesRepo from './repos/VotesRepo';
 import { karmaChangeNotifierDefaultSettings, KarmaChangeSettingsType, KarmaChangeUpdateFrequency } from '@/lib/collections/users/helpers';
+import { compile as compileHtmlToText } from 'html-to-text';
+import sumBy from 'lodash/sumBy';
+import moment from '../lib/moment-timezone';
+import type {
+    AnyKarmaChange,
+    KarmaChangesArgs,
+} from './collections/users/karmaChangesGraphQL';
+import type VotesRepo from './repos/VotesRepo';
 
 // Our graphql type codegen returns output types with Dates as strings because
 // that's what we get on the client, but isn't what we return from the resolver(s).
@@ -184,15 +183,6 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     af,
     showNegative: showNegativeKarma,
   };
-
-  if (isFriendlyUI()) {
-    const args = {
-      ...queryArgs,
-      ...limitDateRange({...queryArgs, maxDays: 40}),
-    };
-    return getEAKarmaChanges(votesRepo, args, nextBatchDate, updateFrequency);
-  }
-
   const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getLWKarmaChanges(queryArgs);
 
   // Replace comment bodies with abbreviated plain-text versions (rather than

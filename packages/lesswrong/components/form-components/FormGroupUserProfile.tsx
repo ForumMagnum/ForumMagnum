@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
       flexBasis: "100%",
     },
     [theme.breakpoints.up("sm")]: {
-      "& > .form-component-FormComponentFriendlyTextInput": {
+      "& > .form-component-FormComponentTextInput": {
         flexBasis: `calc(50% - ${GAP / 2}px)`,
       },
     },
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FormGroupFriendlyUserProfile = ({label, children, classes}: {
+const FormGroupUserProfile = ({label, children, classes}: {
   classes: ClassesType<typeof styles>,
 } & Pick<FormGroupLayoutProps, "label" | "children">) => {
   return (
@@ -48,9 +48,8 @@ const FormGroupFriendlyUserProfile = ({label, children, classes}: {
 }
 
 export default registerComponent(
-  "FormGroupFriendlyUserProfile",
-  FormGroupFriendlyUserProfile,
+  "FormGroupUserProfile",
+  FormGroupUserProfile,
   {styles},
 );
-
 

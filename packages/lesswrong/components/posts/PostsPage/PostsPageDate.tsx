@@ -1,17 +1,15 @@
-import React from 'react';
-import FormatDate, { ExpandedDate } from '../../common/FormatDate';
-import moment from 'moment';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import PostsRevisionSelector from "./PostsRevisionSelector";
-import LWTooltip from "../../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import moment from 'moment';
+import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import FormatDate, { ExpandedDate } from '../../common/FormatDate';
+import LWTooltip from "../../common/LWTooltip";
+import PostsRevisionSelector from "./PostsRevisionSelector";
 
 const styles = defineStyles("PostsPageDate", (theme: ThemeType) => ({
   date: {
     color: theme.palette.text.dim3,
-    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.typography.body2.fontSize,
     cursor: 'default'
   },
   mobileDate: {
@@ -44,14 +42,6 @@ const PostsPageDate = ({ post, hasMajorRevision }: {
   }
   
   let format = "Do MMM YYYY"
-  if (isFriendlyUI()) {
-    format = "MMM D YYYY"
-    // hide the year if it's this year
-    if (now.isSame(moment(post.postedAt), 'year')) {
-      format = "MMM D"
-    }
-  }
-  
   return <LWTooltip title={tooltip} placement="bottom">
     <span className={classes.date}>
       <FormatDate date={post.postedAt} format={format} tooltip={false} />

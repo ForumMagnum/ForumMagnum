@@ -1,17 +1,17 @@
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../themes/forumTheme';
-import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import LWTooltip from "../common/LWTooltip";
+import OverallVoteButton from "../votes/OverallVoteButton";
+import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import { useVote } from '../votes/withVote';
 import TagPreview from "./TagPreview";
-import OverallVoteButton from "../votes/OverallVoteButton";
 import TagRelevanceButton from "./TagRelevanceButton";
-import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   relevance: {
-    marginTop: theme.isFriendlyUI ? undefined : 2,
+    marginTop: 2,
     marginLeft: 16,
     ...theme.typography.commentStyle,
   },
@@ -21,8 +21,7 @@ const styles = (theme: ThemeType) => ({
   },
   voteButton: {
     display: "inline-block",
-    fontSize: 25,
-    transform: theme.isFriendlyUI ? "translateY(2px)" : undefined,
+    fontSize: 25
   },
   score: {
     marginLeft: 4,
@@ -30,30 +29,18 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
   },
   removeButton: {
-    ...(theme.isFriendlyUI
-      ? {
-        float: "right",
-        marginTop: 10,
-        marginLeft: 10,
-      }
-      : {
-        position: "absolute",
-        top: 7,
-        right: 0,
-      }),
+    ...({
+              position: "absolute",
+              top: 7,
+              right: 0,
+            }),
   },
   removed: {
-    ...(theme.isFriendlyUI
-      ? {
-        float: "right",
-        marginTop: 12,
-        marginRight: 16,
-      }
-      : {
-        position: "absolute",
-        top: 7,
-        right: 16,
-      }),
+    ...({
+              position: "absolute",
+              top: 7,
+              right: 16,
+            }),
     color: theme.palette.grey[400]
   }
 });

@@ -27,7 +27,6 @@ export const prodAf = merge({
     environment: "alignmentforum.org"
   },
   testServer: false,
-  fmCrosspost: { siteName: "the EA Forum", baseUrl: "https://forum.effectivealtruism.org/" },
   performanceMetricLogging: {
     enabled: true,
     batchSize: 100

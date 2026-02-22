@@ -5,7 +5,6 @@ import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { Link } from '../../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../../common/withUser';
 import { isMod } from '../../../lib/collections/users/helpers';
-import { forumSelect } from '../../../lib/forumTypeUtils';
 import Datatable, { Column } from '../../vulcan-core/Datatable';
 import FormatDate from "../../common/FormatDate";
 import UsersName from "../../users/UsersName";
@@ -76,12 +75,7 @@ const UserRateLimitModerationLogQuery = gql(`
   }
 `);
 
-const shouldShowEndUserModerationToNonMods = () => forumSelect({
-  EAForum: false,
-  LessWrong: true,
-  AlignmentForum: true,
-  default: true,
-})
+const shouldShowEndUserModerationToNonMods = () => true;
 
 const styles = defineStyles("ModerationLog", (theme: ThemeType) => ({
   root: {
@@ -450,5 +444,4 @@ const ModerationLog = () => {
 }
 
 export default ModerationLog;
-
 

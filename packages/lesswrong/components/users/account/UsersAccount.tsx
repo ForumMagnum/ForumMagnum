@@ -1,14 +1,13 @@
 "use client";
-import React from 'react';
-import { userCanEditUser } from '@/lib/collections/users/helpers';
-import { preferredHeadingCase } from '@/themes/forumTheme';
 import { useCurrentUser } from '@/components/common/withUser';
 import { hasAccountDeletionFlow } from '@/lib/betas';
-import UsersEditForm from "./UsersEditForm";
-import UsersAccountManagement from "./UsersAccountManagement";
+import { userCanEditUser } from '@/lib/collections/users/helpers';
+import { preferredHeadingCase } from '@/themes/forumTheme';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
-import { useStyles } from '../../hooks/useStyles';
 import { defineStyles } from '../../hooks/defineStyles';
+import { useStyles } from '../../hooks/useStyles';
+import UsersAccountManagement from "./UsersAccountManagement";
+import UsersEditForm from "./UsersEditForm";
 
 const styles = defineStyles("UsersAccount", (theme: ThemeType) => ({
   root: {
@@ -23,8 +22,8 @@ const styles = defineStyles("UsersAccount", (theme: ThemeType) => ({
     },
   },
   header: {
-    paddingTop: theme.isFriendlyUI ? '32px' : '48px',
-    paddingBottom: theme.isFriendlyUI ? '16px' : '32px',
+    paddingTop: '48px',
+    paddingBottom: '32px',
     [theme.breakpoints.down('xs')]: {
       paddingTop: 28,
       paddingBottom: 20,

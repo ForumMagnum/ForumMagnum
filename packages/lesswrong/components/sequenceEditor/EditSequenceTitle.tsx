@@ -1,8 +1,7 @@
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
-import React from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { sequencesImageScrim } from '../sequences/SequencesPage';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('EditSequenceTitle', (theme: ThemeType) => ({
   root: {
@@ -46,8 +45,8 @@ const styles = defineStyles('EditSequenceTitle', (theme: ThemeType) => ({
   },
   input: {
     width: '100%',
-    fontSize: theme.isFriendlyUI ? '2.4rem' : 36,
-    fontWeight: theme.isFriendlyUI ? 600 : 400,
+    fontSize: 36,
+    fontWeight: 400,
     ...theme.typography.smallCaps,
     height: '1em',
     '&::placeholder': {

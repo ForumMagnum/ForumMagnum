@@ -1,27 +1,26 @@
-import React from 'react';
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-import moment from '../../lib/moment-timezone';
-import { useCurrentUser } from '../common/withUser';
-import { isAF } from '../../lib/instanceSettings';
-import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
-import type { VotingProps } from './votingProps';
-import OverallVoteButton from './OverallVoteButton';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import React from 'react';
+import { isAF } from '../../lib/instanceSettings';
+import moment from '../../lib/moment-timezone';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import LWTooltip from "../common/LWTooltip";
+import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import UsersName from "../users/UsersName";
-import LWTooltip from "../common/LWTooltip";
+import OverallVoteButton from './OverallVoteButton';
+import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
+import type { VotingProps } from './votingProps';
 
 const styles = defineStyles('OverallVoteAxis', theme => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
-    paddingTop: theme.isFriendlyUI ? 2.5 : 0
+    paddingTop: 0
   },
   overallSectionBox: {
     marginLeft: 8,
     outline: theme.palette.border.commentBorder,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 2,
+    borderRadius: 2,
     textAlign: 'center',
     minWidth: 60
   },
@@ -67,7 +66,7 @@ const styles = defineStyles('OverallVoteAxis', theme => ({
   },
 }));
 
-const getKarmaQuestion = () => isFriendlyUI() ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
+const getKarmaQuestion = () => 'How much do you like this overall?'
 
 const OverallVoteAxis = ({
   document,

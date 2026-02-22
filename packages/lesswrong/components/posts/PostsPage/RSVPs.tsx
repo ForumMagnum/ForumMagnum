@@ -1,27 +1,27 @@
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import React, { useCallback, useEffect } from 'react';
-import type { RSVPType } from "@/lib/collections/posts/helpers";
-import { useLocation } from '../../../lib/routeUtil';
-import { useDialog } from '../../common/withDialog';
-import { useCurrentUser } from '../../common/withUser';
-import RSVPForm from './RSVPForm';
 import { RsvpResponse, responseToText } from '@/lib/collections/posts/constants';
+import type { RSVPType } from "@/lib/collections/posts/helpers";
+import { gql } from '@/lib/generated/gql-codegen';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import CheckCircleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/CheckCircleOutline';
 import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
 import HighlightOffIcon from '@/lib/vendor/@material-ui/icons/src/HighlightOff';
 import { useMutation } from "@apollo/client/react";
-import { gql } from '@/lib/generated/gql-codegen';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
+import { useCallback, useEffect } from 'react';
+import { useLocation } from '../../../lib/routeUtil';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import ContentStyles from "../../common/ContentStyles";
+import { useDialog } from '../../common/withDialog';
+import { useCurrentUser } from '../../common/withUser';
+import RSVPForm from './RSVPForm';
 
 const styles = (theme: ThemeType) => ({
   body: {
     marginBottom: 48
   },
   rsvpItem: {
-    width:  theme.isFriendlyUI ? "33%" : "25%",
+    width:  "25%",
     display: "inline-block",
     marginRight: 16,
     paddingTop: 4,
@@ -97,13 +97,9 @@ const styles = (theme: ThemeType) => ({
       display: "block"
     },
   },
-  rsvpMessage: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }
-    : {
-      fontStyle: "italic",
-    },
+  rsvpMessage: {
+        fontStyle: "italic",
+      },
 });
 
 const RSVPs = ({post, classes}: {

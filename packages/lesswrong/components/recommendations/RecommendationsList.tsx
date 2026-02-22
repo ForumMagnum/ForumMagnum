@@ -1,10 +1,10 @@
 import React, { ComponentType } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { Typography } from "../common/Typography";
 import PostsItem from "../posts/PostsItem";
 import PostsLoading from "../posts/PostsLoading";
-import { Typography } from "../common/Typography";
+import { useRecommendations } from './withRecommendations';
 
 export type RecommendationsListItem = ComponentType<{
   post: PostsListWithVotes|PostsListWithVotesAndSequence,
@@ -13,8 +13,7 @@ export type RecommendationsListItem = ComponentType<{
 
 const styles = (theme: ThemeType) => ({
   noMoreMessage: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-  },
+},
 });
 
 const RecommendationsList = ({

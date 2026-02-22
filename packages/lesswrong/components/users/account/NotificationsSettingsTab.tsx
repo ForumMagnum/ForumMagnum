@@ -1,15 +1,14 @@
-import React from 'react';
-import { hasEventsSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
-import { allowSubscribeToSequencePosts } from '@/lib/betas';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
+import EmailConfirmationRequiredCheckbox from '@/components/users/EmailConfirmationRequiredCheckbox';
 import KarmaChangeNotifierSettings from '@/components/users/KarmaChangeNotifierSettings';
 import UsersEmailVerification from '@/components/users/UsersEmailVerification';
-import EmailConfirmationRequiredCheckbox from '@/components/users/EmailConfirmationRequiredCheckbox';
+import { allowSubscribeToSequencePosts } from '@/lib/betas';
+import { hasEventsSetting, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
 import { HighlightableField } from './HighlightableField';
-import SettingsSection from './SettingsSection';
-import SettingsToggleRow from './SettingsToggleRow';
 import NotificationSettingsRow, { NotificationColumnHeaders } from './NotificationSettingsRow';
+import SettingsSection from './SettingsSection';
 import type { SettingsTabProps } from './settingsTabTypes';
+import SettingsToggleRow from './SettingsToggleRow';
 
 const NotificationsSettingsTab = ({
   form,
@@ -104,7 +103,7 @@ const NotificationsSettingsTab = ({
           {(field) => (
             <NotificationSettingsRow
               field={field}
-              label={`${isEAForum() ? "Quick takes" : "Shortform"} by subscribed users`}
+              label={`${"Shortform"} by subscribed users`}
             />
           )}
         </form.Field>
@@ -244,17 +243,7 @@ const NotificationsSettingsTab = ({
           </form.Field>
         </div>}
 
-        {isEAForum() && <HighlightableField name="subscribedToDigest">
-          <form.Field name="subscribedToDigest">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="EA Forum Digest"
-                description="Receive the EA Forum Digest emails"
-              />
-            )}
-          </form.Field>
-        </HighlightableField>}
+        {false}
 
         <form.Field name="unsubscribeFromAll">
           {(field) => (

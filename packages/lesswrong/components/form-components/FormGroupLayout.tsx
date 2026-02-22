@@ -1,7 +1,7 @@
+import { slugify } from '@/lib/utils/slugify';
+import classNames from 'classnames';
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import classNames from 'classnames';
-import { slugify } from '@/lib/utils/slugify';
 
 const styles = (theme: ThemeType) => ({
   formSection: {
@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
     border: theme.palette.border.grey300,
     marginBottom: theme.spacing.unit,
     background: theme.palette.background.pageActiveAreaBackground,
-    ...(theme.isFriendlyUI ? {borderRadius: 6} : {})
+    ...({})
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,

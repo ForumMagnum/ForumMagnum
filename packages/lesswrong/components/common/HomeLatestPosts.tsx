@@ -1,33 +1,29 @@
-import React, { useState } from 'react';
-import { useCurrentUser } from '../common/withUser';
-import { Link } from '../../lib/reactRouterWrapper';
-import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
-import { FilterSettings } from '../../lib/filterSettings';
-import { useFilterSettings } from '../hooks/useFilterSettings';
-import moment from '../../lib/moment-timezone';
-import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
-import SectionTitle, { sectionTitleStyle } from '../common/SectionTitle';
-import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
-import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
-import classNames from 'classnames';
-import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
-import { reviewIsActive } from '../../lib/reviewUtils';
-import { forumSelect } from '../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/helpers';
-import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
-import SingleColumnSection from "./SingleColumnSection";
-import PostsList2 from "../posts/PostsList2";
-import TagFilterSettings from "../tagging/TagFilterSettings";
-import LWTooltip from "./LWTooltip";
-import SettingsButton from "../icons/SettingsButton";
-import CuratedPostsList from "../recommendations/CuratedPostsList";
-import StickiedPosts from "../ea-forum/StickiedPosts";
-import PostsListViewToggle from "../posts/PostsListViewToggle";
-import SurveyPostsItem from "../surveys/SurveyPostsItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { frontpageDaysAgoCutoffSetting, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting } from '@/lib/instanceSettings';
+import classNames from 'classnames';
+import { useState } from 'react';
+import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
+import { FilterSettings } from '../../lib/filterSettings';
+import { forumSelect } from '../../lib/forumTypeUtils';
+import moment from '../../lib/moment-timezone';
+import { Link } from '../../lib/reactRouterWrapper';
+import { reviewIsActive } from '../../lib/reviewUtils';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
+import SectionTitle, { sectionTitleStyle } from '../common/SectionTitle';
+import { useCurrentUser } from '../common/withUser';
+import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
+import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
+import { useFilterSettings } from '../hooks/useFilterSettings';
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
+import SettingsButton from "../icons/SettingsButton";
+import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
+import PostsList2 from "../posts/PostsList2";
+import CuratedPostsList from "../recommendations/CuratedPostsList";
+import SurveyPostsItem from "../surveys/SurveyPostsItem";
+import TagFilterSettings from "../tagging/TagFilterSettings";
+import LWTooltip from "./LWTooltip";
+import SingleColumnSection from "./SingleColumnSection";
 
 const getTitleWrapperStyles = () => isLWorAF() ? {
   marginBottom: 8
@@ -70,15 +66,9 @@ const styles = defineStyles("HomeLatestPosts", (theme: ThemeType) => ({
   },
 }));
 
-const getLatestPostsName = () => isFriendlyUI() ? 'New & upvoted' : 'Latest Posts'
+const getLatestPostsName = () => 'Latest Posts'
 
 const getFilterSettingsToggleLabels = () => forumSelect({
-  EAForum: {
-    desktopVisible: "Customize feed",
-    desktopHidden: "Customize feed",
-    mobileVisible: "Customize feed",
-    mobileHidden: "Customize feed",
-  },
   default: {
     desktopVisible: "Customize (Hide)",
     desktopHidden: "Customize",
@@ -87,29 +77,11 @@ const getFilterSettingsToggleLabels = () => forumSelect({
   }
 })
 
-const getAdvancedSortingText = () => isFriendlyUI()
-  ? "Advanced sorting & filtering"
-  : "Advanced Sorting/Filtering";
+const getAdvancedSortingText = () => "Advanced Sorting/Filtering";
 
-const getDefaultLimit = () => isFriendlyUI() ? 11 : 13;
+const getDefaultLimit = () => 13;
 
-const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings => {
-  if (!isEAForum()) {
-    return filterSettings;
-  }
-  const tags = filterSettings.tags.filter(
-    ({tagId}) => tagId !== EA_FORUM_TRANSLATION_TOPIC_ID,
-  );
-  tags.push({
-    tagId: EA_FORUM_TRANSLATION_TOPIC_ID,
-    tagName: "Translation",
-    filterMode: "Hidden",
-  });
-  return {
-    ...filterSettings,
-    tags,
-  };
-}
+const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings => filterSettings;
 
 const HomeLatestPosts = () => {
   const classes = useStyles(styles);
@@ -117,9 +89,8 @@ const HomeLatestPosts = () => {
   const currentUser = useCurrentUser();
 
   const {filterSettings, suggestedTagsQueryRef, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
-  // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
-  // (except that on the EA Forum/FriendlyUI it always starts out hidden)
-  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI() ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
+  // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden.
+  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(!currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { captureEvent } = useOnMountTracking({
     eventType:"frontpageFilterSettings",
@@ -153,14 +124,14 @@ const HomeLatestPosts = () => {
     })
   }
 
-  const showCurated = isFriendlyUI() || (isLW() && reviewIsActive())
+  const showCurated = (isLW() && reviewIsActive())
 
   const {survey, refetch: refetchSurvey} = useCurrentFrontpageSurvey();
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <SectionTitle title={getLatestPostsName()} noTopMargin={isFriendlyUI()} noBottomPadding>
+        <SectionTitle title={getLatestPostsName()} noTopMargin={false} noBottomPadding>
           <div className={classes.postsListSettings}>
             <LWTooltip
               title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
@@ -190,7 +161,7 @@ const HomeLatestPosts = () => {
                   })
                 }} />
             </LWTooltip>
-            {isFriendlyUI() && <PostsListViewToggle />}
+            {false}
           </div>
         </SectionTitle>
 
@@ -210,7 +181,7 @@ const HomeLatestPosts = () => {
             </div>
           )}
         </AnalyticsContext>
-        {isFriendlyUI() && <StickiedPosts />}
+        {false}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList
             repeatedPostsPrecedence={1}
@@ -243,5 +214,4 @@ const HomeLatestPosts = () => {
 }
 
 export default HomeLatestPosts;
-
 

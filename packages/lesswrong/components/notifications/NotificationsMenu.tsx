@@ -1,21 +1,21 @@
-import React, { useCallback, useState } from 'react';
-import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { Drawer } from '@/components/material-ui/Drawer';
 import { Badge } from "@/components/widgets/Badge";
+import { useReadQuery } from '@/lib/crud/useQuery';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
 import PostsIcon from '@/lib/vendor/@material-ui/icons/src/Description';
-import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import MailIcon from '@/lib/vendor/@material-ui/icons/src/Mail';
+import CommentsIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
+import { registerComponent } from '@/lib/vulcan-lib/components';
+import React, { useCallback, useState } from 'react';
+import ErrorBoundary from "../common/ErrorBoundary";
+import ForumIcon from "../common/ForumIcon";
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { useCurrentUserId } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { Drawer } from '@/components/material-ui/Drawer'
-import ForumIcon from "../common/ForumIcon";
-import ErrorBoundary from "../common/ErrorBoundary";
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import NotificationsList from "./NotificationsList";
-import { useReadQuery } from '@/lib/crud/useQuery';
-import { SuspenseWrapper } from '../common/SuspenseWrapper';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 
 const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
   root: {
@@ -35,7 +35,7 @@ const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
     backgroundColor: 'inherit',
     color: theme.palette.text.notificationCount,
     fontSize: "12px",
-    fontWeight: theme.isFriendlyUI ? 450 : 500,
+    fontWeight: 500,
     right: "-15px",
     top: 0,
     pointerEvents: "none",

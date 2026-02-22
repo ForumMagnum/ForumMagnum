@@ -1,14 +1,13 @@
-import { isEAForum, verifyEmailsSetting, newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
-import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
-import type { PermissionResult } from '../../make_voteable';
-import { hasAuthorModeration } from '../../betas';
-import { DeferredForumSelect } from '@/lib/forumTypeUtils';
-import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
-import type { EditablePost } from '../posts/helpers';
-import { maybeDate } from '@/lib/utils/dateUtils';
 import { isE2E } from '@/lib/executionEnvironment';
+import { DeferredForumSelect } from '@/lib/forumTypeUtils';
+import { isAF, isLW, newUserIconKarmaThresholdSetting, verifyEmailsSetting } from '@/lib/instanceSettings';
+import { maybeDate } from '@/lib/utils/dateUtils';
+import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
+import { hasAuthorModeration } from '../../betas';
+import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
+import { PermissionableUser, userCanDo, userIsMemberOf, userOwns } from '../../vulcan-users/permissions';
+import type { EditablePost } from '../posts/helpers';
 
 export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
@@ -69,10 +68,6 @@ export const isNewUser = (user: UsersMinimumInfo): boolean => {
   // For the EA forum, return true if either:
   // 1. the user is below the karma threshold, or
   // 2. the user was created less than a week ago
-  if (isEAForum()) {
-    return userBelowKarmaThreshold || userCreatedAt.getTime() > new Date().getTime() - oneWeekInMs;
-  }
-
   // Elsewhere, only return true for a year after creation if the user remains below the karma threshold
   if (userBelowKarmaThreshold) {
     return userCreatedAt.getTime() > new Date().getTime() - oneYearInMs;
@@ -488,7 +483,7 @@ export const socialMediaSiteNameToHref = (
   : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);
 
 export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
-  const shortformName = isEAForum() ? "Quick takes" : "Shortform";
+  const shortformName = "Shortform";
 
   // Emoji's aren't allowed in post titles, see `assertPostTitleHasNoEmojis`
   const displayNameWithoutEmojis = user.displayName?.replace(/\p{Extended_Pictographic}/gu, '');
@@ -516,12 +511,6 @@ export interface KarmaChangeSettingsType {
 }
 
 export const karmaChangeNotifierDefaultSettings = new DeferredForumSelect<KarmaChangeSettingsType>({
-  EAForum: {
-    updateFrequency: "realtime",
-    timeOfDayGMT: 11, // 3am PST
-    dayOfWeekGMT: "Saturday",
-    showNegativeKarma: false,
-  },
   default: {
     updateFrequency: "daily",
     timeOfDayGMT: 11,

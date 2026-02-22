@@ -1,6 +1,6 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,8 +14,7 @@ const styles = (theme: ThemeType) => ({
   content: {
     ...theme.typography.postStyle,
     overflow: "hidden",
-    lineHeight: "1.2rem",
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    lineHeight: "1.2rem"
   },
   hover: {
     backgroundColor: theme.palette.grey[50]

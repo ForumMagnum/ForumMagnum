@@ -1,45 +1,44 @@
 "use client";
 
-import React, { FC, RefObject, ReactElement, useEffect, useRef, useState, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import qs from 'qs';
-import type { SearchState } from 'react-instantsearch/connectors';
-import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
-import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info';
-import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
-import moment from 'moment';
-import { useSearchAnalytics } from './useSearchAnalytics';
-import {
-  getSearchClient,
-  SearchIndexCollectionName,
-  collectionIsSearchIndexed,
-  isSearchEnabled,
-  ElasticSorting,
-  defaultElasticSorting,
-  elasticSortingToUrlParam,
-  getElasticIndexNameWithSorting,
-  isValidElasticSorting,
-} from '../../lib/search/searchUtil';
 import classNames from 'classnames';
-import { useCurrentUser } from '../common/withUser';
+import moment from 'moment';
+import qs from 'qs';
+import React, { FC, ReactElement, RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { Configure, Hits, Pagination, SearchBox, connectScrollTo, connectStats } from 'react-instantsearch-dom';
+import type { SearchState } from 'react-instantsearch/connectors';
 import { userHasPeopleDirectory } from '../../lib/betas';
+import { taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
-import { useLocation, useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
-import SearchFilters from "./SearchFilters";
+import { useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
+import {
+    ElasticSorting,
+    SearchIndexCollectionName,
+    collectionIsSearchIndexed,
+    defaultElasticSorting,
+    elasticSortingToUrlParam,
+    getElasticIndexNameWithSorting,
+    getSearchClient,
+    isSearchEnabled,
+    isValidElasticSorting,
+} from '../../lib/search/searchUtil';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import ErrorBoundary from "../common/ErrorBoundary";
-import ExpandedUsersSearchHit from "./ExpandedUsersSearchHit";
-import ExpandedPostsSearchHit from "./ExpandedPostsSearchHit";
-import ExpandedCommentsSearchHit from "./ExpandedCommentsSearchHit";
-import ExpandedTagsSearchHit from "./ExpandedTagsSearchHit";
-import ExpandedSequencesSearchHit from "./ExpandedSequencesSearchHit";
-import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
+import LWTooltip from "../common/LWTooltip";
+import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import ExpandedCommentsSearchHit from "./ExpandedCommentsSearchHit";
+import ExpandedPostsSearchHit from "./ExpandedPostsSearchHit";
+import ExpandedSequencesSearchHit from "./ExpandedSequencesSearchHit";
+import ExpandedTagsSearchHit from "./ExpandedTagsSearchHit";
+import ExpandedUsersSearchHit from "./ExpandedUsersSearchHit";
+import SearchFilters from "./SearchFilters";
+import { useSearchAnalytics } from './useSearchAnalytics';
 
 const hitsPerPage = 10
 
@@ -395,7 +394,7 @@ const SearchPageTabbed = () => {
             <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
             <div onClick={() => setModalOpen(true)}>
               <IconButton className={classes.funnelIconButton}>
-                <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum()})}/>
+                <ForumIcon icon="Funnel" className={classes.funnelIconLW}/>
               </IconButton>
             </div>
           </div>
@@ -466,5 +465,4 @@ const SearchPageTabbed = () => {
 }
 
 export default SearchPageTabbed;
-
 

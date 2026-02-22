@@ -1,18 +1,18 @@
-import { slugify } from '@/lib/utils/slugify';
-import pick from 'lodash/pick';
+import { accessFilterSingle } from '@/lib/utils/schemaUtils';
 import SimpleSchema from '@/lib/utils/simpleSchema';
+import { slugify } from '@/lib/utils/slugify';
+import gql from 'graphql-tag';
+import pick from 'lodash/pick';
 import { getUserEmail, userCanEditUser } from "../../lib/collections/users/helpers";
-import { isEAForum, airtableApiKeySetting } from '../../lib/instanceSettings';
+import { airtableApiKeySetting } from '../../lib/instanceSettings';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import Users from '../../server/collections/users/collection';
+import { updateUser } from '../collections/users/mutations';
 import { userFindOneByEmail } from "../commonQueries";
 import UsersRepo from '../repos/UsersRepo';
-import { createPaginatedResolver } from './paginatedResolver';
-import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
-import gql from 'graphql-tag';
-import { updateUser } from '../collections/users/mutations';
-import { accessFilterSingle } from '@/lib/utils/schemaUtils';
 import { backgroundTask } from '../utils/backgroundTask';
+import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
+import { createPaginatedResolver } from './paginatedResolver';
 
 type NewUserUpdates = {
   username: string
@@ -130,9 +130,6 @@ export const graphqlMutations = {
       throw new Error('Cannot change username without being logged in')
     }
     // Check they accepted the terms of use
-    if (isEAForum() && !acceptedTos) {
-      throw new Error("You must accept the terms of use to continue");
-    }
     // Only for new users. Existing users should need to contact support to
     // change their usernames
     if (!currentUser.usernameUnset) {
@@ -328,7 +325,6 @@ let airtableCache: {
   data?: AirtableLeaderboardResultType[];
   timestamp: number;
 } = {
-  data: undefined,
   timestamp: 0,
 };
 

@@ -1,33 +1,31 @@
-import { useMessages } from '../common/withMessages';
-import React from 'react';
-import { useCurrentUser } from '../common/withUser';
-import { DialogContent } from "@/components/widgets/DialogContent";
-import { useNavigate } from '../../lib/routeUtil';
-import { useForm } from '@tanstack/react-form';
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import { MuiTextField } from '@/components/form-components/MuiTextField';
-import { localGroupTypeFormOptions, GROUP_CATEGORIES } from '@/lib/collections/localgroups/groupTypes';
-import { isEAForum, isLW } from '@/lib/instanceSettings';
-import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
-import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
-import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
-import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
-import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { ImageUpload } from '@/components/form-components/ImageUpload';
-import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
-import { GroupFormSubmit } from './GroupFormSubmit';
-import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
+import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
+import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import LWTooltip from "../common/LWTooltip";
-import Error404 from "../common/Error404";
-import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import LWDialog from "../common/LWDialog";
-import Loading from "../vulcan-core/Loading";
-import { useMutation } from "@apollo/client/react";
+import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
+import { DialogContent } from "@/components/widgets/DialogContent";
+import { localGroupTypeFormOptions } from '@/lib/collections/localgroups/groupTypes';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { isLW } from '@/lib/instanceSettings';
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import { preferredHeadingCase } from '@/themes/forumTheme';
+import { useMutation } from "@apollo/client/react";
+import { useForm } from '@tanstack/react-form';
+import { useNavigate } from '../../lib/routeUtil';
+import Error404 from "../common/Error404";
+import LWDialog from "../common/LWDialog";
+import LWTooltip from "../common/LWTooltip";
+import { useMessages } from '../common/withMessages';
+import { useCurrentUser } from '../common/withUser';
+import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
+import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import Loading from "../vulcan-core/Loading";
+import { GroupFormSubmit } from './GroupFormSubmit';
 
 const localGroupsHomeFragmentUpdateMutation = gql(`
   mutation updateLocalgroupGroupFormDialog($selector: SelectorInput!, $data: UpdateLocalgroupDataInput!) {
@@ -235,18 +233,7 @@ const LocalGroupForm = ({
         </form.Field>
       </div>}
 
-      {isEAForum() && <div className={classes.fieldWrapper}>
-        <form.Field name="categories">
-          {(field) => (
-            <FormComponentMultiSelect
-              field={field}
-              label='Group type / intended audience:'
-              options={GROUP_CATEGORIES}
-              placeholder='Select all that apply'
-            />
-          )}
-        </form.Field>
-      </div>}
+      {false}
 
       <div className={classes.fieldWrapper}>
         <form.Field name="isOnline" listeners={{
@@ -277,7 +264,7 @@ const LocalGroupForm = ({
               {(field) => (
                 <LocationFormComponent
                   field={field}
-                  label={isFriendlyUI() ? "Group location" : "Group Location"}
+                  label={"Group Location"}
                   stringVersionFieldName="location"
                 />
               )}
@@ -358,7 +345,7 @@ const LocalGroupForm = ({
             <LWTooltip inlineBlock={false} placement="left-start" title='Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)'>
               <ImageUpload
                 field={field}
-                label={isFriendlyUI() ? "Banner image" : "Banner Image"}
+                label={"Banner Image"}
                 croppingAspectRatio={1.91}
               />
             </LWTooltip>

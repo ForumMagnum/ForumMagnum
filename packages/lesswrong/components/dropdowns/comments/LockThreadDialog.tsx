@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useMutation } from "@apollo/client/react";
 import { DialogActions } from '@/components/widgets/DialogActions';
 import { DialogContent } from '@/components/widgets/DialogContent';
 import { DialogTitle } from '@/components/widgets/DialogTitle';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { gql } from "@/lib/generated/gql-codegen";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { useMutation } from "@apollo/client/react";
 import moment from 'moment';
+import { useState } from 'react';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import LWDialog from "../../common/LWDialog";
 import { DatePicker } from "../../form-components/FormComponentDateTime";
 
 const styles = (theme: ThemeType) => ({
   message: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-  },
+},
 });
 
 const LockThreadDialog = ({commentId, onClose, classes}: {

@@ -1,34 +1,25 @@
-import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { userHasPingbacks } from '../../../lib/betas';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { useFilteredCurrentUser } from '../../common/withUser';
-import { MAX_COLUMN_WIDTH } from './constants';
-import { isLW, isLWorAF } from '../../../lib/instanceSettings';
-import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import classNames from 'classnames';
-import PostsVote from "../../votes/PostsVote";
-import BookmarkButton from "../BookmarkButton";
-import SharePostButton from "../SharePostButton";
-import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
-import BottomNavigation from "../../sequences/BottomNavigation";
-import PingbacksList from "../PingbacksList";
-import FooterTagList from "../../tagging/FooterTagList";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { postBottomSecondaryVotingComponents } from '@/lib/voting/votingSystemComponents';
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
+import classNames from 'classnames';
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { userHasPingbacks } from '../../../lib/betas';
+import { isLW, isLWorAF } from '../../../lib/instanceSettings';
+import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { useFilteredCurrentUser } from '../../common/withUser';
+import BottomNavigation from "../../sequences/BottomNavigation";
+import FooterTagList from "../../tagging/FooterTagList";
+import PostsVote from "../../votes/PostsVote";
+import PingbacksList from "../PingbacksList";
+import { MAX_COLUMN_WIDTH } from './constants';
 
 const styles = (theme: ThemeType) => ({
   footerSection: {
     display: 'flex',
     columnGap: 20,
     alignItems: 'center',
-    fontSize: '1.4em',
-    paddingTop: theme.isFriendlyUI ? 30 : undefined,
-    borderTop: theme.isFriendlyUI ? theme.palette.border.grey300 : undefined,
-    marginTop: theme.isFriendlyUI ? 40 : undefined,
-    marginBottom: theme.isFriendlyUI ? 40 : undefined
+    fontSize: '1.4em'
   },
   bookmarkButton: {
     marginBottom: -5,
@@ -47,14 +38,13 @@ const styles = (theme: ThemeType) => ({
     },
   },
   voteBottom: {
-    flexGrow: theme.isFriendlyUI ? 1 : undefined,
     position: 'relative',
     fontSize: 42,
     textAlign: 'center',
     display: 'inline-block',
-    marginLeft: theme.isFriendlyUI ? undefined : 'auto',
-    marginRight: theme.isFriendlyUI ? undefined : 'auto',
-    marginBottom: theme.isFriendlyUI ? undefined : 40,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 40,
     "@media print": { display: "none" },
   },
   secondaryInfoRight: {
@@ -111,18 +101,10 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
         <div className={classes.footerSection}>
           <div className={classNames(classes.voteBottom, isLWorAF() && classes.lwVote)}>
             <AnalyticsContext pageSectionContext="lowerVoteButton">
-              <PostsVote post={post} useHorizontalLayout={isFriendlyUI()} isFooter />
+              <PostsVote post={post} useHorizontalLayout={false} isFooter />
             </AnalyticsContext>
           </div>
-          {isFriendlyUI() && <div className={classes.secondaryInfoRight}>
-            <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked} className={classes.bookmarkButton} placement='bottom-start' />
-            <SharePostButton post={post} />
-            <span className={classes.actions}>
-              <AnalyticsContext pageElementContext="tripleDotMenu">
-                <PostActionsButton post={post} includeBookmark={!isFriendlyUI()} />
-              </AnalyticsContext>
-            </span>
-          </div>}
+          {false}
         </div>
         {PostBottomSecondaryVotingComponent &&
           <PostBottomSecondaryVotingComponent

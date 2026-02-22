@@ -1,21 +1,18 @@
-import React, { FC, PropsWithChildren } from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
+import { curatedUrl } from '@/components/recommendations/constants';
+import { getAllTagsPath } from '@/lib/pathConstants';
+import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
 import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
+import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import SubjectIcon from '@/lib/vendor/@material-ui/icons/src/Subject';
-import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
-import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
-import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
-import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
-import { curatedUrl } from '@/components/recommendations/constants';
-import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { getAllTagsPath } from '@/lib/pathConstants';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import { Typography } from "../../common/Typography";
+import React, { FC, PropsWithChildren } from 'react';
+import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
+import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import LWTooltip from "../../common/LWTooltip";
-import SectionTitle from "../../common/SectionTitle";
+import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,21 +20,14 @@ const styles = (theme: ThemeType) => ({
     display: 'inline-block',
     color: theme.palette.text.dim2,
     whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.grey[800],
-      fontWeight: 600
-    }),
+    fontSize: theme.typography.body2.fontSize
   },
   icon: {
     fontSize: "1.3rem",
     color: theme.palette.icon.dim600,
     position: "relative",
     top: 3,
-    marginRight: 4,
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.grey[800]
-    }),
+    marginRight: 4
   },
   tooltipTitle: {
     marginBottom: 8,
@@ -196,63 +186,6 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
         linkTarget: getAllTagsPath(),
       },
     },
-    EAForum: {
-      frontpage: {
-        tooltipTitle: 'Frontpage Post',
-        tooltipBody: <div>
-          Posts that are relevant to doing good effectively.
-        </div>,
-        linkTarget: "/about#Finding_content",
-        Icon: HomeIcon
-      },
-      personal: {
-        tooltipTitle: 'Personal Blog Post',
-        tooltipBody: <React.Fragment>
-          <div>
-            Users can write whatever they want on their personal blog. This category
-            is a good fit for:
-          </div>
-          <ul>
-            <li>topics that aren't closely related to EA</li>
-            <li>topics that are difficult to discuss rationally</li>
-            <li>topics of interest to a small fraction of the Forum’s readers (e.g. local events)</li>
-          </ul>
-        </React.Fragment>,
-        linkTarget: "/posts/5TAwep4tohN7SGp3P/the-frontpage-community-distinction",
-        Icon: PersonIcon
-      },
-      curated: {
-        tooltipTitle: 'Curated Post',
-        tooltipBody: <div>
-          The best 2-3 posts each week, selected by the moderation team. Curated
-          posts are featured at the top of the front page and emailed to subscribers.
-        </div>,
-        linkTarget: curatedUrl,
-        Icon: StarIcon,
-      },
-      shortform: {
-        tooltipTitle: 'Quick take',
-        tooltipBody: <div>
-          Writing that is brief, or written very quickly. Perfect for off-the-cuff
-          thoughts, brainstorming, early stage drafts, etc.
-        </div>,
-        linkTarget: "/quicktakes",
-        Icon: SubjectIcon
-      },
-      tags: {
-        tooltipTitle: `${taggingAltName} Edits and Discussion`,
-        tooltipBody: <div>
-          {taggingAltName2} pages, which organize posts and concepts in a more
-          durable format.
-        </div>,
-        Icon: TagIcon,
-        linkTarget: getAllTagsPath(),
-      },
-      subforumDiscussion: {
-        Icon: QuestionAnswerIcon,
-        linkTarget: null,
-      }
-    },
     default: {
       frontpage: {
         tooltipTitle: 'Frontpage Post',
@@ -321,15 +254,13 @@ const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styl
   className,
   children,
 }) =>
-  isFriendlyUI()
-    ? <>{children}</>
-    : <Typography
-      variant="body1"
-      component="span"
-      className={classNames(classes.root, className)}
-    >
-        {children}
-    </Typography>;
+  <Typography
+          variant="body1"
+          component="span"
+          className={classNames(classes.root, className)}
+        >
+            {children}
+        </Typography>;
 
 const ContentType = ({classes, className, type, label}: {
   classes: ClassesType<typeof styles>,
@@ -345,11 +276,9 @@ const ContentType = ({classes, className, type, label}: {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }
 
-  const innerComponent = isFriendlyUI()
-    ? <SectionTitle title={label} titleClassName={classNames(classes.sectionTitle, className)} noTopMargin noBottomPadding />
-    : <span>
-      <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
-    </span>;
+  const innerComponent = <span>
+        <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
+      </span>;
 
   return (
     <ContentTypeWrapper className={className} classes={classes}>

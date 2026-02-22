@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import classNames from 'classnames';
 import { DEFAULT_QUALITATIVE_VOTE } from "@/lib/collections/posts/helpers";
+import classNames from 'classnames';
+import React, { useEffect, useState } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { useCurrentUser } from '../common/withUser';
 import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/reviewUtils';
-import { SyntheticQualitativeVote } from './ReviewVotingPage';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import LWTooltip from "../common/LWTooltip";
+import { useCurrentUser } from '../common/withUser';
+import { SyntheticQualitativeVote } from './ReviewVotingPage';
 
 const styles = (theme: ThemeType) => {
   const downvoteColor = theme.palette.text.reviewDownvote;
-  const upvoteColor = theme.isFriendlyUI ? theme.palette.primary.main : theme.palette.text.reviewUpvote;
+  const upvoteColor = theme.palette.text.reviewUpvote;
   
   return {
     root: { 

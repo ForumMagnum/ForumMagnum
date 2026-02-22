@@ -1,12 +1,11 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import KarmaDisplay from "../common/KarmaDisplay";
+import MetaInfo from "../common/MetaInfo";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import UsersName from "../users/UsersName";
-import MetaInfo from "../common/MetaInfo";
-import KarmaDisplay from "../common/KarmaDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,14 +30,9 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 2,
   },
   title: {
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-        fontWeight: 600,
-      }
-      : {
-        position: "relative",
-      }),
+    ...({
+              position: "relative",
+            }),
     top: 2,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -49,10 +43,7 @@ const styles = (theme: ThemeType) => ({
   wrap: {
     whiteSpace: "unset",
     lineHeight: "1.1em",
-    marginBottom: 4,
-    ...(theme.isFriendlyUI && {
-      lineHeight: '1.2em'
-    }),
+    marginBottom: 4
   },
   author: {
     marginRight: 0,

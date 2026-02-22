@@ -1,51 +1,47 @@
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { quickTakesTagsEnabledSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '@/lib/instanceSettings';
 import { useApolloClient } from "@apollo/client/react";
-import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useEffect, useState } from 'react';
+import { FC, Fragment, useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
-import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { getTagMinimumKarmaPermissions, tagGetUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import { useOnSearchHotkey } from '../common/withGlobalKeydown';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
-import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
-import { EditTagForm } from './EditTagPage';
-import { useTagBySlug } from './useTag';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
-import truncateTagDescription from "../../lib/utils/truncateTagDescription";
-import { getTagStructuredData } from "./TagPageRouter";
-import { isFriendlyUI } from "../../themes/forumTheme";
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import CommentsListCondensed from "../common/CommentsListCondensed";
+import ContentStyles from "../common/ContentStyles";
 import DeferRender from "../common/DeferRender";
-import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
-import SectionTitle from "../common/SectionTitle";
-import PostsListSortDropdown from "../posts/PostsListSortDropdown";
-import PostsList2 from "../posts/PostsList2";
+import Error404 from "../common/Error404";
+import PermanentRedirect from "../common/PermanentRedirect";
+import { StructuredData } from "../common/StructuredData";
+import { Typography } from "../common/Typography";
+import { useOnSearchHotkey } from '../common/withGlobalKeydown';
+import { useCurrentUser } from '../common/withUser';
 import { ContentItemBody } from "../contents/ContentItemBody";
+import TagVersionHistoryButton from "../editor/TagVersionHistory";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
+import PostsList2 from "../posts/PostsList2";
+import PostsListSortDropdown from "../posts/PostsListSortDropdown";
+import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
+import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 import Loading from "../vulcan-core/Loading";
 import AddPostsToTag from "./AddPostsToTag";
-import Error404 from "../common/Error404";
-import { Typography } from "../common/Typography";
-import PermanentRedirect from "../common/PermanentRedirect";
-import UsersNameDisplay from "../users/UsersNameDisplay";
-import TagFlagItem from "./TagFlagItem";
-import TagDiscussionSection from "./TagDiscussionSection";
-import TagPageButtonRow from "./TagPageButtonRow";
-import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import { EditTagForm } from './EditTagPage';
 import SubscribeButton from "./SubscribeButton";
-import CloudinaryImage2 from "../common/CloudinaryImage2";
+import TagDiscussionSection from "./TagDiscussionSection";
+import TagFlagItem from "./TagFlagItem";
 import TagIntroSequence from "./TagIntroSequence";
+import TagPageButtonRow from "./TagPageButtonRow";
+import { getTagStructuredData } from "./TagPageRouter";
+import { tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import TagTableOfContents from "./TagTableOfContents";
-import TagVersionHistoryButton from "../editor/TagVersionHistory";
-import ContentStyles from "../common/ContentStyles";
-import CommentsListCondensed from "../common/CommentsListCondensed";
-import { StructuredData } from "../common/StructuredData";
-import { gql } from "@/lib/generated/gql-codegen";
-import { useStyles } from "../hooks/useStyles";
-import { defineStyles } from "../hooks/defineStyles";
+import { useTagBySlug } from './useTag';
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagEATagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -123,10 +119,10 @@ const styles = defineStyles("EATagPage", (theme: ThemeType) => ({
     }
   },
   title: {
-    ...theme.typography[theme.isFriendlyUI ? "display2" : "display3"],
-    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "commentStyle"],
+    ...theme.typography["display3"],
+    ...theme.typography["commentStyle"],
     marginTop: 0,
-    fontWeight: theme.isFriendlyUI ? 700 : 600,
+    fontWeight: 600,
     ...theme.typography.smallCaps,
   },
   notifyMeButton: {
@@ -177,8 +173,7 @@ const styles = defineStyles("EATagPage", (theme: ThemeType) => ({
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
-    overflow: 'hidden',
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    overflow: 'hidden'
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
@@ -209,19 +204,6 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
 }> = ({tag, query}) => {
   const classes = useStyles(styles);
-  if (isFriendlyUI()) {
-    return (
-      <>
-        <SectionTitle title={`Posts tagged ${tag.name}`} />
-        <div className={classes.postListMeta}>
-          <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-          <div className={classes.relevance}>
-            <RelevanceLabel />
-          </div>
-        </div>
-      </>
-    );
-  }
   return (
     <div className={classes.tagHeader}>
       <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
@@ -342,15 +324,9 @@ const EATagPage = ({slug}: {slug: string}) => {
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? "";
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if (isFriendlyUI()) {
-    description = truncated
-      ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
-      : htmlWithAnchors;
-  } else {
-    description = (truncated && !tag.wikiOnly)
-    ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
-    : htmlWithAnchors
-  }
+  description = (truncated && !tag.wikiOnly)
+        ? truncate(htmlWithAnchors, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+        : htmlWithAnchors
   
   const tagFlagItemType: AnyBecauseTodo = {
     allPages: "allPages",

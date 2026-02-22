@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { isBookUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import LWPopper from "../common/LWPopper";
 import AddTagOrWikiPage from "./AddTagOrWikiPage";
@@ -77,7 +77,7 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
         </LWPopper>
     </a>
   
-  if (isBookUI() && hasTooltip) {
+  if (hasTooltip) {
     return <LWTooltip title="Add a tag">
       {button}
     </LWTooltip>
@@ -86,5 +86,4 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
 }
 
 export default registerComponent("AddTagButton", AddTagButton, {styles});
-
 

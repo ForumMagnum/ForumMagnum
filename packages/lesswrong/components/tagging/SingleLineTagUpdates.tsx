@@ -1,43 +1,33 @@
-import React, {useState} from 'react';
+import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import TagHistory from '@/lib/vendor/@material-ui/icons/src/History';
+import moment from 'moment';
+import { useState } from 'react';
+import { tagGetDiscussionUrl, tagGetHistoryUrl, tagGetUrl } from '../../lib/collections/tags/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { ChangeMetrics } from '../../server/collections/revisions/collection';
-import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
-import { ExpandedDate } from '../common/FormatDate';
-import moment from 'moment';
-import { tagUrlBaseSetting } from '@/lib/instanceSettings';
-import AllPostsPageTagDocDeletionItem, { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
-import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
-import PostsItemComments from "../posts/PostsItemComments";
-import AllPostsPageTagRevisionItem from "./AllPostsPageTagRevisionItem";
 import { CommentByIdSuspense } from "../comments/CommentById";
+import { ExpandedDate } from '../common/FormatDate';
 import LWTooltip from "../common/LWTooltip";
-import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
-import UsersName from "../users/UsersName";
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import PostsItemComments from "../posts/PostsItemComments";
+import UsersName from "../users/UsersName";
 import Loading from '../vulcan-core/Loading';
+import AllPostsPageTagDocDeletionItem, { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
+import AllPostsPageTagRevisionItem from "./AllPostsPageTagRevisionItem";
+import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 
 export const POSTED_AT_WIDTH = 38
 
 const styles = (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI
-      ? {
-        background: theme.palette.grey[0],
-        border: `1px solid ${theme.palette.grey[100]}`,
-        borderRadius: theme.borderRadius.default,
-        fontWeight: 500,
-        fontSize: 14,
-        padding: "6px 0",
-        color: theme.palette.grey[600],
-      }
-      : {
-        background: theme.palette.panelBackground.default,
-        border: theme.palette.border.commentBorder,
-        borderRadius: 3,
-        marginBottom: 4,
-      }),
+    ...({
+              background: theme.palette.panelBackground.default,
+              border: theme.palette.border.commentBorder,
+              borderRadius: 3,
+              marginBottom: 4,
+            }),
   },
   metadata: {
     display: "flex",
@@ -53,10 +43,8 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     padding: 4,
     fontFamily: theme.typography.fontFamily,
-    fontSize: theme.isFriendlyUI ? 14 : 17,
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
-    ...theme.typography.smallCaps,
-    marginLeft: theme.isFriendlyUI ? 2 : undefined,
+    fontSize: 17,
+    ...theme.typography.smallCaps
   },
   expandedBody: {
     marginTop: 8,
@@ -70,11 +58,10 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
   },
   commentBubble: {
-    margin: `-5px ${theme.isFriendlyUI ? 6 : 0}px 0 11px`,
+    margin: `-5px ${0}px 0 11px`,
   },
   changeMetrics: {
-    cursor: "pointer",
-    margin: theme.isFriendlyUI ? "0 4px -2px 2px" : undefined,
+    cursor: "pointer"
   },
   postedAt: {
     '&&': {
@@ -97,7 +84,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1rem",
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.link.dim3,
-    margin: `${theme.isFriendlyUI ? -4 : -8}px 0 8px 8px`,
+    margin: `${-8}px 0 8px 8px`,
   },
   usernames: {
     marginRight: 16,

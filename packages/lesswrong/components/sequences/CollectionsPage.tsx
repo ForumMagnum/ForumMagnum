@@ -1,24 +1,24 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useCurrentUser } from '../common/withUser';
-import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { BooksForm } from './BooksForm';
-import Loading from "../vulcan-core/Loading";
-import CollectionsEditForm from "./CollectionsEditForm";
-import BooksItem from "./BooksItem";
-import SectionFooter from "../common/SectionFooter";
-import SectionButton from "../common/SectionButton";
-import { ContentItemBody } from "../contents/ContentItemBody";
-import { Typography } from "../common/Typography";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { useCallback, useMemo, useState } from 'react';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import ContentStyles from "../common/ContentStyles";
 import ErrorBoundary from "../common/ErrorBoundary";
-import CollectionTableOfContents from "./CollectionTableOfContents";
+import SectionButton from "../common/SectionButton";
+import SectionFooter from "../common/SectionFooter";
+import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { Typography } from "../common/Typography";
+import { useCurrentUser } from '../common/withUser';
+import { ContentItemBody } from "../contents/ContentItemBody";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
+import Loading from "../vulcan-core/Loading";
+import { BooksForm } from './BooksForm';
+import BooksItem from "./BooksItem";
+import CollectionsEditForm from "./CollectionsEditForm";
+import CollectionTableOfContents from "./CollectionTableOfContents";
 import { CollectionsPageFragmentQuery } from './queries';
 
 const CollectionsEditFragmentQuery = gql(`
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
-    textTransform: theme.isFriendlyUI ? undefined : "uppercase",
+    textTransform: "uppercase",
     borderTopStyle: "solid",
     borderTopWidth: 4,
     paddingTop: 10,
@@ -78,7 +78,7 @@ const styles = (theme: ThemeType) => ({
   },
   description: {
     marginTop: 30,
-    marginBottom: theme.isFriendlyUI ? 0 : 25,
+    marginBottom: 25,
     lineHeight: 1.25,
     maxWidth: 700,
   },

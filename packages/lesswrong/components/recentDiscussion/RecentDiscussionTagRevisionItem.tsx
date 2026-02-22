@@ -1,16 +1,14 @@
-import React from 'react';
-import { isEAForum } from "../../lib/instanceSettings"
-import { registerComponent } from "../../lib/vulcan-lib/components"
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagRevisionItem from "../tagging/TagRevisionItem";
 
 const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
-    marginBottom: theme.isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+    marginBottom: theme.spacing.unit*4,
     position: "relative",
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius["small"],
 
     paddingLeft: 16,
     paddingRight: 16,
@@ -52,16 +50,6 @@ function RecentDiscussionTagRevisionItem({
   
   // reduce the amount of room the EA frontpage gives to the most particularly
   // active tag users doing routine cleanup
-  if (
-    // Only a problem for the forum
-    isEAForum() &&
-    // Only restrict the most active tag users
-    megaTagUsers.includes(revision.userId ?? '') &&
-    // Restrict all from cleanup-only users, restrict small edits from other mega users
-    (onlyStyleEditors.includes(revision.userId ?? '') || revision.changeMetrics.added < 600)
-  ) {
-    return null
-  }
   return <div className={classes.root}>
     <TagRevisionItem
       noContainer

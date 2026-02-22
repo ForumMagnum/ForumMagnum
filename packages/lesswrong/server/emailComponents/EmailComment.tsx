@@ -1,19 +1,18 @@
-import React from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import groupBy from 'lodash/groupBy';
-import filter from 'lodash/filter';
-import { tagGetSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
-import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
-import startCase from 'lodash/startCase';
 import { defineStyles } from "@/components/hooks/defineStyles";
+import { gql } from "@/lib/generated/gql-codegen";
+import { captureException } from '@/lib/sentryWrapper';
+import { maybeDate } from '@/lib/utils/dateUtils';
+import filter from 'lodash/filter';
+import groupBy from 'lodash/groupBy';
+import startCase from 'lodash/startCase';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { tagGetDiscussionUrl, tagGetSubforumUrl } from '../../lib/collections/tags/helpers';
+import { emailUseQuery } from '../vulcan-lib/query';
+import { EmailContentItemBody } from './EmailContentItemBody';
 import { EmailContextType, emailUseStyles } from "./emailContext";
 import { EmailFormatDate } from './EmailFormatDate';
 import { EmailUsername } from './EmailUsername';
-import { EmailContentItemBody } from './EmailContentItemBody';
-import { gql } from "@/lib/generated/gql-codegen";
-import { maybeDate } from '@/lib/utils/dateUtils';
-import { emailUseQuery } from '../vulcan-lib/query';
-import { captureException } from '@/lib/sentryWrapper';
 
 const CommentsListWithParentMetadataQuery = gql(`
   query EmailComment2($documentId: String) {
@@ -51,11 +50,7 @@ const styles = defineStyles("EmailComment", (theme: ThemeType) => ({
     textDecoration: "none",
     fontWeight: "normal",
     fontFamily: theme.typography.headerStyle.fontFamily,
-    ...(theme.isFriendlyUI ? {
-      fontSize: "2.0rem",
-      fontWeight: 500,
-      lineHeight: '1.25em'
-    } : {}),
+    ...({}),
   },
   commentHr: {
     marginLeft: 5,

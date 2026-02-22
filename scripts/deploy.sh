@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euxo pipefail
 # ---
-# In order to have different application names for LW and the EA Forum, we need
+# In order to have different application names per environment, we need
 # to edit the config file. This is a bit of a hack.
 #
 # usage: deploy.sh application_name environment_name

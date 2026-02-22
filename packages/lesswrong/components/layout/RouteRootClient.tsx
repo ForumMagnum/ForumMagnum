@@ -1,22 +1,21 @@
 "use client";
-import React, { use } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { isLW, isLWorAF } from '@/lib/forumTypeUtils';
+import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isSunshineSidebarRoute } from '@/lib/routeChecks';
+import { userCanDo } from '@/lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import dynamic from 'next/dynamic';
+import React, { use } from 'react';
+import DeferRender from '../common/DeferRender';
 import { DelayedLoading } from '../common/DelayedLoading';
 import ErrorBoundary from '../common/ErrorBoundary';
-import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { PopperPortalProvider } from '../common/LWPopper';
-import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isSunshineSidebarRoute } from '@/lib/routeChecks';
-import DeferRender from '../common/DeferRender';
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import NavigationStandalone from '../common/TabNavigationMenu/NavigationStandalone';
-import { isLW, isLWorAF } from '@/lib/forumTypeUtils';
-import { isFriendlyUI } from '@/themes/forumTheme';
-import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { useCurrentUser } from '../common/withUser';
-import { userCanDo } from '@/lib/vulcan-users/permissions';
-import { MaybeStickyWrapper } from './MaybeStickyWrapper';
-import dynamic from 'next/dynamic';
+import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { HideNavigationSidebarContext } from './HideNavigationSidebarContextProvider';
+import { MaybeStickyWrapper } from './MaybeStickyWrapper';
 
 const SunshineSidebar = dynamic(() => import("../sunshineDashboard/SunshineSidebar"), { ssr: false });
 
@@ -40,10 +39,10 @@ const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
     minHeight: `calc(100vh - var(--header-height))`,
     gridArea: 'main',
     [theme.breakpoints.down('md')]: {
-      paddingTop: theme.isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
+      paddingTop: theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
-      paddingTop: theme.isFriendlyUI ? 0 : 10,
+      paddingTop: 10,
       paddingLeft: 8,
       paddingRight: 8,
     },
@@ -71,9 +70,6 @@ export const RouteRootClient = ({fullscreen, children}: {
   const renderIconOnlyNavigation = isLW()
   const iconOnlyNavigationEnabled = renderIconOnlyNavigation && standaloneNavigation
 
-  // The friendly home page has a unique grid layout, to account for the right hand side column.
-  const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
-
   const currentUser = useCurrentUser();
   const renderSunshineSidebar = isSunshineSidebarRoute(pathname) && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar;
   
@@ -88,12 +84,11 @@ export const RouteRootClient = ({fullscreen, children}: {
       fullscreen={isFullscreen}
       leftSidebar={
         standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
-          <MaybeStickyWrapper sticky={friendlyHomeLayout}>
+          <MaybeStickyWrapper sticky={false}>
             <DeferRender ssr={true} clientTiming='mobile-aware'>
               <SuspenseWrapper name="NavigationStandalone">
                 <NavigationStandalone
                   sidebarHidden={hideNavigationSidebar}
-                  noTopMargin={friendlyHomeLayout}
                   iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
                 />
               </SuspenseWrapper>
@@ -102,16 +97,6 @@ export const RouteRootClient = ({fullscreen, children}: {
         </SuspenseWrapper>
       }
       rightSidebar={
-        /* {!renderSunshineSidebar &&
-          friendlyHomeLayout &&
-          <MaybeStickyWrapper sticky={friendlyHomeLayout}>
-            <DeferRender ssr={true} clientTiming='mobile-aware'>
-              <SuspenseWrapper name="EAHomeRightHandSide">
-                <EAHomeRightHandSide />
-              </SuspenseWrapper>
-            </DeferRender>
-          </MaybeStickyWrapper>
-        } */
         renderSunshineSidebar && <div className={classes.rightSidebar}>
           <DeferRender ssr={false}>
             <SuspenseWrapper name="SunshineSidebar">
@@ -129,10 +114,6 @@ export const RouteRootClient = ({fullscreen, children}: {
             {children}
           </SuspenseWrapper>
     
-          {/* ea-forum-look-here We've commented out some EAForum-specific components for bundle size reasons */}
-          {/* <SuspenseWrapper name="OnboardingFlow">
-            {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
-          </SuspenseWrapper> */}
         </ErrorBoundary>
       </div>
     </LeftAndRightSidebarsWrapper>
@@ -184,7 +165,6 @@ function LeftAndRightSidebarsWrapper({sidebarsEnabled, fullscreen, leftSidebar, 
   children: React.ReactNode
 }) {
   const classes = useStyles(sidebarsWrapperStyles);
-  // ea-forum-look-here There used to be a column-sizing special case for the EA Forum front page here, which is no present.
   const navigationHasIconOnlyVersion = isLW();
 
   return <div className={classNames({

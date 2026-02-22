@@ -1,11 +1,10 @@
-import { mergeFeedQueries, viewBasedSubquery, fixedIndexSubquery } from '../utils/feedUtil';
-import { Posts } from '../../server/collections/posts/collection';
-import { Tags } from '../../server/collections/tags/collection';
-import { Revisions } from '../../server/collections/revisions/collection';
-import { isEAForum } from '../../lib/instanceSettings';
-import { viewFieldAllowAny } from '@/lib/utils/viewConstants';
 import { EA_FORUM_COMMUNITY_TOPIC_ID, EA_FORUM_TRANSLATION_TOPIC_ID } from '@/lib/collections/tags/helpers';
+import { viewFieldAllowAny } from '@/lib/utils/viewConstants';
 import gql from 'graphql-tag';
+import { Posts } from '../../server/collections/posts/collection';
+import { Revisions } from '../../server/collections/revisions/collection';
+import { Tags } from '../../server/collections/tags/collection';
+import { fixedIndexSubquery, mergeFeedQueries, viewBasedSubquery } from '../utils/feedUtil';
 
 const communityFilters = {
   none: {$or: [
@@ -87,13 +86,7 @@ export const recentDiscussionFeedGraphQLQueries = {
       hiddenRelatedQuestion: viewFieldAllowAny,
       groupId: viewFieldAllowAny,
       ...(af ? {af: true} : undefined),
-      ...(isEAForum()
-        ? {$and: [
-          postCommentedEventsCriteria,
-          postCommentedExcludeCommunity,
-          translationFilter,
-        ]}
-        : postCommentedEventsCriteria),
+      ...(postCommentedEventsCriteria),
     };
 
     const result = await mergeFeedQueries<SortKeyType>({
@@ -156,7 +149,7 @@ export const recentDiscussionFeedGraphQLQueries = {
         // Suggestion to subscribe to curated
         fixedIndexSubquery({
           type: "subscribeReminder",
-          index: isEAForum() ? 3 : 6,
+          index: 6,
           result: {},
         }),
         // Suggestion to subscribe to meetups

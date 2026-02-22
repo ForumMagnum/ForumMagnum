@@ -1,28 +1,26 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { postStatuses } from '../../lib/collections/posts/constants';
-import React from 'react';
-import { useHover } from '../common/withHover'
-import withErrorBoundary from '../common/withErrorBoundary'
-import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
-import DeleteIcon from '@/lib/vendor/@material-ui/icons/src/Delete';
-import { isEAForum } from '../../lib/instanceSettings';
-import PersonOutlineIcon from '@/lib/vendor/@material-ui/icons/src/PersonOutline'
-import { Link } from '../../lib/reactRouterWrapper'
-import SunshineListItem from "./SunshineListItem";
-import SidebarInfo from "./SidebarInfo";
-import SidebarHoverOver from "./SidebarHoverOver";
-import PostsTitle from "../posts/PostsTitle";
-import PostsHighlight from "../posts/PostsHighlight";
-import SidebarActionMenu from "./SidebarActionMenu";
-import SidebarAction from "./SidebarAction";
-import FormatDate from "../common/FormatDate";
-import CommentsNode from "../comments/CommentsNode";
-import { Typography } from "../common/Typography";
-import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
-import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
-import UsersName from "../users/UsersName";
-import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import DeleteIcon from '@/lib/vendor/@material-ui/icons/src/Delete';
+import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
+import PersonOutlineIcon from '@/lib/vendor/@material-ui/icons/src/PersonOutline';
+import { useMutation } from "@apollo/client/react";
+import { postStatuses } from '../../lib/collections/posts/constants';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import CommentsNode from "../comments/CommentsNode";
+import FormatDate from "../common/FormatDate";
+import { Typography } from "../common/Typography";
+import withErrorBoundary from '../common/withErrorBoundary';
+import { useHover } from '../common/withHover';
+import PostsHighlight from "../posts/PostsHighlight";
+import PostsTitle from "../posts/PostsTitle";
+import UsersName from "../users/UsersName";
+import SidebarAction from "./SidebarAction";
+import SidebarActionMenu from "./SidebarActionMenu";
+import SidebarHoverOver from "./SidebarHoverOver";
+import SidebarInfo from "./SidebarInfo";
+import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
+import SunshineListItem from "./SunshineListItem";
+import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineReportedItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -174,7 +172,7 @@ const SunshineReportedItem = ({report, classes, currentUser, refetch}: {
           <SidebarAction title="Mark as Reviewed" onClick={handleReview}>
             <DoneIcon/>
           </SidebarAction>
-          {(post || comment) && <SidebarAction title={`Spam${isEAForum() ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
+          {(post || comment) && <SidebarAction title={`Spam${'/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
             <DeleteIcon/>
           </SidebarAction>}
         </SidebarActionMenu>

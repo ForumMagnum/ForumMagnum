@@ -1,14 +1,12 @@
 import React from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
-import { ArrowSVG } from './Icons';
-import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
-import { isEAForum } from '../../lib/instanceSettings';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
-import GroupLinks from "./GroupLinks";
-import StyledMapPopup from "./StyledMapPopup";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import GroupLinks from "./GroupLinks";
+import { ArrowSVG } from './Icons';
+import StyledMapPopup from "./StyledMapPopup";
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
@@ -40,9 +38,7 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   const { htmlHighlight = "" } = event.contents || {}
   const htmlBody = {__html: htmlHighlight};
 
-  const eventIcon = isEAForum()
-    ? <RoomIcon className={classes.eaIcon}/>
-    : <ArrowSVG className={classes.icon}/>;
+  const eventIcon = <ArrowSVG className={classes.icon}/>;
 
   return <React.Fragment>
     <Marker

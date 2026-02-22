@@ -8,7 +8,6 @@ import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
-import { isLWorAF } from '../../lib/instanceSettings';
 import SunshineListItem from "./SunshineListItem";
 import SidebarHoverOver from "./SidebarHoverOver";
 import { Typography } from "../common/Typography";
@@ -78,7 +77,7 @@ const SunshineNewCommentsItem = ({comment}: {
               <SidebarAction title="Mark as Reviewed" onClick={handleReview}>
                 <DoneIcon/>
               </SidebarAction>
-              <SidebarAction title={`Spam${!isLWorAF() ? '' : '/Eugin'} (delete immediately)`} onClick={handleDelete} warningHighlight>
+              <SidebarAction title="Spam/Eugin (delete immediately)" onClick={handleDelete} warningHighlight>
                 <ClearIcon/>
               </SidebarAction>
             </SidebarActionMenu>}
@@ -90,5 +89,4 @@ const SunshineNewCommentsItem = ({comment}: {
 export default registerComponent('SunshineNewCommentsItem', SunshineNewCommentsItem, {
   hocs: [withErrorBoundary]
 });
-
 

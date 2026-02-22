@@ -1,19 +1,18 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
-import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import withErrorBoundary from '../common/withErrorBoundary';
-import classNames from 'classnames';
-import { useRecordPostView } from '../hooks/useRecordPostView';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
-import { KARMA_WIDTH } from './LWPostsItem';
+import classNames from 'classnames';
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import AnalyticsTracker from "../common/AnalyticsTracker";
 import KarmaDisplay from "../common/KarmaDisplay";
-import PostsTitle from "./PostsTitle";
-import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
+import withErrorBoundary from '../common/withErrorBoundary';
+import { useRecordPostView } from '../hooks/useRecordPostView';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { KARMA_WIDTH } from './LWPostsItem';
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
-import AnalyticsTracker from "../common/AnalyticsTracker";
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import PostsTitle from "./PostsTitle";
+import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 
 const IMAGE_WIDTH = 292;
 const IMAGE_HEIGHT = 96;
@@ -21,7 +20,6 @@ const IMAGE_HEIGHT = 96;
 export const styles = defineStyles("PostsItemIntroSequence", (theme: ThemeType)=> ({
   root: {
     position: "relative",
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },

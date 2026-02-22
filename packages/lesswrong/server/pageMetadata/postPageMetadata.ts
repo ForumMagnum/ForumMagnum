@@ -1,13 +1,13 @@
-import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
-import type { Metadata } from "next";
-import merge from "lodash/merge";
-import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
-import { notFound } from "next/navigation";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { gql } from "@/lib/generated/gql-codegen";
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import merge from "lodash/merge";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { runQuery } from "../vulcan-lib/query";
+import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
@@ -115,7 +115,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       const ogUrl = postGetPageUrl(post, true);
       const canonicalUrl = post.canonicalSource ?? ogUrl;
       const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
-      const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum());
+      const postNoIndex = post.noIndex || post.rejected;
       const noIndex = postNoIndex || commentId || options?.noIndex;
   
       const titleFields = getPageTitleFields(post.title);

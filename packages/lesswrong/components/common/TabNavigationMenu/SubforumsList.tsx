@@ -1,12 +1,11 @@
-import React, { useCallback, useState } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
-import { isEAForum } from "../../../lib/instanceSettings";
-import TabNavigationSubItem from "./TabNavigationSubItem";
-import { MenuItemLink, MenuItem } from "../Menus";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import React, { useCallback, useState } from "react";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { tagGetSubforumUrl, tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { MenuItem, MenuItemLink } from "../Menus";
+import TabNavigationSubItem from "./TabNavigationSubItem";
 
 const TagSubforumSidebarFragmentMultiQuery = gql(`
   query multiTagSubforumsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -36,7 +35,7 @@ const styles = ((theme: ThemeType) => ({
     paddingLeft: 62,
     paddingBottom: 5,
     ...theme.typography.body2,
-    color: theme.palette.grey[theme.isEAForum ? 600 : 800],
+    color: theme.palette.grey[800],
   },
   subItem: {
     textTransform: 'capitalize',
@@ -59,7 +58,7 @@ const SubforumsList = ({ onClick, classes }: {
       limit: 100,
       enableTotal: false,
     },
-    skip: !isEAForum(),
+    skip: true,
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
@@ -108,5 +107,4 @@ const SubforumsList = ({ onClick, classes }: {
 }
 
 export default registerComponent("SubforumsList", SubforumsList, {styles});
-
 

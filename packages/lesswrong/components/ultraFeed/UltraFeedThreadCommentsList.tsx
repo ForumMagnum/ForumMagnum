@@ -1,9 +1,8 @@
-import React from "react";
-import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
-import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
-import { UltraFeedSettingsType } from "./ultraFeedSettingsTypes";
-import { defineStyles, useStyles } from "../hooks/useStyles";
 import classNames from "classnames";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import { UltraFeedCommentItem, UltraFeedCompressedCommentsItem } from "./UltraFeedCommentItem";
+import { UltraFeedSettingsType } from "./ultraFeedSettingsTypes";
+import { FeedCommentMetaInfo, FeedItemDisplayStatus } from "./ultraFeedTypes";
 
 const styles = defineStyles("UltraFeedThreadCommentsList", (theme: ThemeType) => ({
   commentItem: {
@@ -173,8 +172,6 @@ const UltraFeedThreadCommentsList = ({
                   sources: [],
                   descendentCount: 0,
                   directDescendentCount: 0,
-                  lastViewed: undefined,
-                  lastInteracted: undefined,
                   servedEventId: '',
                   highlight: false,
                   ...commentMetaInfos?.[cId],
@@ -184,7 +181,7 @@ const UltraFeedThreadCommentsList = ({
                 onChangeDisplayStatus={(newStatus) => onSetDisplayStatus(cId, newStatus)}
                 showPostTitle={shouldShowPostTitle}
                 postInitiallyExpanded={postInitiallyExpanded}
-                highlight={highlightStatuses[cId] || false}
+                highlight={highlightStatuses[cId]}
                 isFirstComment={isFirstItem}
                 isLastComment={isLastItem}
                 settings={settings}

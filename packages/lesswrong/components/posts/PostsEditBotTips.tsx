@@ -1,8 +1,7 @@
-import React, { RefObject } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
+import { RefObject } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import ForumIcon from "../common/ForumIcon";
 
 // For large screens, we show the card on the right-hand side of the editor.
@@ -104,9 +103,7 @@ const PostsEditBotTips = ({handleDismiss, postId, className, nodeRef, classes}: 
 }) => {
   const {captureEvent} = useTracking()
   
-  if (!isEAForum()) {
-    return null
-  }
+  return null
 
   return <aside className={classes.root} ref={nodeRef}>
     <div className={classNames(className, classes.card)}>

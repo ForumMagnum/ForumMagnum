@@ -1,25 +1,24 @@
-import React, { useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import classNames from 'classnames';
-import withErrorBoundary from '../common/withErrorBoundary';
-import { useCurrentUser } from '../common/withUser';
-import ProfilePhoto, { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { Typography } from "../common/Typography";
-import UsersName from "../users/UsersName";
-import MetaInfo from "../common/MetaInfo";
-import FormatDate from "../common/FormatDate";
-import { ContentItemBody } from "../contents/ContentItemBody";
-import { getVotingSystemByName } from "../../lib/voting/getVotingSystem";
-import { useVote } from "../votes/withVote";
-import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
-import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from "../contents/contentBodyUtil";
 import { messageBottomComponents } from '@/lib/voting/votingSystemComponents';
-import HoveredReactionContextProvider from '../votes/lwReactions/HoveredReactionContextProvider';
-import { useHover } from '../common/withHover';
 import type { MessageVotingBottomComponent } from '@/lib/voting/votingSystemTypes';
-import { SideItemsSidebar } from '../contents/SideItems';
 import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
+import classNames from 'classnames';
+import React, { useRef, useState } from 'react';
+import { getVotingSystemByName } from "../../lib/voting/getVotingSystem";
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import FormatDate from "../common/FormatDate";
+import MetaInfo from "../common/MetaInfo";
+import { Typography } from "../common/Typography";
+import withErrorBoundary from '../common/withErrorBoundary';
+import { useHover } from '../common/withHover';
+import { useCurrentUser } from '../common/withUser';
+import type { ContentItemBodyImperative, ContentReplacedSubstringComponentInfo } from "../contents/contentBodyUtil";
+import { ContentItemBody } from "../contents/ContentItemBody";
+import { SideItemsSidebar } from '../contents/SideItems';
+import UsersName from "../users/UsersName";
+import HoveredReactionContextProvider from '../votes/lwReactions/HoveredReactionContextProvider';
+import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
+import { useVote } from "../votes/withVote";
+import { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
 
 const styles = (theme: ThemeType) => ({
   hoverWrapper: {
@@ -84,7 +83,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft:theme.spacing.unit*1.5,
   },
   meta: {
-    marginBottom: theme.spacing.unit * (theme.isFriendlyUI ? 1.5 : 0.5),
+    marginBottom: theme.spacing.unit * (0.5),
   },
   whiteMeta: {
     color: theme.palette.inverseGreyAlpha(.93),
@@ -152,10 +151,6 @@ const MessageItem = ({message, highlight=false, showFullWidth=false, classes}: {
   const colorClassName = classNames({[classes.whiteMeta]: isCurrentUser})
 
   let profilePhoto: React.ReactNode|null = null;
-  if (!isCurrentUser && isFriendlyUI()) {
-    profilePhoto = <ProfilePhoto user={message.user} className={classes.profileImg} />
-  }
-
   let highlights: ContentReplacedSubstringComponentInfo[]|undefined = undefined;
   if (voteProps && votingSystem?.getMessageHighlights) {
     highlights = votingSystem.getMessageHighlights({message, voteProps});
@@ -179,7 +174,7 @@ const MessageItem = ({message, highlight=false, showFullWidth=false, classes}: {
     </span>}
     <div className={classNames(
       classes.root,
-      isFriendlyUI() ? classes.rootWithImages : classes.rootWithoutImages,
+      classes.rootWithoutImages,
       isCurrentUser && classes.rootCurrentUser,
       showFullWidth && classes.fullWidth,
     )}>

@@ -1,8 +1,8 @@
-import React from 'react';
 import classNames from 'classnames';
+import React from 'react';
+import { Typography } from "../common/Typography";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { Paper } from './Paper';
-import { Typography } from "../common/Typography";
 
 export const styles = defineStyles("MuiSnackbarContent", theme => {
   return {
@@ -25,8 +25,7 @@ export const styles = defineStyles("MuiSnackbarContent", theme => {
     /* Styles applied to the message wrapper element. */
     message: {
       padding: '8px 0',
-      color: theme.palette.text.maxIntensity,
-      fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+      color: theme.palette.text.maxIntensity
     },
     /* Styles applied to the action wrapper element if `action` is provided. */
     action: {

@@ -1,18 +1,16 @@
-import React from 'react';
-import { Notifications } from '../server/collections/notifications/collection';
-import { userIsAdmin } from '../lib/vulcan-users/permissions';
-import { getUserEmail } from "../lib/collections/users/helpers";
-import Users from '@/server/collections/users/collection';
-import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
-import gql from 'graphql-tag';
-import { PostsEmail } from './emailComponents/PostsEmail';
-import { UtmParam } from './analytics/utm-tracking';
-import { isEAForum } from '@/lib/instanceSettings';
-import { EmailContextType } from './emailComponents/emailContext';
-import toDictionary from '@/lib/utils/toDictionary';
 import { getNotificationTypes } from '@/lib/notificationTypes';
+import toDictionary from '@/lib/utils/toDictionary';
+import Users from '@/server/collections/users/collection';
+import gql from 'graphql-tag';
+import { getUserEmail } from "../lib/collections/users/helpers";
+import { userIsAdmin } from '../lib/vulcan-users/permissions';
+import { Notifications } from '../server/collections/notifications/collection';
+import { UtmParam } from './analytics/utm-tracking';
 import { EventDebouncer } from './debouncer';
+import { EmailContextType } from './emailComponents/emailContext';
+import { PostsEmail } from './emailComponents/PostsEmail';
 import { backgroundTask } from './utils/backgroundTask';
+import { computeContextFromUser } from './vulcan-lib/apollo-server/context';
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -111,7 +109,6 @@ const notificationBatchToEmails = async ({user, notificationType, notifications,
         from: notificationTypeRenderer.from?.(),
         subject: await notificationTypeRenderer.emailSubject({ user, notifications, context }),
         body: async (emailContext: EmailContextType) => await notificationTypeRenderer.emailBody({ user, notifications, emailContext }),
-        ...(isEAForum() && { utmParams: { ...utmParams, utm_user_id: user._id } })
       }))
   );
 }

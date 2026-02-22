@@ -1,31 +1,29 @@
-import React, { useState, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
-import { Link } from '../../lib/reactRouterWrapper';
-import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
-import { useContinueReading } from './withContinueReading';
-import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
-import { isLW, isEAForum } from '../../lib/instanceSettings';
+import { useCallback, useState } from 'react';
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
-import SingleColumnSection from "../common/SingleColumnSection";
-import SettingsButton from "../icons/SettingsButton";
-import ContinueReadingList from "./ContinueReadingList";
-import RecommendationsList from "./RecommendationsList";
-import SectionTitle from "../common/SectionTitle";
-import SectionSubtitle from "../common/SectionSubtitle";
+import { isLW } from '../../lib/instanceSettings';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import BookmarksList from "../bookmarks/BookmarksList";
 import LWTooltip from "../common/LWTooltip";
+import SectionSubtitle from "../common/SectionSubtitle";
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { useCurrentUser } from '../common/withUser';
+import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
+import SettingsButton from "../icons/SettingsButton";
+import DismissibleSpotlightItem from "../spotlights/DismissibleSpotlightItem";
+import ContinueReadingList from "./ContinueReadingList";
 import CuratedPostsList from "./CuratedPostsList";
-import ForumIcon from "../common/ForumIcon";
+import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './RecommendationsAlgorithmPicker';
+import RecommendationsList from "./RecommendationsList";
+import { useContinueReading } from './withContinueReading';
 
 const styles = (theme: ThemeType) => ({
-  section: theme.isFriendlyUI ? {} : {
-    marginTop: -12,
-  },
+  section: {
+        marginTop: -12,
+      },
   continueReadingList: {
     marginBottom: theme.spacing.unit*2,
   },
@@ -90,23 +88,11 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     '@media (max-width: 350px)': {
       display: 'none'
-    },
-    ...(theme.isFriendlyUI && {
-      "&:hover": {
-        color: theme.palette.grey[1000],
-        opacity: 1,
-      },
-    }),
+    }
   },
 });
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
-  if (isFriendlyUI()) {
-    return {
-      method: haveCurrentUser ? 'sample' : 'top',
-      count: haveCurrentUser ? 3 : 5
-    }
-  }
   if (isLW()) {
     return {
       lwRationalityOnly: true,
@@ -134,7 +120,7 @@ const RecommendationsAndCurated = ({
     section: "recommendations",
     onExpandEvent: "recommendationsSectionExpanded",
     onCollapseEvent: "recommendationsSectionCollapsed",
-    defaultExpanded: isEAForum() ? "loggedOut" : "all",
+    defaultExpanded: "all",
     cookieName: SHOW_RECOMMENDATIONS_SECTION_COOKIE,
   });
 
@@ -162,64 +148,48 @@ const RecommendationsAndCurated = ({
     </div>
 
     const bookmarksTooltip = <div>
-      <div>Individual posts that you've {isFriendlyUI() ? 'saved' : 'bookmarked'}</div>
+      <div>Individual posts that you've {'bookmarked'}</div>
       <div><em>(Click to see all)</em></div>
     </div>
 
     // Disabled during 2018 Review [and coronavirus]
     const recommendationsTooltip = <div>
       <div>
-        {isEAForum() ?
-          'Assorted suggested reading, including some of the ' :
-          'Recently curated posts, as well as a random sampling of '}
+        {'Recently curated posts, as well as a random sampling of '}
         top-rated posts of all time
         {settings.onlyUnread && " that you haven't read yet"}.
       </div>
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
-    const renderBookmarks = !isEAForum() && currentUser?.hasAnyBookmarks && !settings.hideBookmarks;
-    const renderContinueReading = !isEAForum() && currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
+    const renderBookmarks = currentUser?.hasAnyBookmarks && !settings.hideBookmarks;
+    const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
     
     const renderRecommendations = !settings.hideFrontpage
 
     const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
 
-    const titleText = isEAForum() ? "Classic posts" : "Recommendations"
+    const titleText = "Recommendations"
     const titleNode = (
       <div>
         <SectionTitle
           title={
             <>
-              {isEAForum() ? (
-                <>{ titleText }</>
-              ) : (
-                <LWTooltip title={recommendationsTooltip} placement="left">
-                  <Link to={"/recommendations"}>{titleText}</Link>
-                </LWTooltip>
-              )}
-              {isEAForum() && (
-                <LWTooltip title={expanded ? "Collapse" : "Expand"} hideOnTouchScreens>
-                  <ForumIcon
-                    icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
-                    onClick={toggleExpanded}
-                    className={classes.expandIcon}
-                  />
-                </LWTooltip>
-              )}
+              {(
+                                        <LWTooltip title={recommendationsTooltip} placement="left">
+                                          <Link to={"/recommendations"}>{titleText}</Link>
+                                        </LWTooltip>
+                                      )}
+              {false}
             </>
           }
         >
-          {!isEAForum() && currentUser && (
+          {currentUser && (
             <LWTooltip title="Customize your recommendations">
               <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize" textShadow />
             </LWTooltip>
           )}
-          {isEAForum() && expanded && (
-            <Link to="/recommendations" className={classes.readMoreLink}>
-              View more
-            </Link>
-          )}
+          {false}
         </SectionTitle>
       </div>
     );
@@ -257,11 +227,11 @@ const RecommendationsAndCurated = ({
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             )}
-            {!isEAForum() && (
-              <div className={classes.curated}>
-                <CuratedPostsList />
-              </div>
-            )}
+            {(
+                                  <div className={classes.curated}>
+                                    <CuratedPostsList />
+                                  </div>
+                                )}
           </div>
         </div>
 
@@ -288,8 +258,8 @@ const RecommendationsAndCurated = ({
               capturePostItemOnMount
             >
               <LWTooltip placement="top-start" title={bookmarksTooltip}>
-                <Link to={isFriendlyUI() ? "/saved" : "/bookmarks"}>
-                  <SectionSubtitle>{isFriendlyUI() ? "Saved posts" : "Bookmarks"}</SectionSubtitle>
+                <Link to={"/bookmarks"}>
+                  <SectionSubtitle>{"Bookmarks"}</SectionSubtitle>
                 </Link>
               </LWTooltip>
               <BookmarksList limit={bookmarksLimit} hideLoadMore={true} />
@@ -313,7 +283,7 @@ const RecommendationsAndCurated = ({
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        {(expanded || !isEAForum()) && bodyNode}
+        {bodyNode}
       </AnalyticsContext>
     </SingleColumnSection>
   }

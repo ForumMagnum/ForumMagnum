@@ -1,18 +1,16 @@
-import React from 'react';
-import { FilterSettings, FilterMode as FilterModeType, isCustomFilterMode, FilterTag } from '../../lib/filterSettings';
-import { useCurrentUser } from '../common/withUser';
-import { tagStyle } from './FooterTag';
-import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
-import { userHasNewTagSubscriptions } from '../../lib/betas';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import AddTagButton from "./AddTagButton";
-import LWTooltip from "../common/LWTooltip";
-import FilterMode, { filteringStyles } from './FilterMode';
-import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { type QueryRef } from '@apollo/client/react';
 import { type ResultOf } from '@graphql-typed-document-node/core';
-import { defineStyles, useStyles } from '../hooks/useStyles';
+import { userHasNewTagSubscriptions } from '../../lib/betas';
+import { FilterMode as FilterModeType, FilterSettings, FilterTag, isCustomFilterMode } from '../../lib/filterSettings';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import LWTooltip from "../common/LWTooltip";
+import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { useCurrentUser } from '../common/withUser';
 import { useReadSuggestedTags, type TagBasicInfoMultiQuery } from '../hooks/useFilterSettings';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import AddTagButton from "./AddTagButton";
+import FilterMode, { filteringStyles } from './FilterMode';
+import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 
 const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
   root: {
@@ -21,13 +19,10 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    ...(theme.isFriendlyUI
-      ? {
-        marginTop: 8,
-      } : {
-        gap: "4px",
-        marginBottom: 4,
-      }),
+    ...({
+            gap: "4px",
+            marginBottom: 4,
+          }),
   },
   addButton: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -48,11 +43,11 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
     ...filteringStyles(theme),
   },
   personalAndPlus: {
-    ...(theme.isFriendlyUI ? {} : {
-      gap: "4px",
-      display: "flex",
-      alignItems: "center"
-    }),
+    ...({
+            gap: "4px",
+            display: "flex",
+            alignItems: "center"
+          }),
   }
 }));
 

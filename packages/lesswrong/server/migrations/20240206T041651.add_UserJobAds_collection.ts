@@ -48,16 +48,29 @@
  */
 export const acceptsSchemaHash = "1aeedd5dfed78362382d387f2f2bce84";
 
-import UserJobAds from "../../server/collections/userJobAds/collection"
-import Users from "../../server/collections/users/collection"
-import { addField, createTable, dropField, dropTable } from "./meta/utils"
-
 export const up = async ({db}: MigrationContext) => {
-  await createTable(db, UserJobAds)
-  await addField(db, Users, "hideJobAdUntil")
+  await db.none(`
+    CREATE TABLE IF NOT EXISTS "UserJobAds" (
+      "_id" varchar(27) PRIMARY KEY,
+      "userId" varchar(27) NOT NULL,
+      "jobName" text NOT NULL,
+      "adState" text NOT NULL,
+      "lastUpdated" timestamptz NOT NULL,
+      "schemaVersion" double precision NOT NULL DEFAULT 1,
+      "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      "legacyData" jsonb
+    )
+  `);
+  await db.none(`
+    ALTER TABLE "Users"
+    ADD COLUMN IF NOT EXISTS "hideJobAdUntil" timestamptz
+  `);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropTable(db, UserJobAds)
-  await dropField(db, Users, "hideJobAdUntil")
+  await db.none(`DROP TABLE IF EXISTS "UserJobAds"`);
+  await db.none(`
+    ALTER TABLE "Users"
+    DROP COLUMN IF EXISTS "hideJobAdUntil"
+  `);
 }

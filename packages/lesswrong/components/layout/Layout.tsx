@@ -1,60 +1,55 @@
 'use client';
 
-import React, {useRef, useState, useCallback, createContext} from 'react';
-import classNames from 'classnames'
-import { useTheme, useThemeColor } from '@/components/themes/useTheme';
-import { useLocation } from '@/lib/routeUtil';
-import { AnalyticsContext } from '@/lib/analyticsEvents'
-import { useCurrentUser } from '@/components/common/withUser';
-import { TimezoneWrapper } from '@/components/common/withTimezone';
+import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
 import { DialogManager } from '@/components/common/withDialog';
+import { TimezoneWrapper } from '@/components/common/withTimezone';
+import { useCurrentUser } from '@/components/common/withUser';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
-import { pBodyStyle } from '../../themes/stylePiping';
-import { googleTagManagerIdSetting, isLW, isLWorAF, buttonBurstSetting, isAF } from '@/lib/instanceSettings';
-import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { Helmet } from "@/components/layout/Helmet";
-import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
+import { useTheme } from '@/components/themes/useTheme';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { buttonBurstSetting, googleTagManagerIdSetting, isAF, isLW, isLWorAF } from '@/lib/instanceSettings';
+import { useLocation } from '@/lib/routeUtil';
+import classNames from 'classnames';
+import React, { createContext, useCallback, useRef, useState } from 'react';
+import { globalStyles } from '../../themes/globalStyles/globalStyles';
+import { pBodyStyle } from '../../themes/stylePiping';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
-import Header, { HeaderHeightProvider } from '@/components/layout/Header';
-import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
-import { CurrentAndRecentForumEventsProvider } from '@/components/hooks/useCurrentForumEvent';
-import { LoginPopoverContextProvider } from '@/components/hooks/useLoginPopoverContext';
-import DeferRender from '@/components/common/DeferRender';
-import { userHasLlmChat } from '@/lib/betas';
-import GlobalButtonBurst from '@/components/ea-forum/GlobalButtonBurst';
-import ErrorBoundary from "@/components/common/ErrorBoundary";
-import FlashMessages from "@/components/layout/FlashMessages";
 import AnalyticsClient from "@/components/common/AnalyticsClient";
 import AnalyticsPageInitializer from "@/components/common/AnalyticsPageInitializer";
-// import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
+import DeferRender from '@/components/common/DeferRender';
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import GlobalButtonBurst from '@/components/ea-forum/GlobalButtonBurst';
+import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
+import { CurrentAndRecentForumEventsProvider } from '@/components/hooks/useCurrentForumEvent';
+import { LoginPopoverContextProvider } from '@/components/hooks/useLoginPopoverContext';
+import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
+import FlashMessages from "@/components/layout/FlashMessages";
+import Header, { HeaderHeightProvider } from '@/components/layout/Header';
+import { userHasLlmChat } from '@/lib/betas';
 // import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "@/components/comments/CommentOnSelection";
 import SidebarsWrapper from "@/components/layout/SidebarsWrapper";
-import AdminToggle from "@/components/admin/AdminToggle";
-// import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
 // import ForumEventBanner from "./forumEvents/ForumEventBanner";
-import GlobalHotkeys from "@/components/common/GlobalHotkeys";
-import LlmChatWrapper from "@/components/languageModels/LlmChatWrapper";
-import LWBackgroundImage from "./LWBackgroundImage";
-import IntercomWrapper from "@/components/layout/IntercomWrapper";
 import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
+import GlobalHotkeys from "@/components/common/GlobalHotkeys";
+import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
+import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { gql } from "@/lib/generated/gql-codegen";
-import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute, isStaticHeaderRoute } from '@/lib/routeChecks';
-import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
+import LlmChatWrapper from "@/components/languageModels/LlmChatWrapper";
+import IntercomWrapper from "@/components/layout/IntercomWrapper";
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute, isStaticHeaderRoute } from '@/lib/routeChecks';
+import LWBackgroundImage from "./LWBackgroundImage";
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
 
-import dynamic from 'next/dynamic';
 import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-story/petrovConsts';
-import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import dynamic from 'next/dynamic';
 import { PopperPortalProvider } from '../common/LWPopper';
+import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
 
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
@@ -153,14 +148,9 @@ const Layout = ({children}: {
   // (isLW()) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const isInbox = pathname.startsWith('/inbox');
-  const isWrapped = pathname.startsWith('/wrapped');
 
   let headerBackgroundColor: ColorString;
-  // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const wrappedBackgroundColor = useThemeColor(theme => theme.palette.wrapped.background)
-  if (isWrapped) {
-    headerBackgroundColor = wrappedBackgroundColor;
-  } else if (pathname.startsWith("/voting-portal")) {
+  if (pathname.startsWith("/voting-portal")) {
     headerBackgroundColor = "transparent";
   } else if (isBlackBarTitle) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
@@ -200,7 +190,7 @@ const Layout = ({children}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                <MaybeCookieBanner hideIntercomButton={isWrapped || isInbox} />
+                <MaybeCookieBanner hideIntercomButton={isInbox} />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -228,7 +218,6 @@ const Layout = ({children}: {
               <ErrorBoundary>
                 <FlashMessages />
               </ErrorBoundary>
-              {isFriendlyUI() && !isWrapped && <AdminToggle />}
 
               {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
               <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
@@ -367,5 +356,3 @@ function PageBackgroundWrapper({children}: {
 }
 
 export default Layout;
-
-

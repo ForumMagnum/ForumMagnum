@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
-import moment from '../../../lib/moment-timezone';
-import { useTracking } from "../../../lib/analyticsEvents";
-import makeUrls from './makeUrls';
-import classNames from 'classnames';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import LWTooltip from "../../common/LWTooltip";
+import classNames from 'classnames';
+import React, { useEffect, useRef, useState } from 'react';
+import { useTracking } from "../../../lib/analyticsEvents";
+import moment from '../../../lib/moment-timezone';
 import LWPopper from "../../common/LWPopper";
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import LWTooltip from "../../common/LWTooltip";
+import makeUrls from './makeUrls';
 
 const PostsPlaintextDescriptionQuery = gql(`
   query AddToCalendarButton($documentId: String) {
@@ -29,18 +29,18 @@ const styles = defineStyles("AddToCalendarButton", (theme: ThemeType) => ({
     background: 'transparent',
     color: theme.palette.grey[600],
     font: 'inherit',
-    fontSize: theme.isFriendlyUI ? undefined : 14,
+    fontSize: 14,
     verticalAlign: 'text-bottom',
     '&:hover': {
       opacity: 0.5
     }
   },
   icon: {
-    height: theme.isFriendlyUI ? 18 : 16,
+    height: 16,
     fill: theme.palette.grey[600]
   },
   label: {
-    marginLeft: theme.isFriendlyUI ? 7 : 8,
+    marginLeft: 8,
   },
   dropdown: {
     background: theme.palette.panelBackground.default,

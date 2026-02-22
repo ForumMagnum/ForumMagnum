@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
-import { taggingNameSetting } from '../../lib/instanceSettings';
+import KeystrokeDisplay from "@/components/sunshineDashboard/supermod/KeystrokeDisplay";
 import classNames from 'classnames';
+import { useState } from 'react';
+import { taggingNameSetting } from '../../lib/instanceSettings';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
-import ForumIcon from "../common/ForumIcon";
-import KeystrokeDisplay from "@/components/sunshineDashboard/supermod/KeystrokeDisplay";
-import Loading from "../vulcan-core/Loading";
+import { smallTagTextStyle, tagStyle } from './FooterTag';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,12 +30,7 @@ const styles = (theme: ThemeType) => ({
       border: theme.palette.border.grey300,
       color: theme.palette.grey[800]
     },
-    ...(theme.isFriendlyUI
-      ? {
-        ...coreTagStyle(theme),
-        opacity: 0.6,
-      }
-      : {}),
+    ...({}),
   },
   tagWithShortcut: {
     display: 'inline-flex',
@@ -49,7 +43,7 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     columnGap: 4,
     ...tagStyle(theme),
-    ...(theme.isFriendlyUI ? coreTagStyle(theme) : {}),
+    ...({}),
     cursor: 'default'
   },
   smallTag: {

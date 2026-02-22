@@ -402,32 +402,6 @@ interface DbDialogueMatchPreference extends DbObject {
   }>
 }
 
-type DigestPostsCollection = PgCollection<"DigestPosts">;
-
-interface DbDigestPost extends DbObject {
-  __collectionName?: "DigestPosts"
-  createdAt: Date
-  digestId: string
-  emailDigestStatus: string | null
-  legacyData: any | null
-  onsiteDigestStatus: string | null
-  postId: string
-}
-
-type DigestsCollection = PgCollection<"Digests">;
-
-interface DbDigest extends DbObject {
-  __collectionName?: "Digests"
-  createdAt: Date
-  endDate: Date | null
-  legacyData: any | null
-  num: number
-  onsiteImageId: string | null
-  onsitePrimaryColor: string | null
-  publishedDate: Date | null
-  startDate: Date
-}
-
 type ElectionCandidatesCollection = PgCollection<"ElectionCandidates">;
 
 interface DbElectionCandidate extends DbObject {
@@ -1623,35 +1597,6 @@ interface DbUserActivity extends DbObject {
   visitorId: string
 }
 
-type UserEAGDetailsCollection = PgCollection<"UserEAGDetails">;
-
-interface DbUserEAGDetail extends DbObject {
-  __collectionName?: "UserEAGDetails"
-  careerStage: Array<string> | null
-  countryOrRegion: string | null
-  createdAt: Date
-  experiencedIn: Array<string> | null
-  interestedIn: Array<string> | null
-  lastUpdated: Date
-  legacyData: any | null
-  nearestCity: string | null
-  userId: string
-  willingnessToRelocate: any | null
-}
-
-type UserJobAdsCollection = PgCollection<"UserJobAds">;
-
-interface DbUserJobAd extends DbObject {
-  __collectionName?: "UserJobAds"
-  adState: "seen" | "expanded" | "applied" | "reminderSet"
-  createdAt: Date
-  jobName: string
-  lastUpdated: Date
-  legacyData: any | null
-  reminderSetAt: Date | null
-  userId: string
-}
-
 type UserMostValuablePostsCollection = PgCollection<"UserMostValuablePosts">;
 
 interface DbUserMostValuablePost extends DbObject {
@@ -2363,8 +2308,6 @@ interface CollectionsByName {
   DebouncerEvents: DebouncerEventsCollection
   DialogueChecks: DialogueChecksCollection
   DialogueMatchPreferences: DialogueMatchPreferencesCollection
-  DigestPosts: DigestPostsCollection
-  Digests: DigestsCollection
   ElectionCandidates: ElectionCandidatesCollection
   ElectionVotes: ElectionVotesCollection
   ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
@@ -2426,8 +2369,6 @@ interface CollectionsByName {
   TypingIndicators: TypingIndicatorsCollection
   UltraFeedEvents: UltraFeedEventsCollection
   UserActivities: UserActivitiesCollection
-  UserEAGDetails: UserEAGDetailsCollection
-  UserJobAds: UserJobAdsCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
   UserTagRels: UserTagRelsCollection
@@ -2459,8 +2400,6 @@ interface ObjectsByCollectionName {
   DebouncerEvents: DbDebouncerEvents
   DialogueChecks: DbDialogueCheck
   DialogueMatchPreferences: DbDialogueMatchPreference
-  DigestPosts: DbDigestPost
-  Digests: DbDigest
   ElectionCandidates: DbElectionCandidate
   ElectionVotes: DbElectionVote
   ElicitQuestionPredictions: DbElicitQuestionPrediction
@@ -2522,8 +2461,6 @@ interface ObjectsByCollectionName {
   TypingIndicators: DbTypingIndicator
   UltraFeedEvents: DbUltraFeedEvent
   UserActivities: DbUserActivity
-  UserEAGDetails: DbUserEAGDetail
-  UserJobAds: DbUserJobAd
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
   UserTagRels: DbUserTagRel
@@ -2555,8 +2492,6 @@ interface ObjectsByTypeName {
   DebouncerEvents: DbDebouncerEvents
   DialogueCheck: DbDialogueCheck
   DialogueMatchPreference: DbDialogueMatchPreference
-  DigestPost: DbDigestPost
-  Digest: DbDigest
   ElectionCandidate: DbElectionCandidate
   ElectionVote: DbElectionVote
   ElicitQuestionPrediction: DbElicitQuestionPrediction
@@ -2618,8 +2553,6 @@ interface ObjectsByTypeName {
   TypingIndicator: DbTypingIndicator
   UltraFeedEvent: DbUltraFeedEvent
   UserActivity: DbUserActivity
-  UserEAGDetail: DbUserEAGDetail
-  UserJobAd: DbUserJobAd
   UserMostValuablePost: DbUserMostValuablePost
   UserRateLimit: DbUserRateLimit
   UserTagRel: DbUserTagRel

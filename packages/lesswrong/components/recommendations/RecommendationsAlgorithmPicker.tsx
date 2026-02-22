@@ -1,17 +1,15 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import deepmerge from 'deepmerge';
-import { useCurrentUser } from '../common/withUser';
+import React from 'react';
 import { defaultAlgorithmSettings, DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
-import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { useCurrentUser } from '../common/withUser';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
-export const getArchiveRecommendationsName = () => isEAForum() ? 'Forum Favorites' : 'Archive Recommendations'
+export const getArchiveRecommendationsName = () => 'Archive Recommendations'
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,8 +46,6 @@ export function getRecommendationSettings({settings, currentUser, configName}: {
   currentUser: UsersCurrent|null,
   configName: string,
 }): DefaultRecommendationsAlgorithm {
-  if (isEAForum()) return defaultAlgorithmSettings
-
   if (settings) {
     return {
       ...defaultAlgorithmSettings,
@@ -68,7 +64,6 @@ export function getRecommendationSettings({settings, currentUser, configName}: {
 const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includePersonal' | 'includeMeta'}> = {
   LessWrong: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
   AlignmentForum: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
-  EAForum: {humanName: 'Community', machineName: 'includeMeta'},
   default: {humanName: 'Personal Blogposts', machineName: 'includePersonal'},
 }
 const getIncludeExtra = () => forumSelect(forumIncludeExtra)
@@ -109,8 +104,8 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
         <SectionFooterCheckbox
           value={!settings.hideBookmarks}
           onClick={(ev: React.MouseEvent) => applyChange({ ...settings, hideBookmarks: !settings.hideBookmarks })}
-          label={isFriendlyUI() ? "Saved posts" : "Bookmarks"}
-          tooltip={`Posts that you have ${isFriendlyUI() ? "saved" : "bookmarked"} will appear in Recommendations.`}
+          label={"Bookmarks"}
+          tooltip={`Posts that you have ${"bookmarked"} will appear in Recommendations.`}
         />
       </span>
     </span>}

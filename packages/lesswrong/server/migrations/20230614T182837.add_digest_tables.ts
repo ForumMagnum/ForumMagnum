@@ -51,30 +51,43 @@
  */
 export const acceptsSchemaHash = "7abdde9662fea7114e47457ccdc6f4ad";
 
-import DigestPosts from "../../server/collections/digestPosts/collection"
-import Digests from "../../server/collections/digests/collection"
 import { randomId } from "../../lib/random"
-import InsertQuery from "../../server/sql/InsertQuery"
-import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  await createTable(db, Digests)
-  await createTable(db, DigestPosts)
+  await db.none(`
+    CREATE TABLE IF NOT EXISTS "Digests" (
+      "_id" varchar(27) PRIMARY KEY,
+      "num" double precision NOT NULL,
+      "startDate" timestamptz NOT NULL,
+      "endDate" timestamptz,
+      "publishedDate" timestamptz,
+      "schemaVersion" double precision DEFAULT 1,
+      "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP,
+      "legacyData" jsonb
+    )
+  `);
+  await db.none(`
+    CREATE TABLE IF NOT EXISTS "DigestPosts" (
+      "_id" varchar(27) PRIMARY KEY,
+      "digestId" varchar(27),
+      "postId" varchar(27),
+      "emailDigestStatus" text,
+      "onsiteDigestStatus" text,
+      "schemaVersion" double precision DEFAULT 1,
+      "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP,
+      "legacyData" jsonb
+    )
+  `);
 
   // insert a digest to start
   const now = new Date()
-  const newDigest = {
-    _id: randomId(),
-    num: 1,
-    startDate: now,
-    createdAt: now,
-  }
-  const query = new InsertQuery(Digests.getTable(), newDigest as DbDigest)
-  const {sql, args} = query.compile()
-  await db.none(sql, args)
+  await db.none(
+    `INSERT INTO "Digests" ("_id", "num", "startDate", "createdAt") VALUES ($1, $2, $3, $3)`,
+    [randomId(), 1, now]
+  );
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropTable(db, DigestPosts)
-  await dropTable(db, Digests)
+  await db.none(`DROP TABLE IF EXISTS "DigestPosts"`);
+  await db.none(`DROP TABLE IF EXISTS "Digests"`);
 }

@@ -1,27 +1,25 @@
-import React from "react";
-import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useCurrentUser } from "../common/withUser";
-import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
-import { userCanQuickTake } from "../../lib/vulcan-users/permissions";
-import {
-  SHOW_QUICK_TAKES_SECTION_COOKIE,
-  SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
-} from "../../lib/cookies/cookies";
-import { isEAForum, quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
-import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
-import { Link } from '../../lib/reactRouterWrapper';
-import ExpandableSection from "../common/ExpandableSection";
-import LWTooltip from "../common/LWTooltip";
-import QuickTakesEntry from "./QuickTakesEntry";
-import QuickTakesListItem from "./QuickTakesListItem";
-import Loading from "../vulcan-core/Loading";
-import SectionFooter from "../common/SectionFooter";
-import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
-import { defineStyles, useStyles } from "../hooks/useStyles";
+import { quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
+import {
+    SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
+    SHOW_QUICK_TAKES_SECTION_COOKIE,
+} from "../../lib/cookies/cookies";
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { userCanQuickTake } from "../../lib/vulcan-users/permissions";
+import { preferredHeadingCase } from "../../themes/forumTheme";
+import ExpandableSection from "../common/ExpandableSection";
+import LoadMore from "../common/LoadMore";
+import LWTooltip from "../common/LWTooltip";
+import SectionFooter from "../common/SectionFooter";
 import { SuspenseWrapper } from "../common/SuspenseWrapper";
+import { useCurrentUser } from "../common/withUser";
+import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import Loading from "../vulcan-core/Loading";
+import QuickTakesEntry from "./QuickTakesEntry";
+import QuickTakesListItem from "./QuickTakesListItem";
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -53,13 +51,13 @@ const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
   },
   list: {
     marginTop: 4,
-    ...(theme.isFriendlyUI ? {} : {
-      display: "flex",
-      flexDirection: "column",
-      gap: "4px",  
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: '1.16rem',
-    })
+    ...({
+          display: "flex",
+          flexDirection: "column",
+          gap: "4px",  
+          fontFamily: theme.palette.fonts.sansSerifStack,
+          fontSize: '1.16rem',
+        })
   },
 }));
 
@@ -130,30 +128,15 @@ const QuickTakesSection = () => {
       A feed of quick takes by other users, sorted by recency and karma.
     </div>
   );
-  const title = isFriendlyUI()
-    ? titleText
-    : (<>
-        <LWTooltip title={titleTooltip} placement="left">
-          <Link to={"/quicktakes"}>{titleText}</Link>
-        </LWTooltip>
-      </>);
+  const title = (<>
+          <LWTooltip title={titleTooltip} placement="left">
+            <Link to={"/quicktakes"}>{titleText}</Link>
+          </LWTooltip>
+        </>);
 
-  const afterTitleTo = isFriendlyUI() ? "/quicktakes" : undefined;
+  const afterTitleTo = undefined;
 
-  const AfterTitleComponent = isEAForum() 
-    ? () => (
-      <LWTooltip
-        title='Show quick takes tagged "Community"'
-        placement="left"
-        hideOnTouchScreens
-      >
-        <div className={classes.communityToggle} onClick={toggleShowCommunity}>
-          <Checkbox checked={showCommunity} />
-          <span>Show community</span>
-        </div>
-      </LWTooltip>
-    )
-  : undefined;
+  const AfterTitleComponent = undefined;
 
   return <ExpandableSection
     pageSectionContext="quickTakesSection"

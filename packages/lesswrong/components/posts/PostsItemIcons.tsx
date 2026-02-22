@@ -1,25 +1,23 @@
-import React, { useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import classNames from 'classnames';
-import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { curatedUrl } from '../recommendations/constants';
-import { Link } from '../../lib/reactRouterWrapper';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { isAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { useTracking } from '@/lib/analyticsEvents';
-import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
+import { isAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { recombeeApi } from '@/lib/recombee/client';
+import classNames from 'classnames';
+import React, { useContext } from 'react';
+import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
 import { useCurrentUser } from '../common/withUser';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
-import LWTooltip from "../common/LWTooltip";
-import ForumIcon from "../common/ForumIcon";
-import OmegaIcon from "../icons/OmegaIcon";
+import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import OmegaIcon from "../icons/OmegaIcon";
+import { curatedUrl } from '../recommendations/constants';
 
 const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   iconSet: {
-    marginLeft: theme.isFriendlyUI ? 6 : theme.spacing.unit,
-    marginRight: theme.isFriendlyUI ? 2 : theme.spacing.unit,
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
     lineHeight: "1.0rem",
     '&:empty': {
       display: 'none',
@@ -34,23 +32,23 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
     '&&': {
       "--icon-size": "15.6px",
       fontSize: "15.6px",
-      color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+      color: theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     },
   },
   curatedIcon: {
     "--icon-size": "15.6px",
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.palette.icon.dim4,
     position: "relative",
-    top: theme.isFriendlyUI ? 2 : 3,
+    top: 3,
   },
   curatedIconColor: {
-    color: theme.isFriendlyUI ? theme.palette.icon.yellow : theme.palette.primary.main,
+    color: theme.palette.primary.main,
   },
   question: {
     "--icon-size": "15.6px",
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.palette.icon.dim4,
     fontWeight: '600'
   },
   alignmentIcon: {
@@ -61,21 +59,15 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   linkIcon: {
     position: "relative",
     "--icon-size": "15.6px",
-    ...(theme.isFriendlyUI
-      ? {
-        top: 1,
-        color: theme.palette.grey[600],
-      }
-      : {
-        top: 3,
-        color: theme.palette.icon.dim4,
-      }),
+    ...({
+            top: 3,
+            color: theme.palette.icon.dim4,
+          }),
   },
   dialogueIcon: {
-    strokeWidth: theme.isFriendlyUI ? "2px" : undefined,
-  },
+},
   recommendationIcon: {
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.palette.icon.dim4,
     '&:hover': {
       opacity: 0.5
     }
@@ -91,7 +83,7 @@ export const CuratedIcon = ({hasColor}: {
         <Link to={curatedUrl}>
           <ForumIcon icon="Star" className={classNames(
             classes.curatedIcon,
-            {[classes.curatedIconColor]: hasColor && isFriendlyUI()},
+            {[classes.curatedIconColor]: false},
           )}/>
         </Link>
       </LWTooltip>
@@ -159,9 +151,7 @@ export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}:
       <LWTooltip title="Dialogue" placement="right">
         <ForumIcon
           icon={
-            isFriendlyUI()
-              ? "ChatBubbleLeftRight"
-              : "ChatBubbleLeftRightFilled"
+            "ChatBubbleLeftRightFilled"
           }
           className={classNames(classes.icon, classes.dialogueIcon)}
         />

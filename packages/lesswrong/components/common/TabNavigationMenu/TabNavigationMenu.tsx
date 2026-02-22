@@ -1,16 +1,16 @@
 import React from 'react';
 import { useCurrentUserId } from '../withUser';
-import TabNavigationItem, { iconWidth } from './TabNavigationItem'
+import TabNavigationItem, { iconWidth } from './TabNavigationItem';
 
 // -- See here for all the tab content --
-import getMenuTabs from './menuTabs'
-import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { forumSelect } from '../../../lib/forumTypeUtils';
-import classNames from 'classnames';
-import EventsList from './EventsList';
-import { SubscribeWidget } from '../SubscribeWidget';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { forumSelect } from '../../../lib/forumTypeUtils';
+import { SubscribeWidget } from '../SubscribeWidget';
+import EventsList from './EventsList';
+import getMenuTabs from './menuTabs';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 export const TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH = 64
@@ -21,14 +21,9 @@ const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
       flexDirection: "column",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
-      ...(theme.isFriendlyUI
-        ? {
-          paddingLeft: 6,
-          height: "100%",
-        }
-        : {
-          justifyContent: "space-around",
-        }),
+      ...({
+                justifyContent: "space-around",
+              }),
     },
     noTopMargin: {
       paddingTop: "0px !important",
@@ -54,15 +49,10 @@ const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
         background: theme.palette.text.bannerAdOverlay,
       }),
       marginBottom: theme.spacing.unit * 2.5,
-      ...(theme.isFriendlyUI
-        ? {
-          marginLeft: theme.spacing.unit * 2.5,
-          marginTop: theme.spacing.unit * 2.5,
-        }
-        : {
-          marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
-          marginTop: theme.spacing.unit * 1.5,
-        }),
+      ...({
+                marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
+                marginTop: theme.spacing.unit * 1.5,
+              }),
     },
 }));
 

@@ -1,12 +1,11 @@
-import React, { FC, useEffect } from 'react';
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
+import { FC, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import QuickTakesListItem from "../quickTakes/QuickTakesListItem";
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import ContentType from "../posts/PostsPage/ContentType";
-import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen";
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentShortformTimeBlockQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,7 +20,7 @@ const ShortformCommentsMultiQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   shortformGroup: {
-    marginTop: theme.isFriendlyUI ? 20 : 12,
+    marginTop: 12,
   },
   subtitle: {
     marginTop: 6,
@@ -35,11 +34,6 @@ const styles = (theme: ThemeType) => ({
 const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   if (!comment.post) {
     return null;
-  }
-  if (isFriendlyUI()) {
-    return (
-      <QuickTakesListItem quickTake={comment} />
-    );
   }
   return (
     <CommentsNode

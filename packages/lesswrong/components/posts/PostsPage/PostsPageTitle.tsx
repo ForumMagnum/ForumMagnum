@@ -1,12 +1,10 @@
-import React from 'react'
-import { Link } from '../../../lib/reactRouterWrapper';
-import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import { Typography } from "../../common/Typography";
+import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { Link } from '../../../lib/reactRouterWrapper';
 import ForumIcon from "../../common/ForumIcon";
 import LWTooltip from "../../common/LWTooltip";
+import { Typography } from "../../common/Typography";
 
 export const LW_POST_TITLE_FONT_SIZE = "3.75rem";
 
@@ -14,43 +12,26 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   ...theme.typography.display3,
   ...theme.typography.postStyle,
   ...theme.typography.headerStyle,
-  marginTop: theme.isFriendlyUI ? 5 : 0,
+  marginTop: 0,
   marginLeft: 0,
-  marginBottom: theme.isFriendlyUI ? 12 : 0,
+  marginBottom: 0,
   color: theme.palette.text.primary,
-  textWrap: theme.isBookUI ? "balance" : undefined,
-  [theme.breakpoints.down('sm')]: theme.isFriendlyUI
-    ? {
-      fontSize: '2.3rem',
-      marginTop: 20,
-    }
-    : {
-      fontSize: '3.5rem',
-    },
-  ...(theme.isFriendlyUI
-    ? {
-      fontSize: '3rem',
-    }
-    : {
-      fontSize: LW_POST_TITLE_FONT_SIZE,
-      lineHeight: '1.1',
-  }),
-  [theme.breakpoints.down('xs')]: theme.isFriendlyUI
-    ? {
-      fontSize: '2.3rem',
-    }
-    : {
-      fontSize: '2.5rem',
-    },
+  textWrap: "balance",
+  [theme.breakpoints.down('sm')]: {
+        fontSize: '3.5rem',
+      },
+  ...({
+        fontSize: LW_POST_TITLE_FONT_SIZE,
+        lineHeight: '1.1',
+    }),
+  [theme.breakpoints.down('xs')]: {
+        fontSize: '2.5rem',
+      },
 })
 
 const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   root: {
-    ...postPageTitleStyles(theme),
-    ...(theme.isFriendlyUI && {
-      lineHeight: 1.25,
-      fontWeight: 700
-    }),
+    ...postPageTitleStyles(theme)
   },
   draft: {
     color: theme.palette.text.dim4
@@ -87,8 +68,8 @@ const PostsPageTitle = ({post, className}: {
   const classes = useStyles(styles);
   const sourcePostRelations = ('sourcePostRelations' in post) ? post.sourcePostRelations : null;
   const parentPost = sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
-  const showLinkIcon = post.url && isFriendlyUI();
-  const showDialogueIcon = post.collabEditorDialogue && isFriendlyUI();
+  const showLinkIcon = false;
+  const showDialogueIcon = false;
 
   const words = post.title.trim().split(/\s+/);
   const mostOfTitle = words.slice(0, -1).join(" ");
@@ -130,4 +111,3 @@ const PostsPageTitle = ({post, className}: {
 }
 
 export default PostsPageTitle;
-

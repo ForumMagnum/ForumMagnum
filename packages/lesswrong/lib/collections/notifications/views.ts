@@ -32,7 +32,7 @@ function userNotifications(terms: NotificationsViewTerms) {
     selector: {
       userId: terms.userId,
       type: terms.type || null,
-      viewed: terms.viewed == null ? null : (terms.viewed || false)
+      viewed: terms.viewed == null ? null : (terms.viewed)
     }, //Ugly construction to deal with falsy viewed values and null != false in Mongo
     options: {sort: {createdAt: -1}}
   };

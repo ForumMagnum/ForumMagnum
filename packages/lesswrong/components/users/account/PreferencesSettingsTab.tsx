@@ -1,25 +1,16 @@
-import React from 'react';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '@/themes/forumTheme';
+import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
-import { ThemeSelect } from '@/components/form-components/ThemeSelect';
-import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
-import { userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { hasEventsSetting, isAF, isLW } from '@/lib/instanceSettings';
 import { HighlightableField } from './HighlightableField';
 import SettingsSection from './SettingsSection';
-import SettingsToggleRow from './SettingsToggleRow';
 import SettingsSelectRow from './SettingsSelectRow';
 import type { SettingsTabProps } from './settingsTabTypes';
+import SettingsToggleRow from './SettingsToggleRow';
 
 const SORT_DRAFTS_BY_OPTIONS = [
   { value: "wordCount", label: "Wordcount" },
   { value: "modifiedAt", label: "Last Modified" },
-];
-
-const REACT_PALETTE_STYLE_OPTIONS = [
-  { value: "listView", label: "List View" },
-  { value: "iconView", label: "Icons" },
 ];
 
 const PreferencesSettingsTab = ({
@@ -29,30 +20,6 @@ const PreferencesSettingsTab = ({
 }: SettingsTabProps) => {
   return (
     <div>
-      {!isLWorAF() && (
-        <SettingsSection title="Appearance">
-          <div className={fieldWrapperClass}>
-            <form.Field name="theme">
-              {(field) => (
-                <ThemeSelect field={field} />
-              )}
-            </form.Field>
-          </div>
-
-          {!isEAForum() && (
-            <form.Field name="reactPaletteStyle">
-              {(field) => (
-                <SettingsSelectRow
-                  field={field}
-                  options={REACT_PALETTE_STYLE_OPTIONS}
-                  label="React palette style"
-                />
-              )}
-            </form.Field>
-          )}
-        </SettingsSection>
-      )}
-
       <SettingsSection title="Comments">
         <form.Field name="commentSorting">
           {(field) => (
@@ -129,28 +96,9 @@ const PreferencesSettingsTab = ({
           </form.Field>
         )}
 
-        {isEAForum() && (
-          <form.Field name="hideCommunitySection">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Hide community section"
-                description="Remove the community section from the frontpage"
-              />
-            )}
-          </form.Field>
-        )}
+        {false}
 
-        {isEAForum() && (
-          <form.Field name="showCommunityInRecentDiscussion">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Show community in Recent Discussion"
-              />
-            )}
-          </form.Field>
-        )}
+        {false}
 
         {userCanViewJargonTerms(form.state.values) && (
           <form.Field name="postGlossariesPinned">
@@ -187,16 +135,14 @@ const PreferencesSettingsTab = ({
           </form.Field>
         )}
 
-        {isLWorAF() && (
-          <form.Field name="hideFrontpageBook2020Ad">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Hide the frontpage book ad"
-              />
-            )}
-          </form.Field>
-        )}
+        <form.Field name="hideFrontpageBook2020Ad">
+          {(field) => (
+            <SettingsToggleRow
+              field={field}
+              label="Hide the frontpage book ad"
+            />
+          )}
+        </form.Field>
 
         {isAF() && (
           <form.Field name="hideAFNonMemberInitialWarning">
@@ -239,17 +185,17 @@ const PreferencesSettingsTab = ({
             </div>
           </HighlightableField>
 
-          {!isEAForum() && <div className={fieldWrapperClass}>
-            <form.Field name="mapLocation">
-              {(field) => (
-                <LocationFormComponent
-                  field={field}
-                  variant="grey"
-                  label="Public map location"
-                />
-              )}
-            </form.Field>
-          </div>}
+          {<div className={fieldWrapperClass}>
+                              <form.Field name="mapLocation">
+                                {(field) => (
+                                  <LocationFormComponent
+                                    field={field}
+                                    variant="grey"
+                                    label="Public map location"
+                                  />
+                                )}
+                              </form.Field>
+                            </div>}
         </SettingsSection>
       )}
 
@@ -286,42 +232,10 @@ const PreferencesSettingsTab = ({
           </form.Field>
         )}
 
-        {isEAForum() && (userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && (
-          <form.Field name="showHideKarmaOption">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Karma visibility controls"
-                description="Enable the option on posts to hide karma visibility"
-              />
-            )}
-          </form.Field>
-        )}
+        {false}
       </SettingsSection>
 
-      {isEAForum() && (
-        <SettingsSection title="Privacy">
-          <form.Field name="hideFromPeopleDirectory">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Hide from People directory"
-                description="Your profile won't appear in the People directory"
-              />
-            )}
-          </form.Field>
-
-          <form.Field name="allowDatadogSessionReplay">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Allow Session Replay"
-                description="Allow us to capture a video-like recording of your browser session for debugging and site improvements"
-              />
-            )}
-          </form.Field>
-        </SettingsSection>
-      )}
+      {false}
     </div>
   );
 };

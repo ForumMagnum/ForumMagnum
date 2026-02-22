@@ -28,7 +28,6 @@ export const localLwProdDb = merge({
   testServer: true,
   debug: false,
   expectedDatabaseId: "production",
-  fmCrosspost: { siteName: "the EA Forum", baseUrl: "https://forum.effectivealtruism.org/" },
   allowTypeIIIPlayer: true,
   hasRejectedContentSection: true,
   hasCuratedPosts: true,

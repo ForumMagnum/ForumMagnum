@@ -1,19 +1,18 @@
-import React from 'react';
-import { isFriendlyUI } from '@/themes/forumTheme';
-import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
-import { truncatise } from '@/lib/truncatise';
-import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
 import { defineStyles } from '@/components/hooks/defineStyles';
-import { EmailPostAuthors } from './EmailPostAuthors';
+import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
+import { truncatise } from '@/lib/truncatise';
+import React from 'react';
+import { postGetLink, postGetLinkTarget, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { EmailContentItemBody } from './EmailContentItemBody';
 import { EmailFooterRecommendations } from './EmailFooterRecommendations';
+import { EmailPostAuthors } from './EmailPostAuthors';
 import { EmailPostDate } from './EmailPostDate';
 // import ContentStyles from '@/components/common/ContentStyles';
 import type { PostsRevision } from "@/lib/generated/gql-codegen/graphql";
-import { EmailContextType, emailUseStyles } from './emailContext';
-import { PostsRevisionMultiQuery } from './queries';
 import { emailUseQuery } from '../vulcan-lib/query';
 import { EmailContentStyles } from './EmailContentStyles';
+import { EmailContextType, emailUseStyles } from './emailContext';
+import { PostsRevisionMultiQuery } from './queries';
 
 const getPodcastInfoElement = (podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>) => {
   const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
@@ -95,10 +94,7 @@ const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
     textDecoration: "none",
     fontWeight: "normal",
     fontFamily: theme.typography.headerStyle.fontFamily,
-    ...(theme.isFriendlyUI ? {
-      fontSize: "2.4rem",
-      lineHeight: '1.25em'
-    } : {}),
+    ...({}),
   },
   headingHR: {
     width: 210,

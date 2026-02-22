@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
-import { FormComponentFriendlyTextInput } from './FormComponentFriendlyTextInput';
+import { FormComponentTextInput } from './FormComponentTextInput';
 import SocialMediaIcon from "../icons/SocialMediaIcon";
 
 const styles = (theme: ThemeType) => ({
@@ -65,7 +65,7 @@ const PrefixedInput = ({
   ) : null
 
   return (
-    <FormComponentFriendlyTextInput
+    <FormComponentTextInput
       value={value ?? null}
       startAdornment={
         <InputAdornment position="start" className={classes.inputAdornment}>
@@ -82,5 +82,4 @@ const PrefixedInput = ({
 }
 
 export default registerComponent("PrefixedInput", PrefixedInput, { styles });
-
 

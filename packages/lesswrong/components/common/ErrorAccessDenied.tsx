@@ -1,23 +1,13 @@
-import React from 'react';
-import { useCurrentUser } from './withUser';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import LoginForm from "../users/LoginForm";
 import SingleColumnSection from "./SingleColumnSection";
 import { Typography } from "./Typography";
-import { StatusCodeSetter } from '../next/StatusCodeSetter';
-import { defineStyles } from '../hooks/defineStyles';
-import { useStyles } from '../hooks/useStyles';
+import { useCurrentUser } from './withUser';
 
 const styles = defineStyles("ErrorAccessDenied", (theme: ThemeType) => ({
-  root: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 16,
-      fontWeight: 500,
-      lineHeight: '26px',
-      textWrap: 'pretty',
-      marginTop: 30
-    }
-    :{},
+  root: {},
 }));
 
 /**

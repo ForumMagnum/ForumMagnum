@@ -1,29 +1,27 @@
-import React, { useState } from 'react';
-import { useMutation } from "@apollo/client/react";
-import { useQuery } from "@/lib/crud/useQuery"
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import classNames from 'classnames';
-import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
-import JargonEditorRow, { formStyles } from './JargonEditorRow';
 import { useJargonCounts } from '@/components/hooks/useJargonCounts';
-import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { useLocalStorageState } from '../hooks/useLocalStorageState';
-import { removeJargonDot } from './GlossarySidebar';
-import { JargonTermForm } from './JargonTermForm';
-import { EditablePost } from '@/lib/collections/posts/helpers';
-import LoadMore from "../common/LoadMore";
-import Loading from "../vulcan-core/Loading";
-import LWTooltip from "../common/LWTooltip";
-import { IconRight, IconDown } from "../vulcan-forms/FormGroup";
-import Row from "../common/Row";
-import MetaInfo from "../common/MetaInfo";
-import EditUserJargonSettings from "./EditUserJargonSettings";
-import ForumIcon from "../common/ForumIcon";
-import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from '@/components/hooks/useQueryWithLoadMore';
 import { defaultExampleAltTerm, defaultExampleDefinition, defaultExamplePost, defaultExampleTerm, defaultGlossaryPrompt, JARGON_LLM_MODEL } from '@/lib/collections/jargonTerms/constants';
-import { useStyles } from '../hooks/useStyles';
+import { EditablePost } from '@/lib/collections/posts/helpers';
+import { gql } from "@/lib/generated/gql-codegen";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import { useMutation } from "@apollo/client/react";
+import classNames from 'classnames';
+import { useState } from 'react';
+import ForumIcon from "../common/ForumIcon";
+import LoadMore from "../common/LoadMore";
+import LWTooltip from "../common/LWTooltip";
+import MetaInfo from "../common/MetaInfo";
+import Row from "../common/Row";
 import { defineStyles } from '../hooks/defineStyles';
+import { useLocalStorageState } from '../hooks/useLocalStorageState';
+import { useStyles } from '../hooks/useStyles';
+import Loading from "../vulcan-core/Loading";
+import EditUserJargonSettings from "./EditUserJargonSettings";
+import { removeJargonDot } from './GlossarySidebar';
+import JargonEditorRow, { formStyles } from './JargonEditorRow';
+import { JargonTermForm } from './JargonTermForm';
 
 const JargonTermsMultiQuery = gql(`
   query multiJargonTermGlossaryEditFormQuery($selector: JargonTermSelector, $limit: Int, $enableTotal: Boolean) {
@@ -232,8 +230,7 @@ const styles = defineStyles("GlossaryEditForm", (theme: ThemeType) => ({
   },
   formSectionHeadingTitle: {
     marginBottom: 5,
-    fontSize: "1.25rem",
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
+    fontSize: "1.25rem"
   },
   promptEditorWarning: {
     color: theme.palette.error.main,

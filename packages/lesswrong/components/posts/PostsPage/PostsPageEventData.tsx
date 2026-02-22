@@ -1,24 +1,23 @@
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
-import WebIcon from '@/lib/vendor/@material-ui/icons/src/Web';
-import ForumIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
-import CreateIcon from '@/lib/vendor/@material-ui/icons/src/Create';
-import PeopleIcon from '@/lib/vendor/@material-ui/icons/src/People';
-import LaptopIcon from '@/lib/vendor/@material-ui/icons/src/LaptopMac';
-import ViewListIcon from '@/lib/vendor/@material-ui/icons/src/ViewList';
 import ClockIcon from '@/lib/vendor/@material-ui/icons/src/AccessTime';
-import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
-import MailIcon from '@/lib/vendor/@material-ui/icons/src/MailOutline'
+import CreateIcon from '@/lib/vendor/@material-ui/icons/src/Create';
+import ForumIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
+import LaptopIcon from '@/lib/vendor/@material-ui/icons/src/LaptopMac';
 import LocalActivityIcon from '@/lib/vendor/@material-ui/icons/src/LocalActivity';
-import moment from '../../../lib/moment-timezone';
-import React from 'react'
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
+import MailIcon from '@/lib/vendor/@material-ui/icons/src/MailOutline';
+import OpenInNewIcon from '@/lib/vendor/@material-ui/icons/src/OpenInNew';
+import PeopleIcon from '@/lib/vendor/@material-ui/icons/src/People';
+import ViewListIcon from '@/lib/vendor/@material-ui/icons/src/ViewList';
+import WebIcon from '@/lib/vendor/@material-ui/icons/src/Web';
 import { useTracking } from '../../../lib/analyticsEvents';
+import moment from '../../../lib/moment-timezone';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { Typography } from "../../common/Typography";
 import EventTime from "../../localGroups/EventTime";
 import SmallMapPreview from "../../localGroups/SmallMapPreview";
-import { defineStyles } from '@/components/hooks/defineStyles';
-import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostsPageEventData", (theme: ThemeType) => ({
   metadata: {
@@ -37,7 +36,7 @@ const styles = defineStyles("PostsPageEventData", (theme: ThemeType) => ({
     columnGap: 8,
   },
   iconWrapper: {
-    paddingTop: theme.isFriendlyUI ? 3 : 2
+    paddingTop: 2
   },
   icon: {
     fontSize: 16,

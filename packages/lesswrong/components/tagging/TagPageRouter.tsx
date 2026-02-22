@@ -1,12 +1,9 @@
 "use client";
-import React from "react";
-import { useLocation } from "../../lib/routeUtil";
-import { useTagBySlug } from "./useTag";
 import { hasSubforums } from "@/lib/betas";
-import { isFriendlyUI } from "@/themes/forumTheme";
-import EATagPage from "./EATagPage";
+import { useLocation } from "../../lib/routeUtil";
 import LWTagPage from "./LWTagPage";
 import TagSubforumPage2 from "./subforums/TagSubforumPage2";
+import { useTagBySlug } from "./useTag";
 
 /**
  * Build structured data for a tag to help with SEO.
@@ -36,7 +33,7 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
  * Wrapper component for routing to either the subforum page or the ordinary tag page.
  */
 const TagPageRouter = ({slug}: {slug: string}) => {
-  const TagPage = isFriendlyUI() ? EATagPage : LWTagPage;
+  const TagPage = LWTagPage;
   const { query } = useLocation();
 
   const { version: queryVersion, revision: queryRevision } = query;

@@ -7,7 +7,6 @@ import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
@@ -120,10 +119,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     // over selecting brand new comments - defaults to 2 hours
     recencyBias?: number,
   }): Promise<DbComment[]> {
-    const excludedTagId = forumSelect({
-      EAForum: EA_FORUM_COMMUNITY_TOPIC_ID,
-      default: null
-    });
+    const excludedTagId = null;
 
     const excludeTagId = !!excludedTagId;
     const excludedTagIdParam = excludeTagId ? { excludedTagId } : {};

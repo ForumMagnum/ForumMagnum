@@ -1,10 +1,9 @@
-import AbstractRepo from "./AbstractRepo";
-import Users from "../../server/collections/users/collection";
-import { recordPerfMetrics } from "./perfMetricWrapper";
-import { isEAForum } from "../../lib/instanceSettings";
-import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
+import Users from "../../server/collections/users/collection";
+import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
+import AbstractRepo from "./AbstractRepo";
 import { getViewablePostsSelector } from "./helpers";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -455,7 +454,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   async getCurationSubscribedUserIds(): Promise<string[]> {
-    const verifiedEmailFilter = !isEAForum() ? 'AND fm_has_verified_email(emails)' : '';
+    const verifiedEmailFilter = 'AND fm_has_verified_email(emails)';
 
     const userIdRecords = await this.getRawDb().any<Record<'_id', string>>(`
       SELECT _id

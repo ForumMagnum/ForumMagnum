@@ -1,23 +1,21 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
-import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { preferredHeadingCase } from '@/themes/forumTheme';
+import { useCallback, useRef, useState } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import ForumIcon from '../common/ForumIcon';
-import LWPopper from '../common/LWPopper';
 import LWClickAwayListener from '../common/LWClickAwayListener';
-import DropdownMenu from '../dropdowns/DropdownMenu';
-import DropdownItem from '../dropdowns/DropdownItem';
-import { Paper } from '../widgets/Paper';
-import { useCurrentUser } from '../common/withUser';
+import LWPopper from '../common/LWPopper';
 import { useDialog } from '../common/withDialog';
+import { useCurrentUser } from '../common/withUser';
+import DropdownItem from '../dropdowns/DropdownItem';
+import DropdownMenu from '../dropdowns/DropdownMenu';
 import LoginPopup from '../users/LoginPopup';
+import { Paper } from '../widgets/Paper';
 
 const styles = (theme: ThemeType) => ({
   buttonWrapper: {
-    ...(theme.isFriendlyUI ? {
-      backgroundColor: theme.palette.primary.main,
-    } : {}),
+    ...({}),
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
     display: 'flex',
@@ -28,10 +26,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 'auto',
     marginBottom: 'auto',
     height: "calc(100% - 12px)",
-    ...(theme.isFriendlyUI ? {
-      width: 1,
-      backgroundColor: theme.palette.text.alwaysWhite,
-    } : {}),
+    ...({}),
   },
   button: {
     borderRadius: theme.borderRadius.default,
@@ -40,12 +35,12 @@ const styles = (theme: ThemeType) => ({
     padding: '6px 2px',
     minWidth: 0,
     boxShadow: 'none',
-    ...(!theme.isFriendlyUI ? {
-      color: theme.palette.lwTertiary.main,
-      "&:hover": {
-        opacity: 0.5,
-      },
-    } : {}),
+    ...({
+          color: theme.palette.lwTertiary.main,
+          "&:hover": {
+            opacity: 0.5,
+          },
+        }),
   },
   dropdownIcon: {
     transform: 'translateY(1px)'
@@ -54,15 +49,15 @@ const styles = (theme: ThemeType) => ({
     marginTop: 6
   },
   dropdownMenu: {
-    ...(!theme.isFriendlyUI && {
-      backgroundColor: theme.palette.dropdown.background,
-      borderRadius: theme.borderRadius.small,
-    }),
+    ...({
+            backgroundColor: theme.palette.dropdown.background,
+            borderRadius: theme.borderRadius.small,
+          }),
   },
   dropdownItem: {
-    ...(!theme.isFriendlyUI && {
-      padding: '4px 8px'
-    })
+    ...({
+            padding: '4px 8px'
+          })
   }
 });
 
@@ -87,8 +82,6 @@ export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
       <div ref={dropdownRef} className={classes.buttonWrapper}>
         <div className={classes.divider} />
         <Button
-          variant={isFriendlyUI() ? "contained" : undefined}
-          color={isFriendlyUI() ? "primary" : undefined}
           className={classes.button}
           onClick={() => setMenuOpen(!menuOpen)}
         >

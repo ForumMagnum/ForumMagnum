@@ -27,8 +27,6 @@ import { default as DatabaseMetadata } from '../collections/databaseMetadata/new
 import { default as DebouncerEvents } from '../collections/debouncerEvents/newSchema';
 import { default as DialogueChecks } from '../collections/dialogueChecks/newSchema';
 import { default as DialogueMatchPreferences } from '../collections/dialogueMatchPreferences/newSchema';
-import { default as DigestPosts } from '../collections/digestPosts/newSchema';
-import { default as Digests } from '../collections/digests/newSchema';
 import { default as ElectionCandidates } from '../collections/electionCandidates/newSchema';
 import { default as ElectionVotes } from '../collections/electionVotes/newSchema';
 import { default as ElicitQuestionPredictions } from '../collections/elicitQuestionPredictions/newSchema';
@@ -89,8 +87,6 @@ import { default as Tags } from '../collections/tags/newSchema';
 import { default as Tweets } from '../collections/tweets/newSchema';
 import { default as TypingIndicators } from '../collections/typingIndicators/newSchema';
 import { default as UltraFeedEvents } from '../collections/ultraFeedEvents/newSchema';
-import { default as UserEAGDetails } from '../collections/userEAGDetails/newSchema';
-import { default as UserJobAds } from '../collections/userJobAds/newSchema';
 import { default as UserMostValuablePosts } from '../collections/userMostValuablePosts/newSchema';
 import { default as UserRateLimits } from '../collections/userRateLimits/newSchema';
 import { default as UserTagRels } from '../collections/userTagRels/newSchema';
@@ -111,13 +107,13 @@ if (isAnyTest || bundleIsCodegen) {
 export const allSchemas = {
   AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
+  DialogueChecks, DialogueMatchPreferences, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
   FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages,
   Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
   PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,
   Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags,
-  TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits,
+  TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
   UserTagRels, YjsDocuments,
   Users, Votes, ...testSchemas,
 } satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;
@@ -129,5 +125,3 @@ export function getAllSchemas() {
 export function getSchema<N extends CollectionNameString>(collectionName: N): Record<string, CollectionFieldSpecification<N>> {
   return allSchemas[collectionName] as Record<string, CollectionFieldSpecification<N>>;
 }
-
-

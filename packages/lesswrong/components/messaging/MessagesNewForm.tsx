@@ -1,24 +1,24 @@
-import React, { useCallback } from "react";
-import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
-import { TemplateQueryStrings } from "./NewConversationButton";
-import classNames from "classnames";
-import { FormDisplayMode } from "../comments/CommentsNewForm";
-import { useMutation } from "@apollo/client/react";
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen";
-import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { useForm } from "@tanstack/react-form";
-import { defineStyles, useStyles } from "../hooks/useStyles";
-import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
-import { getUserDefaultEditor } from "../editor/Editor";
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
-import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
-import Loading from "../vulcan-core/Loading";
-import ForumIcon from "../common/ForumIcon";
+import { useQuery } from "@/lib/crud/useQuery";
+import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
+import { gql } from "@/lib/generated/gql-codegen";
+import Button from "@/lib/vendor/@material-ui/core/src/Button";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { useMutation } from "@apollo/client/react";
+import { useForm } from "@tanstack/react-form";
+import classNames from "classnames";
+import React, { useCallback } from "react";
+import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
+import { FormDisplayMode } from "../comments/CommentsNewForm";
 import Error404 from "../common/Error404";
+import ForumIcon from "../common/ForumIcon";
+import { useCurrentUser } from "../common/withUser";
+import { getUserDefaultEditor } from "../editor/Editor";
+import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
+import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import Loading from "../vulcan-core/Loading";
+import { TemplateQueryStrings } from "./NewConversationButton";
 
 const messageListFragmentMutation = gql(`
   mutation createMessageMessagesNewForm($data: CreateMessageDataInput!) {
@@ -48,7 +48,7 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     padding: "0 2px 0 10px",
     border: theme.palette.border.extraFaint,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
+    borderRadius: theme.borderRadius.small,
     backgroundColor: theme.palette.grey[100],
     width: "100%",
     '& form': {
@@ -79,25 +79,14 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.fontFamily,
     marginLeft: "5px",
-    ...(theme.isFriendlyUI
-      ? {
-          fontSize: 14,
-          fontWeight: 500,
-          textTransform: "none",
-          background: theme.palette.primary.main,
-          color: theme.palette.text.alwaysWhite, // Dark mode independent
-          "&:hover": {
-            background: theme.palette.primary.light,
-          },
-        }
-      : {
-          paddingBottom: 2,
-          fontSize: 16,
-          color: theme.palette.secondary.main,
-          "&:hover": {
-            background: theme.palette.panelBackground.darken05,
-          },
-        }),
+    ...({
+              paddingBottom: 2,
+              fontSize: 16,
+              color: theme.palette.secondary.main,
+              "&:hover": {
+                background: theme.palette.panelBackground.darken05,
+              },
+            }),
   },
   formButtonMinimalist: {
     padding: "8px",

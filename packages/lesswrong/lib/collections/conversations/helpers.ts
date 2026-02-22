@@ -18,7 +18,7 @@ export const conversationGetTitle = (conversation: ConversationsList, currentUse
 /**
  * Get the title of a conversation, formatted like e.g. "Bob, Charlie + 1 more"
  */
-export const conversationGetFriendlyTitle = (conversation: ConversationsList, currentUserId: string): string => {
+export const conversationGetCompactTitle = (conversation: ConversationsList, currentUserId: string): string => {
   if (!!conversation.title) {
     return conversation.title
   }

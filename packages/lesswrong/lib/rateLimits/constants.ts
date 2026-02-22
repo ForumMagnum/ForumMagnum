@@ -214,9 +214,6 @@ const ALL = {
 } as const
 
 export const autoPostRateLimits: ForumOptions<PostAutoRateLimit[]> = {
-  EAForum: [
-    ALL.POSTS.FIVE_PER_DAY
-  ],
   LessWrong: [ 
     ...LW.POSTS,
   ],
@@ -226,10 +223,6 @@ export const autoPostRateLimits: ForumOptions<PostAutoRateLimit[]> = {
 };
 
 export const autoCommentRateLimits: ForumOptions<CommentAutoRateLimit[]> = {
-  EAForum: [
-    ALL.COMMENTS.ONE_PER_EIGHT_SECONDS, 
-    ...EA.COMMENTS
-  ],
   LessWrong: [
     ALL.COMMENTS.ONE_PER_EIGHT_SECONDS, 
     ...LW.COMMENTS

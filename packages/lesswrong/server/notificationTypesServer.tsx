@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeAbsolute, getSiteUrl, combineUrls } from '../lib/vulcan-lib/utils';
+import { makeAbsolute, getSiteUrl } from '../lib/vulcan-lib/utils';
 import { Posts } from '../server/collections/posts/collection';
 import { postGetPageUrl, postGetAuthorName, postGetEditUrl } from '../lib/collections/posts/helpers';
 import { Comments } from '../server/collections/comments/collection';
@@ -452,7 +452,6 @@ export const NewUserNotification = createServerNotificationType({
 });
 
 const newMessageEmails: ForumOptions<string | null> = {
-  EAForum: 'The EA Forum <forum-noreply@effectivealtruism.org>',
   default: null,
 }
 const forumNewMessageEmail = () => forumSelect(newMessageEmails) ?? undefined
@@ -497,30 +496,6 @@ export const NewMessageNotification = createServerNotificationType({
       participantsById={participantsById}
       emailContext={emailContext}
     />
-  },
-});
-
-export const WrappedNotification = createServerNotificationType({
-  name: "wrapped",
-  emailSubject: async function() {
-    return 'Your 2024 EA Forum Wrapped';
-  },
-  emailBody: async function({ user }: {user: DbUser}) {
-    return <div>
-      <p>
-        Hi {user.displayName},
-      </p>
-      <p>
-        Thanks for being part of our community this year!{' '}
-        <a href={`${combineUrls(getSiteUrl(), 'wrapped')}?utm_medium=email`}>
-          Check out your 2024 EA Forum Wrapped.
-        </a>{' '}
-        🎁
-      </p>
-      <p>
-        - The {forumTitleSetting.get()} Team
-      </p>
-    </div>
   },
 });
 
@@ -877,7 +852,6 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   NewReplyToYouNotification,
   NewUserNotification,
   NewMessageNotification,
-  WrappedNotification,
   EmailVerificationRequiredNotification,
   PostSharedWithUserNotification,
   PostAddedAsCoauthorNotification,

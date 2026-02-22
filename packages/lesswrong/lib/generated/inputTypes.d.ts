@@ -33,13 +33,9 @@ interface Query {
   PostIsCriticism: boolean | null;
   ProfileDiamondPosts: ProfileDiamondPostsResult;
   ProfileDiamondComments: ProfileDiamondCommentsResult;
-  DigestPlannerData: Array<DigestPlannerPost>;
-  DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   HocuspocusAuth: HocuspocusAuth | null;
-  DigestHighlights: DigestHighlightsResult | null;
-  DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
   RecentlyActiveDialogues: RecentlyActiveDialoguesResult | null;
   MyDialogues: MyDialoguesResult | null;
@@ -64,7 +60,6 @@ interface Query {
   ActiveTagCount: number;
   TagPreview: TagPreviewWithSummaries | null;
   TagsByCoreTagId: TagWithTotalCount;
-  UserWrappedDataByYear: WrappedDataByYear | null;
   SiteData: Site | null;
   latestDialogueMessages: Array<string> | null;
   getLinkSharedPost: Post | null;
@@ -117,10 +112,6 @@ interface Query {
   dialogueChecks: MultiDialogueCheckOutput | null;
   dialogueMatchPreference: SingleDialogueMatchPreferenceOutput | null;
   dialogueMatchPreferences: MultiDialogueMatchPreferenceOutput | null;
-  digestPost: SingleDigestPostOutput | null;
-  digestPosts: MultiDigestPostOutput | null;
-  digest: SingleDigestOutput | null;
-  digests: MultiDigestOutput | null;
   electionCandidate: SingleElectionCandidateOutput | null;
   electionCandidates: MultiElectionCandidateOutput | null;
   electionVote: SingleElectionVoteOutput | null;
@@ -205,10 +196,6 @@ interface Query {
   typingIndicators: MultiTypingIndicatorOutput | null;
   ultraFeedEvent: SingleUltraFeedEventOutput | null;
   ultraFeedEvents: MultiUltraFeedEventOutput | null;
-  userEAGDetail: SingleUserEAGDetailOutput | null;
-  userEAGDetails: MultiUserEAGDetailOutput | null;
-  userJobAd: SingleUserJobAdOutput | null;
-  userJobAds: MultiUserJobAdOutput | null;
   userMostValuablePost: SingleUserMostValuablePostOutput | null;
   userMostValuablePosts: MultiUserMostValuablePostOutput | null;
   userRateLimit: SingleUserRateLimitOutput | null;
@@ -321,10 +308,6 @@ interface Mutation {
   updateConversation: ConversationOutput | null;
   createCurationNotice: CurationNoticeOutput | null;
   updateCurationNotice: CurationNoticeOutput | null;
-  createDigestPost: DigestPostOutput | null;
-  updateDigestPost: DigestPostOutput | null;
-  createDigest: DigestOutput | null;
-  updateDigest: DigestOutput | null;
   createElectionCandidate: ElectionCandidateOutput | null;
   updateElectionCandidate: ElectionCandidateOutput | null;
   createElectionVote: ElectionVoteOutput | null;
@@ -377,10 +360,6 @@ interface Mutation {
   updateTag: TagOutput | null;
   createUltraFeedEvent: UltraFeedEventOutput | null;
   updateUltraFeedEvent: UltraFeedEventOutput | null;
-  createUserEAGDetail: UserEAGDetailOutput | null;
-  updateUserEAGDetail: UserEAGDetailOutput | null;
-  createUserJobAd: UserJobAdOutput | null;
-  updateUserJobAd: UserJobAdOutput | null;
   createUserMostValuablePost: UserMostValuablePostOutput | null;
   updateUserMostValuablePost: UserMostValuablePostOutput | null;
   createUserRateLimit: UserRateLimitOutput | null;
@@ -878,12 +857,6 @@ interface PostReviewSort {
   karma: boolean | null;
 }
 
-interface DigestPlannerPost {
-  post: Post;
-  digestPost: DigestPost | null;
-  rating: number;
-}
-
 interface RecombeeRecommendedPost {
   post: Post;
   scenario: string | null;
@@ -946,14 +919,6 @@ interface HomepageCommunityEventPostsResult {
 
 interface HocuspocusAuth {
   token: string;
-}
-
-interface DigestHighlightsResult {
-  results: Array<Post>;
-}
-
-interface DigestPostsThisWeekResult {
-  results: Array<Post>;
 }
 
 interface CuratedAndPopularThisWeekResult {
@@ -1140,79 +1105,6 @@ interface TagPreviewWithSummaries {
 interface TagWithTotalCount {
   tags: Array<Tag>;
   totalCount: number;
-}
-
-interface MostReadTopic {
-  slug: string | null;
-  name: string | null;
-  shortName: string | null;
-  count: number | null;
-}
-
-interface TagReadLikelihoodRatio {
-  tagId: string | null;
-  tagName: string | null;
-  tagShortName: string | null;
-  userReadCount: number | null;
-  readLikelihoodRatio: number | null;
-}
-
-interface MostReadAuthor {
-  _id: string | null;
-  slug: string | null;
-  displayName: string | null;
-  profileImageId: string | null;
-  count: number | null;
-  engagementPercentile: number | null;
-}
-
-interface TopCommentContents {
-  html: string | null;
-}
-
-interface TopComment {
-  _id: string | null;
-  postedAt: Date | null;
-  postId: string | null;
-  postTitle: string | null;
-  postSlug: string | null;
-  baseScore: number | null;
-  extendedScore: any;
-  contents: TopCommentContents | null;
-}
-
-interface MostReceivedReact {
-  name: string | null;
-  count: number | null;
-}
-
-interface CombinedKarmaVals {
-  date: Date;
-  postKarma: number;
-  commentKarma: number;
-}
-
-interface WrappedDataByYear {
-  engagementPercentile: number | null;
-  postsReadCount: number | null;
-  totalSeconds: number | null;
-  daysVisited: Array<string | null> | null;
-  mostReadTopics: Array<MostReadTopic | null> | null;
-  relativeMostReadCoreTopics: Array<TagReadLikelihoodRatio | null> | null;
-  mostReadAuthors: Array<MostReadAuthor | null> | null;
-  topPosts: Array<Post | null> | null;
-  postCount: number | null;
-  authorPercentile: number | null;
-  topComment: TopComment | null;
-  commentCount: number | null;
-  commenterPercentile: number | null;
-  topShortform: Comment | null;
-  shortformCount: number | null;
-  shortformPercentile: number | null;
-  karmaChange: number | null;
-  combinedKarmaVals: Array<CombinedKarmaVals | null> | null;
-  mostReceivedReacts: Array<MostReceivedReact | null> | null;
-  personality: string;
 }
 
 interface Site {
@@ -2749,88 +2641,6 @@ interface MultiDialogueMatchPreferenceInput {
 
 interface MultiDialogueMatchPreferenceOutput {
   results: Array<DialogueMatchPreference>;
-  totalCount: number | null;
-}
-
-interface DigestPost {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  digestId: string;
-  digest: Digest;
-  postId: string;
-  post: Post | null;
-  emailDigestStatus: string | null;
-  onsiteDigestStatus: string | null;
-}
-
-interface SingleDigestPostInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleDigestPostOutput {
-  result: DigestPost | null;
-}
-
-interface DigestPostSelector {
-  default: EmptyViewInput | null;
-}
-
-interface MultiDigestPostInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiDigestPostOutput {
-  results: Array<DigestPost>;
-  totalCount: number | null;
-}
-
-interface Digest {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  num: number;
-  startDate: Date;
-  endDate: Date | null;
-  publishedDate: Date | null;
-  onsiteImageId: string | null;
-  onsitePrimaryColor: string | null;
-}
-
-interface SingleDigestInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleDigestOutput {
-  result: Digest | null;
-}
-
-interface DigestsFindByNumInput {
-  num?: number | null;
-}
-
-interface DigestSelector {
-  default: EmptyViewInput | null;
-  findByNum: DigestsFindByNumInput | null;
-  all: EmptyViewInput | null;
-}
-
-interface MultiDigestInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiDigestOutput {
-  results: Array<Digest>;
   totalCount: number | null;
 }
 
@@ -7167,95 +6977,6 @@ interface UserActivity {
   legacyData: any;
 }
 
-interface UserEAGDetail {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  userId: string | null;
-  user: User | null;
-  careerStage: Array<string> | null;
-  countryOrRegion: string | null;
-  nearestCity: string | null;
-  willingnessToRelocate: any;
-  experiencedIn: Array<string> | null;
-  interestedIn: Array<string> | null;
-  lastUpdated: Date | null;
-}
-
-interface SingleUserEAGDetailInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleUserEAGDetailOutput {
-  result: UserEAGDetail | null;
-}
-
-interface UserEAGDetailsDataByUserInput {
-  userId?: string | null;
-}
-
-interface UserEAGDetailSelector {
-  default: EmptyViewInput | null;
-  dataByUser: UserEAGDetailsDataByUserInput | null;
-}
-
-interface MultiUserEAGDetailInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiUserEAGDetailOutput {
-  results: Array<UserEAGDetail>;
-  totalCount: number | null;
-}
-
-interface UserJobAd {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  userId: string | null;
-  user: User | null;
-  jobName: string | null;
-  adState: string | null;
-  reminderSetAt: Date | null;
-  lastUpdated: Date | null;
-}
-
-interface SingleUserJobAdInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleUserJobAdOutput {
-  result: UserJobAd | null;
-}
-
-interface UserJobAdsAdsByUserInput {
-  userId?: string | null;
-}
-
-interface UserJobAdSelector {
-  default: EmptyViewInput | null;
-  adsByUser: UserJobAdsAdsByUserInput | null;
-}
-
-interface MultiUserJobAdInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiUserJobAdOutput {
-  results: Array<UserJobAd>;
-  totalCount: number | null;
-}
-
 interface UserMostValuablePost {
   _id: string;
   schemaVersion: number;
@@ -8135,68 +7856,6 @@ interface UpdateCurationNoticeInput {
 
 interface CurationNoticeOutput {
   data: CurationNotice | null;
-}
-
-interface CreateDigestPostDataInput {
-  legacyData?: any;
-  digestId: string;
-  postId: string;
-  emailDigestStatus?: string | null;
-  onsiteDigestStatus?: string | null;
-}
-
-interface CreateDigestPostInput {
-  data: CreateDigestPostDataInput;
-}
-
-interface UpdateDigestPostDataInput {
-  legacyData?: any;
-  digestId?: string | null;
-  postId?: string | null;
-  emailDigestStatus?: string | null;
-  onsiteDigestStatus?: string | null;
-}
-
-interface UpdateDigestPostInput {
-  selector: SelectorInput;
-  data: UpdateDigestPostDataInput;
-}
-
-interface DigestPostOutput {
-  data: DigestPost | null;
-}
-
-interface CreateDigestDataInput {
-  legacyData?: any;
-  num: number;
-  startDate: Date;
-  endDate?: Date | null;
-  publishedDate?: Date | null;
-  onsiteImageId?: string | null;
-  onsitePrimaryColor?: string | null;
-}
-
-interface CreateDigestInput {
-  data: CreateDigestDataInput;
-}
-
-interface UpdateDigestDataInput {
-  legacyData?: any;
-  num?: number | null;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  publishedDate?: Date | null;
-  onsiteImageId?: string | null;
-  onsitePrimaryColor?: string | null;
-}
-
-interface UpdateDigestInput {
-  selector: SelectorInput;
-  data: UpdateDigestDataInput;
-}
-
-interface DigestOutput {
-  data: Digest | null;
 }
 
 interface CreateElectionCandidateDataInput {
@@ -9439,64 +9098,6 @@ interface UltraFeedEventOutput {
   data: UltraFeedEvent | null;
 }
 
-interface CreateUserEAGDetailDataInput {
-  legacyData?: any;
-  lastUpdated?: Date | null;
-}
-
-interface CreateUserEAGDetailInput {
-  data: CreateUserEAGDetailDataInput;
-}
-
-interface UpdateUserEAGDetailDataInput {
-  legacyData?: any;
-  careerStage?: Array<string> | null;
-  countryOrRegion?: string | null;
-  nearestCity?: string | null;
-  willingnessToRelocate?: any;
-  experiencedIn?: Array<string> | null;
-  interestedIn?: Array<string> | null;
-  lastUpdated?: Date | null;
-}
-
-interface UpdateUserEAGDetailInput {
-  selector: SelectorInput;
-  data: UpdateUserEAGDetailDataInput;
-}
-
-interface UserEAGDetailOutput {
-  data: UserEAGDetail | null;
-}
-
-interface CreateUserJobAdDataInput {
-  legacyData?: any;
-  userId: string;
-  jobName: string;
-  adState: string;
-  reminderSetAt?: Date | null;
-  lastUpdated?: Date | null;
-}
-
-interface CreateUserJobAdInput {
-  data: CreateUserJobAdDataInput;
-}
-
-interface UpdateUserJobAdDataInput {
-  legacyData?: any;
-  adState?: string | null;
-  reminderSetAt?: Date | null;
-  lastUpdated?: Date | null;
-}
-
-interface UpdateUserJobAdInput {
-  selector: SelectorInput;
-  data: UpdateUserJobAdDataInput;
-}
-
-interface UserJobAdOutput {
-  data: UserJobAd | null;
-}
-
 interface CreateUserMostValuablePostDataInput {
   legacyData?: any;
   userId: string;
@@ -10030,7 +9631,6 @@ interface GraphQLTypeMap {
   PostsUserCommentedOnResult: PostsUserCommentedOnResult;
   PostReviewFilter: PostReviewFilter;
   PostReviewSort: PostReviewSort;
-  DigestPlannerPost: DigestPlannerPost;
   RecombeeRecommendedPost: RecombeeRecommendedPost;
   VertexRecommendedPost: VertexRecommendedPost;
   ProfileDiamondPostsResult: ProfileDiamondPostsResult;
@@ -10042,8 +9642,6 @@ interface GraphQLTypeMap {
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
   HomepageCommunityEventPostsResult: HomepageCommunityEventPostsResult;
   HocuspocusAuth: HocuspocusAuth;
-  DigestHighlightsResult: DigestHighlightsResult;
-  DigestPostsThisWeekResult: DigestPostsThisWeekResult;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
   RecentlyActiveDialoguesResult: RecentlyActiveDialoguesResult;
   MyDialoguesResult: MyDialoguesResult;
@@ -10074,14 +9672,6 @@ interface GraphQLTypeMap {
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;
   TagWithTotalCount: TagWithTotalCount;
-  MostReadTopic: MostReadTopic;
-  TagReadLikelihoodRatio: TagReadLikelihoodRatio;
-  MostReadAuthor: MostReadAuthor;
-  TopCommentContents: TopCommentContents;
-  TopComment: TopComment;
-  MostReceivedReact: MostReceivedReact;
-  CombinedKarmaVals: CombinedKarmaVals;
-  WrappedDataByYear: WrappedDataByYear;
   Site: Site;
   LoginReturnData: LoginReturnData;
   MigrationsDashboardData: MigrationsDashboardData;
@@ -10279,19 +9869,6 @@ interface GraphQLTypeMap {
   DialogueMatchPreferenceSelector: DialogueMatchPreferenceSelector;
   MultiDialogueMatchPreferenceInput: MultiDialogueMatchPreferenceInput;
   MultiDialogueMatchPreferenceOutput: MultiDialogueMatchPreferenceOutput;
-  DigestPost: DigestPost;
-  SingleDigestPostInput: SingleDigestPostInput;
-  SingleDigestPostOutput: SingleDigestPostOutput;
-  DigestPostSelector: DigestPostSelector;
-  MultiDigestPostInput: MultiDigestPostInput;
-  MultiDigestPostOutput: MultiDigestPostOutput;
-  Digest: Digest;
-  SingleDigestInput: SingleDigestInput;
-  SingleDigestOutput: SingleDigestOutput;
-  DigestsFindByNumInput: DigestsFindByNumInput;
-  DigestSelector: DigestSelector;
-  MultiDigestInput: MultiDigestInput;
-  MultiDigestOutput: MultiDigestOutput;
   ElectionCandidate: ElectionCandidate;
   SingleElectionCandidateInput: SingleElectionCandidateInput;
   SingleElectionCandidateOutput: SingleElectionCandidateOutput;
@@ -10711,20 +10288,6 @@ interface GraphQLTypeMap {
   MultiUltraFeedEventInput: MultiUltraFeedEventInput;
   MultiUltraFeedEventOutput: MultiUltraFeedEventOutput;
   UserActivity: UserActivity;
-  UserEAGDetail: UserEAGDetail;
-  SingleUserEAGDetailInput: SingleUserEAGDetailInput;
-  SingleUserEAGDetailOutput: SingleUserEAGDetailOutput;
-  UserEAGDetailsDataByUserInput: UserEAGDetailsDataByUserInput;
-  UserEAGDetailSelector: UserEAGDetailSelector;
-  MultiUserEAGDetailInput: MultiUserEAGDetailInput;
-  MultiUserEAGDetailOutput: MultiUserEAGDetailOutput;
-  UserJobAd: UserJobAd;
-  SingleUserJobAdInput: SingleUserJobAdInput;
-  SingleUserJobAdOutput: SingleUserJobAdOutput;
-  UserJobAdsAdsByUserInput: UserJobAdsAdsByUserInput;
-  UserJobAdSelector: UserJobAdSelector;
-  MultiUserJobAdInput: MultiUserJobAdInput;
-  MultiUserJobAdOutput: MultiUserJobAdOutput;
   UserMostValuablePost: UserMostValuablePost;
   SingleUserMostValuablePostInput: SingleUserMostValuablePostInput;
   SingleUserMostValuablePostOutput: SingleUserMostValuablePostOutput;
@@ -10805,16 +10368,6 @@ interface GraphQLTypeMap {
   UpdateCurationNoticeDataInput: UpdateCurationNoticeDataInput;
   UpdateCurationNoticeInput: UpdateCurationNoticeInput;
   CurationNoticeOutput: CurationNoticeOutput;
-  CreateDigestPostDataInput: CreateDigestPostDataInput;
-  CreateDigestPostInput: CreateDigestPostInput;
-  UpdateDigestPostDataInput: UpdateDigestPostDataInput;
-  UpdateDigestPostInput: UpdateDigestPostInput;
-  DigestPostOutput: DigestPostOutput;
-  CreateDigestDataInput: CreateDigestDataInput;
-  CreateDigestInput: CreateDigestInput;
-  UpdateDigestDataInput: UpdateDigestDataInput;
-  UpdateDigestInput: UpdateDigestInput;
-  DigestOutput: DigestOutput;
   CreateElectionCandidateDataInput: CreateElectionCandidateDataInput;
   CreateElectionCandidateInput: CreateElectionCandidateInput;
   UpdateElectionCandidateDataInput: UpdateElectionCandidateDataInput;
@@ -10950,16 +10503,6 @@ interface GraphQLTypeMap {
   CreateUltraFeedEventInput: CreateUltraFeedEventInput;
   UpdateUltraFeedEventDataInput: UpdateUltraFeedEventDataInput;
   UltraFeedEventOutput: UltraFeedEventOutput;
-  CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
-  CreateUserEAGDetailInput: CreateUserEAGDetailInput;
-  UpdateUserEAGDetailDataInput: UpdateUserEAGDetailDataInput;
-  UpdateUserEAGDetailInput: UpdateUserEAGDetailInput;
-  UserEAGDetailOutput: UserEAGDetailOutput;
-  CreateUserJobAdDataInput: CreateUserJobAdDataInput;
-  CreateUserJobAdInput: CreateUserJobAdInput;
-  UpdateUserJobAdDataInput: UpdateUserJobAdDataInput;
-  UpdateUserJobAdInput: UpdateUserJobAdInput;
-  UserJobAdOutput: UserJobAdOutput;
   CreateUserMostValuablePostDataInput: CreateUserMostValuablePostDataInput;
   CreateUserMostValuablePostInput: CreateUserMostValuablePostInput;
   UpdateUserMostValuablePostDataInput: UpdateUserMostValuablePostDataInput;
@@ -10991,8 +10534,6 @@ interface CreateInputsByCollectionName {
   Comments: CreateCommentInput;
   Conversations: CreateConversationInput;
   CurationNotices: CreateCurationNoticeInput;
-  DigestPosts: CreateDigestPostInput;
-  Digests: CreateDigestInput;
   ElectionCandidates: CreateElectionCandidateInput;
   ElectionVotes: CreateElectionVoteInput;
   ElicitQuestions: CreateElicitQuestionInput;
@@ -11020,8 +10561,6 @@ interface CreateInputsByCollectionName {
   TagFlags: CreateTagFlagInput;
   Tags: CreateTagInput;
   UltraFeedEvents: CreateUltraFeedEventInput;
-  UserEAGDetails: CreateUserEAGDetailInput;
-  UserJobAds: CreateUserJobAdInput;
   UserMostValuablePosts: CreateUserMostValuablePostInput;
   UserRateLimits: CreateUserRateLimitInput;
   UserTagRels: CreateUserTagRelInput;
@@ -11087,8 +10626,6 @@ interface UpdateInputsByCollectionName {
   Comments: UpdateCommentInput;
   Conversations: UpdateConversationInput;
   CurationNotices: UpdateCurationNoticeInput;
-  DigestPosts: UpdateDigestPostInput;
-  Digests: UpdateDigestInput;
   ElectionCandidates: UpdateElectionCandidateInput;
   ElectionVotes: UpdateElectionVoteInput;
   ElicitQuestions: UpdateElicitQuestionInput;
@@ -11113,8 +10650,6 @@ interface UpdateInputsByCollectionName {
   Surveys: UpdateSurveyInput;
   TagFlags: UpdateTagFlagInput;
   Tags: UpdateTagInput;
-  UserEAGDetails: UpdateUserEAGDetailInput;
-  UserJobAds: UpdateUserJobAdInput;
   UserMostValuablePosts: UpdateUserMostValuablePostInput;
   UserRateLimits: UpdateUserRateLimitInput;
   UserTagRels: UpdateUserTagRelInput;

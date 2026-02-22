@@ -7,8 +7,7 @@ import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
 import { useScrollHighlight } from '../../hooks/useScrollHighlight';
-import { getCurrentSectionMark, scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
-import { isLWorAF } from '@/lib/instanceSettings';
+import { getCurrentSectionMark, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
 import TableOfContentsRow from "./TableOfContentsRow";
 import AnswerTocRow from "./AnswerTocRow";
@@ -60,13 +59,8 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
         skipRouter: true,
       });
 
-      // This is forum-gating of a fairly subtle change in scroll behaviour, LW may want to adopt scrollFocusOnElement
-      if (!isLWorAF()) {
-        scrollFocusOnElement({ id: anchor, options: {behavior: "smooth"}})
-      } else {
-        let sectionYdocumentSpace = anchorY + window.scrollY;
-        jumpToY(sectionYdocumentSpace);
-      }
+      const sectionYdocumentSpace = anchorY + window.scrollY;
+      jumpToY(sectionYdocumentSpace);
     }
   }
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
@@ -255,5 +249,3 @@ export default registerComponent(
     hocs: [withErrorBoundary]
   }
 );
-
-

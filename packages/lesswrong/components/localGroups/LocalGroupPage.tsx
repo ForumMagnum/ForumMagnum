@@ -1,43 +1,40 @@
-import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import { userCanPost } from '@/lib/collections/users/helpers';
-import { useCurrentUser } from '../common/withUser';
-import qs from 'qs'
-import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
-import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
-import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
-import { preferredHeadingCase } from '../../themes/forumTheme';
-import Person from '@/lib/vendor/@material-ui/icons/src/Person';
+import { userCanPost } from '@/lib/collections/users/helpers';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import ForumIcon from "../common/ForumIcon";
-import CommunityMapWrapper from "./CommunityMapWrapper";
-import SingleColumnSection from "../common/SingleColumnSection";
-import SectionTitle from "../common/SectionTitle";
-import PostsList2 from "../posts/PostsList2";
-import Loading from "../vulcan-core/Loading";
-import SectionButton from "../common/SectionButton";
-import NotifyMeButton from "../notifications/NotifyMeButton";
-import SectionFooter from "../common/SectionFooter";
-import GroupFormLink from "./GroupFormLink";
-import { ContentItemBody } from "../contents/ContentItemBody";
-import Error404 from "../common/Error404";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
+import Person from '@/lib/vendor/@material-ui/icons/src/Person';
+import qs from 'qs';
+import React from 'react';
+import { Link } from '../../lib/reactRouterWrapper';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
-import EventCards from "../events/modules/EventCards";
-import LoadMore from "../common/LoadMore";
 import ContentStyles from "../common/ContentStyles";
-import { Typography } from "../common/Typography";
+import Error404 from "../common/Error404";
+import ForumIcon from "../common/ForumIcon";
 import HoverOver from "../common/HoverOver";
-import LocalGroupSubscribers from "./LocalGroupSubscribers";
-import UsersNameDisplay from "../users/UsersNameDisplay";
-import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import SectionButton from "../common/SectionButton";
+import SectionFooter from "../common/SectionFooter";
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { Typography } from "../common/Typography";
+import { useCurrentUser } from '../common/withUser';
+import { ContentItemBody } from "../contents/ContentItemBody";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import NotifyMeButton from "../notifications/NotifyMeButton";
+import PostsList2 from "../posts/PostsList2";
+import UsersNameDisplay from "../users/UsersNameDisplay";
+import Loading from "../vulcan-core/Loading";
+import CommunityMapWrapper from "./CommunityMapWrapper";
+import GroupFormLink from "./GroupFormLink";
+import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupLinks';
+import LocalGroupSubscribers from "./LocalGroupSubscribers";
 
 const PostsListMultiQuery = gql(`
   query multiPostLocalGroupPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -218,18 +215,10 @@ const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
   },
   contactUsHeadline: {
     marginBottom: 16,
-    ...(theme.isEAForum && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontWeight: 500,
-    }),
   },
   eventsHeadline: {
     marginTop: 40,
     marginBottom: 16,
-    ...(theme.isEAForum && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontWeight: 500,
-    }),
   },
   eventCards: {
     display: 'grid',
@@ -359,71 +348,13 @@ const LocalGroupPage = ({ documentId: groupId }: {
   
   // the EA Forum shows the group's events as event cards instead of post list items
   let upcomingEventsList = <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
-  if (isEAForum()) {
-    upcomingEventsList = !!upcomingEvents?.length ? (
-      <div className={classes.eventCards}>
-        <EventCards
-          events={upcomingEvents}
-          loading={upcomingEventsLoading}
-          numDefaultCards={2}
-          hideSpecialCards
-          hideGroupNames
-        />
-        <LoadMore {...upcomingEventsLoadMoreProps} loadingClassName={classes.loading} />
-      </div>
-    ) : <Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
-        <NotifyMeButton
-          showIcon={false}
-          document={group}
-          subscribeMessage="Subscribe to be notified when an event is added."
-          componentIfSubscribed={<span>We'll notify you when an event is added.</span>}
-          className={classes.notifyMeButton}
-        />
-      </Typography>
-  }
-  
   let tbdEventsList: React.JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
-  if (isEAForum()) {
-    tbdEventsList = tbdEvents?.length ? <>
-      <Typography variant="headline" className={classes.eventsHeadline}>
-        Events yet to be scheduled
-      </Typography>
-      <div className={classes.eventCards}>
-        <EventCards
-          events={tbdEvents}
-          loading={tbdEventsLoading}
-          hideSpecialCards
-          hideGroupNames
-        />
-        <LoadMore {...tbdEventsLoadMoreProps}  />
-      </div>
-    </> : null
-  }
-  
   let pastEventsList: React.JSX.Element|null = <>
     <Typography variant="headline" className={classes.eventsHeadline}>
       Past Events
     </Typography>
     <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
   </>
-  if (isEAForum()) {
-    pastEventsList = pastEvents?.length ? <>
-      <Typography variant="headline" className={classes.eventsHeadline}>
-        Past events
-      </Typography>
-      <div className={classes.eventCards}>
-        <EventCards
-          events={pastEvents}
-          loading={pastEventsLoading}
-          hideSpecialCards
-          hideGroupNames
-          cardClassName={classes.pastEventCard}
-        />
-        <LoadMore {...pastEventsLoadMoreProps}  />
-      </div>
-    </> : null
-  }
-  
   const canCreateEvent = currentUser && userCanPost(currentUser);
   const canEditGroup = (currentUser && group)
     && group.organizerIds.includes(currentUser._id)
@@ -437,19 +368,17 @@ const LocalGroupPage = ({ documentId: groupId }: {
       <SingleColumnSection>
         <div className={classes.titleRow}>
           <div>
-            {isEAForum() ? <Typography variant="display1" className={classes.groupName}>
-              {groupNameHeading}
-            </Typography> : <SectionTitle title={groupNameHeading} noTopMargin />}
+            {<SectionTitle title={groupNameHeading} noTopMargin />}
 
-            {!isEAForum() && <div className={classes.groupOrganizers}>
-              <Person className={classes.organizersIcon}/>
-              <div className={classes.organizedBy}>
-                Organized by: {group.organizers.map((user, i) => <>
-                  {(i>0) && <>,&nbsp;</>}
-                  <UsersNameDisplay user={user} tooltipPlacement="bottom-start"/>
-                </>)}
-              </div>
-            </div>}
+            {<div className={classes.groupOrganizers}>
+                                    <Person className={classes.organizersIcon}/>
+                                    <div className={classes.organizedBy}>
+                                      Organized by: {group.organizers.map((user, i) => <>
+                                        {(i>0) && <>,&nbsp;</>}
+                                        <UsersNameDisplay user={user} tooltipPlacement="bottom-start"/>
+                                      </>)}
+                                    </div>
+                                  </div>}
 
             <div className={classes.groupLocation}>
               <LocationIcon className={classes.groupLocationIcon} />
@@ -471,10 +400,8 @@ const LocalGroupPage = ({ documentId: groupId }: {
               />
             </SectionButton>}
             <SectionFooter className={classes.organizerActions}>
-              {canCreateEvent &&
-                (!isEAForum() || isAdmin || isGroupAdmin) && <SectionButton>
+              {canCreateEvent && <SectionButton>
                   <HoverOver
-                    disabled={!isLWorAF()}
                     title={<div>
                       Note: If this is a recurring event, you might want to open the menu on a previous event and choose Duplicate Event.
                     </div>}
@@ -485,7 +412,6 @@ const LocalGroupPage = ({ documentId: groupId }: {
                   </HoverOver>
                 </SectionButton>}
               {canEditGroup &&
-                (!isEAForum() || isAdmin || isGroupAdmin) &&
                   <GroupFormLink documentId={groupId} />
               }
             </SectionFooter>

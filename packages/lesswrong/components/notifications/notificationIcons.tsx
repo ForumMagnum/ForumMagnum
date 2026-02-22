@@ -9,17 +9,10 @@ import GroupAddIcon from '@/lib/vendor/@material-ui/icons/src/GroupAdd';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import ForumIcon from '@/components/common/ForumIcon';
-import { GiftIcon } from '../icons/giftIcon';
 
 const iconStyles = {
   margin: 16,
   fontSize: 20,
-};
-
-const flatIconStyles = {
-  margin: 16,
-  height: 20,
-  width: 26,
 };
 
 export function getNotificationIconByNotificationName(notificationName: string) {
@@ -51,7 +44,6 @@ export function getNotificationIconByNotificationName(notificationName: string) 
     case 'newReplyToYou': return <CommentsIcon style={iconStyles}/>;
     case 'newUser': return <ForumIcon icon="Bell" style={iconStyles} />;
     case 'newMessage': return <MailIcon style={iconStyles}/>;
-    case 'wrapped': return <GiftIcon style={flatIconStyles}/>;
     case 'emailVerificationRequired': return <ForumIcon icon="Bell" style={iconStyles} />;
     case 'postSharedWithUser': return <ForumIcon icon="Bell" style={iconStyles} />;
     case 'addedAsCoauthor': return <GroupAddIcon style={iconStyles} />;

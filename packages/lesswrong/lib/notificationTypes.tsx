@@ -1,20 +1,19 @@
-import React, { FC } from 'react';
-import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
+import type { NotificationDocument } from '@/server/collections/notifications/constants';
+import isEqual from 'lodash/isEqual';
+import keyBy from 'lodash/keyBy';
+import sortBy from 'lodash/sortBy';
+import startCase from 'lodash/startCase';
+import { FC } from 'react';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { responseToText } from './collections/posts/constants';
-import sortBy from 'lodash/sortBy';
-import { getReviewNameInSitu } from './reviewUtils';
-import startCase from 'lodash/startCase';
-import { userGetDisplayName } from './collections/users/helpers'
-import { Link } from './reactRouterWrapper';
-import { isFriendlyUI } from '../themes/forumTheme';
+import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
-import isEqual from 'lodash/isEqual';
+import { userGetDisplayName } from './collections/users/helpers';
 import { NotificationChannel } from "./collections/users/notificationFieldHelpers";
-import keyBy from 'lodash/keyBy';
-import type { NotificationDocument } from '@/server/collections/notifications/constants';
 import { getCommentParentTitle, getDocument, getDocumentSummary, taggedPostMessage } from './notificationDataHelpers';
+import { Link } from './reactRouterWrapper';
+import { getReviewNameInSitu } from './reviewUtils';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -435,8 +434,7 @@ export const NewUserNotification = createNotificationType({
   Display: ({User}) => <><User /> just signed up</>,
 });
 
-// This has no `Display` as messages are handled separately from notifications
-// in the friendly UI
+// This has no `Display` as messages are handled separately from notifications.
 export const NewMessageNotification = createNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
@@ -447,21 +445,7 @@ export const NewMessageNotification = createNotificationType({
     let conversation = await Conversations.findOne(document.conversationId);
     return (await Users.findOne(document.userId))?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
   },
-  causesRedBadge: () => !isFriendlyUI(),
-});
-
-export const WrappedNotification = createNotificationType({
-  name: "wrapped",
-  userSettingField: null,
-  async getMessage({extraData}: GetMessageProps) {
-    return `Check out your ${extraData?.year ?? 2023} EA Forum Wrapped`;
-  },
-  getLink() {
-    return "/wrapped"
-  },
-  Display: ({notification: {link, extraData}}) => <>
-    Check out your {extraData?.year ?? 2023} <Link to={link}>EA Forum Wrapped</Link>
-  </>,
+  causesRedBadge: () => true,
 });
 
 // TODO(EA): Fix notificationCallbacks getLink, or the associated component to
@@ -717,7 +701,6 @@ const notificationTypesArray = [
   NewReplyToYouNotification,
   NewUserNotification,
   NewMessageNotification,
-  WrappedNotification,
   EmailVerificationRequiredNotification,
   PostSharedWithUserNotification,
   PostAddedAsCoauthorNotification,

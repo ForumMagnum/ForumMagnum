@@ -1,7 +1,6 @@
 import { defaultNotificationsView } from "@/lib/collections/notifications/views";
 import Notifications from "@/server/collections/notifications/collection";
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
-import { isFriendlyUI } from "@/themes/forumTheme";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -21,11 +20,7 @@ export async function GET(req: NextRequest) {
     ...selector,
     ...(lastNotificationsCheck && {
       createdAt: {$gt: lastNotificationsCheck},
-    }),
-    ...(isFriendlyUI() && {
-      type: {$ne: "newMessage"},
-      viewed: {$ne: true},
-    }),
+    })
   }).count();
 
   return NextResponse.json({ unreadNotificationCount });

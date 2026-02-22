@@ -1,31 +1,25 @@
-import React, { useCallback, useState } from 'react';
-import { Paper }from '@/components/widgets/Paper';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useMessages } from '../common/withMessages';
-import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
-import classNames from 'classnames'
-import VisibilityIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
-import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import { Paper } from '@/components/widgets/Paper';
 import AddIcon from '@/lib/vendor/@material-ui/icons/src/Add';
-import RoomIcon from '@/lib/vendor/@material-ui/icons/src/Room';
-import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
-import PersonPinIcon from '@/lib/vendor/@material-ui/icons/src/PersonPin';
-import { DialogContentsFn, OpenDialogContextType, useDialog } from '../common/withDialog'
-import { useCurrentUser } from '../common/withUser';
-import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
-import qs from 'qs'
-import { isEAForum } from '../../lib/instanceSettings';
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-import {isFriendlyUI} from '../../themes/forumTheme'
-import { RouterLocation } from "../../lib/routeChecks/parseRoute";
-import { registerComponent } from "../../lib/vulcan-lib/components";
+import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
+import VisibilityIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
+import classNames from 'classnames';
+import qs from 'qs';
+import { useCallback, useState } from 'react';
+import { groupTypes } from '../../lib/collections/localgroups/groupTypes';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { TooltipSpan } from '../common/FMTooltip';
+import { DialogContentsFn, OpenDialogContextType, useDialog } from '../common/withDialog';
+import { useMessages } from '../common/withMessages';
+import { useCurrentUser } from '../common/withUser';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import LoginPopup from "../users/LoginPopup";
-import GroupFormDialog from "./GroupFormDialog";
-import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
-import EventNotificationsDialog from "./EventNotificationsDialog";
 import SimpleDivider from "../widgets/SimpleDivider";
+import EventNotificationsDialog from "./EventNotificationsDialog";
+import GroupFormDialog from "./GroupFormDialog";
+import { ArrowSVG, GroupIconSVG, PersonSVG } from './Icons';
+import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
 
 const availableFilters = groupTypes.map(t => t.shortName);
 
@@ -71,7 +65,6 @@ const styles = (theme: ThemeType) => ({
   },
   checkboxLabel: {
     ...theme.typography.body2,
-    fontWeight: theme.isEAForum ? 600 : undefined,
   },
   checkedLabel: {
     color: theme.palette.text.tooltipText,
@@ -267,44 +260,38 @@ const CommunityMapFilter = ({
     flash({messageString: "Hid map from Frontpage", action: undoAction})
   }, [currentUser, flash, setShowMap, updateCurrentUser]);
 
-  const groupIcon = isEAForum()
-    ? <StarIcon className={classes.eaButtonIcon}/>
-    : <GroupIconSVG className={classes.buttonIcon}/>;
-  const eventIcon = isEAForum()
-    ? <RoomIcon className={classes.eaButtonIcon}/>
-    : <ArrowSVG className={classes.buttonIcon}/>;
-  const personIcon = isEAForum()
-    ? <PersonPinIcon className={classes.eaButtonIcon}/>
-    : <PersonSVG className={classes.buttonIcon}/>;
+  const groupIcon = <GroupIconSVG className={classes.buttonIcon}/>;
+  const eventIcon = <ArrowSVG className={classes.buttonIcon}/>;
+  const personIcon = <PersonSVG className={classes.buttonIcon}/>;
 
   const isAdmin = userIsAdmin(currentUser);
 
   return (
     <Paper>
-      {!isFriendlyUI() && <div className={classes.filters}>
-        {availableFilters.map((value, i) => {
-          const checked = filters.includes(value)
-          return (
-            <span
-              className={classNames(classes.filter, {
-                [classes.filterChecked]: checked,
-                [classes.firstFilter]: i === 0,
-                [classes.lastFilter]: i === (availableFilters.length - 1),
-              })}
-              key={value}
-              onClick={() => handleCheck(value)}
-            >
-              <span
-                className={classNames(classes.checkboxLabel, {
-                  [classes.checkedLabel]: checked,
-                })}
-              >
-                {value}
-              </span>
-            </span>
-          );
-        })}
-      </div>}
+      {<div className={classes.filters}>
+                  {availableFilters.map((value, i) => {
+                    const checked = filters.includes(value)
+                    return (
+                      <span
+                        className={classNames(classes.filter, {
+                          [classes.filterChecked]: checked,
+                          [classes.firstFilter]: i === 0,
+                          [classes.lastFilter]: i === (availableFilters.length - 1),
+                        })}
+                        key={value}
+                        onClick={() => handleCheck(value)}
+                      >
+                        <span
+                          className={classNames(classes.checkboxLabel, {
+                            [classes.checkedLabel]: checked,
+                          })}
+                        >
+                          {value}
+                        </span>
+                      </span>
+                    );
+                  })}
+                </div>}
       <SimpleDivider className={classNames(classes.divider, classes.topDivider)} />
       <div className={classes.actions}>
         <div className={classes.filterSection}>
@@ -316,16 +303,16 @@ const CommunityMapFilter = ({
           </span>
           <span className={classes.buttonText}>Groups</span>
           <span className={classes.actionContainer}>
-            {(!isEAForum() || isAdmin) && <TooltipSpan title="Create New Group">
-              <AddIcon
-                className={classNames(classes.actionIcon, classes.addIcon)}
-                onClick={createFallBackDialogHandler(
-                  openDialog, "GroupFormDialog",
-                  ({onClose}) => <GroupFormDialog onClose={onClose}/>,
-                  currentUser
-                )}
-              />
-            </ TooltipSpan>}
+            {<TooltipSpan title="Create New Group">
+                                    <AddIcon
+                                      className={classNames(classes.actionIcon, classes.addIcon)}
+                                      onClick={createFallBackDialogHandler(
+                                        openDialog, "GroupFormDialog",
+                                        ({onClose}) => <GroupFormDialog onClose={onClose}/>,
+                                        currentUser
+                                      )}
+                                    />
+                                  </ TooltipSpan>}
             <TooltipSpan title="Hide groups from map">
               <VisibilityIcon 
                 onClick={toggleGroups}
@@ -421,5 +408,3 @@ export default registerComponent(
   CommunityMapFilter,
   {styles},
 );
-
-

@@ -1,13 +1,13 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import React, { MouseEventHandler } from 'react';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useThemeColor } from '@/components/themes/useTheme';
-import CommunityMapWrapper from "../../localGroups/CommunityMapWrapper";
-import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { MouseEventHandler } from 'react';
+import { Link } from '../../../lib/reactRouterWrapper';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import CommunityMapWrapper from "../../localGroups/CommunityMapWrapper";
 
 const localGroupsHomeFragmentMultiQuery = gql(`
   query multiLocalgroupLocalGroupsQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {
@@ -98,9 +98,8 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'baseline',
   },
   localGroupName: {
-    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "headline"],
+    ...theme.typography["headline"],
     fontSize: 18,
-    fontWeight: theme.isFriendlyUI ? 700 : undefined,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',

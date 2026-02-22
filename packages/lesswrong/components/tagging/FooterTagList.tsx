@@ -1,49 +1,45 @@
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { useMutation } from '@apollo/client/react';
-import { NetworkStatus } from '@apollo/client';
+import { Card } from "@/components/widgets/Paper";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useCurrentUserId } from '../common/withUser';
-import { useTracking, useOnMountTracking } from "../../lib/analyticsEvents";
-import { getContentTypes } from '../posts/PostsPage/ContentType';
-import FooterTag, { tagStyle, smallTagTextStyle } from './FooterTag';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { NetworkStatus } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import classNames from 'classnames';
-import { Card } from "@/components/widgets/Paper";
-import { Link } from '../../lib/reactRouterWrapper';
-import { forumSelect } from '../../lib/forumTypeUtils';
-import { useMessages } from '../common/withMessages';
-import { adminAccountSetting, isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { useOnMountTracking, useTracking } from "../../lib/analyticsEvents";
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
-import HoverOver from "../common/HoverOver";
+import { forumSelect } from '../../lib/forumTypeUtils';
+import { adminAccountSetting, isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { Link } from '../../lib/reactRouterWrapper';
 import ContentStyles from "../common/ContentStyles";
+import ForumIcon from '../common/ForumIcon';
+import HoverOver from "../common/HoverOver";
+import { useMessages } from '../common/withMessages';
+import { useCurrentUserId } from '../common/withUser';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
+import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
+import { getContentTypes } from '../posts/PostsPage/ContentType';
 import Loading from "../vulcan-core/Loading";
 import AddTagButton from "./AddTagButton";
 import CoreTagsChecklist from "./CoreTagsChecklist";
-import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
-import ForumIcon from '../common/ForumIcon';
-import { defineStyles } from '../hooks/defineStyles';
-import { useStyles } from '../hooks/useStyles';
-import { useCurrentTime } from '@/lib/utils/timeUtil';
+import FooterTag, { smallTagTextStyle, tagStyle } from './FooterTag';
 
 const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
-  root: theme.isFriendlyUI ? {
-    marginTop: 8,
-    marginBottom: 8,
-  } : {
-    display: 'flex',
-    gap: 4,
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
+  root: {
+        display: 'flex',
+        gap: 4,
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+      },
   alignRight: {
     justifyContent: 'flex-end'
   },
   allowTruncate: {
-    display: theme.isFriendlyUI ? "block" : "inline-flex",
+    display: "inline-flex",
     // Truncate to 1 row (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
     maxHeight: 33,
@@ -54,26 +50,15 @@ const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
     marginBottom: 0,
   },
   postTypeLink: {
-    "&:hover": theme.isFriendlyUI ? {opacity: 1} : {},
+    "&:hover": {},
   },
   frontpageOrPersonal: {
     ...tagStyle(theme),
     backgroundColor: theme.palette.tag.hollowTagBackground,
-    ...(theme.isFriendlyUI
-      ? {
-        marginBottom: 0,
-        "&:hover": {
-          opacity: 1,
-          backgroundColor: theme.palette.tag.hollowTagBackgroundHover,
-        },
-        "& a:hover": {
-          opacity: 1,
-        },
-      }
-      : {
-        paddingTop: 4.5,
-        paddingBottom: 4.5,
-      }),
+    ...({
+            paddingTop: 4.5,
+            paddingBottom: 4.5,
+          }),
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
   },
@@ -88,15 +73,10 @@ const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
   },
   card: {
     padding: 16,
-    ...(theme.isFriendlyUI
-      ? {
-        paddingTop: 12,
-        width: FRIENDLY_HOVER_OVER_WIDTH,
-      }
-      : {
-        width: 450,
-        paddingTop: 8,
-      }),
+    ...({
+            width: 450,
+            paddingTop: 8,
+          }),
   },
   smallText: {
     ...smallTagTextStyle(theme),

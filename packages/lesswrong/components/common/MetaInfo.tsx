@@ -1,19 +1,15 @@
+import classNames from 'classnames';
 import React from 'react';
-import classNames from 'classnames'
-import { Typography } from "./Typography";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import { Typography } from "./Typography";
 
 const styles = defineStyles("MetaInfo", (theme: ThemeType) => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],
     marginRight: theme.spacing.unit,
-    fontSize: "1rem",
-    
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack
-    }),
+    fontSize: "1rem"
   },
   button: {
     cursor: "pointer",

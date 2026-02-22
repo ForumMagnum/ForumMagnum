@@ -133,10 +133,8 @@ export const lessWrongTheme: SiteThemeSpecification = {
     },
 
     isBookUI: true,
-    isFriendlyUI: false,
     isLW: true,
     isAF: false,
     isLWorAF: true,
-    isEAForum: false,
   }),
 };

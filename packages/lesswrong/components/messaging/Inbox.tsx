@@ -1,29 +1,27 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import classNames from "classnames";
-import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
-import { useDialog } from "../common/withDialog";
-import type { InboxComponentProps } from "./InboxWrapper";
-import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
-import { Link } from "../../lib/reactRouterWrapper";
-import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import NewConversationDialog from "./NewConversationDialog";
-import ConversationTitleEditForm from "./ConversationTitleEditForm";
-import FriendlyInboxNavigation from "./FriendlyInboxNavigation";
-import ConversationContents from "./ConversationContents";
-import ForumIcon from "../common/ForumIcon";
-import ConversationDetails from "./ConversationDetails";
-import EAButton from "../ea-forum/EAButton";
-import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { isFriendlyUI } from "@/themes/forumTheme";
-import qs from "qs";
-import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
+import classNames from "classnames";
+import qs from "qs";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { conversationGetCompactTitle } from "../../lib/collections/conversations/helpers";
+import { Link } from "../../lib/reactRouterWrapper";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
+import { useDialog } from "../common/withDialog";
+import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
+import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
 import { StatusCodeSetter } from "../next/StatusCodeSetter";
+import ConversationContents from "./ConversationContents";
+import ConversationDetails from "./ConversationDetails";
+import ConversationTitleEditForm from "./ConversationTitleEditForm";
+import InboxNavigation from "./InboxNavigation";
+import type { InboxComponentProps } from "./InboxWrapper";
+import NewConversationDialog from "./NewConversationDialog";
 
 const ConversationsListWithReadStatusMultiQuery = gql(`
   query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -212,9 +210,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
   },
   emptyStateButton: {
-    ...(theme.isFriendlyUI
-      ? { color: theme.palette.text.alwaysWhite }
-      : { backgroundColor: theme.palette.background.default }),
+    ...({ backgroundColor: theme.palette.background.default }),
     fontSize: 14,
   },
   modInboxCheckboxIcon: {
@@ -240,7 +236,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FriendlyInbox = ({
+const Inbox = ({
   currentUserId,
   conversationId,
   view = "userConversations",
@@ -383,10 +379,10 @@ const FriendlyInbox = ({
   const showModeratorLink = userCanViewModInbox && !isModInbox;
 
   const title = selectedConversation
-    ? conversationGetFriendlyTitle(selectedConversation, currentUserId)
+    ? conversationGetCompactTitle(selectedConversation, currentUserId)
     : "No conversation selected";
 
-  const ButtonComponent = isFriendlyUI() ? EAButton : Button;
+  const ButtonComponent = Button;
 
   const modInboxQueryParam = `?${qs.stringify({ ...query, isModInbox: !isModInbox ? "true" : undefined })}`;
   const archiveQueryParam = `?${qs.stringify({ ...query, showArchive: !showArchive ? "true" : undefined })}`;
@@ -394,11 +390,7 @@ const FriendlyInbox = ({
   return (
     <div className={classes.root}>
       <StatusCodeSetter status={200} />
-      {showModeratorLink && isFriendlyUI() && (
-        <Link to={"/inbox" + modInboxQueryParam} className={classes.modInboxLink}>
-          Mod Inbox
-        </Link>
-      )}
+      {false}
       <div className={classes.table}>
         <div
           className={classNames(classes.column, classes.leftColumn, {
@@ -424,7 +416,7 @@ const FriendlyInbox = ({
             </LWTooltip>
           </div>
           <div className={classes.navigation}>
-            <FriendlyInboxNavigation
+            <InboxNavigation
               conversationsResult={{
                 results: conversations,
                 loading: conversationsLoading,
@@ -476,7 +468,7 @@ const FriendlyInbox = ({
               </div>
               <div>
                 <div className={classes.emptyStateTitle}>No conversation selected</div>
-                <div className={classes.emptyStateSubtitle}>{isFriendlyUI() ? "Connect with other users on the forum" : "Bother bother bother!"}</div>
+                <div className={classes.emptyStateSubtitle}>{"Bother bother bother!"}</div>
               </div>
               <ButtonComponent onClick={openNewConversationDialog} className={classes.emptyStateButton}>
                 <ForumIcon icon="PencilSquare" className={classes.emptyStateActionIcon} /> Start a new conversation
@@ -489,6 +481,5 @@ const FriendlyInbox = ({
   );
 };
 
-export default registerComponent("FriendlyInbox", FriendlyInbox, { styles });
-
+export default registerComponent("Inbox", Inbox, { styles });
 

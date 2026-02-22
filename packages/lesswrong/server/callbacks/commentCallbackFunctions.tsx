@@ -1,49 +1,47 @@
-import React from "react";
+import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
-import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
+import { PostsOriginalContents, PostsRevision } from "@/lib/collections/posts/fragments";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
+import { tagGetDiscussionUrl } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { isEAForum, isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { randomId } from "@/lib/random";
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
-import { noDeletionPmReason } from "@/lib/collections/comments/constants";
+import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
+import { createAutomatedContentEvaluation } from "@/server/collections/automatedContentEvaluations/helpers";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
+import difference from "lodash/difference";
+import intersection from "lodash/intersection";
+import isEqual from "lodash/isEqual";
+import maxBy from "lodash/maxBy";
+import union from "lodash/union";
+import uniq from "lodash/uniq";
+import moment from "moment";
+import { swrInvalidatePostRoute } from "../cache/swr";
+import { createConversation } from "../collections/conversations/mutations";
+import { createMessage } from "../collections/messages/mutations";
+import { createModeratorAction } from "../collections/moderatorActions/mutations";
+import { createPost, updatePost } from "../collections/posts/mutations";
+import { updateUser } from "../collections/users/mutations";
+import { commentAncestorsToNotifySetting } from "../databaseSettings";
+import { EmailComment } from "../emailComponents/EmailComment";
+import { wrapAndSendEmail } from "../emails/renderEmail";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { checkModGPT } from "../languageModels/modGPT";
-import { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from "../mutationCallbacks";
+import { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
+import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { rateLimitDateWhenUserNextAbleToComment } from "../rateLimitUtils";
 import { recombeeApi } from "../recombee/client";
-import { getCommentAncestorIds, getCommentSubtree } from "../utils/commentTreeUtils";
-import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
-import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
-import { commentAncestorsToNotifySetting } from "../databaseSettings";
-import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { wrapAndSendEmail } from "../emails/renderEmail";
-import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
-import { swrInvalidatePostRoute } from "../cache/swr";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
-import moment from "moment";
-import isEqual from "lodash/isEqual";
-import uniq from "lodash/uniq";
-import maxBy from "lodash/maxBy";
-import difference from "lodash/difference";
-import intersection from "lodash/intersection";
-import union from "lodash/union";
-import { createConversation } from "../collections/conversations/mutations";
-import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
-import { createMessage } from "../collections/messages/mutations";
-import { createPost, updatePost } from "../collections/posts/mutations";
-import { getRejectionMessage } from "./helpers";
-import { createModeratorAction } from "../collections/moderatorActions/mutations";
-import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
-import { updateUser } from "../collections/users/mutations";
-import { EmailComment } from "../emailComponents/EmailComment";
-import { PostsOriginalContents, PostsRevision } from "@/lib/collections/posts/fragments";
 import { backgroundTask } from "../utils/backgroundTask";
-import { createAutomatedContentEvaluation } from "@/server/collections/automatedContentEvaluations/helpers";
+import { getCommentAncestorIds, getCommentSubtree } from "../utils/commentTreeUtils";
+import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
+import { getRejectionMessage } from "./helpers";
+import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 
 interface SendModerationPMParams {
   action: 'deleted' | 'rejected',
@@ -438,9 +436,7 @@ const utils = {
       }
   
       // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-      const noEmail = isEAForum()
-      ? false 
-      : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+      const noEmail = !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
   
       await utils.sendModerationPM({
         action: 'deleted',
@@ -480,9 +476,7 @@ const utils = {
     let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
     
     // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-    const noEmail = isEAForum() 
-    ? false 
-    : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
+    const noEmail = !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
   
     await utils.sendModerationPM({
       action: 'rejected',
@@ -829,38 +823,7 @@ export async function trackCommentRateLimitHit({document, context}: AfterCreateC
 }
 
 export async function checkModGPTOnCommentCreate({document, context}: AfterCreateCallbackProperties<'Comments'>) {
-  // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
-  // We skip comments by unreviewed authors, because those will be reviewed by a human.
-  if (
-    !isEAForum() ||
-    !document.postId ||
-    document.deleted ||
-    document.deletedPublic ||
-    document.spam ||
-    document.needsReview ||
-    document.authorIsUnreviewed ||
-    document.retracted ||
-    document.rejected ||
-    document.shortform ||
-    document.moderatorHat
-  ) {
-    return
-  }
-  
-  // only have ModGPT check comments on posts tagged with "Community"
-  const post = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentDoc: PostsOriginalContents,
-    currentUser: null,
-    skipFiltering: true,
-    selector: {_id: document.postId},
-  });
-  if (!post) return
-  
-  const postTags = post.tagRelevance
-  if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
-  
-  backgroundTask(checkModGPT(document, post, context))
+  return;
 }
 
 // Elastic callback might go here
@@ -1024,14 +987,6 @@ export async function updateDescendentCommentCountsOnEdit(comment: DbComment, pr
 /* UPDATE ASYNC */
 export async function updatedCommentMaybeTriggerReview({ currentUser, context }: UpdateCallbackProperties<"Comments">) {
   if (!currentUser) return;
-  if (isEAForum()) {
-    currentUser.snoozedUntilContentCount && await updateUser({ data: {
-      snoozedUntilContentCount: currentUser.snoozedUntilContentCount - 1,
-    }, selector: { _id: currentUser._id } }, createAnonymousContext());
-    // This might create multiple redundant moderator actions if the user is in a state where they'd trigger review
-    // and then update a comment multiple times.
-    await triggerReviewIfNeeded(currentUser._id, 'updatedComment', context)
-  }
 }
 
 export async function updateUserNotesOnCommentRejection({ newDocument, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
@@ -1047,42 +1002,7 @@ export async function updateUserNotesOnCommentRejection({ newDocument, oldDocume
 }
 
 export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, context}: UpdateCallbackProperties<"Comments">) {
-  // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
-  // We skip comments by unreviewed authors, because those will be reviewed by a human.
-  if (
-    !isEAForum() ||
-    !newDocument.postId ||
-    newDocument.deleted ||
-    newDocument.deletedPublic ||
-    newDocument.spam ||
-    newDocument.needsReview ||
-    newDocument.authorIsUnreviewed ||
-    newDocument.retracted ||
-    newDocument.rejected ||
-    newDocument.shortform ||
-    newDocument.moderatorHat ||
-    !newDocument.contents?.originalContents?.data
-  ) {
-    return
-  }
-  
-  const noChange = oldDocument.contents?.originalContents?.data === newDocument.contents.originalContents.data
-  if (noChange) return
-
-  // only have ModGPT check comments on posts tagged with "Community"
-  const post = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentDoc: PostsOriginalContents,
-    currentUser: null,
-    skipFiltering: true,
-    selector: {_id: newDocument.postId},
-  });
-  if (!post) return
-  
-  const postTags = post.tagRelevance
-  if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
-  
-  backgroundTask(checkModGPT(newDocument, post, context))
+  return;
 }
 
 /* EDIT ASYNC */

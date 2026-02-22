@@ -187,15 +187,6 @@ const URLClass = getUrlClass()
 const getForumDomainWhitelist = (): ForumOptions<DomainList> => ({
   LessWrong: LwAfDomainWhitelist,
   AlignmentForum: LwAfDomainWhitelist,
-  EAForum: {
-    onsiteDomains: [
-      'forum.effectivealtruism.org',
-      'forum-staging.effectivealtruism.org',
-      // TODO: fix this to not use `getCommandLineArguments` anymore
-      // `localhost:${getCommandLineArguments().localhostUrlPort}`,
-    ],
-    mirrorDomains: ['ea.greaterwrong.com'],
-  },
   default: {
     onsiteDomains: [
       new URLClass(siteUrlSetting.get()).host,

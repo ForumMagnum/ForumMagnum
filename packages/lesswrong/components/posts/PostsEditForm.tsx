@@ -1,32 +1,31 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useMessages } from '../common/withMessages';
-import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
-import {useCurrentUser} from "../common/withUser";
-import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
-import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
-import { isEAForum, isLW } from '../../lib/instanceSettings';
-import type { Editor } from '@ckeditor/ckeditor5-core';
-import DeferRender from '../common/DeferRender';
-import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { EditorContext } from './EditorContext';
-import Loading from "../vulcan-core/Loading";
-import PermanentRedirect from "../common/PermanentRedirect";
-import Error404 from "../common/Error404";
-import PostsAcceptTos from "./PostsAcceptTos";
-import ForeignCrosspostEditForm from "./ForeignCrosspostEditForm";
-import RateLimitWarning from "../editor/RateLimitWarning";
-import PostForm from "./PostForm";
-import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
-import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
-import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
-import { PostsEditFormQuery } from './queries';
-import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import type { Editor } from '@ckeditor/ckeditor5-core';
 import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
+import { canUserEditPostMetadata, getPostCollaborateUrl, isNotHostedHere, postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { isLW } from '../../lib/instanceSettings';
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
+import DeferRender from '../common/DeferRender';
+import Error404 from "../common/Error404";
+import PermanentRedirect from "../common/PermanentRedirect";
+import { useMessages } from '../common/withMessages';
+import { useCurrentUser } from "../common/withUser";
+import RateLimitWarning from "../editor/RateLimitWarning";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
+import Loading from "../vulcan-core/Loading";
+import { EditorContext } from './EditorContext';
+import ForeignCrosspostEditForm from "./ForeignCrosspostEditForm";
+import PostForm from "./PostForm";
+import PostsAcceptTos from "./PostsAcceptTos";
+import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
+import { PostsEditFormQuery } from './queries';
+import DynamicTableOfContents from "./TableOfContents/DynamicTableOfContents";
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -206,7 +205,7 @@ const PostsEditFormInner = ({ documentId, version }: {
 
   return (<>
     <StatusCodeSetter status={200}/>
-    <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum() && <NewPostHowToGuides/>}>
+    <DynamicTableOfContents title={document.title} rightColumnChildren={false}>
       <div className={classes.postForm}>
         {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
@@ -230,7 +229,7 @@ const PostsEditFormInner = ({ documentId, version }: {
                 } else {
                   // If they are publishing a draft, show the share popup
                   // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
-                  const showSharePopup = isEAForum() && wasEverDraft.current && !post.draft
+                  const showSharePopup = false
                   const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
                   navigate({pathname: postGetPageUrl(post), search: showSharePopup ? sharePostQuery : ''})
 

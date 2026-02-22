@@ -82,7 +82,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
-  quickTake: FrontpageShortformComments,
+  quickTake: ShortformComments | FrontpageShortformComments,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -148,8 +148,9 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
     </div>
   );
 
+  const latestChildren = "latestChildren" in quickTake ? quickTake.latestChildren : undefined;
   const commenterNames = Array.from(new Set(
-    quickTake.latestChildren?.map((c: FrontpageShortformComments) => userGetDisplayName(c.user)).filter((name: string) => !!name && name !== userGetDisplayName(quickTake.user))
+    latestChildren?.map((c) => userGetDisplayName(c.user)).filter((name: string) => !!name && name !== userGetDisplayName(quickTake.user))
   ));
 
   const commentersElement = commenterNames.length > 0 && (
@@ -228,5 +229,4 @@ export default registerComponent(
   LWQuickTakesCollapsedListItem,
   {styles},
 );
-
 

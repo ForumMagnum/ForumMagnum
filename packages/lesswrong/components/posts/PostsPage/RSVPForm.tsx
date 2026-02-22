@@ -1,27 +1,23 @@
-import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { useMutation } from "@apollo/client/react";
+import { responseToText } from '@/lib/collections/posts/constants';
 import { gql } from '@/lib/generated/gql-codegen';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { DialogActions } from '../../widgets/DialogActions';
-import { DialogTitle } from '../../widgets/DialogTitle';
-import { useCurrentUser } from '../../common/withUser';
+import { useMutation } from "@apollo/client/react";
+import { useState } from 'react';
 import { useNavigate } from '../../../lib/routeUtil';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LWDialog from "../../common/LWDialog";
 import { MenuItem } from "../../common/Menus";
-import { responseToText } from '@/lib/collections/posts/constants';
+import { useCurrentUser } from '../../common/withUser';
+import { DialogActions } from '../../widgets/DialogActions';
+import { DialogTitle } from '../../widgets/DialogTitle';
 
 const styles = (theme: ThemeType) => ({
-  emailMessage: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }
-    : {
-      fontStyle: "italic",
-    },
+  emailMessage: {
+          fontStyle: "italic",
+        },
 });
 
 const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {

@@ -1,6 +1,6 @@
+import classNames from 'classnames';
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import classNames from 'classnames';
 import { FormGroupHeader } from "../vulcan-forms/FormGroup";
 
 const styles = (theme: ThemeType) => ({
@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
     border: theme.palette.border.grey300,
     marginBottom: theme.spacing.unit,
     background: theme.palette.background.pageActiveAreaBackground,
-    ...(theme.isFriendlyUI ? {borderRadius: 6} : {})
+    ...({})
   },
   formSectionCollapsed: {
     display: "none",

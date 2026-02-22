@@ -3,7 +3,7 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
-import FriendlyInbox from "./FriendlyInbox";
+import Inbox from "./Inbox";
 import { userCanDo, userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 export type InboxComponentProps = {
@@ -28,7 +28,7 @@ const InboxWrapper = () => {
   const userCanViewModInbox = userCanDo(currentUser, 'conversations.view.all');
   const isAdmin = userIsAdmin(currentUser);
 
-  return <FriendlyInbox
+  return <Inbox
     currentUserId={currentUser._id}
     conversationId={conversationId}
     showArchive={showArchive}
@@ -38,5 +38,4 @@ const InboxWrapper = () => {
 }
 
 export default InboxWrapper;
-
 

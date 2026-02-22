@@ -43,13 +43,25 @@
  */
 export const acceptsSchemaHash = "c88a556fe6f1bc2d5ce4f08149eb3388";
 
-import UserEAGDetails from "../../server/collections/userEAGDetails/collection"
-import { createTable, dropTable } from "./meta/utils"
-
 export const up = async ({db}: MigrationContext) => {
-  await createTable(db, UserEAGDetails)
+  await db.none(`
+    CREATE TABLE IF NOT EXISTS "UserEAGDetails" (
+      "_id" varchar(27) PRIMARY KEY,
+      "userId" varchar(27) NOT NULL,
+      "careerStage" text[],
+      "countryOrRegion" text,
+      "nearestCity" text,
+      "willingnessToRelocate" jsonb,
+      "experiencedIn" text[],
+      "interestedIn" text[],
+      "lastUpdated" timestamptz NOT NULL,
+      "schemaVersion" double precision NOT NULL DEFAULT 1,
+      "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      "legacyData" jsonb
+    )
+  `);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropTable(db, UserEAGDetails)
+  await db.none(`DROP TABLE IF EXISTS "UserEAGDetails"`);
 }

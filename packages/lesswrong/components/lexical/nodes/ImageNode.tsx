@@ -7,32 +7,29 @@
  */
 
 import type {
-  DOMConversionMap,
-  DOMConversionOutput,
-  DOMExportOutput,
-  BaseSelection,
-  EditorConfig,
-  LexicalEditor,
-  LexicalNode,
-  LexicalUpdateJSON,
-  NodeKey,
-  SerializedElementNode,
-  SerializedLexicalNode,
-  Spread,
+    BaseSelection,
+    DOMConversionMap,
+    DOMConversionOutput,
+    DOMExportOutput,
+    EditorConfig,
+    LexicalEditor,
+    LexicalNode,
+    LexicalUpdateJSON,
+    NodeKey,
+    SerializedElementNode,
+    SerializedLexicalNode,
+    Spread,
 } from 'lexical';
 import React, { type JSX } from 'react';
 
-import {$generateNodesFromDOM} from '@lexical/html';
+import { $generateNodesFromDOM } from '@lexical/html';
 import {
-  $applyNodeReplacement,
-  $createParagraphNode,
-  $extendCaretToRange,
-  $getChildCaret,
-  $getEditor,
-  $isElementNode,
-  $setSelection,
-  DecoratorNode,
-  ElementNode,
+    $applyNodeReplacement,
+    $createParagraphNode,
+    $getEditor,
+    $setSelection,
+    DecoratorNode,
+    ElementNode
 } from 'lexical';
 
 
@@ -438,7 +435,7 @@ export class ImageNode extends ElementNode {
     this.__maxWidth = maxWidth;
     this.__width = width || 'inherit';
     this.__height = height || 'inherit';
-    this.__showCaption = showCaption || false;
+    this.__showCaption = showCaption ?? false;
     this.__srcset = srcset ?? null;
     this.__widthPercent = widthPercent ?? null;
     this.__isCkFigure = isCkFigure ?? false;
@@ -694,4 +691,3 @@ export function $isImageNode(
 ): node is ImageNode {
   return node instanceof ImageNode;
 }
-

@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Card } from "@/components/widgets/Paper";
-import { useCurrentUser } from '../common/withUser';
+import classNames from 'classnames';
+import { useState } from 'react';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { canNominate, getCostData, getReviewPhase, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
-import classNames from 'classnames';
-import ReviewVotingWidget from "./ReviewVotingWidget";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
-import ReviewPostButton from "./ReviewPostButton";
+import { useCurrentUser } from '../common/withUser';
 import { useCurrentUserReviewVote } from '../hooks/useCurrentUserReviewVote';
 import Loading from '../vulcan-core/Loading';
+import ReviewPostButton from "./ReviewPostButton";
+import ReviewVotingWidget from "./ReviewVotingWidget";
 
 export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
     display: "inline-block"
   },
   card: {
-    padding: theme.isFriendlyUI ? "8px 24px" : 8,
+    padding: 8,
     textAlign: "center",
   },
   reviewButton: {

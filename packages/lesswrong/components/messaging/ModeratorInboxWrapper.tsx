@@ -3,7 +3,7 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
-import FriendlyInbox from "./FriendlyInbox";
+import Inbox from "./Inbox";
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 
 const ModeratorInboxWrapper = () => {
@@ -18,7 +18,7 @@ const ModeratorInboxWrapper = () => {
   const isAdmin = userIsAdmin(currentUser);
 
   return (
-    <FriendlyInbox
+    <Inbox
       currentUserId={currentUser._id}
       conversationId={conversationId}
       isModInbox
@@ -29,5 +29,4 @@ const ModeratorInboxWrapper = () => {
 }
 
 export default ModeratorInboxWrapper;
-
 

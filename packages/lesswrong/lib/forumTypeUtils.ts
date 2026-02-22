@@ -1,25 +1,29 @@
 import { isServer } from "./executionEnvironment";
 import type { ForumTypeString } from "./instanceSettings"
 
+const getRuntimeForumType = (forumType: unknown): ForumTypeString => {
+  if (forumType === "AlignmentForum" || forumType === "LessWrong") {
+    return forumType;
+  }
+  return "LessWrong";
+}
+
 export const forumTypeSetting: { get: () => ForumTypeString } = {
   get: () => {
     if (isServer) {
-      return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
+      return getRuntimeForumType(process.env.FORUM_TYPE);
     }
 
     const urlObj = new URL(window.location.href);
     if (urlObj.hostname.includes('alignmentforum.org')) {
       return 'AlignmentForum';
-    } else if (urlObj.hostname.includes('forum.effectivealtruism.org')) {
-      return 'EAForum';
     } else {
-      return process.env.FORUM_TYPE as ForumTypeString | undefined ?? 'LessWrong';
+      return getRuntimeForumType(process.env.FORUM_TYPE);
     }
   }
 };
 
 export const isLW = () => forumTypeSetting.get() === "LessWrong"
-export const isEAForum = () => forumTypeSetting.get() === "EAForum"
 export const isAF = () => forumTypeSetting.get() === "AlignmentForum"
 export const isLWorAF = () => isLW() || isAF()
 

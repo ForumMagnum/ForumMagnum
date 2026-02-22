@@ -1,19 +1,17 @@
 "use client";
-import React from 'react';
-import { useCurrentUser } from '../common/withUser';
-import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { slugify } from '@/lib/utils/slugify';
-import { useLocation, useNavigate } from "@/lib/routeUtil";
-import { useTagBySlug } from './useTag';
-import { TagForm } from './TagForm';
-import SingleColumnSection from "../common/SingleColumnSection";
-import SectionTitle from "../common/SectionTitle";
-import NewTagInfoBox from "./NewTagInfoBox";
-import Loading from "../vulcan-core/Loading";
-import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useLocation, useNavigate } from "@/lib/routeUtil";
+import { slugify } from '@/lib/utils/slugify';
+import { useMutation } from "@apollo/client/react";
+import { getTagMinimumKarmaPermissions, tagGetUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { useCurrentUser } from '../common/withUser';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import Loading from "../vulcan-core/Loading";
+import { TagForm } from './TagForm';
+import { useTagBySlug } from './useTag';
 
 const TagEditFragmentUpdateMutation = gql(`
   mutation updateTagNewTagPage($selector: SelectorInput!, $data: UpdateTagDataInput!) {
@@ -110,10 +108,7 @@ const NewTagPage = () => {
           }}
         />
       )}
-      {isEAForum() &&
-        <div className={classes.guide}>
-          <NewTagInfoBox />
-        </div>
+      {false
       }
     </SingleColumnSection>
   );

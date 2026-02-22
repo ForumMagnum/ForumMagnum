@@ -1,44 +1,10 @@
-import { getForumType, ThemeOptions } from './themeNames';
-import { baseTheme } from './createThemeDefaults';
-import { getUserTheme } from './userThemes/index';
-import { getSiteTheme } from './siteThemes/index';
-import type { ForumTypeString } from '../lib/instanceSettings';
-import deepmerge from 'deepmerge';
-import { forumSelect } from '../lib/forumTypeUtils';
-import capitalize from 'lodash/capitalize';
 import createBreakpoints from "@/lib/vendor/@material-ui/core/src/styles/createBreakpoints";
-
-export type SiteUIStyle = "book" | "friendly";
-
-/**
- * Is this Forum a muted, dignified book-like experience, or a modern, friendly
- * site with more rounded corners?
- *
- * There are some decisions like "what do you call bookmarked posts" that also
- * hinge on this setting, making a bit like a, "which tribe are you" question,
- * in addition to controlling the basic UI style.
- */
-const getSiteUIStyle = (): SiteUIStyle => forumSelect<SiteUIStyle>({
-  LWAF: "book",
-  EAForum: "friendly",
-  default: "friendly",
-})
-export const isBookUI = () => getSiteUIStyle() === "book";
-export const isFriendlyUI = () => getSiteUIStyle() === "friendly";
-
-type StyleOptions<T> = (Record<SiteUIStyle, T> & Partial<Record<"default", T>>) | (Partial<Record<SiteUIStyle, T>> & Record<"default", T>);
-
-export function styleSelect<T>(styleOptions: StyleOptions<T>, uiStyle?: SiteUIStyle): T {
-  uiStyle ??= getSiteUIStyle();
-
-  const value = styleOptions[uiStyle];
-  if (value) return value;
-
-  const defaultVal = styleOptions.default;
-  if (defaultVal !== undefined) return defaultVal;
-
-  throw new Error("No valid style option found and no default provided.");
-}
+import deepmerge from 'deepmerge';
+import type { ForumTypeString } from '../lib/instanceSettings';
+import { baseTheme } from './createThemeDefaults';
+import { getSiteTheme } from './siteThemes/index';
+import { getForumType, ThemeOptions } from './themeNames';
+import { getUserTheme } from './userThemes/index';
 
 const themeCache = new Map<string,ThemeType>();
 
@@ -91,8 +57,4 @@ const buildTheme = (
   };
 }
 
-/**
- * Convert heading to sentence case in Friendly UI sites, leave as is on LW (will usually be "start case" e.g. "Set Topics").
- * In the event of edge cases (e.g. "EA Forum" -> "Ea forum"), it's probably best to do an inline forumTypeSetting check
- */
-export const preferredHeadingCase = (input: string) => isFriendlyUI() ? capitalize(input) : input;
+export const preferredHeadingCase = (input: string) => input;

@@ -1,26 +1,18 @@
-import classNames from 'classnames';
-import React from 'react';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useItemsRead } from '../hooks/useRecordPostView';
-import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
-import { preferredHeadingCase } from '../../themes/forumTheme';
-import { forumSelect } from '../../lib/forumTypeUtils';
-import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
-import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useSuspenseQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
+import classNames from 'classnames';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
-import { useCurrentUser } from '../common/withUser';
+import { useItemsRead } from '../hooks/useRecordPostView';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
 
 const styles = defineStyles("SpotlightStartOrContinueReading", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      [theme.breakpoints.down("xs")]: {
-        marginTop: 8,
-      },
-    }),
-    marginTop: theme.isFriendlyUI ? 0 : 4,
+    marginTop: 4,
     minHeight: 20,
   },
   placeholder: {
@@ -29,7 +21,7 @@ const styles = defineStyles("SpotlightStartOrContinueReading", (theme: ThemeType
   },
   firstPost: {
     ...theme.typography.body2,
-    fontSize: theme.isFriendlyUI ? 13 : "1.1rem",
+    fontSize: "1.1rem",
     ...theme.typography.commentStyle,
     position: "relative",
     zIndex: theme.zIndexes.spotlightItemCloseButton,
@@ -39,21 +31,13 @@ const styles = defineStyles("SpotlightStartOrContinueReading", (theme: ThemeType
     }
   },
   postProgressBox: {
-    ...postProgressBoxStyles(theme),
-    ...(theme.isFriendlyUI && {
-      borderColor: theme.palette.text.alwaysWhite,
-    }),
+    ...postProgressBoxStyles(theme)
   },
-  read: theme.isFriendlyUI
-    ? {
-      backgroundColor: theme.palette.text.alwaysWhite,
-      border: theme.palette.text.alwaysWhite,
-    }
-    : {
-      backgroundColor: theme.palette.primary.main,
-      border: theme.palette.primary.dark,
-      opacity: .4
-    },
+  read: {
+        backgroundColor: theme.palette.primary.main,
+        border: theme.palette.primary.dark,
+        opacity: .4
+      },
 }), {
   stylePriority: -2
 });
@@ -118,10 +102,7 @@ const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
   const classes = useStyles(styles);
   const firstPostSequenceId = spotlight.documentId;
 
-  const prefix = forumSelect({
-    EAForum: preferredHeadingCase("Start with: "),
-    default: preferredHeadingCase("First Post: ")
-  });
+  const prefix = preferredHeadingCase("First Post: ");
 
   return <div className={classNames(classes.firstPost, classes.root)}>
     {prefix}<PostsTooltip post={firstPost}>
@@ -170,4 +151,3 @@ export const SpotlightStartOrContinueReading = ({spotlight}: {
     <SpotlightStartOrContinueReadingInner spotlight={spotlight}/>
   </SuspenseWrapper>
 }
-

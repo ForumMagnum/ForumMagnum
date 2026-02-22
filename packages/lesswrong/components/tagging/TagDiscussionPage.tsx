@@ -1,22 +1,21 @@
 "use client";
 
-import React from 'react';
-import { useTagBySlug } from './useTag';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
-import SingleColumnSection from "../common/SingleColumnSection";
-import TagDiscussionSection from "./TagDiscussionSection";
+import { Link } from '../../lib/reactRouterWrapper';
 import ContentStyles from "../common/ContentStyles";
-import { useStyles } from '../hooks/useStyles';
+import SingleColumnSection from "../common/SingleColumnSection";
 import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
+import TagDiscussionSection from "./TagDiscussionSection";
+import { useTagBySlug } from './useTag';
 
 const styles = defineStyles("TagDiscussionPage", (theme: ThemeType) => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
-    fontWeight: theme.isFriendlyUI ? 700 : 600,
+    fontWeight: 600,
     ...theme.typography.smallCaps,
   },
   description: {

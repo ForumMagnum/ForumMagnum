@@ -1,11 +1,9 @@
-import React from 'react';
-import { CommentLinkWrapper, UseCommentLinkProps } from './useCommentLink';
-import classNames from 'classnames';
-import { isLWorAF } from '../../../lib/instanceSettings';
 import DeferRender from '@/components/common/DeferRender';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import FormatDate, { ExpandedDate } from '@/components/common/FormatDate';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
 import LWTooltip from "../../common/LWTooltip";
+import { CommentLinkWrapper, UseCommentLinkProps } from './useCommentLink';
 
 // The amount of time during which you can edit a comment, without it causing
 // the comment to be marked as edited.
@@ -13,13 +11,10 @@ const EDIT_GRACE_PERIOD = 60*60*1000; //1hr
 
 const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI ? {
-      marginLeft: 2,
-      marginRight: 7,
-    } : {
-      marginLeft: 2,
-      marginRight: 16,
-    }),
+    ...({
+            marginLeft: 2,
+            marginRight: 16,
+          }),
 
     "& a:hover, & a:active": {
       "& $icon": {
@@ -98,7 +93,7 @@ const CommentsItemDate = ({comment, preventDateFormatting, className, ...rest}: 
       comment.answer && classes.answerDate,
       className,
     )}>
-      <DeferRender ssr={!isLWorAF()} fallback={linkContents}>
+      <DeferRender ssr={false} fallback={linkContents}>
         <CommentLinkWrapper comment={comment} {...rest}>
           {linkContents}
         </CommentLinkWrapper>
@@ -127,6 +122,5 @@ const CommentDateTooltip = ({comment}: {
 }
 
 export default CommentsItemDate;
-
 
 

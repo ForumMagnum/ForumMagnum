@@ -1,12 +1,11 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentUser } from '../common/withUser';
-import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
-import LoadMore from "../common/LoadMore";
-import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
-import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
+import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
+import LoadMore from "../common/LoadMore";
+import { useCurrentUser } from '../common/withUser';
+import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
   query multiCommentShortformThreadListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,7 +20,7 @@ const CommentWithRepliesFragmentMultiQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   shortformItem: {
-    marginTop: theme.spacing.unit * (theme.isFriendlyUI ? 2 : 4),
+    marginTop: theme.spacing.unit * (4),
   }
 })
 

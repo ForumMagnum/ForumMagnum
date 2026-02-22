@@ -1,22 +1,20 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import moment from 'moment-timezone';
-import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
-import { QueryLink } from '../../lib/reactRouterWrapper';
-import ContentType, { ContentTypeString } from './PostsPage/ContentType';
-import filter from 'lodash/filter';
-import { useLocation } from '../../lib/routeUtil';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import PostsItem from "./PostsItem";
-import LoadMore from "../common/LoadMore";
-import ShortformTimeBlock from "../shortform/ShortformTimeBlock";
-import TagEditsTimeBlock from "../tagging/TagEditsTimeBlock";
-import Divider from "../common/Divider";
-import { Typography } from "../common/Typography";
-import PostsTagsList from "../tagging/PostsTagsList";
-import PostsLoading from "./PostsLoading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import filter from 'lodash/filter';
+import moment from 'moment-timezone';
+import { useCallback, useEffect, useState } from 'react';
+import { QueryLink } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import Divider from "../common/Divider";
+import LoadMore from "../common/LoadMore";
+import { Typography } from "../common/Typography";
+import ShortformTimeBlock from "../shortform/ShortformTimeBlock";
+import PostsTagsList from "../tagging/PostsTagsList";
+import TagEditsTimeBlock from "../tagging/TagEditsTimeBlock";
+import PostsItem from "./PostsItem";
+import ContentType, { ContentTypeString } from './PostsPage/ContentType';
+import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostPostsTimeBlockQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -39,18 +37,10 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     position: "sticky",
     zIndex: 1,
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-        fontWeight: 600,
-        fontSize: 18,
-        color: theme.palette.grey[1000],
-        marginTop: 25,
-      }
-      : {
-        paddingTop: 4,
-        paddingBottom: 4,
-      }),
+    ...({
+            paddingTop: 4,
+            paddingBottom: 4,
+          }),
   },
   smallScreenTitle: {
     [theme.breakpoints.down('xs')]: {
@@ -66,34 +56,24 @@ const styles = (theme: ThemeType) => ({
     marginTop: 6,
   },
   noPosts: {
-    marginLeft: theme.isFriendlyUI ? 0 : 23,
+    marginLeft: 23,
     color: theme.palette.text.dim,
-    ...(theme.isFriendlyUI
-      ? {
-        marginTop: 18,
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {}),
+    ...({}),
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
-    marginBottom: theme.isFriendlyUI ? 8 : 0,
+    marginBottom: 0,
   },
-  subtitle: theme.isFriendlyUI ? {
-    marginTop: 12,
-  } : {},
+  subtitle: {},
   frontpageSubtitle: {
     marginBottom: 6
   },
   otherSubtitle: {
-    marginTop: theme.isFriendlyUI ? 0 : 6,
+    marginTop: 6,
     marginBottom: 6
   },
   divider: {
-    ...(theme.isFriendlyUI && {
-      display: 'none'
-    }),
-  }
+}
 })
 
 interface PostTypeOptions {
@@ -228,7 +208,7 @@ const PostsTimeBlock = ({
         </div> }
         {displayPostsTagsList && <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>}
         {postGroups.map(({name, filteredPosts, label}) => {
-          if (filteredPosts?.length > 0 || (loading && isFriendlyUI())) {
+          if (filteredPosts?.length > 0) {
             return <div key={name}>
               <div
                 className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
@@ -236,7 +216,7 @@ const PostsTimeBlock = ({
                 <ContentType type={name} label={label} className={classes.subtitle} />
               </div>
               <div className={classes.posts}>
-                {!filteredPosts?.length && isFriendlyUI() && <PostsLoading placeholderCount={10} />}
+                {false}
                 {filteredPosts.map((post, i) =>
                   <PostsItem
                     key={post._id}

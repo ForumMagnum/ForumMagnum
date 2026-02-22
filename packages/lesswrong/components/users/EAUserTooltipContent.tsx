@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { htmlToTextDefault } from "../../lib/htmlToText";
-import { FRIENDLY_THIN_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
+import { THIN_HOVER_OVER_WIDTH } from "../common/HoverOver";
 import moment from "moment";
 import UsersProfileImage from "./UsersProfileImage";
 
@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    width: FRIENDLY_THIN_HOVER_OVER_WIDTH,
+    width: THIN_HOVER_OVER_WIDTH,
     maxWidth: "100%",
     gap: "12px",
     fontSize: 14,
@@ -150,5 +150,4 @@ export default registerComponent(
   EAUserTooltipContent,
   {styles},
 );
-
 

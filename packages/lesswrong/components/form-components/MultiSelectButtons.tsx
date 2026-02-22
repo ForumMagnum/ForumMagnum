@@ -1,14 +1,13 @@
-import React from 'react';
+import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classnames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 
 const styles = defineStyles('MultiSelectButtons', (theme: ThemeType) => ({
   button: {
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
-    fontWeight: theme.isFriendlyUI ? 600 : 500,
+    fontWeight: 500,
     fontSize: "16px",
     fontFamily: theme.palette.fonts.sansSerifStack,
 
@@ -23,7 +22,6 @@ const styles = defineStyles('MultiSelectButtons', (theme: ThemeType) => ({
   selected: {
     color: theme.palette.buttons.primaryDarkText,
     textTransform: "none",
-    fontWeight: theme.isFriendlyUI ? 500 : undefined,
     // TODO: This green is hardcoded, but it's k because it's only used for events
     backgroundColor: theme.palette.buttons.groupTypesMultiselect.background,
 

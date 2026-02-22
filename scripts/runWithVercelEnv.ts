@@ -27,7 +27,7 @@ function printReplHelpText() {
 Or: yarn repl [mode] [forum-type] [filename] [js]
 
 [mode] is "dev", "prod", "local", etc.
-[forum-type] is "lw", "ea", or "af" (optional).
+[forum-type] is "lw" or "af" (optional).
 
 Examples:
   To make a REPL connecting to the LW dev DB:
@@ -43,7 +43,7 @@ function detectDefaultForumType() {
   const detectedForumType = detectForumType();
   if (detectedForumType === null) {
     // eslint-disable-next-line no-console
-    console.error("Please specify a forum type (lw, ea, af)");
+    console.error("Please specify a forum type (lw, af)");
     process.exit(1);
   }
   return detectedForumType;
@@ -86,7 +86,7 @@ function parseMigrateCommandLine() {
 
   if (!isForumType(providedForumType)) {
     // eslint-disable-next-line no-console
-    console.error("Please specify a valid forum type (lw, ea, af)");
+    console.error("Please specify a valid forum type (lw, af)");
     process.exit(1);
   }
 
@@ -217,8 +217,6 @@ export function getForumTypeEnv(forumType: Exclude<ForumType, "none">) {
       return 'LessWrong';
     case 'af':
       return 'AlignmentForum';
-    case 'ea':
-      return 'EAForum';
   }
 }
 

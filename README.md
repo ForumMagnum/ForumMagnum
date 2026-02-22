@@ -3,7 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/ForumMagnum/ForumMagnum/badge.svg?branch=master)](https://coveralls.io/github/ForumMagnum/ForumMagnum?branch=master)
 
 Forum Magnum is the codebase powering [LessWrong](https://lesswrong.com) and the
-[Effective Altruism Forum](https://forum.effectivealtruism.org).
+[Alignment Forum](https://alignmentforum.org).
 
 The team behind LessWrong created this codebase in 2017 as a rewrite of the
 original version of LessWrong, which was a difficult-to-maintain fork of reddit.
@@ -12,7 +12,7 @@ original version of LessWrong, which was a difficult-to-maintain fork of reddit.
 
 Forum Magnum is built on top of a number of major open-source libraries.
 
-1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from, but be wary of outdated information. [This page](https://docs.vulcanjs.org/nutshell.html) is still particularly useful. CEA: see [notion](https://www.notion.so/centreforeffectivealtruism/Vulcan-Docs-20ceb495f8ee4f36822602dfaf2f31b5) for more.
+1. [Vulcan](http://vulcanjs.org/) is a framework for designing social applications like forums and news aggregators. We started out using it as a library in the usual way, then forked its codebase and diverged considerably. Read their docs to understand where we've come from, but be wary of outdated information. [This page](https://docs.vulcanjs.org/nutshell.html) is still particularly useful.
 
 2. [Typescript](https://www.typescriptlang.org/) is the programming language we're using. It's like Javascript, but with type annotations. We're gradually moving from un-annotated Javascript towards having annotations on everything, and any new code should have type annotations when it's added.
 
@@ -54,7 +54,7 @@ yarn install
 
 ### If you want to run a local database
 
-CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
+If you have access to the LessWrong-Credentials repository, you can use one of the shared remote databases. Otherwise, do the following:
 
 Run a local postgres instance, version 15. For example, if you're on macos:
 
@@ -78,8 +78,6 @@ psql forummagnum -f ./schema/accepted_schema.sql
 TODOs:
 
 * You won't have any database settings yet. TODO: add instructions.
-  * Then run `yarn ea-load-dev-db <settings file>` to load the database settings
-    from the file. (TODO: example of the file)
 
 ### Creating branch-specific development databases
 
@@ -112,12 +110,6 @@ export const allForumTypes = ...
 and add your forum type to the end. Then regardless of whether you're making a
 new site or editing an existing one, open settings-dev.json and change the line
 that says `"forumType": "LessWrong"` to the correct forum.
-
-Or, if (and only if!) you have access to CEA's ForumCredentials repository, use
-
-```
-yarn ea-start
-```
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
@@ -232,8 +224,7 @@ commit the results to the Git repo.
 
 Instead of using \[dev|staging|prod\] above, you can also manually pass in a
 postgres connection string through a `PG_URL` environment variable. Use that
-option if you are not using the \[EA\] ForumCredentials repo or the LessWrong
-credentials repo.
+option if you are not using the LessWrong credentials repo.
 
 ## Testing
 
@@ -274,17 +265,4 @@ terminals while running the tests.
 
 ### Where to branch off of
 
-Branch off of `master` and submit to `master`. Deploys occur when `master` is
-merged into `ea-deploy` and `lw-deploy`.
-
-## EA Forum-Specific
-
-### \[CEA-Specific] Local Dev Database
-
-The local development database is actually hosted in the cloud like staging
-and production. There's no reason to host your own database. It's also shared
-with other developers, which means if someone adds a feature which requires
-manual database work, there's no need for you to also do that manual work.
-
-The test user admin credentials are in 1password. You're also welcome to create
-your own admin user.
+Branch off of `master` and submit to `master`.

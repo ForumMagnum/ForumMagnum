@@ -1,11 +1,11 @@
-import React from 'react';
-import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
-import { VotingProps } from './votingProps';
-import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
-import VoteAgreementIcon from "./VoteAgreementIcon";
-import AxisVoteButton from "./AxisVoteButton";
+import React from 'react';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import AxisVoteButton from "./AxisVoteButton";
+import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
+import VoteAgreementIcon from "./VoteAgreementIcon";
+import { VotingProps } from './votingProps';
 
 const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
   root: {
@@ -17,7 +17,7 @@ const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
     lineHeight: 0.6,
     height: 24,
     minWidth: 60,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 2,
+    borderRadius: 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
   },

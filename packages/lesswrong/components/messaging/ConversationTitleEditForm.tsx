@@ -1,23 +1,22 @@
-import React from 'react';
+import { MuiTextField } from '@/components/form-components/MuiTextField';
+import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
+import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
+import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { gql } from "@/lib/generated/gql-codegen";
+import { isLWorAF } from '@/lib/instanceSettings';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
+import { useMutation } from "@apollo/client/react";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import { MuiTextField } from '@/components/form-components/MuiTextField';
-import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
-import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { isLWorAF } from '@/lib/instanceSettings';
-import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
-import { userIsAdmin, userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
-import { useCurrentUser } from '../common/withUser';
-import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import LWDialog from "../common/LWDialog";
+import { useCurrentUser } from '../common/withUser';
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const ConversationsListUpdateMutation = gql(`
   mutation updateConversationConversationTitleEditForm($selector: SelectorInput!, $data: UpdateConversationDataInput!) {
@@ -100,7 +99,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
             {(field) => (
               <MuiTextField
                 field={field}
-                label={isFriendlyUI() ? "Conversation title (visible to all)" : "Conversation Title"}
+                label={"Conversation Title"}
               />
             )}
           </form.Field>

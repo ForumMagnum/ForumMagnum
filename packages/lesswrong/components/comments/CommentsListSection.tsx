@@ -1,38 +1,36 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useCurrentTime } from '../../lib/utils/timeUtil';
-import moment from 'moment';
-import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { Menu } from '@/components/widgets/Menu';
-import { useCurrentUser } from '../common/withUser';
-import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
+import moment from 'moment';
+import React, { useEffect, useMemo, useState } from 'react';
 import { postGetCommentCountStr, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
-import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
+import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isEAForum } from '../../lib/instanceSettings';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
+import { unflattenComments } from '../../lib/utils/unflatten';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { useCurrentUser } from '../common/withUser';
+import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import CommentsViews from "./CommentsViews";
-import Loading from "../vulcan-core/Loading";
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import CalendarDate from "../common/CalendarDate";
-import LastVisitList from "./LastVisitList";
-import CantCommentExplanation from "./CantCommentExplanation";
 import LWTooltip from "../common/LWTooltip";
-import CommentsList from "./CommentsList";
-import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
+import { MenuItem } from "../common/Menus";
 import MetaInfo from "../common/MetaInfo";
 import Row from "../common/Row";
-import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
-import SimpleDivider from "../widgets/SimpleDivider";
-import CommentsListMeta from "./CommentsListMeta";
 import { Typography } from "../common/Typography";
-import { MenuItem } from "../common/Menus";
-import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
-import CommentsDraftList from './CommentsDraftList';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
+import Loading from "../vulcan-core/Loading";
+import SimpleDivider from "../widgets/SimpleDivider";
+import CantCommentExplanation from "./CantCommentExplanation";
+import CommentsDraftList from './CommentsDraftList';
+import CommentsList from "./CommentsList";
+import CommentsListMeta from "./CommentsListMeta";
+import CommentsViews from "./CommentsViews";
 import { CommentTreeOptions } from './commentTree';
+import { NEW_COMMENT_MARGIN_BOTTOM } from './constants';
+import LastVisitList from "./LastVisitList";
 
 const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
   root: {
@@ -90,7 +88,7 @@ const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
     paddingLeft: theme.spacing.unit*1.5,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    marginTop: theme.isFriendlyUI ? 8 : 4,
+    marginTop: 4,
     fontStyle: "italic",
   }
 }))
@@ -167,10 +165,7 @@ const CommentsListSection = ({
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
-      {isFriendlyUI() && (newForm || !!totalComments) && !post?.shortform &&
-        <div className={classes.commentsHeadline}>
-          Comments{commentCountNode}
-        </div>
+      {false
       }
 
       {newForm
@@ -180,30 +175,28 @@ const CommentsListSection = ({
         <div
           id="posts-thread-new-comment"
           className={classNames(classes.newComment, {
-            [classes.newQuickTake]: isEAForum() && post?.shortform,
+            [classes.newQuickTake]: false,
           })}
         >
-          {!isEAForum() && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
+          {<div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
           {post?.isEvent && !!post.rsvps?.length && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
             </div>
           )}
-          {isEAForum() && post?.shortform
-            ? <QuickTakesEntry currentUser={currentUser} />
-            : (
-              <CommentsNewForm
-                post={post}
-                tag={tag}
-                prefilledProps={{
-                  parentAnswerId: parentAnswerId,
-                  ...(userIsDebateParticipant ? { debateResponse: true } : {})
-                }}
-                interactionType="comment"
-                {...newFormProps}
-                {...(userIsDebateParticipant ? { formProps: { post } } : {})}
-              />
-            )
+          {(
+                                <CommentsNewForm
+                                  post={post}
+                                  tag={tag}
+                                  prefilledProps={{
+                                    parentAnswerId: parentAnswerId,
+                                    ...(userIsDebateParticipant ? { debateResponse: true } : {})
+                                  }}
+                                  interactionType="comment"
+                                  {...newFormProps}
+                                  {...(userIsDebateParticipant ? { formProps: { post } } : {})}
+                                />
+                              )
           }
         </div>
       )}
@@ -233,13 +226,13 @@ const CommentsListSection = ({
         loading={loading}
       />
       <PostsPageCrosspostComments />
-      {!isEAForum() && <Row justifyContent="flex-end">
-        <LWTooltip title="View deleted comments and banned users">
-          <Link to="/moderation">
-            <MetaInfo>Moderation Log</MetaInfo>
-          </Link>
-        </LWTooltip>
-      </Row>}
+      {<Row justifyContent="flex-end">
+                  <LWTooltip title="View deleted comments and banned users">
+                    <Link to="/moderation">
+                      <MetaInfo>Moderation Log</MetaInfo>
+                    </Link>
+                  </LWTooltip>
+                </Row>}
     </div>
   );
 }
@@ -302,13 +295,7 @@ function CommentsListSectionTitle({
     <span>
       {postGetCommentCountStr(post, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
     </span>
-  if (isFriendlyUI()) {
-    commentSortNode = <>Sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>
-  }
-
-  const contentType = isEAForum() && post?.shortform
-    ? "quick takes"
-    : "comments";
+  const contentType = "comments";
 
   return <CommentsListMeta>
     <Typography

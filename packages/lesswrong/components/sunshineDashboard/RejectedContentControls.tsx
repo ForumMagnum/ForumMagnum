@@ -1,5 +1,5 @@
 import React from 'react';
-import { hasRejectedContentSectionSetting, isLWorAF } from '../../lib/instanceSettings';
+import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
 import RejectContentButton from './RejectContentButton';
 import RejectedReasonDisplay from './RejectedReasonDisplay';
 import { useDialog } from '../common/withDialog';
@@ -48,7 +48,6 @@ export const RejectedContentControls = ({ contentWrapper }: {
 
   // Gate the visibility based on forum settings
   if (collectionName === 'Posts' && !hasRejectedContentSectionSetting.get()) return null;
-  if (collectionName === 'Comments' && !isLWorAF()) return null;
 
   const automatedContentEvaluations = 'automatedContentEvaluations' in document ? document.automatedContentEvaluations : null;
 

@@ -1,8 +1,8 @@
+import ButtonBase from '@/lib/vendor/@material-ui/core/src/ButtonBase';
+import classNames from 'classnames';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import ButtonBase from '@/lib/vendor/@material-ui/core/src/ButtonBase';
 
 export const styles = defineStyles("MenuItem", theme => ({
   root: {
@@ -21,13 +21,7 @@ export const styles = defineStyles("MenuItem", theme => ({
       color: theme.palette.grey[800],
       fontSize: 14.3,
       lineHeight: "1.1em",
-    }),
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      color: theme.palette.grey[900],
-      fontWeight: 500,
-      fontSize: 14.3,
-    }),
+    })
   },
   /* Styles applied to the (normally root) `component` element. May be wrapped by a `container`. */
   listRoot: {

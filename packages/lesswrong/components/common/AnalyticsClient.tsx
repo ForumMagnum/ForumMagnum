@@ -6,7 +6,6 @@ import withErrorBoundary from './withErrorBoundary';
 import { ABTestGroupsUsedContext } from '@/components/common/sharedContexts';
 import { CLIENT_ID_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { isLWorAF } from '../../lib/instanceSettings';
 import { getAllUserABTestGroups } from '@/lib/abTestImpl';
 
 export const AnalyticsClient = () => {
@@ -21,9 +20,7 @@ export const AnalyticsClient = () => {
     clientContextVars.userId = currentUserId;
     clientContextVars.clientId = clientId;
     clientContextVars.tabId = window.tabId;
-    if (!isLWorAF()) {
-      clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
-    }
+    clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
     // There may be events waiting for the client context vars to be set, so flush them now
     throttledFlushClientEvents(true);
   }, [currentUserId, clientId, abTestGroupsUsed]);
@@ -59,5 +56,4 @@ export const AnalyticsClient = () => {
 export default registerComponent("AnalyticsClient", AnalyticsClient, {
   hocs: [withErrorBoundary]
 });
-
 

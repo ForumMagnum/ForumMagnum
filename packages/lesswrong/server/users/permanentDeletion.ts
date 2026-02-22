@@ -1,15 +1,15 @@
-import Users from "@/server/collections/users/collection";
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
-import { getAdminTeamAccount } from "../utils/adminTeamAccount";
-import { loggerConstructor } from "@/lib/utils/logging";
-import { mailchimpAPIKeySetting } from "../databaseSettings";
-import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, isEAForum } from "@/lib/instanceSettings";
-import md5 from "md5";
+import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "@/lib/instanceSettings";
 import { captureException } from "@/lib/sentryWrapper";
+import { loggerConstructor } from "@/lib/utils/logging";
+import Users from "@/server/collections/users/collection";
+import md5 from "md5";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
+import { mailchimpAPIKeySetting } from "../databaseSettings";
+import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 // import { dogstatsd } from "../datadog/tracer";
-import { createAdminContext } from "../vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
+import { createAdminContext } from "../vulcan-lib/createContexts";
 
 type DeleteOptions = { includingNonForumData: boolean };
 const defaultDeleteOptions = { includingNonForumData: false };
@@ -96,10 +96,6 @@ async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
   const mailchimpEAForumListId = mailchimpEAForumListIdSetting.get();
 
   const listIdsToDeleteFrom = [mailchimpEAForumListId, mailchimpForumDigestListId].filter(v => v) as string[];
-  if (isEAForum() && options.includingNonForumData) {
-    listIdsToDeleteFrom.push(...EAF_EXTRA_MAILCHIMP_LISTS);
-  }
-
   const email = getUserEmail(user);
   if (email) {
     const emailHash = md5(email.toLowerCase());

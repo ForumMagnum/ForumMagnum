@@ -1,9 +1,9 @@
 import classNames from 'classnames';
 import React from 'react';
-import { Typography } from "./Typography";
-import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
-import { useStyles } from '../hooks/useStyles';
 import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import { Typography } from "./Typography";
 
 export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) => ({
   '& > *': {
@@ -38,13 +38,7 @@ const styles = defineStyles("SectionFooter", (theme: ThemeType) => ({
     }),
     flexWrap: "wrap",
     ...separatorBulletStyles(theme),
-    ...(theme.isFriendlyUI
-      ? {
-        fontSize: 14,
-        fontWeight: 600,
-        lineHeight: "24px",
-      }
-      : {}),
+    ...({}),
   }
 }))
 

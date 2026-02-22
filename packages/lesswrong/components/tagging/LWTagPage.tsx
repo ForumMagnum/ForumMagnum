@@ -1,74 +1,71 @@
+import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
+import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
+import { useQuery } from "@/lib/crud/useQuery";
+import { isClient } from "@/lib/executionEnvironment";
+import { gql } from "@/lib/generated/gql-codegen";
+import { quickTakesTagsEnabledSetting, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '@/lib/instanceSettings';
+import { withDateFields } from "@/lib/utils/dateUtils";
+import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
+import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
 import { useApolloClient } from "@apollo/client/react";
-import { useQuery } from "@/lib/crud/useQuery"
 import classNames from 'classnames';
-import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import isEmpty from "lodash/isEmpty";
+import qs from "qs";
+import { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
-import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
+import { getTagMinimumKarmaPermissions, isTagAllowedType3Audio, tagGetUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
+import CloudinaryImage2 from "../common/CloudinaryImage2";
+import CommentsListCondensed from "../common/CommentsListCondensed";
+import ContentStyles from "../common/ContentStyles";
+import DeferRender from "../common/DeferRender";
+import ErrorPage from "../common/ErrorPage";
+import FormatDate from "../common/FormatDate";
+import PermanentRedirect from "../common/PermanentRedirect";
+import { StructuredData } from "../common/StructuredData";
+import { Typography } from "../common/Typography";
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { useCurrentUser } from '../common/withUser';
-import { EditTagForm } from './EditTagPage';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
-import truncateTagDescription from "../../lib/utils/truncateTagDescription";
-import { getTagStructuredData } from "./TagPageRouter";
-import { isFriendlyUI } from "../../themes/forumTheme";
-import DeferRender from "../common/DeferRender";
-import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
-import { useStyles, defineStyles } from "../hooks/useStyles";
-import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
-import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
-import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
-import { isClient } from "@/lib/executionEnvironment";
-import qs from "qs";
-import { useTagOrLens } from "../hooks/useTagOrLens";
-import TagPageButtonRow, { useTagEditingRestricted } from "./TagPageButtonRow";
-import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
-import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
-import isEmpty from "lodash/isEmpty";
-import { TagPageContext } from "./TagPageContext";
 import { ContentItemBody } from "../contents/ContentItemBody";
-import { type ContentItemBodyImperative } from "../contents/contentBodyUtil";
-import { useVote } from "../votes/withVote";
-import { getVotingSystemByName } from "@/lib/voting/getVotingSystem";
-import { useDisplayedContributors, HeadingContributorsList, ToCContributorsList } from "./ContributorsList";
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { SHOW_PODCAST_PLAYER_COOKIE } from '../../lib/cookies/cookies';
-import { LensForm } from "./lenses/LensForm";
-import ErrorPage from "../common/ErrorPage";
-import RedlinkTagPage from "./RedlinkTagPage";
 import { SideItem, SideItemsContainer } from "../contents/SideItems";
-import { ParentsAndChildrenSmallScreen, ArbitalLinkedPagesRightSidebar, LWTagPageRightColumn, ArbitalRelationshipsSmallScreen } from "./ArbitalLinkedPagesRightSidebar";
-import TagAudioPlayerWrapper from "./TagAudioPlayerWrapper";
-import { LensTabBar } from "./lenses/LensTab";
-import SectionTitle from "../common/SectionTitle";
-import PostsListSortDropdown from "../posts/PostsListSortDropdown";
+import { type ContentItemBodyImperative } from "../contents/contentBodyUtil";
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { useMultiClickHandler } from "../hooks/useMultiClickHandler";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import { useTagOrLens } from "../hooks/useTagOrLens";
+import { StatusCodeSetter } from "../next/StatusCodeSetter";
 import PostsList2 from "../posts/PostsList2";
-import Loading from "../vulcan-core/Loading";
-import AddPostsToTag from "./AddPostsToTag";
-import { Typography } from "../common/Typography";
-import ContentStyles from "../common/ContentStyles";
-import PermanentRedirect from "../common/PermanentRedirect";
-import UsersNameDisplay from "../users/UsersNameDisplay";
-import TagFlagItem from "./TagFlagItem";
-import CommentsListCondensed from "../common/CommentsListCondensed";
-import SubscribeButton from "./SubscribeButton";
-import CloudinaryImage2 from "../common/CloudinaryImage2";
-import TagIntroSequence from "./TagIntroSequence";
+import PostsListSortDropdown from "../posts/PostsListSortDropdown";
+import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import MultiToCLayout from "../posts/TableOfContents/MultiToCLayout";
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
-import FormatDate from "../common/FormatDate";
-import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
+import UsersNameDisplay from "../users/UsersNameDisplay";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
+import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
+import { useVote } from "../votes/withVote";
+import Loading from "../vulcan-core/Loading";
+import AddPostsToTag from "./AddPostsToTag";
+import { ArbitalLinkedPagesRightSidebar, ArbitalRelationshipsSmallScreen, LWTagPageRightColumn, ParentsAndChildrenSmallScreen } from "./ArbitalLinkedPagesRightSidebar";
+import { HeadingContributorsList, ToCContributorsList, useDisplayedContributors } from "./ContributorsList";
+import { EditTagForm } from './EditTagPage';
 import PathInfo from "./PathInfo";
-import { StructuredData } from "../common/StructuredData";
-import { gql } from "@/lib/generated/gql-codegen";
-import { withDateFields } from "@/lib/utils/dateUtils";
+import RedlinkTagPage from "./RedlinkTagPage";
+import SubscribeButton from "./SubscribeButton";
+import TagAudioPlayerWrapper from "./TagAudioPlayerWrapper";
+import TagFlagItem from "./TagFlagItem";
+import TagIntroSequence from "./TagIntroSequence";
+import TagPageButtonRow, { useTagEditingRestricted } from "./TagPageButtonRow";
+import { TagPageContext } from "./TagPageContext";
+import { getTagStructuredData } from "./TagPageRouter";
+import { tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
+import { LensForm } from "./lenses/LensForm";
+import { LensTabBar } from "./lenses/LensTab";
 import type { TagBySlugQueryOptions } from "./useTag";
-import { StatusCodeSetter } from "../next/StatusCodeSetter";
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagLWTagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -151,11 +148,11 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     }
   },
   title: {
-    ...theme.typography[theme.isFriendlyUI ? "display2" : "display3"],
-    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "commentStyle"],
+    ...theme.typography["display3"],
+    ...theme.typography["commentStyle"],
     marginTop: 4,
     marginBottom: 12,
-    fontWeight: theme.isFriendlyUI ? 700 : 600,
+    fontWeight: 600,
     lineHeight: 1.05,
     [theme.breakpoints.down('sm')]: {
       fontSize: '27px',
@@ -208,8 +205,7 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
-    overflow: 'hidden',
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    overflow: 'hidden'
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
@@ -351,19 +347,6 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
 }> = ({tag, query}) => {
   const classes = useStyles(styles);
-  if (isFriendlyUI()) {
-    return (
-      <>
-        <SectionTitle title={`Posts tagged ${tag.name}`} />
-        <div className={classes.postListMeta}>
-          <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-          <div className={classes.relevance}>
-            <RelevanceLabel />
-          </div>
-        </div>
-      </>
-    );
-  }
   return (
     <div className={classes.tagHeader}>
       <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
@@ -683,15 +666,9 @@ const LWTagPage = ({slug}: {slug: string}) => {
 
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if (isFriendlyUI()) {
-    description = truncated
-      ? truncateTagDescription(htmlWithAnchors, tag?.descriptionTruncationCount)
-      : htmlWithAnchors;
-  } else {
-    description = (truncated && !tag?.wikiOnly)
-    ? truncate(htmlWithAnchors, tag?.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
-    : htmlWithAnchors
-  }
+  description = (truncated && !tag?.wikiOnly)
+        ? truncate(htmlWithAnchors, tag?.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
+        : htmlWithAnchors
 
   const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
 

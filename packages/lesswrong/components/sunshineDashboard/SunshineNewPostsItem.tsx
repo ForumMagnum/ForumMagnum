@@ -1,32 +1,31 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { MANUAL_FLAG_ALERT } from "@/lib/collections/moderatorActions/constants";
+import { gql } from "@/lib/generated/gql-codegen";
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
+import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
+import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
+import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
+import { useMutation } from "@apollo/client/react";
+import classNames from 'classnames';
 import { postGetCommentCount, postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { Link } from '../../lib/reactRouterWrapper'
-import { useCurrentUser } from '../common/withUser';
-import { useHover } from '../common/withHover'
-import withErrorBoundary from '../common/withErrorBoundary';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
-import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
-import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear';
-import VisibilityOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/VisibilityOutlined';
-import { MANUAL_FLAG_ALERT } from "@/lib/collections/moderatorActions/constants";
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import ContentStyles from "../common/ContentStyles";
+import FormatDate from "../common/FormatDate";
+import ForumIcon from "../common/ForumIcon";
 import MetaInfo from "../common/MetaInfo";
-import LinkPostMessage from "../posts/LinkPostMessage";
+import { Typography } from "../common/Typography";
+import withErrorBoundary from '../common/withErrorBoundary';
+import { useHover } from '../common/withHover';
+import { useCurrentUser } from '../common/withUser';
 import { ContentItemBody } from "../contents/ContentItemBody";
-import SunshineListItem from "./SunshineListItem";
+import LinkPostMessage from "../posts/LinkPostMessage";
+import FooterTagList from "../tagging/FooterTagList";
+import SmallSideVote from "../votes/SmallSideVote";
 import SidebarHoverOver from "./SidebarHoverOver";
 import SidebarInfo from "./SidebarInfo";
-import FormatDate from "../common/FormatDate";
-import FooterTagList from "../tagging/FooterTagList";
-import { Typography } from "../common/Typography";
-import ContentStyles from "../common/ContentStyles";
-import SmallSideVote from "../votes/SmallSideVote";
-import ForumIcon from "../common/ForumIcon";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
-import classNames from 'classnames';
+import SunshineListItem from "./SunshineListItem";
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -71,8 +70,7 @@ const styles = (theme: ThemeType) => ({
   metaInfoRow: {
     marginBottom: 8,
     display: "flex",
-    alignItems: "center",
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    alignItems: "center"
   },
   vote: {
     marginRight: 8

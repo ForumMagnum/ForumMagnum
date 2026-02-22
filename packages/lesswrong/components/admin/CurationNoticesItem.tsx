@@ -1,16 +1,16 @@
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import { gql } from "@/lib/generated/gql-codegen";
 import { Link } from '@/lib/reactRouterWrapper';
+import { useMutation } from "@apollo/client/react";
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
-import { CurationNoticesForm } from './CurationNoticesForm';
 import { ContentItemBody } from "../contents/ContentItemBody";
 import BasicFormStyles from "../form-components/BasicFormStyles";
-import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import { CurationNoticesForm } from './CurationNoticesForm';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostCurationNoticesItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -45,7 +45,6 @@ const CommentsListMutation = gql(`
 const styles = defineStyles("CurationNoticesItem", (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     cursor: "default",
     marginBottom: 20,
     background: theme.palette.background.pageActiveAreaBackground,
@@ -92,10 +91,10 @@ const styles = defineStyles("CurationNoticesItem", (theme: ThemeType) => ({
     marginBottom: 8,
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
-    marginRight: theme.isFriendlyUI ? 40 : 20,
+    marginRight: 20,
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: theme.isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
+      color: `${theme.palette.linkHover.dim} !important`,
     },
   },
   postTitle: {

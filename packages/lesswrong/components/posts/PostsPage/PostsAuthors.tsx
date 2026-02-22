@@ -1,21 +1,19 @@
-import React from 'react'
 import { registerComponent } from '../../../lib/vulcan-lib/components';
+import { Typography } from "../../common/Typography";
+import UserCommentMarkers from "../../users/UserCommentMarkers";
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
-import UserCommentMarkers from "../../users/UserCommentMarkers";
 import PostsCoauthor from "./PostsCoauthor";
 import { AUTHOR_MARKER_STYLES } from "./authorMarkerStyles";
-import { Typography } from "../../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    fontFamily: theme.isFriendlyUI ? theme.typography.uiSecondary.fontFamily : undefined,
     textAlign: 'left',
     display: 'inline',
   },
   authorName: {
     fontWeight: 600,
-    marginLeft: theme.isFriendlyUI ? 1 : 0,
+    marginLeft: 0,
   },
   authorMarkers: AUTHOR_MARKER_STYLES,
 })

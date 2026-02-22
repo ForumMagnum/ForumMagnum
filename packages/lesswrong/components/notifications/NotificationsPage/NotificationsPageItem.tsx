@@ -64,27 +64,6 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "transparent",
     transform: "scale(1.5)",
   },
-  "@keyframes wrapped-notification-shimmer": {
-    from: {
-      backgroundPosition: "right",
-    },
-    to: {
-      backgroundPosition: "left",
-    },
-  },
-  iconWrapped: {
-    background: `linear-gradient(
-      -75deg,
-      ${theme.palette.wrapped.notification} 33%,
-      ${theme.palette.wrapped.highlightText} 50%,
-      ${theme.palette.wrapped.notification} 66%
-    ) ${theme.palette.wrapped.notification}`,
-    backgroundSize: "300% 100%",
-    animation: "wrapped-notification-shimmer 2s infinite",
-    "& svg": {
-      transform: "translateY(-1px)",
-    },
-  },
   iconTooltip: {
     background: theme.palette.panelBackground.tooltipBackground2,
   },
@@ -107,7 +86,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export type IconVariant = "primary" | "grey" | "yellow" | "clear" | "wrapped";
+export type IconVariant = "primary" | "grey" | "yellow" | "clear";
 
 export const NotificationsPageItem = ({
   Icon,
@@ -149,7 +128,6 @@ export const NotificationsPageItem = ({
             iconVariant === "grey" && classes.iconGrey,
             iconVariant === "yellow" && classes.iconYellow,
             iconVariant === "clear" && classes.iconClear,
-            iconVariant === "wrapped" && classes.iconWrapped,
             iconClassName,
           )}>
             <LWTooltip
@@ -207,5 +185,4 @@ export default registerComponent(
   NotificationsPageItem,
   {styles},
 );
-
 

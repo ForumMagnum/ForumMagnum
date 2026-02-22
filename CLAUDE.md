@@ -1,6 +1,6 @@
 # AGENTS.md: ForumMagnum Codebase Patterns
 
-This document explains non-standard patterns, conventions, and abstractions used in the ForumMagnum codebase. ForumMagnum is a large web application built on NextJS with Apollo GraphQL and PostgreSQL, which is used to run LessWrong, the Alignment Forum, and the EA Forum. You should use that context to inform your understanding of what features are likely to exist, of the likely relationships between different abstractions, etc.
+This document explains non-standard patterns, conventions, and abstractions used in the ForumMagnum codebase. ForumMagnum is a large web application built on NextJS with Apollo GraphQL and PostgreSQL, which is used to run LessWrong and the Alignment Forum. You should use that context to inform your understanding of what features are likely to exist, of the likely relationships between different abstractions, etc.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 
@@ -531,4 +531,3 @@ Prefer interfaces to types where possible.
 Do not create barrel import/export files.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
-

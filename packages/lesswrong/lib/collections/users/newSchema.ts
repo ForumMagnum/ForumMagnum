@@ -1,40 +1,41 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
+import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
+import { getWithLoader, loadByIds } from "@/lib/loaders";
 import SimpleSchema from "@/lib/utils/simpleSchema";
-import {
-  userGetProfileUrl,
-  getUserEmail,
-  userOwnsAndInGroup, getAuth0Provider,
-  karmaChangeUpdateFrequencies,
-} from "./helpers";
-import { userGetEditUrl } from "../../vulcan-users/helpers";
-import { userOwns, userIsAdmin, userIsMemberOf } from "../../vulcan-users/permissions";
-import { isAF, isEAForum } from "../../instanceSettings";
-import {
-  accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
-  generateIdResolverSingle,
-  getDenormalizedCountOfReferencesGetValue,
-  getDenormalizedFieldOnCreate,
-  getDenormalizedFieldOnUpdate,
-  googleLocationToMongoLocation,
-} from "../../utils/schemaUtils";
-import { postStatuses } from "../posts/constants";
-import { REVIEW_YEAR } from "../../reviewUtils";
+import GraphQLJSON from "@/lib/vendor/graphql-type-json";
+import { dataToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
+import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
+import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from "@/server/rateLimitUtils";
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import uniqBy from "lodash/uniqBy";
 import { userThemeSettings } from "../../../themes/themeNames";
-import { randomId } from "../../random";
 import { getUserABTestKey } from "../../abTestImpl";
+import { isAF } from "../../instanceSettings";
+import { randomId } from "../../random";
+import { REVIEW_YEAR } from "../../reviewUtils";
+import {
+    accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
+    generateIdResolverSingle,
+    getDenormalizedCountOfReferencesGetValue,
+    getDenormalizedFieldOnCreate,
+    getDenormalizedFieldOnUpdate,
+    googleLocationToMongoLocation,
+} from "../../utils/schemaUtils";
 import { getNestedProperty } from "../../vulcan-lib/utils";
-import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
-import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
-import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
-import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
-import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
-import GraphQLJSON from "@/lib/vendor/graphql-type-json";
-import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
-import { getWithLoader, loadByIds } from "@/lib/loaders";
+import { userGetEditUrl } from "../../vulcan-users/helpers";
+import { userIsAdmin, userIsMemberOf, userOwns } from "../../vulcan-users/permissions";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
+import { postStatuses } from "../posts/constants";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
+import {
+    getAuth0Provider,
+    getUserEmail,
+    karmaChangeUpdateFrequencies,
+    userGetProfileUrl,
+    userOwnsAndInGroup,
+} from "./helpers";
+import { bothChannelsEnabledNotificationTypeSettings, defaultNotificationTypeSettings, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -1719,7 +1720,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
+      onCreate: () => undefined,
     },
   },
   notificationShortformContent: {
@@ -1731,7 +1732,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
+      onCreate: () => undefined,
     },
   },
   notificationRepliesToMyComments: {
@@ -1743,7 +1744,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
+      onCreate: () => undefined,
     },
   },
   notificationRepliesToSubscribedComments: {
@@ -1755,7 +1756,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
+      onCreate: () => undefined,
     },
   },
   notificationSubscribedUserPost: {
@@ -1767,7 +1768,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
+      onCreate: () => undefined,
     },
   },
   notificationSubscribedUserComment: {
@@ -1779,7 +1780,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? dailyEmailBatchNotificationSettingOnCreate : undefined,
+      onCreate: () => undefined,
     },
   },
   notificationPostsInGroups: {
@@ -1854,7 +1855,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
+      onCreate: () => undefined,
     },
   },
   notificationRSVPs: {
@@ -1914,7 +1915,7 @@ const schema = {
     },
     graphql: {
       ...DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
-      onCreate: () => isEAForum() ? emailEnabledNotificationSettingOnCreate : undefined,
+      onCreate: () => undefined,
     },
   },
   notificationDialogueMessages: {

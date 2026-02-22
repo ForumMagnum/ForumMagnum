@@ -1,16 +1,15 @@
 "use client";
-import React from 'react';
-import SingleColumnSection from "./SingleColumnSection";
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { canonicalizePath } from '@/lib/generated/routeManifest';
-import PermanentRedirect from './PermanentRedirect';
 import { useLocation } from '@/lib/routeUtil';
 import qs from 'qs';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import PermanentRedirect from './PermanentRedirect';
+import SingleColumnSection from "./SingleColumnSection";
 
 const styles = defineStyles('Error404', (theme: ThemeType) => ({
   root: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.palette.fonts.serifStack,
+    fontFamily: theme.palette.fonts.serifStack,
   },
 }));
 

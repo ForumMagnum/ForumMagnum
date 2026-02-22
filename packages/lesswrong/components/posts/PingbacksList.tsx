@@ -1,12 +1,11 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { gql } from "@/lib/generated/gql-codegen";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
-import Pingback from "./Pingback";
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
-import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
-import { gql } from "@/lib/generated/gql-codegen";
+import Pingback from "./Pingback";
 
 const PostsListMultiQuery = gql(`
   query multiPostPingbacksListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -35,19 +34,9 @@ const styles = (theme: ThemeType) => ({
     display: "inline-block",
     lineHeight: "1rem",
     marginBottom: -4,
-    ...(theme.isFriendlyUI
-      ? {
-        fontWeight: 600,
-        marginTop: 12,
-        color: theme.palette.primary.main,
-        "&:hover": {
-          color: theme.palette.primary.dark,
-          opacity: 1,
-        },
-      }
-      : {
-        color: theme.palette.lwTertiary.main,
-      }),
+    ...({
+            color: theme.palette.lwTertiary.main,
+          }),
   },
   list: {
     marginTop: theme.spacing.unit

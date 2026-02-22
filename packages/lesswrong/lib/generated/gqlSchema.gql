@@ -637,8 +637,6 @@ extend type Query {
   PostIsCriticism(args: JSON): Boolean
   ProfileDiamondPosts(userId: String!, limit: Int!): ProfileDiamondPostsResult!
   ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
-  DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
-  DigestPosts(num: Int): [Post!]
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
   HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
@@ -665,12 +663,6 @@ input PostReviewFilter {
 
 input PostReviewSort {
   karma: Boolean
-}
-
-type DigestPlannerPost {
-  post: Post!
-  digestPost: DigestPost
-  rating: Int!
 }
 
 type RecombeeRecommendedPost {
@@ -735,22 +727,6 @@ type HomepageCommunityEventPostsResult {
 
 type HocuspocusAuth {
   token: String!
-}
-
-type DigestHighlightsResult {
-  results: [Post!]!
-}
-
-extend type Query {
-  DigestHighlights(limit: Int): DigestHighlightsResult
-}
-
-type DigestPostsThisWeekResult {
-  results: [Post!]!
-}
-
-extend type Query {
-  DigestPostsThisWeek(limit: Int): DigestPostsThisWeekResult
 }
 
 type CuratedAndPopularThisWeekResult {
@@ -1104,83 +1080,6 @@ extend type Query {
   ActiveTagCount: Int!
   TagPreview(slug: String!, hash: String): TagPreviewWithSummaries
   TagsByCoreTagId(coreTagId: String, limit: Int, searchTagIds: [String]): TagWithTotalCount!
-}
-
-type MostReadTopic {
-  slug: String
-  name: String
-  shortName: String
-  count: Int
-}
-
-type TagReadLikelihoodRatio {
-  tagId: String
-  tagName: String
-  tagShortName: String
-  userReadCount: Int
-  readLikelihoodRatio: Float
-}
-
-type MostReadAuthor {
-  _id: String
-  slug: String
-  displayName: String
-  profileImageId: String
-  count: Int
-  engagementPercentile: Float
-}
-
-type TopCommentContents {
-  html: String
-}
-
-type TopComment {
-  _id: String
-  postedAt: Date
-  postId: String
-  postTitle: String
-  postSlug: String
-  baseScore: Int
-  extendedScore: JSON
-  contents: TopCommentContents
-}
-
-type MostReceivedReact {
-  name: String
-  count: Int
-}
-
-type CombinedKarmaVals {
-  date: Date!
-  postKarma: Int!
-  commentKarma: Int!
-}
-
-type WrappedDataByYear {
-  engagementPercentile: Float
-  postsReadCount: Int
-  totalSeconds: Int
-  daysVisited: [String]
-  mostReadTopics: [MostReadTopic]
-  relativeMostReadCoreTopics: [TagReadLikelihoodRatio]
-  mostReadAuthors: [MostReadAuthor]
-  topPosts: [Post]
-  postCount: Int
-  authorPercentile: Float
-  topComment: TopComment
-  commentCount: Int
-  commenterPercentile: Float
-  topShortform: Comment
-  shortformCount: Int
-  shortformPercentile: Float
-  karmaChange: Int
-  combinedKarmaVals: [CombinedKarmaVals]
-  mostReceivedReacts: [MostReceivedReact]
-  personality: String!
-}
-
-extend type Query {
-  UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear
 }
 
 extend type Mutation {
@@ -3038,98 +2937,6 @@ type MultiDialogueMatchPreferenceOutput {
 extend type Query {
   dialogueMatchPreference(input: SingleDialogueMatchPreferenceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleDialogueMatchPreferenceOutput
   dialogueMatchPreferences(input: MultiDialogueMatchPreferenceInput @deprecated(reason: "Use the selector field instead"), selector: DialogueMatchPreferenceSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDialogueMatchPreferenceOutput
-}
-
-type DigestPost {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  digestId: String!
-  digest: Digest!
-  postId: String!
-  post: Post
-  emailDigestStatus: String
-  onsiteDigestStatus: String
-}
-
-input SingleDigestPostInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleDigestPostOutput {
-  result: DigestPost
-}
-
-input DigestPostSelector {
-  default: EmptyViewInput
-}
-
-input MultiDigestPostInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiDigestPostOutput {
-  results: [DigestPost!]!
-  totalCount: Int
-}
-
-extend type Query {
-  digestPost(input: SingleDigestPostInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleDigestPostOutput
-  digestPosts(input: MultiDigestPostInput @deprecated(reason: "Use the selector field instead"), selector: DigestPostSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDigestPostOutput
-}
-
-type Digest {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  num: Float!
-  startDate: Date!
-  endDate: Date
-  publishedDate: Date
-  onsiteImageId: String
-  onsitePrimaryColor: String
-}
-
-input SingleDigestInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleDigestOutput {
-  result: Digest
-}
-
-input DigestsFindByNumInput {
-  num: Int
-}
-
-input DigestSelector {
-  default: EmptyViewInput
-  findByNum: DigestsFindByNumInput
-  all: EmptyViewInput
-}
-
-input MultiDigestInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiDigestOutput {
-  results: [Digest!]!
-  totalCount: Int
-}
-
-extend type Query {
-  digest(input: SingleDigestInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleDigestOutput
-  digests(input: MultiDigestInput @deprecated(reason: "Use the selector field instead"), selector: DigestSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDigestOutput
 }
 
 type ElectionCandidate {
@@ -7762,105 +7569,6 @@ type UserActivity {
   legacyData: JSON
 }
 
-type UserEAGDetail {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  userId: String
-  user: User
-  careerStage: [String!]
-  countryOrRegion: String
-  nearestCity: String
-  willingnessToRelocate: JSON
-  experiencedIn: [String!]
-  interestedIn: [String!]
-  lastUpdated: Date
-}
-
-input SingleUserEAGDetailInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleUserEAGDetailOutput {
-  result: UserEAGDetail
-}
-
-input UserEAGDetailsDataByUserInput {
-  userId: String
-}
-
-input UserEAGDetailSelector {
-  default: EmptyViewInput
-  dataByUser: UserEAGDetailsDataByUserInput
-}
-
-input MultiUserEAGDetailInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiUserEAGDetailOutput {
-  results: [UserEAGDetail!]!
-  totalCount: Int
-}
-
-extend type Query {
-  userEAGDetail(input: SingleUserEAGDetailInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserEAGDetailOutput
-  userEAGDetails(input: MultiUserEAGDetailInput @deprecated(reason: "Use the selector field instead"), selector: UserEAGDetailSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserEAGDetailOutput
-}
-
-type UserJobAd {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  userId: String
-  user: User
-  jobName: String
-  adState: String
-  reminderSetAt: Date
-  lastUpdated: Date
-}
-
-input SingleUserJobAdInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleUserJobAdOutput {
-  result: UserJobAd
-}
-
-input UserJobAdsAdsByUserInput {
-  userId: String
-}
-
-input UserJobAdSelector {
-  default: EmptyViewInput
-  adsByUser: UserJobAdsAdsByUserInput
-}
-
-input MultiUserJobAdInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiUserJobAdOutput {
-  results: [UserJobAd!]!
-  totalCount: Int
-}
-
-extend type Query {
-  userJobAd(input: SingleUserJobAdInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserJobAdOutput
-  userJobAds(input: MultiUserJobAdInput @deprecated(reason: "Use the selector field instead"), selector: UserJobAdSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserJobAdOutput
-}
-
 type UserMostValuablePost {
   _id: String!
   schemaVersion: Float!
@@ -8871,78 +8579,6 @@ type CurationNoticeOutput {
 extend type Mutation {
   createCurationNotice(data: CreateCurationNoticeDataInput!): CurationNoticeOutput
   updateCurationNotice(selector: SelectorInput!, data: UpdateCurationNoticeDataInput!): CurationNoticeOutput
-}
-
-input CreateDigestPostDataInput {
-  legacyData: JSON
-  digestId: String!
-  postId: String!
-  emailDigestStatus: String
-  onsiteDigestStatus: String
-}
-
-input CreateDigestPostInput {
-  data: CreateDigestPostDataInput!
-}
-
-input UpdateDigestPostDataInput {
-  legacyData: JSON
-  digestId: String
-  postId: String
-  emailDigestStatus: String
-  onsiteDigestStatus: String
-}
-
-input UpdateDigestPostInput {
-  selector: SelectorInput!
-  data: UpdateDigestPostDataInput!
-}
-
-type DigestPostOutput {
-  data: DigestPost
-}
-
-extend type Mutation {
-  createDigestPost(data: CreateDigestPostDataInput!): DigestPostOutput
-  updateDigestPost(selector: SelectorInput!, data: UpdateDigestPostDataInput!): DigestPostOutput
-}
-
-input CreateDigestDataInput {
-  legacyData: JSON
-  num: Float!
-  startDate: Date!
-  endDate: Date
-  publishedDate: Date
-  onsiteImageId: String
-  onsitePrimaryColor: String
-}
-
-input CreateDigestInput {
-  data: CreateDigestDataInput!
-}
-
-input UpdateDigestDataInput {
-  legacyData: JSON
-  num: Float
-  startDate: Date
-  endDate: Date
-  publishedDate: Date
-  onsiteImageId: String
-  onsitePrimaryColor: String
-}
-
-input UpdateDigestInput {
-  selector: SelectorInput!
-  data: UpdateDigestDataInput!
-}
-
-type DigestOutput {
-  data: Digest
-}
-
-extend type Mutation {
-  createDigest(data: CreateDigestDataInput!): DigestOutput
-  updateDigest(selector: SelectorInput!, data: UpdateDigestDataInput!): DigestOutput
 }
 
 input CreateElectionCandidateDataInput {
@@ -10339,74 +9975,6 @@ type UltraFeedEventOutput {
 extend type Mutation {
   createUltraFeedEvent(data: CreateUltraFeedEventDataInput!): UltraFeedEventOutput
   updateUltraFeedEvent(selector: String!, data: UpdateUltraFeedEventDataInput!): UltraFeedEventOutput
-}
-
-input CreateUserEAGDetailDataInput {
-  legacyData: JSON
-  lastUpdated: Date
-}
-
-input CreateUserEAGDetailInput {
-  data: CreateUserEAGDetailDataInput!
-}
-
-input UpdateUserEAGDetailDataInput {
-  legacyData: JSON
-  careerStage: [String!]
-  countryOrRegion: String
-  nearestCity: String
-  willingnessToRelocate: JSON
-  experiencedIn: [String!]
-  interestedIn: [String!]
-  lastUpdated: Date
-}
-
-input UpdateUserEAGDetailInput {
-  selector: SelectorInput!
-  data: UpdateUserEAGDetailDataInput!
-}
-
-type UserEAGDetailOutput {
-  data: UserEAGDetail
-}
-
-extend type Mutation {
-  createUserEAGDetail(data: CreateUserEAGDetailDataInput!): UserEAGDetailOutput
-  updateUserEAGDetail(selector: SelectorInput!, data: UpdateUserEAGDetailDataInput!): UserEAGDetailOutput
-}
-
-input CreateUserJobAdDataInput {
-  legacyData: JSON
-  userId: String!
-  jobName: String!
-  adState: String!
-  reminderSetAt: Date
-  lastUpdated: Date
-}
-
-input CreateUserJobAdInput {
-  data: CreateUserJobAdDataInput!
-}
-
-input UpdateUserJobAdDataInput {
-  legacyData: JSON
-  adState: String
-  reminderSetAt: Date
-  lastUpdated: Date
-}
-
-input UpdateUserJobAdInput {
-  selector: SelectorInput!
-  data: UpdateUserJobAdDataInput!
-}
-
-type UserJobAdOutput {
-  data: UserJobAd
-}
-
-extend type Mutation {
-  createUserJobAd(data: CreateUserJobAdDataInput!): UserJobAdOutput
-  updateUserJobAd(selector: SelectorInput!, data: UpdateUserJobAdDataInput!): UserJobAdOutput
 }
 
 input CreateUserMostValuablePostDataInput {

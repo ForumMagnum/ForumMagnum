@@ -661,9 +661,7 @@ type IconClassName = "root"|"linkRotation"
 const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>> = {
   default: {
     Link: "linkRotation",
-  },
-  EAForum: {
-  },
+  }
 };
 
 type ForumIconProps = IconProps & {

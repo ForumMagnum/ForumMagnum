@@ -289,9 +289,6 @@ export async function updateScoreOnPostPublish(publishedPost: DbPost, context: R
 async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   const { Posts } = context;
 
-  // Forum gate
-  if (!isLWorAF()) return;
-
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
   if ((newDocument.baseScore ?? 0) < reviewMarketCreationMinimumKarmaSetting.get()) return;

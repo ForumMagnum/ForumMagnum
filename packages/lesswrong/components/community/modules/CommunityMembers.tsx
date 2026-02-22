@@ -1,17 +1,17 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
+import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
 import React, { ReactNode, useRef } from 'react';
+import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
+import { Configure, connectSearchBox, connectStateResults, Hits, Pagination } from 'react-instantsearch-dom';
+import { useTracking } from '../../../lib/analyticsEvents';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { getSearchClient } from '../../../lib/search/searchUtil';
-import { Configure, connectSearchBox, connectStateResults, Hits, Pagination } from 'react-instantsearch-dom';
-import OutlinedInput from '@/lib/vendor/@material-ui/core/src/OutlinedInput';
-import { distance } from './LocalGroups';
-import { useTracking } from '../../../lib/analyticsEvents';
-import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
 import { InstantSearch } from '../../../lib/utils/componentsWithChildren';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
-import SearchResultsMap from "./SearchResultsMap";
 import ContentStyles from "../../common/ContentStyles";
 import ForumIcon from "../../common/ForumIcon";
+import { distance } from './LocalGroups';
+import SearchResultsMap from "./SearchResultsMap";
 
 const styles = (theme: ThemeType) => ({
   filters: {
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   fullMapLink: {
     color: theme.palette.primary.main,
     ...theme.typography.commentStyle,
-    fontSize: theme.isFriendlyUI ? 14 : 13,
+    fontSize: 13,
     margin: '0 5px'
   },
   noResults: {

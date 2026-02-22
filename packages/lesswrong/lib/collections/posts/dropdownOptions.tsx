@@ -1,7 +1,6 @@
 import React from 'react';
-import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
+import { TupleSet, UnionOf } from "../../utils/typeGuardUtils";
 
 export interface SettingsOption {
   label: string | React.JSX.Element;
@@ -12,15 +11,15 @@ export interface SettingsOption {
 
 export const getSortOrderOptions = () => ({
   magic: {
-    label: isFriendlyUI() ? 'New & upvoted' : 'Magic (New & Upvoted)',
+    label: 'Magic (New & Upvoted)',
     tooltip: 'Posts with the highest karma from the past few days',
   },
   top: { label: 'Top' },
   topAdjusted: {
-    label: isFriendlyUI() ? 'Top (inflation-adjusted)' : 'Top (Inflation Adjusted)',
+    label: 'Top (Inflation Adjusted)',
     tooltip: 'Posts with the highest karma relative to those posted around the same time',
   },
-  recentComments: { label: isFriendlyUI() ? 'Recent comments' : 'Recent Comments' },
+  recentComments: { label: 'Recent Comments' },
   new: { label: 'New' },
   old: { label: 'Old' },
 } satisfies Record<PostSortingMode, SettingsOption>);

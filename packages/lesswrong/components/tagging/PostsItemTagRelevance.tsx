@@ -1,13 +1,11 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { useVote } from '../votes/withVote';
-import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
-import classNames from 'classnames';
-import { isBookUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
+import classNames from 'classnames';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { TooltipSpan } from '../common/FMTooltip';
-import OverallVoteButton from "../votes/OverallVoteButton";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import OverallVoteButton from "../votes/OverallVoteButton";
+import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
+import { useVote } from '../votes/withVote';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteUp: {
     position: "absolute",
-    left: theme.isFriendlyUI ? 9 : 10,
+    left: 10,
     top: forumSelect({
       LessWrong: -17,
       AlignmentForum: -15,
@@ -34,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteDown: {
     position: "absolute",
-    left: theme.isFriendlyUI ? 9 : 10,
+    left: 10,
     top: forumSelect({
       LessWrong: 8,
       AlignmentForum: 10,
@@ -61,7 +59,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
     {!canVote && whyYouCantVote}
   </div>
 
-  const solidArrow = isBookUI();
+  const solidArrow = true;
 
   return <PostsItem2MetaInfo className={classes.root}>
     <TooltipSpan title={tooltip} placement="left-end"><>
@@ -95,5 +93,4 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
 }
 
 export default registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});
-
 

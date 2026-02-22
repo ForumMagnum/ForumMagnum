@@ -1,5 +1,4 @@
 import React from 'react';
-import { isLWorAF } from '../../lib/instanceSettings';
 import { compassIcon } from '../icons/compassIcon';
 import { useStyles } from '../hooks/useStyles';
 import { defineStyles } from '../hooks/defineStyles';
@@ -37,9 +36,6 @@ const Divider = ({ wings=true, margin=24 }: {
   margin?: number
 }) => {
   const classes = useStyles(styles);
-  if (!isLWorAF()) {
-    return null;
-  }
   return <div className={classes.root} style={{ marginTop: margin, marginBottom: margin }}>
     {wings && <div className={classes.divider}>
       { divider }

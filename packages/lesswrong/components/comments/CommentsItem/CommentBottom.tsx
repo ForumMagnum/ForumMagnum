@@ -1,29 +1,28 @@
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
+import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
+import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { Link } from '@/lib/reactRouterWrapper';
+import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
+import type { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import classNames from 'classnames';
 import React from 'react';
-import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useFilteredCurrentUser } from '../../common/withUser';
+import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
-import type { VotingSystem } from '@/lib/voting/votingSystemTypes';
-import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
-import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import CommentBottomCaveats from "./CommentBottomCaveats";
-import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
-import { Link } from '@/lib/reactRouterWrapper';
-import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
-import { defineStyles } from '@/components/hooks/defineStyles';
-import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("CommentBottom", (theme: ThemeType) => ({
   bottom: {
     display: "flex",
     alignItems: "center",
-    paddingBottom: theme.isFriendlyUI ? 12 : 5,
-    paddingTop: theme.isFriendlyUI ? 4 : undefined,
+    paddingBottom: 5,
     minHeight: 12,
-    ...(theme.isFriendlyUI ? {} : {fontSize: 12}),
+    ...({fontSize: 12}),
   },
   leftSection: {
     display: "flex",

@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useMessages } from '../../common/withMessages';
-import { useModerateComment } from './withModerateComment'
 import { DialogActions } from '@/components/widgets/DialogActions';
-import { DialogContent } from '../../widgets/DialogContent';
-import { DialogTitle } from '../../widgets/DialogTitle';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import React, { useState } from 'react';
+import { registerComponent } from '../../../lib/vulcan-lib/components';
 import LWDialog from "../../common/LWDialog";
+import { useMessages } from '../../common/withMessages';
 import { useCurrentUser } from '../../common/withUser';
+import { DialogContent } from '../../widgets/DialogContent';
+import { DialogTitle } from '../../widgets/DialogTitle';
+import { useModerateComment } from './withModerateComment';
 
 const styles = (theme: ThemeType) => ({
   subtitle: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-  },
+},
   deleteWithoutTrace: {
     marginRight:"auto"
   },

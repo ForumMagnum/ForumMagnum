@@ -1,15 +1,15 @@
 export const testCrosspostSettings = {
-  forumType: "EAForum",
+  forumType: "AlignmentForum",
   hasEvents: true,
-  title: "LessWrong Test",
-  tagline: "LessWrong",
-  faviconUrl: "https://www.effectivealtruism.org/favicon-16x16.png",
+  title: "Alignment Forum Test",
+  tagline: "AI Alignment Forum",
+  faviconUrl: "https://res.cloudinary.com/dq3pms5lt/image/upload/v1531267596/alignmentForum_favicon_o9bjnl.png",
   forumSettings: {
-    tabTitle: "LessWrong Test",
-    headerTitle: "LessWrong Test",
-    shortForumTitle: "LessWrong"
+    tabTitle: "Alignment Forum Test",
+    headerTitle: "Alignment Forum Test",
+    shortForumTitle: "AF"
   },
-  siteNameWithArticle: "LessWrong",
+  siteNameWithArticle: "the AI Alignment Forum",
   siteUrl: "http://localhost:3467",
   
   debug: false,
@@ -22,7 +22,7 @@ export const testCrosspostSettings = {
   disableEnsureIndex: true,
   disableElastic: true,
   fmCrosspost: {
-    siteName: "EAForum Test",
+    siteName: "LessWrong Test",
     baseUrl: "http://localhost:3456/"
   }
 };

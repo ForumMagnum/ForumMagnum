@@ -1,27 +1,27 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import { useState } from 'react';
 import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import LoadMore from "../common/LoadMore";
+import SectionButton from "../common/SectionButton";
+import SectionTitle from "../common/SectionTitle";
+import SingleColumnSection from "../common/SingleColumnSection";
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
-import TagFlagEditAndNewForm from "./TagFlagEditAndNewForm";
-import SectionTitle from "../common/SectionTitle";
-import TagsDetailsItem from "./TagsDetailsItem";
-import SectionButton from "../common/SectionButton";
-import TagFlagItem from "./TagFlagItem";
 import NewTagsList from "./NewTagsList";
-import LoadMore from "../common/LoadMore";
 import TagActivityFeed from "./TagActivityFeed";
+import TagFlagEditAndNewForm from "./TagFlagEditAndNewForm";
+import TagFlagItem from "./TagFlagItem";
+import TagsDetailsItem from "./TagsDetailsItem";
 import TagVoteActivity from "./TagVoteActivity";
-import SingleColumnSection from "../common/SingleColumnSection";
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen";
-import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const TagFlagFragmentMultiQuery = gql(`
   query multiTagFlagTaggingDashboardQuery($selector: TagFlagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -124,7 +124,7 @@ const TaggingDashboard = ({classes}: {
   const { query } = useLocation();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser()
-  const [collapsed, setCollapsed] = useState(currentUser?.taggingDashboardCollapsed || false);
+  const [collapsed, setCollapsed] = useState(!!currentUser?.taggingDashboardCollapsed);
   
   const multiTerms = {
     allPages: {view: "allPagesByNewest"},
@@ -255,5 +255,4 @@ const TaggingDashboard = ({classes}: {
 
 
 export default registerComponent("TaggingDashboard", TaggingDashboard, { styles });
-
 

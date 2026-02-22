@@ -2,9 +2,9 @@ import React, { ReactNode } from "react";
 import { tenPercentPledgeDiamond, trialPledgeDiamond } from "../ea-forum/users/DisplayNameWithMarkers";
 import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { FormComponentFriendlyTextInput } from "./FormComponentFriendlyTextInput";
+import { FormComponentTextInput } from "./FormComponentTextInput";
 
-const styles = defineStyles('FormComponentFriendlyDisplayNameInput', (theme: ThemeType) => ({
+const styles = defineStyles('FormComponentDisplayNameInput', (theme: ThemeType) => ({
   inputRow: {
     display: "flex",
     gap: `12px`,
@@ -33,7 +33,7 @@ const styles = defineStyles('FormComponentFriendlyDisplayNameInput', (theme: The
   },
 }));
 
-export const FormComponentFriendlyDisplayNameInput = ({
+export const FormComponentDisplayNameInput = ({
   field,
   ...props
 }: {
@@ -68,7 +68,7 @@ export const FormComponentFriendlyDisplayNameInput = ({
   return (
     <div>
       <div className={classes.inputRow}>
-        <FormComponentFriendlyTextInput value={value ?? null} updateCurrentValue={field.handleChange} {...props} className={classes.formInput} />
+        <FormComponentTextInput value={value ?? null} updateCurrentValue={field.handleChange} {...props} className={classes.formInput} />
       </div>
       <div className={classes.blurb}>{blurbContent}</div>
     </div>

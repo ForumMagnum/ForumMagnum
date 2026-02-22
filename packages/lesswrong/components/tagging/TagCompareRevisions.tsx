@@ -1,16 +1,15 @@
 "use client";
-import React from 'react';
-import { useTagBySlug } from './useTag';
-import { useLocation } from '../../lib/routeUtil';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import SingleColumnSection from "../common/SingleColumnSection";
-import CompareRevisions from "../revisions/CompareRevisions";
-import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
-import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
+import LoadingOrErrorPage from "../common/LoadingOrErrorPage";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import CompareRevisions from "../revisions/CompareRevisions";
+import RevisionComparisonNotice from "../revisions/RevisionComparisonNotice";
+import { useTagBySlug } from './useTag';
 
 const RevisionHistoryEntryMultiQuery = gql(`
   query multiRevisionTagCompareRevisionsQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -25,10 +24,10 @@ const RevisionHistoryEntryMultiQuery = gql(`
 
 const styles = defineStyles('TagCompareRevisions', (theme) => ({
   title: {
-    ...theme.typography[theme.isFriendlyUI ? "display2" : "display3"],
-    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "commentStyle"],
+    ...theme.typography["display3"],
+    ...theme.typography["commentStyle"],
     marginTop: 0,
-    fontWeight: theme.isFriendlyUI ? 700 : 600,
+    fontWeight: 600,
     ...theme.typography.smallCaps,
   },
   description: {},

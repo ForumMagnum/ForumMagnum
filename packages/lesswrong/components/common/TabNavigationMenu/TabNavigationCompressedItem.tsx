@@ -1,11 +1,10 @@
-import React from 'react';
-import { Link } from '../../../lib/reactRouterWrapper';
-import classNames from 'classnames';
-import { MenuTabRegular } from './menuTabs';
-import LWTooltip from "../LWTooltip";
-import { MenuItemLink } from "../Menus";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import classNames from 'classnames';
+import React from 'react';
+import LWTooltip from "../LWTooltip";
+import { MenuItemLink } from "../Menus";
+import { MenuTabRegular } from './menuTabs';
 
 const compressedIconSize = 23
 
@@ -19,10 +18,7 @@ const styles = defineStyles("TabNavigationCompressedItem", (theme: ThemeType) =>
       fill: "currentColor",
       width: compressedIconSize,
       height: compressedIconSize,
-    },
-    ...(theme.isFriendlyUI && {
-      opacity: 1,
-    }),
+    }
   },
   navText: {
     ...theme.typography.body2,

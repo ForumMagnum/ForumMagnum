@@ -1,27 +1,27 @@
-import React, { useState } from 'react';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
-import { rssTermsToUrl } from "../../lib/rss_urls";
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
+import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
+import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
+import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
+import Select from '@/lib/vendor/@material-ui/core/src/Select';
+import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
+import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import React, { useState } from 'react';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { useTracking } from "../../lib/analyticsEvents";
+import { getUserEmail, userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
+import { forumSelect } from '../../lib/forumTypeUtils';
+import { isLWorAF } from '../../lib/instanceSettings';
+import { rssTermsToUrl } from "../../lib/rss_urls";
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { useCurrentUser } from '../common/withUser';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { DialogActions } from '../widgets/DialogActions';
 import { DialogContent } from '../widgets/DialogContent';
 import { DialogContentText } from '../widgets/DialogContentText';
-import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
-import FormControlLabel from '@/lib/vendor/@material-ui/core/src/FormControlLabel';
-import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
-import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
-import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import { useCurrentUser } from '../common/withUser';
-import { useTracking } from "../../lib/analyticsEvents";
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
-import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
-import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
-import { preferredHeadingCase } from '../../themes/forumTheme';
-import { forumSelect } from '../../lib/forumTypeUtils';
-import { defineStyles, useStyles } from '../hooks/useStyles';
-import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import LWDialog from "./LWDialog";
 import { MenuItem } from "./Menus";
 
@@ -63,7 +63,6 @@ const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
 const getThresholds = () => forumSelect({
   LessWrong: [2, 30, 45, 75, 125],
   AlignmentForum: [2, 30, 45],
-  EAForum: [2, 30, 75, 125, 200],
   // We default you off pretty low, you can add more once you get more high
   // karma posts
   default: [2, 30, 45, 75]
@@ -83,14 +82,6 @@ function timePerWeekFromPosts(posts: number) {
 
 /** Posts per week as of May 2022 */
 const getPostsPerWeek = () => forumSelect<Record<string, number>>({
-  EAForum: {
-    '2': 119,
-    '30': 24,
-    '45': 20,
-    '75': 10,
-    '125': 4,
-    '200': 1,
-  },
   // (JP) I eyeballed these, you could query your db for better numbers
   LessWrong: {
     '2': 80,
@@ -288,7 +279,7 @@ const SubscribeDialog = (props: {
               !emailFeedExists(view) && <DialogContentText key="dialogNoFeed" className={classes.errorMsg}>
                 Sorry, there's currently no email feed for {viewNames[view]}.
               </DialogContentText>,
-              subscribedByEmail && !userEmailAddressIsVerified(currentUser) && !isEAForum() && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
+              subscribedByEmail && !userEmailAddressIsVerified(currentUser) && <DialogContentText key="dialogCheckForVerification" className={classes.infoMsg}>
                 We need to confirm your email address. We sent a link to {getUserEmail(currentUser)}; click the link to activate your subscription.
               </DialogContentText>
             ]

@@ -1,39 +1,36 @@
-import React, { MouseEvent, useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { Link } from '../../lib/reactRouterWrapper';
-import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
-import { userGetAnalyticsUrl, userGetDisplayName, userGetProfileUrl, userCanPost } from '../../lib/collections/users/helpers';
+import { MouseEvent, useContext } from 'react';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
+import { userCanPost, userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 
-import { Paper, Card }from '@/components/widgets/Paper';
+import { Paper } from '@/components/widgets/Paper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import EyeIconCrossed from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import EyeIcon from '@/lib/vendor/@material-ui/icons/src/Visibility';
+import EyeIconCrossed from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 
-import { useCurrentUser } from '../common/withUser';
-import { useDialog } from '../common/withDialog'
-import { useHover } from '../common/withHover'
-import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { MINIMUM_COAUTHOR_KARMA } from "@/lib/collections/posts/helpers";
-import { DisableNoKibitzContext } from '../common/sharedContexts';
-import { useAdminToggle } from '../admin/useAdminToggle';
-import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/forumTheme';
-import { isMobile } from '../../lib/utils/isMobile'
+import { isAF, taggingNameCapitalSetting } from '@/lib/instanceSettings';
+import { afNonMemberDisplayInitialPopup } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
-import { isAF, isEAForum, taggingNameCapitalSetting, blackBarTitle } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { InteractionWrapper } from '../common/useClickableCell';
+import { isMobile } from '../../lib/utils/isMobile';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { useAdminToggle } from '../admin/useAdminToggle';
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
-import ThemePickerMenu from "../themes/ThemePickerMenu";
-import DropdownMenu from "../dropdowns/DropdownMenu";
-import DropdownItem from "../dropdowns/DropdownItem";
+import { DisableNoKibitzContext } from '../common/sharedContexts';
+import { useDialog } from '../common/withDialog';
+import { useHover } from '../common/withHover';
+import { useCurrentUser } from '../common/withUser';
 import DropdownDivider from "../dropdowns/DropdownDivider";
-import UsersProfileImage from "./UsersProfileImage";
-import ForumIcon from "../common/ForumIcon";
-import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
-import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import DropdownItem from "../dropdowns/DropdownItem";
+import DropdownMenu from "../dropdowns/DropdownMenu";
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
+import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import NewWikiTagMenu from "../tagging/NewWikiTagMenu";
+import ThemePickerMenu from "../themes/ThemePickerMenu";
 
 import dynamic from 'next/dynamic';
 const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
@@ -42,21 +39,20 @@ const AFApplicationForm = dynamic(() => import("../alignment-forum/AFApplication
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: theme.isFriendlyUI ? undefined : 5,
+    marginTop: 5,
     wordBreak: 'break-all',
     position: "relative"
   },
   userButtonRoot: {
     // Mui default is 16px, so we're halving it to bring it into line with the
     // rest of the header components
-    paddingLeft: theme.isFriendlyUI ? 12 : theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : undefined
+    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit
   },
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
-    fontWeight: theme.isFriendlyUI ? undefined : 400,
+    fontWeight: 400,
     color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
@@ -77,7 +73,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.9
   },
   icon: {
-    color: theme.isFriendlyUI ? undefined : theme.palette.grey[500]
+    color: theme.palette.grey[500]
   },
   deactivatedTooltip: {
     maxWidth: 230
@@ -86,12 +82,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginLeft: 20
   },
-  adminToggleItem: theme.isFriendlyUI ? {
-    display: 'none',
-    [theme.breakpoints.down('xs')]: {
-      display: 'block'
-    }
-  } : {},
+  adminToggleItem: {},
   writeNewTooltip: {
     padding: "0 15px",
     minWidth: 180
@@ -125,7 +116,7 @@ const UsersMenu = ({classes}: {
     return <div className={classes.root}>
       <Button href='/logout' classes={{root: classes.userButtonRoot}}>
         <span className={classes.userButtonContents}>
-          {isFriendlyUI() ? "Log out" : "LOG OUT"}
+          {"LOG OUT"}
         </span>
       </Button>
     </div>
@@ -147,14 +138,6 @@ const UsersMenu = ({classes}: {
     </LWTooltip>}
     {isAF() && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
-  // On the EA Forum, if the user isn't deactivated, we instead show their profile image and a little arrow.
-  if (isFriendlyUI() && !currentUser.deleted) {
-    userButtonNode = <div className={classes.userImageButton}>
-      <UsersProfileImage user={currentUser} size={32} />
-      <ForumIcon icon="ThickChevronDown" className={classes.arrowIcon} />
-    </div>
-  }
-  
   /** Prevent navigation to your profile on mobile, where the only way to open
    * the menu is to click the button */
   const menuButtonOnClick = (ev: MouseEvent) => {
@@ -166,29 +149,16 @@ const UsersMenu = ({classes}: {
   
   const profileNode =
     !currentUser.deleted &&
-    (isFriendlyUI() ? (
-      <>
-        <DropdownItem
-          title={
-            <div className={classes.profileHeader}>
-              <UsersProfileImage user={currentUser} size={32} />
-              <div className={classes.profileHeaderInfo}>{userGetDisplayName(currentUser)}</div>
-            </div>
-          }
-          to={userGetProfileUrl(currentUser)}
-        />
-        <DropdownDivider />
-      </>
-    ) : (
-      <DropdownItem
-        title={preferredHeadingCase("User Profile")}
-        to={userGetProfileUrl(currentUser)}
-        icon="User"
-        iconClassName={classes.icon}
-      />
-    ));
+    ((
+            <DropdownItem
+              title={preferredHeadingCase("User Profile")}
+              to={userGetProfileUrl(currentUser)}
+              icon="User"
+              iconClassName={classes.icon}
+            />
+          ));
   const accountSettingsNode = <DropdownItem
-    title={styleSelect({friendly: "Settings", default: preferredHeadingCase("Account Settings")})}
+    title={preferredHeadingCase("Account Settings")}
     to="/account"
     icon="Settings"
     iconClassName={classes.icon}
@@ -209,7 +179,7 @@ const UsersMenu = ({classes}: {
     newPost: () => userCanPost(currentUser)
       ? (
         <DropdownItem
-          title={styleSelect({friendly: "Post", default: preferredHeadingCase("New Post")})}
+          title={preferredHeadingCase("New Post")}
           to="/newPost"
         />
       )
@@ -225,7 +195,7 @@ const UsersMenu = ({classes}: {
     newDialogue: () => canCreateDialogue
       ? (
         <DropdownItem
-          title={styleSelect({friendly: "Dialogue", default: preferredHeadingCase("New Dialogue")})}
+          title={preferredHeadingCase("New Dialogue")}
           onClick={() => {
             openDialog({
               name:"NewDialogueDialog",
@@ -244,7 +214,7 @@ const UsersMenu = ({classes}: {
       showNewButtons && userCanQuickTake(currentUser)
         ? (
           <DropdownItem
-            title={styleSelect({friendly: "Quick take", default: preferredHeadingCase("New Quick Take")})}
+            title={preferredHeadingCase("New Quick Take")}
             onClick={() => {
               openDialog({
                 name:"NewShortformDialog",
@@ -264,7 +234,7 @@ const UsersMenu = ({classes}: {
     newEvent: () => userCanPost(currentUser)
       ? (
         <DropdownItem
-          title={styleSelect({friendly: "Event", default: preferredHeadingCase("New Event")})}
+          title={preferredHeadingCase("New Event")}
           to="/newPost?eventForm=true"
         />
       )
@@ -273,56 +243,29 @@ const UsersMenu = ({classes}: {
       showNewButtons && currentUser.karma >= SHOW_NEW_SEQUENCE_KARMA_THRESHOLD
         ? (
           <DropdownItem
-            title={styleSelect({friendly: "Sequence", default: preferredHeadingCase("New Sequence")})}
+            title={preferredHeadingCase("New Sequence")}
             to="/sequencesnew"
           />
         )
         : null,
   } as const;
 
-  const hasBookmarks = isEAForum() || currentUser?.hasAnyBookmarks;
+  const hasBookmarks = currentUser?.hasAnyBookmarks;
 
-  const order: (keyof typeof items)[] = isFriendlyUI()
-    ? ["newPost", "newShortform", "divider", "newEvent", "newDialogue", "newSequence"]
-    : ["newShortform", "newPost", "newWikitag", "newEvent"];
+  const order: (keyof typeof items)[] = ["newShortform", "newPost", "newWikitag", "newEvent"];
 
-  const writeNewNode = isFriendlyUI() ? (
-    <InteractionWrapper>
-      <LWTooltip
-        title={
-          <div className={classes.writeNewTooltip}>
-            <Card>
-              <DropdownMenu>
-                <div onClick={forceUnHover}>
-                  {order.map((itemName, i) => {
-                    const Component = items[itemName];
-                    return <Component key={i} />;
-                  })}
-                </div>
-              </DropdownMenu>
-            </Card>
-          </div>
+  const writeNewNode = (
+      <div onClick={(ev) => {
+        if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
+          ev.preventDefault()
         }
-        clickable
-        tooltip={false}
-        inlineBlock={false}
-        placement="left-start"
-      >
-        <DropdownItem title="Write new" icon="PencilSquare" afterIcon="ThickChevronRight" />
-      </LWTooltip>
-    </InteractionWrapper>
-  ) : (
-    <div onClick={(ev) => {
-      if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
-        ev.preventDefault()
-      }
-    }}>
-      {order.map((itemName, i) => {
-        const Component = items[itemName];
-        return <Component key={i} />
-      })}
-    </div>
-  );
+      }}>
+        {order.map((itemName, i) => {
+          const Component = items[itemName];
+          return <Component key={i} />
+        })}
+      </div>
+    );
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -347,10 +290,10 @@ const UsersMenu = ({classes}: {
                 forceUnHover();
               }}
             >
-              {isFriendlyUI() && profileNode}
+              {false}
               {writeNewNode}
 
-              {!isFriendlyUI() && <DropdownDivider />}
+              {<DropdownDivider />}
 
               {isAF() && !isAfMember &&
                 <DropdownItem
@@ -377,16 +320,15 @@ const UsersMenu = ({classes}: {
                   }
                 />
               }
-              {!isFriendlyUI() && profileNode}
-              {!isEAForum() &&
-                <DropdownItem
-                  title={preferredHeadingCase("My Drafts")}
-                  to="/drafts"
-                  icon="Edit"
-                  iconClassName={classes.icon}
-                />
+              {profileNode}
+              {<DropdownItem
+                                            title={preferredHeadingCase("My Drafts")}
+                                            to="/drafts"
+                                            icon="Edit"
+                                            iconClassName={classes.icon}
+                                          />
               }
-              {!isFriendlyUI() && messagesNode}
+              {messagesNode}
               {userHasThemePicker(currentUser) &&
                 <ThemePickerMenu>
                   <DropdownItem
@@ -402,17 +344,12 @@ const UsersMenu = ({classes}: {
                 </ThemePickerMenu>
               }
               {hasBookmarks &&<DropdownItem
-                title={styleSelect({friendly: "Saved & read", default: "Bookmarks"})}
-                to={styleSelect({friendly: "/saved", default: "/bookmarks"})}
-                icon={styleSelect({friendly: "BookmarkBorder", default: "Bookmarks"})}
+                title="Bookmarks"
+                to="/bookmarks"
+                icon="Bookmarks"
                 iconClassName={classes.icon}
               />}
-              {isEAForum() && <DropdownItem
-                title={"Post stats"}
-                to={userGetAnalyticsUrl(currentUser)}
-                icon="BarChart"
-                iconClassName={classes.icon}
-              />}
+              {false}
               {accountSettingsNode}
 
               {/*
@@ -448,5 +385,4 @@ const UsersMenu = ({classes}: {
 }
 
 export default registerComponent('UsersMenu', UsersMenu, {styles});
-
 

@@ -1,13 +1,12 @@
+import { defineStyles } from '@/components/hooks/defineStyles';
 import React from 'react';
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { EmailContextType, emailUseStyles } from './emailContext';
-import { defineStyles } from '@/components/hooks/defineStyles';
 
 const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI ? {...theme.typography.smallText} : {}),
+    ...({}),
     "& img": {
       maxWidth: "100%",
     }

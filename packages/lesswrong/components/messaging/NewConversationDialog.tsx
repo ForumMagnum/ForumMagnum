@@ -1,20 +1,20 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
-import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
-import { useCurrentUser } from "../common/withUser";
-import { useInitiateConversation } from "../hooks/useInitiateConversation";
-import { useNavigate } from "../../lib/routeUtil";
-import type { Hit } from "react-instantsearch-core";
 import { Chip } from "@/components/widgets/Chip";
+import { useCallback, useEffect, useState } from "react";
+import type { Hit } from "react-instantsearch-core";
+import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { useNavigate } from "../../lib/routeUtil";
+import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
 import { InstantSearch } from "../../lib/utils/componentsWithChildren";
-import LWDialog from "../common/LWDialog";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import ErrorBoundary from "../common/ErrorBoundary";
-import ExpandedUsersConversationSearchHit from "../search/ExpandedUsersConversationSearchHit";
 import ForumIcon from "../common/ForumIcon";
+import LWDialog from "../common/LWDialog";
 import { Typography } from "../common/Typography";
+import { useCurrentUser } from "../common/withUser";
 import EAButton from "../ea-forum/EAButton";
+import { useInitiateConversation } from "../hooks/useInitiateConversation";
+import ExpandedUsersConversationSearchHit from "../search/ExpandedUsersConversationSearchHit";
 
 const styles = (theme: ThemeType) => ({
   paper: {
@@ -33,8 +33,8 @@ const styles = (theme: ThemeType) => ({
   titleRow: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
-    fontSize: theme.isFriendlyUI ? 20 : 18,
-    fontWeight: theme.isFriendlyUI ? 700 : 500,
+    fontSize: 18,
+    fontWeight: 500,
     padding: '20px 20px 14px 20px',
     display: "flex",
     justifyContent: "space-between",

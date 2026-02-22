@@ -1,15 +1,15 @@
-import React, {useCallback} from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { useGlobalKeydown } from '../../common/withGlobalKeydown';
-import withErrorBoundary from '../../common/withErrorBoundary'
-import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
+import classNames from 'classnames';
+import { useCallback } from 'react';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { useCurrentUser } from '../../common/withUser';
+import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
-import classNames from 'classnames';
-import SequencesTooltip from "../../sequences/SequencesTooltip";
+import { registerComponent } from '../../../lib/vulcan-lib/components';
+import withErrorBoundary from '../../common/withErrorBoundary';
+import { useGlobalKeydown } from '../../common/withGlobalKeydown';
+import { useCurrentUser } from '../../common/withUser';
 import SequencesNavigationLink from "../../sequences/SequencesNavigationLink";
+import SequencesTooltip from "../../sequences/SequencesTooltip";
 
 export const darkGreyAlpha = .7
 
@@ -27,24 +27,10 @@ const styles = (theme: ThemeType) => ({
   root: {
     marginLeft:-20,
     display: "flex",
-    alignItems: "center",
-    
-    ...(theme.isFriendlyUI && {
-      marginBottom: -8,
-    }),
+    alignItems: "center"
   },
   title: {
-    ...titleStyles(theme),
-    
-    ...(theme.isFriendlyUI && {
-      textTransform: 'uppercase',
-      fontSize: 18,
-      color: theme.palette.greyAlpha(0.7),
-      fontWeight: 500,
-    }),
-    ...(theme.isFriendlyUI && theme.dark && {
-      color: theme.palette.icon.dim,
-    }),
+    ...titleStyles(theme)
   },
   blackText: {
     '&&': {

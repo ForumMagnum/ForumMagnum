@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { LoadMoreProps } from '../hooks/useQueryWithLoadMore';
-import FriendlyConversationItem from "./FriendlyConversationItem";
+import InboxConversationItem from "./InboxConversationItem";
 import Loading from "../vulcan-core/Loading";
 import SectionFooter from "../common/SectionFooter";
 import { Typography } from "../common/Typography";
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 // The Navigation for the Inbox components
-const FriendlyInboxNavigation = ({
+const InboxNavigation = ({
   conversationsResult,
   currentUserId,
   selectedConversationId,
@@ -36,7 +36,7 @@ const FriendlyInboxNavigation = ({
   return <>
       {conversations?.length ? (
         conversations.map((conversation, idx) => (
-          <FriendlyConversationItem
+          <InboxConversationItem
             key={conversation._id + idx}
             conversation={conversation}
             currentUserId={currentUserId}
@@ -57,6 +57,5 @@ const FriendlyInboxNavigation = ({
   </>;
 };
 
-export default registerComponent("FriendlyInboxNavigation", FriendlyInboxNavigation, {styles});
-
+export default registerComponent("InboxNavigation", InboxNavigation, {styles});
 

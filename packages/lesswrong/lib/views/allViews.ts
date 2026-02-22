@@ -16,7 +16,6 @@ import { ConversationsViews } from '../collections/conversations/views';
 import { CurationNoticesViews } from '../collections/curationNotices/views';
 import { DialogueChecksViews } from '../collections/dialogueChecks/views';
 import { DialogueMatchPreferencesViews } from '../collections/dialogueMatchPreferences/views';
-import { DigestsViews } from '../collections/digests/views';
 import { ElectionCandidatesViews } from '../collections/electionCandidates/views';
 import { ElectionVotesViews } from '../collections/electionVotes/views';
 import { FeaturedResourcesViews } from '../collections/featuredResources/views';
@@ -53,8 +52,6 @@ import { TagFlagsViews } from '../collections/tagFlags/views';
 import { TagRelsViews } from '../collections/tagRels/views';
 import { UltraFeedEventsViews } from '../collections/ultraFeedEvents/views';
 import { UsersViews } from '../collections/users/views';
-import { UserEAGDetailsViews } from '../collections/userEAGDetails/views';
-import { UserJobAdsViews } from '../collections/userJobAds/views';
 import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts/views';
 import { UserRateLimitsViews } from '../collections/userRateLimits/views';
 import { UserTagRelsViews } from '../collections/userTagRels/views';
@@ -84,8 +81,6 @@ export const allViews = {
   DebouncerEvents: new CollectionViewSet('DebouncerEvents', {}),
   DialogueChecks: DialogueChecksViews,
   DialogueMatchPreferences: DialogueMatchPreferencesViews,
-  DigestPosts: new CollectionViewSet('DigestPosts', {}),
-  Digests: DigestsViews,
   ElectionCandidates: ElectionCandidatesViews,
   ElectionVotes: ElectionVotesViews,
   ElicitQuestionPredictions: new CollectionViewSet('ElicitQuestionPredictions', {}),
@@ -147,8 +142,6 @@ export const allViews = {
   TypingIndicators: new CollectionViewSet('TypingIndicators', {}),
   UltraFeedEvents: UltraFeedEventsViews,
   Users: UsersViews,
-  UserEAGDetails: UserEAGDetailsViews,
-  UserJobAds: UserJobAdsViews,
   UserMostValuablePosts: UserMostValuablePostsViews,
   UserRateLimits: UserRateLimitsViews,
   UserTagRels: UserTagRelsViews,

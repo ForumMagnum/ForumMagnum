@@ -1,15 +1,15 @@
-import React, { CSSProperties, useRef, useState } from 'react'
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
-import { useTracking } from '../../../lib/analyticsEvents';
-import type { Placement as PopperPlacementType } from "popper.js"
-import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import classNames from 'classnames';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import PopperCard from "../../common/PopperCard";
-import PostActions from "./PostActions";
+import type { Placement as PopperPlacementType } from "popper.js";
+import React, { CSSProperties, useRef, useState } from 'react';
+import { useTracking } from '../../../lib/analyticsEvents';
 import LWClickAwayListener from "../../common/LWClickAwayListener";
+import PopperCard from "../../common/PopperCard";
+import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { FeedPostMetaInfo } from '../../ultraFeed/ultraFeedTypes';
+import PostActions from "./PostActions";
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
@@ -20,7 +20,6 @@ const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   },
   icon: {
     verticalAlign: 'middle',
-    color: theme.isFriendlyUI ? theme.palette.grey[400] : undefined,
     cursor: "pointer",
   },
   popper: {

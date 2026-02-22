@@ -1,13 +1,12 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
-import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { defaultSequenceBannerIdSetting, isLWorAF } from '../../lib/instanceSettings';
-import DeferRender from '../common/DeferRender';
+import { legacyBreakpoints } from '../../lib/utils/theme';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import CloudinaryImage from "../common/CloudinaryImage";
-import UsersName from "../users/UsersName";
+import DeferRender from '../common/DeferRender';
 import LinkCard from "../common/LinkCard";
+import UsersName from "../users/UsersName";
 import SequencesSummary from "./SequencesSummary";
 
 const styles = (theme: ThemeType) => ({
@@ -34,16 +33,10 @@ const styles = (theme: ThemeType) => ({
 
   title: {
     fontSize: 16,
-    ...(theme.isFriendlyUI
-      ? {
-        lineHeight: 1.25,
-        maxHeight: 42,
-        minHeight: 42,
-      }
-      : {
-        lineHeight: 1.0,
-        maxHeight: 32,
-      }),
+    ...({
+            lineHeight: 1.0,
+            maxHeight: 32,
+          }),
     paddingTop: 2,
     display: "-webkit-box",
     "-webkit-line-clamp": 2,
@@ -77,13 +70,8 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     justifyContent: "center",
     background: theme.palette.panelBackground.default,
-    ...(theme.isFriendlyUI
-      ? {
-        borderRadius: `0 0 ${theme.borderRadius.small}px ${theme.borderRadius.small}px`,
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {
-      }),
+    ...({
+          }),
   },
   bookItemShadowStyle: {
     boxShadow: "none",
@@ -102,18 +90,12 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[200],
     display: 'block',
     height: 95,
-    borderRadius: theme.isFriendlyUI
-      ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
-      : undefined,
     [legacyBreakpoints.maxSmall]: {
       height: "124px !important",
     },
     "& img": {
       width: "100%",
       height: 95,
-      borderRadius: theme.isFriendlyUI
-        ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
-        : undefined,
       [legacyBreakpoints.maxSmall]: {
         width: "335px !important",
         height: "124px !important",

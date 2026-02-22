@@ -1,15 +1,12 @@
 "use client";
 
-import React from 'react';
-import { useCurrentUser } from '../common/withUser';
-import { isEAForum } from '../../lib/instanceSettings';
-import { Link } from '../../lib/reactRouterWrapper';
-import SingleColumnSection from "../common/SingleColumnSection";
-import EAOnboardingFlow from "../ea-forum/onboarding/EAOnboardingFlow";
-import BasicOnboardingFlow from "../onboarding/BasicOnboardingFlow";
-import Error404 from "../common/Error404";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { Link } from '../../lib/reactRouterWrapper';
+import Error404 from "../common/Error404";
+import SingleColumnSection from "../common/SingleColumnSection";
+import { useCurrentUser } from '../common/withUser';
+import BasicOnboardingFlow from "../onboarding/BasicOnboardingFlow";
 
 const styles = defineStyles("AdminViewOnboarding", (theme: ThemeType) => ({
   link: {
@@ -33,7 +30,7 @@ const AdminViewOnboarding = () => {
 
   return <SingleColumnSection>
     <Link to="/admin" className={classes.link}>Back to Admin Home</Link>
-    {isEAForum() ? <EAOnboardingFlow viewAsAdmin /> : <BasicOnboardingFlow viewAsAdmin />}
+    {<BasicOnboardingFlow viewAsAdmin />}
   </SingleColumnSection>
 }
 

@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { Link, QueryLink } from '../../lib/reactRouterWrapper';
-import { useCurrentUser } from '../common/withUser';
-import { EditTagForm } from './EditTagPage';
-import { useLocation } from '../../lib/routeUtil';
-import classNames from 'classnames'
-import LinkCard from "../common/LinkCard";
-import TagPreviewDescription from "./TagPreviewDescription";
-import TagSmallPostLink from "./TagSmallPostLink";
-import Loading from "../vulcan-core/Loading";
-import TagFlagItem from "./TagFlagItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import classNames from 'classnames';
+import { useState } from 'react';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { Link, QueryLink } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
+import { registerComponent } from '../../lib/vulcan-lib/components';
+import LinkCard from "../common/LinkCard";
+import { useCurrentUser } from '../common/withUser';
+import Loading from "../vulcan-core/Loading";
+import { EditTagForm } from './EditTagPage';
+import TagFlagItem from "./TagFlagItem";
+import TagPreviewDescription from "./TagPreviewDescription";
+import TagSmallPostLink from "./TagSmallPostLink";
 
 const TagRelFragmentMultiQuery = gql(`
   query multiTagRelTagsDetailsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
@@ -54,10 +54,7 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
       maxWidth: "unset"
-    },
-    ...(theme.isFriendlyUI && {
-      maxWidth: 490,
-    }),
+    }
   },
   collapsedDescription: {
     display: "flex",

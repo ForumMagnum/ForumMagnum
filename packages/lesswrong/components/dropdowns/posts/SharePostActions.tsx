@@ -1,17 +1,16 @@
-import React from 'react';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
 
-import { Paper }from '@/components/widgets/Paper';
-import { useTracking } from '../../../lib/analyticsEvents';
-import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
-import DropdownMenu from "../DropdownMenu";
-import DropdownItem from "../DropdownItem";
-import DropdownDivider from "../DropdownDivider";
-import SocialMediaIcon from "../../icons/SocialMediaIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { Paper } from '@/components/widgets/Paper';
+import { useTracking } from '../../../lib/analyticsEvents';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+import SocialMediaIcon from "../../icons/SocialMediaIcon";
+import DropdownDivider from "../DropdownDivider";
+import DropdownItem from "../DropdownItem";
+import DropdownMenu from "../DropdownMenu";
 
 const styles = defineStyles("SharePostActions", (_theme: ThemeType) => ({
   icon: {
@@ -69,17 +68,17 @@ const SharePostActions = ({post, onClick}: {
       />
       <DropdownDivider/>
       <DropdownItem
-        title={isFriendlyUI() ? "Share on Twitter" : "Twitter"}
+        title={"Twitter"}
         icon={() => <SocialMediaIcon className={classes.icon} name="twitter"/>}
         onClick={shareToTwitter}
       />
       <DropdownItem
-        title={isFriendlyUI() ? "Share on Facebook" : "Facebook"}
+        title={"Facebook"}
         icon={() => <SocialMediaIcon className={classes.icon} name="facebook"/>}
         onClick={shareToFacebook}
       />
       <DropdownItem
-        title={isFriendlyUI() ? "Share on LinkedIn" : "LinkedIn"}
+        title={"LinkedIn"}
         icon={() => <SocialMediaIcon className={classes.icon} name="linkedin"/>}
         onClick={shareToLinkedIn}
       />

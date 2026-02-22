@@ -1,10 +1,8 @@
-import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isNewUser } from "../../lib/collections/users/helpers";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
-import { isFriendlyUI } from "../../themes/forumTheme";
-import LWTooltip from "../common/LWTooltip";
+import { registerComponent } from "../../lib/vulcan-lib/components";
 import ForumIcon from "../common/ForumIcon";
+import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   iconWrapper: {
@@ -38,7 +36,7 @@ const UserCommentMarkers = ({
     return null;
   }
 
-  const showAuthorIcon = isFriendlyUI() && isPostAuthor;
+  const showAuthorIcon = false;
   const showNewUserIcon = isNewUser(user);
 
   if (!showAuthorIcon && !showNewUserIcon) {

@@ -1,84 +1,85 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD, DEFAULT_LATEST_REVISION_ID_FIELD, DEFAULT_LEGACY_DATA_FIELD, DEFAULT_SCHEMA_VERSION_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
-import { getDomain } from "../../vulcan-lib/utils";
-import moment from "moment";
-import {
-  googleLocationToMongoLocation, accessFilterMultiple,
-  accessFilterSingle, arrayOfForeignKeysOnCreate,
-  generateIdResolverMulti,
-  generateIdResolverSingle,
-  getDenormalizedCountOfReferencesGetValue,
-  getDenormalizedFieldOnCreate,
-  getDenormalizedFieldOnUpdate,
-  getForeignKeySqlResolver,
-  getFillIfMissing,
-  throwIfSetToNull,
-  optionalUrlRegex
-} from "../../utils/schemaUtils";
-import {
-  postCanEditHideCommentKarma,
-  postGetPageUrl,
-  postGetEmailShareUrl,
-  postGetTwitterShareUrl,
-  postGetFacebookShareUrl,
-  postGetDefaultStatus,
-  getSocialPreviewImage,
-  isNotHostedHere,
-  isDialogueParticipant,
-  MINIMUM_COAUTHOR_KARMA,
-  DEFAULT_QUALITATIVE_VOTE,
-  userPassesCrosspostingKarmaThreshold,
-  getDefaultVotingSystem
-} from "./helpers";
-import { postStatuses, READ_WORDS_PER_MINUTE, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
-import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
-import SimpleSchema from "@/lib/utils/simpleSchema";
-import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
-import { eaFrontpageDateDefault, isEAForum, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
-import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
-import {
-  sequenceGetNextPostID,
-  sequenceGetPrevPostID,
-  sequenceContainsPost,
-  getPrevPostIdFromPrevSequence,
-  getNextPostIdFromNextSequence,
-} from '../sequences/sequenceServerHelpers';
-import { allOf } from "../../utils/functionUtils";
-import { getDefaultViewSelector } from "../../utils/viewUtils";
-import { hasSideComments, userCanViewJargonTerms } from "../../betas";
-import { stableSortTags } from "../tags/helpers";
-import { getLatestContentsRevision } from "../../../server/collections/revisions/helpers";
-import { marketInfoLoader } from "./annualReviewMarkets";
-import mapValues from "lodash/mapValues";
-import groupBy from "lodash/groupBy";
-import {
-  documentIsNotDeleted,
-  userIsAdmin,
-  userIsAdminOrMod,
-  userOverNKarmaOrApproved,
-  userOwns,
-} from "../../vulcan-users/permissions";
-import { getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getRevisionsResolver, getNormalizedVersionResolver } from "@/lib/editor/make_editable";
-import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
+import { getDenormalizedEditableResolver, getNormalizedEditableResolver, getNormalizedEditableSqlResolver, getNormalizedVersionResolver, getRevisionsResolver } from "@/lib/editor/make_editable";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
+import { captureException } from "@/lib/sentryWrapper";
+import SimpleSchema from "@/lib/utils/simpleSchema";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getLatestRev } from "@/server/editor/utils";
+import { classifyPost } from "@/server/frontpageClassifier/predictions";
 import { languageModelGenerateText } from "@/server/languageModels/languageModelIntegration";
 import { getLocalTime } from "@/server/mapsUtils";
-import { getDefaultPostLocationFields, getDialogueMessageTimestamps, getPostHTML, getDialogueResponseIds } from "@/server/posts/utils";
+import { getDefaultPostLocationFields, getDialogueMessageTimestamps, getDialogueResponseIds, getPostHTML } from "@/server/posts/utils";
 import { getPostReviewWinnerInfo } from "@/server/review/reviewWinnersCache";
 import { matchSideComments } from "@/server/sideComments";
 import { getToCforPost } from "@/server/tableOfContents";
-import { cheerioParse } from "@/server/utils/htmlUtil";
-import { captureException } from "@/lib/sentryWrapper";
-import keyBy from "lodash/keyBy";
-import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import { CommentsViews } from "../comments/views";
-import { commentIncludedInCounts } from "../comments/helpers";
-import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { backgroundTask } from "@/server/utils/backgroundTask";
-import { classifyPost } from "@/server/frontpageClassifier/predictions";
+import { cheerioParse } from "@/server/utils/htmlUtil";
+import groupBy from "lodash/groupBy";
+import keyBy from "lodash/keyBy";
+import mapValues from "lodash/mapValues";
+import moment from "moment";
+import { getLatestContentsRevision } from "../../../server/collections/revisions/helpers";
+import { hasSideComments, userCanViewJargonTerms } from "../../betas";
+import { eaFrontpageDateDefault, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
+import { getWithCustomLoader, getWithLoader, loadByIds } from "../../loaders";
+import { allOf } from "../../utils/functionUtils";
+import {
+    accessFilterMultiple,
+    accessFilterSingle, arrayOfForeignKeysOnCreate,
+    generateIdResolverMulti,
+    generateIdResolverSingle,
+    getDenormalizedCountOfReferencesGetValue,
+    getDenormalizedFieldOnCreate,
+    getDenormalizedFieldOnUpdate,
+    getFillIfMissing,
+    getForeignKeySqlResolver,
+    googleLocationToMongoLocation,
+    optionalUrlRegex,
+    throwIfSetToNull
+} from "../../utils/schemaUtils";
+import { getDefaultViewSelector } from "../../utils/viewUtils";
+import { getDomain } from "../../vulcan-lib/utils";
+import { userGetDisplayNameById } from "../../vulcan-users/helpers";
+import {
+    documentIsNotDeleted,
+    userIsAdmin,
+    userIsAdminOrMod,
+    userOverNKarmaOrApproved,
+    userOwns,
+} from "../../vulcan-users/permissions";
+import { commentIncludedInCounts } from "../comments/helpers";
+import { CommentsViews } from "../comments/views";
+import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { getCollectionBySlug } from "../sequences/helpers";
+import {
+    getNextPostIdFromNextSequence,
+    getPrevPostIdFromPrevSequence,
+    sequenceContainsPost,
+    sequenceGetNextPostID,
+    sequenceGetPrevPostID,
+} from '../sequences/sequenceServerHelpers';
+import { stableSortTags } from "../tags/helpers";
+import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
+import { marketInfoLoader } from "./annualReviewMarkets";
+import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
+import { postStatuses, READ_WORDS_PER_MINUTE, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
+import {
+    DEFAULT_QUALITATIVE_VOTE,
+    getDefaultVotingSystem,
+    getSocialPreviewImage,
+    isDialogueParticipant,
+    isNotHostedHere,
+    MINIMUM_COAUTHOR_KARMA,
+    postCanEditHideCommentKarma,
+    postGetDefaultStatus,
+    postGetEmailShareUrl,
+    postGetFacebookShareUrl,
+    postGetPageUrl,
+    postGetTwitterShareUrl,
+    userPassesCrosspostingKarmaThreshold
+} from "./helpers";
 
 const rsvpType = new SimpleSchema({
   name: {
@@ -205,8 +206,8 @@ async function getLastPublishedDialogueMessageTimestamp(post: DbPost, context: R
   return lastTimestamp;
 };
 
-function adminOnlyOnEAForum(user: DbUser | null) {
-  return isEAForum() ? userIsAdmin(user) : userIsAdminOrMod(user);
+function adminOnly(user: DbUser | null) {
+  return userIsAdminOrMod(user);
 }
 
 const schema = {
@@ -581,7 +582,7 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["sunshineRegiment", "admins"],
       onCreate: ({ document: post }) => {
-        if (!isEAForum() && !post.sticky) {
+        if (!post.sticky) {
           return false;
         }
       },
@@ -1247,9 +1248,6 @@ const schema = {
       outputType: "Float",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return 0;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.probability;
       },
@@ -1260,9 +1258,6 @@ const schema = {
       outputType: "Boolean",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return false;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.isResolved;
       },
@@ -1273,9 +1268,6 @@ const schema = {
       outputType: "Int",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return 0;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.year;
       },
@@ -1286,9 +1278,6 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return 0;
-        }
         const market = await getWithCustomLoader(context, "manifoldMarket", post._id, marketInfoLoader(context));
         return market?.url;
       },
@@ -1824,9 +1813,6 @@ const schema = {
       outputType: "ReviewVote",
       canRead: ["members"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return null;
-        }
         const { ReviewVotes, currentUser } = context;
         if (!currentUser) return null;
         const votes = await getWithLoader(
@@ -1860,9 +1846,6 @@ const schema = {
       outputType: "ReviewWinner",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) {
-          return null;
-        }
         const { currentUser } = context;
         const winner = await getPostReviewWinnerInfo(post._id, context);
         return accessFilterSingle(currentUser, "ReviewWinners", winner, context);
@@ -2136,8 +2119,8 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["guests"],
-      canUpdate: [adminOnlyOnEAForum],
-      canCreate: [adminOnlyOnEAForum],
+      canUpdate: [adminOnly],
+      canCreate: [adminOnly],
       validation: {
         optional: true,
       },
@@ -3083,8 +3066,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      canUpdate: [adminOnlyOnEAForum],
-      canCreate: [adminOnlyOnEAForum],
+      canUpdate: [adminOnly],
+      canCreate: [adminOnly],
       validation: {
         optional: true,
       },
@@ -4000,9 +3983,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, _, context) => {
         const { extendedScore } = post;
-        if (!isEAForum() || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
-          return {};
-        }
+        return {};
         const reactors = await context.repos.posts.getPostEmojiReactorsWithCache(post._id);
         return reactors ?? {};
       },
@@ -4400,7 +4381,6 @@ const schema = {
       outputType: "AutomatedContentEvaluation",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (post, args, context) => {
-        if (!isLWorAF()) return null;
         const {AutomatedContentEvaluations, Revisions} =  context;
         const revisionIds = (await Revisions.find({
           documentId: post._id,

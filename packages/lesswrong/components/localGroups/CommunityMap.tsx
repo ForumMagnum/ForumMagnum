@@ -1,22 +1,22 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { useLocation } from '../../lib/routeUtil';
-import { Marker as BadlyTypedMarker } from 'react-map-gl';
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
 import classNames from 'classnames';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Marker as BadlyTypedMarker } from 'react-map-gl';
+import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { useLocation } from '../../lib/routeUtil';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
-import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
+import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { MapboxViewport, WrappedReactMapGL } from '../community/WrappedReactMapGL';
+import { defineStyles } from '../hooks/defineStyles';
 import { useMapStyle } from '../hooks/useMapStyle';
+import { useStyles } from '../hooks/useStyles';
 import CommunityMapFilter from "./CommunityMapFilter";
 import LocalEventMarker from "./LocalEventMarker";
 import LocalGroupMarker from "./LocalGroupMarker";
 import StyledMapPopup from "./StyledMapPopup";
-import { MapboxViewport, WrappedReactMapGL } from '../community/WrappedReactMapGL';
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen";
-import { defineStyles } from '../hooks/defineStyles';
-import { useStyles } from '../hooks/useStyles';
 
 const UsersMapEntryMultiQuery = gql(`
   query multiUserCommunityMapQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -90,7 +90,7 @@ const styles = defineStyles("CommunityMap", (theme: ThemeType) => ({
   mapButtons: {
     alignItems: "flex-end",
     position: "absolute",
-    top: theme.isFriendlyUI ? 40 : 10,
+    top: 10,
     right: 10,
     display: "flex",
     flexDirection: "column",
