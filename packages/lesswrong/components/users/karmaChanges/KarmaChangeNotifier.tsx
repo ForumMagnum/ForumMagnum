@@ -79,56 +79,52 @@ const KarmaChangeNotifierLoaded = ({className}: {
     captureEvent("karmaNotifierToggle", {open: !open, karmaChangeLastOpened, karmaChanges: stateKarmaChanges})
   }
 
-  const render = () => {
-    if (!document) {
-      return <KarmaChangeNotifierPlaceholder/>
-    }
-    const karmaChanges = stateKarmaChanges || document.karmaChanges; // Covers special case when state was initialized when user wasn't logged in
-    if (!karmaChanges) {
-      return <KarmaChangeNotifierPlaceholder/>
-    }
-
-    const { karmaChangeNotifierSettings: settings } = currentUser
-    if (settings && settings.updateFrequency === "disabled")
-      return null;
-
-    const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
-    //Check if user opened the karmaChangeNotifications for the current interval
-    const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
-    const starIsHollow = ((!comments?.length && !posts?.length && !tagRevisions?.length) || cleared || !newKarmaChangesSinceLastVisit)
-    return <AnalyticsContext pageSection="karmaChangeNotifer">
-      <div className={classNames(classes.root, className)}>
-        <div ref={anchorEl}>
-          <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
-            {starIsHollow
-              ? <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
-              : <Badge badgeContent={
-                  <span className={classes.pointBadge}>
-                    {(!!totalChange) && <ColoredNumber n={totalChange}/>}
-                  </span>}
-                >
-                  <ForumIcon icon="Karma" className={classes.starIcon}/>
-                </Badge>
-            }
-          </IconButton>
-        </div>
-        <LWPopper
-          open={open}
-          anchorEl={anchorEl.current}
-          placement="bottom-end"
-          className={classes.karmaNotifierPopper}
-        >
-          <LWClickAwayListener onClickAway={handleClose}>
-            <Paper className={classes.karmaNotifierPaper}>
-              <KarmaChangesDisplay karmaChanges={karmaChanges} handleClose={handleClose} />
-            </Paper>
-          </LWClickAwayListener>
-        </LWPopper>
-      </div>
-    </AnalyticsContext>
+  if (!document) {
+    return <KarmaChangeNotifierPlaceholder/>
   }
-  
-  return render();
+  const karmaChanges = stateKarmaChanges || document.karmaChanges; // Covers special case when state was initialized when user wasn't logged in
+  if (!karmaChanges) {
+    return <KarmaChangeNotifierPlaceholder/>
+  }
+
+  const { karmaChangeNotifierSettings: settings } = currentUser
+  if (settings && settings.updateFrequency === "disabled")
+    return null;
+
+  const { posts, comments, tagRevisions, endDate, totalChange } = karmaChanges
+  //Check if user opened the karmaChangeNotifications for the current interval
+  const newKarmaChangesSinceLastVisit = new Date(karmaChangeLastOpened || 0) < new Date(endDate || 0)
+  const starIsHollow = ((!comments?.length && !posts?.length && !tagRevisions?.length) || cleared || !newKarmaChangesSinceLastVisit)
+  return <AnalyticsContext pageSection="karmaChangeNotifer">
+    <div className={classNames(classes.root, className)}>
+      <div ref={anchorEl}>
+        <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
+          {starIsHollow
+            ? <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
+            : <Badge badgeContent={
+                <span className={classes.pointBadge}>
+                  {(!!totalChange) && <ColoredNumber n={totalChange}/>}
+                </span>}
+              >
+                <ForumIcon icon="Karma" className={classes.starIcon}/>
+              </Badge>
+          }
+        </IconButton>
+      </div>
+      <LWPopper
+        open={open}
+        anchorEl={anchorEl.current}
+        placement="bottom-end"
+        className={classes.karmaNotifierPopper}
+      >
+        <LWClickAwayListener onClickAway={handleClose}>
+          <Paper className={classes.karmaNotifierPaper}>
+            <KarmaChangesDisplay karmaChanges={karmaChanges} handleClose={handleClose} />
+          </Paper>
+        </LWClickAwayListener>
+      </LWPopper>
+    </div>
+  </AnalyticsContext>
 }
 
 const KarmaChangeNotifierPlaceholder = ({className}: {
@@ -155,16 +151,16 @@ export const KarmaChangeNotifier = ({className}: {
   const shouldSSR = !!canonicalPathname;
 
   return (
-    <DeferRender ssr={shouldSSR} fallback={<KarmaChangeNotifierPlaceholder className={className}/>}>
+    <ErrorBoundary>
     <SuspenseWrapper
       name="KarmaChangeNotifier"
       fallback={<KarmaChangeNotifierPlaceholder className={className}/>}
     >
-      <ErrorBoundary>
+      <DeferRender ssr={shouldSSR} fallback={<KarmaChangeNotifierPlaceholder className={className}/>}>
         <KarmaChangeNotifierLoaded className={className}/>
-      </ErrorBoundary>
+      </DeferRender>
     </SuspenseWrapper>
-    </DeferRender>
+    </ErrorBoundary>
   )
 }
 
