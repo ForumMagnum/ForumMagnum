@@ -224,10 +224,10 @@ function getCollapsedBioHtml(htmlBio: string, wordLimit: number): string {
   return truncate(htmlBio, wordLimit, "words");
 }
 
-type ProfileTab = "posts" | "sequences" | "feed";
+type ProfileTab = "posts" | "sequences" | "quickTakes" | "feed";
 
 function parseProfileTab(value: unknown): ProfileTab | null {
-  if (value === "posts" || value === "sequences" || value === "feed") {
+  if (value === "posts" || value === "sequences" || value === "quickTakes" || value === "feed") {
     return value;
   }
   return null;
@@ -237,13 +237,16 @@ function getInitialProfileTab({
   preferredTab,
   hasPosts,
   hasSequences,
+  hasQuickTakes,
 }: {
   preferredTab: ProfileTab | null;
   hasPosts: boolean;
   hasSequences: boolean;
+  hasQuickTakes: boolean;
 }): ProfileTab {
   if (preferredTab === "sequences" && hasSequences) return "sequences";
   if (preferredTab === "posts" && hasPosts) return "posts";
+  if (preferredTab === "quickTakes" && hasQuickTakes) return "quickTakes";
   if (preferredTab === "feed") return "feed";
   if (!hasPosts) return "feed";
   return "posts";
@@ -353,11 +356,13 @@ function ProfilePageInner({user}: {
   const hasPosts = user.postCount > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
   const hasSequences = user.sequenceCount > 0;
+  const hasQuickTakes = !!user.shortformFeedId;
 
   const [activeTab, setActiveTab] = useState<ProfileTab>(getInitialProfileTab({
     preferredTab: parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]),
     hasPosts: user.postCount > 0,
     hasSequences: user.sequenceCount > 0,
+    hasQuickTakes,
   }));
 
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
@@ -423,7 +428,7 @@ function ProfilePageInner({user}: {
                     type="button"
                     onClick={() => handleTabSwitch("posts")}
                   >
-                    All posts
+                    Posts
                   </button>
                   {hasSequences && (
                     <button
@@ -435,13 +440,23 @@ function ProfilePageInner({user}: {
                       Sequences
                     </button>
                   )}
+                  {hasQuickTakes && (
+                    <button
+                      className={classNames(classes.profileTab, activeTab === "quickTakes" && classes.profileTabActive)}
+                      data-tab="quickTakes"
+                      type="button"
+                      onClick={() => handleTabSwitch("quickTakes")}
+                    >
+                      Quick takes
+                    </button>
+                  )}
                   <button
                     className={classNames(classes.profileTab, activeTab === "feed" && classes.profileTabActive)}
                     data-tab="feed"
                     type="button"
                     onClick={() => handleTabSwitch("feed")}
                   >
-                    Feed
+                    All
                   </button>
                 </div>
                 {((activeTab === "posts" && hasPosts) || (activeTab === "feed" && hasFeedContent) || activeTab === "sequences") && (
@@ -471,6 +486,15 @@ function ProfilePageInner({user}: {
               )}>
                 {activeTab === "sequences" && <Suspense>
                   <ProfilePageSequencesTab user={user} />
+                </Suspense>}
+              </div>
+
+              <div className={classNames(
+                classes.tabPanel,
+                activeTab === "quickTakes" && classes.tabPanelActive
+              )}>
+                {activeTab === "quickTakes" && <Suspense>
+                  <ProfilePageQuickTakesTab user={user} />
                 </Suspense>}
               </div>
 
@@ -1060,10 +1084,30 @@ function ProfilePageFeedTab({user, sortPanelOpen, sortPanelClosing}: {
       <UltraFeedContextProvider openInNewTab={true}>
         <UltraFeedObserverProvider incognitoMode={false}>
           <OverflowNavObserverProvider>
-            <UserContentFeed userId={user._id} externalSortMode={feedSortBy} externalFilter={feedFilter} />
+            <div className={classes.profileFeedTopMargin}>
+              <UserContentFeed userId={user._id} externalSortMode={feedSortBy} externalFilter={feedFilter} />
+            </div>
           </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
       </UltraFeedContextProvider>
     )}
   </>
+}
+
+function ProfilePageQuickTakesTab({user}: {
+  user: UsersProfile,
+}) {
+  const classes = useStyles(profileStyles);
+
+  return (
+    <UltraFeedContextProvider openInNewTab={true}>
+      <UltraFeedObserverProvider incognitoMode={false}>
+        <OverflowNavObserverProvider>
+          <div className={classes.profileFeedTopMargin}>
+            <UserContentFeed userId={user._id} externalSortMode="recent" externalFilter="quickTakes" removeSideMargins={true} />
+          </div>
+        </OverflowNavObserverProvider>
+      </UltraFeedObserverProvider>
+    </UltraFeedContextProvider>
+  );
 }
