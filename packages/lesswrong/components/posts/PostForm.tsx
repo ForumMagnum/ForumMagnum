@@ -4,7 +4,7 @@ import { isLWorAF, isEAForum, fmCrosspostSiteNameSetting, fmCrosspostBaseUrlSett
 import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCurrentUser } from "../common/withUser";
 import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
@@ -44,6 +44,7 @@ import FormatDate from "../common/FormatDate";
 import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
 import UsersNameWrapper from "../users/UsersNameWrapper";
 import ErrorBoundary from "../common/ErrorBoundary";
+import { InlineCommentsPanelContext } from "../common/sharedContexts";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
   mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -357,8 +358,8 @@ const PostForm = ({
   const currentUser = useCurrentUser();
   const [editorType, setEditorType] = useState<string>();
   const [sidebarPanel, setSidebarPanel] = useState<"publish" | "settings" | "sharing" | null>("settings");
-  const [commentsPanelOpen, setCommentsPanelOpen] = useState(false);
-  const [hasInlineComments, setHasInlineComments] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
   const [showCoauthorSearch, setShowCoauthorSearch] = useState(false);
   const [editingLinkpostUrl, setEditingLinkpostUrl] = useState(false);
   const [linkpostUrlDraft, setLinkpostUrlDraft] = useState("");
@@ -445,30 +446,13 @@ const PostForm = ({
 
   useEffect(() => {
     if (sidebarPanel) {
-      window.dispatchEvent(new CustomEvent("fm-close-lexical-comments"));
+      setShowComments(false);
     }
   }, [sidebarPanel]);
 
-  useEffect(() => {
-    const handleCommentsVisibility = (event: Event) => {
-      const open = (event as CustomEvent<{ open?: boolean }>).detail?.open;
-      if (typeof open === "boolean") {
-        setCommentsPanelOpen(open);
-      }
-    };
-    const handleCommentsCount = (event: Event) => {
-      const count = (event as CustomEvent<{ count?: number }>).detail?.count;
-      if (typeof count === "number") {
-        setHasInlineComments(count > 0);
-      }
-    };
-    window.addEventListener("fm-lexical-comments-visibility-changed", handleCommentsVisibility as EventListener);
-    window.addEventListener("fm-lexical-comments-count-changed", handleCommentsCount as EventListener);
-    return () => {
-      window.removeEventListener("fm-lexical-comments-visibility-changed", handleCommentsVisibility as EventListener);
-      window.removeEventListener("fm-lexical-comments-count-changed", handleCommentsCount as EventListener);
-    };
-  }, []);
+  const inlineCommentsContext = useMemo(() => ({
+    showComments, setShowComments, commentCount, setCommentCount,
+  }), [showComments, commentCount]);
 
   if (formType === 'edit' && !initialData) {
     return <Error404 />;
@@ -522,6 +506,7 @@ const PostForm = ({
     : null;
 
   return (
+    <InlineCommentsPanelContext.Provider value={inlineCommentsContext}>
     <form className={classNames(useSidebarLayout && classes.mobileBottomPadding)} onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -561,15 +546,13 @@ const PostForm = ({
             >
               <ForumIcon icon="Settings" className={classes.icon} />
             </button>
-            {(hasInlineComments || commentsPanelOpen) && <button
+            {(commentCount > 0 || showComments) && <button
               type="button"
-              className={classNames(classes.iconButton, commentsPanelOpen && classes.iconButtonActive)}
-              title={commentsPanelOpen ? "Hide comments" : "Show comments"}
+              className={classNames(classes.iconButton, showComments && classes.iconButtonActive)}
+              title={showComments ? "Hide comments" : "Show comments"}
               onClick={() => {
                 setSidebarPanel(null);
-                window.dispatchEvent(new CustomEvent(
-                  commentsPanelOpen ? "fm-close-lexical-comments" : "fm-open-lexical-comments"
-                ));
+                setShowComments((v) => !v);
               }}
             >
               <ForumIcon icon="Comment" className={classes.icon} />
@@ -1107,6 +1090,7 @@ const PostForm = ({
         />
       )}
     </form >
+    </InlineCommentsPanelContext.Provider>
   );
 };
 

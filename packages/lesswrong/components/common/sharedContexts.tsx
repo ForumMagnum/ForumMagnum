@@ -61,6 +61,20 @@ export const DisableNoKibitzContextProvider = ({children}: {
   </DisableNoKibitzContext.Provider>
 }
 
+interface InlineCommentsPanelContextType {
+  showComments: boolean;
+  setShowComments: React.Dispatch<React.SetStateAction<boolean>>;
+  commentCount: number;
+  setCommentCount: React.Dispatch<React.SetStateAction<number>>;
+}
+
+export const InlineCommentsPanelContext = createContext<InlineCommentsPanelContextType>({
+  showComments: false,
+  setShowComments: () => {},
+  commentCount: 0,
+  setCommentCount: () => {},
+});
+
 // RelevantTestGroupAllocation: A dictionary from the names of A/B tests to
 // which group a user is in, which is pruned to only the tests which affected
 // a particular page render.

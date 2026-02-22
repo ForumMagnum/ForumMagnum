@@ -87,6 +87,7 @@ import { ChatLeftTextIcon } from '../../icons/ChatLeftTextIcon';
 import { CommentsIcon } from '../../icons/CommentsIcon';
 import { SendIcon } from '../../icons/SendIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
+import { InlineCommentsPanelContext } from '@/components/common/sharedContexts';
 import ForumIcon from '@/components/common/ForumIcon';
 import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
 import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
@@ -1275,7 +1276,7 @@ export default function CommentPlugin(): JSX.Element {
   const [commentAnchorRect, setCommentAnchorRect] = useState<DOMRect | null>(
     null,
   );
-  const [showComments, setShowComments] = useState(false);
+  const { showComments, setShowComments, setCommentCount } = React.useContext(InlineCommentsPanelContext);
   const cancelAddComment = useCallback(() => {
     editor.update(() => {
       const selection = $getSelection();
@@ -1560,41 +1561,9 @@ export default function CommentPlugin(): JSX.Element {
   };
 
   useEffect(() => {
-    const handleToggleComments = () => {
-      if (!isPostEditor) return;
-      setShowComments((value) => !value);
-    };
-    const handleOpenComments = () => {
-      if (!isPostEditor) return;
-      setShowComments(true);
-    };
-    const handleCloseComments = () => {
-      if (!isPostEditor) return;
-      setShowComments(false);
-    };
-    window.addEventListener("fm-toggle-lexical-comments", handleToggleComments);
-    window.addEventListener("fm-open-lexical-comments", handleOpenComments);
-    window.addEventListener("fm-close-lexical-comments", handleCloseComments);
-    return () => {
-      window.removeEventListener("fm-toggle-lexical-comments", handleToggleComments);
-      window.removeEventListener("fm-open-lexical-comments", handleOpenComments);
-      window.removeEventListener("fm-close-lexical-comments", handleCloseComments);
-    };
-  }, [isPostEditor]);
-
-  useEffect(() => {
     if (!isPostEditor) return;
-    window.dispatchEvent(new CustomEvent("fm-lexical-comments-visibility-changed", {
-      detail: { open: showComments },
-    }));
-  }, [isPostEditor, showComments]);
-
-  useEffect(() => {
-    if (!isPostEditor) return;
-    window.dispatchEvent(new CustomEvent("fm-lexical-comments-count-changed", {
-      detail: { count: comments.length },
-    }));
-  }, [isPostEditor, comments.length]);
+    setCommentCount(comments.length);
+  }, [isPostEditor, comments.length, setCommentCount]);
 
   return (
     <>
