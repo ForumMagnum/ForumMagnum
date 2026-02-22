@@ -8,7 +8,7 @@ import { type GraphQLSchema } from "graphql";
 import { SchemaLink } from "@apollo/client/link/schema";
 
 export const createSchemaLink = (schema: GraphQLSchema, context: ResolverContext) =>
-  // We are doing `context: () => ({...context})` rather than just context to fix a bug in datadog, see: https://github.com/DataDog/dd-trace-js/issues/709
+  // We wrap `context` in a function to ensure each request gets an isolated context object.
   new SchemaLink({ schema, context: () => ({...context}) });
 
 interface ResolverContextEntry {

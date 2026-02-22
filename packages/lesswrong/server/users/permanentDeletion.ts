@@ -6,7 +6,6 @@ import Users from "@/server/collections/users/collection";
 import md5 from "md5";
 import { mailchimpAPIKeySetting } from "../databaseSettings";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
-// import { dogstatsd } from "../datadog/tracer";
 import { updateUser } from "../collections/users/mutations";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 
@@ -134,7 +133,6 @@ export async function permanentlyDeleteUsers() {
   const usersToDelete = await Users.find({ permanentDeletionRequestedAt: { $lt: deletionRequestCutoff } }).fetch();
 
   if (usersToDelete.length > 10) {
-    // dogstatsd?.increment("user_deleted", usersToDelete.length, 1.0, {outcome: 'error'})
     throw new Error("Unexpectedly high number of users queued for deletion")
   }
 

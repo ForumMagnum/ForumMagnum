@@ -243,7 +243,6 @@ export const UsersCurrent = gql(`
     hideJobAdUntil
     criticismTipsDismissed
     
-    allowDatadogSessionReplay
     hideFrontpageBook2020Ad
 
     showDialoguesList
@@ -610,7 +609,6 @@ export const UsersEdit = gql(`
     
     # Privacy settings
     hideFromPeopleDirectory
-    allowDatadogSessionReplay
 
     # Admin & Review
     reviewedByUserId

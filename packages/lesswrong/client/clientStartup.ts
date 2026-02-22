@@ -14,7 +14,6 @@
 // import { googleTagManagerInit } from './ga';
 // import { initReCaptcha } from './reCaptcha';
 // import './type3';
-// import { initDatadog } from './datadogRum';
 // import { viteHandleReload } from '@/viteClient/viteReload';
 
 // /**
@@ -44,7 +43,6 @@
 //   filterConsoleLogSpam();
   
 //   googleTagManagerInit();
-//   void initDatadog();
 //   void initReCaptcha();
 
 //   initAutoRefresh();
@@ -82,4 +80,3 @@
 // } else {
 //   void startupAfterRendering();
 // }
-

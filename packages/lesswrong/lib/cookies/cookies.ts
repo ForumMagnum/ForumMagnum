@@ -278,21 +278,6 @@ registerCookie({
   description: "Miscellaneous cookies which may be set by Intercom",
 });
 
-// Datadog
-registerCookie({
-  name: "dd_cookie_test_",
-  type: "analytics",
-  thirdPartyName: "Datadog",
-  description: "Cookie used by Datadog to test if cookies are enabled",
-});
-
-registerCookie({
-  name: "_dd_s",
-  type: "analytics",
-  thirdPartyName: "Datadog",
-  description: "Main cookie used by datadog to track sessions",
-});
-
 // Hotjar
 registerCookie({
   name: "_hjTLDTest",

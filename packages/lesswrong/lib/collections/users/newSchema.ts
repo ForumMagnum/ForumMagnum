@@ -3950,24 +3950,6 @@ const schema = {
       },
     },
   },
-  allowDatadogSessionReplay: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean!",
-      inputType: "Boolean",
-      canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   afPostCount: {
     database: {
       type: "DOUBLE PRECISION",

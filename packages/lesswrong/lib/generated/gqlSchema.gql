@@ -7753,7 +7753,6 @@ type User {
   hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean!
-  allowDatadogSessionReplay: Boolean!
   afPostCount: Float!
   afCommentCount: Float!
   afSequenceCount: Float!
@@ -9850,7 +9849,6 @@ input CreateUserDataInput {
   hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
-  allowDatadogSessionReplay: Boolean
   reviewForAlignmentForumUserId: String
   afSubmittedApplication: Boolean
   hideSunshineSidebar: Boolean
@@ -10045,7 +10043,6 @@ input UpdateUserDataInput {
   hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
-  allowDatadogSessionReplay: Boolean
   reviewForAlignmentForumUserId: String
   afApplicationText: String
   afSubmittedApplication: Boolean

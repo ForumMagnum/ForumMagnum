@@ -7,8 +7,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useApolloClient, useMutation } from '@apollo/client/react';
 import React, { useCallback } from 'react';
 
-import { configureDatadogRum } from '@/client/datadogRum';
-
 import { useEditorFormCallbacks } from '@/components/editor/EditorFormComponent';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
@@ -81,7 +79,6 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   mapLocation: 'preferences',
   reactPaletteStyle: 'preferences',
   hideFromPeopleDirectory: 'preferences',
-  allowDatadogSessionReplay: 'preferences',
   auto_subscribe_to_my_posts: 'notifications',
   auto_subscribe_to_my_comments: 'notifications',
   autoSubscribeAsOrganizer: 'notifications',
@@ -438,8 +435,6 @@ const UsersEditForm = ({ terms, accountManagement }: {
       setTheme(theme);
       captureEvent("setUserTheme", theme);
     }
-
-    void configureDatadogRum(user)
 
     flash(`User "${userGetDisplayName(user)}" edited`);
     try {

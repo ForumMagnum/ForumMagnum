@@ -19,7 +19,6 @@ import { inspect } from "util";
 import { Sessions } from '../server/collections/sessions/collection';
 import { botRedirectMiddleware } from './botRedirect';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
-import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { hstsMiddleware } from './hsts';
 import { logGraphqlQueryFinished, logGraphqlQueryStarted } from './logging';
 import { closePerfMetric, openPerfMetric } from './perfMetrics';
@@ -30,7 +29,7 @@ import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { defaultNotificationsView } from '@/lib/collections/notifications/views';
 import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import express from 'express';
-import { isDatadogEnabled, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
+import { isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { addCacheControlMiddleware } from './cacheControlMiddleware';
 import Notifications from './collections/notifications/collection';
 import { getCommandLineArguments } from './commandLine';
@@ -143,9 +142,6 @@ export async function startWebserver() {
   // addForumSpecificMiddleware(addMiddleware);
   // addSentryMiddlewares(addMiddleware);
   addCacheControlMiddleware(addMiddleware);
-  if (isDatadogEnabled()) {
-    app.use(datadogMiddleware);
-  }
   // app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);

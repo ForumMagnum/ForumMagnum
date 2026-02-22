@@ -4,7 +4,6 @@ import { Posts } from "@/server/collections/posts/collection.ts";
 import { TwitterApi } from 'twitter-api-v2';
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/server/collections/users/collection";
-// import { dogstatsd } from "./datadog/tracer";
 import { accessTokenSecretSetting, accessTokenSetting, apiKeySecretSetting, apiKeySetting, twitterBotEnabledSetting, twitterBotKarmaThresholdSetting } from "@/lib/instanceSettings";
 import { createAnonymousContext } from "./vulcan-lib/createContexts";
 import { createTweet } from "./collections/tweets/mutations";
@@ -68,12 +67,10 @@ async function postTweet(content: string) {
     const rwClient = twitterClient.readWrite
 
     const { data } = await rwClient.v2.tweet(content);
-    // dogstatsd?.increment("tweet_created", 1, 1.0, {outcome: 'success'})
     return data.id
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Error posting tweet. Tweet content: ${content}, error:`, error);
-    // dogstatsd?.increment("tweet_created", 1, 1.0, {outcome: 'error'})
   }
 }
 
@@ -113,4 +110,3 @@ export async function runTwitterBot() {
 
   logger(`All attempts failed, no tweets created.`);
 }
-

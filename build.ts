@@ -519,7 +519,7 @@ async function main() {
       "jsdom", "@sentry/node", "node-fetch", "later", "turndown",
       "@apollo/server", "graphql", "csso", "io-ts", "fp-ts",
       "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
-      "fsevents", "chokidar", "dd-trace", "pg-formatter",
+      "fsevents", "chokidar", "pg-formatter",
       "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
       "cheerio", "vite", "@vitejs/plugin-react", "@google-cloud", "@aws-sdk",
       "@anthropic-ai/sdk", "openai", "@googlemaps"
