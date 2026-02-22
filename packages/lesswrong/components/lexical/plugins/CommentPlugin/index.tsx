@@ -1356,7 +1356,7 @@ export default function CommentPlugin(): JSX.Element {
     if (activeIDs.length > 0) {
       setShowComments(true);
     }
-  }, [activeIDs]);
+  }, [activeIDs, setShowComments]);
 
   useEffect(() => {
     const markNodeKeysToIDs: Map<NodeKey, Array<string>> = new Map();
@@ -1554,7 +1554,7 @@ export default function CommentPlugin(): JSX.Element {
         COMMAND_PRIORITY_EDITOR,
       ),
     );
-  }, [author, authorId, commentStore, editor, markNodeMap]);
+  }, [author, authorId, commentStore, editor, markNodeMap, setShowComments]);
 
   const onAddComment = () => {
     editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);

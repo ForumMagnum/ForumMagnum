@@ -5,15 +5,15 @@ import TableOfContents from "./TableOfContents";
 import ToCColumn from "./ToCColumn";
 import { DynamicTableOfContentsContext } from '@/components/common/sharedContexts';
 import { isLWorAF } from '@/lib/instanceSettings';
-import type { ToCSection } from '@/lib/tableOfContents';
+import type { ToCData, ToCSection } from '@/lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
 
-const EMPTY_TOC_DATA = {
+const EMPTY_TOC_DATA: ToCData = {
   html: null,
   sections: [],
-} as const;
+};
 
 const EDITOR_TOC_SCROLLER_CLASS_NAME = 'EditorToCStickyBlockScroller';
 
