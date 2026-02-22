@@ -67,9 +67,6 @@ export const routeTrie = {
         "modgpt": {
           "hasPage": true
         },
-        "onboarding": {
-          "hasPage": true
-        },
         "random-user": {
           "hasPage": true
         },
@@ -97,7 +94,6 @@ export const routeTrie = {
         "moderation": "moderation",
         "moderationtemplates": "moderationTemplates",
         "modgpt": "modgpt",
-        "onboarding": "onboarding",
         "random-user": "random-user",
         "recentlyactiveusers": "recentlyActiveUsers",
         "supermod": "supermod",
@@ -350,47 +346,6 @@ export const routeTrie = {
         },
         "streamGraphql": {
           "hasRoute": true
-        },
-        "v2": {
-          "staticChildren": {
-            "crosspost": {
-              "staticChildren": {
-                "connectCrossposter": {
-                  "hasRoute": true
-                },
-                "crosspost": {
-                  "hasRoute": true
-                },
-                "crosspostDetails": {
-                  "hasRoute": true
-                },
-                "crossposterDetails": {
-                  "hasRoute": true
-                },
-                "generateToken": {
-                  "hasRoute": true
-                },
-                "unlinkCrossposter": {
-                  "hasRoute": true
-                },
-                "updateCrosspost": {
-                  "hasRoute": true
-                }
-              },
-              "lowerCase": {
-                "connectcrossposter": "connectCrossposter",
-                "crosspost": "crosspost",
-                "crosspostdetails": "crosspostDetails",
-                "crossposterdetails": "crossposterDetails",
-                "generatetoken": "generateToken",
-                "unlinkcrossposter": "unlinkCrossposter",
-                "updatecrosspost": "updateCrosspost"
-              }
-            }
-          },
-          "lowerCase": {
-            "crosspost": "crosspost"
-          }
         }
       },
       "lowerCase": {
@@ -424,8 +379,7 @@ export const routeTrie = {
         "registerclientid": "registerClientId",
         "search": "search",
         "sendllmchat": "sendLlmChat",
-        "streamgraphql": "streamGraphql",
-        "v2": "v2"
+        "streamgraphql": "streamGraphql"
       },
       "catchAll": {
         "paramName": "path",
@@ -577,9 +531,6 @@ export const routeTrie = {
       }
     },
     "contact": {
-      "hasPage": true
-    },
-    "crosspostLogin": {
       "hasPage": true
     },
     "debug": {
@@ -1162,7 +1113,6 @@ export const routeTrie = {
     "community": "community",
     "compare": "compare",
     "contact": "contact",
-    "crosspostlogin": "crosspostLogin",
     "debug": "debug",
     "dialogues": "dialogues",
     "donate": "donate",

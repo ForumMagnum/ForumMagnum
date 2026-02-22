@@ -8,8 +8,7 @@ import { configureSentryScope, getContextFromReqAndRes } from "@/server/vulcan-l
 import { asyncLocalStorage, closePerfMetric, openPerfMetric } from "@/server/perfMetrics";
 import { captureException, getSentry } from "@/lib/sentryWrapper";
 import { getClientIP } from "@/server/utils/getClientIP";
-import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from "@/lib/instanceSettings";
-import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
+import { performanceMetricLoggingEnabled } from "@/lib/instanceSettings";
 import { createGraphqlDeduplicatedObjectStore, extractToObjectStoreAndSubstitute } from "@/lib/apollo/graphqlDeduplicatedObjectStore";
 import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from "@/server/utils/graphqlErrorUtil";
 
@@ -19,31 +18,6 @@ type GraphqlHttpRequestBody = {
   variables?: Record<string, unknown> | null;
   extensions?: Record<string, unknown> | null;
 };
-
-function isCrossSiteRequest(request: NextRequest) {
-  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get();
-  if (!fmCrosspostBaseUrl) {
-    return false;
-  }
-
-  const requestOrigin = request.headers.get("origin");
-  if (!requestOrigin) {
-    return false;
-  }
-
-  try {
-    const crossSiteHostname = new URL(fmCrosspostBaseUrl).hostname;
-    const requestOriginHostname = new URL(requestOrigin).hostname;
-    return requestOriginHostname === crossSiteHostname;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(
-      "Error parsing fmCrosspostBaseUrl when determining if request is cross-site for setting CORS headers",
-      error,
-    );
-    return false;
-  }
-}
 
 function formatGraphQLError(err: any): any {
   if (shouldCaptureGraphQLErrorInSentry(err)) {
@@ -213,12 +187,7 @@ async function graphqlStreamingHandler(request: NextRequest, { onComplete }: { o
 
 async function sharedHandler(request: NextRequest) {
   if (!performanceMetricLoggingEnabled.get()) {
-    const res = await graphqlStreamingHandler(request);
-
-    if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
-    }
-    return res;
+    return graphqlStreamingHandler(request);
   }
 
   const perfMetric = openPerfMetric({
@@ -247,10 +216,6 @@ async function sharedHandler(request: NextRequest) {
       throw error;
     }
 
-    if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
-    }
-
     return res;
   });
 }
@@ -259,8 +224,6 @@ async function sharedHandler(request: NextRequest) {
 // batches containing only read-queries and POST requests are for requests
 // containing mutations, but this is only a convention and not enforced.
 //
-// OPTIONS requests are for preflighting cross-site requests for
-// crossposting-related purposes.
 export function GET(request: NextRequest) {
   return sharedHandler(request);
 }
@@ -269,8 +232,7 @@ export async function POST(request: NextRequest) {
   return sharedHandler(request);
 }
 
-export function OPTIONS(request: NextRequest) {
-  return crosspostOptionsHandler(request);
+export function OPTIONS() {
+  return new Response(null, { status: 204 });
 }
-
 

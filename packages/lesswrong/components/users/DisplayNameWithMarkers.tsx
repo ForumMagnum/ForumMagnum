@@ -1,6 +1,6 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
-import LWTooltip from "../../common/LWTooltip";
+import { registerComponent } from "../../lib/vulcan-lib/components";
+import LWTooltip from "../common/LWTooltip";
 
 export const tenPercentPledgeDiamond = "🔸";
 export const trialPledgeDiamond = "🔹";
@@ -61,5 +61,4 @@ export default registerComponent("DisplayNameWithMarkers", DisplayNameWithMarker
   styles,
   areEqual: "auto",
 });
-
 

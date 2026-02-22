@@ -21,8 +21,4 @@ export const testSettings = {
   disallowCrawlers: true,
   disableEnsureIndex: true,
   disableElastic: true,
-  fmCrosspost: {
-    siteName: "Alignment Forum Test",
-    baseUrl: "http://localhost:3467/"
-  }
 };

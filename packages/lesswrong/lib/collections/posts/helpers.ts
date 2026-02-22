@@ -1,6 +1,6 @@
-import { aboutPostIdSetting, allowTypeIIIPlayerSetting, isAF, isLWorAF, siteUrlSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
+import { aboutPostIdSetting, allowTypeIIIPlayerSetting, isAF, isLWorAF, siteUrlSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import maxBy from "lodash/maxBy";
@@ -381,10 +381,6 @@ export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: Coa
   return post.coauthorUserIds?.includes(user._id) ?? false;
 }
 
-export const isNotHostedHere = (post: PostsEdit|PostsEditQueryFragment|PostsPage|DbPost) => {
-  return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
-}
-
 const mostRelevantTag = (
   tags: TagBasicInfo[],
   tagRelevance: Record<string, number>,
@@ -509,20 +505,6 @@ export interface RSVPType {
   userId: string;
   createdAt: Date;
 }
-
-/**
- * Structured this way to ensure lazy evaluation of `crosspostKarmaThreshold` each time we check for a given user, rather than once on server start
- */
-export const userPassesCrosspostingKarmaThreshold = (user: DbUser | UsersMinimumInfo | null) => {
-  const currentKarmaThreshold = crosspostKarmaThreshold.get();
-
-  return currentKarmaThreshold === null
-    ? true
-    : // userOverNKarmaFunc checks greater than, while we want greater than or equal to, since that's the check we're performing elsewhere
-
-    // so just subtract one
-    userOverNKarmaFunc(currentKarmaThreshold - 1)(user);
-};
 
 export function userCanEditCoauthors(user: UsersCurrent | null) {
   return userIsAdminOrMod(user) || userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(user);

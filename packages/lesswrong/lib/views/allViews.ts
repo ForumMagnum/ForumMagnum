@@ -45,8 +45,6 @@ import { RSSFeedsViews } from '../collections/rssfeeds/views';
 import { SequencesViews } from '../collections/sequences/views';
 import { SpotlightsViews } from '../collections/spotlights/views';
 import { SubscriptionsViews } from '../collections/subscriptions/views';
-import { SurveysViews } from '../collections/surveys/views';
-import { SurveySchedulesViews } from '../collections/surveySchedules/views';
 import { TagsViews } from '../collections/tags/views';
 import { TagFlagsViews } from '../collections/tagFlags/views';
 import { TagRelsViews } from '../collections/tagRels/views';
@@ -131,10 +129,6 @@ export const allViews = {
   SplashArtCoordinates: new CollectionViewSet('SplashArtCoordinates', {}),
   Spotlights: SpotlightsViews,
   Subscriptions: SubscriptionsViews,
-  Surveys: SurveysViews,
-  SurveyQuestions: new CollectionViewSet('SurveyQuestions', {}),
-  SurveyResponses: new CollectionViewSet('SurveyResponses', {}),
-  SurveySchedules: SurveySchedulesViews,
   Tags: TagsViews,
   TagFlags: TagFlagsViews,
   TagRels: TagRelsViews,

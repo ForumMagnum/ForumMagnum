@@ -14,7 +14,7 @@ import { MenuItem } from "../common/Menus";
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
-import EAButton from "../ea-forum/EAButton";
+import ForumButton from "../common/ForumButton";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { EditableUsersList } from "./EditableUsersList";
 import { getCkEditorName } from './Editor';
@@ -163,14 +163,14 @@ export const PostSharingSettings = ({ field, post, formType, editorType }: PostS
   const canUseSharing = userCanUseSharing(currentUser)
 
   return <LWTooltip title={canUseSharing ? undefined : getNoSharePermissionTooltip()}>
-      <EAButton
+      <ForumButton
         className={classes.friendlyButton}
         onClick={userCanUseSharing(currentUser) ? onClickShare : undefined}
         disabled={!canUseSharing}
       >
         <PostSharingIcon className={classes.buttonInternalIcon} />
         Share {post.draft ? " this draft" : ""}
-      </EAButton>
+      </ForumButton>
     </LWTooltip>
 }
 

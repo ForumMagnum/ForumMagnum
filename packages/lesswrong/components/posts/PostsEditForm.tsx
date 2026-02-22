@@ -5,7 +5,7 @@ import type { Editor } from '@ckeditor/ckeditor5-core';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { canUserEditPostMetadata, getPostCollaborateUrl, isNotHostedHere, postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { canUserEditPostMetadata, getPostCollaborateUrl, postGetEditUrl, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isLW } from '../../lib/instanceSettings';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
@@ -20,7 +20,6 @@ import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import NewPostModerationWarning from "../sunshineDashboard/NewPostModerationWarning";
 import Loading from "../vulcan-core/Loading";
 import { EditorContext } from './EditorContext';
-import ForeignCrosspostEditForm from "./ForeignCrosspostEditForm";
 import PostForm from "./PostForm";
 import PostsAcceptTos from "./PostsAcceptTos";
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
@@ -196,10 +195,6 @@ const PostsEditFormInner = ({ documentId, version }: {
     return <Error404/>
   }
 
-  if (isNotHostedHere(document)) {
-    return <ForeignCrosspostEditForm post={document} />;
-  }
-
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId
 
@@ -264,5 +259,4 @@ const PostsEditForm = ({ documentId, version }: {
 }
 
 export default PostsEditForm;
-
 

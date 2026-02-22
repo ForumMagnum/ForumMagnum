@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { formatRole } from '../users/EAUserTooltipContent';
+import { formatRole } from '../users/userTooltipFormatting';
 import { Link } from '@/lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { userGetProfileUrl } from '@/lib/collections/users/helpers';
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "10px",
   },
-  // User profile header, some of these styles are borrowed from EAUserTooltipContent
+  // User profile header styles.
   userInfo: {
     display: "flex",
     maxWidth: "100%",
@@ -219,5 +219,4 @@ export default registerComponent(
   ForumEventResultPopper,
   { styles, stylePriority: -1 }
 );
-
 

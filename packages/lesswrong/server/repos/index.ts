@@ -31,8 +31,6 @@ import SequencesRepo from "./SequencesRepo";
 import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
 import SpotlightsRepo from "./SpotlightsRepo";
-import SurveysRepo from "./SurveysRepo";
-import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
 import TweetsRepo from "./TweetsRepo";
 import UltraFeedEventsRepo from "./UltraFeedEventsRepo";
@@ -82,8 +80,6 @@ const allRepos = {
   sideComments: SideCommentCachesRepo,
   splashArtCoordinates: SplashArtCoordinatesRepo,
   spotlights: SpotlightsRepo,
-  surveys: SurveysRepo,
-  surveySchedules: SurveySchedulesRepo,
   tags: TagsRepo,
   tweets: TweetsRepo,
   ultraFeedEvents: UltraFeedEventsRepo,

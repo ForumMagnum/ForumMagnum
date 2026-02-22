@@ -12,7 +12,7 @@ import ForumIcon from "../common/ForumIcon";
 import LWDialog from "../common/LWDialog";
 import { Typography } from "../common/Typography";
 import { useCurrentUser } from "../common/withUser";
-import EAButton from "../ea-forum/EAButton";
+import ForumButton from "../common/ForumButton";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import ExpandedUsersConversationSearchHit from "../search/ExpandedUsersConversationSearchHit";
 
@@ -266,9 +266,9 @@ const NewConversationDialog = ({
             </div>
           </InstantSearch>
           <div className={classes.submitRow}>
-            <EAButton onClick={() => initiateConversation(selectedUsers.map((u) => u._id))}>
+            <ForumButton onClick={() => initiateConversation(selectedUsers.map((u) => u._id))}>
               Create conversation
-            </EAButton>
+            </ForumButton>
           </div>
         </div>
       </LWDialog>

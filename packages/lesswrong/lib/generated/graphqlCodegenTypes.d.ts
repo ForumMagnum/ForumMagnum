@@ -1565,7 +1565,6 @@ type CreatePostDataInput = {
   facebookLink?: InputMaybe<Scalars['String']['input']>;
   feedId?: InputMaybe<Scalars['String']['input']>;
   feedLink?: InputMaybe<Scalars['String']['input']>;
-  fmCrosspost?: InputMaybe<CrosspostInput>;
   forceAllowType3Audio?: InputMaybe<Scalars['Boolean']['input']>;
   frontpageDate?: InputMaybe<Scalars['Date']['input']>;
   generateDraftJargon?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1769,59 +1768,6 @@ type CreateSubscriptionInput = {
   data: CreateSubscriptionDataInput;
 };
 
-type CreateSurveyDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  name: Scalars['String']['input'];
-};
-
-type CreateSurveyInput = {
-  data: CreateSurveyDataInput;
-};
-
-type CreateSurveyQuestionDataInput = {
-  format: SurveyQuestionFormat;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  order: Scalars['Float']['input'];
-  question: Scalars['String']['input'];
-  surveyId: Scalars['String']['input'];
-};
-
-type CreateSurveyQuestionInput = {
-  data: CreateSurveyQuestionDataInput;
-};
-
-type CreateSurveyResponseDataInput = {
-  clientId: Scalars['String']['input'];
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  response: Scalars['JSON']['input'];
-  surveyId: Scalars['String']['input'];
-  surveyScheduleId: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
-};
-
-type CreateSurveyResponseInput = {
-  data: CreateSurveyResponseDataInput;
-};
-
-type CreateSurveyScheduleDataInput = {
-  clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  deactivated?: InputMaybe<Scalars['Boolean']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  impressionsLimit?: InputMaybe<Scalars['Float']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  maxKarma?: InputMaybe<Scalars['Float']['input']>;
-  maxVisitorPercentage?: InputMaybe<Scalars['Float']['input']>;
-  minKarma?: InputMaybe<Scalars['Float']['input']>;
-  name: Scalars['String']['input'];
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-  surveyId: Scalars['String']['input'];
-  target: SurveyScheduleTarget;
-};
-
-type CreateSurveyScheduleInput = {
-  data: CreateSurveyScheduleDataInput;
-};
-
 type CreateTagDataInput = {
   adminOnly?: InputMaybe<Scalars['Boolean']['input']>;
   authorOnly?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1927,7 +1873,6 @@ type CreateUserDataInput = {
   emailSubscribedToCurated?: InputMaybe<Scalars['Boolean']['input']>;
   expandedFrontpageSections?: InputMaybe<ExpandedFrontpageSectionsSettingsInput>;
   facebookProfileURL?: InputMaybe<Scalars['String']['input']>;
-  fmCrosspostUserId?: InputMaybe<Scalars['String']['input']>;
   frontpageFilterSettings?: InputMaybe<Scalars['JSON']['input']>;
   frontpageSelectedTab?: InputMaybe<Scalars['String']['input']>;
   githubProfileURL?: InputMaybe<Scalars['String']['input']>;
@@ -1954,7 +1899,6 @@ type CreateUserDataInput = {
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
   howICanHelpOthers?: InputMaybe<CreateRevisionDataInput>;
   howOthersCanHelpMe?: InputMaybe<CreateRevisionDataInput>;
-  inactiveSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   jobTitle?: InputMaybe<Scalars['String']['input']>;
   karmaChangeBatchStart?: InputMaybe<Scalars['Date']['input']>;
@@ -2011,7 +1955,6 @@ type CreateUserDataInput = {
   notificationYourTurnMatchForm?: InputMaybe<Scalars['JSON']['input']>;
   nullifyVotes?: InputMaybe<Scalars['Boolean']['input']>;
   optedInToDialogueFacilitation?: InputMaybe<Scalars['Boolean']['input']>;
-  optedOutOfSurveys?: InputMaybe<Scalars['Boolean']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   petrovOptOut?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2041,7 +1984,6 @@ type CreateUserDataInput = {
   twitterProfileURL?: InputMaybe<Scalars['String']['input']>;
   twitterProfileURLAdmin?: InputMaybe<Scalars['String']['input']>;
   unsubscribeFromAll?: InputMaybe<Scalars['Boolean']['input']>;
-  userSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
   viewUnreviewedComments?: InputMaybe<Scalars['Boolean']['input']>;
   voteBanned?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2104,19 +2046,6 @@ type CronHistory = {
 type CrossedKarmaThresholdResult = {
   __typename?: 'CrossedKarmaThresholdResult';
   results: Array<Post>;
-};
-
-type CrosspostInput = {
-  foreignPostId?: InputMaybe<Scalars['String']['input']>;
-  hostedHere?: InputMaybe<Scalars['Boolean']['input']>;
-  isCrosspost: Scalars['Boolean']['input'];
-};
-
-type CrosspostOutput = {
-  __typename?: 'CrosspostOutput';
-  foreignPostId?: Maybe<Scalars['String']['output']>;
-  hostedHere?: Maybe<Scalars['Boolean']['output']>;
-  isCrosspost: Scalars['Boolean']['output'];
 };
 
 type CuratedAndPopularThisWeekResult = {
@@ -4002,58 +3931,6 @@ type MultiSubscriptionOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-type MultiSurveyInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiSurveyOutput = {
-  __typename?: 'MultiSurveyOutput';
-  results: Array<Survey>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiSurveyQuestionInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiSurveyQuestionOutput = {
-  __typename?: 'MultiSurveyQuestionOutput';
-  results: Array<SurveyQuestion>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiSurveyResponseInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiSurveyResponseOutput = {
-  __typename?: 'MultiSurveyResponseOutput';
-  results: Array<SurveyResponse>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiSurveyScheduleInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiSurveyScheduleOutput = {
-  __typename?: 'MultiSurveyScheduleOutput';
-  results: Array<SurveySchedule>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 type MultiTagFlagInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4211,7 +4088,6 @@ type Mutation = {
   approveUserCurrentContentOnly: Scalars['Boolean']['output'];
   autosaveRevision?: Maybe<Revision>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
-  connectCrossposter?: Maybe<Scalars['String']['output']>;
   createAdvisorRequest?: Maybe<AdvisorRequestOutput>;
   createBook?: Maybe<BookOutput>;
   createChapter?: Maybe<ChapterOutput>;
@@ -4240,10 +4116,6 @@ type Mutation = {
   createSplashArtCoordinate?: Maybe<SplashArtCoordinateOutput>;
   createSpotlight?: Maybe<SpotlightOutput>;
   createSubscription?: Maybe<SubscriptionOutput>;
-  createSurvey?: Maybe<SurveyOutput>;
-  createSurveyQuestion?: Maybe<SurveyQuestionOutput>;
-  createSurveyResponse?: Maybe<SurveyResponseOutput>;
-  createSurveySchedule?: Maybe<SurveyScheduleOutput>;
   createTag?: Maybe<TagOutput>;
   createTagFlag?: Maybe<TagFlagOutput>;
   createUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
@@ -4252,7 +4124,6 @@ type Mutation = {
   createUserRateLimit?: Maybe<UserRateLimitOutput>;
   createUserTagRel?: Maybe<UserTagRelOutput>;
   dismissRecommendation?: Maybe<Scalars['Boolean']['output']>;
-  editSurvey?: Maybe<Survey>;
   flipSplashArtImage?: Maybe<Scalars['Boolean']['output']>;
   generateCoverImagesForPost?: Maybe<Array<Maybe<ReviewWinnerArt>>>;
   getNewJargonTerms?: Maybe<Array<Maybe<JargonTerm>>>;
@@ -4301,7 +4172,6 @@ type Mutation = {
   signup?: Maybe<LoginReturnData>;
   submitReviewVote?: Maybe<Post>;
   toggleBookmark?: Maybe<ToggleBookmarkOutput>;
-  unlinkCrossposter?: Maybe<Scalars['String']['output']>;
   unlistLlmPost: Scalars['Boolean']['output'];
   unlockPost?: Maybe<Post>;
   unlockThread: Scalars['Boolean']['output'];
@@ -4332,10 +4202,6 @@ type Mutation = {
   updateRevision?: Maybe<RevisionOutput>;
   updateSequence?: Maybe<SequenceOutput>;
   updateSpotlight?: Maybe<SpotlightOutput>;
-  updateSurvey?: Maybe<SurveyOutput>;
-  updateSurveyQuestion?: Maybe<SurveyQuestionOutput>;
-  updateSurveyResponse?: Maybe<SurveyResponseOutput>;
-  updateSurveySchedule?: Maybe<SurveyScheduleOutput>;
   updateTag?: Maybe<TagOutput>;
   updateTagFlag?: Maybe<TagFlagOutput>;
   updateUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
@@ -4493,11 +4359,6 @@ type MutationclickRecommendationArgs = {
 };
 
 
-type MutationconnectCrossposterArgs = {
-  token?: InputMaybe<Scalars['String']['input']>;
-};
-
-
 type MutationcreateAdvisorRequestArgs = {
   data: CreateAdvisorRequestDataInput;
 };
@@ -4638,26 +4499,6 @@ type MutationcreateSubscriptionArgs = {
 };
 
 
-type MutationcreateSurveyArgs = {
-  data: CreateSurveyDataInput;
-};
-
-
-type MutationcreateSurveyQuestionArgs = {
-  data: CreateSurveyQuestionDataInput;
-};
-
-
-type MutationcreateSurveyResponseArgs = {
-  data: CreateSurveyResponseDataInput;
-};
-
-
-type MutationcreateSurveyScheduleArgs = {
-  data: CreateSurveyScheduleDataInput;
-};
-
-
 type MutationcreateTagArgs = {
   data: CreateTagDataInput;
 };
@@ -4695,13 +4536,6 @@ type MutationcreateUserTagRelArgs = {
 
 type MutationdismissRecommendationArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-type MutationeditSurveyArgs = {
-  name: Scalars['String']['input'];
-  questions: Array<SurveyQuestionInfo>;
-  surveyId: Scalars['String']['input'];
 };
 
 
@@ -5192,30 +5026,6 @@ type MutationupdateSpotlightArgs = {
 };
 
 
-type MutationupdateSurveyArgs = {
-  data: UpdateSurveyDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateSurveyQuestionArgs = {
-  data: UpdateSurveyQuestionDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateSurveyResponseArgs = {
-  data: UpdateSurveyResponseDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateSurveyScheduleArgs = {
-  data: UpdateSurveyScheduleDataInput;
-  selector: SelectorInput;
-};
-
-
 type MutationupdateTagArgs = {
   data: UpdateTagDataInput;
   selector: SelectorInput;
@@ -5569,7 +5379,6 @@ type Post = {
   finalReviewVotesAllKarma: Array<Scalars['Float']['output']>;
   finalReviewVotesHighKarma: Array<Scalars['Float']['output']>;
   firstVideoAttribsForPreview?: Maybe<Scalars['JSON']['output']>;
-  fmCrosspost?: Maybe<CrosspostOutput>;
   forceAllowType3Audio: Scalars['Boolean']['output'];
   frontpageClassification?: Maybe<FrontpageClassification>;
   frontpageDate?: Maybe<Scalars['Date']['output']>;
@@ -7511,7 +7320,6 @@ type Query = {
   ContinueReading?: Maybe<Array<RecommendResumeSequence>>;
   CrossedKarmaThreshold?: Maybe<CrossedKarmaThresholdResult>;
   CuratedAndPopularThisWeek?: Maybe<CuratedAndPopularThisWeekResult>;
-  CurrentFrontpageSurvey?: Maybe<SurveySchedule>;
   ElicitBlockData?: Maybe<ElicitBlockData>;
   EmailPreview?: Maybe<Array<Maybe<EmailPreview>>>;
   GetAllReviewWinners: Array<Post>;
@@ -7619,7 +7427,6 @@ type Query = {
   gardenCode?: Maybe<SingleGardenCodeOutput>;
   gardenCodes?: Maybe<MultiGardenCodeOutput>;
   getBookWordCount?: Maybe<Scalars['Float']['output']>;
-  getCrosspost?: Maybe<Scalars['JSON']['output']>;
   getLinkSharedPost?: Maybe<Post>;
   getSequenceStats?: Maybe<SequenceStats>;
   googleServiceAccountSession?: Maybe<SingleGoogleServiceAccountSessionOutput>;
@@ -7677,14 +7484,6 @@ type Query = {
   spotlights?: Maybe<MultiSpotlightOutput>;
   subscription?: Maybe<SingleSubscriptionOutput>;
   subscriptions?: Maybe<MultiSubscriptionOutput>;
-  survey?: Maybe<SingleSurveyOutput>;
-  surveyQuestion?: Maybe<SingleSurveyQuestionOutput>;
-  surveyQuestions?: Maybe<MultiSurveyQuestionOutput>;
-  surveyResponse?: Maybe<SingleSurveyResponseOutput>;
-  surveyResponses?: Maybe<MultiSurveyResponseOutput>;
-  surveySchedule?: Maybe<SingleSurveyScheduleOutput>;
-  surveySchedules?: Maybe<MultiSurveyScheduleOutput>;
-  surveys?: Maybe<MultiSurveyOutput>;
   tag?: Maybe<SingleTagOutput>;
   tagFlag?: Maybe<SingleTagFlagOutput>;
   tagFlags?: Maybe<MultiTagFlagOutput>;
@@ -8418,11 +8217,6 @@ type QuerygetBookWordCountArgs = {
 };
 
 
-type QuerygetCrosspostArgs = {
-  args?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-
 type QuerygetLinkSharedPostArgs = {
   linkSharingKey: Scalars['String']['input'];
   postId: Scalars['String']['input'];
@@ -8832,66 +8626,6 @@ type QuerysubscriptionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<SubscriptionSelector>;
-};
-
-
-type QuerysurveyArgs = {
-  input?: InputMaybe<SingleSurveyInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerysurveyQuestionArgs = {
-  input?: InputMaybe<SingleSurveyQuestionInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerysurveyQuestionsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyQuestionInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveyQuestionSelector>;
-};
-
-
-type QuerysurveyResponseArgs = {
-  input?: InputMaybe<SingleSurveyResponseInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerysurveyResponsesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyResponseInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveyResponseSelector>;
-};
-
-
-type QuerysurveyScheduleArgs = {
-  input?: InputMaybe<SingleSurveyScheduleInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerysurveySchedulesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyScheduleInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveyScheduleSelector>;
-};
-
-
-type QuerysurveysArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveySelector>;
 };
 
 
@@ -10046,46 +9780,6 @@ type SingleSubscriptionOutput = {
   result?: Maybe<Subscription>;
 };
 
-type SingleSurveyInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleSurveyOutput = {
-  __typename?: 'SingleSurveyOutput';
-  result?: Maybe<Survey>;
-};
-
-type SingleSurveyQuestionInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleSurveyQuestionOutput = {
-  __typename?: 'SingleSurveyQuestionOutput';
-  result?: Maybe<SurveyQuestion>;
-};
-
-type SingleSurveyResponseInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleSurveyResponseOutput = {
-  __typename?: 'SingleSurveyResponseOutput';
-  result?: Maybe<SurveyResponse>;
-};
-
-type SingleSurveyScheduleInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleSurveyScheduleOutput = {
-  __typename?: 'SingleSurveyScheduleOutput';
-  result?: Maybe<SurveySchedule>;
-};
-
 type SingleTagFlagInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -10480,121 +10174,6 @@ type SuggestedFeedSubscriptionUsersResult = {
 type SuggestedTopActiveUsersResult = {
   __typename?: 'SuggestedTopActiveUsersResult';
   results: Array<User>;
-};
-
-type Survey = {
-  __typename?: 'Survey';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  name: Scalars['String']['output'];
-  questions: Array<SurveyQuestion>;
-  schemaVersion: Scalars['Float']['output'];
-};
-
-type SurveyOutput = {
-  __typename?: 'SurveyOutput';
-  data?: Maybe<Survey>;
-};
-
-type SurveyQuestion = {
-  __typename?: 'SurveyQuestion';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  format: SurveyQuestionFormat;
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  order: Scalars['Float']['output'];
-  question: Scalars['String']['output'];
-  schemaVersion: Scalars['Float']['output'];
-  survey: Survey;
-  surveyId: Scalars['String']['output'];
-};
-
-type SurveyQuestionFormat =
-  | 'multilineText'
-  | 'rank0To10'
-  | 'text';
-
-type SurveyQuestionInfo = {
-  _id?: InputMaybe<Scalars['String']['input']>;
-  format: Scalars['String']['input'];
-  question: Scalars['String']['input'];
-};
-
-type SurveyQuestionOutput = {
-  __typename?: 'SurveyQuestionOutput';
-  data?: Maybe<SurveyQuestion>;
-};
-
-type SurveyQuestionSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-};
-
-type SurveyResponse = {
-  __typename?: 'SurveyResponse';
-  _id: Scalars['String']['output'];
-  client?: Maybe<ClientId>;
-  clientId?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['Date']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  response?: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  survey?: Maybe<Survey>;
-  surveyId?: Maybe<Scalars['String']['output']>;
-  surveySchedule?: Maybe<SurveySchedule>;
-  surveyScheduleId?: Maybe<Scalars['String']['output']>;
-  user?: Maybe<User>;
-  userId?: Maybe<Scalars['String']['output']>;
-};
-
-type SurveyResponseOutput = {
-  __typename?: 'SurveyResponseOutput';
-  data?: Maybe<SurveyResponse>;
-};
-
-type SurveyResponseSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-};
-
-type SurveySchedule = {
-  __typename?: 'SurveySchedule';
-  _id: Scalars['String']['output'];
-  clientIds?: Maybe<Array<Scalars['String']['output']>>;
-  clients?: Maybe<Array<ClientId>>;
-  createdAt: Scalars['Date']['output'];
-  deactivated?: Maybe<Scalars['Boolean']['output']>;
-  endDate?: Maybe<Scalars['Date']['output']>;
-  impressionsLimit?: Maybe<Scalars['Float']['output']>;
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  maxKarma?: Maybe<Scalars['Float']['output']>;
-  maxVisitorPercentage?: Maybe<Scalars['Float']['output']>;
-  minKarma?: Maybe<Scalars['Float']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  startDate?: Maybe<Scalars['Date']['output']>;
-  survey?: Maybe<Survey>;
-  surveyId: Scalars['String']['output'];
-  target?: Maybe<SurveyScheduleTarget>;
-};
-
-type SurveyScheduleOutput = {
-  __typename?: 'SurveyScheduleOutput';
-  data?: Maybe<SurveySchedule>;
-};
-
-type SurveyScheduleSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-  surveySchedulesByCreatedAt?: InputMaybe<EmptyViewInput>;
-};
-
-type SurveyScheduleTarget =
-  | 'allUsers'
-  | 'loggedInOnly'
-  | 'loggedOutOnly';
-
-type SurveySelector = {
-  default?: InputMaybe<EmptyViewInput>;
-  surveysByCreatedAt?: InputMaybe<EmptyViewInput>;
 };
 
 type Tag = {
@@ -11527,7 +11106,6 @@ type UpdatePostDataInput = {
   facebookLink?: InputMaybe<Scalars['String']['input']>;
   feedId?: InputMaybe<Scalars['String']['input']>;
   feedLink?: InputMaybe<Scalars['String']['input']>;
-  fmCrosspost?: InputMaybe<CrosspostInput>;
   forceAllowType3Audio?: InputMaybe<Scalars['Boolean']['input']>;
   frontpageDate?: InputMaybe<Scalars['Date']['input']>;
   generateDraftJargon?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11703,63 +11281,6 @@ type UpdateSpotlightInput = {
   selector: SelectorInput;
 };
 
-type UpdateSurveyDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UpdateSurveyInput = {
-  data: UpdateSurveyDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateSurveyQuestionDataInput = {
-  format?: InputMaybe<SurveyQuestionFormat>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  order?: InputMaybe<Scalars['Float']['input']>;
-  question?: InputMaybe<Scalars['String']['input']>;
-  surveyId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UpdateSurveyQuestionInput = {
-  data: UpdateSurveyQuestionDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateSurveyResponseDataInput = {
-  clientId?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  response?: InputMaybe<Scalars['JSON']['input']>;
-  surveyId?: InputMaybe<Scalars['String']['input']>;
-  surveyScheduleId?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UpdateSurveyResponseInput = {
-  data: UpdateSurveyResponseDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateSurveyScheduleDataInput = {
-  clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  deactivated?: InputMaybe<Scalars['Boolean']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  impressionsLimit?: InputMaybe<Scalars['Float']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  maxKarma?: InputMaybe<Scalars['Float']['input']>;
-  maxVisitorPercentage?: InputMaybe<Scalars['Float']['input']>;
-  minKarma?: InputMaybe<Scalars['Float']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-  surveyId?: InputMaybe<Scalars['String']['input']>;
-  target?: InputMaybe<SurveyScheduleTarget>;
-};
-
-type UpdateSurveyScheduleInput = {
-  data: UpdateSurveyScheduleDataInput;
-  selector: SelectorInput;
-};
-
 type UpdateTagDataInput = {
   adminOnly?: InputMaybe<Scalars['Boolean']['input']>;
   authorOnly?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11868,7 +11389,6 @@ type UpdateUserDataInput = {
   emailSubscribedToCurated?: InputMaybe<Scalars['Boolean']['input']>;
   expandedFrontpageSections?: InputMaybe<ExpandedFrontpageSectionsSettingsInput>;
   facebookProfileURL?: InputMaybe<Scalars['String']['input']>;
-  fmCrosspostUserId?: InputMaybe<Scalars['String']['input']>;
   frontpageFilterSettings?: InputMaybe<Scalars['JSON']['input']>;
   frontpageSelectedTab?: InputMaybe<Scalars['String']['input']>;
   fullName?: InputMaybe<Scalars['String']['input']>;
@@ -11901,7 +11421,6 @@ type UpdateUserDataInput = {
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
   howICanHelpOthers?: InputMaybe<CreateRevisionDataInput>;
   howOthersCanHelpMe?: InputMaybe<CreateRevisionDataInput>;
-  inactiveSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   jobTitle?: InputMaybe<Scalars['String']['input']>;
   karmaChangeBatchStart?: InputMaybe<Scalars['Date']['input']>;
@@ -11961,7 +11480,6 @@ type UpdateUserDataInput = {
   notificationYourTurnMatchForm?: InputMaybe<Scalars['JSON']['input']>;
   nullifyVotes?: InputMaybe<Scalars['Boolean']['input']>;
   optedInToDialogueFacilitation?: InputMaybe<Scalars['Boolean']['input']>;
-  optedOutOfSurveys?: InputMaybe<Scalars['Boolean']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   partiallyReadSequences?: InputMaybe<Array<PartiallyReadSequenceItemInput>>;
@@ -12011,7 +11529,6 @@ type UpdateUserDataInput = {
   twitterProfileURL?: InputMaybe<Scalars['String']['input']>;
   twitterProfileURLAdmin?: InputMaybe<Scalars['String']['input']>;
   unsubscribeFromAll?: InputMaybe<Scalars['Boolean']['input']>;
-  userSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
   usernameUnset?: InputMaybe<Scalars['Boolean']['input']>;
   viewUnreviewedComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -12146,7 +11663,6 @@ type User = {
   emails?: Maybe<Array<Scalars['JSON']['output']>>;
   expandedFrontpageSections?: Maybe<ExpandedFrontpageSectionsSettingsOutput>;
   facebookProfileURL?: Maybe<Scalars['String']['output']>;
-  fmCrosspostUserId?: Maybe<Scalars['String']['output']>;
   frontpageFilterSettings?: Maybe<Scalars['JSON']['output']>;
   frontpagePostCount: Scalars['Float']['output'];
   frontpageSelectedTab?: Maybe<Scalars['String']['output']>;
@@ -12158,7 +11674,6 @@ type User = {
   googleLocation?: Maybe<Scalars['JSON']['output']>;
   groups?: Maybe<Array<Scalars['String']['output']>>;
   hasAnyBookmarks?: Maybe<Scalars['Boolean']['output']>;
-  hasAuth0Id?: Maybe<Scalars['Boolean']['output']>;
   hasContinueReading?: Maybe<Scalars['Boolean']['output']>;
   hiddenPosts?: Maybe<Array<Post>>;
   hiddenPostsMetadata?: Maybe<Array<PostMetadataOutput>>;
@@ -12190,7 +11705,6 @@ type User = {
   howOthersCanHelpMe_latest?: Maybe<Scalars['String']['output']>;
   htmlBio: Scalars['String']['output'];
   htmlMapMarkerText?: Maybe<Scalars['String']['output']>;
-  inactiveSurveyEmailSentAt?: Maybe<Scalars['Date']['output']>;
   isAdmin: Scalars['Boolean']['output'];
   isReviewed?: Maybe<Scalars['Boolean']['output']>;
   jobTitle?: Maybe<Scalars['String']['output']>;
@@ -12265,7 +11779,6 @@ type User = {
   nullifyVotes?: Maybe<Scalars['Boolean']['output']>;
   oldSlugs: Array<Scalars['String']['output']>;
   optedInToDialogueFacilitation?: Maybe<Scalars['Boolean']['output']>;
-  optedOutOfSurveys?: Maybe<Scalars['Boolean']['output']>;
   organization?: Maybe<Scalars['String']['output']>;
   organizerOfGroupIds: Array<Scalars['String']['output']>;
   organizerOfGroups: Array<Localgroup>;
@@ -12340,7 +11853,6 @@ type User = {
   twitterProfileURLAdmin?: Maybe<Scalars['String']['output']>;
   unsubscribeFromAll?: Maybe<Scalars['Boolean']['output']>;
   userRateLimits?: Maybe<Array<UserRateLimit>>;
-  userSurveyEmailSentAt?: Maybe<Scalars['Date']['output']>;
   username?: Maybe<Scalars['String']['output']>;
   usernameUnset?: Maybe<Scalars['Boolean']['output']>;
   usersContactedBeforeReview?: Maybe<Array<Scalars['String']['output']>>;
@@ -15183,31 +14695,6 @@ type setIsHiddenMutationVariables = Exact<{
 
 type setIsHiddenMutation = setIsHiddenMutation_Mutation;
 
-type NewUserCompleteProfileMutation_NewUserCompleteProfile_NewUserCompletedProfile = { __typename?: 'NewUserCompletedProfile', username: string | null, slug: string | null, displayName: string | null };
-
-type NewUserCompleteProfileMutation_Mutation = { __typename?: 'Mutation', NewUserCompleteProfile: NewUserCompleteProfileMutation_NewUserCompleteProfile_NewUserCompletedProfile | null };
-
-
-type NewUserCompleteProfileMutationVariables = Exact<{
-  username: Scalars['String']['input'];
-  subscribeToDigest: Scalars['Boolean']['input'];
-  email: InputMaybe<Scalars['String']['input']>;
-  acceptedTos: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type NewUserCompleteProfileMutation = NewUserCompleteProfileMutation_Mutation;
-
-type isDisplayNameTakenQuery_Query = { __typename?: 'Query', IsDisplayNameTaken: boolean };
-
-
-type isDisplayNameTakenQueryVariables = Exact<{
-  displayName: Scalars['String']['input'];
-}>;
-
-
-type isDisplayNameTakenQuery = isDisplayNameTakenQuery_Query;
-
 type multiPostCKPostEditorQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsMinimumInfo
@@ -15502,31 +14989,6 @@ type updateUserEventsHomeMutationVariables = Exact<{
 
 
 type updateUserEventsHomeMutation = updateUserEventsHomeMutation_Mutation;
-
-type FMCrosspostControlQuery_user_SingleUserOutput_result_User = (
-  { __typename?: 'User' }
-  & UsersCrosspostInfo
-);
-
-type FMCrosspostControlQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: FMCrosspostControlQuery_user_SingleUserOutput_result_User | null };
-
-type FMCrosspostControlQuery_Query = { __typename?: 'Query', user: FMCrosspostControlQuery_user_SingleUserOutput | null };
-
-
-type FMCrosspostControlQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type FMCrosspostControlQuery = FMCrosspostControlQuery_Query;
-
-type unlinkCrossposterMutation_Mutation = { __typename?: 'Mutation', unlinkCrossposter: string | null };
-
-
-type unlinkCrossposterMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-type unlinkCrossposterMutation = unlinkCrossposterMutation_Mutation;
 
 type ImageUploadQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
@@ -16042,19 +15504,6 @@ type multiForumEventuseCurrentForumEventQueryQueryVariables = Exact<{
 
 
 type multiForumEventuseCurrentForumEventQueryQuery = multiForumEventuseCurrentForumEventQueryQuery_Query;
-
-type CurrentFrontpageSurveyQuery_CurrentFrontpageSurvey_SurveySchedule = (
-  { __typename?: 'SurveySchedule' }
-  & SurveyScheduleMinimumInfo
-);
-
-type CurrentFrontpageSurveyQuery_Query = { __typename?: 'Query', CurrentFrontpageSurvey: CurrentFrontpageSurveyQuery_CurrentFrontpageSurvey_SurveySchedule | null };
-
-
-type CurrentFrontpageSurveyQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type CurrentFrontpageSurveyQuery = CurrentFrontpageSurveyQuery_Query;
 
 type reviewVotesForPostAndUserQuery_reviewVotes_MultiReviewVoteOutput_results_ReviewVote = { __typename?: 'ReviewVote', _id: string, qualitativeScore: number, quadraticScore: number };
 
@@ -21664,164 +21113,6 @@ type updateModeratorActionContentPermissionsMutationVariables = Exact<{
 
 type updateModeratorActionContentPermissionsMutation = updateModeratorActionContentPermissionsMutation_Mutation;
 
-type multiSurveyScheduleSurveyAdminPageQueryQuery_surveySchedules_MultiSurveyScheduleOutput_results_SurveySchedule = (
-  { __typename?: 'SurveySchedule' }
-  & SurveyScheduleEdit
-);
-
-type multiSurveyScheduleSurveyAdminPageQueryQuery_surveySchedules_MultiSurveyScheduleOutput = { __typename?: 'MultiSurveyScheduleOutput', totalCount: number | null, results: Array<multiSurveyScheduleSurveyAdminPageQueryQuery_surveySchedules_MultiSurveyScheduleOutput_results_SurveySchedule> };
-
-type multiSurveyScheduleSurveyAdminPageQueryQuery_Query = { __typename?: 'Query', surveySchedules: multiSurveyScheduleSurveyAdminPageQueryQuery_surveySchedules_MultiSurveyScheduleOutput | null };
-
-
-type multiSurveyScheduleSurveyAdminPageQueryQueryVariables = Exact<{
-  selector: InputMaybe<SurveyScheduleSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiSurveyScheduleSurveyAdminPageQueryQuery = multiSurveyScheduleSurveyAdminPageQueryQuery_Query;
-
-type multiSurveySurveyAdminPageQueryQuery_surveys_MultiSurveyOutput_results_Survey = (
-  { __typename?: 'Survey' }
-  & SurveyMinimumInfo
-);
-
-type multiSurveySurveyAdminPageQueryQuery_surveys_MultiSurveyOutput = { __typename?: 'MultiSurveyOutput', totalCount: number | null, results: Array<multiSurveySurveyAdminPageQueryQuery_surveys_MultiSurveyOutput_results_Survey> };
-
-type multiSurveySurveyAdminPageQueryQuery_Query = { __typename?: 'Query', surveys: multiSurveySurveyAdminPageQueryQuery_surveys_MultiSurveyOutput | null };
-
-
-type multiSurveySurveyAdminPageQueryQueryVariables = Exact<{
-  selector: InputMaybe<SurveySelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiSurveySurveyAdminPageQueryQuery = multiSurveySurveyAdminPageQueryQuery_Query;
-
-type createSurveySurveyAdminPageMutation_createSurvey_SurveyOutput_data_Survey = (
-  { __typename?: 'Survey' }
-  & SurveyMinimumInfo
-);
-
-type createSurveySurveyAdminPageMutation_createSurvey_SurveyOutput = { __typename?: 'SurveyOutput', data: createSurveySurveyAdminPageMutation_createSurvey_SurveyOutput_data_Survey | null };
-
-type createSurveySurveyAdminPageMutation_Mutation = { __typename?: 'Mutation', createSurvey: createSurveySurveyAdminPageMutation_createSurvey_SurveyOutput | null };
-
-
-type createSurveySurveyAdminPageMutationVariables = Exact<{
-  data: CreateSurveyDataInput;
-}>;
-
-
-type createSurveySurveyAdminPageMutation = createSurveySurveyAdminPageMutation_Mutation;
-
-type SurveyEditPageQuery_survey_SingleSurveyOutput_result_Survey = (
-  { __typename?: 'Survey' }
-  & SurveyMinimumInfo
-);
-
-type SurveyEditPageQuery_survey_SingleSurveyOutput = { __typename?: 'SingleSurveyOutput', result: SurveyEditPageQuery_survey_SingleSurveyOutput_result_Survey | null };
-
-type SurveyEditPageQuery_Query = { __typename?: 'Query', survey: SurveyEditPageQuery_survey_SingleSurveyOutput | null };
-
-
-type SurveyEditPageQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type SurveyEditPageQuery = SurveyEditPageQuery_Query;
-
-type editSurveyMutation_editSurvey_Survey = (
-  { __typename?: 'Survey' }
-  & SurveyMinimumInfo
-);
-
-type editSurveyMutation_Mutation = { __typename?: 'Mutation', editSurvey: editSurveyMutation_editSurvey_Survey | null };
-
-
-type editSurveyMutationVariables = Exact<{
-  surveyId: Scalars['String']['input'];
-  name: Scalars['String']['input'];
-  questions: Array<SurveyQuestionInfo> | SurveyQuestionInfo;
-}>;
-
-
-type editSurveyMutation = editSurveyMutation_Mutation;
-
-type createSurveyResponseSurveyPostsItemMutation_createSurveyResponse_SurveyResponseOutput_data_SurveyResponse = (
-  { __typename?: 'SurveyResponse' }
-  & SurveyResponseMinimumInfo
-);
-
-type createSurveyResponseSurveyPostsItemMutation_createSurveyResponse_SurveyResponseOutput = { __typename?: 'SurveyResponseOutput', data: createSurveyResponseSurveyPostsItemMutation_createSurveyResponse_SurveyResponseOutput_data_SurveyResponse | null };
-
-type createSurveyResponseSurveyPostsItemMutation_Mutation = { __typename?: 'Mutation', createSurveyResponse: createSurveyResponseSurveyPostsItemMutation_createSurveyResponse_SurveyResponseOutput | null };
-
-
-type createSurveyResponseSurveyPostsItemMutationVariables = Exact<{
-  data: CreateSurveyResponseDataInput;
-}>;
-
-
-type createSurveyResponseSurveyPostsItemMutation = createSurveyResponseSurveyPostsItemMutation_Mutation;
-
-type updateSurveyScheduleSurveyScheduleEditPageMutation_updateSurveySchedule_SurveyScheduleOutput_data_SurveySchedule = (
-  { __typename?: 'SurveySchedule' }
-  & SurveyScheduleEdit
-);
-
-type updateSurveyScheduleSurveyScheduleEditPageMutation_updateSurveySchedule_SurveyScheduleOutput = { __typename?: 'SurveyScheduleOutput', data: updateSurveyScheduleSurveyScheduleEditPageMutation_updateSurveySchedule_SurveyScheduleOutput_data_SurveySchedule | null };
-
-type updateSurveyScheduleSurveyScheduleEditPageMutation_Mutation = { __typename?: 'Mutation', updateSurveySchedule: updateSurveyScheduleSurveyScheduleEditPageMutation_updateSurveySchedule_SurveyScheduleOutput | null };
-
-
-type updateSurveyScheduleSurveyScheduleEditPageMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateSurveyScheduleDataInput;
-}>;
-
-
-type updateSurveyScheduleSurveyScheduleEditPageMutation = updateSurveyScheduleSurveyScheduleEditPageMutation_Mutation;
-
-type createSurveyScheduleSurveyScheduleEditPageMutation_createSurveySchedule_SurveyScheduleOutput_data_SurveySchedule = (
-  { __typename?: 'SurveySchedule' }
-  & SurveyScheduleEdit
-);
-
-type createSurveyScheduleSurveyScheduleEditPageMutation_createSurveySchedule_SurveyScheduleOutput = { __typename?: 'SurveyScheduleOutput', data: createSurveyScheduleSurveyScheduleEditPageMutation_createSurveySchedule_SurveyScheduleOutput_data_SurveySchedule | null };
-
-type createSurveyScheduleSurveyScheduleEditPageMutation_Mutation = { __typename?: 'Mutation', createSurveySchedule: createSurveyScheduleSurveyScheduleEditPageMutation_createSurveySchedule_SurveyScheduleOutput | null };
-
-
-type createSurveyScheduleSurveyScheduleEditPageMutationVariables = Exact<{
-  data: CreateSurveyScheduleDataInput;
-}>;
-
-
-type createSurveyScheduleSurveyScheduleEditPageMutation = createSurveyScheduleSurveyScheduleEditPageMutation_Mutation;
-
-type SurveyScheduleEditPageQuery_surveySchedule_SingleSurveyScheduleOutput_result_SurveySchedule = (
-  { __typename?: 'SurveySchedule' }
-  & SurveyScheduleEdit
-);
-
-type SurveyScheduleEditPageQuery_surveySchedule_SingleSurveyScheduleOutput = { __typename?: 'SingleSurveyScheduleOutput', result: SurveyScheduleEditPageQuery_surveySchedule_SingleSurveyScheduleOutput_result_SurveySchedule | null };
-
-type SurveyScheduleEditPageQuery_Query = { __typename?: 'Query', surveySchedule: SurveyScheduleEditPageQuery_surveySchedule_SingleSurveyScheduleOutput | null };
-
-
-type SurveyScheduleEditPageQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type SurveyScheduleEditPageQuery = SurveyScheduleEditPageQuery_Query;
-
 type addPostsToTagMutation_addOrUpvoteTag_TagRel = (
   { __typename?: 'TagRel' }
   & TagRelCreationFragment
@@ -21929,59 +21220,6 @@ type multiTagCoreTagsSectionQueryQueryVariables = Exact<{
 
 
 type multiTagCoreTagsSectionQueryQuery = multiTagCoreTagsSectionQueryQuery_Query;
-
-type EAAllTagsPageQuery_tag_SingleTagOutput_result_Tag = (
-  { __typename?: 'Tag' }
-  & TagEditFragment
-);
-
-type EAAllTagsPageQuery_tag_SingleTagOutput = { __typename?: 'SingleTagOutput', result: EAAllTagsPageQuery_tag_SingleTagOutput_result_Tag | null };
-
-type EAAllTagsPageQuery_Query = { __typename?: 'Query', tag: EAAllTagsPageQuery_tag_SingleTagOutput | null };
-
-
-type EAAllTagsPageQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type EAAllTagsPageQuery = EAAllTagsPageQuery_Query;
-
-type multiTagEATagPageQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagWithFlagsFragment
-);
-
-type multiTagEATagPageQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagEATagPageQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagEATagPageQueryQuery_Query = { __typename?: 'Query', tags: multiTagEATagPageQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagEATagPageQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagEATagPageQueryQuery = multiTagEATagPageQueryQuery_Query;
-
-type EATagPageQuery_tag_SingleTagOutput_result_Tag = (
-  { __typename?: 'Tag' }
-  & TagEditFragment
-);
-
-type EATagPageQuery_tag_SingleTagOutput = { __typename?: 'SingleTagOutput', result: EATagPageQuery_tag_SingleTagOutput_result_Tag | null };
-
-type EATagPageQuery_Query = { __typename?: 'Query', tag: EATagPageQuery_tag_SingleTagOutput | null };
-
-
-type EATagPageQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type EATagPageQuery = EATagPageQuery_Query;
 
 type FilterModeQuery_tag_SingleTagOutput_result_Tag = (
   { __typename?: 'Tag' }
@@ -23429,16 +22667,6 @@ type updateUltraFeedEventMutationVariables = Exact<{
 
 
 type updateUltraFeedEventMutation = updateUltraFeedEventMutation_Mutation;
-
-type connectCrossposterMutation_Mutation = { __typename?: 'Mutation', connectCrossposter: string | null };
-
-
-type connectCrossposterMutationVariables = Exact<{
-  token: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type connectCrossposterMutation = connectCrossposterMutation_Mutation;
 
 type updateUserEditProfileFormMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
@@ -25015,19 +24243,15 @@ type PostsListBase = (
 
 type PostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, htmlHighlight: string, plaintextDescription: string, wordCount: number, version: string };
 
-type PostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
-
 type PostsList = (
-  { __typename?: 'Post', deletedDraft: boolean, isBookmarked: boolean, bannedUserIds: Array<string> | null, contents: PostsList_Post_contents_Revision | null, fmCrosspost: PostsList_Post_fmCrosspost_CrosspostOutput | null }
+  { __typename?: 'Post', deletedDraft: boolean, isBookmarked: boolean, bannedUserIds: Array<string> | null, contents: PostsList_Post_contents_Revision | null }
   & PostsListBase
 );
 
 type MarkdownPostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, agentMarkdownExcerpt: string | null };
 
-type MarkdownPostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
-
 type MarkdownPostsList = (
-  { __typename?: 'Post', isBookmarked: boolean, contents: MarkdownPostsList_Post_contents_Revision | null, fmCrosspost: MarkdownPostsList_Post_fmCrosspost_CrosspostOutput | null }
+  { __typename?: 'Post', isBookmarked: boolean, contents: MarkdownPostsList_Post_contents_Revision | null }
   & PostsListBase
 );
 
@@ -25093,10 +24317,8 @@ type PostsDetails_Post_targetPostRelations_PostRelation_targetPost_Post = (
 
 type PostsDetails_Post_targetPostRelations_PostRelation = { __typename?: 'PostRelation', _id: string, sourcePostId: string, targetPostId: string, order: number | null, targetPost: PostsDetails_Post_targetPostRelations_PostRelation_targetPost_Post | null };
 
-type PostsDetails_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
-
 type PostsDetails = (
-  { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<PostsDetails_Post_tags_Tag>, socialPreviewData: PostsDetails_Post_socialPreviewData_SocialPreviewType, canonicalSequence: PostsDetails_Post_canonicalSequence_Sequence | null, canonicalBook: PostsDetails_Post_canonicalBook_Book | null, canonicalCollection: PostsDetails_Post_canonicalCollection_Collection | null, feed: PostsDetails_Post_feed_RSSFeed | null, sourcePostRelations: Array<PostsDetails_Post_sourcePostRelations_PostRelation>, targetPostRelations: Array<PostsDetails_Post_targetPostRelations_PostRelation>, fmCrosspost: PostsDetails_Post_fmCrosspost_CrosspostOutput | null }
+  { __typename?: 'Post', canonicalSource: string | null, noIndex: boolean, viewCount: number | null, tagRelevance: any | null, commentSortOrder: string | null, sideCommentVisibility: string | null, collectionTitle: string | null, canonicalPrevPostSlug: string | null, canonicalNextPostSlug: string | null, canonicalSequenceId: string | null, canonicalBookId: string | null, bannedUserIds: Array<string> | null, moderationStyle: string | null, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, feedLink: string | null, rsvps: Array<any> | null, activateRSVPs: boolean | null, tags: Array<PostsDetails_Post_tags_Tag>, socialPreviewData: PostsDetails_Post_socialPreviewData_SocialPreviewType, canonicalSequence: PostsDetails_Post_canonicalSequence_Sequence | null, canonicalBook: PostsDetails_Post_canonicalBook_Book | null, canonicalCollection: PostsDetails_Post_canonicalCollection_Collection | null, feed: PostsDetails_Post_feed_RSSFeed | null, sourcePostRelations: Array<PostsDetails_Post_sourcePostRelations_PostRelation>, targetPostRelations: Array<PostsDetails_Post_targetPostRelations_PostRelation> }
   & PostsListBase
 );
 
@@ -25193,8 +24415,6 @@ type PostsPage = (
   & PostsDetails
 );
 
-type PostsEdit_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
-
 type PostsEdit_Post_moderationGuidelines_Revision = (
   { __typename?: 'Revision' }
   & RevisionEdit
@@ -25225,7 +24445,7 @@ type PostsEdit_Post_coauthors_User = (
 );
 
 type PostsEdit = (
-  { __typename?: 'Post', sideComments: any | null, myEditorAccess: string, version: string | null, coauthorUserIds: Array<string>, readTimeMinutesOverride: number | null, hideFromRecentDiscussions: boolean, hideFromPopularComments: boolean | null, tableOfContents: any | null, subforumTagId: string | null, socialPreviewImageId: string | null, generateDraftJargon: boolean | null, fmCrosspost: PostsEdit_Post_fmCrosspost_CrosspostOutput | null, moderationGuidelines: PostsEdit_Post_moderationGuidelines_Revision | null, customHighlight: PostsEdit_Post_customHighlight_Revision | null, socialPreview: PostsEdit_Post_socialPreview_SocialPreviewOutput | null, socialPreviewData: PostsEdit_Post_socialPreviewData_SocialPreviewType, user: PostsEdit_Post_user_User | null, usersSharedWith: Array<PostsEdit_Post_usersSharedWith_User> | null, coauthors: Array<PostsEdit_Post_coauthors_User> | null }
+  { __typename?: 'Post', sideComments: any | null, myEditorAccess: string, version: string | null, coauthorUserIds: Array<string>, readTimeMinutesOverride: number | null, hideFromRecentDiscussions: boolean, hideFromPopularComments: boolean | null, tableOfContents: any | null, subforumTagId: string | null, socialPreviewImageId: string | null, generateDraftJargon: boolean | null, moderationGuidelines: PostsEdit_Post_moderationGuidelines_Revision | null, customHighlight: PostsEdit_Post_customHighlight_Revision | null, socialPreview: PostsEdit_Post_socialPreview_SocialPreviewOutput | null, socialPreviewData: PostsEdit_Post_socialPreviewData_SocialPreviewType, user: PostsEdit_Post_user_User | null, usersSharedWith: Array<PostsEdit_Post_usersSharedWith_User> | null, coauthors: Array<PostsEdit_Post_coauthors_User> | null }
   & PostsDetails
 );
 
@@ -25283,8 +24503,6 @@ type UsersBannedFromPostsModerationLog_Post_user_User = (
 
 type UsersBannedFromPostsModerationLog = { __typename?: 'Post', title: string, slug: string, _id: string, bannedUserIds: Array<string> | null, user: UsersBannedFromPostsModerationLog_Post_user_User | null };
 
-type SunshinePostsList_Post_fmCrosspost_CrosspostOutput = { __typename?: 'CrosspostOutput', isCrosspost: boolean, hostedHere: boolean | null, foreignPostId: string | null };
-
 type SunshinePostsList_Post_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null, htmlHighlight: string, wordCount: number, version: string };
 
 type SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation = (
@@ -25319,7 +24537,7 @@ type SunshinePostsList_Post_tagRels_TagRel = (
 );
 
 type SunshinePostsList = (
-  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, rejectedReason: string | null, autoFrontpage: string | null, fmCrosspost: SunshinePostsList_Post_fmCrosspost_CrosspostOutput | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null, frontpageClassification: SunshinePostsList_Post_frontpageClassification_FrontpageClassification | null, tagRels: Array<SunshinePostsList_Post_tagRels_TagRel> }
+  { __typename?: 'Post', currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, rejectedReason: string | null, autoFrontpage: string | null, contents: SunshinePostsList_Post_contents_Revision | null, automatedContentEvaluations: SunshinePostsList_Post_automatedContentEvaluations_AutomatedContentEvaluation | null, moderationGuidelines: SunshinePostsList_Post_moderationGuidelines_Revision | null, user: SunshinePostsList_Post_user_User | null, frontpageClassification: SunshinePostsList_Post_frontpageClassification_FrontpageClassification | null, tagRels: Array<SunshinePostsList_Post_tagRels_TagRel> }
   & PostsListBase
 );
 
@@ -25661,29 +24879,6 @@ type MembersOfGroupFragment_user_User = (
 );
 
 type MembersOfGroupFragment = { __typename?: 'Subscription', user: MembersOfGroupFragment_user_User | null };
-
-type SurveyQuestionMinimumInfo = { __typename?: 'SurveyQuestion', _id: string, question: string, format: SurveyQuestionFormat, order: number };
-
-type SurveyResponseMinimumInfo = { __typename?: 'SurveyResponse', _id: string, surveyId: string | null, surveyScheduleId: string | null, userId: string | null, clientId: string | null, response: any | null };
-
-type SurveyScheduleMinimumInfo_SurveySchedule_survey_Survey = (
-  { __typename?: 'Survey' }
-  & SurveyMinimumInfo
-);
-
-type SurveyScheduleMinimumInfo = { __typename?: 'SurveySchedule', _id: string, survey: SurveyScheduleMinimumInfo_SurveySchedule_survey_Survey | null };
-
-type SurveyScheduleEdit = (
-  { __typename?: 'SurveySchedule', surveyId: string, name: string | null, impressionsLimit: number | null, maxVisitorPercentage: number | null, minKarma: number | null, maxKarma: number | null, target: SurveyScheduleTarget | null, startDate: string | null, endDate: string | null, deactivated: boolean | null, createdAt: string }
-  & SurveyScheduleMinimumInfo
-);
-
-type SurveyMinimumInfo_Survey_questions_SurveyQuestion = (
-  { __typename?: 'SurveyQuestion' }
-  & SurveyQuestionMinimumInfo
-);
-
-type SurveyMinimumInfo = { __typename?: 'Survey', _id: string, name: string, createdAt: string, questions: Array<SurveyMinimumInfo_Survey_questions_SurveyQuestion> };
 
 type TagFlagFragment_TagFlag_contents_Revision = { __typename?: 'Revision', html: string | null, htmlHighlight: string, plaintextDescription: string };
 
@@ -26160,7 +25355,7 @@ type UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettin
 type UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput = { __typename?: 'PostMetadataOutput', postId: string };
 
 type UsersCurrent = (
-  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
+  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
   & UsersMinimumInfo
 );
 
@@ -26253,7 +25448,7 @@ type UsersEdit_User_moderationGuidelines_Revision = (
 );
 
 type UsersEdit = (
-  { __typename?: 'User', markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, hideIntercom: boolean, commentSorting: string | null, currentFrontpageFilter: string | null, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, noSingleLineComments: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, hidePostsRecommendations: boolean, beta: boolean | null, theme: any | null, email: string | null, whenConfirmationEmailSent: string | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, hasAuth0Id: boolean | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, username: string | null, displayName: string, fullName: string | null, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, hideFromPeopleDirectory: boolean, allowDatadogSessionReplay: boolean, reviewedByUserId: string | null, reviewForAlignmentForumUserId: string | null, groups: Array<string> | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, karmaChangeLastOpened: string | null, karmaChangeNotifierSettings: any | null, notificationShortformContent: any | null, notificationCommentsOnSubscribedPost: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPostsInGroups: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationRSVPs: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationGroupAdministration: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2020Ad: boolean | null, deleted: boolean, permanentDeletionRequestedAt: string | null, twitterProfileURLAdmin: string | null, biography: UsersEdit_User_biography_Revision | null, moderationGuidelines: UsersEdit_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, hideIntercom: boolean, commentSorting: string | null, currentFrontpageFilter: string | null, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, noSingleLineComments: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, hidePostsRecommendations: boolean, beta: boolean | null, theme: any | null, email: string | null, whenConfirmationEmailSent: string | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, username: string | null, displayName: string, fullName: string | null, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, hideFromPeopleDirectory: boolean, allowDatadogSessionReplay: boolean, reviewedByUserId: string | null, reviewForAlignmentForumUserId: string | null, groups: Array<string> | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, karmaChangeLastOpened: string | null, karmaChangeNotifierSettings: any | null, notificationShortformContent: any | null, notificationCommentsOnSubscribedPost: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPostsInGroups: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationRSVPs: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationGroupAdministration: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2020Ad: boolean | null, deleted: boolean, permanentDeletionRequestedAt: string | null, twitterProfileURLAdmin: string | null, biography: UsersEdit_User_biography_Revision | null, moderationGuidelines: UsersEdit_User_moderationGuidelines_Revision | null }
   & UsersProfile
   & UsersCurrent
 );
@@ -26284,8 +25479,6 @@ type UsersProfileEdit_User_organizerOfGroups_Localgroup = (
 );
 
 type UsersProfileEdit = { __typename?: 'User', _id: string, slug: string, displayName: string, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileImageId: string | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, mapLocation: any | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, biography: UsersProfileEdit_User_biography_Revision | null, howOthersCanHelpMe: UsersProfileEdit_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfileEdit_User_howICanHelpOthers_Revision | null, organizerOfGroups: Array<UsersProfileEdit_User_organizerOfGroups_Localgroup> };
-
-type UsersCrosspostInfo = { __typename?: 'User', _id: string, username: string | null, slug: string, fmCrosspostUserId: string | null };
 
 type UserOnboardingAuthor = { __typename?: 'User', _id: string, displayName: string, profileImageId: string | null, karma: number, jobTitle: string | null, organization: string | null };
 
@@ -26646,94 +25839,6 @@ type multiPostPostsEmailQueryQueryVariables = Exact<{
 
 
 type multiPostPostsEmailQueryQuery = multiPostPostsEmailQueryQuery_Query;
-
-type getCrosspostPostsWithNavigationQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsWithNavigation
-);
-
-type getCrosspostPostsWithNavigationQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: getCrosspostPostsWithNavigationQuery_post_SinglePostOutput_result_Post | null };
-
-type getCrosspostPostsWithNavigationQuery_Query = { __typename?: 'Query', post: getCrosspostPostsWithNavigationQuery_post_SinglePostOutput | null };
-
-
-type getCrosspostPostsWithNavigationQueryVariables = Exact<{
-  input: InputMaybe<SinglePostInput>;
-  sequenceId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type getCrosspostPostsWithNavigationQuery = getCrosspostPostsWithNavigationQuery_Query;
-
-type getCrosspostPostsWithNavigationAndRevisionQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsWithNavigationAndRevision
-);
-
-type getCrosspostPostsWithNavigationAndRevisionQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: getCrosspostPostsWithNavigationAndRevisionQuery_post_SinglePostOutput_result_Post | null };
-
-type getCrosspostPostsWithNavigationAndRevisionQuery_Query = { __typename?: 'Query', post: getCrosspostPostsWithNavigationAndRevisionQuery_post_SinglePostOutput | null };
-
-
-type getCrosspostPostsWithNavigationAndRevisionQueryVariables = Exact<{
-  input: InputMaybe<SinglePostInput>;
-  version: InputMaybe<Scalars['String']['input']>;
-  sequenceId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type getCrosspostPostsWithNavigationAndRevisionQuery = getCrosspostPostsWithNavigationAndRevisionQuery_Query;
-
-type getCrosspostPostsListQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type getCrosspostPostsListQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: getCrosspostPostsListQuery_post_SinglePostOutput_result_Post | null };
-
-type getCrosspostPostsListQuery_Query = { __typename?: 'Query', post: getCrosspostPostsListQuery_post_SinglePostOutput | null };
-
-
-type getCrosspostPostsListQueryVariables = Exact<{
-  input: InputMaybe<SinglePostInput>;
-}>;
-
-
-type getCrosspostPostsListQuery = getCrosspostPostsListQuery_Query;
-
-type getCrosspostSunshinePostsListQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & SunshinePostsList
-);
-
-type getCrosspostSunshinePostsListQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: getCrosspostSunshinePostsListQuery_post_SinglePostOutput_result_Post | null };
-
-type getCrosspostSunshinePostsListQuery_Query = { __typename?: 'Query', post: getCrosspostSunshinePostsListQuery_post_SinglePostOutput | null };
-
-
-type getCrosspostSunshinePostsListQueryVariables = Exact<{
-  input: InputMaybe<SinglePostInput>;
-}>;
-
-
-type getCrosspostSunshinePostsListQuery = getCrosspostSunshinePostsListQuery_Query;
-
-type getCrosspostPostsPageQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post' }
-  & PostsPage
-);
-
-type getCrosspostPostsPageQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: getCrosspostPostsPageQuery_post_SinglePostOutput_result_Post | null };
-
-type getCrosspostPostsPageQuery_Query = { __typename?: 'Query', post: getCrosspostPostsPageQuery_post_SinglePostOutput | null };
-
-
-type getCrosspostPostsPageQueryVariables = Exact<{
-  input: InputMaybe<SinglePostInput>;
-}>;
-
-
-type getCrosspostPostsPageQuery = getCrosspostPostsPageQuery_Query;
 
 type PostMetadataQuery_post_SinglePostOutput_result_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', _id: string, imageUrl: string, text: string | null };
 

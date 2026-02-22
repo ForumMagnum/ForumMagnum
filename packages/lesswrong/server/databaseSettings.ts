@@ -126,32 +126,10 @@ export const forumTeamUserId = new ServerSetting<string|null>("forumTeamUserId",
 export const googleClientIdSetting = new ServerSetting<string | null>('oAuth.google.clientId', null);
 export const googleOAuthSecretSetting = new ServerSetting<string | null>('oAuth.google.secret', null);
 
-export const auth0ClientIdSetting = new ServerSetting<string | null>('oAuth.auth0.appId', null);
-export const auth0OAuthSecretSetting = new ServerSetting<string | null>('oAuth.auth0.secret', null);
-export const auth0DomainSetting = new ServerSetting<string | null>('oAuth.auth0.domain', null);
-
 export const githubClientIdSetting = new ServerSetting<string | null>('oAuth.github.clientId', null);
 export const githubOAuthSecretSetting = new ServerSetting<string | null>('oAuth.github.secret', null);
 export const afGithubClientIdSetting = new ServerSetting<string | null>('oAuth.afGithub.clientId', null);
 export const afGithubOAuthSecretSetting = new ServerSetting<string | null>('oAuth.afGithub.secret', null);
-
-export const hasAuth0 = () => {
-  const { auth0ClientId, auth0OAuthSecret, auth0Domain } = getAuth0Credentials();
-
-  return !!(auth0ClientId && auth0OAuthSecret && auth0Domain);
-};
-
-export const getAuth0Credentials = () => {
-  const auth0ClientId = auth0ClientIdSetting.get();
-  const auth0OAuthSecret = auth0OAuthSecretSetting.get();
-  const auth0Domain = auth0DomainSetting.get();
-
-  return {
-    auth0ClientId,
-    auth0OAuthSecret,
-    auth0Domain,
-  };
-};
 
 export const connectionStringSetting = new ServerSetting<string | null>("analytics.connectionString", null);
 export const mirrorConnectionSettingString = new ServerSetting<string | null>("analytics.mirrorConnectionString", null); //for streaming to two DB at once
@@ -225,8 +203,6 @@ export const apolloEngineSettings = new ServerSetting<string | null>('apolloEngi
 // Initiate Intercom on the server
 export const intercomTokenSetting = new ServerSetting<string | null>("intercomToken", null)
 
-export const crosspostSigningKeySetting = new ServerSetting<string|null>("fmCrosspostSigningKey", null);
-
 interface SSLSettings {
   require?: boolean
   allowUnauthorized?: boolean
@@ -267,20 +243,4 @@ export const minGatherTownTrackerVersion = new ParsedServerSetting<number>("gath
 export const petrovFalseAlarmMissileCount = new ParsedServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
 export const petrovRealAttackMissileCount = new ParsedServerSetting<number[]>('petrovRealAttackMissileCount', [])
 
-/**
- * Timeout for cross-site requests to prevent crosspost requests from hanging
- * the site
- */
-export const fmCrosspostTimeoutMsSetting = new ParsedServerSetting<number>('fmCrosspostTimeoutMs', 15000)
-
-type Auth0Settings = {
-  appId: string;
-  secret: string;
-  domain: string;
-  originalDomain: string;
-}
-
-export const auth0SettingsDatabaseServerSetting = new ParsedServerSetting<Auth0Settings|null>("oAuth.auth0", null);
-
 export const slowSSRWarnThresholdSetting = new ParsedServerSetting<number>("slowSSRWarnThreshold", 3000);
-

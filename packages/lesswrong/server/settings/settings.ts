@@ -7,12 +7,11 @@ import { localLwProdDb } from "./localLwProdDb";
 import { prodAf } from "./prodAf";
 import { prodLw } from "./prodLw";
 import { testSettings } from "./test";
-import { testCrosspostSettings } from "./testCrosspost";
 import { z } from "zod";
 import { isAnyTest, isProduction } from "@/lib/executionEnvironment";
 import { isAF } from "@/lib/forumTypeUtils";
 
-const validEnvNames = z.enum(["test", "testCrosspost", "baserates","localLwDevDb", "prodLw"]);
+const validEnvNames = z.enum(["test", "baserates","localLwDevDb", "prodLw"]);
 
 function getPublicSettings() {
   if (isAnyTest) {
@@ -37,8 +36,6 @@ function getPublicSettings() {
   switch (validEnvName) {
     case "test":
       return testSettings;
-    case "testCrosspost":
-      return testCrosspostSettings;
     case "baserates":
       return baserates;
     // We're running a local dev instance against the dev db, or in the deployed dev environment

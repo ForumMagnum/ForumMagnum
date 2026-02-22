@@ -45,7 +45,6 @@ type NotificationDisplayPost = Pick<
   "curatedDate" |
   "postedAt" |
   "groupId" |
-  "fmCrosspost" |
   "collabEditorDialogue" |
   "readTimeMinutes" |
   "socialPreviewData" |

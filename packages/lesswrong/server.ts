@@ -100,7 +100,6 @@ import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/petrovDay2024Resolvers';
 import './server/resolvers/analyticsResolvers';
-import './server/resolvers/surveyResolvers';
 import './server/resolvers/moderationResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
@@ -113,10 +112,6 @@ import './server/resolvers/lightcone2024FundraiserResolvers';
 import './server/resolvers/ultraFeedResolver';
 
 import './server/intercomSetup';
-
-import './server/fmCrosspost/crosspost';
-import './server/fmCrosspost/routes';
-import './server/fmCrosspost/resolvers';
 
 import './server/exportUserData';
 import './server/deleteUserContent';

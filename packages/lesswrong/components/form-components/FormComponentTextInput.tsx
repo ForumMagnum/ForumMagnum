@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { rootStyles as onboardingInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { forumTextInputRootStyles as onboardingInputStyles } from "./ForumTextInput";
 import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";

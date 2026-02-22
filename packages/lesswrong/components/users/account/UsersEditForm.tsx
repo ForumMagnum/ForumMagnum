@@ -76,7 +76,6 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   hideCommunitySection: 'preferences',
   showCommunityInRecentDiscussion: 'preferences',
   hidePostsRecommendations: 'preferences',
-  optedOutOfSurveys: 'preferences',
   postGlossariesPinned: 'preferences',
   googleLocation: 'preferences',
   mapLocation: 'preferences',

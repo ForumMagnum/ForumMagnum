@@ -2,14 +2,12 @@
 // import AppGenerator from './AppGenerator';
 
 // import { createApolloClient } from './apolloClient';
-// import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 // import { hydrateRoot } from 'react-dom/client';
 
 // export function hydrateClient() {
 //   /*
 //   const apolloClient = createApolloClient();
 //   apolloClient.prioritizeCacheValues = true;
-//   const foreignApolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? "/");
 
 //   // Create the root element, if it doesn't already exist.
 //   if (!document.getElementById('react-app')) {
@@ -25,7 +23,6 @@
 //     return <AppGenerator
 //       key={renderCount}
 //       apolloClient={apolloClient}
-//       foreignApolloClient={foreignApolloClient}
 //       abTestGroupsUsed={{}}
 //       themeOptions={window.themeOptions}
 //       ssrMetadata={window.ssrMetadata}

@@ -1,5 +1,5 @@
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
-import { hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
+import { hasPostRecommendations, userCanViewJargonTerms } from '@/lib/betas';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { hasEventsSetting, isAF, isLW } from '@/lib/instanceSettings';
 import { HighlightableField } from './HighlightableField';
@@ -219,18 +219,6 @@ const PreferencesSettingsTab = ({
             />
           )}
         </form.Field>
-
-        {hasSurveys() && (
-          <form.Field name="optedOutOfSurveys">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Opt out of surveys"
-                description="Don't show me user surveys"
-              />
-            )}
-          </form.Field>
-        )}
 
         {false}
       </SettingsSection>

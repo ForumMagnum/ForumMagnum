@@ -1,5 +1,5 @@
 import React from "react";
-import { formatStat } from "../users/EAUserTooltipContent";
+import { formatStat } from "../users/userTooltipFormatting";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 

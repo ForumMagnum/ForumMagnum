@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
-import { formatStat } from "../users/EAUserTooltipContent";
+import { formatStat } from "../users/userTooltipFormatting";
 import { CAREER_STAGES, userGetProfileUrl } from "@/lib/collections/users/helpers";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import classNames from "classnames";

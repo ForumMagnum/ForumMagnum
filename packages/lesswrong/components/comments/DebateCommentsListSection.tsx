@@ -8,7 +8,6 @@ import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import CantCommentExplanation from "./CantCommentExplanation";
 import CommentsList from "./CommentsList";
-import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
 import { userIsPostCoauthor } from '@/lib/collections/posts/helpers';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
@@ -114,12 +113,10 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
           comments={commentTree}
         />
       </div>
-      <PostsPageCrosspostComments />
     </div>
   );
 }
 
 export default registerComponent("DebateCommentsListSection", DebateCommentsListSection, {styles});
-
 
 

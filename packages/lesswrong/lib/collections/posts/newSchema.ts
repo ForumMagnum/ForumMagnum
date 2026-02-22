@@ -33,11 +33,9 @@ import {
     getDenormalizedCountOfReferencesGetValue,
     getDenormalizedFieldOnCreate,
     getDenormalizedFieldOnUpdate,
-    getFillIfMissing,
     getForeignKeySqlResolver,
     googleLocationToMongoLocation,
     optionalUrlRegex,
-    throwIfSetToNull
 } from "../../utils/schemaUtils";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
 import { getDomain } from "../../vulcan-lib/utils";
@@ -70,15 +68,13 @@ import {
     getDefaultVotingSystem,
     getSocialPreviewImage,
     isDialogueParticipant,
-    isNotHostedHere,
     MINIMUM_COAUTHOR_KARMA,
     postCanEditHideCommentKarma,
     postGetDefaultStatus,
     postGetEmailShareUrl,
     postGetFacebookShareUrl,
     postGetPageUrl,
-    postGetTwitterShareUrl,
-    userPassesCrosspostingKarmaThreshold
+    postGetTwitterShareUrl
 } from "./helpers";
 
 const rsvpType = new SimpleSchema({
@@ -153,9 +149,6 @@ export interface SideCommentsResolverResult {
   commentsByBlock: Record<string, string[]>;
   highKarmaCommentsByBlock: Record<string, string[]>;
 }
-
-const fmCrosspostOnCreate = getFillIfMissing({ isCrosspost: false });
-const fmCrosspostOnUpdate = throwIfSetToNull;
 
 function getCurrentDate() {
   return new Date();
@@ -2379,42 +2372,6 @@ const schema = {
       },
     },
   },
-  fmCrosspost: {
-    database: {
-      type: "JSONB",
-      defaultValue: { isCrosspost: false },
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "CrosspostOutput",
-      inputType: "CrosspostInput",
-      validation: { blackbox: true },
-      canRead: [documentIsNotDeleted],
-      canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), "admins"],
-      canCreate: [userPassesCrosspostingKarmaThreshold, "admins"],
-      // Users aren't allowed to directly select the foreignPostId of a crosspost
-      onCreate: (args) => {
-        const { document, context } = args;
-        // If we're handling a request from our peer site, then we have just set
-        // the foreignPostId ourselves
-        if (document.fmCrosspost?.foreignPostId && !context.isFMCrosspostRequest) {
-          throw new Error("Cannot set the foreign post ID of a crosspost");
-        }
-        return fmCrosspostOnCreate<'Posts'>(args);
-      },
-      onUpdate: (args) => {
-        const { data, oldDocument } = args;
-        if (
-          data.fmCrosspost?.foreignPostId &&
-          data.fmCrosspost.foreignPostId !== oldDocument.fmCrosspost?.foreignPostId
-        ) {
-          throw new Error("Cannot change the foreign post ID of a crosspost");
-        }
-        return fmCrosspostOnUpdate<'Posts'>(args);
-      },
-    },
-  },
   canonicalSequenceId: {
     database: {
       type: "VARCHAR(27)",
@@ -3514,7 +3471,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, _args, context) => {
         const { SideCommentCaches, Comments } = context;
-        if (!hasSideComments() || isNotHostedHere(post)) {
+        if (!hasSideComments()) {
           return null;
         }
         const cache = await SideCommentCaches.findOne({

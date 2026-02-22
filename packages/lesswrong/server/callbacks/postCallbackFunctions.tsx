@@ -33,7 +33,6 @@ import { EventUpdatedEmail } from "../emailComponents/EventUpdatedEmail";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { updatePostEmbeddings } from "../embeddings";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/errors";
 import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
 import { checkFrontpage, checkTags, getAutoAppliedTags, getTagBotAccount } from "../languageModels/autoTagCallbacks";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
@@ -54,6 +53,8 @@ import { computeContextFromUser } from "../vulcan-lib/apollo-server/context";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { generateLinkSharingKey, getRejectionMessage } from "./helpers";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+
+const TOS_NOT_ACCEPTED_ERROR = "You must accept the terms of use before you can publish this post";
 
 
 /**

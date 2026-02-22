@@ -156,7 +156,7 @@ const LWPostsPreviewTooltip = ({
   const [expanded, setExpanded] = useState(false)
 
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
-    variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, hash },
+    variables: { documentId: post?._id, hash },
     skip: !post || (!hash && !!post.contents),
     fetchPolicy: "cache-first",
   });
@@ -165,7 +165,7 @@ const LWPostsPreviewTooltip = ({
   const { dialogueMessageId, dialogueMessageContents } = dialogueMessageInfo ?? {}
 
   const { data: dataPostDialogueMessage } = useQuery(PostWithDialogueMessageQuery, {
-    variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, dialogueMessageId },
+    variables: { documentId: post?._id, dialogueMessageId },
     skip: !post || !dialogueMessageId,
     fetchPolicy: "cache-first",
   });
@@ -263,5 +263,4 @@ const LWPostsPreviewTooltip = ({
 }
 
 export default registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltip, {styles});
-
 

@@ -6,11 +6,10 @@ import type { NextRequest } from 'next/server';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
 import { captureException, getSentry } from '@/lib/sentryWrapper';
 import { getClientIP } from '@/server/utils/getClientIP';
-import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
+import { performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { GraphQLFormattedError } from 'graphql';
 import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
-import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
 import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from '@/server/utils/graphqlErrorUtil';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -84,36 +83,9 @@ const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(se
   }
 });
 
-function isCrossSiteRequest(request: NextRequest) {
-  const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get();
-  if (!fmCrosspostBaseUrl) {
-    return false;
-  }
-
-  const requestOrigin = request.headers.get('origin');
-  if (!requestOrigin) {
-    return false;
-  }
-
-  try {
-    const crossSiteHostname = new URL(fmCrosspostBaseUrl).hostname;
-    const requestOriginHostname = new URL(requestOrigin).hostname;
-    return requestOriginHostname === crossSiteHostname;
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Error parsing fmCrosspostBaseUrl when determining if request is cross-site for setting CORS headers", error);
-    return false;
-  }
-}
-
 async function sharedHandler(request: NextRequest) {
   if (!performanceMetricLoggingEnabled.get()) {
-    const res = await handler(request);
-
-    if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
-    }
-    return res;
+    return handler(request);
   }
   
   const perfMetric = openPerfMetric({
@@ -155,10 +127,6 @@ async function sharedHandler(request: NextRequest) {
       closeRequestPerfMetric();  
     }
 
-    if (isCrossSiteRequest(request)) {
-      setCorsHeaders(res);
-    }
-
     return res;
   });
 }
@@ -171,6 +139,6 @@ export async function POST(request: NextRequest) {
   return sharedHandler(request);
 }
 
-export function OPTIONS(req: NextRequest) {
-  return crosspostOptionsHandler(req);
+export function OPTIONS() {
+  return new Response(null, { status: 204 });
 }

@@ -4,7 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import { getPostCollaborateUrl, canUserEditPostMetadata, postGetEditUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
+import { getPostCollaborateUrl, canUserEditPostMetadata, postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
@@ -18,7 +18,6 @@ import Loading from "../vulcan-core/Loading";
 import ContentStyles from "../common/ContentStyles";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import PermanentRedirect from "../common/PermanentRedirect";
-import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
 import PostVersionHistoryButton from './PostVersionHistory';
 import { gql } from '@/lib/generated/gql-codegen';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
@@ -118,14 +117,10 @@ const PostCollaborationEditor = ({ classes }: {
     return <PermanentRedirect url={getPostCollaborateUrl(post._id, false, post.linkSharingKey)} status={302}/>
   }
 
-  if (isNotHostedHere(post)) {
-    return <ForeignCrosspostEditForm post={post} />;
-  }
-
-    // Determine which editor to use based on the post's most recent revision.
-    // By the time we get here, `queryResult` should never be null.
-    const postEditorType = queryResult?.contents?.originalContents?.type;
-    const useLexical = postEditorType === 'lexical';  
+  // Determine which editor to use based on the post's most recent revision.
+  // By the time we get here, `queryResult` should never be null.
+  const postEditorType = queryResult?.contents?.originalContents?.type;
+  const useLexical = postEditorType === 'lexical';  
 
   return <>
     <StatusCodeSetter status={200}/>
@@ -174,5 +169,4 @@ const PostCollaborationEditor = ({ classes }: {
 };
 
 export default registerComponent('PostCollaborationEditor', PostCollaborationEditor, {styles});
-
 

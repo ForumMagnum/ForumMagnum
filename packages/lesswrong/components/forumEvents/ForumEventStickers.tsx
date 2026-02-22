@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import React, { FC, useCallback, useMemo, useRef, useState } from "react";
-import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
+import { useDialog } from "../common/withDialog";
 import { useCurrentUser } from "../common/withUser";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
@@ -17,6 +17,7 @@ import { randomId } from "@/lib/random";
 import keyBy from "lodash/keyBy";
 import { useModerateComment } from "../dropdowns/comments/withModerateComment";
 import { useMessages } from "../common/withMessages";
+import LoginPopup from "../users/LoginPopup";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import ForumEventSticker from "./ForumEventSticker";
 
@@ -83,7 +84,7 @@ const ForumEventStickers: FC<{
   classes: ClassesType<typeof styles>;
 }> = ({ classes }) => {
   const { currentForumEvent, refetch } = useCurrentAndRecentForumEvents();
-  const { onSignup } = useLoginPopoverContext();
+  const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
 
@@ -174,12 +175,19 @@ const ForumEventStickers: FC<{
     void refetchComments?.();
   }, [refetch, refetchComments]);
 
+  const openLoginDialog = useCallback(() => {
+    openDialog({
+      name: "LoginPopup",
+      contents: ({onClose}) => <LoginPopup onClose={onClose} />,
+    });
+  }, [openDialog]);
+
   const saveDraftSticker = useCallback(
     async (event: React.MouseEvent) => {
       if (!currentForumEvent || !isPlacingSticker) return;
 
       if (!currentUser) {
-        onSignup();
+        openLoginDialog();
         return;
       }
 
@@ -199,7 +207,7 @@ const ForumEventStickers: FC<{
 
       setMobilePlacingSticker(false);
     },
-    [currentForumEvent, isPlacingSticker, currentUser, normalizeCoords, hoverTheta, onSignup]
+    [currentForumEvent, isPlacingSticker, currentUser, normalizeCoords, hoverTheta, openLoginDialog]
   );
 
   const onSuccess = useCallback(async () => {
@@ -348,5 +356,4 @@ const ForumEventStickers: FC<{
 };
 
 export default registerComponent( 'ForumEventStickers', ForumEventStickers, {styles});
-
 

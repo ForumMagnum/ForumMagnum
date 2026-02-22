@@ -70,10 +70,6 @@ type SideCommentCachesViewName = never
 type SplashArtCoordinatesViewName = never
 type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsByDocumentIds"|"spotlightsById"|"spotlightsPage"|"spotlightsPageDraft";
 type SubscriptionsViewName = "membersOfGroup"|"subscriptionState"|"subscriptionsOfType";
-type SurveyQuestionsViewName = never
-type SurveyResponsesViewName = never
-type SurveySchedulesViewName = "surveySchedulesByCreatedAt";
-type SurveysViewName = "surveysByCreatedAt";
 type TagFlagsViewName = "allTagFlags";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
 type TagsViewName = "allArbitalTags"|"allLWWikiTags"|"allPagesByNewest"|"allPublicTags"|"allTagsAlphabetical"|"allTagsHierarchical"|"coreAndSubforumTags"|"coreTags"|"currentUserSubforums"|"newTags"|"pingbackWikiPages"|"postTypeTags"|"suggestedFilterTags"|"tagBySlug"|"tagsBySlugs"|"tagsByTagFlag"|"tagsByTagIds"|"unprocessedLWWikiTags"|"unreviewedTags"|"userTags";
@@ -161,10 +157,6 @@ interface ViewTermsByCollectionName {
   SplashArtCoordinates: ViewTermsBase
   Spotlights: SpotlightsViewTerms
   Subscriptions: SubscriptionsViewTerms
-  SurveyQuestions: ViewTermsBase
-  SurveyResponses: ViewTermsBase
-  SurveySchedules: SurveySchedulesViewTerms
-  Surveys: SurveysViewTerms
   TagFlags: TagFlagsViewTerms
   TagRels: TagRelsViewTerms
   Tags: TagsViewTerms
@@ -181,4 +173,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

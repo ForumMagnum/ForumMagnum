@@ -5,7 +5,7 @@ import { preferredHeadingCase } from "../../themes/forumTheme";
 import ExpandableSection from "../common/ExpandableSection";
 import PopularCommentsList from "../comments/PopularCommentsList";
 
-const EAPopularCommentsSection = () => {
+const PopularCommentsSection = () => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "popularComments",
     defaultExpanded: "all",
@@ -25,6 +25,5 @@ const EAPopularCommentsSection = () => {
   );
 }
 
-export default EAPopularCommentsSection;
-
+export default PopularCommentsSection;
 

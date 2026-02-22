@@ -1,8 +1,3 @@
-/*
- * Logo used in the header by the EA Forum
- *
- * Could easily be adapted for other Forums
- */
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { forumTitleSetting } from '../../lib/instanceSettings';
@@ -12,20 +7,11 @@ const styles = defineStyles("SiteLogo", (theme: ThemeType) => ({
   root: {
     height: 48,
   },
-  icon: {
-    width: 34,
-    [theme.breakpoints.down("sm")]: {
-      width: 30,
-    },
-  }
 }))
 
-const SiteLogo = ({eaContrast}: {
-  eaContrast?: boolean,
-}) => {
+const SiteLogo = () => {
   const classes = useStyles(styles);
-  // Use this icon when we want version of the EAF logo with an editable (usually white) color
-  if (!getLogoUrl()) return null
+  if (!getLogoUrl()) return null;
 
   return <img
     className={classes.root}
@@ -36,4 +22,3 @@ const SiteLogo = ({eaContrast}: {
 }
 
 export default SiteLogo;
-

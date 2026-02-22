@@ -4,8 +4,8 @@ import { useCurrentUser } from "../common/withUser";
 import { getUserEmail } from "@/lib/collections/users/helpers";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import ForumIcon from "../common/ForumIcon";
-import EAOnboardingInput from "../ea-forum/onboarding/EAOnboardingInput";
-import EAButton from "../ea-forum/EAButton";
+import ForumTextInput from "../form-components/ForumTextInput";
+import ForumButton from "../common/ForumButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -94,21 +94,21 @@ const NotSubscribedPlaceholder = ({classes}: {
         sent every Wednesday
       </div>
       <div className={classes.emailContainer}>
-        <EAOnboardingInput
+        <ForumTextInput
           value={email}
           setValue={setEmail}
           disabled={!canEditEmail}
           placeholder="Email"
           className={classes.input}
         />
-        <EAButton
+        <ForumButton
           style="primary"
           onClick={onSubmit}
           disabled={email.length < 1}
           className={classes.button}
         >
           -&gt;
-        </EAButton>
+        </ForumButton>
       </div>
     </div>
   );

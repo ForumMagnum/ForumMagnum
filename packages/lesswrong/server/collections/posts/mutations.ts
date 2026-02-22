@@ -13,7 +13,6 @@ import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks
 import { createInitialRevisionsForEditableFields, createRevisionsForEditableFields, notifyUsersOfNewPingbackMentions, notifyUsersOfPingbackMentions, reuploadImagesIfEditableFieldsChanged, updateRevisionsDocumentIds, uploadImagesInEditableFields } from "@/server/editor/make_editable_callbacks";
 import { hasEmbeddingsForRecommendations } from "@/server/embeddings";
 import { logFieldChanges } from "@/server/fieldChanges";
-import { handleCrosspostUpdate } from "@/server/fmCrosspost/crosspost";
 import { maybeAutoFrontpagePost } from "@/server/frontpageClassifier/predictions";
 import { rehostPostMetaImages } from "@/server/scripts/convertImagesToCloudinary";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
@@ -194,12 +193,6 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
     docData: data,
     props: updateCallbackProperties,
   });
-
-  // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
-  // TODO: that above comment might be wrong, i'm confused about what's supposed to be happening here
-  // TODO TODO: I'm still confused
-  // This has to be done _after_ the new revision is created
-  data = await handleCrosspostUpdate(context, data, updateCallbackProperties);
 
   let modifier = dataToModifier(data);
   modifier = clearCourseEndTime(modifier, oldDocument);

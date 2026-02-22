@@ -2,20 +2,18 @@ import { FormComponentSelect } from "@/components/form-components/FormComponentS
 import { MuiTextField } from "@/components/form-components/MuiTextField";
 import { hasSidenotes } from "@/lib/betas";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels } from "@/lib/collections/posts/constants";
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
 import { userCanCommentLock } from "@/lib/collections/users/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isLWorAF, taggingNamePluralCapitalSetting } from "@/lib/instanceSettings";
-import { allOf } from "@/lib/utils/functionUtils";
+import { isLWorAF, taggingNamePluralCapitalSetting } from "@/lib/instanceSettings";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
-import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwns } from "@/lib/vulcan-users/permissions";
+import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { commentBodyStyles } from "@/themes/stylePiping";
 import classNames from "classnames";
 import { useState } from "react";
 import LWTooltip from "../common/LWTooltip";
 import { AddOnSubmitCallback, AddOnSuccessCallback, EditorFormComponent } from "../editor/EditorFormComponent";
 import { CoauthorsListEditor } from "../form-components/CoauthorsListEditor";
-import { FMCrosspostControl } from "../form-components/FMCrosspostControl";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { PodcastEpisodeInput } from "../form-components/PodcastEpisodeInput";
@@ -105,10 +103,6 @@ function getFooterTagListPostInfo(post: EditablePost) {
     postCategory,
     isEvent: isEvent ?? false,
   };
-}
-
-function userCanEditCrosspostSettings(user: UsersCurrent | null, document: OwnableDocument) {
-  return userIsAdmin(user) || allOf(userOwns, userPassesCrosspostingKarmaThreshold)(user, document);
 }
 
 function getVotingSystemOptions(user: UsersCurrent | null) {
@@ -204,11 +198,6 @@ const PostFormSecondaryGroups = ({
   const [expandedFormGroup, setExpandedFormGroup] = useState<formGroupType>(secondaryFormGroups[0].label);
 
   const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue);
-
-  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
-  const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
-    ? "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it."
-    : undefined;
 
   return (
     <div className={classes.root}>
@@ -631,18 +620,6 @@ const PostFormSecondaryGroups = ({
 
         {expandedFormGroup === 'Options' && <div className={classes.formGroup}>
           <h3 className={classes.formGroupTitle}>Options</h3>
-            {!hideCrosspostControl && form.state.values.userId && userCanEditCrosspostSettings(currentUser, { userId: form.state.values.userId }) && <div className={classes.fieldWrapper}>
-              <form.Field name="fmCrosspost">
-                {(field) => (
-                  <LWTooltip title={crosspostControlTooltip}>
-                    <FMCrosspostControl
-                      field={field}
-                    />
-                  </LWTooltip>
-                )}
-              </form.Field>
-            </div>}
-
             {(userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'alignmentForum')) && <div className={classes.fieldWrapper}>
               <form.Field name="af">
                 {(field) => (
@@ -776,4 +753,3 @@ const PostFormSecondaryGroups = ({
 };
 
 export default PostFormSecondaryGroups;
-

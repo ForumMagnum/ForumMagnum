@@ -12,7 +12,6 @@ import PostsPageTitle from "./PostsPageTitle";
 import PostsAuthors from "./PostsAuthors";
 import LWTooltip from "../../common/LWTooltip";
 import PostsPageDate from "./PostsPageDate";
-import CrosspostHeaderIcon from "./CrosspostHeaderIcon";
 import PostsGroupDetails from "../PostsGroupDetails";
 import PostsPageEventData from "./PostsPageEventData";
 import AddToCalendarButton from "../AddToCalendar/AddToCalendarButton";
@@ -22,7 +21,6 @@ import PostsAudioPlayerWrapper from "./PostsAudioPlayerWrapper";
 import PostsVote from "../../votes/PostsVote";
 import AudioToggle from "./AudioToggle";
 import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
-import AlignmentCrosspostLink from "../AlignmentCrosspostLink";
 import ReadTime from "./ReadTime";
 import LWCommentCount from "../TableOfContents/LWCommentCount";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
@@ -245,9 +243,6 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   }
 
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
-
-  const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
-    <CrosspostHeaderIcon post={post} />
   
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
@@ -290,7 +285,6 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
           <div className={classes.authorInfo}>
             <PostsAuthors post={post} pageSectionContext="post_header" />
           </div>
-          {crosspostNode}
           {!post.isEvent && <div className={classes.date}>
             <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
           </div>}
@@ -299,7 +293,6 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
               <a href={feedLink}>{rssFeedSource.nickname}</a>
             </LWTooltip>
           }
-          <AlignmentCrosspostLink post={post} />
           {linkpostNode}
           {post.isEvent && <GroupLinks document={post} noMargin />}
           <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
@@ -332,7 +325,6 @@ export default registerComponent('LWPostsPageHeader', LWPostsPageHeader, {
   styles,
   areEqual: "auto"
 });
-
 
 
 

@@ -155,11 +155,6 @@ interface FragmentTypes {
   SunshinePostsList: SunshinePostsList
   SunshineTagFragment: SunshineTagFragment
   SunshineUsersList: SunshineUsersList
-  SurveyMinimumInfo: SurveyMinimumInfo
-  SurveyQuestionMinimumInfo: SurveyQuestionMinimumInfo
-  SurveyResponseMinimumInfo: SurveyResponseMinimumInfo
-  SurveyScheduleEdit: SurveyScheduleEdit
-  SurveyScheduleMinimumInfo: SurveyScheduleMinimumInfo
   TagBasicInfo: TagBasicInfo
   TagCreationHistoryFragment: TagCreationHistoryFragment
   TagDetailsFragment: TagDetailsFragment
@@ -207,7 +202,6 @@ interface FragmentTypes {
   UserVotesWithDocument: UserVotesWithDocument
   UsersBannedFromPostsModerationLog: UsersBannedFromPostsModerationLog
   UsersBannedFromUsersModerationLog: UsersBannedFromUsersModerationLog
-  UsersCrosspostInfo: UsersCrosspostInfo
   UsersCurrent: UsersCurrent
   UsersCurrentCommentRateLimit: UsersCurrentCommentRateLimit
   UsersCurrentPostRateLimit: UsersCurrentPostRateLimit
@@ -287,17 +281,13 @@ interface FragmentTypesByCollection {
   SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesEdit"
   Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"
   Subscriptions: "MembersOfGroupFragment"|"SubscriptionState"
-  SurveyQuestions: "SurveyQuestionMinimumInfo"
-  SurveyResponses: "SurveyResponseMinimumInfo"
-  SurveySchedules: "SurveyScheduleEdit"|"SurveyScheduleMinimumInfo"
-  Surveys: "SurveyMinimumInfo"
   TagFlags: "TagFlagEditFragment"|"TagFlagFragment"
   TagRels: "TagRelBasicInfo"|"TagRelCreationFragment"|"TagRelFragment"|"TagRelHistoryFragment"|"TagRelMinimumFragment"|"WithVoteTagRel"
   Tags: "AllTagsPageFragment"|"ConceptItemFragment"|"ExplorePageTagFragment"|"SunshineTagFragment"|"TagBasicInfo"|"TagCreationHistoryFragment"|"TagDetailsFragment"|"TagEditFragment"|"TagFragment"|"TagFullContributorsList"|"TagHistoryFragment"|"TagName"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"TagPageWithArbitalContentFragment"|"TagPageWithRevisionFragment"|"TagPreviewFragment"|"TagRecentDiscussion"|"TagRevisionFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubforumSidebarFragment"|"TagSubtagFragment"|"TagWithFlagsAndRevisionFragment"|"TagWithFlagsFragment"|"UserOnboardingTag"|"WithVoteTag"
   UserMostValuablePosts: "UserMostValuablePostInfo"
   UserRateLimits: "UserRateLimitDisplay"|"UserRateLimitMutationFragment"
   UserTagRels: "UserTagRelDetails"
-  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
+  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersBannedFromUsersModerationLog"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
 }
 
@@ -449,11 +439,6 @@ interface CollectionNamesByFragmentName {
   SunshinePostsList: "Posts"
   SunshineTagFragment: "Tags"
   SunshineUsersList: "Users"
-  SurveyMinimumInfo: "Surveys"
-  SurveyQuestionMinimumInfo: "SurveyQuestions"
-  SurveyResponseMinimumInfo: "SurveyResponses"
-  SurveyScheduleEdit: "SurveySchedules"
-  SurveyScheduleMinimumInfo: "SurveySchedules"
   TagBasicInfo: "Tags"
   TagCreationHistoryFragment: "Tags"
   TagDetailsFragment: "Tags"
@@ -501,7 +486,6 @@ interface CollectionNamesByFragmentName {
   UserVotesWithDocument: "Votes"
   UsersBannedFromPostsModerationLog: "Posts"
   UsersBannedFromUsersModerationLog: "Users"
-  UsersCrosspostInfo: "Users"
   UsersCurrent: "Users"
   UsersCurrentCommentRateLimit: "Users"
   UsersCurrentPostRateLimit: "Users"
@@ -533,9 +517,9 @@ interface CollectionNamesByFragmentName {
   reviewVoteFragment: "ReviewVotes"
 }
 
-type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
+type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"YjsDocuments"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"YjsDocuments"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 

@@ -20,7 +20,6 @@ import { Sessions } from '../server/collections/sessions/collection';
 import { botRedirectMiddleware } from './botRedirect';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
-import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { hstsMiddleware } from './hsts';
 import { logGraphqlQueryFinished, logGraphqlQueryStarted } from './logging';
 import { closePerfMetric, openPerfMetric } from './perfMetrics';
@@ -102,7 +101,7 @@ export async function startWebserver() {
 
   app.use(universalCookiesMiddleware());
 
-  // Required for passport-auth0, and for login redirects
+  // Required for OAuth login redirects
   if (expressSessionSecret) {
     // express-session middleware, with MongoStore providing it a collection
     // to store stuff in. This adds a `req.session` field to requests, with
@@ -182,7 +181,7 @@ export async function startWebserver() {
   // As of v4, Apollo Server has a CSRF prevention feature enabled by default.
   // It requires that clients either send a content-type header that indicates the request must have already been pre-flighted,
   // or include one of the `x-apollo-operation-name` or `apollo-require-preflight` headers.
-  // Confusingly, I experienced the CSRF-prevention error in both the github action and locally when testing crossposting,
+  // Confusingly, I experienced the CSRF-prevention error in both the github action and locally,
   // in the _preflight_ OPTIONS request, which of course doesn't have any of those headers.
   // I... don't really understand why setting the Access-Control-Allow-Origin header here prevents Apollo Server from
   // rejecting the preflight request, but it does seem to do that.
@@ -254,7 +253,6 @@ export async function startWebserver() {
     passHeader: "'Authorization': localStorage['Meteor.loginToken']", // eslint-disable-line quotes
   }));
   
-  addCrosspostRoutes(app);
   addTestingRoutes(app);
 
   if (testServerSetting.get()) {

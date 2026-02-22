@@ -17,7 +17,7 @@ import { MenuItem } from "../common/Menus";
 import SectionTitle from "../common/SectionTitle";
 import { Typography } from "../common/Typography";
 import WarningBanner from "../common/WarningBanner";
-import { rootStyles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { forumTextInputRootStyles as greyEditorStyles } from "../form-components/ForumTextInput";
 import { getYjsStateBase64ForPost } from '../lexical/collaboration';
 import Loading from "../vulcan-core/Loading";
 import { checkEditorValid } from './validation';

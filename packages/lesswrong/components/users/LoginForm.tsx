@@ -4,16 +4,14 @@ import { ErrorLike } from '@apollo/client';
 import { useMutation } from "@apollo/client/react";
 import { useCallback, useRef, useState } from 'react';
 import { getUserABTestKey } from '../../lib/abTestImpl';
-import { isAF, reCaptchaSiteKeySetting } from '../../lib/instanceSettings';
+import { reCaptchaSiteKeySetting } from '../../lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import ContentStyles from "../common/ContentStyles";
 import DeferRender from '../common/DeferRender';
 import ReCaptcha from "../common/ReCaptcha";
 import { useMessages } from '../common/withMessages';
-import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import { useClientId } from '../hooks/useClientId.ts';
-import Loading from "../vulcan-core/Loading";
 import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 
 const styles = (theme: ThemeType) => ({
@@ -60,11 +58,6 @@ const styles = (theme: ThemeType) => ({
   oAuthBlock: {
     display: 'flex',
     justifyContent: 'space-between',
-    '&.ea-forum': {
-      maxWidth: 400,
-      justifyContent: 'space-around',
-      padding: '8px 20px',
-    }
   },
   oAuthComment: {
     textAlign: 'center',
@@ -103,8 +96,6 @@ const currentActionToButtonText: Record<possibleActions, string> = {
 
 type LoginFormProps = {
   startingState?: possibleActions,
-  immediateRedirect?: boolean,
-  onClose?: () => void,
   classes: ClassesType<typeof styles>
 }
 
@@ -113,7 +104,7 @@ const LoginForm = (props: LoginFormProps) => {
 }
 
 const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
-  const hasSubscribeToCuratedCheckbox = !isAF();
+  const hasSubscribeToCuratedCheckbox = true;
   const hasOauthSection = true;
 
   const { pathname } = useLocation()
@@ -255,44 +246,4 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   </ContentStyles>;
 }
 
-const LoginFormEA = ({
-  startingState = "login",
-  immediateRedirect,
-  onClose,
-}: LoginFormProps) => {
-  const { pathname, query } = useLocation()
-  const [action, setAction] = useState<"login" | "signup" | null>(
-    startingState === "pwReset" ? "login" : "signup",
-  );
-
-  const wrappedSetAction = useCallback((action: "login" | "signup" | null) => {
-    setAction(action);
-    if (!action) {
-      onClose?.();
-    }
-  }, [onClose]);
-
-  const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
-  const returnTo = encodeURIComponent(returnUrl);
-
-  const urls: AnyBecauseTodo = {
-    login: `/auth/auth0?returnTo=${returnTo}`,
-    signup: `/auth/auth0?screen_hint=signup&returnTo=${returnTo}`,
-  };
-
-  if (immediateRedirect) {
-    window.location.href = urls[startingState];
-    return <Loading />;
-  }
-
-  return (
-    <EALoginPopover
-      action={action}
-      setAction={wrappedSetAction}
-    />
-  );
-}
-
 export default registerComponent('LoginForm', LoginForm, { styles });
-
-

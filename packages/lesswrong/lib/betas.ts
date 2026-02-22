@@ -81,7 +81,6 @@ export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = () => hasCommentsTableOfContentSetting.get();
 export const fullHeightToCEnabled = () => isLWorAF();
 export const hasForumEvents = () => false;
-export const hasSurveys = () => false;
 export const hasCollapsedFootnotes = false; // TODO re-enable for EAF once https://github.com/ForumMagnum/ForumMagnum/issues/10912 is fixed
 export const usesCurationEmailsCron = () => isLW();
 export const hasSidenotes = () => isLWorAF();

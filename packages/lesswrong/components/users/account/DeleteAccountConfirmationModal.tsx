@@ -7,7 +7,7 @@ import { Link } from '@/lib/reactRouterWrapper';
 import { useState } from 'react';
 import LWDialog from "../../common/LWDialog";
 import { Typography } from "../../common/Typography";
-import EAButton from "../../ea-forum/EAButton";
+import ForumButton from "../../common/ForumButton";
 import Loading from "../../vulcan-core/Loading";
 
 const styles = defineStyles("DeleteAccountConfirmationModal", (theme: ThemeType) => ({
@@ -78,10 +78,10 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction}: {
           if you would like these to be removed.
         </p>
         <div className={classes.buttonRow}>
-          <EAButton variant="outlined" onClick={onClose}>
+          <ForumButton variant="outlined" onClick={onClose}>
             Cancel
-          </EAButton>
-          <EAButton
+          </ForumButton>
+          <ForumButton
             onClick={async () => {
               setLoading(true);
               try {
@@ -95,7 +95,7 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction}: {
             }}
           >
             {loading ? <Loading /> : "Confirm"}
-          </EAButton>
+          </ForumButton>
         </div>
       </DialogContent>
     </LWDialog>

@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { tenPercentPledgeDiamond, trialPledgeDiamond } from "../ea-forum/users/DisplayNameWithMarkers";
+import { tenPercentPledgeDiamond, trialPledgeDiamond } from "../users/DisplayNameWithMarkers";
 import { TypedFieldApi } from "@/components/tanstack-form-components/BaseAppForm";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { FormComponentTextInput } from "./FormComponentTextInput";

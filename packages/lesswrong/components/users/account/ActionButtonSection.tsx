@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import EAButton from "../../ea-forum/EAButton";
+import ForumButton from "../../common/ForumButton";
 import Loading from "../../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -16,7 +16,7 @@ const styles = defineStyles("ActionButtonSection", (theme: ThemeType) => ({
 
 type ActionButtonSectionProps = {
   buttonText: string;
-  buttonProps: Partial<Omit<ComponentProps<typeof EAButton>, "onClick">>;
+  buttonProps: Partial<Omit<ComponentProps<typeof ForumButton>, "onClick">>;
   description: ReactNode;
   loading?: boolean;
   onClick: () => void;
@@ -33,9 +33,9 @@ const ActionButtonSection = ({
   return (
     <div>
       <div className={classes.blurb}>{description}</div>
-      <EAButton {...buttonProps} onClick={onClick}>
+      <ForumButton {...buttonProps} onClick={onClick}>
         {!loading ? buttonText : <Loading />}
-      </EAButton>
+      </ForumButton>
     </div>
   );
 };

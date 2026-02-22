@@ -4,7 +4,6 @@ import { captureException } from "@/lib/sentryWrapper";
 import { loggerConstructor } from "@/lib/utils/logging";
 import Users from "@/server/collections/users/collection";
 import md5 from "md5";
-import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 import { mailchimpAPIKeySetting } from "../databaseSettings";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 // import { dogstatsd } from "../datadog/tracer";
@@ -104,10 +103,6 @@ async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
       await permanentlyDeleteFromMailchimpList({ listId, emailHash, user, logger });
     }
   }
-
-  // Delete in auth0 to the extent possible
-  const deletedFromAuth0 = await auth0RemoveAssociationAndTryDeleteUser(user);
-  logger(`Removed association with Auth0 for user with display name "${user.displayName}". The user was${deletedFromAuth0 ? "" : " not"} deleted from Auth0`)
 
   // Permanently delete from the forum itself
   await Users.rawRemove({ _id: user._id });

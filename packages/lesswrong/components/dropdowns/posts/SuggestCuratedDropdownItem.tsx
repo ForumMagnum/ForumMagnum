@@ -1,7 +1,6 @@
 import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { isAF } from '../../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
@@ -52,9 +51,6 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
 
   if (!userCanDo(currentUser, "posts.moderate.all")
     && !userIsMemberOf(currentUser, 'canSuggestCuration')) {
-    return null;
-  }
-  if (isAF()) {
     return null;
   }
 

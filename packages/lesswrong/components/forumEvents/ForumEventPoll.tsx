@@ -6,7 +6,7 @@ import { useEventListener } from "../hooks/useEventListener";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
-import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
+import { useDialog } from "../common/withDialog";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import range from "lodash/range";
 import sortBy from "lodash/sortBy";
@@ -22,6 +22,7 @@ import { useMessages } from "../common/withMessages";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import UsersProfileImage from "../users/UsersProfileImage";
+import LoginPopup from "../users/LoginPopup";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -523,11 +524,17 @@ export const ForumEventPoll = ({
   className?: string;
 }) => {
   const { currentForumEvent, refetch: refectCurrentEvent } = useCurrentAndRecentForumEvents();
-  const { onSignup } = useLoginPopoverContext();
+  const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
   const defaultRichTextEditorType = getUserDefaultRichTextEditor(currentUser);
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
+  const openLoginDialog = useCallback(() => {
+    openDialog({
+      name: "LoginPopup",
+      contents: ({onClose}) => <LoginPopup onClose={onClose} />,
+    });
+  }, [openDialog]);
 
   const { refetch: refetchOverrideEvent, data } = useQuery(ForumEventsDisplayQuery, {
     variables: { documentId: forumEventId },
@@ -725,7 +732,7 @@ export const ForumEventPoll = ({
 
     // When a logged-in user is done dragging their vote, attempt to save it
     if (!currentUser) {
-      onSignup()
+      openLoginDialog();
       void clearVote()
       return;
     }
@@ -770,7 +777,7 @@ export const ForumEventPoll = ({
     votingOpen,
     currentBucketIndex,
     currentUser,
-    onSignup,
+    openLoginDialog,
     clearVote,
     hasVoted,
     currentUserVote,
@@ -1002,5 +1009,4 @@ export default registerComponent(
   ForumEventPoll,
   {styles}
 );
-
 

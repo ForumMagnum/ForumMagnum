@@ -223,7 +223,6 @@ const collections = [
   'ModeratorActions',
   'Reports',
   'UserRateLimits',
-  'SurveySchedules',
   'Tags',
   'MultiDocuments',
   'TagFlags',

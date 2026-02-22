@@ -164,7 +164,7 @@ const styles = (theme: ThemeType) => ({
     gap: "10px",
     zIndex: 4,
     marginTop: 6,
-    "& .EAButton-variantContained": {
+    "& .ForumButton-variantContained": {
       background: theme.palette.text.alwaysWhite,
       fontWeight: 600,
       height: 36,

@@ -17,7 +17,6 @@ import PostsGroupDetails from "../PostsGroupDetails";
 import SharePostButton from "../SharePostButton";
 import AudioToggle from "./AudioToggle";
 import { CommentsLink } from './CommentsLink';
-import CrosspostHeaderIcon from "./CrosspostHeaderIcon";
 import PostsAuthors from "./PostsAuthors";
 import PostsPageDate from "./PostsPageDate";
 import PostsPageEventData from "./PostsPageEventData";
@@ -169,8 +168,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     ({ hostname: feedLinkDomain, protocol: feedLinkProtocol } = parseUnsafeUrl(rssFeedSource.url));
     feedLink = `${feedLinkProtocol}//${feedLinkDomain}`;
   }
-  const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
-    <CrosspostHeaderIcon post={post} />
 
   const {
     answerCount,
@@ -218,7 +215,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
           </LWTooltip>
         }
         {addToCalendarNode}
-        {crosspostNode}
       </div>
       <div className={classes.secondaryInfoRight}>
         <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked} className={classes.bookmarkButton} placement='bottom-start' />
@@ -271,4 +267,3 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
 export default registerComponent(
   'PostsPagePostHeader', PostsPagePostHeader, {styles}
 );
-

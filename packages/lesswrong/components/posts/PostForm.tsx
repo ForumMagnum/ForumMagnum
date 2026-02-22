@@ -9,7 +9,7 @@ import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTy
 import { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { gql } from "@/lib/generated/gql-codegen";
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isLWorAF } from "@/lib/instanceSettings";
+import { isLWorAF } from "@/lib/instanceSettings";
 import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useMutation } from "@apollo/client/react";
 import { useForm } from "@tanstack/react-form";
@@ -173,11 +173,6 @@ const PostForm = ({
   const isDialogue = !!initialData.collabEditorDialogue;
 
   const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue);
-
-  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
-  const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
-    ? "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it."
-    : undefined;
 
   const postSubmit = <form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting, draft: s.values.draft })}>
     {({ canSubmit, isSubmitting, draft }) => {
@@ -499,4 +494,3 @@ const PostForm = ({
 };
 
 export default PostForm;
-

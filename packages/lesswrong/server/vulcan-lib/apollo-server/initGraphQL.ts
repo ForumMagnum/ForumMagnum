@@ -33,7 +33,6 @@ import { ultraFeedSubscriptionsQueries, ultraFeedSubscriptionsTypeDefs } from '@
 import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/server/resolvers/tagHistoryFeed';
 import { subForumFeedGraphQLQueries, subForumFeedGraphQLTypeDefs, tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
 import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/resolvers/conversationResolvers'
-import { surveyResolversGraphQLMutations, surveyResolversGraphQLQueries, surveyResolversGraphQLTypeDefs } from '@/server/resolvers/surveyResolvers';
 import { databaseSettingsGqlTypeDefs, databaseSettingsGqlMutations } from '@/server/resolvers/databaseSettingsResolvers'
 import { siteGraphQLQueries, siteGraphQLTypeDefs } from '../site';
 import { loginDataGraphQLMutations, loginDataGraphQLTypeDefs } from './authentication';
@@ -59,7 +58,6 @@ import { analyticsEventGraphQLMutations, analyticsEventTypeDefs } from '@/server
 import { usersGraphQLQueries, usersGraphQLTypeDefs } from '@/server/collections/users/collection';
 import { elasticGqlMutations, elasticGqlQueries, elasticGqlTypeDefs } from '@/server/search/elastic/elasticGraphQL';
 import { emailTokensGraphQLMutations, emailTokensGraphQLTypeDefs } from '@/server/emails/emailTokens';
-import { fmCrosspostGraphQLMutations, fmCrosspostGraphQLQueries, fmCrosspostGraphQLTypeDefs } from '@/server/fmCrosspost/resolvers';
 import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolvers';
 import { reviewResultsGqlQueries, reviewResultsGqlTypeDefs } from '@/server/resolvers/reviewResultsResolvers';
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
@@ -139,10 +137,6 @@ import { graphqlSideCommentCacheQueryTypeDefs, sideCommentCacheGqlFieldResolvers
 import { graphqlSplashArtCoordinateQueryTypeDefs, splashArtCoordinateGqlQueryHandlers, splashArtCoordinateGqlFieldResolvers } from "@/server/collections/splashArtCoordinates/queries";
 import { graphqlSpotlightQueryTypeDefs, spotlightGqlQueryHandlers, spotlightGqlFieldResolvers } from "@/server/collections/spotlights/queries";
 import { graphqlSubscriptionQueryTypeDefs, subscriptionGqlQueryHandlers, subscriptionGqlFieldResolvers } from "@/server/collections/subscriptions/queries";
-import { graphqlSurveyQuestionQueryTypeDefs, surveyQuestionGqlQueryHandlers, surveyQuestionGqlFieldResolvers } from "@/server/collections/surveyQuestions/queries";
-import { graphqlSurveyResponseQueryTypeDefs, surveyResponseGqlQueryHandlers, surveyResponseGqlFieldResolvers } from "@/server/collections/surveyResponses/queries";
-import { graphqlSurveyScheduleQueryTypeDefs, surveyScheduleGqlQueryHandlers, surveyScheduleGqlFieldResolvers } from "@/server/collections/surveySchedules/queries";
-import { graphqlSurveyQueryTypeDefs, surveyGqlQueryHandlers, surveyGqlFieldResolvers } from "@/server/collections/surveys/queries";
 import { graphqlTagFlagQueryTypeDefs, tagFlagGqlQueryHandlers, tagFlagGqlFieldResolvers } from "@/server/collections/tagFlags/queries";
 import { graphqlTagRelQueryTypeDefs, tagRelGqlQueryHandlers, tagRelGqlFieldResolvers } from "@/server/collections/tagRels/queries";
 import { graphqlTagQueryTypeDefs, tagGqlQueryHandlers, tagGqlFieldResolvers } from "@/server/collections/tags/queries";
@@ -188,10 +182,6 @@ import { createSequenceGqlMutation, updateSequenceGqlMutation, graphqlSequenceTy
 import { createSplashArtCoordinateGqlMutation, graphqlSplashArtCoordinateTypeDefs } from "@/server/collections/splashArtCoordinates/mutations";
 import { createSpotlightGqlMutation, updateSpotlightGqlMutation, graphqlSpotlightTypeDefs } from "@/server/collections/spotlights/mutations";
 import { createSubscriptionGqlMutation, graphqlSubscriptionTypeDefs } from "@/server/collections/subscriptions/mutations";
-import { createSurveyQuestionGqlMutation, updateSurveyQuestionGqlMutation, graphqlSurveyQuestionTypeDefs } from "@/server/collections/surveyQuestions/mutations";
-import { createSurveyResponseGqlMutation, updateSurveyResponseGqlMutation, graphqlSurveyResponseTypeDefs } from "@/server/collections/surveyResponses/mutations";
-import { createSurveyScheduleGqlMutation, updateSurveyScheduleGqlMutation, graphqlSurveyScheduleTypeDefs } from "@/server/collections/surveySchedules/mutations";
-import { createSurveyGqlMutation, updateSurveyGqlMutation, graphqlSurveyTypeDefs } from "@/server/collections/surveys/mutations";
 import { createTagFlagGqlMutation, updateTagFlagGqlMutation, graphqlTagFlagTypeDefs } from "@/server/collections/tagFlags/mutations";
 import { createTagGqlMutation, updateTagGqlMutation, graphqlTagTypeDefs } from "@/server/collections/tags/mutations";
 import { createUltraFeedEventGqlMutation, updateUltraFeedEventGqlMutation, graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
@@ -276,7 +266,6 @@ export const getTypeDefs = () => gql`
   ${tagHistoryFeedGraphQLTypeDefs}
   ${subForumFeedGraphQLTypeDefs}
   ${conversationGqlTypeDefs}
-  ${surveyResolversGraphQLTypeDefs}
   ${tagGraphQLTypeDefs}
   ${databaseSettingsGqlTypeDefs}
   ${siteGraphQLTypeDefs}
@@ -304,7 +293,6 @@ export const getTypeDefs = () => gql`
   ${usersGraphQLTypeDefs}
   ${elasticGqlTypeDefs}
   ${emailTokensGraphQLTypeDefs}
-  ${fmCrosspostGraphQLTypeDefs}
   ${diffGqlTypeDefs}
   ${reviewResultsGqlTypeDefs}
   ${recommendationsGqlTypeDefs}
@@ -386,10 +374,6 @@ export const getTypeDefs = () => gql`
   ${graphqlSplashArtCoordinateQueryTypeDefs}
   ${graphqlSpotlightQueryTypeDefs}
   ${graphqlSubscriptionQueryTypeDefs}
-  ${graphqlSurveyQuestionQueryTypeDefs}
-  ${graphqlSurveyResponseQueryTypeDefs}
-  ${graphqlSurveyScheduleQueryTypeDefs}
-  ${graphqlSurveyQueryTypeDefs}
   ${graphqlTagFlagQueryTypeDefs}
   ${graphqlTagRelQueryTypeDefs}
   ${graphqlTagQueryTypeDefs}
@@ -435,10 +419,6 @@ export const getTypeDefs = () => gql`
   ${graphqlSplashArtCoordinateTypeDefs}
   ${graphqlSpotlightTypeDefs}
   ${graphqlSubscriptionTypeDefs}
-  ${graphqlSurveyQuestionTypeDefs}
-  ${graphqlSurveyResponseTypeDefs}
-  ${graphqlSurveyScheduleTypeDefs}
-  ${graphqlSurveyTypeDefs}
   ${graphqlTagFlagTypeDefs}
   ${graphqlTagTypeDefs}
   ${graphqlUltraFeedEventTypeDefs}
@@ -483,10 +463,8 @@ const getResolvers = () => ({
     ...siteAdminMetadataGraphQLQueries,
     ...usersGraphQLQueries,
     ...elasticGqlQueries,
-    ...fmCrosspostGraphQLQueries,
     ...diffGqlQueries,
     ...reviewResultsGqlQueries,
-    ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
     ...ultraFeedGraphQLQueries,
     ...ultraFeedSubscriptionsQueries,
@@ -543,10 +521,6 @@ const getResolvers = () => ({
     ...splashArtCoordinateGqlQueryHandlers,
     ...spotlightGqlQueryHandlers,
     ...subscriptionGqlQueryHandlers,
-    ...surveyQuestionGqlQueryHandlers,
-    ...surveyResponseGqlQueryHandlers,
-    ...surveyScheduleGqlQueryHandlers,
-    ...surveyGqlQueryHandlers,
     ...tagFlagGqlQueryHandlers,
     ...tagRelGqlQueryHandlers,
     ...tagGqlQueryHandlers,
@@ -598,8 +572,6 @@ const getResolvers = () => ({
     ...analyticsEventGraphQLMutations,
     ...elasticGqlMutations,
     ...emailTokensGraphQLMutations,
-    ...fmCrosspostGraphQLMutations,
-    ...surveyResolversGraphQLMutations, 
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
@@ -660,14 +632,6 @@ const getResolvers = () => ({
     createSpotlight: createSpotlightGqlMutation,
     updateSpotlight: updateSpotlightGqlMutation,
     createSubscription: createSubscriptionGqlMutation,
-    createSurveyQuestion: createSurveyQuestionGqlMutation,
-    updateSurveyQuestion: updateSurveyQuestionGqlMutation,
-    createSurveyResponse: createSurveyResponseGqlMutation,
-    updateSurveyResponse: updateSurveyResponseGqlMutation,
-    createSurveySchedule: createSurveyScheduleGqlMutation,
-    updateSurveySchedule: updateSurveyScheduleGqlMutation,
-    createSurvey: createSurveyGqlMutation,
-    updateSurvey: updateSurveyGqlMutation,
     createTagFlag: createTagFlagGqlMutation,
     updateTagFlag: updateTagFlagGqlMutation,
     createTag: createTagGqlMutation,
@@ -753,10 +717,6 @@ const getResolvers = () => ({
   ...splashArtCoordinateGqlFieldResolvers,
   ...spotlightGqlFieldResolvers,
   ...subscriptionGqlFieldResolvers,
-  ...surveyQuestionGqlFieldResolvers,
-  ...surveyResponseGqlFieldResolvers,
-  ...surveyScheduleGqlFieldResolvers,
-  ...surveyGqlFieldResolvers,
   ...tagFlagGqlFieldResolvers,
   ...tagRelGqlFieldResolvers,
   ...tagGqlFieldResolvers,

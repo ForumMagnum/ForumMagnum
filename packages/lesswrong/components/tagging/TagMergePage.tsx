@@ -16,7 +16,7 @@ import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
 import { Typography } from "../common/Typography";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
-import EAButton from "../ea-forum/EAButton";
+import ForumButton from "../common/ForumButton";
 import LWTooltip from "../common/LWTooltip";
 
 const TagFragmentQuery = gql(`
@@ -230,7 +230,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
           </Typography>
         </div>
         <div className={classes.submitRow}>
-          {!mutationLoading ? <EAButton onClick={onSubmit}>Submit</EAButton> : <Loading />}
+          {!mutationLoading ? <ForumButton onClick={onSubmit}>Submit</ForumButton> : <Loading />}
         </div>
       </div>
     </SingleColumnSection>

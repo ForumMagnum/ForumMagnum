@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import LWDialog from "../common/LWDialog";
 import { DatePicker } from "../form-components/FormComponentDateTime";
-import EAButton from "../ea-forum/EAButton";
+import ForumButton from "../common/ForumButton";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -57,20 +57,20 @@ const DateRangeModal = ({
         <DatePicker label="End date" value={endDateInternal} onChange={setEndDateInternal} />
       </div>
       <div className={classes.buttons}>
-        <EAButton
+        <ForumButton
           id="date-range-modal-cancel-btn"
           style="grey"
           onClick={onClose}
         >
           Cancel
-        </EAButton>
-        <EAButton
+        </ForumButton>
+        <ForumButton
           type="submit"
           id="date-range-modal-submit-btn"
           onClick={onConfirm}
         >
           Confirm
-        </EAButton>
+        </ForumButton>
       </div>
     </LWDialog>
   );

@@ -470,10 +470,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDebateResponseLink, linkedCommentId]);
 
-  const isCrosspostedQuestion = post.question &&
-    post.fmCrosspost?.isCrosspost &&
-    !post.fmCrosspost?.hostedHere;
-
   const marketInfo = getMarketInfo(post)
 
   const lazyResults = useQueryWithLoadMore(postCommentsThreadQuery, {
@@ -497,11 +493,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const answersTree = useMemo(() => unflattenComments(answersAndReplies ?? []), [answersAndReplies]);
   const answerCount = post.question ? answersTree.length : undefined;
 
-  // Hide the table of contents on questions that are foreign crossposts
-  // as we read ToC data from the foreign site and it includes answers
-  // which don't exists locally. TODO: Remove this gating when we finally
-  // rewrite crossposting.
-  const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
+  const hasTableOfContents = !!sectionData;
   const tableOfContents = hasTableOfContents
     ? (isLWorAF()
         ? <TableOfContents

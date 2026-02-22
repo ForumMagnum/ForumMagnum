@@ -31,7 +31,7 @@ interface BurstItem {
  * triggers a radial "burst" of images from the click position. Do this via
  * requestIdleTimeout to try to avoid a performance hit
  */
-export default function GlobalButtonBursts() {
+export default function GlobalButtonBurst() {
   const [bursts, setBursts] = useState<BurstItem[]>([]);
 
   useEffect(() => {

@@ -6,7 +6,8 @@ import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
 import PostsTitle from "./PostsTitle";
 import TruncatedAuthorsList from "./TruncatedAuthorsList";
 import PostsItemDate from "./PostsItemDate";
-import EAKarmaDisplay from "../common/EAKarmaDisplay";
+import KarmaDisplay from "../common/KarmaDisplay";
+import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,9 +23,17 @@ const styles = (theme: ThemeType) => ({
     gap: "12px",
     alignItems: "center",
   },
-  karma: {
+  karmaContainer: {
     marginLeft: 4,
     marginBottom: 10,
+    color: theme.palette.grey[600],
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  voteArrow: {
+    color: theme.palette.grey[400],
+    margin: "-6px 0 2px 0",
   },
   postTitle: {
     overflow: "hidden",
@@ -67,7 +76,12 @@ const PostsVideoCard = ({post, classes}: {
     <AnalyticsContext documentSlug={post.slug}>
       <div {...eventHandlers} className={classes.root}>
         <div className={classes.header}>
-          <EAKarmaDisplay post={post} className={classes.karma} />
+          <div className={classes.karmaContainer}>
+            <div className={classes.voteArrow}>
+              <SoftUpArrowIcon />
+            </div>
+            <KarmaDisplay document={post} />
+          </div>
           <div>
             <PostsItemTooltipWrapper post={post}>
               <PostsTitle post={post} wrap className={classes.postTitle} />
@@ -93,5 +107,4 @@ export default registerComponent(
   PostsVideoCard,
   {styles},
 );
-
 

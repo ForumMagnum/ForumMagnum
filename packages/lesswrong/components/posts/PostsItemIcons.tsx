@@ -1,9 +1,9 @@
 import { useTracking } from '@/lib/analyticsEvents';
-import { isAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import classNames from 'classnames';
 import React, { useContext } from 'react';
-import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { isRecombeeRecommendablePost } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
@@ -11,7 +11,6 @@ import { useCurrentUser } from '../common/withUser';
 import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
 import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import OmegaIcon from "../icons/OmegaIcon";
 import { curatedUrl } from '../recommendations/constants';
 
 const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
@@ -50,11 +49,6 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
     "--icon-size": "15.6px",
     color: theme.palette.icon.dim4,
     fontWeight: '600'
-  },
-  alignmentIcon: {
-    '&&':{
-      top: 0,
-    }
   },
   linkIcon: {
     position: "relative",
@@ -161,12 +155,6 @@ export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}:
     {!hidePersonalIcon && !post.frontpageDate && !post.isEvent && <span className={classes.postIcon}>
       <LWTooltip title="Personal Blogpost" placement="right">
         <ForumIcon icon="User" className={classes.icon} />
-      </LWTooltip>
-    </span>}
-
-    {!isAF() && post.af && <span className={classes.postIcon}>
-      <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
-          <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
       </LWTooltip>
     </span>}
 

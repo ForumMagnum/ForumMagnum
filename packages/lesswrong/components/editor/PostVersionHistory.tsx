@@ -13,7 +13,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { gql } from "@/lib/generated/gql-codegen";
-import EAButton from "../ea-forum/EAButton";
+import ForumButton from "../common/ForumButton";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
 import { ContentItemBody } from "../contents/ContentItemBody";
@@ -134,7 +134,7 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
 }) => {
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()
-  return <EAButton
+  return <ForumButton
     onClick={() => {
       captureEvent("versionHistoryButtonClicked", {postId})
       openDialog({
@@ -151,7 +151,7 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
     className={classes.versionHistoryButton}
   >
     {preferredHeadingCase("Version History")}
-  </EAButton>
+  </ForumButton>
 }
 
 const LIVE_REVISION_TOOLTIP = "This version is currently live"
@@ -300,18 +300,18 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
                       {isLive(revision) ? " (Live version)" : ""}
                     </div>
                     {!isCollabEditor && <LWTooltip title={LOAD_VERSION_TOOLTIP} placement="top"  popperClassName={classes.tooltip}>
-                      <EAButton
+                      <ForumButton
                         variant="outlined"
                         className={classes.button}
                         onClick={() => loadVersion(revision.version)}
                       >
                         Load into editor
-                      </EAButton>
+                      </ForumButton>
                     </LWTooltip>}
                     <LWTooltip title={RESTORE_VERSION_TOOLTIP} placement="top" popperClassName={classes.tooltip}>
-                      <EAButton variant="contained" className={classes.button} onClick={restoreVersion}>
+                      <ForumButton variant="contained" className={classes.button} onClick={restoreVersion}>
                         {revertInProgress ? <Loading /> : "Restore"}
-                      </EAButton>
+                      </ForumButton>
                     </LWTooltip>
                   </div>
                   <div className={classes.commitMessage}>{revision.commitMessage}</div>

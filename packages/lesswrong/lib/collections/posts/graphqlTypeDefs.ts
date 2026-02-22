@@ -20,12 +20,6 @@ export const graphqlTypeDefs = gql`
     text: String
   }
 
-  input CrosspostInput {
-    isCrosspost: Boolean!
-    hostedHere: Boolean
-    foreignPostId: String
-  }
-
   type CoauthorStatusOutput {
     userId: String!
     confirmed: Boolean!
@@ -35,11 +29,5 @@ export const graphqlTypeDefs = gql`
   type SocialPreviewOutput {
     imageId: String
     text: String
-  }
-
-  type CrosspostOutput {
-    isCrosspost: Boolean!
-    hostedHere: Boolean
-    foreignPostId: String
   }
 `;

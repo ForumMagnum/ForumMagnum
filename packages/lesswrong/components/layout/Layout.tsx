@@ -21,15 +21,13 @@ import AnalyticsClient from "@/components/common/AnalyticsClient";
 import AnalyticsPageInitializer from "@/components/common/AnalyticsPageInitializer";
 import DeferRender from '@/components/common/DeferRender';
 import ErrorBoundary from "@/components/common/ErrorBoundary";
-import GlobalButtonBurst from '@/components/ea-forum/GlobalButtonBurst';
+import GlobalButtonBurst from '@/components/layout/GlobalButtonBurst';
 import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { CurrentAndRecentForumEventsProvider } from '@/components/hooks/useCurrentForumEvent';
-import { LoginPopoverContextProvider } from '@/components/hooks/useLoginPopoverContext';
 import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
 import FlashMessages from "@/components/layout/FlashMessages";
 import Header, { HeaderHeightProvider } from '@/components/layout/Header';
 import { userHasLlmChat } from '@/lib/betas';
-// import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "@/components/comments/CommentOnSelection";
 import SidebarsWrapper from "@/components/layout/SidebarsWrapper";
 // import ForumEventBanner from "./forumEvents/ForumEventBanner";
@@ -54,14 +52,6 @@ import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarCon
 
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
 const SidebarLanguageModelChat = dynamic(() => import("../languageModels/SidebarLanguageModelChat"), { ssr: false });
-
-/**
- * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
- * and we require them to fill this in using the onboarding flow before continuing.
- * This is a list of route path segments that the user is allowed to view despite having an
- * 'incomplete' account.
- */
-const allowedIncompletePaths: string[] = ["termsOfUse"];
 
 const styles = defineStyles("Layout", (theme: ThemeType) => ({
   navSidebar: {
@@ -169,7 +159,6 @@ const Layout = ({children}: {
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
-      <LoginPopoverContextProvider>
       <SidebarsWrapper>
       <HideNavigationSidebarContextProvider>
       <EditorCommandsContextProvider>
@@ -237,7 +226,6 @@ const Layout = ({children}: {
       </EditorCommandsContextProvider>
       </HideNavigationSidebarContextProvider>
       </SidebarsWrapper>
-      </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>

@@ -37,11 +37,6 @@ declare module "html-lexer" {
   export default HtmlLexer
 }
 
-declare module "passport-auth0/lib/Profile" {
-  const Profile: AnyBecauseTodo
-  export default Profile;
-}
-
 declare module "@extractus/article-extractor" {
   export const extract: AnyBecauseTodo
 }

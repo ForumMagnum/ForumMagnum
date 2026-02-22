@@ -1,12 +1,10 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import CheckRounded from '@/lib/vendor/@material-ui/icons/src/CheckRounded';
-import MailOutline from '@/lib/vendor/@material-ui/icons/src/MailOutline';
 import { isValidEmail } from '@/lib/vulcan-lib/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { getUserEmail, userEmailAddressIsVerified, userHasEmailAddress } from '../../lib/collections/users/helpers';
-import { forumTitleSetting, isAF, isLW } from '../../lib/instanceSettings';
 import { randInt } from '../../lib/random';
 import { getGraphQLErrorID, getGraphQLErrorMessage } from '../../lib/utils/errorUtil';
 import { registerComponent } from '../../lib/vulcan-lib/components';
@@ -19,9 +17,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import LoginForm from "../users/LoginForm";
 import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
 import Loading from "../vulcan-core/Loading";
-
-// mailchimp link to sign up for the EA Forum's digest
-export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
 
 const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeType) => ({
   root: {
@@ -72,15 +67,6 @@ const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeTy
     alignItems: "flex-start",
     fontSize: 18,
     lineHeight: 1.75,
-  },
-  messageDescription: {
-    fontSize: 12,
-    marginTop: 8
-  },
-  mailIcon: {
-    color: theme.palette.primary.main,
-    marginTop: 4,
-    marginRight: 12
   },
   checkIcon: {
     color: theme.palette.icon.greenCheckmark,
@@ -138,22 +124,11 @@ const RecentDiscussionSubscribeReminder = () => {
     }
   }, [adminBranch, currentUser?.isAdmin]);
 
-  // disable on AlignmentForum
-  if (isAF()) {
-    return null;
-  }
-
   // Placeholder to prevent SSR mismatch, changed on load.
   if (adminBranch === -1 && currentUser?.isAdmin)
     return <div/>
 
-  // adjust functionality based on forum type
-  let currentUserSubscribed
-  if (isLW()) {
-    currentUserSubscribed = currentUser?.emailSubscribedToCurated;
-  } else {
-    currentUserSubscribed = currentUser?.subscribedToDigest;
-  }
+  const currentUserSubscribed = currentUser?.emailSubscribedToCurated;
 
   const maybeLaterButton = <Button
     className={classes.maybeLaterButton}
@@ -184,9 +159,7 @@ const RecentDiscussionSubscribeReminder = () => {
   
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
-    // subscribe to different emails based on forum type
-    const userSubscriptionData: UpdateUserDataInput = isLW() ?
-    {emailSubscribedToCurated: true} : {subscribedToDigest: true};
+    const userSubscriptionData: UpdateUserDataInput = {emailSubscribedToCurated: true};
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
 
@@ -204,33 +177,13 @@ const RecentDiscussionSubscribeReminder = () => {
     setLoading(false);
   }
   
-  // the EA Forum uses this prompt in most cases
-  const eaForumSubscribePrompt = (
-    <>
-      <div className={classes.message}>
-        <MailOutline className={classes.mailIcon} />
-        Sign up for the Forum's email digest
-      </div>
-      <div className={classes.messageDescription}>
-        You'll get a weekly email with the best posts from the past week.
-        The Forum team selects the posts to feature based on personal preference
-        and Forum popularity, and also adds some announcements and a classic post.
-      </div>
-    </>
-  );
-  
   if (loading) {
     return <div className={classes.root}>
       <Loading/>
     </div>
   } else if (subscriptionConfirmed) {
-    // Show the confirmation after the user subscribes
-    let confirmText;
-    if (isLW()) {
-      confirmText = "You are subscribed to the best posts of LessWrong!";
-    } else {
-      confirmText = `You are subscribed to the ${forumTitleSetting} Digest`;
-    }
+    // Show the confirmation after the user subscribes.
+    const confirmText = "You are subscribed to the best posts of LessWrong!";
     return <AnalyticsWrapper branch="already-subscribed">
       <div className={classes.message}>
         <CheckRounded className={classes.checkIcon} />

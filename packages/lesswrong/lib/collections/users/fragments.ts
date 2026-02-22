@@ -253,7 +253,6 @@ export const UsersCurrent = gql(`
     hideActiveDialogueUsers
 
     hideSunshineSidebar
-    optedOutOfSurveys
     postGlossariesPinned
     generateJargonForDrafts
     generateJargonForPublishedPosts
@@ -582,7 +581,6 @@ export const UsersEdit = gql(`
     subscribedToDigest
     subscribedToNewsletter
     unsubscribeFromAll
-    hasAuth0Id
 
     # Moderation
     moderatorAssistance
@@ -702,15 +700,6 @@ export const UsersProfileEdit = gql(`
     blueskyProfileURL
     twitterProfileURL
     githubProfileURL
-  }
-`)
-
-export const UsersCrosspostInfo = gql(`
-  fragment UsersCrosspostInfo on User {
-    _id
-    username
-    slug
-    fmCrosspostUserId
   }
 `)
 

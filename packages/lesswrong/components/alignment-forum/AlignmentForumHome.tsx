@@ -12,7 +12,7 @@ import FrontpageReviewWidget from "../review/FrontpageReviewWidget";
 import PostsList2 from "../posts/PostsList2";
 import SectionButton from "../common/SectionButton";
 import RecentDiscussionThreadsList from "../recentDiscussion/RecentDiscussionThreadsList";
-import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
+import PopularCommentsSection from "../comments/PopularCommentsSection";
 import RotatingReviewWinnerSpotlight from "../review/RotatingReviewWinnerSpotlight";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -53,7 +53,7 @@ const AlignmentForumHome = () => {
         </SectionTitle>
         <PostsList2 terms={recentPostsTerms} />
       </SingleColumnSection>
-      <EAPopularCommentsSection />
+      <PopularCommentsSection />
       <SingleColumnSection>
         <RecentDiscussionThreadsList
           terms={{view: 'afRecentDiscussionThreadsList', limit:6}}

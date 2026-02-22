@@ -5,7 +5,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 
-const styles = defineStyles("EAButton", (theme: ThemeType) => ({
+const styles = defineStyles("ForumButton", (theme: ThemeType) => ({
   root: {
     minWidth: 30,
     fontSize: 14,
@@ -56,10 +56,9 @@ const styles = defineStyles("EAButton", (theme: ThemeType) => ({
 });
 
 /**
- * Button component with the standard EA Forum styling
- * (see login and sign up site header buttons for example)
+ * Shared button styling used across auth/settings flows.
  */
-const EAButton = ({style, variant="contained", eventProps, className, children, ...buttonProps}: {
+const ForumButton = ({style, variant="contained", eventProps, className, children, ...buttonProps}: {
   style?: 'primary'|'grey',
   eventProps?: Record<string, string>,
   className?: string,
@@ -95,4 +94,4 @@ const EAButton = ({style, variant="contained", eventProps, className, children, 
   )
 }
 
-export default EAButton;
+export default ForumButton;

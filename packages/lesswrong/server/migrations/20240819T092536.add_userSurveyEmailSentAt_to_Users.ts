@@ -34,12 +34,13 @@
 export const acceptsSchemaHash = "5525ab08d75613c64270cbb15da2ae94";
 
 import Users from "../../server/collections/users/collection"
-import { addField, dropField } from "./meta/utils"
+import { DateType } from "../sql/Type";
+import { addRemovedField, dropRemovedField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Users, 'userSurveyEmailSentAt')
+  await addRemovedField(db, Users, 'userSurveyEmailSentAt', new DateType())
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, Users, 'userSurveyEmailSentAt')
+  await dropRemovedField(db, Users, 'userSurveyEmailSentAt')
 }

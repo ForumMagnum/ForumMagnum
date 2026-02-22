@@ -71,12 +71,6 @@ input SocialPreviewInput {
   text: String
 }
 
-input CrosspostInput {
-  isCrosspost: Boolean!
-  hostedHere: Boolean
-  foreignPostId: String
-}
-
 type CoauthorStatusOutput {
   userId: String!
   confirmed: Boolean!
@@ -86,12 +80,6 @@ type CoauthorStatusOutput {
 type SocialPreviewOutput {
   imageId: String
   text: String
-}
-
-type CrosspostOutput {
-  isCrosspost: Boolean!
-  hostedHere: Boolean
-  foreignPostId: String
 }
 
 type TagContributor {
@@ -1011,20 +999,6 @@ extend type Mutation {
   initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
 }
 
-input SurveyQuestionInfo {
-  _id: String
-  question: String!
-  format: String!
-}
-
-extend type Query {
-  CurrentFrontpageSurvey: SurveySchedule
-}
-
-extend type Mutation {
-  editSurvey(surveyId: String!, name: String!, questions: [SurveyQuestionInfo!]!): Survey
-}
-
 enum DocumentDeletionNetChange {
   deleted
   restored
@@ -1313,15 +1287,6 @@ extend type Mutation {
 
 extend type Mutation {
   useEmailToken(token: String, args: JSON): JSON
-}
-
-extend type Mutation {
-  connectCrossposter(token: String): String
-  unlinkCrossposter: String
-}
-
-extend type Query {
-  getCrosspost(args: JSON): JSON
 }
 
 extend type Query {
@@ -4519,7 +4484,6 @@ type Post {
   socialPreviewImageAutoUrl: String
   socialPreview: SocialPreviewOutput
   socialPreviewData: SocialPreviewType!
-  fmCrosspost: CrosspostOutput
   canonicalSequenceId: String
   canonicalSequence: Sequence
   canonicalCollectionSlug: String
@@ -6941,197 +6905,6 @@ extend type Query {
   subscriptions(input: MultiSubscriptionInput @deprecated(reason: "Use the selector field instead"), selector: SubscriptionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSubscriptionOutput
 }
 
-type SurveyQuestion {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  surveyId: String!
-  survey: Survey!
-  question: String!
-  format: SurveyQuestionFormat!
-  order: Float!
-}
-
-enum SurveyQuestionFormat {
-  rank0To10
-  text
-  multilineText
-}
-
-input SingleSurveyQuestionInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleSurveyQuestionOutput {
-  result: SurveyQuestion
-}
-
-input SurveyQuestionSelector {
-  default: EmptyViewInput
-}
-
-input MultiSurveyQuestionInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiSurveyQuestionOutput {
-  results: [SurveyQuestion!]!
-  totalCount: Int
-}
-
-extend type Query {
-  surveyQuestion(input: SingleSurveyQuestionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyQuestionOutput
-  surveyQuestions(input: MultiSurveyQuestionInput @deprecated(reason: "Use the selector field instead"), selector: SurveyQuestionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyQuestionOutput
-}
-
-type SurveyResponse {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  surveyId: String
-  survey: Survey
-  surveyScheduleId: String
-  surveySchedule: SurveySchedule
-  userId: String
-  user: User
-  clientId: String
-  client: ClientId
-  response: JSON
-}
-
-input SingleSurveyResponseInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleSurveyResponseOutput {
-  result: SurveyResponse
-}
-
-input SurveyResponseSelector {
-  default: EmptyViewInput
-}
-
-input MultiSurveyResponseInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiSurveyResponseOutput {
-  results: [SurveyResponse!]!
-  totalCount: Int
-}
-
-extend type Query {
-  surveyResponse(input: SingleSurveyResponseInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyResponseOutput
-  surveyResponses(input: MultiSurveyResponseInput @deprecated(reason: "Use the selector field instead"), selector: SurveyResponseSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyResponseOutput
-}
-
-type SurveySchedule {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  surveyId: String!
-  survey: Survey
-  name: String
-  impressionsLimit: Float
-  maxVisitorPercentage: Float
-  minKarma: Float
-  maxKarma: Float
-  target: SurveyScheduleTarget
-  startDate: Date
-  endDate: Date
-  deactivated: Boolean
-  clientIds: [String!]
-  clients: [ClientId!]
-}
-
-enum SurveyScheduleTarget {
-  allUsers
-  loggedInOnly
-  loggedOutOnly
-}
-
-input SingleSurveyScheduleInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleSurveyScheduleOutput {
-  result: SurveySchedule
-}
-
-input SurveyScheduleSelector {
-  default: EmptyViewInput
-  surveySchedulesByCreatedAt: EmptyViewInput
-}
-
-input MultiSurveyScheduleInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiSurveyScheduleOutput {
-  results: [SurveySchedule!]!
-  totalCount: Int
-}
-
-extend type Query {
-  surveySchedule(input: SingleSurveyScheduleInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyScheduleOutput
-  surveySchedules(input: MultiSurveyScheduleInput @deprecated(reason: "Use the selector field instead"), selector: SurveyScheduleSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyScheduleOutput
-}
-
-type Survey {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  name: String!
-  questions: [SurveyQuestion!]!
-}
-
-input SingleSurveyInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleSurveyOutput {
-  result: Survey
-}
-
-input SurveySelector {
-  default: EmptyViewInput
-  surveysByCreatedAt: EmptyViewInput
-}
-
-input MultiSurveyInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiSurveyOutput {
-  results: [Survey!]!
-  totalCount: Int
-}
-
-extend type Query {
-  survey(input: SingleSurveyInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyOutput
-  surveys(input: MultiSurveyInput @deprecated(reason: "Use the selector field instead"), selector: SurveySelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyOutput
-}
-
 type TagFlag {
   _id: String!
   schemaVersion: Float!
@@ -7752,7 +7525,6 @@ type User {
   isAdmin: Boolean!
   profile: JSON
   services: JSON
-  hasAuth0Id: Boolean
   displayName: String!
   previousDisplayName: String
   email: String
@@ -7784,7 +7556,6 @@ type User {
   showCommunityInRecentDiscussion: Boolean!
   hidePostsRecommendations: Boolean!
   petrovOptOut: Boolean!
-  optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
   generateJargonForDrafts: Boolean
   generateJargonForPublishedPosts: Boolean
@@ -7958,7 +7729,6 @@ type User {
   website: String
   bio: String
   htmlBio: String!
-  fmCrosspostUserId: String
   linkedinProfileURL: String
   facebookProfileURL: String
   blueskyProfileURL: String
@@ -7996,8 +7766,6 @@ type User {
   recentKarmaInfo: JSON
   mailgunValidation: MailgunValidationResult
   hideSunshineSidebar: Boolean
-  inactiveSurveyEmailSentAt: Date
-  userSurveyEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
@@ -9176,7 +8944,6 @@ input CreatePostDataInput {
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
   socialPreview: SocialPreviewInput
-  fmCrosspost: CrosspostInput
   canonicalSequenceId: String
   canonicalCollectionSlug: String
   canonicalBookId: String
@@ -9292,7 +9059,6 @@ input UpdatePostDataInput {
   socialPreviewImageId: String
   socialPreviewImageAutoUrl: String
   socialPreview: SocialPreviewInput
-  fmCrosspost: CrosspostInput
   canonicalSequenceId: String
   canonicalCollectionSlug: String
   canonicalBookId: String
@@ -9657,152 +9423,6 @@ extend type Mutation {
   createSubscription(data: CreateSubscriptionDataInput!): SubscriptionOutput
 }
 
-input CreateSurveyQuestionDataInput {
-  legacyData: JSON
-  surveyId: String!
-  question: String!
-  format: SurveyQuestionFormat!
-  order: Float!
-}
-
-input CreateSurveyQuestionInput {
-  data: CreateSurveyQuestionDataInput!
-}
-
-input UpdateSurveyQuestionDataInput {
-  legacyData: JSON
-  surveyId: String
-  question: String
-  format: SurveyQuestionFormat
-  order: Float
-}
-
-input UpdateSurveyQuestionInput {
-  selector: SelectorInput!
-  data: UpdateSurveyQuestionDataInput!
-}
-
-type SurveyQuestionOutput {
-  data: SurveyQuestion
-}
-
-extend type Mutation {
-  createSurveyQuestion(data: CreateSurveyQuestionDataInput!): SurveyQuestionOutput
-  updateSurveyQuestion(selector: SelectorInput!, data: UpdateSurveyQuestionDataInput!): SurveyQuestionOutput
-}
-
-input CreateSurveyResponseDataInput {
-  legacyData: JSON
-  surveyId: String!
-  surveyScheduleId: String!
-  userId: String!
-  clientId: String!
-  response: JSON!
-}
-
-input CreateSurveyResponseInput {
-  data: CreateSurveyResponseDataInput!
-}
-
-input UpdateSurveyResponseDataInput {
-  legacyData: JSON
-  surveyId: String
-  surveyScheduleId: String
-  userId: String
-  clientId: String
-  response: JSON
-}
-
-input UpdateSurveyResponseInput {
-  selector: SelectorInput!
-  data: UpdateSurveyResponseDataInput!
-}
-
-type SurveyResponseOutput {
-  data: SurveyResponse
-}
-
-extend type Mutation {
-  createSurveyResponse(data: CreateSurveyResponseDataInput!): SurveyResponseOutput
-  updateSurveyResponse(selector: SelectorInput!, data: UpdateSurveyResponseDataInput!): SurveyResponseOutput
-}
-
-input CreateSurveyScheduleDataInput {
-  legacyData: JSON
-  surveyId: String!
-  name: String!
-  impressionsLimit: Float
-  maxVisitorPercentage: Float
-  minKarma: Float
-  maxKarma: Float
-  target: SurveyScheduleTarget!
-  startDate: Date
-  endDate: Date
-  deactivated: Boolean
-  clientIds: [String!]
-}
-
-input CreateSurveyScheduleInput {
-  data: CreateSurveyScheduleDataInput!
-}
-
-input UpdateSurveyScheduleDataInput {
-  legacyData: JSON
-  surveyId: String
-  name: String
-  impressionsLimit: Float
-  maxVisitorPercentage: Float
-  minKarma: Float
-  maxKarma: Float
-  target: SurveyScheduleTarget
-  startDate: Date
-  endDate: Date
-  deactivated: Boolean
-  clientIds: [String!]
-}
-
-input UpdateSurveyScheduleInput {
-  selector: SelectorInput!
-  data: UpdateSurveyScheduleDataInput!
-}
-
-type SurveyScheduleOutput {
-  data: SurveySchedule
-}
-
-extend type Mutation {
-  createSurveySchedule(data: CreateSurveyScheduleDataInput!): SurveyScheduleOutput
-  updateSurveySchedule(selector: SelectorInput!, data: UpdateSurveyScheduleDataInput!): SurveyScheduleOutput
-}
-
-input CreateSurveyDataInput {
-  legacyData: JSON
-  name: String!
-}
-
-input CreateSurveyInput {
-  data: CreateSurveyDataInput!
-}
-
-input UpdateSurveyDataInput {
-  legacyData: JSON
-  name: String
-}
-
-input UpdateSurveyInput {
-  selector: SelectorInput!
-  data: UpdateSurveyDataInput!
-}
-
-type SurveyOutput {
-  data: Survey
-}
-
-extend type Mutation {
-  createSurvey(data: CreateSurveyDataInput!): SurveyOutput
-  updateSurvey(selector: SelectorInput!, data: UpdateSurveyDataInput!): SurveyOutput
-}
-
 input CreateTagFlagDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
@@ -10113,7 +9733,6 @@ input CreateUserDataInput {
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
   petrovOptOut: Boolean
-  optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
   acceptedTos: Boolean
   hideNavigationSidebar: Boolean
@@ -10213,7 +9832,6 @@ input CreateUserDataInput {
   organization: String
   careerStage: [String!]
   website: String
-  fmCrosspostUserId: String
   linkedinProfileURL: String
   facebookProfileURL: String
   blueskyProfileURL: String
@@ -10236,8 +9854,6 @@ input CreateUserDataInput {
   reviewForAlignmentForumUserId: String
   afSubmittedApplication: Boolean
   hideSunshineSidebar: Boolean
-  inactiveSurveyEmailSentAt: Date
-  userSurveyEmailSentAt: Date
 }
 
 input CreateUserInput {
@@ -10282,7 +9898,6 @@ input UpdateUserDataInput {
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
   petrovOptOut: Boolean
-  optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
   generateJargonForDrafts: Boolean
   generateJargonForPublishedPosts: Boolean
@@ -10412,7 +10027,6 @@ input UpdateUserDataInput {
   organization: String
   careerStage: [String!]
   website: String
-  fmCrosspostUserId: String
   linkedinProfileURL: String
   facebookProfileURL: String
   blueskyProfileURL: String
@@ -10436,8 +10050,6 @@ input UpdateUserDataInput {
   afApplicationText: String
   afSubmittedApplication: Boolean
   hideSunshineSidebar: Boolean
-  inactiveSurveyEmailSentAt: Date
-  userSurveyEmailSentAt: Date
   recommendationSettings: RecommendationSettingsInput
 }
 

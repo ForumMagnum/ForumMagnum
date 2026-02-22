@@ -1,1 +1,1 @@
-export const crosspostUserAgent = "ForumMagnum/2.1";
+export const forumMagnumUserAgent = "ForumMagnum/2.1";

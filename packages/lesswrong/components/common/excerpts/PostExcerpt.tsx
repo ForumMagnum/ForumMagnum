@@ -27,7 +27,7 @@ const PostExcerpt = ({
   hash?: string | null,
 }) => {
   const { loading, data } = useQuery(HighlightWithHashQuery, {
-    variables: { documentId: post?.fmCrosspost?.foreignPostId ?? post?._id, hash },
+    variables: { documentId: post?._id, hash },
     skip: !hash && !!post.contents,
     fetchPolicy: "cache-first",
   });

@@ -293,7 +293,6 @@ export function getDbIndexesOnPosts() {
   indexSet.addIndex("Posts", { userId: 1, postedAt: 1 }, { concurrently: true });
 
   indexSet.addIndex("Posts", {url:1, postedAt:-1});
-  indexSet.addIndex("Posts", {"fmCrosspost.foreignPostId":1, postedAt:-1});
   indexSet.addIndex("Posts", {defaultRecommendation: 1})
 
   indexSet.addIndex("Posts",

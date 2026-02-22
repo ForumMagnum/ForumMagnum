@@ -20,7 +20,6 @@ import MetaInfo from "../common/MetaInfo";
 import Row from "../common/Row";
 import { Typography } from "../common/Typography";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
 import Loading from "../vulcan-core/Loading";
 import SimpleDivider from "../widgets/SimpleDivider";
 import CantCommentExplanation from "./CantCommentExplanation";
@@ -225,7 +224,6 @@ const CommentsListSection = ({
         parentAnswerId={parentAnswerId}
         loading={loading}
       />
-      <PostsPageCrosspostComments />
       {<Row justifyContent="flex-end">
                   <LWTooltip title="View deleted comments and banned users">
                     <Link to="/moderation">
@@ -339,5 +337,4 @@ function CommentsListSectionTitle({
 export default registerComponent("CommentsListSection", CommentsListSection, {
   areEqual: "auto"
 });
-
 

@@ -13,14 +13,12 @@ import { useCurrentTime } from '../../lib/utils/timeUtil';
 import SectionTitle, { sectionTitleStyle } from '../common/SectionTitle';
 import { useCurrentUser } from '../common/withUser';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
-import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
 import { useFilterSettings } from '../hooks/useFilterSettings';
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import SettingsButton from "../icons/SettingsButton";
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import PostsList2 from "../posts/PostsList2";
 import CuratedPostsList from "../recommendations/CuratedPostsList";
-import SurveyPostsItem from "../surveys/SurveyPostsItem";
 import TagFilterSettings from "../tagging/TagFilterSettings";
 import LWTooltip from "./LWTooltip";
 import SingleColumnSection from "./SingleColumnSection";
@@ -126,8 +124,6 @@ const HomeLatestPosts = () => {
 
   const showCurated = (isLW() && reviewIsActive())
 
-  const {survey, refetch: refetchSurvey} = useCurrentFrontpageSurvey();
-
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
@@ -186,13 +182,6 @@ const HomeLatestPosts = () => {
           {showCurated && <CuratedPostsList
             repeatedPostsPrecedence={1}
           />}
-          {survey?.survey &&
-            <SurveyPostsItem
-              survey={survey.survey}
-              surveyScheduleId={survey._id}
-              refetchSurvey={refetchSurvey}
-            />
-          }
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
@@ -214,4 +203,3 @@ const HomeLatestPosts = () => {
 }
 
 export default HomeLatestPosts;
-

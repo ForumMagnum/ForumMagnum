@@ -348,12 +348,6 @@ interface ResolverContext extends CollectionsByName {
   isSSR: boolean,
   isGreaterWrong: boolean,
   isIssaRiceReader: boolean,
-  /**
-   * This means that the request originated from the other FM instance's servers
-   *
-   * Do not set to true unless you have verified the authenticity of the request
-   */
-  isFMCrosspostRequest?: boolean,
   loaders: {
     [CollectionName in CollectionNameString]: DataLoader<string,ObjectsByCollectionName[CollectionName]>
   }

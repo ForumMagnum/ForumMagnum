@@ -29,7 +29,6 @@ import { isActionActive } from "../moderatorActions/helpers";
 import { postStatuses } from "../posts/constants";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import {
-    getAuth0Provider,
     getUserEmail,
     karmaChangeUpdateFrequencies,
     userGetProfileUrl,
@@ -446,17 +445,6 @@ const schema = {
       validation: {
         optional: true,
         blackbox: true,
-      },
-    },
-  },
-  /** hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
-  hasAuth0Id: {
-    graphql: {
-      outputType: "Boolean",
-      // Mods cannot read because they cannot read services, which is a prerequisite
-      canRead: [userOwns, "admins"],
-      resolver: (user) => {
-        return getAuth0Provider(user) === "auth0";
       },
     },
   },
@@ -960,21 +948,6 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  optedOutOfSurveys: {
-    database: {
-      type: "BOOL",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
@@ -3605,20 +3578,6 @@ const schema = {
       },
     },
   },
-  fmCrosspostUserId: {
-    database: {
-      type: "TEXT",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   linkedinProfileURL: {
     database: {
       type: "TEXT",
@@ -4264,38 +4223,6 @@ const schema = {
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  // EA Forum emails the user a survey if they haven't read a post in 4 months
-  inactiveSurveyEmailSentAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  // Used by EAF to track when we last emailed the user about the annual user survey
-  userSurveyEmailSentAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["members"],
       validation: {
         optional: true,
       },

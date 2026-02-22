@@ -163,10 +163,6 @@ export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sent
 
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', 'http://localhost:3000/', "optional")
 
-// FM Crossposting
-export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");
-export const fmCrosspostBaseUrlSetting = new PublicInstanceSetting<string|null>("fmCrosspost.baseUrl", null, "optional");
-
 // For development, there's a matched set of CkEditor settings as instance
 // settings, which take precedence over the database settings. This allows
 // using custom CkEditor settings that don't match what's in the attached
@@ -431,8 +427,6 @@ type AccountInfo = {
 };
 export const adminAccountSetting = new PublicInstanceSetting<AccountInfo | null>('adminAccount', null, "optional");
 
-export const crosspostKarmaThreshold = new PublicInstanceSetting<number | null>('crosspostKarmaThreshold', 100, "optional");
-
 export const ddTracingSampleRate = new PublicInstanceSetting<number>('datadog.tracingSampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
 export const ddRumSampleRate = new PublicInstanceSetting<number>('datadog.rumSampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
 export const ddSessionReplaySampleRate = new PublicInstanceSetting<number>('datadog.sessionReplaySampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
@@ -444,13 +438,6 @@ export const hasCookieConsentSetting = new PublicInstanceSetting<boolean>('hasCo
 
 export const maxRenderQueueSize = new PublicInstanceSetting<number>('maxRenderQueueSize', 10, "optional");
 export const queuedRequestTimeoutSecondsSetting = new PublicInstanceSetting<number>('queuedRequestTimeoutSeconds', 60, "optional");
-
-export type Auth0ClientSettings = {
-  domain: string;
-  clientId: string;
-  connection: string;
-};
-export const auth0ClientSettings = new PublicInstanceSetting<Auth0ClientSettings | null>("auth0", null, "optional");
 
 // Null means requests are disabled
 export const requestFeedbackKarmaLevelSetting = new PublicInstanceSetting<number | null>('post.requestFeedbackKarmaLevel', 100, "optional");
@@ -486,8 +473,6 @@ export const lightconeFundraiserActive = new PublicInstanceSetting<boolean>('lig
 
 export const postsListViewTypeSetting = new PublicInstanceSetting<string>('posts.viewType', 'list', "optional");
 export const quickTakesMaxAgeDaysSetting = new PublicInstanceSetting<number>('feed.quickTakesMaxAgeDays', 5, "optional");
-
-export const auth0FacebookLoginEnabled = new PublicInstanceSetting<boolean>('auth0FacebookLoginEnabled', false, "optional");
 
 export const mapsAPIKeySetting = new PublicInstanceSetting<string | null>('googleMaps.apiKey', null, "optional");
 

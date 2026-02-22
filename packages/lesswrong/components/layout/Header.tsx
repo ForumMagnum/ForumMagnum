@@ -26,7 +26,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import FundraiserBanner from '../common/FundraiserBanner';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUserId, useFilteredCurrentUser, useGetCurrentUser } from '../common/withUser';
-import SiteLogo from "../ea-forum/SiteLogo";
+import SiteLogo from "./SiteLogo";
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
@@ -108,14 +108,14 @@ const textColorOverrideStyles = ({
   "& .UsersMenu-arrowIcon": {
     color,
   },
-  "& .EAButton-variantContained": {
+  "& .ForumButton-variantContained": {
     backgroundColor: signupButtonBackgroundColor ?? color,
     color: signupButtonColor ?? contrastColor,
     "&:hover": {
       backgroundColor: signupButtonHoverBackgroundColor ?? `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
     },
   },
-  "& .EAButton-greyContained": {
+  "& .ForumButton-greyContained": {
     backgroundColor: loginButtonBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 15%, ${contrastColor})`,
     color: loginButtonColor ?? color,
     "&:hover": {
@@ -606,7 +606,7 @@ const Header = ({
                   <div className={classes.titleSubtitleContainer}>
                     <div className={classes.titleFundraiserContainer}>
                       <Link to="/" className={classes.titleLink}>
-                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
+                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo /></div>}
                         {forumHeaderTitleSetting.get()}
                       </Link>
                     </div>
@@ -615,7 +615,7 @@ const Header = ({
                 </div>
                 <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo /></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>

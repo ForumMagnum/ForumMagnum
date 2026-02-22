@@ -1,6 +1,5 @@
 import { ApolloClient, ApolloLink, InMemoryCache, Observable, Operation, FetchResult } from '@apollo/client';
-import { createHttpLink, createErrorLink } from '../../../lib/apollo/links';
-import { fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";
+import { createErrorLink } from '../../../lib/apollo/links';
 import { type DocumentNode, type GraphQLSchema, execute, print } from 'graphql';
 import stringify from 'json-stringify-deterministic';
 import { SwrCache } from '@/lib/utils/swrCache';
@@ -9,15 +8,12 @@ import { createSchemaLink } from '@/server/rendering/ssrApolloClient';
 
 // This client is used to prefetch data server side (necessary for SSR)
 // It is recreated on every request.
-export const createClient = async (context: ResolverContext | null, foreign = false) => {
+export const createClient = async (context: ResolverContext | null) => {
   const cache = new InMemoryCache();
 
   const links: ApolloLink[] = [];
 
-  if (foreign) {
-    links.push(createErrorLink());
-    links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/", null));
-  } else if (context) {
+  if (context) {
     links.push(createErrorLink());
 
     const { getExecutableSchema } = await import('../apollo-server/initGraphQL');

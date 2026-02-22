@@ -321,11 +321,6 @@ export const PostsList = gql(`
       version
     }
     isBookmarked
-    fmCrosspost {
-      isCrosspost
-      hostedHere
-      foreignPostId
-    }
     bannedUserIds
   }
 `)
@@ -338,11 +333,6 @@ export const MarkdownPostsList = gql(`
       agentMarkdownExcerpt
     }
     isBookmarked
-    fmCrosspost {
-      isCrosspost
-      hostedHere
-      foreignPostId
-    }
   }
 `)
 
@@ -453,12 +443,6 @@ export const PostsDetails = gql(`
     rsvps
     activateRSVPs
 
-    # Crossposting
-    fmCrosspost {
-      isCrosspost
-      hostedHere
-      foreignPostId
-    }
   }
 `)
 
@@ -581,11 +565,6 @@ export const PostsEdit = gql(`
     version
     coauthorUserIds
     readTimeMinutesOverride
-    fmCrosspost {
-      isCrosspost
-      hostedHere
-      foreignPostId
-    }
     hideFromRecentDiscussions
     hideFromPopularComments
     moderationGuidelines {
@@ -685,11 +664,6 @@ export const SunshinePostsList = gql(`
     currentUserVote
     currentUserExtendedVote
     isBookmarked
-    fmCrosspost {
-      isCrosspost
-      hostedHere
-      foreignPostId
-    }
     rejectedReason
     autoFrontpage
 

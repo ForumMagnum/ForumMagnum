@@ -7,7 +7,7 @@ import { QuestionIcon } from '../icons/questionIcon';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { Link } from "../../lib/reactRouterWrapper";
 import LWTooltip from "../common/LWTooltip";
-import EAButton from "../ea-forum/EAButton";
+import ForumButton from "../common/ForumButton";
 import ForumIcon from "../common/ForumIcon";
 import GoogleDocImportButton from "../posts/GoogleDocImportButton";
 
@@ -93,10 +93,10 @@ const LinkToEditorGuideButton = () => {
     return (
       <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
         <Link to={tagGetUrl({slug: "guide-to-the-lesswrong-editor"})}>
-        <EAButton className={classes.editorGuideButton}>
+        <ForumButton className={classes.editorGuideButton}>
           <ForumIcon icon="QuestionMarkCircle" className={classes.editorGuideIcon} />
           Editor Guide
-        </EAButton>
+        </ForumButton>
         </Link>
       </LWTooltip>
     );

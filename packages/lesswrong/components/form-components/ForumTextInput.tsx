@@ -3,8 +3,7 @@ import classNames from "classnames";
 import { defineStyles } from "@/components/hooks/defineStyles";
 import { useStyles } from "@/components/hooks/useStyles";
 
-// Shared styling used by EA-themed text inputs.
-export const rootStyles = (theme: ThemeType) => ({
+export const forumTextInputRootStyles = (theme: ThemeType) => ({
   width: "100%",
   padding: "16px",
   borderRadius: theme.borderRadius.default,
@@ -22,15 +21,15 @@ export const rootStyles = (theme: ThemeType) => ({
   },
 });
 
-const styles = defineStyles("EAOnboardingInput", (theme: ThemeType) => ({
+const styles = defineStyles("ForumTextInput", (theme: ThemeType) => ({
   root: {
-    ...rootStyles(theme),
+    ...forumTextInputRootStyles(theme),
   },
 }), {
   stylePriority: -1,
 });
 
-const EAOnboardingInput = ({
+const ForumTextInput = ({
   value,
   setValue,
   placeholder,
@@ -69,4 +68,4 @@ const EAOnboardingInput = ({
   );
 }
 
-export default EAOnboardingInput;
+export default ForumTextInput;

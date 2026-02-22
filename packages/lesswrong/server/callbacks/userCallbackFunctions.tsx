@@ -12,7 +12,6 @@ import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/contex
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import difference from "lodash/difference";
 import isEqual from "lodash/isEqual";
-import { getAuth0Profile, updateAuth0Email } from "../authentication/auth0";
 import { updateComment } from "../collections/comments/mutations";
 import { createConversation } from "../collections/conversations/mutations";
 import { createMessage } from "../collections/messages/mutations";
@@ -20,7 +19,7 @@ import { updateModeratorAction } from "../collections/moderatorActions/mutations
 import { updatePost } from "../collections/posts/mutations";
 import { createUser, updateUser } from "../collections/users/mutations";
 import { userFindOneByEmail } from "../commonQueries";
-import { changesAllowedSetting, forumTeamUserId, hasAuth0, sinceDaysAgoSetting, welcomeEmailPostId } from "../databaseSettings";
+import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
 import { EmailContentItemBody } from "../emailComponents/EmailContentItemBody";
 import { emailTokenTypesByName } from "../emails/emailTokens";
@@ -341,15 +340,6 @@ export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser)
       await utils.sendVerificationEmailConditional(user)
     }
 
-    if (hasAuth0()) {
-      await updateAuth0Email(user, newEmail);
-      /*
-       * Be careful here: DbUser does NOT includes services, so overwriting
-       * modifier.$set.services is both very easy and very bad (amongst other
-       * things, it will invalidate the user's session)
-       */
-      modifier.$set["services.auth0"] = await getAuth0Profile(user);
-    }
   }
   return modifier;
 }

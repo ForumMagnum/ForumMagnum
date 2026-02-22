@@ -7,7 +7,6 @@ import CommentsNewForm, {
     CommentSuccessCallback
 } from "../comments/CommentsNewForm";
 import { useDialog } from "../common/withDialog";
-import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import LoginPopup from "../users/LoginPopup";
 import { useQuickTakesTags } from "./useQuickTakesTags";
 
@@ -118,7 +117,6 @@ const QuickTakesEntry = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = useDialog();
-  const {onSignup} = useLoginPopoverContext();
   const [expanded, setExpanded] = useState(defaultExpanded);
   const {
     frontpage,
@@ -150,10 +148,10 @@ const QuickTakesEntry = ({
     isUnexpandedClickRef.current = false;
 
     openDialog({
-              name: "LoginPopup",
-              contents: ({onClose}) => <LoginPopup onClose={onClose} />
-            });
-  }, [currentUser, openDialog, onSignup, expanded]);
+      name: "LoginPopup",
+      contents: ({onClose}) => <LoginPopup onClose={onClose} />
+    });
+  }, [currentUser, openDialog, expanded]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -211,5 +209,3 @@ export default registerComponent(
   QuickTakesEntry,
   {styles},
 );
-
-

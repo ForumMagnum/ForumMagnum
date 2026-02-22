@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-import { formatStat } from "../users/EAUserTooltipContent";
+import { formatStat } from "../users/userTooltipFormatting";
 import sum from "lodash/sum";
 import PeopleDirectoryFilterDropdown from "./PeopleDirectoryFilterDropdown";
 import PeopleDirectorySelectOption from "./PeopleDirectorySelectOption";

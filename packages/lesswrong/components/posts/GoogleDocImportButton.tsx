@@ -6,7 +6,7 @@ import { useMessages } from "../common/withMessages";
 import { useTracking } from "../../lib/analyticsEvents";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import EAButton from "../ea-forum/EAButton";
+import ForumButton from "../common/ForumButton";
 import ForumIcon from "../common/ForumIcon";
 import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
@@ -190,7 +190,7 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId: string; v
   return (
     <>
       <div ref={anchorEl}>
-        <EAButton
+        <ForumButton
           onClick={() => {
             handleToggle(!open);
           }}
@@ -198,7 +198,7 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId: string; v
         >
           <ForumIcon icon="Import" className={classes.buttonInternalIcon} />
           Import Google doc
-        </EAButton>
+        </ForumButton>
       </div>
       <PopperCard open={open} anchorEl={anchorEl.current} placement="bottom-start" className={classes.popper}>
         <LWClickAwayListener onClickAway={() => handleToggle(false)}>
@@ -214,9 +214,9 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId: string; v
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => setGoogleDocUrl(event.target.value)}
             />
             {errorMessage && <div className={classes.error}>{errorMessage}</div>}
-            <EAButton className={classes.formButton} disabled={!canImport} onClick={handleImportClick}>
+            <ForumButton className={classes.formButton} disabled={!canImport} onClick={handleImportClick}>
               {mutationLoading ? <Loading className={classes.loadingDots} /> : <>Import Google doc</>}
-            </EAButton>
+            </ForumButton>
             <div className={classes.footer}>
               This will overwrite any unsaved changes
               {postId ? `, but you can still restore saved versions from "Version history"` : ""}

@@ -3,9 +3,6 @@ import { MouseEvent, useCallback, useState } from 'react';
 import { useTracking } from '../../lib/analyticsEvents';
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import LWPopper from "../common/LWPopper";
-import EAButton from "../ea-forum/EAButton";
-import EALoginPopover from "../ea-forum/auth/EALoginPopover";
-import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 import { Paper } from '../widgets/Paper';
@@ -33,31 +30,6 @@ const styles = defineStyles('UsersAccountMenu', (theme: ThemeType) => ({
     }
   },
 }));
-
-export const EAUsersAccountMenu = () => {
-  const classes = useStyles(styles);
-  const {onLogin, onSignup} = useLoginPopoverContext();
-  return (
-    <div className={classes.root}>
-      <EAButton
-        style="grey"
-        onClick={onLogin}
-        data-testid="user-login-button"
-        className={classes.login}
-      >
-        Login
-      </EAButton>
-      <EAButton
-        onClick={onSignup}
-        data-testid="user-signup-button"
-        className={classes.signUp}
-      >
-        Sign up
-      </EAButton>
-      <EALoginPopover />
-    </div>
-  );
-}
 
 export const LWUsersAccountMenu = () => {
   const classes = useStyles(styles);

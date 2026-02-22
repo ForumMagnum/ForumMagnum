@@ -54,7 +54,6 @@ const buildNotificationPost = (
     'curatedDate', ${prefix}."curatedDate",
     'postedAt', ${prefix}."postedAt",
     'groupId', ${prefix}."groupId",
-    'fmCrosspost', ${prefix}."fmCrosspost",
     'collabEditorDialogue', ${prefix}."collabEditorDialogue",
     'readTimeMinutes', COALESCE(
       ${prefix}."readTimeMinutesOverride",

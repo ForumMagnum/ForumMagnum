@@ -4,7 +4,7 @@ import Geosuggest from 'react-geosuggest'
 import type { Suggest, QueryType } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { mapsAPIKeySetting } from '@/lib/instanceSettings';
-import { rootStyles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { forumTextInputRootStyles as greyInputStyles } from "./ForumTextInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';

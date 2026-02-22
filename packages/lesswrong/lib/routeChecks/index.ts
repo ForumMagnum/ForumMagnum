@@ -22,7 +22,6 @@ export const isHomeRoute = (pathname: string) => pathnameMatchesRoutePath(pathna
 export const isSunshineSidebarRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/');
 
 export const isStandaloneRoute = (pathname: string) => pathnameMatchesAnyOf(pathname, [
-  '/crosspostLogin',
   '/groups-map'
 ]);
 

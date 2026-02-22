@@ -10,7 +10,7 @@
 // import qs from 'qs';
 // import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getTagPingbackBySlug, getUserPingbackBySlug } from './pingback';
 // import { forumSpecificRoutes } from './forumSpecificRoutes';
-// import { hasPostRecommendations, hasSurveys } from './betas';
+// import { hasPostRecommendations } from './betas';
 // import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 // import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
 // import { tagGetUrl, tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
@@ -27,7 +27,6 @@
 // // import AdminGoogleServiceAccount from '@/components/admin/AdminGoogleServiceAccount';
 // // import AdminHome from '@/components/admin/AdminHome';
 // // import AdminSynonymsPage from '@/components/admin/AdminSynonymsPage';
-// // import AdminViewOnboarding from '@/components/admin/AdminViewOnboarding';
 // // import CurationPage from '@/components/admin/CurationPage';
 // // import MigrationsDashboard from '@/components/admin/migrations/MigrationsDashboard';
 // // import RandomUserPage from '@/components/admin/RandomUserPage';
@@ -107,7 +106,6 @@
 // // import Codex from '@/components/sequences/Codex';
 // // import CollectionsSingle from '@/components/sequences/CollectionsSingle';
 // // import CoreSequences from '@/components/sequences/CoreSequences';
-// // import EAIntroCurriculum from '@/components/sequences/EAIntroCurriculum';
 // // import HPMOR from '@/components/sequences/HPMOR';
 // // import LibraryPage from '@/components/sequences/LibraryPage';
 // // import SequencesEditForm from '@/components/sequences/SequencesEditForm';
@@ -125,9 +123,6 @@
 // // import ModerationLog from '@/components/sunshineDashboard/moderationLog/ModerationLog';
 // // import RecentlyActiveUsers from '@/components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers';
 // // import ModGPTDashboard from '@/components/sunshineDashboard/ModGPTDashboard';
-// // import SurveyAdminPage from '@/components/surveys/SurveyAdminPage';
-// // import SurveyEditPage from '@/components/surveys/SurveyEditPage';
-// // import SurveyScheduleEditPage from '@/components/surveys/SurveyScheduleEditPage';
 // // import ArbitalExplorePage from '@/components/tagging/ArbitalExplorePage';
 // // import EditTagPage from '@/components/tagging/EditTagPage';
 // // import TagHistoryPage from '@/components/tagging/history/TagHistoryPage';
@@ -142,9 +137,7 @@
 // // import TagPageRouter from '@/components/tagging/TagPageRouter';
 // // import TagVoteActivity from '@/components/tagging/TagVoteActivity';
 // // import UsersAccount from '@/components/users/account/UsersAccount';
-// // import Auth0PasswordResetPage from '@/components/users/Auth0PasswordResetPage';
 // // import BannedNotice from '@/components/users/BannedNotice';
-// // import CrosspostLoginPage from '@/components/users/CrosspostLoginPage';
 // // import EditProfileForm from '@/components/users/EditProfileForm';
 // // import EmailTokenPage from '@/components/users/EmailTokenPage';
 // // import LoginPage from '@/components/users/LoginPage';
@@ -153,7 +146,6 @@
 // // import UsersSingle from '@/components/users/UsersSingle';
 // // import UsersViewABTests from '@/components/users/UsersViewABTests';
 // // import ViewSubscriptionsPage from '@/components/users/ViewSubscriptionsPage';
-// // import EAAllTagsPage from '@/components/tagging/EAAllTagsPage';
 // // import AllWikiTagsPage from '@/components/tagging/AllWikiTagsPage';
 // import { communityPath, getAllTagsPath, getAllTagsRedirectPaths } from './pathConstants';
 // // import Leaderboard from '@/components/users/Leaderboard';
@@ -311,13 +303,6 @@
 //     // component: LoginPage,
 //     title: "Login",
 //     background: "white"
-//   },
-//   {
-//     name: 'crosspostLogin',
-//     path: '/crosspostLogin',
-//     // component: CrosspostLoginPage,
-//     title: 'Crosspost Login',
-//     standalone: true,
 //   },
 //   {
 //     name: 'resendVerificationEmail',
@@ -729,7 +714,6 @@
 //     {
 //       name: 'handbook',
 //       path: '/handbook',
-//       // component: EAIntroCurriculum,
 //       title: 'The Effective Altruism Handbook',
 //     },
 //     {
@@ -932,7 +916,6 @@
 //     {
 //       name: 'setPassword',
 //       path: '/setPassword',
-//       // component: Auth0PasswordResetPage,
 //       title: 'Set password',
 //     },
 //   ],
@@ -1658,12 +1641,6 @@
 //     title: "Random User",
 //   },
 //   {
-//     name: 'onboarding',
-//     path: '/admin/onboarding',
-//     // component: AdminViewOnboarding,
-//     title: "Onboarding (for testing purposes)",
-//   },
-//   {
 //     name: 'moderation',
 //     path: '/moderation',
 //     // component: ModerationLog,
@@ -1819,39 +1796,6 @@
 //     path: '/postsWithApprovedJargon',
 //     // component: PostsWithApprovedJargonPage,
 //   });
-// }
-
-// if (hasSurveys) {
-//   addRoute(
-//     {
-//       name: "surveys",
-//       path: "/admin/surveys",
-//       // component: SurveyAdminPage,
-//       title: "Surveys",
-//       isAdmin: true,
-//     },
-//     {
-//       name: "editSurvey",
-//       path: "/survey/:id/edit",
-//       // component: SurveyEditPage,
-//       title: "Edit survey",
-//       isAdmin: true,
-//     },
-//     {
-//       name: "newSurveySchedule",
-//       path: "/surveySchedule",
-//       // component: SurveyScheduleEditPage,
-//       title: "New survey schedule",
-//       isAdmin: true,
-//     },
-//     {
-//       name: "editSurveySchedule",
-//       path: "/surveySchedule/:id",
-//       // component: SurveyScheduleEditPage,
-//       title: "Edit survey schedule",
-//       isAdmin: true,
-//     },
-//   );
 // }
 
 // forumSpecificRoutes();

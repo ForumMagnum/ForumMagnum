@@ -1552,7 +1552,6 @@ CREATE TABLE "Posts" (
   "socialPreviewImageId" TEXT,
   "socialPreviewImageAutoUrl" TEXT,
   "socialPreview" JSONB,
-  "fmCrosspost" JSONB NOT NULL DEFAULT '{"isCrosspost":false}'::JSONB,
   "canonicalSequenceId" VARCHAR(27),
   "canonicalCollectionSlug" TEXT,
   "canonicalBookId" VARCHAR(27),
@@ -2254,9 +2253,6 @@ CREATE INDEX IF NOT EXISTS "idx_Posts_userId_postedAt" ON "Posts" USING btree ("
 -- Index "idx_Posts_url_postedAt"
 CREATE INDEX IF NOT EXISTS "idx_Posts_url_postedAt" ON "Posts" USING btree ("url", "postedAt");
 
--- Index "idx_Posts_fmCrosspost__foreignPostId_postedAt"
-CREATE INDEX IF NOT EXISTS "idx_Posts_fmCrosspost__foreignPostId_postedAt" ON "Posts" USING gin (("fmCrosspost" -> 'foreignPostId'), "postedAt");
-
 -- Index "idx_Posts_defaultRecommendation"
 CREATE INDEX IF NOT EXISTS "idx_Posts_defaultRecommendation" ON "Posts" USING btree ("defaultRecommendation");
 
@@ -2646,80 +2642,6 @@ CREATE INDEX IF NOT EXISTS "idx_Subscriptions_userId_documentId_collectionName_t
   "createdAt"
 );
 
--- Table "SurveyQuestions"
-CREATE TABLE "SurveyQuestions" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "surveyId" VARCHAR(27) NOT NULL,
-  "question" TEXT NOT NULL,
-  "format" TEXT NOT NULL,
-  "order" DOUBLE PRECISION NOT NULL
-);
-
--- Index "idx_SurveyQuestions_surveyId"
-CREATE INDEX IF NOT EXISTS "idx_SurveyQuestions_surveyId" ON "SurveyQuestions" USING btree ("surveyId");
-
--- Table "SurveyResponses"
-CREATE TABLE "SurveyResponses" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "surveyId" VARCHAR(27) NOT NULL,
-  "surveyScheduleId" VARCHAR(27) NOT NULL,
-  "userId" VARCHAR(27) NOT NULL,
-  "clientId" VARCHAR(27) NOT NULL,
-  "response" JSONB NOT NULL
-);
-
--- Index "idx_SurveyResponses_surveyId"
-CREATE INDEX IF NOT EXISTS "idx_SurveyResponses_surveyId" ON "SurveyResponses" USING btree ("surveyId");
-
--- Index "idx_SurveyResponses_surveyScheduleId"
-CREATE INDEX IF NOT EXISTS "idx_SurveyResponses_surveyScheduleId" ON "SurveyResponses" USING btree ("surveyScheduleId");
-
--- Index "idx_SurveyResponses_userId"
-CREATE INDEX IF NOT EXISTS "idx_SurveyResponses_userId" ON "SurveyResponses" USING btree ("userId");
-
--- Index "idx_SurveyResponses_clientId"
-CREATE INDEX IF NOT EXISTS "idx_SurveyResponses_clientId" ON "SurveyResponses" USING btree ("clientId");
-
--- Table "SurveySchedules"
-CREATE TABLE "SurveySchedules" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "surveyId" VARCHAR(27) NOT NULL,
-  "name" TEXT NOT NULL,
-  "impressionsLimit" DOUBLE PRECISION,
-  "maxVisitorPercentage" DOUBLE PRECISION,
-  "minKarma" DOUBLE PRECISION,
-  "maxKarma" DOUBLE PRECISION,
-  "target" TEXT NOT NULL DEFAULT 'allUsers',
-  "startDate" TIMESTAMPTZ,
-  "endDate" TIMESTAMPTZ,
-  "deactivated" BOOL NOT NULL DEFAULT FALSE,
-  "clientIds" VARCHAR(27) [] NOT NULL DEFAULT '{}'
-);
-
--- Index "idx_SurveySchedules_surveyId"
-CREATE INDEX IF NOT EXISTS "idx_SurveySchedules_surveyId" ON "SurveySchedules" USING btree ("surveyId");
-
--- Index "idx_SurveySchedules_clientIds"
-CREATE INDEX IF NOT EXISTS "idx_SurveySchedules_clientIds" ON "SurveySchedules" USING gin ("clientIds");
-
--- Table "Surveys"
-CREATE TABLE "Surveys" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "name" TEXT NOT NULL
-);
-
 -- Table "TagFlags"
 CREATE TABLE "TagFlags" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3070,7 +2992,6 @@ CREATE TABLE "Users" (
   "showCommunityInRecentDiscussion" BOOL NOT NULL DEFAULT FALSE,
   "hidePostsRecommendations" BOOL NOT NULL DEFAULT FALSE,
   "petrovOptOut" BOOL NOT NULL DEFAULT FALSE,
-  "optedOutOfSurveys" BOOL,
   "postGlossariesPinned" BOOL NOT NULL DEFAULT FALSE,
   "generateJargonForDrafts" BOOL NOT NULL DEFAULT FALSE,
   "generateJargonForPublishedPosts" BOOL NOT NULL DEFAULT TRUE,
@@ -3228,7 +3149,6 @@ CREATE TABLE "Users" (
   "organization" TEXT,
   "careerStage" TEXT[],
   "website" TEXT,
-  "fmCrosspostUserId" TEXT,
   "linkedinProfileURL" TEXT,
   "facebookProfileURL" TEXT,
   "blueskyProfileURL" TEXT,
@@ -3256,8 +3176,6 @@ CREATE TABLE "Users" (
   "afApplicationText" TEXT,
   "afSubmittedApplication" BOOL,
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
-  "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
-  "userSurveyEmailSentAt" TIMESTAMPTZ,
   "recommendationSettings" JSONB
 );
 

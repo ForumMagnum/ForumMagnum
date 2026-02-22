@@ -1,7 +1,7 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-import EAButton from "../ea-forum/EAButton";
+import ForumButton from "../common/ForumButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -31,9 +31,9 @@ const PeopleDirectoryNoResults = ({classes}: {
     <div className={classes.root}>
       <div className={classes.heading}>No people found</div>
       <div>Try using different keywords or change your filters</div>
-      <EAButton onClick={clearSearch} style="grey" className={classes.button}>
+      <ForumButton onClick={clearSearch} style="grey" className={classes.button}>
         Clear search
-      </EAButton>
+      </ForumButton>
     </div>
   );
 }
