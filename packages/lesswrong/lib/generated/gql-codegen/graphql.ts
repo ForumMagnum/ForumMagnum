@@ -4466,6 +4466,7 @@ export type Mutation = {
   importUrlAsDraftPost: ExternalPostImportData;
   increasePostViewCount: Maybe<Scalars['Float']['output']>;
   initiateConversation: Maybe<Conversation>;
+  karmaChangesChecked: Scalars['Boolean']['output'];
   lockThread: Scalars['Boolean']['output'];
   login: Maybe<LoginReturnData>;
   logout: Maybe<LoginReturnData>;
@@ -4971,6 +4972,12 @@ export type MutationinitiateConversationArgs = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   moderator?: InputMaybe<Scalars['Boolean']['input']>;
   participantIds: Array<Scalars['String']['input']>;
+};
+
+
+export type MutationkarmaChangesCheckedArgs = {
+  endDate?: InputMaybe<Scalars['Date']['input']>;
+  startDate?: InputMaybe<Scalars['Date']['input']>;
 };
 
 
@@ -20471,6 +20478,14 @@ export type KarmaChangeNotifierQuery = { __typename?: 'Query', user: { __typenam
       & UserKarmaChanges
     ) | null } | null };
 
+export type karmaChangesCheckedKarmaChangeNotifierMutationVariables = Exact<{
+  startDate?: InputMaybe<Scalars['Date']['input']>;
+  endDate?: InputMaybe<Scalars['Date']['input']>;
+}>;
+
+
+export type karmaChangesCheckedKarmaChangeNotifierMutation = { __typename?: 'Mutation', karmaChangesChecked: boolean };
+
 export type SubscribedUserQueryVariables = Exact<{
   documentId: Scalars['String']['input'];
 }>;
@@ -23253,6 +23268,7 @@ export const importUrlAsDraftPostDocument = {"kind":"Document","definitions":[{"
 export const increasePostViewCountMutationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"increasePostViewCountMutation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"increasePostViewCount"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}}]}]}}]} as unknown as DocumentNode<increasePostViewCountMutationMutation, increasePostViewCountMutationMutationVariables>;
 export const initiateConversationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"initiateConversation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"participantIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"af"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"moderator"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"initiateConversation"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"participantIds"},"value":{"kind":"Variable","name":{"kind":"Name","value":"participantIds"}}},{"kind":"Argument","name":{"kind":"Name","value":"af"},"value":{"kind":"Variable","name":{"kind":"Name","value":"af"}}},{"kind":"Argument","name":{"kind":"Name","value":"moderator"},"value":{"kind":"Variable","name":{"kind":"Name","value":"moderator"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ConversationsMinimumInfo"}}]}}]}},ConversationsMinimumInfoFragmentDef]} as unknown as DocumentNode<initiateConversationMutation, initiateConversationMutationVariables>;
 export const isDisplayNameTakenDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"isDisplayNameTaken"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"displayName"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"IsDisplayNameTaken"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"displayName"},"value":{"kind":"Variable","name":{"kind":"Name","value":"displayName"}}}]}]}}]} as unknown as DocumentNode<isDisplayNameTakenQuery, isDisplayNameTakenQueryVariables>;
+export const karmaChangesCheckedKarmaChangeNotifierDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"karmaChangesCheckedKarmaChangeNotifier"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"startDate"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Date"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"endDate"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Date"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"karmaChangesChecked"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"startDate"},"value":{"kind":"Variable","name":{"kind":"Name","value":"startDate"}}},{"kind":"Argument","name":{"kind":"Name","value":"endDate"},"value":{"kind":"Variable","name":{"kind":"Name","value":"endDate"}}}]}]}}]} as unknown as DocumentNode<karmaChangesCheckedKarmaChangeNotifierMutation, karmaChangesCheckedKarmaChangeNotifierMutationVariables>;
 export const lastEventFragmentDoc = {"kind":"Document","definitions":[lastEventFragmentFragmentDef]} as unknown as DocumentNode<lastEventFragment, unknown>;
 export const latestGoogleDocMetadataDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"latestGoogleDocMetadata"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"version"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"latestGoogleDocMetadata"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}},{"kind":"Argument","name":{"kind":"Name","value":"version"},"value":{"kind":"Variable","name":{"kind":"Name","value":"version"}}}]}]}}]} as unknown as DocumentNode<latestGoogleDocMetadataQuery, latestGoogleDocMetadataQueryVariables>;
 export const launchPetrovMissileDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"launchPetrovMissile"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"launchCode"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"PetrovDayLaunchMissile"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"launchCode"},"value":{"kind":"Variable","name":{"kind":"Name","value":"launchCode"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"launchCode"}}]}}]}}]} as unknown as DocumentNode<launchPetrovMissileMutation, launchPetrovMissileMutationVariables>;

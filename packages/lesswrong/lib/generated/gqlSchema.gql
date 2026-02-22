@@ -259,6 +259,7 @@ extend type Mutation {
   NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile
   UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean
   UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
+  karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
 }
 
 extend type Query {

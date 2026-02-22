@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react';
-import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { Paper }from '@/components/widgets/Paper';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { Badge } from "@/components/widgets/Badge";
@@ -20,6 +19,7 @@ import LWPopper from '../../common/LWPopper';
 import DeferRender from '@/components/common/DeferRender';
 import { useLocation } from '@/lib/routeUtil';
 import { canonicalizePath } from '@/lib/generated/routeManifest';
+import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 
 const UserKarmaChangesQuery = gql(`
   query KarmaChangeNotifier($documentId: String) {
@@ -31,12 +31,18 @@ const UserKarmaChangesQuery = gql(`
   }
 `);
 
+const KarmaChangesCheckedMutation = gql(`
+  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {
+    karmaChangesChecked(startDate: $startDate, endDate: $endDate)
+  }
+`);
+
 const KarmaChangeNotifierLoaded = ({className}: {
   className?: string,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()!;
-  const updateCurrentUser = useUpdateCurrentUser();
+  const [karmaChangesChecked] = useMutationNoCache(KarmaChangesCheckedMutation);
   const [cleared,setCleared] = useState(false);
   const [open, setOpen] = useState(false);
   const anchorEl = useRef<HTMLDivElement|null>(null)
@@ -59,9 +65,11 @@ const KarmaChangeNotifierLoaded = ({className}: {
     setOpen(false);
     if (!currentUser) return;
     if (document?.karmaChanges) {
-      void updateCurrentUser({
-        ...(document.karmaChanges.endDate && { karmaChangeLastOpened: new Date(document.karmaChanges.endDate) }),
-        ...(document.karmaChanges.startDate && { karmaChangeBatchStart: new Date(document.karmaChanges.startDate) })
+      void karmaChangesChecked({
+        variables: {
+          startDate: document.karmaChanges.startDate,
+          endDate: document.karmaChanges.endDate,
+        },
       });
 
       if (document.karmaChanges.updateFrequency === "realtime") {

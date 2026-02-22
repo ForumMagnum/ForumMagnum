@@ -679,6 +679,7 @@ type Documents = {
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserUsersEditFormDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersEditFormGetUserBySlugDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.KarmaChangeNotifierDocument,
+    "\n  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {\n    karmaChangesChecked(startDate: $startDate, endDate: $endDate)\n  }\n": typeof types.karmaChangesCheckedKarmaChangeNotifierDocument,
     "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.SubscribedUserDocument,
     "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.SubscribedPostDocument,
     "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.SubscribedCommentDocument,
@@ -1628,6 +1629,7 @@ const documents: Documents = {
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserUsersEditFormDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersEditFormGetUserBySlugDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.KarmaChangeNotifierDocument,
+    "\n  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {\n    karmaChangesChecked(startDate: $startDate, endDate: $endDate)\n  }\n": types.karmaChangesCheckedKarmaChangeNotifierDocument,
     "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.SubscribedUserDocument,
     "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.SubscribedPostDocument,
     "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.SubscribedCommentDocument,
@@ -4586,6 +4588,10 @@ export function gql(source: "\n  query UsersEditFormGetUserBySlug($slug: String!
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"): (typeof documents)["\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {\n    karmaChangesChecked(startDate: $startDate, endDate: $endDate)\n  }\n"): (typeof documents)["\n  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {\n    karmaChangesChecked(startDate: $startDate, endDate: $endDate)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
