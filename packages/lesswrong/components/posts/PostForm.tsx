@@ -1,6 +1,6 @@
 import { EditablePost, PostSubmitMeta, userCanEditCoauthors, detectLinkpost } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { isLWorAF, isEAForum, fmCrosspostSiteNameSetting, fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
+import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -460,13 +460,6 @@ const PostForm = ({
 
   const isEvent = !!initialData.isEvent;
   const isDialogue = !!initialData.collabEditorDialogue;
-
-  const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent);
-
-  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
-  const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
-    ? "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it."
-    : undefined;
 
   const useSidebarLayout = isLWorAF();
 
