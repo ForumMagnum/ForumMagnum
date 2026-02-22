@@ -138,6 +138,9 @@ export const routeTrie = {
           },
           "hasRoute": true
         },
+        "collaborateOnPost": {
+          "hasRoute": true
+        },
         "community": {
           "hasRoute": true
         },
@@ -145,6 +148,9 @@ export const routeTrie = {
           "hasRoute": true
         },
         "curated": {
+          "hasRoute": true
+        },
+        "editPost": {
           "hasRoute": true
         },
         "events": {
@@ -251,6 +257,16 @@ export const routeTrie = {
             "child": {
               "hasRoute": true
             }
+          }
+        },
+        "agent": {
+          "staticChildren": {
+            "commentOnDraft": {
+              "hasRoute": true
+            }
+          },
+          "lowerCase": {
+            "commentondraft": "commentOnDraft"
           }
         },
         "autocomplete": {
@@ -397,9 +413,11 @@ export const routeTrie = {
         "skill.md": "SKILL.md",
         "about": "about",
         "codex": "codex",
+        "collaborateonpost": "collaborateOnPost",
         "community": "community",
         "contact": "contact",
         "curated": "curated",
+        "editpost": "editPost",
         "events": "events",
         "faq": "faq",
         "home": "home",
@@ -412,6 +430,7 @@ export const routeTrie = {
         "sequence": "sequence",
         "tag": "tag",
         "user": "user",
+        "agent": "agent",
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",

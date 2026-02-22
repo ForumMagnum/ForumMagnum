@@ -40,6 +40,15 @@ Post comments:
  * /api/post/[id]/comments
  * /api/post/[id]/comments/[commentId]
  * comments route supports ?sort=top|new|old, ?limit=n, ?includeReactionUsers=1
+Reading draft editor content:
+ * /api/editPost?postId=[id]
+ * /api/collaborateOnPost?postId=[id]&key=[linkSharingKey]
+ * edit route supports ?version=draft|[revisionId]
+Writing draft editor comments (Lexical collaborative drafts only):
+ * POST /api/agent/commentOnDraft
+ * JSON body: { postId, comment, key?, paragraphId?, quote? }
+ * Adds a Google-Docs-style draft comment thread
+ * Auth can be from login cookie and/or link-sharing key (\`key\`)
 Reading tags:
  * /api/tag/[slug]
 Reading users:
