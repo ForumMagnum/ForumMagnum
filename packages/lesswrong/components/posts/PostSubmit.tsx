@@ -114,7 +114,19 @@ export const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
+        <Button
+          type="submit"
+          onClick={onSubmitClick}
+          disabled={disabled}
+          className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+          {...(isFriendlyUI() ? {
+            variant: "contained",
+            color: "primary",
+          } : {})}
+        >
+          {submitLabel}
+        </Button>
+        {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && <LWTooltip
           title={feedbackTitle}
         >
           <Button type="submit"
@@ -155,18 +167,7 @@ export const PostSubmit = ({
         >
           {saveDraftLabel}
         </Button>
-        <Button
-          type="submit"
-          onClick={onSubmitClick}
-          disabled={disabled}
-          className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isFriendlyUI() ? {
-            variant: "contained",
-            color: "primary",
-          } : {})}
-        >
-          {submitLabel}
-        </Button>
+
       </div>
     </React.Fragment>
   );

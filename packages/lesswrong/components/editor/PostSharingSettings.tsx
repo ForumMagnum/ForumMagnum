@@ -104,9 +104,10 @@ interface PostSharingSettingsProps {
   post: EditablePost;
   formType: "new" | "edit";
   editorType?: string;
+  iconOnly?: boolean;
 }
 
-export const PostSharingSettings = ({ field, post, formType, editorType }: PostSharingSettingsProps) => {
+export const PostSharingSettings = ({ field, post, formType, editorType, iconOnly }: PostSharingSettingsProps) => {
   const classes = useStyles(styles);
 
   const value = field.state.value;
@@ -170,14 +171,20 @@ export const PostSharingSettings = ({ field, post, formType, editorType }: PostS
   }, [openDialog, closeDialog, formType, post, field, initialSharingSettings, flash, editorType]);
   const canUseSharing = userCanUseSharing(currentUser)
 
-  return <LWTooltip title={canUseSharing ? undefined : getNoSharePermissionTooltip()}>
+  const tooltipTitle = !canUseSharing
+    ? getNoSharePermissionTooltip()
+    : iconOnly
+      ? "Share"
+      : undefined;
+
+  return <LWTooltip title={tooltipTitle}>
       <EAButton
         className={classes.friendlyButton}
         onClick={userCanUseSharing(currentUser) ? onClickShare : undefined}
         disabled={!canUseSharing}
       >
-        <PostSharingIcon className={classes.buttonInternalIcon} />
-        Share {post.draft ? " this draft" : ""}
+        <PostSharingIcon className={iconOnly ? undefined : classes.buttonInternalIcon} />
+        {!iconOnly && <>Share {post.draft ? " this draft" : ""}</>}
       </EAButton>
     </LWTooltip>
 }

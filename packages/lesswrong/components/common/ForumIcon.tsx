@@ -95,6 +95,7 @@ import MuiStarIcon from "@/lib/vendor/@material-ui/icons/src/Star";
 import MuiStarBorderIcon from "@/lib/vendor/@material-ui/icons/src/StarBorder";
 import MuiPersonIcon from "@/lib/vendor/@material-ui/icons/src/Person";
 import MuiPeopleIcon from "@/lib/vendor/@material-ui/icons/src/People";
+import MuiGroupAddIcon from "@/lib/vendor/@material-ui/icons/src/GroupAdd";
 import MuiNotificationsIcon from '@/lib/vendor/@material-ui/icons/src/Notifications';
 import MuiLinkIcon from "@/lib/vendor/@material-ui/icons/src/Link";
 import MuiTagIcon from "@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined";
@@ -207,6 +208,7 @@ export type ForumIconName =
   "UserCircle" |
   "Users" |
   "UsersOutline" |
+  "GroupAdd" |
   "Gift" |
   "Bell" |
   "BellAlert" |
@@ -353,6 +355,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     UserCircle: UserCircleIcon,
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
+    GroupAdd: MuiGroupAddIcon,
     Gift: GiftIcon,
     Bell: MuiNotificationsIcon,
     BellAlert: BellAlertIcon,
@@ -498,6 +501,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     UserCircle: UserCircleIcon,
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
+    GroupAdd: MuiGroupAddIcon,
     Gift: GiftIcon,
     Bell: BellIcon,
     BellAlert: BellAlertIcon,

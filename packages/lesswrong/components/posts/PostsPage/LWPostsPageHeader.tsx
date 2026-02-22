@@ -55,6 +55,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'baseline',
     columnGap: 20,
     ...theme.typography.commentStyle,
+    fontSize: 16,
     flexWrap: 'wrap',
     color: theme.palette.text.dim3,
     marginTop: 12
@@ -257,7 +258,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   const shouldShowLinkpostText = isLinkpost && linkpostDomain && (post.contents?.wordCount ?? 0) >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
   const linkpostNode = shouldShowLinkpostText ? <LWTooltip title={linkpostTooltip}>
     <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
-      Linkpost from {linkpostDomain}
+      Linkpost for {linkpostDomain}
     </a>
   </LWTooltip> : null;
 

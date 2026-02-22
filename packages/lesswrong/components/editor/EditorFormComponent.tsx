@@ -339,19 +339,32 @@ function InnerEditorFormComponent<S, R>({
     }
   }, [currentUser, collectionName, fieldName, document._id, autosaveRevision]);
 
+  // Ref that tracks the latest editor content, updated synchronously in
+  // wrappedSetContents. Used by throttledSetContentsValue to avoid reading
+  // stale data from Editor props (which lag behind by one React render).
+  const latestContentsRef = useRef(contents);
+
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
    * was for SocialPreviewUpload, which needs to know the body of the post in order to generate a preview description and image.
    */
   const throttledSetContentsValue = useDebouncedCallback(async (_: {}) => {
     if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
-    
+
     // Preserve other fields in "contents" which may have been sent from the server
     const newFieldValue = {
       ...(document[fieldName] || {}),
       ...(await editorRef.current.submitData()),
     };
-    
+
+    // For Lexical, submitData reads from Editor props which may be stale
+    // (React hasn't re-rendered yet during a leading-edge call). Override
+    // with the latest content from our synchronously-updated ref.
+    const latest = latestContentsRef.current;
+    if (latest.type === 'lexical' && newFieldValue.originalContents) {
+      newFieldValue.originalContents.data = latest.value;
+    }
+
     field.handleChange(newFieldValue);
   }, {
     rateLimitMs: autosaveInterval,
@@ -379,6 +392,7 @@ function InnerEditorFormComponent<S, R>({
     if (dynamicTableOfContents && hasToc) {
       dynamicTableOfContents.setToc(change.contents);
     }
+    latestContentsRef.current = newContents;
     setContents(newContents);
     
     // Only save to localStorage if not using collaborative editing, since with

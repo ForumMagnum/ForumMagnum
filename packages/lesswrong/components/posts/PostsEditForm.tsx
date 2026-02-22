@@ -27,6 +27,7 @@ import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
+import { CENTRAL_COLUMN_WIDTH } from './PostsPage/constants';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -40,7 +41,7 @@ const UsersCurrentPostRateLimitQuery = gql(`
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
-    maxWidth: 715,
+    maxWidth: CENTRAL_COLUMN_WIDTH,
     margin: "0 auto",
 
     [theme.breakpoints.down('xs')]: {
@@ -147,6 +148,10 @@ const PostsEditFormInner = ({ documentId, version }: {
     fetchPolicy: 'network-only',
   });
   const document = dataPost?.post?.result;
+  const [liveTitle, setLiveTitle] = useState("");
+  useEffect(() => {
+    setLiveTitle(document?.title ?? "");
+  }, [document?.title]);
 
   const { data: dataUser } = useQuery(UsersCurrentPostRateLimitQuery, {
     variables: { documentId: currentUser?._id, eventForm: document?.isEvent },
@@ -206,7 +211,7 @@ const PostsEditFormInner = ({ documentId, version }: {
 
   return (<>
     <StatusCodeSetter status={200}/>
-    <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum() && <NewPostHowToGuides/>}>
+    <DynamicTableOfContents title={liveTitle || document.title} rightColumnChildren={isEAForum() && <NewPostHowToGuides/>}>
       <div className={classes.postForm}>
         {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
@@ -219,6 +224,7 @@ const PostsEditFormInner = ({ documentId, version }: {
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <PostForm
               initialData={withDateFields(document, ['postedAt', 'afDate', 'commentsLockedToAccountsCreatedAfter', 'frontpageDate', 'curatedDate', 'startTime', 'endTime'])}
+              onTitleChange={setLiveTitle}
               onSuccess={(post, options) => {
                 const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId!)
                 if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling(post);
@@ -265,5 +271,4 @@ const PostsEditForm = ({ documentId, version }: {
 }
 
 export default PostsEditForm;
-
 

@@ -207,42 +207,37 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   },
   commentsPanel: {
     position: 'fixed',
-    right: 0,
+    right: 86,
     width: 300,
-    height: 'calc(100% - 88px)',
-    top: 118,
-    backgroundColor: theme.palette.grey[100],
-    borderTopLeftRadius: 10,
-    animation: '$showComments 0.2s ease',
+    top: 'var(--editor-right-rail-top)',
+    height: 'var(--editor-right-rail-height)',
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.greyBorder('1px', 0.14),
+    borderRadius: 12,
     zIndex: 25,
+    overflow: 'hidden',
+    transition: 'top 0.2s ease-in-out, height 0.2s ease-in-out',
     ...theme.typography.commentStyle,
   },
-  '@keyframes showComments': {
-    '0%': {
-      opacity: 0,
-      transform: 'translateX(300px)',
-    },
-    '100%': {
-      opacity: 1,
-      transform: 'translateX(0)',
-    },
-  },
   commentsPanelHeading: {
-    paddingLeft: 15,
-    paddingTop: 10,
+    padding: '12px 14px 10px',
     margin: 0,
-    height: 34,
-    fontSize: 20,
+    height: 'auto',
+    fontSize: 12,
+    letterSpacing: '0.07em',
+    textTransform: 'uppercase',
+    fontWeight: 700,
     display: 'block',
     width: '100%',
-    color: theme.palette.grey[700],
+    color: theme.palette.greyAlpha(0.58),
     overflow: 'hidden',
+    borderBottom: theme.palette.greyBorder('1px', 0.08),
   },
   commentsPanelEditor: {
     position: 'relative',
-    border: `1px solid ${theme.palette.grey[400]}`,
-    backgroundColor: theme.palette.grey[0],
-    borderRadius: 5,
+    border: theme.palette.greyBorder('1px', 0.14),
+    backgroundColor: theme.palette.background.default,
+    borderRadius: 8,
     fontSize: 15,
     caretColor: theme.palette.grey[900],
     display: 'block',
@@ -264,7 +259,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
       background: 'none',
       '& $sendIcon': {
         opacity: 1,
-        filter: 'invert(45%) sepia(98%) saturate(2299%) hue-rotate(201deg) brightness(100%) contrast(92%)',
+        color: theme.palette.greyAlpha(0.85),
       },
     },
     '&:disabled $sendIcon': {
@@ -284,7 +279,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     transition: 'opacity 0.2s linear',
   },
   commentsPanelEmpty: {
-    color: theme.palette.grey[600],
+    color: theme.palette.greyAlpha(0.62),
     fontSize: 15,
     textAlign: 'center',
     position: 'absolute',
@@ -299,9 +294,9 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     margin: 0,
     width: '100%',
     position: 'absolute',
-    top: 45,
+    top: 42,
     overflowY: 'auto',
-    height: 'calc(100% - 45px)',
+    height: 'calc(100% - 42px)',
   },
   listComment: {
     padding: '12px 16px',
@@ -309,7 +304,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     fontSize: 15,
     position: 'relative',
     transition: 'all 0.2s linear',
-    borderTop: `1px solid ${theme.palette.grey[200]}`,
+    borderTop: theme.palette.greyBorder('1px', 0.08),
     '&:first-child': {
       borderTop: 'none',
     },
@@ -339,11 +334,11 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   listThread: {
     padding: 0,
     margin: 0,
-    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    borderBottom: theme.palette.greyBorder('1px', 0.08),
     position: 'relative',
     transition: 'all 0.2s linear',
     '&:first-child': {
-      borderTop: `1px solid ${theme.palette.grey[200]}`,
+      borderTop: theme.palette.greyBorder('1px', 0.08),
     },
   },
   listThreadInteractive: {
@@ -1564,6 +1559,43 @@ export default function CommentPlugin(): JSX.Element {
     editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
   };
 
+  useEffect(() => {
+    const handleToggleComments = () => {
+      if (!isPostEditor) return;
+      setShowComments((value) => !value);
+    };
+    const handleOpenComments = () => {
+      if (!isPostEditor) return;
+      setShowComments(true);
+    };
+    const handleCloseComments = () => {
+      if (!isPostEditor) return;
+      setShowComments(false);
+    };
+    window.addEventListener("fm-toggle-lexical-comments", handleToggleComments);
+    window.addEventListener("fm-open-lexical-comments", handleOpenComments);
+    window.addEventListener("fm-close-lexical-comments", handleCloseComments);
+    return () => {
+      window.removeEventListener("fm-toggle-lexical-comments", handleToggleComments);
+      window.removeEventListener("fm-open-lexical-comments", handleOpenComments);
+      window.removeEventListener("fm-close-lexical-comments", handleCloseComments);
+    };
+  }, [isPostEditor]);
+
+  useEffect(() => {
+    if (!isPostEditor) return;
+    window.dispatchEvent(new CustomEvent("fm-lexical-comments-visibility-changed", {
+      detail: { open: showComments },
+    }));
+  }, [isPostEditor, showComments]);
+
+  useEffect(() => {
+    if (!isPostEditor) return;
+    window.dispatchEvent(new CustomEvent("fm-lexical-comments-count-changed", {
+      detail: { count: comments.length },
+    }));
+  }, [isPostEditor, comments.length]);
+
   return (
     <>
       {showCommentInput &&
@@ -1576,15 +1608,6 @@ export default function CommentPlugin(): JSX.Element {
           />,
           document.body,
         )}
-      {isPostEditor && createPortal(
-        <Button
-          className={classNames(classes.showCommentsButton, { [classes.showCommentsButtonActive]: showComments })}
-          onClick={() => setShowComments(!showComments)}
-          title={showComments ? 'Hide Comments' : 'Show Comments'}>
-          <CommentsIcon className={classes.commentsIcon} />
-        </Button>,
-        document.body,
-      )}
       {showComments && isPostEditor &&
         createPortal(
           <CommentsPanel

@@ -10,6 +10,7 @@ import { Typography } from "../../common/Typography";
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.isFriendlyUI ? theme.typography.uiSecondary.fontFamily : undefined,
+    fontSize: 'inherit',
     textAlign: 'left',
     display: 'inline',
   },

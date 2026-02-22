@@ -471,7 +471,8 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   },
   editor: {
     flex: 'auto',
-    maxWidth: '100%',
+    // Account for the -50px left margin so content fills the full container width
+    maxWidth: 'calc(100% + 50px)',
     position: 'relative',
     resize: 'vertical',
     minHeight: '100%',
@@ -564,6 +565,31 @@ export default function Editor({
       onGetDataWithDiscardedSuggestions?.(null);
     };
   }, [editor, onGetDataWithDiscardedSuggestions]);
+
+  // OnChangePlugin skips updates where prevEditorState.isEmpty(), which misses
+  // the initial Yjs content sync in collaborative mode. This listener covers
+  // that gap so the form field (and SocialPreviewUpload) gets populated.
+  useEffect(() => {
+    if (!onChangeHtml) return;
+
+    let hasFired = false;
+
+    return editor.registerUpdateListener(({ prevEditorState }) => {
+      if (hasFired) return;
+      if (!prevEditorState.isEmpty()) return;
+
+      hasFired = true;
+
+      // Use rAF so the editor state is fully committed before we read it
+      requestAnimationFrame(() => {
+        editor.getEditorState().read(() => {
+          const html = $generateHtmlFromNodes(editor, null);
+          const restoredHtml = restoreInternalIds(html, internalIdsRef.current);
+          onChangeHtml(restoredHtml);
+        });
+      });
+    });
+  }, [editor, onChangeHtml]);
   
   // Track when collaboration config is ready (set synchronously, not in useEffect)
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
@@ -744,7 +770,7 @@ export default function Editor({
 
   return (
     <>
-      {isRichText && collaborationConfig && (
+      {isRichText && collaborationConfig && (!canEdit || !canComment) && (
         <div className={classes.userModeToggle}>
           <Select
             className={classes.userModeSelect}
