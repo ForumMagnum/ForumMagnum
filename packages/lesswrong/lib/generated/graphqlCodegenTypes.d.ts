@@ -22560,6 +22560,23 @@ type multiPostAutoClassifiedInboxQueryQueryVariables = Exact<{
 
 type multiPostAutoClassifiedInboxQueryQuery = multiPostAutoClassifiedInboxQueryQuery_Query;
 
+type singleUserSupermodQueryQuery_user_SingleUserOutput_result_User = (
+  { __typename?: 'User' }
+  & SunshineUsersList
+);
+
+type singleUserSupermodQueryQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: singleUserSupermodQueryQuery_user_SingleUserOutput_result_User | null };
+
+type singleUserSupermodQueryQuery_Query = { __typename?: 'Query', user: singleUserSupermodQueryQuery_user_SingleUserOutput | null };
+
+
+type singleUserSupermodQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type singleUserSupermodQueryQuery = singleUserSupermodQueryQuery_Query;
+
 type updateUserModerationKeyboardMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
   & SunshineUsersList
