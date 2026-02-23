@@ -115,6 +115,7 @@ import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import LLMContentBlockPlugin from '../editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
 import ReviewResultsPlugin from './embeds/ReviewResultsEmbed/ReviewResultsPlugin';
+import IframeWidgetPlugin from './embeds/IframeWidgetEmbed/IframeWidgetPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
 import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
@@ -145,15 +146,18 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+    // --gutter-chars is set by CodeHighlightPrismPlugin to the digit count
+    // of the largest line number; padding-left and gutter width adapt accordingly.
     '& .code-block': {
       backgroundColor: theme.palette.grey[100],
       fontFamily: theme.typography.code.fontFamily,
       display: 'block',
-      padding: '8px 8px 8px 36px',
+      padding: '8px 8px 8px calc(var(--gutter-chars, 1) * 1ch + 25px)',
       lineHeight: 1.53,
       fontSize: 13,
       margin: '8px 0',
       overflowX: 'auto',
+      whiteSpace: 'pre',
       position: 'relative',
       tabSize: 2,
     },
@@ -168,7 +172,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       color: theme.palette.grey[600],
       whiteSpace: 'pre-wrap',
       textAlign: 'right',
-      minWidth: 25,
+      minWidth: 'calc(var(--gutter-chars, 1) * 1ch)',
     },
     '& .code-token-comment': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
@@ -202,6 +206,96 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     '& .code-token-function': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
+    },
+    // Wrapper provides a positioning context for the toggle button,
+    // which sits outside the container to avoid being clipped by its overflow.
+    '& .iframe-widget-wrapper': {
+      position: 'relative',
+      margin: '8px 0',
+    },
+    '& .iframe-widget-container': {
+      position: 'relative',
+      border: theme.palette.greyBorder('1px', 0.2),
+      borderRadius: 4,
+    },
+    // Code view: container itself is the code block (children are directly inside).
+    // --gutter-chars is set by IframeWidgetPlugin to the digit count of the
+    // largest line number; padding-left and gutter width adapt accordingly.
+    '& .iframe-widget-container[data-view="code"]': {
+      backgroundColor: theme.palette.grey[100],
+      fontFamily: theme.typography.code.fontFamily,
+      padding: '8px 8px 8px calc(var(--gutter-chars, 1) * 1ch + 25px)',
+      lineHeight: 1.53,
+      fontSize: 13,
+      overflowX: 'auto',
+      whiteSpace: 'pre',
+      tabSize: 2,
+      outline: 'none',
+      minHeight: 60,
+    },
+    // Code view: hide the preview
+    '& .iframe-widget-container[data-view="code"] .iframe-widget-preview': {
+      display: 'none',
+    },
+    // Preview view: collapse code children to zero size, show preview
+    '& .iframe-widget-container[data-view="preview"]': {
+      fontSize: 0,
+      lineHeight: 0,
+      overflow: 'hidden',
+    },
+    '& .iframe-widget-preview': {
+      width: '100%',
+      fontSize: 'initial',
+      lineHeight: 'normal',
+    },
+    // Toggle button — positioned on the wrapper, outside the container's
+    // left edge so it isn't clipped by the container's overflow.
+    '& .iframe-widget-toggle': {
+      position: 'absolute',
+      top: 28,
+      left: -28,
+      zIndex: 1,
+      width: 28,
+      height: 28,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: theme.palette.grey[200],
+      borderTopLeftRadius: 4,
+      borderBottomLeftRadius: 4,
+      cursor: 'pointer',
+      padding: 0,
+      color: theme.palette.grey[800],
+      opacity: 0.6,
+      fontSize: 'initial',
+      lineHeight: 'normal',
+    },
+    '& .iframe-widget-wrapper:hover .iframe-widget-toggle': {
+      background: theme.palette.grey[300],
+      opacity: 0.8,
+    },
+    // Icon visibility: show eye icon in code view, code icon in preview view.
+    // Selectors use wrapper (not container) because the toggle is a wrapper child.
+    '& .iframe-widget-wrapper[data-view="code"] .iframe-widget-icon-code': {
+      display: 'none',
+    },
+    '& .iframe-widget-wrapper[data-view="preview"] .iframe-widget-icon-eye': {
+      display: 'none',
+    },
+    // Gutter (line numbers) for iframe widget code view.
+    // Width adapts to digit count via --gutter-chars custom property.
+    '& .iframe-widget-container[data-view="code"]::before': {
+      content: 'attr(data-gutter)',
+      position: 'absolute',
+      backgroundColor: theme.palette.grey[200],
+      left: 0,
+      top: 0,
+      borderRight: `1px solid ${theme.palette.grey[300]}`,
+      padding: 8,
+      color: theme.palette.grey[600],
+      whiteSpace: 'pre-wrap',
+      textAlign: 'right',
+      minWidth: 'calc(var(--gutter-chars, 1) * 1ch)',
     },
     '& .image-caption-container': {
       display: 'block',
@@ -935,6 +1029,7 @@ export default function Editor({
             <LLMContentBlockPlugin isSuggestionMode={isSuggestionMode} />
             <ClaimsPlugin />
             <ReviewResultsPlugin />
+            <IframeWidgetPlugin isSuggestionMode={isSuggestionMode} />
             <RemoveRedirectPlugin />
             <LLMAutocompletePlugin />
             {floatingAnchorElem && (

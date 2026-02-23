@@ -108,6 +108,13 @@ const jargonTermCheckAccess: CheckAccessFunction<'JargonTerms'> = async (current
   return await postCheckAccess(currentUser, post, context);
 };
 
+const iframeWidgetSrcdocCheckAccess: CheckAccessFunction<'IframeWidgetSrcdocs'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!document) return false;
+  const revision = await context.loaders.Revisions.load(document.revisionId);
+  if (!revision) return false;
+  return revisionCheckAccess(currentUser, revision, context);
+};
+
 const llmConversationCheckAccess: CheckAccessFunction<'LlmConversations'> = async (currentUser, document, context): Promise<boolean> => {
   return userIsAdmin(currentUser) || userOwns(currentUser, document);
 };
@@ -408,6 +415,7 @@ const accessFilters = {
   ForumEvents: allowAccess,
   GardenCodes: allowAccess,
   GoogleServiceAccountSessions: allowAccess,
+  IframeWidgetSrcdocs: iframeWidgetSrcdocCheckAccess,
   Images: allowAccess,
   JargonTerms: jargonTermCheckAccess,
   LegacyData: allowAccess,

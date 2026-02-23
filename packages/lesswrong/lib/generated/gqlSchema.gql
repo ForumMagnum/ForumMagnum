@@ -3652,6 +3652,31 @@ extend type Query {
   googleServiceAccountSessions(input: MultiGoogleServiceAccountSessionInput @deprecated(reason: "Use the selector field instead"), selector: GoogleServiceAccountSessionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGoogleServiceAccountSessionOutput
 }
 
+type IframeWidgetSrcdoc {
+  _id: String!
+  createdAt: Date!
+  revisionId: String!
+  html: String!
+}
+
+type SingleIframeWidgetSrcdocOutput {
+  result: IframeWidgetSrcdoc
+}
+
+input IframeWidgetSrcdocSelector {
+  default: EmptyViewInput
+}
+
+type MultiIframeWidgetSrcdocOutput {
+  results: [IframeWidgetSrcdoc!]!
+  totalCount: Int
+}
+
+extend type Query {
+  iframeWidgetSrcdoc(selector: SelectorInput): SingleIframeWidgetSrcdocOutput
+  iframeWidgetSrcdocs(selector: IframeWidgetSrcdocSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiIframeWidgetSrcdocOutput
+}
+
 type Images {
   _id: String!
   schemaVersion: Float!

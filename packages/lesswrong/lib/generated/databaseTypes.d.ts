@@ -611,6 +611,15 @@ interface DbGoogleServiceAccountSession extends DbObject {
   revoked: boolean
 }
 
+type IframeWidgetSrcdocsCollection = PgCollection<"IframeWidgetSrcdocs">;
+
+interface DbIframeWidgetSrcdoc extends DbObject {
+  __collectionName?: "IframeWidgetSrcdocs"
+  createdAt: Date
+  html: string
+  revisionId: string
+}
+
 type ImagesCollection = PgCollection<"Images">;
 
 interface DbImages extends DbObject {
@@ -2375,6 +2384,7 @@ interface CollectionsByName {
   ForumEvents: ForumEventsCollection
   GardenCodes: GardenCodesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
+  IframeWidgetSrcdocs: IframeWidgetSrcdocsCollection
   Images: ImagesCollection
   JargonTerms: JargonTermsCollection
   LWEvents: LWEventsCollection
@@ -2471,6 +2481,7 @@ interface ObjectsByCollectionName {
   ForumEvents: DbForumEvent
   GardenCodes: DbGardenCode
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
+  IframeWidgetSrcdocs: DbIframeWidgetSrcdoc
   Images: DbImages
   JargonTerms: DbJargonTerm
   LWEvents: DbLWEvent
@@ -2567,6 +2578,7 @@ interface ObjectsByTypeName {
   ForumEvent: DbForumEvent
   GardenCode: DbGardenCode
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
+  IframeWidgetSrcdoc: DbIframeWidgetSrcdoc
   Images: DbImages
   JargonTerm: DbJargonTerm
   LWEvent: DbLWEvent

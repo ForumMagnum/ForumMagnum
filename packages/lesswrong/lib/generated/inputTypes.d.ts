@@ -139,6 +139,8 @@ interface Query {
   gardenCodes: MultiGardenCodeOutput | null;
   googleServiceAccountSession: SingleGoogleServiceAccountSessionOutput | null;
   googleServiceAccountSessions: MultiGoogleServiceAccountSessionOutput | null;
+  iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
+  iframeWidgetSrcdocs: MultiIframeWidgetSrcdocOutput | null;
   jargonTerm: SingleJargonTermOutput | null;
   jargonTerms: MultiJargonTermOutput | null;
   lWEvent: SingleLWEventOutput | null;
@@ -3296,6 +3298,26 @@ interface MultiGoogleServiceAccountSessionInput {
 
 interface MultiGoogleServiceAccountSessionOutput {
   results: Array<GoogleServiceAccountSession>;
+  totalCount: number | null;
+}
+
+interface IframeWidgetSrcdoc {
+  _id: string;
+  createdAt: Date;
+  revisionId: string;
+  html: string;
+}
+
+interface SingleIframeWidgetSrcdocOutput {
+  result: IframeWidgetSrcdoc | null;
+}
+
+interface IframeWidgetSrcdocSelector {
+  default: EmptyViewInput | null;
+}
+
+interface MultiIframeWidgetSrcdocOutput {
+  results: Array<IframeWidgetSrcdoc>;
   totalCount: number | null;
 }
 
@@ -10357,6 +10379,10 @@ interface GraphQLTypeMap {
   GoogleServiceAccountSessionSelector: GoogleServiceAccountSessionSelector;
   MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
+  IframeWidgetSrcdoc: IframeWidgetSrcdoc;
+  SingleIframeWidgetSrcdocOutput: SingleIframeWidgetSrcdocOutput;
+  IframeWidgetSrcdocSelector: IframeWidgetSrcdocSelector;
+  MultiIframeWidgetSrcdocOutput: MultiIframeWidgetSrcdocOutput;
   Images: Images;
   JargonTerm: JargonTerm;
   SingleJargonTermInput: SingleJargonTermInput;
@@ -11046,6 +11072,7 @@ interface CreateInputsByCollectionName {
   FieldChanges: never;
   GardenCodes: never;
   GoogleServiceAccountSessions: never;
+  IframeWidgetSrcdocs: never;
   Images: never;
   LegacyData: never;
   LlmConversations: never;
@@ -11139,6 +11166,7 @@ interface UpdateInputsByCollectionName {
   FieldChanges: never;
   GardenCodes: never;
   GoogleServiceAccountSessions: never;
+  IframeWidgetSrcdocs: never;
   Images: never;
   LWEvents: never;
   LegacyData: never;
