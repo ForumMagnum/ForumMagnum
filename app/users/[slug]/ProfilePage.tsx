@@ -13,7 +13,6 @@ import { getUserFromResults } from "@/components/users/UsersProfile";
 import { useCurrentUser } from "@/components/common/withUser";
 import classNames from "classnames";
 import { useStyles } from "@/components/hooks/useStyles";
-import Loading from "@/components/vulcan-core/Loading";
 import UserContentFeed from "@/components/users/UserContentFeed";
 import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContextProvider";
 import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";
@@ -26,9 +25,8 @@ import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
 import ContentStyles from "@/components/common/ContentStyles";
 import { ContentItemBody } from "@/components/contents/ContentItemBody";
-import SunshineNewUsersProfileInfo from "@/components/sunshineDashboard/SunshineNewUsersProfileInfo";
 import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
-import SupervisorAccountIcon from "@/lib/vendor/@material-ui/icons/src/SupervisorAccount";
+import VisibilityOutlinedIcon from "@/lib/vendor/@material-ui/icons/src/VisibilityOutlined";
 import { Link } from "@/lib/reactRouterWrapper";
 import moment from "moment";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from "@/lib/instanceSettings";
@@ -367,7 +365,6 @@ function ProfilePageInner({user}: {
 
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
   const [sortPanelClosing, setSortPanelClosing] = useState(false);
-  const [showModerationTools, setShowModerationTools] = useState(false);
   const [sortBy, setSortBy] = useState<AllPostsTabSortingMode>("new");
   const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -381,7 +378,6 @@ function ProfilePageInner({user}: {
   const bioNoFollow = user.karma < nofollowKarmaThreshold.get();
 
   const currentUser = useCurrentUser();
-  const canModerateUserProfile = userIsAdminOrMod(currentUser);
 
   return (
     <div className={classes.page}>
@@ -396,19 +392,9 @@ function ProfilePageInner({user}: {
               />
             </h1>
             <Suspense>
-              <ProfileHeaderActions
-                user={user}
-                showModerationTools={showModerationTools}
-                setShowModerationTools={setShowModerationTools}
-              />
+              <ProfileHeaderActions user={user} />
             </Suspense>
           </div>
-          {canModerateUserProfile && showModerationTools && <div className={classes.sunshineToolsSection}>
-            <Suspense fallback={<Loading/>}>
-              <SunshineNewUsersProfileInfo userId={userId} startExpanded />
-            </Suspense>
-          </div>}
-
           {!user.hideProfileTopPosts && <Suspense>
             <UserProfileTopPostsSection user={user}/>
           </Suspense>}
@@ -637,10 +623,8 @@ function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
   )
 }
 
-function ProfileHeaderActions({user, showModerationTools, setShowModerationTools}: {
+function ProfileHeaderActions({user}: {
   user: UsersProfile
-  showModerationTools: boolean
-  setShowModerationTools: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const classes = useStyles(profileStyles);
   const currentUser = useCurrentUser();
@@ -664,16 +648,14 @@ function ProfileHeaderActions({user, showModerationTools, setShowModerationTools
         </LWTooltip>
       )}
       {canModerateUserProfile && (
-        <LWTooltip title={showModerationTools ? "Hide moderation tools" : "Show moderation tools"} placement="bottom">
-          <button
-            type="button"
-            className={classes.profileActionIconButton}
-            aria-label={showModerationTools ? "Hide moderation tools" : "Show moderation tools"}
-            aria-expanded={showModerationTools}
-            onClick={() => setShowModerationTools((open) => !open)}
+        <LWTooltip title="Supermod page" placement="bottom">
+          <Link
+            to={`/admin/supermod?user=${user._id}`}
+            className={classes.profileActionIconLink}
+            aria-label={`${username}'s supermod page`}
           >
-            <SupervisorAccountIcon className={classes.profileActionIcon} />
-          </button>
+            <VisibilityOutlinedIcon className={classes.profileActionIcon} />
+          </Link>
         </LWTooltip>
       )}
     </div>

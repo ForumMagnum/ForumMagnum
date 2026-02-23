@@ -28,6 +28,10 @@ import {
   $isRootNode,
   COMMAND_PRIORITY_LOW,
   HISTORY_MERGE_TAG,
+  KEY_ARROW_DOWN_COMMAND,
+  KEY_ARROW_LEFT_COMMAND,
+  KEY_ARROW_RIGHT_COMMAND,
+  KEY_ARROW_UP_COMMAND,
   KEY_BACKSPACE_COMMAND,
   type LexicalEditor,
   type LexicalNode,
@@ -40,6 +44,7 @@ import {
   $isSentinelParagraphNode,
   SentinelParagraphNode,
 } from './SentinelParagraphNode';
+import { $isIframeWidgetNode } from '@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode';
 
 /**
  * Tag used to identify updates caused by sentinel reconciliation, so we
@@ -54,6 +59,8 @@ const SENTINEL_RECONCILE_TAG = 'sentinel-reconcile';
  * elements never receive their own focus event.
  */
 const SENTINEL_FOCUSED_CLASS = 'sentinel-focused';
+
+type SentinelTraversalDirection = 'backward' | 'forward';
 
 /**
  * Returns true for block-level nodes that the browser can't natively place
@@ -75,6 +82,9 @@ function $needsBlockCursor(
   }
   if ($isListNode(node)) {
     return false;
+  }
+  if ($isIframeWidgetNode(node)) {
+    return true;
   }
   return $isElementNode(node) && !node.canBeEmpty() && !node.isInline();
 }
@@ -313,6 +323,66 @@ function updateSentinelFocusClass(
   prevFocusedKeyRef.current = focusedSentinelKey;
 }
 
+function getCurrentSentinelFromSelection(): SentinelParagraphNode | null {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+    return null;
+  }
+
+  const anchorNode = selection.anchor.getNode();
+  if ($isSentinelParagraphNode(anchorNode)) {
+    return anchorNode;
+  }
+
+  const parent = anchorNode.getParent();
+  if ($isSentinelParagraphNode(parent)) {
+    return parent;
+  }
+
+  return null;
+}
+
+function shouldSkipThroughFromSentinel(
+  node: LexicalNode,
+  editor: LexicalEditor,
+): boolean {
+  if ($isIframeWidgetNode(node)) {
+    const widgetDom = editor.getElementByKey(node.getKey());
+    return widgetDom?.dataset.view === 'preview';
+  }
+  
+  return false;
+}
+
+function handleSentinelArrowTraversal(
+  event: KeyboardEvent,
+  direction: SentinelTraversalDirection,
+  editor: LexicalEditor,
+): boolean {
+  const sentinel = getCurrentSentinelFromSelection();
+  if (!sentinel) {
+    return false;
+  }
+
+  const adjacentNode = direction === 'forward'
+    ? sentinel.getNextSibling()
+    : sentinel.getPreviousSibling();
+  if (!adjacentNode || !shouldSkipThroughFromSentinel(adjacentNode, editor)) {
+    return false;
+  }
+
+  const targetSentinel = direction === 'forward'
+    ? adjacentNode.getNextSibling()
+    : adjacentNode.getPreviousSibling();
+  if (!$isSentinelParagraphNode(targetSentinel)) {
+    return false;
+  }
+
+  event.preventDefault();
+  targetSentinel.selectEnd();
+  return true;
+}
+
 export default function BlockCursorNavigationPlugin(): null {
   const [editor] = useLexicalComposerContext();
 
@@ -388,6 +458,27 @@ export default function BlockCursorNavigationPlugin(): null {
 
           return false;
         },
+        COMMAND_PRIORITY_LOW,
+      ),
+
+      editor.registerCommand(
+        KEY_ARROW_UP_COMMAND,
+        (event) => handleSentinelArrowTraversal(event, 'backward', editor),
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        KEY_ARROW_LEFT_COMMAND,
+        (event) => handleSentinelArrowTraversal(event, 'backward', editor),
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        KEY_ARROW_DOWN_COMMAND,
+        (event) => handleSentinelArrowTraversal(event, 'forward', editor),
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        KEY_ARROW_RIGHT_COMMAND,
+        (event) => handleSentinelArrowTraversal(event, 'forward', editor),
         COMMAND_PRIORITY_LOW,
       ),
 

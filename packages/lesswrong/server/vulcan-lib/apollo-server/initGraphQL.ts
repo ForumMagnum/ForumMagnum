@@ -107,6 +107,7 @@ import { graphqlFieldChangeQueryTypeDefs, fieldChangeGqlFieldResolvers } from "@
 import { graphqlForumEventQueryTypeDefs, forumEventGqlQueryHandlers, forumEventGqlFieldResolvers } from "@/server/collections/forumEvents/queries";
 import { graphqlGardencodeQueryTypeDefs, gardencodeGqlQueryHandlers, gardencodeGqlFieldResolvers } from "@/server/collections/gardencodes/queries";
 import { graphqlGoogleServiceAccountSessionQueryTypeDefs, googleServiceAccountSessionGqlQueryHandlers, googleServiceAccountSessionGqlFieldResolvers } from "@/server/collections/googleServiceAccountSessions/queries";
+import { graphqlIframeWidgetSrcdocQueryTypeDefs, iframeWidgetSrcdocGqlQueryHandlers, iframeWidgetSrcdocGqlFieldResolvers } from "@/server/collections/iframeWidgetSrcdocs/queries";
 import { graphqlImagesQueryTypeDefs, imagesGqlFieldResolvers } from "@/server/collections/images/queries";
 import { graphqlJargonTermQueryTypeDefs, jargonTermGqlQueryHandlers, jargonTermGqlFieldResolvers } from "@/server/collections/jargonTerms/queries";
 import { graphqlLweventQueryTypeDefs, lweventGqlQueryHandlers, lweventGqlFieldResolvers } from "@/server/collections/lwevents/queries";
@@ -363,6 +364,7 @@ export const getTypeDefs = () => gql`
   ${graphqlForumEventQueryTypeDefs}
   ${graphqlGardencodeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
+  ${graphqlIframeWidgetSrcdocQueryTypeDefs}
   ${graphqlImagesQueryTypeDefs}
   ${graphqlJargonTermQueryTypeDefs}
   ${graphqlLweventQueryTypeDefs}
@@ -540,6 +542,7 @@ const getResolvers = () => ({
     ...forumEventGqlQueryHandlers,
     ...gardencodeGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
+    ...iframeWidgetSrcdocGqlQueryHandlers,
     ...jargonTermGqlQueryHandlers,
     ...lweventGqlQueryHandlers,
     ...llmConversationGqlQueryHandlers,
@@ -751,6 +754,7 @@ const getResolvers = () => ({
   ...forumEventGqlFieldResolvers,
   ...gardencodeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
+  ...iframeWidgetSrcdocGqlFieldResolvers,
   ...imagesGqlFieldResolvers,
   ...jargonTermGqlFieldResolvers,
   ...lweventGqlFieldResolvers,

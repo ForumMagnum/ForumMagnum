@@ -32,6 +32,7 @@ type FieldChangesViewName = never
 type ForumEventsViewName = "currentAndRecentForumEvents"|"currentForumEvent"|"pastForumEvents"|"upcomingForumEvents";
 type GardenCodesViewName = "gardenCodeByCode"|"publicGardenCodes"|"usersPrivateGardenCodes";
 type GoogleServiceAccountSessionsViewName = never
+type IframeWidgetSrcdocsViewName = never
 type ImagesViewName = never
 type JargonTermsViewName = "glossaryEditAll"|"postEditorJargonTerms"|"postsApprovedJargon";
 type LWEventsViewName = "adminView"|"emailHistory"|"gatherTownUsers"|"postVisits";
@@ -127,6 +128,7 @@ interface ViewTermsByCollectionName {
   ForumEvents: ForumEventsViewTerms
   GardenCodes: GardenCodesViewTerms
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViewTerms
+  IframeWidgetSrcdocs: ViewTermsBase
   Images: ViewTermsBase
   JargonTerms: JargonTermsViewTerms
   LWEvents: LWEventsViewTerms

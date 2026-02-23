@@ -9,7 +9,7 @@ import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { dataToMarkdown } from "@/server/editor/conversionUtils";
+import { dataToMarkdown, extractAndReplaceIframeWidgets } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
@@ -43,6 +43,20 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
 
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Revisions', callbackProps);
   let documentWithId = afterCreateProperties.document;
+
+  if (documentWithId.html?.includes("data-lexical-iframe-widget")) {
+    const extractedHtml = await extractAndReplaceIframeWidgets(documentWithId.html, documentWithId._id);
+    if (extractedHtml !== documentWithId.html) {
+      await context.Revisions.rawUpdateOne(
+        { _id: documentWithId._id },
+        { $set: { html: extractedHtml } },
+      );
+      documentWithId = {
+        ...documentWithId,
+        html: extractedHtml,
+      };
+    }
+  }
 
   assertPollsAllowed(documentWithId);
   await upvoteOwnTagRevision({

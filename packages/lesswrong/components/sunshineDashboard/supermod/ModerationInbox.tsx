@@ -57,6 +57,16 @@ const SunshineAutoClassifiedPostsListMultiQuery = gql(`
   }
 `);
 
+const SingleUserSupermodQuery = gql(`
+  query singleUserSupermodQuery($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SunshineUsersList
+      }
+    }
+  }
+`);
+
 const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   root: {
     width: '100%',
@@ -105,11 +115,12 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUserId, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUserId, directUser, currentUser }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
   initialOpenedUserId: string | null;
+  directUser: SunshineUsersList | null;
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
@@ -120,7 +131,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
     inboxStateReducer,
     { users: [], posts: [], classifiedPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
-      if (users.length === 0 && posts.length === 0 && classifiedPosts.length === 0) {
+      const initialUsers = directUser ? [directUser, ...users] : users;
+      if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0) {
         return {
           users: [],
           posts: [],
@@ -136,8 +148,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
         };
       }
 
-      const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length, posts.length, classifiedPosts.length);
+      const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length);
 
       // Find first non-empty tab
       const firstNonEmptyTab = visibleTabs.find(tab => tab.count > 0);
@@ -145,7 +157,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
       
       if (firstTab === 'posts') {
         return {
-          users,
+          users: initialUsers,
           posts,
           classifiedPosts,
           activeTab: 'posts',
@@ -161,7 +173,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
 
       if (firstTab === 'classifiedPosts') {
         return {
-          users,
+          users: initialUsers,
           posts,
           classifiedPosts,
           activeTab: 'classifiedPosts',
@@ -179,7 +191,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
-        users,
+        users: initialUsers,
         posts,
         classifiedPosts,
         activeTab: firstTab,
@@ -430,12 +442,27 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const initialOpenedUserId = query.user || null;
+
+  const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
+    variables: { documentId: initialOpenedUserId },
+    skip: !initialOpenedUserId,
+    fetchPolicy: 'cache-and-network',
+  });
+
   // This is just to pre-fetch the core tags so that they're available when you open the posts tab
   useCoreTags();
 
   const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
   const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
   const classifiedPosts = useMemo(() => classifiedPostsData?.posts?.results ?? [], [classifiedPostsData]);
+
+  const directUser = useMemo(() => {
+    if (!initialOpenedUserId) return null;
+    const alreadyInQueue = users.some(u => u._id === initialOpenedUserId);
+    if (alreadyInQueue) return null;
+    return directUserData?.user?.result ?? null;
+  }, [initialOpenedUserId, users, directUserData]);
 
   useHydrateModerationPostCache(posts);
   useHydrateModerationPostCache(classifiedPosts);
@@ -444,7 +471,7 @@ const ModerationInbox = () => {
     return null;
   }
 
-  if ((usersLoading && !usersData) || (postsLoading && !postsData) || (classifiedPostsLoading && !classifiedPostsData)) {
+  if ((usersLoading && !usersData) || (postsLoading && !postsData) || (classifiedPostsLoading && !classifiedPostsData) || (directUserLoading && !directUserData)) {
     return (
       <div className={classes.loading}>
         <Loading />
@@ -452,13 +479,12 @@ const ModerationInbox = () => {
     );
   }
 
-  const initialOpenedUserId = query.user || null;
-
   return <ModerationInboxInner
     users={users}
     posts={posts}
     classifiedPosts={classifiedPosts}
     initialOpenedUserId={initialOpenedUserId}
+    directUser={directUser}
     currentUser={currentUser}
   />;
 };
