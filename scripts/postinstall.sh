@@ -29,12 +29,12 @@ else
   exit 1
 fi
 
-echo -n "Checking for yarn... "
-if which yarn >/dev/null; then
-  yarn --version
+echo -n "Checking for npm... "
+if which npm >/dev/null; then
+  npm --version
 else
   echo not found
-  echo "Install yarn.js to continue. https://yarnpkg.com/getting-started/install"
+  echo "Install npm to continue. https://nodejs.org/"
   exit 1
 fi
 
@@ -111,13 +111,12 @@ else
 fi
 
 
-#echo 'Running yarn install in ckEditor/'
-#(cd ckEditor && yarn install)
+#echo 'Running npm install in ckEditor/'
+#(cd ckEditor && npm install)
 
-echo 'Running yarn install in fly/hocuspocusServer'
-(cd fly/hocuspocusServer && yarn install)
+echo 'Running npm install in fly/hocuspocusServer'
+(cd fly/hocuspocusServer && npm install)
 
 echo
-echo 'For development, you might need to run (cd ckEditor && yarn install)'
-echo 'To start a local development server, run "yarn start development"'
-
+echo 'For development, you might need to run (cd ckEditor && npm install)'
+echo 'To start a local development server, run "npm run start"'

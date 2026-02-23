@@ -6,7 +6,7 @@
  * form‑spec parts of collection schemas.
  *
  * USAGE:
- *    yarn repl dev packages/lesswrong/server/scripts/migrateSmartForms.ts "generateDiffedForms()"
+ *    npm run repl dev packages/lesswrong/server/scripts/migrateSmartForms.ts "generateDiffedForms()"
  *
  * OUTPUT:
  *    ./generatedForms-diff.tsx  – contains one TanStack form component per
@@ -713,7 +713,7 @@ export const ${className} = ({
 
 export async function generateDiffedForms() {
   generateForms();
-  const res = await exec('yarn gfrepl dev packages/lesswrong/server/scripts/migrateSmartForms.ts "generateForms()"');
+  const res = await exec('npm run repl dev packages/lesswrong/server/scripts/migrateSmartForms.ts "generateForms()"');
   console.log(res);
   // await sleep(15_000);
   const lwForms = fs.readFileSync(path.resolve(process.cwd(), `generatedForms-LessWrong.tsx`), 'utf8');

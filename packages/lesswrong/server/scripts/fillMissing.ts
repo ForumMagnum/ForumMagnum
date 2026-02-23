@@ -49,7 +49,7 @@ registerMigration({
   }
 })
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
 export const checkForMissingValues = async () => {
   for(let collection of getAllCollections()) {
     const schema = getSchema(collection.collectionName);

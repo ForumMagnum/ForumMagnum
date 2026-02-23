@@ -11,7 +11,7 @@ import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 
 /**
  * Please ensure that we know that the user is who they say they are!
- * Exported to allow running manually with "yarn repl"
+ * Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
  */
 export const deleteUserContent = async (
   selector: {_id?: string, slug?: string, email?: string},

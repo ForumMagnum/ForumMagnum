@@ -23,19 +23,19 @@ export interface ProjectEnv extends CommandLineOptions {
 function printReplHelpText() {
   // eslint-disable-next-line no-console
   console.log(
-`Usage: yarn repl [mode] [forum-type]
-Or: yarn repl [mode] [forum-type] [filename] [js]
+`Usage: npm run repl [mode] [forum-type]
+Or: npm run repl [mode] [forum-type] [filename] [js]
 
 [mode] is "dev", "prod", "local", etc.
 [forum-type] is "lw", "ea", or "af" (optional).
 
 Examples:
   To make a REPL connecting to the LW dev DB:
-    yarn repl dev lw
+    npm run repl dev lw
   To run exampleFunction from packages/lesswrong/server/scripts/example.ts:
-    yarn repl dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'
+    npm run repl dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'
   To run a function which is the default export from packages/lesswrong/server/scripts/example.ts:
-    yarn repl dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'
+    npm run repl dev lw packages/lesswrong/server/scripts/example.ts 'exampleFunction()'
 `);
 }
 
@@ -181,7 +181,7 @@ function parseCkEditorUploadCommandLine() {
   } else {
     if (!isEnvironmentType(firstArg) || !isForumType(secondArg)) {
       // eslint-disable-next-line no-console
-      console.error(`Invalid combination of arguments: ${firstArg} and ${secondArg}, should be an environment, then a forum type (i.e "yarn start prod af")`);
+      console.error(`Invalid combination of arguments: ${firstArg} and ${secondArg}, should be an environment, then a forum type (i.e "npm run start -- prod af")`);
       process.exit(1);
     } else {
       return {

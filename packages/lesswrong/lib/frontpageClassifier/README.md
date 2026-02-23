@@ -19,7 +19,7 @@ Extracts training data from the database and trains the classifier.
 
 **Usage:**
 ```bash
-yarn repl prod packages/lesswrong/server/scripts/frontpageClassifier/trainClassifier.ts "trainFrontpageClassifier()"
+npm run repl prod packages/lesswrong/server/scripts/frontpageClassifier/trainClassifier.ts "trainFrontpageClassifier()"
 ```
 
 **Options:**
@@ -147,7 +147,7 @@ This ensures the classifier is conservative about recommending posts for the fro
 
 1. **Train the model**:
    ```bash
-   yarn repl prod packages/lesswrong/server/scripts/frontpageClassifier/trainClassifier.ts "trainFrontpageClassifier()"
+   npm run repl prod packages/lesswrong/server/scripts/frontpageClassifier/trainClassifier.ts "trainFrontpageClassifier()"
    ```
 
 2. **Verify model file exists**:

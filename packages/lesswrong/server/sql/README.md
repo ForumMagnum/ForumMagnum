@@ -14,5 +14,5 @@
 	* `ALTER USER <username> CREATEDB;`
 	* `ALTER USER <username> WITH SUPERUSER;`
 	* `exit;`
-3. Start a server with `PG_URL=postgres://<username>:<password>@127.0.0.1:5432/<databasename> yarn ea-start`
-   (or with whatever `yarn` command you usually use)
+3. Start a server with `PG_URL=postgres://<username>:<password>@127.0.0.1:5432/<databasename> npm run ea-start`
+   (or with whatever `npm` command you usually use)

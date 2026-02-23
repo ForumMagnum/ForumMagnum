@@ -268,7 +268,7 @@ const alignmentForumAdminsGroup = new UserGroup("alignmentForumAdmins", [
 ]);
 
 
-// This is referenced by the schema so you must run `yarn generate` after
+// This is referenced by the schema so you must run `npm run generate` after
 // updating it
 export const permissionGroups = [
   'guests',

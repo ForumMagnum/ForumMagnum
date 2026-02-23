@@ -2,7 +2,7 @@
 import os
 
 bundleFilesDir = 'tmp/bundleSizeDownloads'
-yarnLockFile = 'yarn.lock'
+yarnLockFile = 'package-lock.json'
 packagesFile = 'package.json'
 
 def isDividerLine(line):
@@ -62,7 +62,7 @@ def sumSizesInDirectories(sizesByFilename):
             sizesByDirectory[path] = sizesByDirectory[path]+sizesByFilename[filename] if path in sizesByDirectory else sizesByFilename[filename]
     return sizesByDirectory
 
-# Given the name of a yarn lockfile (yarn.lock), produce a dictionary from
+# Given the name of a npm lockfile (package-lock.json), produce a dictionary from
 # package -> array of dependencies of that package.
 # The idea of this is to be able to identify when a package is depended on by
 # only one other package, so that we can attribute the size of the depended-on

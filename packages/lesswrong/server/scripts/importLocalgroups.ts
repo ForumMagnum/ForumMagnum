@@ -9,7 +9,7 @@ import { backgroundTask } from '../utils/backgroundTask';
 
 /**
  * Import data for localgroups
- * Exported to allow running manually with "yarn repl"
+ * Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
  */
 export const importLocalgroups = wrapVulcanAsyncScript(
   'importLocalgroups',

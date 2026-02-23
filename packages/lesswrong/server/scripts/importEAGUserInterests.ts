@@ -29,7 +29,7 @@ export type UserEAGDetailsRow = z.infer<typeof csvSchema>;
 /**
  * Given a CSV with users' EAG data, import it to the "UserEAGDetails" table, replacing any existing user data.
  * Users can appear multiple times in the CSV, so we try to pick the most recently submitted row per user.
- * Exported to allow running manually with "yarn repl"
+ * Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
  */
 export const importEAGUserDetails = wrapVulcanAsyncScript(
   'importEAGUserDetails',

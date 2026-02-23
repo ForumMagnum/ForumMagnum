@@ -16,7 +16,7 @@ import { EmailAnnualForumUserSurvey } from './../emailComponents/EmailAnnualForu
  *
  * In 2024, we emailed approximately 20k users total.
  *
- * Exported to allow running manually with "yarn repl"
+ * Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
  */
 export const sendUserSurveyEmails = async (limit=10) => {
   if (!isEAForum()) return

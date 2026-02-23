@@ -19,8 +19,8 @@ If you are not already using Material-UI in your project, you can add it with:
 // with npm
 npm install @/lib/vendor/@material-ui/core/src
 
-// with yarn
-yarn add @/lib/vendor/@material-ui/core/src
+// with npm
+npm add @/lib/vendor/@material-ui/core/src
 ```
 
 ## Usage

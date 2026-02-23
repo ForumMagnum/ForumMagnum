@@ -257,7 +257,7 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   }
 }
 
-// Exported to allow usage with "yarn repl". Also wrapped by scripts/mergeUsers.sh.
+// Exported to allow usage with "npm run repl <mode> [forum-type] [file] [js]". Also wrapped by scripts/mergeUsers.sh.
 export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   sourceUserId: string, 
   targetUserId: string, 

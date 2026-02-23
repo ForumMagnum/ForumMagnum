@@ -1,5 +1,5 @@
 /**
- * Usage: yarn migrate up|down|pending|executed [dev|local|staging|prod] [forumType]
+ * Usage: npm run migrate -- up|down|pending|executed [dev|local|staging|prod] [forumType]
  *
  * If no environment is specified, you can use the environment variables PG_URL
  * and SETTINGS_FILE

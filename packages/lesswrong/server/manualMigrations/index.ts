@@ -4,7 +4,7 @@
 // script was written.
 
 // To run a migration, run:
-//   yarn repl dev "packages/lesswrong/server/manualMigrations/migrationUtils.ts" 'runMigration("migrationName")'
+//   npm run repl dev "packages/lesswrong/server/manualMigrations/migrationUtils.ts" 'runMigration("migrationName")'
 // Replace "dev" with the environment (dev, prod, local) you want to migrate.
 // You do not need to have a server running.
 

@@ -120,7 +120,7 @@ const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigat
   }]
 }
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
 /*
  This will create ~8 spotlights per post. You can check look over them
 */

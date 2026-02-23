@@ -177,7 +177,7 @@ const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
 **Key Concepts**:
 - MUST use `gql` from `@/lib/generated/gql-codegen` (NOT from `graphql-tag` or `@apollo/client`)
 - Use `useQuery` from `@/lib/crud/useQuery` (wrapper around a relatively complicated replacement for Apollo's useQuery, which otherwise has the same interface)
-- Run `yarn generate` after modifying schemas, database indexes, resolvers, GraphQL definitions, or fragments
+- Run `npm run generate` after modifying schemas, database indexes, resolvers, GraphQL definitions, or fragments
 - Query results are fully typed based on the generated types.  Do not use `as any` or any other type casts to work around type errors that seem to be caused by missing generated types.
 - Style note: define queries at the top level of the component file they're used in, not nested inside the component function.  Exception: when the same query is used in multiple files, define it in a separate file.
 
@@ -362,10 +362,10 @@ Implementation: `@/server/utils/backgroundTask.ts`
 **Purpose**: Generate TypeScript types, GraphQL schemas, and boilerplate code from collection definitions.
 
 **Key Commands**:
-- `yarn generate` - Run after ANY schema or GraphQL changes. Generates types and GraphQL artifacts.
-- `yarn create-collection PascalCasedPluralObjects` - Create a new collection with all boilerplate files.  This is a rare operation; only do this if you're creating a new collection from scratch.
+- `npm run generate` - Run after ANY schema or GraphQL changes. Generates types and GraphQL artifacts.
+- `npm run create-collection -- PascalCasedPluralObjects` - Create a new collection with all boilerplate files.  This is a rare operation; only do this if you're creating a new collection from scratch.
 
-**What `yarn generate` does**:
+**What `npm run generate` does**:
 Generates TypeScript types for:
 1. GraphQL schemas, queries, mutations, and fragments
 2. Database schemas
@@ -373,7 +373,7 @@ Also updates:
 1. The collectionTypeNames module
 2. The routeManifest module
 
-**When to run `yarn generate`**:
+**When to run `npm run generate`**:
 - After adding a field to any schema file (`newSchema.ts`)
 - After modifying any GraphQL type definitions
 - After adding a new collection view
@@ -386,7 +386,7 @@ Also updates:
 
 ## Migrations
 
-A migration is required for any change that modifies the database schema. Automatic migrations are at `@/server/migrations/yyyymmddThhmmss.migrationName.ts`; these are run automatically when a new version is deployed, inside a github action runner. Migrations are created from a template by running `yarn migrate create migrationName`. There are also "manual migrations", which are run manually by developers with `yarn repl`. Manual migrations are used when a migration performs operations that could time out if run inside a github action runner.
+A migration is required for any change that modifies the database schema. Automatic migrations are at `@/server/migrations/yyyymmddThhmmss.migrationName.ts`; these are run automatically when a new version is deployed, inside a github action runner. Migrations are created from a template by running `npm run migrate -- create migrationName`. There are also "manual migrations", which are run manually by developers with `npm run repl <mode> [forum-type] [file] [js]`. Manual migrations are used when a migration performs operations that could time out if run inside a github action runner.
 
 Migrations are run before the new version is deployed, without downtime, so if a migration modifies the database schema it must be backwards-compatible with the immediately preceding deployment. Eg, if a new column is added it must have a default value, and if a column is deleted it must have already been unused. If a schema change can't be made backwards-compatible, this might require using a manual migration that will be run after deployment finishes, or splitting a PR into two stages that will be deployed separately.
 
@@ -404,7 +404,7 @@ If a server-only or client-only file is imported from the wrong context, and the
 
 ## Fragments
 
-Fragments are reusable field selections that can be shared across queries. They're typically defined in `@/lib/collections/{collectionName}/fragments.ts`. Fragment names correspond to Typescript types with the same name, which are created by `yarn generate`. A fragment can be used inside any graphql query by writing `...FragmentName`. These are expanded at codegen time by `yarn generate`.
+Fragments are reusable field selections that can be shared across queries. They're typically defined in `@/lib/collections/{collectionName}/fragments.ts`. Fragment names correspond to Typescript types with the same name, which are created by `npm run generate`. A fragment can be used inside any graphql query by writing `...FragmentName`. These are expanded at codegen time by `npm run generate`.
 Fragments can inherit from other fragments using `...ParentFragmentName`. 
 If a fragment corresponds to a database object, it must have (or inherit a fragment that has) an `_id` field to be stored correctly in the apollo-client cache.
 If a query will load many results or is on a performance-sensitive page such as the front page, try to use the smallest suitable fragment to minimize loading time. When adding a field to existing fragments, try to add it to the most specific suitable fragment, to avoid downloading that field on pages that do not need it.
@@ -518,7 +518,7 @@ Use `useNavigate` for performing client-side navigations.  You need to preserve 
 ---
 
 ## Style / Conventions
-Never apply `as any` type casts, and try very hard to avoid any other type casts.  Consider whether you are applying a type cast because you've forgotten to run `yarn generate`.  If you absolutely must apply a type cast somewhere, always leave the following comment above it:
+Never apply `as any` type casts, and try very hard to avoid any other type casts.  Consider whether you are applying a type cast because you've forgotten to run `npm run generate`.  If you absolutely must apply a type cast somewhere, always leave the following comment above it:
 ```typescript
 // TODO: I AM AN INSTANCE OF ${MODEL_NAME} AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
 ```

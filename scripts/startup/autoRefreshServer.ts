@@ -162,7 +162,7 @@ function runEslint() {
   eslintIsRunning = true;
 
   try {
-    const eslintProcess = childProcess.spawn('yarn', ['--silent', 'eslint'], { stdio: 'inherit' });
+    const eslintProcess = childProcess.spawn('npm', ['run', '--silent', 'eslint'], { stdio: 'inherit' });
     eslintProcess.on('close', () => {
       eslintIsRunning = false;
       if (eslintRestartRequested) {
@@ -183,7 +183,7 @@ function runTsc() {
   tscIsRunning = true;
 
   try {
-    const tscProcess = childProcess.spawn('yarn', ['--silent', 'tsc'], { stdio: 'inherit' });
+    const tscProcess = childProcess.spawn('npm', ['run', '--silent', 'tsc'], { stdio: 'inherit' });
     tscProcess.on('close', () => {
       tscIsRunning = false;
       if (tscRestartRequested) {
@@ -199,6 +199,5 @@ function runTsc() {
     tscIsRunning = false;
   }
 }
-
 
 

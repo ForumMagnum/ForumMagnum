@@ -3,15 +3,14 @@
 # Yes, an old-timey configure script! Well, not fully old-timey, this isn't
 # generated with autoconf or anything.
 
-echo -n "Checking for yarn... "
-if which yarn >/dev/null; then
-  yarn --version
+echo -n "Checking for npm... "
+if which npm >/dev/null; then
+  npm --version
 else
   echo not found
-  echo "Install yarn.js to continue. https://yarnpkg.com/getting-started/install"
+  echo "Install npm to continue. https://nodejs.org/"
   exit 1
 fi
 
-echo "Running 'yarn install'"
-yarn install
-
+echo "Running 'npm install'"
+npm install

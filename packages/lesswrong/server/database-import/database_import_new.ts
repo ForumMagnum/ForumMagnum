@@ -23,7 +23,7 @@ const postgresImportDetails = {
   password: '' // Ommitted for obvious reasons
 }
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
 export const postgresImport = async () => {
   // Set up DB connection
   let postgresConnector = pgp({});
@@ -139,7 +139,7 @@ const addParentCommentId = (comment: DbComment, parentComment: DbComment) => {
   }
 }
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
 export const syncUserPostCount = async () => {
   const postCounters = await Posts.aggregate([
     {"$group" : {_id:"$userId", count:{$sum:1}}}

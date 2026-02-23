@@ -57,7 +57,7 @@ GROUP BY
   by_date.view_date;
 `;
 
-// Exported to allow running with "yarn repl"
+// Exported to allow running with "npm run repl <mode> [forum-type] [file] [js]"
 export const triggerWrappedRefresh = async (recreateViews = false) => {
   // Analytics DB is not available in e2e tests
   if (isE2E) {

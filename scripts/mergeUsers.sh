@@ -34,4 +34,4 @@ SOURCE_ID=${@:$OPTIND+1:1}
 TARGET_ID=${@:$OPTIND+2:1}
 
 echo "Merging user $SOURCE_ID into $TARGET_ID"
-yarn repl "packages/lesswrong/server/scripts/mergeAccounts.ts" "$ENVIRONMENT_NAME" "mergeAccounts({sourceUserId:'$SOURCE_ID', targetUserId:'$TARGET_ID', dryRun:false})"
+npm run repl "packages/lesswrong/server/scripts/mergeAccounts.ts" "$ENVIRONMENT_NAME" "mergeAccounts({sourceUserId:'$SOURCE_ID', targetUserId:'$TARGET_ID', dryRun:false})"

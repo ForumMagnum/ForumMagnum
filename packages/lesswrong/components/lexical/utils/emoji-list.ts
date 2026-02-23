@@ -9945,9 +9945,9 @@ export default [
   },
   {
     emoji: '🧶',
-    description: 'yarn',
+    description: 'npm',
     category: 'Activities',
-    aliases: ['yarn'],
+    aliases: ['npm'],
     tags: [],
     unicode_version: '11.0',
     ios_version: '12.1',

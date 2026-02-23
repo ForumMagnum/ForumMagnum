@@ -1,7 +1,7 @@
 import { createTestingSqlClient, killAllConnections } from "../testingSqlClient";
 import { closeSqlClient } from "../sql/sqlClient";
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
 export const dropAndSeedJestPg = async () => {
   const id = "jest_template";
   // eslint-disable-next-line no-console

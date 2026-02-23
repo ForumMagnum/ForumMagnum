@@ -116,7 +116,7 @@ const checkPost = async (post: FetchedFragment<PostsPage, 'Posts'>) => {
   }
 };
 
-// Exported to allow running manually with "yarn repl"
+// Exported to allow running manually with "npm run repl <mode> [forum-type] [file] [js]"
 export const findBrokenLinks = async (
   startDate: Date, endDate: Date,
   output: string|((message: string) => void)

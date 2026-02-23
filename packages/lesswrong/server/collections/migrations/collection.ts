@@ -4,7 +4,7 @@ import { createCollection } from '@/lib/vulcan-lib/collections';
 /*
  * NOTE: This collection only tracks the use of migrations located in
  * server/manualMigrations. Automatic migrations that are run with
- * yarn migration up/down are tracked by the Postgres table migration_log.
+ * npm run migrate -- up/down are tracked by the Postgres table migration_log.
  * Since this process is automatic, this is not used as a collection.
  * Instead see server/migrations/meta/PgStorage.
  */
