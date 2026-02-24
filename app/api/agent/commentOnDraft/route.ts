@@ -6,6 +6,15 @@ import { Map as YMap, Array as YArray, Doc } from "yjs";
 import z from "zod";
 import { randomId } from "@/lib/random";
 import { gql } from "@/lib/generated/gql-codegen";
+import { $setSelection, $getSelection, $isRangeSelection } from "lexical";
+import { $wrapSelectionInMarkNode } from "@lexical/mark";
+import {
+  normalizeText,
+  waitForProviderSync,
+  sleep,
+  withMainDocEditorSession,
+  selectQuotedTextInEditor,
+} from "../editorAgentUtil";
 
 const HocuspocusAuthQuery = gql(`
   query AgentHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -15,12 +24,12 @@ const HocuspocusAuthQuery = gql(`
   }
 `);
 
-const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 
 const CommentOnDraftRequestSchema = z.object({
   postId: z.string(),
   key: z.string().optional(),
+  agentName: z.string().optional(),
   paragraphId: z.string().optional(),
   quote: z.string().optional(),
   comment: z.string(),
@@ -69,29 +78,52 @@ function createCollabThread({
   return threadMap;
 }
 
-function waitForProviderSync(provider: HocuspocusProvider): Promise<void> {
-  if (provider.synced) {
-    return Promise.resolve();
-  }
-
-  return new Promise<void>((resolve, reject) => {
-    const timeoutHandle = setTimeout(() => {
-      provider.off("synced", handleSynced);
-      reject(new Error("Timed out waiting for Hocuspocus sync"));
-    }, HOCUSPOCUS_SYNC_TIMEOUT_MS);
-
-    const handleSynced = () => {
-      clearTimeout(timeoutHandle);
-      provider.off("synced", handleSynced);
-      resolve();
-    };
-
-    provider.on("synced", handleSynced);
-  });
+interface MainDocQuoteMatchResult {
+  quoteFoundInDocument: boolean
+  createdMarkId: string | null
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+async function getMainDocQuoteMatchResult({
+  postId,
+  token,
+  quote,
+  markId,
+}: {
+  postId: string
+  token: string
+  quote: string
+  markId: string
+}): Promise<MainDocQuoteMatchResult> {
+  return withMainDocEditorSession({
+    postId,
+    token,
+    operationLabel: "CommentOnDraftQuoteMatch",
+    callback: async ({ editor }) => {
+      let quoteFoundInDocument = false;
+      let createdMarkId: string | null = null;
+
+      await new Promise<void>((resolve) => {
+        editor.update(() => {
+          const selectionResult = selectQuotedTextInEditor(quote);
+          quoteFoundInDocument = selectionResult.quoteFoundInDocument;
+          if (selectionResult.selectionCreated) {
+            const selection = $getSelection();
+            if ($isRangeSelection(selection)) {
+              $setSelection(selection);
+              $wrapSelectionInMarkNode(selection, false, markId);
+              createdMarkId = markId;
+            }
+          }
+        }, { onUpdate: resolve });
+      });
+
+      if (createdMarkId) {
+        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+      }
+
+      return { quoteFoundInDocument, createdMarkId };
+    },
+  });
 }
 
 async function insertDraftCommentThread({
@@ -108,7 +140,12 @@ async function insertDraftCommentThread({
   quote: string
   author: string
   authorId: string
-}): Promise<{ threadId: string; commentId: string }> {
+}): Promise<{
+  threadId: string
+  commentId: string
+  anchorStatus: "attached_by_quote_match" | "top_level_no_match" | "top_level_no_quote"
+  anchorNote: string
+}> {
   const documentName = `post-${postId}/comments`;
   const wsUrl = process.env.HOCUSPOCUS_URL;
   if (!wsUrl) {
@@ -130,17 +167,44 @@ async function insertDraftCommentThread({
 
     const commentId = randomId();
     const threadId = randomId();
+    const comments = doc.get("comments", YArray<unknown>);
+    const hasQuote = !!normalizeText(quote);
+
+    let anchorStatus: "attached_by_quote_match" | "top_level_no_match" | "top_level_no_quote";
+    let anchorNote: string;
+
+    if (!hasQuote) {
+      anchorStatus = "top_level_no_quote";
+      anchorNote = "No quote provided; created top-level comment thread.";
+    } else {
+      const { quoteFoundInDocument, createdMarkId } = await getMainDocQuoteMatchResult({
+        postId,
+        token,
+        quote,
+        markId: threadId,
+      });
+
+      if (createdMarkId) {
+        anchorStatus = "attached_by_quote_match";
+        anchorNote = "Inserted a new text-range mark around quote text and attached the thread.";
+      } else {
+        anchorStatus = "top_level_no_match";
+        anchorNote = quoteFoundInDocument
+          ? "Quote text found in the document, but could not create a simple text-node anchor; created top-level comment thread."
+          : "Quote text was not found in the document; created top-level comment thread.";
+      }
+    }
+
     const commentMap = createCollabComment({ content: comment, author, authorId, id: commentId });
     const threadMap = createCollabThread({ quote, firstComment: commentMap, threadId });
 
     doc.transact(() => {
-      const comments = doc.get("comments", YArray<unknown>);
       comments.insert(comments.length, [threadMap]);
     }, "agent-comment-on-draft");
 
     // Give the provider a moment to flush the update over websocket.
     await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
-    return { threadId, commentId };
+    return { threadId, commentId, anchorStatus, anchorNote };
   } finally {
     provider.destroy();
     doc.destroy();
@@ -158,7 +222,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
-  const { postId, key, paragraphId, quote, comment } = parseResult.data;
+  const { postId, key, agentName, paragraphId, quote, comment } = parseResult.data;
 
   try {
     const { data } = await runQuery(
@@ -173,12 +237,12 @@ export async function POST(req: NextRequest) {
     }
 
     const authorId = context.currentUser?._id ?? context.clientId ?? `agent-${randomId()}`;
-    const authorName = context.currentUser?.displayName ?? "AI Agent";
+    const authorName = agentName ?? context.currentUser?.displayName ?? "AI Agent";
     const threadQuote = quote ?? paragraphId ?? "(No quote provided)";
 
     console.log(`Attempting to insert a draft comment thread: comment=${comment}, quote=${quote}, paragraphId=${paragraphId}, author=${authorName}, authorId=${authorId}`);
 
-    const { threadId, commentId } = await insertDraftCommentThread({
+    const { threadId, commentId, anchorStatus, anchorNote } = await insertDraftCommentThread({
       postId,
       token,
       comment,
@@ -192,6 +256,8 @@ export async function POST(req: NextRequest) {
       postId,
       threadId,
       commentId,
+      anchorStatus,
+      anchorNote,
       mode: "lexical-collaboration-comment-thread",
     });
   } catch (error) {

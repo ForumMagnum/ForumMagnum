@@ -46,9 +46,15 @@ Reading draft editor content:
  * edit route supports ?version=draft|[revisionId]
 Writing draft editor comments (Lexical collaborative drafts only):
  * POST /api/agent/commentOnDraft
- * JSON body: { postId, comment, key?, paragraphId?, quote? }
+ * JSON body: { postId, comment, key?, agentName?, paragraphId?, quote? }
  * Adds a Google-Docs-style draft comment thread
+ * Response includes anchorStatus/anchorNote; quote misses fall back to top-level (still 200)
  * Auth can be from login cookie and/or link-sharing key (\`key\`)
+Replacing draft text (Lexical collaborative drafts only):
+ * POST /api/agent/replaceText
+ * JSON body: { postId, quote, replacement, mode: "edit" | "suggest", key? }
+ * mode="edit": replace matched text directly
+ * mode="suggest": wrap matched text as delete + insert suggestion nodes
 Reading tags:
  * /api/tag/[slug]
 Reading users:

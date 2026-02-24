@@ -49,7 +49,7 @@ function createMockProvider(): Provider {
 /**
  * Creates a headless Lexical editor configured with all PlaygroundNodes.
  */
-function createHeadlessEditor(errorLabel: string) {
+export function createHeadlessEditor(errorLabel: string) {
   return createEditor({
     nodes: [...PlaygroundNodes],
     theme: PlaygroundEditorTheme,
