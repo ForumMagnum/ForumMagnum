@@ -32,6 +32,14 @@ const RESIZE_SCRIPT = `<script>
 })();
 </script>`;
 
+export const IFRAME_MIN_HEIGHT = 50;
+export const IFRAME_MAX_HEIGHT = 5000;
+export const IFRAME_DEFAULT_HEIGHT = 400;
+
+export function clampIframeHeight(h: number): number {
+  return Math.max(IFRAME_MIN_HEIGHT, Math.min(IFRAME_MAX_HEIGHT, Math.round(h)));
+}
+
 export function injectResizeScript(htmlCode: string): string {
   // Always append rather than trying to inject before </body> or </html>.
   // String replacement is unsafe: if "</body>" appears inside a <script> block

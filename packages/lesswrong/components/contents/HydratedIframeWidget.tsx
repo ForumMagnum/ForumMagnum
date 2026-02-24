@@ -3,7 +3,7 @@ import React, { Suspense, useCallback, useLayoutEffect, useRef, useState } from 
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { injectResizeScript } from '@/components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
+import { injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT } from '@/components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
 
 const iframeWidgetSrcdocQuery = gql(`
   query IframeWidgetSrcdocQuery($widgetId: String!) {
@@ -16,14 +16,10 @@ const iframeWidgetSrcdocQuery = gql(`
   }
 `);
 
-const MIN_HEIGHT = 50;
-const MAX_HEIGHT = 5000;
-const DEFAULT_HEIGHT = 400;
-
 const styles = defineStyles('HydratedIframeWidget', () => ({
   fallback: {
     width: '100%',
-    height: 400,
+    height: IFRAME_DEFAULT_HEIGHT,
   },
   iframe: {
     width: '100%',
@@ -32,17 +28,13 @@ const styles = defineStyles('HydratedIframeWidget', () => ({
   },
 }));
 
-function clampHeight(height: number): number {
-  return Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, Math.round(height)));
-}
-
 function InlineIframeWidget({ srcdoc, title }: {
   srcdoc: string,
   title?: string,
 }) {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const [height, setHeight] = useState<number>(DEFAULT_HEIGHT);
+  const [height, setHeight] = useState<number>(IFRAME_DEFAULT_HEIGHT);
 
   const handleMessage = useCallback((event: MessageEvent) => {
     if (event.source !== iframeRef.current?.contentWindow) {
@@ -51,7 +43,7 @@ function InlineIframeWidget({ srcdoc, title }: {
     if (event.data?.type !== 'iframe-widget-resize') {
       return;
     }
-    setHeight(clampHeight(event.data.height));
+    setHeight(clampIframeHeight(event.data.height));
   }, []);
 
   const requestResize = useCallback(() => {
