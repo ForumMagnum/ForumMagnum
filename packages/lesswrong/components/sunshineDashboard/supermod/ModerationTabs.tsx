@@ -68,7 +68,7 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
   separator: {
     width: 1,
     alignSelf: 'stretch',
-    margin: '6px 4px',
+    margin: '12px 16px',
     backgroundColor: theme.palette.greyAlpha(0.2),
     flexShrink: 0,
   },
