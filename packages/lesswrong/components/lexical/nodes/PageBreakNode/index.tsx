@@ -16,6 +16,7 @@ import {
   LexicalNode,
   SerializedLexicalNode,
 } from 'lexical';
+import { PageBreakComponent } from './PageBreakComponent';
 
 export type SerializedPageBreakNode = SerializedLexicalNode;
 

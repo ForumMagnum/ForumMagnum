@@ -1,7 +1,7 @@
 "use client";
 import {BlockWithAlignableContents} from '@lexical/react/LexicalBlockWithAlignableContents';
 
-export const BlockWithAlignableContentsWrapper = ({children, ...props}: BlockWithAlignableContentsProps) => {
+export const BlockWithAlignableContentsWrapper: typeof BlockWithAlignableContents = ({children, ...props}) => {
   return (
     <BlockWithAlignableContents {...props}>
       {children}
