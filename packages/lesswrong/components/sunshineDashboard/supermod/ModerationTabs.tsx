@@ -47,6 +47,12 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     },
   },
+  emptyTab: {
+    color: theme.palette.grey[400],
+    '&:hover': {
+      color: theme.palette.grey[600],
+    },
+  },
   count: {
     marginLeft: 6,
     fontSize: 13,
@@ -97,6 +103,7 @@ const ModerationTabs = ({
           <div
             className={classNames(classes.tab, {
               [classes.activeTab]: activeTab === tab.group,
+              [classes.emptyTab]: !tab.count && activeTab !== tab.group,
               [classes.firstTab]: index === 0,
               [classes.lastTab]: index === tabs.length - 1,
             })}
