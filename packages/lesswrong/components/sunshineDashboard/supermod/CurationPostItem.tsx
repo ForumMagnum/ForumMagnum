@@ -78,8 +78,8 @@ const styles = defineStyles('CurationPostItem', (theme: ThemeType) => ({
   curatorTag: {
     fontSize: 11,
     padding: '1px 6px',
-    backgroundColor: 'light-dark(#e8f5e9, #1b5e20)',
-    color: 'light-dark(#2e7d32, #a5d6a7)',
+    backgroundColor: theme.palette.background.primaryTranslucent,
+    color: theme.palette.primary.main,
     whiteSpace: 'nowrap',
   },
   suggesterTag: {
