@@ -330,6 +330,22 @@ export const PostsList = gql(`
   }
 `)
 
+export const MarkdownPostsList = gql(`
+  fragment MarkdownPostsList on Post {
+    ...PostsListBase
+    contents {
+      _id
+      agentMarkdownExcerpt
+    }
+    isBookmarked
+    fmCrosspost {
+      isCrosspost
+      hostedHere
+      foreignPostId
+    }
+  }
+`)
+
 export const SunshineCurationPostsList = gql(`
   fragment SunshineCurationPostsList on Post {
     ...PostsList

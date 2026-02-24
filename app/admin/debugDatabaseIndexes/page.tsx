@@ -11,6 +11,15 @@ import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 
 import CopyDropIndexSqlButton from "./CopyDropIndexSqlButton";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+
+assertRouteAttributes("/admin/debugDatabaseIndexes", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields("Debug Database Indexes"), {

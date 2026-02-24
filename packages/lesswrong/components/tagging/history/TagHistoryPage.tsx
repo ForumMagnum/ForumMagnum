@@ -78,10 +78,9 @@ export interface TagHistorySettings {
   lensId: string
 }
 
-const TagHistoryPage = () => {
+const TagHistoryPage = ({slug}: {slug: string}) => {
   const classes = useStyles(tagHistoryStyles);
-  const { params, query } = useLocation();
-  const { slug } = params;
+  const { query } = useLocation();
   const focusedUser: string = query.user;
   const { tag, loading: loadingTag, error } = useTagBySlug(slug, "TagHistoryFragment");
   const lenses = useMemo(() => addDefaultLensToLenses(tag, tag?.lensesIncludingDeleted), [tag]);

@@ -611,6 +611,15 @@ interface DbGoogleServiceAccountSession extends DbObject {
   revoked: boolean
 }
 
+type IframeWidgetSrcdocsCollection = PgCollection<"IframeWidgetSrcdocs">;
+
+interface DbIframeWidgetSrcdoc extends DbObject {
+  __collectionName?: "IframeWidgetSrcdocs"
+  createdAt: Date
+  html: string
+  revisionId: string
+}
+
 type ImagesCollection = PgCollection<"Images">;
 
 interface DbImages extends DbObject {
@@ -1513,6 +1522,7 @@ interface DbTag extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any | null
   afVoteCount: number | null
+  authorOnly: boolean
   autoTagModel: string | null
   autoTagPrompt: string | null
   bannerImageId: string | null
@@ -1554,6 +1564,7 @@ interface DbTag extends DbObject {
   pingbacks: any | null
   postCount: number
   postsDefaultSortOrder: string | null
+  removalResistant: boolean
   reviewedByUserId: string | null
   score: number
   shortName: string | null
@@ -2373,6 +2384,7 @@ interface CollectionsByName {
   ForumEvents: ForumEventsCollection
   GardenCodes: GardenCodesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
+  IframeWidgetSrcdocs: IframeWidgetSrcdocsCollection
   Images: ImagesCollection
   JargonTerms: JargonTermsCollection
   LWEvents: LWEventsCollection
@@ -2469,6 +2481,7 @@ interface ObjectsByCollectionName {
   ForumEvents: DbForumEvent
   GardenCodes: DbGardenCode
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
+  IframeWidgetSrcdocs: DbIframeWidgetSrcdoc
   Images: DbImages
   JargonTerms: DbJargonTerm
   LWEvents: DbLWEvent
@@ -2565,6 +2578,7 @@ interface ObjectsByTypeName {
   ForumEvent: DbForumEvent
   GardenCode: DbGardenCode
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
+  IframeWidgetSrcdoc: DbIframeWidgetSrcdoc
   Images: DbImages
   JargonTerm: DbJargonTerm
   LWEvent: DbLWEvent

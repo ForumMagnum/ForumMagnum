@@ -173,11 +173,12 @@ const styles = defineStyles("AuthorAnalyticsPage", (theme: ThemeType) => ({
   },
 }));
 
-const AuthorAnalyticsPage = () => {
+const AuthorAnalyticsPage = ({slug}: {
+  slug: string
+}) => {
   const classes = useStyles(styles);
-  const { params, query, location } = useLocation();
+  const { query, location } = useLocation();
   const navigate = useNavigate();
-  const slug = slugify(params.slug);
   const currentUser = useCurrentUser();
 
   const { data: userData } = useQuery(UsersMinimumInfoMultiQuery, {

@@ -1,12 +1,18 @@
 import React from "react";
 import PostsAnalyticsPage from '@/components/analytics/PostsAnalyticsPage';
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 import merge from "lodash/merge";
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 
-assertRouteHasWhiteBackground("/postAnalytics");
+assertRouteAttributes("/postAnalytics", {
+  whiteBackground: true,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   // ea-forum-look-here TODO Get post ID from search params and get post title

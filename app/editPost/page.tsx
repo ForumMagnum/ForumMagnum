@@ -5,7 +5,7 @@ import { getDefaultMetadata, getPageTitleFields, getResolverContextForGenerateMe
 import merge from "lodash/merge";
 import { PostsEditFormQuery } from "@/components/posts/queries";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 import { runQuery } from "@/server/vulcan-lib/query";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ postId?: string, version?: string }> }): Promise<Metadata> {
@@ -32,7 +32,13 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   }
 }
 
-assertRouteHasWhiteBackground("/editPost");
+assertRouteAttributes("/editPost", {
+  whiteBackground: true,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export default function Page() {
   return <RouteRoot delayedStatusCode >

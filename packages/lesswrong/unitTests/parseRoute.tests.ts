@@ -1,10 +1,10 @@
-import { parsePath, parseRoute } from '@/lib/vulcan-lib/routes';
+import { parsePath, parseRoute } from '@/lib/routeChecks/parseRoute';
 
 describe('parseRoute', () => {
   it('preserves query parameters from the original URL when applying redirects', () => {
     const result = parseRoute({
       location: parsePath('/inbox/fakeconversationid?utm_source=twitter'),
-      routePatterns: ['/inbox/:conversationId', '/inbox'],
+      routePatterns: ['/inbox/[conversationId]', '/inbox'],
     });
 
     const expectedSearch = '?utm_source=twitter&conversation=fakeconversationid';

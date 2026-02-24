@@ -34,10 +34,9 @@ const styles = defineStyles('TagCompareRevisions', (theme) => ({
   description: {},
 }));
 
-const TagCompareRevisions = () => {
+const TagCompareRevisions = ({slug}: {slug: string}) => {
   const classes = useStyles(styles);
-  const { params, query } = useLocation();
-  const { slug } = params;
+  const { query } = useLocation();
   const versionBefore = query.before;
   const versionAfter = query.after;
   const { tag, loading: loadingTag, error: tagError } = useTagBySlug(slug, "TagFragment");

@@ -5,12 +5,10 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
 import FilterIcon from '@/lib/vendor/@material-ui/icons/src/FilterList';
 import { useMessages } from '../../common/withMessages';
-import { useLocation } from '../../../lib/routeUtil';
 import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDigestPostListData, getStatusFilterOptions } from '../../../lib/collections/digests/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import Loading from "../../vulcan-core/Loading";
 import EditDigestHeader from "./EditDigestHeader";
 import ForumDropdown from "../../common/ForumDropdown";
@@ -20,6 +18,8 @@ import LWTooltip from "../../common/LWTooltip";
 import EditDigestActionButtons from "./EditDigestActionButtons";
 import EditDigestTableRow from "./EditDigestTableRow";
 import Error404 from "../../common/Error404";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const DigestsMinimumInfoMultiQuery = gql(`
   query multiDigestEditDigestQuery($selector: DigestSelector, $limit: Int, $enableTotal: Boolean) {
@@ -53,7 +53,7 @@ const DigestPostsMinimumInfoMutation = gql(`
 `);
 
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EditDigest", (theme: ThemeType) => ({
   root: {
     maxWidth: 1400,
     margin: '10px auto'
@@ -171,7 +171,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[800]
     }
   }
-})
+}));
 
 type DigestPlannerPostData = {
   post: PostsListWithVotes,
@@ -192,15 +192,15 @@ type TagUsage = {
 }
 
 
-const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const {params} = useLocation()
+const EditDigest = ({num}: {num: number}) => {
+  const classes = useStyles(styles);
   const {flash} = useMessages()
   const currentUser = useCurrentUser()
   
   // get the digest based on the num from the URL
   const { data: dataDigests } = useQuery(DigestsMinimumInfoMultiQuery, {
     variables: {
-      selector: { findByNum: { num: parseInt(params.num) } },
+      selector: { findByNum: { num } },
       limit: 1,
       enableTotal: false,
     },
@@ -607,6 +607,6 @@ const EditDigest = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-export default registerComponent('EditDigest', EditDigest, {styles});
+export default EditDigest;
 
 

@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { siteNameWithArticleSetting } from "@/lib/instanceSettings";
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge(
@@ -15,6 +16,14 @@ export async function generateMetadata(): Promise<Metadata> {
     getMetadataImagesFields('https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png'),
   );
 }
+
+assertRouteAttributes("/bestoflesswrong", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export default function Page() {
   return <RouteRoot subtitle={{

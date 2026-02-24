@@ -26,17 +26,25 @@ import {
   $isElementNode,
   $isRangeSelection,
   $isRootNode,
+  COMMAND_PRIORITY_LOW,
   HISTORY_MERGE_TAG,
+  KEY_ARROW_DOWN_COMMAND,
+  KEY_ARROW_LEFT_COMMAND,
+  KEY_ARROW_RIGHT_COMMAND,
+  KEY_ARROW_UP_COMMAND,
+  KEY_BACKSPACE_COMMAND,
   type LexicalEditor,
   type LexicalNode,
 } from 'lexical';
 import {useEffect} from 'react';
+import {$isListNode} from '@lexical/list';
 import {$isFootnoteSectionNode} from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
 import {
   $createSentinelParagraphNode,
   $isSentinelParagraphNode,
   SentinelParagraphNode,
 } from './SentinelParagraphNode';
+import { $isIframeWidgetNode } from '@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode';
 
 /**
  * Tag used to identify updates caused by sentinel reconciliation, so we
@@ -52,11 +60,16 @@ const SENTINEL_RECONCILE_TAG = 'sentinel-reconcile';
  */
 const SENTINEL_FOCUSED_CLASS = 'sentinel-focused';
 
+type SentinelTraversalDirection = 'backward' | 'forward';
+
 /**
- * Mirrors Lexical's internal `needsBlockCursor` check. Returns true for
- * block-level nodes that the browser can't natively place a cursor
- * before/after: DecoratorNodes (like HorizontalRuleNode) and ElementNodes
- * with canBeEmpty()=false (like ImageNode).
+ * Returns true for block-level nodes that the browser can't natively place
+ * a cursor before/after: DecoratorNodes (like HorizontalRuleNode) and
+ * ElementNodes with canBeEmpty()=false (like ImageNode, LLMContentBlockNode).
+ *
+ * Lists are excluded despite having canBeEmpty()=false — the browser handles
+ * cursor placement around lists natively, and sentinels would interfere with
+ * normal backspace-to-merge behavior between a paragraph and the preceding list.
  */
 function $needsBlockCursor(
   node: LexicalNode | null,
@@ -66,6 +79,12 @@ function $needsBlockCursor(
   }
   if ($isDecoratorNode(node)) {
     return !node.isInline();
+  }
+  if ($isListNode(node)) {
+    return false;
+  }
+  if ($isIframeWidgetNode(node)) {
+    return true;
   }
   return $isElementNode(node) && !node.canBeEmpty() && !node.isInline();
 }
@@ -304,6 +323,66 @@ function updateSentinelFocusClass(
   prevFocusedKeyRef.current = focusedSentinelKey;
 }
 
+function getCurrentSentinelFromSelection(): SentinelParagraphNode | null {
+  const selection = $getSelection();
+  if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+    return null;
+  }
+
+  const anchorNode = selection.anchor.getNode();
+  if ($isSentinelParagraphNode(anchorNode)) {
+    return anchorNode;
+  }
+
+  const parent = anchorNode.getParent();
+  if ($isSentinelParagraphNode(parent)) {
+    return parent;
+  }
+
+  return null;
+}
+
+function shouldSkipThroughFromSentinel(
+  node: LexicalNode,
+  editor: LexicalEditor,
+): boolean {
+  if ($isIframeWidgetNode(node)) {
+    const widgetDom = editor.getElementByKey(node.getKey());
+    return widgetDom?.dataset.view === 'preview';
+  }
+  
+  return false;
+}
+
+function handleSentinelArrowTraversal(
+  event: KeyboardEvent,
+  direction: SentinelTraversalDirection,
+  editor: LexicalEditor,
+): boolean {
+  const sentinel = getCurrentSentinelFromSelection();
+  if (!sentinel) {
+    return false;
+  }
+
+  const adjacentNode = direction === 'forward'
+    ? sentinel.getNextSibling()
+    : sentinel.getPreviousSibling();
+  if (!adjacentNode || !shouldSkipThroughFromSentinel(adjacentNode, editor)) {
+    return false;
+  }
+
+  const targetSentinel = direction === 'forward'
+    ? adjacentNode.getNextSibling()
+    : adjacentNode.getPreviousSibling();
+  if (!$isSentinelParagraphNode(targetSentinel)) {
+    return false;
+  }
+
+  event.preventDefault();
+  targetSentinel.selectEnd();
+  return true;
+}
+
 export default function BlockCursorNavigationPlugin(): null {
   const [editor] = useLexicalComposerContext();
 
@@ -330,6 +409,78 @@ export default function BlockCursorNavigationPlugin(): null {
           {tag: SENTINEL_RECONCILE_TAG},
         );
       }),
+
+      // Sentinel-aware backspace handling:
+      // 1. Cursor in a sentinel after a block element → delete the block element
+      // 2. Cursor at start of a paragraph after a sentinel → move cursor to sentinel
+      editor.registerCommand(
+        KEY_BACKSPACE_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+            return false;
+          }
+
+          const anchorNode = selection.anchor.getNode();
+          const sentinel = $isSentinelParagraphNode(anchorNode)
+            ? anchorNode
+            : $isSentinelParagraphNode(anchorNode.getParent())
+              ? anchorNode.getParent()
+              : null;
+
+          // Case 1: cursor is inside a sentinel — delete the preceding block element
+          if (sentinel) {
+            const prevSibling = sentinel.getPreviousSibling();
+            if (prevSibling && $needsBlockCursor(prevSibling)) {
+              event.preventDefault();
+              prevSibling.remove();
+              return true;
+            }
+            return false;
+          }
+
+          // Case 2: cursor at start of a non-sentinel block whose previous
+          // sibling is a sentinel — move cursor into the sentinel instead of
+          // merging across it
+          if (selection.anchor.offset === 0) {
+            const block = $isElementNode(anchorNode)
+              ? anchorNode
+              : anchorNode.getParent();
+            if (block && $isElementNode(block)) {
+              const prevSibling = block.getPreviousSibling();
+              if ($isSentinelParagraphNode(prevSibling)) {
+                event.preventDefault();
+                prevSibling.selectEnd();
+                return true;
+              }
+            }
+          }
+
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+
+      editor.registerCommand(
+        KEY_ARROW_UP_COMMAND,
+        (event) => handleSentinelArrowTraversal(event, 'backward', editor),
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        KEY_ARROW_LEFT_COMMAND,
+        (event) => handleSentinelArrowTraversal(event, 'backward', editor),
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        KEY_ARROW_DOWN_COMMAND,
+        (event) => handleSentinelArrowTraversal(event, 'forward', editor),
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        KEY_ARROW_RIGHT_COMMAND,
+        (event) => handleSentinelArrowTraversal(event, 'forward', editor),
+        COMMAND_PRIORITY_LOW,
+      ),
 
       // Sentinel promotion: when user types into a sentinel, promote it to
       // a real ParagraphNode

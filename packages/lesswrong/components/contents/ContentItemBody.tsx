@@ -13,6 +13,7 @@ import { ReviewResultsTableDisplay, type ReviewResultsEntry } from './ReviewResu
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes } from './CollapsedFootnotes';
 import { WrappedStrawPoll } from './WrappedStrawPoll';
+import { HydratedIframeWidget } from './HydratedIframeWidget';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { useTracking } from '@/lib/analyticsEvents';
 import repeat from 'lodash/repeat';
@@ -222,10 +223,23 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           }
         }
       }
+      if (classNames.includes("llm-content-block")) {
+        // Ensure data-model-name has a value so the inline model label rendered
+        // by CSS ::before (via attr()) is visible even when unspecified.
+        if (!attribs['data-model-name']) {
+          attribs['data-model-name'] = 'Unknown Model';
+        }
+      }
       if (classNames.includes("strawpoll-embed")) {
         result = <WrappedStrawPoll>
           {result}
         </WrappedStrawPoll>
+      }
+      if (classNames.includes("iframe-widget")) {
+        const widgetId = attribs['data-iframe-widget-id'];
+        if (widgetId) {
+          result = <HydratedIframeWidget widgetId={widgetId} attribs={attribs} />;
+        }
       }
       if (classNames.includes("ck-cta-button")) {
         if (attribs['data-href']) {

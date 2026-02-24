@@ -38,6 +38,7 @@ import {
 import { $generateNodesFromDOM } from '@lexical/html'
 import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
 import type { Logger } from '@/lib/vendor/proton/logger'
+import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode'
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
 import type { BlockTypeChangeSuggestionProperties, IndentChangeSuggestionProperties, SuggestionType } from './Types'
 import { SuggestionTypesThatCanBeEmpty, TextEditingSuggestionTypes } from './Types'
@@ -202,6 +203,22 @@ function $handleDeleteInput(
       // which is inside a "insert" suggestion node, we can delete and resolve
       // the whole suggestion if it only contains the decorator node.
       $removeSuggestionNodeAndResolveIfNeeded(previousSibling)
+      return true
+    }
+
+    // Sentinel paragraphs are structural nodes inserted around block-level
+    // elements (images, LLM content blocks, etc.) for cursor navigation.
+    // Backspace on a sentinel would delete the adjacent block element, but
+    // structural deletions aren't supported as suggestions yet.
+    if ($isSentinelParagraphNode(currentBlock)) {
+      logger.info('Blocking backspace on sentinel paragraph in suggestion mode')
+      return true
+    }
+
+    // If the previous sibling is a sentinel, just move the cursor there
+    // instead of creating a join suggestion across the sentinel boundary.
+    if ($isSentinelParagraphNode(previousSibling)) {
+      previousSibling.selectEnd()
       return true
     }
 

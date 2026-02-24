@@ -5,7 +5,7 @@ import { linkStyles } from '../linkPreview/linkStyles';
 import { removeUrlParameters } from '../../lib/routeUtil';
 import classNames from 'classnames';
 import { hasWikiLenses } from '@/lib/betas';
-import { RouterLocation } from "../../lib/vulcan-lib/routes";
+import { RouterLocation } from "../../lib/routeChecks/parseRoute";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagsTooltip from "./TagsTooltip";
 

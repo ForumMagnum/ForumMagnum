@@ -48,10 +48,10 @@ export const getUserStructuredData = (user: UsersProfile) => {
 };
 
 
-const UsersSingle = () => {
-  const { params, pathname } = useLocation();
+const UsersSingle = ({slug: rawSlug}: {slug: string}) => {
+  const { pathname } = useLocation();
   
-  const slug = slugify(params.slug);
+  const slug = slugify(rawSlug);
   const canonicalUrl = userGetProfileUrlFromSlug(slug);
   if (pathname !== canonicalUrl) {
     // A Javascript redirect, which replaces the history entry (so you don't

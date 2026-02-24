@@ -7,6 +7,7 @@ import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { ReviewYear } from '@/lib/reviewUtils';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserUserReviewsQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -19,8 +20,7 @@ const UsersProfileMultiQuery = gql(`
   }
 `);
 
-const UserReviews = () => {
-  const { params: { slug, year } } = useLocation();
+const UserReviews = ({slug, year}: {slug: string, year: string}) => {
   const { data, loading } = useQuery(UsersProfileMultiQuery, {
     variables: {
       selector: { usersProfile: { slug } },

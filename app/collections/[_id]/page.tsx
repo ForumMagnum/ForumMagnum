@@ -8,6 +8,15 @@ import { taglineSetting } from "@/lib/instanceSettings";
 import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { runQuery } from "@/server/vulcan-lib/query";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+
+assertRouteAttributes("/collections/[_id]", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: true,
+  hasMarkdownVersion: false,
+});
 
 export async function generateMetadata({ params, searchParams }: {
   params: Promise<{ _id: string }>,
@@ -46,8 +55,11 @@ export async function generateMetadata({ params, searchParams }: {
   }
 }
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ _id: string }>
+}) {
+  const { _id } = await params;
   return <RouteRoot>
-    <CollectionsSingle />
+    <CollectionsSingle _id={_id} />
   </RouteRoot>;
 }

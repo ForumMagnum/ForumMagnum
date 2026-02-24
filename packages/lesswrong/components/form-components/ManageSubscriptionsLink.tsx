@@ -1,24 +1,37 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles('ManageSubscriptionsLink', (theme: ThemeType) => ({
-  button: {
-    marginBottom: theme.spacing.unit,
-    marginLeft: theme.spacing.unit
-  }
+  root: {
+    padding: '10px 0',
+  },
+  link: {
+    display: 'inline-block',
+    fontSize: 13,
+    fontWeight: 500,
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.primary.main,
+    textDecoration: 'none',
+    padding: '6px 14px',
+    border: `1px solid ${theme.palette.primary.main}`,
+    borderRadius: 6,
+    transition: 'background 0.15s ease, color 0.15s ease',
+    '&:hover': {
+      background: theme.palette.primary.main,
+      color: theme.palette.text.alwaysWhite,
+    },
+  },
 }));
 
 export const ManageSubscriptionsLink = () => {
   const classes = useStyles(styles);
 
-  return <Link to="/manageSubscriptions">
-    <Button color="secondary" variant="outlined"
-      className={classes.button}
-    >
-    Manage Active Subscriptions
-    </Button>
-  </Link>
+  return (
+    <div className={classes.root}>
+      <Link to="/manageSubscriptions" className={classes.link}>
+        Manage Active Subscriptions
+      </Link>
+    </div>
+  );
 };
-

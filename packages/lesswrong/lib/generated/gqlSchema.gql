@@ -3652,6 +3652,31 @@ extend type Query {
   googleServiceAccountSessions(input: MultiGoogleServiceAccountSessionInput @deprecated(reason: "Use the selector field instead"), selector: GoogleServiceAccountSessionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGoogleServiceAccountSessionOutput
 }
 
+type IframeWidgetSrcdoc {
+  _id: String!
+  createdAt: Date!
+  revisionId: String!
+  html: String!
+}
+
+type SingleIframeWidgetSrcdocOutput {
+  result: IframeWidgetSrcdoc
+}
+
+input IframeWidgetSrcdocSelector {
+  default: EmptyViewInput
+}
+
+type MultiIframeWidgetSrcdocOutput {
+  results: [IframeWidgetSrcdoc!]!
+  totalCount: Int
+}
+
+extend type Query {
+  iframeWidgetSrcdoc(selector: SelectorInput): SingleIframeWidgetSrcdocOutput
+  iframeWidgetSrcdocs(selector: IframeWidgetSrcdocSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiIframeWidgetSrcdocOutput
+}
+
 type Images {
   _id: String!
   schemaVersion: Float!
@@ -6734,6 +6759,8 @@ type Revision {
   originalContents: ContentType!
   html: String
   markdown: String
+  agentMarkdown: String
+  agentMarkdownExcerpt: String
   ckEditorMarkup: String
   wordCount: Float!
   htmlHighlight: String!
@@ -7459,6 +7486,8 @@ type Tag {
   userId: String
   user: User
   adminOnly: Boolean!
+  removalResistant: Boolean!
+  authorOnly: Boolean!
   canEditUserIds: [String!]
   charsAdded: Float
   charsRemoved: Float
@@ -10214,6 +10243,8 @@ input CreateTagDataInput {
   defaultOrder: Float
   descriptionTruncationCount: Float
   adminOnly: Boolean
+  removalResistant: Boolean
+  authorOnly: Boolean
   canEditUserIds: [String!]
   reviewedByUserId: String
   wikiGrade: Int
@@ -10254,6 +10285,8 @@ input UpdateTagDataInput {
   defaultOrder: Float
   descriptionTruncationCount: Float
   adminOnly: Boolean
+  removalResistant: Boolean
+  authorOnly: Boolean
   canEditUserIds: [String!]
   deleted: Boolean
   needsReview: Boolean
