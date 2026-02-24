@@ -66,7 +66,16 @@ import { LLMContentBlockNode } from '@/components/editor/lexicalPlugins/llmConte
 import { LLMContentBlockHeaderNode } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode';
 import { LLMContentBlockContentNode } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockContentNode';
 
-const PlaygroundNodes: Array<LexicalNodeConfig> = [
+function validateLexicalNodes(nodes: Record<string, LexicalNodeConfig>): LexicalNodeConfig[] {
+  for (const nodeName of Object.keys(nodes)) {
+    if (!nodes[nodeName]) {
+      throw new Error(`Node ${nodeName} is nullish`);
+    }
+  }
+  return Object.values(nodes);
+}
+
+const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   HeadingNode,
   ListNode,
   ListItemNode,
@@ -134,6 +143,6 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = [
   LLMContentBlockNode,
   LLMContentBlockHeaderNode,
   LLMContentBlockContentNode,
-];
+});
 
 export default PlaygroundNodes;

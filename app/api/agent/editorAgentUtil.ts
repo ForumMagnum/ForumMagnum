@@ -19,6 +19,7 @@ import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { MathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
+import PlaygroundNodes from "@/components/lexical/nodes/PlaygroundNodes";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
@@ -73,7 +74,7 @@ export function createHeadlessEditor(errorLabel: string): LexicalEditor {
     // Route handlers can't import full PlaygroundNodes because several nodes
     // transitively import client-only React context modules.
     // Keep this list aligned with editor usage and include server-safe stubs for client-only types.
-    nodes: [
+    nodes: PlaygroundNodes /*[
       MarkNode,
       ProtonNode,
       MathNode,
@@ -88,7 +89,7 @@ export function createHeadlessEditor(errorLabel: string): LexicalEditor {
       TableNode,
       TableCellNode,
       TableRowNode,
-    ],
+    ]*/,
     onError: (error) => {
       throw error;
     },

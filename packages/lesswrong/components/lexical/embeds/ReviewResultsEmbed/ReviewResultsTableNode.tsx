@@ -1,5 +1,3 @@
-'use client';
-
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -13,7 +11,7 @@ import type {
 } from 'lexical';
 import React, { type JSX } from 'react';
 
-import { BlockWithAlignableContents } from '@lexical/react/LexicalBlockWithAlignableContents';
+import { BlockWithAlignableContentsWrapper } from '../../nodes/BlockWithAlignableContentsWrapper';
 import {
   DecoratorBlockNode,
   SerializedDecoratorBlockNode,
@@ -51,9 +49,9 @@ function ReviewResultsEditorComponent({
   results,
 }: ReviewResultsEditorComponentProps) {
   return (
-    <BlockWithAlignableContents className={className} format={format} nodeKey={nodeKey}>
+    <BlockWithAlignableContentsWrapper className={className} format={format} nodeKey={nodeKey}>
       <ReviewResultsTableDisplay results={results} context="editor" />
-    </BlockWithAlignableContents>
+    </BlockWithAlignableContentsWrapper>
   );
 }
 
