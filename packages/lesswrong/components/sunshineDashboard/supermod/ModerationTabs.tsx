@@ -103,20 +103,23 @@ const ModerationTabs = ({
             onClick={() => onTabChange(tab.group)}
           >
             {getReviewGroupDisplayName(tab.group)}
-            {tab.group === 'curation' ? (
-              lastCuratedDate != null && <span className={classNames(classes.count, {
-                [classes.activeCount]: activeTab === tab.group,
-                [classes.alertCount]: daysSinceLastCuration != null && daysSinceLastCuration > 2.5,
-              })}>
-                (<FormatDate date={lastCuratedDate} />)
-              </span>
-            ) : (
-              <span className={classNames(classes.count, {
-                [classes.activeCount]: activeTab === tab.group,
-              })}>
-                ({tab.count})
-              </span>
-            )}
+            {tab.group === 'curation'
+              ? lastCuratedDate != null && (
+                <span className={classNames(classes.count, {
+                  [classes.activeCount]: activeTab === tab.group,
+                  [classes.alertCount]: daysSinceLastCuration != null && daysSinceLastCuration > 2.5,
+                })}>
+                  (<FormatDate date={lastCuratedDate} />)
+                </span>
+              )
+              : tab.count > 0 && (
+                <span className={classNames(classes.count, {
+                  [classes.activeCount]: activeTab === tab.group,
+                })}>
+                  ({tab.count})
+                </span>
+              )
+            }
           </div>
           {separatorAfter.has(tab.group) && <div className={classes.separator} />}
         </React.Fragment>
