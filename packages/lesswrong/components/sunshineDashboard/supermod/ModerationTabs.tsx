@@ -1,8 +1,10 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import type { ReviewGroup } from './groupings';
+import type { TabId } from './groupings';
 import { getReviewGroupDisplayName } from './groupings';
+import FormatDate from '@/components/common/FormatDate';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
   root: {
@@ -54,10 +56,20 @@ const styles = defineStyles('ModerationTabs', (theme: ThemeType) => ({
   activeCount: {
     color: theme.palette.primary.main,
   },
+  alertCount: {
+    color: theme.palette.error.main,
+  },
+  separator: {
+    width: 1,
+    alignSelf: 'stretch',
+    margin: '6px 4px',
+    backgroundColor: theme.palette.greyAlpha(0.2),
+    flexShrink: 0,
+  },
 }));
 
 export type TabInfo = {
-  group: ReviewGroup | 'all' | 'posts' | 'classifiedPosts';
+  group: TabId;
   count: number;
 };
 
@@ -65,32 +77,49 @@ const ModerationTabs = ({
   tabs,
   activeTab,
   onTabChange,
+  lastCuratedDate,
 }: {
   tabs: TabInfo[];
-  activeTab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts';
-  onTabChange: (tab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts') => void;
+  activeTab: TabId;
+  onTabChange: (tab: TabId) => void;
+  lastCuratedDate?: string | null;
 }) => {
   const classes = useStyles(styles);
+  const now = useCurrentTime();
+
+  const separatorAfter = new Set(['curation', 'all']);
+  const daysSinceLastCuration = lastCuratedDate ? (now.getTime() - new Date(lastCuratedDate).getTime()) / (1000 * 60 * 60 * 24) : null;
 
   return (
     <div className={classes.root}>
       {tabs.map((tab, index) => (
-        <div
-          key={tab.group}
-          className={classNames(classes.tab, {
-            [classes.activeTab]: activeTab === tab.group,
-            [classes.firstTab]: index === 0,
-            [classes.lastTab]: index === tabs.length - 1,
-          })}
-          onClick={() => onTabChange(tab.group)}
-        >
-          {getReviewGroupDisplayName(tab.group)}
-          <span className={classNames(classes.count, {
-            [classes.activeCount]: activeTab === tab.group,
-          })}>
-            ({tab.count})
-          </span>
-        </div>
+        <React.Fragment key={tab.group}>
+          <div
+            className={classNames(classes.tab, {
+              [classes.activeTab]: activeTab === tab.group,
+              [classes.firstTab]: index === 0,
+              [classes.lastTab]: index === tabs.length - 1,
+            })}
+            onClick={() => onTabChange(tab.group)}
+          >
+            {getReviewGroupDisplayName(tab.group)}
+            {tab.group === 'curation' ? (
+              lastCuratedDate != null && <span className={classNames(classes.count, {
+                [classes.activeCount]: activeTab === tab.group,
+                [classes.alertCount]: daysSinceLastCuration != null && daysSinceLastCuration > 2.5,
+              })}>
+                (<FormatDate date={lastCuratedDate} />)
+              </span>
+            ) : (
+              <span className={classNames(classes.count, {
+                [classes.activeCount]: activeTab === tab.group,
+              })}>
+                ({tab.count})
+              </span>
+            )}
+          </div>
+          {separatorAfter.has(tab.group) && <div className={classes.separator} />}
+        </React.Fragment>
       ))}
     </div>
   );
