@@ -5,7 +5,7 @@ import { CurationNoticesForm } from '@/components/admin/CurationNoticesForm';
 import { CurationNoticesItem } from '@/components/admin/CurationNoticesItem';
 import BasicFormStyles from '@/components/form-components/BasicFormStyles';
 
-const styles = defineStyles('CurationPostSidebar', (theme: ThemeType) => ({
+const styles = defineStyles('CurationPostView', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     display: 'flex',
@@ -13,9 +13,12 @@ const styles = defineStyles('CurationPostSidebar', (theme: ThemeType) => ({
     height: '100%',
     overflow: 'hidden',
   },
+  curationNotices: {
+    width: 680,
+    margin: '0 auto',
+  },
   curationSection: {
     padding: 16,
-    maxWidth: 720,
     borderBottom: theme.palette.border.normal,
     backgroundColor: theme.palette.background.paper,
     flexShrink: 0,
@@ -43,7 +46,7 @@ const styles = defineStyles('CurationPostSidebar', (theme: ThemeType) => ({
   },
 }));
 
-const CurationPostSidebar = ({post, currentUser}: {
+const CurationPostView = ({post, currentUser}: {
   post: SunshineCurationPostsList | null;
   currentUser: UsersCurrent;
 }) => {
@@ -62,15 +65,17 @@ const CurationPostSidebar = ({post, currentUser}: {
   return (
     <div className={classes.root}>
       <div className={classes.curationSection}>
-        {curationNotices.map(notice => (
-          <CurationNoticesItem key={notice._id} curationNotice={notice} />
-        ))}
-        <div className={classes.sectionLabel}>
-          {curationNotices.length > 0 ? 'New Curation Notice' : 'Write Curation Notice'}
+        <div className={classes.curationNotices}>
+          {curationNotices.map(notice => (
+            <CurationNoticesItem key={notice._id} curationNotice={notice} />
+          ))}
+          <div className={classes.sectionLabel}>
+            {curationNotices.length > 0 ? 'New Curation Notice' : 'Write Curation Notice'}
+          </div>
+          <BasicFormStyles>
+            <CurationNoticesForm currentUser={currentUser} postId={post._id} />
+          </BasicFormStyles>
         </div>
-        <BasicFormStyles>
-          <CurationNoticesForm currentUser={currentUser} postId={post._id} />
-        </BasicFormStyles>
       </div>
       <div className={classes.postWrapper} key={post._id}>
         <PostsPageWrapper documentId={post._id} sequenceId={null} embedded />
@@ -79,4 +84,4 @@ const CurationPostSidebar = ({post, currentUser}: {
   );
 };
 
-export default CurationPostSidebar;
+export default CurationPostView;

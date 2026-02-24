@@ -22,7 +22,7 @@ import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateMode
 import { useCoreTags } from '@/components/tagging/useCoreTags';
 import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardContext';
 import ModerationPostSidebar from './ModerationPostSidebar';
-import CurationPostSidebar from './CurationPostSidebar';
+import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 
@@ -472,7 +472,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         )}
         {isCurationTab && !openedUser && (
           <div className={classes.postDetailPanel}>
-            <CurationPostSidebar
+            <CurationPostView
               post={focusedCurationPost}
               currentUser={currentUser}
             />
