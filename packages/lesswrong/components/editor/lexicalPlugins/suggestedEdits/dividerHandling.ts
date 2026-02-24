@@ -2,7 +2,7 @@ import { generateUUID } from '@/lib/vendor/proton/generateUUID'
 import { $getSelection, $isNodeSelection } from 'lexical'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import { $findMatchingParent, $wrapNodeInElement } from '@lexical/utils'
-import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
+import { $isHorizontalRuleNode } from '@lexical/extension'
 import type { Logger } from '@/lib/vendor/proton/logger'
 
 function $getHorizontalRuleNodeInSelection() {

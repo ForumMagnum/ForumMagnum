@@ -84,7 +84,7 @@ import {
 } from './handleTables'
 import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import { $setBlocksTypeAsSuggestion, $wrapInQuoteAsSuggestion } from './setBlocksTypeAsSuggestion'
-import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode'
+import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/extension'
 import { $insertDividerAsSuggestion } from './insertDividerAsSuggestion'
 import { HR } from '@/components/lexical/plugins/MarkdownTransformers'
 import { $getTopLevelParagraphForHR } from '@/components/editor/lexicalPlugins/horizontalRuleEnter'

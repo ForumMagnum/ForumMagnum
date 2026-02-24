@@ -36,7 +36,7 @@ import {
   $isEmptyListItemExceptForSuggestions,
 } from './Utils'
 import { $generateNodesFromDOM } from '@lexical/html'
-import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
+import { $isHorizontalRuleNode } from '@lexical/extension'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode'
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'

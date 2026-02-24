@@ -11,7 +11,7 @@ import { generateUUID } from '@/lib/vendor/proton/generateUUID'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import { $wrapSelectionInSuggestionNode, $isNodeNotInline } from './Utils'
 import type { Logger } from '@/lib/vendor/proton/logger'
-import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
+import { $isHorizontalRuleNode } from '@lexical/extension'
 import type { SuggestionType } from './Types'
 
 /**
