@@ -92,6 +92,14 @@ that already exists in the draft. The location can be one of the following:
     "before": insert before the specified paragraph
     "after": insert after the specified paragraph
     "mode": "edit"|"suggest"
+
+To delete an existing block from the draft, make a POST request to:
+    POST /api/agent/deleteBlock
+    with JSON body: { postId, key, prefix, mode?: "edit"|"suggest" }
+The prefix should be a markdown string that matches the start of a paragraph
+that already exists in the draft.
+In edit mode, the matched block is removed immediately. In suggest mode, the
+matched block is wrapped as a deletion suggestion.
 `;
 
 export function GET(req: NextRequest) {
