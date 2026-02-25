@@ -171,6 +171,23 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         };
       }
 
+      if (initialOpenedUserId) {
+        return {
+          users: initialUsers,
+          posts,
+          classifiedPosts,
+          curationPosts,
+          activeTab: 'all',
+          focusedUserId: initialOpenedUserId,
+          openedUserId: initialOpenedUserId,
+          focusedPostId: null,
+          focusedContentIndex: 0,
+          undoQueue: [],
+          history: [],
+          runningLlmCheckId: null,
+        };
+      }
+
       const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
       const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationPosts.length);
 
