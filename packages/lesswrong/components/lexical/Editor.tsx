@@ -207,95 +207,25 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     '& .code-token-function': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
     },
-    // Wrapper provides a positioning context for the toggle button,
-    // which sits outside the container to avoid being clipped by its overflow.
-    '& .iframe-widget-wrapper': {
-      position: 'relative',
-      margin: '8px 0',
-    },
-    '& .iframe-widget-container': {
-      position: 'relative',
+    // Iframe widget code blocks use the standard .code-block styles (gutter,
+    // font, padding, etc.) inherited from CodeNode. This class adds a visual
+    // border to distinguish them from regular code blocks.
+    '& .iframe-widget-code': {
       border: theme.palette.greyBorder('1px', 0.2),
       borderRadius: 4,
     },
-    // Code view: container itself is the code block (children are directly inside).
-    // --gutter-chars is set by IframeWidgetPlugin to the digit count of the
-    // largest line number; padding-left and gutter width adapt accordingly.
-    '& .iframe-widget-container[data-view="code"]': {
-      backgroundColor: theme.palette.grey[100],
-      fontFamily: theme.typography.code.fontFamily,
-      padding: '8px 8px 8px calc(var(--gutter-chars, 1) * 1ch + 25px)',
-      lineHeight: 1.53,
-      fontSize: 13,
-      overflowX: 'auto',
-      whiteSpace: 'pre',
-      tabSize: 2,
-      outline: 'none',
-      minHeight: 60,
-    },
-    // Code view: hide the preview
-    '& .iframe-widget-container[data-view="code"] .iframe-widget-preview': {
-      display: 'none',
-    },
-    // Preview view: collapse code children to zero size, show preview
-    '& .iframe-widget-container[data-view="preview"]': {
-      fontSize: 0,
-      lineHeight: 0,
-      overflow: 'hidden',
-    },
-    '& .iframe-widget-preview': {
-      width: '100%',
-      fontSize: 'initial',
-      lineHeight: 'normal',
-    },
-    // Toggle button — positioned on the wrapper, outside the container's
-    // left edge so it isn't clipped by the container's overflow.
-    '& .iframe-widget-toggle': {
-      position: 'absolute',
-      top: 28,
-      left: -28,
-      zIndex: 1,
-      width: 28,
-      height: 28,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: theme.palette.grey[200],
-      borderTopLeftRadius: 4,
-      borderBottomLeftRadius: 4,
-      cursor: 'pointer',
-      padding: 0,
-      color: theme.palette.grey[800],
-      opacity: 0.6,
-      fontSize: 'initial',
-      lineHeight: 'normal',
-    },
-    '& .iframe-widget-wrapper:hover .iframe-widget-toggle': {
-      background: theme.palette.grey[300],
-      opacity: 0.8,
-    },
-    // Icon visibility: show eye icon in code view, code icon in preview view.
-    // Selectors use wrapper (not container) because the toggle is a wrapper child.
-    '& .iframe-widget-wrapper[data-view="code"] .iframe-widget-icon-code': {
-      display: 'none',
-    },
-    '& .iframe-widget-wrapper[data-view="preview"] .iframe-widget-icon-eye': {
-      display: 'none',
-    },
-    // Gutter (line numbers) for iframe widget code view.
-    // Width adapts to digit count via --gutter-chars custom property.
-    '& .iframe-widget-container[data-view="code"]::before': {
-      content: 'attr(data-gutter)',
-      position: 'absolute',
-      backgroundColor: theme.palette.grey[200],
-      left: 0,
-      top: 0,
-      borderRight: `1px solid ${theme.palette.grey[300]}`,
-      padding: 8,
-      color: theme.palette.grey[600],
-      whiteSpace: 'pre-wrap',
-      textAlign: 'right',
-      minWidth: 'calc(var(--gutter-chars, 1) * 1ch)',
+    // In preview mode the plugin collapses the code element to act as a
+    // height-only spacer while a portaled preview overlay covers it.
+    '& .iframe-widget-code.iframe-widget-preview-mode': {
+      fontSize: '0 !important',
+      lineHeight: '0 !important',
+      overflow: 'hidden !important',
+      padding: '0 !important',
+      minHeight: '0 !important',
+      border: 'none !important',
+      '&::before': {
+        display: 'none !important',
+      },
     },
     '& .image-caption-container': {
       display: 'block',
@@ -1029,7 +959,7 @@ export default function Editor({
             <LLMContentBlockPlugin isSuggestionMode={isSuggestionMode} />
             <ClaimsPlugin />
             <ReviewResultsPlugin />
-            <IframeWidgetPlugin isSuggestionMode={isSuggestionMode} />
+            <IframeWidgetPlugin anchorElem={floatingAnchorElem ?? undefined} isSuggestionMode={isSuggestionMode} />
             <RemoveRedirectPlugin />
             <LLMAutocompletePlugin />
             {floatingAnchorElem && (
