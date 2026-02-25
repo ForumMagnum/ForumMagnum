@@ -1351,6 +1351,59 @@ CREATE INDEX IF NOT EXISTS "idx_Notifications_documentId" ON "Notifications" USI
 -- Index "idx_Notifications_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Notifications_createdAt" ON "Notifications" USING btree ("createdAt");
 
+-- Table "OAuthAccessTokens"
+CREATE TABLE "OAuthAccessTokens" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "hashedToken" TEXT NOT NULL,
+  "clientId" TEXT NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "scope" TEXT NOT NULL,
+  "expiresAt" TIMESTAMPTZ NOT NULL,
+  "revokedAt" TIMESTAMPTZ
+);
+
+-- Index "idx_OAuthAccessTokens_hashedToken"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_OAuthAccessTokens_hashedToken" ON "OAuthAccessTokens" USING btree ("hashedToken");
+
+-- Index "idx_OAuthAccessTokens_userId"
+CREATE INDEX IF NOT EXISTS "idx_OAuthAccessTokens_userId" ON "OAuthAccessTokens" USING btree ("userId");
+
+-- Index "idx_OAuthAccessTokens_expiresAt"
+CREATE INDEX IF NOT EXISTS "idx_OAuthAccessTokens_expiresAt" ON "OAuthAccessTokens" USING btree ("expiresAt");
+
+-- Table "OAuthAuthorizationCodes"
+CREATE TABLE "OAuthAuthorizationCodes" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "hashedCode" TEXT NOT NULL,
+  "clientId" TEXT NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "redirectUri" TEXT NOT NULL,
+  "scope" TEXT NOT NULL,
+  "codeChallenge" TEXT NOT NULL,
+  "codeChallengeMethod" TEXT NOT NULL,
+  "expiresAt" TIMESTAMPTZ NOT NULL,
+  "used" BOOL NOT NULL DEFAULT FALSE
+);
+
+-- Index "idx_OAuthAuthorizationCodes_hashedCode"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_OAuthAuthorizationCodes_hashedCode" ON "OAuthAuthorizationCodes" USING btree ("hashedCode");
+
+-- Index "idx_OAuthAuthorizationCodes_expiresAt"
+CREATE INDEX IF NOT EXISTS "idx_OAuthAuthorizationCodes_expiresAt" ON "OAuthAuthorizationCodes" USING btree ("expiresAt");
+
+-- Table "OAuthClients"
+CREATE TABLE "OAuthClients" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "hashedSecret" TEXT NOT NULL,
+  "clientName" TEXT NOT NULL,
+  "redirectUris" TEXT[] NOT NULL,
+  "grantTypes" TEXT[] NOT NULL,
+  "responseTypes" TEXT[] NOT NULL
+);
+
 -- Table "PetrovDayActions"
 CREATE TABLE "PetrovDayActions" (
   _id VARCHAR(27) PRIMARY KEY,

@@ -17,10 +17,18 @@ export const routeTrie = {
       "staticChildren": {
         "ai-agents.json": {
           "hasRoute": true
+        },
+        "oauth-authorization-server": {
+          "hasRoute": true
+        },
+        "oauth-protected-resource": {
+          "hasRoute": true
         }
       },
       "lowerCase": {
-        "ai-agents.json": "ai-agents.json"
+        "ai-agents.json": "ai-agents.json",
+        "oauth-authorization-server": "oauth-authorization-server",
+        "oauth-protected-resource": "oauth-protected-resource"
       }
     },
     "SKILL.md": {
@@ -263,10 +271,18 @@ export const routeTrie = {
           "staticChildren": {
             "commentOnDraft": {
               "hasRoute": true
+            },
+            "insertBlock": {
+              "hasRoute": true
+            },
+            "replaceText": {
+              "hasRoute": true
             }
           },
           "lowerCase": {
-            "commentondraft": "commentOnDraft"
+            "commentondraft": "commentOnDraft",
+            "insertblock": "insertBlock",
+            "replacetext": "replaceText"
           }
         },
         "autocomplete": {
@@ -336,6 +352,9 @@ export const routeTrie = {
           "hasRoute": true
         },
         "health": {
+          "hasRoute": true
+        },
+        "mcp": {
           "hasRoute": true
         },
         "notificationCount": {
@@ -437,6 +456,7 @@ export const routeTrie = {
         "dropandcreatepg": "dropAndCreatePg",
         "getllmfeedback": "getLlmFeedback",
         "health": "health",
+        "mcp": "mcp",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
         "quit": "quit",
@@ -835,6 +855,24 @@ export const routeTrie = {
         "2019": "2019"
       }
     },
+    "oauth": {
+      "staticChildren": {
+        "authorize": {
+          "hasRoute": true
+        },
+        "register": {
+          "hasRoute": true
+        },
+        "token": {
+          "hasRoute": true
+        }
+      },
+      "lowerCase": {
+        "authorize": "authorize",
+        "register": "register",
+        "token": "token"
+      }
+    },
     "out": {
       "hasRoute": true
     },
@@ -1219,6 +1257,7 @@ export const routeTrie = {
     "newpost": "newPost",
     "nominateposts": "nominatePosts",
     "nominations": "nominations",
+    "oauth": "oauth",
     "out": "out",
     "pastevents": "pastEvents",
     "payments": "payments",

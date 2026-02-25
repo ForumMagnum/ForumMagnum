@@ -104,7 +104,7 @@ function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
   return prefixPlainText.length > 0 && normalizedTextContent.startsWith(prefixPlainText);
 }
 
-async function insertMarkdownBlock({
+export async function insertMarkdownBlock({
   postId,
   token,
   mode,

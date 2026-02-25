@@ -34,6 +34,9 @@ import { ModerationTemplatesViews } from '../collections/moderationTemplates/vie
 import { ModeratorActionsViews } from '../collections/moderatorActions/views';
 import { MultiDocumentsViews } from '../collections/multiDocuments/views';
 import { NotificationsViews } from '../collections/notifications/views';
+import { OAuthAccessTokensViews } from '../collections/oAuthAccessTokens/views';
+import { OAuthAuthorizationCodesViews } from '../collections/oAuthAuthorizationCodes/views';
+import { OAuthClientsViews } from '../collections/oAuthClients/views';
 import { PetrovDayActionsViews } from '../collections/petrovDayActions/views';
 import { PodcastEpisodesViews } from '../collections/podcastEpisodes/views';
 import { PostsViews } from '../collections/posts/views';
@@ -114,6 +117,9 @@ export const allViews = {
   ModeratorActions: ModeratorActionsViews,
   MultiDocuments: MultiDocumentsViews,
   Notifications: NotificationsViews,
+  OAuthAccessTokens: OAuthAccessTokensViews,
+  OAuthAuthorizationCodes: OAuthAuthorizationCodesViews,
+  OAuthClients: OAuthClientsViews,
   PetrovDayActions: PetrovDayActionsViews,
   PetrovDayLaunchs: new CollectionViewSet('PetrovDayLaunchs', {}),
   PodcastEpisodes: PodcastEpisodesViews,
