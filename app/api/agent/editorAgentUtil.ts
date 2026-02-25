@@ -71,25 +71,7 @@ function getLexicalCompatibleProvider(provider: HocuspocusProvider): HocuspocusP
 export function createHeadlessEditor(errorLabel: string): LexicalEditor {
   return createEditor({
     namespace: `Agent-${errorLabel}`,
-    // Route handlers can't import full PlaygroundNodes because several nodes
-    // transitively import client-only React context modules.
-    // Keep this list aligned with editor usage and include server-safe stubs for client-only types.
-    nodes: PlaygroundNodes /*[
-      MarkNode,
-      ProtonNode,
-      MathNode,
-      HeadingNode,
-      ListNode,
-      ListItemNode,
-      CodeNode,
-      CodeHighlightNode,
-      HashtagNode,
-      AutoLinkNode,
-      LinkNode,
-      TableNode,
-      TableCellNode,
-      TableRowNode,
-    ]*/,
+    nodes: PlaygroundNodes,
     onError: (error) => {
       throw error;
     },
