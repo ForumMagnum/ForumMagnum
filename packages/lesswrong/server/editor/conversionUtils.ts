@@ -60,6 +60,14 @@ function getTurndown(): TurndownService {
       },
     })
     turndownService.use(gfm); // Add support for strikethrough and tables
+    turndownService.addRule('suggestion-deletion', {
+      filter: ['del'],
+      replacement: (content) => `<del>${content}</del>`
+    })
+    turndownService.addRule('suggestion-insertion', {
+      filter: ['ins'],
+      replacement: (content) => `<ins>${content}</ins>`
+    })
     turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
     turndownService.addRule('raw-markdown', {
       filter: (node, options) => hasDataMarkdownAttribute(node),
