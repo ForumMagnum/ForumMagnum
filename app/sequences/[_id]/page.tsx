@@ -6,6 +6,15 @@ import merge from "lodash/merge";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+
+assertRouteAttributes("/sequences/[_id]", {
+  whiteBackground: false,
+  hasLinkPreview: true,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> {
   const [{ _id }, defaultMetadata] = await Promise.all([
@@ -22,8 +31,11 @@ export async function generateMetadata({ params }: { params: Promise<{ _id: stri
   });
 }
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ _id: string }>
+}) {
+  const { _id } = await params;
   return <RouteRoot>
-    <SequencesSingle />
+    <SequencesSingle _id={_id} />
   </RouteRoot>
 }

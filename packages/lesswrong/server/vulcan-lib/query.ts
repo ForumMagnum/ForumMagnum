@@ -48,7 +48,7 @@ export const runQuery = async <const TDocumentNode extends TypedDocumentNode<any
 
   if (result.errors) {
     onGraphQLError(result.errors);
-    throw new Error(result.errors[0].message);
+    throw new Error(result.errors?.[0]?.message);
   }
 
   return result;

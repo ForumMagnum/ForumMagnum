@@ -158,10 +158,10 @@ const subforumTabs = ["posts", "wiki"] as const
 type SubforumTab = typeof subforumTabs[number]
 const defaultTab: SubforumTab = "posts"
 
-const TagSubforumPage2 = () => {
+const TagSubforumPage2 = ({slug}: {slug: string}) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const { query, params: { slug } } = useLocation();
+  const { query } = useLocation();
   const navigate = useNavigate();
 
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)

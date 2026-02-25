@@ -3,8 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import keyBy from 'lodash/keyBy';
 import { extractFragmentName } from '@/lib/fragments/fragmentWrapper';
-import gql from 'graphql-tag';
-import { type DocumentNode, Kind, FragmentDefinitionNode } from 'graphql';
+import { parse, type DocumentNode, Kind, FragmentDefinitionNode } from 'graphql';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 
 function fileMightIncludeFragment(filePath: string): boolean {
@@ -18,8 +17,8 @@ function fileMightIncludeFragment(filePath: string): boolean {
   }
 }
 
-function findFragmentsIn(srcDir: string, functionToFind: string): string[] {
-  const tsFiles = getAllTypeScriptFilesIn(srcDir);
+function findFragmentsIn(srcDirs: string|string[], functionToFind: string): string[] {
+  const tsFiles = getAllTypeScriptFilesIn(srcDirs);
   const program = ts.createProgram(tsFiles, {});
   const fragmentStrings: string[] = [];
   
@@ -31,7 +30,7 @@ function findFragmentsIn(srcDir: string, functionToFind: string): string[] {
   return fragmentStrings;
 }
 
-function getAllTypeScriptFilesIn(dir: string): string[] {
+function getAllTypeScriptFilesIn(dir: string | string[]): string[] {
   const files: string[] = [];
   
   function traverse(currentDir: string) {
@@ -53,8 +52,14 @@ function getAllTypeScriptFilesIn(dir: string): string[] {
       }
     }
   }
-  
-  traverse(dir);
+
+  if (Array.isArray(dir)) {
+    for (const currentDir of dir) {
+      traverse(currentDir);
+    }
+  } else {
+    traverse(dir);
+  }
   return files;
 }
 
@@ -105,7 +110,7 @@ let allFragmentsInSource: FragmentsFromSource|null = null;
 
 export function findFragmentsInSource(collectionNameToTypeName: Record<string, string>): FragmentsFromSource {
   if (allFragmentsInSource) return allFragmentsInSource;
-  const foundFragmentStrings = findFragmentsIn("packages/lesswrong", "gql");
+  const foundFragmentStrings = findFragmentsIn(["packages/lesswrong", "app"], "gql");
   const fragmentStrings = [
     ...foundFragmentStrings,
   ];
@@ -113,7 +118,7 @@ export function findFragmentsInSource(collectionNameToTypeName: Record<string, s
   allFragmentsInSource = keyBy(filterNonnull(foundFragmentStrings.map(f => {
     let parsedFragment: DocumentNode;
     try {
-      parsedFragment = gql(f);
+      parsedFragment = parse(f);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(`Error parsing fragment: ${f}`, e);

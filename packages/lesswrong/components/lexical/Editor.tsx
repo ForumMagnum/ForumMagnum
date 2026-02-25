@@ -112,8 +112,10 @@ import LWArtifactsPlugin from './embeds/LWArtifactsEmbed/LWArtifactsPlugin';
 import ContentEditable from './ui/ContentEditable';
 import { FootnotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnotesPlugin';
 import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
+import LLMContentBlockPlugin from '../editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
 import ReviewResultsPlugin from './embeds/ReviewResultsEmbed/ReviewResultsPlugin';
+import IframeWidgetPlugin from './embeds/IframeWidgetEmbed/IframeWidgetPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
 import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
@@ -144,15 +146,18 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+    // --gutter-chars is set by CodeHighlightPrismPlugin to the digit count
+    // of the largest line number; padding-left and gutter width adapt accordingly.
     '& .code-block': {
       backgroundColor: theme.palette.grey[100],
       fontFamily: theme.typography.code.fontFamily,
       display: 'block',
-      padding: '8px 8px 8px 36px',
+      padding: '8px 8px 8px calc(var(--gutter-chars, 1) * 1ch + 25px)',
       lineHeight: 1.53,
       fontSize: 13,
       margin: '8px 0',
       overflowX: 'auto',
+      whiteSpace: 'pre',
       position: 'relative',
       tabSize: 2,
     },
@@ -167,7 +172,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       color: theme.palette.grey[600],
       whiteSpace: 'pre-wrap',
       textAlign: 'right',
-      minWidth: 25,
+      minWidth: 'calc(var(--gutter-chars, 1) * 1ch)',
     },
     '& .code-token-comment': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
@@ -201,6 +206,26 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     '& .code-token-function': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
+    },
+    // Iframe widget code blocks use the standard .code-block styles (gutter,
+    // font, padding, etc.) inherited from CodeNode. This class adds a visual
+    // border to distinguish them from regular code blocks.
+    '& .iframe-widget-code': {
+      border: theme.palette.greyBorder('1px', 0.2),
+      borderRadius: 4,
+    },
+    // In preview mode the plugin collapses the code element to act as a
+    // height-only spacer while a portaled preview overlay covers it.
+    '& .iframe-widget-code.iframe-widget-preview-mode': {
+      fontSize: '0 !important',
+      lineHeight: '0 !important',
+      overflow: 'hidden !important',
+      padding: '0 !important',
+      minHeight: '0 !important',
+      border: 'none !important',
+      '&::before': {
+        display: 'none !important',
+      },
     },
     '& .image-caption-container': {
       display: 'block',
@@ -287,6 +312,63 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       '& p': {
         margin: 0,
       },
+    },
+    '& .llm-content-block': {
+      margin: 0,
+    },
+    '& .llm-content-block-header': {
+      display: 'inline-flex',
+      alignItems: 'center',
+      fontSize: '0.85em',
+      color: theme.palette.grey[600],
+      lineHeight: 1.3,
+      paddingRight: 6,
+      borderRight: `1px solid ${theme.palette.grey[400]}`,
+    },
+    '& .llm-content-block:has(> .llm-content-block-content > p:first-child) .llm-content-block-header': {
+      float: 'left',
+      marginRight: 8,
+      marginBottom: 0,
+    },
+    '& .llm-content-block:not(:has(> .llm-content-block-content > p:first-child)) .llm-content-block-header': {
+      float: 'none',
+      marginRight: 0,
+      display: 'block',
+      width: 'fit-content',
+      marginTop: '1em',
+      marginBottom: '1em',
+    },
+    '& .llm-content-block-model-input': {
+      backgroundColor: 'transparent',
+      color: 'inherit',
+      fontSize: 'inherit',
+      fontFamily: 'inherit',
+      fontWeight: 600,
+      fontVariant: 'small-caps',
+      lineHeight: 'inherit',
+      padding: 0,
+      border: 'none',
+      borderRadius: 0,
+      appearance: 'none',
+      WebkitAppearance: 'none',
+      minWidth: 40,
+      '&::-webkit-calendar-picker-indicator': {
+        display: 'none !important',
+      },
+      '&::placeholder': {
+        color: theme.palette.grey[600],
+        opacity: 1,
+      },
+      '&:hover': {
+        color: theme.palette.grey[800],
+      },
+      '&:focus': {
+        color: theme.palette.grey[800],
+        outline: 'none',
+      },
+    },
+    '& .llm-content-block-content': {
+      outline: 'none',
     },
     '& ins': {
       background: theme.palette.background.diffInserted,
@@ -874,8 +956,10 @@ export default function Editor({
             <FootnotesPlugin />
             <MentionsPlugin />
             <SpoilersPlugin isSuggestionMode={isSuggestionMode} />
+            <LLMContentBlockPlugin isSuggestionMode={isSuggestionMode} />
             <ClaimsPlugin />
             <ReviewResultsPlugin />
+            <IframeWidgetPlugin anchorElem={floatingAnchorElem ?? undefined} isSuggestionMode={isSuggestionMode} />
             <RemoveRedirectPlugin />
             <LLMAutocompletePlugin />
             {floatingAnchorElem && (

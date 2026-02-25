@@ -5,16 +5,12 @@ import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import maxBy from "lodash/maxBy";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
-import type { Request, Response } from 'express';
-import pathToRegexp from "path-to-regexp";
-import type { RouterLocation } from '../../vulcan-lib/routes';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import { ReviewYear, REVIEW_YEAR, getReviewPeriodStart, getReviewPeriodEnd } from '@/lib/reviewUtils';
 import moment from 'moment';
 import { isServer } from '@/lib/executionEnvironment';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { captureException } from '@/lib/sentryWrapper';
-import matchPath from '@/lib/vendor/react-router/matchPath';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;

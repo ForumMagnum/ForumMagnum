@@ -81,14 +81,14 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#000",
+    color: "light-dark(#000, #fff)",
     textDecoration: "none",
     cursor: "pointer",
     "&:hover": {
       opacity: 0.67,
     },
     "&:focus-visible": {
-      outline: "1px solid #000",
+      outline: `1px solid light-dark(#000, #fff)`,
       outlineOffset: 2,
       borderRadius: 2,
     },
@@ -100,13 +100,13 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     padding: 0,
     border: "none",
     background: "none",
-    color: "#000",
+    color: "light-dark(#000, #fff)",
     cursor: "pointer",
     "&:hover": {
       opacity: 0.67,
     },
     "&:focus-visible": {
-      outline: "1px solid #000",
+      outline: `1px solid light-dark(#000, #fff)`,
       outlineOffset: 2,
       borderRadius: 2,
     },
@@ -122,20 +122,31 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "none",
     margin: "0 0 30px",
     padding: "30px 0 30px",
-    borderBottom: "1px solid rgba(140,110,70,.14)",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
   },
   mobileProfileName: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     fontWeight: 400,
-    margin: "0 0 10px 0",
+    margin: 0,
     color: theme.palette.text.normal,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
+  mobileProfileHeaderRow: {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 10,
+  },
   mobileProfileActions: {
-    marginTop: 0,
-    marginBottom: 16,
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    margin: 0,
   },
   mobileMetaInfo: {
     marginTop: 12,
@@ -209,7 +220,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
     gap: 25,
     paddingBottom: 30,
-    borderBottom: "1px solid rgba(140,110,70,.14)",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
     overflow: "visible",
     textDecoration: "none",
     color: "inherit",
@@ -247,7 +260,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "rgba(255,255,255,.87)",
+    color: theme.palette.type === "dark" ? "rgba(0,0,0,.92)" : "rgba(255,255,255,.87)",
     fontSize: 14,
     aspectRatio: "3 / 2",
     transition: "opacity 0.15s ease",
@@ -305,8 +318,12 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       width: "6em",
       height: "1lh",
       backgroundColor: theme.palette.background.profilePageBackground,
-      WebkitMaskImage: "linear-gradient(to right, transparent, black)",
-      maskImage: "linear-gradient(to right, transparent, black)",
+      WebkitMaskImage: theme.palette.type === "dark"
+        ? "linear-gradient(to right, transparent, white)"
+        : "linear-gradient(to right, transparent, black)",
+      maskImage: theme.palette.type === "dark"
+        ? "linear-gradient(to right, transparent, white)"
+        : "linear-gradient(to right, transparent, black)",
       pointerEvents: "none",
     },
   },
@@ -359,7 +376,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "rgba(255,255,255,.87)",
+    color: theme.palette.type === "dark" ? "rgba(0,0,0,.92)" : "rgba(255,255,255,.87)",
     fontSize: 12,
     borderRadius: 4,
     overflow: "hidden",
@@ -409,7 +426,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   listArticle: {
     padding: "14px 0 15px",
-    borderBottom: "1px solid rgba(140,110,70,.14)",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
     display: "block",
     transition: "opacity 0.15s ease",
     animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -517,8 +536,8 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       width: "5.2em",
       height: "1lh",
       backgroundColor: theme.palette.background.profilePageBackground,
-      WebkitMaskImage: "linear-gradient(to right, transparent, black)",
-      maskImage: "linear-gradient(to right, transparent, black)",
+      WebkitMaskImage: "linear-gradient(to right, transparent, light-dark(black, white))",
+      maskImage: "linear-gradient(to right, transparent, light-dark(black, white))",
       pointerEvents: "none",
     },
   },
@@ -582,33 +601,38 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   allPostsSection: {
     marginTop: 30,
+    display: "flex",
+    gap: 25,
+  },
+  allPostsLeftColumn: {
+    flex: "1 1 0%",
+    minWidth: 0,
+    minHeight: "100vh",
   },
   allPostsHeader: {
     marginBottom: 6,
-    display: "grid",
-    gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
-    gap: 20,
-    alignItems: "baseline",
-  },
-  allPostsLeftHeader: {
-    gridColumn: "1 / 5",
     display: "flex",
     alignItems: "baseline",
     justifyContent: "space-between",
   },
+  allPostsLeftHeader: {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   profileTabs: {
     display: "flex",
-    gap: 18,
+    gap: 22,
     margin: 0,
-    paddingBottom: 6,
   },
   profileTab: {
     fontFamily: theme.typography.fontFamily,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 400,
     background: "none",
     border: "none",
-    padding: "0 0 6px",
+    padding: 0,
     cursor: "pointer",
     color: theme.palette.text.dim,
     letterSpacing: 0.8,
@@ -624,7 +648,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   sortControl: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "start",
     gap: 8,
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
@@ -634,10 +658,11 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   sortIconButton: {
     background: "none",
     border: "none",
-    padding: 4,
+    padding: 0,
     cursor: "pointer",
     display: "flex",
-    alignItems: "center",
+    alignItems: "start",
+    lineHeight: 1,
     color: "inherit",
     "&:hover": {
       opacity: 0.67,
@@ -652,6 +677,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   sortIcon: {
     fontSize: 16,
+    lineHeight: 1,
   },
   sortPanel: {
     background: theme.palette.greyAlpha(0.03),
@@ -703,17 +729,12 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     color: theme.palette.text.normal,
   },
   allPostsContainer: {
-    display: "grid",
-    gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
-    gap: 25,
-    minHeight: "100vh",
   },
   postsList: {
-    gridColumn: "1 / 5",
     display: "flex",
     flexDirection: "column",
     gap: 8,
-    paddingTop: 12
+    paddingTop: 12,
   },
   tabPanel: {
     display: "none",
@@ -730,15 +751,16 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "contents",
   },
   sequencesList: {
-    gridColumn: "1 / 5",
     paddingTop: 20,
   },
   feedList: {
-    gridColumn: "1 / 5",
     "& .UserContentFeed-feedContent": {
       marginLeft: 0,
       marginRight: 0,
     },
+  },
+  profileFeedTopMargin: {
+    marginTop: 16,
   },
   sequencesGrid: {
     display: "grid",
@@ -759,7 +781,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   sequenceCardImage: {
     width: "100%",
     aspectRatio: "5 / 2",
-    backgroundColor: "#fcfbf8",
+    backgroundColor: "light-dark(#fcfbf8, #262626)",
     backgroundSize: "cover",
     backgroundPosition: "center",
     borderRadius: 4,
@@ -780,8 +802,16 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     borderTop: "none",
     borderRadius: "0 0 8px 8px",
   },
+  sidebarAuthorBlock: {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    paddingBottom: 6,
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
+  },
   sidebarAuthorName: {
-    gridColumn: "5 / 7",
     fontFamily: theme.typography.fontFamily,
     fontSize: 12,
     fontWeight: 400,
@@ -798,8 +828,30 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       opacity: 0.67,
     },
   },
+  sidebarAuthorMeta: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    gap: "2px 10px",
+    marginTop: 6,
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    color: theme.palette.text.dim,
+    fontSize: 12,
+    lineHeight: 1.4,
+  },
+  sidebarMetaAction: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.primary.main,
+    fontSize: 12,
+    cursor: "pointer",
+    fontWeight: 400,
+    textDecoration: "none",
+    "&:hover": {
+      opacity: 0.67,
+    },
+  },
   postsSidebar: {
-    gridColumn: "5 / 7",
+    flex: "0 0 300px",
     position: "sticky",
     top: 80,
     alignSelf: "start",
@@ -809,7 +861,28 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       display: "none",
     },
   },
-  sidebarBioSection: {},
+  sidebarBioSection: {
+    marginTop: 8,
+  },
+  sidebarMetaInfo: {
+    color: theme.palette.text.dim,
+    "& > div": {
+      flexWrap: "wrap",
+      gap: "4px 0",
+    },
+    "& > div > div": {
+      marginRight: "14px !important",
+    },
+  },
+  sidebarBioMeta: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: 8,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    color: theme.palette.text.dim,
+    fontWeight: 400,
+  },
   sidebarBioWrapper: {
     overflow: "hidden",
     transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -868,6 +941,69 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   sidebarStatRow: {
     whiteSpace: "nowrap",
   },
+  diamondsSection: {
+    marginTop: 28,
+  },
+  diamondsSectionHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    height: 20,
+    marginBottom: 8,
+    paddingBottom: 6,
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
+  },
+  diamondsSectionTitle: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    fontWeight: 600,
+    color: theme.palette.text.dim,
+    textTransform: "uppercase" as const,
+    letterSpacing: 0.8,
+  },
+  diamondsSectionCount: {
+    fontWeight: 400,
+    letterSpacing: 0,
+    textTransform: "none" as const,
+  },
+  diamondsGrid: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    gap: 2,
+  },
+  diamondLink: {
+    display: "block",
+    width: 10,
+    height: 10,
+    clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+    textDecoration: "none",
+    "&:hover": {
+      opacity: 0.5,
+    },
+  },
+  diamondSolid: {
+    backgroundColor: theme.palette.primary.main,
+  },
+  diamondHollow: {
+    backgroundColor: theme.palette.primary.main,
+    position: "relative" as const,
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      top: 1.5,
+      left: 1.5,
+      right: 1.5,
+      bottom: 1.5,
+      clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+      backgroundColor: theme.palette.background.profilePageBackground,
+    },
+  },
+  diamondGold: {
+    backgroundColor: "light-dark(#b8860b, #daa520)",
+    borderColor: "light-dark(#b8860b, #daa520)",
+  },
   readMore: {
     textAlign: "left",
     marginTop: 12,
@@ -921,6 +1057,12 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     "&:hover": {
       opacity: 1,
     },
+  },
+  sidebarActionHidden: {
+    visibility: "hidden",
+  },
+  loadMoreLoading: {
+    marginRight: 0,
   },
   "@media (max-width: 900px)": {
     profileMain: {
@@ -1018,6 +1160,12 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     mobileProfileBio: {
       display: "block",
     },
+    allPostsSection: {
+      flexDirection: "column",
+    },
+    allPostsLeftColumn: {
+      flex: "1 1 auto",
+    },
     allPostsHeader: {
       display: "flex",
       flexDirection: "column",
@@ -1039,12 +1187,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       order: 1,
     },
     postsSidebar: {
-      width: "100%",
-      position: "static",
-      order: 2,
-      "& $sidebarActions, & $sidebarBioSection, & $sidebarStats": {
-        display: "none",
-      },
+      display: "none",
     },
     sequencesGrid: {
       gridTemplateColumns: "1fr",

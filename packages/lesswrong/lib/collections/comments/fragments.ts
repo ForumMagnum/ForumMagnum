@@ -328,3 +328,18 @@ export const SuggestAlignmentComment = gql(`
     }
   }
 `)
+
+export const CommentsMarkdownFragment = gql(`
+  fragment CommentsMarkdownFragment on Comment {
+    _id
+    postId
+    parentCommentId
+    postedAt
+    baseScore
+    voteCount
+    votingSystem
+    extendedScore
+    user { _id slug displayName }
+    contents { agentMarkdown plaintextMainText }
+  }
+`)

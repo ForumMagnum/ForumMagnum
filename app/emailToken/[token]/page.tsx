@@ -1,9 +1,21 @@
 import React from "react";
 import EmailTokenPage from '@/components/users/EmailTokenPage';
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-export default function Page() {
+assertRouteAttributes("/emailToken/[token]", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
+
+export default async function Page({ params }: {
+  params: Promise<{ token: string }>
+}) {
+  const { token } = await params;
   return <RouteRoot>
-    <EmailTokenPage />
+    <EmailTokenPage token={token} />
   </RouteRoot>
 }

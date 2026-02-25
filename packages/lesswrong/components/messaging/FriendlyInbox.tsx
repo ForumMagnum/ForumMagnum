@@ -254,7 +254,7 @@ const FriendlyInbox = ({
   classes: ClassesType<typeof styles>;
 }) => {
   const { openDialog } = useDialog();
-  const { location, query } = useLocation();
+  const { query } = useLocation();
   const navigate = useNavigate();
   
   const [sendEmail, setSendEmail] = useState(true);
@@ -267,16 +267,18 @@ const FriendlyInbox = ({
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
-      const newQuery = { ...query };
-      if (conversationId) {
-        newQuery.conversation = conversationId;
-      } else {
-        delete newQuery.conversation;
-      }
-      const search = Object.keys(newQuery).length > 0 ? `?${qs.stringify(newQuery)}` : '';
-      navigate({ ...location, search });
+      navigate(location => {
+        const newQuery = { ...location.query };
+        if (conversationId) {
+          newQuery.conversation = conversationId;
+        } else {
+          delete newQuery.conversation;
+        }
+        const search = Object.keys(newQuery).length > 0 ? `?${qs.stringify(newQuery)}` : '';
+        return { ...location, search };
+      });
     },
-    [navigate, location, query]
+    [navigate]
   );
 
   const openNewConversationDialog = useCallback(() => {
@@ -408,13 +410,13 @@ const FriendlyInbox = ({
             <SectionFooterCheckbox
               label={<ForumIcon className={classes.modInboxCheckboxIcon} icon="Flag" />}
               value={isModInbox}
-              onClick={() => navigate({ ...location, search: modInboxQueryParam })}
+              onClick={() => navigate(location => ({ ...location, search: modInboxQueryParam }))}
               tooltip={isModInbox ? "Hide mod messages" : "Show mod messages"}
             />
             <SectionFooterCheckbox
               label={<ArchiveIcon className={classes.archivedCheckboxIcon} />}
               value={showArchive}
-              onClick={() => navigate({ ...location, search: archiveQueryParam })}
+              onClick={() => navigate(location => ({ ...location, search: archiveQueryParam }))}
               tooltip={showArchive ? "Hide archived messages" : "Show archived messages"}
             />
             <LWTooltip title="Start a new conversation" className={classes.actionIconWrapper}>

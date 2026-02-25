@@ -1,7 +1,5 @@
 "use client";
-
 import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
 import { getUserFromResults } from '../users/UsersProfile';
 import { slugify } from '@/lib/utils/slugify';
 import CommentsNode from "./CommentsNode";
@@ -45,14 +43,15 @@ const styles = defineStyles("UserCommentsReplies", (theme: ThemeType) =>  ({
   }
 }));
 
-const UserCommentsReplies = () => {
+const UserCommentsReplies = ({slug}: {
+  slug: string
+}) => {
   const classes = useStyles(styles);
-  const { params } = useLocation();
-  const slug = slugify(params.slug);
+  const normalizedSlug = slugify(slug);
 
   const { data } = useQuery(UsersProfileMultiQuery, {
     variables: {
-      selector: { usersProfile: { slug } },
+      selector: { usersProfile: { slug: normalizedSlug } },
       limit: 10,
       enableTotal: false,
     },

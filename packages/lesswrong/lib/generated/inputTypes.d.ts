@@ -31,6 +31,8 @@ interface Query {
   UserReadHistory: UserReadHistoryResult | null;
   PostsUserCommentedOn: UserReadHistoryResult | null;
   PostIsCriticism: boolean | null;
+  ProfileDiamondPosts: ProfileDiamondPostsResult;
+  ProfileDiamondComments: ProfileDiamondCommentsResult;
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
@@ -137,6 +139,8 @@ interface Query {
   gardenCodes: MultiGardenCodeOutput | null;
   googleServiceAccountSession: SingleGoogleServiceAccountSessionOutput | null;
   googleServiceAccountSessions: MultiGoogleServiceAccountSessionOutput | null;
+  iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
+  iframeWidgetSrcdocs: MultiIframeWidgetSrcdocOutput | null;
   jargonTerm: SingleJargonTermOutput | null;
   jargonTerms: MultiJargonTermOutput | null;
   lWEvent: SingleLWEventOutput | null;
@@ -224,6 +228,7 @@ interface Mutation {
   NewUserCompleteProfile: NewUserCompletedProfile | null;
   UserExpandFrontpageSection: boolean | null;
   UserUpdateSubforumMembership: User | null;
+  karmaChangesChecked: boolean;
   setVotePost: Post | null;
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;
@@ -895,6 +900,32 @@ interface RecombeeRecommendedPost {
 interface VertexRecommendedPost {
   post: Post;
   attributionId: string | null;
+}
+
+interface ProfileDiamondPostsResult {
+  results: Array<ProfilePostDiamond>;
+  totalCount: number | null;
+}
+
+interface ProfileDiamondCommentsResult {
+  results: Array<ProfileCommentDiamond>;
+  totalCount: number | null;
+}
+
+interface ProfilePostDiamond {
+  _id: string;
+  slug: string;
+  date: Date;
+  karma: number;
+  isReviewWinner: boolean;
+  isCurated: boolean;
+}
+
+interface ProfileCommentDiamond {
+  id: string;
+  date: Date;
+  karma: number;
+  postId: string;
 }
 
 interface PostWithApprovedJargon {
@@ -3269,6 +3300,26 @@ interface MultiGoogleServiceAccountSessionInput {
 
 interface MultiGoogleServiceAccountSessionOutput {
   results: Array<GoogleServiceAccountSession>;
+  totalCount: number | null;
+}
+
+interface IframeWidgetSrcdoc {
+  _id: string;
+  createdAt: Date;
+  revisionId: string;
+  html: string;
+}
+
+interface SingleIframeWidgetSrcdocOutput {
+  result: IframeWidgetSrcdoc | null;
+}
+
+interface IframeWidgetSrcdocSelector {
+  default: EmptyViewInput | null;
+}
+
+interface MultiIframeWidgetSrcdocOutput {
+  results: Array<IframeWidgetSrcdoc>;
   totalCount: number | null;
 }
 
@@ -6203,6 +6254,8 @@ interface Revision {
   originalContents: ContentType;
   html: string | null;
   markdown: string | null;
+  agentMarkdown: string | null;
+  agentMarkdownExcerpt: string | null;
   ckEditorMarkup: string | null;
   wordCount: number;
   htmlHighlight: string;
@@ -6855,6 +6908,8 @@ interface Tag {
   userId: string | null;
   user: User | null;
   adminOnly: boolean;
+  removalResistant: boolean;
+  authorOnly: boolean;
   canEditUserIds: Array<string> | null;
   charsAdded: number | null;
   charsRemoved: number | null;
@@ -9312,6 +9367,8 @@ interface CreateTagDataInput {
   defaultOrder?: number | null;
   descriptionTruncationCount?: number | null;
   adminOnly?: boolean | null;
+  removalResistant?: boolean | null;
+  authorOnly?: boolean | null;
   canEditUserIds?: Array<string> | null;
   reviewedByUserId?: string | null;
   wikiGrade?: number | null;
@@ -9352,6 +9409,8 @@ interface UpdateTagDataInput {
   defaultOrder?: number | null;
   descriptionTruncationCount?: number | null;
   adminOnly?: boolean | null;
+  removalResistant?: boolean | null;
+  authorOnly?: boolean | null;
   canEditUserIds?: Array<string> | null;
   deleted?: boolean | null;
   needsReview?: boolean | null;
@@ -10001,6 +10060,10 @@ interface GraphQLTypeMap {
   DigestPlannerPost: DigestPlannerPost;
   RecombeeRecommendedPost: RecombeeRecommendedPost;
   VertexRecommendedPost: VertexRecommendedPost;
+  ProfileDiamondPostsResult: ProfileDiamondPostsResult;
+  ProfileDiamondCommentsResult: ProfileDiamondCommentsResult;
+  ProfilePostDiamond: ProfilePostDiamond;
+  ProfileCommentDiamond: ProfileCommentDiamond;
   PostWithApprovedJargon: PostWithApprovedJargon;
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
@@ -10321,6 +10384,10 @@ interface GraphQLTypeMap {
   GoogleServiceAccountSessionSelector: GoogleServiceAccountSessionSelector;
   MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
+  IframeWidgetSrcdoc: IframeWidgetSrcdoc;
+  SingleIframeWidgetSrcdocOutput: SingleIframeWidgetSrcdocOutput;
+  IframeWidgetSrcdocSelector: IframeWidgetSrcdocSelector;
+  MultiIframeWidgetSrcdocOutput: MultiIframeWidgetSrcdocOutput;
   Images: Images;
   JargonTerm: JargonTerm;
   SingleJargonTermInput: SingleJargonTermInput;
@@ -11010,6 +11077,7 @@ interface CreateInputsByCollectionName {
   FieldChanges: never;
   GardenCodes: never;
   GoogleServiceAccountSessions: never;
+  IframeWidgetSrcdocs: never;
   Images: never;
   LegacyData: never;
   LlmConversations: never;
@@ -11103,6 +11171,7 @@ interface UpdateInputsByCollectionName {
   FieldChanges: never;
   GardenCodes: never;
   GoogleServiceAccountSessions: never;
+  IframeWidgetSrcdocs: never;
   Images: never;
   LWEvents: never;
   LegacyData: never;

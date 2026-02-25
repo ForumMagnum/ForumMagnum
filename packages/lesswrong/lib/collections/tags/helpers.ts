@@ -4,7 +4,7 @@ import { siteUrlSetting, tagUrlBaseSetting, allowTypeIIIPlayerSetting } from '@/
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
-import type { RouterLocation } from '../../vulcan-lib/routes';
+import type { RouterLocation } from '../../routeChecks/parseRoute';
 import type { Request, Response } from 'express';
 import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
@@ -127,12 +127,6 @@ export function stableSortTags<
 
     return 0;
   });
-}
-
-export const tagRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
-  const tagSlug = parsedRoute.params.slug;
-  if (!tagSlug) return false;
-  return await context.repos.tags.tagRouteWillDefinitelyReturn200(tagSlug);
 }
 
 export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';

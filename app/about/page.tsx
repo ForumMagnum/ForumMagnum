@@ -2,9 +2,15 @@ import React from "react";
 import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
 import RouteRoot from "@/components/layout/RouteRoot";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-assertRouteHasWhiteBackground("/about");
+assertRouteAttributes("/about", {
+  whiteBackground: true,
+  hasLinkPreview: false,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: true,
+});
 
 export default function Page() {
   return <RouteRoot delayedStatusCode>

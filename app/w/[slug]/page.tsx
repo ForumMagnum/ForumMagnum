@@ -6,14 +6,24 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import { GUIDE_PATH_PAGES_MAPPING } from "@/lib/arbital/paths";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import PermanentRedirect from "@/components/common/PermanentRedirect";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 
-assertRouteHasWhiteBackground("/w/[slug]");
+assertRouteAttributes("/w/[slug]", {
+  whiteBackground: true,
+  hasLinkPreview: true,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: true,
+});
 
-export default async function Page({ params, searchParams }: { params: Promise<{ slug: string }>, searchParams: Promise<{ startPath?: string }> }) {
+export default async function Page({ params, searchParams }: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ startPath?: string }>
+}) {
   const [{ slug }, searchParamValues] = await Promise.all([params, searchParams]);
+
   // This needs to be an `in` because startPath will be an empty string,
   // for legacy Arbital compatibility reasons.
   if ('startPath' in searchParamValues && slug in GUIDE_PATH_PAGES_MAPPING) {
@@ -28,6 +38,6 @@ export default async function Page({ params, searchParams }: { params: Promise<{
     delayedStatusCode
     subtitle={TagPageSubtitle}
   >
-    <TagPageRouter />
+    <TagPageRouter slug={slug} />
   </RouteRoot>
 }

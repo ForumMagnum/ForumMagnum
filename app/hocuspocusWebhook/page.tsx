@@ -7,6 +7,7 @@ import {
   handleCommentAdded,
 } from '@/server/hocuspocus/hocuspocusCallbacks';
 import WebhookProcessor from './WebhookProcessor';
+import { assertRouteAttributes } from '@/lib/routeChecks/assertRouteAttributes';
 
 type WebhookResult =
   | { type: 'error'; message: string }
@@ -73,6 +74,14 @@ async function processWebhookRequest(headersList: Headers): Promise<WebhookResul
       return { type: 'error', message: `Unknown event: ${event}` };
   }
 }
+
+assertRouteAttributes("/hocuspocusWebhook", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 /**
  * Hocuspocus webhook handler, implemented as a Next.js page rather than a

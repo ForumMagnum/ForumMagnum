@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from 'react';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
-import { routeHasWhiteBackground, routeHasCreamBackground } from './routeBackgroundColors';
+import { routeHasWhiteBackground, routeHasCreamBackground } from '@/lib/routeChecks/routeBackgroundColors';
 
 const bgClasses = ["whiteBackground", "greyBackground", "creamBackground"] as const;
 

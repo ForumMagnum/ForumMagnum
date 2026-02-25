@@ -32,7 +32,7 @@ export function usePublishedPosts(userId: string, contentLimit = 20, ssr = true)
   const posts = useMemo(() => [...(data?.posts?.results ?? [])], [data]);
 
   return {
-    posts: loading ? undefined : posts,
+    posts: loading && !data ? undefined : posts,
     loading
   };
 }

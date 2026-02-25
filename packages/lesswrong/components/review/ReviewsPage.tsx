@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { getReviewYearFromString, reviewYears, ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import SingleColumnSection from "../common/SingleColumnSection";
 import ReviewsList from "./ReviewsList";
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReviewsPage", (theme: ThemeType) => ({
   yearLinks: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -27,10 +28,11 @@ const styles = (theme: ThemeType) => ({
   selected: {
     color: theme.palette.grey[900]
   }
-});
+}));
 
 
-export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof styles>, reviewYear?: ReviewYear}) => {
+export const ReviewsPage = ({reviewYear}: {reviewYear?: ReviewYear}) => {
+  const classes = useStyles(styles);
   const { params } = useLocation()
 
   if (params.year !== 'all') {
@@ -49,7 +51,7 @@ export const ReviewsPage = ({classes, reviewYear}: {classes: ClassesType<typeof 
   </SingleColumnSection>;
 }
 
-export default registerComponent('ReviewsPage', ReviewsPage, {styles});
+export default ReviewsPage;
 
 
 

@@ -4,6 +4,8 @@
 # outputs from awkwardly intermingling, three of these four jobs run run
 # redirected to a file, which is then printed after all four have finished.
 
+export BROWSERSLIST_IGNORE_OLD_DATA=1
+
 CKEDITOR_DIR="ckEditor"
 mkdir -p tmp
 

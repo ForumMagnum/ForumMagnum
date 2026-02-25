@@ -143,13 +143,15 @@ async function createInitialRevision<N extends CollectionNameString>(
     };
 
     const firstRevision = await createRevision({ data: newRevision }, context);
+    const updatedHtml = firstRevision.html;
 
     return {
       ...doc,
       ...(!normalized && {
         [fieldName]: {
           ...editableField,
-          html, version, userId, editedAt, wordCount,
+          html: updatedHtml,
+          version, userId, editedAt, wordCount,
           updateType: 'initial'
         },
       }),
@@ -233,13 +235,15 @@ async function createUpdateRevision<N extends CollectionNameString>(
 
     const newRevisionDoc = await createRevision({ data: newRevision }, context);
     const newRevisionId = newRevisionDoc._id;
+    const updatedHtml = newRevisionDoc.html;
 
     return {
       ...docData,
       ...(!normalized && {
         [fieldName]: {
           ...editableField,
-          html, version, userId, editedAt, wordCount
+          html: updatedHtml,
+          version, userId, editedAt, wordCount
         },
       }),
       [`${fieldName}_latest`]: newRevisionId,

@@ -1,5 +1,4 @@
 import React, { CSSProperties } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { hasForumEvents } from "../../lib/betas";
@@ -12,6 +11,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useStyles } from "@/components/hooks/useStyles";
 
 const PostsDetailsQuery = gql(`
   query ForumEventPostPageBanner($documentId: String) {
@@ -25,7 +26,7 @@ const PostsDetailsQuery = gql(`
 
 const BANNER_HEIGHT = 60;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ForumEventPostPageBanner", (theme: ThemeType) => ({
   root: {
     position: "relative",
     width: "100%",
@@ -58,11 +59,10 @@ const styles = (theme: ThemeType) => ({
     right: 0,
     width: "100vw",
   },
-});
+}));
 
-export const ForumEventPostPageBanner = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const ForumEventPostPageBanner = () => {
+  const classes = useStyles(styles);
   const {params} = useLocation();
   const {currentForumEvent} = useCurrentAndRecentForumEvents();
 
@@ -110,10 +110,6 @@ export const ForumEventPostPageBanner = ({classes}: {
   );
 }
 
-export default registerComponent(
-  "ForumEventPostPageBanner",
-  ForumEventPostPageBanner,
-  {styles},
-);
+export default ForumEventPostPageBanner;
 
 

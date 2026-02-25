@@ -1,9 +1,15 @@
 import React from "react";
 import PostCollaborationEditor from '@/components/editor/PostCollaborationEditor';
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-assertRouteHasWhiteBackground("/collaborateOnPost");
+assertRouteAttributes("/collaborateOnPost", {
+  whiteBackground: true,
+  hasLinkPreview: false,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export default function Page() {
   return <RouteRoot
