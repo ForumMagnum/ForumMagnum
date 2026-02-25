@@ -40,21 +40,6 @@ Post comments:
  * /api/post/[id]/comments
  * /api/post/[id]/comments/[commentId]
  * comments route supports ?sort=top|new|old, ?limit=n, ?includeReactionUsers=1
-Reading draft editor content:
- * /api/editPost?postId=[id]
- * /api/collaborateOnPost?postId=[id]&key=[linkSharingKey]
- * edit route supports ?version=draft|[revisionId]
-Writing draft editor comments (Lexical collaborative drafts only):
- * POST /api/agent/commentOnDraft
- * JSON body: { postId, comment, key?, agentName?, paragraphId?, quote? }
- * Adds a Google-Docs-style draft comment thread
- * Response includes anchorStatus/anchorNote; quote misses fall back to top-level (still 200)
- * Auth can be from login cookie and/or link-sharing key (\`key\`)
-Replacing draft text (Lexical collaborative drafts only):
- * POST /api/agent/replaceText
- * JSON body: { postId, quote, replacement, mode: "edit" | "suggest", key? }
- * mode="edit": replace matched text directly
- * mode="suggest": wrap matched text as delete + insert suggestion nodes
 Reading tags:
  * /api/tag/[slug]
 Reading users:
@@ -66,6 +51,47 @@ Reading collections:
  * /api/rationality
  * /api/codex
  * /api/hpmor
+
+Helping Users With Drafts
+=========================
+The API can also be used to edit and comment on post drafts, which will appear
+in the post editor. This feature is only available for Lexical, which is enabled
+for users who have enabled the "Beta features" option in their settings, which
+can be found at https://www.lesswrong.com/account?tab=preferences. To give an AI
+agent access, the user needs to press the Share button, change the permissions
+for "Anyone with the link can" to "Edit", then copy the edit-post URL for you.
+The URL will look like this:
+    https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ
+The key in the URL is called the "link sharing key"; do not share this key with
+anyone unless the user is asking you to give that person permission to edit
+the post. Once you have the post URL, read the post at:
+    GET /api/editPost?postId=[id]&key=[linkSharingKey]
+
+To add add Google Docs-style comments to the draft, make a request to:
+    POST /api/agent/commentOnDraft
+    with JSON body: { postId, key, agentName?, paragraphId?, quote?, comment }
+If a quote is provided, the comment will be attached to matching quoted text. The
+quote should be long enough to be unambiguous. If no quote is provided, the
+comment will be top-level. Both the quote and your comment should be in markdown.
+
+To replace text inside the draft, make a POST request to:
+    POST /api/agent/replaceText
+    with JSON body: { postId, key, quote, replacement, mode?: "edit"|"suggest" }
+The quote and replacement should be in markdown. If the mode is "edit", the
+change will be applied immediately; if the mode is "suggest", the change will be
+displayed as a suggestion in the post editor. If the user hasn't said whether to
+use edit mode or suggest mode, use suggest mode.
+
+To insert new blocks of test into the draft, make a POST request to:
+    POST /api/agent/insertBlock
+    with JSON body: { postId, key, location, markdown, mode?: "edit"|"suggest" }
+The location should be a markdown string that matches the start of a paragraph
+that already exists in the draft. The location can be one of the following:
+    "start": insert at the beginning of the post
+    "end": insert at the end of the post
+    "before": insert before the specified paragraph
+    "after": insert after the specified paragraph
+    "mode": "edit"|"suggest"
 `;
 
 export function GET(req: NextRequest) {

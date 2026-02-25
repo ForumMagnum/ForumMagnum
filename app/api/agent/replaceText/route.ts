@@ -26,7 +26,7 @@ const ReplaceTextRequestSchema = z.object({
   key: z.string().optional(),
   quote: z.string(),
   replacement: z.string(),
-  mode: z.enum(["edit", "suggest"]).default("edit"),
+  mode: z.enum(["edit", "suggest"]).default("suggest"),
 });
 
 type ReplaceMode = z.infer<typeof ReplaceTextRequestSchema>["mode"];
