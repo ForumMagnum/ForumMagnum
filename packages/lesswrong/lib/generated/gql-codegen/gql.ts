@@ -1,6 +1,7 @@
 /* eslint-disable */
 import * as types from './graphql';
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
+import gqlTag from 'graphql-tag';
 
 /**
  * Map of all GraphQL operations in the project.
@@ -1928,6 +1929,9 @@ const documents: Documents = {
  * The query argument is unknown!
  * Please regenerate the types.
  */
+const parsedDocumentCache = new Map<string, unknown>();
+let hasWarnedAboutUnknownDocument = false;
+
 export function gql(source: string): unknown;
 
 /**
@@ -5728,7 +5732,23 @@ export function gql(source: "\n      query GetReviewWinners {\n        GetAllRev
 export function gql(source: "\n  query CommentsForEmbeddings($selector: CommentSelector) {\n    comments(selector: $selector) {\n      results {\n        _id\n        postedAt\n        contents {\n          _id\n          html\n        }\n        user {\n          _id\n          displayName\n          username\n          fullName\n        }\n        post {\n          _id\n          title\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query CommentsForEmbeddings($selector: CommentSelector) {\n    comments(selector: $selector) {\n      results {\n        _id\n        postedAt\n        contents {\n          _id\n          html\n        }\n        user {\n          _id\n          displayName\n          username\n          fullName\n        }\n        post {\n          _id\n          title\n        }\n      }\n    }\n  }\n"];
 
 export function gql(source: string) {
-  return (documents as any)[source] ?? {};
+  const knownDocument = (documents as Record<string, unknown>)[source];
+  if (knownDocument) {
+    return knownDocument;
+  }
+
+  if (!hasWarnedAboutUnknownDocument && process.env.NODE_ENV !== 'production') {
+    hasWarnedAboutUnknownDocument = true;
+    // eslint-disable-next-line no-console
+    console.warn("Unknown GraphQL document string encountered. Types may be stale; run 'yarn generate'.");
+  }
+
+  let parsedDocument = parsedDocumentCache.get(source);
+  if (!parsedDocument) {
+    parsedDocument = gqlTag(source);
+    parsedDocumentCache.set(source, parsedDocument);
+  }
+  return parsedDocument;
 }
 
 export type DocumentType<TDocumentNode extends DocumentNode<any, any>> = TDocumentNode extends DocumentNode<  infer TType,  any>  ? TType  : never;
