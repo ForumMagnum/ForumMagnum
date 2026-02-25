@@ -65,7 +65,7 @@ import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolver
 import { reviewResultsGqlQueries, reviewResultsGqlTypeDefs } from '@/server/resolvers/reviewResultsResolvers';
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
-import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
+import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs, upscaleReviewWinnerArtGraphQLMutations, upscaleReviewWinnerArtGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 import { elicitQuestionPredictionsGraphQLTypeDefs } from '@/lib/collections/elicitQuestionPredictions/newSchema';
 import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolvers/booksResolvers';
 import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
@@ -323,6 +323,7 @@ export const getTypeDefs = () => gql`
   ${ultraFeedSubscriptionsTypeDefs}
   ${generateCoverImagesForPostGraphQLTypeDefs}
   ${flipSplashArtImageGraphQLTypeDefs}
+  ${upscaleReviewWinnerArtGraphQLTypeDefs}
   ${elicitQuestionPredictionsGraphQLTypeDefs}
   ${booksResolversTypeDefs}
   ${sequencesResolversTypeDefs}
@@ -616,6 +617,7 @@ const getResolvers = () => ({
     ...jargonTermsGraphQLMutations,
     ...generateCoverImagesForPostGraphQLMutations,
     ...flipSplashArtImageGraphQLMutations,
+    ...upscaleReviewWinnerArtGraphQLMutations,
     ...rsvpToEventsMutations,
     ...tagsGqlMutations,
     ...analyticsEventGraphQLMutations,

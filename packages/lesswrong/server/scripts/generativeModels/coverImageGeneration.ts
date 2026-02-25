@@ -37,7 +37,7 @@ const IMAGE_PROVIDER: 'fal' | 'midjourney' = 'midjourney';
 
 // The OpenAI model to use for generating illustration descriptions.
 // Change this to experiment with different models (e.g. "gpt-5-mini").
-const OPENAI_MODEL = "gpt-5.2";
+export const OPENAI_MODEL = "gpt-5.2";
 
 // ── Queries ──────────────────────────────────────────────────────────
 
@@ -100,6 +100,7 @@ interface UsageTracker {
   falImageCount: number;
   falUpscaleCount: number;
   midjourneyJobCount: number;
+  midjourneyUpscaleCount: number;
   model: 'gpt-5.2' | 'gpt-5-mini';
 }
 
@@ -115,8 +116,8 @@ const FAL_PRICING = {
   "esrgan": 0.005,
 };
 
-function createUsageTracker(model: UsageTracker['model']): UsageTracker {
-  return { calls: 0, inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, reasoningTokens: 0, falImageCount: 0, falUpscaleCount: 0, midjourneyJobCount: 0, model };
+export function createUsageTracker(model: UsageTracker['model']): UsageTracker {
+  return { calls: 0, inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, reasoningTokens: 0, falImageCount: 0, falUpscaleCount: 0, midjourneyJobCount: 0, midjourneyUpscaleCount: 0, model };
 }
 
 function recordOpenAiUsage(tracker: UsageTracker, usage: { input_tokens: number; output_tokens: number; input_tokens_details?: { cached_tokens: number }; output_tokens_details?: { reasoning_tokens: number } } | undefined) {
@@ -146,7 +147,7 @@ function printUsageSummary(tracker: UsageTracker) {
   const RESET = "\x1b[0m";
 
   const imageProviderLine = IMAGE_PROVIDER === 'midjourney'
-    ? `  Midjourney jobs:    ${tracker.midjourneyJobCount} ${DIM}(${tracker.midjourneyJobCount * 4} images)${RESET}`
+    ? `  Midjourney jobs:    ${tracker.midjourneyJobCount} imagine ${DIM}(${tracker.midjourneyJobCount * 4} images)${RESET}, ${tracker.midjourneyUpscaleCount} upscale`
     : `  Fal.ai images:      ${tracker.falImageCount} generated, ${tracker.falUpscaleCount} upscaled`;
 
   const costLines = IMAGE_PROVIDER === 'midjourney'
@@ -429,7 +430,7 @@ let mjBridgeServer: http.Server | null = null;
 const bridgeQueue: PendingBridgeRequest[] = [];
 const inFlightRequests = new Map<string, PendingBridgeRequest>();
 
-function startMidjourneyBridge(): Promise<void> {
+export function startMidjourneyBridge(): Promise<void> {
   if (mjBridgeServer) return Promise.resolve();
 
   return new Promise((resolve, reject) => {
@@ -499,7 +500,7 @@ function startMidjourneyBridge(): Promise<void> {
 }
 
 /** Returns the JS snippet to paste/inject into the browser console. */
-function getMjBridgeClientScript(): string {
+export function getMjBridgeClientScript(): string {
   return `(async function mjBridge() {
   const BRIDGE = 'http://localhost:${MJ_BRIDGE_PORT}';
   const POLL_MS = 500;
@@ -620,7 +621,7 @@ function checkCdnViaBridge(url: string): Promise<{ ok: boolean; status: number }
   });
 }
 
-function downloadViaBridge(url: string): Promise<string> {
+export function downloadViaBridge(url: string): Promise<string> {
   const id = Math.random().toString(36).slice(2);
 
   return new Promise((resolve, reject) => {
@@ -707,29 +708,77 @@ async function pollMidjourneyCompletion(
   throw new Error(`Midjourney job ${jobId} timed out after ${timeoutMs / 1000}s`);
 }
 
-async function generateMidjourneyImages(prompt: string, tracker: UsageTracker): Promise<string[]> {
-  const result = await submitMidjourneyJob(prompt);
+// ── Midjourney upscale ────────────────────────────────────────────────
+//
+// After a batch of 4 images is generated, each one can be upscaled to 2x
+// resolution using Midjourney's upscale endpoint. This uses the same
+// submit-jobs API with t="upscale" and the parent job ID + grid index.
+
+const MJ_UPSCALE_TYPE: 'v7_2x_subtle' | 'v7_2x_creative' = 'v7_2x_creative';
+
+async function submitMidjourneyUpscale(parentJobId: string, index: number): Promise<MidjourneySubmitResponse> {
+  await startMidjourneyBridge();
+
+  const body = {
+    f: { mode: "fast", private: false },
+    channelId: MJ_CHANNEL_ID,
+    roomId: null,
+    metadata: {
+      isMobile: null,
+      imagePrompts: null,
+      imageReferences: null,
+      characterReferences: null,
+      depthReferences: null,
+      lightboxOpen: null,
+    },
+    t: "upscale",
+    type: MJ_UPSCALE_TYPE,
+    id: parentJobId,
+    index,
+  };
+
+  const id = Math.random().toString(36).slice(2);
+
+  return new Promise<MidjourneySubmitResponse>((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error("Midjourney bridge timed out waiting for browser to pick up upscale job. Is the bridge client running in the browser?"));
+    }, 60_000);
+
+    bridgeQueue.push({
+      id,
+      type: "submit",
+      body,
+      resolve: (value) => { clearTimeout(timeout); resolve(value as MidjourneySubmitResponse); },
+      reject: (error) => { clearTimeout(timeout); reject(error); },
+    });
+  });
+}
+
+export async function upscaleMidjourneyImage(parentJobId: string, index: number, tracker: UsageTracker): Promise<string> {
+  const result = await submitMidjourneyUpscale(parentJobId, index);
 
   if (result.failure.length > 0) {
     // eslint-disable-next-line no-console
-    console.error("Midjourney job failures:", result.failure);
+    console.error("Midjourney upscale failures:", result.failure);
   }
   if (result.success.length === 0) {
-    throw new Error("Midjourney returned no successful jobs");
+    throw new Error(`Midjourney upscale returned no successful jobs for parent ${parentJobId} index ${index}`);
   }
 
   const job = result.success[0];
-  tracker.midjourneyJobCount++;
+  tracker.midjourneyUpscaleCount++;
 
   // eslint-disable-next-line no-console
-  console.log(`Submitted MJ job ${job.job_id} (queued: ${job.is_queued}), polling for completion...`);
+  console.log(`Submitted MJ upscale job ${job.job_id} for parent ${parentJobId}[${index}], polling...`);
 
-  const imageUrls = await pollMidjourneyCompletion(job.job_id, job.meta.batch_size);
+  // Upscale jobs produce a single image (batch_size 1). They tend to be
+  // faster than initial generation, so use a shorter initial delay.
+  const imageUrls = await pollMidjourneyCompletion(job.job_id, job.meta.batch_size, 20_000);
 
   // eslint-disable-next-line no-console
-  console.log(`MJ job ${job.job_id} complete: ${imageUrls.length} images`);
+  console.log(`MJ upscale job ${job.job_id} complete`);
 
-  return imageUrls;
+  return imageUrls[0];
 }
 
 // ── Persistence ──────────────────────────────────────────────────────
@@ -743,32 +792,63 @@ const DEFAULT_SPLASH_COORDINATES = {
   rightXPct: .66,  rightYPct: 0,  rightWidthPct: .33,  rightHeightPct: 1,  rightFlipped: false,
 } as const;
 
-async function saveImageAsReviewWinnerArt(prompt: string, essay: Essay, url: string) {
+/** Parse a Midjourney CDN URL to extract the job ID and image index. */
+export function parseMidjourneyUrl(url: string): { jobId: string; imageIndex: number } | null {
+  // Format: https://cdn.midjourney.com/{jobId}/0_{index}.{ext}
+  // or:     https://cdn.midjourney.com/{jobId}/0_{index}_640_N.webp
+  const match = url.match(/cdn\.midjourney\.com\/([a-f0-9-]+)\/0_(\d+)/);
+  if (!match) return null;
+  return { jobId: match[1], imageIndex: parseInt(match[2]) };
+}
+
+interface SaveImageOptions {
+  prompt: string;
+  essay: Essay;
+  url: string;
+  midjourneyJobId?: string;
+  midjourneyImageIndex?: number;
+}
+
+async function saveImageAsReviewWinnerArt({ prompt, essay, url, midjourneyJobId, midjourneyImageIndex }: SaveImageOptions) {
   const shortPrompt = prompt.trim().replace(/[^a-zA-Z0-9]/g, '_').slice(0, 32);
   const shortTitle = essay.title.replace(/[^a-zA-Z0-9]/g, '_').slice(0, 32);
   const originId = encodeURIComponent(`${shortTitle}_${shortPrompt}_${Math.random()}`);
 
   // For Midjourney, download the image through the browser bridge first,
   // since Cloudinary's server can't fetch MJ CDN URLs (Cloudflare blocks them).
-  let uploadUrl = url;
+  // Pass the original CDN URL as the identifier so it's preserved in the Images table.
+  let cloudinaryUrl: string | null;
   if (IMAGE_PROVIDER === 'midjourney') {
     // eslint-disable-next-line no-console
     console.log(`Downloading ${url} via browser bridge...`);
-    uploadUrl = await downloadViaBridge(url);
+    const imageData = await downloadViaBridge(url);
+    cloudinaryUrl = await moveImageToCloudinary({oldUrl: url, originDocumentId: originId, imageData});
+  } else {
+    cloudinaryUrl = await moveImageToCloudinary({oldUrl: url, originDocumentId: originId});
   }
 
-  const cloudinaryUrl = await moveImageToCloudinary({oldUrl: uploadUrl, originDocumentId: originId});
   if (!cloudinaryUrl) {
     // eslint-disable-next-line no-console
     console.error("Failed to upload image to Cloudinary", {prompt, postId: essay.postId});
     return;
   }
 
+  // If MJ metadata wasn't passed explicitly, try to parse it from the URL
+  if (!midjourneyJobId && IMAGE_PROVIDER === 'midjourney') {
+    const parsed = parseMidjourneyUrl(url);
+    if (parsed) {
+      midjourneyJobId = parsed.jobId;
+      midjourneyImageIndex = parsed.imageIndex;
+    }
+  }
+
   const reviewWinnerArt = await createReviewWinnerArt({
     data: {
       postId: essay.postId,
       splashArtImagePrompt: prompt,
-      splashArtImageUrl: cloudinaryUrl
+      splashArtImageUrl: cloudinaryUrl,
+      ...(midjourneyJobId != null ? { midjourneyJobId } : {}),
+      ...(midjourneyImageIndex != null ? { midjourneyImageIndex } : {}),
     }
   }, createAdminContext());
 
@@ -790,7 +870,7 @@ async function getArtForEssayFal(essay: Essay, prompts: string[], tracker: Usage
 
   return Promise.all(allPrompts.map(async (currentPrompt) => {
     const image = await generateAndUpscaleImage(currentPrompt, sample(referenceStyleImageUrls)!, tracker);
-    const reviewWinnerArt = await saveImageAsReviewWinnerArt(currentPrompt, essay, image);
+    const reviewWinnerArt = await saveImageAsReviewWinnerArt({ prompt: currentPrompt, essay, url: image });
     return { title: essay.title, prompt: currentPrompt, imageUrl: image, reviewWinnerArt };
   }));
 }
@@ -803,18 +883,33 @@ async function getArtForEssayMidjourney(essay: Essay, prompts: string[], tracker
       const jitter = Math.random() * 3_000;
       await new Promise((resolve) => setTimeout(resolve, (5_000 * index) + jitter));
     }
-    const imageUrls = await generateMidjourneyImages(currentPrompt, tracker);
+
+    const result = await submitMidjourneyJob(currentPrompt);
+    if (result.failure.length > 0) {
+      // eslint-disable-next-line no-console
+      console.error("Midjourney job failures:", result.failure);
+    }
+    if (result.success.length === 0) {
+      throw new Error("Midjourney returned no successful jobs");
+    }
+
+    const job = result.success[0];
+    tracker.midjourneyJobCount++;
+    // eslint-disable-next-line no-console
+    console.log(`Submitted MJ job ${job.job_id} (queued: ${job.is_queued}), polling for completion...`);
+
+    const imageUrls = await pollMidjourneyCompletion(job.job_id, job.meta.batch_size);
+    // eslint-disable-next-line no-console
+    console.log(`MJ job ${job.job_id} complete: ${imageUrls.length} images`);
 
     // Save each of the 4 grid images as a separate ReviewWinnerArt
-    const results: EssayResult[] = [];
     const reviewWinnerArtResults = await Promise.all(
       imageUrls.map(async (imageUrl) => {
-        const reviewWinnerArt = await saveImageAsReviewWinnerArt(currentPrompt, essay, imageUrl);
+        const reviewWinnerArt = await saveImageAsReviewWinnerArt({ prompt: currentPrompt, essay, url: imageUrl });
         return { title: essay.title, prompt: currentPrompt, imageUrl, reviewWinnerArt };
       })
     );
-    results.push(...reviewWinnerArtResults);
-    return results;
+    return reviewWinnerArtResults;
   });
 
   const nestedResults = await Promise.all(jobPromises);
@@ -978,4 +1073,160 @@ export const previewIllustrations = async (postId: string, count = 3): Promise<s
 
   return prompts;
 };
+
+// ── Backfill MJ metadata ─────────────────────────────────────────────
+//
+// For existing ReviewWinnerArt records that were created before we started
+// storing Midjourney metadata, this function recovers the job ID and image
+// index by matching images. It takes a list of MJ jobs (scraped from the
+// MJ website) and matches them to existing records by prompt + image comparison.
+//
+// Usage via repl:
+//   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'backfillMidjourneyMetadata([{jobId: "abc-123", prompt: "...", batchSize: 4}, ...])'
+
+interface MjJobInfo {
+  jobId: string;
+  prompt: string;
+  batchSize: number;
+}
+
+export async function backfillMidjourneyMetadata(mjJobs: MjJobInfo[]) {
+  // Fetch all ReviewWinnerArt records without MJ metadata
+  const allArts = await ReviewWinnerArts.find({
+    midjourneyJobId: null,
+  }).fetch();
+
+  // eslint-disable-next-line no-console
+  console.log(`Found ${allArts.length} ReviewWinnerArt records without MJ metadata`);
+
+  // Group arts by prompt
+  const artsByPrompt = new Map<string, DbReviewWinnerArt[]>();
+  for (const art of allArts) {
+    const existing = artsByPrompt.get(art.splashArtImagePrompt) ?? [];
+    existing.push(art);
+    artsByPrompt.set(art.splashArtImagePrompt, existing);
+  }
+
+  // Group MJ jobs by prompt
+  const jobsByPrompt = new Map<string, MjJobInfo[]>();
+  for (const job of mjJobs) {
+    const existing = jobsByPrompt.get(job.prompt) ?? [];
+    existing.push(job);
+    jobsByPrompt.set(job.prompt, existing);
+  }
+
+  await startMidjourneyBridge();
+  // eslint-disable-next-line no-console
+  console.log("\n=== Paste this into your Midjourney browser tab console: ===\n");
+  // eslint-disable-next-line no-console
+  console.log(getMjBridgeClientScript());
+  // eslint-disable-next-line no-console
+  console.log("\n=============================================================\n");
+
+  let matchedCount = 0;
+  let unmatchedCount = 0;
+
+  for (const [prompt, arts] of artsByPrompt) {
+    const jobs = jobsByPrompt.get(prompt);
+    if (!jobs) {
+      // eslint-disable-next-line no-console
+      console.warn(`No MJ jobs found for prompt: ${prompt.slice(0, 60)}...`);
+      unmatchedCount += arts.length;
+      continue;
+    }
+
+    // For each job, build a list of CDN URLs for each image in the batch
+    const jobImages: Array<{ jobId: string; index: number; url: string }> = [];
+    for (const job of jobs) {
+      for (let i = 0; i < job.batchSize; i++) {
+        // Use the small thumbnail for faster comparison
+        jobImages.push({
+          jobId: job.jobId,
+          index: i,
+          url: `${MJ_CDN_BASE}/${job.jobId}/0_${i}_640_N.webp`,
+        });
+      }
+    }
+
+    // Download MJ thumbnails and Cloudinary thumbnails, then match by pixel similarity.
+    // We use a simple approach: download both sets of images and compare pixel buffers.
+    const sharp = (await import('sharp')).default;
+
+    // Download MJ images as raw pixel buffers (resized to a common small size)
+    const MATCH_SIZE = 64;
+    const mjPixelBuffers: Array<{ jobId: string; index: number; pixels: Buffer }> = [];
+    for (const img of jobImages) {
+      try {
+        const dataUrl = await downloadViaBridge(img.url);
+        const { buffer } = parseDataUri(dataUrl);
+        const pixels = await sharp(buffer).resize(MATCH_SIZE, MATCH_SIZE).raw().toBuffer();
+        mjPixelBuffers.push({ jobId: img.jobId, index: img.index, pixels });
+      } catch {
+        // eslint-disable-next-line no-console
+        console.warn(`Failed to download MJ thumbnail: ${img.url}`);
+      }
+    }
+
+    // Download Cloudinary thumbnails and compare
+    for (const art of arts) {
+      try {
+        // Use a small Cloudinary thumbnail
+        const cloudinarySmall = art.splashArtImageUrl.includes('cloudinary.com')
+          ? art.splashArtImageUrl.replace('/upload/', '/upload/w_128/')
+          : art.splashArtImageUrl;
+
+        const resp = await fetch(cloudinarySmall);
+        if (!resp.ok) {
+          // eslint-disable-next-line no-console
+          console.warn(`Failed to fetch Cloudinary image for art ${art._id}`);
+          unmatchedCount++;
+          continue;
+        }
+        const artBuffer = Buffer.from(await resp.arrayBuffer());
+        const artPixels = await sharp(artBuffer).resize(MATCH_SIZE, MATCH_SIZE).raw().toBuffer();
+
+        // Find best match among MJ images by mean squared error
+        let bestMatch: { jobId: string; index: number; mse: number } | null = null;
+        for (const mj of mjPixelBuffers) {
+          let sumSq = 0;
+          for (let i = 0; i < artPixels.length; i++) {
+            const diff = artPixels[i] - mj.pixels[i];
+            sumSq += diff * diff;
+          }
+          const mse = sumSq / artPixels.length;
+          if (!bestMatch || mse < bestMatch.mse) {
+            bestMatch = { jobId: mj.jobId, index: mj.index, mse };
+          }
+        }
+
+        if (bestMatch && bestMatch.mse < 500) {
+          await ReviewWinnerArts.rawUpdateOne(
+            { _id: art._id },
+            { $set: { midjourneyJobId: bestMatch.jobId, midjourneyImageIndex: bestMatch.index } }
+          );
+          matchedCount++;
+          // eslint-disable-next-line no-console
+          console.log(`Matched art ${art._id} -> job ${bestMatch.jobId}[${bestMatch.index}] (MSE: ${bestMatch.mse.toFixed(1)})`);
+        } else {
+          unmatchedCount++;
+          // eslint-disable-next-line no-console
+          console.warn(`No good match for art ${art._id} (best MSE: ${bestMatch?.mse.toFixed(1) ?? 'N/A'})`);
+        }
+      } catch (err) {
+        unmatchedCount++;
+        // eslint-disable-next-line no-console
+        console.error(`Error matching art ${art._id}:`, err);
+      }
+    }
+  }
+
+  // eslint-disable-next-line no-console
+  console.log(`\nBackfill complete: ${matchedCount} matched, ${unmatchedCount} unmatched`);
+}
+
+function parseDataUri(dataUri: string): { mimeType: string; buffer: Buffer } {
+  const match = dataUri.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) throw new Error('Invalid data URI');
+  return { mimeType: match[1], buffer: Buffer.from(match[2], 'base64') };
+}
 

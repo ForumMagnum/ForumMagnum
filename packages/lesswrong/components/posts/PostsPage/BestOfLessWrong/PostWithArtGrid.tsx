@@ -19,6 +19,14 @@ const SplashArtCoordinatesEditMutation = gql(`
   }
 `);
 
+const UpscaleReviewWinnerArtMutation = gql(`
+  mutation upscaleReviewWinnerArtPostWithArtGrid($reviewWinnerArtId: String!) {
+    upscaleReviewWinnerArt(reviewWinnerArtId: $reviewWinnerArtId) {
+      ...ReviewWinnerArtImages
+    }
+  }
+`);
+
 export const getCloudinaryThumbnail = (url: string, width = 300): string => {
   // Check if it's a Cloudinary URL
   if (!url.includes('cloudinary.com')) return url;
@@ -82,7 +90,34 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
   },
   selectedImage: {
     border: `2px solid ${theme.palette.grey[900]}`,
-  }
+  },
+  upscaleBadge: {
+    ...theme.typography.body2,
+    fontSize: 10,
+    fontWeight: 600,
+    position: 'absolute',
+    top: 2,
+    right: 8,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
+    padding: '1px 4px',
+    borderRadius: 3,
+  },
+  upscaleButton: {
+    ...theme.typography.body2,
+    fontSize: 10,
+    position: 'absolute',
+    top: 2,
+    right: 8,
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    backgroundColor: theme.palette.greyAlpha(0.05),
+    padding: '1px 4px',
+    borderRadius: 3,
+    '&:hover': {
+      backgroundColor: theme.palette.greyAlpha(0.15),
+    },
+  },
 }));
 
 type Post = {_id: string, slug: string, title: string}
@@ -94,6 +129,8 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
   const { selectedImageInfo, setImageInfo } = useImageContext();
 
   const [createSplashArtCoordinateMutation] = useMutation(SplashArtCoordinatesEditMutation);
+  const [upscaleReviewWinnerArtMutation] = useMutation(UpscaleReviewWinnerArtMutation);
+  const [upscalingImageId, setUpscalingImageId] = useState<string | null>(null);
 
   const handleSaveCoordinates = async (image: ReviewWinnerArtImages) => {
     // This makes a best-guess about how to crop the image for the /bestoflesswrongpage
@@ -130,6 +167,21 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
     }
   }
 
+  const handleUpscale = async (e: React.MouseEvent, image: ReviewWinnerArtImages) => {
+    e.stopPropagation();
+    setUpscalingImageId(image._id);
+    try {
+      await upscaleReviewWinnerArtMutation({
+        variables: { reviewWinnerArtId: image._id },
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error upscaling image', err);
+    } finally {
+      setUpscalingImageId(null);
+    }
+  };
+
   useEffect(() => {
     if (!selectedImageInfo) {
       const newImageInfos = images.filter(image => 
@@ -164,16 +216,32 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
           <div className={classes.postWrapper} >
             {promptImages.map((image) => {
               const smallUrl = getCloudinaryThumbnail(image.splashArtImageUrl);
-              const medUrl = getCloudinaryThumbnail(image.splashArtImageUrl, 800);
+              const tooltipImageUrl = image.upscaledImageUrl
+                ? getCloudinaryThumbnail(image.upscaledImageUrl, 800)
+                : getCloudinaryThumbnail(image.splashArtImageUrl, 800);
 
-              const tooltip = <img src={medUrl} className={classes.imageTooltipContainer} />
+              const tooltip = <img src={tooltipImageUrl} className={classes.imageTooltipContainer} />
+
+              const canUpscale = image.midjourneyJobId && !image.upscaledImageUrl;
+              const isUpscaling = upscalingImageId === image._id;
 
               return <LWTooltip key={image._id} title={tooltip} tooltip={false}>
-                <div key={image._id} className={classes.imageWrapper}>
+                <div className={classes.imageWrapper}>
                   <img className={classNames(classes.image, selectedImageInfo?._id === image._id && classes.selectedImage)} src={smallUrl} onClick={() => handleSaveCoordinates(image)} />
                   <div className={classes.imageId}>
                     {image._id}
                   </div>
+                  {image.upscaledImageUrl && (
+                    <div className={classes.upscaleBadge}>2x</div>
+                  )}
+                  {canUpscale && (
+                    <div
+                      className={classes.upscaleButton}
+                      onClick={(e) => handleUpscale(e, image)}
+                    >
+                      {isUpscaling ? 'Upscaling...' : 'Upscale'}
+                    </div>
+                  )}
                 </div>
               </LWTooltip>
             })} 

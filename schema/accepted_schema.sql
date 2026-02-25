@@ -2439,7 +2439,10 @@ CREATE TABLE "ReviewWinnerArts" (
   "legacyData" JSONB,
   "postId" TEXT NOT NULL,
   "splashArtImagePrompt" TEXT NOT NULL,
-  "splashArtImageUrl" TEXT NOT NULL
+  "splashArtImageUrl" TEXT NOT NULL,
+  "midjourneyJobId" TEXT,
+  "midjourneyImageIndex" INTEGER,
+  "upscaledImageUrl" TEXT
 );
 
 -- Index "idx_ReviewWinnerArts_postId"

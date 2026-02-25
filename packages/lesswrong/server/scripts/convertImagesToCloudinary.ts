@@ -57,16 +57,44 @@ export async function findAlreadyMovedImage(identifier: string): Promise<string|
 /**
  * Re-upload the given image URL to cloudinary, and return the cloudinary URL. If the image has already been uploaded
  * it will return the existing cloudinary URL.
+ *
+ * When `imageData` is provided (a data: URI), it is used as the upload source while `oldUrl` is
+ * stored as the identifier in the Images table. This is useful when the image needs to be downloaded
+ * through a proxy (e.g. the Midjourney browser bridge) but you want to preserve the original source URL.
+ *
  * Exported to allow use in "yarn repl"
  */
-export async function moveImageToCloudinary({oldUrl, originDocumentId}: {oldUrl: string, originDocumentId: string}): Promise<string|null> {
+export async function moveImageToCloudinary({oldUrl, originDocumentId, imageData}: {oldUrl: string, originDocumentId: string, imageData?: string}): Promise<string|null> {
   const cloudinary = await import('cloudinary');
-  
+
+  // When imageData is provided, upload from that but use oldUrl as the identifier
+  if (imageData) {
+    const {buffer} = parseDataUri(imageData);
+    const hash = crypto.createHash('sha256').update(buffer).digest('hex');
+    const upload = async (credentials: CloudinaryCredentials) => new Promise<UploadApiResponse>((resolve) => {
+      const folder = `mirroredImages/${originDocumentId}`;
+      cloudinary.v2.uploader
+        .upload_stream(
+          { ...credentials, folder: `${folder}/${hash}` },
+          (error, result) => {
+            if (error || !result) {
+              // eslint-disable-next-line no-console
+              console.error("Failed to upload buffer to Cloudinary:", error);
+              throw error;
+            }
+            return resolve(result);
+          }
+        )
+        .end(buffer);
+    });
+    return getOrCreateCloudinaryImage({identifier: oldUrl, identifierType: 'originalUrl', upload});
+  }
+
   if (oldUrl.startsWith("data:")) {
-    const {mimeType, buffer} = parseDataUri(oldUrl);
+    const {buffer} = parseDataUri(oldUrl);
     return uploadBufferToCloudinary(buffer, {originDocumentId});
   }
-  
+
   const upload = async (credentials: CloudinaryCredentials) => {
     // First try mirroring the existing URL. If that fails, try retrieving the
     // image from archive.org. If that still fails, let the exception escape,

@@ -6,6 +6,9 @@ export const ReviewWinnerArtImages = gql(`
     postId
     splashArtImagePrompt
     splashArtImageUrl
+    midjourneyJobId
+    midjourneyImageIndex
+    upscaledImageUrl
     activeSplashArtCoordinates {
       ...SplashArtCoordinatesEdit
     }

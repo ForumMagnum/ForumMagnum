@@ -4549,6 +4549,7 @@ type Mutation = {
   updateUserMostValuablePost?: Maybe<UserMostValuablePostOutput>;
   updateUserRateLimit?: Maybe<UserRateLimitOutput>;
   updateUserTagRel?: Maybe<UserTagRelOutput>;
+  upscaleReviewWinnerArt?: Maybe<ReviewWinnerArt>;
   useEmailToken?: Maybe<Scalars['JSON']['output']>;
 };
 
@@ -5505,6 +5506,11 @@ type MutationupdateUserRateLimitArgs = {
 type MutationupdateUserTagRelArgs = {
   data: UpdateUserTagRelDataInput;
   selector: SelectorInput;
+};
+
+
+type MutationupscaleReviewWinnerArtArgs = {
+  reviewWinnerArtId: Scalars['String']['input'];
 };
 
 
@@ -9613,10 +9619,13 @@ type ReviewWinnerArt = {
   activeSplashArtCoordinates?: Maybe<SplashArtCoordinate>;
   createdAt: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
+  midjourneyImageIndex?: Maybe<Scalars['Int']['output']>;
+  midjourneyJobId?: Maybe<Scalars['String']['output']>;
   postId: Scalars['String']['output'];
   schemaVersion: Scalars['Float']['output'];
   splashArtImagePrompt: Scalars['String']['output'];
   splashArtImageUrl: Scalars['String']['output'];
+  upscaledImageUrl?: Maybe<Scalars['String']['output']>;
 };
 
 type ReviewWinnerArtSelector = {
@@ -18869,6 +18878,21 @@ type createSplashArtCoordinatePostWithArtGridMutationVariables = Exact<{
 
 type createSplashArtCoordinatePostWithArtGridMutation = createSplashArtCoordinatePostWithArtGridMutation_Mutation;
 
+type upscaleReviewWinnerArtPostWithArtGridMutation_upscaleReviewWinnerArt_ReviewWinnerArt = (
+  { __typename?: 'ReviewWinnerArt' }
+  & ReviewWinnerArtImages
+);
+
+type upscaleReviewWinnerArtPostWithArtGridMutation_Mutation = { __typename?: 'Mutation', upscaleReviewWinnerArt: upscaleReviewWinnerArtPostWithArtGridMutation_upscaleReviewWinnerArt_ReviewWinnerArt | null };
+
+
+type upscaleReviewWinnerArtPostWithArtGridMutationVariables = Exact<{
+  reviewWinnerArtId: Scalars['String']['input'];
+}>;
+
+
+type upscaleReviewWinnerArtPostWithArtGridMutation = upscaleReviewWinnerArtPostWithArtGridMutation_Mutation;
+
 type multiCommentReviewPillContainerQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
   & CommentWithRepliesFragment
@@ -26210,7 +26234,7 @@ type ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtC
   & SplashArtCoordinatesEdit
 );
 
-type ReviewWinnerArtImages = { __typename?: 'ReviewWinnerArt', _id: string, postId: string, splashArtImagePrompt: string, splashArtImageUrl: string, activeSplashArtCoordinates: ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtCoordinate | null };
+type ReviewWinnerArtImages = { __typename?: 'ReviewWinnerArt', _id: string, postId: string, splashArtImagePrompt: string, splashArtImageUrl: string, midjourneyJobId: string | null, midjourneyImageIndex: number | null, upscaledImageUrl: string | null, activeSplashArtCoordinates: ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtCoordinate | null };
 
 type ReviewWinnerAll_ReviewWinner_reviewWinnerArt_ReviewWinnerArt = (
   { __typename?: 'ReviewWinnerArt' }
