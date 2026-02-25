@@ -228,6 +228,7 @@ interface Mutation {
   NewUserCompleteProfile: NewUserCompletedProfile | null;
   UserExpandFrontpageSection: boolean | null;
   UserUpdateSubforumMembership: User | null;
+  karmaChangesChecked: boolean;
   setVotePost: Post | null;
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;

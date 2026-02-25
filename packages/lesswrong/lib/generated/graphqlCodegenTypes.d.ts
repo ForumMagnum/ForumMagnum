@@ -4481,6 +4481,7 @@ type Mutation = {
   importUrlAsDraftPost: ExternalPostImportData;
   increasePostViewCount?: Maybe<Scalars['Float']['output']>;
   initiateConversation?: Maybe<Conversation>;
+  karmaChangesChecked: Scalars['Boolean']['output'];
   lockThread: Scalars['Boolean']['output'];
   login?: Maybe<LoginReturnData>;
   logout?: Maybe<LoginReturnData>;
@@ -4986,6 +4987,12 @@ type MutationinitiateConversationArgs = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
   moderator?: InputMaybe<Scalars['Boolean']['input']>;
   participantIds: Array<Scalars['String']['input']>;
+};
+
+
+type MutationkarmaChangesCheckedArgs = {
+  endDate?: InputMaybe<Scalars['Date']['input']>;
+  startDate?: InputMaybe<Scalars['Date']['input']>;
 };
 
 
@@ -25133,6 +25140,17 @@ type KarmaChangeNotifierQueryVariables = Exact<{
 
 
 type KarmaChangeNotifierQuery = KarmaChangeNotifierQuery_Query;
+
+type karmaChangesCheckedKarmaChangeNotifierMutation_Mutation = { __typename?: 'Mutation', karmaChangesChecked: boolean };
+
+
+type karmaChangesCheckedKarmaChangeNotifierMutationVariables = Exact<{
+  startDate: InputMaybe<Scalars['Date']['input']>;
+  endDate: InputMaybe<Scalars['Date']['input']>;
+}>;
+
+
+type karmaChangesCheckedKarmaChangeNotifierMutation = karmaChangesCheckedKarmaChangeNotifierMutation_Mutation;
 
 type SubscribedUserQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
