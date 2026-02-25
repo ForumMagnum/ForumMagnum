@@ -81,14 +81,14 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#000",
+    color: "light-dark(#000, #fff)",
     textDecoration: "none",
     cursor: "pointer",
     "&:hover": {
       opacity: 0.67,
     },
     "&:focus-visible": {
-      outline: "1px solid #000",
+      outline: `1px solid light-dark(#000, #fff)`,
       outlineOffset: 2,
       borderRadius: 2,
     },
@@ -100,13 +100,13 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     padding: 0,
     border: "none",
     background: "none",
-    color: "#000",
+    color: "light-dark(#000, #fff)",
     cursor: "pointer",
     "&:hover": {
       opacity: 0.67,
     },
     "&:focus-visible": {
-      outline: "1px solid #000",
+      outline: `1px solid light-dark(#000, #fff)`,
       outlineOffset: 2,
       borderRadius: 2,
     },
@@ -122,7 +122,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "none",
     margin: "0 0 30px",
     padding: "30px 0 30px",
-    borderBottom: "1px solid rgba(140,110,70,.14)",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
   },
   mobileProfileName: {
     fontFamily: theme.typography.fontFamily,
@@ -218,7 +220,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
     gap: 25,
     paddingBottom: 30,
-    borderBottom: "1px solid rgba(140,110,70,.14)",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
     overflow: "visible",
     textDecoration: "none",
     color: "inherit",
@@ -256,7 +260,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "rgba(255,255,255,.87)",
+    color: theme.palette.type === "dark" ? "rgba(0,0,0,.92)" : "rgba(255,255,255,.87)",
     fontSize: 14,
     aspectRatio: "3 / 2",
     transition: "opacity 0.15s ease",
@@ -314,8 +318,12 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       width: "6em",
       height: "1lh",
       backgroundColor: theme.palette.background.profilePageBackground,
-      WebkitMaskImage: "linear-gradient(to right, transparent, black)",
-      maskImage: "linear-gradient(to right, transparent, black)",
+      WebkitMaskImage: theme.palette.type === "dark"
+        ? "linear-gradient(to right, transparent, white)"
+        : "linear-gradient(to right, transparent, black)",
+      maskImage: theme.palette.type === "dark"
+        ? "linear-gradient(to right, transparent, white)"
+        : "linear-gradient(to right, transparent, black)",
       pointerEvents: "none",
     },
   },
@@ -368,7 +376,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "rgba(255,255,255,.87)",
+    color: theme.palette.type === "dark" ? "rgba(0,0,0,.92)" : "rgba(255,255,255,.87)",
     fontSize: 12,
     borderRadius: 4,
     overflow: "hidden",
@@ -418,7 +426,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   listArticle: {
     padding: "14px 0 15px",
-    borderBottom: "1px solid rgba(140,110,70,.14)",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
     display: "block",
     transition: "opacity 0.15s ease",
     animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -526,8 +536,8 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       width: "5.2em",
       height: "1lh",
       backgroundColor: theme.palette.background.profilePageBackground,
-      WebkitMaskImage: "linear-gradient(to right, transparent, black)",
-      maskImage: "linear-gradient(to right, transparent, black)",
+      WebkitMaskImage: "linear-gradient(to right, transparent, light-dark(black, white))",
+      maskImage: "linear-gradient(to right, transparent, light-dark(black, white))",
       pointerEvents: "none",
     },
   },
@@ -771,7 +781,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   sequenceCardImage: {
     width: "100%",
     aspectRatio: "5 / 2",
-    backgroundColor: "#fcfbf8",
+    backgroundColor: "light-dark(#fcfbf8, #262626)",
     backgroundSize: "cover",
     backgroundPosition: "center",
     borderRadius: 4,
