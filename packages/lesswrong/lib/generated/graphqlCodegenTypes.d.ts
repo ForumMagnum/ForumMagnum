@@ -20449,6 +20449,38 @@ type multiUserUserReviewsQueryQueryVariables = Exact<{
 
 type multiUserUserReviewsQueryQuery = multiUserUserReviewsQueryQuery_Query;
 
+type createSplashArtCoordinateCarouselViewMutation_createSplashArtCoordinate_SplashArtCoordinateOutput_data_SplashArtCoordinate = (
+  { __typename?: 'SplashArtCoordinate' }
+  & SplashArtCoordinatesEdit
+);
+
+type createSplashArtCoordinateCarouselViewMutation_createSplashArtCoordinate_SplashArtCoordinateOutput = { __typename?: 'SplashArtCoordinateOutput', data: createSplashArtCoordinateCarouselViewMutation_createSplashArtCoordinate_SplashArtCoordinateOutput_data_SplashArtCoordinate | null };
+
+type createSplashArtCoordinateCarouselViewMutation_Mutation = { __typename?: 'Mutation', createSplashArtCoordinate: createSplashArtCoordinateCarouselViewMutation_createSplashArtCoordinate_SplashArtCoordinateOutput | null };
+
+
+type createSplashArtCoordinateCarouselViewMutationVariables = Exact<{
+  data: CreateSplashArtCoordinateDataInput;
+}>;
+
+
+type createSplashArtCoordinateCarouselViewMutation = createSplashArtCoordinateCarouselViewMutation_Mutation;
+
+type upscaleReviewWinnerArtCarouselViewMutation_upscaleReviewWinnerArt_ReviewWinnerArt = (
+  { __typename?: 'ReviewWinnerArt' }
+  & ReviewWinnerArtImages
+);
+
+type upscaleReviewWinnerArtCarouselViewMutation_Mutation = { __typename?: 'Mutation', upscaleReviewWinnerArt: upscaleReviewWinnerArtCarouselViewMutation_upscaleReviewWinnerArt_ReviewWinnerArt | null };
+
+
+type upscaleReviewWinnerArtCarouselViewMutationVariables = Exact<{
+  reviewWinnerArtId: Scalars['String']['input'];
+}>;
+
+
+type upscaleReviewWinnerArtCarouselViewMutation = upscaleReviewWinnerArtCarouselViewMutation_Mutation;
+
 type updateRevisionCompareRevisionsMutation_updateRevision_RevisionOutput_data_Revision = (
   { __typename?: 'Revision' }
   & RevisionEdit

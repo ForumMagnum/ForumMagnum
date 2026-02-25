@@ -30,6 +30,8 @@ import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { gql } from '@/lib/generated/gql-codegen';
 import { runQuery } from '@/server/vulcan-lib/query';
 import { writeFile, readFile } from 'fs/promises';
+import sharp from 'sharp';
+import { executePromiseQueue } from '@/lib/utils/asyncUtils';
 
 // ── Configuration ────────────────────────────────────────────────────
 
@@ -386,7 +388,8 @@ async function generateAndUpscaleImage(prompt: string, referenceImageUrl: string
 // Each job produces 4 images (batch_size 4).
 
 const MJ_CDN_BASE = "https://cdn.midjourney.com";
-const MJ_CHANNEL_ID = "singleplayer_15e7b155-feeb-4d9e-a0c7-376cd27758eb";
+const MJ_USER_ID = "15e7b155-feeb-4d9e-a0c7-376cd27758eb";
+const MJ_CHANNEL_ID = `singleplayer_${MJ_USER_ID}`;
 const MJ_BRIDGE_PORT = 7878;
 
 // Fixed prompt template. Only the illustration description varies.
@@ -666,73 +669,89 @@ function fetchJsonViaBridge(url: string): Promise<unknown> {
   });
 }
 
+/**
+ * Wait for a Midjourney job to complete by long-polling the /api/imagine-update
+ * endpoint, then collect CDN image URLs. This avoids polling the CDN directly
+ * (which can poison a 4-hour negative cache if we check too early).
+ */
 async function pollMidjourneyCompletion(
   jobId: string,
   batchSize: number,
-  initialDelayMs = 35_000,
-  pollIntervalMs = 5_000,
+  _initialDelayMs = 35_000,
+  _pollIntervalMs = 5_000,
   timeoutMs = 300_000
 ): Promise<string[]> {
+  // Step 1: Get a checkpoint from the /api/imagine endpoint, then long-poll
+  // /api/imagine-update until our job appears in the response.
   // eslint-disable-next-line no-console
-  console.log(`Waiting ${initialDelayMs / 1000}s before polling CDN...`);
-  await new Promise((resolve) => setTimeout(resolve, initialDelayMs));
+  console.log(`Waiting for job ${jobId} to complete via API polling...`);
 
   const startTime = Date.now();
 
-  // Wait for images to become available on the CDN. The CDN transcodes to
-  // multiple formats (.png, .webp, .jpeg) asynchronously, and which
-  // index/format appears first is unpredictable. We check ALL indices and
-  // formats each poll cycle, and once any image is ready we give an extra
-  // delay for the rest to finish transcoding, then collect what's available.
-  const IMAGE_FORMATS = ["png", "webp", "jpeg"];
+  // Get the current checkpoint
+  const initialResp = await fetchJsonViaBridge(
+    `/api/imagine?user_id=${MJ_USER_ID}&page_size=1`
+  ) as { data: Array<{ id: string }>; checkpoint: string };
 
-  while (Date.now() - startTime < timeoutMs) {
-    try {
-      // Check if ANY image is available yet
-      let anyReady = false;
-      for (let i = 0; i < batchSize && !anyReady; i++) {
-        for (const ext of IMAGE_FORMATS) {
-          const result = await checkCdnViaBridge(`${MJ_CDN_BASE}/${jobId}/0_${i}.${ext}`);
-          if (result.ok) {
-            anyReady = true;
-            break;
-          }
-        }
-      }
-      if (anyReady) {
-        // At least one image is ready. Wait a bit for the rest to finish
-        // transcoding, then collect all available URLs.
-        // eslint-disable-next-line no-console
-        console.log("First image detected, waiting 25s for remaining images to transcode...");
-        await new Promise((resolve) => setTimeout(resolve, 25_000));
+  // Check if the job is already in the initial response
+  if (initialResp.data.some(j => j.id === jobId)) {
+    // eslint-disable-next-line no-console
+    console.log(`Job ${jobId} already complete in initial fetch`);
+  } else {
+    let checkpoint = initialResp.checkpoint;
 
-        const urls: string[] = [];
-        for (let i = 0; i < batchSize; i++) {
-          let found = false;
-          for (const ext of IMAGE_FORMATS) {
-            const url = `${MJ_CDN_BASE}/${jobId}/0_${i}.${ext}`;
-            const check = await checkCdnViaBridge(url);
-            if (check.ok) {
-              urls.push(url);
-              found = true;
-              break;
-            }
-          }
-          if (!found) {
-            // eslint-disable-next-line no-console
-            console.warn(`Image ${i} not available in any format for job ${jobId}, skipping`);
-          }
+    while (Date.now() - startTime < timeoutMs) {
+      try {
+        const updateResp = await fetchJsonViaBridge(
+          `/api/imagine-update?user_id=${MJ_USER_ID}&page_size=1000&checkpoint=${encodeURIComponent(checkpoint)}`
+        ) as { data: Array<{ id: string }>; checkpoint: string };
+
+        if (updateResp.checkpoint) {
+          checkpoint = updateResp.checkpoint;
         }
-        return urls;
+
+        if (updateResp.data?.some(j => j.id === jobId)) {
+          // eslint-disable-next-line no-console
+          console.log(`Job ${jobId} confirmed complete via API`);
+          break;
+        }
+      } catch {
+        // Bridge error, will retry
       }
-    } catch {
-      // Bridge error, will retry
+
+      await new Promise((resolve) => setTimeout(resolve, 3_000));
     }
 
-    await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+    if (Date.now() - startTime >= timeoutMs) {
+      throw new Error(`Midjourney job ${jobId} timed out after ${timeoutMs / 1000}s`);
+    }
   }
 
-  throw new Error(`Midjourney job ${jobId} timed out after ${timeoutMs / 1000}s`);
+  // Step 2: Job is confirmed complete. Wait a bit for CDN transcoding,
+  // then collect URLs. Since the job is done, images should appear quickly.
+  // eslint-disable-next-line no-console
+  console.log("Job complete, waiting 5s for CDN transcoding...");
+  await new Promise((resolve) => setTimeout(resolve, 5_000));
+
+  const IMAGE_FORMATS = ["png", "webp", "jpeg"];
+  const urls: string[] = [];
+  for (let i = 0; i < batchSize; i++) {
+    let found = false;
+    for (const ext of IMAGE_FORMATS) {
+      const url = `${MJ_CDN_BASE}/${jobId}/0_${i}.${ext}`;
+      const check = await checkCdnViaBridge(url);
+      if (check.ok) {
+        urls.push(url);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      // eslint-disable-next-line no-console
+      console.warn(`Image ${i} not available in any format for job ${jobId}, skipping`);
+    }
+  }
+  return urls;
 }
 
 // ── Midjourney upscale ────────────────────────────────────────────────
@@ -1110,8 +1129,6 @@ export const previewIllustrations = async (postId: string, count = 3): Promise<s
 // Usage via repl:
 //   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'scrapeMidjourneyJobs("top-job-id", "bottom-job-id")'
 
-const MJ_USER_ID = "15e7b155-feeb-4d9e-a0c7-376cd27758eb";
-
 interface MjApiJob {
   id: string;
   full_command: string;
@@ -1230,9 +1247,70 @@ interface MjJobInfo {
   batchSize: number;
 }
 
+const MATCH_SIZE = 64;
+const BRIDGE_CONCURRENCY = 8;
+const CLOUDINARY_CONCURRENCY = 10;
+
+interface PixelBuffer {
+  jobId: string;
+  index: number;
+  pixels: Buffer;
+}
+
+async function downloadMjThumbnail(img: { jobId: string; index: number; url: string }): Promise<PixelBuffer | null> {
+  try {
+    const dataUrl = await downloadViaBridge(img.url);
+    const { buffer } = parseDataUri(dataUrl);
+    const pixels = await sharp(buffer).resize(MATCH_SIZE, MATCH_SIZE).raw().toBuffer();
+    return { jobId: img.jobId, index: img.index, pixels };
+  } catch {
+    // eslint-disable-next-line no-console
+    console.warn(`Failed to download MJ thumbnail: ${img.url}`);
+    return null;
+  }
+}
+
+async function downloadCloudinaryThumbnail(art: DbReviewWinnerArt): Promise<{ artId: string; pixels: Buffer } | null> {
+  try {
+    const cloudinarySmall = art.splashArtImageUrl.includes('cloudinary.com')
+      ? art.splashArtImageUrl.replace('/upload/', '/upload/w_128/')
+      : art.splashArtImageUrl;
+
+    const resp = await fetch(cloudinarySmall);
+    if (!resp.ok) {
+      // eslint-disable-next-line no-console
+      console.warn(`Failed to fetch Cloudinary image for art ${art._id}`);
+      return null;
+    }
+    const artBuffer = Buffer.from(await resp.arrayBuffer());
+    const pixels = await sharp(artBuffer).resize(MATCH_SIZE, MATCH_SIZE).raw().toBuffer();
+    return { artId: art._id, pixels };
+  } catch {
+    // eslint-disable-next-line no-console
+    console.warn(`Error downloading Cloudinary image for art ${art._id}`);
+    return null;
+  }
+}
+
+function findBestMseMatch(artPixels: Buffer, candidates: PixelBuffer[]): { jobId: string; index: number; mse: number } | null {
+  let bestMatch: { jobId: string; index: number; mse: number } | null = null;
+  for (const mj of candidates) {
+    let sumSq = 0;
+    for (let i = 0; i < artPixels.length; i++) {
+      const diff = artPixels[i] - mj.pixels[i];
+      sumSq += diff * diff;
+    }
+    const mse = sumSq / artPixels.length;
+    if (!bestMatch || mse < bestMatch.mse) {
+      bestMatch = { jobId: mj.jobId, index: mj.index, mse };
+    }
+  }
+  return bestMatch;
+}
+
 export async function backfillMidjourneyMetadata() {
   const mjJobs = JSON.parse(await readFile('mj-jobs.json', 'utf8')) as MjJobInfo[];
-  
+
   // Fetch all ReviewWinnerArt records without MJ metadata
   const allArts = await ReviewWinnerArts.find({
     midjourneyJobId: null,
@@ -1284,11 +1362,10 @@ export async function backfillMidjourneyMetadata() {
       continue;
     }
 
-    // For each job, build a list of CDN URLs for each image in the batch
+    // Build list of CDN thumbnail URLs for all images in this prompt group
     const jobImages: Array<{ jobId: string; index: number; url: string }> = [];
     for (const job of jobs) {
       for (let i = 0; i < job.batchSize; i++) {
-        // Use the small thumbnail for faster comparison
         jobImages.push({
           jobId: job.jobId,
           index: i,
@@ -1297,76 +1374,71 @@ export async function backfillMidjourneyMetadata() {
       }
     }
 
-    // Download MJ thumbnails and Cloudinary thumbnails, then match by pixel similarity.
-    // We use a simple approach: download both sets of images and compare pixel buffers.
-    const sharp = (await import('sharp')).default;
+    // Download MJ thumbnails in parallel via bridge
+    const mjResults = await executePromiseQueue(
+      jobImages.map((img) => () => downloadMjThumbnail(img)),
+      BRIDGE_CONCURRENCY
+    );
+    const mjPixelBuffers = mjResults.filter((r): r is PixelBuffer => r !== null);
 
-    // Download MJ images as raw pixel buffers (resized to a common small size)
-    const MATCH_SIZE = 64;
-    const mjPixelBuffers: Array<{ jobId: string; index: number; pixels: Buffer }> = [];
-    for (const img of jobImages) {
-      try {
-        const dataUrl = await downloadViaBridge(img.url);
-        const { buffer } = parseDataUri(dataUrl);
-        const pixels = await sharp(buffer).resize(MATCH_SIZE, MATCH_SIZE).raw().toBuffer();
-        mjPixelBuffers.push({ jobId: img.jobId, index: img.index, pixels });
-      } catch {
-        // eslint-disable-next-line no-console
-        console.warn(`Failed to download MJ thumbnail: ${img.url}`);
+    // Download Cloudinary thumbnails in parallel (server-side fetch)
+    const cloudinaryResults = await executePromiseQueue(
+      arts.map((art) => () => downloadCloudinaryThumbnail(art)),
+      CLOUDINARY_CONCURRENCY
+    );
+
+    // Build a map from artId -> pixels for successful downloads
+    const artPixelsMap = new Map<string, Buffer>();
+    for (const result of cloudinaryResults) {
+      if (result) {
+        artPixelsMap.set(result.artId, result.pixels);
       }
     }
 
-    // Download Cloudinary thumbnails and compare
+    // Greedy matching with removal: match each art to the best MJ candidate,
+    // then remove that candidate so it can't be reused
+    const remainingCandidates = [...mjPixelBuffers];
+    const pendingUpdates: Array<{ artId: string; jobId: string; imageIndex: number }> = [];
+
     for (const art of arts) {
-      try {
-        // Use a small Cloudinary thumbnail
-        const cloudinarySmall = art.splashArtImageUrl.includes('cloudinary.com')
-          ? art.splashArtImageUrl.replace('/upload/', '/upload/w_128/')
-          : art.splashArtImageUrl;
+      const artPixels = artPixelsMap.get(art._id);
+      if (!artPixels) {
+        unmatchedCount++;
+        continue;
+      }
 
-        const resp = await fetch(cloudinarySmall);
-        if (!resp.ok) {
-          // eslint-disable-next-line no-console
-          console.warn(`Failed to fetch Cloudinary image for art ${art._id}`);
-          unmatchedCount++;
-          continue;
-        }
-        const artBuffer = Buffer.from(await resp.arrayBuffer());
-        const artPixels = await sharp(artBuffer).resize(MATCH_SIZE, MATCH_SIZE).raw().toBuffer();
+      const bestMatch = findBestMseMatch(artPixels, remainingCandidates);
 
-        // Find best match among MJ images by mean squared error
-        let bestMatch: { jobId: string; index: number; mse: number } | null = null;
-        for (const mj of mjPixelBuffers) {
-          let sumSq = 0;
-          for (let i = 0; i < artPixels.length; i++) {
-            const diff = artPixels[i] - mj.pixels[i];
-            sumSq += diff * diff;
-          }
-          const mse = sumSq / artPixels.length;
-          if (!bestMatch || mse < bestMatch.mse) {
-            bestMatch = { jobId: mj.jobId, index: mj.index, mse };
-          }
+      if (bestMatch && bestMatch.mse < 500) {
+        // Remove matched candidate from pool
+        const matchIdx = remainingCandidates.findIndex(
+          (c) => c.jobId === bestMatch.jobId && c.index === bestMatch.index
+        );
+        if (matchIdx !== -1) {
+          remainingCandidates.splice(matchIdx, 1);
         }
 
-        if (bestMatch && bestMatch.mse < 500) {
-          await ReviewWinnerArts.rawUpdateOne(
-            { _id: art._id },
-            { $set: { midjourneyJobId: bestMatch.jobId, midjourneyImageIndex: bestMatch.index } }
-          );
-          matchedCount++;
-          // eslint-disable-next-line no-console
-          console.log(`Matched art ${art._id} -> job ${bestMatch.jobId}[${bestMatch.index}] (MSE: ${bestMatch.mse.toFixed(1)})`);
-        } else {
-          unmatchedCount++;
-          // eslint-disable-next-line no-console
-          console.warn(`No good match for art ${art._id} (best MSE: ${bestMatch?.mse.toFixed(1) ?? 'N/A'})`);
-        }
-      } catch (err) {
+        pendingUpdates.push({ artId: art._id, jobId: bestMatch.jobId, imageIndex: bestMatch.index });
+        matchedCount++;
+        // eslint-disable-next-line no-console
+        console.log(`Matched art ${art._id} -> job ${bestMatch.jobId}[${bestMatch.index}] (MSE: ${bestMatch.mse.toFixed(1)})`);
+      } else {
         unmatchedCount++;
         // eslint-disable-next-line no-console
-        console.error(`Error matching art ${art._id}:`, err);
+        console.warn(`No good match for art ${art._id} (best MSE: ${bestMatch?.mse.toFixed(1) ?? 'N/A'})`);
       }
     }
+
+    // Write all DB updates for this prompt group in parallel
+    await executePromiseQueue(
+      pendingUpdates.map((u) => () =>
+        ReviewWinnerArts.rawUpdateOne(
+          { _id: u.artId },
+          { $set: { midjourneyJobId: u.jobId, midjourneyImageIndex: u.imageIndex } }
+        )
+      ),
+      10
+    );
   }
 
   // eslint-disable-next-line no-console

@@ -3,7 +3,7 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import groupBy from "lodash/groupBy";
 import { useImageContext } from "../ImageContext";
 import GenerateImagesButton from "@/components/review/GenerateImagesButton";
-import { artPrompt } from '@/lib/collections/reviewWinnerArts/constants';
+import { cleanPromptForDisplay } from '@/components/review/reviewAdminViews/types';
 import classNames from "classnames";
 import LWTooltip from "../../../common/LWTooltip";
 import { useMutation } from "@apollo/client/react";
@@ -44,6 +44,7 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
     maxWidth: "100%",
     borderTop: theme.palette.border.normal,
     paddingTop: 10,
+    marginTop: 3,
   },
   postWrapper: {
     display: 'flex',
@@ -53,11 +54,11 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
     ...theme.typography.body2,
   },
   image: {
-    width: '200px',
-    maxWidth: '100%',
-    height: 'auto',
+    width: '100%',
+    height: 100,
+    objectFit: 'cover',
     cursor: 'pointer',
-    paddingRight: 5,
+    display: 'block',
   },
   imageTooltipContainer: {
     width: 800,
@@ -76,14 +77,12 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
   },
   imageWrapper: {
     position: 'relative',
+    width: 200,
   },
   imageId: {
     ...theme.typography.body2,
     color: theme.palette.grey[400],
     fontSize: 10,
-    position: 'absolute',
-    bottom: 2,
-    left: 2,
   },
   content: {
     marginLeft: 10,
@@ -91,31 +90,33 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
   selectedImage: {
     border: `2px solid ${theme.palette.grey[900]}`,
   },
+  imageActions: {
+    display: 'flex',
+    gap: 6,
+    marginTop: 3,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   upscaleBadge: {
     ...theme.typography.body2,
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 600,
-    position: 'absolute',
-    top: 2,
-    right: 8,
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.text.alwaysWhite,
-    padding: '1px 4px',
+    padding: '1px 6px',
     borderRadius: 3,
   },
   upscaleButton: {
     ...theme.typography.body2,
-    fontSize: 10,
-    position: 'absolute',
-    top: 2,
-    right: 8,
+    fontSize: 11,
     cursor: 'pointer',
     color: theme.palette.primary.main,
-    backgroundColor: theme.palette.greyAlpha(0.05),
-    padding: '1px 4px',
+    backgroundColor: theme.palette.greyAlpha(0.08),
+    padding: '2px 8px',
     borderRadius: 3,
+    border: 'none',
     '&:hover': {
-      backgroundColor: theme.palette.greyAlpha(0.15),
+      backgroundColor: theme.palette.greyAlpha(0.18),
     },
   },
 }));
@@ -203,7 +204,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
     {!defaultExpanded && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>{expanded ? 'Collapse' : `Expand (${images.length})`}</div>}
 
     {expanded && Object.entries(imagesByPrompt).map(([prompt, promptImages]) => {
-      const corePrompt = prompt.split(artPrompt)[0]
+      const corePrompt = cleanPromptForDisplay(prompt)
       return <div key={prompt} className={classes.row}>
         <h3>{corePrompt}</h3>
         <div className={classes.content}>
@@ -228,20 +229,22 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
               return <LWTooltip key={image._id} title={tooltip} tooltip={false}>
                 <div className={classes.imageWrapper}>
                   <img className={classNames(classes.image, selectedImageInfo?._id === image._id && classes.selectedImage)} src={smallUrl} onClick={() => handleSaveCoordinates(image)} />
-                  <div className={classes.imageId}>
-                    {image._id}
+                  <div className={classes.imageActions}>
+                    <span className={classes.imageId}>{image._id}</span>
+                    <span>
+                      {image.upscaledImageUrl && (
+                        <span className={classes.upscaleBadge}>2x</span>
+                      )}
+                      {canUpscale && (
+                        <button
+                          className={classes.upscaleButton}
+                          onClick={(e) => handleUpscale(e, image)}
+                        >
+                          {isUpscaling ? 'Upscaling...' : 'Upscale'}
+                        </button>
+                      )}
+                    </span>
                   </div>
-                  {image.upscaledImageUrl && (
-                    <div className={classes.upscaleBadge}>2x</div>
-                  )}
-                  {canUpscale && (
-                    <div
-                      className={classes.upscaleButton}
-                      onClick={(e) => handleUpscale(e, image)}
-                    >
-                      {isUpscaling ? 'Upscaling...' : 'Upscale'}
-                    </div>
-                  )}
                 </div>
               </LWTooltip>
             })} 

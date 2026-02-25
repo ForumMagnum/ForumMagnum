@@ -5,6 +5,9 @@ export type ReviewWinnerImageInfo = {
   _id: string,
   splashArtImageUrl: string,
   splashArtImagePrompt: string | null,
+  upscaledImageUrl: string | null,
+  midjourneyJobId: string | null,
+  midjourneyImageIndex: number | null,
 }
 
 const ImageContext = createContext<{
