@@ -640,6 +640,7 @@ extend type Query {
   ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
   DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
   DigestPosts(num: Int): [Post!]
+  LastCuratedDate: LastCuratedDateResult!
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
   HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
@@ -655,6 +656,10 @@ type UserReadHistoryResult {
 
 type PostsUserCommentedOnResult {
   posts: [Post!]
+}
+
+type LastCuratedDateResult {
+  lastCuratedDate: Date
 }
 
 input PostReviewFilter {
@@ -824,6 +829,14 @@ type PostsWithApprovedJargonResult {
 
 extend type Query {
   PostsWithApprovedJargon(limit: Int): PostsWithApprovedJargonResult
+}
+
+type CurationCandidatePostsResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  CurationCandidatePosts(limit: Int): CurationCandidatePostsResult
 }
 
 extend type Mutation {

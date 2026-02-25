@@ -1192,6 +1192,42 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       LIMIT $1
     `, [limit]);
   }
+  getCurationCandidatePosts(limit: number): Promise<DbPost[]> {
+    return this.any(`
+      -- PostsRepo.getCurationCandidatePosts
+      SELECT p.*
+      FROM "Posts" p
+      WHERE p."draft" IS NOT TRUE
+        AND p."deletedDraft" IS NOT TRUE
+        AND p."status" = 2
+        AND p."curatedDate" IS NULL
+        AND (
+          (p."suggestForCuratedUserIds" IS NOT NULL
+            AND array_length(p."suggestForCuratedUserIds", 1) > 0
+            AND p."postedAt" > NOW() - INTERVAL '60 days')
+          OR
+          (p."baseScore" > 100
+            AND p."postedAt" > NOW() - INTERVAL '30 days')
+        )
+      ORDER BY (CASE WHEN EXISTS (
+        SELECT 1 FROM "CurationNotices" cn WHERE cn."postId" = p."_id" AND cn."deleted" IS NOT TRUE
+      ) THEN 0 ELSE 1 END),
+      COALESCE(array_length(p."suggestForCuratedUserIds", 1), 0) DESC,
+      p."postedAt" DESC
+      LIMIT $(limit)
+    `, { limit });
+  }
+  async getLastCuratedDate(): Promise<Date | null> {
+    const row = await this.oneOrNone(`
+      -- PostsRepo.getLastCuratedDate
+      SELECT p."curatedDate"
+      FROM "Posts" p
+      WHERE p."curatedDate" IS NOT NULL
+      ORDER BY p."curatedDate" DESC
+      LIMIT 1
+    `);
+    return row?.curatedDate ?? null;
+  }
 }
 
 recordPerfMetrics(PostsRepo);

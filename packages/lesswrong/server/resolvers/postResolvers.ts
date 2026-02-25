@@ -68,6 +68,15 @@ const {Query: CuratedAndPopularThisWeekQuery, typeDefs: CuratedAndPopularThisWee
   },
 });
 
+const {Query: CurationCandidatePostsQuery, typeDefs: CurationCandidatePostsTypeDefs } = createPaginatedResolver({
+  name: "CurationCandidatePosts",
+  graphQLType: "Post",
+  callback: async (
+    {repos}: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => repos.posts.getCurationCandidatePosts(limit),
+});
+
 const {Query: RecentlyActiveDialoguesQuery, typeDefs: RecentlyActiveDialoguesTypeDefs } = createPaginatedResolver({
   name: "RecentlyActiveDialogues",
   graphQLType: "Post",
@@ -474,6 +483,10 @@ export const postGqlQueries = {
   ...PostsWithActiveDiscussionQuery,
   ...PostsBySubscribedAuthorsQuery,
   ...PostsWithApprovedJargonQuery,
+  ...CurationCandidatePostsQuery,
+  async LastCuratedDate(_root: void, _args: {}, context: ResolverContext) {
+    return { lastCuratedDate: await context.repos.posts.getLastCuratedDate() };
+  },
 }
 
 export const postGqlMutations = {
@@ -635,6 +648,7 @@ export const postGqlTypeDefs = gql`
     DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
     DigestPosts(num: Int): [Post!]
 
+    LastCuratedDate: LastCuratedDateResult!
     HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
     HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
     HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
@@ -649,6 +663,9 @@ export const postGqlTypeDefs = gql`
   }
   type PostsUserCommentedOnResult {
     posts: [Post!]
+  }
+  type LastCuratedDateResult {
+    lastCuratedDate: Date
   }
 
   input PostReviewFilter {
@@ -739,4 +756,5 @@ export const postGqlTypeDefs = gql`
   ${PostsWithActiveDiscussionTypeDefs}
   ${PostsBySubscribedAuthorsTypeDefs}
   ${PostsWithApprovedJargonTypeDefs}
+  ${CurationCandidatePostsTypeDefs}
 `

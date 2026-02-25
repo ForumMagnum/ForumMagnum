@@ -1,7 +1,7 @@
 'use client';
 
 import groupBy from 'lodash/groupBy';
-import { getUserReviewGroup, getTabsInPriorityOrder, type ReviewGroup, REVIEW_GROUP_TO_PRIORITY } from './groupings';
+import { getUserReviewGroup, getTabsInPriorityOrder, type ReviewGroup, type TabId, REVIEW_GROUP_TO_PRIORITY } from './groupings';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
 
@@ -28,8 +28,10 @@ export type InboxState = {
   posts: SunshinePostsList[];
   // The local copy of auto-classified posts (mutated when actions complete)
   classifiedPosts: SunshinePostsList[];
+  // The local copy of curation candidate posts
+  curationPosts: SunshineCurationPostsList[];
   // Current active tab
-  activeTab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts';
+  activeTab: TabId;
   // Focused user in inbox view
   focusedUserId: string | null;
   // Opened user in detail view
@@ -49,7 +51,7 @@ export type InboxState = {
 export type InboxAction =
   | { type: 'OPEN_USER'; userId: string; }
   | { type: 'CLOSE_DETAIL'; }
-  | { type: 'CHANGE_TAB'; tab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts'; }
+  | { type: 'CHANGE_TAB'; tab: TabId; }
   | { type: 'NEXT_USER'; }
   | { type: 'PREV_USER'; }
   | { type: 'NEXT_POST'; }
@@ -73,7 +75,7 @@ export type InboxAction =
 
 export function getFilteredGroups(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
-  activeTab: ReviewGroup | 'all'
+  activeTab: TabId
 ): GroupEntry[] {
   const orderedGroups = (Object.entries(groupedUsers) as GroupEntry[])
     .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a]);
@@ -89,6 +91,7 @@ export function getVisibleTabsInOrder(
   totalUsers: number,
   totalPosts: number,
   totalClassifiedPosts: number,
+  totalCurationPosts: number,
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [];
@@ -99,6 +102,7 @@ export function getVisibleTabsInOrder(
     tabs.push({ group, count });
   }
   
+  tabs.unshift({ group: 'curation', count: totalCurationPosts });
   tabs.push({ group: 'all', count: totalUsers });
   tabs.push({ group: 'posts', count: totalPosts });
   tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
@@ -224,6 +228,17 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         };
       }
 
+      // Switching to curation tab
+      if (action.tab === 'curation') {
+        return {
+          ...state,
+          activeTab: 'curation',
+          focusedPostId: state.curationPosts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
       // Switching to a user tab
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, action.tab);
@@ -239,8 +254,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'NEXT_USER': {
-      // Don't navigate users when on posts tab or classified posts tab
-      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts') return state;
+      // Don't navigate users when on posts tab, classified posts tab, or curation tab
+      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
@@ -261,8 +276,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'PREV_USER': {
-      // Don't navigate users when on posts tab or classified posts tab
-      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts') return state;
+      // Don't navigate users when on posts tab, classified posts tab, or curation tab
+      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
@@ -286,7 +301,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.openedUserId) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, state.curationPosts.length);
 
       if (visibleTabs.length === 0) return state;
 
@@ -327,6 +342,17 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         };
       }
 
+      // If switching to curation tab
+      if (nextTab === 'curation') {
+        return {
+          ...state,
+          activeTab: 'curation',
+          focusedPostId: state.curationPosts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
       // Switching to a user tab
       const filteredGroups = getFilteredGroups(groupedUsers, nextTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
@@ -344,7 +370,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.openedUserId) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, state.curationPosts.length);
 
       if (visibleTabs.length === 0) return state;
 
@@ -385,6 +411,17 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         };
       }
 
+      // If switching to curation tab
+      if (prevTab === 'curation') {
+        return {
+          ...state,
+          activeTab: 'curation',
+          focusedPostId: state.curationPosts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
       // Switching to a user tab
       const filteredGroups = getFilteredGroups(groupedUsers, prevTab);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
@@ -415,7 +452,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'NEXT_POST': {
-      const currentPosts = state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts;
+      const currentPosts = state.activeTab === 'curation' ? state.curationPosts : state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts;
       if (currentPosts.length === 0) return state;
 
       const currentIndex = currentPosts.findIndex(p => p._id === state.focusedPostId);
@@ -426,7 +463,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'PREV_POST': {
-      const currentPosts = state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts;
+      const currentPosts = state.activeTab === 'curation' ? state.curationPosts : state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts;
       if (currentPosts.length === 0) return state;
 
       const currentIndex = currentPosts.findIndex(p => p._id === state.focusedPostId);
@@ -485,8 +522,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         };
       }
 
-      // If we're on posts tab or classified posts tab, just remove the user without changing focus
-      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts') {
+      // If we're on posts tab, classified posts tab, or curation tab, just remove the user without changing focus
+      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') {
         return {
           ...state,
           users: newUsers,
@@ -583,4 +620,3 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       return state;
   }
 }
-
