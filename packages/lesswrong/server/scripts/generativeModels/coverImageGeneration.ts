@@ -29,6 +29,7 @@ import { createSplashArtCoordinate } from '@/server/collections/splashArtCoordin
 import { REVIEW_YEAR } from '@/lib/reviewUtils';
 import { gql } from '@/lib/generated/gql-codegen';
 import { runQuery } from '@/server/vulcan-lib/query';
+import { writeFile, readFile } from 'fs/promises';
 
 // ── Configuration ────────────────────────────────────────────────────
 
@@ -419,7 +420,7 @@ import http from "http";
 
 interface PendingBridgeRequest {
   id: string;
-  type: "submit" | "cdn-check" | "download";
+  type: "submit" | "cdn-check" | "download" | "fetch-json";
   body?: object;
   url?: string;
   resolve: (value: unknown) => void;
@@ -536,6 +537,14 @@ export function getMjBridgeClientScript(): string {
             });
             response = { dataUrl };
             console.log('[MJ Bridge] Downloaded:', pending.url, blob.size, 'bytes');
+          } else if (pending.type === 'fetch-json') {
+            const resp = await fetch(pending.url, {
+              headers: { 'x-csrf-protection': '1' },
+              cache: 'no-store',
+            });
+            if (!resp.ok) throw new Error('Fetch failed: ' + resp.status);
+            response = await resp.json();
+            console.log('[MJ Bridge] Fetched JSON:', pending.url);
           }
           await fetch(BRIDGE + '/result', {
             method: 'POST',
@@ -634,6 +643,24 @@ export function downloadViaBridge(url: string): Promise<string> {
       type: "download",
       url,
       resolve: (value) => { clearTimeout(timeout); resolve((value as { dataUrl: string }).dataUrl); },
+      reject: (error) => { clearTimeout(timeout); reject(error); },
+    });
+  });
+}
+
+function fetchJsonViaBridge(url: string): Promise<unknown> {
+  const id = Math.random().toString(36).slice(2);
+
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error("JSON fetch timed out waiting for browser bridge"));
+    }, 30_000);
+
+    bridgeQueue.push({
+      id,
+      type: "fetch-json",
+      url,
+      resolve: (value) => { clearTimeout(timeout); resolve(value); },
       reject: (error) => { clearTimeout(timeout); reject(error); },
     });
   });
@@ -1074,6 +1101,119 @@ export const previewIllustrations = async (postId: string, count = 3): Promise<s
   return prompts;
 };
 
+// ── Scrape MJ jobs ───────────────────────────────────────────────────
+//
+// Fetches job metadata from Midjourney's /api/imagine endpoint via the
+// browser bridge. Paginates through all jobs between topJobId and
+// bottomJobId (inclusive), filtering for "imagine" jobs (not upscales).
+//
+// Usage via repl:
+//   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'scrapeMidjourneyJobs("top-job-id", "bottom-job-id")'
+
+const MJ_USER_ID = "15e7b155-feeb-4d9e-a0c7-376cd27758eb";
+
+interface MjApiJob {
+  id: string;
+  full_command: string;
+  batch_size: number;
+  parent_id: string | null;
+  parent_grid: number | null;
+  event_type: string;
+  enqueue_time: string;
+}
+
+interface MjApiResponse {
+  data: MjApiJob[];
+  cursor: string;
+}
+
+/**
+ * Scrapes all MJ jobs between topJobId (newest) and bottomJobId (oldest),
+ * inclusive. Returns only "imagine" jobs (no upscales/variations).
+ */
+export async function scrapeMidjourneyJobs(topJobId: string, bottomJobId: string): Promise<MjJobInfo[]> {
+  await startMidjourneyBridge();
+  // eslint-disable-next-line no-console
+  console.log("\n=== Paste this into your Midjourney browser tab console: ===\n");
+  // eslint-disable-next-line no-console
+  console.log(getMjBridgeClientScript());
+  // eslint-disable-next-line no-console
+  console.log("\n=============================================================\n");
+
+  const PAGE_SIZE = 1000;
+  const allJobs: MjApiJob[] = [];
+  let cursor: string | null = null;
+  let foundTop = false;
+  let foundBottom = false;
+
+  // eslint-disable-next-line no-console
+  console.log(`Scraping MJ jobs from ${topJobId} to ${bottomJobId}...`);
+
+  while (!foundBottom) {
+    const url = cursor
+      ? `/api/imagine?user_id=${MJ_USER_ID}&page_size=${PAGE_SIZE}&cursor=${encodeURIComponent(cursor)}`
+      : `/api/imagine?user_id=${MJ_USER_ID}&page_size=${PAGE_SIZE}`;
+
+    const response = await fetchJsonViaBridge(url) as MjApiResponse;
+    const jobs = response.data;
+
+    if (!jobs || jobs.length === 0) {
+      // eslint-disable-next-line no-console
+      console.warn("No more jobs returned from API, stopping pagination");
+      break;
+    }
+
+    for (const job of jobs) {
+      if (job.id === topJobId) {
+        foundTop = true;
+      }
+      if (foundTop) {
+        allJobs.push(job);
+      }
+      if (job.id === bottomJobId) {
+        foundBottom = true;
+        break;
+      }
+    }
+
+    if (!foundBottom) {
+      if (!response.cursor) {
+        // eslint-disable-next-line no-console
+        console.warn("No cursor in response, stopping pagination");
+        break;
+      }
+      cursor = response.cursor;
+      // eslint-disable-next-line no-console
+      console.log(`  Fetched ${jobs.length} jobs (${allJobs.length} in range so far), paginating...`);
+    }
+  }
+
+  if (!foundTop) {
+    // eslint-disable-next-line no-console
+    console.warn(`Warning: top job ID ${topJobId} was not found in the scraped jobs`);
+  }
+  if (!foundBottom) {
+    // eslint-disable-next-line no-console
+    console.warn(`Warning: bottom job ID ${bottomJobId} was not found in the scraped jobs`);
+  }
+
+  // Filter to only "imagine" jobs (exclude upscales, variations, etc.)
+  const imagineJobs = allJobs.filter(j => j.parent_id === null && j.event_type === 'diffusion');
+
+  const result: MjJobInfo[] = imagineJobs.map(j => ({
+    jobId: j.id,
+    prompt: j.full_command,
+    batchSize: j.batch_size,
+  }));
+
+  // eslint-disable-next-line no-console
+  console.log(`\nScraped ${allJobs.length} total jobs, ${result.length} are imagine jobs (no upscales/variations)`);
+
+  await writeFile('mj-jobs.json', JSON.stringify(result, null, 2));
+
+  return result;
+}
+
 // ── Backfill MJ metadata ─────────────────────────────────────────────
 //
 // For existing ReviewWinnerArt records that were created before we started
@@ -1082,7 +1222,7 @@ export const previewIllustrations = async (postId: string, count = 3): Promise<s
 // MJ website) and matches them to existing records by prompt + image comparison.
 //
 // Usage via repl:
-//   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'backfillMidjourneyMetadata([{jobId: "abc-123", prompt: "...", batchSize: 4}, ...])'
+//   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'backfillMidjourneyMetadata(await scrapeMidjourneyJobs("top-id", "bottom-id"))'
 
 interface MjJobInfo {
   jobId: string;
@@ -1090,7 +1230,9 @@ interface MjJobInfo {
   batchSize: number;
 }
 
-export async function backfillMidjourneyMetadata(mjJobs: MjJobInfo[]) {
+export async function backfillMidjourneyMetadata() {
+  const mjJobs = JSON.parse(await readFile('mj-jobs.json', 'utf8')) as MjJobInfo[];
+  
   // Fetch all ReviewWinnerArt records without MJ metadata
   const allArts = await ReviewWinnerArts.find({
     midjourneyJobId: null,
@@ -1099,20 +1241,27 @@ export async function backfillMidjourneyMetadata(mjJobs: MjJobInfo[]) {
   // eslint-disable-next-line no-console
   console.log(`Found ${allArts.length} ReviewWinnerArt records without MJ metadata`);
 
-  // Group arts by prompt
+  // Strip MJ parameters (--no, --sref, --ar, --v, --profile, etc.) from
+  // a prompt to get just the illustration description. MJ's API normalizes
+  // parameters (e.g. "--v 7" becomes "--v 7.0") so we can't match on them.
+  const stripMjParams = (prompt: string) => prompt.replace(/\s+--\S+(\s+\S+)*/g, '').trim();
+
+  // Group arts by normalized prompt
   const artsByPrompt = new Map<string, DbReviewWinnerArt[]>();
   for (const art of allArts) {
-    const existing = artsByPrompt.get(art.splashArtImagePrompt) ?? [];
+    const key = stripMjParams(art.splashArtImagePrompt);
+    const existing = artsByPrompt.get(key) ?? [];
     existing.push(art);
-    artsByPrompt.set(art.splashArtImagePrompt, existing);
+    artsByPrompt.set(key, existing);
   }
 
-  // Group MJ jobs by prompt
+  // Group MJ jobs by normalized prompt
   const jobsByPrompt = new Map<string, MjJobInfo[]>();
   for (const job of mjJobs) {
-    const existing = jobsByPrompt.get(job.prompt) ?? [];
+    const key = stripMjParams(job.prompt);
+    const existing = jobsByPrompt.get(key) ?? [];
     existing.push(job);
-    jobsByPrompt.set(job.prompt, existing);
+    jobsByPrompt.set(key, existing);
   }
 
   await startMidjourneyBridge();
