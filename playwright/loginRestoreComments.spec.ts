@@ -25,6 +25,13 @@ test("restores expanded frontpage comments after login reload", async ({page, co
 
   await firstPostItem.locator(".PostsItemComments-commentsIconLarge").click();
   await expect(firstPostItem.locator(".LWPostsItem-newCommentsSection")).toBeVisible();
+  const storageStateBeforeLogin = await page.evaluate(() => {
+    return {
+      state: window.sessionStorage.getItem("frontpageLoginRestoreState_v1"),
+      pending: window.sessionStorage.getItem("frontpageLoginRestorePending_v1"),
+    };
+  });
+  expect(storageStateBeforeLogin.state).toContain(firstPostId);
 
   await page.getByTestId("user-signup-button").click();
   await page.getByPlaceholder("username or email").fill(user.email);
