@@ -28,8 +28,9 @@ test("restores expanded frontpage comments after login reload", async ({page, co
 
   await page.getByTestId("user-signup-button").click();
   await page.getByPlaceholder("username or email").fill(user.email);
-  await page.getByPlaceholder("password").fill(user.password);
-  await page.locator('input[type="submit"][value="Log In"]').click();
+  const passwordInput = page.getByPlaceholder("password");
+  await passwordInput.fill(user.password);
+  await passwordInput.press("Enter");
 
   await expect(page.getByTestId("user-signup-button")).not.toBeVisible();
 
