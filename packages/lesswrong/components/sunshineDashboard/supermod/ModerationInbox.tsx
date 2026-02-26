@@ -201,7 +201,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
       const firstTab = firstNonEmptyTab?.group ?? 'curation';
 
       if (firstTab === 'curation') {
-        return {
+        return { 
           users: initialUsers,
           posts,
           classifiedPosts,
