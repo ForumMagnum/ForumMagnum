@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import groupBy from 'lodash/groupBy';
@@ -7,19 +7,12 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import Loading from "../vulcan-core/Loading";
-import classNames from 'classnames';
 import {
   getActiveImage,
   getPostStatus,
-  type AdminViewName,
-  VIEW_LABELS,
   type ReviewPostWithStatus,
 } from './reviewAdminViews/types';
-import { PipelineView } from './reviewAdminViews/PipelineView';
 import { FocusedView } from './reviewAdminViews/FocusedView';
-import { GalleryView } from './reviewAdminViews/GalleryView';
-import { TableView } from './reviewAdminViews/TableView';
-import { CarouselView } from './reviewAdminViews/CarouselView';
 
 const ReviewWinnerArtImagesMultiQuery = gql(`
   query multiReviewWinnerArtBestOfLessWrongAdminQuery($selector: ReviewWinnerArtSelector, $limit: Int, $enableTotal: Boolean) {
@@ -40,37 +33,10 @@ const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
   },
   header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: 16,
-    flexWrap: 'wrap',
-    gap: 12,
   },
   title: {
     margin: 0,
-  },
-  tabBar: {
-    display: 'flex',
-    gap: 4,
-  },
-  tab: {
-    padding: '6px 16px',
-    border: 'none',
-    borderRadius: 4,
-    cursor: 'pointer',
-    ...theme.typography.body2,
-    fontWeight: 500,
-    backgroundColor: 'transparent',
-    color: theme.palette.grey[600],
-    '&:hover': {
-      backgroundColor: theme.palette.greyAlpha(0.08),
-    },
-  },
-  tabActive: {
-    backgroundColor: theme.palette.greyAlpha(0.12),
-    color: theme.palette.grey[900],
-    fontWeight: 600,
   },
   stats: {
     display: 'flex',
@@ -93,18 +59,9 @@ const styles = defineStyles("BestOfLessWrongAdmin", (theme: ThemeType) => ({
   },
 }));
 
-const VIEW_COMPONENTS: Record<AdminViewName, React.ComponentType<import('./reviewAdminViews/types').AdminViewProps>> = {
-  pipeline: PipelineView,
-  focused: FocusedView,
-  gallery: GalleryView,
-  table: TableView,
-  carousel: CarouselView,
-};
-
 export const BestOfLessWrongAdmin = ({year}: {year: string}) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const [activeView, setActiveView] = useState<AdminViewName>('focused');
 
   const { data, loading: reviewWinnersLoading } = useQuery(gql(`
     query BestOfLessWrongAdmin {
@@ -113,7 +70,8 @@ export const BestOfLessWrongAdmin = ({year}: {year: string}) => {
       }
     }
   `));
-  const reviewWinners = data?.GetAllReviewWinners ?? [];
+  
+  const reviewWinners = useMemo(() => data?.GetAllReviewWinners ?? [], [data]);
 
   const { data: dataReviewWinnerArtImages, loading: imagesLoading, refetch: refetchImages } = useQuery(ReviewWinnerArtImagesMultiQuery, {
     variables: {
@@ -153,22 +111,10 @@ export const BestOfLessWrongAdmin = ({year}: {year: string}) => {
   }
 
   const loading = reviewWinnersLoading || imagesLoading;
-  const ActiveViewComponent = VIEW_COMPONENTS[activeView];
 
   return <div className={classes.root}>
     <div className={classes.header}>
       <h1 className={classes.title}>Best of LessWrong Admin — {year}</h1>
-      <div className={classes.tabBar}>
-        {(Object.keys(VIEW_LABELS) as AdminViewName[]).map(view => (
-          <button
-            key={view}
-            className={classNames(classes.tab, activeView === view && classes.tabActive)}
-            onClick={() => setActiveView(view)}
-          >
-            {VIEW_LABELS[view]}
-          </button>
-        ))}
-      </div>
     </div>
     <div className={classes.stats}>
       <span className={classes.statItem}>
@@ -192,7 +138,7 @@ export const BestOfLessWrongAdmin = ({year}: {year: string}) => {
       </span>
     </div>
     {loading && <Loading />}
-    <ActiveViewComponent posts={posts} refetchImages={refetchImages} loading={loading} />
+    <FocusedView posts={posts} refetchImages={refetchImages} loading={loading} />
   </div>;
 };
 

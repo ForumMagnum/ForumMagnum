@@ -17,8 +17,29 @@ export interface AdminViewProps {
   loading: boolean;
 }
 
-// Defaults from PostWithArtGrid (set when clicking "select" on an image)
-const SELECTION_DEFAULT_COORDINATES = {
+// Defaults from PostWithArtGrid (set when clicking "select" on an image).
+// widthPct of 0.17 gives a strip of ~51% image width (0.17 * 3), centered.
+export const SELECTION_DEFAULT_COORDINATES = {
+  leftXPct: 0.25,
+  leftYPct: 0.25,
+  leftWidthPct: 0.17,
+  leftHeightPct: 0.75,
+  leftFlipped: true,
+  middleXPct: 0.42,
+  middleYPct: 0.25,
+  middleWidthPct: 0.17,
+  middleHeightPct: 0.75,
+  middleFlipped: false,
+  rightXPct: 0.59,
+  rightYPct: 0.25,
+  rightWidthPct: 0.17,
+  rightHeightPct: 0.75,
+  rightFlipped: false,
+} as const;
+
+// Previous selection defaults (widthPct 0.33, saved by the old selection flow).
+// Still treated as "not custom" so posts with these coords show as "needs coordinates".
+const OLD_SELECTION_DEFAULT_COORDINATES = {
   leftXPct: 0.33,
   leftYPct: 0.15,
   leftWidthPct: 0.33,
@@ -55,7 +76,11 @@ const GENERATION_DEFAULT_COORDINATES = {
   rightFlipped: false,
 } as const;
 
-type CoordDefaults = typeof SELECTION_DEFAULT_COORDINATES;
+interface CoordDefaults {
+  leftXPct: number; leftYPct: number; leftWidthPct: number; leftHeightPct: number; leftFlipped: boolean;
+  middleXPct: number; middleYPct: number; middleWidthPct: number; middleHeightPct: number; middleFlipped: boolean;
+  rightXPct: number; rightYPct: number; rightWidthPct: number; rightHeightPct: number; rightFlipped: boolean;
+}
 
 function matchesDefaults(coords: SplashArtCoordinatesEdit, defaults: CoordDefaults): boolean {
   for (const key of Object.keys(defaults) as Array<keyof CoordDefaults>) {
@@ -72,6 +97,7 @@ function matchesDefaults(coords: SplashArtCoordinatesEdit, defaults: CoordDefaul
 
 export function hasCustomCoordinates(coords: SplashArtCoordinatesEdit): boolean {
   return !matchesDefaults(coords, SELECTION_DEFAULT_COORDINATES)
+    && !matchesDefaults(coords, OLD_SELECTION_DEFAULT_COORDINATES)
     && !matchesDefaults(coords, GENERATION_DEFAULT_COORDINATES);
 }
 
@@ -121,12 +147,4 @@ export const STATUS_COLORS: Record<PostProcessingStatus, string> = {
   'review': '#43a047',
 };
 
-export type AdminViewName = 'pipeline' | 'focused' | 'gallery' | 'table' | 'carousel';
 
-export const VIEW_LABELS: Record<AdminViewName, string> = {
-  pipeline: 'Pipeline',
-  focused: 'Focused',
-  gallery: 'Gallery',
-  table: 'Table',
-  carousel: 'Carousel',
-};

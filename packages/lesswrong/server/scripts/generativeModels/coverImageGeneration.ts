@@ -963,7 +963,7 @@ async function getArtForEssayMidjourney(essay: Essay, prompts: string[], tracker
 }
 
 async function getArtForEssay(openAiClient: OpenAI, essay: Essay, tracker: UsageTracker, prompt?: string): Promise<EssayResult[]> {
-  const prompts = prompt ? [prompt] : await getImagePrompts(openAiClient, essay, tracker);
+  const prompts = prompt ? [formatAsMidjourneyPrompt(prompt)] : await getImagePrompts(openAiClient, essay, tracker);
 
   if (IMAGE_PROVIDER === 'midjourney') {
     return getArtForEssayMidjourney(essay, prompts, tracker);

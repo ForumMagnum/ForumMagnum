@@ -26,6 +26,12 @@ export class SwrCache<T, Args extends any[]> {
       return this.value;
     }
   }
+
+  invalidate() {
+    this.value = null;
+    this.pendingValue = null;
+    this.lastUpdatedAt = null;
+  }
   
   private async recompute(...args: Args) {
     // If this is replacing an existing cache entry, update the last-updated

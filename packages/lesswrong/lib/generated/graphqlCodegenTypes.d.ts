@@ -20449,37 +20449,22 @@ type multiUserUserReviewsQueryQueryVariables = Exact<{
 
 type multiUserUserReviewsQueryQuery = multiUserUserReviewsQueryQuery_Query;
 
-type createSplashArtCoordinateCarouselViewMutation_createSplashArtCoordinate_SplashArtCoordinateOutput_data_SplashArtCoordinate = (
+type createSplashArtCoordinateCoordinateEditorMutation_createSplashArtCoordinate_SplashArtCoordinateOutput_data_SplashArtCoordinate = (
   { __typename?: 'SplashArtCoordinate' }
   & SplashArtCoordinatesEdit
 );
 
-type createSplashArtCoordinateCarouselViewMutation_createSplashArtCoordinate_SplashArtCoordinateOutput = { __typename?: 'SplashArtCoordinateOutput', data: createSplashArtCoordinateCarouselViewMutation_createSplashArtCoordinate_SplashArtCoordinateOutput_data_SplashArtCoordinate | null };
+type createSplashArtCoordinateCoordinateEditorMutation_createSplashArtCoordinate_SplashArtCoordinateOutput = { __typename?: 'SplashArtCoordinateOutput', data: createSplashArtCoordinateCoordinateEditorMutation_createSplashArtCoordinate_SplashArtCoordinateOutput_data_SplashArtCoordinate | null };
 
-type createSplashArtCoordinateCarouselViewMutation_Mutation = { __typename?: 'Mutation', createSplashArtCoordinate: createSplashArtCoordinateCarouselViewMutation_createSplashArtCoordinate_SplashArtCoordinateOutput | null };
+type createSplashArtCoordinateCoordinateEditorMutation_Mutation = { __typename?: 'Mutation', createSplashArtCoordinate: createSplashArtCoordinateCoordinateEditorMutation_createSplashArtCoordinate_SplashArtCoordinateOutput | null };
 
 
-type createSplashArtCoordinateCarouselViewMutationVariables = Exact<{
+type createSplashArtCoordinateCoordinateEditorMutationVariables = Exact<{
   data: CreateSplashArtCoordinateDataInput;
 }>;
 
 
-type createSplashArtCoordinateCarouselViewMutation = createSplashArtCoordinateCarouselViewMutation_Mutation;
-
-type upscaleReviewWinnerArtCarouselViewMutation_upscaleReviewWinnerArt_ReviewWinnerArt = (
-  { __typename?: 'ReviewWinnerArt' }
-  & ReviewWinnerArtImages
-);
-
-type upscaleReviewWinnerArtCarouselViewMutation_Mutation = { __typename?: 'Mutation', upscaleReviewWinnerArt: upscaleReviewWinnerArtCarouselViewMutation_upscaleReviewWinnerArt_ReviewWinnerArt | null };
-
-
-type upscaleReviewWinnerArtCarouselViewMutationVariables = Exact<{
-  reviewWinnerArtId: Scalars['String']['input'];
-}>;
-
-
-type upscaleReviewWinnerArtCarouselViewMutation = upscaleReviewWinnerArtCarouselViewMutation_Mutation;
+type createSplashArtCoordinateCoordinateEditorMutation = createSplashArtCoordinateCoordinateEditorMutation_Mutation;
 
 type updateRevisionCompareRevisionsMutation_updateRevision_RevisionOutput_data_Revision = (
   { __typename?: 'Revision' }
@@ -26795,7 +26780,7 @@ type ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtC
   & SplashArtCoordinatesEdit
 );
 
-type ReviewWinnerArtImages = { __typename?: 'ReviewWinnerArt', _id: string, postId: string, splashArtImagePrompt: string, splashArtImageUrl: string, midjourneyJobId: string | null, midjourneyImageIndex: number | null, upscaledImageUrl: string | null, activeSplashArtCoordinates: ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtCoordinate | null };
+type ReviewWinnerArtImages = { __typename?: 'ReviewWinnerArt', _id: string, createdAt: string, postId: string, splashArtImagePrompt: string, splashArtImageUrl: string, midjourneyJobId: string | null, midjourneyImageIndex: number | null, upscaledImageUrl: string | null, activeSplashArtCoordinates: ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtCoordinate | null };
 
 type ReviewWinnerAll_ReviewWinner_reviewWinnerArt_ReviewWinnerArt = (
   { __typename?: 'ReviewWinnerArt' }

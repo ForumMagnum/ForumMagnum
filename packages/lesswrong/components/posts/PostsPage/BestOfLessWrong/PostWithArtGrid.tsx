@@ -3,7 +3,7 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import groupBy from "lodash/groupBy";
 import { useImageContext } from "../ImageContext";
 import GenerateImagesButton from "@/components/review/GenerateImagesButton";
-import { cleanPromptForDisplay } from '@/components/review/reviewAdminViews/types';
+import { cleanPromptForDisplay, SELECTION_DEFAULT_COORDINATES } from '@/components/review/reviewAdminViews/types';
 import classNames from "classnames";
 import LWTooltip from "../../../common/LWTooltip";
 import { useMutation } from "@apollo/client/react";
@@ -78,6 +78,10 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
   imageWrapper: {
     position: 'relative',
     width: 200,
+    transition: 'opacity 0.15s',
+  },
+  imageWrapperFaded: {
+    opacity: 0.25,
   },
   imageId: {
     ...theme.typography.body2,
@@ -123,7 +127,7 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
 
 type Post = {_id: string, slug: string, title: string}
 
-export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: Post, images: ReviewWinnerArtImages[], defaultExpanded?: boolean}) => {
+export const PostWithArtGrid = ({post, images, defaultExpanded = false, fadeNonUpscaled = false}: {post: Post, images: ReviewWinnerArtImages[], defaultExpanded?: boolean, fadeNonUpscaled?: boolean}) => {
   const classes = useStyles(artRowStyles);
   const imagesByPrompt = groupBy(images, (image) => image.splashArtImagePrompt);
   const [expanded, setExpanded] = useState(defaultExpanded);
@@ -134,29 +138,11 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
   const [upscalingImageId, setUpscalingImageId] = useState<string | null>(null);
 
   const handleSaveCoordinates = async (image: ReviewWinnerArtImages) => {
-    // This makes a best-guess about how to crop the image for the /bestoflesswrongpage
     const { error } = await createSplashArtCoordinateMutation({
       variables: {
         data: {
           reviewWinnerArtId: image._id,
-          leftXPct: .33, // note: XPcts are right-aligned, not left-aligned like you might expect
-          leftYPct: .15,
-          leftWidthPct: .33, // widths need to be < .33 of the image, because they'll be 3x'd 
-          // when we render them on the /bestoflesswrong page (so that when you expand the panel
-          // to 3x it's size there is a background image the whole way
-          leftHeightPct: .65,
-          leftFlipped: true, // for the 2025+ styling (for the 2023) and onward, we want to flip
-          // the left-side images because the images are designed to have most of the content on the right side by default (but we want it to show up on the left there)
-          middleXPct: .66,
-          middleYPct: .15,
-          middleWidthPct: .33,
-          middleHeightPct: 1,
-          middleFlipped: false,
-          rightXPct: 0,
-          rightYPct: .15,
-          rightWidthPct: .33,
-          rightHeightPct: .65,
-          rightFlipped: false,
+          ...SELECTION_DEFAULT_COORDINATES,
         }
       } });
 
@@ -227,7 +213,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
               const isUpscaling = upscalingImageId === image._id;
 
               return <LWTooltip key={image._id} title={tooltip} tooltip={false}>
-                <div className={classes.imageWrapper}>
+                <div className={classNames(classes.imageWrapper, fadeNonUpscaled && !image.upscaledImageUrl && classes.imageWrapperFaded)}>
                   <img className={classNames(classes.image, selectedImageInfo?._id === image._id && classes.selectedImage)} src={smallUrl} onClick={() => handleSaveCoordinates(image)} />
                   <div className={classes.imageActions}>
                     <span className={classes.imageId}>{image._id}</span>
