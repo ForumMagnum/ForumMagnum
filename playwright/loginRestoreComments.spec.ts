@@ -16,7 +16,7 @@ test("restores expanded frontpage comments after login reload", async ({page, co
 
   await page.goto("/");
 
-  const firstPostItem = page.locator(".LWPostsItem-root:has(a[href*=\"/posts/\"])").first();
+  const firstPostItem = page.locator(".LWPostsItem-root:has(a[href*=\"/posts/\"])").nth(1);
   await expect(firstPostItem).toBeVisible({ timeout: 30000 });
 
   const firstPostHref = await firstPostItem.locator('a[href*="/posts/"]').first().getAttribute("href");
