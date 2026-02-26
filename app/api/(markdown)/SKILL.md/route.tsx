@@ -100,6 +100,23 @@ The prefix should be a markdown string that matches the start of a paragraph
 that already exists in the draft.
 In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion.
+
+Custom widgets are represented in markdown with fenced code blocks using:
+    \`\`\`widget[widgetId]
+    ... html/js content ...
+    \`\`\`
+Newly inserted widgets will have a unique widgetId in the bracket.
+
+To replace the HTML/JS contents of a widget, make a POST request to:
+    POST /api/agent/replaceWidget
+    with JSON body: {
+      postId, key, widgetId,
+      replacement?: string,
+      unifiedDiff?: string,
+      mode?: "edit"|"suggest"
+    }
+Provide exactly one of replacement or unifiedDiff. In suggest mode, the
+change is represented as widget-content suggestions.
 `;
 
 export function GET(req: NextRequest) {

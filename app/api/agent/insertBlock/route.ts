@@ -10,12 +10,14 @@ import {
   $getRoot,
   $createRangeSelection,
   $setSelection,
+  $createTextNode,
   $isDecoratorNode,
   $isElementNode,
   $createParagraphNode,
   type LexicalNode,
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
+import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
 
@@ -104,7 +106,35 @@ function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
   return prefixPlainText.length > 0 && normalizedTextContent.startsWith(prefixPlainText);
 }
 
-async function insertMarkdownBlock({
+function escapeHtmlAttribute(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function transformWidgetFencesToInlineIframeHtml(markdown: string): string {
+  const widgetFenceRegex = /```widget\[(.*?)\]\n([\s\S]*?)\n```/g;
+  return markdown.replace(widgetFenceRegex, (_match, rawWidgetId: string, rawWidgetMarkup: string) => {
+    const widgetId = (rawWidgetId ?? "").trim() || randomId();
+    const widgetMarkup = rawWidgetMarkup ?? "";
+    return `<iframe data-lexical-iframe-widget="true" data-widget-id="${escapeHtmlAttribute(widgetId)}" srcdoc="${escapeHtmlAttribute(widgetMarkup)}"></iframe>`;
+  });
+}
+
+function parseWholeWidgetFence(markdown: string): { widgetId: string, widgetMarkup: string } | null {
+  const trimmed = markdown.trim();
+  const match = trimmed.match(/^```widget\[(.*?)\]\n([\s\S]*?)\n```$/);
+  if (!match) {
+    return null;
+  }
+  const widgetId = (match[1] ?? "").trim() || randomId();
+  const widgetMarkup = match[2] ?? "";
+  return { widgetId, widgetMarkup };
+}
+
+export async function insertMarkdownBlock({
   postId,
   token,
   mode,
@@ -127,10 +157,20 @@ async function insertMarkdownBlock({
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const root = $getRoot();
-          const html = markdownToHtml(markdown);
-          const dom = new JSDOM(html);
-          const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
-          const nodesToInsert = normalizeImportedTopLevelNodes(importedNodes);
+          const widgetFence = parseWholeWidgetFence(markdown);
+          const nodesToInsert = widgetFence
+            ? (() => {
+              const widgetNode = $createIframeWidgetNode(widgetFence.widgetId);
+              widgetNode.append($createTextNode(widgetFence.widgetMarkup));
+              return [widgetNode];
+            })()
+            : (() => {
+              const markdownWithWidgetIframes = transformWidgetFencesToInlineIframeHtml(markdown);
+              const html = markdownToHtml(markdownWithWidgetIframes);
+              const dom = new JSDOM(html);
+              const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
+              return normalizeImportedTopLevelNodes(importedNodes);
+            })();
 
           if (nodesToInsert.length === 0) {
             result = { inserted: false, note: "No insertable nodes were generated from markdown." };

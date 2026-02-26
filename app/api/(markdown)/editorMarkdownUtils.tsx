@@ -1,4 +1,5 @@
 import { markdownClasses, markdownResponse } from "@/server/markdownApi/markdownResponse";
+import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
@@ -91,6 +92,38 @@ function withDomGlobals<T>(fn: () => T): T {
   }
 }
 
+function unescapeHtmlAttribute(value: string): string {
+  return value
+    .replace(/&quot;/g, "\"")
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+}
+
+function convertWidgetIframesToMarkdownFences(markdown: string): string {
+  return markdown.replace(/<iframe[\s\S]*?<\/iframe>/g, (iframeHtml) => {
+    if (!iframeHtml.includes("data-lexical-iframe-widget")) {
+      return iframeHtml;
+    }
+    const idMatch = iframeHtml.match(/data-widget-id="([^"]*)"/);
+    const widgetId = idMatch?.[1] ?? "";
+
+    const srcdocStart = iframeHtml.indexOf('srcdoc="');
+    if (srcdocStart < 0) {
+      return iframeHtml;
+    }
+    const srcdocValueStart = srcdocStart + 'srcdoc="'.length;
+    const srcdocValueEnd = iframeHtml.lastIndexOf('"></iframe>');
+    if (srcdocValueEnd <= srcdocValueStart) {
+      return iframeHtml;
+    }
+    const rawSrcdoc = iframeHtml.slice(srcdocValueStart, srcdocValueEnd);
+    const srcdoc = unescapeHtmlAttribute(rawSrcdoc);
+    return `\n\n\`\`\`widget[${widgetId}]\n${srcdoc}\n\`\`\`\n\n`;
+  });
+}
+
 async function getLiveDraftMarkdown({
   postId,
   token,
@@ -110,7 +143,7 @@ async function getLiveDraftMarkdown({
         });
         return generated;
       });
-      return htmlToMarkdown(html);
+      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(html));
     },
   });
 }
@@ -220,7 +253,7 @@ export async function renderEditorDraftMarkdown({
         </div>
       ) : null}
       <hr />
-      <div>{bodyMarkdown}</div>
+      <MarkdownNode markdown={bodyMarkdown} />
     </div>
   );
 }
