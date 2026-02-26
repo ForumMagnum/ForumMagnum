@@ -226,7 +226,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
-        };
+        }; 
       }
 
       const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
