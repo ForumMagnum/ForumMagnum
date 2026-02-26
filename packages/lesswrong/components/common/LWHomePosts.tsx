@@ -468,15 +468,26 @@ const LWHomePosts = ({ children, }: {
   const { settings: ultraFeedSettings, updateSettings: updateUltraFeedSettings, truncationMaps } = useUltraFeedSettings();
   const onPostCommentsToggled = useCallback((postId: string, expanded: boolean) => {
     setExpandedPostIds((currentExpandedPostIds) => {
+      let nextExpandedPostIds: string[] = currentExpandedPostIds;
       if (expanded) {
         if (currentExpandedPostIds.includes(postId)) {
-          return currentExpandedPostIds;
+          nextExpandedPostIds = currentExpandedPostIds;
+        } else {
+          nextExpandedPostIds = [...currentExpandedPostIds, postId];
         }
-        return [...currentExpandedPostIds, postId];
+      } else {
+        nextExpandedPostIds = currentExpandedPostIds.filter((currentPostId) => currentPostId !== postId);
       }
-      return currentExpandedPostIds.filter((currentPostId) => currentPostId !== postId);
+
+      if (!currentUser) {
+        saveFrontpageLoginRestoreState({
+          selectedTab,
+          expandedPostIds: nextExpandedPostIds,
+        });
+      }
+      return nextExpandedPostIds;
     });
-  }, []);
+  }, [currentUser, selectedTab]);
 
   useEffect(() => {
     if (currentUser) {
