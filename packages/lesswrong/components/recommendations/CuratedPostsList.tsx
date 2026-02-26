@@ -7,9 +7,11 @@ import moment from "moment";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import PostsList2 from "../posts/PostsList2";
 
-const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence}: {
+const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence, defaultExpandedPostIds, onPostCommentsToggled}: {
   overrideLimit?: number
   repeatedPostsPrecedence?: number
+  defaultExpandedPostIds?: string[]
+  onPostCommentsToggled?: (postId: string, expanded: boolean) => void
 }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
   const now = useCurrentTime();
@@ -32,6 +34,8 @@ const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence}: {
         showFinalBottomBorder
         viewType="fromContext"
         repeatedPostsPrecedence={repeatedPostsPrecedence}
+        defaultExpandedPostIds={defaultExpandedPostIds}
+        onPostCommentsToggled={onPostCommentsToggled}
       />
     </AnalyticsContext>
   );

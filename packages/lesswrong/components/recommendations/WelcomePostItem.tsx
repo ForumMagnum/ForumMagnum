@@ -20,8 +20,10 @@ const PostsListWithVotesQuery = gql(`
   }
 `);
 
-const WelcomePostItem = ({repeatedPostsPrecedence}: {
+const WelcomePostItem = ({repeatedPostsPrecedence, defaultExpandedPostIds, onPostCommentsToggled}: {
   repeatedPostsPrecedence?: number
+  defaultExpandedPostIds?: string[]
+  onPostCommentsToggled?: (postId: string, expanded: boolean) => void
 }) => {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
@@ -51,7 +53,11 @@ const WelcomePostItem = ({repeatedPostsPrecedence}: {
   }
 
   return <HideIfRepeated precedence={repeatedPostsPrecedence} postId={post._id}>
-    <PostsItem post={post} />
+    <PostsItem
+      post={post}
+      defaultToShowComments={defaultExpandedPostIds?.includes(post._id)}
+      onCommentsToggled={onPostCommentsToggled}
+    />
   </HideIfRepeated>
 }
 

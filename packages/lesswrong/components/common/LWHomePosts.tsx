@@ -659,8 +659,17 @@ const LWHomePosts = ({ children, }: {
                   fallback={<PostsLoading placeholderCount={defaultLimit+2} loadMore/>}
                 >
                   <HideRepeatedPostsProvider>
-                    <WelcomePostItem repeatedPostsPrecedence={1} />
-                    <CuratedPostsList overrideLimit={2} repeatedPostsPrecedence={2}/>
+                    <WelcomePostItem
+                      repeatedPostsPrecedence={1}
+                      defaultExpandedPostIds={expandedPostIds}
+                      onPostCommentsToggled={onPostCommentsToggled}
+                    />
+                    <CuratedPostsList
+                      overrideLimit={2}
+                      repeatedPostsPrecedence={2}
+                      defaultExpandedPostIds={expandedPostIds}
+                      onPostCommentsToggled={onPostCommentsToggled}
+                    />
                     <PostsList2
                       terms={recentPostsTerms}
                       alwaysShowLoadMore
