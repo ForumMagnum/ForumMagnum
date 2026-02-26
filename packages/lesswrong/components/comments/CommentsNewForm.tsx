@@ -207,7 +207,6 @@ const CommentsNewForm = ({
   const isMinimalist = formStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [commentFormInstance, setCommentFormInstance] = useState(0)
   const [_,setForceRefreshState] = useState(0);
 
   const { openDialog } = useDialog();
@@ -252,9 +251,6 @@ const CommentsNewForm = ({
       void successCallback(comment);
     }
     setLoading(false)
-    // Remount the form after successful submission so editor/form state does
-    // not persist between comments.
-    setCommentFormInstance((prev) => prev + 1);
     const timeElapsed = Date.now() - commentSubmitStartTimeRef.current;
     captureEvent("wrappedSuccessCallbackFinished", {timeElapsed, commentId: comment._id})
     void refetch();
@@ -372,7 +368,6 @@ const CommentsNewForm = ({
             ev.preventDefault()
           }}>
             <CommentForm
-              key={commentFormInstance}
               prefilledProps={prefilledProps}
               commentSubmitProps={commentSubmitProps}
               // Note: This is overly restrictive at the moment to focus on the core use case first, many of these would work
@@ -415,6 +410,3 @@ export default registerComponent('CommentsNewForm', CommentsNewForm, {
   styles,
   hocs: [withErrorBoundary]
 });
-
-
-
