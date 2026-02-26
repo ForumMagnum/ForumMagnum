@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import ModerationContentItem from './ModerationContentItem';
+import ModerationUserContentItem from './ModerationUserContentItem';
 import type { InboxAction } from './inboxReducer';
 
 const styles = defineStyles('ModerationContentList', (theme: ThemeType) => ({
@@ -74,7 +74,7 @@ const ModerationContentList = ({
       ) : (
         <div className={classes.list}>
           {items.map((item, idx) => (
-            <ModerationContentItem
+            <ModerationUserContentItem
               key={item._id}
               item={item}
               isFocused={item._id === focusedItemId}

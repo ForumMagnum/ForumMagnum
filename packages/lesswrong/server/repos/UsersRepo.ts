@@ -140,6 +140,25 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [userId, section, String(expanded)]);
   }
 
+  markKarmaChangesChecked(userId: string, startDate: Date | null | undefined, endDate: Date | null | undefined): Promise<null> {
+    return this.none(`
+      -- UsersRepo.markKarmaChangesChecked
+      UPDATE "Users"
+      SET
+        "karmaChangeBatchStart" = CASE
+          WHEN $2::TIMESTAMPTZ IS NULL THEN "karmaChangeBatchStart"
+          WHEN "karmaChangeBatchStart" IS NULL OR "karmaChangeBatchStart" < $2::TIMESTAMPTZ THEN $2::TIMESTAMPTZ
+          ELSE "karmaChangeBatchStart"
+        END,
+        "karmaChangeLastOpened" = CASE
+          WHEN $3::TIMESTAMPTZ IS NULL THEN "karmaChangeLastOpened"
+          WHEN "karmaChangeLastOpened" IS NULL OR "karmaChangeLastOpened" < $3::TIMESTAMPTZ THEN $3::TIMESTAMPTZ
+          ELSE "karmaChangeLastOpened"
+        END
+      WHERE "_id" = $1
+    `, [userId, startDate ?? null, endDate ?? null]);
+  }
+
   removeAlignmentGroupAndKarma(userId: string, reduceAFKarma: number): Promise<null> {
     return this.none(`
       -- UsersRepo.removeAlignmentGroupAndKarma

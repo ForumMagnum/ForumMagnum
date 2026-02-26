@@ -340,7 +340,7 @@ export default function ProfilePage({slug}: {
 
   return <>
     <StatusCodeSetter status={200}/>
-    <ProfilePageInner user={user} />;
+    <ProfilePageInner user={user} />
   </>
 }
 

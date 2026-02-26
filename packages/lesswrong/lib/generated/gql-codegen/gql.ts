@@ -541,6 +541,8 @@ type Documents = {
     "\n  query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SunshineUsersList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserModerationInboxQueryDocument,
     "\n  query multiPostModerationInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SunshinePostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostModerationInboxQueryDocument,
     "\n  query multiPostAutoClassifiedInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SunshinePostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostAutoClassifiedInboxQueryDocument,
+    "\n  query CurationCandidatePostsQuery($limit: Int) {\n    CurationCandidatePosts(limit: $limit) {\n      results {\n        ...SunshineCurationPostsList\n      }\n    }\n  }\n": typeof types.CurationCandidatePostsQueryDocument,
+    "\n  query LastCuratedDateQuery {\n    LastCuratedDate {\n      lastCuratedDate\n    }\n  }\n": typeof types.LastCuratedDateQueryDocument,
     "\n  query singleUserSupermodQuery($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SunshineUsersList\n      }\n    }\n  }\n": typeof types.singleUserSupermodQueryDocument,
     "\n  mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n": typeof types.updateUserModerationKeyboardDocument,
     "\n  mutation rejectContentAndRemoveFromQueueModerationKeyboard($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!, $rejectedReason: String!) {\n    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName, rejectedReason: $rejectedReason)\n  }\n": typeof types.rejectContentAndRemoveFromQueueModerationKeyboardDocument,
@@ -685,6 +687,7 @@ type Documents = {
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserUsersEditFormDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersEditFormGetUserBySlugDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.KarmaChangeNotifierDocument,
+    "\n  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {\n    karmaChangesChecked(startDate: $startDate, endDate: $endDate)\n  }\n": typeof types.karmaChangesCheckedKarmaChangeNotifierDocument,
     "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.SubscribedUserDocument,
     "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.SubscribedPostDocument,
     "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.SubscribedCommentDocument,
@@ -1495,6 +1498,8 @@ const documents: Documents = {
     "\n  query multiUserModerationInboxQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SunshineUsersList\n      }\n      totalCount\n    }\n  }\n": types.multiUserModerationInboxQueryDocument,
     "\n  query multiPostModerationInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SunshinePostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostModerationInboxQueryDocument,
     "\n  query multiPostAutoClassifiedInboxQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SunshinePostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostAutoClassifiedInboxQueryDocument,
+    "\n  query CurationCandidatePostsQuery($limit: Int) {\n    CurationCandidatePosts(limit: $limit) {\n      results {\n        ...SunshineCurationPostsList\n      }\n    }\n  }\n": types.CurationCandidatePostsQueryDocument,
+    "\n  query LastCuratedDateQuery {\n    LastCuratedDate {\n      lastCuratedDate\n    }\n  }\n": types.LastCuratedDateQueryDocument,
     "\n  query singleUserSupermodQuery($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SunshineUsersList\n      }\n    }\n  }\n": types.singleUserSupermodQueryDocument,
     "\n  mutation updateUserModerationKeyboard($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...SunshineUsersList\n      }\n    }\n  }\n": types.updateUserModerationKeyboardDocument,
     "\n  mutation rejectContentAndRemoveFromQueueModerationKeyboard($userId: String!, $documentId: String!, $collectionName: ContentCollectionName!, $rejectedReason: String!) {\n    rejectContentAndRemoveUserFromQueue(userId: $userId, documentId: $documentId, collectionName: $collectionName, rejectedReason: $rejectedReason)\n  }\n": types.rejectContentAndRemoveFromQueueModerationKeyboardDocument,
@@ -1639,6 +1644,7 @@ const documents: Documents = {
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserUsersEditFormDocument,
     "\n  query UsersEditFormGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersEditFormGetUserBySlugDocument,
     "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.KarmaChangeNotifierDocument,
+    "\n  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {\n    karmaChangesChecked(startDate: $startDate, endDate: $endDate)\n  }\n": types.karmaChangesCheckedKarmaChangeNotifierDocument,
     "\n  query SubscribedUser($documentId: String!) {\n    user(input: { selector: { _id: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.SubscribedUserDocument,
     "\n  query SubscribedPost($documentId: String!) {\n    post(input: { selector: { _id: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.SubscribedPostDocument,
     "\n  query SubscribedComment($documentId: String!) {\n    comment(input: { selector: { _id: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.SubscribedCommentDocument,
@@ -4047,6 +4053,14 @@ export function gql(source: "\n  query multiPostAutoClassifiedInboxQuery($select
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query CurationCandidatePostsQuery($limit: Int) {\n    CurationCandidatePosts(limit: $limit) {\n      results {\n        ...SunshineCurationPostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  query CurationCandidatePostsQuery($limit: Int) {\n    CurationCandidatePosts(limit: $limit) {\n      results {\n        ...SunshineCurationPostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query LastCuratedDateQuery {\n    LastCuratedDate {\n      lastCuratedDate\n    }\n  }\n"): (typeof documents)["\n  query LastCuratedDateQuery {\n    LastCuratedDate {\n      lastCuratedDate\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  query singleUserSupermodQuery($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SunshineUsersList\n      }\n    }\n  }\n"): (typeof documents)["\n  query singleUserSupermodQuery($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...SunshineUsersList\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4620,6 +4634,10 @@ export function gql(source: "\n  query UsersEditFormGetUserBySlug($slug: String!
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"): (typeof documents)["\n  query KarmaChangeNotifier($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {\n    karmaChangesChecked(startDate: $startDate, endDate: $endDate)\n  }\n"): (typeof documents)["\n  mutation karmaChangesCheckedKarmaChangeNotifier($startDate: Date, $endDate: Date) {\n    karmaChangesChecked(startDate: $startDate, endDate: $endDate)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

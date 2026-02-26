@@ -35,6 +35,7 @@ interface Query {
   ProfileDiamondComments: ProfileDiamondCommentsResult;
   DigestPlannerData: Array<DigestPlannerPost>;
   DigestPosts: Array<Post> | null;
+  LastCuratedDate: LastCuratedDateResult;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   HocuspocusAuth: HocuspocusAuth | null;
@@ -49,6 +50,7 @@ interface Query {
   PostsWithActiveDiscussion: PostsWithActiveDiscussionResult | null;
   PostsBySubscribedAuthors: PostsBySubscribedAuthorsResult | null;
   PostsWithApprovedJargon: PostsWithApprovedJargonResult | null;
+  CurationCandidatePosts: CurationCandidatePostsResult | null;
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
@@ -228,6 +230,7 @@ interface Mutation {
   NewUserCompleteProfile: NewUserCompletedProfile | null;
   UserExpandFrontpageSection: boolean | null;
   UserUpdateSubforumMembership: User | null;
+  karmaChangesChecked: boolean;
   setVotePost: Post | null;
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;
@@ -869,6 +872,10 @@ interface PostsUserCommentedOnResult {
   posts: Array<Post> | null;
 }
 
+interface LastCuratedDateResult {
+  lastCuratedDate: Date | null;
+}
+
 interface PostReviewFilter {
   startDate: Date | null;
   endDate: Date | null;
@@ -992,6 +999,10 @@ interface PostsBySubscribedAuthorsResult {
 
 interface PostsWithApprovedJargonResult {
   results: Array<PostWithApprovedJargon>;
+}
+
+interface CurationCandidatePostsResult {
+  results: Array<Post>;
 }
 
 interface AllTagsActivityFeedQueryResults {
@@ -10050,6 +10061,7 @@ interface GraphQLTypeMap {
   GivingSeasonHeart: GivingSeasonHeart;
   UserReadHistoryResult: UserReadHistoryResult;
   PostsUserCommentedOnResult: PostsUserCommentedOnResult;
+  LastCuratedDateResult: LastCuratedDateResult;
   PostReviewFilter: PostReviewFilter;
   PostReviewSort: PostReviewSort;
   DigestPlannerPost: DigestPlannerPost;
@@ -10075,6 +10087,7 @@ interface GraphQLTypeMap {
   PostsWithActiveDiscussionResult: PostsWithActiveDiscussionResult;
   PostsBySubscribedAuthorsResult: PostsBySubscribedAuthorsResult;
   PostsWithApprovedJargonResult: PostsWithApprovedJargonResult;
+  CurationCandidatePostsResult: CurationCandidatePostsResult;
   AllTagsActivityFeedQueryResults: AllTagsActivityFeedQueryResults;
   AllTagsActivityFeedEntry: AllTagsActivityFeedEntry;
   RecentDiscussionFeedQueryResults: RecentDiscussionFeedQueryResults;

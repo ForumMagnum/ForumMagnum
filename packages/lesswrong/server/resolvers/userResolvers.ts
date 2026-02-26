@@ -94,10 +94,11 @@ export const graphqlTypeDefs = gql`
     userReadCount: Int!
   }
 
-  extend type Mutation{
+  extend type Mutation {
     NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile
     UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean
     UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
+    karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
   }
 
   extend type Query {
@@ -199,6 +200,18 @@ export const graphqlMutations = {
     }, context)
     
     return updatedUser
+  },
+  async karmaChangesChecked(
+    _root: void,
+    {startDate, endDate}: {startDate?: Date | null, endDate?: Date | null},
+    {currentUser, repos}: ResolverContext,
+  ) {
+    if (!currentUser) {
+      throw new Error("You must login to do this");
+    }
+
+    await repos.users.markKarmaChangesChecked(currentUser._id, startDate, endDate);
+    return true;
   },
 }
 
