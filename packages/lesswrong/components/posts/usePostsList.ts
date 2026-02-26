@@ -100,6 +100,8 @@ export type PostsListConfig = {
    * An array of postIds. If provided, we reorder the results to match this order.
    */
   order?: string[],
+  defaultExpandedPostIds?: string[],
+  onPostCommentsToggled?: (postId: string, expanded: boolean) => void,
   header?: ReactNode,
   repeatedPostsPrecedence?: number
 }
@@ -143,6 +145,8 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   viewType: configuredViewType = "list",
   showPlacement = false,
   order,
+  defaultExpandedPostIds,
+  onPostCommentsToggled,
   ...restProps
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
@@ -268,6 +272,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
 
   const hasResults = orderedResults && orderedResults.length > 1;
 
+  const defaultExpandedPostIdsSet = defaultExpandedPostIds ? new Set(defaultExpandedPostIds) : null;
   const itemProps: PostsItemConfig[] | undefined = orderedResults?.filter(
     ({_id}) => !(_id in hiddenPosts),
   ).map((post, i) => ({
@@ -284,6 +289,8 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
     hideTrailingButtons,
     curatedIconLeft: curatedIconLeft,
     tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
+    defaultToShowComments: defaultExpandedPostIdsSet?.has(post._id),
+    onCommentsToggled: onPostCommentsToggled,
     defaultToShowUnreadComments,
     showPostedAt,
     showBottomBorder: showFinalBottomBorder ||

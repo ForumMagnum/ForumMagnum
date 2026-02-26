@@ -82,6 +82,7 @@ export type PostsItemConfig = {
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showMostValuableCheckbox?: boolean,
   viewType?: PostsListViewType,
+  onCommentsToggled?: (postId: string, expanded: boolean) => void,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
   recombeeRecommId?: string,
@@ -131,6 +132,7 @@ export const usePostsItem = ({
   viewType = "list",
   showKarma = true,
   useCuratedDate = true,
+  onCommentsToggled,
   isVoteable = false,
   recombeeRecommId,
   emphasizeIfNew = false,
@@ -151,10 +153,12 @@ export const usePostsItem = ({
   const toggleComments = useCallback(
     () => {
       void recordPostView({ post, extraEventProperties: { type: "toggleComments" }, recommendationOptions: recommendationEventOptions });
-      setShowComments(!showComments);
+      const nextShowComments = !showComments;
+      setShowComments(nextShowComments);
+      onCommentsToggled?.(post._id, nextShowComments);
       setReadComments(true);
     },
-    [post, recordPostView, setShowComments, showComments, setReadComments, recommendationEventOptions],
+    [post, recordPostView, setShowComments, showComments, setReadComments, recommendationEventOptions, onCommentsToggled],
   );
 
   const toggleDialogueMessages = useCallback(

@@ -45,6 +45,7 @@ import UltraFeedWrappers from '../ultraFeed/UltraFeedWrappers';
 import UltraFeedSettings from '../ultraFeed/UltraFeedSettings';
 import UltraFeedFollowingSettings from '../ultraFeed/UltraFeedFollowingSettings';
 import { IsReturningVisitorContext } from '@/components/layout/IsReturningVisitorContextProvider';
+import { consumePendingFrontpageLoginRestoreState, saveFrontpageLoginRestoreState } from '@/lib/frontpageLoginRestoreState';
 
 
 
@@ -238,7 +239,11 @@ function getTabOrDefault(tabName: string | null, enabledTabs: TabRecord[], overr
   return enabledTabs.find(tab => tab.name === tabName)?.name ?? defaultTab;
 }
  
-function useSelectedTab(currentUser: UsersCurrent|null, enabledTabs: TabRecord[]): [selectedTab: string, setSelectedTab: (newTab: string) => void] {
+function useSelectedTab(
+  currentUser: UsersCurrent|null,
+  enabledTabs: TabRecord[],
+  initialTabOverride?: string,
+): [selectedTab: string, setSelectedTab: (newTab: string) => void] {
   const updateCurrentUser = useUpdateCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([SELECTED_FRONTPAGE_TAB_COOKIE]);
   const { captureEvent } = useTracking();
@@ -248,7 +253,9 @@ function useSelectedTab(currentUser: UsersCurrent|null, enabledTabs: TabRecord[]
 
   let currentTab: string;
 
-  if (!currentUser) {
+  if (initialTabOverride) {
+    currentTab = getTabOrDefault(initialTabOverride, enabledTabs);
+  } else if (!currentUser) {
     if (isReturningVisitor) {
       currentTab = getTabOrDefault(cookieTab, enabledTabs);
     } else {
@@ -312,14 +319,19 @@ const defaultRecombeeConfig: RecombeeConfiguration = {
   rotationTime: 24 * 30,
 };
 
-function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[], filterSettings: FilterSettings) {
+function useRecombeeSettings(
+  currentUser: UsersCurrent|null,
+  enabledTabs: TabRecord[],
+  filterSettings: FilterSettings,
+  initialTabOverride?: string,
+) {
   const [cookies, setCookie] = useCookiesWithConsent([RECOMBEE_SETTINGS_COOKIE]);
   const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
   const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
   const currentScenarioConfig = storedActiveScenarioConfig ?? defaultRecombeeConfig;
   const scenarioConfigWithFilterSettings = { ...currentScenarioConfig, filterSettings };
   const [scenarioConfig, setScenarioConfig] = useState<RecombeeConfiguration>(scenarioConfigWithFilterSettings);
-  const [selectedTab] = useSelectedTab(currentUser, enabledTabs);
+  const [selectedTab] = useSelectedTab(currentUser, enabledTabs, initialTabOverride);
 
   const updateScenarioConfig = (newScenarioConfig: RecombeeConfiguration) => {
     const newCookieValue: RecombeeCookieSettings = [...recombeeCookieSettings];
@@ -440,8 +452,10 @@ const LWHomePosts = ({ children, }: {
 
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
   const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, hasContinueReading ?? false));
+  const pendingFrontpageRestoreState = useMemo(() => consumePendingFrontpageLoginRestoreState(), []);
 
-  const [selectedTab, setSelectedTab] = useSelectedTab(currentUser, enabledTabs);
+  const [selectedTab, setSelectedTab] = useSelectedTab(currentUser, enabledTabs, pendingFrontpageRestoreState?.selectedTab);
+  const [expandedPostIds, setExpandedPostIds] = useState<string[]>(pendingFrontpageRestoreState?.expandedPostIds ?? []);
   const selectedTabSettings = availableTabs.find(t=>t.name===selectedTab)!;
 
   
@@ -450,8 +464,30 @@ const LWHomePosts = ({ children, }: {
   const { desktopSettingsVisible, toggleDesktopSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'desktop', selectedTab);
   const { mobileSettingsVisible, toggleMobileSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'mobile', selectedTab);
   
-  const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs, filterSettings);
+  const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs, filterSettings, pendingFrontpageRestoreState?.selectedTab);
   const { settings: ultraFeedSettings, updateSettings: updateUltraFeedSettings, truncationMaps } = useUltraFeedSettings();
+  const onPostCommentsToggled = useCallback((postId: string, expanded: boolean) => {
+    setExpandedPostIds((currentExpandedPostIds) => {
+      if (expanded) {
+        if (currentExpandedPostIds.includes(postId)) {
+          return currentExpandedPostIds;
+        }
+        return [...currentExpandedPostIds, postId];
+      }
+      return currentExpandedPostIds.filter((currentPostId) => currentPostId !== postId);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (currentUser) {
+      return;
+    }
+
+    saveFrontpageLoginRestoreState({
+      selectedTab,
+      expandedPostIds,
+    });
+  }, [currentUser, selectedTab, expandedPostIds]);
 
   const changeShowTagFilterSettingsDesktop = () => {
     toggleDesktopSettingsVisible(!desktopSettingsVisible);
@@ -619,6 +655,8 @@ const LWHomePosts = ({ children, }: {
                       alwaysShowLoadMore
                       hideHiddenFrontPagePosts
                       repeatedPostsPrecedence={3}
+                      defaultExpandedPostIds={expandedPostIds}
+                      onPostCommentsToggled={onPostCommentsToggled}
                     >
                       <Link to={"/allPosts"}>{advancedSortingText}</Link>
                     </PostsList2> 
@@ -698,6 +736,8 @@ const LWHomePosts = ({ children, }: {
                   terms={{...recentPostsTerms, view: "new"}} 
                   alwaysShowLoadMore 
                   hideHiddenFrontPagePosts
+                  defaultExpandedPostIds={expandedPostIds}
+                  onPostCommentsToggled={onPostCommentsToggled}
                 >
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
                 </PostsList2> 

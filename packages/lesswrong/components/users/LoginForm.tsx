@@ -16,6 +16,7 @@ import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
 import useCookies from '@/lib/vendor/react-cookie/useCookies.tsx';
+import { markFrontpageLoginRestorePending } from '@/lib/frontpageLoginRestoreState';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -166,6 +167,9 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
 
   const [displayedError, setDisplayedError] = useState<string|null>(null);
   const clientId = useClientId();
+  const onOAuthLoginClick = useCallback(() => {
+    markFrontpageLoginRestorePending();
+  }, []);
 
   const showError = (error: ErrorLike) => {
     setDisplayedError(error.message);
@@ -184,6 +188,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       }
       if (data?.login?.token) {
         saveLoginToken(data.login.token);
+        markFrontpageLoginRestorePending();
         location.reload()
       }
     } else if (currentAction === 'signup') {
@@ -200,6 +205,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       }
       if (data?.signup?.token) {
         saveLoginToken(data.signup.token);
+        markFrontpageLoginRestorePending();
         location.reload()
       }
     } else if (currentAction === 'pwReset') {
@@ -250,8 +256,8 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       {hasOauthSection && <>
         <div className={classes.oAuthComment}>...or continue with</div>
         <div className={classes.oAuthBlock}>
-          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
-          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
+          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`} onClick={onOAuthLoginClick}>GOOGLE</a>
+          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`} onClick={onOAuthLoginClick}>GITHUB</a>
         </div>
       </>}
       {displayedError && <div className={classes.error}>{displayedError}</div>}
