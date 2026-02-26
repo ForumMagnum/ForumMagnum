@@ -176,6 +176,8 @@ function InnerEditorFormComponent<S, R>({
   const [contents,setContents] = useState(() => getInitialEditorContents(
     field.state.value, document, fieldName, currentUser
   ));
+
+  // We set a state-key to force a refresh on form-submit, which guarantees that the form resets.
   const [editorResetKey, setEditorResetKey] = useState(0);
 
   const autosaveContentsRef = useRef(contents);
