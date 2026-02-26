@@ -1,6 +1,7 @@
 'use client';
 
 import groupBy from 'lodash/groupBy';
+import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, getTabsInPriorityOrder, type ReviewGroup, type TabId, REVIEW_GROUP_TO_PRIORITY } from './groupings';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
@@ -91,18 +92,16 @@ export function getVisibleTabsInOrder(
   totalUsers: number,
   totalPosts: number,
   totalClassifiedPosts: number,
-  totalCurationPosts: number,
+  totalCurationNotices: number,
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
-  const tabs: TabInfo[] = [];
+  const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
   
   // Always show all tabs, even if empty
   for (const group of tabsInOrder) {
     const count = groupedUsers[group]?.length ?? 0;
     tabs.push({ group, count });
   }
-  
-  tabs.unshift({ group: 'curation', count: totalCurationPosts });
   tabs.push({ group: 'all', count: totalUsers });
   tabs.push({ group: 'posts', count: totalPosts });
   tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
@@ -301,7 +300,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.openedUserId) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, state.curationPosts.length);
+      const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
 
       if (visibleTabs.length === 0) return state;
 
@@ -370,7 +370,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.openedUserId) return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, state.curationPosts.length);
+      const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
 
       if (visibleTabs.length === 0) return state;
 

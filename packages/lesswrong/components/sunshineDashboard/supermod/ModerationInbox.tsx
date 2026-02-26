@@ -14,6 +14,7 @@ import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
+import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type TabId } from './groupings';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
@@ -171,15 +172,36 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         };
       }
 
-      const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationPosts.length);
+      if (initialOpenedUserId) {
+        return {
+          users: initialUsers,
+          posts,
+          classifiedPosts,
+          curationPosts,
+          activeTab: 'all',
+          focusedUserId: initialOpenedUserId,
+          openedUserId: initialOpenedUserId,
+          focusedPostId: null,
+          focusedContentIndex: 0,
+          undoQueue: [],
+          history: [],
+          runningLlmCheckId: null,
+        };
+      }
 
-      // Find first non-empty tab
-      const firstNonEmptyTab = visibleTabs.find(tab => tab.count > 0);
+      const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
+      const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount);
+
+      // Default to curation when there are no curation notices (so you can add some)
+      // Otherwise, find the first non-empty non-curation tab
+      const firstNonEmptyTab = curationNoticeCount === 0
+        ? undefined
+        : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
       const firstTab = firstNonEmptyTab?.group ?? 'curation';
 
       if (firstTab === 'curation') {
-        return {
+        return { 
           users: initialUsers,
           posts,
           classifiedPosts,
@@ -284,9 +306,11 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
 
+  const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
+
   const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, state.curationPosts.length);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, state.curationPosts.length]);
+    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
+  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
