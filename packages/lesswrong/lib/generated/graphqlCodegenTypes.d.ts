@@ -5631,6 +5631,24 @@ type NotificationsUserNotificationsInput = {
   viewed?: InputMaybe<Scalars['String']['input']>;
 };
 
+type OAuthAccessToken = {
+  __typename?: 'OAuthAccessToken';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+};
+
+type OAuthAuthorizationCode = {
+  __typename?: 'OAuthAuthorizationCode';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+};
+
+type OAuthClient = {
+  __typename?: 'OAuthClient';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+};
+
 type PangramWindowScore = {
   __typename?: 'PangramWindowScore';
   endIndex: Scalars['Int']['output'];

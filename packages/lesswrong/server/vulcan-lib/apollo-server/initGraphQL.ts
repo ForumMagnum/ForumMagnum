@@ -122,6 +122,9 @@ import { graphqlModerationTemplateQueryTypeDefs, moderationTemplateGqlQueryHandl
 import { graphqlModeratorActionQueryTypeDefs, moderatorActionGqlQueryHandlers, moderatorActionGqlFieldResolvers } from "@/server/collections/moderatorActions/queries";
 import { graphqlMultiDocumentQueryTypeDefs, multiDocumentGqlQueryHandlers, multiDocumentGqlFieldResolvers } from "@/server/collections/multiDocuments/queries";
 import { graphqlNotificationQueryTypeDefs, notificationGqlQueryHandlers, notificationGqlFieldResolvers } from "@/server/collections/notifications/queries";
+import { graphqlOAuthAccessTokenQueryTypeDefs, oAuthAccessTokenGqlFieldResolvers } from "@/server/collections/oAuthAccessTokens/queries";
+import { graphqlOAuthAuthorizationCodeQueryTypeDefs, oAuthAuthorizationCodeGqlFieldResolvers } from "@/server/collections/oAuthAuthorizationCodes/queries";
+import { graphqlOAuthClientQueryTypeDefs, oAuthClientGqlFieldResolvers } from "@/server/collections/oAuthClients/queries";
 import { graphqlPetrovDayActionQueryTypeDefs, petrovDayActionGqlQueryHandlers, petrovDayActionGqlFieldResolvers } from "@/server/collections/petrovDayActions/queries";
 import { graphqlPetrovDayLaunchQueryTypeDefs, petrovDayLaunchGqlFieldResolvers } from "@/server/collections/petrovDayLaunchs/queries";
 import { graphqlPodcastEpisodeQueryTypeDefs, podcastEpisodeGqlQueryHandlers, podcastEpisodeGqlFieldResolvers } from "@/server/collections/podcastEpisodes/queries";
@@ -379,6 +382,9 @@ export const getTypeDefs = () => gql`
   ${graphqlModeratorActionQueryTypeDefs}
   ${graphqlMultiDocumentQueryTypeDefs}
   ${graphqlNotificationQueryTypeDefs}
+  ${graphqlOAuthAccessTokenQueryTypeDefs}
+  ${graphqlOAuthAuthorizationCodeQueryTypeDefs}
+  ${graphqlOAuthClientQueryTypeDefs}
   ${graphqlPetrovDayActionQueryTypeDefs}
   ${graphqlPetrovDayLaunchQueryTypeDefs}
   ${graphqlPodcastEpisodeQueryTypeDefs}
@@ -769,6 +775,9 @@ const getResolvers = () => ({
   ...moderatorActionGqlFieldResolvers,
   ...multiDocumentGqlFieldResolvers,
   ...notificationGqlFieldResolvers,
+  ...oAuthAccessTokenGqlFieldResolvers,
+  ...oAuthAuthorizationCodeGqlFieldResolvers,
+  ...oAuthClientGqlFieldResolvers,
   ...petrovDayActionGqlFieldResolvers,
   ...petrovDayLaunchGqlFieldResolvers,
   ...podcastEpisodeGqlFieldResolvers,

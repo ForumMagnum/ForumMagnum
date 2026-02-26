@@ -3947,6 +3947,21 @@ interface MultiNotificationOutput {
   totalCount: number | null;
 }
 
+interface OAuthAccessToken {
+  _id: string;
+  createdAt: Date;
+}
+
+interface OAuthAuthorizationCode {
+  _id: string;
+  createdAt: Date;
+}
+
+interface OAuthClient {
+  _id: string;
+  createdAt: Date;
+}
+
 interface PetrovDayAction {
   _id: string;
   schemaVersion: number;
@@ -10482,6 +10497,9 @@ interface GraphQLTypeMap {
   NotificationSelector: NotificationSelector;
   MultiNotificationInput: MultiNotificationInput;
   MultiNotificationOutput: MultiNotificationOutput;
+  OAuthAccessToken: OAuthAccessToken;
+  OAuthAuthorizationCode: OAuthAuthorizationCode;
+  OAuthClient: OAuthClient;
   PetrovDayAction: PetrovDayAction;
   SinglePetrovDayActionInput: SinglePetrovDayActionInput;
   SinglePetrovDayActionOutput: SinglePetrovDayActionOutput;
@@ -11095,6 +11113,9 @@ interface CreateInputsByCollectionName {
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
+  OAuthAccessTokens: never;
+  OAuthAuthorizationCodes: never;
+  OAuthClients: never;
   PetrovDayLaunchs: never;
   Podcasts: never;
   PostEmbeddings: never;
@@ -11188,6 +11209,9 @@ interface UpdateInputsByCollectionName {
   MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
+  OAuthAccessTokens: never;
+  OAuthAuthorizationCodes: never;
+  OAuthClients: never;
   PetrovDayActions: never;
   PetrovDayLaunchs: never;
   PodcastEpisodes: never;

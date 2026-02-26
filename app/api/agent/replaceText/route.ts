@@ -77,7 +77,7 @@ function applySuggestionReplacement({
   return true;
 }
 
-async function replaceTextInMainDoc({
+export async function replaceTextInMainDoc({
   postId,
   token,
   quote,

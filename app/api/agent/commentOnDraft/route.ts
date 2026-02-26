@@ -126,7 +126,7 @@ async function getMainDocQuoteMatchResult({
   });
 }
 
-async function insertDraftCommentThread({
+export async function insertDraftCommentThread({
   postId,
   token,
   comment,
