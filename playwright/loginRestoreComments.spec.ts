@@ -16,15 +16,23 @@ test("restores expanded frontpage comments after login reload", async ({page, co
 
   await page.goto("/");
 
-  const firstPostItem = page.locator(".LWPostsItem-root:has(a[href*=\"/posts/\"])").nth(1);
-  await expect(firstPostItem).toBeVisible({ timeout: 30000 });
+  const aboutPostId = "bJ2haLkcGeLtTWaD5";
+  const postItems = page.locator(".LWPostsItem-root:has(a[href*=\"/posts/\"])");
+  await expect(postItems.first()).toBeVisible({ timeout: 30000 });
+  const firstPostHref = await postItems.first().locator('a[href*="/posts/"]').first().getAttribute("href");
+  const firstCandidatePostId = getPostIdFromHref(firstPostHref);
+  const postItemsCount = await postItems.count();
+  const targetPostItem = (firstCandidatePostId === aboutPostId && postItemsCount > 1)
+    ? postItems.nth(1)
+    : postItems.first();
+  await expect(targetPostItem).toBeVisible({ timeout: 30000 });
 
-  const firstPostHref = await firstPostItem.locator('a[href*="/posts/"]').first().getAttribute("href");
-  const firstPostId = getPostIdFromHref(firstPostHref);
+  const targetPostHref = await targetPostItem.locator('a[href*="/posts/"]').first().getAttribute("href");
+  const firstPostId = getPostIdFromHref(targetPostHref);
   expect(firstPostId).toBeTruthy();
 
-  await firstPostItem.locator(".PostsItemComments-commentsIconLarge").click();
-  await expect(firstPostItem.locator(".LWPostsItem-newCommentsSection")).toBeVisible();
+  await targetPostItem.locator(".PostsItemComments-commentsIconLarge").click();
+  await expect(targetPostItem.locator(".LWPostsItem-newCommentsSection")).toBeVisible();
   const storageStateBeforeLogin = await page.evaluate(() => {
     return {
       state: window.sessionStorage.getItem("frontpageLoginRestoreState_v1"),
