@@ -21,7 +21,10 @@ const styles = defineStyles('CurationPostView', (theme: ThemeType) => ({
     margin: '0 auto',
   },
   curationSection: {
-    padding: 16,
+    paddingTop: 14,
+    paddingBottom: 10,
+    paddingLeft: 16,
+    paddingRight: 16,
     borderBottom: theme.palette.border.normal,
     backgroundColor: theme.palette.background.paper,
     flexShrink: 0,
@@ -33,7 +36,7 @@ const styles = defineStyles('CurationPostView', (theme: ThemeType) => ({
     fontWeight: 600,
     textTransform: 'uppercase',
     color: theme.palette.grey[600],
-    marginBottom: 8,
+    marginBottom: 0,
   },
   postWrapper: {
     flex: 1,
