@@ -172,6 +172,7 @@ function createMcpServer(): McpServer {
         postId: z.string().describe("The ID of the post"),
         quote: z.string().describe("The text to find and replace"),
         replacement: z.string().describe("The replacement text in markdown"),
+        agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
         mode: z.enum(["edit", "suggest"]).optional().describe("Whether to apply directly ('edit') or as a suggestion ('suggest'). Defaults to 'suggest'."),
       },
       annotations: { destructiveHint: true },
@@ -179,6 +180,8 @@ function createMcpServer(): McpServer {
     async (args, extra) => {
       const context = await contextFromAuth(extra);
       const token = await getHocuspocusToken(context, args.postId);
+      const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
+      const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
 
       const result = await replaceTextInMainDoc({
         postId: args.postId,
@@ -186,6 +189,8 @@ function createMcpServer(): McpServer {
         quote: args.quote,
         replacement: args.replacement,
         mode: args.mode ?? "suggest",
+        authorName,
+        authorId,
       });
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
@@ -201,6 +206,7 @@ function createMcpServer(): McpServer {
         widgetId: z.string().describe("The widget ID to update"),
         replacement: z.string().optional().describe("Full replacement widget content"),
         unifiedDiff: z.string().optional().describe("Unified diff to apply to current widget content"),
+        agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
         mode: z.enum(["edit", "suggest"]).optional().describe("Whether to apply directly ('edit') or as a suggestion ('suggest'). Defaults to 'edit'."),
       },
       annotations: { destructiveHint: true },
@@ -208,6 +214,8 @@ function createMcpServer(): McpServer {
     async (args, extra) => {
       const context = await contextFromAuth(extra);
       const token = await getHocuspocusToken(context, args.postId);
+      const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
+      const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
 
       const operationCount = (args.replacement ? 1 : 0) + (args.unifiedDiff ? 1 : 0);
       if (operationCount !== 1) {
@@ -227,6 +235,8 @@ function createMcpServer(): McpServer {
         replacement: args.replacement,
         unifiedDiff: args.unifiedDiff,
         mode: args.mode ?? "edit",
+        authorName,
+        authorId,
       });
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
@@ -246,6 +256,7 @@ function createMcpServer(): McpServer {
           z.object({ before: z.string().describe("Insert before the paragraph starting with this text") }),
           z.object({ after: z.string().describe("Insert after the paragraph starting with this text") }),
         ]).describe("Where to insert: 'start', 'end', { before: '...' }, or { after: '...' }"),
+        agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
         mode: z.enum(["edit", "suggest"]).optional().describe("Whether to apply directly ('edit') or as a suggestion ('suggest'). Defaults to 'edit'."),
       },
       annotations: { destructiveHint: true },
@@ -253,6 +264,8 @@ function createMcpServer(): McpServer {
     async (args, extra) => {
       const context = await contextFromAuth(extra);
       const token = await getHocuspocusToken(context, args.postId);
+      const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
+      const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
 
       const result = await insertMarkdownBlock({
         postId: args.postId,
@@ -260,6 +273,8 @@ function createMcpServer(): McpServer {
         mode: args.mode ?? "edit",
         location: args.location,
         markdown: args.markdown,
+        authorName,
+        authorId,
       });
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };

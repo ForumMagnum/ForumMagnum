@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import { $createTextNode, $getNodeByKey, $isTextNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
+import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import {
   sleep,
   withMainDocEditorSession,
@@ -24,6 +25,7 @@ const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 const ReplaceTextRequestSchema = z.object({
   postId: z.string(),
   key: z.string().optional(),
+  agentName: z.string().optional(),
   quote: z.string(),
   replacement: z.string(),
   mode: z.enum(["edit", "suggest"]).default("suggest"),
@@ -35,6 +37,7 @@ interface ReplaceResult {
   replaced: boolean
   quoteFoundInDocument: boolean
   note: string
+  suggestionId?: string
 }
 
 function applySuggestionReplacement({
@@ -42,11 +45,13 @@ function applySuggestionReplacement({
   startOffset,
   endOffset,
   replacement,
+  suggestionId,
 }: {
   matchedNodeKey?: string
   startOffset?: number
   endOffset?: number
   replacement: string
+  suggestionId: string
 }): boolean {
   if (!matchedNodeKey || startOffset === undefined || endOffset === undefined) {
     return false;
@@ -63,7 +68,6 @@ function applySuggestionReplacement({
     return false;
   }
 
-  const suggestionId = randomId();
   const deleteSuggestion = $createSuggestionNode(suggestionId, "delete");
   selectedNode.insertBefore(deleteSuggestion);
   deleteSuggestion.append(selectedNode);
@@ -83,20 +87,25 @@ export async function replaceTextInMainDoc({
   quote,
   replacement,
   mode,
+  authorName,
+  authorId,
 }: {
   postId: string
   token: string
   quote: string
   replacement: string
   mode: ReplaceMode
+  authorName: string
+  authorId: string
 }): Promise<ReplaceResult> {
-  return withMainDocEditorSession({
+  const result = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "ReplaceText",
     callback: async ({ editor }) => {
       let replaced = false;
       let quoteFoundInDocument = false;
+      let suggestionId: string | undefined = undefined;
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
@@ -125,12 +134,17 @@ export async function replaceTextInMainDoc({
             return;
           }
 
+          suggestionId = randomId();
           replaced = applySuggestionReplacement({
             matchedNodeKey: selectionResult.matchedNodeKey,
             startOffset: selectionResult.startOffset,
             endOffset: selectionResult.endOffset,
             replacement,
+            suggestionId,
           });
+          if (!replaced) {
+            suggestionId = undefined;
+          }
         }, { onUpdate: resolve });
       });
 
@@ -145,6 +159,7 @@ export async function replaceTextInMainDoc({
           note: mode === "suggest"
             ? "Created delete/insert suggestion nodes for replacement."
             : "Replaced text directly.",
+          suggestionId,
         };
       }
 
@@ -157,6 +172,23 @@ export async function replaceTextInMainDoc({
       };
     },
   });
+
+  if (mode === "suggest" && result.replaced && result.suggestionId) {
+    await createSuggestionThreadInCommentsDoc({
+      postId,
+      token,
+      suggestionId: result.suggestionId,
+      authorName,
+      authorId,
+      summaryItems: [{
+        type: "replace",
+        content: quote,
+        replaceWith: replacement,
+      }],
+    });
+  }
+
+  return result;
 }
 
 export async function POST(req: NextRequest) {
@@ -170,7 +202,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
-  const { postId, key, quote, replacement, mode } = parseResult.data;
+  const { postId, key, agentName, quote, replacement, mode } = parseResult.data;
 
   try {
     const { data } = await runQuery(
@@ -182,6 +214,8 @@ export async function POST(req: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
+    const authorId = context.currentUser?._id ?? context.clientId ?? `agent-${randomId()}`;
+    const authorName = agentName ?? context.currentUser?.displayName ?? "AI Agent";
 
     const result = await replaceTextInMainDoc({
       postId,
@@ -189,6 +223,8 @@ export async function POST(req: NextRequest) {
       quote,
       replacement,
       mode,
+      authorName,
+      authorId,
     });
 
     return NextResponse.json({

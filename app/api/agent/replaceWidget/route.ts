@@ -8,6 +8,7 @@ import { $createTextNode, $getRoot, $isElementNode, type LexicalNode } from "lex
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
+import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 
 const HocuspocusAuthQuery = `
   query AgentReplaceWidgetHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -22,6 +23,7 @@ const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 const ReplaceWidgetRequestSchema = z.object({
   postId: z.string(),
   key: z.string().optional(),
+  agentName: z.string().optional(),
   widgetId: z.string(),
   replacement: z.string().optional(),
   unifiedDiff: z.string().optional(),
@@ -40,6 +42,9 @@ interface ReplaceWidgetResult {
   replaced: boolean
   widgetFound: boolean
   note: string
+  suggestionId?: string
+  previousContent?: string
+  nextContent?: string
 }
 
 function findWidgetNodeById(rootNode: LexicalNode, widgetId: string): IframeWidgetNode | null {
@@ -80,7 +85,7 @@ function computeReplacementContent({
   return { ok: true, content: patched };
 }
 
-function applySuggestionWidgetReplacement(widgetNode: IframeWidgetNode, oldContent: string, newContent: string): void {
+function applySuggestionWidgetReplacement(widgetNode: IframeWidgetNode, oldContent: string, newContent: string): string {
   const children = widgetNode.getChildren();
   for (const child of children) {
     child.remove();
@@ -95,6 +100,7 @@ function applySuggestionWidgetReplacement(widgetNode: IframeWidgetNode, oldConte
     insertSuggestion.append($createTextNode(newContent));
   }
   widgetNode.append(insertSuggestion);
+  return suggestionId;
 }
 
 export async function replaceWidgetInMainDoc({
@@ -104,6 +110,8 @@ export async function replaceWidgetInMainDoc({
   replacement,
   unifiedDiff,
   mode,
+  authorName,
+  authorId,
 }: {
   postId: string
   token: string
@@ -111,8 +119,10 @@ export async function replaceWidgetInMainDoc({
   replacement?: string
   unifiedDiff?: string
   mode: ReplaceMode
+  authorName: string
+  authorId: string
 }): Promise<ReplaceWidgetResult> {
-  return withMainDocEditorSession({
+  const result = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "ReplaceWidget",
@@ -167,11 +177,14 @@ export async function replaceWidgetInMainDoc({
             return;
           }
 
-          applySuggestionWidgetReplacement(widgetNode, currentContent, replacementResult.content);
+          const suggestionId = applySuggestionWidgetReplacement(widgetNode, currentContent, replacementResult.content);
           result = {
             replaced: true,
             widgetFound: true,
             note: "Created delete/insert suggestion nodes for widget content replacement.",
+            suggestionId,
+            previousContent: currentContent,
+            nextContent: replacementResult.content,
           };
         }, { onUpdate: resolve });
       });
@@ -182,6 +195,23 @@ export async function replaceWidgetInMainDoc({
       return result;
     },
   });
+
+  if (mode === "suggest" && result.replaced && result.suggestionId) {
+    await createSuggestionThreadInCommentsDoc({
+      postId,
+      token,
+      suggestionId: result.suggestionId,
+      authorName,
+      authorId,
+      summaryItems: [{
+        type: "replace",
+        content: result.previousContent ?? "",
+        replaceWith: result.nextContent ?? "",
+      }],
+    });
+  }
+
+  return result;
 }
 
 export async function POST(req: NextRequest) {
@@ -195,7 +225,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
-  const { postId, key, widgetId, replacement, unifiedDiff, mode } = parseResult.data;
+  const { postId, key, agentName, widgetId, replacement, unifiedDiff, mode } = parseResult.data;
 
   try {
     const { data } = await runQuery(
@@ -207,6 +237,8 @@ export async function POST(req: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
+    const authorId = context.currentUser?._id ?? context.clientId ?? `agent-${randomId()}`;
+    const authorName = agentName ?? context.currentUser?.displayName ?? "AI Agent";
 
     const result = await replaceWidgetInMainDoc({
       postId,
@@ -215,6 +247,8 @@ export async function POST(req: NextRequest) {
       replacement,
       unifiedDiff,
       mode,
+      authorName,
+      authorId,
     });
 
     return NextResponse.json({

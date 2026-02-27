@@ -20,6 +20,7 @@ import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugi
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
+import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 
 const HocuspocusAuthQuery = `
   query AgentInsertBlockHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -41,6 +42,7 @@ const InsertLocationSchema = z.union([
 const InsertBlockRequestSchema = z.object({
   postId: z.string(),
   key: z.string().optional(),
+  agentName: z.string().optional(),
   mode: z.enum(["edit", "suggest"]).default("edit"),
   location: InsertLocationSchema,
   markdown: z.string(),
@@ -53,6 +55,7 @@ interface InsertBlockResult {
   inserted: boolean
   note: string
   insertionIndex?: number
+  suggestionId?: string
 }
 
 function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
@@ -140,14 +143,18 @@ export async function insertMarkdownBlock({
   mode,
   location,
   markdown,
+  authorName,
+  authorId,
 }: {
   postId: string
   token: string
   mode: InsertMode
   location: InsertLocation
   markdown: string
+  authorName: string
+  authorId: string
 }): Promise<InsertBlockResult> {
-  return withMainDocEditorSession({
+  const result = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "InsertBlock",
@@ -213,13 +220,14 @@ export async function insertMarkdownBlock({
           }
 
           root.splice(insertionIndex, 0, nodesToInsert);
+          let suggestionId: string | undefined = undefined;
           if (mode === "suggest") {
             const insertedCount = nodesToInsert.length;
             const selection = $createRangeSelection();
             selection.anchor.set(root.getKey(), insertionIndex, "element");
             selection.focus.set(root.getKey(), insertionIndex + insertedCount, "element");
             $setSelection(selection);
-            const suggestionId = randomId();
+            suggestionId = randomId();
             $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
           }
           result = {
@@ -228,6 +236,7 @@ export async function insertMarkdownBlock({
               ? "Inserted markdown block as suggestion."
               : "Inserted markdown block into collaborative draft.",
             insertionIndex,
+            suggestionId,
           };
         }, { onUpdate: resolve });
       });
@@ -238,6 +247,22 @@ export async function insertMarkdownBlock({
       return result;
     },
   });
+
+  if (mode === "suggest" && result.inserted && result.suggestionId) {
+    await createSuggestionThreadInCommentsDoc({
+      postId,
+      token,
+      suggestionId: result.suggestionId,
+      authorName,
+      authorId,
+      summaryItems: [{
+        type: "insert",
+        content: markdown,
+      }],
+    });
+  }
+
+  return result;
 }
 
 export async function POST(req: NextRequest) {
@@ -251,7 +276,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
-  const { postId, key, mode, location, markdown } = parseResult.data;
+  const { postId, key, agentName, mode, location, markdown } = parseResult.data;
 
   try {
     const { data } = await runQuery(
@@ -263,6 +288,8 @@ export async function POST(req: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
+    const authorId = context.currentUser?._id ?? context.clientId ?? `agent-${randomId()}`;
+    const authorName = agentName ?? context.currentUser?.displayName ?? "AI Agent";
 
     const insertResult = await insertMarkdownBlock({
       postId,
@@ -270,6 +297,8 @@ export async function POST(req: NextRequest) {
       mode,
       location,
       markdown,
+      authorName,
+      authorId,
     });
 
     return NextResponse.json({
