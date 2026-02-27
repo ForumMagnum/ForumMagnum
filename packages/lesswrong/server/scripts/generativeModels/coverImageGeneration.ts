@@ -470,7 +470,7 @@ async function generateAndUpscaleImage(prompt: string, referenceImageUrl: string
 // Each job produces 4 images (batch_size 4).
 
 const MJ_CDN_BASE = "https://cdn.midjourney.com";
-const MJ_USER_ID = "15e7b155-feeb-4d9e-a0c7-376cd27758eb";
+const MJ_USER_ID = process.env.MIDJOURNEY_USER_ID ?? "MJ_USER_ID_NOT_SET";
 const MJ_CHANNEL_ID = `singleplayer_${MJ_USER_ID}`;
 const MJ_BRIDGE_PORT = 7878;
 
