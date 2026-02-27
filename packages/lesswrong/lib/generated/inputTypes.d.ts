@@ -2640,11 +2640,11 @@ interface SingleCurationNoticeOutput {
 interface CurationNoticeSelector {
   default: EmptyViewInput | null;
   curationNoticesPage: EmptyViewInput | null;
-  curationNoticesPostView: CurationNoticesPostViewTerms | null;
+  curationNoticesPostView: CurationNoticesPostViewInput | null;
 }
 
-interface CurationNoticesPostViewTerms {
-  postId: string | null;
+interface CurationNoticesPostViewInput {
+  postId?: string | null;
 }
 
 interface MultiCurationNoticeInput {
@@ -10300,7 +10300,7 @@ interface GraphQLTypeMap {
   SingleCurationNoticeInput: SingleCurationNoticeInput;
   SingleCurationNoticeOutput: SingleCurationNoticeOutput;
   CurationNoticeSelector: CurationNoticeSelector;
-  CurationNoticesPostViewTerms: CurationNoticesPostViewTerms;
+  CurationNoticesPostViewInput: CurationNoticesPostViewInput;
   MultiCurationNoticeInput: MultiCurationNoticeInput;
   MultiCurationNoticeOutput: MultiCurationNoticeOutput;
   DatabaseMetadata: DatabaseMetadata;

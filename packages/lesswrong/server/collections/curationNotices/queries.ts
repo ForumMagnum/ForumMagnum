@@ -20,10 +20,10 @@ export const graphqlCurationNoticeQueryTypeDefs = gql`
   input CurationNoticeSelector {
     default: EmptyViewInput
     curationNoticesPage: EmptyViewInput
-    curationNoticesPostView: CurationNoticesPostViewTerms
+    curationNoticesPostView: CurationNoticesPostViewInput
   }
   
-  input CurationNoticesPostViewTerms {
+  input CurationNoticesPostViewInput {
     postId: String
   }
   
