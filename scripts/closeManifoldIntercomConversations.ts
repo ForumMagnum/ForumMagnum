@@ -9,6 +9,7 @@
  *
  * Reads the intercom token from the private_intercomToken env var (same as the server).
  */
+/* eslint-disable no-console */
 
 const INTERCOM_API = "https://api.intercom.io";
 const TOKEN = "" // look up intercom token in Intercom -> settings -> developer hub
