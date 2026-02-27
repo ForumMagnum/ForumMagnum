@@ -55,7 +55,7 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
   },
   image: {
     width: '100%',
-    height: 100,
+    height: 200,
     objectFit: 'cover',
     cursor: 'pointer',
     display: 'block',
@@ -77,7 +77,7 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
   },
   imageWrapper: {
     position: 'relative',
-    width: 200,
+    width: 400,
     transition: 'opacity 0.15s',
   },
   imageWrapperFaded: {
@@ -202,7 +202,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false, fadeNonU
           />
           <div className={classes.postWrapper} >
             {promptImages.map((image) => {
-              const smallUrl = getCloudinaryThumbnail(image.splashArtImageUrl);
+              const smallUrl = getCloudinaryThumbnail(image.splashArtImageUrl, 400);
               const tooltipImageUrl = image.upscaledImageUrl
                 ? getCloudinaryThumbnail(image.upscaledImageUrl, 800)
                 : getCloudinaryThumbnail(image.splashArtImageUrl, 800);

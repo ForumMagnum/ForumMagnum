@@ -54,7 +54,7 @@ export const upscaleReviewWinnerArtGraphQLMutations = {
     const {
       upscaleMidjourneyImage,
       createUsageTracker,
-      OPENAI_MODEL,
+      DEFAULT_ILLUSTRATION_MODEL,
       downloadViaBridge,
       startMidjourneyBridge,
       getMjBridgeClientScript,
@@ -68,7 +68,7 @@ export const upscaleReviewWinnerArtGraphQLMutations = {
     // eslint-disable-next-line no-console
     console.log("\n=============================================================\n");
 
-    const tracker = createUsageTracker(OPENAI_MODEL);
+    const tracker = createUsageTracker(DEFAULT_ILLUSTRATION_MODEL);
     const upscaledCdnUrl = await upscaleMidjourneyImage(
       reviewWinnerArt.midjourneyJobId,
       reviewWinnerArt.midjourneyImageIndex,

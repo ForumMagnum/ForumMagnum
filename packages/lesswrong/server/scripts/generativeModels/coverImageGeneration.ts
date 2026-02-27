@@ -12,10 +12,10 @@
  *   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'previewIllustrations("postId")'
  */
 
-// eslint-disable-next-line no-restricted-imports
-import type OpenAI from 'openai';
 import { z } from "zod";
 import { getOpenAI } from '../../languageModels/languageModelIntegration';
+import { getAnthropicClientOrThrow } from '@/server/languageModels/anthropicClient';
+import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import ReviewWinners from '@/server/collections/reviewWinners/collection';
 import ReviewWinnerArts from '@/server/collections/reviewWinnerArts/collection';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary';
@@ -38,9 +38,14 @@ import { executePromiseQueue } from '@/lib/utils/asyncUtils';
 // Which image generation provider to use.
 const IMAGE_PROVIDER: 'fal' | 'midjourney' = 'midjourney';
 
-// The OpenAI model to use for generating illustration descriptions.
-// Change this to experiment with different models (e.g. "gpt-5-mini").
-export const OPENAI_MODEL = "gpt-5.2";
+type OpenAiModel = 'gpt-5.2' | 'gpt-5-mini';
+type AnthropicModel = 'claude-opus-4-6' | 'claude-sonnet-4-6';
+type SupportedLlmModel = OpenAiModel | AnthropicModel;
+type LlmProvider = 'openai' | 'anthropic';
+
+// The LLM model to use for generating illustration descriptions.
+// Change this to experiment with different models.
+export const DEFAULT_ILLUSTRATION_MODEL: SupportedLlmModel = "claude-opus-4-6";
 
 // ── Queries ──────────────────────────────────────────────────────────
 
@@ -104,13 +109,15 @@ interface UsageTracker {
   falUpscaleCount: number;
   midjourneyJobCount: number;
   midjourneyUpscaleCount: number;
-  model: 'gpt-5.2' | 'gpt-5-mini';
+  model: SupportedLlmModel;
 }
 
 // Per-million-token pricing for supported models.
 const MODEL_PRICING: Record<UsageTracker['model'], { input: number; cachedInput: number; output: number }> = {
   "gpt-5.2":      { input: 1.75,  cachedInput: 0.175, output: 14.0 },
   "gpt-5-mini":   { input: 0.25,  cachedInput: 0.025, output: 2.0 },
+  "claude-sonnet-4-6": { input: 3.0, cachedInput: 0.3, output: 15.0 },
+  "claude-opus-4-6": { input: 5.0, cachedInput: 0.5, output: 25.0 },
 };
 
 // Fal.ai per-request pricing (approximate).
@@ -130,6 +137,40 @@ function recordOpenAiUsage(tracker: UsageTracker, usage: { input_tokens: number;
   tracker.outputTokens += usage.output_tokens;
   tracker.cachedInputTokens += usage.input_tokens_details?.cached_tokens ?? 0;
   tracker.reasoningTokens += usage.output_tokens_details?.reasoning_tokens ?? 0;
+}
+
+function recordAnthropicUsage(
+  tracker: UsageTracker,
+  usage: {
+    input_tokens: number;
+    output_tokens: number;
+    cache_creation_input_tokens?: number | null;
+    cache_read_input_tokens?: number | null;
+  } | undefined
+) {
+  if (!usage) return;
+  tracker.calls++;
+  const cacheCreationTokens = usage.cache_creation_input_tokens ?? 0;
+  const cacheReadTokens = usage.cache_read_input_tokens ?? 0;
+  tracker.inputTokens += usage.input_tokens + cacheCreationTokens + cacheReadTokens;
+  tracker.outputTokens += usage.output_tokens;
+  tracker.cachedInputTokens += cacheReadTokens;
+}
+
+function getModelProvider(model: SupportedLlmModel): LlmProvider {
+  return model.startsWith("claude-") ? "anthropic" : "openai";
+}
+
+function isOpenAiModel(model: SupportedLlmModel): model is OpenAiModel {
+  return model === "gpt-5.2" || model === "gpt-5-mini";
+}
+
+async function getOpenAiClientOrThrow() {
+  const openAiClient = await getOpenAI();
+  if (!openAiClient) {
+    throw new Error('Could not initialize OpenAI client!');
+  }
+  return openAiClient;
 }
 
 function printUsageSummary(tracker: UsageTracker) {
@@ -159,20 +200,23 @@ function printUsageSummary(tracker: UsageTracker) {
   Fal.ai total:       ${CYAN}$${falCost.toFixed(4)}${RESET} ${DIM}(${tracker.falImageCount} × $${FAL_PRICING["flux-pro"]} + ${tracker.falUpscaleCount} × $${FAL_PRICING["esrgan"]})${RESET}
   ${BOLD}Combined total:     ${CYAN}$${((inputCost ?? 0) + (outputCost ?? 0) + falCost).toFixed(4)}${RESET}`;
 
+  const modelProvider = getModelProvider(tracker.model);
+
   // eslint-disable-next-line no-console
   console.log(`
 ${BOLD}── Usage Summary ──────────────────────────────────────────${RESET}
   Model:              ${tracker.model}
-  OpenAI calls:       ${tracker.calls}
+  Provider:           ${modelProvider}
+  LLM calls:          ${tracker.calls}
   Input tokens:       ${tracker.inputTokens.toLocaleString()} ${tracker.cachedInputTokens > 0 ? `${DIM}(${tracker.cachedInputTokens.toLocaleString()} cached)${RESET}` : ""}
   Output tokens:      ${tracker.outputTokens.toLocaleString()} ${tracker.reasoningTokens > 0 ? `${DIM}(${tracker.reasoningTokens.toLocaleString()} reasoning)${RESET}` : ""}
 ${imageProviderLine}
 ${BOLD}── Cost Estimate ──────────────────────────────────────────${RESET}${
   pricing
     ? `
-  OpenAI input:       ${CYAN}$${inputCost!.toFixed(4)}${RESET} ${tracker.cachedInputTokens > 0 ? `${DIM}(${uncachedInputTokens.toLocaleString()} uncached × $${pricing.input}/M + ${tracker.cachedInputTokens.toLocaleString()} cached × $${pricing.cachedInput}/M)${RESET}` : ""}
-  OpenAI output:      ${CYAN}$${outputCost!.toFixed(4)}${RESET}
-  OpenAI total:       ${CYAN}$${(inputCost! + outputCost!).toFixed(4)}${RESET}`
+  LLM input:          ${CYAN}$${inputCost!.toFixed(4)}${RESET} ${tracker.cachedInputTokens > 0 ? `${DIM}(${uncachedInputTokens.toLocaleString()} uncached × $${pricing.input}/M + ${tracker.cachedInputTokens.toLocaleString()} cached × $${pricing.cachedInput}/M)${RESET}` : ""}
+  LLM output:         ${CYAN}$${outputCost!.toFixed(4)}${RESET}
+  LLM total:          ${CYAN}$${(inputCost! + outputCost!).toFixed(4)}${RESET}`
     : `
   ${DIM}(no pricing data for model "${tracker.model}")${RESET}`}${costLines}
 ${DIM}──────────────────────────────────────────────────────────${RESET}
@@ -249,18 +293,18 @@ const IllustrationsSchema = z.object({
   illustrations: z.array(z.string()),
 });
 
-async function getIllustrationDescriptions(
-  openAiClient: OpenAI,
+async function getIllustrationDescriptionsOpenAi(
   essay: { title: string; content: string; promptsGenerated: number },
   tracker: UsageTracker,
   tryCount = 0
 ): Promise<string[]> {
   const { OpenAI } = await import("openai");
   const { zodTextFormat } = await import("openai/helpers/zod");
+  const openAiClient = await getOpenAiClientOrThrow();
 
   const content = truncateContent(essay.content, 25_000);
   const response = await openAiClient.responses.parse({
-    model: tracker.model,
+    model: isOpenAiModel(tracker.model) ? tracker.model : "gpt-5.2",
     input: [{ role: "user", content: buildIllustrationPrompt(essay.title, content, essay.promptsGenerated) }],
     text: { format: zodTextFormat(IllustrationsSchema, "illustrations") },
     reasoning: {
@@ -271,7 +315,7 @@ async function getIllustrationDescriptions(
       // Retry with more aggressive truncation
       const shorterContent = truncateContent(essay.content, 16_000);
       return openAiClient.responses.parse({
-        model: tracker.model,
+        model: isOpenAiModel(tracker.model) ? tracker.model : "gpt-5.2",
         input: [{ role: "user", content: buildIllustrationPrompt(essay.title, shorterContent, essay.promptsGenerated) }],
         text: { format: zodTextFormat(IllustrationsSchema, "illustrations") },
         reasoning: {
@@ -292,17 +336,55 @@ async function getIllustrationDescriptions(
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error parsing LLM response:', error);
-    if (tryCount < 2) return getIllustrationDescriptions(openAiClient, essay, tracker, tryCount + 1);
+    if (tryCount < 2) return getIllustrationDescriptionsOpenAi(essay, tracker, tryCount + 1);
     return [];
   }
 }
 
+async function getIllustrationDescriptionsAnthropic(
+  essay: { title: string; content: string; promptsGenerated: number },
+  tracker: UsageTracker,
+): Promise<string[]> {
+  const anthropicClient = getAnthropicClientOrThrow();
+  const anthropicModel = getModelProvider(tracker.model) === "anthropic"
+    ? tracker.model
+    : "claude-sonnet-4-6";
+  const content = truncateContent(essay.content, 25_000);
+  const completion = await anthropicClient.messages.parse({
+    model: anthropicModel,
+    max_tokens: 1_200,
+    messages: [{
+      role: "user",
+      content: buildIllustrationPrompt(essay.title, content, essay.promptsGenerated),
+    }],
+    output_config: {
+      format: zodOutputFormat(IllustrationsSchema),
+    },
+  });
+
+  recordAnthropicUsage(tracker, completion.usage);
+  const parsed = completion.parsed_output?.illustrations ?? [];
+
+  return parsed;
+}
+
+async function getIllustrationDescriptions(
+  essay: { title: string; content: string; promptsGenerated: number },
+  tracker: UsageTracker,
+  tryCount = 0
+): Promise<string[]> {
+  const provider = getModelProvider(tracker.model);
+  if (provider === "anthropic") {
+    return getIllustrationDescriptionsAnthropic(essay, tracker);
+  }
+  return getIllustrationDescriptionsOpenAi(essay, tracker, tryCount);
+}
+
 async function getImagePrompts(
-  openAiClient: OpenAI,
   essay: { title: string; content: string; promptsGenerated: number },
   tracker: UsageTracker
 ): Promise<string[]> {
-  const descriptions = await getIllustrationDescriptions(openAiClient, essay, tracker);
+  const descriptions = await getIllustrationDescriptions(essay, tracker);
 
   if (descriptions.length > 0) {
     const DIM = "\x1b[2m";
@@ -962,8 +1044,8 @@ async function getArtForEssayMidjourney(essay: Essay, prompts: string[], tracker
   return nestedResults.flat();
 }
 
-async function getArtForEssay(openAiClient: OpenAI, essay: Essay, tracker: UsageTracker, prompt?: string): Promise<EssayResult[]> {
-  const prompts = prompt ? [formatAsMidjourneyPrompt(prompt)] : await getImagePrompts(openAiClient, essay, tracker);
+async function getArtForEssay(essay: Essay, tracker: UsageTracker, prompt?: string): Promise<EssayResult[]> {
+  const prompts = prompt ? [formatAsMidjourneyPrompt(prompt)] : await getImagePrompts(essay, tracker);
 
   if (IMAGE_PROVIDER === 'midjourney') {
     return getArtForEssayMidjourney(essay, prompts, tracker);
@@ -1016,11 +1098,6 @@ export const getReviewWinnerArts = async () => {
   // eslint-disable-next-line no-console
   console.log(`Generating art for ${batch.length} essays (${essays.length} total need art)`);
 
-  const openAiClient = await getOpenAI();
-  if (!openAiClient) {
-    throw new Error('Could not initialize OpenAI client!');
-  }
-
   if (IMAGE_PROVIDER === 'midjourney') {
     await startMidjourneyBridge();
     // eslint-disable-next-line no-console
@@ -1031,8 +1108,8 @@ export const getReviewWinnerArts = async () => {
     console.log("\n=============================================================\n");
   }
 
-  const tracker = createUsageTracker(OPENAI_MODEL);
-  const results = await Promise.all(batch.map(essay => getArtForEssay(openAiClient, essay, tracker)));
+  const tracker = createUsageTracker(DEFAULT_ILLUSTRATION_MODEL);
+  const results = await Promise.all(batch.map(essay => getArtForEssay(essay, tracker)));
   const totalImages = results.reduce((sum, r) => sum + r.length, 0);
 
   // eslint-disable-next-line no-console
@@ -1068,11 +1145,6 @@ export const generateCoverImagesForPost = async (postId: string, prompt?: string
     neededArtCount: 9
   };
 
-  const openAiClient = await getOpenAI();
-  if (!openAiClient) {
-    throw new Error('Could not initialize OpenAI client!');
-  }
-
   if (IMAGE_PROVIDER === 'midjourney') {
     await startMidjourneyBridge();
     // eslint-disable-next-line no-console
@@ -1083,8 +1155,8 @@ export const generateCoverImagesForPost = async (postId: string, prompt?: string
     console.log("\n=============================================================\n");
   }
 
-  const tracker = createUsageTracker(OPENAI_MODEL);
-  const results = await getArtForEssay(openAiClient, essay, tracker, prompt);
+  const tracker = createUsageTracker(DEFAULT_ILLUSTRATION_MODEL);
+  const results = await getArtForEssay(essay, tracker, prompt);
 
   // eslint-disable-next-line no-console
   console.timeEnd('generateCoverImagesForPost');
@@ -1107,13 +1179,8 @@ export const previewIllustrations = async (postId: string, count = 3): Promise<s
     throw new Error(`Post with ID ${postId} not found`);
   }
 
-  const openAiClient = await getOpenAI();
-  if (!openAiClient) {
-    throw new Error('Could not initialize OpenAI client!');
-  }
-
-  const tracker = createUsageTracker(OPENAI_MODEL);
-  const prompts = await getImagePrompts(openAiClient, { title: post.title, content: post.contents?.markdown ?? "", promptsGenerated: count }, tracker);
+  const tracker = createUsageTracker(DEFAULT_ILLUSTRATION_MODEL);
+  const prompts = await getImagePrompts({ title: post.title, content: post.contents?.markdown ?? "", promptsGenerated: count }, tracker);
 
   printUsageSummary(tracker);
 
