@@ -111,7 +111,7 @@ export const CurationNoticesFormInner = ({initialData, currentUser, postId, onSu
   }
 
   return (
-    <form className="vulcan-form" onSubmit={(e) => {
+  <form className="vulcan-form" onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
       void form.handleSubmit();
