@@ -1,11 +1,7 @@
 import { validateAuthorizationRequest, createAuthorizationCode, OAuthError } from "@/server/oauth/oauthProvider";
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
-import { siteUrlSetting } from "@/lib/instanceSettings";
 import type { NextRequest } from "next/server";
-
-function getSiteUrl(): string {
-  return siteUrlSetting.get().replace(/\/$/, "");
-}
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 
 /**
  * GET /oauth/authorize — renders a minimal consent page.
@@ -20,13 +16,14 @@ export async function GET(req: NextRequest) {
   const state = params.get("state") ?? "";
   const codeChallenge = params.get("code_challenge") ?? undefined;
   const codeChallengeMethod = params.get("code_challenge_method") ?? undefined;
+  const siteUrl = getSiteUrlFromReq(req);
 
   // Check if user is logged in
   const user = await getUserFromReq(req);
   if (!user) {
     // Redirect to login, then back to this URL
     const returnUrl = req.nextUrl.toString();
-    return Response.redirect(`${getSiteUrl()}/auth/login?returnTo=${encodeURIComponent(returnUrl)}`);
+    return Response.redirect(`${siteUrl}/auth/login?returnTo=${encodeURIComponent(returnUrl)}`);
   }
 
   // Validate the authorization request

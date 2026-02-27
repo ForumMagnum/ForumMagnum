@@ -1,7 +1,8 @@
-import { siteUrlSetting } from "@/lib/instanceSettings";
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
+import { NextRequest } from "next/server";
 
-export async function GET() {
-  const siteUrl = siteUrlSetting.get().replace(/\/$/, "");
+export async function GET(req: NextRequest) {
+  const siteUrl = getSiteUrlFromReq(req);
 
   return new Response(JSON.stringify({
     issuer: siteUrl,

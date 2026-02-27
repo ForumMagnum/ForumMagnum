@@ -1,15 +1,11 @@
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createMcpServer } from "./mcpServer";
 import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
-import { siteUrlSetting } from "@/lib/instanceSettings";
 import type { NextRequest } from "next/server";
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 
-function getSiteUrl(): string {
-  return siteUrlSetting.get().replace(/\/$/, "");
-}
-
-function unauthorized(description: string): Response {
-  const siteUrl = getSiteUrl();
+function unauthorized(req: NextRequest, description: string): Response {
+  const siteUrl = getSiteUrlFromReq(req);
   return new Response(JSON.stringify({ error: "unauthorized", error_description: description }), {
     status: 401,
     headers: {
@@ -19,11 +15,11 @@ function unauthorized(description: string): Response {
   });
 }
 
-async function handleMcpRequest(req: Request): Promise<Response> {
+async function handleMcpRequest(req: NextRequest): Promise<Response> {
   // Extract and validate bearer token
   const authHeader = req.headers.get("authorization");
   if (!authHeader?.startsWith("Bearer ")) {
-    return unauthorized("Missing bearer token");
+    return unauthorized(req, "Missing bearer token");
   }
 
   const bearerToken = authHeader.slice("Bearer ".length);
@@ -32,9 +28,9 @@ async function handleMcpRequest(req: Request): Promise<Response> {
     tokenInfo = await validateAccessToken(bearerToken);
   } catch (e) {
     if (e instanceof OAuthError) {
-      return unauthorized(e.message);
+      return unauthorized(req, e.message);
     }
-    return unauthorized("Invalid token");
+    return unauthorized(req, "Invalid token");
   }
 
   // Create a fresh server + transport per request

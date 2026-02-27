@@ -1,7 +1,8 @@
-import { siteUrlSetting } from "@/lib/instanceSettings";
+import { NextRequest } from "next/server";
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 
-export async function GET() {
-  const siteUrl = siteUrlSetting.get().replace(/\/$/, "");
+export async function GET(req: NextRequest) {
+  const siteUrl = getSiteUrlFromReq(req);
 
   return new Response(JSON.stringify({
     resource: `${siteUrl}/api/mcp`,
