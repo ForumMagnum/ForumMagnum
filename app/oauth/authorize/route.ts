@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   if (!user) {
     // Redirect to login, then back to this URL
     const returnUrl = req.nextUrl.toString();
-    return Response.redirect(`${siteUrl}/auth/login?returnTo=${encodeURIComponent(returnUrl)}`);
+    return Response.redirect(`${siteUrl}/login?returnTo=${encodeURIComponent(returnUrl)}`);
   }
 
   // Validate the authorization request
