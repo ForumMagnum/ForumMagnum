@@ -50,8 +50,9 @@ async function searchManifoldConversations(): Promise<ConversationSearchResult[]
   let startingAfter: string | null = null;
   let page = 1;
 
+  // eslint-disable-next-line no-constant-condition -- pagination loop with break
   while (true) {
-    const sixtyDaysAgo = Math.floor((Date.now() - 60 * 24 * 60 * 60 * 1000) / 1000);
+    const sixtyDaysAgo = Math.floor((Date.now() - (60 * 24 * 60 * 60 * 1000)) / 1000);
     const body: Record<string, unknown> = {
       query: {
         operator: "AND",
