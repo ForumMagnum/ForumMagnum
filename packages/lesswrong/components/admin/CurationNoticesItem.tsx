@@ -50,6 +50,7 @@ const styles = defineStyles("CurationNoticesItem", (theme: ThemeType) => ({
     marginBottom: 20,
     background: theme.palette.background.pageActiveAreaBackground,
     padding: 12,
+    paddingTop: 4,
     position: "relative",
     paddingBottom: 24,
   },
@@ -220,7 +221,3 @@ export const CurationNoticesItem = ({curationNotice}: {
 }
 
 export default CurationNoticesItem;
-
-
-
-

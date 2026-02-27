@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
 import ModerationPostItem from './ModerationPostItem';
-import ModerationTabs, { TabInfo } from './ModerationTabs';
-import type { ReviewGroup } from './groupings';
+import CurationPostItem from './CurationPostItem';
+import type { ReviewGroup, TabId } from './groupings';
 import classNames from 'classnames';
 
 const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
@@ -52,25 +52,23 @@ export type GroupEntry = [ReviewGroup, SunshineUsersList[]];
 const ModerationInboxList = ({
   userGroups,
   posts,
+  curationPosts,
   focusedUserId,
   focusedPostId,
   onFocusUser,
   onOpenUser,
   onFocusPost,
-  visibleTabs,
   activeTab,
-  onTabChange,
 }: {
   userGroups: GroupEntry[];
   posts: SunshinePostsList[];
+  curationPosts: SunshineCurationPostsList[];
   focusedUserId: string | null;
   focusedPostId: string | null;
   onFocusUser: (userId: string) => void;
   onOpenUser: (userId: string) => void;
   onFocusPost: (postId: string) => void;
-  visibleTabs: TabInfo[];
-  activeTab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts';
-  onTabChange: (tab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts') => void;
+  activeTab: TabId;
 }) => {
   const classes = useStyles(styles);
 
@@ -78,12 +76,22 @@ const ModerationInboxList = ({
 
   return (
     <div className={classes.root}>
-      <ModerationTabs
-        tabs={visibleTabs}
-        activeTab={activeTab}
-        onTabChange={onTabChange}
-      />
-      {(activeTab === 'posts' || activeTab === 'classifiedPosts') ? (
+      {activeTab === 'curation' ? (
+        curationPosts.length === 0 ? (
+          <div className={classes.empty}>No curation candidates</div>
+        ) : (
+          <div className={classes.scrollContainer}>
+            {curationPosts.map((post) => (
+              <CurationPostItem
+                key={post._id}
+                post={post}
+                isFocused={post._id === focusedPostId}
+                onFocus={() => onFocusPost(post._id)}
+              />
+            ))}
+          </div>
+        )
+      ) : (activeTab === 'posts' || activeTab === 'classifiedPosts') ? (
         posts.length === 0 ? (
           <div className={classes.empty}>
             {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review' : 'No posts to review'}

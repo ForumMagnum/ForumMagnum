@@ -4,7 +4,11 @@ declare global {
   interface CurationNoticesPageViewTerms {
     view: 'curationNoticesPage'
   }
-  type CurationNoticesViewTerms = Omit<ViewTermsBase, 'view'> & (CurationNoticesPageViewTerms | {view?: undefined})
+  interface CurationNoticesPostViewTerms {
+    view: 'curationNoticesPostView'
+    postId: string
+  }
+  type CurationNoticesViewTerms = Omit<ViewTermsBase, 'view'> & (CurationNoticesPageViewTerms | CurationNoticesPostViewTerms | {view?: undefined}) 
 }
 
 function curationNoticesPage() {
@@ -14,6 +18,14 @@ function curationNoticesPage() {
   };
 }
 
+function curationNoticesPostView(terms: CurationNoticesPostViewTerms) {
+  return {
+    selector: { postId: terms.postId, deleted: false },
+    options: { sort: { createdAt: -1 } }
+  };
+}
+
 export const CurationNoticesViews = new CollectionViewSet('CurationNotices', {
-  curationNoticesPage
+  curationNoticesPage,
+  curationNoticesPostView
 });

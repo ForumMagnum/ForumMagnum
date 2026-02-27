@@ -2179,6 +2179,11 @@ type CuratedAndPopularThisWeekResult = {
   results: Array<Post>;
 };
 
+type CurationCandidatePostsResult = {
+  __typename?: 'CurationCandidatePostsResult';
+  results: Array<Post>;
+};
+
 type CurationEmail = {
   __typename?: 'CurationEmail';
   _id: Scalars['String']['output'];
@@ -2218,7 +2223,12 @@ type CurationNoticeOutput = {
 
 type CurationNoticeSelector = {
   curationNoticesPage?: InputMaybe<EmptyViewInput>;
+  curationNoticesPostView?: InputMaybe<CurationNoticesPostViewTerms>;
   default?: InputMaybe<EmptyViewInput>;
+};
+
+type CurationNoticesPostViewTerms = {
+  postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type DatabaseMetadata = {
@@ -3014,6 +3024,11 @@ type LWEventsPostVisitsInput = {
   limit?: InputMaybe<Scalars['String']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type LastCuratedDateResult = {
+  __typename?: 'LastCuratedDateResult';
+  lastCuratedDate?: Maybe<Scalars['Date']['output']>;
 };
 
 type LatLng = {
@@ -7794,6 +7809,7 @@ type Query = {
   ContinueReading?: Maybe<Array<RecommendResumeSequence>>;
   CrossedKarmaThreshold?: Maybe<CrossedKarmaThresholdResult>;
   CuratedAndPopularThisWeek?: Maybe<CuratedAndPopularThisWeekResult>;
+  CurationCandidatePosts?: Maybe<CurationCandidatePostsResult>;
   CurrentFrontpageSurvey?: Maybe<SurveySchedule>;
   DigestHighlights?: Maybe<DigestHighlightsResult>;
   DigestPlannerData: Array<DigestPlannerPost>;
@@ -7809,6 +7825,7 @@ type Query = {
   HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   IsDisplayNameTaken: Scalars['Boolean']['output'];
+  LastCuratedDate: LastCuratedDateResult;
   Lightcone2024FundraiserStripeAmounts?: Maybe<Array<Scalars['Int']['output']>>;
   Lightcone2025FundraiserAirtableAmounts: Scalars['Int']['output'];
   MigrationsDashboard?: Maybe<MigrationsDashboardData>;
@@ -8051,6 +8068,11 @@ type QueryCrossedKarmaThresholdArgs = {
 
 type QueryCuratedAndPopularThisWeekArgs = {
   af?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QueryCurationCandidatePostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -22603,6 +22625,23 @@ type multiCommentRejectedCommentsListQueryQueryVariables = Exact<{
 
 type multiCommentRejectedCommentsListQueryQuery = multiCommentRejectedCommentsListQueryQuery_Query;
 
+type CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput_results_CurationNotice = (
+  { __typename?: 'CurationNotice' }
+  & CurationNoticesFragment
+);
+
+type CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput = { __typename?: 'MultiCurationNoticeOutput', results: Array<CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput_results_CurationNotice> };
+
+type CurationPostViewQueryQuery_Query = { __typename?: 'Query', curationNotices: CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput | null };
+
+
+type CurationPostViewQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+type CurationPostViewQueryQuery = CurationPostViewQueryQuery_Query;
+
 type multiUserModerationInboxQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & SunshineUsersList
@@ -22659,6 +22698,33 @@ type multiPostAutoClassifiedInboxQueryQueryVariables = Exact<{
 
 
 type multiPostAutoClassifiedInboxQueryQuery = multiPostAutoClassifiedInboxQueryQuery_Query;
+
+type CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post = (
+  { __typename?: 'Post' }
+  & SunshineCurationPostsList
+);
+
+type CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult = { __typename?: 'CurationCandidatePostsResult', results: Array<CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post> };
+
+type CurationCandidatePostsQueryQuery_Query = { __typename?: 'Query', CurationCandidatePosts: CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null };
+
+
+type CurationCandidatePostsQueryQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type CurationCandidatePostsQueryQuery = CurationCandidatePostsQueryQuery_Query;
+
+type LastCuratedDateQueryQuery_LastCuratedDate_LastCuratedDateResult = { __typename?: 'LastCuratedDateResult', lastCuratedDate: string | null };
+
+type LastCuratedDateQueryQuery_Query = { __typename?: 'Query', LastCuratedDate: LastCuratedDateQueryQuery_LastCuratedDate_LastCuratedDateResult };
+
+
+type LastCuratedDateQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type LastCuratedDateQueryQuery = LastCuratedDateQueryQuery_Query;
 
 type singleUserSupermodQueryQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
