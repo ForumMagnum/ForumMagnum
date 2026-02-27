@@ -2223,7 +2223,12 @@ type CurationNoticeOutput = {
 
 type CurationNoticeSelector = {
   curationNoticesPage?: InputMaybe<EmptyViewInput>;
+  curationNoticesPostView?: InputMaybe<CurationNoticesPostViewTerms>;
   default?: InputMaybe<EmptyViewInput>;
+};
+
+type CurationNoticesPostViewTerms = {
+  postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type DatabaseMetadata = {
@@ -22578,6 +22583,23 @@ type multiCommentRejectedCommentsListQueryQueryVariables = Exact<{
 
 
 type multiCommentRejectedCommentsListQueryQuery = multiCommentRejectedCommentsListQueryQuery_Query;
+
+type CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput_results_CurationNotice = (
+  { __typename?: 'CurationNotice' }
+  & CurationNoticesFragment
+);
+
+type CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput = { __typename?: 'MultiCurationNoticeOutput', results: Array<CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput_results_CurationNotice> };
+
+type CurationPostViewQueryQuery_Query = { __typename?: 'Query', curationNotices: CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput | null };
+
+
+type CurationPostViewQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+type CurationPostViewQueryQuery = CurationPostViewQueryQuery_Query;
 
 type multiUserModerationInboxQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }

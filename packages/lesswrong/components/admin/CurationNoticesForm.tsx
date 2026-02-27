@@ -2,7 +2,7 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React from "react";
+import React, { useState } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
@@ -33,13 +33,6 @@ const CurationNoticesFragmentMutation = gql(`
   }
 `);
 
-interface CurationNoticesFormProps {
-  initialData?: UpdateCurationNoticeDataInput & { _id: string; userId: string };
-  currentUser: UsersCurrent;
-  postId: string;
-  onSuccess?: (doc: CurationNoticesFragment) => void;
-}
-
 const formStyles = defineStyles('CurationNoticesForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: theme.spacing.unit * 2,
@@ -47,13 +40,14 @@ const formStyles = defineStyles('CurationNoticesForm', (theme: ThemeType) => ({
   },
   submitButton: submitButtonStyles(theme),
 }));
+interface CurationNoticesFormProps {
+  initialData?: UpdateCurationNoticeDataInput & { _id: string; userId: string };
+  currentUser: UsersCurrent;
+  postId: string;
+  onSuccess?: (doc: CurationNoticesFragment) => void;
+}
 
-export const CurationNoticesForm = ({
-  initialData,
-  currentUser,
-  postId,
-  onSuccess,
-}: CurationNoticesFormProps) => {
+export const CurationNoticesFormInner = ({initialData, currentUser, postId, onSuccess}: CurationNoticesFormProps) => {
   const classes = useStyles(formStyles);
   const formType = initialData ? 'edit' : 'new';
 
@@ -144,7 +138,7 @@ export const CurationNoticesForm = ({
         </form.Field>
       </div>
 
-      <div className={classes.fieldWrapper}>
+      {formType === 'edit' && <div className={classes.fieldWrapper}>
         <form.Field name="deleted">
           {(field) => (
             <FormComponentCheckbox
@@ -153,7 +147,7 @@ export const CurationNoticesForm = ({
             />
           )}
         </form.Field>
-      </div>
+      </div>}
 
       <div className="form-submit">
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
@@ -170,4 +164,18 @@ export const CurationNoticesForm = ({
       </div>
     </form>
   );
+};
+
+export const CurationNoticesForm = ({initialData, currentUser, postId, onSuccess}: CurationNoticesFormProps) => {
+  const [formKey, setFormKey] = useState(0);
+  return <CurationNoticesFormInner 
+    key={formKey}
+    initialData={initialData}
+    currentUser={currentUser}
+    postId={postId}
+    onSuccess={(result) => {
+      setFormKey(formKey => formKey + 1);
+      onSuccess?.(result);
+    }} 
+  />;
 };

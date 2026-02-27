@@ -2226,7 +2226,12 @@ export type CurationNoticeOutput = {
 
 export type CurationNoticeSelector = {
   curationNoticesPage?: InputMaybe<EmptyViewInput>;
+  curationNoticesPostView?: InputMaybe<CurationNoticesPostViewTerms>;
   default?: InputMaybe<EmptyViewInput>;
+};
+
+export type CurationNoticesPostViewTerms = {
+  postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type DatabaseMetadata = {
@@ -18950,6 +18955,16 @@ export type multiCommentRejectedCommentsListQueryQuery = { __typename?: 'Query',
       & CommentsListWithParentMetadata
     )> } | null };
 
+export type CurationPostViewQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+export type CurationPostViewQueryQuery = { __typename?: 'Query', curationNotices: { __typename?: 'MultiCurationNoticeOutput', results: Array<(
+      { __typename?: 'CurationNotice' }
+      & CurationNoticesFragment
+    )> } | null };
+
 export type multiUserModerationInboxQueryQueryVariables = Exact<{
   selector?: InputMaybe<UserSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -22850,6 +22865,7 @@ export const CrossedKarmaThresholdDocument = {"kind":"Document","definitions":[{
 export const CuratedAndPopularThisWeekDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CuratedAndPopularThisWeek"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"af"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"CuratedAndPopularThisWeek"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"af"},"value":{"kind":"Variable","name":{"kind":"Name","value":"af"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}}]}}]}}]}},PostsListWithVotesFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostPodcastEpisodeFragmentDef]} as unknown as DocumentNode<CuratedAndPopularThisWeekQuery, CuratedAndPopularThisWeekQueryVariables>;
 export const CurationCandidatePostsQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CurationCandidatePostsQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"CurationCandidatePosts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SunshineCurationPostsList"}}]}}]}}]}},SunshineCurationPostsListFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,CurationNoticesFragmentFragmentDef,RevisionEditFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<CurationCandidatePostsQueryQuery, CurationCandidatePostsQueryQueryVariables>;
 export const CurationNoticesFragmentDoc = {"kind":"Document","definitions":[CurationNoticesFragmentFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostsMinimumInfoFragmentDef,RevisionEditFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<CurationNoticesFragment, unknown>;
+export const CurationPostViewQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CurationPostViewQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"postId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"curationNotices"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"curationNoticesPostView"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"postId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"postId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CurationNoticesFragment"}}]}}]}}]}},CurationNoticesFragmentFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostsMinimumInfoFragmentDef,RevisionEditFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<CurationPostViewQueryQuery, CurationPostViewQueryQueryVariables>;
 export const CurrentFrontpageSurveyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CurrentFrontpageSurvey"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"CurrentFrontpageSurvey"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SurveyScheduleMinimumInfo"}}]}}]}},SurveyScheduleMinimumInfoFragmentDef,SurveyMinimumInfoFragmentDef,SurveyQuestionMinimumInfoFragmentDef]} as unknown as DocumentNode<CurrentFrontpageSurveyQuery, CurrentFrontpageSurveyQueryVariables>;
 export const DeletedCommentsMetaDataDoc = {"kind":"Document","definitions":[DeletedCommentsMetaDataFragmentDef]} as unknown as DocumentNode<DeletedCommentsMetaData, unknown>;
 export const DeletedCommentsModerationLogDoc = {"kind":"Document","definitions":[DeletedCommentsModerationLogFragmentDef,DeletedCommentsMetaDataFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<DeletedCommentsModerationLog, unknown>;

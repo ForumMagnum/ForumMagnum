@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import PostsPageWrapper from '@/components/posts/PostsPage/PostsPageWrapper';
 import { CurationNoticesForm } from '@/components/admin/CurationNoticesForm';
 import { CurationNoticesItem } from '@/components/admin/CurationNoticesItem';
 import BasicFormStyles from '@/components/form-components/BasicFormStyles';
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen/gql';
+import Loading from '@/components/vulcan-core/Loading';
 
 const styles = defineStyles('CurationPostView', (theme: ThemeType) => ({
   root: {
@@ -46,11 +49,25 @@ const styles = defineStyles('CurationPostView', (theme: ThemeType) => ({
   },
 }));
 
+
 const CurationPostView = ({post, currentUser}: {
   post: SunshineCurationPostsList | null;
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
+
+  const {data, loading, refetch} = useQuery(gql(`
+    query CurationPostViewQuery($postId: String!) {
+      curationNotices(selector: { curationNoticesPostView: { postId: $postId } }) {
+        results {
+          ...CurationNoticesFragment
+        }
+      }
+    }
+  `), {
+    variables: { postId: post?._id ?? '' },
+    skip: !post?._id,
+  });
 
   if (!post) {
     return (
@@ -60,12 +77,13 @@ const CurationPostView = ({post, currentUser}: {
     );
   }
 
-  const curationNotices = post.curationNotices ?? [];
+  const curationNotices = data?.curationNotices?.results ?? [];
 
   return (
     <div className={classes.root}>
       <div className={classes.curationSection}>
         <div className={classes.curationNotices}>
+          {loading && <Loading/>}
           {curationNotices.map(notice => (
             <CurationNoticesItem key={notice._id} curationNotice={notice} />
           ))}
@@ -73,7 +91,9 @@ const CurationPostView = ({post, currentUser}: {
             {curationNotices.length > 0 ? 'New Curation Notice' : 'Write Curation Notice'}
           </div>
           <BasicFormStyles>
-            <CurationNoticesForm currentUser={currentUser} postId={post._id} />
+            <CurationNoticesForm currentUser={currentUser} postId={post._id} onSuccess={async () => {
+              await refetch();
+            }} />
           </BasicFormStyles>
         </div>
       </div>
