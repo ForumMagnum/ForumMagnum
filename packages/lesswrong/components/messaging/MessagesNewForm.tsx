@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
@@ -261,7 +261,7 @@ export const MessagesNewForm = ({
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const initialEditorType = getUserDefaultEditor(currentUser);
-  
+  const [formKey, setFormKey] = useState(0);
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
 
@@ -280,7 +280,7 @@ export const MessagesNewForm = ({
     getDraftMessageHtml({ html: template.contents.html, displayName: templateQueries?.displayName });
 
   return (
-    <div className={isMinimalist ? classes.rootMinimalist : classes.root}>
+    <div className={isMinimalist ? classes.rootMinimalist : classes.root} key={formKey}>
       <InnerMessagesNewForm
         isMinimalist={isMinimalist}
         submitLabel={submitLabel}
@@ -296,7 +296,10 @@ export const MessagesNewForm = ({
         }}
         templateQueries={templateQueries}
         conversationId={conversationId}
-        onSuccess={(newMessage) => successEvent(newMessage)}
+        onSuccess={(newMessage) => {
+          setFormKey(formKey => formKey + 1);
+          successEvent(newMessage);
+        }}
       />
     </div>
   );

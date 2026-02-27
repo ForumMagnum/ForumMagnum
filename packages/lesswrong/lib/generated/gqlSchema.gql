@@ -2914,6 +2914,11 @@ type SingleCurationNoticeOutput {
 input CurationNoticeSelector {
   default: EmptyViewInput
   curationNoticesPage: EmptyViewInput
+  curationNoticesPostView: CurationNoticesPostViewTerms
+}
+
+input CurationNoticesPostViewTerms {
+  postId: String
 }
 
 input MultiCurationNoticeInput {
