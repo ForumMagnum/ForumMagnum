@@ -1,4 +1,4 @@
-import { siteNameWithArticleSetting, siteUrlSetting, taglineSetting } from "@/lib/instanceSettings";
+import { siteNameWithArticleSetting, taglineSetting } from "@/lib/instanceSettings";
 import { NextRequest } from "next/server";
 import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     name: siteNameWithArticleSetting.get(),
     description: taglineSetting.get(),
     url: siteUrl,
-    documentationUrl: `siteUrl/api/SKILL.md`,
+    documentationUrl: `${siteUrl}/api/SKILL.md`,
   }), {
     headers: { "Content-Type": "application/json" },
   });

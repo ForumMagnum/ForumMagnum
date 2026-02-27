@@ -22,7 +22,8 @@ export async function GET(req: NextRequest) {
   const user = await getUserFromReq(req);
   if (!user) {
     // Redirect to login, then back to this URL
-    const returnUrl = req.nextUrl.toString();
+    // Build the return URL using siteUrl's origin and req.nextUrl's pathname/search/hash
+    const returnUrl = `${siteUrl}${req.nextUrl.pathname}${req.nextUrl.search}${req.nextUrl.hash}`;
     return Response.redirect(`${siteUrl}/login?returnTo=${encodeURIComponent(returnUrl)}`);
   }
 
@@ -199,7 +200,7 @@ function renderConsentPage(args: ConsentPageArgs): string {
       (<strong>${escapeHtml(userName)}</strong>).
     </p>
     <p>This will allow ${escapeHtml(clientName)} to:</p>
-    <div class="scope">Read and edit posts you have access to</div>
+    <div class="scope">Read and edit posts you give it links to</div>
     <form method="POST" action="/oauth/authorize">
       <input type="hidden" name="client_id" value="${escapeHtml(clientId)}" />
       <input type="hidden" name="redirect_uri" value="${escapeHtml(redirectUri)}" />
