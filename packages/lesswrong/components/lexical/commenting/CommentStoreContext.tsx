@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Provider } from '@lexical/yjs';
 import { Doc } from 'yjs';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 
-import { CommentStore } from './index';
+import { Comments, CommentStore } from './index';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
 
 type CommentStoreContextValue = {
@@ -47,3 +47,25 @@ export function CommentStoreProvider({
     </CommentStoreContext.Provider>
   );
 }
+
+export function useCommentStore(commentStore: CommentStore): Comments {
+  const [comments, setComments] = useState<Comments>(
+    commentStore.getComments(),
+  );
+
+  useEffect(() => {
+    return commentStore.registerOnChange(() => {
+      setComments(commentStore.getComments());
+    });
+  }, [commentStore]);
+
+  return comments;
+}
+
+
+export function useCollabAuthorName(): string {
+  const collabContext = useCollaborationContext();
+  const {yjsDocMap, name} = collabContext;
+  return yjsDocMap.has('comments') ? name : 'Unknown User';
+}
+

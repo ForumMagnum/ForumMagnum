@@ -61,7 +61,7 @@ export function waitForProviderSync(provider: HocuspocusProvider): Promise<void>
   });
 }
 
-function getLexicalCompatibleProvider(provider: HocuspocusProvider): HocuspocusProvider & LexicalProvider {
+export function getLexicalCompatibleProvider(provider: HocuspocusProvider): HocuspocusProvider & LexicalProvider {
   if (!provider.awareness) {
     throw new Error("Hocuspocus provider awareness is not initialized");
   }

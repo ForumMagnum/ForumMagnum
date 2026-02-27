@@ -76,15 +76,15 @@ comment will be top-level. Both the quote and your comment should be in markdown
 
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText
-    with JSON body: { postId, key, quote, replacement, mode?: "edit"|"suggest" }
+    with JSON body: { postId, key, agentName?, quote, replacement, mode?: "edit"|"suggest" }
 The quote and replacement should be in markdown. If the mode is "edit", the
 change will be applied immediately; if the mode is "suggest", the change will be
 displayed as a suggestion in the post editor. If the user hasn't said whether to
 use edit mode or suggest mode, use suggest mode.
 
-To insert new blocks of test into the draft, make a POST request to:
+To insert new blocks of text into the draft, make a POST request to:
     POST /api/agent/insertBlock
-    with JSON body: { postId, key, location, markdown, mode?: "edit"|"suggest" }
+    with JSON body: { postId, key, agentName?, location, markdown, mode?: "edit"|"suggest" }
 The location should be a markdown string that matches the start of a paragraph
 that already exists in the draft. The location can be one of the following:
     "start": insert at the beginning of the post
@@ -110,7 +110,7 @@ Newly inserted widgets will have a unique widgetId in the bracket.
 To replace the HTML/JS contents of a widget, make a POST request to:
     POST /api/agent/replaceWidget
     with JSON body: {
-      postId, key, widgetId,
+      postId, key, agentName?, widgetId,
       replacement?: string,
       unifiedDiff?: string,
       mode?: "edit"|"suggest"

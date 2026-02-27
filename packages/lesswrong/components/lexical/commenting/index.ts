@@ -10,7 +10,6 @@ import type {LexicalEditor} from 'lexical';
 
 import {Provider, TOGGLE_CONNECT_COMMAND} from '@lexical/yjs';
 import {COMMAND_PRIORITY_LOW} from 'lexical';
-import {useEffect, useState} from 'react';
 import {
   Array as YArray,
   Map as YMap,
@@ -20,7 +19,6 @@ import {
   YEvent,
   Doc,
 } from 'yjs';
-import { useCollaborationContext } from '@lexical/react/LexicalCollaborationContext';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
 import { TupleSet } from '@/lib/utils/typeGuardUtils';
 
@@ -726,24 +724,4 @@ function checkIfCommentAlreadyExists(parentSharedArray: YArray<AnyBecauseHard>, 
     }
   }
   return exists;
-}
-
-export function useCommentStore(commentStore: CommentStore): Comments {
-  const [comments, setComments] = useState<Comments>(
-    commentStore.getComments(),
-  );
-
-  useEffect(() => {
-    return commentStore.registerOnChange(() => {
-      setComments(commentStore.getComments());
-    });
-  }, [commentStore]);
-
-  return comments;
-}
-
-export function useCollabAuthorName(): string {
-  const collabContext = useCollaborationContext();
-  const {yjsDocMap, name} = collabContext;
-  return yjsDocMap.has('comments') ? name : 'Unknown User';
 }
