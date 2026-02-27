@@ -97,7 +97,7 @@ function applySuggestionWidgetReplacement(widgetNode: IframeWidgetNode, oldConte
   widgetNode.append(insertSuggestion);
 }
 
-async function replaceWidgetInMainDoc({
+export async function replaceWidgetInMainDoc({
   postId,
   token,
   widgetId,

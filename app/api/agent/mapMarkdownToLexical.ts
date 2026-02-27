@@ -1,4 +1,3 @@
-import { JSDOM } from "jsdom";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import {
   $getNodeByKey,
@@ -9,6 +8,7 @@ import {
   type LexicalNode,
 } from "lexical";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor } from "./editorAgentUtil";
 
 export interface MarkdownSelectionPoint {
@@ -188,30 +188,6 @@ function findTextRangeInNodeByPlainQuote(
     anchor,
     focus,
   };
-}
-
-function withDomGlobals<T>(fn: () => T): T {
-  const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-  const previousDocument = globalThis.document;
-  const previousWindow = globalThis.window;
-
-  globalThis.document = dom.window.document as unknown as Document;
-  globalThis.window = dom.window as unknown as Window & typeof globalThis;
-
-  try {
-    return fn();
-  } finally {
-    if (previousDocument === undefined) {
-      delete (globalThis as AnyBecauseHard).document;
-    } else {
-      globalThis.document = previousDocument;
-    }
-    if (previousWindow === undefined) {
-      delete (globalThis as AnyBecauseHard).window;
-    } else {
-      globalThis.window = previousWindow;
-    }
-  }
 }
 
 function serializeNodeSubtreeToMarkdown(node: LexicalNode): string {

@@ -8,30 +8,29 @@ import { randomId } from "@/lib/random";
 import { insertDraftCommentThread } from "../agent/commentOnDraft/route";
 import { replaceTextInMainDoc } from "../agent/replaceText/route";
 import { insertMarkdownBlock } from "../agent/insertBlock/route";
+import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
+import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
+import { gql } from "@/lib/generated/gql-codegen";
 
-const MarkdownPostEditQuery = `
-  query McpPostsEdit($documentId: String, $contentsVersion: String) {
-    post(input: { selector: { documentId: $documentId } }) {
+const PostMetadataQuery = gql(`
+  query McpPostMetadata($_id: String!) {
+    post(selector: { _id: $_id }) {
       result {
         _id
         title
-        userId
         draft
-        contents(version: $contentsVersion) {
-          agentMarkdown
-        }
       }
     }
   }
-`;
+`);
 
-const HocuspocusAuthQuery = `
+const HocuspocusAuthQuery = gql(`
   query McpHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
     HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
       token
     }
   }
-`;
+`);
 
 // --- Auth helpers ---
 
@@ -102,18 +101,27 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);
+      if (args.version && args.version !== "draft") {
+        return {
+          content: [{
+            type: "text" as const,
+            text: "Only version='draft' is supported when reading from live collaborative state.",
+          }],
+          isError: true,
+        };
+      }
+      const [token, { data: postResultData }] = await Promise.all([
+        getHocuspocusToken(context, args.postId),
+        runQuery(PostMetadataQuery, { _id: args.postId }, context),
+      ]);
 
-      const { data } = await runQuery(
-        MarkdownPostEditQuery,
-        { documentId: args.postId, contentsVersion: args.version ?? "draft" },
-        context,
-      );
-      const post = data?.post?.result;
+      const post = postResultData?.post?.result;
+
       if (!post) {
         return { content: [{ type: "text" as const, text: "Post not found or access denied" }], isError: true };
       }
 
-      const markdown = post.contents?.agentMarkdown ?? "";
+      const markdown = await getLiveDraftMarkdown({ postId: args.postId, token, operationLabel: "McpReadPostDraft" });
       return {
         content: [{
           type: "text" as const,
@@ -178,6 +186,47 @@ function createMcpServer(): McpServer {
         quote: args.quote,
         replacement: args.replacement,
         mode: args.mode ?? "suggest",
+      });
+
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+    },
+  );
+
+  server.registerTool(
+    "replace_widget",
+    {
+      description: "Replace the HTML/JS content of an existing widget block in a post draft by widget ID. You can provide either full replacement content or a unified diff patch.",
+      inputSchema: {
+        postId: z.string().describe("The ID of the post"),
+        widgetId: z.string().describe("The widget ID to update"),
+        replacement: z.string().optional().describe("Full replacement widget content"),
+        unifiedDiff: z.string().optional().describe("Unified diff to apply to current widget content"),
+        mode: z.enum(["edit", "suggest"]).optional().describe("Whether to apply directly ('edit') or as a suggestion ('suggest'). Defaults to 'edit'."),
+      },
+      annotations: { destructiveHint: true },
+    },
+    async (args, extra) => {
+      const context = await contextFromAuth(extra);
+      const token = await getHocuspocusToken(context, args.postId);
+
+      const operationCount = (args.replacement ? 1 : 0) + (args.unifiedDiff ? 1 : 0);
+      if (operationCount !== 1) {
+        return {
+          content: [{
+            type: "text" as const,
+            text: "Provide exactly one of replacement or unifiedDiff.",
+          }],
+          isError: true,
+        };
+      }
+
+      const result = await replaceWidgetInMainDoc({
+        postId: args.postId,
+        token,
+        widgetId: args.widgetId,
+        replacement: args.replacement,
+        unifiedDiff: args.unifiedDiff,
+        mode: args.mode ?? "edit",
       });
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };

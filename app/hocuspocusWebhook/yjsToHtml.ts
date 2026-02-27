@@ -23,7 +23,7 @@ import type { Provider, Binding } from '@lexical/yjs';
 import * as Y from 'yjs';
 import PlaygroundNodes from '@/components/lexical/nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from '@/components/lexical/themes/PlaygroundEditorTheme';
-import { JSDOM } from 'jsdom';
+import { withDomGlobals } from '@/server/editor/withDomGlobals';
 
 /**
  * Creates a no-op Provider that satisfies the @lexical/yjs Provider interface.
@@ -58,40 +58,6 @@ export function createHeadlessEditor(errorLabel: string) {
       console.error(`[${errorLabel}] Lexical error:`, error);
     },
   });
-}
-
-/**
- * Sets up a jsdom DOM environment so that Lexical's DOM-dependent helpers
- * ($generateHtmlFromNodes) can run in Node.js.
- *
- * jsdom is used instead of linkedom because Lexical's importDOM code paths
- * access CSS style properties (e.g. style.textDecoration) that linkedom
- * returns as undefined for unset properties, whereas jsdom (like browsers)
- * returns "".
- */
-function withDomGlobals<T>(fn: () => T): T {
-  const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-
-  const prevDocument = globalThis.document;
-  const prevWindow = globalThis.window;
-
-  globalThis.document = dom.window.document as unknown as Document;
-  globalThis.window = dom.window as unknown as Window & typeof globalThis;
-
-  try {
-    return fn();
-  } finally {
-    if (prevDocument === undefined) {
-      delete (globalThis as AnyBecauseHard).document;
-    } else {
-      globalThis.document = prevDocument;
-    }
-    if (prevWindow === undefined) {
-      delete (globalThis as AnyBecauseHard).window;
-    } else {
-      globalThis.window = prevWindow;
-    }
-  }
 }
 
 /**

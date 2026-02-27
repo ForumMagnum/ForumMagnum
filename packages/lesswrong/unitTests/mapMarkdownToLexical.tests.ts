@@ -12,31 +12,9 @@ import {
   type LexicalEditor,
 } from "lexical";
 import { markdownToHtml, htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
 import { locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
-
-function withDomGlobals<T>(fn: () => T): T {
-  const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-  const previousDocument = globalThis.document;
-  const previousWindow = globalThis.window;
-  globalThis.document = dom.window.document as unknown as Document;
-  globalThis.window = dom.window as unknown as Window & typeof globalThis;
-
-  try {
-    return fn();
-  } finally {
-    if (previousDocument === undefined) {
-      delete (globalThis as AnyBecauseHard).document;
-    } else {
-      globalThis.document = previousDocument;
-    }
-    if (previousWindow === undefined) {
-      delete (globalThis as AnyBecauseHard).window;
-    } else {
-      globalThis.window = previousWindow;
-    }
-  }
-}
 
 async function runEditorUpdate(editor: LexicalEditor, updater: () => void): Promise<void> {
   await new Promise<void>((resolve) => {

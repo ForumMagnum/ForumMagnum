@@ -13336,24 +13336,6 @@ type YjsDocument = {
   createdAt: Scalars['Date']['output'];
 };
 
-type LinkSharedPostMarkdownQueryQuery_getLinkSharedPost_Post_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null };
-
-type LinkSharedPostMarkdownQueryQuery_getLinkSharedPost_Post = (
-  { __typename?: 'Post', contents: LinkSharedPostMarkdownQueryQuery_getLinkSharedPost_Post_contents_Revision | null }
-  & PostsEdit
-);
-
-type LinkSharedPostMarkdownQueryQuery_Query = { __typename?: 'Query', getLinkSharedPost: LinkSharedPostMarkdownQueryQuery_getLinkSharedPost_Post | null };
-
-
-type LinkSharedPostMarkdownQueryQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-  linkSharingKey: Scalars['String']['input'];
-}>;
-
-
-type LinkSharedPostMarkdownQueryQuery = LinkSharedPostMarkdownQueryQuery_Query;
-
 type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextDescription: string };
 
 type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence = { __typename?: 'Sequence', _id: string, title: string };
@@ -13429,26 +13411,6 @@ type MarkdownCommunityPageQueryVariables = Exact<{
 
 
 type MarkdownCommunityPageQuery = MarkdownCommunityPageQuery_Query;
-
-type MarkdownPostsEditQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null };
-
-type MarkdownPostsEditQuery_post_SinglePostOutput_result_Post = (
-  { __typename?: 'Post', contents: MarkdownPostsEditQuery_post_SinglePostOutput_result_Post_contents_Revision | null }
-  & PostsEdit
-);
-
-type MarkdownPostsEditQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: MarkdownPostsEditQuery_post_SinglePostOutput_result_Post | null };
-
-type MarkdownPostsEditQuery_Query = { __typename?: 'Query', post: MarkdownPostsEditQuery_post_SinglePostOutput | null };
-
-
-type MarkdownPostsEditQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-  contentsVersion: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type MarkdownPostsEditQuery = MarkdownPostsEditQuery_Query;
 
 type MarkdownFrontPageQuery_currentSpotlight_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
 
@@ -13731,6 +13693,33 @@ type AgentHocuspocusAuthQueryQueryVariables = Exact<{
 
 
 type AgentHocuspocusAuthQueryQuery = AgentHocuspocusAuthQueryQuery_Query;
+
+type McpPostMetadataQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, draft: boolean | null };
+
+type McpPostMetadataQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: McpPostMetadataQuery_post_SinglePostOutput_result_Post | null };
+
+type McpPostMetadataQuery_Query = { __typename?: 'Query', post: McpPostMetadataQuery_post_SinglePostOutput | null };
+
+
+type McpPostMetadataQueryVariables = Exact<{
+  _id: Scalars['String']['input'];
+}>;
+
+
+type McpPostMetadataQuery = McpPostMetadataQuery_Query;
+
+type McpHocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
+
+type McpHocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: McpHocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
+
+
+type McpHocuspocusAuthQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type McpHocuspocusAuthQueryQuery = McpHocuspocusAuthQueryQuery_Query;
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 

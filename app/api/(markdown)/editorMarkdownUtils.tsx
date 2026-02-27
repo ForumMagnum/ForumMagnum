@@ -5,8 +5,8 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { runQuery } from "@/server/vulcan-lib/query";
 import { withMainDocEditorSession } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
-import { JSDOM } from "jsdom";
 
 export function buildEditMarkdownUrl(postId: string, key?: string, version?: string): string {
   const searchParams = new URLSearchParams({ postId });
@@ -68,31 +68,7 @@ const LinkSharedPostMetadataQuery = `
   }
 `;
 
-function withDomGlobals<T>(fn: () => T): T {
-  const dom = new JSDOM("<!DOCTYPE html><html><body></body></html>");
-  const previousDocument = globalThis.document;
-  const previousWindow = globalThis.window;
-
-  globalThis.document = dom.window.document as unknown as Document;
-  globalThis.window = dom.window as unknown as Window & typeof globalThis;
-
-  try {
-    return fn();
-  } finally {
-    if (previousDocument === undefined) {
-      delete (globalThis as AnyBecauseHard).document;
-    } else {
-      globalThis.document = previousDocument;
-    }
-    if (previousWindow === undefined) {
-      delete (globalThis as AnyBecauseHard).window;
-    } else {
-      globalThis.window = previousWindow;
-    }
-  }
-}
-
-function unescapeHtmlAttribute(value: string): string {
+export function unescapeHtmlAttribute(value: string): string {
   return value
     .replace(/&quot;/g, "\"")
     .replace(/&#39;/g, "'")
@@ -101,7 +77,7 @@ function unescapeHtmlAttribute(value: string): string {
     .replace(/&amp;/g, "&");
 }
 
-function convertWidgetIframesToMarkdownFences(markdown: string): string {
+export function convertWidgetIframesToMarkdownFences(markdown: string): string {
   return markdown.replace(/<iframe[\s\S]*?<\/iframe>/g, (iframeHtml) => {
     if (!iframeHtml.includes("data-lexical-iframe-widget")) {
       return iframeHtml;
@@ -124,17 +100,19 @@ function convertWidgetIframesToMarkdownFences(markdown: string): string {
   });
 }
 
-async function getLiveDraftMarkdown({
+export async function getLiveDraftMarkdown({
   postId,
   token,
+  operationLabel
 }: {
   postId: string
   token: string
+  operationLabel?: string
 }): Promise<string> {
   return withMainDocEditorSession({
     postId,
     token,
-    operationLabel: "MarkdownReadDraft",
+    operationLabel: operationLabel ?? "MarkdownReadDraft",
     callback: async ({ editor }) => {
       const html = withDomGlobals(() => {
         let generated = "";

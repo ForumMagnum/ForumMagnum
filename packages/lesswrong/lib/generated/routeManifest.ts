@@ -272,17 +272,25 @@ export const routeTrie = {
             "commentOnDraft": {
               "hasRoute": true
             },
+            "deleteBlock": {
+              "hasRoute": true
+            },
             "insertBlock": {
               "hasRoute": true
             },
             "replaceText": {
               "hasRoute": true
+            },
+            "replaceWidget": {
+              "hasRoute": true
             }
           },
           "lowerCase": {
             "commentondraft": "commentOnDraft",
+            "deleteblock": "deleteBlock",
             "insertblock": "insertBlock",
-            "replacetext": "replaceText"
+            "replacetext": "replaceText",
+            "replacewidget": "replaceWidget"
           }
         },
         "autocomplete": {
