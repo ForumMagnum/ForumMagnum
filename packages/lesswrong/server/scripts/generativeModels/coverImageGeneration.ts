@@ -470,8 +470,18 @@ async function generateAndUpscaleImage(prompt: string, referenceImageUrl: string
 // Each job produces 4 images (batch_size 4).
 
 const MJ_CDN_BASE = "https://cdn.midjourney.com";
-const MJ_USER_ID = process.env.MIDJOURNEY_USER_ID ?? "MJ_USER_ID_NOT_SET";
-const MJ_CHANNEL_ID = `singleplayer_${MJ_USER_ID}`;
+const MJ_USER_ID = process.env.MIDJOURNEY_USER_ID;
+function getMjUserId(): string {
+  if (!MJ_USER_ID) {
+    throw new Error("MIDJOURNEY_USER_ID is not set");
+  }
+  return MJ_USER_ID;
+}
+
+function getMjChannelId(): string {
+  return `singleplayer_${getMjUserId()}`;
+}
+
 const MJ_BRIDGE_PORT = 7878;
 
 // Fixed prompt template. Only the illustration description varies.
@@ -666,7 +676,7 @@ async function submitMidjourneyJob(prompt: string): Promise<MidjourneySubmitResp
 
   const body = {
     f: { mode: "fast", private: false },
-    channelId: MJ_CHANNEL_ID,
+    channelId: getMjChannelId(),
     roomId: null,
     metadata: {
       isMobile: null,
@@ -772,7 +782,7 @@ async function pollMidjourneyCompletion(
 
   // Get the current checkpoint
   const initialResp = await fetchJsonViaBridge(
-    `/api/imagine?user_id=${MJ_USER_ID}&page_size=1`
+    `/api/imagine?user_id=${getMjUserId()}&page_size=1`
   ) as { data: Array<{ id: string }>; checkpoint: string };
 
   // Check if the job is already in the initial response
@@ -785,7 +795,7 @@ async function pollMidjourneyCompletion(
     while (Date.now() - startTime < timeoutMs) {
       try {
         const updateResp = await fetchJsonViaBridge(
-          `/api/imagine-update?user_id=${MJ_USER_ID}&page_size=1000&checkpoint=${encodeURIComponent(checkpoint)}`
+          `/api/imagine-update?user_id=${getMjUserId()}&page_size=1000&checkpoint=${encodeURIComponent(checkpoint)}`
         ) as { data: Array<{ id: string }>; checkpoint: string };
 
         if (updateResp.checkpoint) {
@@ -849,7 +859,7 @@ async function submitMidjourneyUpscale(parentJobId: string, index: number): Prom
 
   const body = {
     f: { mode: "fast", private: false },
-    channelId: MJ_CHANNEL_ID,
+    channelId: getMjChannelId(),
     roomId: null,
     metadata: {
       isMobile: null,
@@ -1045,7 +1055,9 @@ async function getArtForEssayMidjourney(essay: Essay, prompts: string[], tracker
 }
 
 async function getArtForEssay(essay: Essay, tracker: UsageTracker, prompt?: string): Promise<EssayResult[]> {
-  const prompts = prompt ? [formatAsMidjourneyPrompt(prompt)] : await getImagePrompts(essay, tracker);
+  const prompts = prompt
+    ? [IMAGE_PROVIDER === 'midjourney' ? formatAsMidjourneyPrompt(prompt) : prompt]
+    : await getImagePrompts(essay, tracker);
 
   if (IMAGE_PROVIDER === 'midjourney') {
     return getArtForEssayMidjourney(essay, prompts, tracker);
@@ -1235,8 +1247,8 @@ export async function scrapeMidjourneyJobs(topJobId: string, bottomJobId: string
 
   while (!foundBottom) {
     const url = cursor
-      ? `/api/imagine?user_id=${MJ_USER_ID}&page_size=${PAGE_SIZE}&cursor=${encodeURIComponent(cursor)}`
-      : `/api/imagine?user_id=${MJ_USER_ID}&page_size=${PAGE_SIZE}`;
+      ? `/api/imagine?user_id=${getMjUserId()}&page_size=${PAGE_SIZE}&cursor=${encodeURIComponent(cursor)}`
+      : `/api/imagine?user_id=${getMjUserId()}&page_size=${PAGE_SIZE}`;
 
     const response = await fetchJsonViaBridge(url) as MjApiResponse;
     const jobs = response.data;

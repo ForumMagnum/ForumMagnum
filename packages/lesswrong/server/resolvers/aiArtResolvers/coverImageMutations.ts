@@ -103,6 +103,10 @@ export const flipSplashArtImageGraphQLTypeDefs = gql`
 
 export const flipSplashArtImageGraphQLMutations = {
   flipSplashArtImage: async (root: void, { reviewWinnerArtId }: { reviewWinnerArtId: string }, context: ResolverContext) => {
+    if (!userIsAdmin(context.currentUser)) {
+      throw new Error('You must be an admin to flip splash art images');
+    }
+    
     const { SplashArtCoordinates, ReviewWinnerArts } = context;
     
     const [currentSplashCoordinates, reviewWinnerArt] = await Promise.all([

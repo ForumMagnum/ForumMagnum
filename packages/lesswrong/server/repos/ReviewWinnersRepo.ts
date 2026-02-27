@@ -60,7 +60,7 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
     });
   }
 
-  async getAllReviewWinnerPosts(reviewYear: ReviewYear): Promise<DbPost[]> {
+  async getReviewWinnerPosts(reviewYear: ReviewYear): Promise<DbPost[]> {
     const reviewWinnerPosts = await this.getRawDb().any<DbPost>(`
       SELECT p.*
       FROM "ReviewWinners" rw

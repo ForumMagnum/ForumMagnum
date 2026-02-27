@@ -127,7 +127,7 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
 
 type Post = {_id: string, slug: string, title: string}
 
-export const PostWithArtGrid = ({post, images, defaultExpanded = false, fadeNonUpscaled = false}: {post: Post, images: ReviewWinnerArtImages[], defaultExpanded?: boolean, fadeNonUpscaled?: boolean}) => {
+export const PostWithArtGrid = ({post, images, defaultExpanded = false, fadeNonUpscaled = false, refetchImages}: {post: Post, images: ReviewWinnerArtImages[], defaultExpanded?: boolean, fadeNonUpscaled?: boolean, refetchImages?: () => void}) => {
   const classes = useStyles(artRowStyles);
   const imagesByPrompt = groupBy(images, (image) => image.splashArtImagePrompt);
   const [expanded, setExpanded] = useState(defaultExpanded);
@@ -160,6 +160,9 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false, fadeNonU
     try {
       await upscaleReviewWinnerArtMutation({
         variables: { reviewWinnerArtId: image._id },
+        onCompleted: () => {
+          refetchImages?.();
+        },
       });
     } catch (err) {
       // eslint-disable-next-line no-console

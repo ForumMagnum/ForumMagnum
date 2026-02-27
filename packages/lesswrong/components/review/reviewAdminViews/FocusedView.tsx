@@ -343,6 +343,7 @@ export function FocusedView({posts, refetchImages}: AdminViewProps) {
               images={selectedPost.images}
               defaultExpanded={true}
               fadeNonUpscaled={statusFilter === 'needs-coordinates'}
+              refetchImages={refetchImages}
             />
           </ImageProvider>
         ) : selectedPost.activeImage ? (

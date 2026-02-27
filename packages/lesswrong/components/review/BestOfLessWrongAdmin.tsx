@@ -83,8 +83,8 @@ export const BestOfLessWrongAdmin = ({year}: {year: string}) => {
     notifyOnNetworkStatusChange: true,
   });
 
-  const images = dataReviewWinnerArtImages?.reviewWinnerArts?.results;
-  const groupedImages = groupBy(images, (image) => image.postId);
+  const images = useMemo(() => dataReviewWinnerArtImages?.reviewWinnerArts?.results ?? [], [dataReviewWinnerArtImages]);
+  const groupedImages = useMemo(() => groupBy(images, (image) => image.postId), [images]);
 
   const posts: ReviewPostWithStatus[] = useMemo(() => {
     // Only include posts that have art generated for the selected year

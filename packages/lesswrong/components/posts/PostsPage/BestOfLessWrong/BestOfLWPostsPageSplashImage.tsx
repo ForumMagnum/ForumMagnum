@@ -76,17 +76,6 @@ const styles = defineStyles("BestOfLWPostsPageSplashImage", (theme: ThemeType) =
   },
 }));
 
-type MatchInput<T extends string | undefined> = T extends undefined ? string | undefined : string;
-
-function applyCloudinaryUpscale<T extends string | undefined>(reviewWinner: ReviewWinnerAll | null, url: T): MatchInput<T> {
-  return url as MatchInput<T>;
-  // if (!reviewWinner || !url || reviewWinner.reviewYear !== 2024 || url.includes('e_upscale/')) {
-  //   return url as MatchInput<T>;
-  // }
-
-  // return url.replace('upload/', 'upload/e_upscale/') as MatchInput<T>;
-}
-
 export const BestOfLWPostsPageSplashImage = ({post}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision
 }) => {
@@ -99,8 +88,7 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
     || selectedImageInfo?.splashArtImageUrl
     || post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl
   );
-  const upscaledUrl = applyCloudinaryUpscale(post.reviewWinner, url);
-  const [backgroundImage, setBackgroundImage] = useState(upscaledUrl);
+  const [backgroundImage, setBackgroundImage] = useState(url);
 
   const [imageFlipped, setImageFlipped] = useState(false);
   const [opacity, setOpacity] = useState(1);
@@ -124,8 +112,7 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
     );
 
     if (newBackgroundImage) {
-      let updatedUrl = newBackgroundImage.replace('upload/', imageFlipped ? 'upload/a_hflip/' : 'upload/');
-      updatedUrl = applyCloudinaryUpscale(post.reviewWinner, updatedUrl);
+      const updatedUrl = newBackgroundImage.replace('upload/', imageFlipped ? 'upload/a_hflip/' : 'upload/');
       setBackgroundImage(updatedUrl);
     }
   }, [post, selectedImageInfo, imageFlipped]);

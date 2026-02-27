@@ -71,7 +71,7 @@ export async function moveImageToCloudinary({oldUrl, originDocumentId, imageData
   if (imageData) {
     const {buffer} = parseDataUri(imageData);
     const hash = crypto.createHash('sha256').update(buffer).digest('hex');
-    const upload = async (credentials: CloudinaryCredentials) => new Promise<UploadApiResponse>((resolve) => {
+    const upload = async (credentials: CloudinaryCredentials) => new Promise<UploadApiResponse>((resolve, reject) => {
       const folder = `mirroredImages/${originDocumentId}`;
       cloudinary.v2.uploader
         .upload_stream(
@@ -80,7 +80,7 @@ export async function moveImageToCloudinary({oldUrl, originDocumentId, imageData
             if (error || !result) {
               // eslint-disable-next-line no-console
               console.error("Failed to upload buffer to Cloudinary:", error);
-              throw error;
+              return reject(error);
             }
             return resolve(result);
           }

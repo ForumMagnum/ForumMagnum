@@ -5,7 +5,7 @@ import { unstable_cache } from "next/cache";
 import ReviewWinnersRepo from "../repos/ReviewWinnersRepo";
 
 const getCachedReviewWinners = unstable_cache(
-  (reviewYear: ReviewYear) => new ReviewWinnersRepo().getAllReviewWinnerPosts(reviewYear),
+  (reviewYear: ReviewYear) => new ReviewWinnersRepo().getReviewWinnerPosts(reviewYear),
   // Invalidate on deploys in case there's a backwards-breaking change to the schema, such that returning cached post items might break the api
   [process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? 'dev'],
   { revalidate: 60 * 90 }
