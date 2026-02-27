@@ -60,6 +60,7 @@ export async function middleware(request: NextRequest) {
     
     const forwardUrl = request.nextUrl.href;
     const fixedForwardedUrl = fixForwardUrl(forwardUrl);
+    console.log(fixedForwardedUrl);
     const forwardedFetchResponse = await fetch(
       fixedForwardedUrl,
       {
@@ -352,7 +353,7 @@ function fixForwardUrl(forwardUrl: string): string {
   if (forwardUrl.startsWith("https://localhost")) {
     return forwardUrl.replace("https://localhost", "http://localhost");
   }
-  return `https://${forwardUrl}`;
+  return forwardUrl;
 }
 
 export const config: MiddlewareConfig = {
