@@ -308,6 +308,7 @@ interface Mutation {
   increasePostViewCount: number | null;
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
+  upscaleReviewWinnerArt: ReviewWinnerArt | null;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
   createAdvisorRequest: AdvisorRequestOutput | null;
@@ -6160,6 +6161,9 @@ interface ReviewWinnerArt {
   postId: string;
   splashArtImagePrompt: string;
   splashArtImageUrl: string;
+  midjourneyJobId: string | null;
+  midjourneyImageIndex: number | null;
+  upscaledImageUrl: string | null;
   activeSplashArtCoordinates: SplashArtCoordinate | null;
 }
 

@@ -59,10 +59,10 @@ const getNextHandler = <
   RequestData extends z.infer<RequestSchema>,
   ResponseData extends z.infer<ResponseSchema>,
 >(
-  route: FMCrosspostRoute<RequestSchema, ResponseSchema, RequestData, ResponseData>,
+  route: FMCrosspostRoute<RequestSchema, ResponseSchema, RequestData>,
   requestHandler: (
     context: ResolverContext,
-    requestData: RequestData,
+    requestData: z.infer<RequestSchema>,
   ) => Promise<ResponseData>,
 ) => {
   return async (req: NextRequest) => {
