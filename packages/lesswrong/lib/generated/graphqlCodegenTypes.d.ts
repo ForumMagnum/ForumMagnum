@@ -2223,11 +2223,11 @@ type CurationNoticeOutput = {
 
 type CurationNoticeSelector = {
   curationNoticesPage?: InputMaybe<EmptyViewInput>;
-  curationNoticesPostView?: InputMaybe<CurationNoticesPostViewTerms>;
+  curationNoticesPostView?: InputMaybe<CurationNoticesPostViewInput>;
   default?: InputMaybe<EmptyViewInput>;
 };
 
-type CurationNoticesPostViewTerms = {
+type CurationNoticesPostViewInput = {
   postId?: InputMaybe<Scalars['String']['input']>;
 };
 
