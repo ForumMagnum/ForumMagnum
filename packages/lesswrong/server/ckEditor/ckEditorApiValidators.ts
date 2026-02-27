@@ -1,4 +1,4 @@
-import { SafeParseError, SafeParseSuccess, z } from "zod";
+import { z } from "zod";
 
 export const UserSchema = z.object({
   id: z.string(),
@@ -14,7 +14,7 @@ const CommentSchema = z.object({
   document_id: z.optional(z.string()),
   thread_id: z.string(),
   content: z.string(),
-  attributes: z.record(z.any()).nullable(),
+  attributes: z.record(z.any(), z.any()).nullable(),
   user: z.any(),
   type: z.union([z.literal(1), z.literal(2)]),
   created_at: z.string(),
@@ -25,9 +25,9 @@ const CommentSchema = z.object({
 const SuggestionSchema = z.object({
   id: z.string(),
   type: z.string(),
-  data: z.record(z.any()).nullable(),
+  data: z.record(z.any(), z.any()).nullable(),
   author_id: z.string(),
-  attributes: z.record(z.any()).nullable(),
+  attributes: z.record(z.any(), z.any()).nullable(),
   document_id: z.optional(z.string()),
   deleted_at: z.string().nullable(),
   created_at: z.string(),
@@ -48,7 +48,7 @@ const ThreadSchema = z.object({
   context: z.optional(z.object({
     key: z.string(),
   })),
-  attributes: z.optional(z.record(z.any())),
+  attributes: z.optional(z.record(z.any(), z.any())),
   unlinked_at: z.optional(z.string()),
 });
 

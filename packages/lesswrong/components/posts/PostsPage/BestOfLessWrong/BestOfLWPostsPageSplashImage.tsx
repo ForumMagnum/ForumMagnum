@@ -81,7 +81,14 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
 }) => {
   const classes = useStyles(styles);
   const { selectedImageInfo, setImageInfo } = useImageContext();
-  const [backgroundImage, setBackgroundImage] = useState(selectedImageInfo?.splashArtImageUrl || post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl);
+
+  const url = (
+    selectedImageInfo?.upscaledImageUrl
+    || post.reviewWinner?.reviewWinnerArt?.upscaledImageUrl
+    || selectedImageInfo?.splashArtImageUrl
+    || post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl
+  );
+  const [backgroundImage, setBackgroundImage] = useState(url);
 
   const [imageFlipped, setImageFlipped] = useState(false);
   const [opacity, setOpacity] = useState(1);
@@ -97,11 +104,16 @@ export const BestOfLWPostsPageSplashImage = ({post}: {
   }, [post.reviewWinner?.reviewWinnerArt, setImageInfo]);
 
   useEffect(() => {
-    const postLastSavedImage = post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl;
-    const newBackgroundImage = selectedImageInfo?.splashArtImageUrl || postLastSavedImage;
+    const newBackgroundImage = (
+      selectedImageInfo?.upscaledImageUrl
+      || post.reviewWinner?.reviewWinnerArt?.upscaledImageUrl
+      || selectedImageInfo?.splashArtImageUrl
+      || post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl
+    );
 
     if (newBackgroundImage) {
-      setBackgroundImage(newBackgroundImage.replace('upload/', imageFlipped ? 'upload/a_hflip/' : 'upload/'));
+      const updatedUrl = newBackgroundImage.replace('upload/', imageFlipped ? 'upload/a_hflip/' : 'upload/');
+      setBackgroundImage(updatedUrl);
     }
   }, [post, selectedImageInfo, imageFlipped]);
 

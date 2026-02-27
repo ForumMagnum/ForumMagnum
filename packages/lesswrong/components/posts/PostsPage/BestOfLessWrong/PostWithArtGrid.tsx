@@ -3,7 +3,7 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import groupBy from "lodash/groupBy";
 import { useImageContext } from "../ImageContext";
 import GenerateImagesButton from "@/components/review/GenerateImagesButton";
-import { artPrompt } from '@/lib/collections/reviewWinnerArts/constants';
+import { cleanPromptForDisplay, SELECTION_DEFAULT_COORDINATES } from '@/components/review/reviewAdminViews/types';
 import classNames from "classnames";
 import LWTooltip from "../../../common/LWTooltip";
 import { useMutation } from "@apollo/client/react";
@@ -15,6 +15,14 @@ const SplashArtCoordinatesEditMutation = gql(`
       data {
         ...SplashArtCoordinatesEdit
       }
+    }
+  }
+`);
+
+const UpscaleReviewWinnerArtMutation = gql(`
+  mutation upscaleReviewWinnerArtPostWithArtGrid($reviewWinnerArtId: String!) {
+    upscaleReviewWinnerArt(reviewWinnerArtId: $reviewWinnerArtId) {
+      ...ReviewWinnerArtImages
     }
   }
 `);
@@ -36,6 +44,7 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
     maxWidth: "100%",
     borderTop: theme.palette.border.normal,
     paddingTop: 10,
+    marginTop: 3,
   },
   postWrapper: {
     display: 'flex',
@@ -45,15 +54,15 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
     ...theme.typography.body2,
   },
   image: {
-    width: '200px',
-    maxWidth: '100%',
-    height: 'auto',
+    width: '100%',
+    height: 200,
+    objectFit: 'cover',
     cursor: 'pointer',
-    paddingRight: 5,
+    display: 'block',
   },
   imageTooltipContainer: {
     width: 800,
-    height: 400,
+    height: 'fit-content',
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     position: 'relative',
     boxShadow: theme.palette.boxShadow.lwCard,
@@ -68,57 +77,72 @@ const artRowStyles = defineStyles("PostWithArtGrid", (theme: ThemeType) => ({
   },
   imageWrapper: {
     position: 'relative',
+    width: 400,
+    transition: 'opacity 0.15s',
+  },
+  imageWrapperFaded: {
+    opacity: 0.25,
   },
   imageId: {
     ...theme.typography.body2,
     color: theme.palette.grey[400],
     fontSize: 10,
-    position: 'absolute',
-    bottom: 2,
-    left: 2,
   },
   content: {
     marginLeft: 10,
   },
   selectedImage: {
     border: `2px solid ${theme.palette.grey[900]}`,
-  }
+  },
+  imageActions: {
+    display: 'flex',
+    gap: 6,
+    marginTop: 3,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  upscaleBadge: {
+    ...theme.typography.body2,
+    fontSize: 11,
+    fontWeight: 600,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
+    padding: '1px 6px',
+    borderRadius: 3,
+  },
+  upscaleButton: {
+    ...theme.typography.body2,
+    fontSize: 11,
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    backgroundColor: theme.palette.greyAlpha(0.08),
+    padding: '2px 8px',
+    borderRadius: 3,
+    border: 'none',
+    '&:hover': {
+      backgroundColor: theme.palette.greyAlpha(0.18),
+    },
+  },
 }));
 
 type Post = {_id: string, slug: string, title: string}
 
-export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: Post, images: ReviewWinnerArtImages[], defaultExpanded?: boolean}) => {
+export const PostWithArtGrid = ({post, images, defaultExpanded = false, fadeNonUpscaled = false, refetchImages}: {post: Post, images: ReviewWinnerArtImages[], defaultExpanded?: boolean, fadeNonUpscaled?: boolean, refetchImages?: () => void}) => {
   const classes = useStyles(artRowStyles);
   const imagesByPrompt = groupBy(images, (image) => image.splashArtImagePrompt);
   const [expanded, setExpanded] = useState(defaultExpanded);
   const { selectedImageInfo, setImageInfo } = useImageContext();
 
   const [createSplashArtCoordinateMutation] = useMutation(SplashArtCoordinatesEditMutation);
+  const [upscaleReviewWinnerArtMutation] = useMutation(UpscaleReviewWinnerArtMutation);
+  const [upscalingImageId, setUpscalingImageId] = useState<string | null>(null);
 
   const handleSaveCoordinates = async (image: ReviewWinnerArtImages) => {
-    // This makes a best-guess about how to crop the image for the /bestoflesswrongpage
     const { error } = await createSplashArtCoordinateMutation({
       variables: {
         data: {
           reviewWinnerArtId: image._id,
-          leftXPct: .33, // note: XPcts are right-aligned, not left-aligned like you might expect
-          leftYPct: .15,
-          leftWidthPct: .33, // widths need to be < .33 of the image, because they'll be 3x'd 
-          // when we render them on the /bestoflesswrong page (so that when you expand the panel
-          // to 3x it's size there is a background image the whole way
-          leftHeightPct: .65,
-          leftFlipped: true, // for the 2025+ styling (for the 2023) and onward, we want to flip
-          // the left-side images because the images are designed to have most of the content on the right side by default (but we want it to show up on the left there)
-          middleXPct: .66,
-          middleYPct: .15,
-          middleWidthPct: .33,
-          middleHeightPct: 1,
-          middleFlipped: false,
-          rightXPct: 0,
-          rightYPct: .15,
-          rightWidthPct: .33,
-          rightHeightPct: .65,
-          rightFlipped: false,
+          ...SELECTION_DEFAULT_COORDINATES,
         }
       } });
 
@@ -129,6 +153,24 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
       setImageInfo(image);
     }
   }
+
+  const handleUpscale = async (e: React.MouseEvent, image: ReviewWinnerArtImages) => {
+    e.stopPropagation();
+    setUpscalingImageId(image._id);
+    try {
+      await upscaleReviewWinnerArtMutation({
+        variables: { reviewWinnerArtId: image._id },
+        onCompleted: () => {
+          refetchImages?.();
+        },
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error upscaling image', err);
+    } finally {
+      setUpscalingImageId(null);
+    }
+  };
 
   useEffect(() => {
     if (!selectedImageInfo) {
@@ -151,7 +193,7 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
     {!defaultExpanded && <div className={classes.expandButton} onClick={() => setExpanded(!expanded)}>{expanded ? 'Collapse' : `Expand (${images.length})`}</div>}
 
     {expanded && Object.entries(imagesByPrompt).map(([prompt, promptImages]) => {
-      const corePrompt = prompt.split(artPrompt)[0]
+      const corePrompt = cleanPromptForDisplay(prompt)
       return <div key={prompt} className={classes.row}>
         <h3>{corePrompt}</h3>
         <div className={classes.content}>
@@ -163,16 +205,34 @@ export const PostWithArtGrid = ({post, images, defaultExpanded = false}: {post: 
           />
           <div className={classes.postWrapper} >
             {promptImages.map((image) => {
-              const smallUrl = getCloudinaryThumbnail(image.splashArtImageUrl);
-              const medUrl = getCloudinaryThumbnail(image.splashArtImageUrl, 800);
+              const smallUrl = getCloudinaryThumbnail(image.splashArtImageUrl, 400);
+              const tooltipImageUrl = image.upscaledImageUrl
+                ? getCloudinaryThumbnail(image.upscaledImageUrl, 800)
+                : getCloudinaryThumbnail(image.splashArtImageUrl, 800);
 
-              const tooltip = <img src={medUrl} className={classes.imageTooltipContainer} />
+              const tooltip = <img src={tooltipImageUrl} className={classes.imageTooltipContainer} />
+
+              const canUpscale = image.midjourneyJobId && !image.upscaledImageUrl;
+              const isUpscaling = upscalingImageId === image._id;
 
               return <LWTooltip key={image._id} title={tooltip} tooltip={false}>
-                <div key={image._id} className={classes.imageWrapper}>
+                <div className={classNames(classes.imageWrapper, fadeNonUpscaled && !image.upscaledImageUrl && classes.imageWrapperFaded)}>
                   <img className={classNames(classes.image, selectedImageInfo?._id === image._id && classes.selectedImage)} src={smallUrl} onClick={() => handleSaveCoordinates(image)} />
-                  <div className={classes.imageId}>
-                    {image._id}
+                  <div className={classes.imageActions}>
+                    <span className={classes.imageId}>{image._id}</span>
+                    <span>
+                      {image.upscaledImageUrl && (
+                        <span className={classes.upscaleBadge}>2x</span>
+                      )}
+                      {canUpscale && (
+                        <button
+                          className={classes.upscaleButton}
+                          onClick={(e) => handleUpscale(e, image)}
+                        >
+                          {isUpscaling ? 'Upscaling...' : 'Upscale'}
+                        </button>
+                      )}
+                    </span>
                   </div>
                 </div>
               </LWTooltip>

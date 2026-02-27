@@ -2223,7 +2223,12 @@ type CurationNoticeOutput = {
 
 type CurationNoticeSelector = {
   curationNoticesPage?: InputMaybe<EmptyViewInput>;
+  curationNoticesPostView?: InputMaybe<CurationNoticesPostViewInput>;
   default?: InputMaybe<EmptyViewInput>;
+};
+
+type CurationNoticesPostViewInput = {
+  postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type DatabaseMetadata = {
@@ -4580,6 +4585,7 @@ type Mutation = {
   updateUserMostValuablePost?: Maybe<UserMostValuablePostOutput>;
   updateUserRateLimit?: Maybe<UserRateLimitOutput>;
   updateUserTagRel?: Maybe<UserTagRelOutput>;
+  upscaleReviewWinnerArt?: Maybe<ReviewWinnerArt>;
   useEmailToken?: Maybe<Scalars['JSON']['output']>;
 };
 
@@ -5542,6 +5548,11 @@ type MutationupdateUserRateLimitArgs = {
 type MutationupdateUserTagRelArgs = {
   data: UpdateUserTagRelDataInput;
   selector: SelectorInput;
+};
+
+
+type MutationupscaleReviewWinnerArtArgs = {
+  reviewWinnerArtId: Scalars['String']['input'];
 };
 
 
@@ -9734,10 +9745,13 @@ type ReviewWinnerArt = {
   activeSplashArtCoordinates?: Maybe<SplashArtCoordinate>;
   createdAt: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
+  midjourneyImageIndex?: Maybe<Scalars['Int']['output']>;
+  midjourneyJobId?: Maybe<Scalars['String']['output']>;
   postId: Scalars['String']['output'];
   schemaVersion: Scalars['Float']['output'];
   splashArtImagePrompt: Scalars['String']['output'];
   splashArtImageUrl: Scalars['String']['output'];
+  upscaledImageUrl?: Maybe<Scalars['String']['output']>;
 };
 
 type ReviewWinnerArtSelector = {
@@ -19430,6 +19444,21 @@ type createSplashArtCoordinatePostWithArtGridMutationVariables = Exact<{
 
 type createSplashArtCoordinatePostWithArtGridMutation = createSplashArtCoordinatePostWithArtGridMutation_Mutation;
 
+type upscaleReviewWinnerArtPostWithArtGridMutation_upscaleReviewWinnerArt_ReviewWinnerArt = (
+  { __typename?: 'ReviewWinnerArt' }
+  & ReviewWinnerArtImages
+);
+
+type upscaleReviewWinnerArtPostWithArtGridMutation_Mutation = { __typename?: 'Mutation', upscaleReviewWinnerArt: upscaleReviewWinnerArtPostWithArtGridMutation_upscaleReviewWinnerArt_ReviewWinnerArt | null };
+
+
+type upscaleReviewWinnerArtPostWithArtGridMutationVariables = Exact<{
+  reviewWinnerArtId: Scalars['String']['input'];
+}>;
+
+
+type upscaleReviewWinnerArtPostWithArtGridMutation = upscaleReviewWinnerArtPostWithArtGridMutation_Mutation;
+
 type multiCommentReviewPillContainerQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
   & CommentWithRepliesFragment
@@ -20499,6 +20528,23 @@ type multiUserUserReviewsQueryQueryVariables = Exact<{
 
 
 type multiUserUserReviewsQueryQuery = multiUserUserReviewsQueryQuery_Query;
+
+type createSplashArtCoordinateCoordinateEditorMutation_createSplashArtCoordinate_SplashArtCoordinateOutput_data_SplashArtCoordinate = (
+  { __typename?: 'SplashArtCoordinate' }
+  & SplashArtCoordinatesEdit
+);
+
+type createSplashArtCoordinateCoordinateEditorMutation_createSplashArtCoordinate_SplashArtCoordinateOutput = { __typename?: 'SplashArtCoordinateOutput', data: createSplashArtCoordinateCoordinateEditorMutation_createSplashArtCoordinate_SplashArtCoordinateOutput_data_SplashArtCoordinate | null };
+
+type createSplashArtCoordinateCoordinateEditorMutation_Mutation = { __typename?: 'Mutation', createSplashArtCoordinate: createSplashArtCoordinateCoordinateEditorMutation_createSplashArtCoordinate_SplashArtCoordinateOutput | null };
+
+
+type createSplashArtCoordinateCoordinateEditorMutationVariables = Exact<{
+  data: CreateSplashArtCoordinateDataInput;
+}>;
+
+
+type createSplashArtCoordinateCoordinateEditorMutation = createSplashArtCoordinateCoordinateEditorMutation_Mutation;
 
 type updateRevisionCompareRevisionsMutation_updateRevision_RevisionOutput_data_Revision = (
   { __typename?: 'Revision' }
@@ -22636,6 +22682,23 @@ type multiCommentRejectedCommentsListQueryQueryVariables = Exact<{
 
 
 type multiCommentRejectedCommentsListQueryQuery = multiCommentRejectedCommentsListQueryQuery_Query;
+
+type CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput_results_CurationNotice = (
+  { __typename?: 'CurationNotice' }
+  & CurationNoticesFragment
+);
+
+type CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput = { __typename?: 'MultiCurationNoticeOutput', results: Array<CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput_results_CurationNotice> };
+
+type CurationPostViewQueryQuery_Query = { __typename?: 'Query', curationNotices: CurationPostViewQueryQuery_curationNotices_MultiCurationNoticeOutput | null };
+
+
+type CurationPostViewQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+type CurationPostViewQueryQuery = CurationPostViewQueryQuery_Query;
 
 type multiUserModerationInboxQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
@@ -26841,7 +26904,7 @@ type ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtC
   & SplashArtCoordinatesEdit
 );
 
-type ReviewWinnerArtImages = { __typename?: 'ReviewWinnerArt', _id: string, postId: string, splashArtImagePrompt: string, splashArtImageUrl: string, activeSplashArtCoordinates: ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtCoordinate | null };
+type ReviewWinnerArtImages = { __typename?: 'ReviewWinnerArt', _id: string, createdAt: string, postId: string, splashArtImagePrompt: string, splashArtImageUrl: string, midjourneyJobId: string | null, midjourneyImageIndex: number | null, upscaledImageUrl: string | null, activeSplashArtCoordinates: ReviewWinnerArtImages_ReviewWinnerArt_activeSplashArtCoordinates_SplashArtCoordinate | null };
 
 type ReviewWinnerAll_ReviewWinner_reviewWinnerArt_ReviewWinnerArt = (
   { __typename?: 'ReviewWinnerArt' }
@@ -28271,6 +28334,38 @@ type GetReviewWinnersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type GetReviewWinnersQuery = GetReviewWinnersQuery_Query;
+
+type postWithMarkdownForCoverImageQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', markdown: string | null };
+
+type postWithMarkdownForCoverImageQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, contents: postWithMarkdownForCoverImageQuery_post_SinglePostOutput_result_Post_contents_Revision | null };
+
+type postWithMarkdownForCoverImageQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: postWithMarkdownForCoverImageQuery_post_SinglePostOutput_result_Post | null };
+
+type postWithMarkdownForCoverImageQuery_Query = { __typename?: 'Query', post: postWithMarkdownForCoverImageQuery_post_SinglePostOutput | null };
+
+
+type postWithMarkdownForCoverImageQueryVariables = Exact<{
+  input: InputMaybe<SinglePostInput>;
+}>;
+
+
+type postWithMarkdownForCoverImageQuery = postWithMarkdownForCoverImageQuery_Query;
+
+type postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput_results_Post_contents_Revision = { __typename?: 'Revision', markdown: string | null };
+
+type postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, title: string, contents: postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput_results_Post_contents_Revision | null };
+
+type postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput_results_Post> };
+
+type postsWithMarkdownForCoverImageQuery_Query = { __typename?: 'Query', posts: postsWithMarkdownForCoverImageQuery_posts_MultiPostOutput | null };
+
+
+type postsWithMarkdownForCoverImageQueryVariables = Exact<{
+  input: InputMaybe<MultiPostInput>;
+}>;
+
+
+type postsWithMarkdownForCoverImageQuery = postsWithMarkdownForCoverImageQuery_Query;
 
 type CommentsForEmbeddingsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null };
 

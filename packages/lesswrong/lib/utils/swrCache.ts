@@ -27,7 +27,7 @@ export class SwrCache<T, Args extends any[]> {
     }
   }
   
-  private async recompute(...args: Args) {
+  async recompute(...args: Args) {
     // If this is replacing an existing cache entry, update the last-updated
     // date first, so that subsequent requests don't also attempt to perform
     // the same update.

@@ -1,9 +1,6 @@
 import 'regenerator-runtime/runtime';
 import { filterConsoleLogSpam } from '../lib/consoleFilters';
 import { AbortSignal } from "node-abort-controller";
-// See https://github.com/openai/openai-node#customizing-the-fetch-client
-// eslint-disable-next-line no-restricted-imports
-import "openai/shims/node";
 
 const DEFAULT_LOCAL_TEST_PG_URL = "postgres://postgres:password@localhost:5433/postgres";
 

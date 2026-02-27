@@ -90,7 +90,7 @@ export async function updateUltraFeedEvent(args: { selector: string, data: Updat
   if (inputData.event) {
     const result = seeLessEventDataSchema.safeParse(inputData.event);
     if (!result.success) {
-      throw new Error(`Invalid event data: ${result.error.errors.map(e => e.message).join(', ')}`);
+      throw new Error(`Invalid event data: ${z.treeifyError(result.error).errors.join(', ')}`);
     }
   }
   

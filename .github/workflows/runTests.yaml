@@ -221,13 +221,6 @@ jobs:
       with:
         name: Upload schema to accept
         path: schema/schema_to_accept.sql
-    - name: Save coverage report
-      uses: coverallsapp/github-action@v2
-      with:
-        file: unit-coverage/lcov.info
-        format: lcov
-        flag-name: Unit
-        parallel: true
 
   runIntegrationTests:
     runs-on: ubuntu-latest
@@ -266,13 +259,6 @@ jobs:
       run: yarn create-integration-db-ci
     - name: yarn run integration-ci
       run: yarn run integration-ci
-    - name: Save coverage report
-      uses: coverallsapp/github-action@v2
-      with:
-        file: integration-coverage/lcov.info
-        format: lcov
-        flag-name: Integration
-        parallel: true
 
   runPostgresBootstrap:
     runs-on: ubuntu-latest
@@ -310,12 +296,3 @@ jobs:
       run: psql $PG_URL -f ./schema/accepted_schema.sql
     - name: Run Database Bootstrap
       run: yarn repl dev lw packages/lesswrong/server/migrations/meta/umzug.ts 'skipMigrationsAfterDatabaseInit()'
-
-  uploadCoverageReports:
-    needs: [runUnitTests, runIntegrationTests]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Upload to Coveralls
-      uses: coverallsapp/github-action@v2
-      with:
-        parallel-finished: true

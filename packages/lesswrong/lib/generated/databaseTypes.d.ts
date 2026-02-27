@@ -1301,9 +1301,12 @@ interface DbReviewWinnerArt extends DbObject {
   __collectionName?: "ReviewWinnerArts"
   createdAt: Date
   legacyData: any | null
+  midjourneyImageIndex: number | null
+  midjourneyJobId: string | null
   postId: string
   splashArtImagePrompt: string
   splashArtImageUrl: string
+  upscaledImageUrl: string | null
 }
 
 type ReviewWinnersCollection = PgCollection<"ReviewWinners">;
