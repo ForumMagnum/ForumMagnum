@@ -1,5 +1,4 @@
 import type { NextRequest } from 'next/server';
-import { clearOldCronHistories } from '@/server/cron/cronUtil';
 import { maintainAnalyticsViews } from '@/server/analytics/analyticsViews';
 import { sendInactiveUserSurveyEmails } from '@/server/inactiveUserSurveyCron';
 import { refreshKarmaInflation } from '@/server/karmaInflation/cron';
@@ -15,8 +14,6 @@ export async function GET(request: NextRequest) {
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new Response('Unauthorized', { status: 401 });
   }
-
-  await clearOldCronHistories();
 
   await refreshKarmaInflation();
 

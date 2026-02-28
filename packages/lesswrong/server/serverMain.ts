@@ -7,7 +7,6 @@ import { refreshKarmaInflationCache } from './karmaInflation/cron';
 // import { addLegacyRssRoutes } from './legacy-redirects/routes';
 // import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
-import { startSyncedCron } from './cron/startCron';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import chokidar from 'chokidar';
 import fs from 'fs';
@@ -48,7 +47,6 @@ export async function runServerOnStartupFunctions() {
   // backgroundTask(initReviewWinnerCache());
   backgroundTask(updateStripeIntentsCache());
 
-  startSyncedCron();
   captureEvent("serverStarted", {});
 }
 
