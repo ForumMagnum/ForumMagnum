@@ -9,10 +9,12 @@ import { insertDraftCommentThread } from "../agent/commentOnDraft/route";
 import { replaceTextInMainDoc } from "../agent/replaceText/route";
 import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
+import { deleteMarkdownBlock } from "../agent/deleteBlock/route";
 import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
 import { gql } from "@/lib/generated/gql-codegen";
 import {
   commentOnDraftToolSchema,
+  deleteBlockToolSchema,
   insertBlockToolSchema,
   replaceTextToolSchema,
   replaceWidgetToolSchema,
@@ -235,6 +237,29 @@ function createMcpServer(): McpServer {
         mode: args.mode ?? "suggest",
         authorName,
         authorId,
+      });
+
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+    },
+  );
+
+  server.registerTool(
+    "delete_block",
+    {
+      description: "Delete a block from a post draft by matching the start of its markdown. Mode 'suggest' creates a deletion suggestion; mode 'edit' deletes immediately.",
+      inputSchema: deleteBlockToolSchema.shape,
+      annotations: {
+        openWorldHint: false,
+        destructiveHint: true,
+      },
+    },
+    async (args, extra) => {
+      const context = await contextFromAuth(extra);
+      const token = await getHocuspocusToken(context, args.postId);
+
+      const result = await deleteMarkdownBlock({
+        ...args,
+        token,
       });
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };

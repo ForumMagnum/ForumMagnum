@@ -67,3 +67,13 @@ export const insertBlockToolSchema = z.object({
 export const insertBlockRouteSchema = insertBlockToolSchema.extend({
   key: z.string().optional(),
 });
+
+export const deleteBlockToolSchema = z.object({
+  postId: z.string().describe("The ID of the post"),
+  prefix: z.string().describe("Delete the first block whose markdown starts with this text"),
+  mode: modeSchema,
+});
+
+export const deleteBlockRouteSchema = deleteBlockToolSchema.extend({
+  key: z.string().optional(),
+});

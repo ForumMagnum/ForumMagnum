@@ -2,11 +2,11 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest, NextResponse } from "next/server";
-import z from "zod";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
+import { deleteBlockRouteSchema, type ReplaceMode } from "../toolSchemas";
 
 const HocuspocusAuthQuery = `
   query AgentDeleteBlockHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -18,14 +18,6 @@ const HocuspocusAuthQuery = `
 
 const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 
-const DeleteBlockRequestSchema = z.object({
-  postId: z.string(),
-  key: z.string().optional(),
-  mode: z.enum(["edit", "suggest"]).default("edit"),
-  prefix: z.string(),
-});
-
-type DeleteMode = z.infer<typeof DeleteBlockRequestSchema>["mode"];
 
 interface DeleteBlockResult {
   deleted: boolean
@@ -56,7 +48,7 @@ function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
   return prefixPlainText.length > 0 && normalizedTextContent.startsWith(prefixPlainText);
 }
 
-async function deleteMarkdownBlock({
+export async function deleteMarkdownBlock({
   postId,
   token,
   mode,
@@ -64,7 +56,7 @@ async function deleteMarkdownBlock({
 }: {
   postId: string
   token: string
-  mode: DeleteMode
+  mode: ReplaceMode
   prefix: string
 }): Promise<DeleteBlockResult> {
   return withMainDocEditorSession({
@@ -155,7 +147,7 @@ export async function POST(req: NextRequest) {
     getContextFromReqAndRes({ req, isSSR: false }),
   ]);
 
-  const parseResult = DeleteBlockRequestSchema.safeParse(body);
+  const parseResult = deleteBlockRouteSchema.safeParse(body);
   if (!parseResult.success) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
