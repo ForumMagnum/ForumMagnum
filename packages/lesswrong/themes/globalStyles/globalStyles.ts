@@ -14,6 +14,8 @@ const clearStyle = (theme: ThemeType) => ({
     "-webkit-font-smoothing": "antialiased",
     "-moz-osx-font-smoothing": "grayscale",
     color: theme.palette.text.maxIntensity,
+    "text-size-adjust": "none",
+    "-webkit-text-size-adjust": "none",
   },
   "*, *::before, *::after": {
     boxSizing: "inherit",
