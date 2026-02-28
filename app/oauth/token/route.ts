@@ -47,9 +47,7 @@ export async function POST(req: NextRequest) {
       // eslint-disable-next-line no-console
       console.error("oauth/token: Invalid content type", contentType);
       captureException(new Error(`oauth/token: Invalid content type ${contentType}`));
-      return NextResponse.json({ error: "invalid_request", error_description: "Unsupported content type" }, {
-        status: 400,
-      });
+      return NextResponse.json({ error: "invalid_request", error_description: "Unsupported content type" }, { status: 400 });
     }
 
     const grantType = params.grant_type;
@@ -57,9 +55,7 @@ export async function POST(req: NextRequest) {
       // eslint-disable-next-line no-console
       console.error("oauth/token: Unsupported grant type", grantType);
       captureException(new Error(`oauth/token: Unsupported grant type ${grantType}`));
-      return NextResponse.json({ error: "unsupported_grant_type" }, {
-        status: 400,
-      });
+      return NextResponse.json({ error: "unsupported_grant_type" }, { status: 400 });
     }
 
     const basicAuthCredentials = parseBasicAuthorizationHeader(req.headers.get("authorization"));
@@ -83,15 +79,11 @@ export async function POST(req: NextRequest) {
       // eslint-disable-next-line no-console
       console.error("oauth/token: OAuth error", e);
       captureException(e);
-      return NextResponse.json(e.toJSON(), {
-        status: 400,
-      });
+      return NextResponse.json(e.toJSON(), { status: 400 });
     }
     // eslint-disable-next-line no-console
     console.error("OAuth token error:", e);
     captureException(e);
-    return NextResponse.json({ error: "server_error" }, {
-      status: 500,
-    });
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }

@@ -1,15 +1,14 @@
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { createMcpServer } from "./mcpServer";
 import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 
 function unauthorized(req: NextRequest, description: string): Response {
   const siteUrl = getSiteUrlFromReq(req);
-  return new Response(JSON.stringify({ error: "unauthorized", error_description: description }), {
+  return NextResponse.json({ error: "unauthorized", error_description: description }, {
     status: 401,
     headers: {
-      "Content-Type": "application/json",
       "WWW-Authenticate": `Bearer resource="${siteUrl}/api/mcp"`,
     },
   });

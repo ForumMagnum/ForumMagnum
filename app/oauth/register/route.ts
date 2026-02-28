@@ -1,5 +1,6 @@
+import { captureException } from "@/lib/sentryWrapper";
 import { registerClient, OAuthError } from "@/server/oauth/oauthProvider";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,22 +13,14 @@ export async function POST(req: NextRequest) {
       responseTypes: body.response_types,
     });
 
-    return new Response(JSON.stringify(result), {
-      status: 201,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json(result, { status: 201 });
   } catch (e) {
-    if (e instanceof OAuthError) {
-      return new Response(JSON.stringify(e.toJSON()), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
     // eslint-disable-next-line no-console
     console.error("OAuth register error:", e);
-    return new Response(JSON.stringify({ error: "server_error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    captureException(e);
+    if (e instanceof OAuthError) {
+      return NextResponse.json(e.toJSON(), { status: 400 });
+    }
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
