@@ -1135,12 +1135,6 @@ extend type Query {
   latestDialogueMessages(dialogueId: String!, numMessages: Int!): [String!]
 }
 
-extend type Mutation {
-  AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean
-  RemoveForumEventVote(forumEventId: String!): Boolean
-  RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
-}
-
 extend type Query {
   getLinkSharedPost(postId: String!, linkSharingKey: String!): Post
 }

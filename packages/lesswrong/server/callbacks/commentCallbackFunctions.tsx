@@ -104,39 +104,6 @@ const utils = {
     }
   },
 
-  /**
-   * Run side effects based on the `forumEventMetadata` that is submitted.
-   */
-  forumEventSideEffects: async ({ comment, forumEventMetadata, context }: { comment: DbComment; forumEventMetadata: ForumEventCommentMetadata; context: ResolverContext; }) => {
-    const { repos } = context;
-    if (forumEventMetadata.eventFormat === "STICKERS") {
-      const sticker = forumEventMetadata.sticker
-
-      if (!comment.forumEventId) {
-        throw new Error("Comment must have forumEventId")
-      }
-
-      const {_id, x, y, theta, emoji} = sticker ?? {};
-
-      if (!sticker || !_id || !x || !y || !theta) {
-        throw new Error("Must include sticker")
-      }
-
-      if (!emoji) {
-        throw new Error("No emoji selected")
-      }
-
-      const forumEventId = comment.forumEventId;
-      const stickerData = {_id, x, y, theta, emoji, commentId: comment._id, userId: comment.userId};
-
-      await repos.forumEvents.addSticker({ forumEventId, stickerData });
-      captureEvent("addForumEventSticker", {
-        forumEventId,
-        stickerData,
-      });
-    }
-  },
-
   notifyRsvps: async (comment: DbComment, post: DbPost, context: ResolverContext) => {
     const { Users } = context;
     
@@ -753,7 +720,6 @@ export async function handleForumEventMetadataNew(comment: CreateCommentDataInpu
   if (comment.forumEventMetadata) {
     // Side effects may need to reference the comment, so set the _id now
     comment._id = comment._id || randomId();
-    await utils.forumEventSideEffects({ comment: comment as DbComment, forumEventMetadata: comment.forumEventMetadata, context });
   }
   return comment;
 }
@@ -987,14 +953,6 @@ export async function moveToAnswers(modifier: MongoModifier, comment: DbComment,
     } else if (modifier.$set.answer === false) {
       await Comments.rawUpdateMany({topLevelCommentId: comment._id}, {$unset:{parentAnswerId:true}}, { multi: true })
     }
-  }
-  return modifier
-}
-
-export async function handleForumEventMetadataEdit(modifier: MongoModifier, comment: DbComment, context: ResolverContext) {
-  const newMetadata = modifier.$set?.forumEventMetadata;
-  if (newMetadata && !isEqual(comment.forumEventMetadata, newMetadata)) {
-    await utils.forumEventSideEffects({ comment, forumEventMetadata: newMetadata, context });
   }
   return modifier
 }

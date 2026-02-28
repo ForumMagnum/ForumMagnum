@@ -6,9 +6,6 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { useSetTheme, useAbstractThemeOptions } from '@/components/themes/useTheme';
-
-import { configureDatadogRum } from '@/client/datadogRum';
-
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
@@ -450,8 +447,6 @@ const UsersEditForm = ({ terms, accountManagement }: {
       setTheme(theme);
       captureEvent("setUserTheme", theme);
     }
-
-    void configureDatadogRum(user)
 
     flash(`User "${userGetDisplayName(user)}" edited`);
     try {

@@ -3,8 +3,6 @@ import React from "react";
 import { useLocation } from "../../lib/routeUtil";
 import { useTagBySlug } from "./useTag";
 import { hasSubforums } from "@/lib/betas";
-import { isFriendlyUI } from "@/themes/forumTheme";
-import EATagPage from "./EATagPage";
 import LWTagPage from "./LWTagPage";
 import TagSubforumPage2 from "./subforums/TagSubforumPage2";
 
@@ -36,7 +34,6 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
  * Wrapper component for routing to either the subforum page or the ordinary tag page.
  */
 const TagPageRouter = ({slug}: {slug: string}) => {
-  const TagPage = isFriendlyUI() ? EATagPage : LWTagPage;
   const { query } = useLocation();
 
   const { version: queryVersion, revision: queryRevision } = query;
@@ -58,7 +55,7 @@ const TagPageRouter = ({slug}: {slug: string}) => {
   });
   
   if (!hasSubforums()) {
-    return <TagPage slug={slug}/>;
+    return <LWTagPage slug={slug}/>;
   }
 
   if (!tag || loadingTag) return null;
@@ -86,7 +83,7 @@ const TagPageRouter = ({slug}: {slug: string}) => {
     return <TagSubforumPage2 slug={slug}/>
   }
 
-  return <TagPage slug={slug}/>
+  return <LWTagPage slug={slug}/>
 }
 
 export default TagPageRouter;

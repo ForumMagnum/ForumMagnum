@@ -10,7 +10,6 @@ import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import ElectionVotesRepo from "./ElectionVotesRepo";
-import ForumEventsRepo from "./ForumEventsRepo";
 import JargonTermsRepo from "./JargonTermsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import LWEventsRepo from "./LWEventsRepo";
@@ -61,7 +60,6 @@ const allRepos = {
   debouncerEvents: DebouncerEventsRepo,
   electionCandidates: ElectionCandidatesRepo,
   electionVotes: ElectionVotesRepo,
-  forumEvents: ForumEventsRepo,
   jargonTerms: JargonTermsRepo,
   localgroups: LocalgroupsRepo,
   lwEvents: LWEventsRepo,

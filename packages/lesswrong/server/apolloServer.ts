@@ -23,7 +23,6 @@ import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
-import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../server/collections/sessions/collection';
 import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
@@ -34,7 +33,7 @@ import { closePerfMetric, openPerfMetric } from './perfMetrics';
 import { addCacheControlMiddleware } from './cacheControlMiddleware';
 import { getSqlClientOrThrow } from './sql/sqlClient';
 import { getCommandLineArguments } from './commandLine';
-import { isDatadogEnabled, isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
+import { isEAForum, isElasticEnabled, performanceMetricLoggingEnabled, testServerSetting } from "../lib/instanceSettings";
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
 import express from 'express';
 export const app = express();
@@ -148,9 +147,6 @@ export async function startWebserver() {
   // addForumSpecificMiddleware(addMiddleware);
   // addSentryMiddlewares(addMiddleware);
   addCacheControlMiddleware(addMiddleware);
-  if (isDatadogEnabled()) {
-    app.use(datadogMiddleware);
-  }
   // app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);

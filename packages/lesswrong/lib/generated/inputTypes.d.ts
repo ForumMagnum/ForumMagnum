@@ -266,9 +266,6 @@ interface Mutation {
   signup: LoginReturnData | null;
   logout: LoginReturnData | null;
   resetPassword: string | null;
-  AddForumEventVote: boolean | null;
-  RemoveForumEventVote: boolean | null;
-  RemoveForumEventSticker: boolean | null;
   unlockPost: Post | null;
   revertPostToRevision: Post | null;
   importUrlAsDraftPost: ExternalPostImportData;

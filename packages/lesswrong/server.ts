@@ -105,7 +105,6 @@ import './server/resolvers/moderationResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
 import './server/resolvers/defaultResolvers';
-import './server/resolvers/forumEventResolvers';
 import './server/resolvers/anthropicResolvers';
 import './server/resolvers/multiDocumentResolvers';
 import './server/resolvers/importUrlAsDraftPost';

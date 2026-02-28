@@ -4387,7 +4387,6 @@ type MultiVoteOutput = {
 
 type Mutation = {
   __typename?: 'Mutation';
-  AddForumEventVote?: Maybe<Scalars['Boolean']['output']>;
   AddGivingSeasonHeart: Array<GivingSeasonHeart>;
   CancelRSVPToEvent?: Maybe<Post>;
   ImportGoogleDoc?: Maybe<Post>;
@@ -4397,8 +4396,6 @@ type Mutation = {
   PetrovDayLaunchMissile?: Maybe<PetrovDayLaunchMissileData>;
   RSVPToEvent?: Maybe<Post>;
   RefreshDbSettings?: Maybe<Scalars['Boolean']['output']>;
-  RemoveForumEventSticker?: Maybe<Scalars['Boolean']['output']>;
-  RemoveForumEventVote?: Maybe<Scalars['Boolean']['output']>;
   RemoveGivingSeasonHeart: Array<GivingSeasonHeart>;
   UpdateSearchSynonyms: Array<Scalars['String']['output']>;
   UserExpandFrontpageSection?: Maybe<Scalars['Boolean']['output']>;
@@ -4558,14 +4555,6 @@ type Mutation = {
 };
 
 
-type MutationAddForumEventVoteArgs = {
-  delta?: InputMaybe<Scalars['Float']['input']>;
-  forumEventId: Scalars['String']['input'];
-  postIds?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  x: Scalars['Float']['input'];
-};
-
-
 type MutationAddGivingSeasonHeartArgs = {
   electionName: Scalars['String']['input'];
   theta: Scalars['Float']['input'];
@@ -4612,17 +4601,6 @@ type MutationRSVPToEventArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
   private?: InputMaybe<Scalars['Boolean']['input']>;
   response?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-type MutationRemoveForumEventStickerArgs = {
-  forumEventId: Scalars['String']['input'];
-  stickerId: Scalars['String']['input'];
-};
-
-
-type MutationRemoveForumEventVoteArgs = {
-  forumEventId: Scalars['String']['input'];
 };
 
 
@@ -15986,43 +15964,6 @@ type ConvertDocumentQueryVariables = Exact<{
 
 type ConvertDocumentQuery = ConvertDocumentQuery_Query;
 
-type multiPostEventsHomeQueryQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsList
-);
-
-type multiPostEventsHomeQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostEventsHomeQueryQuery_posts_MultiPostOutput_results_Post> };
-
-type multiPostEventsHomeQueryQuery_Query = { __typename?: 'Query', posts: multiPostEventsHomeQueryQuery_posts_MultiPostOutput | null };
-
-
-type multiPostEventsHomeQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiPostEventsHomeQueryQuery = multiPostEventsHomeQueryQuery_Query;
-
-type updateUserEventsHomeMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersProfile
-);
-
-type updateUserEventsHomeMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserEventsHomeMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserEventsHomeMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserEventsHomeMutation_updateUser_UserOutput | null };
-
-
-type updateUserEventsHomeMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserEventsHomeMutation = updateUserEventsHomeMutation_Mutation;
-
 type FMCrosspostControlQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & UsersCrosspostInfo
@@ -17639,79 +17580,6 @@ type NotificationsMenuButtonQueryVariables = Exact<{
 
 
 type NotificationsMenuButtonQuery = NotificationsMenuButtonQuery_Query;
-
-type NotificationsPageQuery_user_SingleUserOutput_result_User = (
-  { __typename?: 'User' }
-  & UserKarmaChanges
-);
-
-type NotificationsPageQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: NotificationsPageQuery_user_SingleUserOutput_result_User | null };
-
-type NotificationsPageQuery_Query = { __typename?: 'Query', user: NotificationsPageQuery_user_SingleUserOutput | null };
-
-
-type NotificationsPageQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type NotificationsPageQuery = NotificationsPageQuery_Query;
-
-type NotificationsPageItemQuery_comment_SingleCommentOutput_result_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithParentMetadata
-);
-
-type NotificationsPageItemQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: NotificationsPageItemQuery_comment_SingleCommentOutput_result_Comment | null };
-
-type NotificationsPageItemQuery_Query = { __typename?: 'Query', comment: NotificationsPageItemQuery_comment_SingleCommentOutput | null };
-
-
-type NotificationsPageItemQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type NotificationsPageItemQuery = NotificationsPageItemQuery_Query;
-
-type getNotificationDisplaysQuery_NotificationDisplays_NotificationDisplaysResult = { __typename?: 'NotificationDisplaysResult', results: Array<any> };
-
-type getNotificationDisplaysQuery_Query = { __typename?: 'Query', NotificationDisplays: getNotificationDisplaysQuery_NotificationDisplays_NotificationDisplaysResult | null };
-
-
-type getNotificationDisplaysQueryVariables = Exact<{
-  limit: InputMaybe<Scalars['Int']['input']>;
-  type: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type getNotificationDisplaysQuery = getNotificationDisplaysQuery_Query;
-
-type MarkAllNotificationsAsReadMutation_Mutation = { __typename?: 'Mutation', MarkAllNotificationsAsRead: boolean | null };
-
-
-type MarkAllNotificationsAsReadMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-type MarkAllNotificationsAsReadMutation = MarkAllNotificationsAsReadMutation_Mutation;
-
-type updateNotificationNotificationsPopoverNotificationMutation_updateNotification_NotificationOutput_data_Notification = (
-  { __typename?: 'Notification' }
-  & NotificationsList
-);
-
-type updateNotificationNotificationsPopoverNotificationMutation_updateNotification_NotificationOutput = { __typename?: 'NotificationOutput', data: updateNotificationNotificationsPopoverNotificationMutation_updateNotification_NotificationOutput_data_Notification | null };
-
-type updateNotificationNotificationsPopoverNotificationMutation_Mutation = { __typename?: 'Mutation', updateNotification: updateNotificationNotificationsPopoverNotificationMutation_updateNotification_NotificationOutput | null };
-
-
-type updateNotificationNotificationsPopoverNotificationMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateNotificationDataInput;
-}>;
-
-
-type updateNotificationNotificationsPopoverNotificationMutation = updateNotificationNotificationsPopoverNotificationMutation_Mutation;
 
 type TagRelNotificationItemQuery_tagRel_SingleTagRelOutput_result_TagRel = (
   { __typename?: 'TagRel' }
@@ -22130,59 +21998,6 @@ type multiTagCoreTagsSectionQueryQueryVariables = Exact<{
 
 
 type multiTagCoreTagsSectionQueryQuery = multiTagCoreTagsSectionQueryQuery_Query;
-
-type EAAllTagsPageQuery_tag_SingleTagOutput_result_Tag = (
-  { __typename?: 'Tag' }
-  & TagEditFragment
-);
-
-type EAAllTagsPageQuery_tag_SingleTagOutput = { __typename?: 'SingleTagOutput', result: EAAllTagsPageQuery_tag_SingleTagOutput_result_Tag | null };
-
-type EAAllTagsPageQuery_Query = { __typename?: 'Query', tag: EAAllTagsPageQuery_tag_SingleTagOutput | null };
-
-
-type EAAllTagsPageQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type EAAllTagsPageQuery = EAAllTagsPageQuery_Query;
-
-type multiTagEATagPageQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagWithFlagsFragment
-);
-
-type multiTagEATagPageQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagEATagPageQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagEATagPageQueryQuery_Query = { __typename?: 'Query', tags: multiTagEATagPageQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagEATagPageQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagEATagPageQueryQuery = multiTagEATagPageQueryQuery_Query;
-
-type EATagPageQuery_tag_SingleTagOutput_result_Tag = (
-  { __typename?: 'Tag' }
-  & TagEditFragment
-);
-
-type EATagPageQuery_tag_SingleTagOutput = { __typename?: 'SingleTagOutput', result: EATagPageQuery_tag_SingleTagOutput_result_Tag | null };
-
-type EATagPageQuery_Query = { __typename?: 'Query', tag: EATagPageQuery_tag_SingleTagOutput | null };
-
-
-type EATagPageQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type EATagPageQuery = EATagPageQuery_Query;
 
 type FilterModeQuery_tag_SingleTagOutput_result_Tag = (
   { __typename?: 'Tag' }

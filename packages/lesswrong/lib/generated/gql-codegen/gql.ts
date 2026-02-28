@@ -161,8 +161,6 @@ type Documents = {
     "\n    mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {\n      revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {\n        ...TagPageFragment\n      }\n    }\n  ": typeof types.revertToRevisionDocument,
     "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n": typeof types.createElicitQuestionCreateClaimDialogDocument,
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": typeof types.ConvertDocumentDocument,
-    "\n  query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostEventsHomeQueryDocument,
-    "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.updateUserEventsHomeDocument,
     "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n": typeof types.FMCrosspostControlDocument,
     "\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  ": typeof types.unlinkCrossposterDocument,
     "\n  query ImageUpload($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.ImageUploadDocument,
@@ -257,11 +255,6 @@ type Documents = {
     "\n      query EmailPreviewQuery($notificationIds: [String], $postId: String) {\n        EmailPreview(notificationIds: $notificationIds, postId: $postId) { to subject html text }\n      }\n  ": typeof types.EmailPreviewQueryDocument,
     "\n  query multiNotificationNotificationsListQuery($selector: NotificationSelector, $limit: Int, $enableTotal: Boolean) {\n    notifications(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...NotificationsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiNotificationNotificationsListQueryDocument,
     "\n  query NotificationsMenuButton($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.NotificationsMenuButtonDocument,
-    "\n  query NotificationsPage($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": typeof types.NotificationsPageDocument,
-    "\n  query NotificationsPageItem($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": typeof types.NotificationsPageItemDocument,
-    "\n    query getNotificationDisplays($limit: Int, $type: String) {\n      NotificationDisplays(limit: $limit, type: $type) {\n        results\n      }\n    }\n  ": typeof types.getNotificationDisplaysDocument,
-    "\n    mutation MarkAllNotificationsAsRead {\n      MarkAllNotificationsAsRead\n    }\n  ": typeof types.MarkAllNotificationsAsReadDocument,
-    "\n  mutation updateNotificationNotificationsPopoverNotification($selector: SelectorInput!, $data: UpdateNotificationDataInput!) {\n    updateNotification(selector: $selector, data: $data) {\n      data {\n        ...NotificationsList\n      }\n    }\n  }\n": typeof types.updateNotificationNotificationsPopoverNotificationDocument,
     "\n  query TagRelNotificationItem($documentId: String) {\n    tagRel(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagRelFragment\n      }\n    }\n  }\n": typeof types.TagRelNotificationItemDocument,
     "\n  query multiUserAdminPaymentsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserAdminPaymentsPageQueryDocument,
     "\n  mutation updateUserEditPaymentInfoPage($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserEditPaymentInfoPageDocument,
@@ -516,9 +509,6 @@ type Documents = {
     "\n  query AllWikiTagsPageQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n": typeof types.AllWikiTagsPageQueryDocument,
     "\n  query multiTagArbitalExplorePageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean, $contributorsLimit: Int) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ExplorePageTagFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiTagArbitalExplorePageQueryDocument,
     "\n  query multiTagCoreTagsSectionQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagDetailsFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiTagCoreTagsSectionQueryDocument,
-    "\n  query EAAllTagsPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.EAAllTagsPageDocument,
-    "\n  query multiTagEATagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagWithFlagsFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiTagEATagPageQueryDocument,
-    "\n  query EATagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": typeof types.EATagPageDocument,
     "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": typeof types.FilterModeDocument,
     "\n    query multiTagRelFooterTagListQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {\n      tagRels(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n        results {\n          ...TagRelMinimumFragment\n        }\n        totalCount\n      }\n    }\n  ": typeof types.multiTagRelFooterTagListQueryDocument,
     "\n    mutation addOrUpvoteTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelMinimumFragment\n      }\n    }\n  ": typeof types.addOrUpvoteTagDocument,
@@ -1059,8 +1049,6 @@ const documents: Documents = {
     "\n    mutation revertToRevision($tagId: String!, $revertToRevisionId: String!, $contributorsLimit: Int) {\n      revertTagToRevision(tagId: $tagId, revertToRevisionId: $revertToRevisionId) {\n        ...TagPageFragment\n      }\n    }\n  ": types.revertToRevisionDocument,
     "\n  mutation createElicitQuestionCreateClaimDialog($data: CreateElicitQuestionDataInput!) {\n    createElicitQuestion(data: $data) {\n      data {\n        ...ElicitQuestionFragment\n      }\n    }\n  }\n": types.createElicitQuestionCreateClaimDialogDocument,
     "\n    query ConvertDocument($document: JSON, $targetFormat: String) {\n      convertDocument(document: $document, targetFormat: $targetFormat)\n    }\n  ": types.ConvertDocumentDocument,
-    "\n  query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostEventsHomeQueryDocument,
-    "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": types.updateUserEventsHomeDocument,
     "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n": types.FMCrosspostControlDocument,
     "\n    mutation unlinkCrossposter {\n      unlinkCrossposter\n    }\n  ": types.unlinkCrossposterDocument,
     "\n  query ImageUpload($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.ImageUploadDocument,
@@ -1155,11 +1143,6 @@ const documents: Documents = {
     "\n      query EmailPreviewQuery($notificationIds: [String], $postId: String) {\n        EmailPreview(notificationIds: $notificationIds, postId: $postId) { to subject html text }\n      }\n  ": types.EmailPreviewQueryDocument,
     "\n  query multiNotificationNotificationsListQuery($selector: NotificationSelector, $limit: Int, $enableTotal: Boolean) {\n    notifications(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...NotificationsList\n      }\n      totalCount\n    }\n  }\n": types.multiNotificationNotificationsListQueryDocument,
     "\n  query NotificationsMenuButton($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.NotificationsMenuButtonDocument,
-    "\n  query NotificationsPage($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n": types.NotificationsPageDocument,
-    "\n  query NotificationsPageItem($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n": types.NotificationsPageItemDocument,
-    "\n    query getNotificationDisplays($limit: Int, $type: String) {\n      NotificationDisplays(limit: $limit, type: $type) {\n        results\n      }\n    }\n  ": types.getNotificationDisplaysDocument,
-    "\n    mutation MarkAllNotificationsAsRead {\n      MarkAllNotificationsAsRead\n    }\n  ": types.MarkAllNotificationsAsReadDocument,
-    "\n  mutation updateNotificationNotificationsPopoverNotification($selector: SelectorInput!, $data: UpdateNotificationDataInput!) {\n    updateNotification(selector: $selector, data: $data) {\n      data {\n        ...NotificationsList\n      }\n    }\n  }\n": types.updateNotificationNotificationsPopoverNotificationDocument,
     "\n  query TagRelNotificationItem($documentId: String) {\n    tagRel(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagRelFragment\n      }\n    }\n  }\n": types.TagRelNotificationItemDocument,
     "\n  query multiUserAdminPaymentsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.multiUserAdminPaymentsPageQueryDocument,
     "\n  mutation updateUserEditPaymentInfoPage($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserEditPaymentInfoPageDocument,
@@ -1414,9 +1397,6 @@ const documents: Documents = {
     "\n  query AllWikiTagsPageQuery($slugs: [String!]!) {\n    tags(selector: { tagsBySlugs: { slugs: $slugs } }) {\n      results {\n        ...ConceptItemFragment\n      }\n    }\n  }\n": types.AllWikiTagsPageQueryDocument,
     "\n  query multiTagArbitalExplorePageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean, $contributorsLimit: Int) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ExplorePageTagFragment\n      }\n      totalCount\n    }\n  }\n": types.multiTagArbitalExplorePageQueryDocument,
     "\n  query multiTagCoreTagsSectionQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagDetailsFragment\n      }\n      totalCount\n    }\n  }\n": types.multiTagCoreTagsSectionQueryDocument,
-    "\n  query EAAllTagsPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.EAAllTagsPageDocument,
-    "\n  query multiTagEATagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagWithFlagsFragment\n      }\n      totalCount\n    }\n  }\n": types.multiTagEATagPageQueryDocument,
-    "\n  query EATagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n": types.EATagPageDocument,
     "\n  query FilterMode($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagPreviewFragment\n      }\n    }\n  }\n": types.FilterModeDocument,
     "\n    query multiTagRelFooterTagListQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {\n      tagRels(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n        results {\n          ...TagRelMinimumFragment\n        }\n        totalCount\n      }\n    }\n  ": types.multiTagRelFooterTagListQueryDocument,
     "\n    mutation addOrUpvoteTag($tagId: String, $postId: String) {\n      addOrUpvoteTag(tagId: $tagId, postId: $postId) {\n        ...TagRelMinimumFragment\n      }\n    }\n  ": types.addOrUpvoteTagDocument,
@@ -2415,14 +2395,6 @@ export function gql(source: "\n    query ConvertDocument($document: JSON, $targe
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiPostEventsHomeQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserEventsHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
 export function gql(source: "\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  query FMCrosspostControl($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersCrosspostInfo\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -2796,26 +2768,6 @@ export function gql(source: "\n  query multiNotificationNotificationsListQuery($
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query NotificationsMenuButton($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"): (typeof documents)["\n  query NotificationsMenuButton($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query NotificationsPage($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"): (typeof documents)["\n  query NotificationsPage($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UserKarmaChanges\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query NotificationsPageItem($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"): (typeof documents)["\n  query NotificationsPageItem($documentId: String) {\n    comment(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...CommentsListWithParentMetadata\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n    query getNotificationDisplays($limit: Int, $type: String) {\n      NotificationDisplays(limit: $limit, type: $type) {\n        results\n      }\n    }\n  "): (typeof documents)["\n    query getNotificationDisplays($limit: Int, $type: String) {\n      NotificationDisplays(limit: $limit, type: $type) {\n        results\n      }\n    }\n  "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n    mutation MarkAllNotificationsAsRead {\n      MarkAllNotificationsAsRead\n    }\n  "): (typeof documents)["\n    mutation MarkAllNotificationsAsRead {\n      MarkAllNotificationsAsRead\n    }\n  "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  mutation updateNotificationNotificationsPopoverNotification($selector: SelectorInput!, $data: UpdateNotificationDataInput!) {\n    updateNotification(selector: $selector, data: $data) {\n      data {\n        ...NotificationsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateNotificationNotificationsPopoverNotification($selector: SelectorInput!, $data: UpdateNotificationDataInput!) {\n    updateNotification(selector: $selector, data: $data) {\n      data {\n        ...NotificationsList\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -3832,18 +3784,6 @@ export function gql(source: "\n  query multiTagArbitalExplorePageQuery($selector
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiTagCoreTagsSectionQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagDetailsFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiTagCoreTagsSectionQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagDetailsFragment\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query EAAllTagsPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query EAAllTagsPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query multiTagEATagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagWithFlagsFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiTagEATagPageQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {\n    tags(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...TagWithFlagsFragment\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query EATagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"): (typeof documents)["\n  query EATagPage($documentId: String) {\n    tag(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...TagEditFragment\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -37,7 +37,6 @@ import { databaseSettingsGqlTypeDefs, databaseSettingsGqlMutations } from '@/ser
 import { siteGraphQLQueries, siteGraphQLTypeDefs } from '../site';
 import { loginDataGraphQLMutations, loginDataGraphQLTypeDefs } from './authentication';
 import { dialogueMessageGqlQueries, dialogueMessageGqlTypeDefs } from '@/server/resolvers/dialogueMessageResolvers';
-import { forumEventGqlMutations, forumEventGqlTypeDefs } from '@/server/resolvers/forumEventResolvers';
 import { ckEditorCallbacksGraphQLMutations, ckEditorCallbacksGraphQLTypeDefs, getLinkSharedPostGraphQLQueries } from '@/server/ckEditor/ckEditorCallbacks';
 import { migrationsDashboardGraphQLQueries, migrationsDashboardGraphQLTypeDefs } from '@/server/manualMigrations/migrationsDashboardGraphql';
 import { reviewWinnerGraphQLQueries, reviewWinnerGraphQLTypeDefs } from '@/server/resolvers/reviewWinnerResolvers';
@@ -289,7 +288,6 @@ export const getTypeDefs = () => gql`
   ${siteGraphQLTypeDefs}
   ${loginDataGraphQLTypeDefs}
   ${dialogueMessageGqlTypeDefs}
-  ${forumEventGqlTypeDefs}
   ${ckEditorCallbacksGraphQLTypeDefs}
   ${migrationsDashboardGraphQLTypeDefs}
   ${reviewWinnerGraphQLTypeDefs}
@@ -598,7 +596,6 @@ const getResolvers = () => ({
     ...alignmentForumMutations,
     ...conversationGqlMutations,
     ...databaseSettingsGqlMutations,
-    ...forumEventGqlMutations,
     ...ckEditorCallbacksGraphQLMutations,
     ...importUrlAsDraftPostGqlMutation,
     ...revisionResolversGraphQLMutations,
