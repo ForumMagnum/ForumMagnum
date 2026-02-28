@@ -14,9 +14,8 @@ export const makeV2CrossSiteRequest = async <
   RequestSchema extends ZodType,
   ResponseSchema extends ZodType,
   RequestData extends z.infer<RequestSchema>,
-  ResponseData extends z.infer<ResponseSchema>,
 >(
-  route: FMCrosspostRoute<RequestSchema, ResponseSchema, RequestData, ResponseData>,
+  route: FMCrosspostRoute<RequestSchema, ResponseSchema, RequestData>,
   body: RequestData,
   onErrorMessage: string,
 ) => {
@@ -50,7 +49,7 @@ export const makeV2CrossSiteRequest = async <
       // We're testing locally, and the x-post server isn't running
       // eslint-disable-next-line no-console
       console.warn("Dev crosspost server is not running");
-      return {document: {}};
+      return {} as z.infer<ResponseSchema>;
     } else {
       throw new Error("Failed to make cross-site request", {cause: e});
     }
@@ -60,7 +59,7 @@ export const makeV2CrossSiteRequest = async <
 
   const rawBody = await result.json();
   const parsedBody = route.getResponseSchema().safeParse(rawBody);
-  if (!parsedBody.success || parsedBody.data.error) {
+  if (!parsedBody.success || parsedBody.error) {
     // eslint-disable-next-line no-console
     console.error("Cross-site request failed:", rawBody);
     const errorMessage =

@@ -1549,6 +1549,10 @@ extend type Mutation {
   flipSplashArtImage(reviewWinnerArtId: String!): Boolean
 }
 
+extend type Mutation {
+  upscaleReviewWinnerArt(reviewWinnerArtId: String!): ReviewWinnerArt
+}
+
 type ElicitQuestionPredictionCreator {
   _id: String!
   displayName: String!
@@ -2914,10 +2918,10 @@ type SingleCurationNoticeOutput {
 input CurationNoticeSelector {
   default: EmptyViewInput
   curationNoticesPage: EmptyViewInput
-  curationNoticesPostView: CurationNoticesPostViewTerms
+  curationNoticesPostView: CurationNoticesPostViewInput
 }
 
-input CurationNoticesPostViewTerms {
+input CurationNoticesPostViewInput {
   postId: String
 }
 
@@ -6663,6 +6667,9 @@ type ReviewWinnerArt {
   postId: String!
   splashArtImagePrompt: String!
   splashArtImageUrl: String!
+  midjourneyJobId: String
+  midjourneyImageIndex: Int
+  upscaledImageUrl: String
   activeSplashArtCoordinates: SplashArtCoordinate
 }
 
