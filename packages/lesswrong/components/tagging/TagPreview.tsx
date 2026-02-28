@@ -4,7 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPageUtils';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -40,9 +39,6 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }
-  },
-  rootEAWidth: {
-    width: FRIENDLY_HOVER_OVER_WIDTH,
   },
   mainContent: {
     ...(!theme.isFriendlyUI && {
@@ -255,9 +251,7 @@ const TagPreview = ({
   const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
   const hasMultipleSummaries = summaryTabs.length > 1;
   return (
-    <div className={classNames(classes.root, {
-      [classes.rootEAWidth]: isFriendlyUI() && hasDescription,
-    })}>
+    <div className={classes.root}>
       {hasMultipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}

@@ -7,11 +7,8 @@ import { useMessages } from '../common/withMessages';
 import { getUserABTestKey } from '../../lib/abTestImpl';
 import { useClientId } from '../hooks/useClientId.ts';
 import { useLocation } from '../../lib/routeUtil';
-import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import ContentStyles from "../common/ContentStyles";
 import ReCaptcha from "../common/ReCaptcha";
-import Loading from "../vulcan-core/Loading";
-import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
@@ -109,14 +106,7 @@ type LoginFormProps = {
   classes: ClassesType<typeof styles>
 }
 
-const LoginForm = (props: LoginFormProps) => {
-  if (isFriendlyUI()) {
-    return <LoginFormEA {...props} />
-  }
-  return <LoginFormDefault {...props} />
-}
-
-const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
+const LoginForm = ({ startingState = "login", classes }: LoginFormProps) => {
   const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
   const hasOauthSection = !isEAForum();
 
@@ -257,44 +247,6 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       {displayedError && <div className={classes.error}>{displayedError}</div>}
     </form>
   </ContentStyles>;
-}
-
-const LoginFormEA = ({
-  startingState = "login",
-  immediateRedirect,
-  onClose,
-}: LoginFormProps) => {
-  const { pathname, query } = useLocation()
-  const [action, setAction] = useState<"login" | "signup" | null>(
-    startingState === "pwReset" ? "login" : "signup",
-  );
-
-  const wrappedSetAction = useCallback((action: "login" | "signup" | null) => {
-    setAction(action);
-    if (!action) {
-      onClose?.();
-    }
-  }, [onClose]);
-
-  const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
-  const returnTo = encodeURIComponent(returnUrl);
-
-  const urls: AnyBecauseTodo = {
-    login: `/auth/auth0?returnTo=${returnTo}`,
-    signup: `/auth/auth0?screen_hint=signup&returnTo=${returnTo}`,
-  };
-
-  if (immediateRedirect) {
-    window.location.href = urls[startingState];
-    return <Loading />;
-  }
-
-  return (
-    <EALoginPopover
-      action={action}
-      setAction={wrappedSetAction}
-    />
-  );
 }
 
 export default registerComponent('LoginForm', LoginForm, { styles });

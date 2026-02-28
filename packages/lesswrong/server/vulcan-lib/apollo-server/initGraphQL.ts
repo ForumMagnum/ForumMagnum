@@ -33,8 +33,6 @@ import { ultraFeedSubscriptionsQueries, ultraFeedSubscriptionsTypeDefs } from '@
 import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/server/resolvers/tagHistoryFeed';
 import { subForumFeedGraphQLQueries, subForumFeedGraphQLTypeDefs, tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
 import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/resolvers/conversationResolvers'
-import { surveyResolversGraphQLMutations, surveyResolversGraphQLQueries, surveyResolversGraphQLTypeDefs } from '@/server/resolvers/surveyResolvers';
-import { wrappedResolversGqlTypeDefs, wrappedResolversGraphQLQueries } from '@/server/resolvers/wrappedResolvers';
 import { databaseSettingsGqlTypeDefs, databaseSettingsGqlMutations } from '@/server/resolvers/databaseSettingsResolvers'
 import { siteGraphQLQueries, siteGraphQLTypeDefs } from '../site';
 import { loginDataGraphQLMutations, loginDataGraphQLTypeDefs } from './authentication';
@@ -286,9 +284,7 @@ export const getTypeDefs = () => gql`
   ${tagHistoryFeedGraphQLTypeDefs}
   ${subForumFeedGraphQLTypeDefs}
   ${conversationGqlTypeDefs}
-  ${surveyResolversGraphQLTypeDefs}
   ${tagGraphQLTypeDefs}
-  ${wrappedResolversGqlTypeDefs}
   ${databaseSettingsGqlTypeDefs}
   ${siteGraphQLTypeDefs}
   ${loginDataGraphQLTypeDefs}
@@ -492,7 +488,6 @@ const getResolvers = () => ({
     ...recentDiscussionFeedGraphQLQueries,
     ...tagHistoryFeedGraphQLQueries,
     ...subForumFeedGraphQLQueries,
-    ...wrappedResolversGraphQLQueries,
     ...siteGraphQLQueries,
     ...dialogueMessageGqlQueries,
     ...getLinkSharedPostGraphQLQueries,
@@ -508,7 +503,6 @@ const getResolvers = () => ({
     ...fmCrosspostGraphQLQueries,
     ...diffGqlQueries,
     ...reviewResultsGqlQueries,
-    ...surveyResolversGraphQLQueries,
     ...tagResolversGraphQLQueries,
     ...ultraFeedGraphQLQueries,
     ...ultraFeedSubscriptionsQueries,
@@ -627,7 +621,6 @@ const getResolvers = () => ({
     ...elasticGqlMutations,
     ...emailTokensGraphQLMutations,
     ...fmCrosspostGraphQLMutations,
-    ...surveyResolversGraphQLMutations, 
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,

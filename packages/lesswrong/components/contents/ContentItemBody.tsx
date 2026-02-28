@@ -24,7 +24,6 @@ import { useAbstractThemeOptions } from '../themes/useTheme';
 import dynamic from 'next/dynamic';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
-const ForumEventPostPagePollSection = dynamic(() => import('@/components/forumEvents/ForumEventPostPagePollSection'));
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   themeName: UserThemeSetting,
@@ -249,12 +248,6 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         attribs['onClick'] = (ev: React.MouseEvent<HTMLAnchorElement>) => {
           captureEvent("ctaButtonClicked", {href: attribs['data-href']});
           originalOnClick?.(ev);
-        }
-      }
-      if (classNames.includes("ck-poll")) {
-        const forumEventId = attribs['data-internal-id'];
-        if (forumEventId) {
-          return <ForumEventPostPagePollSection id={forumEventId} forumEventId={forumEventId} />
         }
       }
       if (attribs['data-internal-id']) {

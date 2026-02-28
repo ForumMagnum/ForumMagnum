@@ -59,14 +59,12 @@ interface Query {
   SubforumRecentCommentsFeed: SubforumRecentCommentsFeedQueryResults;
   SubforumNewFeed: SubforumNewFeedQueryResults;
   SubforumOldFeed: SubforumOldFeedQueryResults;
-  CurrentFrontpageSurvey: SurveySchedule | null;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
   RandomTag: Tag;
   ActiveTagCount: number;
   TagPreview: TagPreviewWithSummaries | null;
   TagsByCoreTagId: TagWithTotalCount;
-  UserWrappedDataByYear: WrappedDataByYear | null;
   SiteData: Site | null;
   latestDialogueMessages: Array<string> | null;
   getLinkSharedPost: Post | null;
@@ -261,7 +259,6 @@ interface Mutation {
   markConversationRead: boolean;
   sendEventTriggeredDM: boolean;
   initiateConversation: Conversation | null;
-  editSurvey: Survey | null;
   mergeTags: boolean | null;
   promoteLensToMain: boolean | null;
   RefreshDbSettings: boolean | null;
@@ -1117,12 +1114,6 @@ interface SubforumOldFeedEntry {
   tagSubforumStickyComments: Comment | null;
 }
 
-interface SurveyQuestionInfo {
-  _id: string | null;
-  question: string;
-  format: string;
-}
-
 interface DocumentDeletion {
   userId: string | null;
   documentId: string;
@@ -1154,79 +1145,6 @@ interface TagPreviewWithSummaries {
 interface TagWithTotalCount {
   tags: Array<Tag>;
   totalCount: number;
-}
-
-interface MostReadTopic {
-  slug: string | null;
-  name: string | null;
-  shortName: string | null;
-  count: number | null;
-}
-
-interface TagReadLikelihoodRatio {
-  tagId: string | null;
-  tagName: string | null;
-  tagShortName: string | null;
-  userReadCount: number | null;
-  readLikelihoodRatio: number | null;
-}
-
-interface MostReadAuthor {
-  _id: string | null;
-  slug: string | null;
-  displayName: string | null;
-  profileImageId: string | null;
-  count: number | null;
-  engagementPercentile: number | null;
-}
-
-interface TopCommentContents {
-  html: string | null;
-}
-
-interface TopComment {
-  _id: string | null;
-  postedAt: Date | null;
-  postId: string | null;
-  postTitle: string | null;
-  postSlug: string | null;
-  baseScore: number | null;
-  extendedScore: any;
-  contents: TopCommentContents | null;
-}
-
-interface MostReceivedReact {
-  name: string | null;
-  count: number | null;
-}
-
-interface CombinedKarmaVals {
-  date: Date;
-  postKarma: number;
-  commentKarma: number;
-}
-
-interface WrappedDataByYear {
-  engagementPercentile: number | null;
-  postsReadCount: number | null;
-  totalSeconds: number | null;
-  daysVisited: Array<string | null> | null;
-  mostReadTopics: Array<MostReadTopic | null> | null;
-  relativeMostReadCoreTopics: Array<TagReadLikelihoodRatio | null> | null;
-  mostReadAuthors: Array<MostReadAuthor | null> | null;
-  topPosts: Array<Post | null> | null;
-  postCount: number | null;
-  authorPercentile: number | null;
-  topComment: TopComment | null;
-  commentCount: number | null;
-  commenterPercentile: number | null;
-  topShortform: Comment | null;
-  shortformCount: number | null;
-  shortformPercentile: number | null;
-  karmaChange: number | null;
-  combinedKarmaVals: Array<CombinedKarmaVals | null> | null;
-  mostReceivedReacts: Array<MostReceivedReact | null> | null;
-  personality: string;
 }
 
 interface Site {
@@ -10113,19 +10031,10 @@ interface GraphQLTypeMap {
   SubforumNewFeedEntry: SubforumNewFeedEntry;
   SubforumOldFeedQueryResults: SubforumOldFeedQueryResults;
   SubforumOldFeedEntry: SubforumOldFeedEntry;
-  SurveyQuestionInfo: SurveyQuestionInfo;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;
   TagWithTotalCount: TagWithTotalCount;
-  MostReadTopic: MostReadTopic;
-  TagReadLikelihoodRatio: TagReadLikelihoodRatio;
-  MostReadAuthor: MostReadAuthor;
-  TopCommentContents: TopCommentContents;
-  TopComment: TopComment;
-  MostReceivedReact: MostReceivedReact;
-  CombinedKarmaVals: CombinedKarmaVals;
-  WrappedDataByYear: WrappedDataByYear;
   Site: Site;
   LoginReturnData: LoginReturnData;
   MigrationsDashboardData: MigrationsDashboardData;

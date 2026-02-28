@@ -91,7 +91,6 @@ import './server/resolvers/revisionResolvers';
 import './server/resolvers/postResolvers';
 import './server/resolvers/spotlightResolvers';
 import './server/resolvers/userResolvers';
-import './server/resolvers/wrappedResolvers';
 import './server/resolvers/arbitalPageData';
 import './server/resolvers/tagHistoryFeed';
 import './server/resolvers/tagResolvers';
@@ -102,7 +101,6 @@ import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/petrovDay2024Resolvers';
 import './server/resolvers/analyticsResolvers';
-import './server/resolvers/surveyResolvers';
 import './server/resolvers/moderationResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
@@ -133,11 +131,6 @@ import './server/languageModels/languageModelIntegration';
 import './server/styleGeneration';
 
 import './server/embeddings';
-
-// EA Forum wrapped
-import './server/wrapped/sendWrappedNotifications';
-import './server/wrapped/sampleWrappedPersonalities';
-import './server/wrapped/triggerWrappedRefresh';
 
 // Elasticsearch integration
 import './server/search/elastic/ElasticExporter';

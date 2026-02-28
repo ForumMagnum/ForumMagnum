@@ -96,7 +96,6 @@ const AdminHome = () => {
         <li><Link className={classes.link} to="/postListEditorTest">Post List Editor Test</Link></li>
         <li><Link className={classes.link} to="/imageUpload">Image Upload Test</Link></li>
         <li><Link className={classes.link} to="/admin/recommendationsSample">Recommendations Explorer</Link></li>
-        <li><Link className={classes.link} to="/admin/onboarding">View onboarding flow</Link> (for testing purposes - this will not make any changes to your account)</li>
         <li><Link className={classes.link} to="/admin/debugDatabaseIndexes">Debug database indexes</Link></li>
       </ul>
 

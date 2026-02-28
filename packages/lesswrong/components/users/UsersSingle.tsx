@@ -2,10 +2,8 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { slugify } from '@/lib/utils/slugify';
 import PermanentRedirect from "../common/PermanentRedirect";
-import FriendlyUsersProfile from "./FriendlyUsersProfile";
 import UsersProfile from "./UsersProfile";
 
 /**
@@ -59,9 +57,7 @@ const UsersSingle = ({slug: rawSlug}: {slug: string}) => {
     // pageload.
     return <PermanentRedirect url={canonicalUrl} />;
   } else {
-    return isFriendlyUI() ?
-      <FriendlyUsersProfile terms={{view: 'usersProfile', slug}} slug={slug} /> :
-      <UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
+    return <UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
   }
 };
 

@@ -14,7 +14,6 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
 import { adminAccountSetting, isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 import HoverOver from "../common/HoverOver";
@@ -88,15 +87,8 @@ const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
   },
   card: {
     padding: 16,
-    ...(theme.isFriendlyUI
-      ? {
-        paddingTop: 12,
-        width: FRIENDLY_HOVER_OVER_WIDTH,
-      }
-      : {
-        width: 450,
-        paddingTop: 8,
-      }),
+    width: 450,
+    paddingTop: 8,
   },
   smallText: {
     ...smallTagTextStyle(theme),

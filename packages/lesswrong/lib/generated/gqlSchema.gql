@@ -1049,20 +1049,6 @@ extend type Mutation {
   initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
 }
 
-input SurveyQuestionInfo {
-  _id: String
-  question: String!
-  format: String!
-}
-
-extend type Query {
-  CurrentFrontpageSurvey: SurveySchedule
-}
-
-extend type Mutation {
-  editSurvey(surveyId: String!, name: String!, questions: [SurveyQuestionInfo!]!): Survey
-}
-
 enum DocumentDeletionNetChange {
   deleted
   restored
@@ -1118,83 +1104,6 @@ extend type Query {
   ActiveTagCount: Int!
   TagPreview(slug: String!, hash: String): TagPreviewWithSummaries
   TagsByCoreTagId(coreTagId: String, limit: Int, searchTagIds: [String]): TagWithTotalCount!
-}
-
-type MostReadTopic {
-  slug: String
-  name: String
-  shortName: String
-  count: Int
-}
-
-type TagReadLikelihoodRatio {
-  tagId: String
-  tagName: String
-  tagShortName: String
-  userReadCount: Int
-  readLikelihoodRatio: Float
-}
-
-type MostReadAuthor {
-  _id: String
-  slug: String
-  displayName: String
-  profileImageId: String
-  count: Int
-  engagementPercentile: Float
-}
-
-type TopCommentContents {
-  html: String
-}
-
-type TopComment {
-  _id: String
-  postedAt: Date
-  postId: String
-  postTitle: String
-  postSlug: String
-  baseScore: Int
-  extendedScore: JSON
-  contents: TopCommentContents
-}
-
-type MostReceivedReact {
-  name: String
-  count: Int
-}
-
-type CombinedKarmaVals {
-  date: Date!
-  postKarma: Int!
-  commentKarma: Int!
-}
-
-type WrappedDataByYear {
-  engagementPercentile: Float
-  postsReadCount: Int
-  totalSeconds: Int
-  daysVisited: [String]
-  mostReadTopics: [MostReadTopic]
-  relativeMostReadCoreTopics: [TagReadLikelihoodRatio]
-  mostReadAuthors: [MostReadAuthor]
-  topPosts: [Post]
-  postCount: Int
-  authorPercentile: Float
-  topComment: TopComment
-  commentCount: Int
-  commenterPercentile: Float
-  topShortform: Comment
-  shortformCount: Int
-  shortformPercentile: Float
-  karmaChange: Int
-  combinedKarmaVals: [CombinedKarmaVals]
-  mostReceivedReacts: [MostReceivedReact]
-  personality: String!
-}
-
-extend type Query {
-  UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear
 }
 
 extend type Mutation {

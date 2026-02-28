@@ -19,7 +19,7 @@ import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
 import { hasForumEvents } from '@/lib/betas';
 import SearchBar from "@/components/common/SearchBar";
 import UsersMenu from "../users/UsersMenu";
-import { LWUsersAccountMenu, EAUsersAccountMenu } from "../users/UsersAccountMenu";
+import { LWUsersAccountMenu } from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import { ICON_ONLY_NAVIGATION_BREAKPOINT } from "@/components/common/TabNavigationMenu/NavigationStandalone";
 import NavigationDrawer from "@/components/common/TabNavigationMenu/NavigationDrawer";
@@ -410,7 +410,6 @@ const Header = ({
     }
   }, [pathname, hash]);
 
-  const hasNotificationsPopover = isFriendlyUI();
   const hasKarmaChangeNotifier = !isFriendlyUI() && isLoggedIn && !usernameUnset;
   const hasMessagesButton = isFriendlyUI() && isLoggedIn && !usernameUnset;
 
@@ -435,17 +434,11 @@ const Header = ({
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser;
 
-    if (hasNotificationsPopover) {
-      captureEvent("notificationsIconToggle", {
-        previousCheck: lastNotificationsCheck,
-      });
-    } else {
-      captureEvent("notificationsIconToggle", {
-        open: !notificationOpen,
-        previousCheck: lastNotificationsCheck,
-      });
-      void handleSetNotificationDrawerOpen(!notificationOpen);
-    }
+    captureEvent("notificationsIconToggle", {
+      open: !notificationOpen,
+      previousCheck: lastNotificationsCheck,
+    });
+    void handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
   // We do two things when the search is open:
@@ -528,13 +521,11 @@ const Header = ({
     </AnalyticsContext>
   </div>
 
-  const loginButtonNode = isFriendlyUI() ? <EAUsersAccountMenu /> : <LWUsersAccountMenu />;
-
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI() && usersMenuNode}
-    {!isLoggedIn && loginButtonNode}
+    {!isLoggedIn && <LWUsersAccountMenu />}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
       className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
     />}
@@ -560,14 +551,13 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const headerNotificationsMenu = isLoggedIn && !hasNotificationsPopover
-    && (
-      <NotificationsMenu
-        open={notificationOpen}
-        hasOpened={notificationHasOpened}
-        setIsOpen={handleSetNotificationDrawerOpen}
-      />
-    );
+  const headerNotificationsMenu = isLoggedIn && (
+    <NotificationsMenu
+      open={notificationOpen}
+      hasOpened={notificationHasOpened}
+      setIsOpen={handleSetNotificationDrawerOpen}
+    />
+  );
 
   const bannerImageId = currentForumEvent?.bannerImageId
 

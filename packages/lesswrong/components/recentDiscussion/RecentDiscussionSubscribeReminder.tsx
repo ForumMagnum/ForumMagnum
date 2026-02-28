@@ -118,8 +118,6 @@ const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeTy
  * It has some overlap with the Forum Digest ad that appears on the EA Forum home rhs.
  * In particular, both components use currentUser.hideSubscribePoke,
  * so for logged in users, hiding one ad hides the other.
- *
- * See EAHomeRightHandSide.tsx for the other component.
  */
 const RecentDiscussionSubscribeReminder = () => {
   const classes = useStyles(styles);

@@ -4,7 +4,6 @@ import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import UsersName from "../users/UsersName";
 import SequencesSmallPostLink from "./SequencesSmallPostLink";
 import ChapterTitle from "./ChapterTitle";
@@ -29,7 +28,7 @@ const ChaptersFragmentMultiQuery = gql(`
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
-    width: theme.isFriendlyUI ? FRIENDLY_HOVER_OVER_WIDTH : 450,
+    width: 450,
   },
   title: {
     ...theme.typography.body1,
