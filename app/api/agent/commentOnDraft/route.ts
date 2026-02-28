@@ -13,7 +13,7 @@ import {
   withMainDocEditorSession,
   selectQuotedTextInEditor,
 } from "../editorAgentUtil";
-import { commentOnDraftRouteSchema } from "../toolSchemas";
+import { commentOnDraftToolSchema } from "../toolSchemas";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { captureException } from "@/lib/sentryWrapper";
 import { getHocuspocusToken } from "../getHocuspocusToken";
@@ -202,12 +202,12 @@ export async function POST(req: NextRequest) {
     getContextFromReqAndRes({ req, isSSR: false })
   ]);
 
-  const parseResult = commentOnDraftRouteSchema.safeParse(body);
+  const parseResult = commentOnDraftToolSchema.safeParse(body);
   if (!parseResult.success) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
-  const { postId, key, agentName, paragraphId, quote, comment } = parseResult.data;
+  const { postId, key, agentName, quote, comment } = parseResult.data;
 
   try {
     const token = await getHocuspocusToken(context, postId, key);
@@ -216,7 +216,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
-    const threadQuote = quote ?? paragraphId ?? "(No quote provided)";
+    const threadQuote = quote ?? "(No quote provided)";
 
     const { threadId, commentId, anchorStatus, anchorNote } = await insertDraftCommentThread({
       postId,

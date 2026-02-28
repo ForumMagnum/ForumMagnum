@@ -22,10 +22,6 @@ export const commentOnDraftToolSchema = z.object({
   comment: z.string().describe("The comment text in markdown"),
 });
 
-export const commentOnDraftRouteSchema = commentOnDraftToolSchema.extend({
-  paragraphId: z.string().optional(),
-});
-
 export const replaceTextToolSchema = z.object({
   postId: z.string().describe("The ID of the post"),
   key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),

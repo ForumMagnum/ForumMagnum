@@ -69,7 +69,7 @@ the post. Once you have the post URL, read the post at:
 
 To add add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
-    with JSON body: { postId, key, agentName?, paragraphId?, quote?, comment }
+    with JSON body: { postId, key, agentName?, quote?, comment }
 If a quote is provided, the comment will be attached to matching quoted text. The
 quote should be long enough to be unambiguous. If no quote is provided, the
 comment will be top-level. Both the quote and your comment should be in markdown.
