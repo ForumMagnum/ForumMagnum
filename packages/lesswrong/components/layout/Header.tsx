@@ -1,4 +1,4 @@
-import React, { use, createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { use, createContext, useContext, useState, useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
@@ -354,6 +354,25 @@ const UsersCurrentUpdateMutation = gql(`
   }
 `);
 
+const subscribeHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerHydratedSnapshot = () => false;
+
+/**
+ * The ToC drawer (mobile-specific) uses SidebarsContext, but this is updated on load in a
+ * component in a different suspense boundary, which by default would cause SSR mismatches.
+ * Prevent SSR mismatch by always rendering the non-ToC version first.
+ */
+function useGetToC() {
+  const sidebars = useContext(SidebarsContext);
+  const isHydrated = useSyncExternalStore(
+    subscribeHydration,
+    getHydratedSnapshot,
+    getServerHydratedSnapshot,
+  );
+  return isHydrated ? sidebars?.toc : null;
+}
+
 const Header = ({
   standaloneNavigationPresent,
   stayAtTop=false,
@@ -377,7 +396,7 @@ const Header = ({
   const currentUserId = useCurrentUserId();
   const isLoggedIn = !!currentUserId;
   const usernameUnset = useFilteredCurrentUser(u => !!u?.usernameUnset);
-  const {toc} = useContext(SidebarsContext)!;
+  const toc = useGetToC();
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
