@@ -1,10 +1,8 @@
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
-import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest, NextResponse } from "next/server";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Map as YMap, Array as YArray, Doc } from "yjs";
 import { randomId } from "@/lib/random";
-import { gql } from "@/lib/generated/gql-codegen";
 import { $setSelection, $getSelection, $isRangeSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
@@ -17,14 +15,7 @@ import {
 import { commentOnDraftRouteSchema } from "../toolSchemas";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { captureException } from "@/lib/sentryWrapper";
-
-const HocuspocusAuthQuery = gql(`
-  query AgentHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
-      token
-    }
-  }
-`);
+import { getHocuspocusToken } from "../getHocuspocusToken";
 
 const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 
@@ -218,13 +209,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, paragraphId, quote, comment } = parseResult.data;
 
   try {
-    const { data } = await runQuery(
-      HocuspocusAuthQuery,
-      { postId, linkSharingKey: key ?? null },
-      context
-    );
-
-    const token = data?.HocuspocusAuth?.token;
+    const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
       return NextResponse.json({ error: "Unauthorized to comment on draft" }, { status: 403 });
     }

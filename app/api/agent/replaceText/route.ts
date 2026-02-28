@@ -1,6 +1,5 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
-import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest, NextResponse } from "next/server";
 import { $createTextNode, $getNodeByKey, $isTextNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
@@ -10,15 +9,8 @@ import {
   withMainDocEditorSession,
   selectQuotedTextInEditor,
 } from "../editorAgentUtil";
-import { replaceTextRouteSchema, type ReplaceMode } from "../toolSchemas";
-
-const HocuspocusAuthQuery = `
-  query AgentReplaceTextHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
-      token
-    }
-  }
-`;
+import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
+import { getHocuspocusToken } from "../getHocuspocusToken";
 
 const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 
@@ -186,7 +178,7 @@ export async function POST(req: NextRequest) {
     getContextFromReqAndRes({ req, isSSR: false }),
   ]);
 
-  const parseResult = replaceTextRouteSchema.safeParse(body);
+  const parseResult = replaceTextToolSchema.safeParse(body);
   if (!parseResult.success) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
@@ -194,12 +186,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, quote, replacement, mode } = parseResult.data;
 
   try {
-    const { data } = await runQuery(
-      HocuspocusAuthQuery,
-      { postId, linkSharingKey: key ?? null },
-      context
-    );
-    const token = data?.HocuspocusAuth?.token;
+    const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }

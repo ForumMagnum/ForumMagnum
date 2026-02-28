@@ -13695,19 +13695,6 @@ type MarkdownUserProfileRecentCommentsQueryVariables = Exact<{
 
 type MarkdownUserProfileRecentCommentsQuery = MarkdownUserProfileRecentCommentsQuery_Query;
 
-type AgentHocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
-
-type AgentHocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: AgentHocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
-
-
-type AgentHocuspocusAuthQueryQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-  linkSharingKey: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type AgentHocuspocusAuthQueryQuery = AgentHocuspocusAuthQueryQuery_Query;
-
 type McpPostMetadataQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, draft: boolean | null };
 
 type McpPostMetadataQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: McpPostMetadataQuery_post_SinglePostOutput_result_Post | null };
@@ -13721,19 +13708,6 @@ type McpPostMetadataQueryVariables = Exact<{
 
 
 type McpPostMetadataQuery = McpPostMetadataQuery_Query;
-
-type McpHocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
-
-type McpHocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: McpHocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
-
-
-type McpHocuspocusAuthQueryQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-  linkSharingKey: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type McpHocuspocusAuthQueryQuery = McpHocuspocusAuthQueryQuery_Query;
 
 type LocalgroupMetadataQuery_localgroup_SingleLocalgroupOutput_result_Localgroup_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 

@@ -1,7 +1,6 @@
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
-import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest, NextResponse } from "next/server";
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
@@ -20,15 +19,8 @@ import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidge
 import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import { insertBlockRouteSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
-
-const HocuspocusAuthQuery = `
-  query AgentInsertBlockHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
-      token
-    }
-  }
-`;
+import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
+import { getHocuspocusToken } from "../getHocuspocusToken";
 
 const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 
@@ -253,7 +245,7 @@ export async function POST(req: NextRequest) {
     getContextFromReqAndRes({ req, isSSR: false }),
   ]);
 
-  const parseResult = insertBlockRouteSchema.safeParse(body);
+  const parseResult = insertBlockToolSchema.safeParse(body);
   if (!parseResult.success) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
@@ -261,12 +253,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, mode, location, markdown } = parseResult.data;
 
   try {
-    const { data } = await runQuery(
-      HocuspocusAuthQuery,
-      { postId, linkSharingKey: key ?? null },
-      context
-    );
-    const token = data?.HocuspocusAuth?.token;
+    const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }

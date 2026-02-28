@@ -1,6 +1,5 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
-import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest, NextResponse } from "next/server";
 import { applyPatch } from "diff";
 import { $createTextNode, $getRoot, $isElementNode, type LexicalNode } from "lexical";
@@ -9,14 +8,7 @@ import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical
 import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { replaceWidgetRouteSchema, type ReplaceMode } from "../toolSchemas";
-
-const HocuspocusAuthQuery = `
-  query AgentReplaceWidgetHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
-      token
-    }
-  }
-`;
+import { getHocuspocusToken } from "../getHocuspocusToken";
 
 const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 
@@ -210,12 +202,7 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, widgetId, replacement, unifiedDiff, mode } = parseResult.data;
 
   try {
-    const { data } = await runQuery(
-      HocuspocusAuthQuery,
-      { postId, linkSharingKey: key ?? null },
-      context
-    );
-    const token = data?.HocuspocusAuth?.token;
+    const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }

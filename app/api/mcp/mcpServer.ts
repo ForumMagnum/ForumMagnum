@@ -11,6 +11,7 @@ import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
 import { deleteMarkdownBlock } from "../agent/deleteBlock/route";
 import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
+import { getHocuspocusToken } from "../agent/getHocuspocusToken";
 import { gql } from "@/lib/generated/gql-codegen";
 import {
   commentOnDraftToolSchema,
@@ -28,14 +29,6 @@ const PostMetadataQuery = gql(`
         title
         draft
       }
-    }
-  }
-`);
-
-const HocuspocusAuthQuery = gql(`
-  query McpHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
-      token
     }
   }
 `);
@@ -64,17 +57,11 @@ async function contextFromAuth(extra: AuthExtra): Promise<ResolverContext> {
   return computeContextFromUser({ user: user ?? null, isSSR: false });
 }
 
-async function getHocuspocusToken(context: ResolverContext, postId: string): Promise<string> {
-  const { data } = await runQuery(
-    HocuspocusAuthQuery,
-    { postId, linkSharingKey: null },
-    context,
-  );
-  const token = data?.HocuspocusAuth?.token;
-  if (!token) {
-    throw new OAuthError("invalid_request", "Unauthorized to access this post's draft");
-  }
-  return token;
+function toolError(message: string) {
+  return {
+    content: [{ type: "text" as const, text: message }],
+    isError: true,
+  };
 }
 
 /**
@@ -101,6 +88,7 @@ function createMcpServer(): McpServer {
       description: "Read the content of a LessWrong post draft in markdown format. Returns the post title and body as agent-friendly markdown.",
       inputSchema: {
         postId: z.string().describe("The ID of the post to read"),
+        key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
         version: z.string().optional().describe("Content version to load, defaults to 'draft'"),
       },
       annotations: {
@@ -119,10 +107,12 @@ function createMcpServer(): McpServer {
           isError: true,
         };
       }
-      const [token, { data: postResultData }] = await Promise.all([
-        getHocuspocusToken(context, args.postId),
-        runQuery(PostMetadataQuery, { _id: args.postId }, context),
-      ]);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
+
+      const { data: postResultData } = await runQuery(PostMetadataQuery, { _id: args.postId }, context);
 
       const post = postResultData?.post?.result;
 
@@ -152,7 +142,10 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);
-      const token = await getHocuspocusToken(context, args.postId);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
 
       const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
       const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
@@ -183,7 +176,10 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);
-      const token = await getHocuspocusToken(context, args.postId);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
       const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
       const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
 
@@ -213,7 +209,10 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);
-      const token = await getHocuspocusToken(context, args.postId);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
       const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
       const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
 
@@ -255,7 +254,10 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);
-      const token = await getHocuspocusToken(context, args.postId);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
 
       const result = await deleteMarkdownBlock({
         ...args,
@@ -278,7 +280,10 @@ function createMcpServer(): McpServer {
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);
-      const token = await getHocuspocusToken(context, args.postId);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
       const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
       const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
 
