@@ -4431,6 +4431,7 @@ type Mutation = {
   RemoveForumEventSticker?: Maybe<Scalars['Boolean']['output']>;
   RemoveForumEventVote?: Maybe<Scalars['Boolean']['output']>;
   RemoveGivingSeasonHeart: Array<GivingSeasonHeart>;
+  SoftDeleteUser: Scalars['Boolean']['output'];
   UpdateSearchSynonyms: Array<Scalars['String']['output']>;
   UserExpandFrontpageSection?: Maybe<Scalars['Boolean']['output']>;
   UserUpdateSubforumMembership?: Maybe<User>;
@@ -4659,6 +4660,11 @@ type MutationRemoveForumEventVoteArgs = {
 
 type MutationRemoveGivingSeasonHeartArgs = {
   electionName: Scalars['String']['input'];
+};
+
+
+type MutationSoftDeleteUserArgs = {
+  userId: Scalars['String']['input'];
 };
 
 
@@ -25123,6 +25129,16 @@ type updateUserDeleteAccountSectionMutationVariables = Exact<{
 
 
 type updateUserDeleteAccountSectionMutation = updateUserDeleteAccountSectionMutation_Mutation;
+
+type SoftDeleteUserMutation_Mutation = { __typename?: 'Mutation', SoftDeleteUser: boolean };
+
+
+type SoftDeleteUserMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type SoftDeleteUserMutation = SoftDeleteUserMutation_Mutation;
 
 type UserTopPostsForManagerQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

@@ -260,6 +260,7 @@ extend type Mutation {
   UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean
   UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
   karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
+  SoftDeleteUser(userId: String!): Boolean!
 }
 
 extend type Query {

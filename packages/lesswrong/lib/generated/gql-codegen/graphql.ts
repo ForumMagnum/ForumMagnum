@@ -4434,6 +4434,7 @@ export type Mutation = {
   RemoveForumEventSticker: Maybe<Scalars['Boolean']['output']>;
   RemoveForumEventVote: Maybe<Scalars['Boolean']['output']>;
   RemoveGivingSeasonHeart: Array<GivingSeasonHeart>;
+  SoftDeleteUser: Scalars['Boolean']['output'];
   UpdateSearchSynonyms: Array<Scalars['String']['output']>;
   UserExpandFrontpageSection: Maybe<Scalars['Boolean']['output']>;
   UserUpdateSubforumMembership: Maybe<User>;
@@ -4662,6 +4663,11 @@ export type MutationRemoveForumEventVoteArgs = {
 
 export type MutationRemoveGivingSeasonHeartArgs = {
   electionName: Scalars['String']['input'];
+};
+
+
+export type MutationSoftDeleteUserArgs = {
+  userId: Scalars['String']['input'];
 };
 
 
@@ -20528,6 +20534,13 @@ export type updateUserDeleteAccountSectionMutation = { __typename?: 'Mutation', 
       & UsersEdit
     ) | null } | null };
 
+export type SoftDeleteUserMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type SoftDeleteUserMutation = { __typename?: 'Mutation', SoftDeleteUser: boolean };
+
 export type UserTopPostsForManagerQueryVariables = Exact<{
   selector?: InputMaybe<PostSelector>;
   limit?: InputMaybe<Scalars['Int']['input']>;
@@ -23138,6 +23151,7 @@ export const SingleCommentForFeedbackDocument = {"kind":"Document","definitions"
 export const SingleTagItemDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SingleTagItem"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tag"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TagBasicInfo"}}]}}]}}]}},TagBasicInfoFragmentDef]} as unknown as DocumentNode<SingleTagItemQuery, SingleTagItemQueryVariables>;
 export const SingleUsersItemDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SingleUsersItem"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersProfile"}}]}}]}}]}},UsersProfileFragmentDef,UsersMinimumInfoFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<SingleUsersItemQuery, SingleUsersItemQueryVariables>;
 export const SlimChapterDoc = {"kind":"Document","definitions":[SlimChapterFragmentDef,RevisionDisplayFragmentDef,ChapterPostSlimFragmentDef]} as unknown as DocumentNode<SlimChapter, unknown>;
+export const SoftDeleteUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SoftDeleteUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"SoftDeleteUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}]}]}}]} as unknown as DocumentNode<SoftDeleteUserMutation, SoftDeleteUserMutationVariables>;
 export const SplashArtCoordinatesDoc = {"kind":"Document","definitions":[SplashArtCoordinatesFragmentDef]} as unknown as DocumentNode<SplashArtCoordinates, unknown>;
 export const SplashArtCoordinatesEditDoc = {"kind":"Document","definitions":[SplashArtCoordinatesEditFragmentDef,SplashArtCoordinatesFragmentDef]} as unknown as DocumentNode<SplashArtCoordinatesEdit, unknown>;
 export const SpotlightDisplayDoc = {"kind":"Document","definitions":[SpotlightDisplayFragmentDef,SpotlightMinimumInfoFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<SpotlightDisplay, unknown>;

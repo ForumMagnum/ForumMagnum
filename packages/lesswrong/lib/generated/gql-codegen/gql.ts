@@ -680,6 +680,7 @@ type Documents = {
     "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserUsersProfileQueryDocument,
     "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeactivateAccountSectionDocument,
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeleteAccountSectionDocument,
+    "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n": typeof types.SoftDeleteUserDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.UserTopPostsForManagerDocument,
     "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersAccountManagementGetUserBySlugDocument,
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserUsersEditFormDocument,
@@ -1635,6 +1636,7 @@ const documents: Documents = {
     "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.multiUserUsersProfileQueryDocument,
     "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeactivateAccountSectionDocument,
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeleteAccountSectionDocument,
+    "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n": types.SoftDeleteUserDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.UserTopPostsForManagerDocument,
     "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersAccountManagementGetUserBySlugDocument,
     "\n  mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserUsersEditFormDocument,
@@ -4602,6 +4604,10 @@ export function gql(source: "\n  mutation updateUserDeactivateAccountSection($se
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n"): (typeof documents)["\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
