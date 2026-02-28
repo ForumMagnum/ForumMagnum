@@ -5,6 +5,7 @@ import { $createTextNode, $getNodeByKey, $isTextNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import {
+  deriveAgentAuthor,
   sleep,
   withMainDocEditorSession,
   selectQuotedTextInEditor,
@@ -190,8 +191,7 @@ export async function POST(req: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
-    const authorId = context.currentUser?._id ?? context.clientId ?? `agent-${randomId()}`;
-    const authorName = agentName ?? context.currentUser?.displayName ?? "AI Agent";
+    const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 
     const result = await replaceTextInMainDoc({
       postId,

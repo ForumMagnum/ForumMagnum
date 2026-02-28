@@ -10,16 +10,8 @@ import {
   type LexicalEditor,
   SKIP_COLLAB_TAG,
 } from "lexical";
-import { MarkNode } from "@lexical/mark";
-import { HeadingNode } from "@lexical/rich-text";
-import { ListItemNode, ListNode } from "@lexical/list";
-import { CodeHighlightNode, CodeNode } from "@lexical/code";
-import { HashtagNode } from "@lexical/hashtag";
-import { AutoLinkNode, LinkNode } from "@lexical/link";
-import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
-import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
-import { MathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import PlaygroundNodes from "@/components/lexical/nodes/PlaygroundNodes";
+import { randomId } from "@/lib/random";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
@@ -38,6 +30,24 @@ export function sleep(ms: number): Promise<void> {
 
 export function normalizeText(value: string): string {
   return value.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+interface DeriveAgentAuthorArgs {
+  context: ResolverContext;
+  args: {
+    agentName?: string;
+  };
+}
+
+interface DerivedAgentAuthor {
+  authorId: string;
+  authorName: string;
+}
+
+export function deriveAgentAuthor({ context, args }: DeriveAgentAuthorArgs): DerivedAgentAuthor {
+  const authorId = context.currentUser?._id ?? context.clientId ?? `agent-${randomId()}`;
+  const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
+  return { authorId, authorName };
 }
 
 export function waitForProviderSync(provider: HocuspocusProvider): Promise<void> {

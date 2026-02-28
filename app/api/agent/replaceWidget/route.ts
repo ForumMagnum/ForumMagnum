@@ -5,7 +5,7 @@ import { applyPatch } from "diff";
 import { $createTextNode, $getRoot, $isElementNode, type LexicalNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { replaceWidgetRouteSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
@@ -206,8 +206,7 @@ export async function POST(req: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
-    const authorId = context.currentUser?._id ?? context.clientId ?? `agent-${randomId()}`;
-    const authorName = agentName ?? context.currentUser?.displayName ?? "AI Agent";
+    const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 
     const result = await replaceWidgetInMainDoc({
       postId,

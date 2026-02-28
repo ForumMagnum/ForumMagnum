@@ -16,7 +16,7 @@ import {
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
@@ -257,8 +257,7 @@ export async function POST(req: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
-    const authorId = context.currentUser?._id ?? context.clientId ?? `agent-${randomId()}`;
-    const authorName = agentName ?? context.currentUser?.displayName ?? "AI Agent";
+    const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 
     const insertResult = await insertMarkdownBlock({
       postId,

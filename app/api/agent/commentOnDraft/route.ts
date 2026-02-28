@@ -6,6 +6,7 @@ import { randomId } from "@/lib/random";
 import { $setSelection, $getSelection, $isRangeSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
+  deriveAgentAuthor,
   normalizeText,
   waitForProviderSync,
   sleep,
@@ -214,8 +215,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized to comment on draft" }, { status: 403 });
     }
 
-    const authorId = context.currentUser?._id ?? context.clientId ?? `agent-${randomId()}`;
-    const authorName = agentName ?? context.currentUser?.displayName ?? "AI Agent";
+    const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
     const threadQuote = quote ?? paragraphId ?? "(No quote provided)";
 
     const { threadId, commentId, anchorStatus, anchorNote } = await insertDraftCommentThread({

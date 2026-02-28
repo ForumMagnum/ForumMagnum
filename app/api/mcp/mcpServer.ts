@@ -4,7 +4,6 @@ import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import Users from "@/server/collections/users/collection";
-import { randomId } from "@/lib/random";
 import { insertDraftCommentThread } from "../agent/commentOnDraft/route";
 import { replaceTextInMainDoc } from "../agent/replaceText/route";
 import { insertMarkdownBlock } from "../agent/insertBlock/route";
@@ -12,6 +11,7 @@ import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
 import { deleteMarkdownBlock } from "../agent/deleteBlock/route";
 import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
 import { getHocuspocusToken } from "../agent/getHocuspocusToken";
+import { deriveAgentAuthor } from "../agent/editorAgentUtil";
 import { gql } from "@/lib/generated/gql-codegen";
 import {
   commentOnDraftToolSchema,
@@ -36,6 +36,7 @@ const PostMetadataQuery = gql(`
 interface AuthExtra {
   authInfo?: {
     token: string;
+    /** OAuth client_id associated with the bearer token (not our cookie-based internal clientId). */
     clientId: string;
     scopes: string[];
     expiresAt?: number;
@@ -147,8 +148,7 @@ function createMcpServer(): McpServer {
         return toolError("Unauthorized to access this post's draft");
       }
 
-      const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
-      const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
+      const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
       const threadQuote = args.quote ?? "(No quote provided)";
 
       const result = await insertDraftCommentThread({
@@ -180,8 +180,7 @@ function createMcpServer(): McpServer {
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
       }
-      const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
-      const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
+      const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
 
       const result = await replaceTextInMainDoc({
         postId: args.postId,
@@ -213,8 +212,7 @@ function createMcpServer(): McpServer {
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
       }
-      const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
-      const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
+      const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
 
       const operationCount = (args.replacement ? 1 : 0) + (args.unifiedDiff ? 1 : 0);
       if (operationCount !== 1) {
@@ -284,8 +282,7 @@ function createMcpServer(): McpServer {
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
       }
-      const authorId = context.currentUser?._id ?? `agent-${randomId()}`;
-      const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
+      const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
 
       const result = await insertMarkdownBlock({
         postId: args.postId,
