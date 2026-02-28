@@ -167,7 +167,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     setExpandedConversationId(prev => prev === conversationId ? undefined : conversationId);
   }
 
-  const { data } = useQuery(ConversationsListMultiQuery, {
+  const { data, refetch } = useQuery(ConversationsListMultiQuery, {
     variables: {
       selector: { moderatorConversations: { userId: user._id } },
       limit: 10,
@@ -271,7 +271,8 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
         <MessagesNewForm 
           conversationId={embeddedConversationId} 
           templateQueries={templateQueries}
-          successEvent={(newMessage) => {
+          successEvent={async (newMessage) => {
+            await refetch();
             captureEvent('messageSent', {
               conversationId: newMessage.conversationId,
               sender: currentUser._id,
@@ -301,10 +302,12 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
   </div>;
 }
 
-export const SunshineUserMessages = (props: SunshineUserMessagesProps) => (
-  <AppendToEditorProvider>
-    <SunshineUserMessagesInner {...props} />
-  </AppendToEditorProvider>
-);
+export const SunshineUserMessages = (props: SunshineUserMessagesProps) => {
+  return (
+    <AppendToEditorProvider>
+      <SunshineUserMessagesInner {...props} />
+    </AppendToEditorProvider>
+  );
+};
 
 export default SunshineUserMessages;

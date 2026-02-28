@@ -5,7 +5,7 @@ import { crosspostSigningKeySetting } from "../databaseSettings";
 
 class CrosspostingToken<
   Schema extends ZodType,
-  Data extends z.infer<Schema>
+  Data extends z.infer<Schema> & Record<string, unknown>
 > {
   private readonly signingOptions = {
     algorithm: "HS256",
@@ -26,7 +26,7 @@ class CrosspostingToken<
     });
   }
 
-  verify(token: string): Promise<Data> {
+  verify(token: string): Promise<z.infer<Schema>> {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,

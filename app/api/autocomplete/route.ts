@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     if (!parseResult.success) {
       return new Response(JSON.stringify({ 
         error: "Invalid request body", 
-        details: parseResult.error.errors 
+        details: z.treeifyError(parseResult.error).errors
       }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }

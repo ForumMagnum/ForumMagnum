@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { artPrompt } from '@/lib/collections/reviewWinnerArts/constants';
-
 const styles = defineStyles("GenerateImagesButton", (theme: ThemeType) => ({
   root: {
     display: 'flex',
@@ -35,12 +33,6 @@ const styles = defineStyles("GenerateImagesButton", (theme: ThemeType) => ({
     marginLeft: 10,
     padding: 4,
   },
-  promptContainer: {
-    ...theme.typography.body2,
-    color: theme.palette.grey[400],
-    whiteSpace: 'pre',
-    overflow: 'hidden',
-  }
 }));
 
 const GenerateImagesButton = ({
@@ -73,7 +65,7 @@ const GenerateImagesButton = ({
       setIsGenerating(true);
       // If the user has entered a custom prompt, we want to append the default art prompt. 
       // If not, we want the generateCoverImages function to generate it's own prompts (which requires passing in an empty prompt)
-      const submittedPrompt = customPrompt.trim() ? customPrompt + artPrompt : "";
+      const submittedPrompt = customPrompt.trim() ? customPrompt : "";
       const finalPrompt = allowCustomPrompt ? submittedPrompt : prompt;
       await generateCoverImages({ 
         variables: { 
@@ -106,7 +98,6 @@ const GenerateImagesButton = ({
         onChange={(e) => setCustomPrompt(e.target.value)}
         placeholder="Enter custom prompt..."
       />}
-      {allowCustomPrompt && <div className={classes.promptContainer}>{artPrompt}</div>}
       {isGenerating && <span className={classes.loadingText}>Generating...</span>}
     </div>
   );

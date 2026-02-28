@@ -43,6 +43,42 @@ const schema = {
       canCreate: ["sunshineRegiment", "admins"],
     },
   },
+  midjourneyJobId: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+    },
+  },
+  midjourneyImageIndex: {
+    database: {
+      type: "INTEGER",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Int",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+    },
+  },
+  upscaledImageUrl: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+    },
+  },
   activeSplashArtCoordinates: {
     graphql: {
       outputType: "SplashArtCoordinate",

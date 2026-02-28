@@ -308,6 +308,7 @@ interface Mutation {
   increasePostViewCount: number | null;
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
+  upscaleReviewWinnerArt: ReviewWinnerArt | null;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
   createAdvisorRequest: AdvisorRequestOutput | null;
@@ -2640,6 +2641,11 @@ interface SingleCurationNoticeOutput {
 interface CurationNoticeSelector {
   default: EmptyViewInput | null;
   curationNoticesPage: EmptyViewInput | null;
+  curationNoticesPostView: CurationNoticesPostViewInput | null;
+}
+
+interface CurationNoticesPostViewInput {
+  postId?: string | null;
 }
 
 interface MultiCurationNoticeInput {
@@ -6155,6 +6161,9 @@ interface ReviewWinnerArt {
   postId: string;
   splashArtImagePrompt: string;
   splashArtImageUrl: string;
+  midjourneyJobId: string | null;
+  midjourneyImageIndex: number | null;
+  upscaledImageUrl: string | null;
   activeSplashArtCoordinates: SplashArtCoordinate | null;
 }
 
@@ -10295,6 +10304,7 @@ interface GraphQLTypeMap {
   SingleCurationNoticeInput: SingleCurationNoticeInput;
   SingleCurationNoticeOutput: SingleCurationNoticeOutput;
   CurationNoticeSelector: CurationNoticeSelector;
+  CurationNoticesPostViewInput: CurationNoticesPostViewInput;
   MultiCurationNoticeInput: MultiCurationNoticeInput;
   MultiCurationNoticeOutput: MultiCurationNoticeOutput;
   DatabaseMetadata: DatabaseMetadata;
