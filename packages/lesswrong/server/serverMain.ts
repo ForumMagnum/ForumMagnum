@@ -1,6 +1,5 @@
 // import { startWebserver } from './apolloServer';
 import { scheduleQueueProcessing } from './cache/swr';
-import { startMemoryUsageMonitor } from './logging';
 // import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
@@ -39,7 +38,6 @@ import { backgroundTask } from './utils/backgroundTask';
 
 export async function runServerOnStartupFunctions() {
   scheduleQueueProcessing();
-  startMemoryUsageMonitor();
   // initLegacyRoutes();
   backgroundTask(startupSanityChecks());
   backgroundTask(refreshKarmaInflationCache());
