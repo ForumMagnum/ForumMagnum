@@ -97,7 +97,10 @@ function createMcpServer(): McpServer {
         postId: z.string().describe("The ID of the post to read"),
         version: z.string().optional().describe("Content version to load, defaults to 'draft'"),
       },
-      annotations: { readOnlyHint: true },
+      annotations: {
+        openWorldHint: false,
+        readOnlyHint: true
+      },
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);
@@ -141,7 +144,10 @@ function createMcpServer(): McpServer {
         quote: z.string().optional().describe("Text to attach the comment to (should be long enough to be unambiguous)"),
         agentName: z.string().optional().describe("Name to attribute the comment to"),
       },
-      annotations: { destructiveHint: true },
+      annotations: {
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);
@@ -175,7 +181,10 @@ function createMcpServer(): McpServer {
         agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
         mode: z.enum(["edit", "suggest"]).optional().describe("Whether to apply directly ('edit') or as a suggestion ('suggest'). Defaults to 'suggest'."),
       },
-      annotations: { destructiveHint: true },
+      annotations: {
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);
@@ -209,7 +218,10 @@ function createMcpServer(): McpServer {
         agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
         mode: z.enum(["edit", "suggest"]).optional().describe("Whether to apply directly ('edit') or as a suggestion ('suggest'). Defaults to 'edit'."),
       },
-      annotations: { destructiveHint: true },
+      annotations: {
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);
@@ -259,7 +271,10 @@ function createMcpServer(): McpServer {
         agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
         mode: z.enum(["edit", "suggest"]).optional().describe("Whether to apply directly ('edit') or as a suggestion ('suggest'). Defaults to 'edit'."),
       },
-      annotations: { destructiveHint: true },
+      annotations: {
+        openWorldHint: false,
+        destructiveHint: false,
+      },
     },
     async (args, extra) => {
       const context = await contextFromAuth(extra);

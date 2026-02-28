@@ -261,6 +261,7 @@ export async function POST(req: NextRequest) {
       mode: "lexical-collaboration-comment-thread",
     });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       {
         error: "Failed to write comment to collaborative draft",

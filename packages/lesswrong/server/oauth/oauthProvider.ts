@@ -101,30 +101,28 @@ async function createAuthorizationCode(args: CreateAuthorizationCodeArgs): Promi
 
 // --- Token Exchange ---
 
-interface ExchangeCodeForTokenArgs {
+async function exchangeCodeForToken(args: {
   code: string;
   clientId: string;
   clientSecret: string;
   redirectUri: string;
   codeVerifier: string;
-}
-
-interface ExchangeCodeForTokenResult {
+}): Promise<{
   access_token: string;
   token_type: "Bearer";
   expires_in: number;
   scope: string;
-}
-
-async function exchangeCodeForToken(args: ExchangeCodeForTokenArgs): Promise<ExchangeCodeForTokenResult> {
+}> {
   const { code, clientId, clientSecret, redirectUri, codeVerifier } = args;
 
   // Verify client credentials
   const client = await OAuthClients.findOne({ _id: clientId });
   if (!client) {
+    console.log("exchangeCodeForToken: Unknown client", clientId);
     throw new OAuthError("invalid_client", "Unknown client");
   }
   if (hashToken(clientSecret) !== client.hashedSecret) {
+    console.log("exchangeCodeForToken: Invalid client credentials", clientId);
     throw new OAuthError("invalid_client", "Invalid client credentials");
   }
 

@@ -112,8 +112,10 @@ export async function POST(req: NextRequest) {
     const callbackUrl = new URL(redirectUri);
     callbackUrl.searchParams.set("code", code);
     if (state) callbackUrl.searchParams.set("state", state);
+    callbackUrl.searchParams.set("client_id", clientId);
     return Response.redirect(callbackUrl.toString());
   } catch (e) {
+    console.error("oauth/authorize: OAuth error", e);
     if (e instanceof OAuthError) {
       const errorUrl = new URL(redirectUri);
       errorUrl.searchParams.set("error", e.code);
