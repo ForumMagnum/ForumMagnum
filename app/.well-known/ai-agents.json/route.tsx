@@ -1,5 +1,5 @@
 import { siteNameWithArticleSetting, taglineSetting } from "@/lib/instanceSettings";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 
 /**
@@ -11,12 +11,10 @@ import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
  */
 export async function GET(req: NextRequest) {
   const siteUrl = getSiteUrlFromReq(req);
-  return new Response(JSON.stringify({
+  return NextResponse.json({
     name: siteNameWithArticleSetting.get(),
     description: taglineSetting.get(),
     url: siteUrl,
     documentationUrl: `${siteUrl}/api/SKILL.md`,
-  }), {
-    headers: { "Content-Type": "application/json" },
   });
 }
