@@ -11,6 +11,12 @@ import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
 import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
 import { gql } from "@/lib/generated/gql-codegen";
+import {
+  commentOnDraftToolSchema,
+  insertBlockToolSchema,
+  replaceTextToolSchema,
+  replaceWidgetToolSchema,
+} from "../agent/toolSchemas";
 
 const PostMetadataQuery = gql(`
   query McpPostMetadata($_id: String!) {
@@ -31,8 +37,6 @@ const HocuspocusAuthQuery = gql(`
     }
   }
 `);
-
-// --- Auth helpers ---
 
 interface AuthExtra {
   authInfo?: {
@@ -138,12 +142,7 @@ function createMcpServer(): McpServer {
     "comment_on_draft",
     {
       description: "Add a Google Docs-style comment to a post draft. If a quote is provided, the comment will be attached to the matching quoted text. If no quote is provided, the comment will be top-level. Both the quote and comment should be in markdown.",
-      inputSchema: {
-        postId: z.string().describe("The ID of the post to comment on"),
-        comment: z.string().describe("The comment text in markdown"),
-        quote: z.string().optional().describe("Text to attach the comment to (should be long enough to be unambiguous)"),
-        agentName: z.string().optional().describe("Name to attribute the comment to"),
-      },
+      inputSchema: commentOnDraftToolSchema.shape,
       annotations: {
         openWorldHint: false,
         destructiveHint: false,
@@ -174,13 +173,7 @@ function createMcpServer(): McpServer {
     "replace_text",
     {
       description: "Replace text inside a post draft. The quote and replacement should be in markdown. Mode 'suggest' creates a tracked suggestion visible in the editor; mode 'edit' applies immediately.",
-      inputSchema: {
-        postId: z.string().describe("The ID of the post"),
-        quote: z.string().describe("The text to find and replace"),
-        replacement: z.string().describe("The replacement text in markdown"),
-        agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
-        mode: z.enum(["edit", "suggest"]).optional().describe("Whether to apply directly ('edit') or as a suggestion ('suggest'). Defaults to 'suggest'."),
-      },
+      inputSchema: replaceTextToolSchema.shape,
       annotations: {
         openWorldHint: false,
         destructiveHint: false,
@@ -210,14 +203,7 @@ function createMcpServer(): McpServer {
     "replace_widget",
     {
       description: "Replace the HTML/JS content of an existing widget block in a post draft by widget ID. You can provide either full replacement content or a unified diff patch.",
-      inputSchema: {
-        postId: z.string().describe("The ID of the post"),
-        widgetId: z.string().describe("The widget ID to update"),
-        replacement: z.string().optional().describe("Full replacement widget content"),
-        unifiedDiff: z.string().optional().describe("Unified diff to apply to current widget content"),
-        agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
-        mode: z.enum(["edit", "suggest"]).optional().describe("Whether to apply directly ('edit') or as a suggestion ('suggest'). Defaults to 'edit'."),
-      },
+      inputSchema: replaceWidgetToolSchema.shape,
       annotations: {
         openWorldHint: false,
         destructiveHint: false,
@@ -246,7 +232,7 @@ function createMcpServer(): McpServer {
         widgetId: args.widgetId,
         replacement: args.replacement,
         unifiedDiff: args.unifiedDiff,
-        mode: args.mode ?? "edit",
+        mode: args.mode ?? "suggest",
         authorName,
         authorId,
       });
@@ -259,18 +245,7 @@ function createMcpServer(): McpServer {
     "insert_block",
     {
       description: "Insert new blocks of text into a post draft. The location specifies where to insert relative to existing content. The markdown parameter is the content to insert.",
-      inputSchema: {
-        postId: z.string().describe("The ID of the post"),
-        markdown: z.string().describe("The markdown content to insert"),
-        location: z.union([
-          z.literal("start"),
-          z.literal("end"),
-          z.object({ before: z.string().describe("Insert before the paragraph starting with this text") }),
-          z.object({ after: z.string().describe("Insert after the paragraph starting with this text") }),
-        ]).describe("Where to insert: 'start', 'end', { before: '...' }, or { after: '...' }"),
-        agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
-        mode: z.enum(["edit", "suggest"]).optional().describe("Whether to apply directly ('edit') or as a suggestion ('suggest'). Defaults to 'edit'."),
-      },
+      inputSchema: insertBlockToolSchema.shape,
       annotations: {
         openWorldHint: false,
         destructiveHint: false,
@@ -285,7 +260,7 @@ function createMcpServer(): McpServer {
       const result = await insertMarkdownBlock({
         postId: args.postId,
         token,
-        mode: args.mode ?? "edit",
+        mode: args.mode ?? "suggest",
         location: args.location,
         markdown: args.markdown,
         authorName,

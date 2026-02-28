@@ -2,7 +2,6 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest, NextResponse } from "next/server";
-import z from "zod";
 import { $createTextNode, $getNodeByKey, $isTextNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
@@ -11,6 +10,7 @@ import {
   withMainDocEditorSession,
   selectQuotedTextInEditor,
 } from "../editorAgentUtil";
+import { replaceTextRouteSchema, type ReplaceMode } from "../toolSchemas";
 
 const HocuspocusAuthQuery = `
   query AgentReplaceTextHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -21,17 +21,6 @@ const HocuspocusAuthQuery = `
 `;
 
 const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
-
-const ReplaceTextRequestSchema = z.object({
-  postId: z.string(),
-  key: z.string().optional(),
-  agentName: z.string().optional(),
-  quote: z.string(),
-  replacement: z.string(),
-  mode: z.enum(["edit", "suggest"]).default("suggest"),
-});
-
-type ReplaceMode = z.infer<typeof ReplaceTextRequestSchema>["mode"];
 
 interface ReplaceResult {
   replaced: boolean
@@ -197,7 +186,7 @@ export async function POST(req: NextRequest) {
     getContextFromReqAndRes({ req, isSSR: false }),
   ]);
 
-  const parseResult = ReplaceTextRequestSchema.safeParse(body);
+  const parseResult = replaceTextRouteSchema.safeParse(body);
   if (!parseResult.success) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }

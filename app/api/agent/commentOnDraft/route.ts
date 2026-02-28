@@ -3,7 +3,6 @@ import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest, NextResponse } from "next/server";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Map as YMap, Array as YArray, Doc } from "yjs";
-import z from "zod";
 import { randomId } from "@/lib/random";
 import { gql } from "@/lib/generated/gql-codegen";
 import { $setSelection, $getSelection, $isRangeSelection } from "lexical";
@@ -15,6 +14,9 @@ import {
   withMainDocEditorSession,
   selectQuotedTextInEditor,
 } from "../editorAgentUtil";
+import { commentOnDraftRouteSchema } from "../toolSchemas";
+import { backgroundTask } from "@/server/utils/backgroundTask";
+import { captureException } from "@/lib/sentryWrapper";
 
 const HocuspocusAuthQuery = gql(`
   query AgentHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -25,15 +27,6 @@ const HocuspocusAuthQuery = gql(`
 `);
 
 const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
-
-const CommentOnDraftRequestSchema = z.object({
-  postId: z.string(),
-  key: z.string().optional(),
-  agentName: z.string().optional(),
-  paragraphId: z.string().optional(),
-  quote: z.string().optional(),
-  comment: z.string(),
-});
 
 function createCollabComment({
   content,
@@ -162,7 +155,7 @@ export async function insertDraftCommentThread({
   });
 
   try {
-    provider.connect();
+    backgroundTask(provider.connect());
     await waitForProviderSync(provider);
 
     const commentId = randomId();
@@ -217,7 +210,7 @@ export async function POST(req: NextRequest) {
     getContextFromReqAndRes({ req, isSSR: false })
   ]);
 
-  const parseResult = CommentOnDraftRequestSchema.safeParse(body);
+  const parseResult = commentOnDraftRouteSchema.safeParse(body);
   if (!parseResult.success) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
@@ -240,8 +233,6 @@ export async function POST(req: NextRequest) {
     const authorName = agentName ?? context.currentUser?.displayName ?? "AI Agent";
     const threadQuote = quote ?? paragraphId ?? "(No quote provided)";
 
-    console.log(`Attempting to insert a draft comment thread: comment=${comment}, quote=${quote}, paragraphId=${paragraphId}, author=${authorName}, authorId=${authorId}`);
-
     const { threadId, commentId, anchorStatus, anchorNote } = await insertDraftCommentThread({
       postId,
       token,
@@ -261,7 +252,9 @@ export async function POST(req: NextRequest) {
       mode: "lexical-collaboration-comment-thread",
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
+    captureException(error);
     return NextResponse.json(
       {
         error: "Failed to write comment to collaborative draft",

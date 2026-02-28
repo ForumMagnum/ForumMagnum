@@ -1,5 +1,6 @@
+import { captureException } from "@/lib/sentryWrapper";
 import { exchangeCodeForToken, OAuthError } from "@/server/oauth/oauthProvider";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 interface BasicAuthCredentials {
   clientId: string;
@@ -39,25 +40,25 @@ export async function POST(req: NextRequest) {
 
     if (contentType.includes("application/x-www-form-urlencoded")) {
       const text = await req.text();
-      console.log(`oauth/token: Text=${text}`);
       params = Object.fromEntries(new URLSearchParams(text));
     } else if (contentType.includes("application/json")) {
       params = await req.json();
-      console.log(`oauth/token: Params=${JSON.stringify(params)}`);
     } else {
-      console.log("oauth/token: Invalid content type", contentType);
-      return new Response(JSON.stringify({ error: "invalid_request", error_description: "Unsupported content type" }), {
+      // eslint-disable-next-line no-console
+      console.error("oauth/token: Invalid content type", contentType);
+      captureException(new Error(`oauth/token: Invalid content type ${contentType}`));
+      return NextResponse.json({ error: "invalid_request", error_description: "Unsupported content type" }, {
         status: 400,
-        headers: { "Content-Type": "application/json" },
       });
     }
 
     const grantType = params.grant_type;
     if (grantType !== "authorization_code") {
-      console.log("oauth/token: Unsupported grant type", grantType);
-      return new Response(JSON.stringify({ error: "unsupported_grant_type" }), {
+      // eslint-disable-next-line no-console
+      console.error("oauth/token: Unsupported grant type", grantType);
+      captureException(new Error(`oauth/token: Unsupported grant type ${grantType}`));
+      return NextResponse.json({ error: "unsupported_grant_type" }, {
         status: 400,
-        headers: { "Content-Type": "application/json" },
       });
     }
 
@@ -71,26 +72,26 @@ export async function POST(req: NextRequest) {
       codeVerifier: params.code_verifier ?? "",
     });
 
-    return new Response(JSON.stringify(result), {
+    return NextResponse.json(result, {
       status: 200,
       headers: {
-        "Content-Type": "application/json",
         "Cache-Control": "no-store",
       },
     });
   } catch (e) {
     if (e instanceof OAuthError) {
-      console.error(e)
-      return new Response(JSON.stringify(e.toJSON()), {
+      // eslint-disable-next-line no-console
+      console.error("oauth/token: OAuth error", e);
+      captureException(e);
+      return NextResponse.json(e.toJSON(), {
         status: 400,
-        headers: { "Content-Type": "application/json" },
       });
     }
     // eslint-disable-next-line no-console
     console.error("OAuth token error:", e);
-    return new Response(JSON.stringify({ error: "server_error" }), {
+    captureException(e);
+    return NextResponse.json({ error: "server_error" }, {
       status: 500,
-      headers: { "Content-Type": "application/json" },
     });
   }
 }

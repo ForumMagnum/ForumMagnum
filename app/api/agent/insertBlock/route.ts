@@ -3,7 +3,6 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest, NextResponse } from "next/server";
-import z from "zod";
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
 import {
@@ -21,6 +20,7 @@ import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidge
 import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import { insertBlockRouteSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 
 const HocuspocusAuthQuery = `
   query AgentInsertBlockHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -32,24 +32,6 @@ const HocuspocusAuthQuery = `
 
 const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 
-const InsertLocationSchema = z.union([
-  z.literal("start"),
-  z.literal("end"),
-  z.object({ after: z.string() }),
-  z.object({ before: z.string() }),
-]);
-
-const InsertBlockRequestSchema = z.object({
-  postId: z.string(),
-  key: z.string().optional(),
-  agentName: z.string().optional(),
-  mode: z.enum(["edit", "suggest"]).default("edit"),
-  location: InsertLocationSchema,
-  markdown: z.string(),
-});
-
-type InsertLocation = z.infer<typeof InsertLocationSchema>;
-type InsertMode = z.infer<typeof InsertBlockRequestSchema>["mode"];
 
 interface InsertBlockResult {
   inserted: boolean
@@ -148,7 +130,7 @@ export async function insertMarkdownBlock({
 }: {
   postId: string
   token: string
-  mode: InsertMode
+  mode: ReplaceMode
   location: InsertLocation
   markdown: string
   authorName: string
@@ -271,7 +253,7 @@ export async function POST(req: NextRequest) {
     getContextFromReqAndRes({ req, isSSR: false }),
   ]);
 
-  const parseResult = InsertBlockRequestSchema.safeParse(body);
+  const parseResult = insertBlockRouteSchema.safeParse(body);
   if (!parseResult.success) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }

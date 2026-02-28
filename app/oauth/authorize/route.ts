@@ -1,7 +1,8 @@
 import { validateAuthorizationRequest, createAuthorizationCode, OAuthError } from "@/server/oauth/oauthProvider";
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
+import { captureException } from "@/lib/sentryWrapper";
 
 /**
  * GET /oauth/authorize — renders a minimal consent page.
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
     // Redirect to login, then back to this URL
     // Build the return URL using siteUrl's origin and req.nextUrl's pathname/search/hash
     const returnUrl = `${siteUrl}${req.nextUrl.pathname}${req.nextUrl.search}${req.nextUrl.hash}`;
-    return Response.redirect(`${siteUrl}/login?returnTo=${encodeURIComponent(returnUrl)}`);
+    return NextResponse.redirect(`${siteUrl}/login?returnTo=${encodeURIComponent(returnUrl)}`);
   }
 
   // Validate the authorization request
@@ -38,6 +39,9 @@ export async function GET(req: NextRequest) {
       codeChallengeMethod,
     });
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("oauth/authorize: OAuth error", e);
+    captureException(e);
     if (e instanceof OAuthError) {
       return new Response(renderErrorPage(e.message), {
         status: 400,
@@ -113,21 +117,21 @@ export async function POST(req: NextRequest) {
     callbackUrl.searchParams.set("code", code);
     if (state) callbackUrl.searchParams.set("state", state);
     callbackUrl.searchParams.set("client_id", clientId);
-    return Response.redirect(callbackUrl.toString());
+    return NextResponse.redirect(callbackUrl.toString());
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error("oauth/authorize: OAuth error", e);
+    captureException(e);
     if (e instanceof OAuthError) {
       const errorUrl = new URL(redirectUri);
       errorUrl.searchParams.set("error", e.code);
       errorUrl.searchParams.set("error_description", e.message);
       if (state) errorUrl.searchParams.set("state", state);
-      return Response.redirect(errorUrl.toString());
+      return NextResponse.redirect(errorUrl.toString());
     }
     return new Response("Internal error", { status: 500 });
   }
 }
-
-// --- HTML Rendering ---
 
 interface ConsentPageArgs {
   clientName: string;

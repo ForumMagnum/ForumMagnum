@@ -2,13 +2,13 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest, NextResponse } from "next/server";
-import z from "zod";
 import { applyPatch } from "diff";
 import { $createTextNode, $getRoot, $isElementNode, type LexicalNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import { replaceWidgetRouteSchema, type ReplaceMode } from "../toolSchemas";
 
 const HocuspocusAuthQuery = `
   query AgentReplaceWidgetHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -19,24 +19,6 @@ const HocuspocusAuthQuery = `
 `;
 
 const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
-
-const ReplaceWidgetRequestSchema = z.object({
-  postId: z.string(),
-  key: z.string().optional(),
-  agentName: z.string().optional(),
-  widgetId: z.string(),
-  replacement: z.string().optional(),
-  unifiedDiff: z.string().optional(),
-  mode: z.enum(["edit", "suggest"]).default("edit"),
-}).refine(
-  (value) => (value.replacement ? 1 : 0) + (value.unifiedDiff ? 1 : 0) === 1,
-  {
-    message: "Provide exactly one of replacement or unifiedDiff",
-    path: ["replacement"],
-  }
-);
-
-type ReplaceMode = z.infer<typeof ReplaceWidgetRequestSchema>["mode"];
 
 interface ReplaceWidgetResult {
   replaced: boolean
@@ -220,7 +202,7 @@ export async function POST(req: NextRequest) {
     getContextFromReqAndRes({ req, isSSR: false }),
   ]);
 
-  const parseResult = ReplaceWidgetRequestSchema.safeParse(body);
+  const parseResult = replaceWidgetRouteSchema.safeParse(body);
   if (!parseResult.success) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }

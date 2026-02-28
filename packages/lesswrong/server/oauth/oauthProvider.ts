@@ -3,15 +3,21 @@ import { randomId } from "@/lib/random";
 import OAuthClients from "@/server/collections/oAuthClients/collection";
 import OAuthAuthorizationCodes from "@/server/collections/oAuthAuthorizationCodes/collection";
 import OAuthAccessTokens from "@/server/collections/oAuthAccessTokens/collection";
+import { captureException } from "@/lib/sentryWrapper";
 
 const AUTHORIZATION_CODE_LIFETIME_MS = 10 * 60 * 1000; // 10 minutes
 const ACCESS_TOKEN_LIFETIME_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
 
+function handleErrorAndThrow(error: Error, message: string): never {
+  // eslint-disable-next-line no-console
+  console.error(error, message);
+  captureException(error);
+  throw error;
+}
+
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("base64");
 }
-
-// --- Dynamic Client Registration ---
 
 interface RegisterClientArgs {
   clientName: string;
@@ -33,7 +39,8 @@ async function registerClient(args: RegisterClientArgs): Promise<RegisterClientR
   const { clientName, redirectUris, grantTypes, responseTypes } = args;
 
   if (!redirectUris || redirectUris.length === 0) {
-    throw new OAuthError("invalid_client_metadata", "At least one redirect_uri is required");
+    const error = new OAuthError("invalid_client_metadata", "At least one redirect_uri is required");
+    handleErrorAndThrow(error, `registerClient: At least one redirect_uri is required`);
   }
 
   const clientId = randomId();
@@ -61,8 +68,6 @@ async function registerClient(args: RegisterClientArgs): Promise<RegisterClientR
     response_types: resolvedResponseTypes,
   };
 }
-
-// --- Authorization Code ---
 
 interface CreateAuthorizationCodeArgs {
   clientId: string;
@@ -99,8 +104,6 @@ async function createAuthorizationCode(args: CreateAuthorizationCodeArgs): Promi
   return { code };
 }
 
-// --- Token Exchange ---
-
 async function exchangeCodeForToken(args: {
   code: string;
   clientId: string;
@@ -118,33 +121,38 @@ async function exchangeCodeForToken(args: {
   // Verify client credentials
   const client = await OAuthClients.findOne({ _id: clientId });
   if (!client) {
-    console.log("exchangeCodeForToken: Unknown client", clientId);
-    throw new OAuthError("invalid_client", "Unknown client");
+    const error = new OAuthError("invalid_client", "Unknown client");
+    handleErrorAndThrow(error, `exchangeCodeForToken: Unknown client ${clientId}`);
   }
   if (hashToken(clientSecret) !== client.hashedSecret) {
-    console.log("exchangeCodeForToken: Invalid client credentials", clientId);
-    throw new OAuthError("invalid_client", "Invalid client credentials");
+    const error = new OAuthError("invalid_client", "Invalid client credentials");
+    handleErrorAndThrow(error, `exchangeCodeForToken: Invalid client credentials ${clientId}`);
   }
 
   // Look up the authorization code
   const hashedCode = hashToken(code);
   const authCode = await OAuthAuthorizationCodes.findOne({ hashedCode });
   if (!authCode) {
-    throw new OAuthError("invalid_grant", "Invalid authorization code");
+    const error = new OAuthError("invalid_grant", "Invalid authorization code");
+    handleErrorAndThrow(error, `exchangeCodeForToken: Invalid authorization code ${code}`);
   }
 
   // Validate the code
   if (authCode.used) {
-    throw new OAuthError("invalid_grant", "Authorization code already used");
+    const error = new OAuthError("invalid_grant", "Authorization code already used");
+    handleErrorAndThrow(error, `exchangeCodeForToken: Authorization code already used ${code}`);
   }
   if (authCode.expiresAt < new Date()) {
-    throw new OAuthError("invalid_grant", "Authorization code expired");
+    const error = new OAuthError("invalid_grant", "Authorization code expired");
+    handleErrorAndThrow(error, `exchangeCodeForToken: Authorization code expired ${code}`);
   }
   if (authCode.clientId !== clientId) {
-    throw new OAuthError("invalid_grant", "Client mismatch");
+    const error = new OAuthError("invalid_grant", "Client mismatch");
+    handleErrorAndThrow(error, `exchangeCodeForToken: Client mismatch ${code}`);
   }
   if (authCode.redirectUri !== redirectUri) {
-    throw new OAuthError("invalid_grant", "Redirect URI mismatch");
+    const error = new OAuthError("invalid_grant", "Redirect URI mismatch");
+    handleErrorAndThrow(error, `exchangeCodeForToken: Redirect URI mismatch ${code}`);
   }
 
   // Verify PKCE
@@ -176,11 +184,10 @@ async function exchangeCodeForToken(args: {
   };
 }
 
-// --- PKCE Verification ---
-
 function verifyCodeChallenge(codeVerifier: string, codeChallenge: string, codeChallengeMethod: string): void {
   if (codeChallengeMethod !== "S256") {
-    throw new OAuthError("invalid_request", "Unsupported code_challenge_method");
+    const error = new OAuthError("invalid_request", "Unsupported code_challenge_method");
+    handleErrorAndThrow(error, `verifyCodeChallenge: Unsupported code_challenge_method ${codeChallengeMethod}`);
   }
 
   const expectedChallenge = createHash("sha256")
@@ -188,11 +195,10 @@ function verifyCodeChallenge(codeVerifier: string, codeChallenge: string, codeCh
     .digest("base64url");
 
   if (expectedChallenge !== codeChallenge) {
-    throw new OAuthError("invalid_grant", "PKCE verification failed");
+    const error = new OAuthError("invalid_grant", "PKCE verification failed");
+    handleErrorAndThrow(error, `verifyCodeChallenge: PKCE verification failed ${codeVerifier}`);
   }
 }
-
-// --- Token Validation (for MCP server) ---
 
 interface ValidatedToken {
   userId: string;
@@ -205,13 +211,16 @@ async function validateAccessToken(bearerToken: string): Promise<ValidatedToken>
   const token = await OAuthAccessTokens.findOne({ hashedToken });
 
   if (!token) {
-    throw new OAuthError("invalid_token", "Unknown token");
+    const error = new OAuthError("invalid_token", "Unknown token");
+    handleErrorAndThrow(error, `validateAccessToken: Unknown token ${bearerToken}`);
   }
   if (token.revokedAt) {
-    throw new OAuthError("invalid_token", "Token revoked");
+    const error = new OAuthError("invalid_token", "Token revoked");
+    handleErrorAndThrow(error, `validateAccessToken: Token revoked ${bearerToken}`);
   }
   if (token.expiresAt < new Date()) {
-    throw new OAuthError("invalid_token", "Token expired");
+    const error = new OAuthError("invalid_token", "Token expired");
+    handleErrorAndThrow(error, `validateAccessToken: Token expired ${bearerToken}`);
   }
 
   return {
@@ -220,8 +229,6 @@ async function validateAccessToken(bearerToken: string): Promise<ValidatedToken>
     scope: token.scope,
   };
 }
-
-// --- Authorization Request Validation ---
 
 interface ValidateAuthorizationRequestArgs {
   clientId: string;
@@ -236,25 +243,27 @@ async function validateAuthorizationRequest(args: ValidateAuthorizationRequestAr
 
   const client = await OAuthClients.findOne({ _id: clientId });
   if (!client) {
-    throw new OAuthError("invalid_client", "Unknown client");
+    const error = new OAuthError("invalid_client", "Unknown client");
+    handleErrorAndThrow(error, `validateAuthorizationRequest: Unknown client ${clientId}`);
   }
 
   if (!client.redirectUris.includes(redirectUri)) {
-    throw new OAuthError("invalid_request", "Invalid redirect_uri");
+    const error = new OAuthError("invalid_request", "Invalid redirect_uri");
+    handleErrorAndThrow(error, `validateAuthorizationRequest: Invalid redirect_uri ${redirectUri}`);
   }
 
   if (responseType !== "code") {
-    throw new OAuthError("unsupported_response_type", "Only 'code' is supported");
+    const error = new OAuthError("unsupported_response_type", "Only 'code' is supported");
+    handleErrorAndThrow(error, `validateAuthorizationRequest: Unsupported response type ${responseType}`);
   }
 
   if (!codeChallenge || codeChallengeMethod !== "S256") {
-    throw new OAuthError("invalid_request", "PKCE with S256 is required");
+    const error = new OAuthError("invalid_request", "PKCE with S256 is required");
+    handleErrorAndThrow(error, `validateAuthorizationRequest: PKCE with S256 is required ${codeChallenge} ${codeChallengeMethod}`);
   }
 
   return client;
 }
-
-// --- OAuth Error ---
 
 class OAuthError extends Error {
   code: string;
