@@ -206,23 +206,6 @@ interface DbComment extends DbObject {
   directChildrenCount: number
   draft: boolean
   extendedScore: any | null
-  forumEventId: string | null
-  forumEventMetadata: {
-    eventFormat: "BASIC" | "POLL" | "STICKERS",
-    sticker: {
-      _id: string,
-      x: number,
-      y: number,
-      theta: number,
-      emoji: string,
-    } | null,
-    poll: {
-      voteWhenPublished: number,
-      latestVote: number | null,
-      pollQuestionWhenPublished: string | null,
-      commentPrompt: string | null,
-    } | null,
-  } | null
   hideAuthor: boolean
   hideKarma: boolean | null
   hideModeratorHat: boolean | null
@@ -265,7 +248,6 @@ interface DbComment extends DbObject {
   shortform: boolean | null
   shortformFrontpage: boolean
   spam: boolean
-  subforumStickyPriority: number | null
   suggestForAlignmentUserIds: Array<string>
   tagCommentType: "SUBFORUM" | "DISCUSSION"
   tagId: string | null
@@ -524,41 +506,6 @@ interface DbFieldChange extends DbObject {
   newValue: any | null
   oldValue: any | null
   userId: string | null
-}
-
-type ForumEventsCollection = PgCollection<"ForumEvents">;
-
-interface DbForumEvent extends DbObject {
-  __collectionName?: "ForumEvents"
-  bannerImageId: string | null
-  bannerTextColor: string
-  commentId: string | null
-  commentPrompt: string | null
-  contrastColor: string | null
-  createdAt: Date
-  customComponent: "GivingSeason2024Banner" | null
-  darkColor: string
-  endDate: Date | null
-  eventFormat: "BASIC" | "POLL" | "STICKERS"
-  frontpageDescription: EditableFieldContents | null
-  frontpageDescriptionMobile: EditableFieldContents | null
-  frontpageDescriptionMobile_latest: string | null
-  frontpageDescription_latest: string | null
-  includesPoll: boolean
-  isGlobal: boolean
-  legacyData: any | null
-  lightColor: string
-  maxStickersPerUser: number
-  pollAgreeWording: string | null
-  pollDisagreeWording: string | null
-  pollQuestion_latest: string | null
-  postId: string | null
-  postPageDescription: EditableFieldContents | null
-  postPageDescription_latest: string | null
-  publicData: any | null
-  startDate: Date
-  tagId: string | null
-  title: string
 }
 
 type GoogleServiceAccountSessionsCollection = PgCollection<"GoogleServiceAccountSessions">;
@@ -2346,7 +2293,6 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   FieldChanges: FieldChangesCollection
-  ForumEvents: ForumEventsCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   IframeWidgetSrcdocs: IframeWidgetSrcdocsCollection
   Images: ImagesCollection
@@ -2441,7 +2387,6 @@ interface ObjectsByCollectionName {
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   FieldChanges: DbFieldChange
-  ForumEvents: DbForumEvent
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   IframeWidgetSrcdocs: DbIframeWidgetSrcdoc
   Images: DbImages
@@ -2536,7 +2481,6 @@ interface ObjectsByTypeName {
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
   FieldChange: DbFieldChange
-  ForumEvent: DbForumEvent
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
   IframeWidgetSrcdoc: DbIframeWidgetSrcdoc
   Images: DbImages

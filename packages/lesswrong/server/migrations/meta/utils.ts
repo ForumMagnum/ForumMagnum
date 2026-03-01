@@ -46,7 +46,7 @@ function getPgCollectionFromNameOrCollection<N extends CollectionNameString>(
 export const addField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collectionOrCollectionName: CollectionBase<N>|string,
-  fieldName: keyof ObjectsByCollectionName[N] & string,
+  fieldName: string,
 ): Promise<void> => {
   const collection = getCollectionFromNameOrCollection(collectionOrCollectionName);
   const table = collection.getTable();

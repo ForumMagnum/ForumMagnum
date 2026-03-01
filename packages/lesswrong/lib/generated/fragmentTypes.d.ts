@@ -53,9 +53,6 @@ interface FragmentTypes {
   FeedSpotlightFragment: FeedSpotlightFragment
   FeedSubscriptionSuggestionsFragment: FeedSubscriptionSuggestionsFragment
   FieldChangeFragment: FieldChangeFragment
-  ForumEventsDisplay: ForumEventsDisplay
-  ForumEventsEdit: ForumEventsEdit
-  ForumEventsMinimumInfo: ForumEventsMinimumInfo
   FrontpageShortformComments: FrontpageShortformComments
   GoogleServiceAccountSessionAdminInfo: GoogleServiceAccountSessionAdminInfo
   GoogleServiceAccountSessionInfo: GoogleServiceAccountSessionInfo
@@ -266,7 +263,6 @@ interface FragmentTypesByCollection {
   FeedSpotlightItems: "FeedSpotlightFragment"
   FeedSubscriptionSuggestionses: "FeedSubscriptionSuggestionsFragment"
   FieldChanges: "FieldChangeFragment"
-  ForumEvents: "ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionAdminInfo"|"GoogleServiceAccountSessionInfo"
   JargonTerms: "JargonTerms"|"JargonTermsPost"
   LWEvents: "emailHistoryFragment"|"lastEventFragment"|"newEventFragment"
@@ -355,9 +351,6 @@ interface CollectionNamesByFragmentName {
   FeedSpotlightFragment: never
   FeedSubscriptionSuggestionsFragment: never
   FieldChangeFragment: "FieldChanges"
-  ForumEventsDisplay: "ForumEvents"
-  ForumEventsEdit: "ForumEvents"
-  ForumEventsMinimumInfo: "ForumEvents"
   FrontpageShortformComments: "Comments"
   GoogleServiceAccountSessionAdminInfo: "GoogleServiceAccountSessions"
   GoogleServiceAccountSessionInfo: "GoogleServiceAccountSessions"
@@ -545,9 +538,9 @@ interface CollectionNamesByFragmentName {
   reviewVoteFragment: "ReviewVotes"
 }
 
-type CollectionNameString = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GoogleServiceAccountSessions"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
+type CollectionNameString = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"GoogleServiceAccountSessions"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
 
-type CollectionNameWithCreatedAt = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GoogleServiceAccountSessions"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"YjsDocuments"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"GoogleServiceAccountSessions"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"YjsDocuments"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 

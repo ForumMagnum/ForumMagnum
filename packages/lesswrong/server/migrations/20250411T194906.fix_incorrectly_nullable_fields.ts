@@ -1,7 +1,6 @@
 import Bans from "../collections/bans/collection";
 import Comments from "../collections/comments/collection";
 import ElectionCandidates from "../collections/electionCandidates/collection";
-import ForumEvents from "../collections/forumEvents/collection";
 import Posts from "../collections/posts/collection";
 import Revisions from "../collections/revisions/collection";
 import TagRels from "../collections/tagRels/collection";
@@ -42,8 +41,8 @@ export const up = async ({db}: MigrationContext) => {
   console.log('Updating ForumEvents.darkColor and ForumEvents.lightColor default values');
 
   // ForumEvents.darkColor and ForumEvents.lightColor - update default value
-  await updateDefaultValue(db, ForumEvents, 'darkColor');
-  await updateDefaultValue(db, ForumEvents, 'lightColor');
+  await updateDefaultValue(db, "ForumEvents", 'darkColor');
+  await updateDefaultValue(db, "ForumEvents", 'lightColor');
 
   // eslint-disable-next-line no-console
   console.log('Updating Posts.inactive default value');

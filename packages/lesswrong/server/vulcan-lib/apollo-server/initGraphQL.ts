@@ -100,7 +100,6 @@ import { graphqlElicitQuestionQueryTypeDefs, elicitQuestionGqlQueryHandlers, eli
 import { graphqlEmailTokensQueryTypeDefs, emailTokensGqlFieldResolvers } from "@/server/collections/emailTokens/queries";
 import { graphqlFeaturedResourceQueryTypeDefs, featuredResourceGqlQueryHandlers, featuredResourceGqlFieldResolvers } from "@/server/collections/featuredResources/queries";
 import { graphqlFieldChangeQueryTypeDefs, fieldChangeGqlFieldResolvers } from "@/server/collections/fieldChanges/queries";
-import { graphqlForumEventQueryTypeDefs, forumEventGqlQueryHandlers, forumEventGqlFieldResolvers } from "@/server/collections/forumEvents/queries";
 import { graphqlGoogleServiceAccountSessionQueryTypeDefs, googleServiceAccountSessionGqlQueryHandlers, googleServiceAccountSessionGqlFieldResolvers } from "@/server/collections/googleServiceAccountSessions/queries";
 import { graphqlIframeWidgetSrcdocQueryTypeDefs, iframeWidgetSrcdocGqlQueryHandlers, iframeWidgetSrcdocGqlFieldResolvers } from "@/server/collections/iframeWidgetSrcdocs/queries";
 import { graphqlImagesQueryTypeDefs, imagesGqlFieldResolvers } from "@/server/collections/images/queries";
@@ -169,7 +168,6 @@ import { createDigestGqlMutation, updateDigestGqlMutation, graphqlDigestTypeDefs
 import { createElectionCandidateGqlMutation, updateElectionCandidateGqlMutation, graphqlElectionCandidateTypeDefs } from "@/server/collections/electionCandidates/mutations";
 import { createElectionVoteGqlMutation, updateElectionVoteGqlMutation, graphqlElectionVoteTypeDefs } from "@/server/collections/electionVotes/mutations";
 import { createElicitQuestionGqlMutation, updateElicitQuestionGqlMutation, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
-import { createForumEventGqlMutation, updateForumEventGqlMutation, graphqlForumEventTypeDefs } from "@/server/collections/forumEvents/mutations";
 import { createJargonTermGqlMutation, updateJargonTermGqlMutation, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
 import { createLWEventGqlMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
 import { graphqlYjsDocumentQueryTypeDefs, yjsDocumentGqlFieldResolvers } from "@/server/collections/yjsDocuments/queries";
@@ -351,7 +349,6 @@ export const getTypeDefs = () => gql`
   ${graphqlEmailTokensQueryTypeDefs}
   ${graphqlFeaturedResourceQueryTypeDefs}
   ${graphqlFieldChangeQueryTypeDefs}
-  ${graphqlForumEventQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlIframeWidgetSrcdocQueryTypeDefs}
   ${graphqlImagesQueryTypeDefs}
@@ -421,7 +418,6 @@ export const getTypeDefs = () => gql`
   ${graphqlElectionCandidateTypeDefs}
   ${graphqlElectionVoteTypeDefs}
   ${graphqlElicitQuestionTypeDefs}
-  ${graphqlForumEventTypeDefs}
   ${graphqlJargonTermTypeDefs}
   ${graphqlLWEventTypeDefs}
   ${graphqlLlmConversationTypeDefs}
@@ -523,7 +519,6 @@ const getResolvers = () => ({
     ...elicitQuestionPredictionGqlQueryHandlers,
     ...elicitQuestionGqlQueryHandlers,
     ...featuredResourceGqlQueryHandlers,
-    ...forumEventGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
     ...iframeWidgetSrcdocGqlQueryHandlers,
     ...jargonTermGqlQueryHandlers,
@@ -638,8 +633,6 @@ const getResolvers = () => ({
     updateElectionVote: updateElectionVoteGqlMutation,
     createElicitQuestion: createElicitQuestionGqlMutation,
     updateElicitQuestion: updateElicitQuestionGqlMutation,
-    createForumEvent: createForumEventGqlMutation,
-    updateForumEvent: updateForumEventGqlMutation,
     createJargonTerm: createJargonTermGqlMutation,
     updateJargonTerm: updateJargonTermGqlMutation,
     createLWEvent: createLWEventGqlMutation,
@@ -730,7 +723,6 @@ const getResolvers = () => ({
   ...emailTokensGqlFieldResolvers,
   ...featuredResourceGqlFieldResolvers,
   ...fieldChangeGqlFieldResolvers,
-  ...forumEventGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...iframeWidgetSrcdocGqlFieldResolvers,
   ...imagesGqlFieldResolvers,

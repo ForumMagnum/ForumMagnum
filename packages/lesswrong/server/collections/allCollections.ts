@@ -37,7 +37,6 @@ import { ElicitQuestions } from './elicitQuestions/collection';
 import { EmailTokens } from './emailTokens/collection';
 import { FeaturedResources } from './featuredResources/collection';
 import { FieldChanges } from './fieldChanges/collection';
-import { ForumEvents } from './forumEvents/collection';
 import { GoogleServiceAccountSessions } from './googleServiceAccountSessions/collection';
 import { IframeWidgetSrcdocs } from './iframeWidgetSrcdocs/collection';
 import { Images } from './images/collection';
@@ -120,7 +119,7 @@ const allCollections = {
   ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
   DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
-  FieldChanges, ForumEvents, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
+  FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,

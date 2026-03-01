@@ -76,9 +76,6 @@ export const CommentsList = gql(`
     rejected
     rejectedReason
     originalDialogueId
-
-    forumEventId
-    forumEventMetadata
   }
 `)
 

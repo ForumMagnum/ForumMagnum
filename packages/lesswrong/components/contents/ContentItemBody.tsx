@@ -48,7 +48,6 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  *   wrapStrawPoll
  * Functionality from the old ContentItemBody which is implemented, but not well tested:
  *   addCTAButtonEventListeners
- *   replaceForumEventPollPlaceholders
  *   exposeInternalIds
  * Additional limitations:
  *   CDATA, directive, script, and style nodes are ignored. These will be

@@ -289,14 +289,12 @@ export const CommentForm = ({
     postId?: string;
     parentAnswerId?: string;
     debateResponse?: boolean;
-    forumEventId?: string;
     contents?: CreateRevisionDataInput;
     shortform?: boolean;
     shortformFrontpage?: boolean;
     relevantTagIds?: string[];
     nominatedForReview?: `${ReviewYear}`;
     reviewingForReview?: `${ReviewYear}`;
-    forumEventMetadata?: DbComment['forumEventMetadata'];
   }
   alignmentForumPost?: boolean;
   hideAlignmentForumCheckbox?: boolean;

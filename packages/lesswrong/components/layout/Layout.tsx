@@ -19,9 +19,7 @@ import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } fr
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
 import Header, { HeaderHeightProvider } from '@/components/layout/Header';
 import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
-import { CurrentAndRecentForumEventsProvider } from '@/components/hooks/useCurrentForumEvent';
 import { LoginPopoverContextProvider } from '@/components/hooks/useLoginPopoverContext';
 import DeferRender from '@/components/common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
@@ -173,7 +171,6 @@ const Layout = ({children}: {
       <LlmChatWrapper>
       <DisableNoKibitzContextProvider>
       <CommentOnSelectionPageWrapper>
-      <CurrentAndRecentForumEventsProvider>
       <LlmSidebarWrapper>
         <HeaderHeightProvider>
         <PageBackgroundWrapper>
@@ -221,7 +218,6 @@ const Layout = ({children}: {
         </PageBackgroundWrapper>
         </HeaderHeightProvider>
       </LlmSidebarWrapper>
-      </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContextProvider>
       </LlmChatWrapper>

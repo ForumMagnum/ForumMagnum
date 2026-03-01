@@ -1938,9 +1938,6 @@ type Comment {
   post: Post
   tagId: String
   tag: Tag
-  forumEventId: String
-  forumEvent: ForumEvent
-  forumEventMetadata: JSON
   tagCommentType: TagCommentType!
   subforumStickyPriority: Float
   userId: String
@@ -2438,14 +2435,6 @@ input CommentsRecentDebateResponsesInput {
   limit: String
 }
 
-input CommentsForumEventCommentsInput {
-  userId: String
-  commentIds: [String!]
-  minimumKarma: Int
-  authorIsUnreviewed: Boolean
-  forumEventId: String
-}
-
 input CommentsAlignmentSuggestedCommentsInput {
   userId: String
   commentIds: [String!]
@@ -2517,7 +2506,6 @@ input CommentSelector {
   moderatorComments: CommentsModeratorCommentsInput
   debateResponses: CommentsDebateResponsesInput
   recentDebateResponses: CommentsRecentDebateResponsesInput
-  forumEventComments: CommentsForumEventCommentsInput
   alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput
   rss: CommentsRssInput
   draftComments: CommentsDraftCommentsInput
@@ -3198,101 +3186,6 @@ type MultiFieldChangeOutput {
 extend type Query {
   fieldChange(input: SingleFieldChangeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleFieldChangeOutput
   fieldChanges(input: MultiFieldChangeInput @deprecated(reason: "Use the selector field instead"), selector: FieldChangeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiFieldChangeOutput
-}
-
-type ForumEvent {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  frontpageDescription(version: String): Revision
-  frontpageDescription_latest: String
-  frontpageDescriptionMobile(version: String): Revision
-  frontpageDescriptionMobile_latest: String
-  postPageDescription(version: String): Revision
-  postPageDescription_latest: String
-  title: String!
-  startDate: Date!
-  endDate: Date
-  darkColor: String!
-  lightColor: String!
-  bannerTextColor: String!
-  contrastColor: String
-  tagId: String
-  tag: Tag
-  postId: String
-  post: Post
-  commentId: String
-  comment: Comment
-  bannerImageId: String
-  includesPoll: Boolean!
-  isGlobal: Boolean!
-  eventFormat: ForumEventFormat!
-  pollQuestion(version: String): Revision
-  pollQuestion_latest: String
-  pollAgreeWording: String
-  pollDisagreeWording: String
-  maxStickersPerUser: Float!
-  customComponent: ForumEventCustomComponent
-  commentPrompt: String
-  publicData: JSON
-  voteCount: Int!
-}
-
-enum ForumEventCustomComponent {
-  GivingSeason2024Banner
-}
-
-enum ForumEventFormat {
-  BASIC
-  POLL
-  STICKERS
-}
-
-input SingleForumEventInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleForumEventOutput {
-  result: ForumEvent
-}
-
-input ForumEventsUpcomingForumEventsInput {
-  limit: String
-}
-
-input ForumEventsPastForumEventsInput {
-  limit: String
-}
-
-input ForumEventsCurrentAndRecentForumEventsInput {
-  limit: String
-}
-
-input ForumEventSelector {
-  default: EmptyViewInput
-  upcomingForumEvents: ForumEventsUpcomingForumEventsInput
-  pastForumEvents: ForumEventsPastForumEventsInput
-  currentForumEvent: EmptyViewInput
-  currentAndRecentForumEvents: ForumEventsCurrentAndRecentForumEventsInput
-}
-
-input MultiForumEventInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiForumEventOutput {
-  results: [ForumEvent!]!
-  totalCount: Int
-}
-
-extend type Query {
-  forumEvent(input: SingleForumEventInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleForumEventOutput
-  forumEvents(input: MultiForumEventInput @deprecated(reason: "Use the selector field instead"), selector: ForumEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiForumEventOutput
 }
 
 type GoogleServiceAccountSession {
@@ -8362,8 +8255,6 @@ input CreateCommentDataInput {
   topLevelCommentId: String
   postId: String
   tagId: String
-  forumEventId: String
-  forumEventMetadata: JSON
   tagCommentType: TagCommentType
   subforumStickyPriority: Float
   userId: String
@@ -8744,80 +8635,6 @@ type ElicitQuestionOutput {
 extend type Mutation {
   createElicitQuestion(data: CreateElicitQuestionDataInput!): ElicitQuestionOutput
   updateElicitQuestion(selector: SelectorInput!, data: UpdateElicitQuestionDataInput!): ElicitQuestionOutput
-}
-
-input CreateForumEventDataInput {
-  legacyData: JSON
-  frontpageDescription: CreateRevisionDataInput
-  frontpageDescriptionMobile: CreateRevisionDataInput
-  postPageDescription: CreateRevisionDataInput
-  title: String!
-  startDate: Date!
-  endDate: Date
-  darkColor: String
-  lightColor: String
-  bannerTextColor: String
-  contrastColor: String
-  tagId: String
-  postId: String
-  commentId: String
-  bannerImageId: String
-  includesPoll: Boolean
-  isGlobal: Boolean
-  eventFormat: ForumEventFormat
-  pollQuestion: CreateRevisionDataInput
-  pollAgreeWording: String
-  pollDisagreeWording: String
-  maxStickersPerUser: Float
-  customComponent: ForumEventCustomComponent
-  commentPrompt: String
-  publicData: JSON
-}
-
-input CreateForumEventInput {
-  data: CreateForumEventDataInput!
-}
-
-input UpdateForumEventDataInput {
-  legacyData: JSON
-  frontpageDescription: CreateRevisionDataInput
-  frontpageDescriptionMobile: CreateRevisionDataInput
-  postPageDescription: CreateRevisionDataInput
-  title: String
-  startDate: Date
-  endDate: Date
-  darkColor: String
-  lightColor: String
-  bannerTextColor: String
-  contrastColor: String
-  tagId: String
-  postId: String
-  commentId: String
-  bannerImageId: String
-  includesPoll: Boolean
-  isGlobal: Boolean
-  eventFormat: ForumEventFormat
-  pollQuestion: CreateRevisionDataInput
-  pollAgreeWording: String
-  pollDisagreeWording: String
-  maxStickersPerUser: Float
-  customComponent: ForumEventCustomComponent
-  commentPrompt: String
-  publicData: JSON
-}
-
-input UpdateForumEventInput {
-  selector: SelectorInput!
-  data: UpdateForumEventDataInput!
-}
-
-type ForumEventOutput {
-  data: ForumEvent
-}
-
-extend type Mutation {
-  createForumEvent(data: CreateForumEventDataInput!): ForumEventOutput
-  updateForumEvent(selector: SelectorInput!, data: UpdateForumEventDataInput!): ForumEventOutput
 }
 
 input CreateJargonTermDataInput {

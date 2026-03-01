@@ -244,8 +244,6 @@ CREATE TABLE "Comments" (
   "author" TEXT,
   "postId" VARCHAR(27),
   "tagId" VARCHAR(27),
-  "forumEventId" VARCHAR(27),
-  "forumEventMetadata" JSONB,
   "tagCommentType" TEXT NOT NULL DEFAULT 'DISCUSSION',
   "subforumStickyPriority" DOUBLE PRECISION,
   "userId" VARCHAR(27) NOT NULL,
@@ -557,19 +555,6 @@ CREATE INDEX IF NOT EXISTS "idx_comments_moderatorHat" ON "Comments" USING btree
   "debateResponse"
 );
 
--- Index "idx_Comments_forumEventId_userId_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse"
-CREATE INDEX IF NOT EXISTS "idx_Comments_forumEventId_userId_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments" USING btree (
-  "forumEventId",
-  "userId",
-  "postedAt",
-  "authorIsUnreviewed",
-  "deleted",
-  "deletedPublic",
-  "hideAuthor",
-  "af",
-  "debateResponse"
-);
-
 -- Index "idx_Comments_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Comments_userId_createdAt" ON "Comments" USING btree ("userId", "createdAt");
 
@@ -878,44 +863,6 @@ CREATE INDEX IF NOT EXISTS "idx_FieldChanges_documentId_createdAt" ON "FieldChan
 
 -- Index "idx_FieldChanges_userId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_FieldChanges_userId_createdAt" ON "FieldChanges" USING btree ("userId", "createdAt");
-
--- Table "ForumEvents"
-CREATE TABLE "ForumEvents" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "frontpageDescription" JSONB,
-  "frontpageDescription_latest" TEXT,
-  "frontpageDescriptionMobile" JSONB,
-  "frontpageDescriptionMobile_latest" TEXT,
-  "postPageDescription" JSONB,
-  "postPageDescription_latest" TEXT,
-  "title" TEXT NOT NULL,
-  "startDate" TIMESTAMPTZ NOT NULL,
-  "endDate" TIMESTAMPTZ,
-  "darkColor" TEXT NOT NULL DEFAULT '#000000',
-  "lightColor" TEXT NOT NULL DEFAULT '#ffffff',
-  "bannerTextColor" TEXT NOT NULL DEFAULT '#ffffff',
-  "contrastColor" TEXT,
-  "tagId" VARCHAR(27),
-  "postId" VARCHAR(27),
-  "commentId" VARCHAR(27),
-  "bannerImageId" TEXT,
-  "includesPoll" BOOL NOT NULL DEFAULT FALSE,
-  "isGlobal" BOOL NOT NULL DEFAULT TRUE,
-  "eventFormat" TEXT NOT NULL DEFAULT 'BASIC',
-  "pollQuestion_latest" TEXT,
-  "pollAgreeWording" TEXT,
-  "pollDisagreeWording" TEXT,
-  "maxStickersPerUser" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "customComponent" TEXT,
-  "commentPrompt" TEXT,
-  "publicData" JSONB
-);
-
--- Index "idx_ForumEvents_endDate"
-CREATE INDEX IF NOT EXISTS "idx_ForumEvents_endDate" ON "ForumEvents" USING btree ("endDate");
 
 -- Table "GoogleServiceAccountSessions"
 CREATE TABLE "GoogleServiceAccountSessions" (

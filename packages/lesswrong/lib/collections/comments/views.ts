@@ -30,7 +30,6 @@ declare global {
     userId?: string,
     drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"
     tagId?: string,
-    forumEventId?: string,
     relevantTagId?: string,
     maxAgeDays?: number,
     parentCommentId?: string,
@@ -728,19 +727,6 @@ function recentDebateResponses(terms: CommentsViewTerms) {
   };
 }
 
-function forumEventComments(terms: CommentsViewTerms) {
-  return {
-    selector: {
-      forumEventId: terms.forumEventId,
-      ...(terms.userId && { userId: terms.userId }),
-      deleted: false,
-    },
-    options: {
-      sort: { postedAt: -1 },
-    },
-  };
-}
-
 function alignmentSuggestedComments(terms: CommentsViewTerms) {
   return {
     selector: {
@@ -805,7 +791,6 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   moderatorComments,
   debateResponses,
   recentDebateResponses,
-  forumEventComments,
   alignmentSuggestedComments,
   // Copied over from server/rss.ts
   rss: recentComments,

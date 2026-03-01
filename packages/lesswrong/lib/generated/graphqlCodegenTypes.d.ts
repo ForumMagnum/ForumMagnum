@@ -437,9 +437,6 @@ type Comment = {
   directChildrenCount: Scalars['Float']['output'];
   draft: Scalars['Boolean']['output'];
   extendedScore?: Maybe<Scalars['JSON']['output']>;
-  forumEvent?: Maybe<ForumEvent>;
-  forumEventId?: Maybe<Scalars['String']['output']>;
-  forumEventMetadata?: Maybe<Scalars['JSON']['output']>;
   hideAuthor: Scalars['Boolean']['output'];
   hideKarma?: Maybe<Scalars['Boolean']['output']>;
   hideModeratorHat?: Maybe<Scalars['Boolean']['output']>;
@@ -601,7 +598,6 @@ type CommentSelector = {
   default?: InputMaybe<CommentDefaultViewInput>;
   defaultModeratorResponses?: InputMaybe<CommentsDefaultModeratorResponsesInput>;
   draftComments?: InputMaybe<CommentsDraftCommentsInput>;
-  forumEventComments?: InputMaybe<CommentsForumEventCommentsInput>;
   latestSubforumDiscussion?: InputMaybe<CommentsLatestSubforumDiscussionInput>;
   legacyIdComment?: InputMaybe<CommentsLegacyIdCommentInput>;
   moderatorComments?: InputMaybe<CommentsModeratorCommentsInput>;
@@ -748,14 +744,6 @@ type CommentsDraftCommentsInput = {
   drafts?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   postId?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type CommentsForumEventCommentsInput = {
-  authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
-  commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  forumEventId?: InputMaybe<Scalars['String']['input']>;
-  minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1200,8 +1188,6 @@ type CreateCommentDataInput = {
   deletedPublic?: InputMaybe<Scalars['Boolean']['input']>;
   deletedReason?: InputMaybe<Scalars['String']['input']>;
   draft?: InputMaybe<Scalars['Boolean']['input']>;
-  forumEventId?: InputMaybe<Scalars['String']['input']>;
-  forumEventMetadata?: InputMaybe<Scalars['JSON']['input']>;
   hideKarma?: InputMaybe<Scalars['Boolean']['input']>;
   hideModeratorHat?: InputMaybe<Scalars['Boolean']['input']>;
   isPinnedOnProfile?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1351,38 +1337,6 @@ type CreateElicitQuestionDataInput = {
 
 type CreateElicitQuestionInput = {
   data: CreateElicitQuestionDataInput;
-};
-
-type CreateForumEventDataInput = {
-  bannerImageId?: InputMaybe<Scalars['String']['input']>;
-  bannerTextColor?: InputMaybe<Scalars['String']['input']>;
-  commentId?: InputMaybe<Scalars['String']['input']>;
-  commentPrompt?: InputMaybe<Scalars['String']['input']>;
-  contrastColor?: InputMaybe<Scalars['String']['input']>;
-  customComponent?: InputMaybe<ForumEventCustomComponent>;
-  darkColor?: InputMaybe<Scalars['String']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  eventFormat?: InputMaybe<ForumEventFormat>;
-  frontpageDescription?: InputMaybe<CreateRevisionDataInput>;
-  frontpageDescriptionMobile?: InputMaybe<CreateRevisionDataInput>;
-  includesPoll?: InputMaybe<Scalars['Boolean']['input']>;
-  isGlobal?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  lightColor?: InputMaybe<Scalars['String']['input']>;
-  maxStickersPerUser?: InputMaybe<Scalars['Float']['input']>;
-  pollAgreeWording?: InputMaybe<Scalars['String']['input']>;
-  pollDisagreeWording?: InputMaybe<Scalars['String']['input']>;
-  pollQuestion?: InputMaybe<CreateRevisionDataInput>;
-  postId?: InputMaybe<Scalars['String']['input']>;
-  postPageDescription?: InputMaybe<CreateRevisionDataInput>;
-  publicData?: InputMaybe<Scalars['JSON']['input']>;
-  startDate: Scalars['Date']['input'];
-  tagId?: InputMaybe<Scalars['String']['input']>;
-  title: Scalars['String']['input'];
-};
-
-type CreateForumEventInput = {
-  data: CreateForumEventDataInput;
 };
 
 type CreateJargonTermDataInput = {
@@ -2649,99 +2603,6 @@ type FieldChangeSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
-type ForumEvent = {
-  __typename?: 'ForumEvent';
-  _id: Scalars['String']['output'];
-  bannerImageId?: Maybe<Scalars['String']['output']>;
-  bannerTextColor: Scalars['String']['output'];
-  comment?: Maybe<Comment>;
-  commentId?: Maybe<Scalars['String']['output']>;
-  commentPrompt?: Maybe<Scalars['String']['output']>;
-  contrastColor?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['Date']['output'];
-  customComponent?: Maybe<ForumEventCustomComponent>;
-  darkColor: Scalars['String']['output'];
-  endDate?: Maybe<Scalars['Date']['output']>;
-  eventFormat: ForumEventFormat;
-  frontpageDescription?: Maybe<Revision>;
-  frontpageDescriptionMobile?: Maybe<Revision>;
-  frontpageDescriptionMobile_latest?: Maybe<Scalars['String']['output']>;
-  frontpageDescription_latest?: Maybe<Scalars['String']['output']>;
-  includesPoll: Scalars['Boolean']['output'];
-  isGlobal: Scalars['Boolean']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  lightColor: Scalars['String']['output'];
-  maxStickersPerUser: Scalars['Float']['output'];
-  pollAgreeWording?: Maybe<Scalars['String']['output']>;
-  pollDisagreeWording?: Maybe<Scalars['String']['output']>;
-  pollQuestion?: Maybe<Revision>;
-  pollQuestion_latest?: Maybe<Scalars['String']['output']>;
-  post?: Maybe<Post>;
-  postId?: Maybe<Scalars['String']['output']>;
-  postPageDescription?: Maybe<Revision>;
-  postPageDescription_latest?: Maybe<Scalars['String']['output']>;
-  publicData?: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  startDate: Scalars['Date']['output'];
-  tag?: Maybe<Tag>;
-  tagId?: Maybe<Scalars['String']['output']>;
-  title: Scalars['String']['output'];
-  voteCount: Scalars['Int']['output'];
-};
-
-
-type ForumEventfrontpageDescriptionArgs = {
-  version?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-type ForumEventfrontpageDescriptionMobileArgs = {
-  version?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-type ForumEventpollQuestionArgs = {
-  version?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-type ForumEventpostPageDescriptionArgs = {
-  version?: InputMaybe<Scalars['String']['input']>;
-};
-
-type ForumEventCustomComponent =
-  | 'GivingSeason2024Banner';
-
-type ForumEventFormat =
-  | 'BASIC'
-  | 'POLL'
-  | 'STICKERS';
-
-type ForumEventOutput = {
-  __typename?: 'ForumEventOutput';
-  data?: Maybe<ForumEvent>;
-};
-
-type ForumEventSelector = {
-  currentAndRecentForumEvents?: InputMaybe<ForumEventsCurrentAndRecentForumEventsInput>;
-  currentForumEvent?: InputMaybe<EmptyViewInput>;
-  default?: InputMaybe<EmptyViewInput>;
-  pastForumEvents?: InputMaybe<ForumEventsPastForumEventsInput>;
-  upcomingForumEvents?: InputMaybe<ForumEventsUpcomingForumEventsInput>;
-};
-
-type ForumEventsCurrentAndRecentForumEventsInput = {
-  limit?: InputMaybe<Scalars['String']['input']>;
-};
-
-type ForumEventsPastForumEventsInput = {
-  limit?: InputMaybe<Scalars['String']['input']>;
-};
-
-type ForumEventsUpcomingForumEventsInput = {
-  limit?: InputMaybe<Scalars['String']['input']>;
-};
-
 type FrontpageClassification = {
   __typename?: 'FrontpageClassification';
   isFrontpage: Scalars['Boolean']['output'];
@@ -3705,19 +3566,6 @@ type MultiFieldChangeOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-type MultiForumEventInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiForumEventOutput = {
-  __typename?: 'MultiForumEventOutput';
-  results: Array<ForumEvent>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 type MultiGoogleServiceAccountSessionInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4300,7 +4148,6 @@ type Mutation = {
   createElectionCandidate?: Maybe<ElectionCandidateOutput>;
   createElectionVote?: Maybe<ElectionVoteOutput>;
   createElicitQuestion?: Maybe<ElicitQuestionOutput>;
-  createForumEvent?: Maybe<ForumEventOutput>;
   createJargonTerm?: Maybe<JargonTermOutput>;
   createLWEvent?: Maybe<LWEventOutput>;
   createLocalgroup?: Maybe<LocalgroupOutput>;
@@ -4397,7 +4244,6 @@ type Mutation = {
   updateElectionCandidate?: Maybe<ElectionCandidateOutput>;
   updateElectionVote?: Maybe<ElectionVoteOutput>;
   updateElicitQuestion?: Maybe<ElicitQuestionOutput>;
-  updateForumEvent?: Maybe<ForumEventOutput>;
   updateJargonTerm?: Maybe<JargonTermOutput>;
   updateLlmConversation?: Maybe<LlmConversationOutput>;
   updateLocalgroup?: Maybe<LocalgroupOutput>;
@@ -4619,11 +4465,6 @@ type MutationcreateElectionVoteArgs = {
 
 type MutationcreateElicitQuestionArgs = {
   data: CreateElicitQuestionDataInput;
-};
-
-
-type MutationcreateForumEventArgs = {
-  data: CreateForumEventDataInput;
 };
 
 
@@ -5182,12 +5023,6 @@ type MutationupdateElectionVoteArgs = {
 
 type MutationupdateElicitQuestionArgs = {
   data: UpdateElicitQuestionDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateForumEventArgs = {
-  data: UpdateForumEventDataInput;
   selector: SelectorInput;
 };
 
@@ -7715,8 +7550,6 @@ type Query = {
   featuredResources?: Maybe<MultiFeaturedResourceOutput>;
   fieldChange?: Maybe<SingleFieldChangeOutput>;
   fieldChanges?: Maybe<MultiFieldChangeOutput>;
-  forumEvent?: Maybe<SingleForumEventOutput>;
-  forumEvents?: Maybe<MultiForumEventOutput>;
   getBookWordCount?: Maybe<Scalars['Float']['output']>;
   getCrosspost?: Maybe<Scalars['JSON']['output']>;
   getLinkSharedPost?: Maybe<Post>;
@@ -8482,21 +8315,6 @@ type QueryfieldChangesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<FieldChangeSelector>;
-};
-
-
-type QueryforumEventArgs = {
-  input?: InputMaybe<SingleForumEventInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QueryforumEventsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiForumEventInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<ForumEventSelector>;
 };
 
 
@@ -9915,16 +9733,6 @@ type SingleFieldChangeInput = {
 type SingleFieldChangeOutput = {
   __typename?: 'SingleFieldChangeOutput';
   result?: Maybe<FieldChange>;
-};
-
-type SingleForumEventInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleForumEventOutput = {
-  __typename?: 'SingleForumEventOutput';
-  result?: Maybe<ForumEvent>;
 };
 
 type SingleGoogleServiceAccountSessionInput = {
@@ -11402,39 +11210,6 @@ type UpdateElicitQuestionDataInput = {
 
 type UpdateElicitQuestionInput = {
   data: UpdateElicitQuestionDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateForumEventDataInput = {
-  bannerImageId?: InputMaybe<Scalars['String']['input']>;
-  bannerTextColor?: InputMaybe<Scalars['String']['input']>;
-  commentId?: InputMaybe<Scalars['String']['input']>;
-  commentPrompt?: InputMaybe<Scalars['String']['input']>;
-  contrastColor?: InputMaybe<Scalars['String']['input']>;
-  customComponent?: InputMaybe<ForumEventCustomComponent>;
-  darkColor?: InputMaybe<Scalars['String']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  eventFormat?: InputMaybe<ForumEventFormat>;
-  frontpageDescription?: InputMaybe<CreateRevisionDataInput>;
-  frontpageDescriptionMobile?: InputMaybe<CreateRevisionDataInput>;
-  includesPoll?: InputMaybe<Scalars['Boolean']['input']>;
-  isGlobal?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  lightColor?: InputMaybe<Scalars['String']['input']>;
-  maxStickersPerUser?: InputMaybe<Scalars['Float']['input']>;
-  pollAgreeWording?: InputMaybe<Scalars['String']['input']>;
-  pollDisagreeWording?: InputMaybe<Scalars['String']['input']>;
-  pollQuestion?: InputMaybe<CreateRevisionDataInput>;
-  postId?: InputMaybe<Scalars['String']['input']>;
-  postPageDescription?: InputMaybe<CreateRevisionDataInput>;
-  publicData?: InputMaybe<Scalars['JSON']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-  tagId?: InputMaybe<Scalars['String']['input']>;
-  title?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UpdateForumEventInput = {
-  data: UpdateForumEventDataInput;
   selector: SelectorInput;
 };
 
@@ -13882,23 +13657,6 @@ type CommentDeletedMetadataQueryVariables = Exact<{
 
 type CommentDeletedMetadataQuery = CommentDeletedMetadataQuery_Query;
 
-type CommentPollVoteQuery_forumEvent_SingleForumEventOutput_result_ForumEvent = (
-  { __typename?: 'ForumEvent' }
-  & ForumEventsDisplay
-);
-
-type CommentPollVoteQuery_forumEvent_SingleForumEventOutput = { __typename?: 'SingleForumEventOutput', result: CommentPollVoteQuery_forumEvent_SingleForumEventOutput_result_ForumEvent | null };
-
-type CommentPollVoteQuery_Query = { __typename?: 'Query', forumEvent: CommentPollVoteQuery_forumEvent_SingleForumEventOutput | null };
-
-
-type CommentPollVoteQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type CommentPollVoteQuery = CommentPollVoteQuery_Query;
-
 type CommentsNewFormQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & UsersCurrentCommentRateLimit
@@ -14254,25 +14012,6 @@ type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{ [key: string]: ne
 
 
 type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
-
-type multiTagHomeTagBarQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagFragment
-);
-
-type multiTagHomeTagBarQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagHomeTagBarQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagHomeTagBarQueryQuery_Query = { __typename?: 'Query', tags: multiTagHomeTagBarQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagHomeTagBarQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagHomeTagBarQueryQuery = multiTagHomeTagBarQueryQuery_Query;
 
 type multiFeaturedResourceFeaturedResourceBannerQueryQuery_featuredResources_MultiFeaturedResourceOutput_results_FeaturedResource = (
   { __typename?: 'FeaturedResource' }
@@ -15681,25 +15420,6 @@ type SetIsBookmarkedMutationMutationVariables = Exact<{
 
 
 type SetIsBookmarkedMutationMutation = SetIsBookmarkedMutationMutation_Mutation;
-
-type multiForumEventuseCurrentForumEventQueryQuery_forumEvents_MultiForumEventOutput_results_ForumEvent = (
-  { __typename?: 'ForumEvent' }
-  & ForumEventsDisplay
-);
-
-type multiForumEventuseCurrentForumEventQueryQuery_forumEvents_MultiForumEventOutput = { __typename?: 'MultiForumEventOutput', totalCount: number | null, results: Array<multiForumEventuseCurrentForumEventQueryQuery_forumEvents_MultiForumEventOutput_results_ForumEvent> };
-
-type multiForumEventuseCurrentForumEventQueryQuery_Query = { __typename?: 'Query', forumEvents: multiForumEventuseCurrentForumEventQueryQuery_forumEvents_MultiForumEventOutput | null };
-
-
-type multiForumEventuseCurrentForumEventQueryQueryVariables = Exact<{
-  selector: InputMaybe<ForumEventSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiForumEventuseCurrentForumEventQueryQuery = multiForumEventuseCurrentForumEventQueryQuery_Query;
 
 type reviewVotesForPostAndUserQuery_reviewVotes_MultiReviewVoteOutput_results_ReviewVote = { __typename?: 'ReviewVote', _id: string, qualitativeScore: number, quadraticScore: number };
 
@@ -23576,7 +23296,7 @@ type CommentsList_Comment_promotedByUser_User = (
   & UsersMinimumInfo
 );
 
-type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, forumEventId: string | null, forumEventMetadata: any | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
+type CommentsList = { __typename?: 'Comment', _id: string, postId: string | null, tagId: string | null, relevantTagIds: Array<string>, tagCommentType: TagCommentType, parentCommentId: string | null, topLevelCommentId: string | null, descendentCount: number, title: string | null, postedAt: string, lastEditedAt: string | null, repliesBlockedUntil: string | null, userId: string | null, draft: boolean, deleted: boolean, deletedPublic: boolean, deletedByUserId: string | null, deletedReason: string | null, hideAuthor: boolean, authorIsUnreviewed: boolean, currentUserVote: string | null, currentUserExtendedVote: any | null, isBookmarked: boolean, baseScore: number | null, extendedScore: any | null, score: number, voteCount: number, af: boolean, afDate: string | null, moveToAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, needsReview: boolean | null, answer: boolean, parentAnswerId: string | null, retracted: boolean, postVersion: string | null, reviewedByUserId: string | null, shortform: boolean | null, shortformFrontpage: boolean, lastSubthreadActivity: string | null, moderatorHat: boolean, hideModeratorHat: boolean | null, nominatedForReview: string | null, reviewingForReview: string | null, promoted: boolean | null, directChildrenCount: number, votingSystem: string, isPinnedOnProfile: boolean, debateResponse: boolean | null, rejected: boolean, rejectedReason: string | null, originalDialogueId: string | null, tag: CommentsList_Comment_tag_Tag | null, relevantTags: Array<CommentsList_Comment_relevantTags_Tag>, contents: CommentsList_Comment_contents_Revision | null, user: CommentsList_Comment_user_User | null, promotedByUser: CommentsList_Comment_promotedByUser_User | null };
 
 type CommentsListWithTopLevelComment_Comment_topLevelComment_Comment = (
   { __typename?: 'Comment' }
@@ -23881,56 +23601,6 @@ type ElicitQuestionFragment = { __typename?: 'ElicitQuestion', _id: string, titl
 type FeaturedResourcesFragment = { __typename?: 'FeaturedResource', _id: string, title: string, body: string | null, ctaText: string, ctaUrl: string, expiresAt: string };
 
 type FieldChangeFragment = { __typename?: 'FieldChange', _id: string, createdAt: string, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
-
-type ForumEventsMinimumInfo = { __typename?: 'ForumEvent', _id: string, title: string, startDate: string, endDate: string | null, darkColor: string, lightColor: string, bannerTextColor: string, contrastColor: string | null, tagId: string | null, postId: string | null, commentId: string | null, bannerImageId: string | null, eventFormat: ForumEventFormat, customComponent: ForumEventCustomComponent | null, commentPrompt: string | null, isGlobal: boolean, pollAgreeWording: string | null, pollDisagreeWording: string | null, maxStickersPerUser: number };
-
-type ForumEventsDisplay_ForumEvent_post_Post = (
-  { __typename?: 'Post' }
-  & PostsMinimumInfo
-);
-
-type ForumEventsDisplay_ForumEvent_tag_Tag = (
-  { __typename?: 'Tag' }
-  & TagBasicInfo
-);
-
-type ForumEventsDisplay_ForumEvent_frontpageDescription_Revision = { __typename?: 'Revision', _id: string, html: string | null };
-
-type ForumEventsDisplay_ForumEvent_frontpageDescriptionMobile_Revision = { __typename?: 'Revision', _id: string, html: string | null };
-
-type ForumEventsDisplay_ForumEvent_postPageDescription_Revision = { __typename?: 'Revision', _id: string, html: string | null };
-
-type ForumEventsDisplay_ForumEvent_pollQuestion_Revision = { __typename?: 'Revision', _id: string, html: string | null, plaintextMainText: string };
-
-type ForumEventsDisplay = (
-  { __typename?: 'ForumEvent', publicData: any | null, voteCount: number, post: ForumEventsDisplay_ForumEvent_post_Post | null, tag: ForumEventsDisplay_ForumEvent_tag_Tag | null, frontpageDescription: ForumEventsDisplay_ForumEvent_frontpageDescription_Revision | null, frontpageDescriptionMobile: ForumEventsDisplay_ForumEvent_frontpageDescriptionMobile_Revision | null, postPageDescription: ForumEventsDisplay_ForumEvent_postPageDescription_Revision | null, pollQuestion: ForumEventsDisplay_ForumEvent_pollQuestion_Revision | null }
-  & ForumEventsMinimumInfo
-);
-
-type ForumEventsEdit_ForumEvent_frontpageDescription_Revision = (
-  { __typename?: 'Revision' }
-  & RevisionEdit
-);
-
-type ForumEventsEdit_ForumEvent_frontpageDescriptionMobile_Revision = (
-  { __typename?: 'Revision' }
-  & RevisionEdit
-);
-
-type ForumEventsEdit_ForumEvent_postPageDescription_Revision = (
-  { __typename?: 'Revision' }
-  & RevisionEdit
-);
-
-type ForumEventsEdit_ForumEvent_pollQuestion_Revision = (
-  { __typename?: 'Revision' }
-  & RevisionEdit
-);
-
-type ForumEventsEdit = (
-  { __typename?: 'ForumEvent', frontpageDescription: ForumEventsEdit_ForumEvent_frontpageDescription_Revision | null, frontpageDescriptionMobile: ForumEventsEdit_ForumEvent_frontpageDescriptionMobile_Revision | null, postPageDescription: ForumEventsEdit_ForumEvent_postPageDescription_Revision | null, pollQuestion: ForumEventsEdit_ForumEvent_pollQuestion_Revision | null }
-  & ForumEventsMinimumInfo
-);
 
 type GoogleServiceAccountSessionInfo = { __typename?: 'GoogleServiceAccountSession', _id: string, email: string | null };
 

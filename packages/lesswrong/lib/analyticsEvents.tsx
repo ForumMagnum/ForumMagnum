@@ -77,7 +77,6 @@ export type AnalyticsProps = {
   chapter?: string,
   documentSlug?: string,
   postId?: string,
-  forumEventId?: string,
   documentId?: string,
   collectionName?: string,
   sequenceId?: string,

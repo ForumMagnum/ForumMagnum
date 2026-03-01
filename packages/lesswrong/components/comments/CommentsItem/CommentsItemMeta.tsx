@@ -21,7 +21,6 @@ import LoadMore from "../../common/LoadMore";
 import ForumIcon from "../../common/ForumIcon";
 import CommentsMenu from "../../dropdowns/comments/CommentsMenu";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
-import CommentPollVote from "./CommentPollVote";
 import { metaNoticeStyles } from "./metaNoticeStyles";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { getReviewLink } from "@/lib/reviewUtils";
@@ -322,7 +321,6 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
-      {comment.forumEventId && <CommentPollVote comment={comment} />}
 
       {(rightSectionElements || isFriendlyUI() || menuVisible) && <span className={classes.rightSection}>
         {rightSectionElements}

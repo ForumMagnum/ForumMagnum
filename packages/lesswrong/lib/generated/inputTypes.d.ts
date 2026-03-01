@@ -126,8 +126,6 @@ interface Query {
   featuredResources: MultiFeaturedResourceOutput | null;
   fieldChange: SingleFieldChangeOutput | null;
   fieldChanges: MultiFieldChangeOutput | null;
-  forumEvent: SingleForumEventOutput | null;
-  forumEvents: MultiForumEventOutput | null;
   googleServiceAccountSession: SingleGoogleServiceAccountSessionOutput | null;
   googleServiceAccountSessions: MultiGoogleServiceAccountSessionOutput | null;
   iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
@@ -320,8 +318,6 @@ interface Mutation {
   updateElectionVote: ElectionVoteOutput | null;
   createElicitQuestion: ElicitQuestionOutput | null;
   updateElicitQuestion: ElicitQuestionOutput | null;
-  createForumEvent: ForumEventOutput | null;
-  updateForumEvent: ForumEventOutput | null;
   createJargonTerm: JargonTermOutput | null;
   updateJargonTerm: JargonTermOutput | null;
   createLWEvent: LWEventOutput | null;
@@ -1744,9 +1740,6 @@ interface Comment {
   post: Post | null;
   tagId: string | null;
   tag: Tag | null;
-  forumEventId: string | null;
-  forumEvent: ForumEvent | null;
-  forumEventMetadata: any;
   tagCommentType: TagCommentType;
   subforumStickyPriority: number | null;
   userId: string | null;
@@ -2227,14 +2220,6 @@ interface CommentsRecentDebateResponsesInput {
   limit?: string | null;
 }
 
-interface CommentsForumEventCommentsInput {
-  userId?: string | null;
-  commentIds?: Array<string> | null;
-  minimumKarma?: number | null;
-  authorIsUnreviewed?: boolean | null;
-  forumEventId?: string | null;
-}
-
 interface CommentsAlignmentSuggestedCommentsInput {
   userId?: string | null;
   commentIds?: Array<string> | null;
@@ -2306,7 +2291,6 @@ interface CommentSelector {
   moderatorComments: CommentsModeratorCommentsInput | null;
   debateResponses: CommentsDebateResponsesInput | null;
   recentDebateResponses: CommentsRecentDebateResponsesInput | null;
-  forumEventComments: CommentsForumEventCommentsInput | null;
   alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput | null;
   rss: CommentsRssInput | null;
   draftComments: CommentsDraftCommentsInput | null;
@@ -2921,86 +2905,6 @@ interface MultiFieldChangeInput {
 
 interface MultiFieldChangeOutput {
   results: Array<FieldChange>;
-  totalCount: number | null;
-}
-
-interface ForumEvent {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  frontpageDescription: Revision | null;
-  frontpageDescription_latest: string | null;
-  frontpageDescriptionMobile: Revision | null;
-  frontpageDescriptionMobile_latest: string | null;
-  postPageDescription: Revision | null;
-  postPageDescription_latest: string | null;
-  title: string;
-  startDate: Date;
-  endDate: Date | null;
-  darkColor: string;
-  lightColor: string;
-  bannerTextColor: string;
-  contrastColor: string | null;
-  tagId: string | null;
-  tag: Tag | null;
-  postId: string | null;
-  post: Post | null;
-  commentId: string | null;
-  comment: Comment | null;
-  bannerImageId: string | null;
-  includesPoll: boolean;
-  isGlobal: boolean;
-  eventFormat: ForumEventFormat;
-  pollQuestion: Revision | null;
-  pollQuestion_latest: string | null;
-  pollAgreeWording: string | null;
-  pollDisagreeWording: string | null;
-  maxStickersPerUser: number;
-  customComponent: ForumEventCustomComponent | null;
-  commentPrompt: string | null;
-  publicData: any;
-  voteCount: number;
-}
-
-interface SingleForumEventInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleForumEventOutput {
-  result: ForumEvent | null;
-}
-
-interface ForumEventsUpcomingForumEventsInput {
-  limit?: string | null;
-}
-
-interface ForumEventsPastForumEventsInput {
-  limit?: string | null;
-}
-
-interface ForumEventsCurrentAndRecentForumEventsInput {
-  limit?: string | null;
-}
-
-interface ForumEventSelector {
-  default: EmptyViewInput | null;
-  upcomingForumEvents: ForumEventsUpcomingForumEventsInput | null;
-  pastForumEvents: ForumEventsPastForumEventsInput | null;
-  currentForumEvent: EmptyViewInput | null;
-  currentAndRecentForumEvents: ForumEventsCurrentAndRecentForumEventsInput | null;
-}
-
-interface MultiForumEventInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiForumEventOutput {
-  results: Array<ForumEvent>;
   totalCount: number | null;
 }
 
@@ -7698,8 +7602,6 @@ interface CreateCommentDataInput {
   topLevelCommentId?: string | null;
   postId?: string | null;
   tagId?: string | null;
-  forumEventId?: string | null;
-  forumEventMetadata?: any;
   tagCommentType?: TagCommentType | null;
   subforumStickyPriority?: number | null;
   userId?: string | null;
@@ -8040,75 +7942,6 @@ interface UpdateElicitQuestionInput {
 
 interface ElicitQuestionOutput {
   data: ElicitQuestion | null;
-}
-
-interface CreateForumEventDataInput {
-  legacyData?: any;
-  frontpageDescription?: CreateRevisionDataInput | null;
-  frontpageDescriptionMobile?: CreateRevisionDataInput | null;
-  postPageDescription?: CreateRevisionDataInput | null;
-  title: string;
-  startDate: Date;
-  endDate?: Date | null;
-  darkColor?: string | null;
-  lightColor?: string | null;
-  bannerTextColor?: string | null;
-  contrastColor?: string | null;
-  tagId?: string | null;
-  postId?: string | null;
-  commentId?: string | null;
-  bannerImageId?: string | null;
-  includesPoll?: boolean | null;
-  isGlobal?: boolean | null;
-  eventFormat?: ForumEventFormat | null;
-  pollQuestion?: CreateRevisionDataInput | null;
-  pollAgreeWording?: string | null;
-  pollDisagreeWording?: string | null;
-  maxStickersPerUser?: number | null;
-  customComponent?: ForumEventCustomComponent | null;
-  commentPrompt?: string | null;
-  publicData?: any;
-}
-
-interface CreateForumEventInput {
-  data: CreateForumEventDataInput;
-}
-
-interface UpdateForumEventDataInput {
-  legacyData?: any;
-  frontpageDescription?: CreateRevisionDataInput | null;
-  frontpageDescriptionMobile?: CreateRevisionDataInput | null;
-  postPageDescription?: CreateRevisionDataInput | null;
-  title?: string | null;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  darkColor?: string | null;
-  lightColor?: string | null;
-  bannerTextColor?: string | null;
-  contrastColor?: string | null;
-  tagId?: string | null;
-  postId?: string | null;
-  commentId?: string | null;
-  bannerImageId?: string | null;
-  includesPoll?: boolean | null;
-  isGlobal?: boolean | null;
-  eventFormat?: ForumEventFormat | null;
-  pollQuestion?: CreateRevisionDataInput | null;
-  pollAgreeWording?: string | null;
-  pollDisagreeWording?: string | null;
-  maxStickersPerUser?: number | null;
-  customComponent?: ForumEventCustomComponent | null;
-  commentPrompt?: string | null;
-  publicData?: any;
-}
-
-interface UpdateForumEventInput {
-  selector: SelectorInput;
-  data: UpdateForumEventDataInput;
-}
-
-interface ForumEventOutput {
-  data: ForumEvent | null;
 }
 
 interface CreateJargonTermDataInput {
@@ -9943,7 +9776,6 @@ interface GraphQLTypeMap {
   CommentsModeratorCommentsInput: CommentsModeratorCommentsInput;
   CommentsDebateResponsesInput: CommentsDebateResponsesInput;
   CommentsRecentDebateResponsesInput: CommentsRecentDebateResponsesInput;
-  CommentsForumEventCommentsInput: CommentsForumEventCommentsInput;
   CommentsAlignmentSuggestedCommentsInput: CommentsAlignmentSuggestedCommentsInput;
   CommentsRssInput: CommentsRssInput;
   CommentsDraftCommentsInput: CommentsDraftCommentsInput;
@@ -10039,15 +9871,6 @@ interface GraphQLTypeMap {
   FieldChangeSelector: FieldChangeSelector;
   MultiFieldChangeInput: MultiFieldChangeInput;
   MultiFieldChangeOutput: MultiFieldChangeOutput;
-  ForumEvent: ForumEvent;
-  SingleForumEventInput: SingleForumEventInput;
-  SingleForumEventOutput: SingleForumEventOutput;
-  ForumEventsUpcomingForumEventsInput: ForumEventsUpcomingForumEventsInput;
-  ForumEventsPastForumEventsInput: ForumEventsPastForumEventsInput;
-  ForumEventsCurrentAndRecentForumEventsInput: ForumEventsCurrentAndRecentForumEventsInput;
-  ForumEventSelector: ForumEventSelector;
-  MultiForumEventInput: MultiForumEventInput;
-  MultiForumEventOutput: MultiForumEventOutput;
   GoogleServiceAccountSession: GoogleServiceAccountSession;
   SingleGoogleServiceAccountSessionInput: SingleGoogleServiceAccountSessionInput;
   SingleGoogleServiceAccountSessionOutput: SingleGoogleServiceAccountSessionOutput;
@@ -10525,11 +10348,6 @@ interface GraphQLTypeMap {
   UpdateElicitQuestionDataInput: UpdateElicitQuestionDataInput;
   UpdateElicitQuestionInput: UpdateElicitQuestionInput;
   ElicitQuestionOutput: ElicitQuestionOutput;
-  CreateForumEventDataInput: CreateForumEventDataInput;
-  CreateForumEventInput: CreateForumEventInput;
-  UpdateForumEventDataInput: UpdateForumEventDataInput;
-  UpdateForumEventInput: UpdateForumEventInput;
-  ForumEventOutput: ForumEventOutput;
   CreateJargonTermDataInput: CreateJargonTermDataInput;
   CreateJargonTermInput: CreateJargonTermInput;
   UpdateJargonTermDataInput: UpdateJargonTermDataInput;
@@ -10690,7 +10508,6 @@ interface CreateInputsByCollectionName {
   ElectionCandidates: CreateElectionCandidateInput;
   ElectionVotes: CreateElectionVoteInput;
   ElicitQuestions: CreateElicitQuestionInput;
-  ForumEvents: CreateForumEventInput;
   JargonTerms: CreateJargonTermInput;
   LWEvents: CreateLWEventInput;
   Localgroups: CreateLocalgroupInput;
@@ -10785,7 +10602,6 @@ interface UpdateInputsByCollectionName {
   ElectionCandidates: UpdateElectionCandidateInput;
   ElectionVotes: UpdateElectionVoteInput;
   ElicitQuestions: UpdateElicitQuestionInput;
-  ForumEvents: UpdateForumEventInput;
   JargonTerms: UpdateJargonTermInput;
   LlmConversations: UpdateLlmConversationInput;
   Localgroups: UpdateLocalgroupInput;

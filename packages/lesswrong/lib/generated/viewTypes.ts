@@ -10,7 +10,7 @@ type ClientIdsViewName = "getClientId";
 type CollectionsViewName = never
 type CommentEmbeddingsViewName = never
 type CommentModeratorActionsViewName = "activeCommentModeratorActions";
-type CommentsViewName = "afPostCommentsTop"|"afRecentDiscussionThread"|"afSubmissions"|"alignmentSuggestedComments"|"allCommentsDeleted"|"allRecentComments"|"answersAndReplies"|"checkedByModGPT"|"commentReplies"|"debateResponses"|"defaultModeratorResponses"|"draftComments"|"forumEventComments"|"legacyIdComment"|"moderatorComments"|"nominations2018"|"nominations2019"|"postCommentsBest"|"postCommentsDeleted"|"postCommentsMagic"|"postCommentsNew"|"postCommentsOld"|"postCommentsRecentReplies"|"postCommentsTop"|"postLWComments"|"postsItemComments"|"profileComments"|"profileRecentComments"|"questionAnswers"|"recentComments"|"recentDebateResponses"|"recentDiscussionThread"|"rejected"|"repliesToAnswer"|"repliesToCommentThread"|"repliesToCommentThreadIncludingRoot"|"reviews"|"reviews2018"|"reviews2019"|"rss"|"shortform"|"shortformFrontpage"|"shortformLatestChildren"|"sunshineNewCommentsList"|"sunshineNewUsersComments"|"tagDiscussionComments"|"topShortform";
+type CommentsViewName = "afPostCommentsTop"|"afRecentDiscussionThread"|"afSubmissions"|"alignmentSuggestedComments"|"allCommentsDeleted"|"allRecentComments"|"answersAndReplies"|"checkedByModGPT"|"commentReplies"|"debateResponses"|"defaultModeratorResponses"|"draftComments"|"legacyIdComment"|"moderatorComments"|"nominations2018"|"nominations2019"|"postCommentsBest"|"postCommentsDeleted"|"postCommentsMagic"|"postCommentsNew"|"postCommentsOld"|"postCommentsRecentReplies"|"postCommentsTop"|"postLWComments"|"postsItemComments"|"profileComments"|"profileRecentComments"|"questionAnswers"|"recentComments"|"recentDebateResponses"|"recentDiscussionThread"|"rejected"|"repliesToAnswer"|"repliesToCommentThread"|"repliesToCommentThreadIncludingRoot"|"reviews"|"reviews2018"|"reviews2019"|"rss"|"shortform"|"shortformFrontpage"|"shortformLatestChildren"|"sunshineNewCommentsList"|"sunshineNewUsersComments"|"tagDiscussionComments"|"topShortform";
 type ConversationsViewName = "moderatorConversations"|"userConversations"|"userConversationsAll"|"userGroupUntitledConversations";
 type CronHistoriesViewName = never
 type CurationEmailsViewName = never
@@ -28,7 +28,6 @@ type ElicitQuestionsViewName = never
 type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
 type FieldChangesViewName = never
-type ForumEventsViewName = "currentAndRecentForumEvents"|"currentForumEvent"|"pastForumEvents"|"upcomingForumEvents";
 type GoogleServiceAccountSessionsViewName = never
 type IframeWidgetSrcdocsViewName = never
 type ImagesViewName = never
@@ -122,7 +121,6 @@ interface ViewTermsByCollectionName {
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
   FieldChanges: ViewTermsBase
-  ForumEvents: ForumEventsViewTerms
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViewTerms
   IframeWidgetSrcdocs: ViewTermsBase
   Images: ViewTermsBase
@@ -187,4 +185,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

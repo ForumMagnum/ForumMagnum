@@ -13,7 +13,6 @@ import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
 import { viewTermsToQuery } from "../../utils/viewUtils";
-import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
@@ -257,47 +256,6 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Tags", fieldName: "tagId" }),
     },
   },
-  forumEventId: {
-    database: {
-      type: "VARCHAR(27)",
-      foreignKey: "ForumEvents",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  forumEvent: {
-    graphql: {
-      outputType: "ForumEvent",
-      canRead: ["guests"],
-      resolver: generateIdResolverSingle({ foreignCollectionName: "ForumEvents", fieldName: "forumEventId" }),
-    },
-  },
-  /**
-   * Extra data regarding how this comment relates to the `forumEventId`. Currently
-   * this is used for "STICKERS" events, to trigger the creation of a sticker on the
-   * frontpage banner as a side effect.
-   */
-  forumEventMetadata: {
-    database: {
-      type: "JSONB",
-    },
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      canCreate: ["members"],
-      validation: {
-        simpleSchema: ForumEventCommentMetadataSchema,
-        optional: true,
-        blackbox: true,
-      },
-    },
-  },
   tagCommentType: {
     database: {
       type: "TEXT",
@@ -312,21 +270,6 @@ const schema = {
       canCreate: ["members"],
       validation: {
         allowedValues: ["SUBFORUM", "DISCUSSION"],
-        optional: true,
-      },
-    },
-  },
-  subforumStickyPriority: {
-    database: {
-      type: "DOUBLE PRECISION",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: ["sunshineRegiment", "admins"],
-      validation: {
         optional: true,
       },
     },

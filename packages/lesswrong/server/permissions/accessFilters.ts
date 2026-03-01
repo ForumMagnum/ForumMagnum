@@ -411,7 +411,6 @@ const accessFilters = {
   EmailTokens: allowAccess,
   FeaturedResources: allowAccess,
   FieldChanges: allowAccess,
-  ForumEvents: allowAccess,
   GoogleServiceAccountSessions: allowAccess,
   IframeWidgetSrcdocs: iframeWidgetSrcdocCheckAccess,
   Images: allowAccess,
