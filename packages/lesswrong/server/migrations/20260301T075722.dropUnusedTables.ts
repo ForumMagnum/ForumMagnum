@@ -22,6 +22,8 @@ export const up = async ({db}: MigrationContext) => {
   await dropTable(db, "UserEAGDetails");
   await dropTable(db, "DigestPosts");
   await dropTable(db, "Digests");
+  await dropField(db, "Users", "subscribedToDigest");
+  await dropField(db, "Users", "subscribedToNewsletter");
 }
 
 export const down = async ({db}: MigrationContext) => {

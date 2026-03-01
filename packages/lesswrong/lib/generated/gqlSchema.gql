@@ -246,7 +246,6 @@ type NewUserCompletedProfile {
   username: String
   slug: String
   displayName: String
-  subscribedToDigest: Boolean
   usernameUnset: Boolean
 }
 
@@ -7181,8 +7180,6 @@ type User {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
-  subscribedToDigest: Boolean
-  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -9136,8 +9133,6 @@ input CreateUserDataInput {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
-  subscribedToDigest: Boolean
-  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -9306,8 +9301,6 @@ input UpdateUserDataInput {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
-  subscribedToDigest: Boolean
-  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean

@@ -75,9 +75,6 @@ export const allowSubscribeToUserComments = true;
 export const allowSubscribeToSequencePosts = () => isFriendlyUI();
 /** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = () => isEAForum();
-/** Some Forums, notably the EA Forum, have a mailchimp email lists */
-export const hasDigests = () => isEAForum();
-export const hasNewsletter = () => isEAForum();
 
 /**
  * Whether the instance should have any features for integrating with twitter.

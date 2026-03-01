@@ -75,7 +75,6 @@ import './server/tableOfContents';
 import './server/callbacks/subscriptionCallbacks';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
-import './server/callbacks/digestCallbacks';
 import './server/callbacks/jargonTermCallbacks';
 
 

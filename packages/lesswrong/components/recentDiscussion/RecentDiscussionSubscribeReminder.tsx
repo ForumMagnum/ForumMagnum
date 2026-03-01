@@ -21,9 +21,6 @@ import Loading from "../vulcan-core/Loading";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
-// mailchimp link to sign up for the EA Forum's digest
-export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
-
 const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeType) => ({
   root: {
     marginBottom: theme.spacing.unit*4,
@@ -160,11 +157,7 @@ const RecentDiscussionSubscribeReminder = () => {
 
   // adjust functionality based on forum type
   let currentUserSubscribed
-  if (isLW()) {
-    currentUserSubscribed = currentUser?.emailSubscribedToCurated;
-  } else {
-    currentUserSubscribed = currentUser?.subscribedToDigest;
-  }
+  currentUserSubscribed = currentUser?.emailSubscribedToCurated;
 
   const maybeLaterButton = <Button
     className={classes.maybeLaterButton}
@@ -196,8 +189,7 @@ const RecentDiscussionSubscribeReminder = () => {
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
     // subscribe to different emails based on forum type
-    const userSubscriptionData: UpdateUserDataInput = isLW() ?
-    {emailSubscribedToCurated: true} : {subscribedToDigest: true};
+    const userSubscriptionData: UpdateUserDataInput = {emailSubscribedToCurated: true};
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
 
@@ -266,14 +258,9 @@ const RecentDiscussionSubscribeReminder = () => {
     );
     return <AnalyticsWrapper branch="logged-out">
       {subscribeTextNode}
-      {isEAForum() ? <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
-        <TextField label="Email address" name="EMAIL" required className={classes.digestFormInput} />
-        <Button variant="contained" type="submit" color="primary" className={classes.digestFormSubmitBtn}>
-          Sign up
-        </Button>
-      </form> : <div className={classes.loginForm}>
+      <div className={classes.loginForm}>
         <LoginForm startingState="signup" />
-      </div>}
+      </div>
       {adminUiMessage}
     </AnalyticsWrapper>
   } else if (!userHasEmailAddress(currentUser) || adminBranch===1) {
@@ -296,8 +283,7 @@ const RecentDiscussionSubscribeReminder = () => {
             setLoading(true);
             try {
               // subscribe to different emails based on forum type
-              const userSubscriptionData: UpdateUserDataInput = isEAForum() ?
-                {subscribedToDigest: subscribeChecked} : {emailSubscribedToCurated: subscribeChecked};
+              const userSubscriptionData: UpdateUserDataInput = {emailSubscribedToCurated: subscribeChecked};
               userSubscriptionData.email = emailAddress?.value;
               userSubscriptionData.unsubscribeFromAll = false;
               await updateCurrentUser(userSubscriptionData);

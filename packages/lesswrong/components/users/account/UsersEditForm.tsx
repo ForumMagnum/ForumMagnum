@@ -107,7 +107,6 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   karmaChangeNotifierSettings: 'notifications',
   whenConfirmationEmailSent: 'notifications',
   emailSubscribedToCurated: 'notifications',
-  subscribedToDigest: 'notifications',
   unsubscribeFromAll: 'notifications',
   moderationGuidelines: 'moderation',
   moderationStyle: 'moderation',

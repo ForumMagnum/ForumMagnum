@@ -401,10 +401,6 @@ export const elicitSourceId = new PublicInstanceSetting('elicitSourceId', 'XCjOp
 
 export const mapboxAPIKeySetting = new PublicInstanceSetting<string | null>('mapbox.apiKey', null, "optional"); // API Key for the mapbox map and tile requests
 
-export const mailchimpForumDigestListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.forumDigestListId', null, "optional");
-export const mailchimpEAForumListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.eaForumListId', null, "optional");
-export const mailchimpEAForumNewsletterListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.eaNewsletterListId', null, "optional");
-
 export const isProductionDBSetting = new PublicInstanceSetting<boolean>('isProductionDB', false, "optional");
 
 export const showReviewOnFrontPageIfActive = new PublicInstanceSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true, "optional");

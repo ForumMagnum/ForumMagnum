@@ -64,7 +64,6 @@ module.exports = {
         "Optional",
         "OneOf",
         "Maybe",
-        "MailChimpAPI",
         "Juice",
         "Run",
         "AppComposer",

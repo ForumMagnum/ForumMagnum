@@ -551,7 +551,6 @@ interface NewUserCompletedProfile {
   username: string | null;
   slug: string | null;
   displayName: string | null;
-  subscribedToDigest: boolean | null;
   usernameUnset: boolean | null;
 }
 
@@ -6646,8 +6645,6 @@ interface User {
   karmaChangeLastOpened: Date | null;
   karmaChangeBatchStart: Date | null;
   emailSubscribedToCurated: boolean | null;
-  subscribedToDigest: boolean | null;
-  subscribedToNewsletter: boolean | null;
   unsubscribeFromAll: boolean | null;
   hideSubscribePoke: boolean | null;
   hideMeetupsPoke: boolean | null;
@@ -8366,8 +8363,6 @@ interface CreateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
-  subscribedToDigest?: boolean | null;
-  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -8536,8 +8531,6 @@ interface UpdateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
-  subscribedToDigest?: boolean | null;
-  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;

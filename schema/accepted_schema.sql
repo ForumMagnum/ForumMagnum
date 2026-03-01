@@ -2922,8 +2922,6 @@ CREATE TABLE "Users" (
   "karmaChangeLastOpened" TIMESTAMPTZ,
   "karmaChangeBatchStart" TIMESTAMPTZ,
   "emailSubscribedToCurated" BOOL,
-  "subscribedToDigest" BOOL NOT NULL DEFAULT FALSE,
-  "subscribedToNewsletter" BOOL NOT NULL DEFAULT FALSE,
   "unsubscribeFromAll" BOOL,
   "hideSubscribePoke" BOOL NOT NULL DEFAULT FALSE,
   "hideMeetupsPoke" BOOL NOT NULL DEFAULT FALSE,

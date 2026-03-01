@@ -2171,40 +2171,6 @@ const schema = {
       },
     },
   },
-  subscribedToDigest: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: ["members"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  subscribedToNewsletter: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: ["members"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   unsubscribeFromAll: {
     database: {
       type: "BOOL",
