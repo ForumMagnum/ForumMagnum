@@ -74,10 +74,6 @@ import { default as SideCommentCaches } from '../collections/sideCommentCaches/n
 import { default as SplashArtCoordinates } from '../collections/splashArtCoordinates/newSchema';
 import { default as Spotlights } from '../collections/spotlights/newSchema';
 import { default as Subscriptions } from '../collections/subscriptions/newSchema';
-import { default as SurveyQuestions } from '../collections/surveyQuestions/newSchema';
-import { default as SurveyResponses } from '../collections/surveyResponses/newSchema';
-import { default as SurveySchedules } from '../collections/surveySchedules/newSchema';
-import { default as Surveys } from '../collections/surveys/newSchema';
 import { default as TagFlags } from '../collections/tagFlags/newSchema';
 import { default as TagRels } from '../collections/tagRels/newSchema';
 import { default as Tags } from '../collections/tags/newSchema';
@@ -110,7 +106,7 @@ export const allSchemas = {
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,
-  Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags,
+  Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
   TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits,
   UserTagRels, YjsDocuments,
   Users, Votes, ...testSchemas,

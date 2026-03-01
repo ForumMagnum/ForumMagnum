@@ -966,21 +966,6 @@ const schema = {
       },
     },
   },
-  optedOutOfSurveys: {
-    database: {
-      type: "BOOL",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: [userOwns, "sunshineRegiment", "admins"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   postGlossariesPinned: {
     database: {
       type: "BOOL",
@@ -4263,38 +4248,6 @@ const schema = {
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  // EA Forum emails the user a survey if they haven't read a post in 4 months
-  inactiveSurveyEmailSentAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  // Used by EAF to track when we last emailed the user about the annual user survey
-  userSurveyEmailSentAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["members"],
       validation: {
         optional: true,
       },

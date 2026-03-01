@@ -1672,59 +1672,6 @@ type CreateSubscriptionInput = {
   data: CreateSubscriptionDataInput;
 };
 
-type CreateSurveyDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  name: Scalars['String']['input'];
-};
-
-type CreateSurveyInput = {
-  data: CreateSurveyDataInput;
-};
-
-type CreateSurveyQuestionDataInput = {
-  format: SurveyQuestionFormat;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  order: Scalars['Float']['input'];
-  question: Scalars['String']['input'];
-  surveyId: Scalars['String']['input'];
-};
-
-type CreateSurveyQuestionInput = {
-  data: CreateSurveyQuestionDataInput;
-};
-
-type CreateSurveyResponseDataInput = {
-  clientId: Scalars['String']['input'];
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  response: Scalars['JSON']['input'];
-  surveyId: Scalars['String']['input'];
-  surveyScheduleId: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
-};
-
-type CreateSurveyResponseInput = {
-  data: CreateSurveyResponseDataInput;
-};
-
-type CreateSurveyScheduleDataInput = {
-  clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  deactivated?: InputMaybe<Scalars['Boolean']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  impressionsLimit?: InputMaybe<Scalars['Float']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  maxKarma?: InputMaybe<Scalars['Float']['input']>;
-  maxVisitorPercentage?: InputMaybe<Scalars['Float']['input']>;
-  minKarma?: InputMaybe<Scalars['Float']['input']>;
-  name: Scalars['String']['input'];
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-  surveyId: Scalars['String']['input'];
-  target: SurveyScheduleTarget;
-};
-
-type CreateSurveyScheduleInput = {
-  data: CreateSurveyScheduleDataInput;
-};
-
 type CreateTagDataInput = {
   adminOnly?: InputMaybe<Scalars['Boolean']['input']>;
   authorOnly?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1857,7 +1804,6 @@ type CreateUserDataInput = {
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
   howICanHelpOthers?: InputMaybe<CreateRevisionDataInput>;
   howOthersCanHelpMe?: InputMaybe<CreateRevisionDataInput>;
-  inactiveSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   jobTitle?: InputMaybe<Scalars['String']['input']>;
   karmaChangeBatchStart?: InputMaybe<Scalars['Date']['input']>;
@@ -1914,7 +1860,6 @@ type CreateUserDataInput = {
   notificationYourTurnMatchForm?: InputMaybe<Scalars['JSON']['input']>;
   nullifyVotes?: InputMaybe<Scalars['Boolean']['input']>;
   optedInToDialogueFacilitation?: InputMaybe<Scalars['Boolean']['input']>;
-  optedOutOfSurveys?: InputMaybe<Scalars['Boolean']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   petrovOptOut?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1944,7 +1889,6 @@ type CreateUserDataInput = {
   twitterProfileURL?: InputMaybe<Scalars['String']['input']>;
   twitterProfileURLAdmin?: InputMaybe<Scalars['String']['input']>;
   unsubscribeFromAll?: InputMaybe<Scalars['Boolean']['input']>;
-  userSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
   viewUnreviewedComments?: InputMaybe<Scalars['Boolean']['input']>;
   voteBanned?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3723,58 +3667,6 @@ type MultiSubscriptionOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-type MultiSurveyInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiSurveyOutput = {
-  __typename?: 'MultiSurveyOutput';
-  results: Array<Survey>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiSurveyQuestionInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiSurveyQuestionOutput = {
-  __typename?: 'MultiSurveyQuestionOutput';
-  results: Array<SurveyQuestion>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiSurveyResponseInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiSurveyResponseOutput = {
-  __typename?: 'MultiSurveyResponseOutput';
-  results: Array<SurveyResponse>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiSurveyScheduleInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiSurveyScheduleOutput = {
-  __typename?: 'MultiSurveyScheduleOutput';
-  results: Array<SurveySchedule>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 type MultiTagFlagInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3982,10 +3874,6 @@ type Mutation = {
   createSplashArtCoordinate?: Maybe<SplashArtCoordinateOutput>;
   createSpotlight?: Maybe<SpotlightOutput>;
   createSubscription?: Maybe<SubscriptionOutput>;
-  createSurvey?: Maybe<SurveyOutput>;
-  createSurveyQuestion?: Maybe<SurveyQuestionOutput>;
-  createSurveyResponse?: Maybe<SurveyResponseOutput>;
-  createSurveySchedule?: Maybe<SurveyScheduleOutput>;
   createTag?: Maybe<TagOutput>;
   createTagFlag?: Maybe<TagFlagOutput>;
   createUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
@@ -4072,10 +3960,6 @@ type Mutation = {
   updateRevision?: Maybe<RevisionOutput>;
   updateSequence?: Maybe<SequenceOutput>;
   updateSpotlight?: Maybe<SpotlightOutput>;
-  updateSurvey?: Maybe<SurveyOutput>;
-  updateSurveyQuestion?: Maybe<SurveyQuestionOutput>;
-  updateSurveyResponse?: Maybe<SurveyResponseOutput>;
-  updateSurveySchedule?: Maybe<SurveyScheduleOutput>;
   updateTag?: Maybe<TagOutput>;
   updateTagFlag?: Maybe<TagFlagOutput>;
   updateUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
@@ -4349,26 +4233,6 @@ type MutationcreateSpotlightArgs = {
 
 type MutationcreateSubscriptionArgs = {
   data: CreateSubscriptionDataInput;
-};
-
-
-type MutationcreateSurveyArgs = {
-  data: CreateSurveyDataInput;
-};
-
-
-type MutationcreateSurveyQuestionArgs = {
-  data: CreateSurveyQuestionDataInput;
-};
-
-
-type MutationcreateSurveyResponseArgs = {
-  data: CreateSurveyResponseDataInput;
-};
-
-
-type MutationcreateSurveyScheduleArgs = {
-  data: CreateSurveyScheduleDataInput;
 };
 
 
@@ -4885,30 +4749,6 @@ type MutationupdateSequenceArgs = {
 
 type MutationupdateSpotlightArgs = {
   data: UpdateSpotlightDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateSurveyArgs = {
-  data: UpdateSurveyDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateSurveyQuestionArgs = {
-  data: UpdateSurveyQuestionDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateSurveyResponseArgs = {
-  data: UpdateSurveyResponseDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateSurveyScheduleArgs = {
-  data: UpdateSurveyScheduleDataInput;
   selector: SelectorInput;
 };
 
@@ -7383,14 +7223,6 @@ type Query = {
   spotlights?: Maybe<MultiSpotlightOutput>;
   subscription?: Maybe<SingleSubscriptionOutput>;
   subscriptions?: Maybe<MultiSubscriptionOutput>;
-  survey?: Maybe<SingleSurveyOutput>;
-  surveyQuestion?: Maybe<SingleSurveyQuestionOutput>;
-  surveyQuestions?: Maybe<MultiSurveyQuestionOutput>;
-  surveyResponse?: Maybe<SingleSurveyResponseOutput>;
-  surveyResponses?: Maybe<MultiSurveyResponseOutput>;
-  surveySchedule?: Maybe<SingleSurveyScheduleOutput>;
-  surveySchedules?: Maybe<MultiSurveyScheduleOutput>;
-  surveys?: Maybe<MultiSurveyOutput>;
   tag?: Maybe<SingleTagOutput>;
   tagFlag?: Maybe<SingleTagFlagOutput>;
   tagFlags?: Maybe<MultiTagFlagOutput>;
@@ -8477,66 +8309,6 @@ type QuerysubscriptionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<SubscriptionSelector>;
-};
-
-
-type QuerysurveyArgs = {
-  input?: InputMaybe<SingleSurveyInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerysurveyQuestionArgs = {
-  input?: InputMaybe<SingleSurveyQuestionInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerysurveyQuestionsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyQuestionInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveyQuestionSelector>;
-};
-
-
-type QuerysurveyResponseArgs = {
-  input?: InputMaybe<SingleSurveyResponseInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerysurveyResponsesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyResponseInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveyResponseSelector>;
-};
-
-
-type QuerysurveyScheduleArgs = {
-  input?: InputMaybe<SingleSurveyScheduleInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerysurveySchedulesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyScheduleInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveyScheduleSelector>;
-};
-
-
-type QuerysurveysArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveySelector>;
 };
 
 
@@ -9689,46 +9461,6 @@ type SingleSubscriptionOutput = {
   result?: Maybe<Subscription>;
 };
 
-type SingleSurveyInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleSurveyOutput = {
-  __typename?: 'SingleSurveyOutput';
-  result?: Maybe<Survey>;
-};
-
-type SingleSurveyQuestionInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleSurveyQuestionOutput = {
-  __typename?: 'SingleSurveyQuestionOutput';
-  result?: Maybe<SurveyQuestion>;
-};
-
-type SingleSurveyResponseInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleSurveyResponseOutput = {
-  __typename?: 'SingleSurveyResponseOutput';
-  result?: Maybe<SurveyResponse>;
-};
-
-type SingleSurveyScheduleInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleSurveyScheduleOutput = {
-  __typename?: 'SingleSurveyScheduleOutput';
-  result?: Maybe<SurveySchedule>;
-};
-
 type SingleTagFlagInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -10043,115 +9775,6 @@ type SuggestedFeedSubscriptionUsersResult = {
 type SuggestedTopActiveUsersResult = {
   __typename?: 'SuggestedTopActiveUsersResult';
   results: Array<User>;
-};
-
-type Survey = {
-  __typename?: 'Survey';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  name: Scalars['String']['output'];
-  questions: Array<SurveyQuestion>;
-  schemaVersion: Scalars['Float']['output'];
-};
-
-type SurveyOutput = {
-  __typename?: 'SurveyOutput';
-  data?: Maybe<Survey>;
-};
-
-type SurveyQuestion = {
-  __typename?: 'SurveyQuestion';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  format: SurveyQuestionFormat;
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  order: Scalars['Float']['output'];
-  question: Scalars['String']['output'];
-  schemaVersion: Scalars['Float']['output'];
-  survey: Survey;
-  surveyId: Scalars['String']['output'];
-};
-
-type SurveyQuestionFormat =
-  | 'multilineText'
-  | 'rank0To10'
-  | 'text';
-
-type SurveyQuestionOutput = {
-  __typename?: 'SurveyQuestionOutput';
-  data?: Maybe<SurveyQuestion>;
-};
-
-type SurveyQuestionSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-};
-
-type SurveyResponse = {
-  __typename?: 'SurveyResponse';
-  _id: Scalars['String']['output'];
-  client?: Maybe<ClientId>;
-  clientId?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['Date']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  response?: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  survey?: Maybe<Survey>;
-  surveyId?: Maybe<Scalars['String']['output']>;
-  surveySchedule?: Maybe<SurveySchedule>;
-  surveyScheduleId?: Maybe<Scalars['String']['output']>;
-  user?: Maybe<User>;
-  userId?: Maybe<Scalars['String']['output']>;
-};
-
-type SurveyResponseOutput = {
-  __typename?: 'SurveyResponseOutput';
-  data?: Maybe<SurveyResponse>;
-};
-
-type SurveyResponseSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-};
-
-type SurveySchedule = {
-  __typename?: 'SurveySchedule';
-  _id: Scalars['String']['output'];
-  clientIds?: Maybe<Array<Scalars['String']['output']>>;
-  clients?: Maybe<Array<ClientId>>;
-  createdAt: Scalars['Date']['output'];
-  deactivated?: Maybe<Scalars['Boolean']['output']>;
-  endDate?: Maybe<Scalars['Date']['output']>;
-  impressionsLimit?: Maybe<Scalars['Float']['output']>;
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  maxKarma?: Maybe<Scalars['Float']['output']>;
-  maxVisitorPercentage?: Maybe<Scalars['Float']['output']>;
-  minKarma?: Maybe<Scalars['Float']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  startDate?: Maybe<Scalars['Date']['output']>;
-  survey?: Maybe<Survey>;
-  surveyId: Scalars['String']['output'];
-  target?: Maybe<SurveyScheduleTarget>;
-};
-
-type SurveyScheduleOutput = {
-  __typename?: 'SurveyScheduleOutput';
-  data?: Maybe<SurveySchedule>;
-};
-
-type SurveyScheduleSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-  surveySchedulesByCreatedAt?: InputMaybe<EmptyViewInput>;
-};
-
-type SurveyScheduleTarget =
-  | 'allUsers'
-  | 'loggedInOnly'
-  | 'loggedOutOnly';
-
-type SurveySelector = {
-  default?: InputMaybe<EmptyViewInput>;
-  surveysByCreatedAt?: InputMaybe<EmptyViewInput>;
 };
 
 type Tag = {
@@ -11203,63 +10826,6 @@ type UpdateSpotlightInput = {
   selector: SelectorInput;
 };
 
-type UpdateSurveyDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UpdateSurveyInput = {
-  data: UpdateSurveyDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateSurveyQuestionDataInput = {
-  format?: InputMaybe<SurveyQuestionFormat>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  order?: InputMaybe<Scalars['Float']['input']>;
-  question?: InputMaybe<Scalars['String']['input']>;
-  surveyId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UpdateSurveyQuestionInput = {
-  data: UpdateSurveyQuestionDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateSurveyResponseDataInput = {
-  clientId?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  response?: InputMaybe<Scalars['JSON']['input']>;
-  surveyId?: InputMaybe<Scalars['String']['input']>;
-  surveyScheduleId?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UpdateSurveyResponseInput = {
-  data: UpdateSurveyResponseDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateSurveyScheduleDataInput = {
-  clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  deactivated?: InputMaybe<Scalars['Boolean']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  impressionsLimit?: InputMaybe<Scalars['Float']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  maxKarma?: InputMaybe<Scalars['Float']['input']>;
-  maxVisitorPercentage?: InputMaybe<Scalars['Float']['input']>;
-  minKarma?: InputMaybe<Scalars['Float']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-  surveyId?: InputMaybe<Scalars['String']['input']>;
-  target?: InputMaybe<SurveyScheduleTarget>;
-};
-
-type UpdateSurveyScheduleInput = {
-  data: UpdateSurveyScheduleDataInput;
-  selector: SelectorInput;
-};
-
 type UpdateTagDataInput = {
   adminOnly?: InputMaybe<Scalars['Boolean']['input']>;
   authorOnly?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11401,7 +10967,6 @@ type UpdateUserDataInput = {
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
   howICanHelpOthers?: InputMaybe<CreateRevisionDataInput>;
   howOthersCanHelpMe?: InputMaybe<CreateRevisionDataInput>;
-  inactiveSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   jobTitle?: InputMaybe<Scalars['String']['input']>;
   karmaChangeBatchStart?: InputMaybe<Scalars['Date']['input']>;
@@ -11461,7 +11026,6 @@ type UpdateUserDataInput = {
   notificationYourTurnMatchForm?: InputMaybe<Scalars['JSON']['input']>;
   nullifyVotes?: InputMaybe<Scalars['Boolean']['input']>;
   optedInToDialogueFacilitation?: InputMaybe<Scalars['Boolean']['input']>;
-  optedOutOfSurveys?: InputMaybe<Scalars['Boolean']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   partiallyReadSequences?: InputMaybe<Array<PartiallyReadSequenceItemInput>>;
@@ -11511,7 +11075,6 @@ type UpdateUserDataInput = {
   twitterProfileURL?: InputMaybe<Scalars['String']['input']>;
   twitterProfileURLAdmin?: InputMaybe<Scalars['String']['input']>;
   unsubscribeFromAll?: InputMaybe<Scalars['Boolean']['input']>;
-  userSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
   usernameUnset?: InputMaybe<Scalars['Boolean']['input']>;
   viewUnreviewedComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11718,7 +11281,6 @@ type User = {
   howOthersCanHelpMe_latest?: Maybe<Scalars['String']['output']>;
   htmlBio: Scalars['String']['output'];
   htmlMapMarkerText?: Maybe<Scalars['String']['output']>;
-  inactiveSurveyEmailSentAt?: Maybe<Scalars['Date']['output']>;
   isAdmin: Scalars['Boolean']['output'];
   isReviewed?: Maybe<Scalars['Boolean']['output']>;
   jobTitle?: Maybe<Scalars['String']['output']>;
@@ -11793,7 +11355,6 @@ type User = {
   nullifyVotes?: Maybe<Scalars['Boolean']['output']>;
   oldSlugs: Array<Scalars['String']['output']>;
   optedInToDialogueFacilitation?: Maybe<Scalars['Boolean']['output']>;
-  optedOutOfSurveys?: Maybe<Scalars['Boolean']['output']>;
   organization?: Maybe<Scalars['String']['output']>;
   organizerOfGroupIds: Array<Scalars['String']['output']>;
   organizerOfGroups: Array<Localgroup>;
@@ -11868,7 +11429,6 @@ type User = {
   twitterProfileURLAdmin?: Maybe<Scalars['String']['output']>;
   unsubscribeFromAll?: Maybe<Scalars['Boolean']['output']>;
   userRateLimits?: Maybe<Array<UserRateLimit>>;
-  userSurveyEmailSentAt?: Maybe<Scalars['Date']['output']>;
   username?: Maybe<Scalars['String']['output']>;
   usernameUnset?: Maybe<Scalars['Boolean']['output']>;
   usersContactedBeforeReview?: Maybe<Array<Scalars['String']['output']>>;
@@ -24163,29 +23723,6 @@ type MembersOfGroupFragment_user_User = (
 
 type MembersOfGroupFragment = { __typename?: 'Subscription', user: MembersOfGroupFragment_user_User | null };
 
-type SurveyQuestionMinimumInfo = { __typename?: 'SurveyQuestion', _id: string, question: string, format: SurveyQuestionFormat, order: number };
-
-type SurveyResponseMinimumInfo = { __typename?: 'SurveyResponse', _id: string, surveyId: string | null, surveyScheduleId: string | null, userId: string | null, clientId: string | null, response: any | null };
-
-type SurveyScheduleMinimumInfo_SurveySchedule_survey_Survey = (
-  { __typename?: 'Survey' }
-  & SurveyMinimumInfo
-);
-
-type SurveyScheduleMinimumInfo = { __typename?: 'SurveySchedule', _id: string, survey: SurveyScheduleMinimumInfo_SurveySchedule_survey_Survey | null };
-
-type SurveyScheduleEdit = (
-  { __typename?: 'SurveySchedule', surveyId: string, name: string | null, impressionsLimit: number | null, maxVisitorPercentage: number | null, minKarma: number | null, maxKarma: number | null, target: SurveyScheduleTarget | null, startDate: string | null, endDate: string | null, deactivated: boolean | null, createdAt: string }
-  & SurveyScheduleMinimumInfo
-);
-
-type SurveyMinimumInfo_Survey_questions_SurveyQuestion = (
-  { __typename?: 'SurveyQuestion' }
-  & SurveyQuestionMinimumInfo
-);
-
-type SurveyMinimumInfo = { __typename?: 'Survey', _id: string, name: string, createdAt: string, questions: Array<SurveyMinimumInfo_Survey_questions_SurveyQuestion> };
-
 type TagFlagFragment_TagFlag_contents_Revision = { __typename?: 'Revision', html: string | null, htmlHighlight: string, plaintextDescription: string };
 
 type TagFlagFragment = { __typename?: 'TagFlag', _id: string, createdAt: string, name: string, slug: string, order: number | null, deleted: boolean, contents: TagFlagFragment_TagFlag_contents_Revision | null };
@@ -24665,7 +24202,7 @@ type UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettin
 type UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput = { __typename?: 'PostMetadataOutput', postId: string };
 
 type UsersCurrent = (
-  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
+  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
   & UsersMinimumInfo
 );
 

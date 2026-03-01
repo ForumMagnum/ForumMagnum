@@ -1,10 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { maintainAnalyticsViews } from '@/server/analytics/analyticsViews';
-import { sendInactiveUserSurveyEmails } from '@/server/inactiveUserSurveyCron';
 import { refreshKarmaInflation } from '@/server/karmaInflation/cron';
 import { pruneOldPerfMetrics } from '@/server/analytics/serverAnalyticsWriter';
 import PostRecommendationsRepo from '@/server/repos/PostRecommendationsRepo';
-import { sendJobAdReminderEmails } from '@/server/userJobAdCron';
 import { expiredRateLimitsReturnToReviewQueue } from '@/server/users/cron';
 import { updateScoreInactiveDocuments } from '@/server/votingCron';
 import { isEAForum, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
@@ -29,14 +27,8 @@ export async function GET(request: NextRequest) {
     await pruneOldPerfMetrics();
   }
 
-  // Send some emails and maintain analytics views (EA Forum only)
+  // Maintain analytics views (EA Forum only)
   if (isEAForum()) {
-    // Run all daily midnight tasks in parallel
-    const tasks: Promise<void>[] = [];
-    tasks.push(sendInactiveUserSurveyEmails());
-    tasks.push(sendJobAdReminderEmails());
-    await Promise.all(tasks);
-
     // This is a fire-and-forget since the db queries take forever
     maintainAnalyticsViews();
   }

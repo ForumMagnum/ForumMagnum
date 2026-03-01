@@ -251,7 +251,6 @@ export const UsersCurrent = gql(`
     hideActiveDialogueUsers
 
     hideSunshineSidebar
-    optedOutOfSurveys
     postGlossariesPinned
     generateJargonForDrafts
     generateJargonForPublishedPosts

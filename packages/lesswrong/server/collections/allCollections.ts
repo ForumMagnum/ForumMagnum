@@ -76,10 +76,6 @@ import { SideCommentCaches } from './sideCommentCaches/collection';
 import { SplashArtCoordinates } from './splashArtCoordinates/collection';
 import { Spotlights } from './spotlights/collection';
 import { Subscriptions } from './subscriptions/collection';
-import { SurveyQuestions } from './surveyQuestions/collection';
-import { SurveyResponses } from './surveyResponses/collection';
-import { SurveySchedules } from './surveySchedules/collection';
-import { Surveys } from './surveys/collection';
 import { TagFlags } from './tagFlags/collection';
 import { TagRels } from './tagRels/collection';
 import { Tags } from './tags/collection';
@@ -119,7 +115,7 @@ const allCollections = {
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,
-  Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags,
+  Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
   TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits,
   UserTagRels, Users, Votes, YjsDocuments
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;

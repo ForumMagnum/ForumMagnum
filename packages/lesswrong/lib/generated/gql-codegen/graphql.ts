@@ -1675,59 +1675,6 @@ export type CreateSubscriptionInput = {
   data: CreateSubscriptionDataInput;
 };
 
-export type CreateSurveyDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  name: Scalars['String']['input'];
-};
-
-export type CreateSurveyInput = {
-  data: CreateSurveyDataInput;
-};
-
-export type CreateSurveyQuestionDataInput = {
-  format: SurveyQuestionFormat;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  order: Scalars['Float']['input'];
-  question: Scalars['String']['input'];
-  surveyId: Scalars['String']['input'];
-};
-
-export type CreateSurveyQuestionInput = {
-  data: CreateSurveyQuestionDataInput;
-};
-
-export type CreateSurveyResponseDataInput = {
-  clientId: Scalars['String']['input'];
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  response: Scalars['JSON']['input'];
-  surveyId: Scalars['String']['input'];
-  surveyScheduleId: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
-};
-
-export type CreateSurveyResponseInput = {
-  data: CreateSurveyResponseDataInput;
-};
-
-export type CreateSurveyScheduleDataInput = {
-  clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  deactivated?: InputMaybe<Scalars['Boolean']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  impressionsLimit?: InputMaybe<Scalars['Float']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  maxKarma?: InputMaybe<Scalars['Float']['input']>;
-  maxVisitorPercentage?: InputMaybe<Scalars['Float']['input']>;
-  minKarma?: InputMaybe<Scalars['Float']['input']>;
-  name: Scalars['String']['input'];
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-  surveyId: Scalars['String']['input'];
-  target: SurveyScheduleTarget;
-};
-
-export type CreateSurveyScheduleInput = {
-  data: CreateSurveyScheduleDataInput;
-};
-
 export type CreateTagDataInput = {
   adminOnly?: InputMaybe<Scalars['Boolean']['input']>;
   authorOnly?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1860,7 +1807,6 @@ export type CreateUserDataInput = {
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
   howICanHelpOthers?: InputMaybe<CreateRevisionDataInput>;
   howOthersCanHelpMe?: InputMaybe<CreateRevisionDataInput>;
-  inactiveSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   jobTitle?: InputMaybe<Scalars['String']['input']>;
   karmaChangeBatchStart?: InputMaybe<Scalars['Date']['input']>;
@@ -1917,7 +1863,6 @@ export type CreateUserDataInput = {
   notificationYourTurnMatchForm?: InputMaybe<Scalars['JSON']['input']>;
   nullifyVotes?: InputMaybe<Scalars['Boolean']['input']>;
   optedInToDialogueFacilitation?: InputMaybe<Scalars['Boolean']['input']>;
-  optedOutOfSurveys?: InputMaybe<Scalars['Boolean']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   petrovOptOut?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1947,7 +1892,6 @@ export type CreateUserDataInput = {
   twitterProfileURL?: InputMaybe<Scalars['String']['input']>;
   twitterProfileURLAdmin?: InputMaybe<Scalars['String']['input']>;
   unsubscribeFromAll?: InputMaybe<Scalars['Boolean']['input']>;
-  userSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
   viewUnreviewedComments?: InputMaybe<Scalars['Boolean']['input']>;
   voteBanned?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3726,58 +3670,6 @@ export type MultiSubscriptionOutput = {
   totalCount: Maybe<Scalars['Int']['output']>;
 };
 
-export type MultiSurveyInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiSurveyOutput = {
-  __typename?: 'MultiSurveyOutput';
-  results: Array<Survey>;
-  totalCount: Maybe<Scalars['Int']['output']>;
-};
-
-export type MultiSurveyQuestionInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiSurveyQuestionOutput = {
-  __typename?: 'MultiSurveyQuestionOutput';
-  results: Array<SurveyQuestion>;
-  totalCount: Maybe<Scalars['Int']['output']>;
-};
-
-export type MultiSurveyResponseInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiSurveyResponseOutput = {
-  __typename?: 'MultiSurveyResponseOutput';
-  results: Array<SurveyResponse>;
-  totalCount: Maybe<Scalars['Int']['output']>;
-};
-
-export type MultiSurveyScheduleInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiSurveyScheduleOutput = {
-  __typename?: 'MultiSurveyScheduleOutput';
-  results: Array<SurveySchedule>;
-  totalCount: Maybe<Scalars['Int']['output']>;
-};
-
 export type MultiTagFlagInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3985,10 +3877,6 @@ export type Mutation = {
   createSplashArtCoordinate: Maybe<SplashArtCoordinateOutput>;
   createSpotlight: Maybe<SpotlightOutput>;
   createSubscription: Maybe<SubscriptionOutput>;
-  createSurvey: Maybe<SurveyOutput>;
-  createSurveyQuestion: Maybe<SurveyQuestionOutput>;
-  createSurveyResponse: Maybe<SurveyResponseOutput>;
-  createSurveySchedule: Maybe<SurveyScheduleOutput>;
   createTag: Maybe<TagOutput>;
   createTagFlag: Maybe<TagFlagOutput>;
   createUltraFeedEvent: Maybe<UltraFeedEventOutput>;
@@ -4075,10 +3963,6 @@ export type Mutation = {
   updateRevision: Maybe<RevisionOutput>;
   updateSequence: Maybe<SequenceOutput>;
   updateSpotlight: Maybe<SpotlightOutput>;
-  updateSurvey: Maybe<SurveyOutput>;
-  updateSurveyQuestion: Maybe<SurveyQuestionOutput>;
-  updateSurveyResponse: Maybe<SurveyResponseOutput>;
-  updateSurveySchedule: Maybe<SurveyScheduleOutput>;
   updateTag: Maybe<TagOutput>;
   updateTagFlag: Maybe<TagFlagOutput>;
   updateUltraFeedEvent: Maybe<UltraFeedEventOutput>;
@@ -4352,26 +4236,6 @@ export type MutationcreateSpotlightArgs = {
 
 export type MutationcreateSubscriptionArgs = {
   data: CreateSubscriptionDataInput;
-};
-
-
-export type MutationcreateSurveyArgs = {
-  data: CreateSurveyDataInput;
-};
-
-
-export type MutationcreateSurveyQuestionArgs = {
-  data: CreateSurveyQuestionDataInput;
-};
-
-
-export type MutationcreateSurveyResponseArgs = {
-  data: CreateSurveyResponseDataInput;
-};
-
-
-export type MutationcreateSurveyScheduleArgs = {
-  data: CreateSurveyScheduleDataInput;
 };
 
 
@@ -4888,30 +4752,6 @@ export type MutationupdateSequenceArgs = {
 
 export type MutationupdateSpotlightArgs = {
   data: UpdateSpotlightDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationupdateSurveyArgs = {
-  data: UpdateSurveyDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationupdateSurveyQuestionArgs = {
-  data: UpdateSurveyQuestionDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationupdateSurveyResponseArgs = {
-  data: UpdateSurveyResponseDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationupdateSurveyScheduleArgs = {
-  data: UpdateSurveyScheduleDataInput;
   selector: SelectorInput;
 };
 
@@ -7386,14 +7226,6 @@ export type Query = {
   spotlights: Maybe<MultiSpotlightOutput>;
   subscription: Maybe<SingleSubscriptionOutput>;
   subscriptions: Maybe<MultiSubscriptionOutput>;
-  survey: Maybe<SingleSurveyOutput>;
-  surveyQuestion: Maybe<SingleSurveyQuestionOutput>;
-  surveyQuestions: Maybe<MultiSurveyQuestionOutput>;
-  surveyResponse: Maybe<SingleSurveyResponseOutput>;
-  surveyResponses: Maybe<MultiSurveyResponseOutput>;
-  surveySchedule: Maybe<SingleSurveyScheduleOutput>;
-  surveySchedules: Maybe<MultiSurveyScheduleOutput>;
-  surveys: Maybe<MultiSurveyOutput>;
   tag: Maybe<SingleTagOutput>;
   tagFlag: Maybe<SingleTagFlagOutput>;
   tagFlags: Maybe<MultiTagFlagOutput>;
@@ -8480,66 +8312,6 @@ export type QuerysubscriptionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<SubscriptionSelector>;
-};
-
-
-export type QuerysurveyArgs = {
-  input?: InputMaybe<SingleSurveyInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-export type QuerysurveyQuestionArgs = {
-  input?: InputMaybe<SingleSurveyQuestionInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-export type QuerysurveyQuestionsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyQuestionInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveyQuestionSelector>;
-};
-
-
-export type QuerysurveyResponseArgs = {
-  input?: InputMaybe<SingleSurveyResponseInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-export type QuerysurveyResponsesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyResponseInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveyResponseSelector>;
-};
-
-
-export type QuerysurveyScheduleArgs = {
-  input?: InputMaybe<SingleSurveyScheduleInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-export type QuerysurveySchedulesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyScheduleInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveyScheduleSelector>;
-};
-
-
-export type QuerysurveysArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiSurveyInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<SurveySelector>;
 };
 
 
@@ -9692,46 +9464,6 @@ export type SingleSubscriptionOutput = {
   result: Maybe<Subscription>;
 };
 
-export type SingleSurveyInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SingleSurveyOutput = {
-  __typename?: 'SingleSurveyOutput';
-  result: Maybe<Survey>;
-};
-
-export type SingleSurveyQuestionInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SingleSurveyQuestionOutput = {
-  __typename?: 'SingleSurveyQuestionOutput';
-  result: Maybe<SurveyQuestion>;
-};
-
-export type SingleSurveyResponseInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SingleSurveyResponseOutput = {
-  __typename?: 'SingleSurveyResponseOutput';
-  result: Maybe<SurveyResponse>;
-};
-
-export type SingleSurveyScheduleInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SingleSurveyScheduleOutput = {
-  __typename?: 'SingleSurveyScheduleOutput';
-  result: Maybe<SurveySchedule>;
-};
-
 export type SingleTagFlagInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -10046,115 +9778,6 @@ export type SuggestedFeedSubscriptionUsersResult = {
 export type SuggestedTopActiveUsersResult = {
   __typename?: 'SuggestedTopActiveUsersResult';
   results: Array<User>;
-};
-
-export type Survey = {
-  __typename?: 'Survey';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  legacyData: Maybe<Scalars['JSON']['output']>;
-  name: Scalars['String']['output'];
-  questions: Array<SurveyQuestion>;
-  schemaVersion: Scalars['Float']['output'];
-};
-
-export type SurveyOutput = {
-  __typename?: 'SurveyOutput';
-  data: Maybe<Survey>;
-};
-
-export type SurveyQuestion = {
-  __typename?: 'SurveyQuestion';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  format: SurveyQuestionFormat;
-  legacyData: Maybe<Scalars['JSON']['output']>;
-  order: Scalars['Float']['output'];
-  question: Scalars['String']['output'];
-  schemaVersion: Scalars['Float']['output'];
-  survey: Survey;
-  surveyId: Scalars['String']['output'];
-};
-
-export type SurveyQuestionFormat =
-  | 'multilineText'
-  | 'rank0To10'
-  | 'text';
-
-export type SurveyQuestionOutput = {
-  __typename?: 'SurveyQuestionOutput';
-  data: Maybe<SurveyQuestion>;
-};
-
-export type SurveyQuestionSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-};
-
-export type SurveyResponse = {
-  __typename?: 'SurveyResponse';
-  _id: Scalars['String']['output'];
-  client: Maybe<ClientId>;
-  clientId: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['Date']['output'];
-  legacyData: Maybe<Scalars['JSON']['output']>;
-  response: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  survey: Maybe<Survey>;
-  surveyId: Maybe<Scalars['String']['output']>;
-  surveySchedule: Maybe<SurveySchedule>;
-  surveyScheduleId: Maybe<Scalars['String']['output']>;
-  user: Maybe<User>;
-  userId: Maybe<Scalars['String']['output']>;
-};
-
-export type SurveyResponseOutput = {
-  __typename?: 'SurveyResponseOutput';
-  data: Maybe<SurveyResponse>;
-};
-
-export type SurveyResponseSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-};
-
-export type SurveySchedule = {
-  __typename?: 'SurveySchedule';
-  _id: Scalars['String']['output'];
-  clientIds: Maybe<Array<Scalars['String']['output']>>;
-  clients: Maybe<Array<ClientId>>;
-  createdAt: Scalars['Date']['output'];
-  deactivated: Maybe<Scalars['Boolean']['output']>;
-  endDate: Maybe<Scalars['Date']['output']>;
-  impressionsLimit: Maybe<Scalars['Float']['output']>;
-  legacyData: Maybe<Scalars['JSON']['output']>;
-  maxKarma: Maybe<Scalars['Float']['output']>;
-  maxVisitorPercentage: Maybe<Scalars['Float']['output']>;
-  minKarma: Maybe<Scalars['Float']['output']>;
-  name: Maybe<Scalars['String']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  startDate: Maybe<Scalars['Date']['output']>;
-  survey: Maybe<Survey>;
-  surveyId: Scalars['String']['output'];
-  target: Maybe<SurveyScheduleTarget>;
-};
-
-export type SurveyScheduleOutput = {
-  __typename?: 'SurveyScheduleOutput';
-  data: Maybe<SurveySchedule>;
-};
-
-export type SurveyScheduleSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-  surveySchedulesByCreatedAt?: InputMaybe<EmptyViewInput>;
-};
-
-export type SurveyScheduleTarget =
-  | 'allUsers'
-  | 'loggedInOnly'
-  | 'loggedOutOnly';
-
-export type SurveySelector = {
-  default?: InputMaybe<EmptyViewInput>;
-  surveysByCreatedAt?: InputMaybe<EmptyViewInput>;
 };
 
 export type Tag = {
@@ -11206,63 +10829,6 @@ export type UpdateSpotlightInput = {
   selector: SelectorInput;
 };
 
-export type UpdateSurveyDataInput = {
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateSurveyInput = {
-  data: UpdateSurveyDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdateSurveyQuestionDataInput = {
-  format?: InputMaybe<SurveyQuestionFormat>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  order?: InputMaybe<Scalars['Float']['input']>;
-  question?: InputMaybe<Scalars['String']['input']>;
-  surveyId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateSurveyQuestionInput = {
-  data: UpdateSurveyQuestionDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdateSurveyResponseDataInput = {
-  clientId?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  response?: InputMaybe<Scalars['JSON']['input']>;
-  surveyId?: InputMaybe<Scalars['String']['input']>;
-  surveyScheduleId?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateSurveyResponseInput = {
-  data: UpdateSurveyResponseDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdateSurveyScheduleDataInput = {
-  clientIds?: InputMaybe<Array<Scalars['String']['input']>>;
-  deactivated?: InputMaybe<Scalars['Boolean']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  impressionsLimit?: InputMaybe<Scalars['Float']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  maxKarma?: InputMaybe<Scalars['Float']['input']>;
-  maxVisitorPercentage?: InputMaybe<Scalars['Float']['input']>;
-  minKarma?: InputMaybe<Scalars['Float']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-  surveyId?: InputMaybe<Scalars['String']['input']>;
-  target?: InputMaybe<SurveyScheduleTarget>;
-};
-
-export type UpdateSurveyScheduleInput = {
-  data: UpdateSurveyScheduleDataInput;
-  selector: SelectorInput;
-};
-
 export type UpdateTagDataInput = {
   adminOnly?: InputMaybe<Scalars['Boolean']['input']>;
   authorOnly?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11404,7 +10970,6 @@ export type UpdateUserDataInput = {
   hideTaggingProgressBar?: InputMaybe<Scalars['Boolean']['input']>;
   howICanHelpOthers?: InputMaybe<CreateRevisionDataInput>;
   howOthersCanHelpMe?: InputMaybe<CreateRevisionDataInput>;
-  inactiveSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   isAdmin?: InputMaybe<Scalars['Boolean']['input']>;
   jobTitle?: InputMaybe<Scalars['String']['input']>;
   karmaChangeBatchStart?: InputMaybe<Scalars['Date']['input']>;
@@ -11464,7 +11029,6 @@ export type UpdateUserDataInput = {
   notificationYourTurnMatchForm?: InputMaybe<Scalars['JSON']['input']>;
   nullifyVotes?: InputMaybe<Scalars['Boolean']['input']>;
   optedInToDialogueFacilitation?: InputMaybe<Scalars['Boolean']['input']>;
-  optedOutOfSurveys?: InputMaybe<Scalars['Boolean']['input']>;
   organization?: InputMaybe<Scalars['String']['input']>;
   organizerOfGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   partiallyReadSequences?: InputMaybe<Array<PartiallyReadSequenceItemInput>>;
@@ -11514,7 +11078,6 @@ export type UpdateUserDataInput = {
   twitterProfileURL?: InputMaybe<Scalars['String']['input']>;
   twitterProfileURLAdmin?: InputMaybe<Scalars['String']['input']>;
   unsubscribeFromAll?: InputMaybe<Scalars['Boolean']['input']>;
-  userSurveyEmailSentAt?: InputMaybe<Scalars['Date']['input']>;
   username?: InputMaybe<Scalars['String']['input']>;
   usernameUnset?: InputMaybe<Scalars['Boolean']['input']>;
   viewUnreviewedComments?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11721,7 +11284,6 @@ export type User = {
   howOthersCanHelpMe_latest: Maybe<Scalars['String']['output']>;
   htmlBio: Scalars['String']['output'];
   htmlMapMarkerText: Maybe<Scalars['String']['output']>;
-  inactiveSurveyEmailSentAt: Maybe<Scalars['Date']['output']>;
   isAdmin: Scalars['Boolean']['output'];
   isReviewed: Maybe<Scalars['Boolean']['output']>;
   jobTitle: Maybe<Scalars['String']['output']>;
@@ -11796,7 +11358,6 @@ export type User = {
   nullifyVotes: Maybe<Scalars['Boolean']['output']>;
   oldSlugs: Array<Scalars['String']['output']>;
   optedInToDialogueFacilitation: Maybe<Scalars['Boolean']['output']>;
-  optedOutOfSurveys: Maybe<Scalars['Boolean']['output']>;
   organization: Maybe<Scalars['String']['output']>;
   organizerOfGroupIds: Array<Scalars['String']['output']>;
   organizerOfGroups: Array<Localgroup>;
@@ -11871,7 +11432,6 @@ export type User = {
   twitterProfileURLAdmin: Maybe<Scalars['String']['output']>;
   unsubscribeFromAll: Maybe<Scalars['Boolean']['output']>;
   userRateLimits: Maybe<Array<UserRateLimit>>;
-  userSurveyEmailSentAt: Maybe<Scalars['Date']['output']>;
   username: Maybe<Scalars['String']['output']>;
   usernameUnset: Maybe<Scalars['Boolean']['output']>;
   usersContactedBeforeReview: Maybe<Array<Scalars['String']['output']>>;
@@ -19635,25 +19195,6 @@ export type MembersOfGroupFragment = { __typename?: 'Subscription', user: (
     & UsersMinimumInfo
   ) | null };
 
-export type SurveyQuestionMinimumInfo = { __typename?: 'SurveyQuestion', _id: string, question: string, format: SurveyQuestionFormat, order: number };
-
-export type SurveyResponseMinimumInfo = { __typename?: 'SurveyResponse', _id: string, surveyId: string | null, surveyScheduleId: string | null, userId: string | null, clientId: string | null, response: any | null };
-
-export type SurveyScheduleMinimumInfo = { __typename?: 'SurveySchedule', _id: string, survey: (
-    { __typename?: 'Survey' }
-    & SurveyMinimumInfo
-  ) | null };
-
-export type SurveyScheduleEdit = (
-  { __typename?: 'SurveySchedule', surveyId: string, name: string | null, impressionsLimit: number | null, maxVisitorPercentage: number | null, minKarma: number | null, maxKarma: number | null, target: SurveyScheduleTarget | null, startDate: string | null, endDate: string | null, deactivated: boolean | null, createdAt: string }
-  & SurveyScheduleMinimumInfo
-);
-
-export type SurveyMinimumInfo = { __typename?: 'Survey', _id: string, name: string, createdAt: string, questions: Array<(
-    { __typename?: 'SurveyQuestion' }
-    & SurveyQuestionMinimumInfo
-  )> };
-
 export type TagFlagFragment = { __typename?: 'TagFlag', _id: string, createdAt: string, name: string, slug: string, order: number | null, deleted: boolean, contents: { __typename?: 'Revision', html: string | null, htmlHighlight: string, plaintextDescription: string } | null };
 
 export type TagFlagEditFragment = (
@@ -19974,7 +19515,7 @@ export type UsersProfile = (
 );
 
 export type UsersCurrent = (
-  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: (
+  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: (
     { __typename?: 'Revision' }
     & RevisionDisplay
   ) | null, expandedFrontpageSections: { __typename?: 'ExpandedFrontpageSectionsSettingsOutput', community: boolean | null, recommendations: boolean | null, quickTakes: boolean | null, quickTakesCommunity: boolean | null, popularComments: boolean | null } | null, hiddenPostsMetadata: Array<{ __typename?: 'PostMetadataOutput', postId: string }> | null }
@@ -20507,7 +20048,7 @@ const PostsListTagFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Nam
 const PostsListTagWithVotesFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"PostsListTagWithVotes"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}},{"kind":"Field","name":{"kind":"Name","value":"tagRel"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"tagId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"tagId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"WithVoteTagRel"}}]}}]}};
 const PostsModerationGuidelinesFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"PostsModerationGuidelines"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsMinimumInfo"}},{"kind":"Field","name":{"kind":"Name","value":"frontpageDate"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"moderationStyle"}}]}},{"kind":"Field","name":{"kind":"Name","value":"moderationStyle"}},{"kind":"Field","name":{"kind":"Name","value":"moderationGuidelines"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"html"}},{"kind":"Field","name":{"kind":"Name","value":"originalContents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"data"}}]}}]}}]}};
 const localGroupsIsOnlineFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"localGroupsIsOnline"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Localgroup"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"isOnline"}}]}};
-const UsersCurrentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"UsersCurrent"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}},{"kind":"Field","name":{"kind":"Name","value":"oldSlugs"}},{"kind":"Field","name":{"kind":"Name","value":"groups"}},{"kind":"Field","name":{"kind":"Name","value":"jobTitle"}},{"kind":"Field","name":{"kind":"Name","value":"organization"}},{"kind":"Field","name":{"kind":"Name","value":"careerStage"}},{"kind":"Field","name":{"kind":"Name","value":"organizerOfGroupIds"}},{"kind":"Field","name":{"kind":"Name","value":"moderationStyle"}},{"kind":"Field","name":{"kind":"Name","value":"moderationGuidelines"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionDisplay"}}]}},{"kind":"Field","name":{"kind":"Name","value":"bannedUserIds"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"googleLocation"}},{"kind":"Field","name":{"kind":"Name","value":"mapLocation"}},{"kind":"Field","name":{"kind":"Name","value":"mapLocationSet"}},{"kind":"Field","name":{"kind":"Name","value":"mapMarkerText"}},{"kind":"Field","name":{"kind":"Name","value":"mongoLocation"}},{"kind":"Field","name":{"kind":"Name","value":"shortformFeedId"}},{"kind":"Field","name":{"kind":"Name","value":"sortDraftsBy"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"emails"}},{"kind":"Field","name":{"kind":"Name","value":"banned"}},{"kind":"Field","name":{"kind":"Name","value":"paymentEmail"}},{"kind":"Field","name":{"kind":"Name","value":"paymentInfo"}},{"kind":"Field","name":{"kind":"Name","value":"postingDisabled"}},{"kind":"Field","name":{"kind":"Name","value":"allCommentingDisabled"}},{"kind":"Field","name":{"kind":"Name","value":"commentingOnOtherUsersDisabled"}},{"kind":"Field","name":{"kind":"Name","value":"conversationsDisabled"}},{"kind":"Field","name":{"kind":"Name","value":"usernameUnset"}},{"kind":"Field","name":{"kind":"Name","value":"taggingDashboardCollapsed"}},{"kind":"Field","name":{"kind":"Name","value":"beta"}},{"kind":"Field","name":{"kind":"Name","value":"acceptedTos"}},{"kind":"Field","name":{"kind":"Name","value":"pageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"isReviewed"}},{"kind":"Field","name":{"kind":"Name","value":"nullifyVotes"}},{"kind":"Field","name":{"kind":"Name","value":"hideIntercom"}},{"kind":"Field","name":{"kind":"Name","value":"hideNavigationSidebar"}},{"kind":"Field","name":{"kind":"Name","value":"hideCommunitySection"}},{"kind":"Field","name":{"kind":"Name","value":"hasContinueReading"}},{"kind":"Field","name":{"kind":"Name","value":"expandedFrontpageSections"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"community"}},{"kind":"Field","name":{"kind":"Name","value":"recommendations"}},{"kind":"Field","name":{"kind":"Name","value":"quickTakes"}},{"kind":"Field","name":{"kind":"Name","value":"quickTakesCommunity"}},{"kind":"Field","name":{"kind":"Name","value":"popularComments"}}]}},{"kind":"Field","name":{"kind":"Name","value":"hidePostsRecommendations"}},{"kind":"Field","name":{"kind":"Name","value":"currentFrontpageFilter"}},{"kind":"Field","name":{"kind":"Name","value":"frontpageSelectedTab"}},{"kind":"Field","name":{"kind":"Name","value":"frontpageFilterSettings"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageFilterSettingsDesktop"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsTimeframe"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsSorting"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsFilter"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsShowLowKarma"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsIncludeEvents"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsHideCommunity"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsOpenSettings"}},{"kind":"Field","name":{"kind":"Name","value":"draftsListSorting"}},{"kind":"Field","name":{"kind":"Name","value":"draftsListShowArchived"}},{"kind":"Field","name":{"kind":"Name","value":"draftsListShowShared"}},{"kind":"Field","name":{"kind":"Name","value":"lastNotificationsCheck"}},{"kind":"Field","name":{"kind":"Name","value":"bannedUserIds"}},{"kind":"Field","name":{"kind":"Name","value":"bannedPersonalUserIds"}},{"kind":"Field","name":{"kind":"Name","value":"moderationStyle"}},{"kind":"Field","name":{"kind":"Name","value":"noKibitz"}},{"kind":"Field","name":{"kind":"Name","value":"showHideKarmaOption"}},{"kind":"Field","name":{"kind":"Name","value":"markDownPostEditor"}},{"kind":"Field","name":{"kind":"Name","value":"hideElicitPredictions"}},{"kind":"Field","name":{"kind":"Name","value":"hideAFNonMemberInitialWarning"}},{"kind":"Field","name":{"kind":"Name","value":"commentSorting"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"googleLocation"}},{"kind":"Field","name":{"kind":"Name","value":"mongoLocation"}},{"kind":"Field","name":{"kind":"Name","value":"mapLocation"}},{"kind":"Field","name":{"kind":"Name","value":"mapLocationSet"}},{"kind":"Field","name":{"kind":"Name","value":"mapMarkerText"}},{"kind":"Field","name":{"kind":"Name","value":"htmlMapMarkerText"}},{"kind":"Field","name":{"kind":"Name","value":"nearbyEventsNotifications"}},{"kind":"Field","name":{"kind":"Name","value":"nearbyEventsNotificationsLocation"}},{"kind":"Field","name":{"kind":"Name","value":"nearbyEventsNotificationsRadius"}},{"kind":"Field","name":{"kind":"Name","value":"nearbyPeopleNotificationThreshold"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageMap"}},{"kind":"Field","name":{"kind":"Name","value":"emailSubscribedToCurated"}},{"kind":"Field","name":{"kind":"Name","value":"subscribedToDigest"}},{"kind":"Field","name":{"kind":"Name","value":"subscribedToNewsletter"}},{"kind":"Field","name":{"kind":"Name","value":"unsubscribeFromAll"}},{"kind":"Field","name":{"kind":"Name","value":"whenConfirmationEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"hideSubscribePoke"}},{"kind":"Field","name":{"kind":"Name","value":"hideMeetupsPoke"}},{"kind":"Field","name":{"kind":"Name","value":"hideHomeRHS"}},{"kind":"Field","name":{"kind":"Name","value":"noCollapseCommentsFrontpage"}},{"kind":"Field","name":{"kind":"Name","value":"noCollapseCommentsPosts"}},{"kind":"Field","name":{"kind":"Name","value":"noSingleLineComments"}},{"kind":"Field","name":{"kind":"Name","value":"showCommunityInRecentDiscussion"}},{"kind":"Field","name":{"kind":"Name","value":"karmaChangeNotifierSettings"}},{"kind":"Field","name":{"kind":"Name","value":"karmaChangeLastOpened"}},{"kind":"Field","name":{"kind":"Name","value":"shortformFeedId"}},{"kind":"Field","name":{"kind":"Name","value":"viewUnreviewedComments"}},{"kind":"Field","name":{"kind":"Name","value":"recommendationSettings"}},{"kind":"Field","name":{"kind":"Name","value":"theme"}},{"kind":"Field","name":{"kind":"Name","value":"hasAnyBookmarks"}},{"kind":"Field","name":{"kind":"Name","value":"hiddenPostsMetadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"auto_subscribe_to_my_posts"}},{"kind":"Field","name":{"kind":"Name","value":"auto_subscribe_to_my_comments"}},{"kind":"Field","name":{"kind":"Name","value":"autoSubscribeAsOrganizer"}},{"kind":"Field","name":{"kind":"Name","value":"noExpandUnreadCommentsReview"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageBookAd"}},{"kind":"Field","name":{"kind":"Name","value":"abTestKey"}},{"kind":"Field","name":{"kind":"Name","value":"abTestOverrides"}},{"kind":"Field","name":{"kind":"Name","value":"sortDraftsBy"}},{"kind":"Field","name":{"kind":"Name","value":"reactPaletteStyle"}},{"kind":"Field","name":{"kind":"Name","value":"petrovPressedButtonDate"}},{"kind":"Field","name":{"kind":"Name","value":"petrovLaunchCodeDate"}},{"kind":"Field","name":{"kind":"Name","value":"petrovOptOut"}},{"kind":"Field","name":{"kind":"Name","value":"lastUsedTimezone"}},{"kind":"Field","name":{"kind":"Name","value":"acknowledgedNewUserGuidelines"}},{"kind":"Field","name":{"kind":"Name","value":"notificationSubforumUnread"}},{"kind":"Field","name":{"kind":"Name","value":"notificationRepliesToMyComments"}},{"kind":"Field","name":{"kind":"Name","value":"subforumPreferredLayout"}},{"kind":"Field","name":{"kind":"Name","value":"hideJobAdUntil"}},{"kind":"Field","name":{"kind":"Name","value":"criticismTipsDismissed"}},{"kind":"Field","name":{"kind":"Name","value":"allowDatadogSessionReplay"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageBook2020Ad"}},{"kind":"Field","name":{"kind":"Name","value":"showDialoguesList"}},{"kind":"Field","name":{"kind":"Name","value":"showMyDialogues"}},{"kind":"Field","name":{"kind":"Name","value":"showMatches"}},{"kind":"Field","name":{"kind":"Name","value":"showRecommendedPartners"}},{"kind":"Field","name":{"kind":"Name","value":"hideActiveDialogueUsers"}},{"kind":"Field","name":{"kind":"Name","value":"hideSunshineSidebar"}},{"kind":"Field","name":{"kind":"Name","value":"optedOutOfSurveys"}},{"kind":"Field","name":{"kind":"Name","value":"postGlossariesPinned"}},{"kind":"Field","name":{"kind":"Name","value":"generateJargonForDrafts"}},{"kind":"Field","name":{"kind":"Name","value":"generateJargonForPublishedPosts"}}]}};
+const UsersCurrentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"UsersCurrent"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}},{"kind":"Field","name":{"kind":"Name","value":"oldSlugs"}},{"kind":"Field","name":{"kind":"Name","value":"groups"}},{"kind":"Field","name":{"kind":"Name","value":"jobTitle"}},{"kind":"Field","name":{"kind":"Name","value":"organization"}},{"kind":"Field","name":{"kind":"Name","value":"careerStage"}},{"kind":"Field","name":{"kind":"Name","value":"organizerOfGroupIds"}},{"kind":"Field","name":{"kind":"Name","value":"moderationStyle"}},{"kind":"Field","name":{"kind":"Name","value":"moderationGuidelines"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionDisplay"}}]}},{"kind":"Field","name":{"kind":"Name","value":"bannedUserIds"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"googleLocation"}},{"kind":"Field","name":{"kind":"Name","value":"mapLocation"}},{"kind":"Field","name":{"kind":"Name","value":"mapLocationSet"}},{"kind":"Field","name":{"kind":"Name","value":"mapMarkerText"}},{"kind":"Field","name":{"kind":"Name","value":"mongoLocation"}},{"kind":"Field","name":{"kind":"Name","value":"shortformFeedId"}},{"kind":"Field","name":{"kind":"Name","value":"sortDraftsBy"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"emails"}},{"kind":"Field","name":{"kind":"Name","value":"banned"}},{"kind":"Field","name":{"kind":"Name","value":"paymentEmail"}},{"kind":"Field","name":{"kind":"Name","value":"paymentInfo"}},{"kind":"Field","name":{"kind":"Name","value":"postingDisabled"}},{"kind":"Field","name":{"kind":"Name","value":"allCommentingDisabled"}},{"kind":"Field","name":{"kind":"Name","value":"commentingOnOtherUsersDisabled"}},{"kind":"Field","name":{"kind":"Name","value":"conversationsDisabled"}},{"kind":"Field","name":{"kind":"Name","value":"usernameUnset"}},{"kind":"Field","name":{"kind":"Name","value":"taggingDashboardCollapsed"}},{"kind":"Field","name":{"kind":"Name","value":"beta"}},{"kind":"Field","name":{"kind":"Name","value":"acceptedTos"}},{"kind":"Field","name":{"kind":"Name","value":"pageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"isReviewed"}},{"kind":"Field","name":{"kind":"Name","value":"nullifyVotes"}},{"kind":"Field","name":{"kind":"Name","value":"hideIntercom"}},{"kind":"Field","name":{"kind":"Name","value":"hideNavigationSidebar"}},{"kind":"Field","name":{"kind":"Name","value":"hideCommunitySection"}},{"kind":"Field","name":{"kind":"Name","value":"hasContinueReading"}},{"kind":"Field","name":{"kind":"Name","value":"expandedFrontpageSections"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"community"}},{"kind":"Field","name":{"kind":"Name","value":"recommendations"}},{"kind":"Field","name":{"kind":"Name","value":"quickTakes"}},{"kind":"Field","name":{"kind":"Name","value":"quickTakesCommunity"}},{"kind":"Field","name":{"kind":"Name","value":"popularComments"}}]}},{"kind":"Field","name":{"kind":"Name","value":"hidePostsRecommendations"}},{"kind":"Field","name":{"kind":"Name","value":"currentFrontpageFilter"}},{"kind":"Field","name":{"kind":"Name","value":"frontpageSelectedTab"}},{"kind":"Field","name":{"kind":"Name","value":"frontpageFilterSettings"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageFilterSettingsDesktop"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsTimeframe"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsSorting"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsFilter"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsShowLowKarma"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsIncludeEvents"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsHideCommunity"}},{"kind":"Field","name":{"kind":"Name","value":"allPostsOpenSettings"}},{"kind":"Field","name":{"kind":"Name","value":"draftsListSorting"}},{"kind":"Field","name":{"kind":"Name","value":"draftsListShowArchived"}},{"kind":"Field","name":{"kind":"Name","value":"draftsListShowShared"}},{"kind":"Field","name":{"kind":"Name","value":"lastNotificationsCheck"}},{"kind":"Field","name":{"kind":"Name","value":"bannedUserIds"}},{"kind":"Field","name":{"kind":"Name","value":"bannedPersonalUserIds"}},{"kind":"Field","name":{"kind":"Name","value":"moderationStyle"}},{"kind":"Field","name":{"kind":"Name","value":"noKibitz"}},{"kind":"Field","name":{"kind":"Name","value":"showHideKarmaOption"}},{"kind":"Field","name":{"kind":"Name","value":"markDownPostEditor"}},{"kind":"Field","name":{"kind":"Name","value":"hideElicitPredictions"}},{"kind":"Field","name":{"kind":"Name","value":"hideAFNonMemberInitialWarning"}},{"kind":"Field","name":{"kind":"Name","value":"commentSorting"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"googleLocation"}},{"kind":"Field","name":{"kind":"Name","value":"mongoLocation"}},{"kind":"Field","name":{"kind":"Name","value":"mapLocation"}},{"kind":"Field","name":{"kind":"Name","value":"mapLocationSet"}},{"kind":"Field","name":{"kind":"Name","value":"mapMarkerText"}},{"kind":"Field","name":{"kind":"Name","value":"htmlMapMarkerText"}},{"kind":"Field","name":{"kind":"Name","value":"nearbyEventsNotifications"}},{"kind":"Field","name":{"kind":"Name","value":"nearbyEventsNotificationsLocation"}},{"kind":"Field","name":{"kind":"Name","value":"nearbyEventsNotificationsRadius"}},{"kind":"Field","name":{"kind":"Name","value":"nearbyPeopleNotificationThreshold"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageMap"}},{"kind":"Field","name":{"kind":"Name","value":"emailSubscribedToCurated"}},{"kind":"Field","name":{"kind":"Name","value":"subscribedToDigest"}},{"kind":"Field","name":{"kind":"Name","value":"subscribedToNewsletter"}},{"kind":"Field","name":{"kind":"Name","value":"unsubscribeFromAll"}},{"kind":"Field","name":{"kind":"Name","value":"whenConfirmationEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"hideSubscribePoke"}},{"kind":"Field","name":{"kind":"Name","value":"hideMeetupsPoke"}},{"kind":"Field","name":{"kind":"Name","value":"hideHomeRHS"}},{"kind":"Field","name":{"kind":"Name","value":"noCollapseCommentsFrontpage"}},{"kind":"Field","name":{"kind":"Name","value":"noCollapseCommentsPosts"}},{"kind":"Field","name":{"kind":"Name","value":"noSingleLineComments"}},{"kind":"Field","name":{"kind":"Name","value":"showCommunityInRecentDiscussion"}},{"kind":"Field","name":{"kind":"Name","value":"karmaChangeNotifierSettings"}},{"kind":"Field","name":{"kind":"Name","value":"karmaChangeLastOpened"}},{"kind":"Field","name":{"kind":"Name","value":"shortformFeedId"}},{"kind":"Field","name":{"kind":"Name","value":"viewUnreviewedComments"}},{"kind":"Field","name":{"kind":"Name","value":"recommendationSettings"}},{"kind":"Field","name":{"kind":"Name","value":"theme"}},{"kind":"Field","name":{"kind":"Name","value":"hasAnyBookmarks"}},{"kind":"Field","name":{"kind":"Name","value":"hiddenPostsMetadata"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"postId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"auto_subscribe_to_my_posts"}},{"kind":"Field","name":{"kind":"Name","value":"auto_subscribe_to_my_comments"}},{"kind":"Field","name":{"kind":"Name","value":"autoSubscribeAsOrganizer"}},{"kind":"Field","name":{"kind":"Name","value":"noExpandUnreadCommentsReview"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageBookAd"}},{"kind":"Field","name":{"kind":"Name","value":"abTestKey"}},{"kind":"Field","name":{"kind":"Name","value":"abTestOverrides"}},{"kind":"Field","name":{"kind":"Name","value":"sortDraftsBy"}},{"kind":"Field","name":{"kind":"Name","value":"reactPaletteStyle"}},{"kind":"Field","name":{"kind":"Name","value":"petrovPressedButtonDate"}},{"kind":"Field","name":{"kind":"Name","value":"petrovLaunchCodeDate"}},{"kind":"Field","name":{"kind":"Name","value":"petrovOptOut"}},{"kind":"Field","name":{"kind":"Name","value":"lastUsedTimezone"}},{"kind":"Field","name":{"kind":"Name","value":"acknowledgedNewUserGuidelines"}},{"kind":"Field","name":{"kind":"Name","value":"notificationSubforumUnread"}},{"kind":"Field","name":{"kind":"Name","value":"notificationRepliesToMyComments"}},{"kind":"Field","name":{"kind":"Name","value":"subforumPreferredLayout"}},{"kind":"Field","name":{"kind":"Name","value":"hideJobAdUntil"}},{"kind":"Field","name":{"kind":"Name","value":"criticismTipsDismissed"}},{"kind":"Field","name":{"kind":"Name","value":"allowDatadogSessionReplay"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageBook2020Ad"}},{"kind":"Field","name":{"kind":"Name","value":"showDialoguesList"}},{"kind":"Field","name":{"kind":"Name","value":"showMyDialogues"}},{"kind":"Field","name":{"kind":"Name","value":"showMatches"}},{"kind":"Field","name":{"kind":"Name","value":"showRecommendedPartners"}},{"kind":"Field","name":{"kind":"Name","value":"hideActiveDialogueUsers"}},{"kind":"Field","name":{"kind":"Name","value":"hideSunshineSidebar"}},{"kind":"Field","name":{"kind":"Name","value":"postGlossariesPinned"}},{"kind":"Field","name":{"kind":"Name","value":"generateJargonForDrafts"}},{"kind":"Field","name":{"kind":"Name","value":"generateJargonForPublishedPosts"}}]}};
 const UsersEditFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"UsersEdit"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersProfile"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersCurrent"}},{"kind":"Field","name":{"kind":"Name","value":"biography"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionEdit"}}]}},{"kind":"Field","name":{"kind":"Name","value":"moderationGuidelines"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionEdit"}}]}},{"kind":"Field","name":{"kind":"Name","value":"markDownPostEditor"}},{"kind":"Field","name":{"kind":"Name","value":"hideElicitPredictions"}},{"kind":"Field","name":{"kind":"Name","value":"hideAFNonMemberInitialWarning"}},{"kind":"Field","name":{"kind":"Name","value":"hideIntercom"}},{"kind":"Field","name":{"kind":"Name","value":"commentSorting"}},{"kind":"Field","name":{"kind":"Name","value":"currentFrontpageFilter"}},{"kind":"Field","name":{"kind":"Name","value":"noCollapseCommentsPosts"}},{"kind":"Field","name":{"kind":"Name","value":"noCollapseCommentsFrontpage"}},{"kind":"Field","name":{"kind":"Name","value":"noSingleLineComments"}},{"kind":"Field","name":{"kind":"Name","value":"hideCommunitySection"}},{"kind":"Field","name":{"kind":"Name","value":"showCommunityInRecentDiscussion"}},{"kind":"Field","name":{"kind":"Name","value":"hidePostsRecommendations"}},{"kind":"Field","name":{"kind":"Name","value":"beta"}},{"kind":"Field","name":{"kind":"Name","value":"theme"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"whenConfirmationEmailSent"}},{"kind":"Field","name":{"kind":"Name","value":"emailSubscribedToCurated"}},{"kind":"Field","name":{"kind":"Name","value":"subscribedToDigest"}},{"kind":"Field","name":{"kind":"Name","value":"subscribedToNewsletter"}},{"kind":"Field","name":{"kind":"Name","value":"unsubscribeFromAll"}},{"kind":"Field","name":{"kind":"Name","value":"hasAuth0Id"}},{"kind":"Field","name":{"kind":"Name","value":"moderatorAssistance"}},{"kind":"Field","name":{"kind":"Name","value":"collapseModerationGuidelines"}},{"kind":"Field","name":{"kind":"Name","value":"bannedUserIds"}},{"kind":"Field","name":{"kind":"Name","value":"bannedPersonalUserIds"}},{"kind":"Field","name":{"kind":"Name","value":"noKibitz"}},{"kind":"Field","name":{"kind":"Name","value":"showHideKarmaOption"}},{"kind":"Field","name":{"kind":"Name","value":"nullifyVotes"}},{"kind":"Field","name":{"kind":"Name","value":"deleteContent"}},{"kind":"Field","name":{"kind":"Name","value":"banned"}},{"kind":"Field","name":{"kind":"Name","value":"username"}},{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"fullName"}},{"kind":"Field","name":{"kind":"Name","value":"mongoLocation"}},{"kind":"Field","name":{"kind":"Name","value":"googleLocation"}},{"kind":"Field","name":{"kind":"Name","value":"location"}},{"kind":"Field","name":{"kind":"Name","value":"mapLocation"}},{"kind":"Field","name":{"kind":"Name","value":"hideFromPeopleDirectory"}},{"kind":"Field","name":{"kind":"Name","value":"allowDatadogSessionReplay"}},{"kind":"Field","name":{"kind":"Name","value":"reviewedByUserId"}},{"kind":"Field","name":{"kind":"Name","value":"reviewForAlignmentForumUserId"}},{"kind":"Field","name":{"kind":"Name","value":"groups"}},{"kind":"Field","name":{"kind":"Name","value":"afApplicationText"}},{"kind":"Field","name":{"kind":"Name","value":"afSubmittedApplication"}},{"kind":"Field","name":{"kind":"Name","value":"karmaChangeLastOpened"}},{"kind":"Field","name":{"kind":"Name","value":"karmaChangeNotifierSettings"}},{"kind":"Field","name":{"kind":"Name","value":"notificationShortformContent"}},{"kind":"Field","name":{"kind":"Name","value":"notificationCommentsOnSubscribedPost"}},{"kind":"Field","name":{"kind":"Name","value":"notificationRepliesToMyComments"}},{"kind":"Field","name":{"kind":"Name","value":"notificationRepliesToSubscribedComments"}},{"kind":"Field","name":{"kind":"Name","value":"notificationSubscribedUserPost"}},{"kind":"Field","name":{"kind":"Name","value":"notificationSubscribedUserComment"}},{"kind":"Field","name":{"kind":"Name","value":"notificationSubscribedTagPost"}},{"kind":"Field","name":{"kind":"Name","value":"notificationSubscribedSequencePost"}},{"kind":"Field","name":{"kind":"Name","value":"notificationPostsInGroups"}},{"kind":"Field","name":{"kind":"Name","value":"notificationPrivateMessage"}},{"kind":"Field","name":{"kind":"Name","value":"notificationSharedWithMe"}},{"kind":"Field","name":{"kind":"Name","value":"notificationAlignmentSubmissionApproved"}},{"kind":"Field","name":{"kind":"Name","value":"notificationEventInRadius"}},{"kind":"Field","name":{"kind":"Name","value":"notificationRSVPs"}},{"kind":"Field","name":{"kind":"Name","value":"notificationCommentsOnDraft"}},{"kind":"Field","name":{"kind":"Name","value":"notificationPostsNominatedReview"}},{"kind":"Field","name":{"kind":"Name","value":"notificationGroupAdministration"}},{"kind":"Field","name":{"kind":"Name","value":"notificationSubforumUnread"}},{"kind":"Field","name":{"kind":"Name","value":"notificationNewMention"}},{"kind":"Field","name":{"kind":"Name","value":"notificationNewDialogueChecks"}},{"kind":"Field","name":{"kind":"Name","value":"notificationYourTurnMatchForm"}},{"kind":"Field","name":{"kind":"Name","value":"notificationDialogueMessages"}},{"kind":"Field","name":{"kind":"Name","value":"notificationPublishedDialogueMessages"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageMap"}},{"kind":"Field","name":{"kind":"Name","value":"hideTaggingProgressBar"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageBookAd"}},{"kind":"Field","name":{"kind":"Name","value":"hideFrontpageBook2020Ad"}},{"kind":"Field","name":{"kind":"Name","value":"deleted"}},{"kind":"Field","name":{"kind":"Name","value":"permanentDeletionRequestedAt"}},{"kind":"Field","name":{"kind":"Name","value":"twitterProfileURLAdmin"}}]}};
 const PostsOriginalContentsFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"PostsOriginalContents"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"originalContents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"data"}}]}}]}}]}};
 const PostsWithNavigationAndRevisionFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"PostsWithNavigationAndRevision"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsRevision"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostSequenceNavigation"}},{"kind":"Field","name":{"kind":"Name","value":"customHighlight"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionDisplay"}}]}},{"kind":"Field","name":{"kind":"Name","value":"tableOfContentsRevision"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"version"},"value":{"kind":"Variable","name":{"kind":"Name","value":"version"}}}]},{"kind":"Field","name":{"kind":"Name","value":"reviewWinner"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ReviewWinnerAll"}}]}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostPodcastEpisode"}},{"kind":"Field","name":{"kind":"Name","value":"glossary"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"JargonTermsPost"}}]}}]}};
@@ -20536,11 +20077,6 @@ const SunshineCommentsListFragmentDef = {"kind":"FragmentDefinition","name":{"ki
 const TagRelMinimumFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"TagRelMinimumFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"TagRel"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TagRelBasicInfo"}},{"kind":"Field","name":{"kind":"Name","value":"tag"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TagPreviewFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"currentUserVote"}},{"kind":"Field","name":{"kind":"Name","value":"currentUserExtendedVote"}},{"kind":"Field","name":{"kind":"Name","value":"currentUserCanVote"}}]}};
 const SunshinePostsListFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"SunshinePostsList"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListBase"}},{"kind":"Field","name":{"kind":"Name","value":"currentUserVote"}},{"kind":"Field","name":{"kind":"Name","value":"currentUserExtendedVote"}},{"kind":"Field","name":{"kind":"Name","value":"isBookmarked"}},{"kind":"Field","name":{"kind":"Name","value":"fmCrosspost"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isCrosspost"}},{"kind":"Field","name":{"kind":"Name","value":"hostedHere"}},{"kind":"Field","name":{"kind":"Name","value":"foreignPostId"}}]}},{"kind":"Field","name":{"kind":"Name","value":"rejectedReason"}},{"kind":"Field","name":{"kind":"Name","value":"autoFrontpage"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"html"}},{"kind":"Field","name":{"kind":"Name","value":"htmlHighlight"}},{"kind":"Field","name":{"kind":"Name","value":"wordCount"}},{"kind":"Field","name":{"kind":"Name","value":"version"}}]}},{"kind":"Field","name":{"kind":"Name","value":"automatedContentEvaluations"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"AutomatedContentEvaluationsFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"moderationGuidelines"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"html"}}]}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}},{"kind":"Field","name":{"kind":"Name","value":"biography"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionDisplay"}}]}},{"kind":"Field","name":{"kind":"Name","value":"profileImageId"}},{"kind":"Field","name":{"kind":"Name","value":"moderationStyle"}},{"kind":"Field","name":{"kind":"Name","value":"bannedUserIds"}},{"kind":"Field","name":{"kind":"Name","value":"moderatorAssistance"}},{"kind":"Field","name":{"kind":"Name","value":"moderationGuidelines"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"html"}}]}},{"kind":"Field","name":{"kind":"Name","value":"needsReview"}},{"kind":"Field","name":{"kind":"Name","value":"moderatorActions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"ModeratorActionDisplay"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"frontpageClassification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"isFrontpage"}},{"kind":"Field","name":{"kind":"Name","value":"probability"}}]}},{"kind":"Field","name":{"kind":"Name","value":"tagRels"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TagRelMinimumFragment"}}]}}]}};
 const SunshineTagFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"SunshineTagFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Tag"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TagFragment"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}}]}};
-const SurveyQuestionMinimumInfoFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"SurveyQuestionMinimumInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"SurveyQuestion"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"question"}},{"kind":"Field","name":{"kind":"Name","value":"format"}},{"kind":"Field","name":{"kind":"Name","value":"order"}}]}};
-const SurveyMinimumInfoFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"SurveyMinimumInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Survey"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"questions"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SurveyQuestionMinimumInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}};
-const SurveyResponseMinimumInfoFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"SurveyResponseMinimumInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"SurveyResponse"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"surveyId"}},{"kind":"Field","name":{"kind":"Name","value":"surveyScheduleId"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"clientId"}},{"kind":"Field","name":{"kind":"Name","value":"response"}}]}};
-const SurveyScheduleMinimumInfoFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"SurveyScheduleMinimumInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"SurveySchedule"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"survey"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SurveyMinimumInfo"}}]}}]}};
-const SurveyScheduleEditFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"SurveyScheduleEdit"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"SurveySchedule"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SurveyScheduleMinimumInfo"}},{"kind":"Field","name":{"kind":"Name","value":"surveyId"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"impressionsLimit"}},{"kind":"Field","name":{"kind":"Name","value":"maxVisitorPercentage"}},{"kind":"Field","name":{"kind":"Name","value":"minKarma"}},{"kind":"Field","name":{"kind":"Name","value":"maxKarma"}},{"kind":"Field","name":{"kind":"Name","value":"target"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"deactivated"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}};
 const TagFullContributorsListFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"TagFullContributorsList"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Tag"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"contributors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"totalCount"}},{"kind":"Field","name":{"kind":"Name","value":"contributors"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"contributionScore"}},{"kind":"Field","name":{"kind":"Name","value":"currentAttributionCharCount"}},{"kind":"Field","name":{"kind":"Name","value":"numCommits"}},{"kind":"Field","name":{"kind":"Name","value":"voteCount"}}]}}]}}]}};
 const TagFlagEditFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"TagFlagEditFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"TagFlag"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TagFlagFragment"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionEdit"}}]}}]}};
 const TagRelHistoryFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"TagRelHistoryFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"TagRel"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TagRelBasicInfo"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsList"}}]}}]}};
@@ -20929,11 +20465,6 @@ export const SunshineNewUsersProfileInfoDocument = {"kind":"Document","definitio
 export const SunshinePostsListDoc = {"kind":"Document","definitions":[SunshinePostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,AutomatedContentEvaluationsFragmentFragmentDef,RevisionDisplayFragmentDef,ModeratorActionDisplayFragmentDef,TagRelMinimumFragmentFragmentDef,TagRelBasicInfoFragmentDef]} as unknown as DocumentNode<SunshinePostsList, unknown>;
 export const SunshineTagFragmentDoc = {"kind":"Document","definitions":[SunshineTagFragmentFragmentDef,TagFragmentFragmentDef,TagDetailsFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,SequencesPageFragmentFragmentDef,SequencesPageTitleFragmentFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<SunshineTagFragment, unknown>;
 export const SunshineUsersListDoc = {"kind":"Document","definitions":[SunshineUsersListFragmentDef,UsersMinimumInfoFragmentDef,ModeratorActionDisplayFragmentDef,UserRateLimitDisplayFragmentDef]} as unknown as DocumentNode<SunshineUsersList, unknown>;
-export const SurveyMinimumInfoDoc = {"kind":"Document","definitions":[SurveyMinimumInfoFragmentDef,SurveyQuestionMinimumInfoFragmentDef]} as unknown as DocumentNode<SurveyMinimumInfo, unknown>;
-export const SurveyQuestionMinimumInfoDoc = {"kind":"Document","definitions":[SurveyQuestionMinimumInfoFragmentDef]} as unknown as DocumentNode<SurveyQuestionMinimumInfo, unknown>;
-export const SurveyResponseMinimumInfoDoc = {"kind":"Document","definitions":[SurveyResponseMinimumInfoFragmentDef]} as unknown as DocumentNode<SurveyResponseMinimumInfo, unknown>;
-export const SurveyScheduleEditDoc = {"kind":"Document","definitions":[SurveyScheduleEditFragmentDef,SurveyScheduleMinimumInfoFragmentDef,SurveyMinimumInfoFragmentDef,SurveyQuestionMinimumInfoFragmentDef]} as unknown as DocumentNode<SurveyScheduleEdit, unknown>;
-export const SurveyScheduleMinimumInfoDoc = {"kind":"Document","definitions":[SurveyScheduleMinimumInfoFragmentDef,SurveyMinimumInfoFragmentDef,SurveyQuestionMinimumInfoFragmentDef]} as unknown as DocumentNode<SurveyScheduleMinimumInfo, unknown>;
 export const TagBasicInfoDoc = {"kind":"Document","definitions":[TagBasicInfoFragmentDef]} as unknown as DocumentNode<TagBasicInfo, unknown>;
 export const TagContributorsListDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"TagContributorsList"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"tag"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"TagFullContributorsList"}}]}}]}}]}},TagFullContributorsListFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<TagContributorsListQuery, TagContributorsListQueryVariables>;
 export const TagCreationHistoryFragmentDoc = {"kind":"Document","definitions":[TagCreationHistoryFragmentFragmentDef,TagFragmentFragmentDef,TagDetailsFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,SequencesPageFragmentFragmentDef,SequencesPageTitleFragmentFragmentDef,RevisionDisplayFragmentDef]} as unknown as DocumentNode<TagCreationHistoryFragment, unknown>;

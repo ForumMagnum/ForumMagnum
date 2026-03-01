@@ -10,6 +10,13 @@ export const up = async ({db}: MigrationContext) => {
   await dropTable(db, "ElectionCandidates");
   await dropTable(db, "ElectionVotes");
   await dropTable(db, "FeaturedResources");
+  await dropTable(db, "Surveys");
+  await dropTable(db, "SurveyQuestions");
+  await dropTable(db, "SurveyResponses");
+  await dropTable(db, "SurveySchedules");
+  await dropField(db, "Users", "optedOutOfSurveys");
+  await dropField(db, "Users", "inactiveSurveyEmailSentAt");
+  await dropField(db, "Users", "userSurveyEmailSentAt");
 }
 
 export const down = async ({db}: MigrationContext) => {

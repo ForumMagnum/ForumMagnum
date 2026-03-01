@@ -1280,59 +1280,6 @@ interface DbSubscription extends DbObject {
   userId: string
 }
 
-type SurveyQuestionsCollection = PgCollection<"SurveyQuestions">;
-
-interface DbSurveyQuestion extends DbObject {
-  __collectionName?: "SurveyQuestions"
-  createdAt: Date
-  format: "rank0To10" | "text" | "multilineText"
-  legacyData: any | null
-  order: number
-  question: string
-  surveyId: string
-}
-
-type SurveyResponsesCollection = PgCollection<"SurveyResponses">;
-
-interface DbSurveyResponse extends DbObject {
-  __collectionName?: "SurveyResponses"
-  clientId: string
-  createdAt: Date
-  legacyData: any | null
-  response: any
-  surveyId: string
-  surveyScheduleId: string
-  userId: string
-}
-
-type SurveySchedulesCollection = PgCollection<"SurveySchedules">;
-
-interface DbSurveySchedule extends DbObject {
-  __collectionName?: "SurveySchedules"
-  clientIds: Array<string>
-  createdAt: Date
-  deactivated: boolean
-  endDate: Date | null
-  impressionsLimit: number | null
-  legacyData: any | null
-  maxKarma: number | null
-  maxVisitorPercentage: number | null
-  minKarma: number | null
-  name: string
-  startDate: Date | null
-  surveyId: string
-  target: "allUsers" | "loggedInOnly" | "loggedOutOnly"
-}
-
-type SurveysCollection = PgCollection<"Surveys">;
-
-interface DbSurvey extends DbObject {
-  __collectionName?: "Surveys"
-  createdAt: Date
-  legacyData: any | null
-  name: string
-}
-
 type TagFlagsCollection = PgCollection<"TagFlags">;
 
 interface DbTagFlag extends DbObject {
@@ -1656,7 +1603,6 @@ interface DbUser extends DbObject {
   howOthersCanHelpMe: EditableFieldContents | null
   howOthersCanHelpMe_latest: string | null
   htmlMapMarkerText: string | null
-  inactiveSurveyEmailSentAt: Date | null
   isAdmin: boolean
   jobTitle: string | null
   karma: number
@@ -2094,7 +2040,6 @@ interface DbUser extends DbObject {
   nullifyVotes: boolean | null
   oldSlugs: Array<string>
   optedInToDialogueFacilitation: boolean
-  optedOutOfSurveys: boolean | null
   organization: string | null
   organizerOfGroupIds: Array<string>
   partiallyReadSequences: Array<PartiallyReadSequenceItemInput!> | null
@@ -2157,7 +2102,6 @@ interface DbUser extends DbObject {
   twitterProfileURL: string | null
   twitterProfileURLAdmin: string | null
   unsubscribeFromAll: boolean | null
-  userSurveyEmailSentAt: Date | null
   username: string | null
   usernameUnset: boolean
   usersContactedBeforeReview: Array<string> | null
@@ -2273,10 +2217,6 @@ interface CollectionsByName {
   SplashArtCoordinates: SplashArtCoordinatesCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
-  SurveyQuestions: SurveyQuestionsCollection
-  SurveyResponses: SurveyResponsesCollection
-  SurveySchedules: SurveySchedulesCollection
-  Surveys: SurveysCollection
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
@@ -2364,10 +2304,6 @@ interface ObjectsByCollectionName {
   SplashArtCoordinates: DbSplashArtCoordinate
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
-  SurveyQuestions: DbSurveyQuestion
-  SurveyResponses: DbSurveyResponse
-  SurveySchedules: DbSurveySchedule
-  Surveys: DbSurvey
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
@@ -2455,10 +2391,6 @@ interface ObjectsByTypeName {
   SplashArtCoordinate: DbSplashArtCoordinate
   Spotlight: DbSpotlight
   Subscription: DbSubscription
-  SurveyQuestion: DbSurveyQuestion
-  SurveyResponse: DbSurveyResponse
-  SurveySchedule: DbSurveySchedule
-  Survey: DbSurvey
   TagFlag: DbTagFlag
   TagRel: DbTagRel
   Tag: DbTag

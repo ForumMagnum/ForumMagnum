@@ -172,14 +172,6 @@ interface Query {
   spotlights: MultiSpotlightOutput | null;
   subscription: SingleSubscriptionOutput | null;
   subscriptions: MultiSubscriptionOutput | null;
-  surveyQuestion: SingleSurveyQuestionOutput | null;
-  surveyQuestions: MultiSurveyQuestionOutput | null;
-  surveyResponse: SingleSurveyResponseOutput | null;
-  surveyResponses: MultiSurveyResponseOutput | null;
-  surveySchedule: SingleSurveyScheduleOutput | null;
-  surveySchedules: MultiSurveyScheduleOutput | null;
-  survey: SingleSurveyOutput | null;
-  surveys: MultiSurveyOutput | null;
   tagFlag: SingleTagFlagOutput | null;
   tagFlags: MultiTagFlagOutput | null;
   tagRel: SingleTagRelOutput | null;
@@ -336,14 +328,6 @@ interface Mutation {
   createSpotlight: SpotlightOutput | null;
   updateSpotlight: SpotlightOutput | null;
   createSubscription: SubscriptionOutput | null;
-  createSurveyQuestion: SurveyQuestionOutput | null;
-  updateSurveyQuestion: SurveyQuestionOutput | null;
-  createSurveyResponse: SurveyResponseOutput | null;
-  updateSurveyResponse: SurveyResponseOutput | null;
-  createSurveySchedule: SurveyScheduleOutput | null;
-  updateSurveySchedule: SurveyScheduleOutput | null;
-  createSurvey: SurveyOutput | null;
-  updateSurvey: SurveyOutput | null;
   createTagFlag: TagFlagOutput | null;
   updateTagFlag: TagFlagOutput | null;
   createTag: TagOutput | null;
@@ -6093,165 +6077,6 @@ interface MultiSubscriptionOutput {
   totalCount: number | null;
 }
 
-interface SurveyQuestion {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  surveyId: string;
-  survey: Survey;
-  question: string;
-  format: SurveyQuestionFormat;
-  order: number;
-}
-
-interface SingleSurveyQuestionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleSurveyQuestionOutput {
-  result: SurveyQuestion | null;
-}
-
-interface SurveyQuestionSelector {
-  default: EmptyViewInput | null;
-}
-
-interface MultiSurveyQuestionInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiSurveyQuestionOutput {
-  results: Array<SurveyQuestion>;
-  totalCount: number | null;
-}
-
-interface SurveyResponse {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  surveyId: string | null;
-  survey: Survey | null;
-  surveyScheduleId: string | null;
-  surveySchedule: SurveySchedule | null;
-  userId: string | null;
-  user: User | null;
-  clientId: string | null;
-  client: ClientId | null;
-  response: any;
-}
-
-interface SingleSurveyResponseInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleSurveyResponseOutput {
-  result: SurveyResponse | null;
-}
-
-interface SurveyResponseSelector {
-  default: EmptyViewInput | null;
-}
-
-interface MultiSurveyResponseInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiSurveyResponseOutput {
-  results: Array<SurveyResponse>;
-  totalCount: number | null;
-}
-
-interface SurveySchedule {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  surveyId: string;
-  survey: Survey | null;
-  name: string | null;
-  impressionsLimit: number | null;
-  maxVisitorPercentage: number | null;
-  minKarma: number | null;
-  maxKarma: number | null;
-  target: SurveyScheduleTarget | null;
-  startDate: Date | null;
-  endDate: Date | null;
-  deactivated: boolean | null;
-  clientIds: Array<string> | null;
-  clients: Array<ClientId> | null;
-}
-
-interface SingleSurveyScheduleInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleSurveyScheduleOutput {
-  result: SurveySchedule | null;
-}
-
-interface SurveyScheduleSelector {
-  default: EmptyViewInput | null;
-  surveySchedulesByCreatedAt: EmptyViewInput | null;
-}
-
-interface MultiSurveyScheduleInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiSurveyScheduleOutput {
-  results: Array<SurveySchedule>;
-  totalCount: number | null;
-}
-
-interface Survey {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  name: string;
-  questions: Array<SurveyQuestion>;
-}
-
-interface SingleSurveyInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleSurveyOutput {
-  result: Survey | null;
-}
-
-interface SurveySelector {
-  default: EmptyViewInput | null;
-  surveysByCreatedAt: EmptyViewInput | null;
-}
-
-interface MultiSurveyInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiSurveyOutput {
-  results: Array<Survey>;
-  totalCount: number | null;
-}
-
 interface TagFlag {
   _id: string;
   schemaVersion: number;
@@ -6941,7 +6766,6 @@ interface User {
   showCommunityInRecentDiscussion: boolean;
   hidePostsRecommendations: boolean;
   petrovOptOut: boolean;
-  optedOutOfSurveys: boolean | null;
   postGlossariesPinned: boolean | null;
   generateJargonForDrafts: boolean | null;
   generateJargonForPublishedPosts: boolean | null;
@@ -7153,8 +6977,6 @@ interface User {
   recentKarmaInfo: any;
   mailgunValidation: MailgunValidationResult | null;
   hideSunshineSidebar: boolean | null;
-  inactiveSurveyEmailSentAt: Date | null;
-  userSurveyEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
   lastRemovedFromReviewQueueAt: Date | null;
@@ -8475,132 +8297,6 @@ interface SubscriptionOutput {
   data: Subscription | null;
 }
 
-interface CreateSurveyQuestionDataInput {
-  legacyData?: any;
-  surveyId: string;
-  question: string;
-  format: SurveyQuestionFormat;
-  order: number;
-}
-
-interface CreateSurveyQuestionInput {
-  data: CreateSurveyQuestionDataInput;
-}
-
-interface UpdateSurveyQuestionDataInput {
-  legacyData?: any;
-  surveyId?: string | null;
-  question?: string | null;
-  format?: SurveyQuestionFormat | null;
-  order?: number | null;
-}
-
-interface UpdateSurveyQuestionInput {
-  selector: SelectorInput;
-  data: UpdateSurveyQuestionDataInput;
-}
-
-interface SurveyQuestionOutput {
-  data: SurveyQuestion | null;
-}
-
-interface CreateSurveyResponseDataInput {
-  legacyData?: any;
-  surveyId: string;
-  surveyScheduleId: string;
-  userId: string;
-  clientId: string;
-  response?: any;
-}
-
-interface CreateSurveyResponseInput {
-  data: CreateSurveyResponseDataInput;
-}
-
-interface UpdateSurveyResponseDataInput {
-  legacyData?: any;
-  surveyId?: string | null;
-  surveyScheduleId?: string | null;
-  userId?: string | null;
-  clientId?: string | null;
-  response?: any;
-}
-
-interface UpdateSurveyResponseInput {
-  selector: SelectorInput;
-  data: UpdateSurveyResponseDataInput;
-}
-
-interface SurveyResponseOutput {
-  data: SurveyResponse | null;
-}
-
-interface CreateSurveyScheduleDataInput {
-  legacyData?: any;
-  surveyId: string;
-  name: string;
-  impressionsLimit?: number | null;
-  maxVisitorPercentage?: number | null;
-  minKarma?: number | null;
-  maxKarma?: number | null;
-  target: SurveyScheduleTarget;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  deactivated?: boolean | null;
-  clientIds?: Array<string> | null;
-}
-
-interface CreateSurveyScheduleInput {
-  data: CreateSurveyScheduleDataInput;
-}
-
-interface UpdateSurveyScheduleDataInput {
-  legacyData?: any;
-  surveyId?: string | null;
-  name?: string | null;
-  impressionsLimit?: number | null;
-  maxVisitorPercentage?: number | null;
-  minKarma?: number | null;
-  maxKarma?: number | null;
-  target?: SurveyScheduleTarget | null;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  deactivated?: boolean | null;
-  clientIds?: Array<string> | null;
-}
-
-interface UpdateSurveyScheduleInput {
-  selector: SelectorInput;
-  data: UpdateSurveyScheduleDataInput;
-}
-
-interface SurveyScheduleOutput {
-  data: SurveySchedule | null;
-}
-
-interface CreateSurveyDataInput {
-  legacyData?: any;
-  name: string;
-}
-
-interface CreateSurveyInput {
-  data: CreateSurveyDataInput;
-}
-
-interface UpdateSurveyDataInput {
-  legacyData?: any;
-  name?: string | null;
-}
-
-interface UpdateSurveyInput {
-  selector: SelectorInput;
-  data: UpdateSurveyDataInput;
-}
-
-interface SurveyOutput {
-  data: Survey | null;
-}
-
 interface CreateTagFlagDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
@@ -8925,7 +8621,6 @@ interface CreateUserDataInput {
   showCommunityInRecentDiscussion?: boolean | null;
   hidePostsRecommendations?: boolean | null;
   petrovOptOut?: boolean | null;
-  optedOutOfSurveys?: boolean | null;
   postGlossariesPinned?: boolean | null;
   acceptedTos?: boolean | null;
   hideNavigationSidebar?: boolean | null;
@@ -9048,8 +8743,6 @@ interface CreateUserDataInput {
   reviewForAlignmentForumUserId?: string | null;
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
-  inactiveSurveyEmailSentAt?: Date | null;
-  userSurveyEmailSentAt?: Date | null;
 }
 
 interface CreateUserInput {
@@ -9094,7 +8787,6 @@ interface UpdateUserDataInput {
   showCommunityInRecentDiscussion?: boolean | null;
   hidePostsRecommendations?: boolean | null;
   petrovOptOut?: boolean | null;
-  optedOutOfSurveys?: boolean | null;
   postGlossariesPinned?: boolean | null;
   generateJargonForDrafts?: boolean | null;
   generateJargonForPublishedPosts?: boolean | null;
@@ -9248,8 +8940,6 @@ interface UpdateUserDataInput {
   afApplicationText?: string | null;
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
-  inactiveSurveyEmailSentAt?: Date | null;
-  userSurveyEmailSentAt?: Date | null;
   recommendationSettings?: RecommendationSettingsInput | null;
 }
 
@@ -9878,30 +9568,6 @@ interface GraphQLTypeMap {
   SubscriptionSelector: SubscriptionSelector;
   MultiSubscriptionInput: MultiSubscriptionInput;
   MultiSubscriptionOutput: MultiSubscriptionOutput;
-  SurveyQuestion: SurveyQuestion;
-  SingleSurveyQuestionInput: SingleSurveyQuestionInput;
-  SingleSurveyQuestionOutput: SingleSurveyQuestionOutput;
-  SurveyQuestionSelector: SurveyQuestionSelector;
-  MultiSurveyQuestionInput: MultiSurveyQuestionInput;
-  MultiSurveyQuestionOutput: MultiSurveyQuestionOutput;
-  SurveyResponse: SurveyResponse;
-  SingleSurveyResponseInput: SingleSurveyResponseInput;
-  SingleSurveyResponseOutput: SingleSurveyResponseOutput;
-  SurveyResponseSelector: SurveyResponseSelector;
-  MultiSurveyResponseInput: MultiSurveyResponseInput;
-  MultiSurveyResponseOutput: MultiSurveyResponseOutput;
-  SurveySchedule: SurveySchedule;
-  SingleSurveyScheduleInput: SingleSurveyScheduleInput;
-  SingleSurveyScheduleOutput: SingleSurveyScheduleOutput;
-  SurveyScheduleSelector: SurveyScheduleSelector;
-  MultiSurveyScheduleInput: MultiSurveyScheduleInput;
-  MultiSurveyScheduleOutput: MultiSurveyScheduleOutput;
-  Survey: Survey;
-  SingleSurveyInput: SingleSurveyInput;
-  SingleSurveyOutput: SingleSurveyOutput;
-  SurveySelector: SurveySelector;
-  MultiSurveyInput: MultiSurveyInput;
-  MultiSurveyOutput: MultiSurveyOutput;
   TagFlag: TagFlag;
   SingleTagFlagInput: SingleTagFlagInput;
   SingleTagFlagOutput: SingleTagFlagOutput;
@@ -10141,26 +9807,6 @@ interface GraphQLTypeMap {
   CreateSubscriptionDataInput: CreateSubscriptionDataInput;
   CreateSubscriptionInput: CreateSubscriptionInput;
   SubscriptionOutput: SubscriptionOutput;
-  CreateSurveyQuestionDataInput: CreateSurveyQuestionDataInput;
-  CreateSurveyQuestionInput: CreateSurveyQuestionInput;
-  UpdateSurveyQuestionDataInput: UpdateSurveyQuestionDataInput;
-  UpdateSurveyQuestionInput: UpdateSurveyQuestionInput;
-  SurveyQuestionOutput: SurveyQuestionOutput;
-  CreateSurveyResponseDataInput: CreateSurveyResponseDataInput;
-  CreateSurveyResponseInput: CreateSurveyResponseInput;
-  UpdateSurveyResponseDataInput: UpdateSurveyResponseDataInput;
-  UpdateSurveyResponseInput: UpdateSurveyResponseInput;
-  SurveyResponseOutput: SurveyResponseOutput;
-  CreateSurveyScheduleDataInput: CreateSurveyScheduleDataInput;
-  CreateSurveyScheduleInput: CreateSurveyScheduleInput;
-  UpdateSurveyScheduleDataInput: UpdateSurveyScheduleDataInput;
-  UpdateSurveyScheduleInput: UpdateSurveyScheduleInput;
-  SurveyScheduleOutput: SurveyScheduleOutput;
-  CreateSurveyDataInput: CreateSurveyDataInput;
-  CreateSurveyInput: CreateSurveyInput;
-  UpdateSurveyDataInput: UpdateSurveyDataInput;
-  UpdateSurveyInput: UpdateSurveyInput;
-  SurveyOutput: SurveyOutput;
   CreateTagFlagDataInput: CreateTagFlagDataInput;
   CreateTagFlagInput: CreateTagFlagInput;
   UpdateTagFlagDataInput: UpdateTagFlagDataInput;
@@ -10234,10 +9880,6 @@ interface CreateInputsByCollectionName {
   SplashArtCoordinates: CreateSplashArtCoordinateInput;
   Spotlights: CreateSpotlightInput;
   Subscriptions: CreateSubscriptionInput;
-  SurveyQuestions: CreateSurveyQuestionInput;
-  SurveyResponses: CreateSurveyResponseInput;
-  SurveySchedules: CreateSurveyScheduleInput;
-  Surveys: CreateSurveyInput;
   TagFlags: CreateTagFlagInput;
   Tags: CreateTagInput;
   UltraFeedEvents: CreateUltraFeedEventInput;
@@ -10323,10 +9965,6 @@ interface UpdateInputsByCollectionName {
   Revisions: UpdateRevisionInput;
   Sequences: UpdateSequenceInput;
   Spotlights: UpdateSpotlightInput;
-  SurveyQuestions: UpdateSurveyQuestionInput;
-  SurveyResponses: UpdateSurveyResponseInput;
-  SurveySchedules: UpdateSurveyScheduleInput;
-  Surveys: UpdateSurveyInput;
   TagFlags: UpdateTagFlagInput;
   Tags: UpdateTagInput;
   UserEAGDetails: UpdateUserEAGDetailInput;
