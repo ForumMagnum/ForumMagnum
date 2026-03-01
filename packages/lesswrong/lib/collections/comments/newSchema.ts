@@ -1244,21 +1244,6 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "rejectedByUserId" }),
     },
   },
-  emojiReactors: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: async (comment, _, context) => {
-        const { extendedScore } = comment;
-        if (!isEAForum() || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
-          return {};
-        }
-        if (!comment.postId) return {};
-        const reactors = await context.repos.posts.getCommentEmojiReactorsWithCache(comment.postId);
-        return reactors[comment._id] ?? {};
-      },
-    },
-  },
   af: {
     database: {
       type: "BOOL",

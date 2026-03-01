@@ -2,7 +2,7 @@ import { getVotingSystemNameForDocument } from "../collections/comments/helpers"
 import { namesAttachedReactionsVotingSystem } from "./namesAttachedReactions";
 import { reactionsAndLikesVotingSystem } from "./reactionsAndLikes";
 import { VotingSystemName } from "./votingSystemNames";
-import { defaultVotingSystem, eaEmojisVotingSystem, emojiReactionsVotingSystem, reactsBallotVotingSystem, twoAxisVotingSystem } from "./votingSystems";
+import { defaultVotingSystem, reactsBallotVotingSystem, twoAxisVotingSystem } from "./votingSystems";
 import { type VotingSystem } from './votingSystemTypes';
 
 // const votingSystems: Partial<Record<string,VotingSystem>> = {
@@ -11,8 +11,6 @@ import { type VotingSystem } from './votingSystemTypes';
 //   namesAttachedReactions: namesAttachedReactionsVotingSystem,
 //   reactionsAndLikes: reactionsAndLikesVotingSystem,
 //   reactsBallot: reactsBallotVotingSystem,
-//   emojiReactions: emojiReactionsVotingSystem,
-//   eaEmojis: eaEmojisVotingSystem,
 // };
 
 export function getVotingSystemByName(name: string): VotingSystem {
@@ -39,8 +37,6 @@ const getAllVotingSystems = (() => {
         namesAttachedReactions: namesAttachedReactionsVotingSystem,
         reactionsAndLikes: reactionsAndLikesVotingSystem,
         reactsBallot: reactsBallotVotingSystem,
-        emojiReactions: emojiReactionsVotingSystem,
-        eaEmojis: eaEmojisVotingSystem,
       } satisfies Record<VotingSystemName, VotingSystem>;
     }
     return votingSystems;

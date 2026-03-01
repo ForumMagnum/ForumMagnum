@@ -179,7 +179,6 @@
     "draft-js-plugins-editor": "^2.1.1",
     "draft-js-resizeable-plugin": "^2.0.6",
     "draft-js-richbuttons-plugin": "^2.1.0",
-    "emoji-picker-element": "^1.26.0",
     "feedparser-promised": "^1.2.2",
     "fp-ts": "^2.13.1",
     "google-auth-library": "^10.0.0",

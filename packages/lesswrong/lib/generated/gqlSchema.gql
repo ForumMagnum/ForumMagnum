@@ -2048,7 +2048,6 @@ type Comment {
   rejectedReason: String
   rejectedByUserId: String
   rejectedByUser: User
-  emojiReactors: JSON
   af: Boolean!
   suggestForAlignmentUserIds: [String!]!
   suggestForAlignmentUsers: [User!]!
@@ -4630,8 +4629,6 @@ type Post {
   totalDialogueResponseCount: Int!
   mostRecentPublishedDialogueResponseDate: Date
   unreadDebateResponseCount: Int!
-  emojiReactors: JSON
-  commentEmojiReactors: JSON
   rejected: Boolean!
   rejectedReason: String
   rejectedByUserId: String

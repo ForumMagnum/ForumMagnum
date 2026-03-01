@@ -45,7 +45,6 @@ export const CommentsList = gql(`
     extendedScore
     score
     voteCount
-    emojiReactors
     af
     afDate
     moveToAlignmentUserId

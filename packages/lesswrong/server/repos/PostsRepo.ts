@@ -1,7 +1,5 @@
 import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
-import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
-import LRU from "lru-cache";
 import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
@@ -20,22 +18,6 @@ type MeanPostKarma = {
 }
 
 type PostAndDigestPost = DbPost & {digestPostId: string|null, emailDigestStatus: string|null, onsiteDigestStatus: string|null}
-
-// Map from emoji names to an array of user display names
-type PostEmojiReactors = Record<string, string[]>;
-
-const postEmojiReactorCache = new LRU<string, Promise<PostEmojiReactors>>({
-  maxAge: 30 * 1000, // 30 second TTL
-  updateAgeOnGet: false,
-});
-
-// Map from comment ids to maps from emoji names to an array of user display names
-type CommentEmojiReactors = Record<string, Record<string, string[]>>;
-
-const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>({
-  maxAge: 30 * 1000, // 30 second TTL
-  updateAgeOnGet: false,
-});
 
 const constructFilters = (
   {
@@ -266,99 +248,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ORDER BY p."curatedDate" DESC NULLS LAST, p."suggestForCuratedUserIds" DESC NULLS LAST, p."baseScore" desc
       LIMIT 50
     `, [num]);
-  }
-
-  async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
-    const {emojiReactors} = await this.getRawDb().one(`
-      -- PostsRepo.getPostEmojiReactors
-      SELECT JSON_OBJECT_AGG("key", "displayNames") AS "emojiReactors"
-      FROM (
-        SELECT
-          "key",
-          (ARRAY_AGG(
-            "displayName" ORDER BY "createdAt" ASC)
-          ) AS "displayNames"
-        FROM (
-          SELECT
-            u."displayName",
-            v."createdAt",
-            (JSONB_EACH(v."extendedVoteType")).*
-          FROM "Votes" v
-          JOIN "Users" u ON u."_id" = v."userId"
-          WHERE
-            v."collectionName" = 'Posts' AND
-            v."documentId" = $1 AND
-            v."cancelled" IS NOT TRUE AND
-            v."isUnvote" IS NOT TRUE AND
-            v."extendedVoteType" IS NOT NULL
-        ) q
-        WHERE "key" IN ($2:csv) AND "value" = TO_JSONB(TRUE)
-        GROUP BY "key"
-      ) q
-    `, [postId, eaPublicEmojiNames]);
-    return emojiReactors;
-  }
-
-  async getPostEmojiReactorsWithCache(postId: string): Promise<PostEmojiReactors> {
-    const cached = postEmojiReactorCache.get(postId);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const emojiReactors = this.getPostEmojiReactors(postId);
-    postEmojiReactorCache.set(postId, emojiReactors);
-    return emojiReactors;
-  }
-
-  async getCommentEmojiReactors(postId: string): Promise<CommentEmojiReactors> {
-    const {emojiReactors} = await this.getRawDb().one(`
-      -- PostsRepo.getCommentEmojiReactors
-      SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
-      FROM (
-        SELECT
-          "commentId",
-          JSON_OBJECT_AGG("key", "displayNames")
-            FILTER (WHERE "key" IN ($2:csv))
-            AS "reactorDisplayNames"
-        FROM (
-          SELECT
-            "commentId",
-            "key",
-            (ARRAY_AGG(
-              "displayName" ORDER BY "createdAt" ASC)
-            ) AS "displayNames"
-          FROM (
-            SELECT
-              c."_id" AS "commentId",
-              u."displayName",
-              v."createdAt",
-              (JSONB_EACH(v."extendedVoteType")).*
-            FROM "Comments" c
-            JOIN "Votes" v ON
-              v."collectionName" = 'Comments' AND
-              v."documentId" = c."_id" AND
-              v."cancelled" IS NOT TRUE AND
-              v."isUnvote" IS NOT TRUE AND
-              v."extendedVoteType" IS NOT NULL
-            JOIN "Users" u ON u."_id" = v."userId"
-            WHERE c."postId" = $1
-          ) q
-          WHERE "value" = TO_JSONB(TRUE)
-          GROUP BY "commentId", "key"
-        ) q
-        GROUP BY "commentId"
-      ) q
-    `, [postId, eaPublicEmojiNames]);
-    return emojiReactors;
-  }
-
-  async getCommentEmojiReactorsWithCache(postId: string): Promise<CommentEmojiReactors> {
-    const cached = commentEmojiReactorCache.get(postId);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const emojiReactors = this.getCommentEmojiReactors(postId);
-    commentEmojiReactorCache.set(postId, emojiReactors);
-    return emojiReactors;
   }
 
   getTopWeeklyDigestPosts(limit = 3): Promise<DbPost[]> {

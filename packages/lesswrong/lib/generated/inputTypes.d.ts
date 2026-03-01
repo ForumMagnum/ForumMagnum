@@ -1855,7 +1855,6 @@ interface Comment {
   rejectedReason: string | null;
   rejectedByUserId: string | null;
   rejectedByUser: User | null;
-  emojiReactors: any;
   af: boolean;
   suggestForAlignmentUserIds: Array<string>;
   suggestForAlignmentUsers: Array<User>;
@@ -4207,8 +4206,6 @@ interface Post {
   totalDialogueResponseCount: number;
   mostRecentPublishedDialogueResponseDate: Date | null;
   unreadDebateResponseCount: number;
-  emojiReactors: any;
-  commentEmojiReactors: any;
   rejected: boolean;
   rejectedReason: string | null;
   rejectedByUserId: string | null;
