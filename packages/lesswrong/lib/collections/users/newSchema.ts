@@ -3923,22 +3923,6 @@ const schema = {
       },
     },
   },
-  // used by the EA Forum to track when a user has dismissed the frontpage job ad
-  hideJobAdUntil: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: [userOwns, "admins"],
-      canUpdate: [userOwns, "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   // used by the EA Forum to track if a user has dismissed the post page criticism tips card
   criticismTipsDismissed: {
     database: {

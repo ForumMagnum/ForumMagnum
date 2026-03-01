@@ -238,7 +238,6 @@ export const UsersCurrent = gql(`
     notificationRepliesToMyComments
     subforumPreferredLayout
     
-    hideJobAdUntil
     criticismTipsDismissed
     
     allowDatadogSessionReplay

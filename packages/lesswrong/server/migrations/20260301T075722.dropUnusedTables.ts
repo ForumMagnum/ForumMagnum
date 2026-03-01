@@ -17,6 +17,9 @@ export const up = async ({db}: MigrationContext) => {
   await dropField(db, "Users", "optedOutOfSurveys");
   await dropField(db, "Users", "inactiveSurveyEmailSentAt");
   await dropField(db, "Users", "userSurveyEmailSentAt");
+  await dropTable(db, "UserJobAds");
+  await dropField(db, "Users", "hideJobAdUntil");
+  await dropTable(db, "UserEAGDetails");
 }
 
 export const down = async ({db}: MigrationContext) => {

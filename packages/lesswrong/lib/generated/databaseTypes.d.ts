@@ -1433,35 +1433,6 @@ interface DbUserActivity extends DbObject {
   visitorId: string
 }
 
-type UserEAGDetailsCollection = PgCollection<"UserEAGDetails">;
-
-interface DbUserEAGDetail extends DbObject {
-  __collectionName?: "UserEAGDetails"
-  careerStage: Array<string> | null
-  countryOrRegion: string | null
-  createdAt: Date
-  experiencedIn: Array<string> | null
-  interestedIn: Array<string> | null
-  lastUpdated: Date
-  legacyData: any | null
-  nearestCity: string | null
-  userId: string
-  willingnessToRelocate: any | null
-}
-
-type UserJobAdsCollection = PgCollection<"UserJobAds">;
-
-interface DbUserJobAd extends DbObject {
-  __collectionName?: "UserJobAds"
-  adState: "seen" | "expanded" | "applied" | "reminderSet"
-  createdAt: Date
-  jobName: string
-  lastUpdated: Date
-  legacyData: any | null
-  reminderSetAt: Date | null
-  userId: string
-}
-
 type UserMostValuablePostsCollection = PgCollection<"UserMostValuablePosts">;
 
 interface DbUserMostValuablePost extends DbObject {
@@ -1589,7 +1560,6 @@ interface DbUser extends DbObject {
   hideFrontpageMap: boolean | null
   hideHomeRHS: boolean
   hideIntercom: boolean
-  hideJobAdUntil: Date | null
   hideMeetupsPoke: boolean
   hideNavigationSidebar: boolean | null
   hidePostsRecommendations: boolean
@@ -2224,8 +2194,6 @@ interface CollectionsByName {
   TypingIndicators: TypingIndicatorsCollection
   UltraFeedEvents: UltraFeedEventsCollection
   UserActivities: UserActivitiesCollection
-  UserEAGDetails: UserEAGDetailsCollection
-  UserJobAds: UserJobAdsCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
   UserTagRels: UserTagRelsCollection
@@ -2311,8 +2279,6 @@ interface ObjectsByCollectionName {
   TypingIndicators: DbTypingIndicator
   UltraFeedEvents: DbUltraFeedEvent
   UserActivities: DbUserActivity
-  UserEAGDetails: DbUserEAGDetail
-  UserJobAds: DbUserJobAd
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
   UserTagRels: DbUserTagRel
@@ -2398,8 +2364,6 @@ interface ObjectsByTypeName {
   TypingIndicator: DbTypingIndicator
   UltraFeedEvent: DbUltraFeedEvent
   UserActivity: DbUserActivity
-  UserEAGDetail: DbUserEAGDetail
-  UserJobAd: DbUserJobAd
   UserMostValuablePost: DbUserMostValuablePost
   UserRateLimit: DbUserRateLimit
   UserTagRel: DbUserTagRel

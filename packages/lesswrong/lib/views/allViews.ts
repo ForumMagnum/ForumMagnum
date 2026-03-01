@@ -46,8 +46,6 @@ import { TagFlagsViews } from '../collections/tagFlags/views';
 import { TagRelsViews } from '../collections/tagRels/views';
 import { UltraFeedEventsViews } from '../collections/ultraFeedEvents/views';
 import { UsersViews } from '../collections/users/views';
-import { UserEAGDetailsViews } from '../collections/userEAGDetails/views';
-import { UserJobAdsViews } from '../collections/userJobAds/views';
 import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts/views';
 import { UserRateLimitsViews } from '../collections/userRateLimits/views';
 import { UserTagRelsViews } from '../collections/userTagRels/views';
@@ -131,8 +129,6 @@ export const allViews = {
   TypingIndicators: new CollectionViewSet('TypingIndicators', {}),
   UltraFeedEvents: UltraFeedEventsViews,
   Users: UsersViews,
-  UserEAGDetails: UserEAGDetailsViews,
-  UserJobAds: UserJobAdsViews,
   UserMostValuablePosts: UserMostValuablePostsViews,
   UserRateLimits: UserRateLimitsViews,
   UserTagRels: UserTagRelsViews,

@@ -6997,105 +6997,6 @@ type UserActivity {
   legacyData: JSON
 }
 
-type UserEAGDetail {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  userId: String
-  user: User
-  careerStage: [String!]
-  countryOrRegion: String
-  nearestCity: String
-  willingnessToRelocate: JSON
-  experiencedIn: [String!]
-  interestedIn: [String!]
-  lastUpdated: Date
-}
-
-input SingleUserEAGDetailInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleUserEAGDetailOutput {
-  result: UserEAGDetail
-}
-
-input UserEAGDetailsDataByUserInput {
-  userId: String
-}
-
-input UserEAGDetailSelector {
-  default: EmptyViewInput
-  dataByUser: UserEAGDetailsDataByUserInput
-}
-
-input MultiUserEAGDetailInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiUserEAGDetailOutput {
-  results: [UserEAGDetail!]!
-  totalCount: Int
-}
-
-extend type Query {
-  userEAGDetail(input: SingleUserEAGDetailInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserEAGDetailOutput
-  userEAGDetails(input: MultiUserEAGDetailInput @deprecated(reason: "Use the selector field instead"), selector: UserEAGDetailSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserEAGDetailOutput
-}
-
-type UserJobAd {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  userId: String
-  user: User
-  jobName: String
-  adState: String
-  reminderSetAt: Date
-  lastUpdated: Date
-}
-
-input SingleUserJobAdInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleUserJobAdOutput {
-  result: UserJobAd
-}
-
-input UserJobAdsAdsByUserInput {
-  userId: String
-}
-
-input UserJobAdSelector {
-  default: EmptyViewInput
-  adsByUser: UserJobAdsAdsByUserInput
-}
-
-input MultiUserJobAdInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiUserJobAdOutput {
-  results: [UserJobAd!]!
-  totalCount: Int
-}
-
-extend type Query {
-  userJobAd(input: SingleUserJobAdInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserJobAdOutput
-  userJobAds(input: MultiUserJobAdInput @deprecated(reason: "Use the selector field instead"), selector: UserJobAdSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserJobAdOutput
-}
-
 type UserMostValuablePost {
   _id: String!
   schemaVersion: Float!
@@ -7506,7 +7407,6 @@ type User {
   acknowledgedNewUserGuidelines: Boolean
   moderatorActions: [ModeratorAction!]
   subforumPreferredLayout: SubforumPreferredLayout
-  hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean!
   allowDatadogSessionReplay: Boolean!
@@ -9217,74 +9117,6 @@ extend type Mutation {
   updateUltraFeedEvent(selector: String!, data: UpdateUltraFeedEventDataInput!): UltraFeedEventOutput
 }
 
-input CreateUserEAGDetailDataInput {
-  legacyData: JSON
-  lastUpdated: Date
-}
-
-input CreateUserEAGDetailInput {
-  data: CreateUserEAGDetailDataInput!
-}
-
-input UpdateUserEAGDetailDataInput {
-  legacyData: JSON
-  careerStage: [String!]
-  countryOrRegion: String
-  nearestCity: String
-  willingnessToRelocate: JSON
-  experiencedIn: [String!]
-  interestedIn: [String!]
-  lastUpdated: Date
-}
-
-input UpdateUserEAGDetailInput {
-  selector: SelectorInput!
-  data: UpdateUserEAGDetailDataInput!
-}
-
-type UserEAGDetailOutput {
-  data: UserEAGDetail
-}
-
-extend type Mutation {
-  createUserEAGDetail(data: CreateUserEAGDetailDataInput!): UserEAGDetailOutput
-  updateUserEAGDetail(selector: SelectorInput!, data: UpdateUserEAGDetailDataInput!): UserEAGDetailOutput
-}
-
-input CreateUserJobAdDataInput {
-  legacyData: JSON
-  userId: String!
-  jobName: String!
-  adState: String!
-  reminderSetAt: Date
-  lastUpdated: Date
-}
-
-input CreateUserJobAdInput {
-  data: CreateUserJobAdDataInput!
-}
-
-input UpdateUserJobAdDataInput {
-  legacyData: JSON
-  adState: String
-  reminderSetAt: Date
-  lastUpdated: Date
-}
-
-input UpdateUserJobAdInput {
-  selector: SelectorInput!
-  data: UpdateUserJobAdDataInput!
-}
-
-type UserJobAdOutput {
-  data: UserJobAd
-}
-
-extend type Mutation {
-  createUserJobAd(data: CreateUserJobAdDataInput!): UserJobAdOutput
-  updateUserJobAd(selector: SelectorInput!, data: UpdateUserJobAdDataInput!): UserJobAdOutput
-}
-
 input CreateUserMostValuablePostDataInput {
   legacyData: JSON
   userId: String!
@@ -9536,7 +9368,6 @@ input CreateUserDataInput {
   conversationsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
   subforumPreferredLayout: SubforumPreferredLayout
-  hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
   allowDatadogSessionReplay: Boolean
@@ -9732,7 +9563,6 @@ input UpdateUserDataInput {
   conversationsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
   subforumPreferredLayout: SubforumPreferredLayout
-  hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
   allowDatadogSessionReplay: Boolean

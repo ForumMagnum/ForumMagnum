@@ -141,8 +141,6 @@ import { graphqlTweetQueryTypeDefs, tweetGqlFieldResolvers } from "@/server/coll
 import { graphqlTypingIndicatorQueryTypeDefs, typingIndicatorGqlQueryHandlers, typingIndicatorGqlFieldResolvers } from "@/server/collections/typingIndicators/queries";
 import { graphqlUltraFeedEventQueryTypeDefs, ultraFeedEventGqlFieldResolvers } from "@/server/collections/ultraFeedEvents/queries";
 import { graphqlUserActivityQueryTypeDefs, userActivityGqlFieldResolvers } from "@/server/collections/useractivities/queries";
-import { graphqlUserEagDetailQueryTypeDefs, userEagDetailGqlQueryHandlers, userEagDetailGqlFieldResolvers } from "@/server/collections/userEAGDetails/queries";
-import { graphqlUserJobAdQueryTypeDefs, userJobAdGqlQueryHandlers, userJobAdGqlFieldResolvers } from "@/server/collections/userJobAds/queries";
 import { graphqlUserMostValuablePostQueryTypeDefs, userMostValuablePostGqlQueryHandlers, userMostValuablePostGqlFieldResolvers } from "@/server/collections/userMostValuablePosts/queries";
 import { graphqlUserRateLimitQueryTypeDefs, userRateLimitGqlQueryHandlers, userRateLimitGqlFieldResolvers } from "@/server/collections/userRateLimits/queries";
 import { graphqlUserTagRelQueryTypeDefs, userTagRelGqlQueryHandlers, userTagRelGqlFieldResolvers } from "@/server/collections/userTagRels/queries";
@@ -182,8 +180,6 @@ import { createSubscriptionGqlMutation, graphqlSubscriptionTypeDefs } from "@/se
 import { createTagFlagGqlMutation, updateTagFlagGqlMutation, graphqlTagFlagTypeDefs } from "@/server/collections/tagFlags/mutations";
 import { createTagGqlMutation, updateTagGqlMutation, graphqlTagTypeDefs } from "@/server/collections/tags/mutations";
 import { createUltraFeedEventGqlMutation, updateUltraFeedEventGqlMutation, graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
-import { createUserEAGDetailGqlMutation, updateUserEAGDetailGqlMutation, graphqlUserEAGDetailTypeDefs } from "@/server/collections/userEAGDetails/mutations";
-import { createUserJobAdGqlMutation, updateUserJobAdGqlMutation, graphqlUserJobAdTypeDefs } from "@/server/collections/userJobAds/mutations";
 import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMutation, graphqlUserMostValuablePostTypeDefs } from "@/server/collections/userMostValuablePosts/mutations";
 import { createUserRateLimitGqlMutation, updateUserRateLimitGqlMutation, graphqlUserRateLimitTypeDefs } from "@/server/collections/userRateLimits/mutations";
 import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
@@ -375,8 +371,6 @@ export const getTypeDefs = () => gql`
   ${graphqlTypingIndicatorQueryTypeDefs}
   ${graphqlUltraFeedEventQueryTypeDefs}
   ${graphqlUserActivityQueryTypeDefs}
-  ${graphqlUserEagDetailQueryTypeDefs}
-  ${graphqlUserJobAdQueryTypeDefs}
   ${graphqlUserMostValuablePostQueryTypeDefs}
   ${graphqlUserRateLimitQueryTypeDefs}
   ${graphqlUserTagRelQueryTypeDefs}
@@ -416,8 +410,6 @@ export const getTypeDefs = () => gql`
   ${graphqlTagFlagTypeDefs}
   ${graphqlTagTypeDefs}
   ${graphqlUltraFeedEventTypeDefs}
-  ${graphqlUserEAGDetailTypeDefs}
-  ${graphqlUserJobAdTypeDefs}
   ${graphqlUserMostValuablePostTypeDefs}
   ${graphqlUserRateLimitTypeDefs}
   ${graphqlUserTagRelTypeDefs}
@@ -518,8 +510,6 @@ const getResolvers = () => ({
     ...tagRelGqlQueryHandlers,
     ...tagGqlQueryHandlers,
     ...typingIndicatorGqlQueryHandlers,
-    ...userEagDetailGqlQueryHandlers,
-    ...userJobAdGqlQueryHandlers,
     ...userMostValuablePostGqlQueryHandlers,
     ...userRateLimitGqlQueryHandlers,
     ...userTagRelGqlQueryHandlers,
@@ -629,10 +619,6 @@ const getResolvers = () => ({
     updateTag: updateTagGqlMutation,
     createUltraFeedEvent: createUltraFeedEventGqlMutation,
     updateUltraFeedEvent: updateUltraFeedEventGqlMutation,
-    createUserEAGDetail: createUserEAGDetailGqlMutation,
-    updateUserEAGDetail: updateUserEAGDetailGqlMutation,
-    createUserJobAd: createUserJobAdGqlMutation,
-    updateUserJobAd: updateUserJobAdGqlMutation,
     createUserMostValuablePost: createUserMostValuablePostGqlMutation,
     updateUserMostValuablePost: updateUserMostValuablePostGqlMutation,
     createUserRateLimit: createUserRateLimitGqlMutation,
@@ -716,8 +702,6 @@ const getResolvers = () => ({
   ...typingIndicatorGqlFieldResolvers,
   ...ultraFeedEventGqlFieldResolvers,
   ...userActivityGqlFieldResolvers,
-  ...userEagDetailGqlFieldResolvers,
-  ...userJobAdGqlFieldResolvers,
   ...userMostValuablePostGqlFieldResolvers,
   ...userRateLimitGqlFieldResolvers,
   ...userTagRelGqlFieldResolvers,

@@ -457,8 +457,6 @@ const accessFilters = {
   TypingIndicators: typingIndicatorCheckAccess,
   UltraFeedEvents: allowAccess,
   Users: userCheckAccess,
-  UserEAGDetails: allowAccess,
-  UserJobAds: allowAccess,
   UserMostValuablePosts: allowAccess,
   UserRateLimits: allowAccess,
   UserTagRels: userTagRelCheckAccess,

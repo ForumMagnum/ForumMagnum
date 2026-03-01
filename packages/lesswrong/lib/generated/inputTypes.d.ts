@@ -182,10 +182,6 @@ interface Query {
   typingIndicators: MultiTypingIndicatorOutput | null;
   ultraFeedEvent: SingleUltraFeedEventOutput | null;
   ultraFeedEvents: MultiUltraFeedEventOutput | null;
-  userEAGDetail: SingleUserEAGDetailOutput | null;
-  userEAGDetails: MultiUserEAGDetailOutput | null;
-  userJobAd: SingleUserJobAdOutput | null;
-  userJobAds: MultiUserJobAdOutput | null;
   userMostValuablePost: SingleUserMostValuablePostOutput | null;
   userMostValuablePosts: MultiUserMostValuablePostOutput | null;
   userRateLimit: SingleUserRateLimitOutput | null;
@@ -334,10 +330,6 @@ interface Mutation {
   updateTag: TagOutput | null;
   createUltraFeedEvent: UltraFeedEventOutput | null;
   updateUltraFeedEvent: UltraFeedEventOutput | null;
-  createUserEAGDetail: UserEAGDetailOutput | null;
-  updateUserEAGDetail: UserEAGDetailOutput | null;
-  createUserJobAd: UserJobAdOutput | null;
-  updateUserJobAd: UserJobAdOutput | null;
   createUserMostValuablePost: UserMostValuablePostOutput | null;
   updateUserMostValuablePost: UserMostValuablePostOutput | null;
   createUserRateLimit: UserRateLimitOutput | null;
@@ -6489,95 +6481,6 @@ interface UserActivity {
   legacyData: any;
 }
 
-interface UserEAGDetail {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  userId: string | null;
-  user: User | null;
-  careerStage: Array<string> | null;
-  countryOrRegion: string | null;
-  nearestCity: string | null;
-  willingnessToRelocate: any;
-  experiencedIn: Array<string> | null;
-  interestedIn: Array<string> | null;
-  lastUpdated: Date | null;
-}
-
-interface SingleUserEAGDetailInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleUserEAGDetailOutput {
-  result: UserEAGDetail | null;
-}
-
-interface UserEAGDetailsDataByUserInput {
-  userId?: string | null;
-}
-
-interface UserEAGDetailSelector {
-  default: EmptyViewInput | null;
-  dataByUser: UserEAGDetailsDataByUserInput | null;
-}
-
-interface MultiUserEAGDetailInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiUserEAGDetailOutput {
-  results: Array<UserEAGDetail>;
-  totalCount: number | null;
-}
-
-interface UserJobAd {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  userId: string | null;
-  user: User | null;
-  jobName: string | null;
-  adState: string | null;
-  reminderSetAt: Date | null;
-  lastUpdated: Date | null;
-}
-
-interface SingleUserJobAdInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleUserJobAdOutput {
-  result: UserJobAd | null;
-}
-
-interface UserJobAdsAdsByUserInput {
-  userId?: string | null;
-}
-
-interface UserJobAdSelector {
-  default: EmptyViewInput | null;
-  adsByUser: UserJobAdsAdsByUserInput | null;
-}
-
-interface MultiUserJobAdInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiUserJobAdOutput {
-  results: Array<UserJobAd>;
-  totalCount: number | null;
-}
-
 interface UserMostValuablePost {
   _id: string;
   schemaVersion: number;
@@ -6961,7 +6864,6 @@ interface User {
   acknowledgedNewUserGuidelines: boolean | null;
   moderatorActions: Array<ModeratorAction> | null;
   subforumPreferredLayout: SubforumPreferredLayout | null;
-  hideJobAdUntil: Date | null;
   criticismTipsDismissed: boolean | null;
   hideFromPeopleDirectory: boolean;
   allowDatadogSessionReplay: boolean;
@@ -8442,64 +8344,6 @@ interface UltraFeedEventOutput {
   data: UltraFeedEvent | null;
 }
 
-interface CreateUserEAGDetailDataInput {
-  legacyData?: any;
-  lastUpdated?: Date | null;
-}
-
-interface CreateUserEAGDetailInput {
-  data: CreateUserEAGDetailDataInput;
-}
-
-interface UpdateUserEAGDetailDataInput {
-  legacyData?: any;
-  careerStage?: Array<string> | null;
-  countryOrRegion?: string | null;
-  nearestCity?: string | null;
-  willingnessToRelocate?: any;
-  experiencedIn?: Array<string> | null;
-  interestedIn?: Array<string> | null;
-  lastUpdated?: Date | null;
-}
-
-interface UpdateUserEAGDetailInput {
-  selector: SelectorInput;
-  data: UpdateUserEAGDetailDataInput;
-}
-
-interface UserEAGDetailOutput {
-  data: UserEAGDetail | null;
-}
-
-interface CreateUserJobAdDataInput {
-  legacyData?: any;
-  userId: string;
-  jobName: string;
-  adState: string;
-  reminderSetAt?: Date | null;
-  lastUpdated?: Date | null;
-}
-
-interface CreateUserJobAdInput {
-  data: CreateUserJobAdDataInput;
-}
-
-interface UpdateUserJobAdDataInput {
-  legacyData?: any;
-  adState?: string | null;
-  reminderSetAt?: Date | null;
-  lastUpdated?: Date | null;
-}
-
-interface UpdateUserJobAdInput {
-  selector: SelectorInput;
-  data: UpdateUserJobAdDataInput;
-}
-
-interface UserJobAdOutput {
-  data: UserJobAd | null;
-}
-
 interface CreateUserMostValuablePostDataInput {
   legacyData?: any;
   userId: string;
@@ -8736,7 +8580,6 @@ interface CreateUserDataInput {
   conversationsDisabled?: boolean | null;
   acknowledgedNewUserGuidelines?: boolean | null;
   subforumPreferredLayout?: SubforumPreferredLayout | null;
-  hideJobAdUntil?: Date | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
   allowDatadogSessionReplay?: boolean | null;
@@ -8932,7 +8775,6 @@ interface UpdateUserDataInput {
   conversationsDisabled?: boolean | null;
   acknowledgedNewUserGuidelines?: boolean | null;
   subforumPreferredLayout?: SubforumPreferredLayout | null;
-  hideJobAdUntil?: Date | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
   allowDatadogSessionReplay?: boolean | null;
@@ -9623,20 +9465,6 @@ interface GraphQLTypeMap {
   MultiUltraFeedEventInput: MultiUltraFeedEventInput;
   MultiUltraFeedEventOutput: MultiUltraFeedEventOutput;
   UserActivity: UserActivity;
-  UserEAGDetail: UserEAGDetail;
-  SingleUserEAGDetailInput: SingleUserEAGDetailInput;
-  SingleUserEAGDetailOutput: SingleUserEAGDetailOutput;
-  UserEAGDetailsDataByUserInput: UserEAGDetailsDataByUserInput;
-  UserEAGDetailSelector: UserEAGDetailSelector;
-  MultiUserEAGDetailInput: MultiUserEAGDetailInput;
-  MultiUserEAGDetailOutput: MultiUserEAGDetailOutput;
-  UserJobAd: UserJobAd;
-  SingleUserJobAdInput: SingleUserJobAdInput;
-  SingleUserJobAdOutput: SingleUserJobAdOutput;
-  UserJobAdsAdsByUserInput: UserJobAdsAdsByUserInput;
-  UserJobAdSelector: UserJobAdSelector;
-  MultiUserJobAdInput: MultiUserJobAdInput;
-  MultiUserJobAdOutput: MultiUserJobAdOutput;
   UserMostValuablePost: UserMostValuablePost;
   SingleUserMostValuablePostInput: SingleUserMostValuablePostInput;
   SingleUserMostValuablePostOutput: SingleUserMostValuablePostOutput;
@@ -9821,16 +9649,6 @@ interface GraphQLTypeMap {
   CreateUltraFeedEventInput: CreateUltraFeedEventInput;
   UpdateUltraFeedEventDataInput: UpdateUltraFeedEventDataInput;
   UltraFeedEventOutput: UltraFeedEventOutput;
-  CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
-  CreateUserEAGDetailInput: CreateUserEAGDetailInput;
-  UpdateUserEAGDetailDataInput: UpdateUserEAGDetailDataInput;
-  UpdateUserEAGDetailInput: UpdateUserEAGDetailInput;
-  UserEAGDetailOutput: UserEAGDetailOutput;
-  CreateUserJobAdDataInput: CreateUserJobAdDataInput;
-  CreateUserJobAdInput: CreateUserJobAdInput;
-  UpdateUserJobAdDataInput: UpdateUserJobAdDataInput;
-  UpdateUserJobAdInput: UpdateUserJobAdInput;
-  UserJobAdOutput: UserJobAdOutput;
   CreateUserMostValuablePostDataInput: CreateUserMostValuablePostDataInput;
   CreateUserMostValuablePostInput: CreateUserMostValuablePostInput;
   UpdateUserMostValuablePostDataInput: UpdateUserMostValuablePostDataInput;
@@ -9883,8 +9701,6 @@ interface CreateInputsByCollectionName {
   TagFlags: CreateTagFlagInput;
   Tags: CreateTagInput;
   UltraFeedEvents: CreateUltraFeedEventInput;
-  UserEAGDetails: CreateUserEAGDetailInput;
-  UserJobAds: CreateUserJobAdInput;
   UserMostValuablePosts: CreateUserMostValuablePostInput;
   UserRateLimits: CreateUserRateLimitInput;
   UserTagRels: CreateUserTagRelInput;
@@ -9967,8 +9783,6 @@ interface UpdateInputsByCollectionName {
   Spotlights: UpdateSpotlightInput;
   TagFlags: UpdateTagFlagInput;
   Tags: UpdateTagInput;
-  UserEAGDetails: UpdateUserEAGDetailInput;
-  UserJobAds: UpdateUserJobAdInput;
   UserMostValuablePosts: UpdateUserMostValuablePostInput;
   UserRateLimits: UpdateUserRateLimitInput;
   UserTagRels: UpdateUserTagRelInput;

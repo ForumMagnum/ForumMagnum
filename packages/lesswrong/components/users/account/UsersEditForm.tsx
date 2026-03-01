@@ -460,7 +460,7 @@ const UsersEditForm = ({ terms, accountManagement }: {
       {loadingUser && <Loading />}
       {!loadingUser && userBySlug && (
         <UsersForm
-          initialData={withDateFields(userBySlug, ['banned', 'hideJobAdUntil', 'karmaChangeLastOpened', 'lastNotificationsCheck', 'permanentDeletionRequestedAt', 'petrovLaunchCodeDate', 'petrovPressedButtonDate', 'whenConfirmationEmailSent'])}
+          initialData={withDateFields(userBySlug, ['banned', 'karmaChangeLastOpened', 'lastNotificationsCheck', 'permanentDeletionRequestedAt', 'petrovLaunchCodeDate', 'petrovPressedButtonDate', 'whenConfirmationEmailSent'])}
           currentUser={currentUser}
           onSuccess={onSuccess}
           isCurrentUser={isCurrentUser}
