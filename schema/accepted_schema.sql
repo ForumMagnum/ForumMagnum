@@ -3892,24 +3892,6 @@ REPLACE FUNCTION fm_comment_confidence (
         WHERE c."_id" = comment_id;
       $$;
 
--- Function "fm_vote_added_emoji"
-CREATE OR
-REPLACE FUNCTION fm_vote_added_emoji (vote_id TEXT, emoji_name TEXT) RETURNS BOOLEAN LANGUAGE sql AS $$
-        SELECT
-          COALESCE(target."extendedVoteType"->emoji_name = TO_JSONB(TRUE), FALSE) AND
-          COALESCE(v."extendedVoteType"->emoji_name <> TO_JSONB(TRUE), TRUE)
-        FROM "Votes" target
-        LEFT JOIN "Votes" v ON
-          v."votedAt" < target."votedAt" AND
-          v."userId" = target."userId" AND
-          v."documentId" = target."documentId" AND
-          v."collectionName" = target."collectionName"
-        WHERE
-          target."_id" = vote_id
-        ORDER BY v."votedAt" DESC
-        LIMIT 1
-      $$;
-
 -- Function "fm_get_user_profile_updated_at"
 CREATE OR
 REPLACE FUNCTION fm_get_user_profile_updated_at (userid TEXT) RETURNS TIMESTAMPTZ LANGUAGE sql AS $$
