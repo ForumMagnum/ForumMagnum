@@ -33,14 +33,10 @@ interface Query {
   PostIsCriticism: boolean | null;
   ProfileDiamondPosts: ProfileDiamondPostsResult;
   ProfileDiamondComments: ProfileDiamondCommentsResult;
-  DigestPlannerData: Array<DigestPlannerPost>;
-  DigestPosts: Array<Post> | null;
   LastCuratedDate: LastCuratedDateResult;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
   HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
   HocuspocusAuth: HocuspocusAuth | null;
-  DigestHighlights: DigestHighlightsResult | null;
-  DigestPostsThisWeek: DigestPostsThisWeekResult | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
   RecentlyActiveDialogues: RecentlyActiveDialoguesResult | null;
   MyDialogues: MyDialoguesResult | null;
@@ -110,10 +106,6 @@ interface Query {
   dialogueChecks: MultiDialogueCheckOutput | null;
   dialogueMatchPreference: SingleDialogueMatchPreferenceOutput | null;
   dialogueMatchPreferences: MultiDialogueMatchPreferenceOutput | null;
-  digestPost: SingleDigestPostOutput | null;
-  digestPosts: MultiDigestPostOutput | null;
-  digest: SingleDigestOutput | null;
-  digests: MultiDigestOutput | null;
   elicitQuestionPrediction: SingleElicitQuestionPredictionOutput | null;
   elicitQuestionPredictions: MultiElicitQuestionPredictionOutput | null;
   elicitQuestion: SingleElicitQuestionOutput | null;
@@ -288,10 +280,6 @@ interface Mutation {
   updateConversation: ConversationOutput | null;
   createCurationNotice: CurationNoticeOutput | null;
   updateCurationNotice: CurationNoticeOutput | null;
-  createDigestPost: DigestPostOutput | null;
-  updateDigestPost: DigestPostOutput | null;
-  createDigest: DigestOutput | null;
-  updateDigest: DigestOutput | null;
   createElicitQuestion: ElicitQuestionOutput | null;
   updateElicitQuestion: ElicitQuestionOutput | null;
   createJargonTerm: JargonTermOutput | null;
@@ -826,12 +814,6 @@ interface PostReviewSort {
   karma: boolean | null;
 }
 
-interface DigestPlannerPost {
-  post: Post;
-  digestPost: DigestPost | null;
-  rating: number;
-}
-
 interface RecombeeRecommendedPost {
   post: Post;
   scenario: string | null;
@@ -894,14 +876,6 @@ interface HomepageCommunityEventPostsResult {
 
 interface HocuspocusAuth {
   token: string;
-}
-
-interface DigestHighlightsResult {
-  results: Array<Post>;
-}
-
-interface DigestPostsThisWeekResult {
-  results: Array<Post>;
 }
 
 interface CuratedAndPopularThisWeekResult {
@@ -2507,88 +2481,6 @@ interface MultiDialogueMatchPreferenceInput {
 
 interface MultiDialogueMatchPreferenceOutput {
   results: Array<DialogueMatchPreference>;
-  totalCount: number | null;
-}
-
-interface DigestPost {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  digestId: string;
-  digest: Digest;
-  postId: string;
-  post: Post | null;
-  emailDigestStatus: string | null;
-  onsiteDigestStatus: string | null;
-}
-
-interface SingleDigestPostInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleDigestPostOutput {
-  result: DigestPost | null;
-}
-
-interface DigestPostSelector {
-  default: EmptyViewInput | null;
-}
-
-interface MultiDigestPostInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiDigestPostOutput {
-  results: Array<DigestPost>;
-  totalCount: number | null;
-}
-
-interface Digest {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  num: number;
-  startDate: Date;
-  endDate: Date | null;
-  publishedDate: Date | null;
-  onsiteImageId: string | null;
-  onsitePrimaryColor: string | null;
-}
-
-interface SingleDigestInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleDigestOutput {
-  result: Digest | null;
-}
-
-interface DigestsFindByNumInput {
-  num?: number | null;
-}
-
-interface DigestSelector {
-  default: EmptyViewInput | null;
-  findByNum: DigestsFindByNumInput | null;
-  all: EmptyViewInput | null;
-}
-
-interface MultiDigestInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiDigestOutput {
-  results: Array<Digest>;
   totalCount: number | null;
 }
 
@@ -7321,68 +7213,6 @@ interface CurationNoticeOutput {
   data: CurationNotice | null;
 }
 
-interface CreateDigestPostDataInput {
-  legacyData?: any;
-  digestId: string;
-  postId: string;
-  emailDigestStatus?: string | null;
-  onsiteDigestStatus?: string | null;
-}
-
-interface CreateDigestPostInput {
-  data: CreateDigestPostDataInput;
-}
-
-interface UpdateDigestPostDataInput {
-  legacyData?: any;
-  digestId?: string | null;
-  postId?: string | null;
-  emailDigestStatus?: string | null;
-  onsiteDigestStatus?: string | null;
-}
-
-interface UpdateDigestPostInput {
-  selector: SelectorInput;
-  data: UpdateDigestPostDataInput;
-}
-
-interface DigestPostOutput {
-  data: DigestPost | null;
-}
-
-interface CreateDigestDataInput {
-  legacyData?: any;
-  num: number;
-  startDate: Date;
-  endDate?: Date | null;
-  publishedDate?: Date | null;
-  onsiteImageId?: string | null;
-  onsitePrimaryColor?: string | null;
-}
-
-interface CreateDigestInput {
-  data: CreateDigestDataInput;
-}
-
-interface UpdateDigestDataInput {
-  legacyData?: any;
-  num?: number | null;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  publishedDate?: Date | null;
-  onsiteImageId?: string | null;
-  onsitePrimaryColor?: string | null;
-}
-
-interface UpdateDigestInput {
-  selector: SelectorInput;
-  data: UpdateDigestDataInput;
-}
-
-interface DigestOutput {
-  data: Digest | null;
-}
-
 interface CreateElicitQuestionDataInput {
   legacyData?: any;
   title: string;
@@ -8869,7 +8699,6 @@ interface GraphQLTypeMap {
   LastCuratedDateResult: LastCuratedDateResult;
   PostReviewFilter: PostReviewFilter;
   PostReviewSort: PostReviewSort;
-  DigestPlannerPost: DigestPlannerPost;
   RecombeeRecommendedPost: RecombeeRecommendedPost;
   VertexRecommendedPost: VertexRecommendedPost;
   ProfileDiamondPostsResult: ProfileDiamondPostsResult;
@@ -8881,8 +8710,6 @@ interface GraphQLTypeMap {
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
   HomepageCommunityEventPostsResult: HomepageCommunityEventPostsResult;
   HocuspocusAuth: HocuspocusAuth;
-  DigestHighlightsResult: DigestHighlightsResult;
-  DigestPostsThisWeekResult: DigestPostsThisWeekResult;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
   RecentlyActiveDialoguesResult: RecentlyActiveDialoguesResult;
   MyDialoguesResult: MyDialoguesResult;
@@ -9093,19 +8920,6 @@ interface GraphQLTypeMap {
   DialogueMatchPreferenceSelector: DialogueMatchPreferenceSelector;
   MultiDialogueMatchPreferenceInput: MultiDialogueMatchPreferenceInput;
   MultiDialogueMatchPreferenceOutput: MultiDialogueMatchPreferenceOutput;
-  DigestPost: DigestPost;
-  SingleDigestPostInput: SingleDigestPostInput;
-  SingleDigestPostOutput: SingleDigestPostOutput;
-  DigestPostSelector: DigestPostSelector;
-  MultiDigestPostInput: MultiDigestPostInput;
-  MultiDigestPostOutput: MultiDigestPostOutput;
-  Digest: Digest;
-  SingleDigestInput: SingleDigestInput;
-  SingleDigestOutput: SingleDigestOutput;
-  DigestsFindByNumInput: DigestsFindByNumInput;
-  DigestSelector: DigestSelector;
-  MultiDigestInput: MultiDigestInput;
-  MultiDigestOutput: MultiDigestOutput;
   ElicitQuestionPrediction: ElicitQuestionPrediction;
   SingleElicitQuestionPredictionInput: SingleElicitQuestionPredictionInput;
   SingleElicitQuestionPredictionOutput: SingleElicitQuestionPredictionOutput;
@@ -9539,16 +9353,6 @@ interface GraphQLTypeMap {
   UpdateCurationNoticeDataInput: UpdateCurationNoticeDataInput;
   UpdateCurationNoticeInput: UpdateCurationNoticeInput;
   CurationNoticeOutput: CurationNoticeOutput;
-  CreateDigestPostDataInput: CreateDigestPostDataInput;
-  CreateDigestPostInput: CreateDigestPostInput;
-  UpdateDigestPostDataInput: UpdateDigestPostDataInput;
-  UpdateDigestPostInput: UpdateDigestPostInput;
-  DigestPostOutput: DigestPostOutput;
-  CreateDigestDataInput: CreateDigestDataInput;
-  CreateDigestInput: CreateDigestInput;
-  UpdateDigestDataInput: UpdateDigestDataInput;
-  UpdateDigestInput: UpdateDigestInput;
-  DigestOutput: DigestOutput;
   CreateElicitQuestionDataInput: CreateElicitQuestionDataInput;
   CreateElicitQuestionInput: CreateElicitQuestionInput;
   UpdateElicitQuestionDataInput: UpdateElicitQuestionDataInput;
@@ -9679,8 +9483,6 @@ interface CreateInputsByCollectionName {
   Comments: CreateCommentInput;
   Conversations: CreateConversationInput;
   CurationNotices: CreateCurationNoticeInput;
-  DigestPosts: CreateDigestPostInput;
-  Digests: CreateDigestInput;
   ElicitQuestions: CreateElicitQuestionInput;
   JargonTerms: CreateJargonTermInput;
   LWEvents: CreateLWEventInput;
@@ -9764,8 +9566,6 @@ interface UpdateInputsByCollectionName {
   Comments: UpdateCommentInput;
   Conversations: UpdateConversationInput;
   CurationNotices: UpdateCurationNoticeInput;
-  DigestPosts: UpdateDigestPostInput;
-  Digests: UpdateDigestInput;
   ElicitQuestions: UpdateElicitQuestionInput;
   JargonTerms: UpdateJargonTermInput;
   LlmConversations: UpdateLlmConversationInput;

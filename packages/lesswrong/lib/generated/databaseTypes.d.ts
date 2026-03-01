@@ -369,32 +369,6 @@ interface DbDialogueMatchPreference extends DbObject {
   }>
 }
 
-type DigestPostsCollection = PgCollection<"DigestPosts">;
-
-interface DbDigestPost extends DbObject {
-  __collectionName?: "DigestPosts"
-  createdAt: Date
-  digestId: string
-  emailDigestStatus: string | null
-  legacyData: any | null
-  onsiteDigestStatus: string | null
-  postId: string
-}
-
-type DigestsCollection = PgCollection<"Digests">;
-
-interface DbDigest extends DbObject {
-  __collectionName?: "Digests"
-  createdAt: Date
-  endDate: Date | null
-  legacyData: any | null
-  num: number
-  onsiteImageId: string | null
-  onsitePrimaryColor: string | null
-  publishedDate: Date | null
-  startDate: Date
-}
-
 type ElicitQuestionPredictionsCollection = PgCollection<"ElicitQuestionPredictions">;
 
 interface DbElicitQuestionPrediction extends DbObject {
@@ -2139,8 +2113,6 @@ interface CollectionsByName {
   DebouncerEvents: DebouncerEventsCollection
   DialogueChecks: DialogueChecksCollection
   DialogueMatchPreferences: DialogueMatchPreferencesCollection
-  DigestPosts: DigestPostsCollection
-  Digests: DigestsCollection
   ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
@@ -2224,8 +2196,6 @@ interface ObjectsByCollectionName {
   DebouncerEvents: DbDebouncerEvents
   DialogueChecks: DbDialogueCheck
   DialogueMatchPreferences: DbDialogueMatchPreference
-  DigestPosts: DbDigestPost
-  Digests: DbDigest
   ElicitQuestionPredictions: DbElicitQuestionPrediction
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
@@ -2309,8 +2279,6 @@ interface ObjectsByTypeName {
   DebouncerEvents: DbDebouncerEvents
   DialogueCheck: DbDialogueCheck
   DialogueMatchPreference: DbDialogueMatchPreference
-  DigestPost: DbDigestPost
-  Digest: DbDigest
   ElicitQuestionPrediction: DbElicitQuestionPrediction
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens

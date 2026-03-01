@@ -402,8 +402,6 @@ const accessFilters = {
   DebouncerEvents: allowAccess,
   DialogueChecks: dialogueCheckCheckAccess,
   DialogueMatchPreferences: dialogueMatchPreferenceCheckAccess,
-  DigestPosts: allowAccess,
-  Digests: allowAccess,
   ElicitQuestionPredictions: allowAccess,
   ElicitQuestions: allowAccess,
   EmailTokens: allowAccess,

@@ -20,6 +20,8 @@ export const up = async ({db}: MigrationContext) => {
   await dropTable(db, "UserJobAds");
   await dropField(db, "Users", "hideJobAdUntil");
   await dropTable(db, "UserEAGDetails");
+  await dropTable(db, "DigestPosts");
+  await dropTable(db, "Digests");
 }
 
 export const down = async ({db}: MigrationContext) => {

@@ -26,8 +26,6 @@ import { default as DatabaseMetadata } from '../collections/databaseMetadata/new
 import { default as DebouncerEvents } from '../collections/debouncerEvents/newSchema';
 import { default as DialogueChecks } from '../collections/dialogueChecks/newSchema';
 import { default as DialogueMatchPreferences } from '../collections/dialogueMatchPreferences/newSchema';
-import { default as DigestPosts } from '../collections/digestPosts/newSchema';
-import { default as Digests } from '../collections/digests/newSchema';
 import { default as ElicitQuestionPredictions } from '../collections/elicitQuestionPredictions/newSchema';
 import { default as ElicitQuestions } from '../collections/elicitQuestions/newSchema';
 import { default as EmailTokens } from '../collections/emailTokens/newSchema';
@@ -100,7 +98,7 @@ if (isAnyTest || bundleIsCodegen) {
 export const allSchemas = {
   ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
+  DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,

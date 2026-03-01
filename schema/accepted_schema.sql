@@ -701,38 +701,6 @@ CREATE TABLE "DialogueMatchPreferences" (
 -- Index "idx_DialogueMatchPreferences_dialogueCheckId"
 CREATE INDEX IF NOT EXISTS "idx_DialogueMatchPreferences_dialogueCheckId" ON "DialogueMatchPreferences" USING btree ("dialogueCheckId");
 
--- Table "DigestPosts"
-CREATE TABLE "DigestPosts" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "digestId" VARCHAR(27) NOT NULL,
-  "postId" VARCHAR(27) NOT NULL,
-  "emailDigestStatus" TEXT,
-  "onsiteDigestStatus" TEXT
-);
-
--- Index "idx_DigestPosts_digestId"
-CREATE INDEX IF NOT EXISTS "idx_DigestPosts_digestId" ON "DigestPosts" USING btree ("digestId");
-
--- Table "Digests"
-CREATE TABLE "Digests" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "num" DOUBLE PRECISION NOT NULL,
-  "startDate" TIMESTAMPTZ NOT NULL,
-  "endDate" TIMESTAMPTZ,
-  "publishedDate" TIMESTAMPTZ,
-  "onsiteImageId" TEXT,
-  "onsitePrimaryColor" TEXT
-);
-
--- Index "idx_Digests_num"
-CREATE INDEX IF NOT EXISTS "idx_Digests_num" ON "Digests" USING btree ("num");
-
 -- Table "ElicitQuestionPredictions"
 CREATE TABLE "ElicitQuestionPredictions" (
   _id VARCHAR(27) PRIMARY KEY,

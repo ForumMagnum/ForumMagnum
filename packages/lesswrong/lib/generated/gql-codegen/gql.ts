@@ -648,8 +648,6 @@ type Documents = {
     "\n  fragment ConversationsList on Conversation {\n    ...ConversationsMinimumInfo\n    participants {\n      ...UsersMinimumInfo\n    }\n    latestMessage {\n      ...messageListFragment\n    }\n  }\n": typeof types.ConversationsListDoc,
     "\n  fragment ConversationsListWithReadStatus on Conversation {\n    ...ConversationsList\n    hasUnreadMessages\n  }\n": typeof types.ConversationsListWithReadStatusDoc,
     "\n  fragment CurationNoticesFragment on CurationNotice {\n    _id\n    createdAt\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    commentId\n    comment {\n      ...CommentsList\n    }\n    postId\n    post {\n      ...PostsMinimumInfo\n    }\n    deleted\n    contents {\n      ...RevisionEdit\n    }\n  }\n": typeof types.CurationNoticesFragmentDoc,
-    "\n  fragment DigestPostsMinimumInfo on DigestPost {\n    _id\n    digestId\n    postId\n    emailDigestStatus\n    onsiteDigestStatus\n  }\n": typeof types.DigestPostsMinimumInfoDoc,
-    "\n  fragment DigestsMinimumInfo on Digest {\n    _id\n    num\n    startDate\n    endDate\n    publishedDate\n    onsiteImageId\n    onsitePrimaryColor\n  }\n": typeof types.DigestsMinimumInfoDoc,
     "\n  fragment ElicitQuestionFragment on ElicitQuestion {\n    _id\n    title\n    notes\n    resolution\n    resolvesBy\n  }\n": typeof types.ElicitQuestionFragmentDoc,
     "\n  fragment FieldChangeFragment on FieldChange {\n    _id\n    createdAt\n    userId\n    changeGroup\n    documentId\n    fieldName\n    oldValue\n    newValue\n  }\n": typeof types.FieldChangeFragmentDoc,
     "\n  fragment GoogleServiceAccountSessionInfo on GoogleServiceAccountSession {\n    _id\n    email\n  }\n": typeof types.GoogleServiceAccountSessionInfoDoc,
@@ -1493,8 +1491,6 @@ const documents: Documents = {
     "\n  fragment ConversationsList on Conversation {\n    ...ConversationsMinimumInfo\n    participants {\n      ...UsersMinimumInfo\n    }\n    latestMessage {\n      ...messageListFragment\n    }\n  }\n": types.ConversationsListDoc,
     "\n  fragment ConversationsListWithReadStatus on Conversation {\n    ...ConversationsList\n    hasUnreadMessages\n  }\n": types.ConversationsListWithReadStatusDoc,
     "\n  fragment CurationNoticesFragment on CurationNotice {\n    _id\n    createdAt\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    commentId\n    comment {\n      ...CommentsList\n    }\n    postId\n    post {\n      ...PostsMinimumInfo\n    }\n    deleted\n    contents {\n      ...RevisionEdit\n    }\n  }\n": types.CurationNoticesFragmentDoc,
-    "\n  fragment DigestPostsMinimumInfo on DigestPost {\n    _id\n    digestId\n    postId\n    emailDigestStatus\n    onsiteDigestStatus\n  }\n": types.DigestPostsMinimumInfoDoc,
-    "\n  fragment DigestsMinimumInfo on Digest {\n    _id\n    num\n    startDate\n    endDate\n    publishedDate\n    onsiteImageId\n    onsitePrimaryColor\n  }\n": types.DigestsMinimumInfoDoc,
     "\n  fragment ElicitQuestionFragment on ElicitQuestion {\n    _id\n    title\n    notes\n    resolution\n    resolvesBy\n  }\n": types.ElicitQuestionFragmentDoc,
     "\n  fragment FieldChangeFragment on FieldChange {\n    _id\n    createdAt\n    userId\n    changeGroup\n    documentId\n    fieldName\n    oldValue\n    newValue\n  }\n": types.FieldChangeFragmentDoc,
     "\n  fragment GoogleServiceAccountSessionInfo on GoogleServiceAccountSession {\n    _id\n    email\n  }\n": types.GoogleServiceAccountSessionInfoDoc,
@@ -4254,14 +4250,6 @@ export function gql(source: "\n  fragment ConversationsListWithReadStatus on Con
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  fragment CurationNoticesFragment on CurationNotice {\n    _id\n    createdAt\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    commentId\n    comment {\n      ...CommentsList\n    }\n    postId\n    post {\n      ...PostsMinimumInfo\n    }\n    deleted\n    contents {\n      ...RevisionEdit\n    }\n  }\n"): (typeof documents)["\n  fragment CurationNoticesFragment on CurationNotice {\n    _id\n    createdAt\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    commentId\n    comment {\n      ...CommentsList\n    }\n    postId\n    post {\n      ...PostsMinimumInfo\n    }\n    deleted\n    contents {\n      ...RevisionEdit\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  fragment DigestPostsMinimumInfo on DigestPost {\n    _id\n    digestId\n    postId\n    emailDigestStatus\n    onsiteDigestStatus\n  }\n"): (typeof documents)["\n  fragment DigestPostsMinimumInfo on DigestPost {\n    _id\n    digestId\n    postId\n    emailDigestStatus\n    onsiteDigestStatus\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  fragment DigestsMinimumInfo on Digest {\n    _id\n    num\n    startDate\n    endDate\n    publishedDate\n    onsiteImageId\n    onsitePrimaryColor\n  }\n"): (typeof documents)["\n  fragment DigestsMinimumInfo on Digest {\n    _id\n    num\n    startDate\n    endDate\n    publishedDate\n    onsiteImageId\n    onsitePrimaryColor\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

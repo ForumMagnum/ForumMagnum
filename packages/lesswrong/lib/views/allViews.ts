@@ -15,7 +15,6 @@ import { ConversationsViews } from '../collections/conversations/views';
 import { CurationNoticesViews } from '../collections/curationNotices/views';
 import { DialogueChecksViews } from '../collections/dialogueChecks/views';
 import { DialogueMatchPreferencesViews } from '../collections/dialogueMatchPreferences/views';
-import { DigestsViews } from '../collections/digests/views';
 import { FieldChangesViews } from '../collections/fieldChanges/views';
 import { GoogleServiceAccountSessionsViews } from '../collections/googleServiceAccountSessions/views';
 import { IframeWidgetSrcdocsViews } from '../collections/iframeWidgetSrcdocs/views';
@@ -74,8 +73,6 @@ export const allViews = {
   DebouncerEvents: new CollectionViewSet('DebouncerEvents', {}),
   DialogueChecks: DialogueChecksViews,
   DialogueMatchPreferences: DialogueMatchPreferencesViews,
-  DigestPosts: new CollectionViewSet('DigestPosts', {}),
-  Digests: DigestsViews,
   ElicitQuestionPredictions: new CollectionViewSet('ElicitQuestionPredictions', {}),
   ElicitQuestions: new CollectionViewSet('ElicitQuestions', {}),
   EmailTokens: new CollectionViewSet('EmailTokens', {}),

@@ -17,8 +17,6 @@ type MeanPostKarma = {
   meanKarma: number,
 }
 
-type PostAndDigestPost = DbPost & {digestPostId: string|null, emailDigestStatus: string|null, onsiteDigestStatus: string|null}
-
 const constructFilters = (
   {
     startDate,
@@ -215,52 +213,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, { userId, limit, ...params }, 'getPostsUserCommentedOn');
   }
 
-
-  async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
-    const end = endDate ?? new Date()
-    return this.getRawDb().manyOrNone(`
-      -- PostsRepo.getEligiblePostsForDigest
-      SELECT p.*, dp._id as "digestPostId", dp."emailDigestStatus", dp."onsiteDigestStatus"
-      FROM "Posts" p
-      LEFT JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."digestId" = $1
-      WHERE p."postedAt" > $2 AND
-        p."postedAt" <= $3 AND
-        p."baseScore" > 2 AND
-        p."isEvent" is not true AND
-        p."shortform" is not true AND
-        p."isFuture" is not true AND
-        p."authorIsUnreviewed" is not true AND
-        p."draft" is not true
-      ORDER BY p."baseScore" desc
-      LIMIT 200
-    `, [digestId, startDate, end], "getEligiblePostsForDigest");
-  }
-  
-  async getPostsForOnsiteDigest(num: number): Promise<Array<DbPost>> {
-    return this.manyOrNone(`
-      -- PostsRepo.getPostsForOnsiteDigest
-      SELECT p.*
-      FROM "Posts" p
-      JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."onsiteDigestStatus" = 'yes'
-      JOIN "Digests" d ON d.num = $1 AND dp."digestId" = d._id
-      WHERE
-        p."draft" is not true
-      ORDER BY p."curatedDate" DESC NULLS LAST, p."suggestForCuratedUserIds" DESC NULLS LAST, p."baseScore" desc
-      LIMIT 50
-    `, [num]);
-  }
-
-  getTopWeeklyDigestPosts(limit = 3): Promise<DbPost[]> {
-    return this.any(`
-      -- PostsRepo.getTopWeeklyDigestPosts
-      SELECT p.*
-      FROM "Posts" p
-      JOIN "DigestPosts" dp ON p."_id" = dp."postId"
-      JOIN "Digests" d ON d."_id" = dp."digestId"
-      ORDER BY d."num" DESC, p."baseScore" DESC
-      LIMIT $1
-    `, [limit]);
-  }
 
   getRecentlyActiveDialogues(limit = 3): Promise<DbPost[]> {
     return this.any(`

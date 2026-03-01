@@ -1265,32 +1265,6 @@ export type CreateCurationNoticeInput = {
   data: CreateCurationNoticeDataInput;
 };
 
-export type CreateDigestDataInput = {
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  num: Scalars['Float']['input'];
-  onsiteImageId?: InputMaybe<Scalars['String']['input']>;
-  onsitePrimaryColor?: InputMaybe<Scalars['String']['input']>;
-  publishedDate?: InputMaybe<Scalars['Date']['input']>;
-  startDate: Scalars['Date']['input'];
-};
-
-export type CreateDigestInput = {
-  data: CreateDigestDataInput;
-};
-
-export type CreateDigestPostDataInput = {
-  digestId: Scalars['String']['input'];
-  emailDigestStatus?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  onsiteDigestStatus?: InputMaybe<Scalars['String']['input']>;
-  postId: Scalars['String']['input'];
-};
-
-export type CreateDigestPostInput = {
-  data: CreateDigestPostDataInput;
-};
-
 export type CreateElicitQuestionDataInput = {
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -2096,75 +2070,6 @@ export type DialogueMatchPreferenceSelector = {
 
 export type DialogueMatchPreferencesDialogueMatchPreferencesInput = {
   dialogueCheckId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type Digest = {
-  __typename?: 'Digest';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  endDate: Maybe<Scalars['Date']['output']>;
-  legacyData: Maybe<Scalars['JSON']['output']>;
-  num: Scalars['Float']['output'];
-  onsiteImageId: Maybe<Scalars['String']['output']>;
-  onsitePrimaryColor: Maybe<Scalars['String']['output']>;
-  publishedDate: Maybe<Scalars['Date']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  startDate: Scalars['Date']['output'];
-};
-
-export type DigestHighlightsResult = {
-  __typename?: 'DigestHighlightsResult';
-  results: Array<Post>;
-};
-
-export type DigestOutput = {
-  __typename?: 'DigestOutput';
-  data: Maybe<Digest>;
-};
-
-export type DigestPlannerPost = {
-  __typename?: 'DigestPlannerPost';
-  digestPost: Maybe<DigestPost>;
-  post: Post;
-  rating: Scalars['Int']['output'];
-};
-
-export type DigestPost = {
-  __typename?: 'DigestPost';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  digest: Digest;
-  digestId: Scalars['String']['output'];
-  emailDigestStatus: Maybe<Scalars['String']['output']>;
-  legacyData: Maybe<Scalars['JSON']['output']>;
-  onsiteDigestStatus: Maybe<Scalars['String']['output']>;
-  post: Maybe<Post>;
-  postId: Scalars['String']['output'];
-  schemaVersion: Scalars['Float']['output'];
-};
-
-export type DigestPostOutput = {
-  __typename?: 'DigestPostOutput';
-  data: Maybe<DigestPost>;
-};
-
-export type DigestPostSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-};
-
-export type DigestPostsThisWeekResult = {
-  __typename?: 'DigestPostsThisWeekResult';
-  results: Array<Post>;
-};
-
-export type DigestSelector = {
-  all?: InputMaybe<EmptyViewInput>;
-  default?: InputMaybe<EmptyViewInput>;
-  findByNum?: InputMaybe<DigestsFindByNumInput>;
-};
-
-export type DigestsFindByNumInput = {
-  num?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type DocumentDeletion = {
@@ -3145,32 +3050,6 @@ export type MultiDialogueMatchPreferenceOutput = {
   totalCount: Maybe<Scalars['Int']['output']>;
 };
 
-export type MultiDigestInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiDigestOutput = {
-  __typename?: 'MultiDigestOutput';
-  results: Array<Digest>;
-  totalCount: Maybe<Scalars['Int']['output']>;
-};
-
-export type MultiDigestPostInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiDigestPostOutput = {
-  __typename?: 'MultiDigestPostOutput';
-  results: Array<DigestPost>;
-  totalCount: Maybe<Scalars['Int']['output']>;
-};
-
 export type MultiDocument = {
   __typename?: 'MultiDocument';
   _id: Scalars['String']['output'];
@@ -3809,8 +3688,6 @@ export type Mutation = {
   createCommentModeratorAction: Maybe<CommentModeratorActionOutput>;
   createConversation: Maybe<ConversationOutput>;
   createCurationNotice: Maybe<CurationNoticeOutput>;
-  createDigest: Maybe<DigestOutput>;
-  createDigestPost: Maybe<DigestPostOutput>;
   createElicitQuestion: Maybe<ElicitQuestionOutput>;
   createJargonTerm: Maybe<JargonTermOutput>;
   createLWEvent: Maybe<LWEventOutput>;
@@ -3895,8 +3772,6 @@ export type Mutation = {
   updateContinueReading: Maybe<Scalars['Boolean']['output']>;
   updateConversation: Maybe<ConversationOutput>;
   updateCurationNotice: Maybe<CurationNoticeOutput>;
-  updateDigest: Maybe<DigestOutput>;
-  updateDigestPost: Maybe<DigestPostOutput>;
   updateElicitQuestion: Maybe<ElicitQuestionOutput>;
   updateJargonTerm: Maybe<JargonTermOutput>;
   updateLlmConversation: Maybe<LlmConversationOutput>;
@@ -4088,16 +3963,6 @@ export type MutationcreateConversationArgs = {
 
 export type MutationcreateCurationNoticeArgs = {
   data: CreateCurationNoticeDataInput;
-};
-
-
-export type MutationcreateDigestArgs = {
-  data: CreateDigestDataInput;
-};
-
-
-export type MutationcreateDigestPostArgs = {
-  data: CreateDigestPostDataInput;
 };
 
 
@@ -4587,18 +4452,6 @@ export type MutationupdateConversationArgs = {
 
 export type MutationupdateCurationNoticeArgs = {
   data: UpdateCurationNoticeDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationupdateDigestArgs = {
-  data: UpdateDigestDataInput;
-  selector: SelectorInput;
-};
-
-
-export type MutationupdateDigestPostArgs = {
-  data: UpdateDigestPostDataInput;
   selector: SelectorInput;
 };
 
@@ -6992,10 +6845,6 @@ export type Query = {
   CrossedKarmaThreshold: Maybe<CrossedKarmaThresholdResult>;
   CuratedAndPopularThisWeek: Maybe<CuratedAndPopularThisWeekResult>;
   CurationCandidatePosts: Maybe<CurationCandidatePostsResult>;
-  DigestHighlights: Maybe<DigestHighlightsResult>;
-  DigestPlannerData: Array<DigestPlannerPost>;
-  DigestPosts: Maybe<Array<Post>>;
-  DigestPostsThisWeek: Maybe<DigestPostsThisWeekResult>;
   ElicitBlockData: Maybe<ElicitBlockData>;
   EmailPreview: Maybe<Array<Maybe<EmailPreview>>>;
   GetAllReviewWinners: Array<Post>;
@@ -7080,10 +6929,6 @@ export type Query = {
   dialogueChecks: Maybe<MultiDialogueCheckOutput>;
   dialogueMatchPreference: Maybe<SingleDialogueMatchPreferenceOutput>;
   dialogueMatchPreferences: Maybe<MultiDialogueMatchPreferenceOutput>;
-  digest: Maybe<SingleDigestOutput>;
-  digestPost: Maybe<SingleDigestPostOutput>;
-  digestPosts: Maybe<MultiDigestPostOutput>;
-  digests: Maybe<MultiDigestOutput>;
   elicitQuestion: Maybe<SingleElicitQuestionOutput>;
   elicitQuestionPrediction: Maybe<SingleElicitQuestionPredictionOutput>;
   elicitQuestionPredictions: Maybe<MultiElicitQuestionPredictionOutput>;
@@ -7224,28 +7069,6 @@ export type QueryCuratedAndPopularThisWeekArgs = {
 
 
 export type QueryCurationCandidatePostsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryDigestHighlightsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryDigestPlannerDataArgs = {
-  digestId?: InputMaybe<Scalars['String']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-};
-
-
-export type QueryDigestPostsArgs = {
-  num?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryDigestPostsThisWeekArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -7723,36 +7546,6 @@ export type QuerydialogueMatchPreferencesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<DialogueMatchPreferenceSelector>;
-};
-
-
-export type QuerydigestArgs = {
-  input?: InputMaybe<SingleDigestInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-export type QuerydigestPostArgs = {
-  input?: InputMaybe<SingleDigestPostInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-export type QuerydigestPostsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiDigestPostInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<DigestPostSelector>;
-};
-
-
-export type QuerydigestsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiDigestInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<DigestSelector>;
 };
 
 
@@ -9048,26 +8841,6 @@ export type SingleDialogueMatchPreferenceOutput = {
   result: Maybe<DialogueMatchPreference>;
 };
 
-export type SingleDigestInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SingleDigestOutput = {
-  __typename?: 'SingleDigestOutput';
-  result: Maybe<Digest>;
-};
-
-export type SingleDigestPostInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SingleDigestPostOutput = {
-  __typename?: 'SingleDigestPostOutput';
-  result: Maybe<DigestPost>;
-};
-
 export type SingleElicitQuestionInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -10323,34 +10096,6 @@ export type UpdateCurationNoticeDataInput = {
 
 export type UpdateCurationNoticeInput = {
   data: UpdateCurationNoticeDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdateDigestDataInput = {
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  num?: InputMaybe<Scalars['Float']['input']>;
-  onsiteImageId?: InputMaybe<Scalars['String']['input']>;
-  onsitePrimaryColor?: InputMaybe<Scalars['String']['input']>;
-  publishedDate?: InputMaybe<Scalars['Date']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-};
-
-export type UpdateDigestInput = {
-  data: UpdateDigestDataInput;
-  selector: SelectorInput;
-};
-
-export type UpdateDigestPostDataInput = {
-  digestId?: InputMaybe<Scalars['String']['input']>;
-  emailDigestStatus?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  onsiteDigestStatus?: InputMaybe<Scalars['String']['input']>;
-  postId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateDigestPostInput = {
-  data: UpdateDigestPostDataInput;
   selector: SelectorInput;
 };
 
@@ -18316,10 +18061,6 @@ export type CurationNoticesFragment = { __typename?: 'CurationNotice', _id: stri
     & RevisionEdit
   ) | null };
 
-export type DigestPostsMinimumInfo = { __typename?: 'DigestPost', _id: string, digestId: string, postId: string, emailDigestStatus: string | null, onsiteDigestStatus: string | null };
-
-export type DigestsMinimumInfo = { __typename?: 'Digest', _id: string, num: number, startDate: string, endDate: string | null, publishedDate: string | null, onsiteImageId: string | null, onsitePrimaryColor: string | null };
-
 export type ElicitQuestionFragment = { __typename?: 'ElicitQuestion', _id: string, title: string, notes: string | null, resolution: string | null, resolvesBy: string | null };
 
 export type FieldChangeFragment = { __typename?: 'FieldChange', _id: string, createdAt: string, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
@@ -19756,8 +19497,6 @@ const PostsTwitterAdminFragmentDef = {"kind":"FragmentDefinition","name":{"kind"
 const CurationNoticesFragmentFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"CurationNoticesFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"CurationNotice"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"commentId"}},{"kind":"Field","name":{"kind":"Name","value":"comment"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsList"}}]}},{"kind":"Field","name":{"kind":"Name","value":"postId"}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsMinimumInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"deleted"}},{"kind":"Field","name":{"kind":"Name","value":"contents"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"RevisionEdit"}}]}}]}};
 const SunshineCurationPostsListFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"SunshineCurationPostsList"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsList"}},{"kind":"Field","name":{"kind":"Name","value":"curationNotices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CurationNoticesFragment"}}]}}]}};
 const DeletedCommentsModerationLogFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"DeletedCommentsModerationLog"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Comment"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"DeletedCommentsMetaData"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"_id"}}]}}]}};
-const DigestPostsMinimumInfoFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"DigestPostsMinimumInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"DigestPost"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"digestId"}},{"kind":"Field","name":{"kind":"Name","value":"postId"}},{"kind":"Field","name":{"kind":"Name","value":"emailDigestStatus"}},{"kind":"Field","name":{"kind":"Name","value":"onsiteDigestStatus"}}]}};
-const DigestsMinimumInfoFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"DigestsMinimumInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Digest"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"num"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"endDate"}},{"kind":"Field","name":{"kind":"Name","value":"publishedDate"}},{"kind":"Field","name":{"kind":"Name","value":"onsiteImageId"}},{"kind":"Field","name":{"kind":"Name","value":"onsitePrimaryColor"}}]}};
 const SpotlightMinimumInfoFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"SpotlightMinimumInfo"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Spotlight"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"documentId"}},{"kind":"Field","name":{"kind":"Name","value":"documentType"}},{"kind":"Field","name":{"kind":"Name","value":"spotlightImageId"}},{"kind":"Field","name":{"kind":"Name","value":"spotlightDarkImageId"}},{"kind":"Field","name":{"kind":"Name","value":"spotlightSplashImageUrl"}},{"kind":"Field","name":{"kind":"Name","value":"draft"}},{"kind":"Field","name":{"kind":"Name","value":"deletedDraft"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"lastPromotedAt"}},{"kind":"Field","name":{"kind":"Name","value":"customTitle"}},{"kind":"Field","name":{"kind":"Name","value":"customSubtitle"}},{"kind":"Field","name":{"kind":"Name","value":"subtitleUrl"}},{"kind":"Field","name":{"kind":"Name","value":"headerTitle"}},{"kind":"Field","name":{"kind":"Name","value":"headerTitleLeftColor"}},{"kind":"Field","name":{"kind":"Name","value":"headerTitleRightColor"}},{"kind":"Field","name":{"kind":"Name","value":"duration"}},{"kind":"Field","name":{"kind":"Name","value":"showAuthor"}},{"kind":"Field","name":{"kind":"Name","value":"imageFade"}},{"kind":"Field","name":{"kind":"Name","value":"imageFadeColor"}}]}};
 const SpotlightDisplayFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"SpotlightDisplay"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Spotlight"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SpotlightMinimumInfo"}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"reviews"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"sequence"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"tag"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"html"}}]}}]}};
 const DraftCommentsFragmentDef = {"kind":"FragmentDefinition","name":{"kind":"Name","value":"DraftComments"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Comment"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"CommentsList"}},{"kind":"Field","name":{"kind":"Name","value":"post"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsMinimumInfo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"parentComment"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"_id"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UsersMinimumInfo"}}]}}]}}]}};
@@ -19971,8 +19710,6 @@ export const DeletedCommentsMetaDataDoc = {"kind":"Document","definitions":[Dele
 export const DeletedCommentsModerationLogDoc = {"kind":"Document","definitions":[DeletedCommentsModerationLogFragmentDef,DeletedCommentsMetaDataFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<DeletedCommentsModerationLog, unknown>;
 export const DeletedCommentsModerationLogQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"DeletedCommentsModerationLogQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"selector"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"CommentSelector"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"enableTotal"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"Variable","name":{"kind":"Name","value":"selector"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"enableTotal"},"value":{"kind":"Variable","name":{"kind":"Name","value":"enableTotal"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"DeletedCommentsModerationLog"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}},DeletedCommentsModerationLogFragmentDef,DeletedCommentsMetaDataFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<DeletedCommentsModerationLogQueryQuery, DeletedCommentsModerationLogQueryQueryVariables>;
 export const DialoguesPageDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"DialoguesPage"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"post"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"selector"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"documentId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"documentId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"result"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostsListWithVotes"}}]}}]}}]}},PostsListWithVotesFragmentDef,PostsListFragmentDef,PostsListBaseFragmentDef,PostsBaseFragmentDef,PostsMinimumInfoFragmentDef,PostsAuthorsFragmentDef,UsersMinimumInfoFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,PostPodcastEpisodeFragmentDef]} as unknown as DocumentNode<DialoguesPageQuery, DialoguesPageQueryVariables>;
-export const DigestPostsMinimumInfoDoc = {"kind":"Document","definitions":[DigestPostsMinimumInfoFragmentDef]} as unknown as DocumentNode<DigestPostsMinimumInfo, unknown>;
-export const DigestsMinimumInfoDoc = {"kind":"Document","definitions":[DigestsMinimumInfoFragmentDef]} as unknown as DocumentNode<DigestsMinimumInfo, unknown>;
 export const DisplaySpotlightQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"DisplaySpotlightQuery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"currentSpotlight"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"SpotlightDisplay"}}]}}]}},SpotlightDisplayFragmentDef,SpotlightMinimumInfoFragmentDef,UsersMinimumInfoFragmentDef]} as unknown as DocumentNode<DisplaySpotlightQueryQuery, DisplaySpotlightQueryQueryVariables>;
 export const DraftCommentsDoc = {"kind":"Document","definitions":[DraftCommentsFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<DraftComments, unknown>;
 export const DraftCommentsQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"DraftCommentsQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"selector"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"CommentSelector"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"enableTotal"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"comments"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"selector"},"value":{"kind":"Variable","name":{"kind":"Name","value":"selector"}}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}},{"kind":"Argument","name":{"kind":"Name","value":"enableTotal"},"value":{"kind":"Variable","name":{"kind":"Name","value":"enableTotal"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"results"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"DraftComments"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}},DraftCommentsFragmentDef,CommentsListFragmentDef,TagPreviewFragmentFragmentDef,TagBasicInfoFragmentDef,UsersMinimumInfoFragmentDef,PostsMinimumInfoFragmentDef]} as unknown as DocumentNode<DraftCommentsQueryQuery, DraftCommentsQueryQueryVariables>;

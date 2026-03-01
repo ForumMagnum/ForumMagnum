@@ -91,8 +91,6 @@ import { graphqlDatabaseMetadataQueryTypeDefs, databaseMetadataGqlFieldResolvers
 import { graphqlDebouncerEventsQueryTypeDefs, debouncerEventsGqlFieldResolvers } from "@/server/collections/debouncerEvents/queries";
 import { graphqlDialogueCheckQueryTypeDefs, dialogueCheckGqlQueryHandlers, dialogueCheckGqlFieldResolvers } from "@/server/collections/dialogueChecks/queries";
 import { graphqlDialogueMatchPreferenceQueryTypeDefs, dialogueMatchPreferenceGqlQueryHandlers, dialogueMatchPreferenceGqlFieldResolvers } from "@/server/collections/dialogueMatchPreferences/queries";
-import { graphqlDigestPostQueryTypeDefs, digestPostGqlQueryHandlers, digestPostGqlFieldResolvers } from "@/server/collections/digestPosts/queries";
-import { graphqlDigestQueryTypeDefs, digestGqlQueryHandlers, digestGqlFieldResolvers } from "@/server/collections/digests/queries";
 import { graphqlElicitQuestionPredictionQueryTypeDefs, elicitQuestionPredictionGqlQueryHandlers, elicitQuestionPredictionGqlFieldResolvers } from "@/server/collections/elicitQuestionPredictions/queries";
 import { graphqlElicitQuestionQueryTypeDefs, elicitQuestionGqlQueryHandlers, elicitQuestionGqlFieldResolvers } from "@/server/collections/elicitQuestions/queries";
 import { graphqlEmailTokensQueryTypeDefs, emailTokensGqlFieldResolvers } from "@/server/collections/emailTokens/queries";
@@ -154,8 +152,6 @@ import { createCommentModeratorActionGqlMutation, updateCommentModeratorActionGq
 import { createCommentGqlMutation, updateCommentGqlMutation, graphqlCommentTypeDefs } from "@/server/collections/comments/mutations";
 import { createConversationGqlMutation, updateConversationGqlMutation, graphqlConversationTypeDefs } from "@/server/collections/conversations/mutations";
 import { createCurationNoticeGqlMutation, updateCurationNoticeGqlMutation, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
-import { createDigestPostGqlMutation, updateDigestPostGqlMutation, graphqlDigestPostTypeDefs } from "@/server/collections/digestPosts/mutations";
-import { createDigestGqlMutation, updateDigestGqlMutation, graphqlDigestTypeDefs } from "@/server/collections/digests/mutations";
 import { createElicitQuestionGqlMutation, updateElicitQuestionGqlMutation, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
 import { createJargonTermGqlMutation, updateJargonTermGqlMutation, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
 import { createLWEventGqlMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
@@ -321,8 +317,6 @@ export const getTypeDefs = () => gql`
   ${graphqlDebouncerEventsQueryTypeDefs}
   ${graphqlDialogueCheckQueryTypeDefs}
   ${graphqlDialogueMatchPreferenceQueryTypeDefs}
-  ${graphqlDigestPostQueryTypeDefs}
-  ${graphqlDigestQueryTypeDefs}
   ${graphqlElicitQuestionPredictionQueryTypeDefs}
   ${graphqlElicitQuestionQueryTypeDefs}
   ${graphqlEmailTokensQueryTypeDefs}
@@ -385,8 +379,6 @@ export const getTypeDefs = () => gql`
   ${graphqlCommentTypeDefs}
   ${graphqlConversationTypeDefs}
   ${graphqlCurationNoticeTypeDefs}
-  ${graphqlDigestPostTypeDefs}
-  ${graphqlDigestTypeDefs}
   ${graphqlElicitQuestionTypeDefs}
   ${graphqlJargonTermTypeDefs}
   ${graphqlLWEventTypeDefs}
@@ -476,8 +468,6 @@ const getResolvers = () => ({
     ...curationNoticeGqlQueryHandlers,
     ...dialogueCheckGqlQueryHandlers,
     ...dialogueMatchPreferenceGqlQueryHandlers,
-    ...digestPostGqlQueryHandlers,
-    ...digestGqlQueryHandlers,
     ...elicitQuestionPredictionGqlQueryHandlers,
     ...elicitQuestionGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
@@ -577,10 +567,6 @@ const getResolvers = () => ({
     updateConversation: updateConversationGqlMutation,
     createCurationNotice: createCurationNoticeGqlMutation,
     updateCurationNotice: updateCurationNoticeGqlMutation,
-    createDigestPost: createDigestPostGqlMutation,
-    updateDigestPost: updateDigestPostGqlMutation,
-    createDigest: createDigestGqlMutation,
-    updateDigest: updateDigestGqlMutation,
     createElicitQuestion: createElicitQuestionGqlMutation,
     updateElicitQuestion: updateElicitQuestionGqlMutation,
     createJargonTerm: createJargonTermGqlMutation,
@@ -652,8 +638,6 @@ const getResolvers = () => ({
   ...debouncerEventsGqlFieldResolvers,
   ...dialogueCheckGqlFieldResolvers,
   ...dialogueMatchPreferenceGqlFieldResolvers,
-  ...digestPostGqlFieldResolvers,
-  ...digestGqlFieldResolvers,
   ...elicitQuestionPredictionGqlFieldResolvers,
   ...elicitQuestionGqlFieldResolvers,
   ...emailTokensGqlFieldResolvers,

@@ -1262,32 +1262,6 @@ type CreateCurationNoticeInput = {
   data: CreateCurationNoticeDataInput;
 };
 
-type CreateDigestDataInput = {
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  num: Scalars['Float']['input'];
-  onsiteImageId?: InputMaybe<Scalars['String']['input']>;
-  onsitePrimaryColor?: InputMaybe<Scalars['String']['input']>;
-  publishedDate?: InputMaybe<Scalars['Date']['input']>;
-  startDate: Scalars['Date']['input'];
-};
-
-type CreateDigestInput = {
-  data: CreateDigestDataInput;
-};
-
-type CreateDigestPostDataInput = {
-  digestId: Scalars['String']['input'];
-  emailDigestStatus?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  onsiteDigestStatus?: InputMaybe<Scalars['String']['input']>;
-  postId: Scalars['String']['input'];
-};
-
-type CreateDigestPostInput = {
-  data: CreateDigestPostDataInput;
-};
-
 type CreateElicitQuestionDataInput = {
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -2093,75 +2067,6 @@ type DialogueMatchPreferenceSelector = {
 
 type DialogueMatchPreferencesDialogueMatchPreferencesInput = {
   dialogueCheckId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type Digest = {
-  __typename?: 'Digest';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  endDate?: Maybe<Scalars['Date']['output']>;
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  num: Scalars['Float']['output'];
-  onsiteImageId?: Maybe<Scalars['String']['output']>;
-  onsitePrimaryColor?: Maybe<Scalars['String']['output']>;
-  publishedDate?: Maybe<Scalars['Date']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  startDate: Scalars['Date']['output'];
-};
-
-type DigestHighlightsResult = {
-  __typename?: 'DigestHighlightsResult';
-  results: Array<Post>;
-};
-
-type DigestOutput = {
-  __typename?: 'DigestOutput';
-  data?: Maybe<Digest>;
-};
-
-type DigestPlannerPost = {
-  __typename?: 'DigestPlannerPost';
-  digestPost?: Maybe<DigestPost>;
-  post: Post;
-  rating: Scalars['Int']['output'];
-};
-
-type DigestPost = {
-  __typename?: 'DigestPost';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  digest: Digest;
-  digestId: Scalars['String']['output'];
-  emailDigestStatus?: Maybe<Scalars['String']['output']>;
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  onsiteDigestStatus?: Maybe<Scalars['String']['output']>;
-  post?: Maybe<Post>;
-  postId: Scalars['String']['output'];
-  schemaVersion: Scalars['Float']['output'];
-};
-
-type DigestPostOutput = {
-  __typename?: 'DigestPostOutput';
-  data?: Maybe<DigestPost>;
-};
-
-type DigestPostSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-};
-
-type DigestPostsThisWeekResult = {
-  __typename?: 'DigestPostsThisWeekResult';
-  results: Array<Post>;
-};
-
-type DigestSelector = {
-  all?: InputMaybe<EmptyViewInput>;
-  default?: InputMaybe<EmptyViewInput>;
-  findByNum?: InputMaybe<DigestsFindByNumInput>;
-};
-
-type DigestsFindByNumInput = {
-  num?: InputMaybe<Scalars['Int']['input']>;
 };
 
 type DocumentDeletion = {
@@ -3142,32 +3047,6 @@ type MultiDialogueMatchPreferenceOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
-type MultiDigestInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiDigestOutput = {
-  __typename?: 'MultiDigestOutput';
-  results: Array<Digest>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiDigestPostInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiDigestPostOutput = {
-  __typename?: 'MultiDigestPostOutput';
-  results: Array<DigestPost>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 type MultiDocument = {
   __typename?: 'MultiDocument';
   _id: Scalars['String']['output'];
@@ -3806,8 +3685,6 @@ type Mutation = {
   createCommentModeratorAction?: Maybe<CommentModeratorActionOutput>;
   createConversation?: Maybe<ConversationOutput>;
   createCurationNotice?: Maybe<CurationNoticeOutput>;
-  createDigest?: Maybe<DigestOutput>;
-  createDigestPost?: Maybe<DigestPostOutput>;
   createElicitQuestion?: Maybe<ElicitQuestionOutput>;
   createJargonTerm?: Maybe<JargonTermOutput>;
   createLWEvent?: Maybe<LWEventOutput>;
@@ -3892,8 +3769,6 @@ type Mutation = {
   updateContinueReading?: Maybe<Scalars['Boolean']['output']>;
   updateConversation?: Maybe<ConversationOutput>;
   updateCurationNotice?: Maybe<CurationNoticeOutput>;
-  updateDigest?: Maybe<DigestOutput>;
-  updateDigestPost?: Maybe<DigestPostOutput>;
   updateElicitQuestion?: Maybe<ElicitQuestionOutput>;
   updateJargonTerm?: Maybe<JargonTermOutput>;
   updateLlmConversation?: Maybe<LlmConversationOutput>;
@@ -4085,16 +3960,6 @@ type MutationcreateConversationArgs = {
 
 type MutationcreateCurationNoticeArgs = {
   data: CreateCurationNoticeDataInput;
-};
-
-
-type MutationcreateDigestArgs = {
-  data: CreateDigestDataInput;
-};
-
-
-type MutationcreateDigestPostArgs = {
-  data: CreateDigestPostDataInput;
 };
 
 
@@ -4584,18 +4449,6 @@ type MutationupdateConversationArgs = {
 
 type MutationupdateCurationNoticeArgs = {
   data: UpdateCurationNoticeDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateDigestArgs = {
-  data: UpdateDigestDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateDigestPostArgs = {
-  data: UpdateDigestPostDataInput;
   selector: SelectorInput;
 };
 
@@ -6989,10 +6842,6 @@ type Query = {
   CrossedKarmaThreshold?: Maybe<CrossedKarmaThresholdResult>;
   CuratedAndPopularThisWeek?: Maybe<CuratedAndPopularThisWeekResult>;
   CurationCandidatePosts?: Maybe<CurationCandidatePostsResult>;
-  DigestHighlights?: Maybe<DigestHighlightsResult>;
-  DigestPlannerData: Array<DigestPlannerPost>;
-  DigestPosts?: Maybe<Array<Post>>;
-  DigestPostsThisWeek?: Maybe<DigestPostsThisWeekResult>;
   ElicitBlockData?: Maybe<ElicitBlockData>;
   EmailPreview?: Maybe<Array<Maybe<EmailPreview>>>;
   GetAllReviewWinners: Array<Post>;
@@ -7077,10 +6926,6 @@ type Query = {
   dialogueChecks?: Maybe<MultiDialogueCheckOutput>;
   dialogueMatchPreference?: Maybe<SingleDialogueMatchPreferenceOutput>;
   dialogueMatchPreferences?: Maybe<MultiDialogueMatchPreferenceOutput>;
-  digest?: Maybe<SingleDigestOutput>;
-  digestPost?: Maybe<SingleDigestPostOutput>;
-  digestPosts?: Maybe<MultiDigestPostOutput>;
-  digests?: Maybe<MultiDigestOutput>;
   elicitQuestion?: Maybe<SingleElicitQuestionOutput>;
   elicitQuestionPrediction?: Maybe<SingleElicitQuestionPredictionOutput>;
   elicitQuestionPredictions?: Maybe<MultiElicitQuestionPredictionOutput>;
@@ -7221,28 +7066,6 @@ type QueryCuratedAndPopularThisWeekArgs = {
 
 
 type QueryCurationCandidatePostsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-type QueryDigestHighlightsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-type QueryDigestPlannerDataArgs = {
-  digestId?: InputMaybe<Scalars['String']['input']>;
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-};
-
-
-type QueryDigestPostsArgs = {
-  num?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-type QueryDigestPostsThisWeekArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -7720,36 +7543,6 @@ type QuerydialogueMatchPreferencesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<DialogueMatchPreferenceSelector>;
-};
-
-
-type QuerydigestArgs = {
-  input?: InputMaybe<SingleDigestInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerydigestPostArgs = {
-  input?: InputMaybe<SingleDigestPostInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerydigestPostsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiDigestPostInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<DigestPostSelector>;
-};
-
-
-type QuerydigestsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiDigestInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<DigestSelector>;
 };
 
 
@@ -9045,26 +8838,6 @@ type SingleDialogueMatchPreferenceOutput = {
   result?: Maybe<DialogueMatchPreference>;
 };
 
-type SingleDigestInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleDigestOutput = {
-  __typename?: 'SingleDigestOutput';
-  result?: Maybe<Digest>;
-};
-
-type SingleDigestPostInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleDigestPostOutput = {
-  __typename?: 'SingleDigestPostOutput';
-  result?: Maybe<DigestPost>;
-};
-
 type SingleElicitQuestionInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -10320,34 +10093,6 @@ type UpdateCurationNoticeDataInput = {
 
 type UpdateCurationNoticeInput = {
   data: UpdateCurationNoticeDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateDigestDataInput = {
-  endDate?: InputMaybe<Scalars['Date']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  num?: InputMaybe<Scalars['Float']['input']>;
-  onsiteImageId?: InputMaybe<Scalars['String']['input']>;
-  onsitePrimaryColor?: InputMaybe<Scalars['String']['input']>;
-  publishedDate?: InputMaybe<Scalars['Date']['input']>;
-  startDate?: InputMaybe<Scalars['Date']['input']>;
-};
-
-type UpdateDigestInput = {
-  data: UpdateDigestDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateDigestPostDataInput = {
-  digestId?: InputMaybe<Scalars['String']['input']>;
-  emailDigestStatus?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  onsiteDigestStatus?: InputMaybe<Scalars['String']['input']>;
-  postId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UpdateDigestPostInput = {
-  data: UpdateDigestPostDataInput;
   selector: SelectorInput;
 };
 
@@ -22537,10 +22282,6 @@ type CurationNoticesFragment_CurationNotice_contents_Revision = (
 );
 
 type CurationNoticesFragment = { __typename?: 'CurationNotice', _id: string, createdAt: string, userId: string, commentId: string | null, postId: string, deleted: boolean, user: CurationNoticesFragment_CurationNotice_user_User | null, comment: CurationNoticesFragment_CurationNotice_comment_Comment | null, post: CurationNoticesFragment_CurationNotice_post_Post | null, contents: CurationNoticesFragment_CurationNotice_contents_Revision | null };
-
-type DigestPostsMinimumInfo = { __typename?: 'DigestPost', _id: string, digestId: string, postId: string, emailDigestStatus: string | null, onsiteDigestStatus: string | null };
-
-type DigestsMinimumInfo = { __typename?: 'Digest', _id: string, num: number, startDate: string, endDate: string | null, publishedDate: string | null, onsiteImageId: string | null, onsitePrimaryColor: string | null };
 
 type ElicitQuestionFragment = { __typename?: 'ElicitQuestion', _id: string, title: string, notes: string | null, resolution: string | null, resolvesBy: string | null };
 

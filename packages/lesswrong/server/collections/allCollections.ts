@@ -28,8 +28,6 @@ import { DatabaseMetadata } from './databaseMetadata/collection';
 import { DebouncerEvents } from './debouncerEvents/collection';
 import { DialogueChecks } from './dialogueChecks/collection';
 import { DialogueMatchPreferences } from './dialogueMatchPreferences/collection';
-import { DigestPosts } from './digestPosts/collection';
-import { Digests } from './digests/collection';
 import { ElicitQuestionPredictions } from './elicitQuestionPredictions/collection';
 import { ElicitQuestions } from './elicitQuestions/collection';
 import { EmailTokens } from './emailTokens/collection';
@@ -109,7 +107,7 @@ function getTestCollectionsByTypeName() {
 const allCollections = {
   ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
+  DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,
