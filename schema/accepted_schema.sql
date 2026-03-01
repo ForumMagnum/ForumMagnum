@@ -775,19 +775,6 @@ CREATE TABLE "EmailTokens" (
 -- Index "idx_EmailTokens_token"
 CREATE INDEX IF NOT EXISTS "idx_EmailTokens_token" ON "EmailTokens" USING btree ("token");
 
--- Table "FeaturedResources"
-CREATE TABLE "FeaturedResources" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "title" TEXT NOT NULL,
-  "body" TEXT,
-  "ctaText" TEXT NOT NULL,
-  "ctaUrl" TEXT NOT NULL,
-  "expiresAt" TIMESTAMPTZ NOT NULL
-);
-
 -- Table "FieldChanges"
 CREATE TABLE "FieldChanges" (
   _id VARCHAR(27) PRIMARY KEY,

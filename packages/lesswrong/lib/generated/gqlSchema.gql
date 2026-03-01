@@ -2967,49 +2967,6 @@ type EmailTokens {
   legacyData: JSON
 }
 
-type FeaturedResource {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  title: String!
-  body: String
-  ctaText: String!
-  ctaUrl: String!
-  expiresAt: Date!
-}
-
-input SingleFeaturedResourceInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleFeaturedResourceOutput {
-  result: FeaturedResource
-}
-
-input FeaturedResourceSelector {
-  default: EmptyViewInput
-  activeResources: EmptyViewInput
-}
-
-input MultiFeaturedResourceInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiFeaturedResourceOutput {
-  results: [FeaturedResource!]!
-  totalCount: Int
-}
-
-extend type Query {
-  featuredResource(input: SingleFeaturedResourceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleFeaturedResourceOutput
-  featuredResources(input: MultiFeaturedResourceInput @deprecated(reason: "Use the selector field instead"), selector: FeaturedResourceSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiFeaturedResourceOutput
-}
-
 type FieldChange {
   _id: String!
   schemaVersion: Float!

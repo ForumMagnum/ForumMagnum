@@ -407,7 +407,6 @@ const accessFilters = {
   ElicitQuestionPredictions: allowAccess,
   ElicitQuestions: allowAccess,
   EmailTokens: allowAccess,
-  FeaturedResources: allowAccess,
   FieldChanges: allowAccess,
   GoogleServiceAccountSessions: allowAccess,
   IframeWidgetSrcdocs: iframeWidgetSrcdocCheckAccess,

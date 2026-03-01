@@ -96,7 +96,6 @@ import { graphqlDigestQueryTypeDefs, digestGqlQueryHandlers, digestGqlFieldResol
 import { graphqlElicitQuestionPredictionQueryTypeDefs, elicitQuestionPredictionGqlQueryHandlers, elicitQuestionPredictionGqlFieldResolvers } from "@/server/collections/elicitQuestionPredictions/queries";
 import { graphqlElicitQuestionQueryTypeDefs, elicitQuestionGqlQueryHandlers, elicitQuestionGqlFieldResolvers } from "@/server/collections/elicitQuestions/queries";
 import { graphqlEmailTokensQueryTypeDefs, emailTokensGqlFieldResolvers } from "@/server/collections/emailTokens/queries";
-import { graphqlFeaturedResourceQueryTypeDefs, featuredResourceGqlQueryHandlers, featuredResourceGqlFieldResolvers } from "@/server/collections/featuredResources/queries";
 import { graphqlFieldChangeQueryTypeDefs, fieldChangeGqlFieldResolvers } from "@/server/collections/fieldChanges/queries";
 import { graphqlGoogleServiceAccountSessionQueryTypeDefs, googleServiceAccountSessionGqlQueryHandlers, googleServiceAccountSessionGqlFieldResolvers } from "@/server/collections/googleServiceAccountSessions/queries";
 import { graphqlIframeWidgetSrcdocQueryTypeDefs, iframeWidgetSrcdocGqlQueryHandlers, iframeWidgetSrcdocGqlFieldResolvers } from "@/server/collections/iframeWidgetSrcdocs/queries";
@@ -339,7 +338,6 @@ export const getTypeDefs = () => gql`
   ${graphqlElicitQuestionPredictionQueryTypeDefs}
   ${graphqlElicitQuestionQueryTypeDefs}
   ${graphqlEmailTokensQueryTypeDefs}
-  ${graphqlFeaturedResourceQueryTypeDefs}
   ${graphqlFieldChangeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlIframeWidgetSrcdocQueryTypeDefs}
@@ -506,7 +504,6 @@ const getResolvers = () => ({
     ...digestGqlQueryHandlers,
     ...elicitQuestionPredictionGqlQueryHandlers,
     ...elicitQuestionGqlQueryHandlers,
-    ...featuredResourceGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
     ...iframeWidgetSrcdocGqlQueryHandlers,
     ...jargonTermGqlQueryHandlers,
@@ -702,7 +699,6 @@ const getResolvers = () => ({
   ...elicitQuestionPredictionGqlFieldResolvers,
   ...elicitQuestionGqlFieldResolvers,
   ...emailTokensGqlFieldResolvers,
-  ...featuredResourceGqlFieldResolvers,
   ...fieldChangeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...iframeWidgetSrcdocGqlFieldResolvers,

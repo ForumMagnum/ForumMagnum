@@ -118,8 +118,6 @@ interface Query {
   elicitQuestionPredictions: MultiElicitQuestionPredictionOutput | null;
   elicitQuestion: SingleElicitQuestionOutput | null;
   elicitQuestions: MultiElicitQuestionOutput | null;
-  featuredResource: SingleFeaturedResourceOutput | null;
-  featuredResources: MultiFeaturedResourceOutput | null;
   fieldChange: SingleFieldChangeOutput | null;
   fieldChanges: MultiFieldChangeOutput | null;
   googleServiceAccountSession: SingleGoogleServiceAccountSessionOutput | null;
@@ -2700,44 +2698,6 @@ interface EmailTokens {
   schemaVersion: number;
   createdAt: Date;
   legacyData: any;
-}
-
-interface FeaturedResource {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  title: string;
-  body: string | null;
-  ctaText: string;
-  ctaUrl: string;
-  expiresAt: Date;
-}
-
-interface SingleFeaturedResourceInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleFeaturedResourceOutput {
-  result: FeaturedResource | null;
-}
-
-interface FeaturedResourceSelector {
-  default: EmptyViewInput | null;
-  activeResources: EmptyViewInput | null;
-}
-
-interface MultiFeaturedResourceInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiFeaturedResourceOutput {
-  results: Array<FeaturedResource>;
-  totalCount: number | null;
 }
 
 interface FieldChange {
@@ -9627,12 +9587,6 @@ interface GraphQLTypeMap {
   MultiElicitQuestionInput: MultiElicitQuestionInput;
   MultiElicitQuestionOutput: MultiElicitQuestionOutput;
   EmailTokens: EmailTokens;
-  FeaturedResource: FeaturedResource;
-  SingleFeaturedResourceInput: SingleFeaturedResourceInput;
-  SingleFeaturedResourceOutput: SingleFeaturedResourceOutput;
-  FeaturedResourceSelector: FeaturedResourceSelector;
-  MultiFeaturedResourceInput: MultiFeaturedResourceInput;
-  MultiFeaturedResourceOutput: MultiFeaturedResourceOutput;
   FieldChange: FieldChange;
   SingleFieldChangeInput: SingleFieldChangeInput;
   SingleFieldChangeOutput: SingleFieldChangeOutput;
@@ -10309,7 +10263,6 @@ interface CreateInputsByCollectionName {
   DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
   EmailTokens: never;
-  FeaturedResources: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;
   IframeWidgetSrcdocs: never;
@@ -10398,7 +10351,6 @@ interface UpdateInputsByCollectionName {
   DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
   EmailTokens: never;
-  FeaturedResources: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;
   IframeWidgetSrcdocs: never;

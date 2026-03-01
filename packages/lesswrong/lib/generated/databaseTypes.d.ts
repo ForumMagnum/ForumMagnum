@@ -435,19 +435,6 @@ interface DbEmailTokens extends DbObject {
   userId: string
 }
 
-type FeaturedResourcesCollection = PgCollection<"FeaturedResources">;
-
-interface DbFeaturedResource extends DbObject {
-  __collectionName?: "FeaturedResources"
-  body: string | null
-  createdAt: Date
-  ctaText: string
-  ctaUrl: string
-  expiresAt: Date
-  legacyData: any | null
-  title: string
-}
-
 type FieldChangesCollection = PgCollection<"FieldChanges">;
 
 interface DbFieldChange extends DbObject {
@@ -2243,7 +2230,6 @@ interface CollectionsByName {
   ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
-  FeaturedResources: FeaturedResourcesCollection
   FieldChanges: FieldChangesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   IframeWidgetSrcdocs: IframeWidgetSrcdocsCollection
@@ -2335,7 +2321,6 @@ interface ObjectsByCollectionName {
   ElicitQuestionPredictions: DbElicitQuestionPrediction
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
-  FeaturedResources: DbFeaturedResource
   FieldChanges: DbFieldChange
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   IframeWidgetSrcdocs: DbIframeWidgetSrcdoc
@@ -2427,7 +2412,6 @@ interface ObjectsByTypeName {
   ElicitQuestionPrediction: DbElicitQuestionPrediction
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
-  FeaturedResource: DbFeaturedResource
   FieldChange: DbFieldChange
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
   IframeWidgetSrcdoc: DbIframeWidgetSrcdoc

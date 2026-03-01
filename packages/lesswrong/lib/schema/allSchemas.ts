@@ -31,7 +31,6 @@ import { default as Digests } from '../collections/digests/newSchema';
 import { default as ElicitQuestionPredictions } from '../collections/elicitQuestionPredictions/newSchema';
 import { default as ElicitQuestions } from '../collections/elicitQuestions/newSchema';
 import { default as EmailTokens } from '../collections/emailTokens/newSchema';
-import { default as FeaturedResources } from '../collections/featuredResources/newSchema';
 import { default as FieldChanges } from '../collections/fieldChanges/newSchema';
 import { default as GoogleServiceAccountSessions } from '../collections/googleServiceAccountSessions/newSchema';
 import { default as IframeWidgetSrcdocs } from '../collections/iframeWidgetSrcdocs/newSchema';
@@ -107,8 +106,7 @@ if (isAnyTest || bundleIsCodegen) {
 export const allSchemas = {
   ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
-  FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
+  DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,

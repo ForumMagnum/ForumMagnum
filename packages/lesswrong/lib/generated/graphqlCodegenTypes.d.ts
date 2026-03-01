@@ -2398,24 +2398,6 @@ type ExternalPostImportData = {
   post?: Maybe<ExternalPost>;
 };
 
-type FeaturedResource = {
-  __typename?: 'FeaturedResource';
-  _id: Scalars['String']['output'];
-  body?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['Date']['output'];
-  ctaText: Scalars['String']['output'];
-  ctaUrl: Scalars['String']['output'];
-  expiresAt: Scalars['Date']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  title: Scalars['String']['output'];
-};
-
-type FeaturedResourceSelector = {
-  activeResources?: InputMaybe<EmptyViewInput>;
-  default?: InputMaybe<EmptyViewInput>;
-};
-
 type FeedCommentThread = {
   __typename?: 'FeedCommentThread';
   _id: Scalars['String']['output'];
@@ -3389,19 +3371,6 @@ type MultiElicitQuestionPredictionInput = {
 type MultiElicitQuestionPredictionOutput = {
   __typename?: 'MultiElicitQuestionPredictionOutput';
   results: Array<ElicitQuestionPrediction>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiFeaturedResourceInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiFeaturedResourceOutput = {
-  __typename?: 'MultiFeaturedResourceOutput';
-  results: Array<FeaturedResource>;
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -7351,8 +7320,6 @@ type Query = {
   elicitQuestionPrediction?: Maybe<SingleElicitQuestionPredictionOutput>;
   elicitQuestionPredictions?: Maybe<MultiElicitQuestionPredictionOutput>;
   elicitQuestions?: Maybe<MultiElicitQuestionOutput>;
-  featuredResource?: Maybe<SingleFeaturedResourceOutput>;
-  featuredResources?: Maybe<MultiFeaturedResourceOutput>;
   fieldChange?: Maybe<SingleFieldChangeOutput>;
   fieldChanges?: Maybe<MultiFieldChangeOutput>;
   getBookWordCount?: Maybe<Scalars['Float']['output']>;
@@ -8060,21 +8027,6 @@ type QueryelicitQuestionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ElicitQuestionSelector>;
-};
-
-
-type QueryfeaturedResourceArgs = {
-  input?: InputMaybe<SingleFeaturedResourceInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QueryfeaturedResourcesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiFeaturedResourceInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<FeaturedResourceSelector>;
 };
 
 
@@ -9468,16 +9420,6 @@ type SingleElicitQuestionPredictionInput = {
 type SingleElicitQuestionPredictionOutput = {
   __typename?: 'SingleElicitQuestionPredictionOutput';
   result?: Maybe<ElicitQuestionPrediction>;
-};
-
-type SingleFeaturedResourceInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleFeaturedResourceOutput = {
-  __typename?: 'SingleFeaturedResourceOutput';
-  result?: Maybe<FeaturedResource>;
 };
 
 type SingleFieldChangeInput = {
@@ -13721,25 +13663,6 @@ type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{ [key: string]: ne
 
 
 type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
-
-type multiFeaturedResourceFeaturedResourceBannerQueryQuery_featuredResources_MultiFeaturedResourceOutput_results_FeaturedResource = (
-  { __typename?: 'FeaturedResource' }
-  & FeaturedResourcesFragment
-);
-
-type multiFeaturedResourceFeaturedResourceBannerQueryQuery_featuredResources_MultiFeaturedResourceOutput = { __typename?: 'MultiFeaturedResourceOutput', totalCount: number | null, results: Array<multiFeaturedResourceFeaturedResourceBannerQueryQuery_featuredResources_MultiFeaturedResourceOutput_results_FeaturedResource> };
-
-type multiFeaturedResourceFeaturedResourceBannerQueryQuery_Query = { __typename?: 'Query', featuredResources: multiFeaturedResourceFeaturedResourceBannerQueryQuery_featuredResources_MultiFeaturedResourceOutput | null };
-
-
-type multiFeaturedResourceFeaturedResourceBannerQueryQueryVariables = Exact<{
-  selector: InputMaybe<FeaturedResourceSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiFeaturedResourceFeaturedResourceBannerQueryQuery = multiFeaturedResourceFeaturedResourceBannerQueryQuery_Query;
 
 type PostExcerptQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
@@ -23278,8 +23201,6 @@ type DigestPostsMinimumInfo = { __typename?: 'DigestPost', _id: string, digestId
 type DigestsMinimumInfo = { __typename?: 'Digest', _id: string, num: number, startDate: string, endDate: string | null, publishedDate: string | null, onsiteImageId: string | null, onsitePrimaryColor: string | null };
 
 type ElicitQuestionFragment = { __typename?: 'ElicitQuestion', _id: string, title: string, notes: string | null, resolution: string | null, resolvesBy: string | null };
-
-type FeaturedResourcesFragment = { __typename?: 'FeaturedResource', _id: string, title: string, body: string | null, ctaText: string, ctaUrl: string, expiresAt: string };
 
 type FieldChangeFragment = { __typename?: 'FieldChange', _id: string, createdAt: string, userId: string | null, changeGroup: string | null, documentId: string | null, fieldName: string | null, oldValue: any | null, newValue: any | null };
 

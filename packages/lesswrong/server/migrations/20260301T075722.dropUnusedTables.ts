@@ -9,6 +9,7 @@ export const up = async ({db}: MigrationContext) => {
   await dropField(db, "Comments", "subforumStickyPriority");
   await dropTable(db, "ElectionCandidates");
   await dropTable(db, "ElectionVotes");
+  await dropTable(db, "FeaturedResources");
 }
 
 export const down = async ({db}: MigrationContext) => {
