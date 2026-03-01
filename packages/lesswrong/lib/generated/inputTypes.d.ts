@@ -114,10 +114,6 @@ interface Query {
   digestPosts: MultiDigestPostOutput | null;
   digest: SingleDigestOutput | null;
   digests: MultiDigestOutput | null;
-  electionCandidate: SingleElectionCandidateOutput | null;
-  electionCandidates: MultiElectionCandidateOutput | null;
-  electionVote: SingleElectionVoteOutput | null;
-  electionVotes: MultiElectionVoteOutput | null;
   elicitQuestionPrediction: SingleElicitQuestionPredictionOutput | null;
   elicitQuestionPredictions: MultiElicitQuestionPredictionOutput | null;
   elicitQuestion: SingleElicitQuestionOutput | null;
@@ -228,8 +224,6 @@ interface Mutation {
   performVoteTagRel: VoteResultTagRel | null;
   setVoteRevision: Revision | null;
   performVoteRevision: VoteResultRevision | null;
-  setVoteElectionCandidate: ElectionCandidate | null;
-  performVoteElectionCandidate: VoteResultElectionCandidate | null;
   setVoteTag: Tag | null;
   performVoteTag: VoteResultTag | null;
   setVoteMultiDocument: MultiDocument | null;
@@ -312,10 +306,6 @@ interface Mutation {
   updateDigestPost: DigestPostOutput | null;
   createDigest: DigestOutput | null;
   updateDigest: DigestOutput | null;
-  createElectionCandidate: ElectionCandidateOutput | null;
-  updateElectionCandidate: ElectionCandidateOutput | null;
-  createElectionVote: ElectionVoteOutput | null;
-  updateElectionVote: ElectionVoteOutput | null;
   createElicitQuestion: ElicitQuestionOutput | null;
   updateElicitQuestion: ElicitQuestionOutput | null;
   createJargonTerm: JargonTermOutput | null;
@@ -648,11 +638,6 @@ interface VoteResultTagRel {
 
 interface VoteResultRevision {
   document: Revision;
-  showVotingPatternWarning: boolean;
-}
-
-interface VoteResultElectionCandidate {
-  document: ElectionCandidate;
   showVotingPatternWarning: boolean;
 }
 
@@ -1741,7 +1726,6 @@ interface Comment {
   tagId: string | null;
   tag: Tag | null;
   tagCommentType: TagCommentType;
-  subforumStickyPriority: number | null;
   userId: string | null;
   user: User | null;
   userIP: string | null;
@@ -2631,120 +2615,6 @@ interface MultiDigestInput {
 
 interface MultiDigestOutput {
   results: Array<Digest>;
-  totalCount: number | null;
-}
-
-interface ElectionCandidate {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  electionName: string;
-  name: string;
-  logoSrc: string;
-  href: string;
-  fundraiserLink: string | null;
-  gwwcLink: string | null;
-  gwwcId: string | null;
-  description: string;
-  userId: string;
-  user: User | null;
-  postCount: number;
-  tagId: string;
-  tag: Tag | null;
-  isElectionFundraiser: boolean;
-  amountRaised: number | null;
-  targetAmount: number | null;
-  currentUserVote: string | null;
-  currentUserExtendedVote: any;
-  voteCount: number;
-  baseScore: number;
-  extendedScore: any;
-  score: number;
-  afBaseScore: number | null;
-  afExtendedScore: any;
-  afVoteCount: number | null;
-}
-
-interface SingleElectionCandidateInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleElectionCandidateOutput {
-  result: ElectionCandidate | null;
-}
-
-interface ElectionCandidateDefaultViewInput {
-  electionName?: string | null;
-  sortBy?: string | null;
-}
-
-interface ElectionCandidateSelector {
-  default: ElectionCandidateDefaultViewInput | null;
-}
-
-interface MultiElectionCandidateInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiElectionCandidateOutput {
-  results: Array<ElectionCandidate>;
-  totalCount: number | null;
-}
-
-interface ElectionVote {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  electionName: string | null;
-  userId: string | null;
-  user: User | null;
-  compareState: any;
-  vote: any;
-  submittedAt: Date | null;
-  submissionComments: any;
-  userExplanation: string | null;
-  userOtherComments: string | null;
-}
-
-interface SingleElectionVoteInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleElectionVoteOutput {
-  result: ElectionVote | null;
-}
-
-interface ElectionVoteDefaultViewInput {
-  electionName?: string | null;
-  userId?: string | null;
-}
-
-interface ElectionVotesAllSubmittedVotesInput {
-  electionName?: string | null;
-  userId?: string | null;
-}
-
-interface ElectionVoteSelector {
-  default: ElectionVoteDefaultViewInput | null;
-  allSubmittedVotes: ElectionVotesAllSubmittedVotesInput | null;
-}
-
-interface MultiElectionVoteInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiElectionVoteOutput {
-  results: Array<ElectionVote>;
   totalCount: number | null;
 }
 
@@ -7603,7 +7473,6 @@ interface CreateCommentDataInput {
   postId?: string | null;
   tagId?: string | null;
   tagCommentType?: TagCommentType | null;
-  subforumStickyPriority?: number | null;
   userId?: string | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
@@ -7655,7 +7524,6 @@ interface UpdateCommentDataInput {
   postedAt?: Date | null;
   postId?: string | null;
   tagId?: string | null;
-  subforumStickyPriority?: number | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
   shortform?: boolean | null;
@@ -7829,90 +7697,6 @@ interface UpdateDigestInput {
 
 interface DigestOutput {
   data: Digest | null;
-}
-
-interface CreateElectionCandidateDataInput {
-  legacyData?: any;
-  electionName: string;
-  name: string;
-  logoSrc: string;
-  href: string;
-  fundraiserLink?: string | null;
-  gwwcLink?: string | null;
-  gwwcId?: string | null;
-  description: string;
-  userId?: string | null;
-  tagId: string;
-  isElectionFundraiser?: boolean | null;
-  amountRaised?: number | null;
-  targetAmount?: number | null;
-}
-
-interface CreateElectionCandidateInput {
-  data: CreateElectionCandidateDataInput;
-}
-
-interface UpdateElectionCandidateDataInput {
-  legacyData?: any;
-  electionName?: string | null;
-  name?: string | null;
-  logoSrc?: string | null;
-  href?: string | null;
-  fundraiserLink?: string | null;
-  gwwcLink?: string | null;
-  gwwcId?: string | null;
-  description?: string | null;
-  userId?: string | null;
-  tagId?: string | null;
-  isElectionFundraiser?: boolean | null;
-  amountRaised?: number | null;
-  targetAmount?: number | null;
-}
-
-interface UpdateElectionCandidateInput {
-  selector: SelectorInput;
-  data: UpdateElectionCandidateDataInput;
-}
-
-interface ElectionCandidateOutput {
-  data: ElectionCandidate | null;
-}
-
-interface CreateElectionVoteDataInput {
-  legacyData?: any;
-  electionName: string;
-  userId: string;
-  compareState?: any;
-  vote?: any;
-  submittedAt?: Date | null;
-  submissionComments?: any;
-  userExplanation?: string | null;
-  userOtherComments?: string | null;
-}
-
-interface CreateElectionVoteInput {
-  data: CreateElectionVoteDataInput;
-}
-
-interface UpdateElectionVoteDataInput {
-  legacyData?: any;
-  electionName?: string | null;
-  userId?: string | null;
-  compareState?: any;
-  vote?: any;
-  submittedAt?: Date | null;
-  submissionComments?: any;
-  userExplanation?: string | null;
-  userOtherComments?: string | null;
-}
-
-interface UpdateElectionVoteInput {
-  selector: SelectorInput;
-  data: UpdateElectionVoteDataInput;
-}
-
-interface ElectionVoteOutput {
-  data: ElectionVote | null;
 }
 
 interface CreateElicitQuestionDataInput {
@@ -9563,7 +9347,6 @@ interface GraphQLTypeMap {
   VoteResultMessage: VoteResultMessage;
   VoteResultTagRel: VoteResultTagRel;
   VoteResultRevision: VoteResultRevision;
-  VoteResultElectionCandidate: VoteResultElectionCandidate;
   VoteResultTag: VoteResultTag;
   VoteResultMultiDocument: VoteResultMultiDocument;
   CommentsWithReactsResult: CommentsWithReactsResult;
@@ -9831,21 +9614,6 @@ interface GraphQLTypeMap {
   DigestSelector: DigestSelector;
   MultiDigestInput: MultiDigestInput;
   MultiDigestOutput: MultiDigestOutput;
-  ElectionCandidate: ElectionCandidate;
-  SingleElectionCandidateInput: SingleElectionCandidateInput;
-  SingleElectionCandidateOutput: SingleElectionCandidateOutput;
-  ElectionCandidateDefaultViewInput: ElectionCandidateDefaultViewInput;
-  ElectionCandidateSelector: ElectionCandidateSelector;
-  MultiElectionCandidateInput: MultiElectionCandidateInput;
-  MultiElectionCandidateOutput: MultiElectionCandidateOutput;
-  ElectionVote: ElectionVote;
-  SingleElectionVoteInput: SingleElectionVoteInput;
-  SingleElectionVoteOutput: SingleElectionVoteOutput;
-  ElectionVoteDefaultViewInput: ElectionVoteDefaultViewInput;
-  ElectionVotesAllSubmittedVotesInput: ElectionVotesAllSubmittedVotesInput;
-  ElectionVoteSelector: ElectionVoteSelector;
-  MultiElectionVoteInput: MultiElectionVoteInput;
-  MultiElectionVoteOutput: MultiElectionVoteOutput;
   ElicitQuestionPrediction: ElicitQuestionPrediction;
   SingleElicitQuestionPredictionInput: SingleElicitQuestionPredictionInput;
   SingleElicitQuestionPredictionOutput: SingleElicitQuestionPredictionOutput;
@@ -10333,16 +10101,6 @@ interface GraphQLTypeMap {
   UpdateDigestDataInput: UpdateDigestDataInput;
   UpdateDigestInput: UpdateDigestInput;
   DigestOutput: DigestOutput;
-  CreateElectionCandidateDataInput: CreateElectionCandidateDataInput;
-  CreateElectionCandidateInput: CreateElectionCandidateInput;
-  UpdateElectionCandidateDataInput: UpdateElectionCandidateDataInput;
-  UpdateElectionCandidateInput: UpdateElectionCandidateInput;
-  ElectionCandidateOutput: ElectionCandidateOutput;
-  CreateElectionVoteDataInput: CreateElectionVoteDataInput;
-  CreateElectionVoteInput: CreateElectionVoteInput;
-  UpdateElectionVoteDataInput: UpdateElectionVoteDataInput;
-  UpdateElectionVoteInput: UpdateElectionVoteInput;
-  ElectionVoteOutput: ElectionVoteOutput;
   CreateElicitQuestionDataInput: CreateElicitQuestionDataInput;
   CreateElicitQuestionInput: CreateElicitQuestionInput;
   UpdateElicitQuestionDataInput: UpdateElicitQuestionDataInput;
@@ -10505,8 +10263,6 @@ interface CreateInputsByCollectionName {
   CurationNotices: CreateCurationNoticeInput;
   DigestPosts: CreateDigestPostInput;
   Digests: CreateDigestInput;
-  ElectionCandidates: CreateElectionCandidateInput;
-  ElectionVotes: CreateElectionVoteInput;
   ElicitQuestions: CreateElicitQuestionInput;
   JargonTerms: CreateJargonTermInput;
   LWEvents: CreateLWEventInput;
@@ -10599,8 +10355,6 @@ interface UpdateInputsByCollectionName {
   CurationNotices: UpdateCurationNoticeInput;
   DigestPosts: UpdateDigestPostInput;
   Digests: UpdateDigestInput;
-  ElectionCandidates: UpdateElectionCandidateInput;
-  ElectionVotes: UpdateElectionVoteInput;
   ElicitQuestions: UpdateElicitQuestionInput;
   JargonTerms: UpdateJargonTermInput;
   LlmConversations: UpdateLlmConversationInput;

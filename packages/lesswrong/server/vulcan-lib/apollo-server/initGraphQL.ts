@@ -93,8 +93,6 @@ import { graphqlDialogueCheckQueryTypeDefs, dialogueCheckGqlQueryHandlers, dialo
 import { graphqlDialogueMatchPreferenceQueryTypeDefs, dialogueMatchPreferenceGqlQueryHandlers, dialogueMatchPreferenceGqlFieldResolvers } from "@/server/collections/dialogueMatchPreferences/queries";
 import { graphqlDigestPostQueryTypeDefs, digestPostGqlQueryHandlers, digestPostGqlFieldResolvers } from "@/server/collections/digestPosts/queries";
 import { graphqlDigestQueryTypeDefs, digestGqlQueryHandlers, digestGqlFieldResolvers } from "@/server/collections/digests/queries";
-import { graphqlElectionCandidateQueryTypeDefs, electionCandidateGqlQueryHandlers, electionCandidateGqlFieldResolvers } from "@/server/collections/electionCandidates/queries";
-import { graphqlElectionVoteQueryTypeDefs, electionVoteGqlQueryHandlers, electionVoteGqlFieldResolvers } from "@/server/collections/electionVotes/queries";
 import { graphqlElicitQuestionPredictionQueryTypeDefs, elicitQuestionPredictionGqlQueryHandlers, elicitQuestionPredictionGqlFieldResolvers } from "@/server/collections/elicitQuestionPredictions/queries";
 import { graphqlElicitQuestionQueryTypeDefs, elicitQuestionGqlQueryHandlers, elicitQuestionGqlFieldResolvers } from "@/server/collections/elicitQuestions/queries";
 import { graphqlEmailTokensQueryTypeDefs, emailTokensGqlFieldResolvers } from "@/server/collections/emailTokens/queries";
@@ -165,8 +163,6 @@ import { createConversationGqlMutation, updateConversationGqlMutation, graphqlCo
 import { createCurationNoticeGqlMutation, updateCurationNoticeGqlMutation, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
 import { createDigestPostGqlMutation, updateDigestPostGqlMutation, graphqlDigestPostTypeDefs } from "@/server/collections/digestPosts/mutations";
 import { createDigestGqlMutation, updateDigestGqlMutation, graphqlDigestTypeDefs } from "@/server/collections/digests/mutations";
-import { createElectionCandidateGqlMutation, updateElectionCandidateGqlMutation, graphqlElectionCandidateTypeDefs } from "@/server/collections/electionCandidates/mutations";
-import { createElectionVoteGqlMutation, updateElectionVoteGqlMutation, graphqlElectionVoteTypeDefs } from "@/server/collections/electionVotes/mutations";
 import { createElicitQuestionGqlMutation, updateElicitQuestionGqlMutation, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
 import { createJargonTermGqlMutation, updateJargonTermGqlMutation, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
 import { createLWEventGqlMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
@@ -221,7 +217,6 @@ const { graphqlVoteTypeDefs: commentVoteTypeDefs, graphqlVoteMutations: commentV
 const { graphqlVoteTypeDefs: messageVoteTypeDefs, graphqlVoteMutations: messageVoteMutations } = getVoteGraphql('Messages');
 const { graphqlVoteTypeDefs: tagRelVoteTypeDefs, graphqlVoteMutations: tagRelVoteMutations } = getVoteGraphql('TagRels');
 const { graphqlVoteTypeDefs: revisionVoteTypeDefs, graphqlVoteMutations: revisionVoteMutations } = getVoteGraphql('Revisions');
-const { graphqlVoteTypeDefs: electionCandidateVoteTypeDefs, graphqlVoteMutations: electionCandidateVoteMutations } = getVoteGraphql('ElectionCandidates');
 const { graphqlVoteTypeDefs: tagVoteTypeDefs, graphqlVoteMutations: tagVoteMutations } = getVoteGraphql('Tags');
 const { graphqlVoteTypeDefs: multiDocumentVoteTypeDefs, graphqlVoteMutations: multiDocumentVoteMutations } = getVoteGraphql('MultiDocuments');
 
@@ -257,7 +252,6 @@ export const getTypeDefs = () => gql`
   ${messageVoteTypeDefs}
   ${tagRelVoteTypeDefs}
   ${revisionVoteTypeDefs}
-  ${electionCandidateVoteTypeDefs}
   ${tagVoteTypeDefs}
   ${multiDocumentVoteTypeDefs}
   ${commentTypeDefs}
@@ -342,8 +336,6 @@ export const getTypeDefs = () => gql`
   ${graphqlDialogueMatchPreferenceQueryTypeDefs}
   ${graphqlDigestPostQueryTypeDefs}
   ${graphqlDigestQueryTypeDefs}
-  ${graphqlElectionCandidateQueryTypeDefs}
-  ${graphqlElectionVoteQueryTypeDefs}
   ${graphqlElicitQuestionPredictionQueryTypeDefs}
   ${graphqlElicitQuestionQueryTypeDefs}
   ${graphqlEmailTokensQueryTypeDefs}
@@ -415,8 +407,6 @@ export const getTypeDefs = () => gql`
   ${graphqlCurationNoticeTypeDefs}
   ${graphqlDigestPostTypeDefs}
   ${graphqlDigestTypeDefs}
-  ${graphqlElectionCandidateTypeDefs}
-  ${graphqlElectionVoteTypeDefs}
   ${graphqlElicitQuestionTypeDefs}
   ${graphqlJargonTermTypeDefs}
   ${graphqlLWEventTypeDefs}
@@ -514,8 +504,6 @@ const getResolvers = () => ({
     ...dialogueMatchPreferenceGqlQueryHandlers,
     ...digestPostGqlQueryHandlers,
     ...digestGqlQueryHandlers,
-    ...electionCandidateGqlQueryHandlers,
-    ...electionVoteGqlQueryHandlers,
     ...elicitQuestionPredictionGqlQueryHandlers,
     ...elicitQuestionGqlQueryHandlers,
     ...featuredResourceGqlQueryHandlers,
@@ -569,7 +557,6 @@ const getResolvers = () => ({
     ...messageVoteMutations,
     ...tagRelVoteMutations,
     ...revisionVoteMutations,
-    ...electionCandidateVoteMutations,
     ...tagVoteMutations,
     ...multiDocumentVoteMutations,
     ...commentMutations,
@@ -627,10 +614,6 @@ const getResolvers = () => ({
     updateDigestPost: updateDigestPostGqlMutation,
     createDigest: createDigestGqlMutation,
     updateDigest: updateDigestGqlMutation,
-    createElectionCandidate: createElectionCandidateGqlMutation,
-    updateElectionCandidate: updateElectionCandidateGqlMutation,
-    createElectionVote: createElectionVoteGqlMutation,
-    updateElectionVote: updateElectionVoteGqlMutation,
     createElicitQuestion: createElicitQuestionGqlMutation,
     updateElicitQuestion: updateElicitQuestionGqlMutation,
     createJargonTerm: createJargonTermGqlMutation,
@@ -716,8 +699,6 @@ const getResolvers = () => ({
   ...dialogueMatchPreferenceGqlFieldResolvers,
   ...digestPostGqlFieldResolvers,
   ...digestGqlFieldResolvers,
-  ...electionCandidateGqlFieldResolvers,
-  ...electionVoteGqlFieldResolvers,
   ...elicitQuestionPredictionGqlFieldResolvers,
   ...elicitQuestionGqlFieldResolvers,
   ...emailTokensGqlFieldResolvers,

@@ -16,8 +16,6 @@ import { CurationNoticesViews } from '../collections/curationNotices/views';
 import { DialogueChecksViews } from '../collections/dialogueChecks/views';
 import { DialogueMatchPreferencesViews } from '../collections/dialogueMatchPreferences/views';
 import { DigestsViews } from '../collections/digests/views';
-import { ElectionCandidatesViews } from '../collections/electionCandidates/views';
-import { ElectionVotesViews } from '../collections/electionVotes/views';
 import { FeaturedResourcesViews } from '../collections/featuredResources/views';
 import { FieldChangesViews } from '../collections/fieldChanges/views';
 import { GoogleServiceAccountSessionsViews } from '../collections/googleServiceAccountSessions/views';
@@ -83,8 +81,6 @@ export const allViews = {
   DialogueMatchPreferences: DialogueMatchPreferencesViews,
   DigestPosts: new CollectionViewSet('DigestPosts', {}),
   Digests: DigestsViews,
-  ElectionCandidates: ElectionCandidatesViews,
-  ElectionVotes: ElectionVotesViews,
   ElicitQuestionPredictions: new CollectionViewSet('ElicitQuestionPredictions', {}),
   ElicitQuestions: new CollectionViewSet('ElicitQuestions', {}),
   EmailTokens: new CollectionViewSet('EmailTokens', {}),

@@ -404,8 +404,6 @@ const accessFilters = {
   DialogueMatchPreferences: dialogueMatchPreferenceCheckAccess,
   DigestPosts: allowAccess,
   Digests: allowAccess,
-  ElectionCandidates: allowAccess,
-  ElectionVotes: allowAccess,
   ElicitQuestionPredictions: allowAccess,
   ElicitQuestions: allowAccess,
   EmailTokens: allowAccess,

@@ -347,16 +347,6 @@ extend type Mutation {
   performVoteRevision(documentId: String, voteType: String, extendedVote: JSON): VoteResultRevision
 }
 
-type VoteResultElectionCandidate {
-  document: ElectionCandidate!
-  showVotingPatternWarning: Boolean!
-}
-
-extend type Mutation {
-  setVoteElectionCandidate(documentId: String, voteType: String, extendedVote: JSON): ElectionCandidate
-  performVoteElectionCandidate(documentId: String, voteType: String, extendedVote: JSON): VoteResultElectionCandidate
-}
-
 type VoteResultTag {
   document: Tag!
   showVotingPatternWarning: Boolean!
@@ -1939,7 +1929,6 @@ type Comment {
   tagId: String
   tag: Tag
   tagCommentType: TagCommentType!
-  subforumStickyPriority: Float
   userId: String
   user: User
   userIP: String
@@ -2882,130 +2871,6 @@ type MultiDigestOutput {
 extend type Query {
   digest(input: SingleDigestInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleDigestOutput
   digests(input: MultiDigestInput @deprecated(reason: "Use the selector field instead"), selector: DigestSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDigestOutput
-}
-
-type ElectionCandidate {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  electionName: String!
-  name: String!
-  logoSrc: String!
-  href: String!
-  fundraiserLink: String
-  gwwcLink: String
-  gwwcId: String
-  description: String!
-  userId: String!
-  user: User
-  postCount: Float!
-  tagId: String!
-  tag: Tag
-  isElectionFundraiser: Boolean!
-  amountRaised: Float
-  targetAmount: Float
-  currentUserVote: String
-  currentUserExtendedVote: JSON
-  voteCount: Float!
-  baseScore: Float!
-  extendedScore: JSON
-  score: Float!
-  afBaseScore: Float
-  afExtendedScore: JSON
-  afVoteCount: Float
-}
-
-input SingleElectionCandidateInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleElectionCandidateOutput {
-  result: ElectionCandidate
-}
-
-input ElectionCandidateDefaultViewInput {
-  electionName: String
-  sortBy: String
-}
-
-input ElectionCandidateSelector {
-  default: ElectionCandidateDefaultViewInput
-}
-
-input MultiElectionCandidateInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiElectionCandidateOutput {
-  results: [ElectionCandidate!]!
-  totalCount: Int
-}
-
-extend type Query {
-  electionCandidate(input: SingleElectionCandidateInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleElectionCandidateOutput
-  electionCandidates(input: MultiElectionCandidateInput @deprecated(reason: "Use the selector field instead"), selector: ElectionCandidateSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiElectionCandidateOutput
-}
-
-type ElectionVote {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  electionName: String
-  userId: String
-  user: User
-  compareState: JSON
-  vote: JSON
-  submittedAt: Date
-  submissionComments: JSON
-  userExplanation: String
-  userOtherComments: String
-}
-
-input SingleElectionVoteInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleElectionVoteOutput {
-  result: ElectionVote
-}
-
-input ElectionVoteDefaultViewInput {
-  electionName: String
-  userId: String
-}
-
-input ElectionVotesAllSubmittedVotesInput {
-  electionName: String
-  userId: String
-}
-
-input ElectionVoteSelector {
-  default: ElectionVoteDefaultViewInput
-  allSubmittedVotes: ElectionVotesAllSubmittedVotesInput
-}
-
-input MultiElectionVoteInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiElectionVoteOutput {
-  results: [ElectionVote!]!
-  totalCount: Int
-}
-
-extend type Query {
-  electionVote(input: SingleElectionVoteInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleElectionVoteOutput
-  electionVotes(input: MultiElectionVoteInput @deprecated(reason: "Use the selector field instead"), selector: ElectionVoteSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiElectionVoteOutput
 }
 
 type ElicitQuestionPrediction {
@@ -8256,7 +8121,6 @@ input CreateCommentDataInput {
   postId: String
   tagId: String
   tagCommentType: TagCommentType
-  subforumStickyPriority: Float
   userId: String
   authorIsUnreviewed: Boolean
   answer: Boolean
@@ -8308,7 +8172,6 @@ input UpdateCommentDataInput {
   postedAt: Date
   postId: String
   tagId: String
-  subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
   shortform: Boolean
@@ -8507,100 +8370,6 @@ type DigestOutput {
 extend type Mutation {
   createDigest(data: CreateDigestDataInput!): DigestOutput
   updateDigest(selector: SelectorInput!, data: UpdateDigestDataInput!): DigestOutput
-}
-
-input CreateElectionCandidateDataInput {
-  legacyData: JSON
-  electionName: String!
-  name: String!
-  logoSrc: String!
-  href: String!
-  fundraiserLink: String
-  gwwcLink: String
-  gwwcId: String
-  description: String!
-  userId: String
-  tagId: String!
-  isElectionFundraiser: Boolean
-  amountRaised: Float
-  targetAmount: Float
-}
-
-input CreateElectionCandidateInput {
-  data: CreateElectionCandidateDataInput!
-}
-
-input UpdateElectionCandidateDataInput {
-  legacyData: JSON
-  electionName: String
-  name: String
-  logoSrc: String
-  href: String
-  fundraiserLink: String
-  gwwcLink: String
-  gwwcId: String
-  description: String
-  userId: String
-  tagId: String
-  isElectionFundraiser: Boolean
-  amountRaised: Float
-  targetAmount: Float
-}
-
-input UpdateElectionCandidateInput {
-  selector: SelectorInput!
-  data: UpdateElectionCandidateDataInput!
-}
-
-type ElectionCandidateOutput {
-  data: ElectionCandidate
-}
-
-extend type Mutation {
-  createElectionCandidate(data: CreateElectionCandidateDataInput!): ElectionCandidateOutput
-  updateElectionCandidate(selector: SelectorInput!, data: UpdateElectionCandidateDataInput!): ElectionCandidateOutput
-}
-
-input CreateElectionVoteDataInput {
-  legacyData: JSON
-  electionName: String!
-  userId: String!
-  compareState: JSON
-  vote: JSON
-  submittedAt: Date
-  submissionComments: JSON
-  userExplanation: String
-  userOtherComments: String
-}
-
-input CreateElectionVoteInput {
-  data: CreateElectionVoteDataInput!
-}
-
-input UpdateElectionVoteDataInput {
-  legacyData: JSON
-  electionName: String
-  userId: String
-  compareState: JSON
-  vote: JSON
-  submittedAt: Date
-  submissionComments: JSON
-  userExplanation: String
-  userOtherComments: String
-}
-
-input UpdateElectionVoteInput {
-  selector: SelectorInput!
-  data: UpdateElectionVoteDataInput!
-}
-
-type ElectionVoteOutput {
-  data: ElectionVote
-}
-
-extend type Mutation {
-  createElectionVote(data: CreateElectionVoteDataInput!): ElectionVoteOutput
-  updateElectionVote(selector: SelectorInput!, data: UpdateElectionVoteDataInput!): ElectionVoteOutput
 }
 
 input CreateElicitQuestionDataInput {

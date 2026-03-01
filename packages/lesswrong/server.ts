@@ -82,7 +82,6 @@ import './server/callbacks/jargonTermCallbacks';
 import './server/resolvers/alignmentForumMutations';
 import './server/callbacks/alignment-forum/callbacks';
 import './server/callbacks/votingCallbacks';
-import './server/callbacks/electionCandidateCallbacks';
 
 import './server/resolvers/diffResolvers';
 import './server/resolvers/revisionResolvers';

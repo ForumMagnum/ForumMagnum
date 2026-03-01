@@ -395,52 +395,6 @@ interface DbDigest extends DbObject {
   startDate: Date
 }
 
-type ElectionCandidatesCollection = PgCollection<"ElectionCandidates">;
-
-interface DbElectionCandidate extends DbObject {
-  __collectionName?: "ElectionCandidates"
-  afBaseScore: number | null
-  afExtendedScore: any | null
-  afVoteCount: number | null
-  amountRaised: number | null
-  baseScore: number
-  createdAt: Date
-  description: string
-  electionName: string
-  extendedScore: any | null
-  fundraiserLink: string | null
-  gwwcId: string | null
-  gwwcLink: string | null
-  href: string
-  inactive: boolean
-  isElectionFundraiser: boolean
-  legacyData: any | null
-  logoSrc: string
-  name: string
-  postCount: number
-  score: number
-  tagId: string
-  targetAmount: number | null
-  userId: string
-  voteCount: number
-}
-
-type ElectionVotesCollection = PgCollection<"ElectionVotes">;
-
-interface DbElectionVote extends DbObject {
-  __collectionName?: "ElectionVotes"
-  compareState: any | null
-  createdAt: Date
-  electionName: string
-  legacyData: any | null
-  submissionComments: any | null
-  submittedAt: Date | null
-  userExplanation: string | null
-  userId: string | null
-  userOtherComments: string | null
-  vote: any | null
-}
-
 type ElicitQuestionPredictionsCollection = PgCollection<"ElicitQuestionPredictions">;
 
 interface DbElicitQuestionPrediction extends DbObject {
@@ -2286,8 +2240,6 @@ interface CollectionsByName {
   DialogueMatchPreferences: DialogueMatchPreferencesCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
-  ElectionCandidates: ElectionCandidatesCollection
-  ElectionVotes: ElectionVotesCollection
   ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
@@ -2380,8 +2332,6 @@ interface ObjectsByCollectionName {
   DialogueMatchPreferences: DbDialogueMatchPreference
   DigestPosts: DbDigestPost
   Digests: DbDigest
-  ElectionCandidates: DbElectionCandidate
-  ElectionVotes: DbElectionVote
   ElicitQuestionPredictions: DbElicitQuestionPrediction
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
@@ -2474,8 +2424,6 @@ interface ObjectsByTypeName {
   DialogueMatchPreference: DbDialogueMatchPreference
   DigestPost: DbDigestPost
   Digest: DbDigest
-  ElectionCandidate: DbElectionCandidate
-  ElectionVote: DbElectionVote
   ElicitQuestionPrediction: DbElicitQuestionPrediction
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens

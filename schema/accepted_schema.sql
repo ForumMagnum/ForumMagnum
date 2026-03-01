@@ -245,7 +245,6 @@ CREATE TABLE "Comments" (
   "postId" VARCHAR(27),
   "tagId" VARCHAR(27),
   "tagCommentType" TEXT NOT NULL DEFAULT 'DISCUSSION',
-  "subforumStickyPriority" DOUBLE PRECISION,
   "userId" VARCHAR(27) NOT NULL,
   "userIP" TEXT,
   "userAgent" TEXT,
@@ -733,61 +732,6 @@ CREATE TABLE "Digests" (
 
 -- Index "idx_Digests_num"
 CREATE INDEX IF NOT EXISTS "idx_Digests_num" ON "Digests" USING btree ("num");
-
--- Table "ElectionCandidates"
-CREATE TABLE "ElectionCandidates" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "electionName" TEXT NOT NULL,
-  "name" TEXT NOT NULL,
-  "logoSrc" TEXT NOT NULL,
-  "href" TEXT NOT NULL,
-  "fundraiserLink" TEXT,
-  "gwwcLink" TEXT,
-  "gwwcId" TEXT,
-  "description" TEXT NOT NULL,
-  "userId" VARCHAR(27) NOT NULL,
-  "postCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "tagId" VARCHAR(27) NOT NULL,
-  "isElectionFundraiser" BOOL NOT NULL DEFAULT FALSE,
-  "amountRaised" DOUBLE PRECISION,
-  "targetAmount" DOUBLE PRECISION,
-  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "extendedScore" JSONB,
-  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
-  "inactive" BOOL NOT NULL DEFAULT FALSE,
-  "afBaseScore" DOUBLE PRECISION,
-  "afExtendedScore" JSONB,
-  "afVoteCount" DOUBLE PRECISION
-);
-
--- Index "idx_ElectionCandidates_electionName"
-CREATE INDEX IF NOT EXISTS "idx_ElectionCandidates_electionName" ON "ElectionCandidates" USING btree ("electionName");
-
--- Table "ElectionVotes"
-CREATE TABLE "ElectionVotes" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "electionName" TEXT NOT NULL,
-  "userId" VARCHAR(27),
-  "compareState" JSONB,
-  "vote" JSONB,
-  "submittedAt" TIMESTAMPTZ,
-  "submissionComments" JSONB,
-  "userExplanation" TEXT,
-  "userOtherComments" TEXT
-);
-
--- Index "idx_ElectionVotes_electionName"
-CREATE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName" ON "ElectionVotes" USING btree ("electionName");
-
--- Index "idx_ElectionVotes_electionName_userId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName_userId" ON "ElectionVotes" USING btree ("electionName", COALESCE("userId", ''));
 
 -- Table "ElicitQuestionPredictions"
 CREATE TABLE "ElicitQuestionPredictions" (

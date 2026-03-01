@@ -26,7 +26,6 @@ import { writeFile } from "fs/promises";
 import CkEditorUserSessions from "@/server/collections/ckEditorUserSessions/collection";
 import CurationEmails from "@/server/collections/curationEmails/collection";
 import DialogueChecks from "@/server/collections/dialogueChecks/collection";
-import ElectionVotes from "@/server/collections/electionVotes/collection";
 import ElicitQuestionPredictions from "@/server/collections/elicitQuestionPredictions/collection";
 import GoogleServiceAccountSessions from "@/server/collections/googleServiceAccountSessions/collection";
 import { LWEvents } from "@/server/collections/lwevents/collection.ts";
@@ -75,7 +74,6 @@ export const exportUserData = async (
     [CurationEmails, CurationEmails.find({userId})],
     [DialogueChecks, DialogueChecks.find({userId})],
     [GoogleServiceAccountSessions, GoogleServiceAccountSessions.find({email})],
-    [ElectionVotes, ElectionVotes.find({userId})],
     [ElicitQuestionPredictions, ElicitQuestionPredictions.find({userId})],
     [PostRecommendations, PostRecommendations.find({userId})],
     [RecommendationsCaches, RecommendationsCaches.find({userId})],

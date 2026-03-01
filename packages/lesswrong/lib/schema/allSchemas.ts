@@ -28,8 +28,6 @@ import { default as DialogueChecks } from '../collections/dialogueChecks/newSche
 import { default as DialogueMatchPreferences } from '../collections/dialogueMatchPreferences/newSchema';
 import { default as DigestPosts } from '../collections/digestPosts/newSchema';
 import { default as Digests } from '../collections/digests/newSchema';
-import { default as ElectionCandidates } from '../collections/electionCandidates/newSchema';
-import { default as ElectionVotes } from '../collections/electionVotes/newSchema';
 import { default as ElicitQuestionPredictions } from '../collections/elicitQuestionPredictions/newSchema';
 import { default as ElicitQuestions } from '../collections/elicitQuestions/newSchema';
 import { default as EmailTokens } from '../collections/emailTokens/newSchema';
@@ -109,7 +107,7 @@ if (isAnyTest || bundleIsCodegen) {
 export const allSchemas = {
   ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
+  DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
   FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,

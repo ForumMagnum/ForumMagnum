@@ -27,7 +27,6 @@ type TransferableCollectionName =
  | 'RSSFeeds'
  | 'PetrovDayLaunchs'
  | 'Reports'
- | 'ElectionVotes'
  | 'ModeratorActions'
  | 'UserRateLimits'
  | 'Messages'
@@ -134,10 +133,6 @@ const getUpdateMutator = ((collectionName: TransferableCollectionName) => {
     case 'Reports': {
       const { updateReport }: typeof import("../collections/reports/mutations") = require("../collections/reports/mutations");
       return updateReport;
-    }
-    case 'ElectionVotes': {
-      const { updateElectionVote }: typeof import("../collections/electionVotes/mutations") = require("../collections/electionVotes/mutations");
-      return updateElectionVote;
     }
     case 'ModeratorActions': {
       const { updateModeratorAction }: typeof import("../collections/moderatorActions/mutations") = require("../collections/moderatorActions/mutations");
@@ -305,9 +300,6 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
 
   // Transfer reports (i.e. user reporting a comment/tag/etc)
   await transferCollection({sourceUserId, targetUserId, collectionName: "Reports", dryRun})
-  
-  // Transfer election votes
-  await transferCollection({sourceUserId, targetUserId, collectionName: "ElectionVotes", dryRun})
   
   // Transfer moderator actions
   await transferCollection({sourceUserId, targetUserId, collectionName: "ModeratorActions", dryRun})

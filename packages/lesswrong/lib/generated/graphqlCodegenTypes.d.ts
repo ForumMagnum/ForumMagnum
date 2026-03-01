@@ -493,7 +493,6 @@ type Comment = {
   shortform?: Maybe<Scalars['Boolean']['output']>;
   shortformFrontpage: Scalars['Boolean']['output'];
   spam: Scalars['Boolean']['output'];
-  subforumStickyPriority?: Maybe<Scalars['Float']['output']>;
   suggestForAlignmentUserIds: Array<Scalars['String']['output']>;
   suggestForAlignmentUsers: Array<User>;
   tag?: Maybe<Tag>;
@@ -1216,7 +1215,6 @@ type CreateCommentDataInput = {
   shortform?: InputMaybe<Scalars['Boolean']['input']>;
   shortformFrontpage?: InputMaybe<Scalars['Boolean']['input']>;
   spam?: InputMaybe<Scalars['Boolean']['input']>;
-  subforumStickyPriority?: InputMaybe<Scalars['Float']['input']>;
   tagCommentType?: InputMaybe<TagCommentType>;
   tagId?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -1288,43 +1286,6 @@ type CreateDigestPostDataInput = {
 
 type CreateDigestPostInput = {
   data: CreateDigestPostDataInput;
-};
-
-type CreateElectionCandidateDataInput = {
-  amountRaised?: InputMaybe<Scalars['Float']['input']>;
-  description: Scalars['String']['input'];
-  electionName: Scalars['String']['input'];
-  fundraiserLink?: InputMaybe<Scalars['String']['input']>;
-  gwwcId?: InputMaybe<Scalars['String']['input']>;
-  gwwcLink?: InputMaybe<Scalars['String']['input']>;
-  href: Scalars['String']['input'];
-  isElectionFundraiser?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  logoSrc: Scalars['String']['input'];
-  name: Scalars['String']['input'];
-  tagId: Scalars['String']['input'];
-  targetAmount?: InputMaybe<Scalars['Float']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type CreateElectionCandidateInput = {
-  data: CreateElectionCandidateDataInput;
-};
-
-type CreateElectionVoteDataInput = {
-  compareState?: InputMaybe<Scalars['JSON']['input']>;
-  electionName: Scalars['String']['input'];
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  submissionComments?: InputMaybe<Scalars['JSON']['input']>;
-  submittedAt?: InputMaybe<Scalars['Date']['input']>;
-  userExplanation?: InputMaybe<Scalars['String']['input']>;
-  userId: Scalars['String']['input'];
-  userOtherComments?: InputMaybe<Scalars['String']['input']>;
-  vote?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type CreateElectionVoteInput = {
-  data: CreateElectionVoteDataInput;
 };
 
 type CreateElicitQuestionDataInput = {
@@ -2295,90 +2256,6 @@ type DocumentDeletion = {
 type DocumentDeletionNetChange =
   | 'deleted'
   | 'restored';
-
-type ElectionCandidate = {
-  __typename?: 'ElectionCandidate';
-  _id: Scalars['String']['output'];
-  afBaseScore?: Maybe<Scalars['Float']['output']>;
-  afExtendedScore?: Maybe<Scalars['JSON']['output']>;
-  afVoteCount?: Maybe<Scalars['Float']['output']>;
-  amountRaised?: Maybe<Scalars['Float']['output']>;
-  baseScore: Scalars['Float']['output'];
-  createdAt: Scalars['Date']['output'];
-  currentUserExtendedVote?: Maybe<Scalars['JSON']['output']>;
-  currentUserVote?: Maybe<Scalars['String']['output']>;
-  description: Scalars['String']['output'];
-  electionName: Scalars['String']['output'];
-  extendedScore?: Maybe<Scalars['JSON']['output']>;
-  fundraiserLink?: Maybe<Scalars['String']['output']>;
-  gwwcId?: Maybe<Scalars['String']['output']>;
-  gwwcLink?: Maybe<Scalars['String']['output']>;
-  href: Scalars['String']['output'];
-  isElectionFundraiser: Scalars['Boolean']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  logoSrc: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  postCount: Scalars['Float']['output'];
-  schemaVersion: Scalars['Float']['output'];
-  score: Scalars['Float']['output'];
-  tag?: Maybe<Tag>;
-  tagId: Scalars['String']['output'];
-  targetAmount?: Maybe<Scalars['Float']['output']>;
-  user?: Maybe<User>;
-  userId: Scalars['String']['output'];
-  voteCount: Scalars['Float']['output'];
-};
-
-type ElectionCandidateDefaultViewInput = {
-  electionName?: InputMaybe<Scalars['String']['input']>;
-  sortBy?: InputMaybe<Scalars['String']['input']>;
-};
-
-type ElectionCandidateOutput = {
-  __typename?: 'ElectionCandidateOutput';
-  data?: Maybe<ElectionCandidate>;
-};
-
-type ElectionCandidateSelector = {
-  default?: InputMaybe<ElectionCandidateDefaultViewInput>;
-};
-
-type ElectionVote = {
-  __typename?: 'ElectionVote';
-  _id: Scalars['String']['output'];
-  compareState?: Maybe<Scalars['JSON']['output']>;
-  createdAt: Scalars['Date']['output'];
-  electionName?: Maybe<Scalars['String']['output']>;
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  submissionComments?: Maybe<Scalars['JSON']['output']>;
-  submittedAt?: Maybe<Scalars['Date']['output']>;
-  user?: Maybe<User>;
-  userExplanation?: Maybe<Scalars['String']['output']>;
-  userId?: Maybe<Scalars['String']['output']>;
-  userOtherComments?: Maybe<Scalars['String']['output']>;
-  vote?: Maybe<Scalars['JSON']['output']>;
-};
-
-type ElectionVoteDefaultViewInput = {
-  electionName?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type ElectionVoteOutput = {
-  __typename?: 'ElectionVoteOutput';
-  data?: Maybe<ElectionVote>;
-};
-
-type ElectionVoteSelector = {
-  allSubmittedVotes?: InputMaybe<ElectionVotesAllSubmittedVotesInput>;
-  default?: InputMaybe<ElectionVoteDefaultViewInput>;
-};
-
-type ElectionVotesAllSubmittedVotesInput = {
-  electionName?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
 
 type ElicitBlockData = {
   __typename?: 'ElicitBlockData';
@@ -3489,32 +3366,6 @@ type MultiDocumentsSummariesByParentIdInput = {
   parentDocumentId?: InputMaybe<Scalars['String']['input']>;
 };
 
-type MultiElectionCandidateInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiElectionCandidateOutput = {
-  __typename?: 'MultiElectionCandidateOutput';
-  results: Array<ElectionCandidate>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiElectionVoteInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiElectionVoteOutput = {
-  __typename?: 'MultiElectionVoteOutput';
-  results: Array<ElectionVote>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 type MultiElicitQuestionInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4145,8 +3996,6 @@ type Mutation = {
   createCurationNotice?: Maybe<CurationNoticeOutput>;
   createDigest?: Maybe<DigestOutput>;
   createDigestPost?: Maybe<DigestPostOutput>;
-  createElectionCandidate?: Maybe<ElectionCandidateOutput>;
-  createElectionVote?: Maybe<ElectionVoteOutput>;
   createElicitQuestion?: Maybe<ElicitQuestionOutput>;
   createJargonTerm?: Maybe<JargonTermOutput>;
   createLWEvent?: Maybe<LWEventOutput>;
@@ -4195,7 +4044,6 @@ type Mutation = {
   moderateComment?: Maybe<Comment>;
   observeRecommendation?: Maybe<Scalars['Boolean']['output']>;
   performVoteComment?: Maybe<VoteResultComment>;
-  performVoteElectionCandidate?: Maybe<VoteResultElectionCandidate>;
   performVoteMessage?: Maybe<VoteResultMessage>;
   performVoteMultiDocument?: Maybe<VoteResultMultiDocument>;
   performVotePost?: Maybe<VoteResultPost>;
@@ -4217,7 +4065,6 @@ type Mutation = {
   setIsBookmarked?: Maybe<SetIsBookmarkedOutput>;
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
-  setVoteElectionCandidate?: Maybe<ElectionCandidate>;
   setVoteMessage?: Maybe<Message>;
   setVoteMultiDocument?: Maybe<MultiDocument>;
   setVotePost?: Maybe<Post>;
@@ -4241,8 +4088,6 @@ type Mutation = {
   updateCurationNotice?: Maybe<CurationNoticeOutput>;
   updateDigest?: Maybe<DigestOutput>;
   updateDigestPost?: Maybe<DigestPostOutput>;
-  updateElectionCandidate?: Maybe<ElectionCandidateOutput>;
-  updateElectionVote?: Maybe<ElectionVoteOutput>;
   updateElicitQuestion?: Maybe<ElicitQuestionOutput>;
   updateJargonTerm?: Maybe<JargonTermOutput>;
   updateLlmConversation?: Maybe<LlmConversationOutput>;
@@ -4450,16 +4295,6 @@ type MutationcreateDigestArgs = {
 
 type MutationcreateDigestPostArgs = {
   data: CreateDigestPostDataInput;
-};
-
-
-type MutationcreateElectionCandidateArgs = {
-  data: CreateElectionCandidateDataInput;
-};
-
-
-type MutationcreateElectionVoteArgs = {
-  data: CreateElectionVoteDataInput;
 };
 
 
@@ -4718,13 +4553,6 @@ type MutationperformVoteCommentArgs = {
 };
 
 
-type MutationperformVoteElectionCandidateArgs = {
-  documentId?: InputMaybe<Scalars['String']['input']>;
-  extendedVote?: InputMaybe<Scalars['JSON']['input']>;
-  voteType?: InputMaybe<Scalars['String']['input']>;
-};
-
-
 type MutationperformVoteMessageArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
@@ -4850,13 +4678,6 @@ type MutationsetIsHiddenArgs = {
 
 
 type MutationsetVoteCommentArgs = {
-  documentId?: InputMaybe<Scalars['String']['input']>;
-  extendedVote?: InputMaybe<Scalars['JSON']['input']>;
-  voteType?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-type MutationsetVoteElectionCandidateArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>;
   extendedVote?: InputMaybe<Scalars['JSON']['input']>;
   voteType?: InputMaybe<Scalars['String']['input']>;
@@ -5005,18 +4826,6 @@ type MutationupdateDigestArgs = {
 
 type MutationupdateDigestPostArgs = {
   data: UpdateDigestPostDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateElectionCandidateArgs = {
-  data: UpdateElectionCandidateDataInput;
-  selector: SelectorInput;
-};
-
-
-type MutationupdateElectionVoteArgs = {
-  data: UpdateElectionVoteDataInput;
   selector: SelectorInput;
 };
 
@@ -7538,10 +7347,6 @@ type Query = {
   digestPost?: Maybe<SingleDigestPostOutput>;
   digestPosts?: Maybe<MultiDigestPostOutput>;
   digests?: Maybe<MultiDigestOutput>;
-  electionCandidate?: Maybe<SingleElectionCandidateOutput>;
-  electionCandidates?: Maybe<MultiElectionCandidateOutput>;
-  electionVote?: Maybe<SingleElectionVoteOutput>;
-  electionVotes?: Maybe<MultiElectionVoteOutput>;
   elicitQuestion?: Maybe<SingleElicitQuestionOutput>;
   elicitQuestionPrediction?: Maybe<SingleElicitQuestionPredictionOutput>;
   elicitQuestionPredictions?: Maybe<MultiElicitQuestionPredictionOutput>;
@@ -8225,36 +8030,6 @@ type QuerydigestsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<DigestSelector>;
-};
-
-
-type QueryelectionCandidateArgs = {
-  input?: InputMaybe<SingleElectionCandidateInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QueryelectionCandidatesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiElectionCandidateInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<ElectionCandidateSelector>;
-};
-
-
-type QueryelectionVoteArgs = {
-  input?: InputMaybe<SingleElectionVoteInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QueryelectionVotesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiElectionVoteInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<ElectionVoteSelector>;
 };
 
 
@@ -9675,26 +9450,6 @@ type SingleDigestPostOutput = {
   result?: Maybe<DigestPost>;
 };
 
-type SingleElectionCandidateInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleElectionCandidateOutput = {
-  __typename?: 'SingleElectionCandidateOutput';
-  result?: Maybe<ElectionCandidate>;
-};
-
-type SingleElectionVoteInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleElectionVoteOutput = {
-  __typename?: 'SingleElectionVoteOutput';
-  result?: Maybe<ElectionVote>;
-};
-
 type SingleElicitQuestionInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -11084,7 +10839,6 @@ type UpdateCommentDataInput = {
   shortform?: InputMaybe<Scalars['Boolean']['input']>;
   shortformFrontpage?: InputMaybe<Scalars['Boolean']['input']>;
   spam?: InputMaybe<Scalars['Boolean']['input']>;
-  subforumStickyPriority?: InputMaybe<Scalars['Float']['input']>;
   suggestForAlignmentUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
   tagId?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -11158,45 +10912,6 @@ type UpdateDigestPostDataInput = {
 
 type UpdateDigestPostInput = {
   data: UpdateDigestPostDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateElectionCandidateDataInput = {
-  amountRaised?: InputMaybe<Scalars['Float']['input']>;
-  description?: InputMaybe<Scalars['String']['input']>;
-  electionName?: InputMaybe<Scalars['String']['input']>;
-  fundraiserLink?: InputMaybe<Scalars['String']['input']>;
-  gwwcId?: InputMaybe<Scalars['String']['input']>;
-  gwwcLink?: InputMaybe<Scalars['String']['input']>;
-  href?: InputMaybe<Scalars['String']['input']>;
-  isElectionFundraiser?: InputMaybe<Scalars['Boolean']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  logoSrc?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  tagId?: InputMaybe<Scalars['String']['input']>;
-  targetAmount?: InputMaybe<Scalars['Float']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UpdateElectionCandidateInput = {
-  data: UpdateElectionCandidateDataInput;
-  selector: SelectorInput;
-};
-
-type UpdateElectionVoteDataInput = {
-  compareState?: InputMaybe<Scalars['JSON']['input']>;
-  electionName?: InputMaybe<Scalars['String']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  submissionComments?: InputMaybe<Scalars['JSON']['input']>;
-  submittedAt?: InputMaybe<Scalars['Date']['input']>;
-  userExplanation?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-  userOtherComments?: InputMaybe<Scalars['String']['input']>;
-  vote?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type UpdateElectionVoteInput = {
-  data: UpdateElectionVoteDataInput;
   selector: SelectorInput;
 };
 
@@ -12546,12 +12261,6 @@ type Vote = {
 type VoteResultComment = {
   __typename?: 'VoteResultComment';
   document: Comment;
-  showVotingPatternWarning: Scalars['Boolean']['output'];
-};
-
-type VoteResultElectionCandidate = {
-  __typename?: 'VoteResultElectionCandidate';
-  document: ElectionCandidate;
   showVotingPatternWarning: Scalars['Boolean']['output'];
 };
 
@@ -23003,25 +22712,6 @@ type performVoteRevisionMutationVariables = Exact<{
 
 type performVoteRevisionMutation = performVoteRevisionMutation_Mutation;
 
-type performVoteElectionCandidateMutation_performVoteElectionCandidate_VoteResultElectionCandidate_document_ElectionCandidate = (
-  { __typename?: 'ElectionCandidate' }
-  & WithVoteElectionCandidate
-);
-
-type performVoteElectionCandidateMutation_performVoteElectionCandidate_VoteResultElectionCandidate = { __typename?: 'VoteResultElectionCandidate', showVotingPatternWarning: boolean, document: performVoteElectionCandidateMutation_performVoteElectionCandidate_VoteResultElectionCandidate_document_ElectionCandidate };
-
-type performVoteElectionCandidateMutation_Mutation = { __typename?: 'Mutation', performVoteElectionCandidate: performVoteElectionCandidateMutation_performVoteElectionCandidate_VoteResultElectionCandidate | null };
-
-
-type performVoteElectionCandidateMutationVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-  voteType: InputMaybe<Scalars['String']['input']>;
-  extendedVote: InputMaybe<Scalars['JSON']['input']>;
-}>;
-
-
-type performVoteElectionCandidateMutation = performVoteElectionCandidateMutation_Mutation;
-
 type performVoteTagMutation_performVoteTag_VoteResultTag_document_Tag = (
   { __typename?: 'Tag' }
   & WithVoteTag
@@ -23586,15 +23276,6 @@ type CurationNoticesFragment = { __typename?: 'CurationNotice', _id: string, cre
 type DigestPostsMinimumInfo = { __typename?: 'DigestPost', _id: string, digestId: string, postId: string, emailDigestStatus: string | null, onsiteDigestStatus: string | null };
 
 type DigestsMinimumInfo = { __typename?: 'Digest', _id: string, num: number, startDate: string, endDate: string | null, publishedDate: string | null, onsiteImageId: string | null, onsitePrimaryColor: string | null };
-
-type ElectionCandidateBasicInfo_ElectionCandidate_tag_Tag = (
-  { __typename?: 'Tag' }
-  & TagBasicInfo
-);
-
-type ElectionCandidateBasicInfo = { __typename?: 'ElectionCandidate', _id: string, electionName: string, name: string, logoSrc: string, href: string, fundraiserLink: string | null, gwwcLink: string | null, gwwcId: string | null, description: string, tagId: string, postCount: number, baseScore: number, score: number, extendedScore: any | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null, tag: ElectionCandidateBasicInfo_ElectionCandidate_tag_Tag | null };
-
-type WithVoteElectionCandidate = { __typename: 'ElectionCandidate', _id: string, score: number, baseScore: number, extendedScore: any | null, afBaseScore: number | null, voteCount: number, currentUserVote: string | null, currentUserExtendedVote: any | null };
 
 type ElicitQuestionFragment = { __typename?: 'ElicitQuestion', _id: string, title: string, notes: string | null, resolution: string | null, resolvesBy: string | null };
 
