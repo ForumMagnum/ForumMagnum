@@ -17,20 +17,6 @@ CREATE EXTENSION IF NOT EXISTS "vector" CASCADE;
 -- Extension "pg_trgm"
 CREATE EXTENSION IF NOT EXISTS "pg_trgm" CASCADE;
 
--- Table "AdvisorRequests"
-CREATE TABLE "AdvisorRequests" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "userId" VARCHAR(27) NOT NULL,
-  "interestedInMetaculus" BOOL NOT NULL DEFAULT FALSE,
-  "jobAds" JSONB
-);
-
--- Index "idx_AdvisorRequests_userId"
-CREATE INDEX IF NOT EXISTS "idx_AdvisorRequests_userId" ON "AdvisorRequests" USING btree ("userId");
-
 -- Table "ArbitalCaches"
 CREATE TABLE "ArbitalCaches" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -930,37 +916,6 @@ CREATE TABLE "ForumEvents" (
 
 -- Index "idx_ForumEvents_endDate"
 CREATE INDEX IF NOT EXISTS "idx_ForumEvents_endDate" ON "ForumEvents" USING btree ("endDate");
-
--- Table "GardenCodes"
-CREATE TABLE "GardenCodes" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "legacyData" JSONB,
-  "contents" JSONB,
-  "contents_latest" TEXT,
-  "pingbacks" JSONB,
-  "slug" TEXT NOT NULL,
-  "code" TEXT NOT NULL,
-  "title" TEXT NOT NULL DEFAULT 'Guest Day Pass',
-  "userId" VARCHAR(27) NOT NULL,
-  "startTime" TIMESTAMPTZ,
-  "endTime" TIMESTAMPTZ NOT NULL,
-  "fbLink" TEXT,
-  "type" TEXT NOT NULL DEFAULT 'public',
-  "hidden" BOOL NOT NULL DEFAULT FALSE,
-  "deleted" BOOL NOT NULL DEFAULT FALSE,
-  "afOnly" BOOL NOT NULL DEFAULT FALSE
-);
-
--- Index "idx_GardenCodes_code_deleted"
-CREATE INDEX IF NOT EXISTS "idx_GardenCodes_code_deleted" ON "GardenCodes" USING btree ("code", "deleted");
-
--- Index "idx_GardenCodes_userId_deleted"
-CREATE INDEX IF NOT EXISTS "idx_GardenCodes_userId_deleted" ON "GardenCodes" USING btree ("userId", "deleted");
-
--- Index "idx_GardenCodes_code_deleted_userId"
-CREATE INDEX IF NOT EXISTS "idx_GardenCodes_code_deleted_userId" ON "GardenCodes" USING btree ("code", "deleted", "userId");
 
 -- Table "GoogleServiceAccountSessions"
 CREATE TABLE "GoogleServiceAccountSessions" (
