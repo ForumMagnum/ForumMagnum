@@ -33,7 +33,6 @@ import './server/emails/index';
 
 import './server/analytics/serverAnalyticsWriter';
 import './server/debouncer';
-import './server/logging';
 import './server/markAsUnread';
 import './server/rsvpToEvent';
 import './server/hidePostMutation';
