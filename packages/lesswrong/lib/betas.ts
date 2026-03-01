@@ -97,8 +97,6 @@ export const usesCurationEmailsCron = () => isLW();
 export const hasSidenotes = () => isLWorAF();
 export const visitedLinksHaveFilledInCircle = () => isLWorAF();
 export const hasWikiLenses = () => isLWorAF();
-export const hasSubforums = () => isEAForum();
-export const hasPolls = () => isEAForum();
 export const hasDraftComments = () => true;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this

@@ -54,11 +54,6 @@ interface Query {
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
-  SubforumMagicFeed: SubforumMagicFeedQueryResults;
-  SubforumTopFeed: SubforumTopFeedQueryResults;
-  SubforumRecentCommentsFeed: SubforumRecentCommentsFeedQueryResults;
-  SubforumNewFeed: SubforumNewFeedQueryResults;
-  SubforumOldFeed: SubforumOldFeedQueryResults;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
   RandomTag: Tag;
@@ -1044,71 +1039,6 @@ interface TagHistoryFeedEntry {
   summaryRevision: Revision | null;
   wikiMetadataChanged: FieldChange | null;
   lensOrSummaryMetadataChanged: FieldChange | null;
-}
-
-interface SubforumMagicFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubforumMagicFeedEntry> | null;
-}
-
-interface SubforumMagicFeedEntry {
-  type: SubforumMagicFeedEntryType;
-  tagSubforumPosts: Post | null;
-  tagSubforumComments: Comment | null;
-  tagSubforumStickyComments: Comment | null;
-}
-
-interface SubforumTopFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubforumTopFeedEntry> | null;
-}
-
-interface SubforumTopFeedEntry {
-  type: SubforumTopFeedEntryType;
-  tagSubforumPosts: Post | null;
-  tagSubforumComments: Comment | null;
-  tagSubforumStickyComments: Comment | null;
-}
-
-interface SubforumRecentCommentsFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubforumRecentCommentsFeedEntry> | null;
-}
-
-interface SubforumRecentCommentsFeedEntry {
-  type: SubforumRecentCommentsFeedEntryType;
-  tagSubforumPosts: Post | null;
-  tagSubforumComments: Comment | null;
-  tagSubforumStickyComments: Comment | null;
-}
-
-interface SubforumNewFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubforumNewFeedEntry> | null;
-}
-
-interface SubforumNewFeedEntry {
-  type: SubforumNewFeedEntryType;
-  tagSubforumPosts: Post | null;
-  tagSubforumComments: Comment | null;
-  tagSubforumStickyComments: Comment | null;
-}
-
-interface SubforumOldFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubforumOldFeedEntry> | null;
-}
-
-interface SubforumOldFeedEntry {
-  type: SubforumOldFeedEntryType;
-  tagSubforumPosts: Post | null;
-  tagSubforumComments: Comment | null;
-  tagSubforumStickyComments: Comment | null;
 }
 
 interface DocumentDeletion {
@@ -7646,11 +7576,6 @@ interface UsersUsersProfileInput {
   slug?: string | null;
 }
 
-interface UsersTagCommunityMembersInput {
-  hasBio?: boolean | null;
-  profileTagId?: string | null;
-}
-
 interface UserSelector {
   default: EmptyViewInput | null;
   usersByUserIds: UsersUsersByUserIdsInput | null;
@@ -7663,7 +7588,6 @@ interface UserSelector {
   recentlyActive: EmptyViewInput | null;
   allUsers: EmptyViewInput | null;
   usersMapLocations: EmptyViewInput | null;
-  tagCommunityMembers: UsersTagCommunityMembersInput | null;
   reviewAdminUsers: EmptyViewInput | null;
   usersWithPaymentInfo: EmptyViewInput | null;
   usersWithOptedInToDialogueFacilitation: EmptyViewInput | null;
@@ -10018,16 +9942,6 @@ interface GraphQLTypeMap {
   RecentDiscussionFeedEntry: RecentDiscussionFeedEntry;
   TagHistoryFeedQueryResults: TagHistoryFeedQueryResults;
   TagHistoryFeedEntry: TagHistoryFeedEntry;
-  SubforumMagicFeedQueryResults: SubforumMagicFeedQueryResults;
-  SubforumMagicFeedEntry: SubforumMagicFeedEntry;
-  SubforumTopFeedQueryResults: SubforumTopFeedQueryResults;
-  SubforumTopFeedEntry: SubforumTopFeedEntry;
-  SubforumRecentCommentsFeedQueryResults: SubforumRecentCommentsFeedQueryResults;
-  SubforumRecentCommentsFeedEntry: SubforumRecentCommentsFeedEntry;
-  SubforumNewFeedQueryResults: SubforumNewFeedQueryResults;
-  SubforumNewFeedEntry: SubforumNewFeedEntry;
-  SubforumOldFeedQueryResults: SubforumOldFeedQueryResults;
-  SubforumOldFeedEntry: SubforumOldFeedEntry;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;
@@ -10707,7 +10621,6 @@ interface GraphQLTypeMap {
   SingleUserOutput: SingleUserOutput;
   UsersUsersByUserIdsInput: UsersUsersByUserIdsInput;
   UsersUsersProfileInput: UsersUsersProfileInput;
-  UsersTagCommunityMembersInput: UsersTagCommunityMembersInput;
   UserSelector: UserSelector;
   MultiUserInput: MultiUserInput;
   MultiUserOutput: MultiUserOutput;

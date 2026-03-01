@@ -928,121 +928,6 @@ extend type Query {
   TagHistoryFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, options: JSON): TagHistoryFeedQueryResults!
 }
 
-type SubforumMagicFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubforumMagicFeedEntry!]
-}
-
-enum SubforumMagicFeedEntryType {
-  tagSubforumPosts
-  tagSubforumComments
-  tagSubforumStickyComments
-}
-
-type SubforumMagicFeedEntry {
-  type: SubforumMagicFeedEntryType!
-  tagSubforumPosts: Post
-  tagSubforumComments: Comment
-  tagSubforumStickyComments: Comment
-}
-
-extend type Query {
-  SubforumMagicFeed(limit: Int, cutoff: Float, offset: Int, tagId: String!, af: Boolean): SubforumMagicFeedQueryResults!
-}
-
-type SubforumTopFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubforumTopFeedEntry!]
-}
-
-enum SubforumTopFeedEntryType {
-  tagSubforumPosts
-  tagSubforumComments
-  tagSubforumStickyComments
-}
-
-type SubforumTopFeedEntry {
-  type: SubforumTopFeedEntryType!
-  tagSubforumPosts: Post
-  tagSubforumComments: Comment
-  tagSubforumStickyComments: Comment
-}
-
-extend type Query {
-  SubforumTopFeed(limit: Int, cutoff: Int, offset: Int, tagId: String!, af: Boolean): SubforumTopFeedQueryResults!
-}
-
-type SubforumRecentCommentsFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubforumRecentCommentsFeedEntry!]
-}
-
-enum SubforumRecentCommentsFeedEntryType {
-  tagSubforumPosts
-  tagSubforumComments
-  tagSubforumStickyComments
-}
-
-type SubforumRecentCommentsFeedEntry {
-  type: SubforumRecentCommentsFeedEntryType!
-  tagSubforumPosts: Post
-  tagSubforumComments: Comment
-  tagSubforumStickyComments: Comment
-}
-
-extend type Query {
-  SubforumRecentCommentsFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, af: Boolean): SubforumRecentCommentsFeedQueryResults!
-}
-
-type SubforumNewFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubforumNewFeedEntry!]
-}
-
-enum SubforumNewFeedEntryType {
-  tagSubforumPosts
-  tagSubforumComments
-  tagSubforumStickyComments
-}
-
-type SubforumNewFeedEntry {
-  type: SubforumNewFeedEntryType!
-  tagSubforumPosts: Post
-  tagSubforumComments: Comment
-  tagSubforumStickyComments: Comment
-}
-
-extend type Query {
-  SubforumNewFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, af: Boolean): SubforumNewFeedQueryResults!
-}
-
-type SubforumOldFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubforumOldFeedEntry!]
-}
-
-enum SubforumOldFeedEntryType {
-  tagSubforumPosts
-  tagSubforumComments
-  tagSubforumStickyComments
-}
-
-type SubforumOldFeedEntry {
-  type: SubforumOldFeedEntryType!
-  tagSubforumPosts: Post
-  tagSubforumComments: Comment
-  tagSubforumStickyComments: Comment
-}
-
-extend type Query {
-  SubforumOldFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, af: Boolean): SubforumOldFeedQueryResults!
-}
-
 extend type Mutation {
   markConversationRead(conversationId: String!): Boolean!
   sendEventTriggeredDM(eventType: String!): Boolean!
@@ -8321,11 +8206,6 @@ input UsersUsersProfileInput {
   slug: String
 }
 
-input UsersTagCommunityMembersInput {
-  hasBio: Boolean
-  profileTagId: String
-}
-
 input UserSelector {
   default: EmptyViewInput
   usersByUserIds: UsersUsersByUserIdsInput
@@ -8338,7 +8218,6 @@ input UserSelector {
   recentlyActive: EmptyViewInput
   allUsers: EmptyViewInput
   usersMapLocations: EmptyViewInput
-  tagCommunityMembers: UsersTagCommunityMembersInput
   reviewAdminUsers: EmptyViewInput
   usersWithPaymentInfo: EmptyViewInput
   usersWithOptedInToDialogueFacilitation: EmptyViewInput

@@ -22,7 +22,6 @@ declare global {
     slug?: string,
     lng?: number
     lat?: number,
-    profileTagId?: string,
     hasBio?: boolean
   }
 }
@@ -152,29 +151,6 @@ function usersMapLocations() {
   }
 }
 
-function tagCommunityMembers(terms: UsersViewTerms) {
-  const bioSelector = terms.hasBio ? {
-    $and: [
-      {'biography.html': {$exists: true}},
-      {'biography.html': {$ne: ''}}
-    ]
-  } : {}
-  
-  return {
-    selector: {
-      profileTagIds: terms.profileTagId,
-      deleted: {$ne: true},
-      deleteContent: {$ne: true},
-      ...bioSelector
-    },
-    options: {
-      sort: {
-        karma: -1
-      }
-    }
-  }
-}
-
 function reviewAdminUsers(terms: UsersViewTerms) {
   return {
     selector: {
@@ -279,7 +255,6 @@ export const UsersViews = new CollectionViewSet('Users', {
   recentlyActive,
   allUsers,
   usersMapLocations,
-  tagCommunityMembers,
   reviewAdminUsers,
   usersWithPaymentInfo,
   usersWithOptedInToDialogueFacilitation,

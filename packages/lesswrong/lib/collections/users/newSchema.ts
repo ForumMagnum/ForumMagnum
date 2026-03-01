@@ -3711,7 +3711,7 @@ const schema = {
       },
     },
   },
-  profileTagIds: {
+  profileTagIds: { //DEPRECATED Was an EA-forum-specific subforum
     database: {
       type: "VARCHAR(27)[]",
       defaultValue: [],

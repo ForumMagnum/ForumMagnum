@@ -11,10 +11,9 @@ import { getCommentEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
-import { FormComponentQuickTakesTags } from "@/components/form-components/FormComponentQuickTakesTags";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { quickTakesTagsEnabledSetting, isAF, isLWorAF } from "@/lib/instanceSettings";
+import { isAF, isLWorAF } from "@/lib/instanceSettings";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
@@ -522,16 +521,6 @@ export const CommentForm = ({
               <FormComponentCheckbox
                 field={field}
                 label="Pinned"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {quickTakesTagsEnabledSetting.get() && form.state.values.shortform && <div className={classNames("form-input", "input-relevantTagIds", classes.fieldWrapper)}>
-          <form.Field name="relevantTagIds">
-            {(field) => (
-              <FormComponentQuickTakesTags
-                field={field}
               />
             )}
           </form.Field>

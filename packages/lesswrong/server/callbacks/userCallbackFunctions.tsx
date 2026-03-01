@@ -568,26 +568,6 @@ export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocu
   }
 }
 
-/* EDIT ASYNC */
-export async function newSubforumMemberNotifyMods(user: DbUser, oldUser: DbUser, context: ResolverContext) {
-  const { Tags } = context;
-
-  const newSubforumIds = difference(user.profileTagIds, oldUser.profileTagIds)
-  for (const subforumId of newSubforumIds) {
-    const subforum = await Tags.findOne(subforumId)
-    if (subforum?.isSubforum) {
-      const modIds = subforum.subforumModeratorIds || []
-      await createNotifications({
-        userIds: modIds,
-        notificationType: 'newSubforumMember',
-        documentType: 'user',
-        documentId: user._id,
-        extraData: {subforumId}
-      })
-    }
-  }
-}
-
 export async function approveUnreviewedSubmissions(userId: string, context: ResolverContext) {
   const { Comments, Posts } = context;
 

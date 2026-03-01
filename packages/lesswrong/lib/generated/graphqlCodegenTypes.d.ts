@@ -7793,11 +7793,6 @@ type Query = {
   RssPostChanges: RssPostChangeInfo;
   SearchSynonyms: Array<Scalars['String']['output']>;
   SiteData?: Maybe<Site>;
-  SubforumMagicFeed: SubforumMagicFeedQueryResults;
-  SubforumNewFeed: SubforumNewFeedQueryResults;
-  SubforumOldFeed: SubforumOldFeedQueryResults;
-  SubforumRecentCommentsFeed: SubforumRecentCommentsFeedQueryResults;
-  SubforumTopFeed: SubforumTopFeedQueryResults;
   SuggestedFeedSubscriptionUsers?: Maybe<SuggestedFeedSubscriptionUsersResult>;
   SuggestedTopActiveUsers?: Maybe<SuggestedTopActiveUsersResult>;
   TagHistoryFeed: TagHistoryFeedQueryResults;
@@ -8206,51 +8201,6 @@ type QueryRevisionsDiffArgs = {
 
 type QueryRssPostChangesArgs = {
   postId: Scalars['String']['input'];
-};
-
-
-type QuerySubforumMagicFeedArgs = {
-  af?: InputMaybe<Scalars['Boolean']['input']>;
-  cutoff?: InputMaybe<Scalars['Float']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  tagId: Scalars['String']['input'];
-};
-
-
-type QuerySubforumNewFeedArgs = {
-  af?: InputMaybe<Scalars['Boolean']['input']>;
-  cutoff?: InputMaybe<Scalars['Date']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  tagId: Scalars['String']['input'];
-};
-
-
-type QuerySubforumOldFeedArgs = {
-  af?: InputMaybe<Scalars['Boolean']['input']>;
-  cutoff?: InputMaybe<Scalars['Date']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  tagId: Scalars['String']['input'];
-};
-
-
-type QuerySubforumRecentCommentsFeedArgs = {
-  af?: InputMaybe<Scalars['Boolean']['input']>;
-  cutoff?: InputMaybe<Scalars['Date']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  tagId: Scalars['String']['input'];
-};
-
-
-type QuerySubforumTopFeedArgs = {
-  af?: InputMaybe<Scalars['Boolean']['input']>;
-  cutoff?: InputMaybe<Scalars['Int']['input']>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  tagId: Scalars['String']['input'];
 };
 
 
@@ -10724,109 +10674,9 @@ type SpotlightsSpotlightsPageInput = {
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
-type SubforumMagicFeedEntry = {
-  __typename?: 'SubforumMagicFeedEntry';
-  tagSubforumComments?: Maybe<Comment>;
-  tagSubforumPosts?: Maybe<Post>;
-  tagSubforumStickyComments?: Maybe<Comment>;
-  type: SubforumMagicFeedEntryType;
-};
-
-type SubforumMagicFeedEntryType =
-  | 'tagSubforumComments'
-  | 'tagSubforumPosts'
-  | 'tagSubforumStickyComments';
-
-type SubforumMagicFeedQueryResults = {
-  __typename?: 'SubforumMagicFeedQueryResults';
-  cutoff?: Maybe<Scalars['Date']['output']>;
-  endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubforumMagicFeedEntry>>;
-};
-
-type SubforumNewFeedEntry = {
-  __typename?: 'SubforumNewFeedEntry';
-  tagSubforumComments?: Maybe<Comment>;
-  tagSubforumPosts?: Maybe<Post>;
-  tagSubforumStickyComments?: Maybe<Comment>;
-  type: SubforumNewFeedEntryType;
-};
-
-type SubforumNewFeedEntryType =
-  | 'tagSubforumComments'
-  | 'tagSubforumPosts'
-  | 'tagSubforumStickyComments';
-
-type SubforumNewFeedQueryResults = {
-  __typename?: 'SubforumNewFeedQueryResults';
-  cutoff?: Maybe<Scalars['Date']['output']>;
-  endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubforumNewFeedEntry>>;
-};
-
-type SubforumOldFeedEntry = {
-  __typename?: 'SubforumOldFeedEntry';
-  tagSubforumComments?: Maybe<Comment>;
-  tagSubforumPosts?: Maybe<Post>;
-  tagSubforumStickyComments?: Maybe<Comment>;
-  type: SubforumOldFeedEntryType;
-};
-
-type SubforumOldFeedEntryType =
-  | 'tagSubforumComments'
-  | 'tagSubforumPosts'
-  | 'tagSubforumStickyComments';
-
-type SubforumOldFeedQueryResults = {
-  __typename?: 'SubforumOldFeedQueryResults';
-  cutoff?: Maybe<Scalars['Date']['output']>;
-  endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubforumOldFeedEntry>>;
-};
-
 type SubforumPreferredLayout =
   | 'card'
   | 'list';
-
-type SubforumRecentCommentsFeedEntry = {
-  __typename?: 'SubforumRecentCommentsFeedEntry';
-  tagSubforumComments?: Maybe<Comment>;
-  tagSubforumPosts?: Maybe<Post>;
-  tagSubforumStickyComments?: Maybe<Comment>;
-  type: SubforumRecentCommentsFeedEntryType;
-};
-
-type SubforumRecentCommentsFeedEntryType =
-  | 'tagSubforumComments'
-  | 'tagSubforumPosts'
-  | 'tagSubforumStickyComments';
-
-type SubforumRecentCommentsFeedQueryResults = {
-  __typename?: 'SubforumRecentCommentsFeedQueryResults';
-  cutoff?: Maybe<Scalars['Date']['output']>;
-  endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubforumRecentCommentsFeedEntry>>;
-};
-
-type SubforumTopFeedEntry = {
-  __typename?: 'SubforumTopFeedEntry';
-  tagSubforumComments?: Maybe<Comment>;
-  tagSubforumPosts?: Maybe<Post>;
-  tagSubforumStickyComments?: Maybe<Comment>;
-  type: SubforumTopFeedEntryType;
-};
-
-type SubforumTopFeedEntryType =
-  | 'tagSubforumComments'
-  | 'tagSubforumPosts'
-  | 'tagSubforumStickyComments';
-
-type SubforumTopFeedQueryResults = {
-  __typename?: 'SubforumTopFeedQueryResults';
-  cutoff?: Maybe<Scalars['Date']['output']>;
-  endOffset: Scalars['Int']['output'];
-  results?: Maybe<Array<SubforumTopFeedEntry>>;
-};
 
 type Subscription = {
   __typename?: 'Subscription';
@@ -13037,7 +12887,6 @@ type UserSelector = {
   recentlyActive?: InputMaybe<EmptyViewInput>;
   reviewAdminUsers?: InputMaybe<EmptyViewInput>;
   sunshineNewUsers?: InputMaybe<EmptyViewInput>;
-  tagCommunityMembers?: InputMaybe<UsersTagCommunityMembersInput>;
   usersByUserIds?: InputMaybe<UsersUsersByUserIdsInput>;
   usersMapLocations?: InputMaybe<EmptyViewInput>;
   usersProfile?: InputMaybe<UsersUsersProfileInput>;
@@ -13081,11 +12930,6 @@ type UserTagRelSelector = {
 type UserTagRelsSingleInput = {
   tagId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UsersTagCommunityMembersInput = {
-  hasBio?: InputMaybe<Scalars['Boolean']['input']>;
-  profileTagId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type UsersUsersByUserIdsInput = {
@@ -14653,25 +14497,6 @@ type multiFeaturedResourceFeaturedResourceBannerQueryQueryVariables = Exact<{
 
 type multiFeaturedResourceFeaturedResourceBannerQueryQuery = multiFeaturedResourceFeaturedResourceBannerQueryQuery_Query;
 
-type multiTagSubforumsListQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagSubforumSidebarFragment
-);
-
-type multiTagSubforumsListQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagSubforumsListQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagSubforumsListQueryQuery_Query = { __typename?: 'Query', tags: multiTagSubforumsListQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagSubforumsListQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagSubforumsListQueryQuery = multiTagSubforumsListQueryQuery_Query;
-
 type PostExcerptQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & HighlightWithHash
@@ -14818,181 +14643,6 @@ type RecentDiscussionFeedQueryVariables = Exact<{
 
 
 type RecentDiscussionFeedQuery = RecentDiscussionFeedQuery_Query;
-
-type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumPosts_Post = (
-  { __typename?: 'Post' }
-  & PostsRecentDiscussion
-);
-
-type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumComments_Comment = (
-  { __typename?: 'Comment' }
-  & CommentWithRepliesFragment
-);
-
-type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumStickyComments_Comment = (
-  { __typename?: 'Comment' }
-  & StickySubforumCommentFragment
-);
-
-type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry = { __typename?: 'SubforumMagicFeedEntry', type: SubforumMagicFeedEntryType, tagSubforumPosts: SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumPosts_Post | null, tagSubforumComments: SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumComments_Comment | null, tagSubforumStickyComments: SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry_tagSubforumStickyComments_Comment | null };
-
-type SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults = { __typename: 'SubforumMagicFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults_results_SubforumMagicFeedEntry> | null };
-
-type SubforumMagicFeedQuery_Query = { __typename?: 'Query', SubforumMagicFeed: SubforumMagicFeedQuery_SubforumMagicFeed_SubforumMagicFeedQueryResults };
-
-
-type SubforumMagicFeedQueryVariables = Exact<{
-  tagId: Scalars['String']['input'];
-  limit: InputMaybe<Scalars['Int']['input']>;
-  cutoff: InputMaybe<Scalars['Float']['input']>;
-  offset: InputMaybe<Scalars['Int']['input']>;
-  af: InputMaybe<Scalars['Boolean']['input']>;
-  commentsLimit: InputMaybe<Scalars['Int']['input']>;
-  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type SubforumMagicFeedQuery = SubforumMagicFeedQuery_Query;
-
-type SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumPosts_Post = (
-  { __typename?: 'Post' }
-  & PostsRecentDiscussion
-);
-
-type SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumComments_Comment = (
-  { __typename?: 'Comment' }
-  & CommentWithRepliesFragment
-);
-
-type SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumStickyComments_Comment = (
-  { __typename?: 'Comment' }
-  & StickySubforumCommentFragment
-);
-
-type SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry = { __typename?: 'SubforumNewFeedEntry', type: SubforumNewFeedEntryType, tagSubforumPosts: SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumPosts_Post | null, tagSubforumComments: SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumComments_Comment | null, tagSubforumStickyComments: SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry_tagSubforumStickyComments_Comment | null };
-
-type SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults = { __typename: 'SubforumNewFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults_results_SubforumNewFeedEntry> | null };
-
-type SubforumNewFeedQuery_Query = { __typename?: 'Query', SubforumNewFeed: SubforumNewFeedQuery_SubforumNewFeed_SubforumNewFeedQueryResults };
-
-
-type SubforumNewFeedQueryVariables = Exact<{
-  tagId: Scalars['String']['input'];
-  limit: InputMaybe<Scalars['Int']['input']>;
-  cutoff: InputMaybe<Scalars['Date']['input']>;
-  offset: InputMaybe<Scalars['Int']['input']>;
-  af: InputMaybe<Scalars['Boolean']['input']>;
-  commentsLimit: InputMaybe<Scalars['Int']['input']>;
-  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type SubforumNewFeedQuery = SubforumNewFeedQuery_Query;
-
-type SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumPosts_Post = (
-  { __typename?: 'Post' }
-  & PostsRecentDiscussion
-);
-
-type SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumComments_Comment = (
-  { __typename?: 'Comment' }
-  & CommentWithRepliesFragment
-);
-
-type SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumStickyComments_Comment = (
-  { __typename?: 'Comment' }
-  & StickySubforumCommentFragment
-);
-
-type SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry = { __typename?: 'SubforumOldFeedEntry', type: SubforumOldFeedEntryType, tagSubforumPosts: SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumPosts_Post | null, tagSubforumComments: SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumComments_Comment | null, tagSubforumStickyComments: SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry_tagSubforumStickyComments_Comment | null };
-
-type SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults = { __typename: 'SubforumOldFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults_results_SubforumOldFeedEntry> | null };
-
-type SubforumOldFeedQuery_Query = { __typename?: 'Query', SubforumOldFeed: SubforumOldFeedQuery_SubforumOldFeed_SubforumOldFeedQueryResults };
-
-
-type SubforumOldFeedQueryVariables = Exact<{
-  tagId: Scalars['String']['input'];
-  limit: InputMaybe<Scalars['Int']['input']>;
-  cutoff: InputMaybe<Scalars['Date']['input']>;
-  offset: InputMaybe<Scalars['Int']['input']>;
-  af: InputMaybe<Scalars['Boolean']['input']>;
-  commentsLimit: InputMaybe<Scalars['Int']['input']>;
-  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type SubforumOldFeedQuery = SubforumOldFeedQuery_Query;
-
-type SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumPosts_Post = (
-  { __typename?: 'Post' }
-  & PostsRecentDiscussion
-);
-
-type SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumComments_Comment = (
-  { __typename?: 'Comment' }
-  & CommentWithRepliesFragment
-);
-
-type SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumStickyComments_Comment = (
-  { __typename?: 'Comment' }
-  & StickySubforumCommentFragment
-);
-
-type SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry = { __typename?: 'SubforumRecentCommentsFeedEntry', type: SubforumRecentCommentsFeedEntryType, tagSubforumPosts: SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumPosts_Post | null, tagSubforumComments: SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumComments_Comment | null, tagSubforumStickyComments: SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry_tagSubforumStickyComments_Comment | null };
-
-type SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults = { __typename: 'SubforumRecentCommentsFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults_results_SubforumRecentCommentsFeedEntry> | null };
-
-type SubforumRecentCommentsFeedQuery_Query = { __typename?: 'Query', SubforumRecentCommentsFeed: SubforumRecentCommentsFeedQuery_SubforumRecentCommentsFeed_SubforumRecentCommentsFeedQueryResults };
-
-
-type SubforumRecentCommentsFeedQueryVariables = Exact<{
-  tagId: Scalars['String']['input'];
-  limit: InputMaybe<Scalars['Int']['input']>;
-  cutoff: InputMaybe<Scalars['Date']['input']>;
-  offset: InputMaybe<Scalars['Int']['input']>;
-  af: InputMaybe<Scalars['Boolean']['input']>;
-  commentsLimit: InputMaybe<Scalars['Int']['input']>;
-  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type SubforumRecentCommentsFeedQuery = SubforumRecentCommentsFeedQuery_Query;
-
-type SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumPosts_Post = (
-  { __typename?: 'Post' }
-  & PostsRecentDiscussion
-);
-
-type SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumComments_Comment = (
-  { __typename?: 'Comment' }
-  & CommentWithRepliesFragment
-);
-
-type SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumStickyComments_Comment = (
-  { __typename?: 'Comment' }
-  & StickySubforumCommentFragment
-);
-
-type SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry = { __typename?: 'SubforumTopFeedEntry', type: SubforumTopFeedEntryType, tagSubforumPosts: SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumPosts_Post | null, tagSubforumComments: SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumComments_Comment | null, tagSubforumStickyComments: SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry_tagSubforumStickyComments_Comment | null };
-
-type SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults = { __typename: 'SubforumTopFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults_results_SubforumTopFeedEntry> | null };
-
-type SubforumTopFeedQuery_Query = { __typename?: 'Query', SubforumTopFeed: SubforumTopFeedQuery_SubforumTopFeed_SubforumTopFeedQueryResults };
-
-
-type SubforumTopFeedQueryVariables = Exact<{
-  tagId: Scalars['String']['input'];
-  limit: InputMaybe<Scalars['Int']['input']>;
-  cutoff: InputMaybe<Scalars['Int']['input']>;
-  offset: InputMaybe<Scalars['Int']['input']>;
-  af: InputMaybe<Scalars['Boolean']['input']>;
-  commentsLimit: InputMaybe<Scalars['Int']['input']>;
-  maxAgeHours: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type SubforumTopFeedQuery = SubforumTopFeedQuery_Query;
 
 type UltraFeedQuery_UltraFeed_UltraFeedQueryResults_results_UltraFeedEntry_feedCommentThread_FeedCommentThread = (
   { __typename?: 'FeedCommentThread' }
@@ -18725,25 +18375,6 @@ type multiCommentQuickTakesSectionQueryQueryVariables = Exact<{
 
 
 type multiCommentQuickTakesSectionQueryQuery = multiCommentQuickTakesSectionQueryQuery_Query;
-
-type multiTaguseQuickTakesTagsQueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagPreviewFragment
-);
-
-type multiTaguseQuickTakesTagsQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTaguseQuickTakesTagsQueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTaguseQuickTakesTagsQueryQuery_Query = { __typename?: 'Query', tags: multiTaguseQuickTakesTagsQueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTaguseQuickTakesTagsQueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTaguseQuickTakesTagsQueryQuery = multiTaguseQuickTakesTagsQueryQuery_Query;
 
 type multiPostRecentDiscussionThreadsListQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
@@ -22778,185 +22409,6 @@ type createMultiDocumentLensFormMutationVariables = Exact<{
 
 type createMultiDocumentLensFormMutation = createMultiDocumentLensFormMutation_Mutation;
 
-type multiUserSidebarMembersBoxQueryQuery_users_MultiUserOutput_results_User = (
-  { __typename?: 'User' }
-  & UsersProfile
-);
-
-type multiUserSidebarMembersBoxQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<multiUserSidebarMembersBoxQueryQuery_users_MultiUserOutput_results_User> };
-
-type multiUserSidebarMembersBoxQueryQuery_Query = { __typename?: 'Query', users: multiUserSidebarMembersBoxQueryQuery_users_MultiUserOutput | null };
-
-
-type multiUserSidebarMembersBoxQueryQueryVariables = Exact<{
-  selector: InputMaybe<UserSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiUserSidebarMembersBoxQueryQuery = multiUserSidebarMembersBoxQueryQuery_Query;
-
-type updateTagSidebarSubtagsBoxMutation_updateTag_TagOutput_data_Tag = (
-  { __typename?: 'Tag' }
-  & TagBasicInfo
-);
-
-type updateTagSidebarSubtagsBoxMutation_updateTag_TagOutput = { __typename?: 'TagOutput', data: updateTagSidebarSubtagsBoxMutation_updateTag_TagOutput_data_Tag | null };
-
-type updateTagSidebarSubtagsBoxMutation_Mutation = { __typename?: 'Mutation', updateTag: updateTagSidebarSubtagsBoxMutation_updateTag_TagOutput | null };
-
-
-type updateTagSidebarSubtagsBoxMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateTagDataInput;
-}>;
-
-
-type updateTagSidebarSubtagsBoxMutation = updateTagSidebarSubtagsBoxMutation_Mutation;
-
-type SidebarSubtagsBoxQuery_tag_SingleTagOutput_result_Tag = (
-  { __typename?: 'Tag' }
-  & TagSubtagFragment
-);
-
-type SidebarSubtagsBoxQuery_tag_SingleTagOutput = { __typename?: 'SingleTagOutput', result: SidebarSubtagsBoxQuery_tag_SingleTagOutput_result_Tag | null };
-
-type SidebarSubtagsBoxQuery_Query = { __typename?: 'Query', tag: SidebarSubtagsBoxQuery_tag_SingleTagOutput | null };
-
-
-type SidebarSubtagsBoxQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type SidebarSubtagsBoxQuery = SidebarSubtagsBoxQuery_Query;
-
-type multiUserSubforumMembersDialogQueryQuery_users_MultiUserOutput_results_User = (
-  { __typename?: 'User' }
-  & UsersProfile
-);
-
-type multiUserSubforumMembersDialogQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<multiUserSubforumMembersDialogQueryQuery_users_MultiUserOutput_results_User> };
-
-type multiUserSubforumMembersDialogQueryQuery_Query = { __typename?: 'Query', users: multiUserSubforumMembersDialogQueryQuery_users_MultiUserOutput | null };
-
-
-type multiUserSubforumMembersDialogQueryQueryVariables = Exact<{
-  selector: InputMaybe<UserSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiUserSubforumMembersDialogQueryQuery = multiUserSubforumMembersDialogQueryQuery_Query;
-
-type updateUserTagRelSubforumSubforumTabMutation_updateUserTagRel_UserTagRelOutput_data_UserTagRel = (
-  { __typename?: 'UserTagRel' }
-  & UserTagRelDetails
-);
-
-type updateUserTagRelSubforumSubforumTabMutation_updateUserTagRel_UserTagRelOutput = { __typename?: 'UserTagRelOutput', data: updateUserTagRelSubforumSubforumTabMutation_updateUserTagRel_UserTagRelOutput_data_UserTagRel | null };
-
-type updateUserTagRelSubforumSubforumTabMutation_Mutation = { __typename?: 'Mutation', updateUserTagRel: updateUserTagRelSubforumSubforumTabMutation_updateUserTagRel_UserTagRelOutput | null };
-
-
-type updateUserTagRelSubforumSubforumTabMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserTagRelDataInput;
-}>;
-
-
-type updateUserTagRelSubforumSubforumTabMutation = updateUserTagRelSubforumSubforumTabMutation_Mutation;
-
-type UserUpdateSubforumMembershipMutation_UserUpdateSubforumMembership_User = (
-  { __typename?: 'User' }
-  & UsersCurrent
-);
-
-type UserUpdateSubforumMembershipMutation_Mutation = { __typename?: 'Mutation', UserUpdateSubforumMembership: UserUpdateSubforumMembershipMutation_UserUpdateSubforumMembership_User | null };
-
-
-type UserUpdateSubforumMembershipMutationVariables = Exact<{
-  tagId: Scalars['String']['input'];
-  member: Scalars['Boolean']['input'];
-}>;
-
-
-type UserUpdateSubforumMembershipMutation = UserUpdateSubforumMembershipMutation_Mutation;
-
-type SubforumWikiTabQuery_tag_SingleTagOutput_result_Tag = (
-  { __typename?: 'Tag' }
-  & TagEditFragment
-);
-
-type SubforumWikiTabQuery_tag_SingleTagOutput = { __typename?: 'SingleTagOutput', result: SubforumWikiTabQuery_tag_SingleTagOutput_result_Tag | null };
-
-type SubforumWikiTabQuery_Query = { __typename?: 'Query', tag: SubforumWikiTabQuery_tag_SingleTagOutput | null };
-
-
-type SubforumWikiTabQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type SubforumWikiTabQuery = SubforumWikiTabQuery_Query;
-
-type multiUserTagRelTagSubforumPage2QueryQuery_userTagRels_MultiUserTagRelOutput_results_UserTagRel = (
-  { __typename?: 'UserTagRel' }
-  & UserTagRelDetails
-);
-
-type multiUserTagRelTagSubforumPage2QueryQuery_userTagRels_MultiUserTagRelOutput = { __typename?: 'MultiUserTagRelOutput', totalCount: number | null, results: Array<multiUserTagRelTagSubforumPage2QueryQuery_userTagRels_MultiUserTagRelOutput_results_UserTagRel> };
-
-type multiUserTagRelTagSubforumPage2QueryQuery_Query = { __typename?: 'Query', userTagRels: multiUserTagRelTagSubforumPage2QueryQuery_userTagRels_MultiUserTagRelOutput | null };
-
-
-type multiUserTagRelTagSubforumPage2QueryQueryVariables = Exact<{
-  selector: InputMaybe<UserTagRelSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiUserTagRelTagSubforumPage2QueryQuery = multiUserTagRelTagSubforumPage2QueryQuery_Query;
-
-type multiTagTagSubforumPage2QueryQuery_tags_MultiTagOutput_results_Tag = (
-  { __typename?: 'Tag' }
-  & TagWithFlagsFragment
-);
-
-type multiTagTagSubforumPage2QueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', totalCount: number | null, results: Array<multiTagTagSubforumPage2QueryQuery_tags_MultiTagOutput_results_Tag> };
-
-type multiTagTagSubforumPage2QueryQuery_Query = { __typename?: 'Query', tags: multiTagTagSubforumPage2QueryQuery_tags_MultiTagOutput | null };
-
-
-type multiTagTagSubforumPage2QueryQueryVariables = Exact<{
-  selector: InputMaybe<TagSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiTagTagSubforumPage2QueryQuery = multiTagTagSubforumPage2QueryQuery_Query;
-
-type createUserTagRelTagSubforumPage2Mutation_createUserTagRel_UserTagRelOutput_data_UserTagRel = (
-  { __typename?: 'UserTagRel' }
-  & UserTagRelDetails
-);
-
-type createUserTagRelTagSubforumPage2Mutation_createUserTagRel_UserTagRelOutput = { __typename?: 'UserTagRelOutput', data: createUserTagRelTagSubforumPage2Mutation_createUserTagRel_UserTagRelOutput_data_UserTagRel | null };
-
-type createUserTagRelTagSubforumPage2Mutation_Mutation = { __typename?: 'Mutation', createUserTagRel: createUserTagRelTagSubforumPage2Mutation_createUserTagRel_UserTagRelOutput | null };
-
-
-type createUserTagRelTagSubforumPage2MutationVariables = Exact<{
-  data: CreateUserTagRelDataInput;
-}>;
-
-
-type createUserTagRelTagSubforumPage2Mutation = createUserTagRelTagSubforumPage2Mutation_Mutation;
-
 type tagBySlugQuery_tags_MultiTagOutput_results_Tag = (
   { __typename?: 'Tag' }
   & TagFragment
@@ -23455,56 +22907,6 @@ type connectCrossposterMutationVariables = Exact<{
 
 
 type connectCrossposterMutation = connectCrossposterMutation_Mutation;
-
-type updateUserEditProfileFormMutation_updateUser_UserOutput_data_User = (
-  { __typename?: 'User' }
-  & UsersEdit
-);
-
-type updateUserEditProfileFormMutation_updateUser_UserOutput = { __typename?: 'UserOutput', data: updateUserEditProfileFormMutation_updateUser_UserOutput_data_User | null };
-
-type updateUserEditProfileFormMutation_Mutation = { __typename?: 'Mutation', updateUser: updateUserEditProfileFormMutation_updateUser_UserOutput | null };
-
-
-type updateUserEditProfileFormMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateUserDataInput;
-}>;
-
-
-type updateUserEditProfileFormMutation = updateUserEditProfileFormMutation_Mutation;
-
-type EditProfileFormQuery_user_SingleUserOutput_result_User = (
-  { __typename?: 'User' }
-  & UsersProfileEdit
-);
-
-type EditProfileFormQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: EditProfileFormQuery_user_SingleUserOutput_result_User | null };
-
-type EditProfileFormQuery_Query = { __typename?: 'Query', user: EditProfileFormQuery_user_SingleUserOutput | null };
-
-
-type EditProfileFormQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type EditProfileFormQuery = EditProfileFormQuery_Query;
-
-type EditProfileFormGetUserBySlugQuery_GetUserBySlug_User = (
-  { __typename?: 'User' }
-  & UsersProfileEdit
-);
-
-type EditProfileFormGetUserBySlugQuery_Query = { __typename?: 'Query', GetUserBySlug: EditProfileFormGetUserBySlugQuery_GetUserBySlug_User | null };
-
-
-type EditProfileFormGetUserBySlugQueryVariables = Exact<{
-  slug: Scalars['String']['input'];
-}>;
-
-
-type EditProfileFormGetUserBySlugQuery = EditProfileFormGetUserBySlugQuery_Query;
 
 type useEmailTokenMutation_Mutation = { __typename?: 'Mutation', useEmailToken: any | null };
 
@@ -26181,7 +25583,7 @@ type UsersProfile_User_moderationGuidelines_Revision = (
 );
 
 type UsersProfile = (
-  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, goodHeartTokens: number | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, biography: UsersProfile_User_biography_Revision | null, howOthersCanHelpMe: UsersProfile_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfile_User_howICanHelpOthers_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
   & UsersMinimumInfo
 );
 
@@ -26195,7 +25597,7 @@ type UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettin
 type UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput = { __typename?: 'PostMetadataOutput', postId: string };
 
 type UsersCurrent = (
-  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
+  { __typename?: 'User', oldSlugs: Array<string>, groups: Array<string> | null, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, organizerOfGroupIds: Array<string>, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, usernameUnset: boolean | null, taggingDashboardCollapsed: boolean | null, beta: boolean | null, acceptedTos: boolean | null, pageUrl: string | null, isReviewed: boolean | null, nullifyVotes: boolean | null, hideIntercom: boolean, hideNavigationSidebar: boolean | null, hideCommunitySection: boolean, hasContinueReading: boolean | null, hidePostsRecommendations: boolean, currentFrontpageFilter: string | null, frontpageSelectedTab: string | null, frontpageFilterSettings: any | null, hideFrontpageFilterSettingsDesktop: boolean | null, allPostsTimeframe: string | null, allPostsSorting: string | null, allPostsFilter: string | null, allPostsShowLowKarma: boolean | null, allPostsIncludeEvents: boolean | null, allPostsHideCommunity: boolean | null, allPostsOpenSettings: boolean | null, draftsListSorting: string | null, draftsListShowArchived: boolean | null, draftsListShowShared: boolean | null, lastNotificationsCheck: string | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, commentSorting: string | null, htmlMapMarkerText: string | null, nearbyEventsNotifications: boolean, nearbyEventsNotificationsLocation: any | null, nearbyEventsNotificationsRadius: number | null, nearbyPeopleNotificationThreshold: number | null, hideFrontpageMap: boolean | null, emailSubscribedToCurated: boolean | null, subscribedToDigest: boolean | null, subscribedToNewsletter: boolean | null, unsubscribeFromAll: boolean | null, whenConfirmationEmailSent: string | null, hideSubscribePoke: boolean | null, hideMeetupsPoke: boolean | null, hideHomeRHS: boolean | null, noCollapseCommentsFrontpage: boolean, noCollapseCommentsPosts: boolean, noSingleLineComments: boolean, showCommunityInRecentDiscussion: boolean, karmaChangeNotifierSettings: any | null, karmaChangeLastOpened: string | null, viewUnreviewedComments: boolean | null, recommendationSettings: any | null, theme: any | null, hasAnyBookmarks: boolean | null, auto_subscribe_to_my_posts: boolean, auto_subscribe_to_my_comments: boolean, autoSubscribeAsOrganizer: boolean, noExpandUnreadCommentsReview: boolean, hideFrontpageBookAd: boolean | null, abTestKey: string | null, abTestOverrides: any | null, reactPaletteStyle: ReactPaletteStyle | null, petrovPressedButtonDate: string | null, petrovLaunchCodeDate: string | null, petrovOptOut: boolean, lastUsedTimezone: string | null, acknowledgedNewUserGuidelines: boolean | null, notificationSubforumUnread: any | null, notificationRepliesToMyComments: any | null, subforumPreferredLayout: SubforumPreferredLayout | null, hideJobAdUntil: string | null, criticismTipsDismissed: boolean | null, allowDatadogSessionReplay: boolean, hideFrontpageBook2020Ad: boolean | null, showDialoguesList: boolean | null, showMyDialogues: boolean | null, showMatches: boolean | null, showRecommendedPartners: boolean | null, hideActiveDialogueUsers: boolean | null, hideSunshineSidebar: boolean | null, optedOutOfSurveys: boolean | null, postGlossariesPinned: boolean | null, generateJargonForDrafts: boolean | null, generateJargonForPublishedPosts: boolean | null, moderationGuidelines: UsersCurrent_User_moderationGuidelines_Revision | null, expandedFrontpageSections: UsersCurrent_User_expandedFrontpageSections_ExpandedFrontpageSectionsSettingsOutput | null, hiddenPostsMetadata: Array<UsersCurrent_User_hiddenPostsMetadata_PostMetadataOutput> | null }
   & UsersMinimumInfo
 );
 
@@ -26318,7 +25720,7 @@ type UsersProfileEdit_User_organizerOfGroups_Localgroup = (
   & localGroupsBase
 );
 
-type UsersProfileEdit = { __typename?: 'User', _id: string, slug: string, displayName: string, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileImageId: string | null, profileTagIds: Array<string>, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, mapLocation: any | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, biography: UsersProfileEdit_User_biography_Revision | null, howOthersCanHelpMe: UsersProfileEdit_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfileEdit_User_howICanHelpOthers_Revision | null, organizerOfGroups: Array<UsersProfileEdit_User_organizerOfGroups_Localgroup> };
+type UsersProfileEdit = { __typename?: 'User', _id: string, slug: string, displayName: string, jobTitle: string | null, organization: string | null, careerStage: Array<string> | null, profileImageId: string | null, organizerOfGroupIds: Array<string>, programParticipation: Array<string> | null, mapLocation: any | null, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, biography: UsersProfileEdit_User_biography_Revision | null, howOthersCanHelpMe: UsersProfileEdit_User_howOthersCanHelpMe_Revision | null, howICanHelpOthers: UsersProfileEdit_User_howICanHelpOthers_Revision | null, organizerOfGroups: Array<UsersProfileEdit_User_organizerOfGroups_Localgroup> };
 
 type UsersCrosspostInfo = { __typename?: 'User', _id: string, username: string | null, slug: string, fmCrosspostUserId: string | null };
 

@@ -54,7 +54,6 @@ export const UsersProfile = gql(`
     howICanHelpOthers {
       ...RevisionDisplay
     }
-    profileTagIds
     organizerOfGroupIds
     programParticipation
     website
@@ -112,7 +111,6 @@ export const UsersCurrent = gql(`
     jobTitle
     organization
     careerStage
-    profileTagIds
     organizerOfGroupIds
     moderationStyle
     moderationGuidelines {
@@ -689,7 +687,6 @@ export const UsersProfileEdit = gql(`
     howICanHelpOthers {
       ...RevisionEdit
     }
-    profileTagIds
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase

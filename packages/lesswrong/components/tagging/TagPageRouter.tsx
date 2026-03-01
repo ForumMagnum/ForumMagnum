@@ -1,10 +1,7 @@
 "use client";
 import React from "react";
 import { useLocation } from "../../lib/routeUtil";
-import { useTagBySlug } from "./useTag";
-import { hasSubforums } from "@/lib/betas";
 import LWTagPage from "./LWTagPage";
-import TagSubforumPage2 from "./subforums/TagSubforumPage2";
 
 /**
  * Build structured data for a tag to help with SEO.
@@ -36,54 +33,7 @@ export const getTagStructuredData = (tag: TagPageFragment | TagPageWithRevisionF
 const TagPageRouter = ({slug}: {slug: string}) => {
   const { query } = useLocation();
 
-  const { version: queryVersion, revision: queryRevision } = query;
-  const revision = queryVersion ?? queryRevision ?? undefined;
-  const contributorsLimit = 7;
-
-  // NOTE: In order to keep things decoupled I don't pass this down to either of the child pages (I think SomethingPage components
-  // should be able to be rendered without having data passed into them), but this shouldn't result in any extra queries as the queries in the
-  // child pages should hit the cache. Also ~all other queries in the child pages require the tag to be loaded first, so this shouldn't have
-  // any performance cost.
-  const { tag, loading: loadingTag } = useTagBySlug(slug, revision ? "TagPageWithRevisionFragment" : "TagPageFragment", {
-    extraVariables: revision ? {
-      version: revision,
-      contributorsLimit,
-    } : {
-      contributorsLimit,
-    },
-    skip: !hasSubforums(),
-  });
-  
-  if (!hasSubforums()) {
-    return <LWTagPage slug={slug}/>;
-  }
-
-  if (!tag || loadingTag) return null;
-  
-  // ea-forum-look-here This was the only usage of overridden layout options,
-  // they didn't work well with partial-prerendering, and we aren't using
-  // subforums, so we stubbed this out. Subforums tag pages might be missing a
-  // navigation-sidebar, or something like that.
-  /*if (
-    !!tag.isSubforum !== !!overridenLayoutOptions.unspacedGridLayout ||
-    !!tag.isSubforum !== !!overridenLayoutOptions.standaloneNavigation ||
-    !!tag.isSubforum !== !!overridenLayoutOptions.shouldUseGridLayout
-  ) {
-    // NOTE: There is an edge case here where if you navigate from one tag page to another, this component isn't
-    // unmounted, so the overriden layout options aren't automatically cleared by the callback in useLayoutOptions.tsx.
-    // So we have to explicitly clear them here.
-    setOverridenLayoutOptions(tag.isSubforum ? {
-      unspacedGridLayout: true,
-      standaloneNavigation: true,
-      shouldUseGridLayout: true,
-    } : {});
-  }*/
-
-  if (tag.isSubforum) {
-    return <TagSubforumPage2 slug={slug}/>
-  }
-
-  return <LWTagPage slug={slug}/>
+  return <LWTagPage slug={slug}/>;
 }
 
 export default TagPageRouter;
