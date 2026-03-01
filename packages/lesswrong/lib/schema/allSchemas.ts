@@ -5,7 +5,6 @@
 import { isAnyTest } from '../executionEnvironment';
 
 // Collection imports
-import { default as AdvisorRequests } from '../collections/advisorRequests/newSchema';
 import { default as ArbitalCaches } from '../collections/arbitalCache/newSchema';
 import { default as ArbitalTagContentRels } from '../collections/arbitalTagContentRels/newSchema';
 import { default as AutomatedContentEvaluations } from '../collections/automatedContentEvaluations/newSchema';
@@ -37,7 +36,6 @@ import { default as EmailTokens } from '../collections/emailTokens/newSchema';
 import { default as FeaturedResources } from '../collections/featuredResources/newSchema';
 import { default as FieldChanges } from '../collections/fieldChanges/newSchema';
 import { default as ForumEvents } from '../collections/forumEvents/newSchema';
-import { default as GardenCodes } from '../collections/gardencodes/newSchema';
 import { default as GoogleServiceAccountSessions } from '../collections/googleServiceAccountSessions/newSchema';
 import { default as IframeWidgetSrcdocs } from '../collections/iframeWidgetSrcdocs/newSchema';
 import { default as Images } from '../collections/images/newSchema';
@@ -110,10 +108,10 @@ if (isAnyTest || bundleIsCodegen) {
 }
 
 export const allSchemas = {
-  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
+  ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
   DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
-  FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
+  FieldChanges, ForumEvents, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,

@@ -87,32 +87,6 @@ type AdminSendTestEmailResult = {
   unsubscribeUrl: Scalars['String']['output'];
 };
 
-type AdvisorRequest = {
-  __typename?: 'AdvisorRequest';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  interestedInMetaculus?: Maybe<Scalars['Boolean']['output']>;
-  jobAds?: Maybe<Scalars['JSON']['output']>;
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  user?: Maybe<User>;
-  userId?: Maybe<Scalars['String']['output']>;
-};
-
-type AdvisorRequestOutput = {
-  __typename?: 'AdvisorRequestOutput';
-  data?: Maybe<AdvisorRequest>;
-};
-
-type AdvisorRequestSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-  requestsByUser?: InputMaybe<AdvisorRequestsRequestsByUserInput>;
-};
-
-type AdvisorRequestsRequestsByUserInput = {
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
 type AirtableLeaderboardResult = {
   __typename?: 'AirtableLeaderboardResult';
   leaderboardAmount?: Maybe<Scalars['Int']['output']>;
@@ -1161,17 +1135,6 @@ type ConversationsUserGroupUntitledConversationsInput = {
   moderator?: InputMaybe<Scalars['String']['input']>;
   participantIds?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type CreateAdvisorRequestDataInput = {
-  interestedInMetaculus?: InputMaybe<Scalars['Boolean']['input']>;
-  jobAds?: InputMaybe<Scalars['JSON']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  userId: Scalars['String']['input'];
-};
-
-type CreateAdvisorRequestInput = {
-  data: CreateAdvisorRequestDataInput;
 };
 
 type CreateBookDataInput = {
@@ -2785,65 +2748,6 @@ type FrontpageClassification = {
   probability: Scalars['Float']['output'];
 };
 
-type GardenCode = {
-  __typename?: 'GardenCode';
-  _id: Scalars['String']['output'];
-  afOnly: Scalars['Boolean']['output'];
-  code: Scalars['String']['output'];
-  contents?: Maybe<Revision>;
-  contents_latest?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['Date']['output'];
-  deleted: Scalars['Boolean']['output'];
-  endTime: Scalars['Date']['output'];
-  fbLink?: Maybe<Scalars['String']['output']>;
-  hidden: Scalars['Boolean']['output'];
-  legacyData?: Maybe<Scalars['JSON']['output']>;
-  pingbacks?: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  slug: Scalars['String']['output'];
-  startTime?: Maybe<Scalars['Date']['output']>;
-  title: Scalars['String']['output'];
-  type: Scalars['String']['output'];
-  user?: Maybe<User>;
-  userId: Scalars['String']['output'];
-};
-
-
-type GardenCodecontentsArgs = {
-  version?: InputMaybe<Scalars['String']['input']>;
-};
-
-type GardenCodeDefaultViewInput = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  types?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type GardenCodeSelector = {
-  default?: InputMaybe<GardenCodeDefaultViewInput>;
-  gardenCodeByCode?: InputMaybe<GardenCodesGardenCodeByCodeInput>;
-  publicGardenCodes?: InputMaybe<GardenCodesPublicGardenCodesInput>;
-  usersPrivateGardenCodes?: InputMaybe<GardenCodesUsersPrivateGardenCodesInput>;
-};
-
-type GardenCodesGardenCodeByCodeInput = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  types?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type GardenCodesPublicGardenCodesInput = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  types?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type GardenCodesUsersPrivateGardenCodesInput = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  types?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
 type GivingSeasonHeart = {
   __typename?: 'GivingSeasonHeart';
   displayName: Scalars['String']['output'];
@@ -3415,19 +3319,6 @@ type ModeratorIPAddressInfo = {
   userIds: Array<Scalars['String']['output']>;
 };
 
-type MultiAdvisorRequestInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiAdvisorRequestOutput = {
-  __typename?: 'MultiAdvisorRequestOutput';
-  results: Array<AdvisorRequest>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
 type MultiArbitalTagContentRelInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3824,19 +3715,6 @@ type MultiForumEventInput = {
 type MultiForumEventOutput = {
   __typename?: 'MultiForumEventOutput';
   results: Array<ForumEvent>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiGardenCodeInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiGardenCodeOutput = {
-  __typename?: 'MultiGardenCodeOutput';
-  results: Array<GardenCode>;
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -4410,7 +4288,6 @@ type Mutation = {
   autosaveRevision?: Maybe<Revision>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
-  createAdvisorRequest?: Maybe<AdvisorRequestOutput>;
   createBook?: Maybe<BookOutput>;
   createChapter?: Maybe<ChapterOutput>;
   createCollection?: Maybe<CollectionOutput>;
@@ -4507,7 +4384,6 @@ type Mutation = {
   unlistLlmPost: Scalars['Boolean']['output'];
   unlockPost?: Maybe<Post>;
   unlockThread: Scalars['Boolean']['output'];
-  updateAdvisorRequest?: Maybe<AdvisorRequestOutput>;
   updateBook?: Maybe<BookOutput>;
   updateChapter?: Maybe<ChapterOutput>;
   updateCollection?: Maybe<CollectionOutput>;
@@ -4683,11 +4559,6 @@ type MutationclickRecommendationArgs = {
 
 type MutationconnectCrossposterArgs = {
   token?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-type MutationcreateAdvisorRequestArgs = {
-  data: CreateAdvisorRequestDataInput;
 };
 
 
@@ -5234,12 +5105,6 @@ type MutationunlockPostArgs = {
 
 type MutationunlockThreadArgs = {
   commentId: Scalars['String']['input'];
-};
-
-
-type MutationupdateAdvisorRequestArgs = {
-  data: UpdateAdvisorRequestDataInput;
-  selector: SelectorInput;
 };
 
 
@@ -7803,8 +7668,6 @@ type Query = {
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   UsersReadPostsOfTargetUser?: Maybe<Array<Post>>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
-  advisorRequest?: Maybe<SingleAdvisorRequestOutput>;
-  advisorRequests?: Maybe<MultiAdvisorRequestOutput>;
   arbitalTagContentRel?: Maybe<SingleArbitalTagContentRelOutput>;
   arbitalTagContentRels?: Maybe<MultiArbitalTagContentRelOutput>;
   ban?: Maybe<SingleBanOutput>;
@@ -7854,8 +7717,6 @@ type Query = {
   fieldChanges?: Maybe<MultiFieldChangeOutput>;
   forumEvent?: Maybe<SingleForumEventOutput>;
   forumEvents?: Maybe<MultiForumEventOutput>;
-  gardenCode?: Maybe<SingleGardenCodeOutput>;
-  gardenCodes?: Maybe<MultiGardenCodeOutput>;
   getBookWordCount?: Maybe<Scalars['Float']['output']>;
   getCrosspost?: Maybe<Scalars['JSON']['output']>;
   getLinkSharedPost?: Maybe<Post>;
@@ -8287,21 +8148,6 @@ type QueryadminEmailPreviewAudienceArgs = {
 };
 
 
-type QueryadvisorRequestArgs = {
-  input?: InputMaybe<SingleAdvisorRequestInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QueryadvisorRequestsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiAdvisorRequestInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<AdvisorRequestSelector>;
-};
-
-
 type QueryarbitalTagContentRelArgs = {
   input?: InputMaybe<SingleArbitalTagContentRelInput>;
   selector?: InputMaybe<SelectorInput>;
@@ -8651,21 +8497,6 @@ type QueryforumEventsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ForumEventSelector>;
-};
-
-
-type QuerygardenCodeArgs = {
-  input?: InputMaybe<SingleGardenCodeInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QuerygardenCodesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiGardenCodeInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<GardenCodeSelector>;
 };
 
 
@@ -9864,16 +9695,6 @@ type SideCommentCache = {
   version?: Maybe<Scalars['Float']['output']>;
 };
 
-type SingleAdvisorRequestInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleAdvisorRequestOutput = {
-  __typename?: 'SingleAdvisorRequestOutput';
-  result?: Maybe<AdvisorRequest>;
-};
-
 type SingleArbitalTagContentRelInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -10104,16 +9925,6 @@ type SingleForumEventInput = {
 type SingleForumEventOutput = {
   __typename?: 'SingleForumEventOutput';
   result?: Maybe<ForumEvent>;
-};
-
-type SingleGardenCodeInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleGardenCodeOutput = {
-  __typename?: 'SingleGardenCodeOutput';
-  result?: Maybe<GardenCode>;
 };
 
 type SingleGoogleServiceAccountSessionInput = {
@@ -11365,18 +11176,6 @@ type UniqueClientViewsSeries = {
   __typename?: 'UniqueClientViewsSeries';
   date?: Maybe<Scalars['Date']['output']>;
   uniqueClientViews?: Maybe<Scalars['Int']['output']>;
-};
-
-type UpdateAdvisorRequestDataInput = {
-  interestedInMetaculus?: InputMaybe<Scalars['Boolean']['input']>;
-  jobAds?: InputMaybe<Scalars['JSON']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type UpdateAdvisorRequestInput = {
-  data: UpdateAdvisorRequestDataInput;
-  selector: SelectorInput;
 };
 
 type UpdateBookDataInput = {

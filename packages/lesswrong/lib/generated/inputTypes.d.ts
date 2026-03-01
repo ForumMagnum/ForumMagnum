@@ -82,8 +82,6 @@ interface Query {
   getSequenceStats: SequenceStats | null;
   reviewPredictionPosts: Array<Post>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
-  advisorRequest: SingleAdvisorRequestOutput | null;
-  advisorRequests: MultiAdvisorRequestOutput | null;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
   arbitalTagContentRels: MultiArbitalTagContentRelOutput | null;
   ban: SingleBanOutput | null;
@@ -130,8 +128,6 @@ interface Query {
   fieldChanges: MultiFieldChangeOutput | null;
   forumEvent: SingleForumEventOutput | null;
   forumEvents: MultiForumEventOutput | null;
-  gardenCode: SingleGardenCodeOutput | null;
-  gardenCodes: MultiGardenCodeOutput | null;
   googleServiceAccountSession: SingleGoogleServiceAccountSessionOutput | null;
   googleServiceAccountSessions: MultiGoogleServiceAccountSessionOutput | null;
   iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
@@ -300,8 +296,6 @@ interface Mutation {
   upscaleReviewWinnerArt: ReviewWinnerArt | null;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
-  createAdvisorRequest: AdvisorRequestOutput | null;
-  updateAdvisorRequest: AdvisorRequestOutput | null;
   createBook: BookOutput | null;
   updateBook: BookOutput | null;
   createChapter: ChapterOutput | null;
@@ -1300,47 +1294,6 @@ interface AdminSendBulkEmailResult {
   batches: number;
   errors: Array<AdminSendBulkEmailError>;
   lastAfterUserId: string | null;
-}
-
-interface AdvisorRequest {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  userId: string | null;
-  user: User | null;
-  interestedInMetaculus: boolean | null;
-  jobAds: any;
-}
-
-interface SingleAdvisorRequestInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleAdvisorRequestOutput {
-  result: AdvisorRequest | null;
-}
-
-interface AdvisorRequestsRequestsByUserInput {
-  userId?: string | null;
-}
-
-interface AdvisorRequestSelector {
-  default: EmptyViewInput | null;
-  requestsByUser: AdvisorRequestsRequestsByUserInput | null;
-}
-
-interface MultiAdvisorRequestInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiAdvisorRequestOutput {
-  results: Array<AdvisorRequest>;
-  totalCount: number | null;
 }
 
 interface ArbitalCaches {
@@ -3048,80 +3001,6 @@ interface MultiForumEventInput {
 
 interface MultiForumEventOutput {
   results: Array<ForumEvent>;
-  totalCount: number | null;
-}
-
-interface GardenCode {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  contents: Revision | null;
-  contents_latest: string | null;
-  pingbacks: any;
-  slug: string;
-  code: string;
-  title: string;
-  userId: string;
-  user: User | null;
-  startTime: Date | null;
-  endTime: Date;
-  fbLink: string | null;
-  type: string;
-  hidden: boolean;
-  deleted: boolean;
-  afOnly: boolean;
-}
-
-interface SingleGardenCodeInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleGardenCodeOutput {
-  result: GardenCode | null;
-}
-
-interface GardenCodeDefaultViewInput {
-  types?: string | null;
-  userId?: string | null;
-  code?: string | null;
-}
-
-interface GardenCodesUsersPrivateGardenCodesInput {
-  types?: string | null;
-  userId?: string | null;
-  code?: string | null;
-}
-
-interface GardenCodesPublicGardenCodesInput {
-  types?: string | null;
-  userId?: string | null;
-  code?: string | null;
-}
-
-interface GardenCodesGardenCodeByCodeInput {
-  types?: string | null;
-  userId?: string | null;
-  code?: string | null;
-}
-
-interface GardenCodeSelector {
-  default: GardenCodeDefaultViewInput | null;
-  usersPrivateGardenCodes: GardenCodesUsersPrivateGardenCodesInput | null;
-  publicGardenCodes: GardenCodesPublicGardenCodesInput | null;
-  gardenCodeByCode: GardenCodesGardenCodeByCodeInput | null;
-}
-
-interface MultiGardenCodeInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiGardenCodeOutput {
-  results: Array<GardenCode>;
   totalCount: number | null;
 }
 
@@ -7672,33 +7551,6 @@ interface YjsDocument {
   createdAt: Date;
 }
 
-interface CreateAdvisorRequestDataInput {
-  legacyData?: any;
-  userId: string;
-  interestedInMetaculus?: boolean | null;
-  jobAds?: any;
-}
-
-interface CreateAdvisorRequestInput {
-  data: CreateAdvisorRequestDataInput;
-}
-
-interface UpdateAdvisorRequestDataInput {
-  legacyData?: any;
-  userId?: string | null;
-  interestedInMetaculus?: boolean | null;
-  jobAds?: any;
-}
-
-interface UpdateAdvisorRequestInput {
-  selector: SelectorInput;
-  data: UpdateAdvisorRequestDataInput;
-}
-
-interface AdvisorRequestOutput {
-  data: AdvisorRequest | null;
-}
-
 interface CreateBookDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
@@ -9978,13 +9830,6 @@ interface GraphQLTypeMap {
   AdminSendTestEmailResult: AdminSendTestEmailResult;
   AdminSendBulkEmailError: AdminSendBulkEmailError;
   AdminSendBulkEmailResult: AdminSendBulkEmailResult;
-  AdvisorRequest: AdvisorRequest;
-  SingleAdvisorRequestInput: SingleAdvisorRequestInput;
-  SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
-  AdvisorRequestsRequestsByUserInput: AdvisorRequestsRequestsByUserInput;
-  AdvisorRequestSelector: AdvisorRequestSelector;
-  MultiAdvisorRequestInput: MultiAdvisorRequestInput;
-  MultiAdvisorRequestOutput: MultiAdvisorRequestOutput;
   ArbitalCaches: ArbitalCaches;
   ArbitalTagContentRel: ArbitalTagContentRel;
   SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
@@ -10203,16 +10048,6 @@ interface GraphQLTypeMap {
   ForumEventSelector: ForumEventSelector;
   MultiForumEventInput: MultiForumEventInput;
   MultiForumEventOutput: MultiForumEventOutput;
-  GardenCode: GardenCode;
-  SingleGardenCodeInput: SingleGardenCodeInput;
-  SingleGardenCodeOutput: SingleGardenCodeOutput;
-  GardenCodeDefaultViewInput: GardenCodeDefaultViewInput;
-  GardenCodesUsersPrivateGardenCodesInput: GardenCodesUsersPrivateGardenCodesInput;
-  GardenCodesPublicGardenCodesInput: GardenCodesPublicGardenCodesInput;
-  GardenCodesGardenCodeByCodeInput: GardenCodesGardenCodeByCodeInput;
-  GardenCodeSelector: GardenCodeSelector;
-  MultiGardenCodeInput: MultiGardenCodeInput;
-  MultiGardenCodeOutput: MultiGardenCodeOutput;
   GoogleServiceAccountSession: GoogleServiceAccountSession;
   SingleGoogleServiceAccountSessionInput: SingleGoogleServiceAccountSessionInput;
   SingleGoogleServiceAccountSessionOutput: SingleGoogleServiceAccountSessionOutput;
@@ -10630,11 +10465,6 @@ interface GraphQLTypeMap {
   MultiVoteInput: MultiVoteInput;
   MultiVoteOutput: MultiVoteOutput;
   YjsDocument: YjsDocument;
-  CreateAdvisorRequestDataInput: CreateAdvisorRequestDataInput;
-  CreateAdvisorRequestInput: CreateAdvisorRequestInput;
-  UpdateAdvisorRequestDataInput: UpdateAdvisorRequestDataInput;
-  UpdateAdvisorRequestInput: UpdateAdvisorRequestInput;
-  AdvisorRequestOutput: AdvisorRequestOutput;
   CreateBookDataInput: CreateBookDataInput;
   CreateBookInput: CreateBookInput;
   UpdateBookDataInput: UpdateBookDataInput;
@@ -10848,7 +10678,6 @@ interface GraphQLTypeMap {
 }
 
 interface CreateInputsByCollectionName {
-  AdvisorRequests: CreateAdvisorRequestInput;
   Books: CreateBookInput;
   Chapters: CreateChapterInput;
   Collections: CreateCollectionInput;
@@ -10909,7 +10738,6 @@ interface CreateInputsByCollectionName {
   EmailTokens: never;
   FeaturedResources: never;
   FieldChanges: never;
-  GardenCodes: never;
   GoogleServiceAccountSessions: never;
   IframeWidgetSrcdocs: never;
   Images: never;
@@ -10945,7 +10773,6 @@ interface CreateInputsByCollectionName {
 }
 
 interface UpdateInputsByCollectionName {
-  AdvisorRequests: UpdateAdvisorRequestInput;
   Books: UpdateBookInput;
   Chapters: UpdateChapterInput;
   Collections: UpdateCollectionInput;
@@ -11003,7 +10830,6 @@ interface UpdateInputsByCollectionName {
   EmailTokens: never;
   FeaturedResources: never;
   FieldChanges: never;
-  GardenCodes: never;
   GoogleServiceAccountSessions: never;
   IframeWidgetSrcdocs: never;
   Images: never;

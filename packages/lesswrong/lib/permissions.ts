@@ -14,7 +14,6 @@ class UserGroup {
 // All users (including logged out)
 export const guestsGroup = new UserGroup('guests', [
   'comments.view',
-  'gardencodes.view',
   'posts.view.approved',
 ]);
 
@@ -27,9 +26,6 @@ export const membersGroup = new UserGroup('members', [
   'users.edit.own',
   'users.remove.own',
 
-  'advisorrequests.view.own',
-  'advisorrequests.new',
-  'advisorrequests.edit.own',
   'bans.view',
   'book.edit.own',
   "chapters.view.own",
@@ -53,10 +49,6 @@ export const membersGroup = new UserGroup('members', [
   'conversations.edit.own',
   'conversations.remove.own',
   'conversations.view.own',
-  'gardencodes.new',
-  'gardencodes.create',
-  'gardencodes.view',
-  'gardencode.update.own',
   'localgroups.new.own',
   'localgroups.edit.own',
   'localgroups.remove.own',

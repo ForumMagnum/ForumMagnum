@@ -1,7 +1,6 @@
 import { isAnyTest, isIntegrationTest } from '@/lib/executionEnvironment';
 
 export const collectionNameToTypeName = {
-  AdvisorRequests: 'AdvisorRequest',
   ArbitalCaches: 'ArbitalCaches',
   ArbitalTagContentRels: 'ArbitalTagContentRel',
   AutomatedContentEvaluations: 'AutomatedContentEvaluation',
@@ -33,7 +32,6 @@ export const collectionNameToTypeName = {
   FeaturedResources: 'FeaturedResource',
   FieldChanges: 'FieldChange',
   ForumEvents: 'ForumEvent',
-  GardenCodes: 'GardenCode',
   GoogleServiceAccountSessions: 'GoogleServiceAccountSession',
   IframeWidgetSrcdocs: 'IframeWidgetSrcdoc',
   Images: 'Images',
@@ -98,7 +96,6 @@ export const collectionNameToTypeName = {
 } as const;
 
 export const typeNameToCollectionName = {
-  AdvisorRequest: 'AdvisorRequests',
   ArbitalCaches: 'ArbitalCaches',
   ArbitalTagContentRel: 'ArbitalTagContentRels',
   AutomatedContentEvaluation: 'AutomatedContentEvaluations',
@@ -130,7 +127,6 @@ export const typeNameToCollectionName = {
   FeaturedResource: 'FeaturedResources',
   FieldChange: 'FieldChanges',
   ForumEvent: 'ForumEvents',
-  GardenCode: 'GardenCodes',
   GoogleServiceAccountSession: 'GoogleServiceAccountSessions',
   IframeWidgetSrcdoc: 'IframeWidgetSrcdocs',
   Images: 'Images',
@@ -195,7 +191,6 @@ export const typeNameToCollectionName = {
 } as const;
 
 export const tableNameToCollectionName = {
-  advisorrequests: 'AdvisorRequests',
   arbitalcaches: 'ArbitalCaches',
   arbitaltagcontentrels: 'ArbitalTagContentRels',
   automatedcontentevaluations: 'AutomatedContentEvaluations',
@@ -227,7 +222,6 @@ export const tableNameToCollectionName = {
   featuredresources: 'FeaturedResources',
   fieldchanges: 'FieldChanges',
   forumevents: 'ForumEvents',
-  gardencodes: 'GardenCodes',
   googleserviceaccountsessions: 'GoogleServiceAccountSessions',
   iframewidgetsrcdocs: 'IframeWidgetSrcdocs',
   images: 'Images',

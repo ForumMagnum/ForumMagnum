@@ -381,7 +381,6 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
-  AdvisorRequests: allowAccess,
   ArbitalCaches: allowAccess,
   ArbitalTagContentRels: allowAccess,
   AutomatedContentEvaluations: automatedContentEvaluationCheckAccess,
@@ -413,7 +412,6 @@ const accessFilters = {
   FeaturedResources: allowAccess,
   FieldChanges: allowAccess,
   ForumEvents: allowAccess,
-  GardenCodes: allowAccess,
   GoogleServiceAccountSessions: allowAccess,
   IframeWidgetSrcdocs: iframeWidgetSrcdocCheckAccess,
   Images: allowAccess,

@@ -1445,52 +1445,6 @@ extend type Mutation {
   adminSendBulkEmail(input: AdminSendBulkEmailInput!): AdminSendBulkEmailResult!
 }
 
-type AdvisorRequest {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  userId: String
-  user: User
-  interestedInMetaculus: Boolean
-  jobAds: JSON
-}
-
-input SingleAdvisorRequestInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleAdvisorRequestOutput {
-  result: AdvisorRequest
-}
-
-input AdvisorRequestsRequestsByUserInput {
-  userId: String
-}
-
-input AdvisorRequestSelector {
-  default: EmptyViewInput
-  requestsByUser: AdvisorRequestsRequestsByUserInput
-}
-
-input MultiAdvisorRequestInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiAdvisorRequestOutput {
-  results: [AdvisorRequest!]!
-  totalCount: Int
-}
-
-extend type Query {
-  advisorRequest(input: SingleAdvisorRequestInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleAdvisorRequestOutput
-  advisorRequests(input: MultiAdvisorRequestInput @deprecated(reason: "Use the selector field instead"), selector: AdvisorRequestSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiAdvisorRequestOutput
-}
-
 type ArbitalCaches {
   _id: String!
   schemaVersion: Float!
@@ -3339,85 +3293,6 @@ type MultiForumEventOutput {
 extend type Query {
   forumEvent(input: SingleForumEventInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleForumEventOutput
   forumEvents(input: MultiForumEventInput @deprecated(reason: "Use the selector field instead"), selector: ForumEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiForumEventOutput
-}
-
-type GardenCode {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  contents(version: String): Revision
-  contents_latest: String
-  pingbacks: JSON
-  slug: String!
-  code: String!
-  title: String!
-  userId: String!
-  user: User
-  startTime: Date
-  endTime: Date!
-  fbLink: String
-  type: String!
-  hidden: Boolean!
-  deleted: Boolean!
-  afOnly: Boolean!
-}
-
-input SingleGardenCodeInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleGardenCodeOutput {
-  result: GardenCode
-}
-
-input GardenCodeDefaultViewInput {
-  types: String
-  userId: String
-  code: String
-}
-
-input GardenCodesUsersPrivateGardenCodesInput {
-  types: String
-  userId: String
-  code: String
-}
-
-input GardenCodesPublicGardenCodesInput {
-  types: String
-  userId: String
-  code: String
-}
-
-input GardenCodesGardenCodeByCodeInput {
-  types: String
-  userId: String
-  code: String
-}
-
-input GardenCodeSelector {
-  default: GardenCodeDefaultViewInput
-  usersPrivateGardenCodes: GardenCodesUsersPrivateGardenCodesInput
-  publicGardenCodes: GardenCodesPublicGardenCodesInput
-  gardenCodeByCode: GardenCodesGardenCodeByCodeInput
-}
-
-input MultiGardenCodeInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiGardenCodeOutput {
-  results: [GardenCode!]!
-  totalCount: Int
-}
-
-extend type Query {
-  gardenCode(input: SingleGardenCodeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleGardenCodeOutput
-  gardenCodes(input: MultiGardenCodeInput @deprecated(reason: "Use the selector field instead"), selector: GardenCodeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGardenCodeOutput
 }
 
 type GoogleServiceAccountSession {
@@ -8318,38 +8193,6 @@ extend type Query {
 type YjsDocument {
   _id: String!
   createdAt: Date!
-}
-
-input CreateAdvisorRequestDataInput {
-  legacyData: JSON
-  userId: String!
-  interestedInMetaculus: Boolean
-  jobAds: JSON
-}
-
-input CreateAdvisorRequestInput {
-  data: CreateAdvisorRequestDataInput!
-}
-
-input UpdateAdvisorRequestDataInput {
-  legacyData: JSON
-  userId: String
-  interestedInMetaculus: Boolean
-  jobAds: JSON
-}
-
-input UpdateAdvisorRequestInput {
-  selector: SelectorInput!
-  data: UpdateAdvisorRequestDataInput!
-}
-
-type AdvisorRequestOutput {
-  data: AdvisorRequest
-}
-
-extend type Mutation {
-  createAdvisorRequest(data: CreateAdvisorRequestDataInput!): AdvisorRequestOutput
-  updateAdvisorRequest(selector: SelectorInput!, data: UpdateAdvisorRequestDataInput!): AdvisorRequestOutput
 }
 
 input CreateBookDataInput {

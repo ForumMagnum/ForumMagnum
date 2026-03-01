@@ -273,7 +273,6 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   // DO NOT transfer LWEvents, there are way too many and they're probably not important after the fact
   // await transferCollection({sourceUserId, targetUserId, collectionName: "LWEvents"})
 
-  // Do not transfer gardencodes, they aren't in use
   // We don't transfer revisions because that's handled by transferEditableField
 
   // Transfer bans

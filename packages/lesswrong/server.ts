@@ -61,7 +61,6 @@ import './server/callbacks/multiDocumentCallbacks';
 
 import './server/callbacks/conversationCallbacks';
 import './server/callbacks/localgroupCallbacks';
-import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/resolvers/notificationResolvers';
 import './server/resolvers/conversationResolvers';

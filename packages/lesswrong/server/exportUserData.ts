@@ -28,7 +28,6 @@ import CurationEmails from "@/server/collections/curationEmails/collection";
 import DialogueChecks from "@/server/collections/dialogueChecks/collection";
 import ElectionVotes from "@/server/collections/electionVotes/collection";
 import ElicitQuestionPredictions from "@/server/collections/elicitQuestionPredictions/collection";
-import GardenCodes from "@/server/collections/gardencodes/collection";
 import GoogleServiceAccountSessions from "@/server/collections/googleServiceAccountSessions/collection";
 import { LWEvents } from "@/server/collections/lwevents/collection.ts";
 import PostRecommendations from "@/server/collections/postRecommendations/collection";
@@ -75,7 +74,6 @@ export const exportUserData = async (
     [Conversations, Conversations.find({participantIds: userId})],
     [CurationEmails, CurationEmails.find({userId})],
     [DialogueChecks, DialogueChecks.find({userId})],
-    [GardenCodes, GardenCodes.find({userId})],
     [GoogleServiceAccountSessions, GoogleServiceAccountSessions.find({email})],
     [ElectionVotes, ElectionVotes.find({userId})],
     [ElicitQuestionPredictions, ElicitQuestionPredictions.find({userId})],

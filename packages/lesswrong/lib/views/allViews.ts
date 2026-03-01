@@ -5,7 +5,6 @@
 import { CollectionViewSet } from './collectionViewSet';
 
 // Collection imports
-import { AdvisorRequestsViews } from '../collections/advisorRequests/views';
 import { BookmarksViews } from '../collections/bookmarks/views';
 import { ChaptersViews } from '../collections/chapters/views';
 import { ClientIdsViews } from '../collections/clientIds/views';
@@ -22,7 +21,6 @@ import { ElectionVotesViews } from '../collections/electionVotes/views';
 import { FeaturedResourcesViews } from '../collections/featuredResources/views';
 import { FieldChangesViews } from '../collections/fieldChanges/views';
 import { ForumEventsViews } from '../collections/forumEvents/views';
-import { GardenCodesViews } from '../collections/gardencodes/views';
 import { GoogleServiceAccountSessionsViews } from '../collections/googleServiceAccountSessions/views';
 import { IframeWidgetSrcdocsViews } from '../collections/iframeWidgetSrcdocs/views';
 import { JargonTermsViews } from '../collections/jargonTerms/views';
@@ -63,7 +61,6 @@ import { VotesViews } from '../collections/votes/views';
 import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 
 export const allViews = {
-  AdvisorRequests: AdvisorRequestsViews,
   ArbitalCaches: new CollectionViewSet('ArbitalCaches', {}),
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),
   AutomatedContentEvaluations: new CollectionViewSet('AutomatedContentEvaluations', {}),
@@ -95,7 +92,6 @@ export const allViews = {
   FeaturedResources: FeaturedResourcesViews,
   FieldChanges: FieldChangesViews,
   ForumEvents: ForumEventsViews,
-  GardenCodes: GardenCodesViews,
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViews,
   IframeWidgetSrcdocs: IframeWidgetSrcdocsViews,
   Images: new CollectionViewSet('Images', {}),

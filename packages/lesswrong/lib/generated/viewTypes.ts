@@ -1,4 +1,3 @@
-type AdvisorRequestsViewName = "requestsByUser";
 type ArbitalCachesViewName = never
 type ArbitalTagContentRelsViewName = never
 type AutomatedContentEvaluationsViewName = never
@@ -30,7 +29,6 @@ type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
 type FieldChangesViewName = never
 type ForumEventsViewName = "currentAndRecentForumEvents"|"currentForumEvent"|"pastForumEvents"|"upcomingForumEvents";
-type GardenCodesViewName = "gardenCodeByCode"|"publicGardenCodes"|"usersPrivateGardenCodes";
 type GoogleServiceAccountSessionsViewName = never
 type IframeWidgetSrcdocsViewName = never
 type ImagesViewName = never
@@ -94,7 +92,6 @@ type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 type YjsDocumentsViewName = never
 
 interface ViewTermsByCollectionName {
-  AdvisorRequests: AdvisorRequestsViewTerms
   ArbitalCaches: ViewTermsBase
   ArbitalTagContentRels: ViewTermsBase
   AutomatedContentEvaluations: ViewTermsBase
@@ -126,7 +123,6 @@ interface ViewTermsByCollectionName {
   FeaturedResources: FeaturedResourcesViewTerms
   FieldChanges: ViewTermsBase
   ForumEvents: ForumEventsViewTerms
-  GardenCodes: GardenCodesViewTerms
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViewTerms
   IframeWidgetSrcdocs: ViewTermsBase
   Images: ViewTermsBase
@@ -191,4 +187,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

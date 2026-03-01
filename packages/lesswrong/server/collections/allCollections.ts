@@ -7,7 +7,6 @@ import sortBy from 'lodash/sortBy';
 import type PgCollection from '../sql/PgCollection';
 
 // Collection imports
-import { AdvisorRequests } from './advisorRequests/collection';
 import { ArbitalCaches } from './arbitalCache/collection';
 import { ArbitalTagContentRels } from './arbitalTagContentRels/collection';
 import { AutomatedContentEvaluations } from './automatedContentEvaluations/collection';
@@ -39,7 +38,6 @@ import { EmailTokens } from './emailTokens/collection';
 import { FeaturedResources } from './featuredResources/collection';
 import { FieldChanges } from './fieldChanges/collection';
 import { ForumEvents } from './forumEvents/collection';
-import { GardenCodes } from './gardencodes/collection';
 import { GoogleServiceAccountSessions } from './googleServiceAccountSessions/collection';
 import { IframeWidgetSrcdocs } from './iframeWidgetSrcdocs/collection';
 import { Images } from './images/collection';
@@ -119,10 +117,10 @@ function getTestCollectionsByTypeName() {
 
 // TODO: maybe put this behind a proxy like `getAllRepos` for performance?
 const allCollections = {
-  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
+  ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
   DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
-  FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
+  FieldChanges, ForumEvents, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,

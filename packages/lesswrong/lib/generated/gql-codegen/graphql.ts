@@ -90,32 +90,6 @@ export type AdminSendTestEmailResult = {
   unsubscribeUrl: Scalars['String']['output'];
 };
 
-export type AdvisorRequest = {
-  __typename?: 'AdvisorRequest';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  interestedInMetaculus: Maybe<Scalars['Boolean']['output']>;
-  jobAds: Maybe<Scalars['JSON']['output']>;
-  legacyData: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  user: Maybe<User>;
-  userId: Maybe<Scalars['String']['output']>;
-};
-
-export type AdvisorRequestOutput = {
-  __typename?: 'AdvisorRequestOutput';
-  data: Maybe<AdvisorRequest>;
-};
-
-export type AdvisorRequestSelector = {
-  default?: InputMaybe<EmptyViewInput>;
-  requestsByUser?: InputMaybe<AdvisorRequestsRequestsByUserInput>;
-};
-
-export type AdvisorRequestsRequestsByUserInput = {
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type AirtableLeaderboardResult = {
   __typename?: 'AirtableLeaderboardResult';
   leaderboardAmount: Maybe<Scalars['Int']['output']>;
@@ -1164,17 +1138,6 @@ export type ConversationsUserGroupUntitledConversationsInput = {
   moderator?: InputMaybe<Scalars['String']['input']>;
   participantIds?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CreateAdvisorRequestDataInput = {
-  interestedInMetaculus?: InputMaybe<Scalars['Boolean']['input']>;
-  jobAds?: InputMaybe<Scalars['JSON']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  userId: Scalars['String']['input'];
-};
-
-export type CreateAdvisorRequestInput = {
-  data: CreateAdvisorRequestDataInput;
 };
 
 export type CreateBookDataInput = {
@@ -2788,65 +2751,6 @@ export type FrontpageClassification = {
   probability: Scalars['Float']['output'];
 };
 
-export type GardenCode = {
-  __typename?: 'GardenCode';
-  _id: Scalars['String']['output'];
-  afOnly: Scalars['Boolean']['output'];
-  code: Scalars['String']['output'];
-  contents: Maybe<Revision>;
-  contents_latest: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['Date']['output'];
-  deleted: Scalars['Boolean']['output'];
-  endTime: Scalars['Date']['output'];
-  fbLink: Maybe<Scalars['String']['output']>;
-  hidden: Scalars['Boolean']['output'];
-  legacyData: Maybe<Scalars['JSON']['output']>;
-  pingbacks: Maybe<Scalars['JSON']['output']>;
-  schemaVersion: Scalars['Float']['output'];
-  slug: Scalars['String']['output'];
-  startTime: Maybe<Scalars['Date']['output']>;
-  title: Scalars['String']['output'];
-  type: Scalars['String']['output'];
-  user: Maybe<User>;
-  userId: Scalars['String']['output'];
-};
-
-
-export type GardenCodecontentsArgs = {
-  version?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type GardenCodeDefaultViewInput = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  types?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type GardenCodeSelector = {
-  default?: InputMaybe<GardenCodeDefaultViewInput>;
-  gardenCodeByCode?: InputMaybe<GardenCodesGardenCodeByCodeInput>;
-  publicGardenCodes?: InputMaybe<GardenCodesPublicGardenCodesInput>;
-  usersPrivateGardenCodes?: InputMaybe<GardenCodesUsersPrivateGardenCodesInput>;
-};
-
-export type GardenCodesGardenCodeByCodeInput = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  types?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type GardenCodesPublicGardenCodesInput = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  types?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type GardenCodesUsersPrivateGardenCodesInput = {
-  code?: InputMaybe<Scalars['String']['input']>;
-  types?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type GivingSeasonHeart = {
   __typename?: 'GivingSeasonHeart';
   displayName: Scalars['String']['output'];
@@ -3418,19 +3322,6 @@ export type ModeratorIPAddressInfo = {
   userIds: Array<Scalars['String']['output']>;
 };
 
-export type MultiAdvisorRequestInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiAdvisorRequestOutput = {
-  __typename?: 'MultiAdvisorRequestOutput';
-  results: Array<AdvisorRequest>;
-  totalCount: Maybe<Scalars['Int']['output']>;
-};
-
 export type MultiArbitalTagContentRelInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3827,19 +3718,6 @@ export type MultiForumEventInput = {
 export type MultiForumEventOutput = {
   __typename?: 'MultiForumEventOutput';
   results: Array<ForumEvent>;
-  totalCount: Maybe<Scalars['Int']['output']>;
-};
-
-export type MultiGardenCodeInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiGardenCodeOutput = {
-  __typename?: 'MultiGardenCodeOutput';
-  results: Array<GardenCode>;
   totalCount: Maybe<Scalars['Int']['output']>;
 };
 
@@ -4413,7 +4291,6 @@ export type Mutation = {
   autosaveRevision: Maybe<Revision>;
   clickRecommendation: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter: Maybe<Scalars['String']['output']>;
-  createAdvisorRequest: Maybe<AdvisorRequestOutput>;
   createBook: Maybe<BookOutput>;
   createChapter: Maybe<ChapterOutput>;
   createCollection: Maybe<CollectionOutput>;
@@ -4510,7 +4387,6 @@ export type Mutation = {
   unlistLlmPost: Scalars['Boolean']['output'];
   unlockPost: Maybe<Post>;
   unlockThread: Scalars['Boolean']['output'];
-  updateAdvisorRequest: Maybe<AdvisorRequestOutput>;
   updateBook: Maybe<BookOutput>;
   updateChapter: Maybe<ChapterOutput>;
   updateCollection: Maybe<CollectionOutput>;
@@ -4686,11 +4562,6 @@ export type MutationclickRecommendationArgs = {
 
 export type MutationconnectCrossposterArgs = {
   token?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationcreateAdvisorRequestArgs = {
-  data: CreateAdvisorRequestDataInput;
 };
 
 
@@ -5237,12 +5108,6 @@ export type MutationunlockPostArgs = {
 
 export type MutationunlockThreadArgs = {
   commentId: Scalars['String']['input'];
-};
-
-
-export type MutationupdateAdvisorRequestArgs = {
-  data: UpdateAdvisorRequestDataInput;
-  selector: SelectorInput;
 };
 
 
@@ -7806,8 +7671,6 @@ export type Query = {
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   UsersReadPostsOfTargetUser: Maybe<Array<Post>>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
-  advisorRequest: Maybe<SingleAdvisorRequestOutput>;
-  advisorRequests: Maybe<MultiAdvisorRequestOutput>;
   arbitalTagContentRel: Maybe<SingleArbitalTagContentRelOutput>;
   arbitalTagContentRels: Maybe<MultiArbitalTagContentRelOutput>;
   ban: Maybe<SingleBanOutput>;
@@ -7857,8 +7720,6 @@ export type Query = {
   fieldChanges: Maybe<MultiFieldChangeOutput>;
   forumEvent: Maybe<SingleForumEventOutput>;
   forumEvents: Maybe<MultiForumEventOutput>;
-  gardenCode: Maybe<SingleGardenCodeOutput>;
-  gardenCodes: Maybe<MultiGardenCodeOutput>;
   getBookWordCount: Maybe<Scalars['Float']['output']>;
   getCrosspost: Maybe<Scalars['JSON']['output']>;
   getLinkSharedPost: Maybe<Post>;
@@ -8290,21 +8151,6 @@ export type QueryadminEmailPreviewAudienceArgs = {
 };
 
 
-export type QueryadvisorRequestArgs = {
-  input?: InputMaybe<SingleAdvisorRequestInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-export type QueryadvisorRequestsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiAdvisorRequestInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<AdvisorRequestSelector>;
-};
-
-
 export type QueryarbitalTagContentRelArgs = {
   input?: InputMaybe<SingleArbitalTagContentRelInput>;
   selector?: InputMaybe<SelectorInput>;
@@ -8654,21 +8500,6 @@ export type QueryforumEventsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ForumEventSelector>;
-};
-
-
-export type QuerygardenCodeArgs = {
-  input?: InputMaybe<SingleGardenCodeInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-export type QuerygardenCodesArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiGardenCodeInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<GardenCodeSelector>;
 };
 
 
@@ -9867,16 +9698,6 @@ export type SideCommentCache = {
   version: Maybe<Scalars['Float']['output']>;
 };
 
-export type SingleAdvisorRequestInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SingleAdvisorRequestOutput = {
-  __typename?: 'SingleAdvisorRequestOutput';
-  result: Maybe<AdvisorRequest>;
-};
-
 export type SingleArbitalTagContentRelInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -10107,16 +9928,6 @@ export type SingleForumEventInput = {
 export type SingleForumEventOutput = {
   __typename?: 'SingleForumEventOutput';
   result: Maybe<ForumEvent>;
-};
-
-export type SingleGardenCodeInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SingleGardenCodeOutput = {
-  __typename?: 'SingleGardenCodeOutput';
-  result: Maybe<GardenCode>;
 };
 
 export type SingleGoogleServiceAccountSessionInput = {
@@ -11368,18 +11179,6 @@ export type UniqueClientViewsSeries = {
   __typename?: 'UniqueClientViewsSeries';
   date: Maybe<Scalars['Date']['output']>;
   uniqueClientViews: Maybe<Scalars['Int']['output']>;
-};
-
-export type UpdateAdvisorRequestDataInput = {
-  interestedInMetaculus?: InputMaybe<Scalars['Boolean']['input']>;
-  jobAds?: InputMaybe<Scalars['JSON']['input']>;
-  legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type UpdateAdvisorRequestInput = {
-  data: UpdateAdvisorRequestDataInput;
-  selector: SelectorInput;
 };
 
 export type UpdateBookDataInput = {

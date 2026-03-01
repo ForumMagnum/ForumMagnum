@@ -70,7 +70,6 @@ import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from 
 import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
 
 // Collection imports
-import { graphqlAdvisorRequestQueryTypeDefs, advisorRequestGqlQueryHandlers, advisorRequestGqlFieldResolvers } from "@/server/collections/advisorRequests/queries";
 import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } from "@/server/collections/arbitalCache/queries";
 import { graphqlArbitalTagContentRelQueryTypeDefs, arbitalTagContentRelGqlQueryHandlers, arbitalTagContentRelGqlFieldResolvers } from "@/server/collections/arbitalTagContentRels/queries";
 import { graphqlAutomatedContentEvaluationQueryTypeDefs, automatedContentEvaluationGqlFieldResolvers } from "@/server/collections/automatedContentEvaluations/queries";
@@ -102,7 +101,6 @@ import { graphqlEmailTokensQueryTypeDefs, emailTokensGqlFieldResolvers } from "@
 import { graphqlFeaturedResourceQueryTypeDefs, featuredResourceGqlQueryHandlers, featuredResourceGqlFieldResolvers } from "@/server/collections/featuredResources/queries";
 import { graphqlFieldChangeQueryTypeDefs, fieldChangeGqlFieldResolvers } from "@/server/collections/fieldChanges/queries";
 import { graphqlForumEventQueryTypeDefs, forumEventGqlQueryHandlers, forumEventGqlFieldResolvers } from "@/server/collections/forumEvents/queries";
-import { graphqlGardencodeQueryTypeDefs, gardencodeGqlQueryHandlers, gardencodeGqlFieldResolvers } from "@/server/collections/gardencodes/queries";
 import { graphqlGoogleServiceAccountSessionQueryTypeDefs, googleServiceAccountSessionGqlQueryHandlers, googleServiceAccountSessionGqlFieldResolvers } from "@/server/collections/googleServiceAccountSessions/queries";
 import { graphqlIframeWidgetSrcdocQueryTypeDefs, iframeWidgetSrcdocGqlQueryHandlers, iframeWidgetSrcdocGqlFieldResolvers } from "@/server/collections/iframeWidgetSrcdocs/queries";
 import { graphqlImagesQueryTypeDefs, imagesGqlFieldResolvers } from "@/server/collections/images/queries";
@@ -158,7 +156,6 @@ import { graphqlUserRateLimitQueryTypeDefs, userRateLimitGqlQueryHandlers, userR
 import { graphqlUserTagRelQueryTypeDefs, userTagRelGqlQueryHandlers, userTagRelGqlFieldResolvers } from "@/server/collections/userTagRels/queries";
 import { graphqlUserQueryTypeDefs, userGqlQueryHandlers, userGqlFieldResolvers } from "@/server/collections/users/queries";
 import { graphqlVoteQueryTypeDefs, voteGqlQueryHandlers, voteGqlFieldResolvers } from "@/server/collections/votes/queries";
-import { createAdvisorRequestGqlMutation, updateAdvisorRequestGqlMutation, graphqlAdvisorRequestTypeDefs } from "@/server/collections/advisorRequests/mutations";
 import { bookmarkGqlTypeDefs, bookmarkGqlMutations } from '@/server/collections/bookmarks/mutations';
 import { createBookGqlMutation, updateBookGqlMutation, graphqlBookTypeDefs } from "@/server/collections/books/mutations";
 import { createChapterGqlMutation, updateChapterGqlMutation, graphqlChapterTypeDefs } from "@/server/collections/chapters/mutations";
@@ -324,7 +321,6 @@ export const getTypeDefs = () => gql`
   ${reviewPredictionGraphQLTypeDefs}
   ${adminEmailSenderGraphQLTypeDefs}
   ## CRUD Query typedefs
-  ${graphqlAdvisorRequestQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
   ${graphqlArbitalTagContentRelQueryTypeDefs}
   ${graphqlAutomatedContentEvaluationQueryTypeDefs}
@@ -356,7 +352,6 @@ export const getTypeDefs = () => gql`
   ${graphqlFeaturedResourceQueryTypeDefs}
   ${graphqlFieldChangeQueryTypeDefs}
   ${graphqlForumEventQueryTypeDefs}
-  ${graphqlGardencodeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlIframeWidgetSrcdocQueryTypeDefs}
   ${graphqlImagesQueryTypeDefs}
@@ -414,7 +409,6 @@ export const getTypeDefs = () => gql`
   ${graphqlVoteQueryTypeDefs}
   ${graphqlYjsDocumentQueryTypeDefs}
   ## CRUD Mutation and input typedefs
-  ${graphqlAdvisorRequestTypeDefs}
   ${graphqlBookTypeDefs}
   ${graphqlChapterTypeDefs}
   ${graphqlCollectionTypeDefs}
@@ -509,7 +503,6 @@ const getResolvers = () => ({
     ...adminEmailSenderGraphQLQueries,
 
     // CRUD Query Handlers
-    ...advisorRequestGqlQueryHandlers,
     ...arbitalTagContentRelGqlQueryHandlers,
     ...banGqlQueryHandlers,
     ...bookGqlQueryHandlers,
@@ -531,7 +524,6 @@ const getResolvers = () => ({
     ...elicitQuestionGqlQueryHandlers,
     ...featuredResourceGqlQueryHandlers,
     ...forumEventGqlQueryHandlers,
-    ...gardencodeGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
     ...iframeWidgetSrcdocGqlQueryHandlers,
     ...jargonTermGqlQueryHandlers,
@@ -622,8 +614,6 @@ const getResolvers = () => ({
     ...adminEmailSenderGraphQLMutations,
 
     // CRUD Mutation Handlers
-    createAdvisorRequest: createAdvisorRequestGqlMutation,
-    updateAdvisorRequest: updateAdvisorRequestGqlMutation,
     createBook: createBookGqlMutation,
     updateBook: updateBookGqlMutation,
     createChapter: createChapterGqlMutation,
@@ -710,7 +700,6 @@ const getResolvers = () => ({
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
   // Collection Field Resolvers
-  ...advisorRequestGqlFieldResolvers,
   ...arbitalCachesGqlFieldResolvers,
   ...arbitalTagContentRelGqlFieldResolvers,
   ...automatedContentEvaluationGqlFieldResolvers,
@@ -742,7 +731,6 @@ const getResolvers = () => ({
   ...featuredResourceGqlFieldResolvers,
   ...fieldChangeGqlFieldResolvers,
   ...forumEventGqlFieldResolvers,
-  ...gardencodeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...iframeWidgetSrcdocGqlFieldResolvers,
   ...imagesGqlFieldResolvers,
