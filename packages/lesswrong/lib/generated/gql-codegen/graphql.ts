@@ -13514,6 +13514,14 @@ export type MarkdownUserProfileRecentCommentsQueryVariables = Exact<{
 
 export type MarkdownUserProfileRecentCommentsQuery = { __typename?: 'Query', comments: { __typename?: 'MultiCommentOutput', results: Array<{ __typename?: 'Comment', _id: string, postedAt: string, baseScore: number | null, voteCount: number, parentCommentId: string | null, user: { __typename?: 'User', slug: string, displayName: string } | null, post: { __typename?: 'Post', _id: string, slug: string, title: string } | null, contents: { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string } | null }> } | null };
 
+export type HocuspocusAuthQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type HocuspocusAuthQueryQuery = { __typename?: 'Query', HocuspocusAuth: { __typename?: 'HocuspocusAuth', token: string } | null };
+
 export type McpPostMetadataQueryVariables = Exact<{
   _id: Scalars['String']['input'];
 }>;
@@ -15216,14 +15224,6 @@ export type autosaveRevisionMutation = { __typename?: 'Mutation', autosaveRevisi
     { __typename?: 'Revision' }
     & RevisionEdit
   ) | null };
-
-export type HocuspocusAuthQueryQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-  linkSharingKey?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type HocuspocusAuthQueryQuery = { __typename?: 'Query', HocuspocusAuth: { __typename?: 'HocuspocusAuth', token: string } | null };
 
 export type LinkSharingQueryQueryVariables = Exact<{
   postId: Scalars['String']['input'];

@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
 import { z } from "zod";
 import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
@@ -12,6 +13,7 @@ import { deleteMarkdownBlock } from "../agent/deleteBlock/route";
 import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
 import { getHocuspocusToken } from "../agent/getHocuspocusToken";
 import { deriveAgentAuthor } from "../agent/editorAgentUtil";
+import { createSuggestionThreadInCommentsDoc } from "../agent/suggestionThreads";
 import { gql } from "@/lib/generated/gql-codegen";
 import {
   commentOnDraftToolSchema,
@@ -19,6 +21,7 @@ import {
   insertBlockToolSchema,
   replaceTextToolSchema,
   replaceWidgetToolSchema,
+  validateReplaceWidgetExclusivity,
 } from "../agent/toolSchemas";
 
 const PostMetadataQuery = gql(`
@@ -33,26 +36,39 @@ const PostMetadataQuery = gql(`
   }
 `);
 
-interface AuthExtra {
-  authInfo?: {
-    token: string;
-    /** OAuth client_id associated with the bearer token (not our cookie-based internal clientId). */
-    clientId: string;
-    scopes: string[];
-    expiresAt?: number;
-    extra?: Record<string, unknown>;
-  };
-}
+const REQUIRED_SCOPE = "lesswrong:access";
 
-function getBearerToken(extra: AuthExtra): string {
-  if (!extra.authInfo?.token) {
+const TOOL_REQUIRED_SCOPES: Record<string, string[]> = {
+  read_post: [REQUIRED_SCOPE],
+  comment_on_draft: [REQUIRED_SCOPE],
+  replace_text: [REQUIRED_SCOPE],
+  replace_widget: [REQUIRED_SCOPE],
+  delete_block: [REQUIRED_SCOPE],
+  insert_block: [REQUIRED_SCOPE],
+};
+
+function getBearerToken(authInfo: AuthInfo | undefined): string {
+  if (!authInfo?.token) {
     throw new OAuthError("invalid_token", "No access token provided");
   }
-  return extra.authInfo.token;
+  return authInfo.token;
 }
 
-async function contextFromAuth(extra: AuthExtra): Promise<ResolverContext> {
-  const bearerToken = getBearerToken(extra);
+function assertToolScopes(toolName: string, authInfo: AuthInfo | undefined): void {
+  const required = TOOL_REQUIRED_SCOPES[toolName];
+  if (!required || required.length === 0) {
+    return;
+  }
+  const granted = authInfo?.scopes ?? [];
+  for (const scope of required) {
+    if (!granted.includes(scope)) {
+      throw new OAuthError("insufficient_scope", `Token lacks required scope: ${scope}`);
+    }
+  }
+}
+
+async function contextFromAuth(authInfo: AuthInfo | undefined): Promise<ResolverContext> {
+  const bearerToken = getBearerToken(authInfo);
   const { userId } = await validateAccessToken(bearerToken);
   const user = await Users.findOne({ _id: userId });
   return computeContextFromUser({ user: user ?? null, isSSR: false });
@@ -98,7 +114,8 @@ function createMcpServer(): McpServer {
       },
     },
     async (args, extra) => {
-      const context = await contextFromAuth(extra);
+      assertToolScopes("read_post", extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo);
       if (args.version && args.version !== "draft") {
         return {
           content: [{
@@ -142,7 +159,8 @@ function createMcpServer(): McpServer {
       },
     },
     async (args, extra) => {
-      const context = await contextFromAuth(extra);
+      assertToolScopes("comment_on_draft", extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo);
       const token = await getHocuspocusToken(context, args.postId, args.key);
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
@@ -175,7 +193,8 @@ function createMcpServer(): McpServer {
       },
     },
     async (args, extra) => {
-      const context = await contextFromAuth(extra);
+      assertToolScopes("replace_text", extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo);
       const token = await getHocuspocusToken(context, args.postId, args.key);
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
@@ -207,22 +226,17 @@ function createMcpServer(): McpServer {
       },
     },
     async (args, extra) => {
-      const context = await contextFromAuth(extra);
+      assertToolScopes("replace_widget", extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo);
       const token = await getHocuspocusToken(context, args.postId, args.key);
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
       }
       const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
 
-      const operationCount = (args.replacement ? 1 : 0) + (args.unifiedDiff ? 1 : 0);
-      if (operationCount !== 1) {
-        return {
-          content: [{
-            type: "text" as const,
-            text: "Provide exactly one of replacement or unifiedDiff.",
-          }],
-          isError: true,
-        };
+      const exclusivityError = validateReplaceWidgetExclusivity(args);
+      if (exclusivityError) {
+        return toolError(exclusivityError);
       }
 
       const result = await replaceWidgetInMainDoc({
@@ -251,16 +265,32 @@ function createMcpServer(): McpServer {
       },
     },
     async (args, extra) => {
-      const context = await contextFromAuth(extra);
+      assertToolScopes("delete_block", extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo);
       const token = await getHocuspocusToken(context, args.postId, args.key);
       if (!token) {
         return toolError("Unauthorized to access this post's draft");
       }
+      const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
 
       const result = await deleteMarkdownBlock({
         ...args,
         token,
       });
+
+      if (args.mode === "suggest" && result.deleted && result.suggestionId) {
+        await createSuggestionThreadInCommentsDoc({
+          postId: args.postId,
+          token,
+          suggestionId: result.suggestionId,
+          authorName,
+          authorId,
+          summaryItems: [{
+            type: "delete",
+            content: args.prefix,
+          }],
+        });
+      }
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },
@@ -277,7 +307,8 @@ function createMcpServer(): McpServer {
       },
     },
     async (args, extra) => {
-      const context = await contextFromAuth(extra);
+      assertToolScopes("insert_block", extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo);
       const token = await getHocuspocusToken(context, args.postId, args.key);
       if (!token) {
         return toolError("Unauthorized to access this post's draft");

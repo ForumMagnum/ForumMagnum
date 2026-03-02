@@ -41,8 +41,20 @@ export const replaceWidgetToolSchema = z.object({
   mode: modeSchema,
 });
 
+/**
+ * Validates that exactly one of `replacement` or `unifiedDiff` is provided.
+ * Returns an error message string if validation fails, or null if valid.
+ */
+export function validateReplaceWidgetExclusivity(value: { replacement?: string, unifiedDiff?: string }): string | null {
+  const operationCount = (value.replacement ? 1 : 0) + (value.unifiedDiff ? 1 : 0);
+  if (operationCount !== 1) {
+    return "Provide exactly one of replacement or unifiedDiff.";
+  }
+  return null;
+}
+
 export const replaceWidgetRouteSchema = replaceWidgetToolSchema.refine((value: { replacement?: string, unifiedDiff?: string }) => {
-  return (value.replacement ? 1 : 0) + (value.unifiedDiff ? 1 : 0) === 1;
+  return validateReplaceWidgetExclusivity(value) === null;
 }, {
   message: "Provide exactly one of replacement or unifiedDiff",
   path: ["replacement"],
@@ -60,6 +72,7 @@ export const insertBlockToolSchema = z.object({
 export const deleteBlockToolSchema = z.object({
   postId: z.string().describe("The ID of the post"),
   key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  agentName: z.string().optional().describe("Name to attribute suggestion threads to"),
   prefix: z.string().describe("Delete the first block whose markdown starts with this text"),
   mode: modeSchema,
 });

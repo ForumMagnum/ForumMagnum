@@ -3,8 +3,9 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { sleep, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
+import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 
@@ -15,6 +16,7 @@ interface DeleteBlockResult {
   deleted: boolean
   note: string
   deletionIndex?: number
+  suggestionId?: string
 }
 
 function paragraphMarkdownStartsWith(paragraphMarkdown: string, prefix: string): boolean {
@@ -121,6 +123,7 @@ export async function deleteMarkdownBlock({
             deleted: true,
             note: "Marked markdown block as a deletion suggestion.",
             deletionIndex,
+            suggestionId,
           };
         }, { onUpdate: resolve });
       });
@@ -144,7 +147,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
-  const { postId, key, mode, prefix } = parseResult.data;
+  const { postId, key, agentName, mode, prefix } = parseResult.data;
 
   try {
     const token = await getHocuspocusToken(context, postId, key);
@@ -158,6 +161,21 @@ export async function POST(req: NextRequest) {
       mode,
       prefix,
     });
+
+    if (mode === "suggest" && deleteResult.deleted && deleteResult.suggestionId) {
+      const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
+      await createSuggestionThreadInCommentsDoc({
+        postId,
+        token,
+        suggestionId: deleteResult.suggestionId,
+        authorName,
+        authorId,
+        summaryItems: [{
+          type: "delete",
+          content: prefix,
+        }],
+      });
+    }
 
     return NextResponse.json({
       ok: true,
