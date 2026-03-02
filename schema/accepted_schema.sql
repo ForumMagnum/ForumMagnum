@@ -1360,7 +1360,8 @@ CREATE TABLE "OAuthAccessTokens" (
   "userId" VARCHAR(27) NOT NULL,
   "scope" TEXT NOT NULL,
   "expiresAt" TIMESTAMPTZ NOT NULL,
-  "revokedAt" TIMESTAMPTZ
+  "revokedAt" TIMESTAMPTZ,
+  "resource" TEXT
 );
 
 -- Index "idx_OAuthAccessTokens_hashedToken"
@@ -1384,7 +1385,8 @@ CREATE TABLE "OAuthAuthorizationCodes" (
   "codeChallenge" TEXT NOT NULL,
   "codeChallengeMethod" TEXT NOT NULL,
   "expiresAt" TIMESTAMPTZ NOT NULL,
-  "used" BOOL NOT NULL DEFAULT FALSE
+  "used" BOOL NOT NULL DEFAULT FALSE,
+  "resource" TEXT
 );
 
 -- Index "idx_OAuthAuthorizationCodes_hashedCode"

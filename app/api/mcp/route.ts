@@ -32,6 +32,16 @@ async function handleMcpRequest(req: NextRequest): Promise<Response> {
     return unauthorized(req, "Invalid token");
   }
 
+  // Validate resource binding (RFC 8707): if the token was issued for a specific
+  // resource, it must match this MCP endpoint's canonical URL.
+  if (tokenInfo.resource) {
+    const siteUrl = getSiteUrlFromReq(req);
+    const expectedResource = `${siteUrl}/api/mcp`;
+    if (tokenInfo.resource !== expectedResource) {
+      return unauthorized(req, "Token not issued for this resource");
+    }
+  }
+
   // Create a fresh server + transport per request
   const server = createMcpServer();
   const transport = new WebStandardStreamableHTTPServerTransport({

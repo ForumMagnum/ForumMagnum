@@ -86,6 +86,7 @@ interface CreateAuthorizationCodeArgs {
   scope: string;
   codeChallenge: string;
   codeChallengeMethod: string;
+  resource?: string;
 }
 
 interface CreateAuthorizationCodeResult {
@@ -93,7 +94,7 @@ interface CreateAuthorizationCodeResult {
 }
 
 async function createAuthorizationCode(args: CreateAuthorizationCodeArgs): Promise<CreateAuthorizationCodeResult> {
-  const { clientId, userId, redirectUri, scope, codeChallenge, codeChallengeMethod } = args;
+  const { clientId, userId, redirectUri, scope, codeChallenge, codeChallengeMethod, resource } = args;
 
   const code = randomBytes(32).toString("hex");
 
@@ -109,6 +110,7 @@ async function createAuthorizationCode(args: CreateAuthorizationCodeArgs): Promi
     codeChallengeMethod,
     expiresAt: new Date(Date.now() + AUTHORIZATION_CODE_LIFETIME_MS),
     used: false,
+    resource: resource ?? null,
   });
 
   return { code };
@@ -120,13 +122,14 @@ async function exchangeCodeForToken(args: {
   clientSecret: string;
   redirectUri: string;
   codeVerifier: string;
+  resource?: string;
 }): Promise<{
   access_token: string;
   token_type: "Bearer";
   expires_in: number;
   scope: string;
 }> {
-  const { code, clientId, clientSecret, redirectUri, codeVerifier } = args;
+  const { code, clientId, clientSecret, redirectUri, codeVerifier, resource } = args;
 
   // Verify client credentials
   const client = await OAuthClients.findOne({ _id: clientId });
@@ -177,6 +180,23 @@ async function exchangeCodeForToken(args: {
   // Verify PKCE
   verifyCodeChallenge(codeVerifier, authCode.codeChallenge, authCode.codeChallengeMethod);
 
+  // Validate resource parameter (RFC 8707)
+  // If the authorization code was issued with a resource, the token request must provide the same resource
+  if (authCode.resource) {
+    if (!resource) {
+      const error = new OAuthError("invalid_grant", "Resource parameter required");
+      handleErrorAndThrow(error, `exchangeCodeForToken: Resource parameter required but not provided`);
+    }
+    if (resource !== authCode.resource) {
+      const error = new OAuthError("invalid_grant", "Resource mismatch");
+      handleErrorAndThrow(error, `exchangeCodeForToken: Resource mismatch: expected ${authCode.resource}, got ${resource}`);
+    }
+  }
+
+  // Determine the resource to bind to the token: use the authorization code's resource if present,
+  // otherwise use the resource from the token request (if any)
+  const tokenResource = authCode.resource ?? resource ?? null;
+
   // Generate access token
   const accessToken = randomBytes(32).toString("hex");
   const expiresInSeconds = Math.floor(ACCESS_TOKEN_LIFETIME_MS / 1000);
@@ -190,6 +210,7 @@ async function exchangeCodeForToken(args: {
     scope: authCode.scope,
     expiresAt: new Date(Date.now() + ACCESS_TOKEN_LIFETIME_MS),
     revokedAt: null,
+    resource: tokenResource,
   });
 
   return {
@@ -220,6 +241,7 @@ interface ValidatedToken {
   userId: string;
   clientId: string;
   scope: string;
+  resource: string | null;
 }
 
 async function validateAccessToken(bearerToken: string): Promise<ValidatedToken> {
@@ -243,6 +265,7 @@ async function validateAccessToken(bearerToken: string): Promise<ValidatedToken>
     userId: token.userId,
     clientId: token.clientId,
     scope: token.scope,
+    resource: token.resource ?? null,
   };
 }
 

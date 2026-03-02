@@ -888,6 +888,7 @@ interface DbOAuthAccessToken extends DbObject {
   createdAt: Date
   expiresAt: Date
   hashedToken: string
+  resource: string | null
   revokedAt: Date | null
   scope: string
   userId: string
@@ -904,6 +905,7 @@ interface DbOAuthAuthorizationCode extends DbObject {
   expiresAt: Date
   hashedCode: string
   redirectUri: string
+  resource: string | null
   scope: string
   used: boolean
   userId: string

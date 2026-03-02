@@ -40,6 +40,12 @@ const schema = {
       nullable: true,
     },
   },
+  resource: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"OAuthAccessTokens">>;
 
 export default schema;

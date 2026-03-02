@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
       clientSecret: params.client_secret ?? basicAuthCredentials?.clientSecret ?? "",
       redirectUri: params.redirect_uri ?? "",
       codeVerifier: params.code_verifier ?? "",
+      resource: params.resource,
     });
 
     return NextResponse.json(result, {

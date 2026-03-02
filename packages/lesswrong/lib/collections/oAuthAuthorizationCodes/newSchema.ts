@@ -59,6 +59,12 @@ const schema = {
       nullable: false,
     },
   },
+  resource: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"OAuthAuthorizationCodes">>;
 
 export default schema;

@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
   const state = params.get("state") ?? "";
   const codeChallenge = params.get("code_challenge") ?? undefined;
   const codeChallengeMethod = params.get("code_challenge_method") ?? undefined;
+  const resource = params.get("resource") ?? undefined;
   const siteUrl = getSiteUrlFromReq(req);
 
   // Check if user is logged in
@@ -61,6 +62,7 @@ export async function GET(req: NextRequest) {
     state,
     codeChallenge: codeChallenge ?? "",
     codeChallengeMethod: codeChallengeMethod ?? "",
+    resource: resource ?? "",
   });
 
   return new Response(html, {
@@ -86,6 +88,7 @@ export async function POST(req: NextRequest) {
   const state = String(formData.get("state") ?? "");
   const codeChallenge = String(formData.get("code_challenge") ?? "");
   const codeChallengeMethod = String(formData.get("code_challenge_method") ?? "");
+  const resource = String(formData.get("resource") ?? "");
 
   // Validate the request before processing allow/deny to protect both paths
   try {
@@ -124,6 +127,7 @@ export async function POST(req: NextRequest) {
       scope,
       codeChallenge,
       codeChallengeMethod,
+      resource,
     });
 
     const callbackUrl = new URL(redirectUri);
@@ -154,6 +158,7 @@ interface ConsentPageArgs {
   state: string;
   codeChallenge: string;
   codeChallengeMethod: string;
+  resource: string;
 }
 
 function escapeHtml(s: string): string {
@@ -166,7 +171,7 @@ function escapeHtml(s: string): string {
 }
 
 function renderConsentPage(args: ConsentPageArgs): string {
-  const { clientName, userName, scope, clientId, redirectUri, state, codeChallenge, codeChallengeMethod } = args;
+  const { clientName, userName, scope, clientId, redirectUri, state, codeChallenge, codeChallengeMethod, resource } = args;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -226,6 +231,7 @@ function renderConsentPage(args: ConsentPageArgs): string {
       <input type="hidden" name="state" value="${escapeHtml(state)}" />
       <input type="hidden" name="code_challenge" value="${escapeHtml(codeChallenge)}" />
       <input type="hidden" name="code_challenge_method" value="${escapeHtml(codeChallengeMethod)}" />
+      <input type="hidden" name="resource" value="${escapeHtml(resource)}" />
       <div class="buttons">
         <button type="submit" name="decision" value="deny" class="deny">Deny</button>
         <button type="submit" name="decision" value="allow" class="allow">Allow</button>
