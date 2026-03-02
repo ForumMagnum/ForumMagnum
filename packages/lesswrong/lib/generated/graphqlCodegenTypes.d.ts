@@ -11834,6 +11834,25 @@ type ProfileSequencesQueryQueryVariables = Exact<{
 
 type ProfileSequencesQueryQuery = ProfileSequencesQueryQuery_Query;
 
+type ProfileTopPostsQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type ProfileTopPostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ProfileTopPostsQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type ProfileTopPostsQueryQuery_Query = { __typename?: 'Query', posts: ProfileTopPostsQueryQuery_posts_MultiPostOutput | null };
+
+
+type ProfileTopPostsQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type ProfileTopPostsQueryQuery = ProfileTopPostsQueryQuery_Query;
+
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 
 
