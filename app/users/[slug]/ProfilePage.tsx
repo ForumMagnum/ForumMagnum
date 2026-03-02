@@ -38,6 +38,7 @@ import { profileStyles } from "./profileStyles";
 import Error404 from "@/components/common/Error404";
 import { StatusCodeSetter } from "@/components/next/StatusCodeSetter";
 import LoadMore from "@/components/common/LoadMore";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 // ── Constants ──
 
@@ -137,7 +138,7 @@ function getDefaultPreview(postId: string): string {
 // This shuffles the placeholders deterministically (seeded by the first post's
 // ID) so each user's profile gets a consistent but varied arrangement -- the
 // same user always sees the same placeholders, but different profiles differ.
-function buildTopPostDefaultImages(topPosts: ReadonlyArray<PostWithPreview>): string[] {
+function buildTopPostDefaultImages(topPosts: PostsMinimumInfo[]): string[] {
   const seed = hashString(topPosts[0]?._id ?? "seed");
   const arr = [...DEFAULT_PREVIEWS];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -512,36 +513,27 @@ function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
   const pinnedPostIds = user.pinnedPostIds ?? [];
   const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
 
-  const { data: pinnedPostsData } = useQuery(ProfilePostsQuery, {
+  const { data } = useQuery(ProfilePostsQuery, {
     skip: !hasPinnedPosts,
     variables: {
-      selector: hasPinnedPosts ? { default: { exactPostIds: pinnedPostIds } } : undefined,
-      limit: TOP_POSTS_LIMIT,
-      enableTotal: false,
-    },
-    fetchPolicy: "cache-and-network",
-  });
-  const { data: topPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !!hasPinnedPosts,
-    variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } } : undefined,
+      selector: hasPinnedPosts
+        ? { default: { exactPostIds: pinnedPostIds } }
+        : (userId
+          ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } }
+          : undefined
+        ),
       limit: TOP_POSTS_LIMIT,
       enableTotal: false,
     },
     fetchPolicy: "cache-and-network",
   });
 
-
-  // When using pinnedPostIds, reorder results to match the pinned order.
-  // The PostsList fragment guarantees all PostWithPreview fields exist at
-  // runtime, but useQuery wraps them in DeepPartialObject which makes
-  // every field optional. We narrow once here so helper functions get
-  // properly typed inputs.
-  const pinnedResults = (pinnedPostsData?.posts?.results ?? []) as PostWithPreview[];
-  const topResults = (topPostsData?.posts?.results ?? []) as PostWithPreview[];
+  // When using pinned posts, reorder results to match the pinned order.
+  const postResults = data?.posts?.results ?? [];
   const topPosts = hasPinnedPosts
-    ? pinnedPostIds.map(id => pinnedResults.find(p => p._id === id)).filter((p): p is PostWithPreview => !!p)
-    : topResults;
+    ? filterNonnull(pinnedPostIds.map(id => postResults.find(p => p._id === id)))
+    : postResults;
+
   const topPost = topPosts[0];
   const smallArticles = topPosts.slice(1, TOP_POSTS_LIMIT);
   const topPostDefaultImages = buildTopPostDefaultImages(topPosts);
