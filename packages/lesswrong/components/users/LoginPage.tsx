@@ -28,7 +28,7 @@ const LoginPage = ({ returnTo }: { returnTo?: string }) => {
         navigate({pathname: "/"});
       }
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate, returnTo]);
 
   if (currentUser) {
     // If already logged in, leave page body blank. You won't see it for more
