@@ -123,22 +123,57 @@ function findTextRangeInNodeByPlainQuote(
 
   const combined = segments.map((segment) => segment.text).join("");
   let rawStartIndex = combined.toLowerCase().indexOf(plainQuoteRaw.toLowerCase());
+  let rawEndExclusive: number;
   if (rawStartIndex === -1) {
     // Fallback when whitespace normalization is needed.
+    // We need to find the range in the original (un-normalized) text that corresponds
+    // to the normalized quote, correctly mapping offsets despite whitespace differences.
     const rawLower = combined.toLowerCase();
+    let fallbackStart = -1;
     for (let i = 0; i < rawLower.length; i++) {
       const candidateNormalized = normalizeText(rawLower.slice(i));
       if (candidateNormalized.startsWith(plainQuote)) {
-        rawStartIndex = i;
+        fallbackStart = i;
         break;
       }
     }
-    if (rawStartIndex === -1) {
+    if (fallbackStart === -1) {
       return null;
     }
-  }
 
-  const rawEndExclusive = rawStartIndex + plainQuoteRaw.length;
+    // Skip any leading whitespace at fallbackStart to find the true start of content,
+    // since normalizeText trims leading whitespace.
+    let trueStart = fallbackStart;
+    while (trueStart < rawLower.length && /\s/.test(rawLower[trueStart])) {
+      trueStart++;
+    }
+    rawStartIndex = trueStart;
+
+    // Walk through the original text to find how many original characters correspond
+    // to the normalized quote. We consume normalized characters one at a time, skipping
+    // extra whitespace in the original.
+    let normalizedConsumed = 0;
+    let rawCursor = rawStartIndex;
+    while (normalizedConsumed < plainQuote.length && rawCursor < rawLower.length) {
+      const rawChar = rawLower[rawCursor];
+      const normalizedChar = plainQuote[normalizedConsumed];
+      if (/\s/.test(rawChar) && normalizedChar === " ") {
+        // Both are whitespace: consume the normalized space, then skip all
+        // remaining whitespace in the original.
+        normalizedConsumed++;
+        rawCursor++;
+        while (rawCursor < rawLower.length && /\s/.test(rawLower[rawCursor])) {
+          rawCursor++;
+        }
+      } else {
+        normalizedConsumed++;
+        rawCursor++;
+      }
+    }
+    rawEndExclusive = rawCursor;
+  } else {
+    rawEndExclusive = rawStartIndex + plainQuoteRaw.length;
+  }
   const locatePoint = (rawIndex: number, preferAfterMath: boolean): MarkdownSelectionPoint | null => {
     let cursor = 0;
     for (let i = 0; i < segments.length; i++) {

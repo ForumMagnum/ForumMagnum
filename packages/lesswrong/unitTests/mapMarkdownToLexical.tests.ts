@@ -2,6 +2,7 @@ import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM, $generateHtmlFromNodes } from "@lexical/html";
 import {
   $createParagraphNode,
+  $createTextNode,
   $isDecoratorNode,
   $isElementNode,
   $createRangeSelection,
@@ -127,6 +128,79 @@ async function expectQuoteRoundTripsFromMarkdownDocument({
     .toLowerCase();
   expect(toPlainText(canonicalExtractedMarkdown)).toBe(toPlainText(canonicalQuotedMarkdown));
 }
+
+describe("findTextRangeInNodeByPlainQuote whitespace normalization", () => {
+  it("returns correct offsets when original text has extra whitespace compared to quote", async () => {
+    const editor = createHeadlessEditor("WhitespaceNormalizationTest");
+
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      root.clear();
+      const paragraph = $createParagraphNode();
+      // Text with double spaces between words
+      const textNode = $createTextNode("hello  world  foo");
+      paragraph.append(textNode);
+      root.append(paragraph);
+    });
+
+    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      // Quote with single spaces - should match via whitespace normalization fallback
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: root.getKey(),
+        markdownQuote: "hello world foo",
+      });
+    });
+
+    expect(result).toBeDefined();
+    expect(result!.found).toBe(true);
+    expect(result!.anchor).toBeDefined();
+    expect(result!.focus).toBeDefined();
+
+    // The anchor should start at offset 0 (beginning of "hello")
+    expect(result!.anchor!.offset).toBe(0);
+    // The focus should end at offset 17 (end of "hello  world  foo"),
+    // NOT at offset 15 (which would be wrong if using the normalized quote length)
+    expect(result!.focus!.offset).toBe(17);
+  });
+
+  it("returns correct offsets when extra whitespace is in the middle of the text", async () => {
+    const editor = createHeadlessEditor("WhitespaceNormalizationMiddle");
+
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      root.clear();
+      const paragraph = $createParagraphNode();
+      // Text with prefix, then double spaces in quoted region
+      const textNode = $createTextNode("prefix  alpha   beta  suffix");
+      paragraph.append(textNode);
+      root.append(paragraph);
+    });
+
+    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      // Quote with single spaces - should match "alpha   beta" in original (via normalization)
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: root.getKey(),
+        markdownQuote: "alpha beta",
+      });
+    });
+
+    expect(result).toBeDefined();
+    expect(result!.found).toBe(true);
+    expect(result!.anchor).toBeDefined();
+    expect(result!.focus).toBeDefined();
+
+    // "prefix  alpha   beta  suffix"
+    //  0123456789...
+    // "prefix  " = 8 chars, so "alpha" starts at index 8
+    expect(result!.anchor!.offset).toBe(8);
+    // "alpha   beta" = 12 chars, so end is at 8 + 12 = 20
+    expect(result!.focus!.offset).toBe(20);
+  });
+});
 
 describe("mapMarkdownToLexical quote selection", () => {
   it("selects and round-trips a plain text quote", async () => {
