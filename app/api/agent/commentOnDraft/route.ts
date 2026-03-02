@@ -7,6 +7,7 @@ import { $setSelection, $getSelection, $isRangeSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
   deriveAgentAuthor,
+  HOCUSPOCUS_FLUSH_WAIT_MS,
   normalizeText,
   waitForProviderSync,
   sleep,
@@ -14,11 +15,8 @@ import {
   selectQuotedTextInEditor,
 } from "../editorAgentUtil";
 import { commentOnDraftToolSchema } from "../toolSchemas";
-import { backgroundTask } from "@/server/utils/backgroundTask";
 import { captureException } from "@/lib/sentryWrapper";
 import { getHocuspocusToken } from "../getHocuspocusToken";
-
-const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 
 function createCollabComment({
   content,
@@ -147,7 +145,7 @@ export async function insertDraftCommentThread({
   });
 
   try {
-    backgroundTask(provider.connect());
+    await provider.connect();
     await waitForProviderSync(provider);
 
     const commentId = randomId();

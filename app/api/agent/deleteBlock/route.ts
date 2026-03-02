@@ -3,14 +3,12 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { deriveAgentAuthor, sleep, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, paragraphMarkdownStartsWith, plainTextStartsWith, sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
-
-const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
-
+import { captureException } from "@/lib/sentryWrapper";
 
 interface DeleteBlockResult {
   deleted: boolean
@@ -19,41 +17,22 @@ interface DeleteBlockResult {
   suggestionId?: string
 }
 
-function paragraphMarkdownStartsWith(paragraphMarkdown: string, prefix: string): boolean {
-  const normalizedParagraph = paragraphMarkdown.trimStart().replace(/\s+/g, " ").toLowerCase();
-  const normalizedPrefix = prefix.trim().replace(/\s+/g, " ").toLowerCase();
-  return normalizedParagraph.startsWith(normalizedPrefix);
-}
-
-function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
-  const prefixPlainText = prefix
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-    .replace(/\$([^$]+)\$/g, "$1")
-    .replace(/\\([A-Za-z]+)/g, "$1")
-    .replace(/[*_`~]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-  const normalizedTextContent = nodeTextContent
-    .replace(/\s+/g, " ")
-    .trimStart()
-    .toLowerCase();
-  return prefixPlainText.length > 0 && normalizedTextContent.startsWith(prefixPlainText);
-}
-
 export async function deleteMarkdownBlock({
   postId,
   token,
   mode,
   prefix,
+  authorName,
+  authorId,
 }: {
   postId: string
   token: string
   mode: ReplaceMode
   prefix: string
+  authorName: string
+  authorId: string
 }): Promise<DeleteBlockResult> {
-  return withMainDocEditorSession({
+  const result = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "DeleteBlock",
@@ -134,6 +113,22 @@ export async function deleteMarkdownBlock({
       return result;
     },
   });
+
+  if (mode === "suggest" && result.deleted && result.suggestionId) {
+    await createSuggestionThreadInCommentsDoc({
+      postId,
+      token,
+      suggestionId: result.suggestionId,
+      authorName,
+      authorId,
+      summaryItems: [{
+        type: "delete",
+        content: prefix,
+      }],
+    });
+  }
+
+  return result;
 }
 
 export async function POST(req: NextRequest) {
@@ -155,27 +150,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
 
+    const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
+
     const deleteResult = await deleteMarkdownBlock({
       postId,
       token,
       mode,
       prefix,
+      authorName,
+      authorId,
     });
-
-    if (mode === "suggest" && deleteResult.deleted && deleteResult.suggestionId) {
-      const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
-      await createSuggestionThreadInCommentsDoc({
-        postId,
-        token,
-        suggestionId: deleteResult.suggestionId,
-        authorName,
-        authorId,
-        summaryItems: [{
-          type: "delete",
-          content: prefix,
-        }],
-      });
-    }
 
     return NextResponse.json({
       ok: true,
@@ -188,6 +172,9 @@ export async function POST(req: NextRequest) {
       requestId: randomId(),
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    captureException(error);
     return NextResponse.json(
       {
         error: "Failed to delete markdown block in collaborative draft",

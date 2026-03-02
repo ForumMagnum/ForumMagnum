@@ -9,7 +9,7 @@ import {
 } from "lexical";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
-import { createHeadlessEditor } from "./editorAgentUtil";
+import { createHeadlessEditor, normalizeText } from "./editorAgentUtil";
 
 export interface MarkdownSelectionPoint {
   key: string
@@ -39,16 +39,12 @@ export interface MarkdownQuoteSelectionResult {
   reason?: string
 }
 
-function normalizeForMatch(value: string): string {
-  return value.replace(/\s+/g, " ").trim().toLowerCase();
-}
-
 function stripSimpleMarkdownPunctuation(value: string): string {
   return value.replace(/[*_`~]/g, "");
 }
 
 function normalizeForMarkdownInsensitiveMatch(value: string): string {
-  return normalizeForMatch(markdownQuoteToPlainText(value));
+  return normalizeText(markdownQuoteToPlainText(value));
 }
 
 function normalizeEmphasisMarkerStyle(value: string): string {
@@ -62,7 +58,7 @@ function normalizeMathDelimiters(value: string): string {
 }
 
 function normalizeForSemanticMatch(value: string): string {
-  return normalizeForMatch(normalizeMathDelimiters(normalizeEmphasisMarkerStyle(value)));
+  return normalizeText(normalizeMathDelimiters(normalizeEmphasisMarkerStyle(value)));
 }
 
 function markdownQuoteToPlainText(value: string): string {
@@ -79,7 +75,7 @@ function findTextRangeInNodeByPlainQuote(
   markdownQuote: string
 ): { anchor: MarkdownSelectionPoint, focus: MarkdownSelectionPoint } | null {
   const plainQuoteRaw = markdownQuoteToPlainText(markdownQuote).trim();
-  const plainQuote = normalizeForMatch(plainQuoteRaw);
+  const plainQuote = normalizeText(plainQuoteRaw);
   if (!plainQuoteRaw || !plainQuote) {
     return null;
   }
@@ -131,7 +127,7 @@ function findTextRangeInNodeByPlainQuote(
     // Fallback when whitespace normalization is needed.
     const rawLower = combined.toLowerCase();
     for (let i = 0; i < rawLower.length; i++) {
-      const candidateNormalized = normalizeForMatch(rawLower.slice(i));
+      const candidateNormalized = normalizeText(rawLower.slice(i));
       if (candidateNormalized.startsWith(plainQuote)) {
         rawStartIndex = i;
         break;
@@ -305,7 +301,7 @@ export function locateMarkdownQuoteSelectionInSubtree({
   markdownQuote: string
   mapResult?: NodeMarkdownMapResult
 }): MarkdownQuoteSelectionResult {
-  const normalizedQuote = normalizeForMatch(markdownQuote);
+  const normalizedQuote = normalizeText(markdownQuote);
   const normalizedQuoteMarkdownInsensitive = normalizeForMarkdownInsensitiveMatch(markdownQuote);
   const normalizedQuoteMarkerStyleInsensitive = normalizeForSemanticMatch(markdownQuote);
   if (!normalizedQuote) {
@@ -319,7 +315,7 @@ export function locateMarkdownQuoteSelectionInSubtree({
 
   const candidates = mapping.entries
     .filter(({ markdown }) => {
-      const normalizedCandidate = normalizeForMatch(markdown);
+      const normalizedCandidate = normalizeText(markdown);
       if (normalizedCandidate.includes(normalizedQuote)) {
         return true;
       }

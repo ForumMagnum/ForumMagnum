@@ -13,7 +13,6 @@ import { deleteMarkdownBlock } from "../agent/deleteBlock/route";
 import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
 import { getHocuspocusToken } from "../agent/getHocuspocusToken";
 import { deriveAgentAuthor } from "../agent/editorAgentUtil";
-import { createSuggestionThreadInCommentsDoc } from "../agent/suggestionThreads";
 import { gql } from "@/lib/generated/gql-codegen";
 import {
   commentOnDraftToolSchema,
@@ -276,21 +275,9 @@ function createMcpServer(): McpServer {
       const result = await deleteMarkdownBlock({
         ...args,
         token,
+        authorName,
+        authorId,
       });
-
-      if (args.mode === "suggest" && result.deleted && result.suggestionId) {
-        await createSuggestionThreadInCommentsDoc({
-          postId: args.postId,
-          token,
-          suggestionId: result.suggestionId,
-          authorName,
-          authorId,
-          summaryItems: [{
-            type: "delete",
-            content: args.prefix,
-          }],
-        });
-      }
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },

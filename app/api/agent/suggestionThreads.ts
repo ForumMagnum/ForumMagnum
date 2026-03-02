@@ -1,6 +1,6 @@
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Doc } from "yjs";
-import { createHeadlessEditor, getLexicalCompatibleProvider, waitForProviderSync } from "./editorAgentUtil";
+import { createHeadlessEditor, getLexicalCompatibleProvider, HOCUSPOCUS_FLUSH_WAIT_MS, sleep, waitForProviderSync } from "./editorAgentUtil";
 import { CommentStore } from "@/components/lexical/commenting";
 import { createSuggestionThreadController } from "@/components/editor/lexicalPlugins/suggestions/createSuggestionThreadController";
 import type { SuggestionSummaryItem } from "@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils";
@@ -40,6 +40,7 @@ export async function createSuggestionThreadInCommentsDoc({
   const unregister = commentStore.registerCollaboration(lexicalProvider);
 
   try {
+    await provider.connect();
     await waitForProviderSync(provider);
     const controller = createSuggestionThreadController({
       commentStore,
@@ -53,6 +54,7 @@ export async function createSuggestionThreadInCommentsDoc({
       summaryItems[0]?.type ?? "replace",
     );
   } finally {
+    await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
     unregister();
     provider.destroy();
     commentsDoc.destroy();

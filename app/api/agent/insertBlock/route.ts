@@ -16,14 +16,12 @@ import {
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, sleep, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, paragraphMarkdownStartsWith, plainTextStartsWith, sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
-
-const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
-
+import { captureException } from "@/lib/sentryWrapper";
 
 interface InsertBlockResult {
   inserted: boolean
@@ -58,29 +56,6 @@ function getInsertionIndexByLocation(location: InsertLocation): { mode: "fixed",
   } else {
     throw new Error(`Invalid location: ${JSON.stringify(location)}`);
   }
-}
-
-function paragraphMarkdownStartsWith(paragraphMarkdown: string, prefix: string): boolean {
-  const normalizedParagraph = paragraphMarkdown.trimStart().replace(/\s+/g, " ").toLowerCase();
-  const normalizedPrefix = prefix.trim().replace(/\s+/g, " ").toLowerCase();
-  return normalizedParagraph.startsWith(normalizedPrefix);
-}
-
-function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
-  const prefixPlainText = prefix
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-    .replace(/\$([^$]+)\$/g, "$1")
-    .replace(/\\([A-Za-z]+)/g, "$1")
-    .replace(/[*_`~]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-  const normalizedTextContent = nodeTextContent
-    .replace(/\s+/g, " ")
-    .trimStart()
-    .toLowerCase();
-  return prefixPlainText.length > 0 && normalizedTextContent.startsWith(prefixPlainText);
 }
 
 function escapeHtmlAttribute(value: string): string {
@@ -280,6 +255,9 @@ export async function POST(req: NextRequest) {
       requestId: randomId(),
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    captureException(error);
     return NextResponse.json(
       {
         error: "Failed to insert markdown block in collaborative draft",

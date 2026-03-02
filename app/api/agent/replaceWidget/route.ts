@@ -5,12 +5,20 @@ import { applyPatch } from "diff";
 import { $createTextNode, $getRoot, $isElementNode, type LexicalNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, sleep, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, sleep, withMainDocEditorSession } from "../editorAgentUtil";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { replaceWidgetRouteSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
+import { captureException } from "@/lib/sentryWrapper";
 
-const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
+const WIDGET_SUMMARY_MAX_LENGTH = 300;
+
+function truncateForSummary(value: string): string {
+  if (value.length <= WIDGET_SUMMARY_MAX_LENGTH) {
+    return value;
+  }
+  return value.slice(0, WIDGET_SUMMARY_MAX_LENGTH) + "... [truncated]";
+}
 
 interface ReplaceWidgetResult {
   replaced: boolean
@@ -179,8 +187,8 @@ export async function replaceWidgetInMainDoc({
       authorId,
       summaryItems: [{
         type: "replace",
-        content: result.previousContent ?? "",
-        replaceWith: result.nextContent ?? "",
+        content: truncateForSummary(result.previousContent ?? ""),
+        replaceWith: truncateForSummary(result.nextContent ?? ""),
       }],
     });
   }
@@ -229,6 +237,9 @@ export async function POST(req: NextRequest) {
       note: result.note,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    captureException(error);
     return NextResponse.json(
       {
         error: "Failed to replace widget content in collaborative draft",

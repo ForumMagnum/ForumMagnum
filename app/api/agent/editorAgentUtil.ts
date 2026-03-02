@@ -15,6 +15,7 @@ import { randomId } from "@/lib/random";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
+export const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 
 export interface SelectQuotedTextResult {
   quoteFoundInDocument: boolean
@@ -30,6 +31,29 @@ export function sleep(ms: number): Promise<void> {
 
 export function normalizeText(value: string): string {
   return value.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+export function paragraphMarkdownStartsWith(paragraphMarkdown: string, prefix: string): boolean {
+  const normalizedParagraph = paragraphMarkdown.trimStart().replace(/\s+/g, " ").toLowerCase();
+  const normalizedPrefix = prefix.trim().replace(/\s+/g, " ").toLowerCase();
+  return normalizedParagraph.startsWith(normalizedPrefix);
+}
+
+export function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
+  const prefixPlainText = prefix
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
+    .replace(/\$([^$]+)\$/g, "$1")
+    .replace(/\\([A-Za-z]+)/g, "$1")
+    .replace(/[*_`~]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+  const normalizedTextContent = nodeTextContent
+    .replace(/\s+/g, " ")
+    .trimStart()
+    .toLowerCase();
+  return prefixPlainText.length > 0 && normalizedTextContent.startsWith(prefixPlainText);
 }
 
 interface DeriveAgentAuthorArgs {

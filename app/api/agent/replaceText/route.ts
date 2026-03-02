@@ -6,14 +6,14 @@ import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/sugges
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import {
   deriveAgentAuthor,
+  HOCUSPOCUS_FLUSH_WAIT_MS,
   sleep,
   withMainDocEditorSession,
   selectQuotedTextInEditor,
 } from "../editorAgentUtil";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
-
-const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
+import { captureException } from "@/lib/sentryWrapper";
 
 interface ReplaceResult {
   replaced: boolean
@@ -149,7 +149,7 @@ export async function replaceTextInMainDoc({
         replaced: false,
         quoteFoundInDocument,
         note: quoteFoundInDocument
-          ? "Quote found in document, but simple single-node replacement did not apply."
+          ? "Quote was found in the document but spans multiple formatted regions (e.g. bold/italic/link boundaries), so the replacement could not be applied. Try quoting a smaller segment that falls within a single paragraph and formatting style."
           : "Quote not found in document.",
       };
     },
@@ -212,6 +212,9 @@ export async function POST(req: NextRequest) {
       note: result.note,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    captureException(error);
     return NextResponse.json(
       {
         error: "Failed to replace text in collaborative draft",
