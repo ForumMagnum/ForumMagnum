@@ -4,7 +4,6 @@
  */
 
 import { existsSync } from "node:fs";
-import type { CommandLineOptions } from "../build";
 
 // @ts-ignore This is a javascript file without a .d.ts
 import { getDatabaseConfig } from "./startup/buildUtil";
@@ -80,7 +79,7 @@ export const getDatabaseConfigFromModeAndForumType = (mode: EnvironmentType, for
     mode = 'dev';
   }
 
-  const memorizedConfigPaths: Record<ForumType, Partial<CommandLineOptions>> = {
+  const memorizedConfigPaths: Record<ForumType, {db?: string, noSshTunnel?: boolean, postgresUrlFile?: string}> = {
     lw: {
       db: `${credentialsPath(forumType)}/connectionConfigs/${mode}.json`,
       noSshTunnel: true, //workaround for a timing issue

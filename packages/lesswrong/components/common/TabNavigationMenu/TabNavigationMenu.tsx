@@ -132,8 +132,6 @@ const TabNavigationMenu = ({
               iconOnlyNavigationEnabled={iconOnly}
             />
           })}
-          {/* NB: This returns null if you don't have any active resources */}
-          {/* <FeaturedResourceBanner terms={{view: "activeResources"}}/> */}
         </div>
     </AnalyticsContext>  )
 };

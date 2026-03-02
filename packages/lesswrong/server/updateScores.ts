@@ -1,6 +1,5 @@
 import {
   TIME_DECAY_FACTOR,
-  getSubforumScoreBoost,
   SCORE_BIAS,
 } from '../lib/scoring';
 import { runSqlQuery } from "@/server/sql/sqlClient";
@@ -35,14 +34,7 @@ const getPgCollectionProjections = (collectionName: VoteableCollectionName) => {
         (CASE WHEN "curatedDate" IS NULL THEN 0 ELSE 10 END)) AS "baseScore"`;
       break;
     case "Comments":
-      const {base, magnitude, duration, exponent} = getSubforumScoreBoost();
-      const ageHours = '(EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "createdAt") / 3600)';
-      proj.baseScore = `("baseScore" + (CASE WHEN "tagCommentType" = 'SUBFORUM'
-        THEN GREATEST(
-          ${base},
-          ${magnitude} * (1 - POW(${ageHours} / ${duration}, ${exponent}))
-        )
-        ELSE 0 END)) as "baseScore"`;
+      proj.baseScore = `("baseScore" as "baseScore"`;
       break;
     default:
       break;

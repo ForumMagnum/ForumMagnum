@@ -91,8 +91,6 @@ export function getDbIndexesOnComments() {
     { name: "comments.moderatorHat" }
   );
   
-  indexSet.addIndex("Comments", augmentForDefaultView({ forumEventId: 1, userId: 1, postedAt: -1 }));
-  
   // For allowing `CommentsRepo.getPromotedCommentsOnPosts` to use an index-only scan, which is much faster than an index scan followed by pulling each comment from disk to get its "promotedAt".
   void indexSet.addCustomPgIndex(`
     CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_postId_promotedAt"

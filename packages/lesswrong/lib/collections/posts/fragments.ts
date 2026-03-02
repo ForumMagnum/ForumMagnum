@@ -56,7 +56,6 @@ export const PostsBase = gql(`
     voteCount
     baseScore
     extendedScore
-    emojiReactors
     unlisted
     score
     lastVisitedAt

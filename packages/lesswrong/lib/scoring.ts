@@ -1,30 +1,11 @@
 import { calculateActivityFactor } from './collections/useractivities/utils';
-import { isLW, activityHalfLifeSetting, activityWeightSetting, curatedBonusSetting, decayFactorFastestSetting, decayFactorSlowestSetting, defaultSubforumCommentBonus, frontpageBonusSetting, startingAgeHoursSetting, SubforumCommentBonus, subforumCommentBonusSetting, timeDecayFactorSetting } from './instanceSettings';
+import { isLW, activityHalfLifeSetting, activityWeightSetting, curatedBonusSetting, decayFactorFastestSetting, decayFactorSlowestSetting, frontpageBonusSetting, startingAgeHoursSetting, timeDecayFactorSetting } from './instanceSettings';
 
 export const TIME_DECAY_FACTOR = timeDecayFactorSetting;
 // Basescore bonuses for various categories
 export const FRONTPAGE_BONUS = frontpageBonusSetting;
 export const CURATED_BONUS = curatedBonusSetting;
 export const SCORE_BIAS = 2;
-
-export const getSubforumScoreBoost = (): SubforumCommentBonus => {
-  const defaultBonus = {...defaultSubforumCommentBonus};
-  const bonus = subforumCommentBonusSetting.get();
-  return Object.assign(defaultBonus, bonus);
-}
-
-/**
- * This implements the same formula as commentScoreModifiers below
- */
-const getSubforumCommentBonus = (item: VoteableType) => {
-  if ("tagCommentType" in item && (item as AnyBecauseTodo)["tagCommentType"] === "SUBFORUM") {
-    const {base, magnitude, duration, exponent} = getSubforumScoreBoost();
-    const createdAt = (item as any).createdAt ?? new Date();
-    const ageHours = (Date.now() - createdAt.getTime()) / 3600000;
-    return Math.max(base, magnitude * (1 - ((ageHours / duration) ** exponent)));
-  }
-  return 0;
-}
 
 // NB: If you want to change this algorithm, make sure to also change the
 // modifier functions below, and the SQL in updateScores.ts (until the refactor
@@ -42,8 +23,7 @@ export const recalculateScore = (item: VoteableType) => {
 
     const frontpageBonus = (item as any).frontpageDate ? FRONTPAGE_BONUS.get() : 0;
     const curatedBonus = (item as any).curatedDate ? CURATED_BONUS.get() : 0;
-    const subforumBonus = getSubforumCommentBonus(item);
-    baseScore = baseScore + frontpageBonus + curatedBonus + subforumBonus;
+    baseScore = baseScore + frontpageBonus + curatedBonus;
 
     // HN algorithm
     const newScore = Math.round((baseScore / Math.pow(ageInHours + SCORE_BIAS, TIME_DECAY_FACTOR.get()))*1000000)/1000000;
@@ -132,46 +112,3 @@ export const postScoreModifiers = () => {
   ];
 };
 
-/**
- * This implements the same formula as getSubforumCommentBonus above
- */
-export const commentScoreModifiers = () => {
-  const {base, magnitude, duration, exponent} = getSubforumScoreBoost();
-
-  const ageHoursExpr = {
-    $divide: [
-      {
-        $subtract: [
-          new Date(),
-          "$createdAt",
-        ],
-      },
-      3600000,
-    ],
-  };
-
-  const bonusExpr = {
-    $multiply: [
-      magnitude,
-      {
-        $subtract: [
-          1,
-          {
-            $pow: [
-              {$divide: [ageHoursExpr, duration]},
-              exponent,
-            ],
-          },
-        ],
-      },
-    ],
-  };
-
-  return [
-    {$cond: {
-      if: {tagCommentType: "SUBFORUM"},
-      then: {$max: [base, bonusExpr]},
-      else: 0,
-    }},
-  ];
-};

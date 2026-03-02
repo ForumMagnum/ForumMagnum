@@ -13,7 +13,6 @@ import { dataToMarkdown, extractAndReplaceIframeWidgets } from "@/server/editor/
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
-import { assertPollsAllowed, upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { captureException } from "@/lib/sentryWrapper";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import Posts from "../posts/collection";
@@ -58,7 +57,6 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
     }
   }
 
-  assertPollsAllowed(documentWithId);
   await upvoteOwnTagRevision({
     revision: documentWithId,
     context

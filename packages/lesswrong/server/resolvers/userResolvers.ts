@@ -86,7 +86,6 @@ export const graphqlTypeDefs = gql`
     username: String,
     slug: String,
     displayName: String,
-    subscribedToDigest: Boolean,
     usernameUnset: Boolean
   }
   type UserCoreTagReads {
@@ -163,7 +162,6 @@ export const graphqlMutations = {
         displayName: username,
         slug: await getUnusedSlugByCollectionName("Users", slugify(username)),
         ...(email ? { email } : {}),
-        subscribedToDigest: subscribeToDigest,
         acceptedTos,
       }, selector: { _id: currentUser._id }
     }, context);

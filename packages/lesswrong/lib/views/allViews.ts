@@ -5,7 +5,6 @@
 import { CollectionViewSet } from './collectionViewSet';
 
 // Collection imports
-import { AdvisorRequestsViews } from '../collections/advisorRequests/views';
 import { BookmarksViews } from '../collections/bookmarks/views';
 import { ChaptersViews } from '../collections/chapters/views';
 import { ClientIdsViews } from '../collections/clientIds/views';
@@ -16,13 +15,7 @@ import { ConversationsViews } from '../collections/conversations/views';
 import { CurationNoticesViews } from '../collections/curationNotices/views';
 import { DialogueChecksViews } from '../collections/dialogueChecks/views';
 import { DialogueMatchPreferencesViews } from '../collections/dialogueMatchPreferences/views';
-import { DigestsViews } from '../collections/digests/views';
-import { ElectionCandidatesViews } from '../collections/electionCandidates/views';
-import { ElectionVotesViews } from '../collections/electionVotes/views';
-import { FeaturedResourcesViews } from '../collections/featuredResources/views';
 import { FieldChangesViews } from '../collections/fieldChanges/views';
-import { ForumEventsViews } from '../collections/forumEvents/views';
-import { GardenCodesViews } from '../collections/gardencodes/views';
 import { GoogleServiceAccountSessionsViews } from '../collections/googleServiceAccountSessions/views';
 import { IframeWidgetSrcdocsViews } from '../collections/iframeWidgetSrcdocs/views';
 import { JargonTermsViews } from '../collections/jargonTerms/views';
@@ -47,15 +40,11 @@ import { RSSFeedsViews } from '../collections/rssfeeds/views';
 import { SequencesViews } from '../collections/sequences/views';
 import { SpotlightsViews } from '../collections/spotlights/views';
 import { SubscriptionsViews } from '../collections/subscriptions/views';
-import { SurveysViews } from '../collections/surveys/views';
-import { SurveySchedulesViews } from '../collections/surveySchedules/views';
 import { TagsViews } from '../collections/tags/views';
 import { TagFlagsViews } from '../collections/tagFlags/views';
 import { TagRelsViews } from '../collections/tagRels/views';
 import { UltraFeedEventsViews } from '../collections/ultraFeedEvents/views';
 import { UsersViews } from '../collections/users/views';
-import { UserEAGDetailsViews } from '../collections/userEAGDetails/views';
-import { UserJobAdsViews } from '../collections/userJobAds/views';
 import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts/views';
 import { UserRateLimitsViews } from '../collections/userRateLimits/views';
 import { UserTagRelsViews } from '../collections/userTagRels/views';
@@ -63,7 +52,6 @@ import { VotesViews } from '../collections/votes/views';
 import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 
 export const allViews = {
-  AdvisorRequests: AdvisorRequestsViews,
   ArbitalCaches: new CollectionViewSet('ArbitalCaches', {}),
   ArbitalTagContentRels: new CollectionViewSet('ArbitalTagContentRels', {}),
   AutomatedContentEvaluations: new CollectionViewSet('AutomatedContentEvaluations', {}),
@@ -85,17 +73,10 @@ export const allViews = {
   DebouncerEvents: new CollectionViewSet('DebouncerEvents', {}),
   DialogueChecks: DialogueChecksViews,
   DialogueMatchPreferences: DialogueMatchPreferencesViews,
-  DigestPosts: new CollectionViewSet('DigestPosts', {}),
-  Digests: DigestsViews,
-  ElectionCandidates: ElectionCandidatesViews,
-  ElectionVotes: ElectionVotesViews,
   ElicitQuestionPredictions: new CollectionViewSet('ElicitQuestionPredictions', {}),
   ElicitQuestions: new CollectionViewSet('ElicitQuestions', {}),
   EmailTokens: new CollectionViewSet('EmailTokens', {}),
-  FeaturedResources: FeaturedResourcesViews,
   FieldChanges: FieldChangesViews,
-  ForumEvents: ForumEventsViews,
-  GardenCodes: GardenCodesViews,
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViews,
   IframeWidgetSrcdocs: IframeWidgetSrcdocsViews,
   Images: new CollectionViewSet('Images', {}),
@@ -138,10 +119,6 @@ export const allViews = {
   SplashArtCoordinates: new CollectionViewSet('SplashArtCoordinates', {}),
   Spotlights: SpotlightsViews,
   Subscriptions: SubscriptionsViews,
-  Surveys: SurveysViews,
-  SurveyQuestions: new CollectionViewSet('SurveyQuestions', {}),
-  SurveyResponses: new CollectionViewSet('SurveyResponses', {}),
-  SurveySchedules: SurveySchedulesViews,
   Tags: TagsViews,
   TagFlags: TagFlagsViews,
   TagRels: TagRelsViews,
@@ -149,8 +126,6 @@ export const allViews = {
   TypingIndicators: new CollectionViewSet('TypingIndicators', {}),
   UltraFeedEvents: UltraFeedEventsViews,
   Users: UsersViews,
-  UserEAGDetails: UserEAGDetailsViews,
-  UserJobAds: UserJobAdsViews,
   UserMostValuablePosts: UserMostValuablePostsViews,
   UserRateLimits: UserRateLimitsViews,
   UserTagRels: UserTagRelsViews,

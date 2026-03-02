@@ -4,8 +4,6 @@ import { siteUrlSetting, tagUrlBaseSetting, allowTypeIIIPlayerSetting } from '@/
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
-import type { RouterLocation } from '../../routeChecks/parseRoute';
-import type { Request, Response } from 'express';
 import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
 import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";

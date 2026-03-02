@@ -1,4 +1,4 @@
-import type { EmojiReactionType, ReactBallotAxis, ReactBallotStandaloneReaction } from './votingSystemTypes';
+import type { ReactBallotAxis, ReactBallotStandaloneReaction } from './votingSystemTypes';
 
 
 export const reactBallotAxes: ReactBallotAxis[] = [
@@ -13,13 +13,5 @@ export const reactBallotStandaloneReactions: ReactBallotStandaloneReaction[] = [
   { name: "enthusiasm", label: "Enthusiasm", icon: "🎉" },
   { name: "empathy", label: "Empathy", icon: "❤️" },
   { name: "surprise", label: "Surprise", icon: "😮" },
-];
-
-export const emojiReactions: EmojiReactionType[] = [
-  { name: "raised-hands", icon: "🙌" },
-  { name: "enthusiasm", icon: "🎉" },
-  { name: "empathy", icon: "❤️" },
-  { name: "star", icon: "🌟" },
-  { name: "surprise", icon: "😮" },
 ];
 
