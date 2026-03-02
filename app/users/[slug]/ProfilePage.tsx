@@ -214,9 +214,7 @@ function ProfilePageInner({user}: {
               <ProfileHeaderActions user={user} />
             </Suspense>
           </div>
-          {!user.hideProfileTopPosts && <Suspense>
-            <UserProfileTopPostsSection user={user}/>
-          </Suspense>}
+          {!user.hideProfileTopPosts && <UserProfileTopPostsSection user={user}/>}
 
           <Suspense>
             <ProfilePageMobileBio user={user} bioNoFollow={bioNoFollow}/>

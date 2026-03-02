@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
-import { useQuery } from "@/lib/crud/useQuery";
+import { useSuspenseQuery } from "@/lib/crud/useQuery";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import classNames from "classnames";
 import { useStyles } from "@/components/hooks/useStyles";
@@ -11,7 +11,9 @@ import { ExpandedDate } from "@/components/common/FormatDate";
 import { Link } from "@/lib/reactRouterWrapper";
 import { profileStyles } from "./profileStyles";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
-import { cleanPostPreviewText, cssUrl, DEFAULT_PREVIEWS, formatReadableDate, getDefaultPreview, hashString, PostWithPreview } from "./userProfilePageUtil";
+import { cleanPostPreviewText, cssUrl, DEFAULT_PREVIEWS, formatReadableDate, getDefaultPreview, PostWithPreview } from "./userProfilePageUtil";
+import times from "lodash/times";
+import { seededShuffle } from "@/lib/random";
 
 const ProfileTopPostsQuery = gql(`
   query ProfileTopPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -31,13 +33,8 @@ const TOP_POSTS_LIMIT = 4;
 // ID) so each user's profile gets a consistent but varied arrangement -- the
 // same user always sees the same placeholders, but different profiles differ.
 function buildTopPostDefaultImages(topPosts: PostsMinimumInfo[]): string[] {
-  const seed = hashString(topPosts[0]?._id ?? "seed");
-  const arr = [...DEFAULT_PREVIEWS];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = (seed + (i * 2654435761)) % (i + 1);
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
+  const seed = topPosts[0]?._id;
+  return seededShuffle(DEFAULT_PREVIEWS, seed);
 }
 
 function getPostImageUrl(
@@ -86,12 +83,26 @@ function getTopPostSummary(post: { contents?: { plaintextDescription?: string | 
 }
 
 export function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
-  const classes = useStyles(profileStyles);
+  return <Suspense fallback={<UserProfileTopPostsSectionFallback user={user} />}>
+    <UserProfileTopPostsSectionQuery user={user} />
+  </Suspense>
+}
+
+export function UserProfileTopPostsSectionFallback({user}: {user: UsersProfile}) {
+  const numPinnedPosts = user.pinnedPostIds?.length ?? 0;
+  const hasPinnedPosts = numPinnedPosts >= TOP_POSTS_LIMIT;
+  const numTotalPosts = user.postCount;
+  const numTopPosts = hasPinnedPosts ? numPinnedPosts : numTotalPosts;
+  
+  return <UserProfileTopPostsSectionInner user={user} topPosts={times(numTopPosts, ()=>null)} />;
+}
+
+export function UserProfileTopPostsSectionQuery({user}: {user: UsersProfile}) {
   const userId = user._id;
   const pinnedPostIds = user.pinnedPostIds ?? [];
   const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
 
-  const { data } = useQuery(ProfileTopPostsQuery, {
+  const { data } = useSuspenseQuery(ProfileTopPostsQuery, {
     skip: !hasPinnedPosts,
     variables: {
       selector: hasPinnedPosts
@@ -112,9 +123,18 @@ export function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
     ? filterNonnull(pinnedPostIds.map(id => postResults.find(p => p._id === id)))
     : postResults;
 
+  return <UserProfileTopPostsSectionInner user={user} topPosts={topPosts} />
+}
+
+export function UserProfileTopPostsSectionInner({user, topPosts}: {
+  user: UsersProfile,
+  topPosts: (PostsList|null)[]
+}) {
+  const classes = useStyles(profileStyles);
+
   const topPost = topPosts[0];
   const smallArticles = topPosts.slice(1, TOP_POSTS_LIMIT);
-  const topPostDefaultImages = buildTopPostDefaultImages(topPosts);
+  const topPostDefaultImages = seededShuffle(DEFAULT_PREVIEWS, user._id);
   const hasEnoughTopPosts = topPosts.length >= 4;
 
   if (!hasEnoughTopPosts) return null;
@@ -128,67 +148,108 @@ export function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
         </LWTooltip>
       </div>
 
-      {topPost && topPost.slug && (
-        <Link
-          to={postGetPageUrl(topPost)}
-          className={classNames(classes.postArticle, classes.postArticleTop)}
-        >
-          <div className={classes.postContent}>
-            <h2 className={classNames(classes.postTitle, classes.topPostTitle)}>
-              {topPost.title}
-            </h2>
-            <div className={classes.postSummaryWrapper}>
-              <p className={classes.postSummary}>{getTopPostSummary(topPost)}</p>
-            </div>
-            <div className={classes.postMetaBar}>
-              <LWTooltip title="Karma score">
-                <span className={classes.karmaScore}>{topPost.baseScore ?? 0}</span>
-              </LWTooltip>
-              <LWTooltip title={<ExpandedDate date={topPost.postedAt!} />}>
-                <span className={classes.postDate}>{formatReadableDate(topPost.postedAt!)}</span>
-              </LWTooltip>
-            </div>
-          </div>
-          <div
-            className={classes.postImage}
-            style={{
-              backgroundImage: getPostBackgroundImage(topPost, topPostDefaultImages, 0),
-            }}
-          ></div>
-        </Link>
-      )}
+      <TopPostBigArticle post={topPost} topPostDefaultImages={topPostDefaultImages} />
 
       <div className={classes.smallArticlesGrid}>
-        {smallArticles.map((post, idx) => {
-          const imageBackground = getPostBackgroundImage(post, topPostDefaultImages, idx + 1);
-          return (
-            <article key={post._id} className={classes.smallArticle}>
-              <Link
-                to={postGetPageUrl(post)}
-                className={classes.articleLink}
-              >
-                <div
-                  className={classes.smallArticleImage}
-                  style={{ backgroundImage: imageBackground }}
-                ></div>
-                <div className={classes.smallArticleContent}>
-                  <h3 className={classes.smallArticleTitle}>
-                    {post.title}
-                  </h3>
-                  <div className={classes.smallArticleMeta}>
-                    <LWTooltip title="Karma score">
-                      <span className={classes.smallKarma}>{post.baseScore ?? 0}</span>
-                    </LWTooltip>
-                    <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
-                      <span className={classes.smallDate}>{formatReadableDate(post.postedAt!)}</span>
-                    </LWTooltip>
-                  </div>
-                </div>
-              </Link>
-            </article>
-          );
-        })}
+        {smallArticles.map((post, idx) => <TopPostSmallArticle
+          key={post ? post._id : idx}
+          post={post}
+          topPostDefaultImages={topPostDefaultImages}
+          idx={idx}
+        />)}
       </div>
     </>
   )
+}
+
+function TopPostBigArticle({post, topPostDefaultImages}: {
+  post: PostsList|null
+  topPostDefaultImages: string[]
+}) {
+  const classes = useStyles(profileStyles);
+  if (post) {
+    return <Link
+      to={postGetPageUrl(post)}
+      className={classNames(classes.postArticle, classes.postArticleTop)}
+    >
+      <div className={classes.postContent}>
+        <h2 className={classNames(classes.postTitle, classes.topPostTitle)}>
+          {post.title}
+        </h2>
+        <div className={classes.postSummaryWrapper}>
+          <p className={classes.postSummary}>{getTopPostSummary(post)}</p>
+        </div>
+        <div className={classes.postMetaBar}>
+          <LWTooltip title="Karma score">
+            <span className={classes.karmaScore}>{post.baseScore ?? 0}</span>
+          </LWTooltip>
+          <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
+            <span className={classes.postDate}>{formatReadableDate(post.postedAt!)}</span>
+          </LWTooltip>
+        </div>
+      </div>
+      <div
+        className={classes.postImage}
+        style={{ backgroundImage: getPostBackgroundImage(post, topPostDefaultImages, 0) }}
+      ></div>
+    </Link>
+  } else {
+    return <div className={classNames(classes.postArticle, classes.postArticleTop)}>
+      <div className={classes.postContent}>
+        <h2 className={classNames(classes.postTitle, classes.topPostTitle)}>{" "}</h2>
+        <div className={classes.postSummaryWrapper}>
+          <p className={classes.postSummary} />
+        </div>
+        <div className={classes.postMetaBar} />
+      </div>
+      <div className={classes.postImage}/>
+    </div>
+  }
+}
+
+function TopPostSmallArticle({post, topPostDefaultImages, idx}: {
+  post: PostsList|null
+  topPostDefaultImages: string[],
+  idx: number
+}) {
+  const classes = useStyles(profileStyles);
+
+  if (post) {
+    const imageBackground = getPostBackgroundImage(post, topPostDefaultImages, idx + 1);
+    return <article className={classes.smallArticle}>
+      <Link
+        to={postGetPageUrl(post)}
+        className={classes.articleLink}
+      >
+        <div
+          className={classes.smallArticleImage}
+          style={{ backgroundImage: imageBackground }}
+        />
+        <div className={classes.smallArticleContent}>
+          <h3 className={classes.smallArticleTitle}>
+            {post.title}
+          </h3>
+          <div className={classes.smallArticleMeta}>
+            <LWTooltip title="Karma score">
+              <span className={classes.smallKarma}>{post.baseScore ?? 0}</span>
+            </LWTooltip>
+            <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
+              <span className={classes.smallDate}>{formatReadableDate(post.postedAt!)}</span>
+            </LWTooltip>
+          </div>
+        </div>
+      </Link>
+    </article>
+  } else {
+    return <article className={classes.smallArticle}>
+      <div className={classes.smallArticleImage} />
+      <div className={classes.smallArticleContent}>
+        <h3 className={classes.smallArticleTitle}/>
+        <div className={classes.smallArticleMeta}>
+          <span className={classes.smallKarma}>&nbsp;</span>
+          <span className={classes.smallDate}>&nbsp;</span>
+        </div>
+      </div>
+    </article>
+  }
 }

@@ -397,6 +397,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     margin: 0,
     color: theme.palette.text.normal,
     lineHeight: 1.3,
+    minHeight: 42, // Corresponds to approx two lines; ensures consistent height before title text loads
     letterSpacing: "-.02em",
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",

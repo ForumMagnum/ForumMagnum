@@ -39,6 +39,7 @@ type Documents = {
     "\n  query ProfileUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.ProfileUserQueryDocument,
     "\n  query ProfilePostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.ProfilePostsQueryDocument,
     "\n  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.ProfileSequencesQueryDocument,
+    "\n  query ProfileTopPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.ProfileTopPostsQueryDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": typeof types.AdminMetadataQueryDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": typeof types.SearchSynonymsDocument,
     "mutation UpdateSearchSynonyms($synonyms: [String!]!) {\n      UpdateSearchSynonyms(synonyms: $synonyms)\n    }": typeof types.UpdateSearchSynonymsDocument,
@@ -998,6 +999,7 @@ const documents: Documents = {
     "\n  query ProfileUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.ProfileUserQueryDocument,
     "\n  query ProfilePostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.ProfilePostsQueryDocument,
     "\n  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n": types.ProfileSequencesQueryDocument,
+    "\n  query ProfileTopPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.ProfileTopPostsQueryDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": types.AdminMetadataQueryDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": types.SearchSynonymsDocument,
     "mutation UpdateSearchSynonyms($synonyms: [String!]!) {\n      UpdateSearchSynonyms(synonyms: $synonyms)\n    }": types.UpdateSearchSynonymsDocument,
@@ -2046,6 +2048,10 @@ export function gql(source: "\n  query ProfilePostsQuery($selector: PostSelector
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query ProfileTopPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query ProfileTopPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
