@@ -203,9 +203,6 @@ function TableHoverActionsV2({
   );
 
   const {refs, floatingStyles, update} = useFloating({
-    elements: {
-      reference: virtualRef.current as unknown as Element,
-    },
     middleware: [
       offset({mainAxis: -TOP_BUTTON_OVERHANG}),
       shift({
@@ -222,9 +219,6 @@ function TableHoverActionsV2({
     floatingStyles: leftFloatingStyles,
     update: updateLeft,
   } = useFloating({
-    elements: {
-      reference: leftVirtualRef.current as unknown as Element,
-    },
     middleware: [
       offset({mainAxis: -LEFT_BUTTON_OVERHANG}),
       shift({
@@ -296,7 +290,7 @@ function TableHoverActionsV2({
         hoveredTopCellRef.current = closestTopCell.cell;
         virtualRef.current.getBoundingClientRect = () =>
           new DOMRect(closestTopCell.centerX, closestTopCell.top, 0, 0);
-        refs.setReference(virtualRef.current as unknown as Element);
+        refs.setPositionReference(virtualRef.current);
         setIsVisible(true);
         update?.();
       }
@@ -311,7 +305,7 @@ function TableHoverActionsV2({
         hoveredLeftCellRef.current = hoveredCell;
         leftVirtualRef.current.getBoundingClientRect = () =>
           new DOMRect(tableRect.left, centerY, 0, 0);
-        leftRefs.setReference(leftVirtualRef.current as unknown as Element);
+        leftRefs.setPositionReference(leftVirtualRef.current);
         setIsLeftVisible(true);
         updateLeft?.();
       }

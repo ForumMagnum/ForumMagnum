@@ -157,7 +157,7 @@ const FlashMessages = () => {
           elevation={6}
           className={classes.paper}
         >
-          <Typography variant="body1">
+          <Typography variant="body1" component="div">
             {messagesState.messages.map((message,i) => {
               if(typeof message === 'string') {
                 return message;
