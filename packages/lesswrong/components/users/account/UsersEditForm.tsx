@@ -6,9 +6,6 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { useSetTheme, useAbstractThemeOptions } from '@/components/themes/useTheme';
-
-import { configureDatadogRum } from '@/client/datadogRum';
-
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
@@ -77,7 +74,6 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   hideCommunitySection: 'preferences',
   showCommunityInRecentDiscussion: 'preferences',
   hidePostsRecommendations: 'preferences',
-  optedOutOfSurveys: 'preferences',
   postGlossariesPinned: 'preferences',
   googleLocation: 'preferences',
   mapLocation: 'preferences',
@@ -111,7 +107,6 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   karmaChangeNotifierSettings: 'notifications',
   whenConfirmationEmailSent: 'notifications',
   emailSubscribedToCurated: 'notifications',
-  subscribedToDigest: 'notifications',
   unsubscribeFromAll: 'notifications',
   moderationGuidelines: 'moderation',
   moderationStyle: 'moderation',
@@ -451,8 +446,6 @@ const UsersEditForm = ({ terms, accountManagement }: {
       captureEvent("setUserTheme", theme);
     }
 
-    void configureDatadogRum(user)
-
     flash(`User "${userGetDisplayName(user)}" edited`);
     try {
       await client.resetStore()
@@ -466,7 +459,7 @@ const UsersEditForm = ({ terms, accountManagement }: {
       {loadingUser && <Loading />}
       {!loadingUser && userBySlug && (
         <UsersForm
-          initialData={withDateFields(userBySlug, ['banned', 'hideJobAdUntil', 'karmaChangeLastOpened', 'lastNotificationsCheck', 'permanentDeletionRequestedAt', 'petrovLaunchCodeDate', 'petrovPressedButtonDate', 'whenConfirmationEmailSent'])}
+          initialData={withDateFields(userBySlug, ['banned', 'karmaChangeLastOpened', 'lastNotificationsCheck', 'permanentDeletionRequestedAt', 'petrovLaunchCodeDate', 'petrovPressedButtonDate', 'whenConfirmationEmailSent'])}
           currentUser={currentUser}
           onSuccess={onSuccess}
           isCurrentUser={isCurrentUser}

@@ -5,7 +5,6 @@
 import { isAnyTest } from '../executionEnvironment';
 
 // Collection imports
-import { default as AdvisorRequests } from '../collections/advisorRequests/newSchema';
 import { default as ArbitalCaches } from '../collections/arbitalCache/newSchema';
 import { default as ArbitalTagContentRels } from '../collections/arbitalTagContentRels/newSchema';
 import { default as AutomatedContentEvaluations } from '../collections/automatedContentEvaluations/newSchema';
@@ -27,17 +26,10 @@ import { default as DatabaseMetadata } from '../collections/databaseMetadata/new
 import { default as DebouncerEvents } from '../collections/debouncerEvents/newSchema';
 import { default as DialogueChecks } from '../collections/dialogueChecks/newSchema';
 import { default as DialogueMatchPreferences } from '../collections/dialogueMatchPreferences/newSchema';
-import { default as DigestPosts } from '../collections/digestPosts/newSchema';
-import { default as Digests } from '../collections/digests/newSchema';
-import { default as ElectionCandidates } from '../collections/electionCandidates/newSchema';
-import { default as ElectionVotes } from '../collections/electionVotes/newSchema';
 import { default as ElicitQuestionPredictions } from '../collections/elicitQuestionPredictions/newSchema';
 import { default as ElicitQuestions } from '../collections/elicitQuestions/newSchema';
 import { default as EmailTokens } from '../collections/emailTokens/newSchema';
-import { default as FeaturedResources } from '../collections/featuredResources/newSchema';
 import { default as FieldChanges } from '../collections/fieldChanges/newSchema';
-import { default as ForumEvents } from '../collections/forumEvents/newSchema';
-import { default as GardenCodes } from '../collections/gardencodes/newSchema';
 import { default as GoogleServiceAccountSessions } from '../collections/googleServiceAccountSessions/newSchema';
 import { default as IframeWidgetSrcdocs } from '../collections/iframeWidgetSrcdocs/newSchema';
 import { default as Images } from '../collections/images/newSchema';
@@ -83,18 +75,12 @@ import { default as SideCommentCaches } from '../collections/sideCommentCaches/n
 import { default as SplashArtCoordinates } from '../collections/splashArtCoordinates/newSchema';
 import { default as Spotlights } from '../collections/spotlights/newSchema';
 import { default as Subscriptions } from '../collections/subscriptions/newSchema';
-import { default as SurveyQuestions } from '../collections/surveyQuestions/newSchema';
-import { default as SurveyResponses } from '../collections/surveyResponses/newSchema';
-import { default as SurveySchedules } from '../collections/surveySchedules/newSchema';
-import { default as Surveys } from '../collections/surveys/newSchema';
 import { default as TagFlags } from '../collections/tagFlags/newSchema';
 import { default as TagRels } from '../collections/tagRels/newSchema';
 import { default as Tags } from '../collections/tags/newSchema';
 import { default as Tweets } from '../collections/tweets/newSchema';
 import { default as TypingIndicators } from '../collections/typingIndicators/newSchema';
 import { default as UltraFeedEvents } from '../collections/ultraFeedEvents/newSchema';
-import { default as UserEAGDetails } from '../collections/userEAGDetails/newSchema';
-import { default as UserJobAds } from '../collections/userJobAds/newSchema';
 import { default as UserMostValuablePosts } from '../collections/userMostValuablePosts/newSchema';
 import { default as UserRateLimits } from '../collections/userRateLimits/newSchema';
 import { default as UserTagRels } from '../collections/userTagRels/newSchema';
@@ -113,17 +99,15 @@ if (isAnyTest || bundleIsCodegen) {
 }
 
 export const allSchemas = {
-  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
+  ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
-  FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
+  DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations,
   PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
-  ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses,
-  SurveySchedules, Surveys, TagFlags, TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails,
-  UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels, YjsDocuments,
-  Users, Votes, ...testSchemas,
+  ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,
+  TagFlags, TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities,
+  UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes, YjsDocuments, ...testSchemas,
 } satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;
 
 export function getAllSchemas() {

@@ -7,11 +7,8 @@ import { useMessages } from '../common/withMessages';
 import { getUserABTestKey } from '../../lib/abTestImpl';
 import { useClientId } from '../hooks/useClientId.ts';
 import { useLocation } from '../../lib/routeUtil';
-import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import ContentStyles from "../common/ContentStyles";
 import ReCaptcha from "../common/ReCaptcha";
-import Loading from "../vulcan-core/Loading";
-import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';

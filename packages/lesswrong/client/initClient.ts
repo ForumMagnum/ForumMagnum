@@ -1,6 +1,5 @@
 import { CLIENT_ID_COOKIE } from "@/lib/cookies/cookies";
 import { randomId } from "@/lib/random";
-// import { initDatadog } from "./datadogRum";
 import { googleTagManagerInit } from "./ga";
 import { initReCaptcha } from "./reCaptcha";
 

@@ -133,7 +133,7 @@ export async function getVotingSystemNameForDocument(document: VoteableType, col
     return "namesAttachedReactions";
   }
   if ((document as DbComment).tagId) {
-    return isEAForum() ? "eaEmojis" : "namesAttachedReactions";
+    return "namesAttachedReactions";
   }
   if ((document as DbComment).postId) {
     const post = await context.loaders.Posts.load((document as DbComment).postId!);

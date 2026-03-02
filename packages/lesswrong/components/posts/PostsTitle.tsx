@@ -8,9 +8,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCommunityPath } from '@/lib/pathConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
-import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { useTheme } from '../themes/useTheme';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
 import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
@@ -181,21 +178,6 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   return null;
 }
 
-const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) => {
-  const {currentForumEvent, isEventPost} = useCurrentAndRecentForumEvents();
-  if (!showEventTag) {
-    return undefined;
-  }
-  const event = isEventPost(post, {includeRecent: true});
-  if (event?.tag) {
-    if (event.tag._id === currentForumEvent?.tag?._id) {
-      return {event: event, current: true};
-    }
-    return {event: event, current: false};
-  }
-  return undefined;
-}
-
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
 const PostsTitle = ({
@@ -237,8 +219,6 @@ const PostsTitle = ({
 }) => {
   const currentUserId = useCurrentUserId();
   const { pathname } = useLocation();
-  const {event: taggedEvent, current: taggedEventIsCurrent} = useTaggedEvent(showEventTag ?? false, post) ?? {};
-  const theme = useTheme();
   const shared = post.draft && (post.userId !== currentUserId) && post.shareWithUsers
   const isOnGrayBackground = useIsOnGrayBackground();
 
@@ -291,33 +271,6 @@ const PostsTitle = ({
           />
         </InteractionWrapper>
       </span>}
-      {taggedEvent?.tag &&
-        <InteractionWrapper className={classes.interactionWrapper}>
-          <TagsTooltip
-            tagSlug={taggedEvent.tag.slug}
-            className={classes.highlightedTagTooltip}
-          >
-            <Link doOnDown={true} to={tagGetUrl(taggedEvent.tag)} className={classes.eventTagLink}>
-              <span
-                className={classNames(
-                  classes.eventTag,
-                  {[classes.eventTagBordered]: !taggedEventIsCurrent}
-                )}
-                style={{
-                  "--post-title-tag-background": taggedEventIsCurrent ?
-                    taggedEvent.lightColor :
-                    theme.palette.tag.background,
-                  "--post-title-tag-foreground": taggedEventIsCurrent ?
-                    taggedEvent.darkColor :
-                    theme.palette.tag.text,
-                } as CSSProperties}
-              >
-                {taggedEvent.tag.shortName || taggedEvent.tag.name}
-              </span>
-            </Link>
-          </TagsTooltip>
-        </InteractionWrapper>
-      }
     </span>
   )
 }

@@ -248,8 +248,6 @@ export const recombeeDatabaseIdSetting = new PublicInstanceSetting<string | null
 export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.publicApiToken', null, "optional");
 export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");
 
-export const isDatadogEnabled = () => isEAForum();
-
 export type PostFeedDetails = {
   name: string,
   label: string,
@@ -302,8 +300,6 @@ export const twitterBotKarmaThresholdSetting = new PublicInstanceSetting<number>
 export const airtableApiKeySetting = new PublicInstanceSetting<string | null>('airtable.apiKey', null, "optional");
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning");
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning");
-
-export const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional"); // Post ID for the first post in the EAHomeHandbook Sequence
 
 export const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional");
 
@@ -405,10 +401,6 @@ export const elicitSourceId = new PublicInstanceSetting('elicitSourceId', 'XCjOp
 
 export const mapboxAPIKeySetting = new PublicInstanceSetting<string | null>('mapbox.apiKey', null, "optional"); // API Key for the mapbox map and tile requests
 
-export const mailchimpForumDigestListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.forumDigestListId', null, "optional");
-export const mailchimpEAForumListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.eaForumListId', null, "optional");
-export const mailchimpEAForumNewsletterListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.eaNewsletterListId', null, "optional");
-
 export const isProductionDBSetting = new PublicInstanceSetting<boolean>('isProductionDB', false, "optional");
 
 export const showReviewOnFrontPageIfActive = new PublicInstanceSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true, "optional");
@@ -436,10 +428,6 @@ export const adminAccountSetting = new PublicInstanceSetting<AccountInfo | null>
 
 export const crosspostKarmaThreshold = new PublicInstanceSetting<number | null>('crosspostKarmaThreshold', 100, "optional");
 
-export const ddTracingSampleRate = new PublicInstanceSetting<number>('datadog.tracingSampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
-export const ddRumSampleRate = new PublicInstanceSetting<number>('datadog.rumSampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
-export const ddSessionReplaySampleRate = new PublicInstanceSetting<number>('datadog.sessionReplaySampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
-
 /** Will we show our logo prominently, such as in the header */
 export const hasProminentLogoSetting = new PublicInstanceSetting<boolean>("hasProminentLogo", false, "optional");
 
@@ -458,8 +446,6 @@ export const auth0ClientSettings = new PublicInstanceSetting<Auth0ClientSettings
 // Null means requests are disabled
 export const requestFeedbackKarmaLevelSetting = new PublicInstanceSetting<number | null>('post.requestFeedbackKarmaLevel', 100, "optional");
 
-export const alwaysShowAnonymousReactsSetting = new PublicInstanceSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true, "optional");
-
 export const showSubscribeReminderInFeed = new PublicInstanceSetting<boolean>('feed.showSubscribeReminder', true, "optional");
 
 export const hasGoogleDocImportSetting = new PublicInstanceSetting<boolean>('googleDocImport.enabled', false, "optional");
@@ -469,8 +455,6 @@ export const recombeeEnabledSetting = new PublicInstanceSetting<boolean>('recomb
 export const recommendationsTabManuallyStickiedPostIdsSetting = new PublicInstanceSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', [], "optional");
 
 export const blackBarTitle = new PublicInstanceSetting<string | null>('blackBarTitle', null, "optional");
-
-export const quickTakesTagsEnabledSetting = new PublicInstanceSetting<boolean>('quickTakes.tagsEnabled', false, "optional");
 
 /** Whether to show permalinked (?commentId=...) comments at the top of the page, vs scrolling to show them in context */
 export const commentPermalinkStyleSetting = new PublicInstanceSetting<'top' | 'in-context'>('commentPermalinkStyle', 'top', "optional");
@@ -524,9 +508,6 @@ export const eventBannerMobileImageSetting = new PublicInstanceSetting<string | 
 export const eventBannerDesktopImageSetting = new PublicInstanceSetting<string | null>('eventBannerDesktopImage', null, "optional");
 export const eventBannerLinkSetting = new PublicInstanceSetting<string | null>('eventBannerLink', null, "optional");
 
-export const buttonBurstSetting = new PublicInstanceSetting<boolean>("buttonBurst.enabled", false, "optional");
-export const buttonBurstImage = new PublicInstanceSetting<string>("buttonBurst.image", "https://res.cloudinary.com/cea/image/upload/w_256,h_256,q_40,f_auto,dpr_1/v1711484824/bulby-canonical.png", "optional");
-
 export const placeholderSetting = new PublicInstanceSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail", "optional");
 
 export const disableCookiePreferenceAutoUpdateSetting = new PublicInstanceSetting<boolean>('disableCookiePreferenceAutoUpdate', false, "optional");
@@ -573,26 +554,6 @@ export const cloudinaryUploadPresetEditorName = new PublicInstanceSetting<string
 export const timeDecayFactorSetting = new PublicInstanceSetting<number>('timeDecayFactor', 1.15, "optional");
 export const frontpageBonusSetting = new PublicInstanceSetting<number>('frontpageScoreBonus', 10, "optional");
 export const curatedBonusSetting = new PublicInstanceSetting<number>('curatedScoreBonus', 10, "optional");
-
-/**
- * We apply a score boost to subforum comments using the formula:
- *   max(b, m * (1 - ((x / d) ** p)))
- * where b is the base (the minimum boost received after the duration
- * has expired), m is the magnitude (the maximum boost when the comment
- * is first posted), d is the duration in hours, p is the exponent
- * (defining the dropoff curve), and x is the elapsed time since the
- * comment was posted in hours.
- */
-export const defaultSubforumCommentBonus = {
-  base: 5,
-  magnitude: 100,
-  duration: 8,
-  exponent: 0.3,
-} as const;
-
-export type SubforumCommentBonus = typeof defaultSubforumCommentBonus;
-
-export const subforumCommentBonusSetting = new PublicInstanceSetting<SubforumCommentBonus>('subforumCommentBonus', defaultSubforumCommentBonus, "optional");
 
 // EA Frontpage time decay algorithm settings
 export const startingAgeHoursSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.startingAgeHours', 6, "optional");

@@ -798,35 +798,6 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
   },
 });
 
-export const NewSubforumMemberNotification = createServerNotificationType({
-  name: "newSubforumMember",
-  canCombineEmails: false,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const newUser = await Users.findOne(notifications[0].documentId)
-    if (!newUser) throw new Error("Cannot find user for which this notification is being sent")
-    return `New member ${newUser.displayName} has joined your subforum`;
-  },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const newUser = await Users.findOne(notifications[0].documentId)
-    const subforum = await Tags.findOne(notifications[0].extraData?.subforumId)
-    if (!newUser) throw new Error(`Cannot find user for which this notification is being sent, user id: ${notifications[0].documentId}`)
-    if (!subforum) throw new Error(`Cannot find subforum for which this notification is being sent, subforum id: ${notifications[0].extraData?.subforumId}`)
-
-    return <div>
-      <p>
-        Hi {user.displayName},
-      </p>
-      <p>
-        Your subforum, <a href={tagGetSubforumUrl(subforum, true)}> {subforum?.name}</a> has a new
-        member: <a href={userGetProfileUrl(newUser, true)}>{newUser?.displayName}</a>.
-      </p>
-      <p>
-        - The {forumTitleSetting.get()} Team
-      </p>
-    </div>
-  },
-});
-
 export const NewMentionNotification = createServerNotificationType({
   name: "newMention",
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -890,7 +861,6 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   NewCommentOnDraftNotification,
   PostCoauthorRequestNotification,
   PostCoauthorAcceptNotification,
-  NewSubforumMemberNotification,
   NewMentionNotification,
 ];
 const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);

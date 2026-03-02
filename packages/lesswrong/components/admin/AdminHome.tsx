@@ -4,8 +4,8 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { hasDigests, hasForumEvents, hasSurveys, hasTwitterFeatures } from '../../lib/betas';
-import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { hasTwitterFeatures } from '../../lib/betas';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 import SingleColumnSection from "../common/SingleColumnSection";
 import AdminMetadata from "./AdminMetadata";
@@ -70,14 +70,8 @@ const AdminHome = () => {
 
       <h3>Site Admin</h3>
       <ul>
-        {isEAForum() && <li><Link className={classes.link} to="/admin/election-candidates">Donation Election Candidates</Link></li>}
-        {hasDigests() && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
         {hasTwitterFeatures() && <li><Link className={classes.link} to="/admin/twitter">Twitter tools</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
-        {hasSurveys() && <li><Link className={classes.link} to="/admin/surveys">Surveys</Link></li>}
-        {hasForumEvents() &&
-          <li><Link className={classes.link} to="/adminForumEvents">Forum events</Link></li>
-        }
         <li><Link className={classes.link} to="/admin/emailSender">Email Sender</Link></li>
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>
@@ -96,7 +90,6 @@ const AdminHome = () => {
         <li><Link className={classes.link} to="/postListEditorTest">Post List Editor Test</Link></li>
         <li><Link className={classes.link} to="/imageUpload">Image Upload Test</Link></li>
         <li><Link className={classes.link} to="/admin/recommendationsSample">Recommendations Explorer</Link></li>
-        <li><Link className={classes.link} to="/admin/onboarding">View onboarding flow</Link> (for testing purposes - this will not make any changes to your account)</li>
         <li><Link className={classes.link} to="/admin/debugDatabaseIndexes">Debug database indexes</Link></li>
       </ul>
 

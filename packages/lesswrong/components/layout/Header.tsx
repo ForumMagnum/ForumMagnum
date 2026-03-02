@@ -1,4 +1,4 @@
-import React, { use, createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { use, createContext, useContext, useState, useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
@@ -14,12 +14,9 @@ import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, hasProminentLogo
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { useLocation } from '../../lib/routeUtil';
-import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
-import { hasForumEvents } from '@/lib/betas';
 import SearchBar from "@/components/common/SearchBar";
 import UsersMenu from "../users/UsersMenu";
-import { LWUsersAccountMenu, EAUsersAccountMenu } from "../users/UsersAccountMenu";
+import { LWUsersAccountMenu } from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import { ICON_ONLY_NAVIGATION_BREAKPOINT } from "@/components/common/TabNavigationMenu/NavigationStandalone";
 import NavigationDrawer from "@/components/common/TabNavigationMenu/NavigationDrawer";
@@ -333,17 +330,6 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
   },
 }));
 
-function getForumEventBackgroundStyle(currentForumEvent: ForumEventsDisplay, bannerImageId: string) {
-  const darkColor = currentForumEvent.darkColor;
-  return `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
-    c: "fill",
-    dpr: "auto",
-    q: "auto",
-    f: "auto",
-    g: "north",
-  })})${darkColor ? `, ${darkColor}` : ''}`;
-}
-
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
     updateUser(selector: $selector, data: $data) {
@@ -353,6 +339,25 @@ const UsersCurrentUpdateMutation = gql(`
     }
   }
 `);
+
+const subscribeHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerHydratedSnapshot = () => false;
+
+/**
+ * The ToC drawer (mobile-specific) uses SidebarsContext, but this is updated on load in a
+ * component in a different suspense boundary, which by default would cause SSR mismatches.
+ * Prevent SSR mismatch by always rendering the non-ToC version first.
+ */
+function useGetToC() {
+  const sidebars = useContext(SidebarsContext);
+  const isHydrated = useSyncExternalStore(
+    subscribeHydration,
+    getHydratedSnapshot,
+    getServerHydratedSnapshot,
+  );
+  return isHydrated ? sidebars?.toc : null;
+}
 
 const Header = ({
   standaloneNavigationPresent,
@@ -377,11 +382,10 @@ const Header = ({
   const currentUserId = useCurrentUserId();
   const isLoggedIn = !!currentUserId;
   const usernameUnset = useFilteredCurrentUser(u => !!u?.usernameUnset);
-  const {toc} = useContext(SidebarsContext)!;
+  const toc = useGetToC();
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
-  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   let headerStyle = { ...(backgroundColor ? { backgroundColor } : {}) };
 
   const { hideNavigationSidebar, setHideNavigationSidebar } = use(HideNavigationSidebarContext)!;
@@ -410,7 +414,6 @@ const Header = ({
     }
   }, [pathname, hash]);
 
-  const hasNotificationsPopover = isFriendlyUI();
   const hasKarmaChangeNotifier = !isFriendlyUI() && isLoggedIn && !usernameUnset;
   const hasMessagesButton = isFriendlyUI() && isLoggedIn && !usernameUnset;
 
@@ -435,17 +438,11 @@ const Header = ({
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser;
 
-    if (hasNotificationsPopover) {
-      captureEvent("notificationsIconToggle", {
-        previousCheck: lastNotificationsCheck,
-      });
-    } else {
-      captureEvent("notificationsIconToggle", {
-        open: !notificationOpen,
-        previousCheck: lastNotificationsCheck,
-      });
-      void handleSetNotificationDrawerOpen(!notificationOpen);
-    }
+    captureEvent("notificationsIconToggle", {
+      open: !notificationOpen,
+      previousCheck: lastNotificationsCheck,
+    });
+    void handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
   // We do two things when the search is open:
@@ -528,13 +525,11 @@ const Header = ({
     </AnalyticsContext>
   </div>
 
-  const loginButtonNode = isFriendlyUI() ? <EAUsersAccountMenu /> : <LWUsersAccountMenu />;
-
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI() && usersMenuNode}
-    {!isLoggedIn && loginButtonNode}
+    {!isLoggedIn && <LWUsersAccountMenu />}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
       className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
     />}
@@ -560,33 +555,16 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const headerNotificationsMenu = isLoggedIn && !hasNotificationsPopover
-    && (
-      <NotificationsMenu
-        open={notificationOpen}
-        hasOpened={notificationHasOpened}
-        setIsOpen={handleSetNotificationDrawerOpen}
-      />
-    );
-
-  const bannerImageId = currentForumEvent?.bannerImageId
+  const headerNotificationsMenu = isLoggedIn && (
+    <NotificationsMenu
+      open={notificationOpen}
+      hasOpened={notificationHasOpened}
+      setIsOpen={handleSetNotificationDrawerOpen}
+    />
+  );
 
   // Adjust header width when LLM chat sidebar is open and header is fixed
   const llmChatSidebarOpen = useContext(IsLlmChatSidebarOpenContext);
-
-  const setForumEventHeaderStyle = hasForumEvents() && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC" && !backgroundColor;
-  if (setForumEventHeaderStyle) {
-    const forumEventHeaderStyle = setForumEventHeaderStyle ? {
-      background: getForumEventBackgroundStyle(currentForumEvent, bannerImageId),
-      "--header-text-color": currentForumEvent.bannerTextColor ?? undefined,
-      "--header-contrast-color": currentForumEvent.darkColor ?? undefined,
-    } : {};
-
-    headerStyle = {
-      ...headerStyle,
-      ...(setForumEventHeaderStyle ? forumEventHeaderStyle : {}),
-    }
-  }
 
   // Make all the text and icons the same color as the text on the current forum event banner
   const useContrastText = Object.keys(headerStyle).includes('backgroundColor') || Object.keys(headerStyle).includes('background');

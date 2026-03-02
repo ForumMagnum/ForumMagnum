@@ -75,9 +75,6 @@ export const allowSubscribeToUserComments = true;
 export const allowSubscribeToSequencePosts = () => isFriendlyUI();
 /** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = () => isEAForum();
-/** Some Forums, notably the EA Forum, have a mailchimp email lists */
-export const hasDigests = () => isEAForum();
-export const hasNewsletter = () => isEAForum();
 
 /**
  * Whether the instance should have any features for integrating with twitter.
@@ -90,15 +87,11 @@ export const hasSideComments = () => hasSideCommentsSetting.get();
 export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = () => hasCommentsTableOfContentSetting.get();
 export const fullHeightToCEnabled = () => isLWorAF();
-export const hasForumEvents = () => isEAForum();
-export const hasSurveys = () => isFriendlyUI() && !isBotSiteSetting.get();
 export const hasCollapsedFootnotes = false; // TODO re-enable for EAF once https://github.com/ForumMagnum/ForumMagnum/issues/10912 is fixed
 export const usesCurationEmailsCron = () => isLW();
 export const hasSidenotes = () => isLWorAF();
 export const visitedLinksHaveFilledInCircle = () => isLWorAF();
 export const hasWikiLenses = () => isLWorAF();
-export const hasSubforums = () => isEAForum();
-export const hasPolls = () => isEAForum();
 export const hasDraftComments = () => true;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this

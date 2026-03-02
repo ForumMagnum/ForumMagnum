@@ -1,13 +1,9 @@
 import { ReactionsAndLikesCommentBottom, ReactionsAndLikesVoteOnComment } from "@/components/votes/lwReactions/ReactionsAndLikesVote";
 import { NamesAttachedReactionsCommentBottom, NamesAttachedReactionsVoteOnComment } from "@/components/votes/lwReactions/NamesAttachedReactionsVoteOnComment";
 import NamesAttachedReactionsMessageBottom from "@/components/votes/lwReactions/NamesAttachedReactionsMessageBottom";
-import EAEmojisVoteOnPost from "@/components/votes/EAEmojisVoteOnPost";
-import EAEmojisVoteOnPostSecondary from "@/components/votes/EAEmojisVoteOnPostSecondary";
 import VoteOnComment from "@/components/votes/VoteOnComment";
 import TwoAxisVoteOnComment from "@/components/votes/TwoAxisVoteOnComment";
 import ReactBallotVoteOnComment from "@/components/votes/ReactBallotVoteOnComment";
-import EmojiReactionVoteOnComment from "@/components/votes/EmojiReactionVoteOnComment";
-import EAEmojisVoteOnComment from "@/components/votes/EAEmojisVoteOnComment";
 import type { VotingSystemName } from "./votingSystemNames";
 import type { CommentVotingBottomComponent, CommentVotingComponent, MessageVotingBottomComponent, PostVotingComponent } from './votingSystemTypes';
 
@@ -21,8 +17,6 @@ export const commentVotingComponents = {
   default: () => VoteOnComment,
   twoAxis: () => TwoAxisVoteOnComment,
   reactsBallot: () => ReactBallotVoteOnComment,
-  emojiReactions: () => EmojiReactionVoteOnComment,
-  eaEmojis: () => EAEmojisVoteOnComment,
   reactionsAndLikes: () => ReactionsAndLikesVoteOnComment,
   namesAttachedReactions: () => NamesAttachedReactionsVoteOnComment,
 } satisfies Record<VotingSystemName, () => CommentVotingComponent>;
@@ -37,9 +31,7 @@ export const messageBottomComponents: Partial<Record<VotingSystemName, () => Mes
 };
 
 export const postBottomVotingComponents: Partial<Record<VotingSystemName, () => PostVotingComponent>> = {
-  eaEmojis: () => EAEmojisVoteOnPost,
 };
 
 export const postBottomSecondaryVotingComponents: Partial<Record<VotingSystemName, () => PostVotingComponent>> = {
-  eaEmojis: () => EAEmojisVoteOnPostSecondary,
 };

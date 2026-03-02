@@ -1,6 +1,4 @@
 import { getSiteUrl } from '../../vulcan-lib/utils';
-import type { RouterLocation } from '../../routeChecks/parseRoute';
-import type { Request, Response } from 'express';
 import { getWithLoader } from '@/lib/loaders';
 
 export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;

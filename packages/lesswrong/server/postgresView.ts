@@ -1,6 +1,5 @@
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { queryWithLock } from "./queryWithLock";
-import { addCronJob, CronJobSpec } from "./cron/cronUtil";
 
 type PostgresViewRefreshSpec = {
   interval: string,
@@ -8,8 +7,6 @@ type PostgresViewRefreshSpec = {
 }
 
 export class PostgresView {
-  private cronJob: CronJobSpec|null = null;
-
   constructor(
     private name: string,
     private createViewQuery: string,
@@ -18,13 +15,6 @@ export class PostgresView {
     private dependencies?: SchemaDependency[],
     private queryTimeout = 60,
   ) {
-    if (this.refreshSpec) {
-      this.cronJob = addCronJob({
-        name: `refreshPostgresView-${this.name}`,
-        interval: this.refreshSpec.interval,
-        job: () => this.refresh(getSqlClientOrThrow()),
-      });
-    }
   }
 
   getName(): string {
@@ -47,10 +37,6 @@ export class PostgresView {
     if (this.refreshSpec) {
       await queryWithLock(db, this.refreshSpec.query, this.queryTimeout);
     }
-  }
-
-  getCronJob() {
-    return this.cronJob;
   }
 }
 

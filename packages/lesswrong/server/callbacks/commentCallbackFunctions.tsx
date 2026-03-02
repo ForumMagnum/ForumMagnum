@@ -1,6 +1,5 @@
 import React from "react";
 import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
-import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
 import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
@@ -101,39 +100,6 @@ const utils = {
         moment.relativeTimeThreshold('ss', 0);
         throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`);
       }
-    }
-  },
-
-  /**
-   * Run side effects based on the `forumEventMetadata` that is submitted.
-   */
-  forumEventSideEffects: async ({ comment, forumEventMetadata, context }: { comment: DbComment; forumEventMetadata: ForumEventCommentMetadata; context: ResolverContext; }) => {
-    const { repos } = context;
-    if (forumEventMetadata.eventFormat === "STICKERS") {
-      const sticker = forumEventMetadata.sticker
-
-      if (!comment.forumEventId) {
-        throw new Error("Comment must have forumEventId")
-      }
-
-      const {_id, x, y, theta, emoji} = sticker ?? {};
-
-      if (!sticker || !_id || !x || !y || !theta) {
-        throw new Error("Must include sticker")
-      }
-
-      if (!emoji) {
-        throw new Error("No emoji selected")
-      }
-
-      const forumEventId = comment.forumEventId;
-      const stickerData = {_id, x, y, theta, emoji, commentId: comment._id, userId: comment.userId};
-
-      await repos.forumEvents.addSticker({ forumEventId, stickerData });
-      captureEvent("addForumEventSticker", {
-        forumEventId,
-        stickerData,
-      });
     }
   },
 
@@ -530,26 +496,6 @@ export function newCommentsEmptyCheck(comment: CreateCommentDataInput) {
   }
 }
 
-export function newCommentsPollResponseCheck(comment: CreateCommentDataInput) {
-  const { data } = (comment.contents && comment.contents.originalContents) || {}
-  const commentPrompt = (comment.forumEventMetadata as ForumEventCommentMetadata)?.poll?.commentPrompt;
-
-  if (commentPrompt && data) {
-    // commentPrompt will be like `<blockquote>${plaintextQuestion}</blockquote><p></p>`
-    // If unedited, data will be like `<blockquote><p>${plaintextQuestion}</p></blockquote><p>&nbsp;</p>`
-
-    // Normalize both strings by removing HTML tags, replacing &nbsp;, and trimming/collapsing whitespace.
-    const normalize = (html: string) => html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-
-    const normalizedPrompt = normalize(commentPrompt);
-    const normalizedData = normalize(data);
-
-    if (normalizedPrompt && normalizedData === normalizedPrompt) {
-      throw new Error("Cannot submit only the prefilled text");
-    }
-  }
-}
-
 export async function newCommentsRateLimit(newComment: CreateCommentDataInput, currentUser: DbUser, context: ResolverContext) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
@@ -745,15 +691,6 @@ export async function commentsNewUserApprovedStatus(comment: CreateCommentDataIn
   const commentAuthor = await Users.findOne(comment.userId);
   if (!commentAuthor?.reviewedByUserId) {
     return {...comment, authorIsUnreviewed: true}
-  }
-  return comment;
-}
-
-export async function handleForumEventMetadataNew(comment: CreateCommentDataInput & { _id?: string }, context: ResolverContext) {
-  if (comment.forumEventMetadata) {
-    // Side effects may need to reference the comment, so set the _id now
-    comment._id = comment._id || randomId();
-    await utils.forumEventSideEffects({ comment: comment as DbComment, forumEventMetadata: comment.forumEventMetadata, context });
   }
   return comment;
 }
@@ -987,14 +924,6 @@ export async function moveToAnswers(modifier: MongoModifier, comment: DbComment,
     } else if (modifier.$set.answer === false) {
       await Comments.rawUpdateMany({topLevelCommentId: comment._id}, {$unset:{parentAnswerId:true}}, { multi: true })
     }
-  }
-  return modifier
-}
-
-export async function handleForumEventMetadataEdit(modifier: MongoModifier, comment: DbComment, context: ResolverContext) {
-  const newMetadata = modifier.$set?.forumEventMetadata;
-  if (newMetadata && !isEqual(comment.forumEventMetadata, newMetadata)) {
-    await utils.forumEventSideEffects({ comment, forumEventMetadata: newMetadata, context });
   }
   return modifier
 }

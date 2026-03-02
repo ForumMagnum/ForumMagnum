@@ -21,6 +21,8 @@ const styles = defineStyles("LWTooltip", (_theme: ThemeType) => ({
   }
 }), {stylePriority: -1});
 
+export const TooltipSuggestedWidth = 270;
+
 export type LWTooltipProps = {
   title?: ReactNode,
   placement?: PopperPlacementType,
