@@ -57,7 +57,8 @@ const AdminHome = () => {
       
       <h3>Moderation</h3>
       <ul>
-        <li><Link className={classes.link} to="/admin/moderation">Moderation Dashboard</Link></li>
+        <li><Link className={classes.link} to="/admin/supermod">Supermod</Link></li>
+        <li><Link className={classes.link} to="/admin/moderation">Moderation Dashboard (legacy)</Link></li>
         <li><Link className={classes.link} to="/moderation/altAccounts">Alt-Accounts Investigator</Link></li>
         <li><Link className={classes.link} to="/admin/recentlyActiveUsers">Recently Active Users</Link></li>
         <li><Link className={classes.link} to="/admin/moderationTemplates">Moderation Templates</Link></li>
@@ -97,7 +98,7 @@ const AdminHome = () => {
         <li><Link className={classes.link} to="/imageUpload">Image Upload Test</Link></li>
         <li><Link className={classes.link} to="/admin/recommendationsSample">Recommendations Explorer</Link></li>
         <li><Link className={classes.link} to="/admin/onboarding">View onboarding flow</Link> (for testing purposes - this will not make any changes to your account)</li>
-        <li><Link className={classes.link} to="/admin/debugDatabaseIndexes">Debug database indexes</Link></li>
+        <li><Link className={classes.link} to="/admin/debugDatabaseDifferences">Debug database differences</Link></li>
       </ul>
 
       <h3>Server Information</h3>
