@@ -28,15 +28,6 @@ const ProfileTopPostsQuery = gql(`
 
 const TOP_POSTS_LIMIT = 4;
 
-// When posts lack a social preview image, we show placeholder images instead.
-// This shuffles the placeholders deterministically (seeded by the first post's
-// ID) so each user's profile gets a consistent but varied arrangement -- the
-// same user always sees the same placeholders, but different profiles differ.
-function buildTopPostDefaultImages(topPosts: PostsMinimumInfo[]): string[] {
-  const seed = topPosts[0]?._id;
-  return seededShuffle(DEFAULT_PREVIEWS, seed);
-}
-
 function getPostImageUrl(
   post: PostWithPreview,
   topPostDefaultImages: string[],
@@ -92,7 +83,8 @@ export function UserProfileTopPostsSectionFallback({user}: {user: UsersProfile})
   const numPinnedPosts = user.pinnedPostIds?.length ?? 0;
   const hasPinnedPosts = numPinnedPosts >= TOP_POSTS_LIMIT;
   const numTotalPosts = user.postCount;
-  const numTopPosts = hasPinnedPosts ? numPinnedPosts : numTotalPosts;
+  const numPosts = hasPinnedPosts ? numPinnedPosts : numTotalPosts;
+  const numTopPosts = Math.min(numPosts, TOP_POSTS_LIMIT);
   
   return <UserProfileTopPostsSectionInner user={user} topPosts={times(numTopPosts, ()=>null)} />;
 }
@@ -103,7 +95,6 @@ export function UserProfileTopPostsSectionQuery({user}: {user: UsersProfile}) {
   const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
 
   const { data } = useSuspenseQuery(ProfileTopPostsQuery, {
-    skip: !hasPinnedPosts,
     variables: {
       selector: hasPinnedPosts
         ? { default: { exactPostIds: pinnedPostIds } }
