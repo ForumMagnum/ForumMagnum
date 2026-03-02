@@ -11,7 +11,7 @@ import chunk from "lodash/chunk";
 import { getLatestRev } from "@/server/editor/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
-import { getCollection } from "@/server/collections/allCollections";
+import { getCollection, isValidCollectionName } from "@/server/collections/allCollections";
 import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { buildRevision } from "@/server/editor/conversionUtils";
 import { createRevision } from "@/server/collections/revisions/mutations";
@@ -31,6 +31,22 @@ function getCollectionFromNameOrCollection<N extends CollectionNameString>(
     throw new Error(`Collection "${collectionOrCollectionName}" not found`);
   }
   return collection as CollectionBase<N>;
+}
+
+function getTableNameFromCollectionNameOrCollection<N extends CollectionNameString>(
+  collectionOrCollectionName: CollectionBase<N>|string,
+): string {
+  if (typeof collectionOrCollectionName === "string") {
+    if (isValidCollectionName(collectionOrCollectionName)) {
+      const collection = getCollection(collectionOrCollectionName);
+      return collection.getTable().getName();
+    } else {
+      return collectionOrCollectionName;
+    }
+  } else {
+    const collection = collectionOrCollectionName as CollectionBase<N>;
+    return collection.getTable().getName();
+  }
 }
 
 function getPgCollectionFromNameOrCollection<N extends CollectionNameString>(
@@ -54,7 +70,7 @@ export const addField = async <N extends CollectionNameString>(
   if (!fieldType) {
     throw new Error(`Field "${fieldName}" does not exist in the schema`);
   }
-  await db.none("ALTER TABLE $1 ADD COLUMN IF NOT EXISTS $2 $3", [table.getName(), fieldName, fieldType.toString()]);
+  await db.none(`ALTER TABLE "${table.getName()}" ADD COLUMN IF NOT EXISTS "${fieldName}" "${fieldType.toString()}"`);
 }
 
 /**
@@ -80,8 +96,8 @@ export const dropField = async <N extends CollectionNameString>(
   // down-migration, it'll have been removed from the schema
   fieldName: string,
 ): Promise<void> => {
-  const collection = getCollectionFromNameOrCollection(collectionOrCollectionName);
-  await db.none(`ALTER TABLE "${collection.getTable().getName()}" DROP COLUMN IF EXISTS "${fieldName}" CASCADE`);
+  const tableName = getTableNameFromCollectionNameOrCollection(collectionOrCollectionName);
+  await db.none(`ALTER TABLE "${tableName}" DROP COLUMN IF EXISTS "${fieldName}" CASCADE`);
 }
 
 /**
@@ -95,8 +111,8 @@ export const dropRemovedField = async <N extends CollectionNameString>(
   collectionOrCollectionName: CollectionBase<N>|string,
   fieldName: string,
 ): Promise<void> => {
-  const collection = getCollectionFromNameOrCollection(collectionOrCollectionName);
-  await db.none(`ALTER TABLE "${collection.getTable().getName()}" DROP COLUMN IF EXISTS "${fieldName}" CASCADE`);
+  const tableName = getTableNameFromCollectionNameOrCollection(collectionOrCollectionName);
+  await db.none(`ALTER TABLE "${tableName}" DROP COLUMN IF EXISTS "${fieldName}" CASCADE`);
 }
 
 export const updateDefaultValue = async <N extends CollectionNameString>(
@@ -111,7 +127,13 @@ export const updateDefaultValue = async <N extends CollectionNameString>(
     throw new Error(`Table does not have field ${fieldName}`)
   }
   const defaultValue = fields[fieldName].getDefaultValueString();
-  await db.none("ALTER TABLE $1 ALTER COLUMN $2 $3", [table.getName(), fieldName, defaultValue ? `SET DEFAULT ${defaultValue}` : "DROP DEFAULT"]);
+  if (defaultValue) {
+    await db.none(`ALTER TABLE "${table.getName()}" ALTER COLUMN "${fieldName}" SET DEFAULT $1`,
+      [defaultValue]
+    );
+  } else {
+    await db.none(`ALTER TABLE "${table.getName()}" ALTER COLUMN "${fieldName}" DROP DEFAULT`);
+  }
 }
 
 export const dropDefaultValue = async <N extends CollectionNameString>(
@@ -119,13 +141,8 @@ export const dropDefaultValue = async <N extends CollectionNameString>(
   collectionOrCollectionName: CollectionBase<N>|string,
   fieldName: string,
 ): Promise<void> => {
-  const collection = getCollectionFromNameOrCollection(collectionOrCollectionName);
-  const table = collection.getTable();
-  const fields = table.getFields();
-  if (!fields[fieldName]) {
-    throw new Error(`Table does not have field ${fieldName}`)
-  }
-  await db.none("ALTER TABLE $1 ALTER COLUMN $2 DROP DEFAULT", [table.getName(), fieldName]);
+  const tableName = getTableNameFromCollectionNameOrCollection(collectionOrCollectionName);
+  await db.none(`ALTER TABLE "${tableName}" ALTER COLUMN "${fieldName}" DROP DEFAULT`);
 }
 
 export const updateFieldType = async <N extends CollectionNameString>(
@@ -145,7 +162,6 @@ export const dropIndex = async <N extends CollectionNameString>(
   collectionOrCollectionName: CollectionBase<N>|string,
   index: TableIndex<ObjectsByCollectionName[N]>,
 ): Promise<void> => {
-  getCollectionFromNameOrCollection(collectionOrCollectionName);
   await db.none(`DROP INDEX IF EXISTS "${index.getName()}"`);
 }
 
@@ -154,7 +170,6 @@ export const dropIndexByName = async <N extends CollectionNameString>(
   collectionOrCollectionName: CollectionBase<N>|string,
   indexName: string
 ): Promise<void> => {
-  getCollectionFromNameOrCollection(collectionOrCollectionName);
   await db.none(`DROP INDEX IF EXISTS "${indexName}"`);
 }
 
@@ -171,8 +186,8 @@ export const createIndex = async <N extends CollectionNameString>(
 }
 
 export const dropTable = async (db: SqlClientOrTx, collectionOrCollectionName: CollectionBase<any>|string): Promise<void> => {
-  const collection = getCollectionFromNameOrCollection(collectionOrCollectionName);
-  await db.none("DROP TABLE IF EXISTS $1", [collection.getTable().getName()]);
+  const tableName = getTableNameFromCollectionNameOrCollection(collectionOrCollectionName);
+  await db.none(`DROP TABLE IF EXISTS ${tableName}`);
 }
 
 export const createTable = async <N extends CollectionNameString>(
@@ -192,7 +207,7 @@ export const unlogTable = async <N extends CollectionNameString>(
   collectionOrCollectionName: CollectionBase<N>|string,
 ): Promise<void> => {
   const collection = getCollectionFromNameOrCollection(collectionOrCollectionName);
-  await db.none("ALTER TABLE $1 SET UNLOGGED", [collection.getTable().getName()]);
+  await db.none(`ALTER TABLE "${collection.getTable().getName()}" SET UNLOGGED`);
 }
 
 export const logTable = async <N extends CollectionNameString>(
@@ -200,7 +215,7 @@ export const logTable = async <N extends CollectionNameString>(
   collectionOrCollectionName: CollectionBase<N>|string,
 ): Promise<void> => {
   const collection = getCollectionFromNameOrCollection(collectionOrCollectionName);
-  await db.none("ALTER TABLE $1 SET LOGGED", [collection.getTable().getName()]);
+  await db.none(`ALTER TABLE ${collection.getTable().getName()} SET LOGGED`);
 }
 
 export const installExtensions = async (db: SqlClientOrTx) => {
