@@ -214,6 +214,8 @@ const LoginForm = ({ startingState = "login", returnTo }: {
     }
   }
 
+  const oauthReturnTo = encodeURIComponent(returnTo ?? pathname);
+
   return <ContentStyles contentType="commentExceptPointerEvents">
     {reCaptchaSiteKeySetting.get() && <DeferRender ssr={false}>
       <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>
@@ -249,8 +251,8 @@ const LoginForm = ({ startingState = "login", returnTo }: {
       {hasOauthSection && <>
         <div className={classes.oAuthComment}>...or continue with</div>
         <div className={classes.oAuthBlock}>
-          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
-          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
+          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${oauthReturnTo}`}>GOOGLE</a>
+          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${oauthReturnTo}`}>GITHUB</a>
         </div>
       </>}
       {displayedError && <div className={classes.error}>{displayedError}</div>}

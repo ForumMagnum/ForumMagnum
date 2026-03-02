@@ -31,6 +31,7 @@ import { ProtonNode, $isSuggestionNode } from './ProtonNode'
 import { SuggestionTypesThatCanBeEmpty, type SuggestionID } from './Types'
 import { BEFOREINPUT_EVENT_COMMAND, COMPOSITION_START_EVENT_COMMAND, INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
 import type { SuggestionThreadController } from '@/components/editor/lexicalPlugins/suggestions/SuggestionThreadController'
+import debounce from 'lodash/debounce'
 import { reportError } from '@/lib/vendor/proton/reportError'
 import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext'
 import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext'
@@ -41,7 +42,7 @@ import { $isEmptyListItemExceptForSuggestions, hasChildComments } from './Utils'
 import { getSuggestionAuthorIdFromComments } from './suggestionPermissions'
 import { useCanRejectSuggestion, useCollaboratorIdentity } from '@/components/lexical/collaboration'
 import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import { $acceptSuggestion } from './acceptSuggestion'
 import { $rejectSuggestion } from './rejectSuggestion'
 import { $handleBeforeInputEvent, $handleDeleteInputType, $handleInsertParagraphOnEmptyListItem } from './handleBeforeInputEvent'
@@ -201,6 +202,24 @@ export function SuggestionModePlugin({
      */
     const suggestionNodeKeysToIDMap = new Map<NodeKey, SuggestionID>()
 
+    // Accumulates dirty suggestion IDs across debounce cycles, cleared when the
+    // debounced function executes. This is needed because multiple update listener
+    // invocations may fire before the debounce triggers.
+    const pendingSuggestionIds = new Set<string>()
+
+    const flushSummaryUpdates = debounce(() => {
+      for (const id of pendingSuggestionIds) {
+        const keys = markNodeMap.get(id)
+        if (!keys || keys.size === 0) {
+          continue
+        }
+        const summary = generateSuggestionSummary(editor, markNodeMap, id)
+        const content = JSON.stringify(summary)
+        controller.updateSuggestionSummary(id, content).catch(reportError)
+      }
+      pendingSuggestionIds.clear()
+    }, 500)
+
     return mergeRegister(
       /**
        * Handles suggestion node lifecycle:
@@ -211,15 +230,17 @@ export function SuggestionModePlugin({
        * - Orphan cleanup when nodes are deleted
        */
       editor.registerMutationListener(ProtonNode, (mutations, { updateTags }) => {
-        if (updateTags.has('collaboration')) {
-          return
-        }
-        
+        const isCollaborationUpdate = updateTags.has('collaboration')
+
         const createdSuggestionIDs = createdSuggestionIDsRef.current
         const idsToCreateThreadsFor: string[] = []
         const idsToReopenThreadsFor: string[] = []
         const idsToHandleDestruction: string[] = []
 
+        // Always populate markNodeMap regardless of update source, so that
+        // agent-created suggestions (which arrive via Yjs collaboration sync)
+        // have their node keys tracked for hover highlighting and
+        // sidebar-to-editor linking.
         editor.read(() => {
           for (const [key, mutation] of mutations) {
             const node = $getNodeByKey(key)
@@ -245,21 +266,25 @@ export function SuggestionModePlugin({
               suggestionNodeKeys.delete(key)
               if (suggestionNodeKeys.size === 0) {
                 markNodeMap.delete(id)
-                idsToHandleDestruction.push(id)
+                if (!isCollaborationUpdate) {
+                  idsToHandleDestruction.push(id)
+                }
               }
             } else {
               if (!suggestionNodeKeys) {
                 // New suggestion
                 suggestionNodeKeys = new Set()
                 markNodeMap.set(id, suggestionNodeKeys)
-                
-                if (createdSuggestionIDs.has(id)) {
-                  idsToCreateThreadsFor.push(id)
-                } else {
-                  // Nodes appeared but weren't created locally - likely undo
-                  idsToReopenThreadsFor.push(id)
+
+                if (!isCollaborationUpdate) {
+                  if (createdSuggestionIDs.has(id)) {
+                    idsToCreateThreadsFor.push(id)
+                  } else {
+                    // Nodes appeared but weren't created locally - likely undo
+                    idsToReopenThreadsFor.push(id)
+                  }
                 }
-                
+
                 suggestionNodeKeys.add(key)
               } else {
                 if (!suggestionNodeKeys.has(key)) {
@@ -269,6 +294,12 @@ export function SuggestionModePlugin({
             }
           }
         })
+
+        // Skip thread lifecycle management for collaboration updates — the
+        // agent handles thread creation server-side.
+        if (isCollaborationUpdate) {
+          return
+        }
 
         // Skip thread management if commentStore hasn't synced yet (e.g., initial page load)
         // The markNodeMap is still updated above for hover/active state tracking
@@ -299,7 +330,7 @@ export function SuggestionModePlugin({
         // Reopen threads when nodes reappear (undo)
         for (const id of idsToReopenThreadsFor) {
           const thread = commentStore.getThreadByMarkID(id)
-          
+
           if (!thread) {
             // Thread was deleted - create a new one
             suggestionModeLogger.info(`Creating thread for reappearing suggestion ${id}`)
@@ -308,7 +339,7 @@ export function SuggestionModePlugin({
             controller.createSuggestionThread(id, content, summary[0].type).catch(reportError)
             continue
           }
-          
+
           if (thread.status === 'accepted' || thread.status === 'rejected') {
             suggestionModeLogger.info(`Reopening thread ${thread.id} for suggestion ${id}`)
             commentStore.updateThread(thread.id, {
@@ -319,7 +350,7 @@ export function SuggestionModePlugin({
             suggestionModeLogger.info(`Reopening archived thread ${thread.id} for suggestion ${id}`)
             commentStore.updateThread(thread.id, { status: 'open' })
           }
-          
+
           const keys = markNodeMap.get(id)
           if (keys && keys.size > 0) {
             const summary = generateSuggestionSummary(editor, markNodeMap, id)
@@ -330,7 +361,7 @@ export function SuggestionModePlugin({
 
         // Handle node destruction (redo or orphan cleanup)
         const isRedoOperation = isRedoOperationRef.current
-        
+
         for (const id of idsToHandleDestruction) {
           const thread = commentStore.getThreadByMarkID(id)
           if (!thread) {
@@ -361,20 +392,36 @@ export function SuggestionModePlugin({
       }),
       // The ProtonNode mutation listener only fires for node creation/destruction/property changes,
       // not for text content changes within the node (which are TextNode mutations).
-      editor.registerUpdateListener(({ tags }) => {
+      // We debounce summary regeneration and filter to only suggestion IDs whose
+      // nodes intersect with the dirty sets, to avoid redundant work on every update.
+      editor.registerUpdateListener(({ tags, dirtyElements, dirtyLeaves }) => {
         if (tags.has('collaboration')) {
           return
         }
-        
+
+        // Find suggestion IDs that have at least one node key in the dirty sets
+        let hasDirty = false
         for (const [id, keys] of markNodeMap) {
           if (keys.size === 0) {
             continue
           }
-          const summary = generateSuggestionSummary(editor, markNodeMap, id)
-          const content = JSON.stringify(summary)
-          controller.updateSuggestionSummary(id, content).catch(reportError)
+          for (const key of keys) {
+            if (dirtyElements.has(key) || dirtyLeaves.has(key)) {
+              pendingSuggestionIds.add(id)
+              hasDirty = true
+              break
+            }
+          }
         }
+
+        if (!hasDirty) {
+          return
+        }
+
+        flushSummaryUpdates()
       }),
+      // Cancel the debounced summary regeneration on cleanup
+      () => { flushSummaryUpdates.cancel() },
     )
   }, [controller, editor, markNodeMap, suggestionModeLogger, commentStore])
 
@@ -703,7 +750,7 @@ export function SuggestionModePlugin({
 
           if (emptyListItem) {
             // Handle Enter on empty list item - convert to paragraph as suggestion
-            const suggestionID = generateUUID()
+            const suggestionID = randomId()
             editor.update(() => {
               // Re-check inside update since editor state may have changed
               const selection = $getSelection()

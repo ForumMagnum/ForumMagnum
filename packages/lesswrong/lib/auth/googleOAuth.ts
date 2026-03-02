@@ -48,7 +48,7 @@ export function getGoogleAuthUrl(request: NextRequest, state: string, returnTo?:
   });
 
   if (returnTo) {
-    params.append('state', `${state}:${encodeURIComponent(returnTo)}`);
+    params.set('state', `${state}:${encodeURIComponent(returnTo)}`);
   }
 
   return `${GOOGLE_AUTH_URL}?${params.toString()}`;
