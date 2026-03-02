@@ -174,10 +174,15 @@ export async function GET(request: NextRequest) {
 
   const status = await getCurationStatus();
   
-  await postCurationStatusToSlack(status);
-  
-  // eslint-disable-next-line no-console
-  console.log(`Posted curation status to Slack: ${status.daysSinceCurated} days, ${status.unpublishedDraftCount} drafts`);
+  const shouldPost = status.daysSinceCurated >= 3 || status.unpublishedDraftCount === 0;
+  if (shouldPost) {
+    await postCurationStatusToSlack(status);
+    // eslint-disable-next-line no-console
+    console.log(`Posted curation status to Slack: ${status.daysSinceCurated} days, ${status.unpublishedDraftCount} drafts`);
+  } else {
+    // eslint-disable-next-line no-console
+    console.log(`Skipped posting curation status to Slack: ${status.daysSinceCurated} days, ${status.unpublishedDraftCount} drafts`);
+  }
   
   return new Response('OK', { status: 200 }); 
 }
