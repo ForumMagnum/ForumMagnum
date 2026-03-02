@@ -26,7 +26,7 @@ function getPortFromForwardedHeaders(forwardedFor: string | null, forwardedPort:
   }
 }
 
-function isLocalhost(host: string): boolean {
+export function isLocalhost(host: string): boolean {
   switch (host) {
     case "localhost":
     case "127.0.0.1":

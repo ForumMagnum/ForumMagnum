@@ -87,6 +87,28 @@ export async function POST(req: NextRequest) {
   const codeChallenge = String(formData.get("code_challenge") ?? "");
   const codeChallengeMethod = String(formData.get("code_challenge_method") ?? "");
 
+  // Validate the request before processing allow/deny to protect both paths
+  try {
+    await validateAuthorizationRequest({
+      clientId,
+      redirectUri,
+      responseType: "code",
+      codeChallenge,
+      codeChallengeMethod,
+    });
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("oauth/authorize: OAuth error", e);
+    captureException(e);
+    if (e instanceof OAuthError) {
+      return new Response(renderErrorPage(e.message), {
+        status: 400,
+        headers: { "Content-Type": "text/html" },
+      });
+    }
+    return new Response("Internal error", { status: 500 });
+  }
+
   if (decision !== "allow") {
     const denyUrl = new URL(redirectUri);
     denyUrl.searchParams.set("error", "access_denied");
@@ -95,15 +117,6 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Revalidate the request
-    await validateAuthorizationRequest({
-      clientId,
-      redirectUri,
-      responseType: "code",
-      codeChallenge,
-      codeChallengeMethod,
-    });
-
     const { code } = await createAuthorizationCode({
       clientId,
       userId: user._id,
@@ -116,7 +129,6 @@ export async function POST(req: NextRequest) {
     const callbackUrl = new URL(redirectUri);
     callbackUrl.searchParams.set("code", code);
     if (state) callbackUrl.searchParams.set("state", state);
-    callbackUrl.searchParams.set("client_id", clientId);
     return NextResponse.redirect(callbackUrl.toString());
   } catch (e) {
     // eslint-disable-next-line no-console

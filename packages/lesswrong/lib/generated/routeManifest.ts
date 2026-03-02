@@ -871,6 +871,9 @@ export const routeTrie = {
         "register": {
           "hasRoute": true
         },
+        "revoke": {
+          "hasRoute": true
+        },
         "token": {
           "hasRoute": true
         }
@@ -878,6 +881,7 @@ export const routeTrie = {
       "lowerCase": {
         "authorize": "authorize",
         "register": "register",
+        "revoke": "revoke",
         "token": "token"
       }
     },

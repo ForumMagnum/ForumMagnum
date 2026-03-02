@@ -13,6 +13,8 @@ export async function GET(req: NextRequest) {
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code"],
     scopes_supported: ["lesswrong:access"],
-    token_endpoint_auth_methods_supported: ["client_secret_post"],
+    revocation_endpoint: `${siteUrl}/oauth/revoke`,
+    token_endpoint_auth_methods_supported: ["client_secret_post", "client_secret_basic"],
+    revocation_endpoint_auth_methods_supported: ["client_secret_post", "client_secret_basic"],
   });
 }

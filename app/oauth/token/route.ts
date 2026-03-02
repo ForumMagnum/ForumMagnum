@@ -72,6 +72,7 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: {
         "Cache-Control": "no-store",
+        "Pragma": "no-cache",
       },
     });
   } catch (e) {

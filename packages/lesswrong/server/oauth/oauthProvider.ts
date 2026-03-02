@@ -1,8 +1,9 @@
-import { createHash, randomBytes } from "crypto";
+import { createHash, randomBytes, timingSafeEqual } from "crypto";
 import { randomId } from "@/lib/random";
 import OAuthClients from "@/server/collections/oAuthClients/collection";
 import OAuthAuthorizationCodes from "@/server/collections/oAuthAuthorizationCodes/collection";
 import OAuthAccessTokens from "@/server/collections/oAuthAccessTokens/collection";
+import OAuthAuthorizationCodesRepo from "@/server/repos/OAuthAuthorizationCodesRepo";
 import { captureException } from "@/lib/sentryWrapper";
 
 const AUTHORIZATION_CODE_LIFETIME_MS = 10 * 60 * 1000; // 10 minutes
@@ -17,6 +18,15 @@ function handleErrorAndThrow(error: Error, message: string): never {
 
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("base64");
+}
+
+function constantTimeHashEquals(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) {
+    return false;
+  }
+  return timingSafeEqual(bufA, bufB);
 }
 
 interface RegisterClientArgs {
@@ -124,42 +134,48 @@ async function exchangeCodeForToken(args: {
     const error = new OAuthError("invalid_client", "Unknown client");
     handleErrorAndThrow(error, `exchangeCodeForToken: Unknown client ${clientId}`);
   }
-  if (hashToken(clientSecret) !== client.hashedSecret) {
+  if (!constantTimeHashEquals(hashToken(clientSecret), client.hashedSecret)) {
     const error = new OAuthError("invalid_client", "Invalid client credentials");
     handleErrorAndThrow(error, `exchangeCodeForToken: Invalid client credentials ${clientId}`);
   }
 
-  // Look up the authorization code
+  // Atomically look up and mark the authorization code as used
   const hashedCode = hashToken(code);
-  const authCode = await OAuthAuthorizationCodes.findOne({ hashedCode });
+  const repo = new OAuthAuthorizationCodesRepo();
+  const authCode = await repo.markCodeAsUsed(hashedCode);
+
   if (!authCode) {
+    // The atomic update returned no rows. Check if the code exists but was already used.
+    const existingCode = await OAuthAuthorizationCodes.findOne({ hashedCode });
+    if (existingCode?.used) {
+      // Revoke any tokens issued for this client+user combination (RFC 6819 Section 4.4.1.1)
+      await OAuthAccessTokens.rawUpdateMany(
+        { clientId: existingCode.clientId, userId: existingCode.userId, revokedAt: null },
+        { $set: { revokedAt: new Date() } },
+      );
+      const error = new OAuthError("invalid_grant", "Authorization code already used");
+      handleErrorAndThrow(error, `exchangeCodeForToken: Authorization code already used ${code.slice(0, 5)}...`);
+    }
     const error = new OAuthError("invalid_grant", "Invalid authorization code");
-    handleErrorAndThrow(error, `exchangeCodeForToken: Invalid authorization code ${code}`);
+    handleErrorAndThrow(error, `exchangeCodeForToken: Invalid authorization code ${code.slice(0, 5)}...`);
   }
 
   // Validate the code
-  if (authCode.used) {
-    const error = new OAuthError("invalid_grant", "Authorization code already used");
-    handleErrorAndThrow(error, `exchangeCodeForToken: Authorization code already used ${code}`);
-  }
   if (authCode.expiresAt < new Date()) {
     const error = new OAuthError("invalid_grant", "Authorization code expired");
-    handleErrorAndThrow(error, `exchangeCodeForToken: Authorization code expired ${code}`);
+    handleErrorAndThrow(error, `exchangeCodeForToken: Authorization code expired ${code.slice(0, 5)}...`);
   }
   if (authCode.clientId !== clientId) {
     const error = new OAuthError("invalid_grant", "Client mismatch");
-    handleErrorAndThrow(error, `exchangeCodeForToken: Client mismatch ${code}`);
+    handleErrorAndThrow(error, `exchangeCodeForToken: Client mismatch ${code.slice(0, 5)}...`);
   }
   if (authCode.redirectUri !== redirectUri) {
     const error = new OAuthError("invalid_grant", "Redirect URI mismatch");
-    handleErrorAndThrow(error, `exchangeCodeForToken: Redirect URI mismatch ${code}`);
+    handleErrorAndThrow(error, `exchangeCodeForToken: Redirect URI mismatch ${code.slice(0, 5)}...`);
   }
 
   // Verify PKCE
   verifyCodeChallenge(codeVerifier, authCode.codeChallenge, authCode.codeChallengeMethod);
-
-  // Mark code as used
-  await OAuthAuthorizationCodes.rawUpdateOne({ _id: authCode._id }, { $set: { used: true } });
 
   // Generate access token
   const accessToken = randomBytes(32).toString("hex");
@@ -194,9 +210,9 @@ function verifyCodeChallenge(codeVerifier: string, codeChallenge: string, codeCh
     .update(codeVerifier)
     .digest("base64url");
 
-  if (expectedChallenge !== codeChallenge) {
+  if (!constantTimeHashEquals(expectedChallenge, codeChallenge)) {
     const error = new OAuthError("invalid_grant", "PKCE verification failed");
-    handleErrorAndThrow(error, `verifyCodeChallenge: PKCE verification failed ${codeVerifier}`);
+    handleErrorAndThrow(error, `verifyCodeChallenge: PKCE verification failed ${codeVerifier.slice(0, 5)}...`);
   }
 }
 
@@ -212,15 +228,15 @@ async function validateAccessToken(bearerToken: string): Promise<ValidatedToken>
 
   if (!token) {
     const error = new OAuthError("invalid_token", "Unknown token");
-    handleErrorAndThrow(error, `validateAccessToken: Unknown token ${bearerToken}`);
+    handleErrorAndThrow(error, `validateAccessToken: Unknown token ${bearerToken.slice(0, 5)}...`);
   }
   if (token.revokedAt) {
     const error = new OAuthError("invalid_token", "Token revoked");
-    handleErrorAndThrow(error, `validateAccessToken: Token revoked ${bearerToken}`);
+    handleErrorAndThrow(error, `validateAccessToken: Token revoked ${bearerToken.slice(0, 5)}...`);
   }
   if (token.expiresAt < new Date()) {
     const error = new OAuthError("invalid_token", "Token expired");
-    handleErrorAndThrow(error, `validateAccessToken: Token expired ${bearerToken}`);
+    handleErrorAndThrow(error, `validateAccessToken: Token expired ${bearerToken.slice(0, 5)}...`);
   }
 
   return {
@@ -282,6 +298,7 @@ class OAuthError extends Error {
 }
 
 export {
+  hashToken,
   registerClient,
   createAuthorizationCode,
   exchangeCodeForToken,
