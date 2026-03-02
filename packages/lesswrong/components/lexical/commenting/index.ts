@@ -133,6 +133,10 @@ function triggerOnChange(commentStore: CommentStore): void {
   }
 }
 
+// TODO: The `editor` parameter is required but is only used for registering the
+// `TOGGLE_CONNECT_COMMAND` listener in `registerCollaboration`. For pure
+// server-side collaboration use cases (like `suggestionThreads.ts`), the editor
+// is inert. A future refactor could make the editor parameter optional.
 export class CommentStore {
   _editor: LexicalEditor;
   _comments: Comments;

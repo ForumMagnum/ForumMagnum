@@ -8,14 +8,17 @@ export function getSiteUrlFromReq(req: NextRequest): string {
   const forwardedPort = headers.get('x-forwarded-port');
   const forwardedProto = headers.get("x-forwarded-proto");
 
-  if (forwardedFor) {
-    const forwardedHostWithoutPort = forwardedHost?.split(":")?.[0]?.trim();
+  let url: string;
+  if (forwardedFor && forwardedHost) {
+    const forwardedHostWithoutPort = forwardedHost.split(":")[0].trim();
     const proto = forwardedProto ?? "http";
     const port = getPortFromForwardedHeaders(forwardedFor, forwardedPort);
-    return `${proto}://${forwardedHostWithoutPort}${port ? `:${port}` : ""}`;
+    url = `${proto}://${forwardedHostWithoutPort}${port ? `:${port}` : ""}`;
   } else {
-    return siteUrlSetting.get();
+    url = siteUrlSetting.get();
   }
+
+  return url.replace(/\/+$/, "");
 }
 
 function getPortFromForwardedHeaders(forwardedFor: string | null, forwardedPort: string | null): string {

@@ -132,7 +132,7 @@ import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/coll
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { MenuItem } from "@/components/common/Menus";
-import { HorizontalRulePlugin } from './plugins/LexicalHorziontalRulePlugin';
+import { HorizontalRulePlugin } from './plugins/LexicalHorizontalRulePlugin';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   '@keyframes sentinelCursorBlink': {

@@ -60,7 +60,6 @@ export async function middleware(request: NextRequest) {
     
     const forwardUrl = request.nextUrl.href;
     const fixedForwardedUrl = fixForwardUrl(forwardUrl);
-    console.log(fixedForwardedUrl);
     const forwardedFetchResponse = await fetch(
       fixedForwardedUrl,
       {

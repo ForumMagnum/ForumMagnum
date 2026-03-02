@@ -1,4 +1,4 @@
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import { $getSelection, $isNodeSelection } from 'lexical'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import { $findMatchingParent, $wrapNodeInElement } from '@lexical/utils'
@@ -30,7 +30,7 @@ export function $handleDividerDeleteAsSuggestion(
     existingSuggestionParent.remove()
     return true
   }
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   $wrapNodeInElement(dividerNode, () => $createSuggestionNode(suggestionID, 'delete-divider'))
   onSuggestionCreation(suggestionID)
   return true
