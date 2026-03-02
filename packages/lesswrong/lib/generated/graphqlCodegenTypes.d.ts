@@ -21168,6 +21168,48 @@ type SequencesEditQueryVariables = Exact<{
 
 type SequencesEditQuery = SequencesEditQuery_Query;
 
+type SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence_user_User = { __typename?: 'User', _id: string, displayName: string, karma: number };
+
+type SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionDisplay
+);
+
+type SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, draft: boolean, createdAt: string, userId: string, bannerImageId: string | null, gridImageId: string | null, user: SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence_user_User | null, contents: SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
+
+type SequenceV2PageQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequenceV2PageQuery_sequence_SingleSequenceOutput_result_Sequence | null };
+
+type SequenceV2PageQuery_chapters_MultiChapterOutput_results_Chapter_contents_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionDisplay
+);
+
+type SequenceV2PageQuery_chapters_MultiChapterOutput_results_Chapter_posts_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type SequenceV2PageQuery_chapters_MultiChapterOutput_results_Chapter_posts_Post_contents_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionDisplay
+);
+
+type SequenceV2PageQuery_chapters_MultiChapterOutput_results_Chapter_posts_Post = { __typename?: 'Post', _id: string, title: string, userId: string | null, user: SequenceV2PageQuery_chapters_MultiChapterOutput_results_Chapter_posts_Post_user_User | null, contents: SequenceV2PageQuery_chapters_MultiChapterOutput_results_Chapter_posts_Post_contents_Revision | null };
+
+type SequenceV2PageQuery_chapters_MultiChapterOutput_results_Chapter = { __typename?: 'Chapter', _id: string, title: string | null, subtitle: string | null, number: number | null, sequenceId: string | null, contents: SequenceV2PageQuery_chapters_MultiChapterOutput_results_Chapter_contents_Revision | null, posts: Array<SequenceV2PageQuery_chapters_MultiChapterOutput_results_Chapter_posts_Post> };
+
+type SequenceV2PageQuery_chapters_MultiChapterOutput = { __typename?: 'MultiChapterOutput', results: Array<SequenceV2PageQuery_chapters_MultiChapterOutput_results_Chapter> };
+
+type SequenceV2PageQuery_Query = { __typename?: 'Query', sequence: SequenceV2PageQuery_sequence_SingleSequenceOutput | null, chapters: SequenceV2PageQuery_chapters_MultiChapterOutput | null };
+
+
+type SequenceV2PageQueryVariables = Exact<{
+  sequenceId: InputMaybe<Scalars['String']['input']>;
+  selector: InputMaybe<ChapterSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type SequenceV2PageQuery = SequenceV2PageQuery_Query;
+
 type multiChapterSequencesSummaryQueryQuery_chapters_MultiChapterOutput_results_Chapter = (
   { __typename?: 'Chapter' }
   & ChaptersFragment

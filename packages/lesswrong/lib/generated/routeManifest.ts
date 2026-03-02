@@ -1004,10 +1004,14 @@ export const routeTrie = {
                   "hasPage": true
                 }
               }
+            },
+            "v2": {
+              "hasPage": true
             }
           },
           "lowerCase": {
-            "p": "p"
+            "p": "p",
+            "v2": "v2"
           },
           "hasPage": true
         }
