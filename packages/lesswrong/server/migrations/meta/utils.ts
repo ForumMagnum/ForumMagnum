@@ -70,7 +70,7 @@ export const addField = async <N extends CollectionNameString>(
   if (!fieldType) {
     throw new Error(`Field "${fieldName}" does not exist in the schema`);
   }
-  await db.none(`ALTER TABLE "${table.getName()}" ADD COLUMN IF NOT EXISTS "${fieldName}" "${fieldType.toString()}"`);
+  await db.none(`ALTER TABLE "${table.getName()}" ADD COLUMN IF NOT EXISTS "${fieldName}" ${fieldType.toString()}`);
 }
 
 /**
