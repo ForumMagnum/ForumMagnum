@@ -13,7 +13,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import CommentsViews from "./CommentsViews";
 import Loading from "../vulcan-core/Loading";
 import CalendarDate from "../common/CalendarDate";
@@ -183,7 +183,7 @@ const CommentsListSection = ({
             [classes.newQuickTake]: isEAForum() && post?.shortform,
           })}
         >
-          {!isEAForum() && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
+          {!isEAForum() && <div className={classes.newCommentLabel}>New Comment</div>}
           {post?.isEvent && !!post.rsvps?.length && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.

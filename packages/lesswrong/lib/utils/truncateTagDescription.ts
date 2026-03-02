@@ -1,6 +1,5 @@
 import { isServer } from "../executionEnvironment";
 import { truncate } from "../editor/ellipsize";
-import { preferredHeadingCase } from "../../themes/forumTheme";
 
 const getInnerHTML = (html: string) => {
   if (isServer) {
@@ -40,8 +39,7 @@ const truncateTagDescription = (
        * and then append our footer 'read more' element.
        */
       const innerHTML = getInnerHTML(htmlWithAnchors.slice(0, truncationLength));
-      const readMore = preferredHeadingCase("Read More");
-      return innerHTML + `<span>...<p><a>(${readMore})</a></p></span>`;
+      return innerHTML + `<span>...<p><a>(Read More)</a></p></span>`;
     }
   }
   return htmlWithAnchors

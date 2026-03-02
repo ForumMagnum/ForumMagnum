@@ -7,7 +7,6 @@ import { QueryLink } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 
 import { sortings as defaultSortings } from './DraftsList'
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
@@ -97,7 +96,7 @@ const DraftsListSettings = ({
             <Checkbox classes={{root: classes.checkbox}} checked={currentIncludeArchived}/>
       
             <MetaInfo>
-              {preferredHeadingCase("Show Archived")}
+              Show Archived
             </MetaInfo>
           </QueryLink>
         </TooltipSpan>
@@ -112,7 +111,7 @@ const DraftsListSettings = ({
             <Checkbox classes={{root: classes.checkbox}} checked={currentIncludeShared}/>
       
             <MetaInfo>
-              {preferredHeadingCase("Show Shared with You")}
+              Show Shared with You
             </MetaInfo>
           </QueryLink>
         </TooltipSpan>

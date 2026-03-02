@@ -9,7 +9,6 @@ import type { CommentTreeOptions } from '../comments/commentTree';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';
 import CommentsNode from "../comments/CommentsNode";
 import { ContentItemBody } from "../contents/ContentItemBody";
@@ -105,7 +104,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
 
   
   const descriptionHtml = tag.description?.html;
-  const readMore = `<a>(${preferredHeadingCase("Read More")})</a>`;
+  const readMore = `<a>(Read More)</a>`;
   const maybeTruncatedDescriptionHtml = truncated
     ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", readMore)
     : descriptionHtml;

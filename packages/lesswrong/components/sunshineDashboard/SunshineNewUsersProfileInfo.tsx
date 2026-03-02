@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -51,7 +50,7 @@ const SunshineNewUsersProfileInfoInner = ({userId, startExpanded = false}: {user
 
   if (user.reviewedByUserId && !user.snoozedUntilContentCount && !expanded) {
     return <div className={classes.root} onClick={() => setExpanded(true)}>
-      <SectionButton>{preferredHeadingCase("Expand Moderation Tools")}</SectionButton>
+      <SectionButton>Expand Moderation Tools</SectionButton>
     </div>
   }
   

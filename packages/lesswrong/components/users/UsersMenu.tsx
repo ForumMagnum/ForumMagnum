@@ -17,7 +17,7 @@ import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayA
 import { MINIMUM_COAUTHOR_KARMA } from "@/lib/collections/posts/helpers";
 import { DisableNoKibitzContext } from '../common/sharedContexts';
 import { useAdminToggle } from '../admin/useAdminToggle';
-import { isFriendlyUI, preferredHeadingCase, styleSelect } from '../../themes/forumTheme';
+import { isFriendlyUI, styleSelect } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
 import { isAF, isEAForum, taggingNameCapitalSetting, blackBarTitle } from '@/lib/instanceSettings';
@@ -181,20 +181,20 @@ const UsersMenu = ({classes}: {
       </>
     ) : (
       <DropdownItem
-        title={preferredHeadingCase("User Profile")}
+        title={"User Profile"}
         to={userGetProfileUrl(currentUser)}
         icon="User"
         iconClassName={classes.icon}
       />
     ));
   const accountSettingsNode = <DropdownItem
-    title={styleSelect({friendly: "Settings", default: preferredHeadingCase("Account Settings")})}
+    title={styleSelect({friendly: "Settings", default: "Account Settings"})}
     to="/account"
     icon="Settings"
     iconClassName={classes.icon}
   />
   const messagesNode = <DropdownItem
-    title={preferredHeadingCase("Private Messages")}
+    title={"Private Messages"}
     to="/inbox"
     icon="Email"
     iconClassName={classes.icon}
@@ -209,7 +209,7 @@ const UsersMenu = ({classes}: {
     newPost: () => userCanPost(currentUser)
       ? (
         <DropdownItem
-          title={styleSelect({friendly: "Post", default: preferredHeadingCase("New Post")})}
+          title={styleSelect({friendly: "Post", default: "New Post"})}
           to="/newPost"
         />
       )
@@ -217,7 +217,7 @@ const UsersMenu = ({classes}: {
     newQuestion: () => userCanPost(currentUser)
       ? (
         <DropdownItem
-          title={preferredHeadingCase("New Question")}
+          title={"New Question"}
           to="/newPost?question=true"
         />
       )
@@ -225,7 +225,7 @@ const UsersMenu = ({classes}: {
     newDialogue: () => canCreateDialogue
       ? (
         <DropdownItem
-          title={styleSelect({friendly: "Dialogue", default: preferredHeadingCase("New Dialogue")})}
+          title={styleSelect({friendly: "Dialogue", default: "New Dialogue"})}
           onClick={() => {
             openDialog({
               name:"NewDialogueDialog",
@@ -244,7 +244,7 @@ const UsersMenu = ({classes}: {
       showNewButtons && userCanQuickTake(currentUser)
         ? (
           <DropdownItem
-            title={styleSelect({friendly: "Quick take", default: preferredHeadingCase("New Quick Take")})}
+            title={styleSelect({friendly: "Quick take", default: "New Quick Take"})}
             onClick={() => {
               openDialog({
                 name:"NewShortformDialog",
@@ -257,14 +257,14 @@ const UsersMenu = ({classes}: {
     newWikitag: () => tagUserHasSufficientKarma(currentUser, "new") ? (
       <NewWikiTagMenu>
         <DropdownItem
-          title={preferredHeadingCase(`New ${taggingNameCapitalSetting.get()}`)}
+          title={`New ${taggingNameCapitalSetting.get()}`}
         />
       </NewWikiTagMenu>
     ) : null,
     newEvent: () => userCanPost(currentUser)
       ? (
         <DropdownItem
-          title={styleSelect({friendly: "Event", default: preferredHeadingCase("New Event")})}
+          title={styleSelect({friendly: "Event", default: "New Event"})}
           to="/newPost?eventForm=true"
         />
       )
@@ -273,7 +273,7 @@ const UsersMenu = ({classes}: {
       showNewButtons && currentUser.karma >= SHOW_NEW_SEQUENCE_KARMA_THRESHOLD
         ? (
           <DropdownItem
-            title={styleSelect({friendly: "Sequence", default: preferredHeadingCase("New Sequence")})}
+            title={styleSelect({friendly: "Sequence", default: "New Sequence"})}
             to="/sequencesnew"
           />
         )
@@ -354,7 +354,7 @@ const UsersMenu = ({classes}: {
 
               {isAF() && !isAfMember &&
                 <DropdownItem
-                  title={preferredHeadingCase("Apply for Membership")}
+                  title={"Apply for Membership"}
                   onClick={() => {
                     openDialog({
                       name: "AFApplicationForm",
@@ -365,11 +365,10 @@ const UsersMenu = ({classes}: {
               }
               {currentUser.noKibitz &&
                 <DropdownItem
-                  title={preferredHeadingCase(
-                    disableNoKibitz
-                      ? "Hide Names"
-                      : "Reveal Names"
-                  )}
+                  title={disableNoKibitz
+                    ? "Hide Names"
+                    : "Reveal Names"
+                  }
                   onClick={() => setDisableNoKibitz(!disableNoKibitz)}
                   icon={() => disableNoKibitz
                     ? <EyeIcon className={classes.icon} />
@@ -380,7 +379,7 @@ const UsersMenu = ({classes}: {
               {!isFriendlyUI() && profileNode}
               {!isEAForum() &&
                 <DropdownItem
-                  title={preferredHeadingCase("My Drafts")}
+                  title={"My Drafts"}
                   to="/drafts"
                   icon="Edit"
                   iconClassName={classes.icon}
@@ -421,13 +420,13 @@ const UsersMenu = ({classes}: {
               */}
               {currentUser.isAdmin && <div className={classes.adminToggleItem}>
                 <DropdownItem
-                  title={preferredHeadingCase("Disable Admin Powers")}
+                  title={"Disable Admin Powers"}
                   onClick={toggleOff}
                 />
               </div>}
               {!currentUser.isAdmin && userIsMemberOf(currentUser, "realAdmins") && <div className={classes.adminToggleItem}>
                 <DropdownItem
-                  title={preferredHeadingCase("Re-enable Admin Powers")}
+                  title={"Re-enable Admin Powers"}
                   onClick={toggleOn}
                 />
               </div>}
@@ -435,7 +434,7 @@ const UsersMenu = ({classes}: {
               <DropdownDivider />
 
               <DropdownItem
-                title={preferredHeadingCase("Log Out")}
+                title={"Log Out"}
                 to="/logout"
                 rawLink
               />

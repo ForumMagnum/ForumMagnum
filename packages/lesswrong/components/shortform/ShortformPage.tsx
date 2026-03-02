@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import SingleColumnSection from "../common/SingleColumnSection";
 import ShortformThreadList from "./ShortformThreadList";
 import SectionTitle from "../common/SectionTitle";
@@ -20,7 +19,7 @@ const ShortformPage = ({classes}: {
   return (
     <SingleColumnSection>
       <div className={classes.column}>
-        <SectionTitle title={preferredHeadingCase("Quick Takes")} />
+        <SectionTitle title={"Quick Takes"} />
         <ShortformThreadList />
       </div>
     </SingleColumnSection>

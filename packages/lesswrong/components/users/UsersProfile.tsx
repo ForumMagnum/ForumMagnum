@@ -20,7 +20,6 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 import { useDialog } from '../common/withDialog';
 import pick from 'lodash/pick';
@@ -341,7 +340,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               }
               { currentUser?.isAdmin && <NewFeedButton user={user} /> }
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-                {preferredHeadingCase("Manage Subscriptions")}
+                Manage Subscriptions
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
@@ -366,7 +365,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 className={classes.subscribeButton} 
               /> }
               {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                {preferredHeadingCase("Account Settings")}
+                Account Settings
               </Link>}
             </Typography>
 

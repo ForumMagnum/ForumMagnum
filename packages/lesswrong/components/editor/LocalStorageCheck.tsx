@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { SerializedEditorContents, deserializeEditorContents, EditorContents, getEditorsForUser } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
-import { preferredHeadingCase } from '@/themes/forumTheme';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useEffectOnce } from '../hooks/useEffectOnce';
@@ -150,7 +149,7 @@ const LocalStorageCheckVisible = (props: LocalStorageCheckProps & {
           // eslint-disable-next-line no-console
           console.error("Error restoring from localStorage");
         }
-      }}>{preferredHeadingCase("Restore Autosave")}</a>
+      }}>Restore Autosave</a>
     </div>
     <div className={classes.restoreBody}> {displayedRestore || legacyRestored} </div>
 

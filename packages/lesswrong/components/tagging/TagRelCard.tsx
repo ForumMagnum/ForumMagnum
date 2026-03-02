@@ -1,6 +1,5 @@
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
@@ -116,7 +115,7 @@ const TagRelCard = ({tagRel, classes}: {
           placement="top"
         >
           <TagRelevanceButton
-            label={preferredHeadingCase(`Remove ${taggingNameCapitalSetting.get()}`)}
+            label={`Remove ${taggingNameCapitalSetting.get()}`}
             {...voteProps}
             voteType="smallUpvote"
             cancelVote

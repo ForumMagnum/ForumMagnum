@@ -3,7 +3,7 @@ import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, tagUrlBaseSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
-import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
+import { isFriendlyUI } from "../../../themes/forumTheme";
 import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
 import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
@@ -138,7 +138,7 @@ export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag): boolean => {
 };
 
 export const getTagPostsSortOrderOptions = () => ({
-  relevance: { label: preferredHeadingCase("Most Relevant") },
+  relevance: { label: "Most Relevant" },
   ...getSortOrderOptions(),
 } satisfies Record<string, SettingsOption>);
 

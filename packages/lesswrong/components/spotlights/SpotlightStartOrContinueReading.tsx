@@ -4,7 +4,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -119,8 +118,8 @@ const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
   const firstPostSequenceId = spotlight.documentId;
 
   const prefix = forumSelect({
-    EAForum: preferredHeadingCase("Start with: "),
-    default: preferredHeadingCase("First Post: ")
+    EAForum: "Start with: ",
+    default: "First Post: "
   });
 
   return <div className={classNames(classes.firstPost, classes.root)}>
