@@ -16,7 +16,7 @@ export const sequenceGetPageUrl = function(sequence: {_id: string}, isAbsolute =
   return `${prefix}/s/${sequence._id}`;
 };
 
-export const getCollectionOrSequenceUrl = function (sequence: SequencesPageTitleFragment, isAbsolute = false) {
+export const getCollectionOrSequenceUrl = function (sequence: Pick<DbSequence, '_id'|'canonicalCollectionSlug'>, isAbsolute = false) {
   if (!sequence.canonicalCollectionSlug) return sequenceGetPageUrl(sequence, isAbsolute)
   
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
