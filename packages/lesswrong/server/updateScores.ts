@@ -34,7 +34,7 @@ const getPgCollectionProjections = (collectionName: VoteableCollectionName) => {
         (CASE WHEN "curatedDate" IS NULL THEN 0 ELSE 10 END)) AS "baseScore"`;
       break;
     case "Comments":
-      proj.baseScore = `("baseScore" as "baseScore"`;
+      proj.baseScore = `("baseScore" as "baseScore")`;
       break;
     default:
       break;
