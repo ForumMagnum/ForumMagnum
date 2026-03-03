@@ -1,6 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import {isFriendlyUI} from '../../themes/forumTheme'
 import LWDialog from "../common/LWDialog";
 import LoginForm from "./LoginForm";
 
@@ -23,12 +22,6 @@ const LoginPopup = ({onClose, classes}: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  if (isFriendlyUI()) {
-    return (
-      <LoginForm onClose={onClose} />
-    );
-  }
-
   return (
     <LWDialog
       open={true}

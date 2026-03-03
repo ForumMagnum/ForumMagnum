@@ -8,8 +8,6 @@ import { useRecommendations } from "./withRecommendations";
 import ToCColumn, { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import PostsLoading from "../posts/PostsLoading";
-import EAPostsItem from "../posts/EAPostsItem";
-import EALargePostsItem from "../posts/EALargePostsItem";
 import UserTooltip from "../users/UserTooltip";
 import PostsItem from "../posts/PostsItem";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -162,34 +160,9 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
                 <PostsLoading />
               }
               <AnalyticsContext pageSubSectionContext="curatedAndPopular">
-                {curatedAndPopularPosts?.map((post) => (
-                  isFriendlyUI() ? <EALargePostsItem
-                    key={post._id}
-                    post={post}
-                    className={classes.largePostItem}
-                    noImagePlaceholder
-                  /> : <PostsItem key={post._id} post={post} />
-                ))}
+                {curatedAndPopularPosts?.map((post) => <PostsItem key={post._id} post={post} />)}
               </AnalyticsContext>
             </div>
-            {isFriendlyUI() && <div className={classes.section}>
-              <div className={classes.sectionHeading}>
-                {coreTagLabel ? "Recent" : "Relevant"} opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
-              </div>
-              {opportunitiesLoading && !opportunityPosts?.length &&
-                <PostsLoading />
-              }
-              <AnalyticsContext pageSubSectionContext="recentOpportunities">
-                {opportunityPosts?.map((post) => (
-                  <EAPostsItem key={post._id} post={post} />
-                ))}
-                <div className={classes.viewMore}>
-                  <Link to="/topics/opportunities-to-take-action">
-                    View more
-                  </Link>
-                </div>
-              </AnalyticsContext>
-            </div>}
           </div>
         </WrapperComponent>
       </div>

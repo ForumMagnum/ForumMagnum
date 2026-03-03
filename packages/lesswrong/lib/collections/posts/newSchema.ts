@@ -3994,32 +3994,6 @@ const schema = {
       },
     },
   },
-  emojiReactors: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: async (post, _, context) => {
-        const { extendedScore } = post;
-        if (!isEAForum() || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
-          return {};
-        }
-        const reactors = await context.repos.posts.getPostEmojiReactorsWithCache(post._id);
-        return reactors ?? {};
-      },
-    },
-  },
-  commentEmojiReactors: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: (post, _, context) => {
-        if (post.votingSystem !== "eaEmojis") {
-          return null;
-        }
-        return context.repos.posts.getCommentEmojiReactorsWithCache(post._id);
-      },
-    },
-  },
   rejected: {
     database: {
       type: "BOOL",

@@ -16,16 +16,13 @@ import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/helpers';
-import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
 import SingleColumnSection from "./SingleColumnSection";
 import PostsList2 from "../posts/PostsList2";
 import TagFilterSettings from "../tagging/TagFilterSettings";
 import LWTooltip from "./LWTooltip";
 import SettingsButton from "../icons/SettingsButton";
 import CuratedPostsList from "../recommendations/CuratedPostsList";
-import StickiedPosts from "../ea-forum/StickiedPosts";
 import PostsListViewToggle from "../posts/PostsListViewToggle";
-import SurveyPostsItem from "../surveys/SurveyPostsItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -155,8 +152,6 @@ const HomeLatestPosts = () => {
 
   const showCurated = isFriendlyUI() || (isLW() && reviewIsActive())
 
-  const {survey, refetch: refetchSurvey} = useCurrentFrontpageSurvey();
-
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
@@ -210,18 +205,10 @@ const HomeLatestPosts = () => {
             </div>
           )}
         </AnalyticsContext>
-        {isFriendlyUI() && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList
             repeatedPostsPrecedence={1}
           />}
-          {survey?.survey &&
-            <SurveyPostsItem
-              survey={survey.survey}
-              surveyScheduleId={survey._id}
-              refetchSurvey={refetchSurvey}
-            />
-          }
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>

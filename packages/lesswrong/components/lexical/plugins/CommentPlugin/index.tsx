@@ -50,6 +50,7 @@ import {
   getDOMSelection,
   HISTORY_MERGE_TAG,
   KEY_ESCAPE_COMMAND,
+  SKIP_SCROLL_INTO_VIEW_TAG,
 } from 'lexical';
 import moment from 'moment';
 import {
@@ -64,17 +65,9 @@ import {createPortal} from 'react-dom';
 
 import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContext';
 import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
-import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext';
+import { useCommentStoreContext, useCollabAuthorName, useCommentStore } from '@/components/lexical/commenting/CommentStoreContext';
 import { $isSuggestionNode } from '@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode';
-import {
-  Comment,
-  Comments,
-  createComment,
-  createThread,
-  Thread,
-  useCollabAuthorName,
-  useCommentStore,
-} from '../../commenting';
+import { createThread, createComment, Thread, Comments, Comment } from '../../commenting';
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND } from '@/components/editor/lexicalPlugins/suggestedEdits/Commands';
 import useModal from '../../hooks/useModal';
 import CommentEditorTheme from '../../themes/CommentEditorTheme';
@@ -1120,7 +1113,15 @@ function CommentsPanelList({
                   }
                 },
                 {
+                  // Suppress Lexical's default scroll-to-top behavior
+                  tag: SKIP_SCROLL_INTO_VIEW_TAG,
                   onUpdate() {
+                    // Scroll the mark node into view centered in the viewport
+                    const markNodeKey = Array.from(markNodeKeys)[0];
+                    const domElement = editor.getElementByKey(markNodeKey);
+                    if (domElement !== null) {
+                      domElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    }
                     // Restore selection to the previous element
                     if (activeElement !== null) {
                       (activeElement as HTMLElement).focus();
@@ -1131,7 +1132,7 @@ function CommentsPanelList({
             }
           };
 
-          const showEditor = commentOrThread.status === 'open';
+          const showEditor = (commentOrThread.status ?? 'open') === 'open';
 
           return (
             <li

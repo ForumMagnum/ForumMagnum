@@ -11,7 +11,7 @@ import { DialogManager } from '@/components/common/withDialog';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
-import { googleTagManagerIdSetting, isLW, isLWorAF, buttonBurstSetting, isAF } from '@/lib/instanceSettings';
+import { googleTagManagerIdSetting, isLW, isLWorAF, isAF } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { Helmet } from "@/components/layout/Helmet";
 import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
@@ -19,24 +19,16 @@ import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } fr
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
 import Header, { HeaderHeightProvider } from '@/components/layout/Header';
 import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
-import { CurrentAndRecentForumEventsProvider } from '@/components/hooks/useCurrentForumEvent';
 import { LoginPopoverContextProvider } from '@/components/hooks/useLoginPopoverContext';
 import DeferRender from '@/components/common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
-import GlobalButtonBurst from '@/components/ea-forum/GlobalButtonBurst';
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import FlashMessages from "@/components/layout/FlashMessages";
 import AnalyticsClient from "@/components/common/AnalyticsClient";
 import AnalyticsPageInitializer from "@/components/common/AnalyticsPageInitializer";
-// import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
-// import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "@/components/comments/CommentOnSelection";
 import SidebarsWrapper from "@/components/layout/SidebarsWrapper";
-import AdminToggle from "@/components/admin/AdminToggle";
-// import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
-// import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "@/components/common/GlobalHotkeys";
 import LlmChatWrapper from "@/components/languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
@@ -59,14 +51,6 @@ import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarCon
 
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
 const SidebarLanguageModelChat = dynamic(() => import("../languageModels/SidebarLanguageModelChat"), { ssr: false });
-
-/**
- * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
- * and we require them to fill this in using the onboarding flow before continuing.
- * This is a list of route path segments that the user is allowed to view despite having an
- * 'incomplete' account.
- */
-const allowedIncompletePaths: string[] = ["termsOfUse"];
 
 const styles = defineStyles("Layout", (theme: ThemeType) => ({
   navSidebar: {
@@ -187,11 +171,9 @@ const Layout = ({children}: {
       <LlmChatWrapper>
       <DisableNoKibitzContextProvider>
       <CommentOnSelectionPageWrapper>
-      <CurrentAndRecentForumEventsProvider>
       <LlmSidebarWrapper>
         <HeaderHeightProvider>
         <PageBackgroundWrapper>
-          {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
               <ThemeFontDownloads/>
@@ -215,9 +197,6 @@ const Layout = ({children}: {
                   backgroundColor={headerBackgroundColor}
                 />
               </SuspenseWrapper>}
-              {/* <SuspenseWrapper name="ForumEventBanner">
-                <ForumEventBanner />
-              </SuspenseWrapper> */}
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}>
                 {/* <SuspenseWrapper name="HomepageCommunityMap">
@@ -228,7 +207,6 @@ const Layout = ({children}: {
               <ErrorBoundary>
                 <FlashMessages />
               </ErrorBoundary>
-              {isFriendlyUI() && !isWrapped && <AdminToggle />}
 
               {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
               <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
@@ -240,7 +218,6 @@ const Layout = ({children}: {
         </PageBackgroundWrapper>
         </HeaderHeightProvider>
       </LlmSidebarWrapper>
-      </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContextProvider>
       </LlmChatWrapper>

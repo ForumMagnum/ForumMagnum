@@ -115,6 +115,9 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
       backgroundColor: theme.palette.background.primaryDim,
     },
   },
+  messageInputForm: {
+    '--lexical-comment-min-height': '1em',
+  },
 }));
 
 const InnerMessagesNewForm = ({
@@ -202,7 +205,7 @@ const InnerMessagesNewForm = ({
         e.stopPropagation();
         void form.handleSubmit();
       }}>
-        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper, classes.messageInputForm)}>
           <form.Field name="contents">
             {(field) => (
               <EditorFormComponent

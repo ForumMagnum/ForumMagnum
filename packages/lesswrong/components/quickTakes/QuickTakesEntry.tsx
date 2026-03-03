@@ -1,6 +1,5 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useQuickTakesTags } from "./useQuickTakesTags";
 import CommentsNewForm, {
   CommentCancelCallback,
   CommentSuccessCallback } from "../comments/CommentsNewForm";
@@ -122,10 +121,6 @@ const QuickTakesEntry = ({
   const { openDialog } = useDialog();
   const {onSignup} = useLoginPopoverContext();
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const {
-    frontpage,
-    selectedTagIds,
-  } = useQuickTakesTags();
 
   const onCancel = useCallback(async (ev?: MouseEvent) => {
     ev?.preventDefault();
@@ -196,8 +191,8 @@ const QuickTakesEntry = ({
         interactionType='reply'
         prefilledProps={{
           shortform: true,
-          shortformFrontpage: frontpage,
-          relevantTagIds: selectedTagIds,
+          shortformFrontpage: true,
+          relevantTagIds: [],
         }}
         enableGuidelines={false}
         className={classNames(classes.commentForm, {

@@ -18,7 +18,7 @@ import { $getListInfo } from '@/components/editor/lexicalPlugins/suggestions/$ge
 import { $insertFirst } from '@lexical/utils'
 import type { ProtonNode } from './ProtonNode'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import { $getElementBlockType } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import { $isEmptyListItemExceptForSuggestions } from './Utils'
 
@@ -105,7 +105,7 @@ export function $insertListAsSuggestion(
     }
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
 
   if ($isRangeSelection(selection)) {
     const anchorNode = selection.anchor.getNode()

@@ -15,7 +15,6 @@ import '../components/momentjs';
 
 // Misc.
 import './helpers'
-import './routes';
 
 // Alignment Forum
 import './alignment-forum/users/helpers';

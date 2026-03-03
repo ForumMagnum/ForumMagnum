@@ -14,7 +14,7 @@ import {
   INSERT_UNORDERED_LIST_COMMAND,
 } from '@lexical/list';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/react/LexicalHorizontalRuleNode';
+import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/extension';
 import {
   LexicalTypeaheadMenuPlugin,
   MenuOption,
@@ -240,8 +240,9 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
     new ComponentPickerOption('Divider', {
       icon: <HorizontalRuleIcon style={iconStyle} />,
       keywords: ['horizontal rule', 'divider', 'hr'],
-      onSelect: () =>
-        editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined),
+      onSelect: () => {
+        editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
+      }
     }),
     // new ComponentPickerOption('Page Break', {
     //   icon: <ScissorsIcon style={iconStyle} />,

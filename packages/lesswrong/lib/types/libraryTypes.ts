@@ -17,11 +17,6 @@ declare module "turndown-plugin-gfm" {
   export const gfm: AnyBecauseTodo
 }
 
-declare module "universal-cookie-express" {
-  const universalCookieExpress: AnyBecauseTodo
-  export default universalCookieExpress
-}
-
 declare module "gpt-3-encoder" {
   export const encode: AnyBecauseTodo
   export const decode: AnyBecauseTodo

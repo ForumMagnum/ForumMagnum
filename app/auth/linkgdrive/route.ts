@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { OAuth2Client as GoogleOAuth2Client } from 'google-auth-library';
 import { googleDocImportClientIdSetting, googleDocImportClientSecretSetting } from '@/server/databaseSettings';
-import { combineUrls, getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { combineUrls } from '@/lib/vulcan-lib/utils';
 import { getUserFromReq } from '@/server/vulcan-lib/apollo-server/getUserFromReq';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { getSiteUrlFromReq } from '@/server/utils/getSiteUrl';
 
 export async function GET(request: NextRequest) {
+  const siteUrl = getSiteUrlFromReq(request);
   const googleClientId = googleDocImportClientIdSetting.get();
   const googleOAuthSecret = googleDocImportClientSecretSetting.get();
 
@@ -30,7 +32,7 @@ export async function GET(request: NextRequest) {
   const oauth2Client = new GoogleOAuth2Client(
     googleClientId,
     googleOAuthSecret,
-    combineUrls(getSiteUrl(), callbackUrl)
+    combineUrls(siteUrl, callbackUrl)
   );
 
   const url = oauth2Client.generateAuthUrl({
@@ -40,7 +42,7 @@ export async function GET(request: NextRequest) {
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/userinfo.email'
     ],
-    redirect_uri: combineUrls(getSiteUrl(), callbackUrl)
+    redirect_uri: combineUrls(siteUrl, callbackUrl)
   });
 
   return NextResponse.redirect(url);

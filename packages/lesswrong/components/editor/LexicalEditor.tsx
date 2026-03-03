@@ -31,6 +31,7 @@ import Settings from '../lexical/Settings';
 import { TableCellNode } from '@lexical/table';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { gql } from '@/lib/generated/gql-codegen';
+import { HorizontalRuleExtension } from '@lexical/extension';
 
 const HocuspocusAuthQuery = gql(`
   query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -159,9 +160,6 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     },
     '& .footnote-content': {
       flex: 1,
-      '& p': {
-        margin: 0,
-      },
     },
     '& .footnote-reference': {
       cursor: 'pointer',
@@ -484,7 +482,7 @@ const LexicalEditor = ({
         namespace: 'Playground',
         nodes: PlaygroundNodes,
         theme: PlaygroundEditorTheme,
-        dependencies: [],
+        dependencies: [HorizontalRuleExtension],
       });
     },
     [],

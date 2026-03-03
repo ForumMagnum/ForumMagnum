@@ -2,7 +2,7 @@ import React, { type JSX, useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
 import { LexicalEditor } from 'lexical';
-import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
+import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/extension';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';

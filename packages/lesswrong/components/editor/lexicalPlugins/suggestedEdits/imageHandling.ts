@@ -1,4 +1,4 @@
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import type { LexicalNode } from 'lexical'
 import { $createRangeSelection, $getNodeByKey, $getSelection, $setSelection } from 'lexical'
 import { $generateNodesFromSerializedNodes } from '@lexical/clipboard'
@@ -28,7 +28,7 @@ export function $insertImageNodeAsSuggestion(
     logger.info('No selection available')
     return true
   }
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   const suggestion = $createSuggestionNode(suggestionID, 'insert-image').append(node)
   selection.insertNodes([suggestion])
   onSuggestionCreation(suggestionID)
@@ -56,7 +56,7 @@ export function $handleImageSizeChangeAsSuggestion(
     return true
   }
   logger.info('Wrapping node with new suggestion', initialWidthPercent)
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   $wrapNodeInElement(node, () =>
     $createSuggestionNode(suggestionID, 'image-change', {
       widthPercent: initialWidthPercent ?? null,
@@ -102,7 +102,7 @@ export function $handleImageCaptionToggleAsSuggestion(
     return true
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   $wrapNodeInElement(node, () =>
     $createSuggestionNode(suggestionID, 'image-change', {
       showCaption: initialShowCaption,
@@ -127,7 +127,7 @@ export function $handleImageDeleteAsSuggestion(
     existingSuggestionParent.remove()
     return true
   }
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   $wrapNodeInElement(draggedImageNode, () => $createSuggestionNode(suggestionID, 'delete-image'))
   onSuggestionCreation(suggestionID)
   return true
@@ -153,7 +153,7 @@ export function $handleImageDragAndDropAsSuggestion(
     logger.info('Cannot drop image')
     return true
   }
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   const range = getDragSelection(event)
   logger.info('Wrapping existing node with "delete" type')
   $wrapNodeInElement(draggedImageNode, () => $createSuggestionNode(suggestionID, 'delete-image'))

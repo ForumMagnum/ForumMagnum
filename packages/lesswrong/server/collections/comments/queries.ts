@@ -420,14 +420,6 @@ export const graphqlCommentQueryTypeDefs = gql`
     limit: String
   }
   
-  input CommentsForumEventCommentsInput {
-    userId: String
-    commentIds: [String!]
-    minimumKarma: Int
-    authorIsUnreviewed: Boolean
-    forumEventId: String
-  }
-  
   input CommentsAlignmentSuggestedCommentsInput {
     userId: String
     commentIds: [String!]
@@ -499,7 +491,6 @@ export const graphqlCommentQueryTypeDefs = gql`
     moderatorComments: CommentsModeratorCommentsInput
     debateResponses: CommentsDebateResponsesInput
     recentDebateResponses: CommentsRecentDebateResponsesInput
-    forumEventComments: CommentsForumEventCommentsInput
     alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput
     rss: CommentsRssInput
     draftComments: CommentsDraftCommentsInput

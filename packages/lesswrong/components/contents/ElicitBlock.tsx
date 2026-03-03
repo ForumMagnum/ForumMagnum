@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';

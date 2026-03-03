@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { hookToHoc } from '../../lib/hocUtils';
 
 type CommentBoxFn = (args: {onClose: () => void}) => React.ReactNode
 interface CommentBoxContextType {
@@ -37,5 +36,3 @@ export const CommentBoxManager = ({ children }: {
 }
 
 export const useCommentBox = (): CommentBoxContextType => React.useContext(CommentBoxContext)!;
-export const withCommentBox = hookToHoc(useCommentBox);
-export default withCommentBox;

@@ -102,16 +102,6 @@ export const RouteRootClient = ({fullscreen, children}: {
         </SuspenseWrapper>
       }
       rightSidebar={
-        /* {!renderSunshineSidebar &&
-          friendlyHomeLayout &&
-          <MaybeStickyWrapper sticky={friendlyHomeLayout}>
-            <DeferRender ssr={true} clientTiming='mobile-aware'>
-              <SuspenseWrapper name="EAHomeRightHandSide">
-                <EAHomeRightHandSide />
-              </SuspenseWrapper>
-            </DeferRender>
-          </MaybeStickyWrapper>
-        } */
         renderSunshineSidebar && <div className={classes.rightSidebar}>
           <DeferRender ssr={false}>
             <SuspenseWrapper name="SunshineSidebar">
@@ -128,11 +118,6 @@ export const RouteRootClient = ({fullscreen, children}: {
           <SuspenseWrapper name="Route" fallback={<DelayedLoading/>}>
             {children}
           </SuspenseWrapper>
-    
-          {/* ea-forum-look-here We've commented out some EAForum-specific components for bundle size reasons */}
-          {/* <SuspenseWrapper name="OnboardingFlow">
-            {!isIncompletePath && isEAForum() ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
-          </SuspenseWrapper> */}
         </ErrorBoundary>
       </div>
     </LeftAndRightSidebarsWrapper>

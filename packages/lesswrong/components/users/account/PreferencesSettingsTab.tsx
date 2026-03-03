@@ -1,7 +1,6 @@
 import React from 'react';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '@/themes/forumTheme';
-import { hasPostRecommendations, hasSurveys, userCanViewJargonTerms } from '@/lib/betas';
+import { hasPostRecommendations, userCanViewJargonTerms } from '@/lib/betas';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
@@ -273,18 +272,6 @@ const PreferencesSettingsTab = ({
             />
           )}
         </form.Field>
-
-        {hasSurveys() && (
-          <form.Field name="optedOutOfSurveys">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Opt out of surveys"
-                description="Don't show me user surveys"
-              />
-            )}
-          </form.Field>
-        )}
 
         {isEAForum() && (userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && (
           <form.Field name="showHideKarmaOption">

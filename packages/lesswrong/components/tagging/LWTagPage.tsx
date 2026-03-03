@@ -12,7 +12,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '@/lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
 import { isFriendlyUI } from "../../themes/forumTheme";
@@ -875,22 +875,6 @@ const LWTagPage = ({slug}: {slug: string}) => {
             <AddPostsToTag tag={tag} />
           </PostsList2>}
         </AnalyticsContext>
-        {quickTakesTagsEnabledSetting.get() && <DeferRender ssr={false}>
-          <AnalyticsContext pageSectionContext="quickTakesSection">
-            <CommentsListCondensed
-              label="Quick takes"
-              terms={{
-                view: "tagSubforumComments" as const,
-                tagId: tag._id,
-                sortBy: 'new',
-              }}
-              initialLimit={8}
-              itemsPerPage={20}
-              showTotal
-              hideTag
-            />
-          </AnalyticsContext>
-        </DeferRender>}
       </>}
     </div>
   );

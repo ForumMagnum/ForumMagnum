@@ -37,6 +37,8 @@ export const routeMarkdownMapping = defineMarkdownRouteMapping({
   "/posts/slug/[slug]": ({ slug }) => `/api/post/${slug}`,
   "/s/[_id]": ({ _id }) => `/api/sequence/${_id}`,
   "/s/[_id]/p/[postId]": ({ _id, postId }) => `/api/sequence/${_id}/post/${postId}`,
+  "/editPost": () => "/api/editPost",
+  "/collaborateOnPost": () => "/api/collaborateOnPost",
 });
 
 export type MarkdownVersionRoutePattern = keyof typeof routeMarkdownMapping;
