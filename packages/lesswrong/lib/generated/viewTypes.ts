@@ -41,6 +41,9 @@ type ModerationTemplatesViewName = "moderationTemplatesList"|"moderationTemplate
 type ModeratorActionsViewName = "restrictionModerationActions"|"userModeratorActions";
 type MultiDocumentsViewName = "lensBySlug"|"pingbackLensPages"|"summariesByParentId";
 type NotificationsViewName = "adminAlertNotifications"|"unreadUserNotifications"|"userNotifications";
+type OAuthAccessTokensViewName = never
+type OAuthAuthorizationCodesViewName = never
+type OAuthClientsViewName = never
 type PetrovDayActionsViewName = "adminConsole"|"getAction"|"launchDashboard"|"warningConsole";
 type PetrovDayLaunchsViewName = never
 type PodcastEpisodesViewName = "episodeByExternalId";
@@ -123,6 +126,9 @@ interface ViewTermsByCollectionName {
   ModeratorActions: ModeratorActionsViewTerms
   MultiDocuments: MultiDocumentsViewTerms
   Notifications: NotificationsViewTerms
+  OAuthAccessTokens: ViewTermsBase
+  OAuthAuthorizationCodes: ViewTermsBase
+  OAuthClients: ViewTermsBase
   PetrovDayActions: PetrovDayActionsViewTerms
   PetrovDayLaunchs: ViewTermsBase
   PodcastEpisodes: PodcastEpisodesViewTerms

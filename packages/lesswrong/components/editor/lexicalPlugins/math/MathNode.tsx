@@ -1,6 +1,3 @@
-"use client";
-
-import React, { useEffect, useRef } from 'react';
 import {
   DecoratorNode,
   DOMConversionMap,
@@ -11,7 +8,7 @@ import {
   SerializedLexicalNode,
   Spread,
 } from 'lexical';
-import { renderEquation } from './loadMathJax';
+import { MathComponent } from './MathComponent';
 
 export type SerializedMathNode = Spread<
   {
@@ -232,40 +229,3 @@ export function $createMathNode(equation: string, inline: boolean = true): MathN
 export function $isMathNode(node: LexicalNode | null | undefined): node is MathNode {
   return node instanceof MathNode;
 }
-
-// React component for rendering math
-interface MathComponentProps {
-  equation: string;
-  inline: boolean;
-  nodeKey: string;
-}
-
-function MathComponent({ equation, inline }: MathComponentProps): React.ReactElement {
-  const containerRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    
-    // Show loading state
-    containerRef.current.textContent = '...';
-    
-    // Render the equation (this will load MathJax if needed)
-    void renderEquation(equation, containerRef.current, !inline);
-  }, [equation, inline]);
-
-  const style: React.CSSProperties = inline
-    ? { display: 'inline-block', userSelect: 'none' }
-    : { display: 'block', textAlign: 'center', margin: '1em 0', userSelect: 'none' };
-
-  return (
-    <span
-      ref={containerRef}
-      className={`math-preview ${inline ? 'math-inline' : 'math-display'}`}
-      style={style}
-    >
-      {/* Initial content shows loading indicator while MathJax loads */}
-      ...
-    </span>
-  );
-}
-

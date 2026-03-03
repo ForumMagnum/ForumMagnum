@@ -13,8 +13,9 @@ import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
 import useCookies from '@/lib/vendor/react-cookie/useCookies.tsx';
+import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LoginForm', (theme: ThemeType) => ({
   root: {
     wordBreak: "normal",
     padding: 16,
@@ -89,7 +90,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.link.dim,
     }
   }
-})
+}))
 
 type possibleActions = "login" | "signup" | "pwReset"
 
@@ -99,14 +100,11 @@ const currentActionToButtonText: Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
-type LoginFormProps = {
+const LoginForm = ({ startingState = "login", returnTo }: {
   startingState?: possibleActions,
-  immediateRedirect?: boolean,
-  onClose?: () => void,
-  classes: ClassesType<typeof styles>
-}
-
-const LoginForm = ({ startingState = "login", classes }: LoginFormProps) => {
+  returnTo?: string
+}) => {
+  const classes = useStyles(styles);
   const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
   const hasOauthSection = !isEAForum();
 
@@ -161,6 +159,14 @@ const LoginForm = ({ startingState = "login", classes }: LoginFormProps) => {
     setDisplayedError(error.message);
   }
   
+  const loginSuccess = useCallback(() => {
+    if (returnTo) {
+      window.location.href = returnTo;
+    } else {
+      location.reload()
+    }
+  }, [returnTo])
+
   const submitFunction = async (e: AnyBecauseTodo) => {
     e.preventDefault();
     const signupAbTestKey = getUserABTestKey({clientId});
@@ -174,7 +180,7 @@ const LoginForm = ({ startingState = "login", classes }: LoginFormProps) => {
       }
       if (data?.login?.token) {
         saveLoginToken(data.login.token);
-        location.reload()
+        loginSuccess();
       }
     } else if (currentAction === 'signup') {
       const { data, error } = await signupMutation({
@@ -190,7 +196,7 @@ const LoginForm = ({ startingState = "login", classes }: LoginFormProps) => {
       }
       if (data?.signup?.token) {
         saveLoginToken(data.signup.token);
-        location.reload()
+        loginSuccess();
       }
     } else if (currentAction === 'pwReset') {
       const { data, error } = await pwResetMutation({
@@ -204,6 +210,8 @@ const LoginForm = ({ startingState = "login", classes }: LoginFormProps) => {
       }
     }
   }
+
+  const oauthReturnTo = encodeURIComponent(returnTo ?? pathname);
 
   return <ContentStyles contentType="commentExceptPointerEvents">
     {reCaptchaSiteKeySetting.get() && <DeferRender ssr={false}>
@@ -240,8 +248,8 @@ const LoginForm = ({ startingState = "login", classes }: LoginFormProps) => {
       {hasOauthSection && <>
         <div className={classes.oAuthComment}>...or continue with</div>
         <div className={classes.oAuthBlock}>
-          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
-          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
+          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${oauthReturnTo}`}>GOOGLE</a>
+          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${oauthReturnTo}`}>GITHUB</a>
         </div>
       </>}
       {displayedError && <div className={classes.error}>{displayedError}</div>}
@@ -249,6 +257,6 @@ const LoginForm = ({ startingState = "login", classes }: LoginFormProps) => {
   </ContentStyles>;
 }
 
-export default registerComponent('LoginForm', LoginForm, { styles });
+export default LoginForm;
 
 

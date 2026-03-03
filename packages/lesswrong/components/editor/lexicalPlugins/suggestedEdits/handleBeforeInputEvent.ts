@@ -1,6 +1,6 @@
 import { $generateNodesFromSerializedNodes, $insertGeneratedNodes } from '@lexical/clipboard'
 import { $findMatchingParent, $insertFirst } from '@lexical/utils'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import type { LexicalEditor, ElementNode, RangeSelection, LexicalNode } from 'lexical'
 import {
   $isDecoratorNode,
@@ -36,7 +36,7 @@ import {
   $isEmptyListItemExceptForSuggestions,
 } from './Utils'
 import { $generateNodesFromDOM } from '@lexical/html'
-import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
+import { $isHorizontalRuleNode } from '@lexical/extension'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode'
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
@@ -84,7 +84,7 @@ export function $handleBeforeInputEvent(
     return true
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
 
   if ($isAnyPartOfSelectionInCodeNode(selection)) {
     logger.info('Aborting beforeinput because selection is inside a code-block')
@@ -132,7 +132,7 @@ export function $handleDeleteInputType(
     return true
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   return $handleDeleteInput(editor, inputType, selection, suggestionID, onSuggestionCreation, logger)
 }
 

@@ -17,10 +17,18 @@ export const routeTrie = {
       "staticChildren": {
         "ai-agents.json": {
           "hasRoute": true
+        },
+        "oauth-authorization-server": {
+          "hasRoute": true
+        },
+        "oauth-protected-resource": {
+          "hasRoute": true
         }
       },
       "lowerCase": {
-        "ai-agents.json": "ai-agents.json"
+        "ai-agents.json": "ai-agents.json",
+        "oauth-authorization-server": "oauth-authorization-server",
+        "oauth-protected-resource": "oauth-protected-resource"
       }
     },
     "SKILL.md": {
@@ -134,6 +142,9 @@ export const routeTrie = {
           },
           "hasRoute": true
         },
+        "collaborateOnPost": {
+          "hasRoute": true
+        },
         "community": {
           "hasRoute": true
         },
@@ -141,6 +152,9 @@ export const routeTrie = {
           "hasRoute": true
         },
         "curated": {
+          "hasRoute": true
+        },
+        "editPost": {
           "hasRoute": true
         },
         "events": {
@@ -249,6 +263,32 @@ export const routeTrie = {
             }
           }
         },
+        "agent": {
+          "staticChildren": {
+            "commentOnDraft": {
+              "hasRoute": true
+            },
+            "deleteBlock": {
+              "hasRoute": true
+            },
+            "insertBlock": {
+              "hasRoute": true
+            },
+            "replaceText": {
+              "hasRoute": true
+            },
+            "replaceWidget": {
+              "hasRoute": true
+            }
+          },
+          "lowerCase": {
+            "commentondraft": "commentOnDraft",
+            "deleteblock": "deleteBlock",
+            "insertblock": "insertBlock",
+            "replacetext": "replaceText",
+            "replacewidget": "replaceWidget"
+          }
+        },
         "autocomplete": {
           "hasRoute": true
         },
@@ -316,6 +356,9 @@ export const routeTrie = {
           "hasRoute": true
         },
         "health": {
+          "hasRoute": true
+        },
+        "mcp": {
           "hasRoute": true
         },
         "notificationCount": {
@@ -393,9 +436,11 @@ export const routeTrie = {
         "skill.md": "SKILL.md",
         "about": "about",
         "codex": "codex",
+        "collaborateonpost": "collaborateOnPost",
         "community": "community",
         "contact": "contact",
         "curated": "curated",
+        "editpost": "editPost",
         "events": "events",
         "faq": "faq",
         "home": "home",
@@ -408,12 +453,14 @@ export const routeTrie = {
         "sequence": "sequence",
         "tag": "tag",
         "user": "user",
+        "agent": "agent",
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",
         "dropandcreatepg": "dropAndCreatePg",
         "getllmfeedback": "getLlmFeedback",
         "health": "health",
+        "mcp": "mcp",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
         "quit": "quit",
@@ -812,6 +859,28 @@ export const routeTrie = {
         "2019": "2019"
       }
     },
+    "oauth": {
+      "staticChildren": {
+        "authorize": {
+          "hasRoute": true
+        },
+        "register": {
+          "hasRoute": true
+        },
+        "revoke": {
+          "hasRoute": true
+        },
+        "token": {
+          "hasRoute": true
+        }
+      },
+      "lowerCase": {
+        "authorize": "authorize",
+        "register": "register",
+        "revoke": "revoke",
+        "token": "token"
+      }
+    },
     "out": {
       "hasRoute": true
     },
@@ -1196,6 +1265,7 @@ export const routeTrie = {
     "newpost": "newPost",
     "nominateposts": "nominatePosts",
     "nominations": "nominations",
+    "oauth": "oauth",
     "out": "out",
     "pastevents": "pastEvents",
     "payments": "payments",

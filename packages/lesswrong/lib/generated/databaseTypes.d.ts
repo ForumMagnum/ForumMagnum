@@ -705,6 +705,49 @@ interface DbNotification extends DbObject {
   waitingForBatch: boolean
 }
 
+type OAuthAccessTokensCollection = PgCollection<"OAuthAccessTokens">;
+
+interface DbOAuthAccessToken extends DbObject {
+  __collectionName?: "OAuthAccessTokens"
+  clientId: string
+  createdAt: Date
+  expiresAt: Date
+  hashedToken: string
+  resource: string | null
+  revokedAt: Date | null
+  scope: string
+  userId: string
+}
+
+type OAuthAuthorizationCodesCollection = PgCollection<"OAuthAuthorizationCodes">;
+
+interface DbOAuthAuthorizationCode extends DbObject {
+  __collectionName?: "OAuthAuthorizationCodes"
+  clientId: string
+  codeChallenge: string
+  codeChallengeMethod: string
+  createdAt: Date
+  expiresAt: Date
+  hashedCode: string
+  redirectUri: string
+  resource: string | null
+  scope: string
+  used: boolean
+  userId: string
+}
+
+type OAuthClientsCollection = PgCollection<"OAuthClients">;
+
+interface DbOAuthClient extends DbObject {
+  __collectionName?: "OAuthClients"
+  clientName: string
+  createdAt: Date
+  grantTypes: Array<string>
+  hashedSecret: string
+  redirectUris: Array<string>
+  responseTypes: Array<string>
+}
+
 type PetrovDayActionsCollection = PgCollection<"PetrovDayActions">;
 
 interface DbPetrovDayAction extends DbObject {
@@ -2133,6 +2176,9 @@ interface CollectionsByName {
   ModeratorActions: ModeratorActionsCollection
   MultiDocuments: MultiDocumentsCollection
   Notifications: NotificationsCollection
+  OAuthAccessTokens: OAuthAccessTokensCollection
+  OAuthAuthorizationCodes: OAuthAuthorizationCodesCollection
+  OAuthClients: OAuthClientsCollection
   PetrovDayActions: PetrovDayActionsCollection
   PetrovDayLaunchs: PetrovDayLaunchsCollection
   PodcastEpisodes: PodcastEpisodesCollection
@@ -2216,6 +2262,9 @@ interface ObjectsByCollectionName {
   ModeratorActions: DbModeratorAction
   MultiDocuments: DbMultiDocument
   Notifications: DbNotification
+  OAuthAccessTokens: DbOAuthAccessToken
+  OAuthAuthorizationCodes: DbOAuthAuthorizationCode
+  OAuthClients: DbOAuthClient
   PetrovDayActions: DbPetrovDayAction
   PetrovDayLaunchs: DbPetrovDayLaunch
   PodcastEpisodes: DbPodcastEpisode
@@ -2299,6 +2348,9 @@ interface ObjectsByTypeName {
   ModeratorAction: DbModeratorAction
   MultiDocument: DbMultiDocument
   Notification: DbNotification
+  OAuthAccessToken: DbOAuthAccessToken
+  OAuthAuthorizationCode: DbOAuthAuthorizationCode
+  OAuthClient: DbOAuthClient
   PetrovDayAction: DbPetrovDayAction
   PetrovDayLaunch: DbPetrovDayLaunch
   PodcastEpisode: DbPodcastEpisode

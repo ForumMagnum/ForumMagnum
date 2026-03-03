@@ -18,8 +18,11 @@ assertRouteAttributes("/login", {
   hasMarkdownVersion: false,
 });
 
-export default function Page() {
+export default async function Page({ searchParams }: {
+  searchParams: Promise<{ returnTo?: string }>
+}) {
+  const { returnTo } = await searchParams;
   return <RouteRoot>
-    <LoginPage />
+    <LoginPage returnTo={returnTo} />
   </RouteRoot>;
 }

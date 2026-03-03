@@ -10,13 +10,16 @@ import type {
   Spread,
 } from 'lexical';
 import {$createTextNode} from 'lexical';
+import { randomId } from '@/lib/random';
 
 import {CodeNode, SerializedCodeNode} from '@lexical/code';
 
 const DEFAULT_HEIGHT = 400;
 
 export type SerializedIframeWidgetNode = Spread<
-  {},
+  {
+    widgetId?: string | null
+  },
   SerializedCodeNode
 >;
 
@@ -34,22 +37,26 @@ function $convertIframeWidgetElement(
   if (!iframe.hasAttribute('data-lexical-iframe-widget')) {
     return null;
   }
-  const node = $createIframeWidgetNode();
+  const widgetId = iframe.getAttribute('data-widget-id');
+  const node = $createIframeWidgetNode(widgetId ?? randomId());
   node.append($createTextNode(htmlCode));
   return {node};
 }
 
 export class IframeWidgetNode extends CodeNode {
+  __widgetId: string | null;
+
   static getType(): string {
     return 'iframe-widget';
   }
 
   static clone(node: IframeWidgetNode): IframeWidgetNode {
-    return new IframeWidgetNode(node.__language, node.__key);
+    return new IframeWidgetNode(node.__language, node.__key, node.__widgetId);
   }
 
-  constructor(language?: string | null, key?: NodeKey) {
+  constructor(language?: string | null, key?: NodeKey, widgetId?: string | null) {
     super(language ?? 'html', key);
+    this.__widgetId = widgetId ?? null;
   }
 
   collapseAtStart(): boolean {
@@ -59,16 +66,23 @@ export class IframeWidgetNode extends CodeNode {
   createDOM(config: EditorConfig): HTMLElement {
     const element = super.createDOM(config);
     element.classList.add('iframe-widget-code');
+    if (this.__widgetId) {
+      element.setAttribute('data-widget-id', this.__widgetId);
+    }
     return element;
   }
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const iframe = document.createElement('iframe');
     iframe.setAttribute('data-lexical-iframe-widget', 'true');
-    iframe.setAttribute('srcdoc', this.getTextContent());
+    if (this.__widgetId) {
+      iframe.setAttribute('data-widget-id', this.__widgetId);
+    }
     iframe.setAttribute('sandbox', 'allow-scripts');
     iframe.setAttribute('title', 'Embedded widget');
     iframe.setAttribute('style', `width: 100%; height: ${DEFAULT_HEIGHT}px; border: 1px solid #ccc; border-radius: 4px;`);
+    // Keep srcdoc as the last attribute to simplify markdown post-processing.
+    iframe.setAttribute('srcdoc', this.getTextContent());
     return {element: iframe};
   }
 
@@ -87,23 +101,45 @@ export class IframeWidgetNode extends CodeNode {
   }
 
   static importJSON(serializedNode: SerializedIframeWidgetNode): IframeWidgetNode {
-    const node = $createIframeWidgetNode();
+    const node = $createIframeWidgetNode(serializedNode.widgetId ?? null);
     return node.updateFromJSON(serializedNode);
   }
 
   updateFromJSON(serializedNode: LexicalUpdateJSON<SerializedIframeWidgetNode>): this {
-    return super.updateFromJSON(serializedNode);
+    const updated = super.updateFromJSON(serializedNode);
+    if (serializedNode.widgetId !== undefined) {
+      updated.__widgetId = serializedNode.widgetId ?? null;
+    }
+    return updated;
   }
 
   exportJSON(): SerializedIframeWidgetNode {
     return {
       ...super.exportJSON(),
+      widgetId: this.__widgetId,
     };
+  }
+
+  getWidgetId(): string | null {
+    return this.__widgetId;
+  }
+
+  setWidgetId(widgetId: string): void {
+    const writable = this.getWritable();
+    writable.__widgetId = widgetId;
+  }
+
+  ensureWidgetId(): string {
+    const writable = this.getWritable();
+    if (!writable.__widgetId) {
+      writable.__widgetId = randomId();
+    }
+    return writable.__widgetId;
   }
 }
 
-export function $createIframeWidgetNode(): IframeWidgetNode {
-  return new IframeWidgetNode();
+export function $createIframeWidgetNode(widgetId?: string | null): IframeWidgetNode {
+  return new IframeWidgetNode('html', undefined, widgetId ?? null);
 }
 
 export function $isIframeWidgetNode(

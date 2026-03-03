@@ -15,6 +15,7 @@ import {
   LexicalEditor,
 } from 'lexical';
 import {useMessages} from '@/components/common/withMessages';
+import { randomId } from '@/lib/random';
 
 import {$createIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
 import {injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT} from './iframeResizeScript';
@@ -100,6 +101,13 @@ interface WidgetState {
   viewMode: 'code' | 'preview';
   previewHeight: number;
   htmlContent: string;
+}
+
+function stripDeletedMarkupFromSrcdoc(srcdoc: string): string {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(srcdoc, 'text/html');
+  doc.querySelectorAll('del').forEach((node) => node.remove());
+  return doc.body.innerHTML;
 }
 
 function applyPreviewModeToDOM(
@@ -252,7 +260,7 @@ function IframeWidgetOverlay({
   if (state.viewMode !== 'preview' || !position) return null;
 
   const srcdoc = state.htmlContent.trim()
-    ? injectResizeScript(state.htmlContent)
+    ? injectResizeScript(stripDeletedMarkupFromSrcdoc(state.htmlContent))
     : '';
 
   return (
@@ -357,7 +365,7 @@ export default function IframeWidgetPlugin({
             });
             return true;
           }
-          const node = $createIframeWidgetNode();
+          const node = $createIframeWidgetNode(randomId());
           if (payload) {
             node.append($createTextNode(payload));
           }

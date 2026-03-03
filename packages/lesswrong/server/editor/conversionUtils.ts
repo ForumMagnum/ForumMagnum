@@ -29,10 +29,27 @@ const blockTags = new Set([
 
 const isBlockTag = (nodeName: string): boolean => blockTags.has(nodeName);
 
+function isLexicalIframeWidgetElement(node: Node): node is Element {
+  if (node?.nodeType !== ServerSafeNode.ELEMENT_NODE) {
+    return false;
+  }
+  const element = node as Element;
+  return element.nodeName.toUpperCase() === 'IFRAME'
+    && element.getAttribute('data-lexical-iframe-widget') !== null;
+}
+
+function iframeWidgetElementToMarkdown(element: Element): string {
+  const widgetId = element.getAttribute('data-widget-id') ?? '';
+  const widgetMarkup = element.getAttribute('srcdoc') ?? '';
+  return `\n\n\`\`\`widget[${widgetId}]\n${widgetMarkup}\n\`\`\`\n\n`;
+}
+
 let _turndownService: TurndownService|null = null;
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v1';
 function getTurndown(): TurndownService {
-  if (!_turndownService) {
-    const TurndownService = require('turndown');
+  const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
+  if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
+    const TurndownService: typeof import('turndown') = require('turndown');
     const {gfm} = require('turndown-plugin-gfm');
 
     const indentMarkdown = (markdown: string, indentLevel: number): string => {
@@ -44,8 +61,11 @@ function getTurndown(): TurndownService {
         .join("\n");
     };
 
-    const turndownService: TurndownService = new TurndownService({
+    const turndownService = new TurndownService({
       blankReplacement: (content: string, node: Node) => {
+        if (isLexicalIframeWidgetElement(node)) {
+          return iframeWidgetElementToMarkdown(node);
+        }
         if (hasDataMarkdownAttribute(node)) {
           const element = node as Element;
           const markdown = element.getAttribute('data-markdown') ?? '';
@@ -59,7 +79,25 @@ function getTurndown(): TurndownService {
         return ''
       },
     })
+    turndownService.addRule('iframe-widget-markdown', {
+      filter: ['iframe'],
+      replacement: (_content, node) => {
+        const element = node as Element;
+        if (element.getAttribute('data-lexical-iframe-widget') === null) {
+          return element.outerHTML;
+        }
+        return iframeWidgetElementToMarkdown(element);
+      }
+    })
     turndownService.use(gfm); // Add support for strikethrough and tables
+    turndownService.addRule('suggestion-deletion', {
+      filter: ['del'],
+      replacement: (content) => `<del>${content}</del>`
+    })
+    turndownService.addRule('suggestion-insertion', {
+      filter: ['ins'],
+      replacement: (content) => `<ins>${content}</ins>`
+    })
     turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
     turndownService.addRule('raw-markdown', {
       filter: (node, options) => hasDataMarkdownAttribute(node),
@@ -140,6 +178,7 @@ function getTurndown(): TurndownService {
       filter: (node, options) => node.classList?.contains('detailsBlock'),
       replacement: (content) => `${content}\n+++`
     });
+    (turndownService as AnyBecauseHard).__buildMarker = TURNDOWN_BUILD_MARKER;
     _turndownService = turndownService;
   }
   return _turndownService;
@@ -455,10 +494,11 @@ export async function extractAndReplaceIframeWidgets(html: string, revisionId: s
 
   $('iframe[data-lexical-iframe-widget]').each((_, element) => {
     const iframe = $(element);
-    const srcdoc = iframe.attr('srcdoc') ?? '';
-    if (!srcdoc) {
+    const rawSrcdoc = iframe.attr('srcdoc') ?? '';
+    if (!rawSrcdoc) {
       return;
     }
+    const srcdoc = cheerioParse(rawSrcdoc).root().find('del').remove().end().html() ?? '';
 
     const srcdocId = randomId();
     srcdocsToInsert.push({

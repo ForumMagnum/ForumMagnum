@@ -309,13 +309,6 @@ export const introPostIdSetting = new PublicInstanceSetting<string | null>('intr
 
 export const instanceDebuggersSetting = new PublicInstanceSetting<string[]>('instanceDebuggers', [], 'optional');
 
-/** Path of the certificate file *relative* to the instance settings file (so we don't have to store the full cert in instance settings) */
-export const sslCAFileSetting = new PublicInstanceSetting<string | null>(
-  "analytics.caFilePath",
-  null,
-  "optional"
-);
-
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning");
 

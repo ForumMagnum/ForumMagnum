@@ -1,4 +1,3 @@
-'use client';
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -12,7 +11,7 @@ import type {
 } from 'lexical';
 import React, { type JSX } from 'react';
 
-import {BlockWithAlignableContents} from '@lexical/react/LexicalBlockWithAlignableContents';
+import { BlockWithAlignableContentsWrapper } from '../../nodes/BlockWithAlignableContentsWrapper';
 import {
   DecoratorBlockNode,
   SerializedDecoratorBlockNode,
@@ -35,14 +34,14 @@ function EstimakerComponent({
   embedUrl,
 }: EstimakerComponentProps) {
   return (
-    <BlockWithAlignableContents
+    <BlockWithAlignableContentsWrapper
       className={className}
       format={format}
       nodeKey={nodeKey}>
       <div className="estimaker-preview">
         <iframe src={embedUrl} title="Estimaker embed" frameBorder="0" />
       </div>
-    </BlockWithAlignableContents>
+    </BlockWithAlignableContentsWrapper>
   );
 }
 

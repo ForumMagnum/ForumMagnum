@@ -532,6 +532,7 @@ Do not create barrel import/export files.
 Avoid using `ReturnType<...>` in situations where you could check the return type of the relevant function and use that type directly (with an additional import, if necessary).
 If you have access to the typescript LSP, strongly prefer to use the tools it provides to check for type errors in files that you've changed while in the middle of coding, rather than using the project's top-level `yarn lint` (which runs a full lint and typecheck, and takes ~30 seconds).  You should use the project-level command after finishing an entire feature, if you've made any changes to types/type signatures that might have been used from elsewhere in the codebase.
 Avoid using `npx [command]`, like `npx jest` or `npx tsc`, if there's an appropriate command in our package.json that seems like it's intended to perform the relevant function.  (In those two cases, it'll be `yarn unit [test-file-path]` and `yarn tsc`.)
+When asked to conduct a code review against `master`, ensure any diffs you perform are against `origin/master`, not against local `master`, which might be out of date.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 

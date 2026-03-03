@@ -97,7 +97,7 @@ const CrosspostLoginPage = ({classes}: {
           </>
         )
         : (
-          <LoginForm immediateRedirect={!isE2E} />
+          <LoginForm />
         )
       }
     </div>

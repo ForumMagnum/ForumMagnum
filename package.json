@@ -73,6 +73,7 @@
     "@lexical/selection": "^0.39.0",
     "@lexical/utils": "^0.39.0",
     "@lexical/yjs": "^0.39.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "@popperjs/core": "^2.11.5",
     "@sentry/nextjs": "^10.22.0",
     "@slack/web-api": "^7.10.0",
@@ -162,6 +163,7 @@
     "dataloader": "^2.2.2",
     "dd-trace": "^5.36.0",
     "deepmerge": "^1.2.0",
+    "diff": "^7.0.0",
     "diff-match-patch": "^1.0.5",
     "draft-convert": "^2.1.2",
     "draft-js": "^0.10.4",
@@ -308,7 +310,6 @@
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.3",
     "dependency-cruiser": "^17.0.1",
-    "diff": "^7.0.0",
     "esbuild": "^0.25.0",
     "esbuild-loader": "^2.6.1",
     "esbuild-visualizer": "^0.6.0",
@@ -345,7 +346,7 @@
     "rxjs": "^7.8.0"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=24.13.0"
   },
   "knip": {
     "entry": [

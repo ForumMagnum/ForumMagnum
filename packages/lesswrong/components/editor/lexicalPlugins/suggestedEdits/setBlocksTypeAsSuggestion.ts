@@ -1,7 +1,7 @@
 import { $getRoot, $getSelection, $isRangeSelection, $isRootOrShadowRoot } from 'lexical'
 import type { BlockType } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import { $getElementBlockType, blockTypeToCreateElementFn } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import { $findMatchingParent, $insertFirst } from '@lexical/utils'
 import type { ProtonNode } from './ProtonNode'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
@@ -42,7 +42,7 @@ export function $wrapInQuoteAsSuggestion(
     return true
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   $wrapInQuote([block])
 
   // Place suggestion marker inside the first leaf block inside the quote
@@ -70,7 +70,7 @@ function $unwrapFromQuoteAsSuggestion(
     return true
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   $unwrapQuote(quoteNode)
 
   // Place suggestion marker inside the first moved-out block
@@ -121,7 +121,7 @@ export function $setBlocksTypeAsSuggestion(
   const anchorAndFocus = selection.getStartEndPoints()
   const anchor = anchorAndFocus ? anchorAndFocus[0] : null
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
 
   if (anchor !== null && anchor.key === 'root') {
     logger.info('Anchor is root node')

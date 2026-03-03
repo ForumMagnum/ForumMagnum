@@ -28,6 +28,13 @@ const styles = defineStyles('HydratedIframeWidget', () => ({
   },
 }));
 
+function stripDeletedMarkupFromSrcdoc(srcdoc: string): string {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(srcdoc, 'text/html');
+  doc.querySelectorAll('del').forEach((node) => node.remove());
+  return doc.body.innerHTML;
+}
+
 function InlineIframeWidget({ srcdoc, title }: {
   srcdoc: string,
   title?: string,
@@ -58,7 +65,7 @@ function InlineIframeWidget({ srcdoc, title }: {
 
   return (
     <iframe
-      srcDoc={injectResizeScript(srcdoc)}
+      srcDoc={injectResizeScript(stripDeletedMarkupFromSrcdoc(srcdoc))}
       sandbox="allow-scripts"
       title={title ?? 'Embedded widget'}
       data-lexical-iframe-widget="true"

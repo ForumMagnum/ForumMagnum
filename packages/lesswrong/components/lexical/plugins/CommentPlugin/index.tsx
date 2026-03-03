@@ -64,17 +64,9 @@ import {createPortal} from 'react-dom';
 
 import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContext';
 import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
-import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext';
+import { useCommentStoreContext, useCollabAuthorName, useCommentStore } from '@/components/lexical/commenting/CommentStoreContext';
 import { $isSuggestionNode } from '@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode';
-import {
-  Comment,
-  Comments,
-  createComment,
-  createThread,
-  Thread,
-  useCollabAuthorName,
-  useCommentStore,
-} from '../../commenting';
+import { createThread, createComment, Thread, Comments, Comment } from '../../commenting';
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND } from '@/components/editor/lexicalPlugins/suggestedEdits/Commands';
 import useModal from '../../hooks/useModal';
 import CommentEditorTheme from '../../themes/CommentEditorTheme';

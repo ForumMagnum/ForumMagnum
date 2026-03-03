@@ -1,4 +1,3 @@
-'use client';
 import type {
   DOMConversionMap,
   DOMConversionOutput,
@@ -12,7 +11,7 @@ import type {
 } from 'lexical';
 import React, { type JSX } from 'react';
 
-import {BlockWithAlignableContents} from '@lexical/react/LexicalBlockWithAlignableContents';
+import { BlockWithAlignableContentsWrapper } from '../../nodes/BlockWithAlignableContentsWrapper';
 import {
   DecoratorBlockNode,
   SerializedDecoratorBlockNode,
@@ -35,7 +34,7 @@ function LWArtifactsComponent({
   artifactPath,
 }: LWArtifactsComponentProps) {
   return (
-    <BlockWithAlignableContents
+    <BlockWithAlignableContentsWrapper
       className={className}
       format={format}
       nodeKey={nodeKey}>
@@ -47,7 +46,7 @@ function LWArtifactsComponent({
           style={{height: 500, width: '100%', border: 'none'}}
         />
       </div>
-    </BlockWithAlignableContents>
+    </BlockWithAlignableContentsWrapper>
   );
 }
 

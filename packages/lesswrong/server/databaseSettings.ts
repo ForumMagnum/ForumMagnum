@@ -232,11 +232,6 @@ interface SSLSettings {
   ca?: string
 }
 
-export const sslSetting = new ParsedServerSetting<SSLSettings | null>(
-  "analytics.ssl",
-  null,
-);
-
 export const commentAncestorsToNotifySetting = new ParsedServerSetting<number>('commentAncestorsToNotifySetting', 1);
 
 export const changesAllowedSetting = new ParsedServerSetting<number>('displayNameRateLimit.changesAllowed', 1);
