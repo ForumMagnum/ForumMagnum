@@ -192,6 +192,7 @@ interface Mutation {
   UserExpandFrontpageSection: boolean | null;
   UserUpdateSubforumMembership: User | null;
   karmaChangesChecked: boolean;
+  SoftDeleteUser: boolean;
   setVotePost: Post | null;
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;
