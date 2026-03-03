@@ -50,6 +50,7 @@ import {
   getDOMSelection,
   HISTORY_MERGE_TAG,
   KEY_ESCAPE_COMMAND,
+  SKIP_SCROLL_INTO_VIEW_TAG,
 } from 'lexical';
 import moment from 'moment';
 import {
@@ -1112,7 +1113,15 @@ function CommentsPanelList({
                   }
                 },
                 {
+                  // Suppress Lexical's default scroll-to-top behavior
+                  tag: SKIP_SCROLL_INTO_VIEW_TAG,
                   onUpdate() {
+                    // Scroll the mark node into view centered in the viewport
+                    const markNodeKey = Array.from(markNodeKeys)[0];
+                    const domElement = editor.getElementByKey(markNodeKey);
+                    if (domElement !== null) {
+                      domElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    }
                     // Restore selection to the previous element
                     if (activeElement !== null) {
                       (activeElement as HTMLElement).focus();
