@@ -138,7 +138,7 @@ const Layout = ({children}: {
   
   const isInbox = pathname.startsWith('/inbox');
 
-  let headerBackgroundColor: ColorString|null = null;
+  let headerBackgroundColor: ColorString|undefined = undefined;
   if (isBlackBarTitle) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
@@ -168,7 +168,6 @@ const Layout = ({children}: {
         <PageBackgroundWrapper>
           <DialogManager>
             <CommentBoxManager>
-              <ThemeFontDownloads/>
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <GlobalHotkeys/>
@@ -238,20 +237,6 @@ function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean
   }
 
   return hideIntercomButton ? null : <IntercomWrapper />
-}
-
-function ThemeFontDownloads() {
-  const theme = useTheme();
-
-  // ea-forum-look-here: the font downloads probably don't work in NextJS, may need to move them to e.g. SharedScripts
-  return <Helmet name="fonts">
-    {theme.typography.fontDownloads &&
-      theme.typography.fontDownloads.map(
-        (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
-      )
-    }
-    <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-  </Helmet>
 }
 
 export const IsLlmChatSidebarOpenContext = createContext(false);

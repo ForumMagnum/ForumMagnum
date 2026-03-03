@@ -132,10 +132,6 @@ export const eaForumTheme: SiteThemeSpecification = {
         quickTakesEntry: defaultBorderRadius,
       },
       typography: {
-        fontDownloads: [
-          "https://fonts.googleapis.com/css?family=Merriweather:300,300italic,400,400italic,500,500italic,600,600italic,700,700italic&subset=all",
-          "https://fonts.googleapis.com/css?family=Inter:300,300italic,400,400italic,450,450italic,500,500italic,600,600italic,700,700italic",
-        ],
         cloudinaryFont: {
           stack: "'Inter', sans-serif",
           url: "https://fonts.googleapis.com/css?family=Inter",

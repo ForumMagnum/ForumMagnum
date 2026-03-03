@@ -718,7 +718,6 @@ declare global {
     palette: ThemePalette,
     typography: {
       fontFamily: string,
-      fontDownloads?: string[],
       cloudinaryFont: {
         stack: string,
         url: string,
