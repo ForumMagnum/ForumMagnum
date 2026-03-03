@@ -1,17 +1,17 @@
 "use client";
-import { ReactNode, Fragment, useEffect } from "react";
+import { ReactNode, Fragment, useEffect, useRef } from "react";
 
-const componentKey = { val: 0 };
 export function ResetStateOnUnmount({enabled, children}: {
   enabled: boolean
   children: ReactNode
 }) {
+  const componentKey = useRef(0);
   useEffect(() => {
     return () => {
       if (enabled) {
-        componentKey.val++;
+        componentKey.current++;
       }
     };
   }, [enabled]);
-  return <Fragment key={componentKey.val}>{children}</Fragment>;
+  return <Fragment key={componentKey.current}>{children}</Fragment>;
 }
