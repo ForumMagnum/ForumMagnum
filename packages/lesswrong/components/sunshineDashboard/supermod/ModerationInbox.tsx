@@ -551,27 +551,27 @@ const ModerationInbox = () => {
 
   const initialOpenedUserId = query.user || null;
 
+  const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
+  const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
+
   const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
     variables: { documentId: initialOpenedUserId },
-    skip: !initialOpenedUserId,
+    skip: !shouldFetchDirectUser,
     fetchPolicy: 'cache-and-network',
   });
 
   // This is just to pre-fetch the core tags so that they're available when you open the posts tab
   useCoreTags();
 
-  const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
   const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
   const classifiedPosts = useMemo(() => classifiedPostsData?.posts?.results ?? [], [classifiedPostsData]);
   const curationPosts = useMemo(() => curationData?.CurationCandidatePosts?.results ?? [], [curationData]);
   const lastCuratedDate = lastCuratedData?.LastCuratedDate?.lastCuratedDate ?? null;
 
   const directUser = useMemo(() => {
-    if (!initialOpenedUserId) return null;
-    const alreadyInQueue = users.some(u => u._id === initialOpenedUserId);
-    if (alreadyInQueue) return null;
+    if (!shouldFetchDirectUser) return null;
     return directUserData?.user?.result ?? null;
-  }, [initialOpenedUserId, users, directUserData]);
+  }, [shouldFetchDirectUser, directUserData]);
 
   useHydrateModerationPostCache(posts);
   useHydrateModerationPostCache(classifiedPosts);
@@ -580,7 +580,13 @@ const ModerationInbox = () => {
     return null;
   }
 
-  if ((usersLoading && !usersData) || (postsLoading && !postsData) || (classifiedPostsLoading && !classifiedPostsData) || (curationLoading && !curationData) || (directUserLoading && !directUserData)) {
+  const usersNotReady = usersLoading && !usersData;
+  const postsNotReady = postsLoading && !postsData;
+  const classifiedPostsNotReady = classifiedPostsLoading && !classifiedPostsData;
+  const curationNotReady = curationLoading && !curationData;
+  const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUserData;
+
+  if (usersNotReady || postsNotReady || classifiedPostsNotReady || curationNotReady || directUserNotReady) {
     return (
       <div className={classes.loading}>
         <Loading />
