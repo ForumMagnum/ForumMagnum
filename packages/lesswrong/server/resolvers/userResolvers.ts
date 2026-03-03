@@ -229,8 +229,9 @@ export const graphqlMutations = {
     const dateStr = new Date().toISOString().replace(/[:.]/g, "-");
     const deletedLabel = `deleted-${dateStr}`;
     const deletedSlug = await getUnusedSlugByCollectionName("Users", slugify(deletedLabel));
-    await Users.rawUpdateOne({ _id: userId }, {
-      $set: {
+    await updateUser({
+      selector: { _id: userId },
+      data: {
         username: deletedLabel,
         displayName: deletedLabel,
         slug: deletedSlug,
@@ -266,7 +267,7 @@ export const graphqlMutations = {
         organization: null,
         careerStage: null,
       },
-    });
+    }, context);
     return true;
   },
 }
