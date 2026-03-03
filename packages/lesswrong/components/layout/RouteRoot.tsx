@@ -4,11 +4,12 @@ import Footer from '@/components/layout/Footer';
 import { RouteRootClient } from './RouteRootClient';
 import { RouteSubtitlePortal } from './RouteSubtitlePortal';
 
-const RouteRoot = ({delayedStatusCode=false, subtitle, noFooter, fullscreen, children}: {
+const RouteRoot = ({delayedStatusCode=false, subtitle, noFooter, fullscreen, preserveStateWhileUnmounted=false, children}: {
   delayedStatusCode?: boolean
   subtitle?: string | { title: string; link: string } | React.FunctionComponent<{}>;
   noFooter?: boolean;
   fullscreen?: boolean,
+  preserveStateWhileUnmounted?: boolean,
   children: React.ReactNode
 }) => {
   return <>
@@ -17,6 +18,7 @@ const RouteRoot = ({delayedStatusCode=false, subtitle, noFooter, fullscreen, chi
     
     <RouteRootClient
       fullscreen={!!fullscreen}
+      preserveStateWhileUnmounted={preserveStateWhileUnmounted}
     >
       {children}
     </RouteRootClient>
