@@ -798,8 +798,8 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
       color: theme.palette.text.spoilerBlockNotice,
     },
     '& hr': {
-      marginTop: theme.spacing.unit*1.5,
-      marginBottom: theme.spacing.unit*1.5
+      marginTop: 12,
+      marginBottom: 12
     },
   }
   return commentBodyStyles;
@@ -857,7 +857,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           ...pBodyStyle(theme),
         },
       },
-      '--ck-spacing-standard': `${theme.spacing.unit}px`,
+      '--ck-spacing-standard': `8px`,
       '&.ck-content': {
         // As of v46, ckeditor applies some default styles via these css variables.
         // We have our own styles and don't want them, so just set them back to initial.
@@ -867,7 +867,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '--ck-content-line-height': 'initial',
         '--ck-content-word-break': 'initial',
 
-        marginLeft: -theme.spacing.unit,
+        marginLeft: -8,
         '--ck-focus-outer-shadow-geometry': "none",
         '--ck-focus-ring': theme.palette.border.transparent,
         '--ck-focus-outer-shadow': "none",
@@ -933,7 +933,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           }
         },
         '& .ck-thread__comment-count': {
-          paddingLeft: theme.spacing.unit*2,
+          paddingLeft: 16,
           color: theme.palette.grey[600],
           margin: 0,
           paddingBottom: ".5em",
@@ -942,7 +942,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           }
         },
         '& .ck-comment__input': {
-          paddingLeft: theme.spacing.unit*2
+          paddingLeft: 16
         },
         '& .ck-annotation__main, & .ck-comment__input, & .ck-thread__input': {
           width : "100%"

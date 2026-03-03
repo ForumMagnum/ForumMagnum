@@ -49,8 +49,8 @@ const styles = (theme: ThemeType) => ({
   userButtonRoot: {
     // Mui default is 16px, so we're halving it to bring it into line with the
     // rest of the header components
-    paddingLeft: theme.isFriendlyUI ? 12 : theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
+    paddingLeft: theme.isFriendlyUI ? 12 : 8,
+    paddingRight: 8,
     borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : undefined
   },
   userButtonContents: {

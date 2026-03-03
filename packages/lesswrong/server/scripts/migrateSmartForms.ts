@@ -388,8 +388,8 @@ import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator } from '@/l
 /* Shared styles for all generated forms */
 const sharedFieldStyles = defineStyles('GeneratedFormFieldStyles', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
 }));
 `;
@@ -450,8 +450,8 @@ const sharedFieldStyles = defineStyles('GeneratedFormFieldStyles', (theme: Theme
 
 const formStyles = defineStyles('${className}', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
 }));

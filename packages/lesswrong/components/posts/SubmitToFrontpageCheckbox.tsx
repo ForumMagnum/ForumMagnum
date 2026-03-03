@@ -21,7 +21,7 @@ const styles = defineStyles('SubmitToFrontpageCheckbox', (theme: ThemeType) => (
       width: "100%",
       maxWidth: "none",
       justifyContent: "flex-end",
-      paddingRight: theme.spacing.unit*3,
+      paddingRight: 24,
     }
   },
   checkboxLabel: {
@@ -40,12 +40,12 @@ const styles = defineStyles('SubmitToFrontpageCheckbox', (theme: ThemeType) => (
     '& ul': {
       paddingTop: 0,
       paddingBottom: 0,
-      marginTop: theme.spacing.unit/2,
-      paddingLeft: theme.spacing.unit*3,
+      marginTop: 4,
+      paddingLeft: 24,
     },
     '& p': {
-      marginTop: theme.spacing.unit/2,
-      marginBottom: theme.spacing.unit/2
+      marginTop: 4,
+      marginBottom: 4
     }
   },
   guidelines: {

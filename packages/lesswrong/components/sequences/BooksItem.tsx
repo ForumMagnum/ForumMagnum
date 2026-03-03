@@ -28,7 +28,7 @@ const BookEditQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   description: {
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
     marginBottom: 20,
   },
   subtitle: {

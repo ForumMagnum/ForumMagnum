@@ -19,7 +19,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: 32,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,

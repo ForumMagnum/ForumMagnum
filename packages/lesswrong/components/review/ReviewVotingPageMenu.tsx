@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "space-between",
     backgroundColor: theme.palette.panelBackground.default,
     zIndex: theme.zIndexes.reviewVotingMenu,
-    padding: theme.spacing.unit,
+    padding: 8,
     background: theme.palette.grey[310],
     borderBottom: theme.palette.border.slightlyFaint,
     flexWrap: "wrap"

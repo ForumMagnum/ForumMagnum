@@ -12,7 +12,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("EventsPast", (theme: ThemeType) => ({
   daily: {
-    padding: theme.spacing.unit
+    padding: 8
   }
 }))
 const EventsPast = () => {

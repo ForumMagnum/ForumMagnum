@@ -49,9 +49,9 @@ export const highlightSimplifiedStyles = {
 }
 
 const highlightStyles = (theme: ThemeType) => ({
-  marginTop: theme.spacing.unit*2.5,
-  marginBottom: theme.spacing.unit*1.5,
-  marginRight: theme.spacing.unit/2,
+  marginTop: 20,
+  marginBottom: 12,
+  marginRight: 4,
   wordBreak: 'break-word',
   fontSize: "1.1rem",
   '& h1': {
@@ -90,7 +90,7 @@ const styles = (theme: ThemeType) => ({
   },
   postPreview: {
     maxHeight: 450,
-    padding: theme.spacing.unit*1.5,
+    padding: 12,
     paddingBottom: 0,
     paddingTop: 0
   },
@@ -98,7 +98,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: theme.spacing.unit*1.5,
+    padding: 12,
     paddingBottom: 0,
   },
   title: {
@@ -116,7 +116,7 @@ const styles = (theme: ThemeType) => ({
     ...highlightStyles(theme)
   },
   comment: {
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
   },
   bookmark: {
     marginTop: -4,
@@ -125,7 +125,7 @@ const styles = (theme: ThemeType) => ({
   continue: {
     color: theme.palette.grey[500],
     fontSize: "1rem",
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   wordCount: {
     display: "inline-block"
@@ -137,7 +137,7 @@ const styles = (theme: ThemeType) => ({
   smallText: {
     fontSize: ".9rem",
     color: theme.palette.grey[500],
-    marginRight: theme.spacing.unit
+    marginRight: 8
   },
 })
 

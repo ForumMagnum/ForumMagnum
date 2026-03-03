@@ -66,8 +66,8 @@ const styles = (theme: ThemeType) => ({
     display:"flex",
     justifyContent:"space-between",
     alignItems: "center",
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
+    paddingLeft: 8,
+    paddingRight: 8,
     '& h1': {
       margin:0
     }

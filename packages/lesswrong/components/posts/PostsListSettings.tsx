@@ -104,7 +104,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "flex-start",
     justifyContent: "space-between",
     marginTop: theme.isFriendlyUI ? 10 : undefined,
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
     padding: theme.isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
@@ -126,7 +126,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     [theme.breakpoints.down('xs')]: {
-      marginBottom: theme.spacing.unit*2,
+      marginBottom: 16,
       flex: `1 0 100%`,
       order: 0
     }

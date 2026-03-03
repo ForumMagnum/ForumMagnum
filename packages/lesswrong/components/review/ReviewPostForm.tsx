@@ -8,11 +8,11 @@ import PopupCommentEditor from "../comments/PopupCommentEditor";
 const styles = (theme: ThemeType) => ({
   guidelines: {
     cursor: "default",
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
     fontSize: "1rem",
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
     '& ul': {
       marginTop: 5,
       marginBottom: 5,
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   },
   moderatorsNote: {
     fontStyle: "italic",
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
   }
 })
 

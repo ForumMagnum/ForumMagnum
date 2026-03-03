@@ -59,7 +59,7 @@ const SECTION_WIDTH = 960
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: 32,
     maxWidth: SECTION_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",

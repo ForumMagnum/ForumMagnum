@@ -54,8 +54,8 @@ const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
     borderRadius: 2,
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   secondaryOptionLabelActive: {
     borderBottom: `none`,

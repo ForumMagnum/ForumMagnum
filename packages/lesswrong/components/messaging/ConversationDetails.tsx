@@ -11,8 +11,8 @@ import { useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("ConversationDetails", (theme: ThemeType) => ({
   root: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
+    marginTop: 16,
+    marginBottom: 16,
     display: "flex",
     justifyContent: "space-between",
     flexWrap: "wrap",

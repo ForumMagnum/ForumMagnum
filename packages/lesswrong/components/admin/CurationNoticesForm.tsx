@@ -35,7 +35,7 @@ const CurationNoticesFragmentMutation = gql(`
 
 const formStyles = defineStyles('CurationNoticesForm', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
+    marginTop: 16,
   },
   submitButton: submitButtonStyles(theme),
 }));

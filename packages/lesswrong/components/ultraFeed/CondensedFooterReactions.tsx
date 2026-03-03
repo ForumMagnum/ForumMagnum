@@ -191,7 +191,7 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
     cursor: 'not-allowed',
   },
   paletteDisabledText: {
-    padding: theme.spacing.unit * 2,
+    padding: 16,
     textAlign: 'center',
     color: theme.palette.text.secondary,
   }

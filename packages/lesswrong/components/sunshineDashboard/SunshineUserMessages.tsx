@@ -51,7 +51,7 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginRight: 3,
   },
   conversationItem: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   conversationHeader: {
     display: "flex",
@@ -81,13 +81,13 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginLeft: 4,
   },
   conversationForm: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit,
+    marginTop: 16,
+    marginBottom: 16,
+    paddingBottom: 8,
     borderBottom: theme.palette.border.extraFaint,
   },
   templateList: {
-    marginTop: theme.spacing.unit * 4,
+    marginTop: 32,
     opacity: 0.5,
     display: 'flex',
     flexDirection: 'column',
@@ -96,15 +96,15 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     },
   },
   templateGroup: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
     display: 'flex',
     flexDirection: 'column',
     '& h3': {
-      marginBottom: theme.spacing.unit,
+      marginBottom: 8,
     },
   },
   messagePrompt: {
-    padding: theme.spacing.unit,
+    padding: 8,
     color: theme.palette.grey[600],
     cursor: 'pointer',
     '&:hover': {

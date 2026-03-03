@@ -35,20 +35,20 @@ const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
     maxWidth: "500px"
   },
   content: {
-    padding: `0 ${theme.spacing.unit * 3}px`,
+    padding: `0 ${24}px`,
     "& .MuiTypography-root": {
       color: theme.palette.text.normal,
     },
   },
   tabbar: {
-    marginBottom: theme.spacing.unit * 3
+    marginBottom: 24
   },
   viewSelector: {
     width: "100%",
-    marginBottom: theme.spacing.unit * 2
+    marginBottom: 16
   },
   RSSLink: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: 16
   },
   errorMsg: {
     color: theme.palette.text.error,

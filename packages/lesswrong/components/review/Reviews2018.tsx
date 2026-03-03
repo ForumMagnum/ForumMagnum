@@ -17,9 +17,9 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600]
   },
   settings: {
-    marginLeft: theme.spacing.unit*2,
-    marginRight: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
+    marginLeft: 16,
+    marginRight: 16,
+    marginBottom: 16,
     display: "flex",
     justifyContent: "space-between",
     [theme.breakpoints.down('xs')]: {

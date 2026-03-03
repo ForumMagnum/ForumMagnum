@@ -23,7 +23,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: 32,
     position: "relative",
     backgroundColor: theme.isFriendlyUI
       ? theme.palette.grey[0]

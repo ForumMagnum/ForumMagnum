@@ -11,7 +11,7 @@ export const postsItemLikeStyles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     position: "relative",
     display: "flex",
-    padding: theme.spacing.unit*1.5,
+    padding: 12,
     alignItems: "center",
     flexWrap: "nowrap",
     background: theme.palette.panelBackground.default,
@@ -40,10 +40,10 @@ export const postsItemLikeStyles = (theme: ThemeType) => ({
     textDecoration: "none",
     whiteSpace: "nowrap",
     flexGrow: 1,
-    marginRight: theme.spacing.unit * 2,
+    marginRight: 16,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
-      marginBottom: theme.spacing.unit*1.5
+      marginBottom: 12
     }
   },
   actions: {

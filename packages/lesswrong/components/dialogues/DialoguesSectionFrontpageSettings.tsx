@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
     marginTop: theme.isFriendlyUI ? 10 : undefined,
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
     borderRadius: theme.borderRadius.default,

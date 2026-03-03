@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
       whiteSpace: "unset",
       lineHeight: "1.8rem",
     },
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
   },
   onGrayBackground: {
     ...(theme.isBookUI && theme.dark && {
@@ -67,7 +67,7 @@ const styles = (theme: ThemeType) => ({
     },
   primaryIcon: {
     color: theme.palette.icon.dim55,
-    paddingRight: theme.spacing.unit,
+    paddingRight: 8,
     top: -2,
     width: theme.isFriendlyUI ? 26 : "auto",
     position: "relative",
@@ -98,7 +98,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   tag: {
-    marginRight: theme.spacing.unit
+    marginRight: 8
   },
   popper: {
     opacity: 1, // this is because Tooltip has a default opacity less than 1

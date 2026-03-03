@@ -37,7 +37,6 @@ export const baseTheme: BaseThemeSpecification = {
         },
       },
       spacing: {
-        unit: spacingUnit,
         titleDividerSpacing,
         mainLayoutPaddingTop: 50
       },

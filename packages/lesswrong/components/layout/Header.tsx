@@ -186,7 +186,7 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     flex: 1,
     position: "relative",
     top: 3,
-    paddingRight: theme.spacing.unit,
+    paddingRight: 8,
     color: theme.palette.text.secondary,
   },
   titleLink: {
@@ -205,8 +205,8 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     }),
   },
   menuButton: {
-    marginLeft: -theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: -8,
+    marginRight: 8,
   },
   icon: {
     width: 24,
@@ -246,7 +246,7 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     },
   },
   rightHeaderItems: {
-    marginRight: -theme.spacing.unit,
+    marginRight: -8,
     marginLeft: "auto",
     display: "flex",
   },

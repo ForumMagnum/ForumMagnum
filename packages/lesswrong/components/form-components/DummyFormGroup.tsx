@@ -7,7 +7,7 @@ const styles = (theme: ThemeType) => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
     border: theme.palette.border.grey300,
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
     background: theme.palette.background.pageActiveAreaBackground,
     ...(theme.isFriendlyUI ? {borderRadius: 6} : {})
   },

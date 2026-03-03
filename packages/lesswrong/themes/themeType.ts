@@ -706,7 +706,6 @@ declare global {
       values: Record<BreakpointName,number>,
     },
     spacing: {
-      unit: number,
       titleDividerSpacing: number,
       mainLayoutPaddingTop: number,
     },

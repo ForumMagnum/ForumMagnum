@@ -53,7 +53,7 @@ const styles = (theme: ThemeType) => ({
   },
   hoverCard: {
     maxWidth: 350,
-    padding: theme.spacing.unit,
+    padding: 8,
   }
 })
 

@@ -370,7 +370,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     paddingBottom: 12
   },
   metaButton: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     padding: 0,
     minWidth: 0,
     textTransform: "none",

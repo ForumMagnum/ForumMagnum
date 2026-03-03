@@ -150,7 +150,7 @@ const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
   groupCategories: {
     display: 'flex',
     columnGap: 10,
-    marginTop: theme.spacing.unit * 2
+    marginTop: 16
   },
   groupCategory: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -163,14 +163,14 @@ const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
     borderRadius: 4
   },
   groupDescription: {
-    marginTop: theme.spacing.unit * 3,
+    marginTop: 24,
     marginBottom: 20,
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0
     }
   },
   groupDescriptionBody: {
-    padding: theme.spacing.unit,
+    padding: 8,
   },
   contactUsSection: {
     display: 'flex',

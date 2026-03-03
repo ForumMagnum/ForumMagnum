@@ -72,7 +72,7 @@ const styles = defineStyles('ImageUpload', (theme: ThemeType) => ({
   },
   imageIcon: {
     fontSize: 18,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
   },
   removeButton: {
     color: theme.palette.icon.dim,

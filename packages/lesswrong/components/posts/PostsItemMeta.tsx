@@ -30,12 +30,12 @@ const styles = (theme: ThemeType) => ({
   info: {
     display: "inline",
     color: theme.palette.text.dim3,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle
   },
   calendarIcon: {
-    marginRight: theme.spacing.unit
+    marginRight: 8
   }
 })
 
