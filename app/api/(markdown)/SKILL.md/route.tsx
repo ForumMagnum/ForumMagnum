@@ -54,6 +54,10 @@ Reading collections:
 
 Helping Users With Drafts
 =========================
+(This feature is currently in development, the API should not be assumed stable,
+and users using it should be reminded of LessWrong's policy on LLM writing, found
+at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B)
+
 The API can also be used to edit and comment on post drafts, which will appear
 in the post editor. This feature is only available for Lexical, which is enabled
 for users who have enabled the "Beta features" option in their settings, which
