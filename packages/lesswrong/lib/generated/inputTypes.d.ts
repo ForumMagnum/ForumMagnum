@@ -311,6 +311,7 @@ interface Mutation {
   upscaleReviewWinnerArt: ReviewWinnerArt | null;
   adminSendTestEmail: AdminSendTestEmailResult;
   adminSendBulkEmail: AdminSendBulkEmailResult;
+  aiUserReview: string;
   createAdvisorRequest: AdvisorRequestOutput | null;
   updateAdvisorRequest: AdvisorRequestOutput | null;
   createBook: BookOutput | null;

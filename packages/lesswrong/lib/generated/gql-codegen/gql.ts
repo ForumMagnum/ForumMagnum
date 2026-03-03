@@ -39,6 +39,8 @@ type Documents = {
     "\n  query ProfileUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.ProfileUserQueryDocument,
     "\n  query ProfilePostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.ProfilePostsQueryDocument,
     "\n  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.ProfileSequencesQueryDocument,
+    "\n  query aiPostReviewTagQuery($selector: TagSelector, $limit: Int) {\n    tags(selector: $selector, limit: $limit) {\n      results {\n        _id\n      }\n    }\n  }\n": typeof types.aiPostReviewTagQueryDocument,
+    "\n  query aiPostReviewPostsQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListBase\n        automatedContentEvaluations {\n          ...AutomatedContentEvaluationsFragment\n        }\n      }\n    }\n  }\n": typeof types.aiPostReviewPostsQueryDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": typeof types.AdminMetadataQueryDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": typeof types.SearchSynonymsDocument,
     "mutation UpdateSearchSynonyms($synonyms: [String!]!) {\n      UpdateSearchSynonyms(synonyms: $synonyms)\n    }": typeof types.UpdateSearchSynonymsDocument,
@@ -53,6 +55,7 @@ type Documents = {
     "\n  mutation AdminSendBulkEmail($input: AdminSendBulkEmailInput!) {\n    adminSendBulkEmail(input: $input) {\n      ok\n      runId\n      processed\n      batches\n      errors {\n        batch\n        status\n      }\n      lastAfterUserId\n    }\n  }\n": typeof types.AdminSendBulkEmailDocument,
     "\n    query randomUser($userIsAuthor: String!) {\n      GetRandomUser(userIsAuthor: $userIsAuthor) {\n        ...UsersMinimumInfo\n      }\n    }\n  ": typeof types.randomUserDocument,
     "\n    query CrossedKarmaThreshold($limit: Int!) {\n      CrossedKarmaThreshold(limit: $limit) {\n        results {\n          ...PostsTwitterAdmin\n        }\n      }\n    }\n  ": typeof types.CrossedKarmaThresholdDocument,
+    "\n  mutation aiUserReviewMutation($postId: String!, $reviewerName: String!) {\n    aiUserReview(postId: $postId, reviewerName: $reviewerName)\n  }\n": typeof types.aiUserReviewMutationDocument,
     "\n    query MigrationsDashboardQuery {\n      MigrationsDashboard {\n        migrations {\n          name\n          dateWritten\n          runs { name started finished succeeded }\n          lastRun\n        }\n      }\n    }\n  ": typeof types.MigrationsDashboardQueryDocument,
     "\n  query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SuggestAlignmentComment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentAFUnreviewedCommentCountQueryDocument,
     "\n    mutation alignmentPost($postId: String, $af: Boolean) {\n      alignmentPost(postId: $postId, af: $af) {\n        ...PostsList\n      }\n    }\n  ": typeof types.alignmentPostDocument,
@@ -998,6 +1001,8 @@ const documents: Documents = {
     "\n  query ProfileUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.ProfileUserQueryDocument,
     "\n  query ProfilePostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.ProfilePostsQueryDocument,
     "\n  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {\n    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SequenceContinueReadingFragment\n      }\n      totalCount\n    }\n  }\n": types.ProfileSequencesQueryDocument,
+    "\n  query aiPostReviewTagQuery($selector: TagSelector, $limit: Int) {\n    tags(selector: $selector, limit: $limit) {\n      results {\n        _id\n      }\n    }\n  }\n": types.aiPostReviewTagQueryDocument,
+    "\n  query aiPostReviewPostsQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListBase\n        automatedContentEvaluations {\n          ...AutomatedContentEvaluationsFragment\n        }\n      }\n    }\n  }\n": types.aiPostReviewPostsQueryDocument,
     "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  ": types.AdminMetadataQueryDocument,
     "\n    query SearchSynonyms {\n      SearchSynonyms\n    }\n  ": types.SearchSynonymsDocument,
     "mutation UpdateSearchSynonyms($synonyms: [String!]!) {\n      UpdateSearchSynonyms(synonyms: $synonyms)\n    }": types.UpdateSearchSynonymsDocument,
@@ -1012,6 +1017,7 @@ const documents: Documents = {
     "\n  mutation AdminSendBulkEmail($input: AdminSendBulkEmailInput!) {\n    adminSendBulkEmail(input: $input) {\n      ok\n      runId\n      processed\n      batches\n      errors {\n        batch\n        status\n      }\n      lastAfterUserId\n    }\n  }\n": types.AdminSendBulkEmailDocument,
     "\n    query randomUser($userIsAuthor: String!) {\n      GetRandomUser(userIsAuthor: $userIsAuthor) {\n        ...UsersMinimumInfo\n      }\n    }\n  ": types.randomUserDocument,
     "\n    query CrossedKarmaThreshold($limit: Int!) {\n      CrossedKarmaThreshold(limit: $limit) {\n        results {\n          ...PostsTwitterAdmin\n        }\n      }\n    }\n  ": types.CrossedKarmaThresholdDocument,
+    "\n  mutation aiUserReviewMutation($postId: String!, $reviewerName: String!) {\n    aiUserReview(postId: $postId, reviewerName: $reviewerName)\n  }\n": types.aiUserReviewMutationDocument,
     "\n    query MigrationsDashboardQuery {\n      MigrationsDashboard {\n        migrations {\n          name\n          dateWritten\n          runs { name started finished succeeded }\n          lastRun\n        }\n      }\n    }\n  ": types.MigrationsDashboardQueryDocument,
     "\n  query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SuggestAlignmentComment\n      }\n      totalCount\n    }\n  }\n": types.multiCommentAFUnreviewedCommentCountQueryDocument,
     "\n    mutation alignmentPost($postId: String, $af: Boolean) {\n      alignmentPost(postId: $postId, af: $af) {\n        ...PostsList\n      }\n    }\n  ": types.alignmentPostDocument,
@@ -2049,6 +2055,14 @@ export function gql(source: "\n  query ProfileSequencesQuery($selector: Sequence
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query aiPostReviewTagQuery($selector: TagSelector, $limit: Int) {\n    tags(selector: $selector, limit: $limit) {\n      results {\n        _id\n      }\n    }\n  }\n"): (typeof documents)["\n  query aiPostReviewTagQuery($selector: TagSelector, $limit: Int) {\n    tags(selector: $selector, limit: $limit) {\n      results {\n        _id\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query aiPostReviewPostsQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListBase\n        automatedContentEvaluations {\n          ...AutomatedContentEvaluationsFragment\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query aiPostReviewPostsQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListBase\n        automatedContentEvaluations {\n          ...AutomatedContentEvaluationsFragment\n        }\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  "): (typeof documents)["\n    query AdminMetadataQuery {\n      AdminMetadata\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -2102,6 +2116,10 @@ export function gql(source: "\n    query randomUser($userIsAuthor: String!) {\n 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query CrossedKarmaThreshold($limit: Int!) {\n      CrossedKarmaThreshold(limit: $limit) {\n        results {\n          ...PostsTwitterAdmin\n        }\n      }\n    }\n  "): (typeof documents)["\n    query CrossedKarmaThreshold($limit: Int!) {\n      CrossedKarmaThreshold(limit: $limit) {\n        results {\n          ...PostsTwitterAdmin\n        }\n      }\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation aiUserReviewMutation($postId: String!, $reviewerName: String!) {\n    aiUserReview(postId: $postId, reviewerName: $reviewerName)\n  }\n"): (typeof documents)["\n  mutation aiUserReviewMutation($postId: String!, $reviewerName: String!) {\n    aiUserReview(postId: $postId, reviewerName: $reviewerName)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

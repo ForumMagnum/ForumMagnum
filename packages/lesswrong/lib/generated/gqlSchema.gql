@@ -1657,6 +1657,10 @@ extend type Mutation {
   adminSendBulkEmail(input: AdminSendBulkEmailInput!): AdminSendBulkEmailResult!
 }
 
+extend type Mutation {
+  aiUserReview(postId: String!, reviewerName: String!): String!
+}
+
 type AdvisorRequest {
   _id: String!
   schemaVersion: Float!

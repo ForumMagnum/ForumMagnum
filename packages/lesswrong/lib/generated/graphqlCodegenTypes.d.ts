@@ -4438,6 +4438,7 @@ type Mutation = {
   addTags?: Maybe<Scalars['Boolean']['output']>;
   adminSendBulkEmail: AdminSendBulkEmailResult;
   adminSendTestEmail: AdminSendTestEmailResult;
+  aiUserReview: Scalars['String']['output'];
   alignmentComment?: Maybe<Comment>;
   alignmentPost?: Maybe<Post>;
   analyticsEvent?: Maybe<Scalars['Boolean']['output']>;
@@ -4699,6 +4700,12 @@ type MutationadminSendBulkEmailArgs = {
 
 type MutationadminSendTestEmailArgs = {
   input: AdminSendTestEmailInput;
+};
+
+
+type MutationaiUserReviewArgs = {
+  postId: Scalars['String']['input'];
+  reviewerName: Scalars['String']['input'];
 };
 
 
@@ -13813,6 +13820,44 @@ type ProfileSequencesQueryQueryVariables = Exact<{
 
 type ProfileSequencesQueryQuery = ProfileSequencesQueryQuery_Query;
 
+type aiPostReviewTagQueryQuery_tags_MultiTagOutput_results_Tag = { __typename?: 'Tag', _id: string };
+
+type aiPostReviewTagQueryQuery_tags_MultiTagOutput = { __typename?: 'MultiTagOutput', results: Array<aiPostReviewTagQueryQuery_tags_MultiTagOutput_results_Tag> };
+
+type aiPostReviewTagQueryQuery_Query = { __typename?: 'Query', tags: aiPostReviewTagQueryQuery_tags_MultiTagOutput | null };
+
+
+type aiPostReviewTagQueryQueryVariables = Exact<{
+  selector: InputMaybe<TagSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type aiPostReviewTagQueryQuery = aiPostReviewTagQueryQuery_Query;
+
+type aiPostReviewPostsQueryQuery_posts_MultiPostOutput_results_Post_automatedContentEvaluations_AutomatedContentEvaluation = (
+  { __typename?: 'AutomatedContentEvaluation' }
+  & AutomatedContentEvaluationsFragment
+);
+
+type aiPostReviewPostsQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post', automatedContentEvaluations: aiPostReviewPostsQueryQuery_posts_MultiPostOutput_results_Post_automatedContentEvaluations_AutomatedContentEvaluation | null }
+  & PostsListBase
+);
+
+type aiPostReviewPostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<aiPostReviewPostsQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type aiPostReviewPostsQueryQuery_Query = { __typename?: 'Query', posts: aiPostReviewPostsQueryQuery_posts_MultiPostOutput | null };
+
+
+type aiPostReviewPostsQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type aiPostReviewPostsQueryQuery = aiPostReviewPostsQueryQuery_Query;
+
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 
 
@@ -14017,6 +14062,17 @@ type CrossedKarmaThresholdQueryVariables = Exact<{
 
 
 type CrossedKarmaThresholdQuery = CrossedKarmaThresholdQuery_Query;
+
+type aiUserReviewMutationMutation_Mutation = { __typename?: 'Mutation', aiUserReview: string };
+
+
+type aiUserReviewMutationMutationVariables = Exact<{
+  postId: Scalars['String']['input'];
+  reviewerName: Scalars['String']['input'];
+}>;
+
+
+type aiUserReviewMutationMutation = aiUserReviewMutationMutation_Mutation;
 
 type MigrationsDashboardQueryQuery_MigrationsDashboard_MigrationsDashboardData_migrations_MigrationStatus_runs_MigrationRun = { __typename?: 'MigrationRun', name: string, started: string, finished: string | null, succeeded: boolean | null };
 

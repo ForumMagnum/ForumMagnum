@@ -71,6 +71,7 @@ import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolver
 import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
 import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from '@/server/resolvers/reviewPredictionResolvers';
 import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
+import { aiUserReviewGqlTypeDefs, aiUserReviewGqlMutations } from '@/server/resolvers/aiUserReviewResolvers';
 
 // Collection imports
 import { graphqlAdvisorRequestQueryTypeDefs, advisorRequestGqlQueryHandlers, advisorRequestGqlFieldResolvers } from "@/server/collections/advisorRequests/queries";
@@ -330,6 +331,7 @@ export const getTypeDefs = () => gql`
   ${sequencesResolversTypeDefs}
   ${reviewPredictionGraphQLTypeDefs}
   ${adminEmailSenderGraphQLTypeDefs}
+  ${aiUserReviewGqlTypeDefs}
   ## CRUD Query typedefs
   ${graphqlAdvisorRequestQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
@@ -632,6 +634,7 @@ const getResolvers = () => ({
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
     ...adminEmailSenderGraphQLMutations,
+    ...aiUserReviewGqlMutations,
 
     // CRUD Mutation Handlers
     createAdvisorRequest: createAdvisorRequestGqlMutation,
@@ -837,5 +840,3 @@ export function getExecutableSchema() {
   }
   return _executableSchema;
 }
-
-

@@ -37,6 +37,9 @@ export const routeTrie = {
     },
     "admin": {
       "staticChildren": {
+        "aiPostReview": {
+          "hasPage": true
+        },
         "commentEmbeddings": {
           "hasPage": true
         },
@@ -87,6 +90,7 @@ export const routeTrie = {
         }
       },
       "lowerCase": {
+        "aipostreview": "aiPostReview",
         "commentembeddings": "commentEmbeddings",
         "curation": "curation",
         "debugdatabaseindexes": "debugDatabaseIndexes",
