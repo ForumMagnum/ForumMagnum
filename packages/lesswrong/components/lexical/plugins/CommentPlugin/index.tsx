@@ -311,6 +311,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
       marginTop: 4,
       color: theme.palette.grey[900],
       lineHeight: 1.5,
+      whiteSpace: 'pre-wrap',
     },
   },
   listDetails: {
@@ -1085,7 +1086,7 @@ function CommentsPanelList({
             : null;
 
           const suggestionStatus = commentOrThread.status ?? 'open';
-          if (suggestionStatus === 'archived') {
+          if (suggestionStatus !== 'open') {
             return null;
           }
           const threadMarkId = isSuggestion ? getSuggestionThreadId(commentOrThread) : id;
