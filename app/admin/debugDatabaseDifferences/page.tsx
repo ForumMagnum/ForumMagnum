@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { cookies, headers } from "next/headers";
 import { readFile } from "fs/promises";
-
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import { getUser } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
@@ -12,6 +12,14 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 
 import CopyDropIndexSqlButton from "./CopyDropIndexSqlButton";
 import CollapsibleDiffSection from "./CollapsibleDiffSection";
+
+assertRouteAttributes("/admin/debugDatabaseDifferences", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields("Debug Database Differences"), {
