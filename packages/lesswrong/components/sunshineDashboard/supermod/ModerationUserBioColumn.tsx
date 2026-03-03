@@ -30,6 +30,7 @@ const styles = defineStyles('ModerationUserBioColumn', (theme: ThemeType) => ({
       maxWidth: '100%',
     },
     overflow: 'auto',
+    maxHeight: 120,
   },
   headerWebsite: {
     fontSize: 13,

@@ -16,7 +16,7 @@ const styles = defineStyles('ModerationUserInfoColumn', (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[50],
     display: 'flex',
     flexDirection: 'column',
-    gap: 32,
+    gap: 16,
     flexGrow: 1,
     ...theme.typography.commentStyle,
   },
