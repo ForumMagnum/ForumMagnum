@@ -6,7 +6,6 @@ import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { getAllTagsPath } from '@/lib/pathConstants';
 import type { SearchState } from 'react-instantsearch-core';
@@ -126,14 +125,14 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
     {showAllTagsAndCreateTags && <>
       <DropdownDivider />
       <Link target="_blank" to={getAllTagsPath()} className={classes.newTag}>
-        All {taggingNamePluralCapitalSetting.get()}
+        All Wikitags
       </Link>
       {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link
         target="_blank"
         to={getTagCreateUrl()}
         className={classes.newTag}
       >
-        Create {taggingNameCapitalSetting.get()}
+        Create Wikitag
       </Link>}
     </>}
   </div>

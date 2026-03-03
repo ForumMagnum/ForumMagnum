@@ -1,6 +1,5 @@
 "use client";
 import React from 'react';
-import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import SingleColumnSection from "../common/SingleColumnSection";
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import TagRevisionItem from "./TagRevisionItem";
@@ -13,7 +12,7 @@ const TagActivityFeed = ({pageSize = 50}: {
   pageSize?: number
 }) => {
   return <SingleColumnSection>
-    <SectionTitle title={`Recent ${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag & Wiki'} Activity`}/>
+    <SectionTitle title={`Recent Wikitag Activity`}/>
     <MixedTypeFeed
       pageSize={pageSize}
       query={AllTagsActivityFeedQuery}

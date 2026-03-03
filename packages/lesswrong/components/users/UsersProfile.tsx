@@ -13,7 +13,7 @@ import PencilIcon from '@/lib/vendor/@material-ui/icons/src/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF, nofollowKarmaThreshold } from '@/lib/instanceSettings';
+import { hasEventsSetting, siteNameWithArticleSetting, taglineSetting, isAF, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -241,7 +241,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </MetaInfo>
         </TooltipSpan>
 
-        <TooltipSpan title={`${tagRevisionCount||0} ${taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} edit${tagRevisionCount === 1 ? '' : 's'}`} className={classes.userMetaInfo}>
+        <TooltipSpan title={`${tagRevisionCount||0} wikitag edit${tagRevisionCount === 1 ? '' : 's'}`} className={classes.userMetaInfo}>
           <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
           <MetaInfo>
             { tagRevisionCount||0 }
@@ -440,7 +440,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           }
           {/* Wiki Section */}
           <SingleColumnSection>
-            <SectionTitle title={`${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Wiki'} Contributions`} />
+            <SectionTitle title="Wikitag Contributions" />
             <AnalyticsContext listContext={"userPageWiki"}>
               <TagEditsByUser
                 userId={user._id}

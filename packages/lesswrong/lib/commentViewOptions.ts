@@ -10,7 +10,7 @@ const getCustomViewNames = (): Partial<Record<CommentsViewName,string>> => ({
   'postCommentsOld': isFriendlyUI() ? 'Old' : 'oldest',
   'postCommentsBest': 'highest karma',
   'postCommentsDeleted': 'deleted',
-  'postLWComments': 'top scoring (include LW'),
+  'postLWComments': 'top scoring (include LW)',
 });
 
 const getCommentsTopView = (): CommentsViewName =>

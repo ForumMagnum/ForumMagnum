@@ -14,7 +14,6 @@ import pick from 'lodash/pick';
 import maxBy from 'lodash/maxBy';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/union';
@@ -319,7 +318,7 @@ export const tagResolversGraphQLMutations = {
     const { currentUser } = context;
 
     if (!userIsAdminOrMod(currentUser)) {
-      throw new Error(`Must be an admin/mod to merge ${taggingNamePluralSetting.get()}`);
+      throw new Error(`Must be an admin/mod to merge wikitags`);
     }
     if (!sourceTagId || !targetTagId) {
       throw new Error("sourceTagId and targetTagId required");

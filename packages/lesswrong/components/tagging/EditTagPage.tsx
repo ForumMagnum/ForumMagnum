@@ -3,7 +3,6 @@ import React from 'react';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client/react";
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { useNavigate } from "../../lib/routeUtil";
 import { TagForm } from './TagForm';
 import Loading from "../vulcan-core/Loading";
@@ -38,7 +37,7 @@ const EditTagPage = ({slug}: {slug: string}) => {
   
   return (
     <SingleColumnSection>
-      <SectionTitle title={`Edit ${taggingNameCapitalSetting.get()} #${tag.name}`}/>
+      <SectionTitle title={`Edit Wikitag #${tag.name}`}/>
       <EditTagForm 
         tag={tag} 
         successCallback={ async (tag: any) => {

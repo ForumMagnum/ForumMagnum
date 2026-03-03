@@ -6,7 +6,6 @@ import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';
@@ -118,7 +117,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
     condensed: true,
   }
   
-  const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
+  const metadataWording = tag.wikiOnly ? "Wiki page" : `Wikitag page - ${tag.postCount} posts`;
   
   return (
     <div ref={viewTrackingRef} className={classes.root}>

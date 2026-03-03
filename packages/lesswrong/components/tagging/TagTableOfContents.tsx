@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import { tagUrlBaseSetting, taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { ToCDisplayOptions } from '../posts/TableOfContents/TableOfContentsList';
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
@@ -47,8 +46,8 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
         onClickSection={expandAll}
         displayOptions={displayOptions}
       />
-      <Link to={`/${tagUrlBaseSetting.get()}/random`} className={classes.randomTagLink}>
-        Random {taggingNameCapitalSetting.get()}
+      <Link to={`/w/random`} className={classes.randomTagLink}>
+        Random Wikitag
       </Link>
       {"contributors" in tag && (
         <>

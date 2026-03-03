@@ -23,8 +23,6 @@ export const baserates = merge({
     shortForumTitle: "LW",
     tabTitle: "LessWrong"
   },
-  taggingName: "wikitag",
-  taggingUrlCustomBase: "w",
   analytics: {
     environment: "baserates.org"
   },

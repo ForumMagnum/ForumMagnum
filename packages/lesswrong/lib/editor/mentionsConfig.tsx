@@ -2,7 +2,6 @@ import { getSearchClient, getSearchIndexName } from '../search/searchUtil'
 import React from 'react'
 import {userGetDisplayName} from '../collections/users/helpers'
 import {userMentionQueryString} from '../pingback'
-import {tagUrlBaseSetting} from '@/lib/instanceSettings'
 import { filterNonnull } from '../utils/typeGuardUtils'
 import { getSiteUrl } from "../vulcan-lib/utils";
 import UserMentionHit from '@/components/search/UserMentionHit'
@@ -39,7 +38,7 @@ const formatSearchHit = (hit: SearchUser | SearchPost | SearchTag) => {
       return {
         type: "Tags",
         id: MARKER + hit.name,
-        link: `${linkPrefix}${tagUrlBaseSetting.get()}/${hit.slug}`,
+        link: `${linkPrefix}w/${hit.slug}`,
         text: hit.name,
         hit,
       };

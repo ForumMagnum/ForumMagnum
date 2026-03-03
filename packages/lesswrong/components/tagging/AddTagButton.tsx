@@ -4,7 +4,6 @@ import { Paper }from '@/components/widgets/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { isBookUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import LWPopper from "../common/LWPopper";
@@ -51,7 +50,7 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
       {children
         ? children
         : <span className={classes.defaultButton}>
-          + {`Add ${taggingNameCapitalSetting.get()}`}
+          + {`Add Wikitag`}
         </span>
       }
         <LWPopper

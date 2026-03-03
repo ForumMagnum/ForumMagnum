@@ -2,7 +2,6 @@ import React from 'react';
 import { getCommunityPath, getAllTagsPath } from '@/lib/pathConstants';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
-import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';

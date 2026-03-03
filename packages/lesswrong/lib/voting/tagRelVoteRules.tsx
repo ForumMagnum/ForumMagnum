@@ -1,7 +1,6 @@
 import { PermissionableUser, userGetGroups, userIsAdminOrMod } from '../vulcan-users/permissions';
 import type { PermissionResult } from '../make_voteable';
 import { CoauthoredPost, userIsPostCoauthor } from '../collections/posts/helpers';
-import { taggingNameSetting } from '../instanceSettings';
 
 const FETCH_INTERVAL_MS = 1000 * 60 * 60; // Fetch once per hour
 
@@ -68,7 +67,7 @@ export const canVoteOnTag = (
     if (isAuthor || userIsAdminOrMod(user)) {
       return { fail: false };
     }
-    return { fail: true, reason: `Only the post author and moderators can apply or vote on this ${taggingNameSetting.get()}` };
+    return { fail: true, reason: `Only the post author and moderators can apply or vote on this wikitag` };
   }
 
   // If the tag has no voting groups, then anyone can vote on it.
@@ -95,10 +94,10 @@ export const canVoteOnTag = (
     if (["smallUpvote", "bigUpvote", "neutral"].includes(voteType)) {
       return {fail: false};
     } else {
-      return {fail: true, reason: `You cannot downvote the relevance of this ${taggingNameSetting.get()}`}
+      return {fail: true, reason: `You cannot downvote the relevance of this wikitag`}
     }
   }
-  return {fail: true, reason: `You do not have permission to apply or vote on this ${taggingNameSetting.get()}`};
+  return {fail: true, reason: `You do not have permission to apply or vote on this wikitag`};
 }
 
 export const canVoteOnTagAsync = async (

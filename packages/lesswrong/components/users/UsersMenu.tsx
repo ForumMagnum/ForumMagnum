@@ -20,7 +20,7 @@ import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, styleSelect } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/helpers';
-import { isAF, isEAForum, taggingNameCapitalSetting, blackBarTitle } from '@/lib/instanceSettings';
+import { isAF, isEAForum, blackBarTitle } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { InteractionWrapper } from '../common/useClickableCell';
 import LWPopper from "../common/LWPopper";
@@ -257,7 +257,7 @@ const UsersMenu = ({classes}: {
     newWikitag: () => tagUserHasSufficientKarma(currentUser, "new") ? (
       <NewWikiTagMenu>
         <DropdownItem
-          title={`New ${taggingNameCapitalSetting.get()}`}
+          title={`New Wikitag`}
         />
       </NewWikiTagMenu>
     ) : null,

@@ -12,7 +12,7 @@ import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
-import { adminAccountSetting, isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { adminAccountSetting, isLWorAF } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
@@ -399,7 +399,7 @@ const FooterTagList = ({
       {innerContent}
       {appendElement}
     </span>
-    {displayShowAllButton && <div className={classes.showAll} onClick={onClickShowAll}>Show all {taggingNamePluralSetting.get()}</div>}
+    {displayShowAllButton && <div className={classes.showAll} onClick={onClickShowAll}>Show all wikitags</div>}
   </>
 };
 

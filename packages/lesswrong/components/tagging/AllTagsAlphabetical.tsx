@@ -5,7 +5,6 @@ import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import _sortBy from 'lodash/sortBy';
 import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import TagsListItem from "./TagsListItem";
 import SectionTitle from "../common/SectionTitle";
@@ -61,14 +60,14 @@ const AllTagsAlphabetical = ({classes}: {
   return (
     <div className={classes.root}>
       <SectionTitle
-        title={`All ${taggingNamePluralCapitalSetting.get()} (${loading ? "loading" : results?.length})`}
-        anchor={`all-${taggingNamePluralSetting.get()}`}
+        title={`All Wikitags (${loading ? "loading" : results?.length})`}
+        anchor={`all-wikitags`}
       >
         {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") &&
           <SectionButton>
             <AddBoxIcon/>
             <Link to={getTagCreateUrl()}>
-              New {taggingNameCapitalSetting.get()}
+              New Wikitag
             </Link>
           </SectionButton>
         }
