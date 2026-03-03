@@ -356,7 +356,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   threadQuoteBox: {
     paddingTop: 12,
     paddingBottom: 4,
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[600],
     display: 'block',
     '&:hover $deleteButton': {
       opacity: 0.5,
@@ -366,6 +366,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     margin: '0 16px',
     paddingLeft: 8,
     borderLeft: `3px solid ${theme.palette.grey[300]}`,
+    whiteSpace: 'pre-wrap',
     '& span': {
       color: theme.palette.grey[700],
       backgroundColor: 'transparent',
@@ -940,6 +941,17 @@ function CommentsComposer({
   );
 }
 
+const deleteCommentOrThreadDialogStyles = defineStyles('DeleteCommentOrThreadDialog', (theme: ThemeType) => ({
+  message: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.grey[900],
+    marginBottom: 24,
+  },
+  buttons: {
+  }
+}));
+
 function ShowDeleteCommentOrThreadDialog({
   commentOrThread,
   deleteCommentOrThread,
@@ -947,19 +959,17 @@ function ShowDeleteCommentOrThreadDialog({
   thread = undefined,
 }: {
   commentOrThread: Comment | Thread;
-
-  deleteCommentOrThread: (
-    comment: Comment | Thread,
-    // eslint-disable-next-line no-shadow
-    thread?: Thread,
-  ) => void;
+  deleteCommentOrThread: (comment: Comment | Thread, thread?: Thread) => void;
   onClose: () => void;
   thread?: Thread;
 }): JSX.Element {
+  const classes = useStyles(deleteCommentOrThreadDialogStyles);
   return (
     <>
-      Are you sure you want to delete this {commentOrThread.type}?
-      <div className="Modal__content">
+      <div className={classes.message}>
+        Are you sure you want to delete this {commentOrThread.type}?
+      </div>
+      <div className={classes.buttons}>
         <Button
           onClick={() => {
             deleteCommentOrThread(commentOrThread, thread);
@@ -1146,8 +1156,7 @@ function CommentsPanelList({
               <div className={classes.threadQuoteBox}>
                 {!isSuggestion && (
                   <blockquote className={classes.threadQuote}>
-                    {'> '}
-                    <span>{commentOrThread.quote}</span>
+                    {commentOrThread.quote}
                   </blockquote>
                 )}
                 {!isSuggestion && (
