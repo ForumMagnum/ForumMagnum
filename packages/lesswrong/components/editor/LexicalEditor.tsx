@@ -160,9 +160,6 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     },
     '& .footnote-content': {
       flex: 1,
-      '& p': {
-        margin: 0,
-      },
     },
     '& .footnote-reference': {
       cursor: 'pointer',

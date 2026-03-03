@@ -132,21 +132,22 @@ export class YouTubeNode extends DecoratorBlockNode {
   }
 
   exportDOM(): DOMExportOutput {
-    const element = document.createElement('iframe');
-    element.setAttribute('data-lexical-youtube', this.__id);
-    element.setAttribute('width', '560');
-    element.setAttribute('height', '315');
-    element.setAttribute(
+    const element = document.createElement('div');
+    element.className = 'youtube-preview';
+
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute(
       'src',
       `https://www.youtube-nocookie.com/embed/${this.__id}`,
     );
-    element.setAttribute('frameborder', '0');
-    element.setAttribute(
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute(
       'allow',
       'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
     );
-    element.setAttribute('allowfullscreen', 'true');
-    element.setAttribute('title', 'YouTube video');
+    iframe.setAttribute('allowfullscreen', 'true');
+    iframe.setAttribute('title', 'YouTube video');
+    element.appendChild(iframe);
     return {element};
   }
 
