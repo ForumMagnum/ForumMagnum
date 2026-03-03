@@ -978,7 +978,6 @@ export default function Editor({
             )}
             {floatingAnchorElem && !isSmallWidthViewport && isEditable && (
               <>
-                {!isCommentEditor && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
                 <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
                 <TableHoverActionsV2Plugin anchorElem={floatingAnchorElem} />
               </>
