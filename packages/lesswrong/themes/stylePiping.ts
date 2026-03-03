@@ -155,7 +155,7 @@ const viewpointsPreviewStyles = (_theme: ThemeType) => ({
 })
 
 const youtubePreviewStyles = (_theme: ThemeType) => ({
-  '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
+  '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"], & div.youtube-preview': {
     position: 'relative',
     height: 0,
     paddingBottom: '56.2493%',

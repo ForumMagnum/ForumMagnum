@@ -212,6 +212,7 @@ export const sanitize = function(s: string): string {
         'detailsBlockContent',
         'calendly-preview',
         'lwartifacts-preview',
+        'youtube-preview',
         'review-results-table',
         'conditionallyVisibleBlock',
         'defaultVisible',
