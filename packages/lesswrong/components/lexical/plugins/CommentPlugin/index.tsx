@@ -92,6 +92,7 @@ import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/sugg
 import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
 import { useCurrentCollaboratorId, useCollaboratorIdentity, useCanRejectSuggestion } from '@/components/lexical/collaboration';
 import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
+import { SideItem, useHasSideItemsSidebar } from '@/components/contents/SideItems';
 
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   commentInputBox: {
@@ -216,6 +217,18 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     animation: '$showComments 0.2s ease',
     zIndex: 25,
     ...theme.typography.commentStyle,
+  },
+  anchoredThreadCard: {
+    backgroundColor: theme.palette.grey[100],
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: 8,
+    marginBottom: 10,
+    overflow: 'hidden',
+    boxShadow: `0 1px 3px 0 ${theme.palette.greyAlpha(0.08)}`,
+  },
+  anchoredThreadCardActive: {
+    borderColor: theme.palette.primary.main,
+    boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
   },
   '@keyframes showComments': {
     '0%': {
@@ -1276,6 +1289,170 @@ function CommentsPanel({
   );
 }
 
+function getThreadAnchorElement(
+  editor: LexicalEditor,
+  markNodeMap: Map<string, Set<NodeKey>>,
+  threadMarkId: string,
+): HTMLElement | null {
+  const markNodeKeys = markNodeMap.get(threadMarkId);
+  if (!markNodeKeys || markNodeKeys.size === 0) {
+    return null;
+  }
+  const firstKey = Array.from(markNodeKeys)[0];
+  return firstKey ? editor.getElementByKey(firstKey) : null;
+}
+
+function AnchoredThreadSideItem({
+  activeIDs,
+  deleteCommentOrThread,
+  markNodeMap,
+  submitAddComment,
+  thread,
+}: {
+  activeIDs: Array<string>;
+  deleteCommentOrThread: (
+    commentOrThread: Comment | Thread,
+    thread?: Thread,
+  ) => void;
+  markNodeMap: Map<string, Set<NodeKey>>;
+  submitAddComment: (
+    commentOrThread: Comment | Thread,
+    isInlineComment: boolean,
+    thread?: Thread,
+  ) => void;
+  thread: Thread;
+}): JSX.Element | null {
+  const classes = useStyles(styles);
+  const [editor] = useLexicalComposerContext();
+  const [modal, showModal] = useModal();
+
+  const isSuggestion = isSuggestionThread(thread);
+  const suggestionSummaryComment = isSuggestion
+    ? getSuggestionSummaryComment(thread)
+    : undefined;
+  const suggestionSummaryText = suggestionSummaryComment
+    ? formatSuggestionSummary(suggestionSummaryComment.content)
+    : null;
+  const suggestionStatus = thread.status ?? 'open';
+  if (suggestionStatus === 'archived') {
+    return null;
+  }
+
+  const threadMarkId = isSuggestion ? getSuggestionThreadId(thread) : thread.id;
+  const threadComments = isSuggestion
+    ? thread.comments.filter((comment) => comment.commentKind !== SUGGESTION_SUMMARY_KIND)
+    : thread.comments;
+
+  const handleClickThread = () => {
+    const markNodeKeys = markNodeMap.get(threadMarkId);
+    if (
+      markNodeKeys !== undefined &&
+      (activeIDs === null || activeIDs.indexOf(threadMarkId) === -1)
+    ) {
+      const activeElement = document.activeElement;
+      // Move selection to the start of the mark, so that we
+      // update the UI with the selected thread.
+      editor.update(
+        () => {
+          const markNodeKey = Array.from(markNodeKeys)[0];
+          const markNode = $getNodeByKey(markNodeKey);
+          if ($isMarkNode(markNode) || $isSuggestionNode(markNode)) {
+            markNode.selectStart();
+          }
+        },
+        {
+          onUpdate() {
+            // Restore selection to the previous element
+            if (activeElement !== null) {
+              (activeElement as HTMLElement).focus();
+            }
+          },
+        },
+      );
+    }
+  };
+
+  const showEditor = thread.status === 'open';
+
+  return (
+    <div
+      onClick={handleClickThread}
+      className={classNames(
+        classes.anchoredThreadCard,
+        { [classes.listThreadInteractive]: markNodeMap.has(threadMarkId) },
+        { [classes.anchoredThreadCardActive]: activeIDs.indexOf(threadMarkId) !== -1 },
+      )}
+    >
+      <div className={classes.threadQuoteBox}>
+        {!isSuggestion && (
+          <blockquote className={classes.threadQuote}>
+            {thread.quote}
+          </blockquote>
+        )}
+        {!isSuggestion && (
+          <>
+            <Button
+              onClick={() => {
+                showModal('Delete Thread', (onClose) => (
+                  <ShowDeleteCommentOrThreadDialog
+                    commentOrThread={thread}
+                    deleteCommentOrThread={deleteCommentOrThread}
+                    onClose={onClose}
+                  />
+                ));
+              }}
+              className={classes.deleteButton}>
+              <Trash3Icon className={classes.deleteIcon} />
+            </Button>
+            {modal}
+          </>
+        )}
+        {isSuggestion && suggestionSummaryText && (
+          <>
+            {suggestionSummaryComment && (
+              <div className={classes.suggestionHeader}>
+                <span className={classes.commentAuthor}>
+                  {suggestionSummaryComment.author}
+                </span>
+                <span className={classes.commentTime}>
+                  {moment(suggestionSummaryComment.timeStamp).format('MMMM DD, YYYY, h:mm A')}
+                </span>
+              </div>
+            )}
+            <div className={classes.suggestionSummary}>
+              {suggestionSummaryText}
+              <SuggestionStatusOrActions
+                status={suggestionStatus}
+                suggestionAuthorId={suggestionSummaryComment?.authorId}
+                onAccept={() => acceptSuggestionThread(editor, thread)}
+                onReject={() => rejectSuggestionThread(editor, thread)}
+                classes={classes}
+              />
+            </div>
+          </>
+        )}
+      </div>
+      <ul className={classes.threadComments}>
+        {threadComments.map((comment) => (
+          <CommentsPanelListComment
+            key={comment.id}
+            comment={comment}
+            deleteComment={deleteCommentOrThread}
+            thread={thread}
+          />
+        ))}
+      </ul>
+      {showEditor && <div className={classes.threadEditor}>
+        <CommentsComposer
+          submitAddComment={submitAddComment}
+          thread={thread}
+          placeholder="Reply to comment..."
+        />
+      </div>}
+    </div>
+  );
+}
+
 export default function CommentPlugin(): JSX.Element {
   const classes = useStyles(styles);
   const { isPostEditor } = useLexicalEditorContext();
@@ -1285,6 +1462,7 @@ export default function CommentPlugin(): JSX.Element {
   const author = useCollabAuthorName();
   const authorId = useCurrentCollaboratorId();
   const { markNodeMap, activeIDs, activeAnchorKey } = useMarkNodesContext();
+  const hasSideItemsSidebar = useHasSideItemsSidebar();
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentAnchorRect, setCommentAnchorRect] = useState<DOMRect | null>(
     null,
@@ -1594,7 +1772,31 @@ export default function CommentPlugin(): JSX.Element {
         </Button>,
         document.body,
       )}
-      {showComments && isPostEditor &&
+      {showComments && isPostEditor && hasSideItemsSidebar && comments
+        .filter((commentOrThread): commentOrThread is Thread => commentOrThread.type === 'thread')
+        .map((thread) => {
+          const threadMarkId = isSuggestionThread(thread) ? getSuggestionThreadId(thread) : thread.id;
+          const anchorElement = getThreadAnchorElement(editor, markNodeMap, threadMarkId);
+          if (!anchorElement) {
+            return null;
+          }
+          return (
+            <SideItem
+              key={thread.id}
+              options={{ format: 'block' }}
+              anchorEl={anchorElement}
+            >
+              <AnchoredThreadSideItem
+                activeIDs={activeIDs}
+                thread={thread}
+                deleteCommentOrThread={deleteCommentOrThread}
+                submitAddComment={submitAddComment}
+                markNodeMap={markNodeMap}
+              />
+            </SideItem>
+          );
+        })}
+      {showComments && isPostEditor && !hasSideItemsSidebar &&
         createPortal(
           <CommentsPanel
             comments={[...comments].reverse()}

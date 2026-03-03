@@ -133,6 +133,7 @@ import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/coll
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { MenuItem } from "@/components/common/Menus";
+import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   '@keyframes sentinelCursorBlink': {
@@ -449,6 +450,23 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     // (e.g. "a."), making them look squished together.
     '& .nested-list-item': {
       listStyleType: 'none',
+    },
+  },
+  editorSideItemsLayout: {
+    display: 'flex',
+    alignItems: 'stretch',
+    gap: 12,
+  },
+  editorMainColumn: {
+    flex: '1 1 auto',
+    minWidth: 0,
+  },
+  editorSideItemsColumn: {
+    width: 320,
+    minWidth: 320,
+    position: 'relative',
+    '@media (max-width: 1100px)': {
+      display: 'none',
     },
   },
   editorContainerComment: {
@@ -802,6 +820,9 @@ export default function Editor({
         />
       )}
       <SubmitOnCmdEnterPlugin />
+      <SideItemsContainer>
+      <div className={classes.editorSideItemsLayout}>
+      <div className={classes.editorMainColumn}>
       <div
         className={classNames(
           classes.editorContainer,
@@ -1014,6 +1035,14 @@ export default function Editor({
           useCollabV2={useCollabV2}
         /> */}
       </div>
+      </div>
+      {!isCommentEditor && (
+        <div className={classes.editorSideItemsColumn}>
+          <SideItemsSidebar />
+        </div>
+      )}
+      </div>
+      </SideItemsContainer>
       {/* Plugin for debugging */}
       {/* {showTreeView && <TreeViewPlugin />} */}
     </>
