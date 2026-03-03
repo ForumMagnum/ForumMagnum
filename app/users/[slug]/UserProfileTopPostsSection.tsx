@@ -19,17 +19,24 @@ const ProfileTopPostsQuery = gql(`
   query ProfileTopPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
     posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
-        ...PostsList
+        ...ProfileTopPost
       }
       totalCount
     }
+  }
+  fragment ProfileTopPost on Post {
+    ...PostsMinimumInfo
+    baseScore
+    postedAt
+    socialPreviewData { imageUrl }
+    contents { plaintextDescription }
   }
 `);
 
 const TOP_POSTS_LIMIT = 4;
 
 function getPostImageUrl(
-  post: PostWithPreview,
+  post: ProfileTopPost,
   topPostDefaultImages: string[],
   topPostIndex?: number,
 ): string {
@@ -56,7 +63,7 @@ function getPostImageUrl(
 }
 
 function getPostBackgroundImage(
-  post: PostWithPreview,
+  post: ProfileTopPost,
   topPostDefaultImages: string[],
   topPostIndex?: number,
 ): string {
@@ -119,7 +126,7 @@ export function UserProfileTopPostsSectionQuery({user}: {user: UsersProfile}) {
 
 export function UserProfileTopPostsSectionInner({user, topPosts}: {
   user: UsersProfile,
-  topPosts: (PostsList|null)[]
+  topPosts: (ProfileTopPost|null)[]
 }) {
   const classes = useStyles(profileStyles);
 
@@ -154,7 +161,7 @@ export function UserProfileTopPostsSectionInner({user, topPosts}: {
 }
 
 function TopPostBigArticle({post, topPostDefaultImages}: {
-  post: PostsList|null
+  post: ProfileTopPost|null
   topPostDefaultImages: string[]
 }) {
   const classes = useStyles(profileStyles);
@@ -199,7 +206,7 @@ function TopPostBigArticle({post, topPostDefaultImages}: {
 }
 
 function TopPostSmallArticle({post, topPostDefaultImages, idx}: {
-  post: PostsList|null
+  post: ProfileTopPost|null
   topPostDefaultImages: string[],
   idx: number
 }) {
