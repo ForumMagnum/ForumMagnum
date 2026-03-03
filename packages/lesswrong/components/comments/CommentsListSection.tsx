@@ -13,7 +13,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import CommentsViews from "./CommentsViews";
 import Loading from "../vulcan-core/Loading";
 import CalendarDate from "../common/CalendarDate";
@@ -90,7 +90,7 @@ const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
     paddingLeft: 12,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    marginTop: theme.isFriendlyUI ? 8 : 4,
+    marginTop: 4,
     fontStyle: "italic",
   }
 }))
@@ -167,11 +167,6 @@ const CommentsListSection = ({
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
-      {isFriendlyUI() && (newForm || !!totalComments) && !post?.shortform &&
-        <div className={classes.commentsHeadline}>
-          Comments{commentCountNode}
-        </div>
-      }
 
       {newForm
         && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor, false))
@@ -302,9 +297,6 @@ function CommentsListSectionTitle({
     <span>
       {postGetCommentCountStr(post, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
     </span>
-  if (isFriendlyUI()) {
-    commentSortNode = <>Sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>
-  }
 
   const contentType = isEAForum() && post?.shortform
     ? "quick takes"

@@ -146,14 +146,10 @@ const QuickTakesEntry = ({
 
     isUnexpandedClickRef.current = false;
 
-    if (isFriendlyUI()) {
-      onSignup();
-    } else {
-      openDialog({
-        name: "LoginPopup",
-        contents: ({onClose}) => <LoginPopup onClose={onClose} />
-      });
-    }
+    openDialog({
+      name: "LoginPopup",
+      contents: ({onClose}) => <LoginPopup onClose={onClose} />
+    });
   }, [currentUser, openDialog, onSignup, expanded]);
 
   useEffect(() => {

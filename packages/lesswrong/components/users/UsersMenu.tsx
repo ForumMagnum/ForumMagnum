@@ -147,13 +147,6 @@ const UsersMenu = ({classes}: {
     </LWTooltip>}
     {isAF() && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
-  // On the EA Forum, if the user isn't deactivated, we instead show their profile image and a little arrow.
-  if (isFriendlyUI() && !currentUser.deleted) {
-    userButtonNode = <div className={classes.userImageButton}>
-      <UsersProfileImage user={currentUser} size={32} />
-      <ForumIcon icon="ThickChevronDown" className={classes.arrowIcon} />
-    </div>
-  }
   
   /** Prevent navigation to your profile on mobile, where the only way to open
    * the menu is to click the button */

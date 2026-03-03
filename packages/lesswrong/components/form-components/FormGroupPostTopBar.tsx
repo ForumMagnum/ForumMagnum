@@ -87,22 +87,17 @@ const styles = defineStyles("FormGroupPostTopBar", (theme: ThemeType) => ({
 
 const LinkToEditorGuideButton = () => {
   const classes = useStyles(styles);
-  const navigate = useNavigate();
 
-  if (isLWorAF()) {
-    return (
-      <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
-        <Link to={tagGetUrl({slug: "guide-to-the-lesswrong-editor"})}>
-        <EAButton className={classes.editorGuideButton}>
-          <ForumIcon icon="QuestionMarkCircle" className={classes.editorGuideIcon} />
-          Editor Guide
-        </EAButton>
-        </Link>
-      </LWTooltip>
-    );
-  } else {
-    return null;
-  }
+  return (
+    <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
+      <Link to={tagGetUrl({slug: "guide-to-the-lesswrong-editor"})}>
+      <EAButton className={classes.editorGuideButton}>
+        <ForumIcon icon="QuestionMarkCircle" className={classes.editorGuideIcon} />
+        Editor Guide
+      </EAButton>
+      </Link>
+    </LWTooltip>
+  );
 }
 
 const FormGroupPostTopBar = ({ children }: { children: React.ReactNode }) => {

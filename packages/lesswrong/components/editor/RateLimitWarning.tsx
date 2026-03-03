@@ -56,18 +56,10 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, c
   }
 
   let message = `<p>You can submit again in ${getTimeUntilNextPost()}.</p> ${rateLimitMessage ?? ''}`
-  if (isFriendlyUI()) {
-    message = `Please wait ${getTimeUntilNextPost()} before ${contentType === 'comment' ? 'commenting' : 'posting'} again. ${rateLimitMessage ?? ''}`
-  }
-
-  if (isFriendlyUI()) {
-    return <WarningBanner message={message}/>
-  } else {
-    return <ContentStyles contentType="comment" className={classes.lwBanner}>
-      <AlarmIcon className={classes.icon} />
-      <ContentItemBody dangerouslySetInnerHTML={{__html: message }}/>
-    </ContentStyles>
-  }
+  return <ContentStyles contentType="comment" className={classes.lwBanner}>
+    <AlarmIcon className={classes.icon} />
+    <ContentItemBody dangerouslySetInnerHTML={{__html: message }}/>
+  </ContentStyles>
 }
 
 export default registerComponent('RateLimitWarning', RateLimitWarning, {styles});

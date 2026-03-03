@@ -55,9 +55,6 @@ const styles = (theme: ThemeType) => ({
       width: "100%",
       maxWidth: "unset"
     },
-    ...(theme.isFriendlyUI && {
-      maxWidth: 490,
-    }),
   },
   collapsedDescription: {
     display: "flex",

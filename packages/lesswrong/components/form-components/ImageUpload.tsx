@@ -137,11 +137,6 @@ const TriggerButton: FC<{
   const classes = useStyles(styles);
   let mainClass = classes.button;
   let showIcon = true;
-  if (isFriendlyUI() && imageType === "profileImageId") {
-    label = "profile image";
-    mainClass = classes.profileImageButton;
-    showIcon = false;
-  }
   return (
     <Button
       onClick={uploadImage}

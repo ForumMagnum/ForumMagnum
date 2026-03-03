@@ -1,11 +1,9 @@
-import React, { FC } from 'react';
+import React from 'react';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import { TooltipSpan } from '../common/FMTooltip';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { isLWorAF } from '@/lib/instanceSettings';
 
 const styles = defineStyles('SubmitToFrontpageCheckbox', (theme: ThemeType) => ({
   submitToFrontpageWrapper: {
@@ -56,27 +54,21 @@ const styles = defineStyles('SubmitToFrontpageCheckbox', (theme: ThemeType) => (
 const DefaultTooltip = () => {
   const classes = useStyles(styles);
   
-  if (isLWorAF()) {
-    return <div className={classes.tooltip}>
-      <p>LW moderators will consider this post for frontpage</p>
-      <p className={classes.guidelines}>Things to aim for:</p>
-      <ul>
-        <li className={classes.guidelines}>
-          Usefulness, novelty and fun
-        </li>
-        <li className={classes.guidelines}>
-          Timeless content (minimize reference to current events)
-        </li>
-        <li className={classes.guidelines}>
-          Explain rather than persuade
-        </li>
-      </ul>
-    </div>
-  } else {
-    return <>
-      Uncheck this box if you don't want your post to show in the Frontpage list. It will still appear in Recent discussion, Topics pages, and All posts.
-    </>
-  }
+  return <div className={classes.tooltip}>
+    <p>LW moderators will consider this post for frontpage</p>
+    <p className={classes.guidelines}>Things to aim for:</p>
+    <ul>
+      <li className={classes.guidelines}>
+        Usefulness, novelty and fun
+      </li>
+      <li className={classes.guidelines}>
+        Timeless content (minimize reference to current events)
+      </li>
+      <li className={classes.guidelines}>
+        Explain rather than persuade
+      </li>
+    </ul>
+  </div>
 }
 
 export const SubmitToFrontpageCheckbox = ({ field, label, tooltip }: {
@@ -90,15 +82,10 @@ export const SubmitToFrontpageCheckbox = ({ field, label, tooltip }: {
     field.handleChange(!field.state.value);
   };
 
-  const defaultLabel = forumSelect({
-    EAForum: 'This post may appear on the Frontpage',
-    default: 'Moderators may promote to Frontpage'
-  });
-
   const displayedTooltip = tooltip
     ? <>{tooltip}</>
     : <DefaultTooltip/>
-  const displayedLabel = label ?? defaultLabel;
+  const displayedLabel = label ?? 'Moderators may promote to Frontpage';
 
   return <div className={classes.submitToFrontpageWrapper}>
     <TooltipSpan title={displayedTooltip}>

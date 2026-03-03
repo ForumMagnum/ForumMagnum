@@ -1,7 +1,6 @@
 import React, { FC, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import QuickTakesListItem from "../quickTakes/QuickTakesListItem";
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import ContentType from "../posts/PostsPage/ContentType";
@@ -35,11 +34,6 @@ const styles = (theme: ThemeType) => ({
 const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   if (!comment.post) {
     return null;
-  }
-  if (isFriendlyUI()) {
-    return (
-      <QuickTakesListItem quickTake={comment} />
-    );
   }
   return (
     <CommentsNode

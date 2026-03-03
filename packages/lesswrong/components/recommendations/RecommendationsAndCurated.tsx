@@ -101,12 +101,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
-  if (isFriendlyUI()) {
-    return {
-      method: haveCurrentUser ? 'sample' : 'top',
-      count: haveCurrentUser ? 3 : 5
-    }
-  }
   if (isLW()) {
     return {
       lwRationalityOnly: true,

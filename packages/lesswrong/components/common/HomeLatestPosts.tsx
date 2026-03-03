@@ -6,7 +6,7 @@ import { FilterSettings } from '../../lib/filterSettings';
 import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
+import { isEAForum, isLW, taggingNamePluralSetting, taggingNameSetting, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import SectionTitle, { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
@@ -26,17 +26,10 @@ import PostsListViewToggle from "../posts/PostsListViewToggle";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-const getTitleWrapperStyles = () => isLWorAF() ? {
-  marginBottom: 8
-} : {
-  display: "flex",
-  marginBottom: 8,
-  flexWrap: "wrap",
-  alignItems: "center"
-};
-
 const styles = defineStyles("HomeLatestPosts", (theme: ThemeType) => ({
-  titleWrapper: getTitleWrapperStyles(),
+  titleWrapper: {
+    marginBottom: 8
+  },
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
@@ -140,9 +133,7 @@ const HomeLatestPosts = () => {
   
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
-    if (isLWorAF()) {
-      void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
-    }
+    void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
     
     captureEvent("filterSettingsClicked", {
       settingsVisible: !filterSettingsVisibleDesktop,
@@ -168,7 +159,7 @@ const HomeLatestPosts = () => {
                   getFilterSettingsToggleLabels().desktopHidden}
                 showIcon={false}
                 onClick={changeShowTagFilterSettingsDesktop}
-                textShadow={isLWorAF()}
+                textShadow={true}
               />
               <SettingsButton
                 className={classes.hideOnDesktop}

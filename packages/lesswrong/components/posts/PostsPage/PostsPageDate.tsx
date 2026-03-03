@@ -43,18 +43,9 @@ const PostsPageDate = ({ post, hasMajorRevision }: {
     )
   }
   
-  let format = "Do MMM YYYY"
-  if (isFriendlyUI()) {
-    format = "MMM D YYYY"
-    // hide the year if it's this year
-    if (now.isSame(moment(post.postedAt), 'year')) {
-      format = "MMM D"
-    }
-  }
-  
   return <LWTooltip title={tooltip} placement="bottom">
     <span className={classes.date}>
-      <FormatDate date={post.postedAt} format={format} tooltip={false} />
+      <FormatDate date={post.postedAt} format={"Do MMM YYYY"} tooltip={false} />
     </span>
   </LWTooltip>
 }
