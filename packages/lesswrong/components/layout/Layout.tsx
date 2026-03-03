@@ -38,7 +38,7 @@ import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute, isStaticHeaderRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
@@ -137,27 +137,19 @@ const Layout = ({children}: {
   // (isLW()) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const isInbox = pathname.startsWith('/inbox');
-  const isWrapped = pathname.startsWith('/wrapped');
 
-  let headerBackgroundColor: ColorString;
-  // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const wrappedBackgroundColor = useThemeColor(theme => theme.palette.wrapped.background)
-  if (isWrapped) {
-    headerBackgroundColor = wrappedBackgroundColor;
-  } else if (pathname.startsWith("/voting-portal")) {
-    headerBackgroundColor = "transparent";
-  } else if (isBlackBarTitle) {
+  let headerBackgroundColor: ColorString|null = null;
+  if (isBlackBarTitle) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
-  const render = () => {
-    // Check whether the current route is one which should have standalone
-    // navigation on the side. If there is no current route (ie, a 404 page),
-    // then it should.
-    const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
+  // Check whether the current route is one which should have standalone
+  // navigation on the side. If there is no current route (ie, a 404 page),
+  // then it should.
+  const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
     
-    return (
-      <AnalyticsContext path={pathname}>
+  return (
+    <AnalyticsContext path={pathname}>
       <SubtitlePortalProvider>
       <PopperPortalProvider>
       <UnreadNotificationsContextProvider>
@@ -182,7 +174,7 @@ const Layout = ({children}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                <MaybeCookieBanner hideIntercomButton={isWrapped || isInbox} />
+                <MaybeCookieBanner hideIntercomButton={isInbox} />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -193,7 +185,6 @@ const Layout = ({children}: {
                 <Header
                   searchResultsArea={searchResultsAreaRef}
                   standaloneNavigationPresent={standaloneNavigation}
-                  stayAtTop={isStaticHeaderRoute(pathname)}
                   backgroundColor={headerBackgroundColor}
                 />
               </SuspenseWrapper>}
@@ -231,10 +222,8 @@ const Layout = ({children}: {
       </UnreadNotificationsContextProvider>
       </PopperPortalProvider>
       </SubtitlePortalProvider>
-      </AnalyticsContext>
-    )
-  };
-  return render();
+    </AnalyticsContext>
+  )
 }
 
 
