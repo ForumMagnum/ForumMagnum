@@ -20,7 +20,6 @@ import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } fr
 import Header, { HeaderHeightProvider } from '@/components/layout/Header';
 import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
-import { LoginPopoverContextProvider } from '@/components/hooks/useLoginPopoverContext';
 import DeferRender from '@/components/common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
 import ErrorBoundary from "@/components/common/ErrorBoundary";
@@ -155,7 +154,6 @@ const Layout = ({children}: {
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
-      <LoginPopoverContextProvider>
       <SidebarsWrapper>
       <HideNavigationSidebarContextProvider>
       <EditorCommandsContextProvider>
@@ -215,7 +213,6 @@ const Layout = ({children}: {
       </EditorCommandsContextProvider>
       </HideNavigationSidebarContextProvider>
       </SidebarsWrapper>
-      </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
