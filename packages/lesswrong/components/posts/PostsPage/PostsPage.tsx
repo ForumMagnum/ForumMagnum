@@ -93,7 +93,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   title: {
     marginBottom: 32,
     [theme.breakpoints.down('sm')]: {
-      marginBottom: theme.spacing.titleDividerSpacing,
+      marginBottom: 20,
     }
   },
   titleWithMarket: {
