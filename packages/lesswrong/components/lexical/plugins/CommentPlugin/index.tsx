@@ -1132,7 +1132,7 @@ function CommentsPanelList({
             }
           };
 
-          const showEditor = commentOrThread.status === 'open';
+          const showEditor = (commentOrThread.status ?? 'open') === 'open';
 
           return (
             <li
