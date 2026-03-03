@@ -134,6 +134,27 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
     height: 16,
     display: 'block',
   },
+  editContainer: {
+    width: '100%',
+  },
+  editUrlRow: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  linkUrlInput: {
+    flex: 1,
+    minWidth: 0,
+    boxSizing: 'border-box',
+    margin: '8px 12px',
+    padding: '8px 12px',
+    borderRadius: 15,
+    backgroundColor: theme.palette.grey[200],
+    fontSize: 15,
+    color: theme.palette.grey[700],
+    border: 0,
+    outline: 0,
+    fontFamily: 'inherit',
+  },
 }));
 
 function preventDefault(
@@ -164,6 +185,8 @@ function FloatingLinkEditor({
   const inputRef = useRef<HTMLInputElement>(null);
   const [linkUrl, setLinkUrl] = useState('');
   const [editedLinkUrl, setEditedLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
+  const [editedLinkText, setEditedLinkText] = useState('');
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
@@ -176,13 +199,17 @@ function FloatingLinkEditor({
 
       if (linkParent) {
         setLinkUrl(linkParent.getURL());
+        setLinkText(linkParent.getTextContent());
       } else if ($isLinkNode(node)) {
         setLinkUrl(node.getURL());
+        setLinkText(node.getTextContent());
       } else {
         setLinkUrl('');
+        setLinkText(selection.getTextContent());
       }
       if (isLinkEditMode) {
         setEditedLinkUrl(linkUrl);
+        setEditedLinkText(linkText);
       }
     } else if ($isNodeSelection(selection)) {
       const nodes = selection.getNodes();
@@ -191,13 +218,17 @@ function FloatingLinkEditor({
         const parent = node.getParent();
         if ($isLinkNode(parent)) {
           setLinkUrl(parent.getURL());
+          setLinkText(parent.getTextContent());
         } else if ($isLinkNode(node)) {
           setLinkUrl(node.getURL());
+          setLinkText(node.getTextContent());
         } else {
           setLinkUrl('');
+          setLinkText('');
         }
         if (isLinkEditMode) {
           setEditedLinkUrl(linkUrl);
+          setEditedLinkText(linkText);
         }
       }
     }
@@ -246,7 +277,7 @@ function FloatingLinkEditor({
     }
 
     return true;
-  }, [anchorElem, editor, setIsLinkEditMode, isLinkEditMode, linkUrl]);
+  }, [anchorElem, editor, setIsLinkEditMode, isLinkEditMode, linkUrl, linkText]);
 
   useEffect(() => {
     const scrollerElem = anchorElem.parentElement;
@@ -343,6 +374,18 @@ function FloatingLinkEditor({
     }
   };
 
+  const handleTextInputKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      inputRef.current?.focus();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      setIsLinkEditMode(false);
+    }
+  };
+
   const getCurrentLinkChangePayload = () => {
     return editor.getEditorState().read(() => {
       const selection = $getSelection();
@@ -370,10 +413,11 @@ function FloatingLinkEditor({
     event.preventDefault();
     if (lastSelection !== null) {
       if (editedLinkUrl.trim() !== '') {
+        const textChanged = editedLinkText.trim() !== '' && editedLinkText !== linkText;
         if (isSuggestionMode) {
           const { linkNode, linkTextNode } = getCurrentLinkChangePayload();
           editor.dispatchCommand(LINK_CHANGE_COMMAND, {
-            text: null,
+            text: textChanged ? editedLinkText : null,
             linkNode,
             url: editedLinkUrl,
             linkTextNode,
@@ -396,10 +440,29 @@ function FloatingLinkEditor({
                 parent.replace(linkNode, true);
               }
             }
+
+            if (textChanged) {
+              const sel = $getSelection();
+              if ($isRangeSelection(sel)) {
+                const node = getSelectedNode(sel);
+                const foundLink = $findMatchingParent(node, $isLinkNode) || ($isLinkNode(node) ? node : null);
+                if (foundLink) {
+                  const children = foundLink.getChildren();
+                  const firstChild = children[0];
+                  if ($isTextNode(firstChild)) {
+                    for (let i = children.length - 1; i > 0; i--) {
+                      children[i].remove();
+                    }
+                    firstChild.setTextContent(editedLinkText);
+                  }
+                }
+              }
+            }
           });
         }
       }
       setEditedLinkUrl('');
+      setEditedLinkText('');
       setIsLinkEditMode(false);
     }
   };
@@ -407,19 +470,29 @@ function FloatingLinkEditor({
   return (
     <div ref={editorRef} className={classes.linkEditor}>
       {!isLink && !isLinkEditMode ? null : isLinkEditMode ? (
-        <>
+        <div className={classes.editContainer}>
           <input
-            ref={inputRef}
             className={classes.linkInput}
-            value={editedLinkUrl}
+            placeholder="Link text"
+            value={editedLinkText}
             onChange={(event) => {
-              setEditedLinkUrl(event.target.value);
+              setEditedLinkText(event.target.value);
             }}
-            onKeyDown={(event) => {
-              monitorInputInteraction(event);
-            }}
+            onKeyDown={handleTextInputKeyDown}
           />
-          <div>
+          <div className={classes.editUrlRow}>
+            <input
+              ref={inputRef}
+              className={classes.linkUrlInput}
+              placeholder="Link URL"
+              value={editedLinkUrl}
+              onChange={(event) => {
+                setEditedLinkUrl(event.target.value);
+              }}
+              onKeyDown={(event) => {
+                monitorInputInteraction(event);
+              }}
+            />
             <button
               className={classes.linkAction}
               type="button"
@@ -442,7 +515,7 @@ function FloatingLinkEditor({
               <SuccessAltIcon className={classes.linkIcon} />
             </button>
           </div>
-        </>
+        </div>
       ) : (
         <div className={classes.linkView}>
           <a
@@ -459,6 +532,7 @@ function FloatingLinkEditor({
             onClick={(event) => {
               event.preventDefault();
               setEditedLinkUrl(linkUrl);
+              setEditedLinkText(linkText);
               setIsLinkEditMode(true);
             }}
             aria-label="Edit link">
