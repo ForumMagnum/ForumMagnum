@@ -13,6 +13,7 @@ import gql from 'graphql-tag';
 import { updateUser } from '../collections/users/mutations';
 import { accessFilterSingle } from '@/lib/utils/schemaUtils';
 import { backgroundTask } from '../utils/backgroundTask';
+import { invalidateLoginTokensFor } from '../vulcan-lib/apollo-server/authentication';
 
 type NewUserUpdates = {
   username: string
@@ -268,6 +269,9 @@ export const graphqlMutations = {
         careerStage: null,
       },
     }, context);
+    // The slug callback preserves old slugs for redirects; clear them so the old username isn't discoverable
+    await Users.rawUpdateOne({ _id: userId }, { $set: { oldSlugs: [] } });
+    backgroundTask(invalidateLoginTokensFor(userId));
     return true;
   },
 }
