@@ -9,6 +9,7 @@ export function ResetStateOnUnmount({enabled, children}: {
   useEffect(() => {
     return () => {
       if (enabled) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         componentKey.current++;
       }
     };
