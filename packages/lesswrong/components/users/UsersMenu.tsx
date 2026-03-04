@@ -414,6 +414,11 @@ const UsersMenu = ({classes}: {
               />}
               {accountSettingsNode}
 
+              {currentUser.isAdmin && <DropdownItem
+                title="Admin pages"
+                to="/admin"
+              />}
+
               {/*
                 If you're an admin, you can disable your admin + moderator
                 powers and take them back.

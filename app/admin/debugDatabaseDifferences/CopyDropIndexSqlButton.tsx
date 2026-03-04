@@ -24,4 +24,3 @@ const CopyDropIndexSqlButton = ({ sql, disabledText }: { sql: string; disabledTe
 };
 
 export default CopyDropIndexSqlButton;
-
