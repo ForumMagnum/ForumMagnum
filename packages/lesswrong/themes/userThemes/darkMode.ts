@@ -38,11 +38,6 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       warning: '#FFF7E6',
       alwaysWhite: '#fff',
       primaryDarkOnDim: '#a8cad7',
-      aprilFools: {
-        orange: "#ff7144",
-        yellow: "#ffba7d",
-        green: "#7ee486",
-      },
       reviewWinner: {
         title: shadePalette.greyAlpha(0.75),
         author: shadePalette.greyAlpha(0.65)

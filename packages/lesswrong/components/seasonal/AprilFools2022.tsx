@@ -10,7 +10,6 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import SectionFooter from "../common/SectionFooter";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { safeForDarkMode } from '../hooks/defineStyles';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserAprilFools2022Query($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -25,9 +24,9 @@ const UsersProfileMultiQuery = gql(`
 
 export const goodHeartStartDate = new Date("04/01/2022")
 const heartColors = {
-  orange: safeForDarkMode("#e64a19"),
-  yellow: safeForDarkMode("#f57f17"),
-  green: safeForDarkMode("#1b5e20"),
+  orange: "light-dark(#e64a19,#ff7144)",
+  yellow: "light-dark(#f57f17,#ffba7d)",
+  green: "light-dark(#1b5e20,#7ee486)",
 };
 
 
