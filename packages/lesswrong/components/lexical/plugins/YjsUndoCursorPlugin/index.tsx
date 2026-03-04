@@ -15,6 +15,7 @@
 import { useEffect, useRef } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
+  $getNodeByKey,
   $isRangeSelection,
   $setSelection,
   COMMAND_PRIORITY_LOW,
@@ -28,6 +29,18 @@ import { mergeRegister } from '@lexical/utils';
 
 // Must match the Yjs UndoManager's default captureTimeout
 const CAPTURE_TIMEOUT_MS = 500;
+
+/**
+ * Check whether a saved RangeSelection's anchor and focus nodes still exist in
+ * the current editor state. Must be called inside an editor.update() or
+ * editor.read() callback (i.e. within $-function context).
+ */
+function $selectionNodesExist(selection: RangeSelection): boolean {
+  return (
+    $getNodeByKey(selection.anchor.key) !== null &&
+    $getNodeByKey(selection.focus.key) !== null
+  );
+}
 
 interface SelectionEntry {
   before: RangeSelection;
@@ -67,11 +80,11 @@ export default function YjsUndoCursorPlugin(): null {
               // Restore cursor to where it was before the undone edit
               const targetSelection = entry.before;
               editor.update(() => {
-                try {
+                // Validate that the target nodes still exist — undo/redo may
+                // have removed or recreated nodes with different keys (especially
+                // with Yjs, which assigns new keys on redo).
+                if ($selectionNodesExist(targetSelection)) {
                   $setSelection(targetSelection.clone());
-                } catch {
-                  // Selection references nodes that no longer exist (e.g. due to
-                  // concurrent collaborative edits). Fall back to default behavior.
                 }
               }, { tag: HISTORIC_TAG });
             }
@@ -89,10 +102,8 @@ export default function YjsUndoCursorPlugin(): null {
               // (matching non-collaborative editor behavior).
               const targetSelection = entry.before;
               editor.update(() => {
-                try {
+                if ($selectionNodesExist(targetSelection)) {
                   $setSelection(targetSelection.clone());
-                } catch {
-                  // Fall back to default behavior
                 }
               }, { tag: HISTORIC_TAG });
             }

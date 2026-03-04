@@ -41,11 +41,6 @@ const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
     color: theme.palette.grey[550],
     position: 'absolute',
     top: 0,
-    // The editor div (containing block) has paddingLeft: 50 to extend its
-    // hit zone into the left gutter. Match that here so the placeholder
-    // aligns with the content area.
-    left: 50,
-    right: 28,
     userSelect: 'none',
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
