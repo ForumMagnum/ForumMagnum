@@ -72,7 +72,10 @@ const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
     ...typeaheadPopover(theme),
     ...componentPickerMenu(),
   },
-  list: typeaheadList(theme),
+  list: {
+    ...typeaheadList(theme),
+    maxHeight: 400,
+  },
   listItem: typeaheadListItem(theme),
   item: typeaheadItem(theme),
   text: typeaheadItemText(),
