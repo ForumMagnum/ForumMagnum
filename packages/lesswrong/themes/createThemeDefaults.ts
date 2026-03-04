@@ -263,7 +263,6 @@ export const baseTheme: BaseThemeSpecification = {
       zIndexes: {
         ...defaultZIndexes
       },
-      postImageStyles: {},
       shadows: [
         // All from material-UI
         "none",

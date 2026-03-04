@@ -92,7 +92,10 @@
 //
 //
 
-export const grey = {
+import { mapValues } from "lodash";
+import { invertColor, invertHexColor, zeroTo255 } from "./colorUtil";
+
+export const grey = mapValues({
   // Exactly matches @/lib/vendor/@material-ui/core/src/colors/grey
   50: '#fafafa',
   100: '#f5f5f5',
@@ -135,11 +138,11 @@ export const grey = {
   680: "#666666",
   710: "#606060",
   750: "#5e5e5e",
-}
+}, v => `light-dark(${v},${invertHexColor(v)})`)
 
 export const defaultShadePalette = (): ThemeShadePalette => {
-  const greyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
-  const inverseGreyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
+  const greyAlpha = (alpha: number) => `light-dark(rgba(0,0,0,${alpha}),rgba(255,255,255,${alpha}))`;
+  const inverseGreyAlpha = (alpha: number) => `light-dark(rgba(255,255,255,${alpha}),rgba(0,0,0,${alpha}))`;
   return {
     dark: false,
     grey,
@@ -148,7 +151,7 @@ export const defaultShadePalette = (): ThemeShadePalette => {
     primaryAlpha: greyAlpha,
     boxShadowColor: (alpha: number) => greyAlpha(alpha),
     greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
-    invertIfDarkMode: (color: string) => color,
+    invertIfDarkMode: (color: string) => `light-dark(${color},${invertHexColor(color)})`,
     
     fonts: {
       // Every site theme overrides these

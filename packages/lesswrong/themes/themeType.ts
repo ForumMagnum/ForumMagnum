@@ -6,7 +6,7 @@ import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
 import type { ZIndexMap } from './zIndexes';
 import type { JssStyles } from '@/lib/jssStyles';
-import { userThemeNames, userThemeSettings, muiThemeNames, ThemeOptions } from './themeNames';
+import { userThemeNames, userThemeSettings, ThemeOptions } from './themeNames';
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"
@@ -24,13 +24,6 @@ declare global {
    * (eg; "auto")
    */
   type UserThemeSetting = UnionOf<typeof userThemeSettings>;
-
-  /**
-   * MuiThemeName includes all theme names that can be directly passed to
-   * MaterialUI (eg; "light", "dark"). This is a 1-to-1 mapping from
-   * UserThemeName.
-   */
-  type MuiThemeName = UnionOf<typeof muiThemeNames>;
 
   /**
    * Overridden forum type (for admins to quickly test AF and EA Forum themes).
@@ -763,7 +756,6 @@ declare global {
     },
     zIndexes: ZIndexMap,
     overrides: any,
-    postImageStyles: JssStyles,
     
     // Used by material-UI. Not used by us directly (for our styles use
     // `theme.palette.boxShadow` which defines shadows semantically rather than

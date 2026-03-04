@@ -3,55 +3,6 @@ import { invertHexColor, invertColor, colorToString, zeroTo255 } from '../colorU
 import { forumSelect } from '../../lib/forumTypeUtils';
 import deepmerge from 'deepmerge';
 
-export const getInvertedGreyscale = () => ({
-  // Present in @/lib/vendor/@material-ui/core/src/colors/grey
-  50: invertHexColor('#fafafa'),
-  100: invertHexColor('#f5f5f5'),
-  200: invertHexColor('#eeeeee'),
-  300: invertHexColor('#e0e0e0'),
-  400: invertHexColor('#bdbdbd'),
-  500: invertHexColor('#9e9e9e'),
-  600: invertHexColor('#757575'),
-  700: invertHexColor('#616161'),
-  800: invertHexColor('#424242'),
-  900: invertHexColor('#212121'),
-  A100: invertHexColor('#d5d5d5'),
-  A200: invertHexColor('#aaaaaa'),
-  A400: invertHexColor('#303030'),
-  A700: invertHexColor('#616161'),
-  
-  // Greyscale colors not in the MUI palette
-  0: invertHexColor('#ffffff'),
-  1000: invertHexColor('#000000'),
-  
-  10: invertHexColor('#fefefe'),
-  20: invertHexColor('#fdfdfd'),
-  25: invertHexColor('#fcfcfc'),
-  30: invertHexColor('#fbfbfb'),
-  55: invertHexColor('#f9f9f9'),
-  60: invertHexColor('#f8f8f8'),
-  110: invertHexColor("#f3f3f3"),
-  120: invertHexColor('#f2f2f2'),
-  140: invertHexColor("#f0f0f0"),
-  250: invertHexColor("#e8e8e8"),
-  310: invertHexColor("#dddddd"),
-  315: invertHexColor("#d4d4d4"),
-  320: invertHexColor("#d9d9d9"),
-  340: invertHexColor("#d0d0d0"),
-  410: invertHexColor("#b3b3b3"),
-  550: invertHexColor("#999999"),
-  620: invertHexColor("#888888"),
-  650: invertHexColor('#808080'),
-  680: invertHexColor('#666666'),
-});
-
-const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
-
-const inverseGreyAlpha = (alpha: number) => {
-  const [r, g, b] = invertColor([1, 1, 1, 1]);
-  return `rgba(${zeroTo255(r)},${zeroTo255(g)},${zeroTo255(b)},${alpha})`;
-}
-
 // CkEditor allows users to provide colors for table cell backgrounds and
 // borders, which get embedded into the HTML looking like this:
 //   <td style="background-color: rgb(1,2,3)">
@@ -79,50 +30,6 @@ export const getColorReplacementsCache = (): Record<string,string> => colorRepla
 
 const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
   forumSelect({
-    EAForum: {
-      primary: {
-        main: '#009da8',
-        light: '#0c869b',
-        dark: '#009da8'
-      },
-      secondary: {
-        main: '#3c9eaf',
-        light: '#788e6a',
-        dark: '#3c9eaf'
-      },
-      lwTertiary: {
-        main: "#0e9bb4",
-        dark: "#0e9bb4",
-      },
-      action: {
-        active: '#ffffff',
-        hover: 'rgba(255, 255, 255, 0.1)',
-        hoverOpacity: 0.1,
-        disabled: 'rgba(255, 255, 255, 0.3)',
-        disabledBackground: 'rgba(255, 255, 255, 0.12)',
-      },
-      text: {
-        primaryAlert: '#F3F9FA'
-      },
-      link: {
-        visited: '#9b71be',
-        visitedHover: '#8a59b3',
-      },
-      panelBackground: {
-        default: shadePalette.grey[20],
-        modalBackground: "#292929",
-        mapboxTooltip: "rgba(75,75,75,.94)",
-        loginInput: "#3d3d3d",
-        loginInputHovered: "#3f3f3f",
-        onboardingSection: "#424242",
-        onboardingPodcast: "#525252",
-        placeholderGradient: 'linear-gradient(90deg, #3f3f3f 33%, #4a4a4a 50%, #3f3f3f 66%)',
-      },
-      background: {
-        primaryTranslucent: "rgba(12,134,155,0.4)",
-        loginBackdrop: "rgba(0,0,0,0.5)",
-      }
-    },
     LessWrong: {
       header: {
         background: 'rgba(50,50,50,.75)',
@@ -146,22 +53,9 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
     },
   });
 
-const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
-  forumSelect({
-    EAForum: {
-    },
-    default: {},
-  });
-
 export const getDarkModeTheme = (): UserThemeSpecification => ({
   shadePalette: {
     dark: true,
-    grey: getInvertedGreyscale(),
-    greyAlpha,
-    inverseGreyAlpha,
-    boxShadowColor: (alpha: number) => greyAlpha(alpha),
-    greyBorder: (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`,
-    invertIfDarkMode: (color: string) => invertHexColor(color),
     type: "dark",
   },
   componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
@@ -177,8 +71,8 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
         green: "#7ee486",
       },
       reviewWinner: {
-        title: greyAlpha(0.75),
-        author: greyAlpha(0.65)
+        title: shadePalette.greyAlpha(0.75),
+        author: shadePalette.greyAlpha(0.65)
       },
       jargonTerm: "#a8742a",
       // Banner ad compatibility - text colors that work well over background images
@@ -321,10 +215,10 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
     },
     action: {
       active: '#fff',
-      hover: greyAlpha(0.1),
+      hover: shadePalette.greyAlpha(0.1),
       hoverOpacity: 0.1,
-      disabled: greyAlpha(0.3),
-      disabledBackground: greyAlpha(0.12),
+      disabled: shadePalette.greyAlpha(0.3),
+      disabledBackground: shadePalette.greyAlpha(0.12),
     },
     meetupMonth: {
       petrov: '#eee',
@@ -340,13 +234,6 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     dark: true,
-    postImageStyles: {
-      // Override image background color to white (so that transparent isn't
-      // black). Necessary because there are a handful of posts with images that
-      // have black-on-transparent text in them.
-      background: "#ffffff",
-    },
-    overrides: forumOverrides(palette),
     rawCSS: []
   }),
 });

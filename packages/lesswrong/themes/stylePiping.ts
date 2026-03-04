@@ -614,7 +614,12 @@ const baseBodyStyles = (theme: ThemeType) => ({
   },
   '& img': {
     maxWidth: "100%",
-    ...theme.postImageStyles,
+    ...(theme.dark && {
+      // Override image background color to white (so that transparent isn't
+      // black). Necessary because there are a handful of posts with images that
+      // have black-on-transparent text in them.
+      background: "#ffffff"
+    })
   },
   '& sup': {
     verticalAlign: 'baseline',
