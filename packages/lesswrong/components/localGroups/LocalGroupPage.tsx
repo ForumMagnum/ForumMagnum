@@ -10,7 +10,6 @@ import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupL
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
 import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@/lib/vendor/@material-ui/icons/src/Person';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -444,7 +443,7 @@ const LocalGroupPage = ({ documentId: groupId }: {
         {(groupHasContactInfo || smallMap) && <div className={classes.contactUsSection}>
           {groupHasContactInfo && <div className={classes.externalLinkBtns}>
             <Typography variant="headline" className={classes.contactUsHeadline}>
-              {preferredHeadingCase("Contact Us")}
+              Contact Us
             </Typography>
             <div>
               {group.facebookLink && <div className={classes.externalLinkBtnRow}>
@@ -514,7 +513,7 @@ const LocalGroupPage = ({ documentId: groupId }: {
         </div>}
 
         <Typography variant="headline" className={classes.eventsHeadline}>
-          {preferredHeadingCase("Upcoming Events")}
+          Upcoming Events
         </Typography>
         {upcomingEventsList}
 

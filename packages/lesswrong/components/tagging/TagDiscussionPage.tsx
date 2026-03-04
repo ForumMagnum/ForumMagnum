@@ -4,7 +4,6 @@ import React from 'react';
 import { useTagBySlug } from './useTag';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import SingleColumnSection from "../common/SingleColumnSection";
 import TagDiscussionSection from "./TagDiscussionSection";
 import ContentStyles from "../common/ContentStyles";
@@ -31,7 +30,7 @@ const TagDiscussionPage = ({slug}: {slug: string}) => {
     <SingleColumnSection>
       { tag && <Link to={tagGetUrl(tag)}><h1 className={classes.title}>{tag.name}</h1></Link>}
       <ContentStyles contentType="comment" className={classes.description}>
-        Discuss the {taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki-tag'} on this page.
+        Discuss the wikitag on this page.
         Here is the place to ask questions and propose changes.
       </ContentStyles>
       {tag && <TagDiscussionSection

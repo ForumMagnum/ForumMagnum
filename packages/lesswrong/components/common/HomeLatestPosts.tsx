@@ -6,7 +6,7 @@ import { FilterSettings } from '../../lib/filterSettings';
 import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
+import { isEAForum, isLW, isLWorAF, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import SectionTitle, { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
@@ -158,7 +158,7 @@ const HomeLatestPosts = () => {
         <SectionTitle title={getLatestPostsName()} noTopMargin={isFriendlyUI()} noBottomPadding>
           <div className={classes.postsListSettings}>
             <LWTooltip
-              title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
+              title={`Use these buttons to increase or decrease the visibility of posts based on wikitag. Use the "+" button at the end to add additional wikitags to boost or reduce them.`}
               hideOnTouchScreens
             >
               <SettingsButton

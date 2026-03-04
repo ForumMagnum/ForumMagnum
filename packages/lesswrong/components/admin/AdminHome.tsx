@@ -5,7 +5,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { hasTwitterFeatures } from '../../lib/betas';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 import SingleColumnSection from "../common/SingleColumnSection";
 import AdminMetadata from "./AdminMetadata";
@@ -65,7 +64,7 @@ const AdminHome = () => {
         <li><Link className={classes.link} to="/admin/random-user">Random User</Link></li>
         <li><Link className={classes.link} to="/moderatorComments">Moderator Comments</Link></li>
         <li><Link className={classes.link} to="/moderation">Moderation Log</Link></li>
-        <li><Link className={classes.link} to={`/${taggingNamePluralSetting.get()}/dashboard`}>{taggingNamePluralCapitalSetting.get()} Dashboard</Link></li>
+        <li><Link className={classes.link} to={`/w/dashboard`}>Wikitags Dashboard</Link></li>
       </ul>
 
       <h3>Site Admin</h3>
@@ -76,7 +75,7 @@ const AdminHome = () => {
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>
         <li><Link className={classes.link} to="/admin/synonyms">Search Synonyms</Link></li>
-        <li><Link className={classes.link} to="/admin/tagMerge">{taggingNameCapitalSetting.get()} Merging Tool</Link></li>
+        <li><Link className={classes.link} to="/admin/tagMerge">Wikitag Merging Tool</Link></li>
         <li><Link className={classes.link} to="/admin/googleServiceAccount">Google Doc import service account</Link></li>
         <li><span className={classes.link} onClick={refreshDbSettings}>Refresh DB Settings</span></li>
         {isRefreshingDbSettings && <Loading />}

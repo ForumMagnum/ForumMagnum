@@ -4,7 +4,6 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import type { SearchHitComponentProps } from './types';
 import LWTooltip from "../common/LWTooltip";
 
@@ -42,7 +41,7 @@ const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitCom
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
   return <div className={classes.root}>
-    {showIcon && <LWTooltip title={taggingNameCapitalSetting.get()}>
+    {showIcon && <LWTooltip title="Wikitag">
       <LocalOfferOutlinedIcon className={classes.icon}/>
     </LWTooltip>}
     <Link to={tagGetUrl(tag)} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>

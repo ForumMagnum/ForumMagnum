@@ -3,7 +3,6 @@ import { markdownClasses } from "@/server/markdownApi/markdownResponse";
 import { MarkdownNode } from "./MarkdownNode";
 import { MarkdownUserLink } from "./MarkdownUserLink";
 import { MarkdownDate } from "./MarkdownDate";
-import { tagUrlBaseSetting } from "@/lib/instanceSettings";
 import { MarkdownCommentsList } from "./MarkdownCommentsList";
 
 interface MarkdownPostTag {
@@ -77,7 +76,6 @@ export function MarkdownPostDetail({
   markdownPathOverride?: string
   commentsMarkdownPathOverride?: string
 }) {
-  const tagUrlBase = tagUrlBaseSetting.get();
   const isCurated = !!post.curatedDate;
   const frontpageLabel = post.frontpageDate ? "Frontpage" : "Personal Blog";
   const isLinkpost = post.postCategory === "linkpost";
@@ -122,7 +120,7 @@ export function MarkdownPostDetail({
         {post.tags && post.tags.length > 0
           ? post.tags.map((tag) => (
             <li key={tag._id}>
-              Tag: <a href={`/${tagUrlBase}/${tag.slug}`}>{tag.name}</a>
+              Tag: <a href={`/w/${tag.slug}`}>{tag.name}</a>
             </li>
           ))
           : null}

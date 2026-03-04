@@ -1,7 +1,6 @@
 "use client";
 import React from 'react';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
-import { preferredHeadingCase } from '@/themes/forumTheme';
 import { useCurrentUser } from '@/components/common/withUser';
 import { hasAccountDeletionFlow } from '@/lib/betas';
 import UsersEditForm from "./UsersEditForm";
@@ -65,7 +64,7 @@ const UsersAccount = ({slug}: {slug: string|null}) => {
     <div className={classes.root}>
       <div className={classes.header}>
         <h1 className={classes.title}>
-          {preferredHeadingCase("Account Settings")}
+          Account Settings
         </h1>
         <div className={classes.subtitle}>
           Manage your account, profile, and preferences

@@ -1,6 +1,6 @@
 import React, { FC, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import QuickTakesListItem from "../quickTakes/QuickTakesListItem";
 import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
@@ -89,7 +89,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
       <div className={classes.subtitle}>
         <ContentType
           type="shortform"
-          label={preferredHeadingCase("Quick Takes")}
+          label={"Quick Takes"}
         />
       </div>
       {comments.map((comment) =>

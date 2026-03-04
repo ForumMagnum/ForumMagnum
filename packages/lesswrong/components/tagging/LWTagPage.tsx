@@ -12,7 +12,6 @@ import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '@/lib/instanceSettings';
 import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
 import { isFriendlyUI } from "../../themes/forumTheme";
@@ -743,7 +742,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
     return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
+    throw new Error(`Sorry, you cannot edit wikitags without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
@@ -771,13 +770,13 @@ const LWTagPage = ({slug}: {slug: string}) => {
     ? (
       <div className={classNames(classes.subHeading,classes.centralColumn)}>
         <div className={classes.subHeadingInner}>
-          {tag.parentTag && <div className={classes.relatedTag}>Parent {taggingNameCapitalSetting.get()}: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+          {tag.parentTag && <div className={classes.relatedTag}>Parent Wikitag: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
           {/* For subtags it would be better to:
               - put them at the bottom of the page
               - truncate the list
               for our first use case we only need a small number of subtags though, so I'm leaving it for now
           */}
-          {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
+          {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? "Wikitags" : "Wikitag"}:&nbsp;{
               tag.subTags.map((subTag, idx) => {
               return <Fragment key={idx}>
                 <Link className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>
@@ -899,7 +898,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
         <div className={classes.nonMobileAudioPlayerSpaceHolder} />
       </>}
       {query.flagId && <span>
-        <Link to={`/${taggingNamePluralSetting.get()}/dashboard?focus=${query.flagId}`}>
+        <Link to={`/w/dashboard?focus=${query.flagId}`}>
           <TagFlagItem 
             itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
             documentId={query.flagId}

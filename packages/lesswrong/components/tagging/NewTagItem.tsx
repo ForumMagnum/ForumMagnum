@@ -5,7 +5,6 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagPostTerms } from './TagPageUtils';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import UsersName from "../users/UsersName";
 import FormatDate from "../common/FormatDate";
 import PostsList2 from "../posts/PostsList2";
@@ -58,8 +57,7 @@ const NewTagItem = ({tag, classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const readMore = preferredHeadingCase("Read More");
-  const suffix = `<span>...<p><a>(${readMore})</a></p></span>`;
+  const suffix = `<span>...<p><a>(Read More)</a></p></span>`;
   const description = truncated
     ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", suffix)
     : tag.description?.html;

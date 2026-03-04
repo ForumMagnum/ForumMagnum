@@ -1,7 +1,6 @@
 import React from 'react';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -45,7 +44,7 @@ const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}
   if (comment.moderatorHat) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Un-mark as Moderator Comment")}
+        title={"Un-mark as Moderator Comment"}
         onClick={handleUnmarkAsModeratorComment}
       />
     );
@@ -54,11 +53,11 @@ const ToggleIsModeratorCommentDropdownItem = ({comment}: {comment: CommentsList}
   return (
     <>
       <DropdownItem
-        title={preferredHeadingCase("Mark as Moderator Comment (visible)")}
+        title={"Mark as Moderator Comment (visible)"}
         onClick={handleMarkAsModeratorComment()}
       />
       <DropdownItem
-        title={preferredHeadingCase("Mark as Moderator Comment (invisible)")}
+        title={"Mark as Moderator Comment (invisible)"}
         onClick={handleMarkAsModeratorComment({ hideModeratorHat: true })}
       />
     </>

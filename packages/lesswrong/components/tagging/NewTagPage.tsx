@@ -2,7 +2,7 @@
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { slugify } from '@/lib/utils/slugify';
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { useTagBySlug } from './useTag';
@@ -58,9 +58,9 @@ const NewTagPage = () => {
   if (!currentUser) {
     return (
       <SingleColumnSection>
-        <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
+        <SectionTitle title={`New Wikitag`}/>
         <div>
-          You must be logged in to define new {taggingNamePluralSetting.get()}.
+          You must be logged in to define new wikitags.
         </div>
       </SingleColumnSection>
     );
@@ -69,9 +69,9 @@ const NewTagPage = () => {
   if (!tagUserHasSufficientKarma(currentUser, "new")) {
     return (
       <SingleColumnSection>
-        <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
+        <SectionTitle title={`New Wikitag`}/>
         <div>
-          You do not have enough karma to define new {taggingNamePluralSetting.get()}. You must have
+          You do not have enough karma to define new wikitags. You must have
           at least {getTagMinimumKarmaPermissions().new} karma.
         </div>
       </SingleColumnSection>
@@ -87,7 +87,7 @@ const NewTagPage = () => {
       }
 
       {createdType === "tag"
-        ? <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
+        ? <SectionTitle title={`New Wikitag`}/>
         : <SectionTitle title={`New Wiki Page`}/>
       }
       {!loadingExistingTag && (

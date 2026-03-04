@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
-import { taggingNameSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
@@ -201,8 +200,8 @@ const TagsChecklist = ({
             disabled={!tooltips}
             title={
               <div>
-                Click to assign <em>{tagChecklistItem.tag.name}</em> {taggingNameSetting.get()}
-                {!!tagChecklistItem.tag.parentTag && <span>. Its parent {taggingNameSetting.get()} <em>{tagChecklistItem.tag.parentTag.name}</em> will also be assigned automatically</span>}
+                Click to assign <em>{tagChecklistItem.tag.name}</em> {"wikitag"}
+                {!!tagChecklistItem.tag.parentTag && <span>. Its parent {"wikitag"} <em>{tagChecklistItem.tag.parentTag.name}</em> will also be assigned automatically</span>}
               </div>
             }
             hideOnTouchScreens

@@ -36,6 +36,4 @@ export const prodAf = merge({
     databaseId: "lightcone-infrastructure-lesswrong-prod-2",
     publicApiToken: "sb95OJbQ7mKLQAm1abPog2m5vCPj7XqZlVYdHGyANcjzqaHT5fX6HEgB0vCfiLav"
   },
-  taggingName: "wikitag",
-  taggingUrlCustomBase: "w"
 }, sharedSettings);
