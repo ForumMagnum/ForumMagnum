@@ -87,7 +87,7 @@ import classNames from 'classnames';
  *    vertical overlap.
  * This version only deduplicates rects that share the same visual line.
  */
-function createRectsFromDOMRange(editor: LexicalEditor, range: Range): DOMRect[] {
+function createRectsFromDOMRange(range: Range): DOMRect[] {
   const selectionRects = Array.from(range.getClientRects());
   let selectionRectsLength = selectionRects.length;
   // Sort rects from top-left to bottom-right.
@@ -815,7 +815,7 @@ function CommentInputBox({
         const boxElem = boxRef.current;
         if (range !== null && boxElem !== null) {
           const {left, bottom, width} = range.getBoundingClientRect();
-          const selectionRects = createRectsFromDOMRange(editor, range);
+          const selectionRects = createRectsFromDOMRange(range);
           let correctedLeft =
             selectionRects.length === 1 ? left + (width / 2) - 125 : left - 125;
           if (correctedLeft < 10) {
