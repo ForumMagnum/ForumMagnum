@@ -31,7 +31,7 @@ import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
 import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
 import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
-import {createDOMRange, createRectsFromDOMRange} from '@lexical/selection';
+import {createDOMRange} from '@lexical/selection';
 import {$isRootTextContentEmpty, $rootTextContent} from '@lexical/text';
 import {mergeRegister, registerNestedElementResolver} from '@lexical/utils';
 import {
@@ -75,6 +75,51 @@ import Button from '../../ui/Button';
 import ContentEditable from '../../ui/ContentEditable';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
+
+/**
+ * Replacement for @lexical/selection's createRectsFromDOMRange.
+ * The upstream version has two issues that cause alternating lines in
+ * multiline selections to lose their highlight:
+ * 1. It filters out rects that span the full width of the editor root.
+ * 2. Its overlap filter treats tiny trailing rects (which browsers produce
+ *    at line-wrap boundaries) as overlapping the next line's main rect,
+ *    because their full-height extent creates a few pixels of cross-line
+ *    vertical overlap.
+ * This version only deduplicates rects that share the same visual line.
+ */
+function createRectsFromDOMRange(editor: LexicalEditor, range: Range): DOMRect[] {
+  const selectionRects = Array.from(range.getClientRects());
+  let selectionRectsLength = selectionRects.length;
+  // Sort rects from top-left to bottom-right.
+  selectionRects.sort((a, b) => {
+    const top = a.top - b.top;
+    // Some rects match position closely, but not perfectly,
+    // so we give a 3px tolerance.
+    if (Math.abs(top) <= 3) {
+      return a.left - b.left;
+    }
+    return top;
+  });
+  let prevRect: DOMRect | undefined;
+  for (let i = 0; i < selectionRectsLength; i++) {
+    const selectionRect = selectionRects[i];
+    // Exclude rects that overlap preceding rects on the same visual line.
+    // We only consider rects as overlapping if they share the same line
+    // (tops within 3px), to avoid filtering out rects on adjacent lines
+    // that have minor cross-line vertical overlap from text rendering.
+    const isSameLine = prevRect && Math.abs(prevRect.top - selectionRect.top) <= 3;
+    if (
+      isSameLine &&
+      prevRect!.left + prevRect!.width > selectionRect.left
+    ) {
+      selectionRects.splice(i--, 1);
+      selectionRectsLength--;
+      continue;
+    }
+    prevRect = selectionRect;
+  }
+  return selectionRects;
+}
 
 import { ChatLeftTextIcon } from '../../icons/ChatLeftTextIcon';
 import { CommentsIcon } from '../../icons/CommentsIcon';
