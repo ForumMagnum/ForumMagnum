@@ -2,7 +2,6 @@ import React, { useCallback } from "react";
 import { useCurrentUser } from "../../common/withUser";
 
 import { userCanDo, userOwns } from "../../../lib/vulcan-users/permissions";
-import { preferredHeadingCase } from "../../../themes/forumTheme";
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -47,7 +46,7 @@ const ShortformFrontpageDropdownItem = ({comment}: {comment: CommentsList}) => {
     : "Allow on Frontpage";
   return (
     <DropdownItem
-      title={preferredHeadingCase(title)}
+      title={title}
       onClick={handleChange(!comment.shortformFrontpage)}
     />
   );

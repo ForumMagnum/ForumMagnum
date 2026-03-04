@@ -11,7 +11,6 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { formatFacetFilters } from '../search/SearchAutoComplete';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import LoginPopup from "../users/LoginPopup";
@@ -139,7 +138,7 @@ const AddPostsToTag = ({classes, tag}: {
       onClick={() => setSearchOpen(true)}
       className={classes.addButton}
     >
-      <AddBoxIcon className={classes.icon}/> {preferredHeadingCase("Add Posts")}
+      <AddBoxIcon className={classes.icon}/> {"Add Posts"}
     </span> }
     {searchOpen && <div className={classes.search}>
       <InstantSearch

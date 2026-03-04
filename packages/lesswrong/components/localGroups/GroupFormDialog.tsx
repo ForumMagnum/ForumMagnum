@@ -10,7 +10,7 @@ import { localGroupTypeFormOptions, GROUP_CATEGORIES } from '@/lib/collections/l
 import { isEAForum, isLW } from '@/lib/instanceSettings';
 import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
 import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
-import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { isFriendlyUI } from '@/themes/forumTheme';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { ImageUpload } from '@/components/form-components/ImageUpload';
@@ -197,7 +197,7 @@ const LocalGroupForm = ({
           {(field) => (
             <FormUserMultiselect
               field={field}
-              label={preferredHeadingCase("Add Organizers")}
+              label={"Add Organizers"}
             />
           )}
         </form.Field>

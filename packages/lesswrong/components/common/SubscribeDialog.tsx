@@ -18,7 +18,6 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
@@ -223,7 +222,7 @@ const SubscribeDialog = (props: {
       {/* TODO: Forum digest */}
       <MenuItem value="curated">Curated</MenuItem>
       <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
-      <MenuItem value="community" disabled={method === "email"}>{preferredHeadingCase("All Posts")}</MenuItem>
+      <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
     </Select>
   </FormControl>
 

@@ -5,7 +5,6 @@ import { getSiteTheme } from './siteThemes/index';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import { forumSelect } from '../lib/forumTypeUtils';
-import capitalize from 'lodash/capitalize';
 import createBreakpoints from "@/lib/vendor/@material-ui/core/src/styles/createBreakpoints";
 
 export type SiteUIStyle = "book" | "friendly";
@@ -90,9 +89,3 @@ const buildTheme = (
     breakpoints: createBreakpoints(),
   };
 }
-
-/**
- * Convert heading to sentence case in Friendly UI sites, leave as is on LW (will usually be "start case" e.g. "Set Topics").
- * In the event of edge cases (e.g. "EA Forum" -> "Ea forum"), it's probably best to do an inline forumTypeSetting check
- */
-export const preferredHeadingCase = (input: string) => isFriendlyUI() ? capitalize(input) : input;

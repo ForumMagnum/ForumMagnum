@@ -8,6 +8,7 @@ import PrefixedInput from '@/components/form-components/PrefixedInput';
 import SettingsSection from './SettingsSection';
 import SettingsTextRow from './SettingsTextRow';
 import SettingsToggleRow from './SettingsToggleRow';
+import SoftDeleteUserSection from './SoftDeleteUserSection';
 import type { SettingsTabProps } from './settingsTabTypes';
 
 const GROUP_OPTIONS = Object.keys(getAllUserGroups())
@@ -255,6 +256,10 @@ const AdminSettingsTab = ({
             )}
           </form.Field>
         </div>
+
+        {userIsAdmin(currentUser) && (
+          <SoftDeleteUserSection userId={form.state.values._id} />
+        )}
       </SettingsSection>
 
       {isLWorAF() && userIsAdmin(currentUser) && (

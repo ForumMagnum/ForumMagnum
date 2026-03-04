@@ -9,7 +9,7 @@ import {
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
 import { isEAForum, quickTakesMaxAgeDaysSetting } from '@/lib/instanceSettings';
-import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
+import { isFriendlyUI } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 import ExpandableSection from "../common/ExpandableSection";
 import LWTooltip from "../common/LWTooltip";
@@ -124,19 +124,14 @@ const QuickTakesSection = () => {
     forceSetCookieIfUndefined: true,
   });
 
-  const titleText = preferredHeadingCase("Quick Takes");
   const titleTooltip = (
     <div>
       A feed of quick takes by other users, sorted by recency and karma.
     </div>
   );
-  const title = isFriendlyUI()
-    ? titleText
-    : (<>
-        <LWTooltip title={titleTooltip} placement="left">
-          <Link to={"/quicktakes"}>{titleText}</Link>
-        </LWTooltip>
-      </>);
+  const title = <LWTooltip title={titleTooltip} placement="left">
+    <Link to={"/quicktakes"}>Quick Takes</Link>
+  </LWTooltip>
 
   const afterTitleTo = isFriendlyUI() ? "/quicktakes" : undefined;
 

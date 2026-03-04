@@ -1,9 +1,7 @@
 import React from 'react';
 import { getCommunityPath, getAllTagsPath } from '@/lib/pathConstants';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
-import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
@@ -328,7 +326,7 @@ export const getMenuTabs = (): ForumOptions<Array<MenuTab>> => ({
       showOnCompressed: true,
     }, {
       id: 'contact',
-      title: preferredHeadingCase('Contact Us'),
+      title: 'Contact Us',
       link: '/contact',
       subItem: true,
     }

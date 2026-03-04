@@ -3662,6 +3662,7 @@ type Mutation = {
   RSVPToEvent?: Maybe<Post>;
   RefreshDbSettings?: Maybe<Scalars['Boolean']['output']>;
   RemoveGivingSeasonHeart: Array<GivingSeasonHeart>;
+  SoftDeleteUser: Scalars['Boolean']['output'];
   UpdateSearchSynonyms: Array<Scalars['String']['output']>;
   UserExpandFrontpageSection?: Maybe<Scalars['Boolean']['output']>;
   UserUpdateSubforumMembership?: Maybe<User>;
@@ -3845,6 +3846,11 @@ type MutationRSVPToEventArgs = {
 
 type MutationRemoveGivingSeasonHeartArgs = {
   electionName: Scalars['String']['input'];
+};
+
+
+type MutationSoftDeleteUserArgs = {
+  userId: Scalars['String']['input'];
 };
 
 
@@ -11843,7 +11849,7 @@ type ProfileUserQueryQuery = ProfileUserQueryQuery_Query;
 
 type ProfilePostsQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
-  & PostsList
+  & UserProfilePost
 );
 
 type ProfilePostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ProfilePostsQueryQuery_posts_MultiPostOutput_results_Post> };
@@ -11859,6 +11865,13 @@ type ProfilePostsQueryQueryVariables = Exact<{
 
 
 type ProfilePostsQueryQuery = ProfilePostsQueryQuery_Query;
+
+type UserProfilePost_Post_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
+
+type UserProfilePost = (
+  { __typename?: 'Post', baseScore: number, postedAt: string, contents: UserProfilePost_Post_contents_Revision | null }
+  & PostsMinimumInfo
+);
 
 type ProfileSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
   { __typename?: 'Sequence' }
@@ -11881,7 +11894,7 @@ type ProfileSequencesQueryQuery = ProfileSequencesQueryQuery_Query;
 
 type ProfileTopPostsQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
-  & PostsList
+  & ProfileTopPost
 );
 
 type ProfileTopPostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<ProfileTopPostsQueryQuery_posts_MultiPostOutput_results_Post> };
@@ -11897,6 +11910,15 @@ type ProfileTopPostsQueryQueryVariables = Exact<{
 
 
 type ProfileTopPostsQueryQuery = ProfileTopPostsQueryQuery_Query;
+
+type ProfileTopPost_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', imageUrl: string };
+
+type ProfileTopPost_Post_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
+
+type ProfileTopPost = (
+  { __typename?: 'Post', baseScore: number, postedAt: string, socialPreviewData: ProfileTopPost_Post_socialPreviewData_SocialPreviewType, contents: ProfileTopPost_Post_contents_Revision | null }
+  & PostsMinimumInfo
+);
 
 type AdminMetadataQueryQuery_Query = { __typename?: 'Query', AdminMetadata: string | null };
 
@@ -14894,23 +14916,23 @@ type GetReviewResultsTableDataQueryVariables = Exact<{
 
 type GetReviewResultsTableDataQuery = GetReviewResultsTableDataQuery_Query;
 
-type PostLinkPreviewSequenceQuery_sequence_SingleSequenceOutput_result_Sequence = (
+type SequencePreviewQuery_sequence_SingleSequenceOutput_result_Sequence = (
   { __typename?: 'Sequence' }
-  & SequencesPageFragment
+  & SequenceSummaryFragment
 );
 
-type PostLinkPreviewSequenceQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: PostLinkPreviewSequenceQuery_sequence_SingleSequenceOutput_result_Sequence | null };
+type SequencePreviewQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequencePreviewQuery_sequence_SingleSequenceOutput_result_Sequence | null };
 
-type PostLinkPreviewSequenceQuery_Query = { __typename?: 'Query', sequence: PostLinkPreviewSequenceQuery_sequence_SingleSequenceOutput | null };
+type SequencePreviewQuery_Query = { __typename?: 'Query', sequence: SequencePreviewQuery_sequence_SingleSequenceOutput | null };
 
 
-type PostLinkPreviewSequenceQueryVariables = Exact<{
+type SequencePreviewQueryVariables = Exact<{
   documentId: InputMaybe<Scalars['String']['input']>;
   allowNull: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-type PostLinkPreviewSequenceQuery = PostLinkPreviewSequenceQuery_Query;
+type SequencePreviewQuery = SequencePreviewQuery_Query;
 
 type PostLinkPreviewCommentQuery_comment_SingleCommentOutput_result_Comment = (
   { __typename?: 'Comment' }
@@ -18004,6 +18026,15 @@ type multiChapterSequencesSummaryQueryQueryVariables = Exact<{
 
 
 type multiChapterSequencesSummaryQueryQuery = multiChapterSequencesSummaryQueryQuery_Query;
+
+type SequenceSummaryFragment_Sequence_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type SequenceSummaryFragment_Sequence_contents_Revision = { __typename?: 'Revision', htmlHighlight: string, wordCount: number };
+
+type SequenceSummaryFragment = { __typename?: 'Sequence', _id: string, title: string, postsCount: number, canonicalCollectionSlug: string | null, user: SequenceSummaryFragment_Sequence_user_User | null, contents: SequenceSummaryFragment_Sequence_contents_Revision | null };
 
 type GetAllReviewWinnersQuery_GetAllReviewWinners_Post = (
   { __typename?: 'Post' }
@@ -21475,6 +21506,16 @@ type updateUserDeleteAccountSectionMutationVariables = Exact<{
 
 
 type updateUserDeleteAccountSectionMutation = updateUserDeleteAccountSectionMutation_Mutation;
+
+type SoftDeleteUserMutation_Mutation = { __typename?: 'Mutation', SoftDeleteUser: boolean };
+
+
+type SoftDeleteUserMutationVariables = Exact<{
+  userId: Scalars['String']['input'];
+}>;
+
+
+type SoftDeleteUserMutation = SoftDeleteUserMutation_Mutation;
 
 type UserTopPostsForManagerQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

@@ -45,16 +45,6 @@ export type LeftNavigationRoutePattern = typeof routesWithLeftNavigationColumn[n
 
 export const isRouteWithLeftNavigationColumn = (pathname: string) => pathnameMatchesAnyOf(pathname, [...routesWithLeftNavigationColumn]);
 
-// ea-forum-look-here There was some special casing in Layout specific to the
-// subforum2 route. We dropped that route entirely along with its special
-// casing, but the corresponding styles are likely significantly easier to
-// reimplement with things as they're currently organized than they were before.
-/*export const isUnspacedGridRoute = (pathname: string) => {
-  // Check for the subforum2 route pattern
-  const routePath = `/${taggingNamePluralSetting.get()}/:slug/subforum2`;
-  return pathnameMatchesRoutePath(pathname, routePath);
-};*/
-
 export const isPostsSingleRoute = (pathname: string) => {
   const match = matchPath<{ _id: string }>(pathname, {
     path: ['/posts/[_id]', '/posts/[_id]/[slug]'].map(routePatternToReactRouterPath),

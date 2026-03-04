@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { postCanDelete } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -35,7 +34,7 @@ const DeleteDraftDropdownItem = ({ post }: {
   if (currentUser && postCanDelete(currentUser, post)) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Archive Draft")}
+        title={"Archive Draft"}
         onClick={handleDelete}
       />
     );

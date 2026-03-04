@@ -2,7 +2,7 @@ import React from 'react';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import InlineSelect, { Option } from '../common/InlineSelect';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 
 const getSortingNames = () => ({
@@ -10,7 +10,7 @@ const getSortingNames = () => ({
   'magic': isFriendlyUI() ? 'New & upvoted' : 'magic (new & upvoted)',
   'newest': isFriendlyUI() ? 'New' : 'newest',
   'oldest': isFriendlyUI() ? 'Old' : 'oldest',
-  'recentComments': preferredHeadingCase('latest reply'),
+  'recentComments': 'latest reply',
 })
 
 const AnswersSorting = ({ post }: {

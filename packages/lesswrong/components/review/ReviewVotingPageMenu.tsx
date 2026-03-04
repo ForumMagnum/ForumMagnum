@@ -7,7 +7,6 @@ import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import qs from 'qs';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -163,7 +162,7 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   postsResults: PostsList[]|null,
 }) => {
   const currentUser = useCurrentUser();
-  const accountSettings = preferredHeadingCase("Account Settings");
+  const accountSettings = "Account Settings";
 
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
 

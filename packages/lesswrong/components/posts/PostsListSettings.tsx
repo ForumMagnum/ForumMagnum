@@ -9,7 +9,6 @@ import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/
 
 import { getSortOrderOptions, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
 import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
@@ -216,7 +215,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               <Checkbox classes={{root: classes.checkbox}} checked={currentShowLowKarma} />
 
               <MetaInfo>
-                {preferredHeadingCase("Show Low Karma")}
+                Show Low Karma
               </MetaInfo>
             </QueryLink>
           </TooltipSpan>
@@ -238,7 +237,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               <Checkbox classes={{root: classes.checkbox}} checked={currentIncludeEvents}/>
 
               <MetaInfo>
-                {preferredHeadingCase("Show Events")}
+                Show Events
               </MetaInfo>
             </QueryLink>
           </TooltipSpan>

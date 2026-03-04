@@ -6,7 +6,6 @@ import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToT
 import { useTimezone } from '../common/withTimezone';
 
 import PostsTimeBlock, { PostsTimeBlockShortformOption } from './PostsTimeBlock';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
 import { Typography } from "../common/Typography";
 
@@ -113,7 +112,7 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
           className={classes.loadMore}
           onClick={loadMoreTimeBlocks}
         >
-          <a>{preferredHeadingCase(loadMoreTimeframeMessages[timeframe])}</a>
+          <a>{loadMoreTimeframeMessages[timeframe]}</a>
         </Typography>
       }
     </div>

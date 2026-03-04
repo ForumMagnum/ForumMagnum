@@ -54,10 +54,15 @@ const ProfilePostsQuery = gql(`
   query ProfilePostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
     posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
-        ...PostsList
+        ...UserProfilePost
       }
       totalCount
     }
+  }
+  fragment UserProfilePost on Post {
+    ...PostsMinimumInfo
+    baseScore postedAt
+    contents { plaintextDescription }
   }
 `);
 

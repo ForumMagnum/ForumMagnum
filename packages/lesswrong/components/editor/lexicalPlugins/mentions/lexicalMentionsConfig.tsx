@@ -4,7 +4,6 @@ import React from 'react';
 import { getSearchClient, getSearchIndexName } from '../../../../lib/search/searchUtil';
 import { userGetDisplayName } from '../../../../lib/collections/users/helpers';
 import { userMentionQueryString } from '../../../../lib/pingback';
-import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { filterNonnull } from '../../../../lib/utils/typeGuardUtils';
 import { getSiteUrl } from '../../../../lib/vulcan-lib/utils';
 import type { MentionItem } from './MentionDropdown';
@@ -141,7 +140,7 @@ function formatSearchHit(hit: SearchUser | SearchPost | SearchTag): MentionItemW
     const result: MentionItemWithTagHit = {
       type: "Tags",
       id: MARKER + hit.name,
-      link: `${linkPrefix}${tagUrlBaseSetting.get()}/${hit.slug}`,
+      link: `${linkPrefix}w/${hit.slug}`,
       text: hit.name,
       label: hit.name,
       hit,

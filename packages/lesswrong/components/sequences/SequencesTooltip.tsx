@@ -11,7 +11,7 @@ export const SequencesTooltip = ({
   placement,
   children,
 }: {
-  sequence: SequencesPageFragment|null,
+  sequence: SequenceSummaryFragment|null,
   showAuthor?: boolean,
   allowOverflow?: boolean,
   placement?: PopperPlacementType,

@@ -5,7 +5,7 @@ import { useMessages } from '../../common/withMessages';
 
 import { Paper }from '@/components/widgets/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 import DropdownMenu from "../DropdownMenu";
 import DropdownItem from "../DropdownItem";
 import DropdownDivider from "../DropdownDivider";
@@ -63,7 +63,7 @@ const SharePostActions = ({post, onClick}: {
   return <div onClick={onClick}><Paper>
     <DropdownMenu>
       <DropdownItem
-        title={preferredHeadingCase("Copy Link")}
+        title={"Copy Link"}
         icon="Link"
         onClick={copyLink}
       />

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import NotificationsItem from "./NotificationsItem";
 import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
@@ -74,7 +73,7 @@ const NotificationsList = ({ terms, classes }: {
             onClick={() => loadMore()}
           >
             <div className={classes.loadMoreLabel}>
-              {preferredHeadingCase("Load More")}
+              Load More
             </div>
           </div>}
       </ul>

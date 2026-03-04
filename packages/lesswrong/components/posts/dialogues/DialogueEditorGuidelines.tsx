@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,7 +36,7 @@ export const DialogueEditorGuidelines = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.root}>
-    <div className={classes.title}>{preferredHeadingCase("Dialogue Editor")}</div>
+    <div className={classes.title}>Dialogue Editor</div>
     <ul className={classes.info}>
       <li>You can edit your responses afterwards.</li>
       <li>You can see each other's responses as you type them.</li>

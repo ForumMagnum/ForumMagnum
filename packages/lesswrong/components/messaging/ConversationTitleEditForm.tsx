@@ -1,7 +1,7 @@
 import React from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -87,7 +87,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
   });
 
   return <LWDialog open onClose={onClose}>
-    <DialogTitle>{preferredHeadingCase("Conversation Options")}</DialogTitle>
+    <DialogTitle>Conversation Options</DialogTitle>
     <DialogContent>
       <form className="vulcan-form" onSubmit={(e) => {
         e.preventDefault();

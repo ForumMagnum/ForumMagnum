@@ -3,7 +3,6 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
 import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useCurrentUser } from '../common/withUser';
 import { Paper }from '@/components/widgets/Paper';

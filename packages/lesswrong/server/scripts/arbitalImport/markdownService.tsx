@@ -19,7 +19,6 @@ import { ConditionalVisibilitySettings, isConditionallyVisibleBlockVisibleByDefa
 import { escapeHtml } from './util';
 import orderBy from 'lodash/orderBy';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
-import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { slugify } from '@/lib/utils/slugify';
 import classNames from 'classnames';
 import { randomId } from '@/lib/random';
@@ -242,7 +241,7 @@ export async function arbitalMarkdownToCkEditorMarkup({markdown: pageMarkdown, p
       return getCasedText(titlesByPageId[pageId], prefix);
     }
     function getNewPageUrl(){
-      return `/${tagUrlBaseSetting.get()}/new`; //TODO
+      return `/w/new`; //TODO
     }
     /*var getLinkHtml = function(editor: any, alias: string, options: {text?: string}) {
       var firstAliasChar = alias.substring(0, 1);

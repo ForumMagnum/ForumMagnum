@@ -111,6 +111,7 @@ interface FragmentTypes {
   PostsWithNavigation: PostsWithNavigation
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
   PostsWithVotes: PostsWithVotes
+  ProfileTopPost: ProfileTopPost
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   ReviewWinnerAll: ReviewWinnerAll
@@ -126,6 +127,7 @@ interface FragmentTypes {
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   RevisionTagFragment: RevisionTagFragment
   SequenceContinueReadingFragment: SequenceContinueReadingFragment
+  SequenceSummaryFragment: SequenceSummaryFragment
   SequencesEdit: SequencesEdit
   SequencesPageFragment: SequencesPageFragment
   SequencesPageTitleFragment: SequencesPageTitleFragment
@@ -190,6 +192,7 @@ interface FragmentTypes {
   UserMostValuablePostInfo: UserMostValuablePostInfo
   UserOnboardingAuthor: UserOnboardingAuthor
   UserOnboardingTag: UserOnboardingTag
+  UserProfilePost: UserProfilePost
   UserRateLimitDisplay: UserRateLimitDisplay
   UserRateLimitMutationFragment: UserRateLimitMutationFragment
   UserTagRelDetails: UserTagRelDetails
@@ -261,14 +264,14 @@ interface FragmentTypesByCollection {
   PetrovDayActions: "PetrovDayActionInfo"
   PodcastEpisodes: "PodcastEpisodeCreateFragment"|"PodcastEpisodeFull"
   Podcasts: "PodcastSelect"
-  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ProfileTopPost"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UserProfilePost"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"newRSSFeedFragment"
   Reports: "UnclaimedReportsList"
   ReviewVotes: "reviewAdminDashboard"|"reviewVoteFragment"
   ReviewWinnerArts: "ReviewWinnerArtImages"
   ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerTopPostsPage"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"WithVoteRevision"
-  Sequences: "SequenceContinueReadingFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
+  Sequences: "SequenceContinueReadingFragment"|"SequenceSummaryFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
   SideCommentCaches: "SideCommentCacheMinimumInfo"
   SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesEdit"
   Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"
@@ -387,6 +390,7 @@ interface CollectionNamesByFragmentName {
   PostsWithNavigation: "Posts"
   PostsWithNavigationAndRevision: "Posts"
   PostsWithVotes: "Posts"
+  ProfileTopPost: "Posts"
   RSSFeedMinimumInfo: "RSSFeeds"
   RecentDiscussionRevisionTagFragment: "Revisions"
   ReviewWinnerAll: "ReviewWinners"
@@ -402,6 +406,7 @@ interface CollectionNamesByFragmentName {
   RevisionMetadataWithChangeMetrics: "Revisions"
   RevisionTagFragment: "Revisions"
   SequenceContinueReadingFragment: "Sequences"
+  SequenceSummaryFragment: "Sequences"
   SequencesEdit: "Sequences"
   SequencesPageFragment: "Sequences"
   SequencesPageTitleFragment: "Sequences"
@@ -466,6 +471,7 @@ interface CollectionNamesByFragmentName {
   UserMostValuablePostInfo: "UserMostValuablePosts"
   UserOnboardingAuthor: "Users"
   UserOnboardingTag: "Tags"
+  UserProfilePost: "Posts"
   UserRateLimitDisplay: "UserRateLimits"
   UserRateLimitMutationFragment: "UserRateLimits"
   UserTagRelDetails: "UserTagRels"

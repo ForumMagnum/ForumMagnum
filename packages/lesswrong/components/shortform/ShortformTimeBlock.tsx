@@ -1,6 +1,5 @@
 import React, { FC, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import ContentType from "../posts/PostsPage/ContentType";
@@ -83,7 +82,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
       <div className={classes.subtitle}>
         <ContentType
           type="shortform"
-          label={preferredHeadingCase("Quick Takes")}
+          label={"Quick Takes"}
         />
       </div>
       {comments.map((comment) =>

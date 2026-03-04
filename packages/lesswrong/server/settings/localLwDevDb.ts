@@ -46,8 +46,6 @@ export const localLwDevDb = merge({
     databaseId: "lightcone-infrastructure-dev",
     publicApiToken: "6rcWJN7eFk8M977tQqEO7SH9n32u3RmPJo9z516AK2vRsiGB4WuaRIzknHwP0jC2"
   },
-  taggingName: "wikitag",
-  taggingUrlCustomBase: "w",
   homepagePosts: {
     feeds: [
       {

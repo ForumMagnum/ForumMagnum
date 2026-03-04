@@ -13,7 +13,7 @@ import {
   userHasSubscribeTabFeed,
 } from '../../lib/betas';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
-import { isLW, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isLW } from '../../lib/instanceSettings';
 import { CountItemsContextProvider, useCountItemsContext } from '../hooks/CountItemsContext';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SubscriptionsList from "./SubscriptionsList";
@@ -57,7 +57,7 @@ const NoSubscriptionsMessage = ({currentUser, classes}: {
   return (
     <div className={classes.noSubscriptions}>
       You have no active subscriptions. Subscribe to{" "}
-      <Link to={`/${taggingNamePluralSetting.get()}`}>{taggingNamePluralSetting.get()}</Link>,{" "}
+      <Link to={`/wikitags`}>wikitags</Link>,{" "}
       <Link to="/allPosts">posts</Link>, or {usersLink}{" "}
       to receive notifications for new content.
     </div>

@@ -9,7 +9,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import { karmaChangeNotifierDefaultSettings, KarmaChangeUpdateFrequency, type KarmaChangeSettingsType } from '../../lib/collections/users/helpers';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
@@ -81,17 +80,17 @@ export function getKarmaNotificationTimingChoices(): Record<string, KarmaNotific
     },
     daily: {
       label: "Batched daily",
-      infoText: preferredHeadingCase("Karma Changes and Reacts (batched daily):"),
+      infoText: "Karma Changes and Reacts (batched daily):",
       emptyText: "No karma changes or reacts yesterday"
     },
     weekly: {
       label: "Batched weekly",
-      infoText: preferredHeadingCase("Karma Changes and Reacts (batched weekly):"),
+      infoText: "Karma Changes and Reacts (batched weekly):",
       emptyText: "No karma changes or reacts last week"
     },
     realtime: {
       label: "Realtime",
-      infoText: preferredHeadingCase("Recent Karma Changes and Reacts"),
+      infoText: "Recent Karma Changes and Reacts",
       emptyText: "No karma changes or reacts since you last checked"
     },
   };

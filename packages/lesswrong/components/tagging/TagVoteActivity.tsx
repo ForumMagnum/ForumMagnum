@@ -3,7 +3,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import FormatDate from "../common/FormatDate";
 import OverallVoteButton from "../votes/OverallVoteButton";
@@ -136,13 +135,13 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
   return <SingleColumnSection>
     {showNewTags && <NewTagsList />}
     <div className={classes.tagVotingTable}>
-      {showHeaders && <h2>{taggingNameCapitalSetting.get()} Voting</h2>}
+      {showHeaders && <h2>Wikitag Voting</h2>}
       <table>
         <tbody>
           <tr>
             <td className={classes.headerCell}> User </td>
             <td className={classes.headerCell}> Post Title </td>
-            <td className={classes.headerCell}> {taggingNameCapitalSetting.get()} </td>
+            <td className={classes.headerCell}> Wikitag </td>
             <td className={classes.headerCell}> Pow </td>
             <td className={classes.headerCell}> When </td>
             <td className={classes.headerCell}> Vote </td>

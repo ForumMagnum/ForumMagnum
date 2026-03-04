@@ -5,7 +5,7 @@ import { DialogActions } from '../widgets/DialogActions';
 import { useMessages } from '../common/withMessages';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { useNavigate } from '../../lib/routeUtil';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import UserMultiselect from "../form-components/UserMultiselect";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
@@ -121,7 +121,7 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
     maxWidth={"sm"}
   >
     <div className={classes.dialog}>
-      <h2 className={classes.header}>{preferredHeadingCase("Start Dialogue")}</h2>
+      <h2 className={classes.header}>Start Dialogue</h2>
       <p className={classes.info}>
         Invite users to a conversation where you can explore ideas, interview each other, or debate a topic. You can edit the transcript, and when you're ready, publish it as a post.
       </p>
@@ -130,7 +130,7 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
       </p>
       <Input
         type="text"
-        placeholder={preferredHeadingCase("Dialogue Title")}
+        placeholder={"Dialogue Title"}
         value={title}
         className={classes.titleInput}
         onChange={ev => setTitle(ev.currentTarget.value)}
@@ -139,14 +139,14 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
         <UserMultiselect
           value={participants}
           setValue={setParticipants}
-          label={preferredHeadingCase("Add Participants")}
+          label={"Add Participants"}
         />
       </div>
 
       <DialogActions>
         {loading && <Loading/>}
         <ButtonComponent onClick={createDialogue} disabled={!!loading}>
-          {preferredHeadingCase("Create Dialogue")}
+          Create Dialogue
         </ButtonComponent>
       </DialogActions>
     </div>

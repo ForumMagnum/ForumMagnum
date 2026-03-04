@@ -2,7 +2,6 @@ import React, { Fragment, useState } from 'react';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPageUtils';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
@@ -240,8 +239,8 @@ const TagPreview = ({
   const hasFooter = showCount || autoApplied;
   const subTagName = "Sub-" + (
     tag.subTags.length > 1
-      ? taggingNamePluralCapitalSetting.get()
-      : taggingNameCapitalSetting.get()
+      ? "Wikitags"
+      : "Wikitag"
   );
 
   const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;

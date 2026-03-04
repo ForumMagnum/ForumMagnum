@@ -1,6 +1,6 @@
 import React from 'react';
 import { isEAForum } from '@/lib/instanceSettings';
-import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { isFriendlyUI } from '@/themes/forumTheme';
 import { hasAccountDeletionFlow } from '@/lib/betas';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import SettingsSection from './SettingsSection';
@@ -84,14 +84,14 @@ const AccountSettingsTab = ({
               onClick={requestPasswordReset}
               disableRipple
             >
-              {preferredHeadingCase("Reset Password")}
+              Reset Password
             </Button>
           </div>
         </SettingsSection>
       )}
 
       {!hasAccountDeletionFlow() && (
-        <SettingsSection title={preferredHeadingCase("Deactivate Account")}>
+        <SettingsSection title={"Deactivate Account"}>
           <form.Field name="deleted">
             {(field) => (
               <SettingsToggleRow

@@ -97,7 +97,7 @@ const SequenceMeta: FC<{
 }
 
 const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
-  sequence: SequencesPageFragment,
+  sequence: SequenceSummaryFragment,
   chapters: ChaptersFragment[],
   maxPosts: number,
   totalPosts: number,
@@ -131,9 +131,17 @@ const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
   return <>{nodes}</>;
 }
 
+const _SequenceSummaryFragment = gql(`
+  fragment SequenceSummaryFragment on Sequence {
+    _id title postsCount canonicalCollectionSlug
+    user { ...UsersMinimumInfo }
+    contents { htmlHighlight wordCount }
+  }
+`)
+
 export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}: {
   classes: ClassesType<typeof styles>,
-  sequence: SequencesPageFragment|null,
+  sequence: SequenceSummaryFragment|null,
   showAuthor?: boolean
   maxPosts?: number,
 }) => {

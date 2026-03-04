@@ -1,7 +1,6 @@
 import React from "react";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../../common/withUser";
-import { preferredHeadingCase } from "../../../themes/forumTheme";
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -60,7 +59,7 @@ const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
   if (!post.frontpageDate) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Move to Frontpage")}
+        title={"Move to Frontpage"}
         afterIcon={post.submitToFrontpage ? undefined : "Warning"}
         onClick={handleMoveToFrontpage}
       />
@@ -70,7 +69,7 @@ const MoveToFrontpageDropdownItem = ({post}: {post: PostsBase}) => {
   if (post.frontpageDate || post.meta || post.curatedDate) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Move to Personal Blog")}
+        title={"Move to Personal Blog"}
         onClick={handleMoveToPersonalBlog}
       />
     );

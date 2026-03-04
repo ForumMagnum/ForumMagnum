@@ -1,5 +1,4 @@
 import React from 'react';
-import { preferredHeadingCase } from '@/themes/forumTheme';
 import { Typography } from "../common/Typography";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import LoadMore from "../common/LoadMore";
@@ -48,7 +47,7 @@ const LocalGroupSubscribers = ({groupId}: {
 
   return <div>
     <Typography variant="headline" className={classes.title}>
-      {preferredHeadingCase("Subscribers")}{!loading && ` (${totalCount})`}
+      {"Subscribers"}{!loading && ` (${totalCount})`}
     </Typography>
     
     <Typography variant="body2" className={classes.subscriber}>
