@@ -376,6 +376,15 @@ export class ImageNode extends ElementNode {
           return {
             after: (childNodes) => {
               const imageNodes = childNodes.filter($isImageNode);
+
+              // CKEditor wraps tables in <figure class="table">.
+              // If the figure has no images, pass through all children
+              // so that table nodes (and any other non-image content)
+              // are not dropped.
+              if (imageNodes.length === 0) {
+                return childNodes;
+              }
+
               const figcaption = node.querySelector('figcaption');
               const figureElement = node as HTMLElement;
               const figureClassList = figureElement.classList;
