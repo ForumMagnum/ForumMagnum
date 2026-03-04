@@ -236,6 +236,7 @@ export function SuggestionModePlugin({
         const idsToCreateThreadsFor: string[] = []
         const idsToReopenThreadsFor: string[] = []
         const idsToHandleDestruction: string[] = []
+        const idsToRegenerateSummaryFor: string[] = []
 
         // Always populate markNodeMap regardless of update source, so that
         // agent-created suggestions (which arrive via Yjs collaboration sync)
@@ -269,6 +270,9 @@ export function SuggestionModePlugin({
                 if (!isCollaborationUpdate) {
                   idsToHandleDestruction.push(id)
                 }
+              } else if (!isCollaborationUpdate) {
+                // Some nodes were destroyed but others remain — summary may need regeneration
+                idsToRegenerateSummaryFor.push(id)
               }
             } else {
               if (!suggestionNodeKeys) {
@@ -388,6 +392,17 @@ export function SuggestionModePlugin({
             // Clear stale statusBeforeReopen
             commentStore.updateThread(thread.id, { statusBeforeReopen: null })
           }
+        }
+
+        // When some nodes for a suggestion were destroyed but others remain (e.g. undo
+        // removes an insertion node but the split marker stays), the remaining nodes
+        // won't appear in the dirty sets, so the update listener won't trigger a summary
+        // regeneration. Queue it explicitly here.
+        for (const id of idsToRegenerateSummaryFor) {
+          pendingSuggestionIds.add(id)
+        }
+        if (idsToRegenerateSummaryFor.length > 0) {
+          flushSummaryUpdates()
         }
       }),
       // The ProtonNode mutation listener only fires for node creation/destruction/property changes,
