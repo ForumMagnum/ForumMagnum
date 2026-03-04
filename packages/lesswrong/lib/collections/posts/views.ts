@@ -223,6 +223,10 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
     if (!isEmpty(postedAt) && !terms.timeField) {
       params.selector.postedAt = postedAt;
     } else if (!isEmpty(postedAt) && terms.timeField) {
+      const timeFieldSchema = context!.Posts.schema[terms.timeField];
+      if (timeFieldSchema.graphql?.outputType !== "Date" && timeFieldSchema.graphql?.outputType !== "Date!") {
+        throw new Error(`Invalid time field: ${terms.timeField}`);
+      }
       params.selector[terms.timeField] = postedAt;
     }
   }

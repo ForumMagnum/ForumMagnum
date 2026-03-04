@@ -1894,6 +1894,7 @@ interface CommentsAllRecentCommentsInput {
   limit?: string | null;
   before?: string | null;
   after?: string | null;
+  timeField?: string | null;
 }
 
 interface CommentsRecentCommentsInput {
@@ -1905,6 +1906,7 @@ interface CommentsRecentCommentsInput {
   limit?: string | null;
   before?: string | null;
   after?: string | null;
+  timeField?: string | null;
 }
 
 interface CommentsAfSubmissionsInput {
@@ -1948,6 +1950,7 @@ interface CommentsPostsItemCommentsInput {
   authorIsUnreviewed?: boolean | null;
   postId?: string | null;
   after?: string | null;
+  timeField?: string | null;
   limit?: string | null;
 }
 
@@ -2015,6 +2018,7 @@ interface CommentsTopShortformInput {
   authorIsUnreviewed?: boolean | null;
   before?: string | null;
   after?: string | null;
+  timeField?: string | null;
   shortformFrontpage?: boolean | null;
 }
 

@@ -40,6 +40,7 @@ declare global {
     sortBy?: CommentSortingMode,
     before?: Date|string|null,
     after?: Date|string|null,
+    timeField?: keyof DbComment,
     reviewYear?: ReviewYear
     shortformFrontpage?: boolean,
     showCommunity?: boolean,
@@ -70,10 +71,15 @@ const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   recentDiscussion: { lastSubthreadActivity: -1 },
 }
 
-function getPostedAtTimeRange(terms: Pick<CommentsViewTerms, 'before' | 'after'>) {
+function getPostedAtTimeRange(terms: Pick<CommentsViewTerms, 'before'|'after'|'timeField'>) {
   if (!terms.before && !terms.after) return null;
+  if (terms.timeField) {
+    if (!["postedAt", "lastEditedAt"].includes(terms.timeField)) {
+      throw new Error("Invalid value for timeField: ", terms.timeField);
+    }
+  }
   return {
-    postedAt: {
+    [terms.timeField ?? "postedAt"]: {
       ...(terms.before && {$lt: new Date(terms.before)}),
       ...(terms.after && {$gte: new Date(terms.after)})
     }

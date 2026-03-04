@@ -162,6 +162,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     limit: String
     before: String
     after: String
+    timeField: String
   }
   
   input CommentsRecentCommentsInput {
@@ -173,6 +174,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     limit: String
     before: String
     after: String
+    timeField: String
   }
   
   input CommentsAfSubmissionsInput {
@@ -216,6 +218,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     authorIsUnreviewed: Boolean
     postId: String
     after: String
+    timeField: String
     limit: String
   }
   
@@ -283,6 +286,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     authorIsUnreviewed: Boolean
     before: String
     after: String
+    timeField: String
     shortformFrontpage: Boolean
   }
   
