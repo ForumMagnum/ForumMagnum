@@ -20,6 +20,7 @@ export function getDbIndexesOnComments() {
   indexSet.addIndex("Comments", { userId:1, postedAt:-1 });
 
   indexSet.addIndex("Comments", { parentCommentId: "hashed" });
+  indexSet.addIndex("Comments", { lastEditedAt:1 });
 
   indexSet.addIndex("Comments",
     augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }),
