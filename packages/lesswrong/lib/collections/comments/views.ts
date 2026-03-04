@@ -554,7 +554,7 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
       deleted: false,
       rejected: {$ne: true},
       parentCommentId: viewFieldNullOrMissing,
-      createdAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
+      postedAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
       $and: [
         !terms.showCommunity
           ? {
@@ -578,11 +578,11 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
       $or: [
         {
           baseScore: {$gte: 1},
-          createdAt: {$lt: twoHoursAgo},
+          postedAt: {$lt: twoHoursAgo},
         },
         {
           baseScore: {$gte: -5},
-          createdAt: {$gte: twoHoursAgo},
+          postedAt: {$gte: twoHoursAgo},
         },
       ],
     },
