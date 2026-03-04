@@ -96,6 +96,7 @@ import ToolbarPlugin from './plugins/ToolbarPlugin';
 // import TreeViewPlugin from './plugins/TreeViewPlugin';
 // import TwitterPlugin from './embeds/TwitterEmbed/TwitterPlugin';
 import {VersionsPlugin} from './plugins/VersionsPlugin';
+import YjsUndoCursorPlugin from './plugins/YjsUndoCursorPlugin';
 import YouTubePlugin from './embeds/YouTubeEmbed/YouTubePlugin';
 import MetaculusPlugin from './embeds/MetaculusEmbed/MetaculusPlugin';
 import ThoughtsaverPlugin from './embeds/ThoughtsaverEmbed/ThoughtsaverPlugin';
@@ -836,26 +837,29 @@ export default function Editor({
         {isRichText ? (
           <>
             {isCollabConfigReady && collaborationConfig ? (
-              useCollabV2 ? (
-                <>
-                  <CollabV2
+              <>
+                {useCollabV2 ? (
+                  <>
+                    <CollabV2
+                      id={COLLAB_DOC_ID}
+                      shouldBootstrap={false}
+                      username={collaborationConfig.user.name}
+                      cursorsContainerRef={cursorsContainerRef}
+                    />
+                    <VersionsPlugin id={COLLAB_DOC_ID} />
+                  </>
+                ) : (
+                  <CollaborationPlugin
+                    key={collaborationConfig.postId}
                     id={COLLAB_DOC_ID}
+                    providerFactory={createWebsocketProvider}
                     shouldBootstrap={false}
                     username={collaborationConfig.user.name}
                     cursorsContainerRef={cursorsContainerRef}
                   />
-                  <VersionsPlugin id={COLLAB_DOC_ID} />
-                </>
-              ) : (
-                <CollaborationPlugin
-                  key={collaborationConfig.postId}
-                  id={COLLAB_DOC_ID}
-                  providerFactory={createWebsocketProvider}
-                  shouldBootstrap={false}
-                  username={collaborationConfig.user.name}
-                  cursorsContainerRef={cursorsContainerRef}
-                />
-              )
+                )}
+                <YjsUndoCursorPlugin />
+              </>
             ) : (
               <HistoryPlugin externalHistoryState={historyState} />
             )}
