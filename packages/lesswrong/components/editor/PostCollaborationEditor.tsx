@@ -106,7 +106,7 @@ const PostCollaborationEditor = ({ classes }: {
   // If you're the primary author, an admin, or have edit permissions, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
   if (canUserEditPostMetadata(currentUser, post)) {
-      return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined)}/>
+    return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined)}/>
   }
 
   // If the post has a link-sharing key which is not in the URL, redirect to add
@@ -122,10 +122,10 @@ const PostCollaborationEditor = ({ classes }: {
     return <ForeignCrosspostEditForm post={post} />;
   }
 
-    // Determine which editor to use based on the post's most recent revision.
-    // By the time we get here, `queryResult` should never be null.
-    const postEditorType = queryResult?.contents?.originalContents?.type;
-    const useLexical = postEditorType === 'lexical';  
+  // Determine which editor to use based on the post's most recent revision.
+  // By the time we get here, `queryResult` should never be null.
+  const postEditorType = queryResult?.contents?.originalContents?.type;
+  const useLexical = postEditorType === 'lexical';
 
   return <>
     <StatusCodeSetter status={200}/>

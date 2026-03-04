@@ -157,7 +157,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     margin: 10,
     borderRadius: 5,
     '--lexical-comment-placeholder-top': '10px',
-    '--lexical-comment-placeholder-left': '60px',
+    '--lexical-comment-placeholder-left': '10px',
     '--lexical-comment-min-height': '30px',
   },
   commentInputBoxEditor: {
@@ -311,6 +311,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
       marginTop: 4,
       color: theme.palette.grey[900],
       lineHeight: 1.5,
+      whiteSpace: 'pre-wrap',
     },
   },
   listDetails: {
@@ -1095,7 +1096,7 @@ function CommentsPanelList({
             : null;
 
           const suggestionStatus = commentOrThread.status ?? 'open';
-          if (suggestionStatus === 'archived') {
+          if (suggestionStatus !== 'open') {
             return null;
           }
           const threadMarkId = isSuggestion ? getSuggestionThreadId(commentOrThread) : id;
