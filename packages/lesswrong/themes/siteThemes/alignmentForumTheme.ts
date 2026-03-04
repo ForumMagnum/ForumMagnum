@@ -52,14 +52,14 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       main: '#bf360c',
     },
     background: {
-      default: shadePalette.grey[60],
+      default: shadePalette.dark ? shadePalette.grey[100] : shadePalette.grey[60],
     },
     header: {
       text: shadePalette.type === "dark" ? "#ffffff" : "rgba(0,0,0,0.87)",
       background: shadePalette.type === "dark" ? "rgba(0,0,0,0.5)" : "#ffffff",
     },
     link: {
-      visited: "#8c4298",
+      visited: "light-dark(#8c4298,#798754)",
     }
   }),
   make: (palette: ThemePalette) => ({

@@ -107,6 +107,7 @@ describe('JSS', () => {
     if (nonPaletteColors.length > 0) {
       // eslint-disable-next-line no-console
       console.error(`Non-palette colors in JSS styles:\n${nonPaletteColors.join("\n")}`);
+      // eslint-disable-next-line no-console
       console.error("To prevent black-on-black text, use either a theme palette color, or check for dark mode with light-dark(#123,#edf) or theme.dark ? colorOne : colorTwo. Or disable the warning for this component by passing {allowNonThemeColors: true} in the stylesheet options.");
       nonPaletteColors.length.should.equal(0);
     }

@@ -63,21 +63,21 @@ export const lessWrongTheme: SiteThemeSpecification = {
         )
     },
     ultraFeed: {
-      readBackground: '#ffffffb3',
-      readBackgroundMobile: '#f5f5f5',
+      readBackground: shadePalette.dark ? shadePalette.grey[200] : '#ffffffb3',
+      readBackgroundMobile: shadePalette.grey[100],
       readOpacity: {
-        root: 0.9,
+        root: shadePalette.dark ? 1 : 0.9,
         content: 0.8,
         rootMobile: 0.9,
-        contentMobile: 0.9,
+        contentMobile: shadePalette.dark ? 1 : 0.9,
       },
     },
     background: {
-      default: '#f8f4ee',
+      default: `light-dark(#f8f4ee,#262626)`,
       hover: '#f0ebe6'
     },
     link: {
-      color: "#327E09",
+      color: "light-dark(#327E09,#788e6a)",
       visited: "#798754"
     },
     fundraisingThermometer: {

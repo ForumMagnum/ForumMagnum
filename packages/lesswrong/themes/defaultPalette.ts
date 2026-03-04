@@ -165,7 +165,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     secondary: shades.greyAlpha(.54),
     normal: shades.greyAlpha(.87),
     maxIntensity: shades.greyAlpha(1.0),
-    disabled: shades.greyAlpha(0.38),
+    disabled: "light-dark(rgba(0,0,0,0.38),rgba(255,255,255,0.5))",
     slightlyIntense: shades.greyAlpha(.92),
     slightlyIntense2: shades.greyAlpha(.9),
     slightlyDim: shades.greyAlpha(.8),
@@ -193,17 +193,17 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     invertedBackgroundText2: shades.inverseGreyAlpha(0.7),
     invertedBackgroundText3: shades.inverseGreyAlpha(0.5),
     invertedBackgroundText4: shades.inverseGreyAlpha(0.8),
-    primaryAlert: "#69886e",
+    primaryAlert: "light-dark(#69886e,#b2c5b5)",
     error: "#9b5e5e",
     error2: "#E04E4B",
-    warning: "#832013",
+    warning: "light-dark(#832013,#FFF7E6)",
     red: "#ff0000",
     alwaysWhite: "#fff",
     alwaysBlack: "#000",
     alwaysLightGrey: "#e0e0e0",
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
-    primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
+    primaryDarkOnDim: "light-dark(#085d6c,#a8cad7)", // text that is meant to be shown on the primaryDim background color
     reviewWinner: {
       title: shades.greyAlpha(.75),
       author: shades.greyAlpha(.65),
@@ -237,8 +237,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey800: shades.grey[800],
     tocLink: shades.grey[600],
     tocLinkHighlighted: shades.grey[1000],
-    primaryDim: "#5caab7",
-    visited: "#bb7c43",
+    primaryDim: "light-dark(#5caab7,#3a7883)",
+    visited: "light-dark(#bb7c43,#798754)",
   },
   linkHover: {
     dim: shades.greyAlpha(.3),
@@ -285,8 +285,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   border: {
     normal: shades.greyBorder("1px", .2),
-    itemSeparatorBottom: shades.greyBorder("2px", .05),
-    itemSeparatorBottomStrong: shades.greyBorder("2px", .1),
+    itemSeparatorBottom: shades.dark ? shades.greyBorder("1px", .2) : shades.greyBorder("2px", .05),
+    itemSeparatorBottomStrong: shades.dark ? shades.greyBorder("1px", .3) : shades.greyBorder("2px", .1),
     itemSeparatorBottomIntense: shades.greyBorder("2px", .2),
     readUltraFeedBorder: `2px solid ${shades.grey[200]}`,
     slightlyFaint: shades.greyBorder("1px", .15),
@@ -308,49 +308,49 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     emailHR: "1px solid #aaa",
     sunshineNewUsersInfoHR: "1px solid #ccc",
     appBarSubtitleDivider: `1px solid ${shades.grey[400]}`,
-    commentBorder: "1px solid rgba(72,94,144,0.16)",
-    answerBorder: "2px solid rgba(72,94,144,0.16)",
+    commentBorder: "light-dark(rgba(72,94,144,0.16),rgba(255,255,255,.2))",
+    answerBorder: "light-dark(rgba(72,94,144,0.16),rgba(255,255,255,.2))",
     tooltipHR: "solid 1px rgba(255,255,255,.2)",
-    primaryHighlight: '#88c9d4',
-    primaryHighlight2: '#bae2e8',
-    secondaryHighlight: '#aedba3',
-    secondaryHighlight2: '#d8edd3',
+    primaryHighlight: "light-dark(#88c9d4,#314a4e)",
+    primaryHighlight2: "light-dark(#bae2e8,#314a4e)",
+    secondaryHighlight: "light-dark(#aedba3,#3e503a)",
+    secondaryHighlight2: "light-dark(#d8edd3,#3e503a)",
     primaryTranslucent: 'rgba(12,134,155,.7)',
     dashed500: `dashed 1px ${shades.grey[500]}`,
-    mentionsBaloon: "#c4c4c4",
-    eaButtonGreyOutline: "#BCC1C9",
+    mentionsBaloon: "light-dark(#c4c4c4,#f5f5f5)",
+    eaButtonGreyOutline: "light-dark(#BCC1C9,#5F5F5F)",
   },
   background: {
-    default: shades.grey[60],
+    default: shades.dark ? shades.grey[100] : shades.grey[60],
     paper: shades.grey[0], //Used by MUI
-    contrastInDarkMode: shades.grey[0],
+    contrastInDarkMode: "light-dark(#ffffff,#f5f5f5)",
     pageActiveAreaBackground: shades.grey[0],
-    profilePageBackground: "#fcfbf8",
-    translucentBackground: "rgba(255,255,255,.5)",
-    translucentBackgroundHeavy: "rgba(255,255,255,.75)",
+    profilePageBackground: "light-dark(#fcfbf8,#262626)",
+    translucentBackground: "light-dark(rgba(255,255,255,.5),rgba(0,0,0,.5))",
+    translucentBackgroundHeavy: "light-dark(rgba(255,255,255,.75),rgba(0,0,0,.75))",
     loginBackdrop: "rgba(217,217,217,0.5)",
-    diffInserted: "#d4ead4",
-    diffDeleted: "#f0d3d3",
+    diffInserted: "light-dark(#d4ead4,#205120)",
+    diffDeleted: "light-dark(#f0d3d3,#b92424)",
     usersListItem: shades.greyAlpha(.05),
-    primaryDim: '#e2f1f4',
-    primarySlightlyDim: '#d1ecf1',
-    primaryTranslucent: "rgba(95,155,101,0.1)",
-    primaryTranslucentHeavy: "rgba(95,155,101,0.35)",
-    warningTranslucent: "rgba(255,152,0,0.1)",
+    primaryDim: "light-dark(#e2f1f4,#28383e)",
+    primarySlightlyDim: "light-dark(#d1ecf1,#00494e)",
+    primaryTranslucent: "light-dark(rgba(95,155,101,0.1),rgba(99,141,103,0.3))",
+    primaryTranslucentHeavy: "light-dark(rgba(95,155,101,0.35),rgba(99,141,103,0.6))",
+    warningTranslucent: "light-dark(rgba(255,152,0,0.1),rgba(255,173,8,0.3))",
     // this is used to address a specific iOS Safari-related issue with linear-gradient:
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
-    digestAdBannerInput: shades.grey[0],
-    glossaryBackground: "rgba(190,120,80,.05)",
-    sidenoteBackground: "rgba(190,120,80,.05)",
+    digestAdBannerInput: shades.dark ? shades.grey[300] : shades.grey[0],
+    glossaryBackground: "light-dark(rgba(190,120,80,.05),rgba(180,160,160,.1))",
+    sidenoteBackground: "light-dark(rgba(190,120,80,.05),rgba(180,160,160,.1))",
   },
   panelBackground: {
     default: shades.grey[0],
-    translucent: "rgba(255,255,255,.87)",
-    translucent2: "rgba(255,255,255,.8)",
-    translucent3: "rgba(255,255,255,.75)",
-    translucent4: "rgba(255,255,255,.5)",
+    translucent: "light-dark(rgba(255,255,255,.87),rgba(0,0,0,.87))",
+    translucent2: "light-dark(rgba(255,255,255,.8),rgba(0,0,0,.8))",
+    translucent3: "light-dark(rgba(255,255,255,.75),rgba(0,0,0,.75))",
+    translucent4: "light-dark(rgba(255,255,255,.5),rgba(0,0,0,.6))",
     hoverHighlightGrey: shades.greyAlpha(.1),
     postsItemHover: shades.grey[50],
     formErrors: shades.greyAlpha(0.25),
@@ -367,20 +367,20 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     
     adminHomeRecentLogins: "rgba(50,100,50,.1)",
     adminHomeAllUsers: "rgba(100,50,50,.1)",
-    deletedComment: "#ffefef",
+    deletedComment: "light-dark(#ffefef,#3a0505)",
     newCommentFormModerationGuidelines: shades.greyAlpha(.07),
-    commentNodeEven: shades.grey[120],
+    commentNodeEven: shades.dark ? shades.grey[50] : shades.grey[120],
     commentNodeOdd: shades.grey[25],
     commentNodeRoot: shades.grey[0],
-    commentModeratorHat: "#ecf2ed",
+    commentModeratorHat: "light-dark(#ecf2ed,#202719)",
     commentHighlightAnimation: shades.grey[300],
     postsItemExpandedComments: shades.grey[50],
     metaculusBackground: "#2c3947",
-    spoilerBlock: "#000",
+    spoilerBlock: "light-dark(#000,#1b1b1b)",
     revealedSpoilerBlock: shades.greyAlpha(.12),
     tableHeading: shades.grey[50],
     notificationMenuTabBar: shades.grey[100],
-    recentDiscussionThread: shades.grey[20],
+    recentDiscussionThread: "light-dark(#fdfdfd,rgba(0,0,0,0.4))",
     tooltipBackground: "rgba(75,75,75,.94)",
     tooltipBackground2: "#373737",
     mapboxTooltip: "#fff",
@@ -394,19 +394,19 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sunshineNewComments: "rgba(120,120,0,.08)",
     sunshineNewTags: "rgba(80,80,0,.08)",
     sunshineWarningHighlight: "rgba(255,50,0,.2)",
-    sunshineNewContentGroup: "linear-gradient(135deg, rgba(0,80,0,.20) 0%, rgba(0,80,0,0) 100%)",
-    sunshineHighContextGroup: "linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%)",
-    sunshineMaybeSpamGroup: "linear-gradient(135deg, rgba(120,0,120,.20) 0%, rgba(120,0,120,0) 100%)",
-    sunshineAutomodGroup: "linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%)",
-    sunshineSnoozeExpiredGroup: "linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%)",
-    sunshineUnknownGroup: "linear-gradient(135deg, rgba(120,120,120,.20) 0%, rgba(120,120,120,0) 100%)",
+    sunshineNewContentGroup: "light-dark(linear-gradient(135deg, rgba(0,80,0,.20) 0%, rgba(0,80,0,0) 100%),linear-gradient(135deg, rgba(0,80,0,.50) 0%, rgba(0,80,0,0) 100%))",
+    sunshineHighContextGroup: "light-dark(linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%),linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(36, 36, 9, 0) 100%))",
+    sunshineMaybeSpamGroup: "light-dark(linear-gradient(135deg, rgba(120,0,120,.20) 0%, rgba(120,0,120,0) 100%),linear-gradient(135deg, rgba(120,0,120,.50) 0%, rgba(120,0,120,0) 100%))",
+    sunshineAutomodGroup: "light-dark(linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%),linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(120,120,0,0) 100%))",
+    sunshineSnoozeExpiredGroup: "light-dark(linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%),linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(120,120,0,0) 100%))",
+    sunshineUnknownGroup: "light-dark(linear-gradient(135deg, rgba(120,120,120,.20) 0%, rgba(120,120,120,0) 100%),linear-gradient(135deg, rgba(120,120,120,.50) 0%, rgba(120,120,120,0) 100%))",
     mobileNavFooter: shades.grey[0],
-    singleLineComment: shades.grey[140],
+    singleLineComment: shades.dark ? 'unset' : shades.grey[140],
     singleLineCommentHovered: shades.grey[300],
     singleLineCommentOddHovered: shades.grey[110],
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
-    cookieBanner: shades.grey[800],
+    cookieBanner: shades.dark ? shades.grey[900] : shades.grey[800],
     strawpoll: "rgba(251, 191, 36, 1)", // Color used by StrawPoll
     userProfileImageHover: "rgba(0, 0, 0, 0.5)",
     userProfileImageLoading: `linear-gradient(
@@ -419,15 +419,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingSection: "#f5f5f5",
     onboardingPodcast: "#e7e7e7",
     placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
-    tagLensTab: shades.greyAlpha(.1),
+    tagLensTab: shades.dark ? shades.greyAlpha(.15) : shades.greyAlpha(.1),
     // Banner ad compatibility - backgrounds (set to non-affecting defaults for light mode)
-    bannerAdTranslucent: shades.grey[0], // Use default background for light mode
-    bannerAdTranslucentHeavy: shades.grey[0],
-    bannerAdTranslucentLight: shades.grey[0],
-    bannerAdTranslucentMedium: shades.grey[0],
-    bannerAdTranslucentDeep: shades.grey[0],
-    bannerAdTranslucentStrong: shades.grey[0],
-    appBarDarkBackground: 'none'
+    bannerAdTranslucent: shades.dark ? "rgba(0,0,0,0.2)" : shades.grey[0], // Use default background for light mode
+    bannerAdTranslucentHeavy: shades.dark ? "rgba(0,0,0,0.3)" : shades.grey[0],
+    bannerAdTranslucentLight: shades.dark ? "rgba(0,0,0,0.1)" : shades.grey[0],
+    bannerAdTranslucentMedium: shades.dark ? "rgba(0,0,0,0.4)" : shades.grey[0],
+    bannerAdTranslucentDeep: shades.dark ? "rgba(0,0,0,0.5)" : shades.grey[0],
+    bannerAdTranslucentStrong: shades.dark ? "rgba(0,0,0,0.6)" : shades.grey[0],
+    appBarDarkBackground: shades.dark ? 'rgba(255,255,255,0.1)' : 'none'
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -435,7 +435,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     faint: `0 1px 5px ${shades.boxShadowColor(.1)}`,
     
     notificationsDrawer: `${shades.boxShadowColor(.16)} 0px 3px 10px, ${shades.boxShadowColor(.23)} 0px 3px 10px`,
-    appBar: `0 1px 1px ${shades.boxShadowColor(.05)}, 0 1px 1px ${shades.boxShadowColor(.05)}`,
+    appBar: shades.dark
+      ? "none"
+      : `0 1px 1px ${shades.boxShadowColor(.05)}, 0 1px 1px ${shades.boxShadowColor(.05)}`,
     appBarDarkBackground: `0 1px 1px ${shades.boxShadowColor(.05)}, 0 1px 1px ${shades.boxShadowColor(.05)}`,
     sequencesGridItemHover: `0 1px 3px ${shades.boxShadowColor(.1)}`,
     eventCard: `0 1px 3px ${shades.boxShadowColor(.1)}`,
@@ -450,7 +452,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     eaCard: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
-    graphTooltip: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
+    graphTooltip: shades.dark ? "none" : `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     lwTagHoverOver: `0 1px 3px 0 ${shades.boxShadowColor(0.2)},0 1px 1px 0 ${shades.boxShadowColor(0.14)},0 2px 1px -1px ${shades.boxShadowColor(0.12)}`,
   },
   buttons: {
@@ -486,13 +488,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     bookCheckoutButton: "#53a55a",
     eventCardTag: "#CC5500",
     mentions: {
-      hover: "#e6e6e6",
-      selected: "#198cf0",
-      selectedHover: "#0e7fe1",
+      hover: shades.dark ? shades.grey[100] : "#e6e6e6",
+      selected: "light-dark(#198cf0,#0c70c7)",
+      selectedHover: "light-dark(#0e7fe1,#0b62ae)",
     },
   },
   intercom: {
-    buttonBackground: "#f5f5f5 !important",
+    buttonBackground: "light-dark(#f5f5f5,#424242) !important",
   },
   sideItemIndicator: {
     sideComment: '#5f9b65',
@@ -516,12 +518,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   tab: {
     inactive: {
-      text: shades.grey[500],
+      text: shades.dark ? shades.grey[600] : shades.grey[500],
       hover: {
         text: shades.grey[700]
       },
       // Banner ad compatibility - non-affecting defaults for light mode
-      bannerAdBackground: 'transparent',
+      bannerAdBackground: shades.dark ? "rgba(0,0,0,0.3)" : 'transparent',
       bannerAdBackgroundBlur: 'transparent',
     },
     active: {
@@ -531,15 +533,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
         background: "rgba(127, 175, 131, 0.7)",
       },
       // Banner ad compatibility - non-affecting default for light mode
-      bannerAdOpacity: 1,
+      bannerAdOpacity: shades.dark ? 0.8 : 1,
     },
   },
   // Banner ad compatibility - CSS filters (non-affecting defaults for light mode)
   filters: {
-    bannerAdBlur: 'none',
-    bannerAdBlurLight: 'none',
-    bannerAdBlurMedium: 'none',
-    bannerAdBlurHeavy: 'none',
+    bannerAdBlur: shades.dark ? 'blur(10px)' : 'none',
+    bannerAdBlurLight: shades.dark ? 'blur(2px)' : 'none',
+    bannerAdBlurMedium: shades.dark ? 'blur(4px)' : 'none',
+    bannerAdBlurHeavy: shades.dark ? 'blur(8px)' : 'none',
   },
 
   geosuggest: {
@@ -577,31 +579,31 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     selectedDate: "#428bca",
   },
   editor: {
-    commentPanelBackground: "#ffffff",
-    sideCommentEditorBackground: "#f3f7fb",
+    commentPanelBackground: shades.dark ? shades.grey[200] : "#ffffff",
+    sideCommentEditorBackground: shades.dark ? shades.grey[100] : "#f3f7fb",
     // Color used for background highlighting of CEditor side-comments. In some
     // contexts with short line height (in particular, dialogues), this
     // highlight bleeds over adjacent lines and covers up descenders. Partially
     // mitigate this by making it a high-intensity color at 50% transparency
     // rather than a low-intensity color at full opacity.
-    commentMarker: "rgba(255,241,82,.5)",
-    commentMarkerActive: "#fdf05d",
+    commentMarker: "light-dark(rgba(255,241,82,.5),#80792e)",
+    commentMarkerActive: "light-dark(#fdf05d,#cbc14f)",
     // Banner ad compatibility - non-affecting default for light mode
-    bannerAdBackground: 'transparent',
+    bannerAdBackground: shades.dark ? "rgba(0,0,0,0.5)" : 'transparent',
   },
   lexicalEditor: {
     // Modal overlay - specific dark grey, not pure black
-    modalOverlay: "rgba(40, 40, 40, 0.6)",
+    modalOverlay: "light-dark(rgba(40, 40, 40, 0.6),rgba(0, 0, 0, 0.7))",
     // Equation/LaTeX editor - purple for math syntax
-    equationText: "#8421a2",
+    equationText: "light-dark(#8421a2,#c77dff)",
     // Blue hover background for edit buttons
-    editButtonHover: "rgba(60, 132, 244, 0.1)",
+    editButtonHover: "light-dark(rgba(60, 132, 244, 0.1),rgba(60, 132, 244, 0.2))",
     // Blue focus ring for selections
-    focusRing: "rgb(60, 132, 244)",
+    focusRing: "light-dark(rgb(60, 132, 244),rgb(100, 160, 255))",
     // Light blue shadow for mention focus
-    mentionFocus: "rgb(180, 213, 255)",
+    mentionFocus: "light-dark(rgb(180, 213, 255),rgb(60, 100, 180))",
     // Coral/orange color for keywords
-    keyword: "rgb(241, 118, 94)",
+    keyword: "light-dark(rgb(241, 118, 94),rgb(255, 140, 120))",
     // Blues for comment input box button background
     commentInputBoxButtonBackground: "rgb(66, 135, 245)",
     commentInputBoxButtonHoverBackground: "rgb(53, 114, 211)",
@@ -628,9 +630,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     addedBlockquoteHighlightStyles: "",
   },
   dropdown: {
-    background: grey[0],
-    border: "transparent",
-    hoverBackground: grey[100],
+    background: shades.dark ? shades.grey[100] : grey[0],
+    border: shades.dark ? shades.grey[250] : "transparent",
+    hoverBackground: shades.dark ? shades.grey[250] : grey[100],
   },
   graph: {
     analyticsReads: "#008800"
@@ -699,11 +701,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     dark: "#21672b",
   },
   action: {
-    active: 'rgba(0, 0, 0, 0.54)',
-    hover: 'rgba(0, 0, 0, 0.08)',
-    hoverOpacity: 0.08,
-    disabled: 'rgba(0, 0, 0, 0.26)',
-    disabledBackground: 'rgba(0, 0, 0, 0.12)',
+    active: "light-dark(rgba(0, 0, 0, 0.54),#fff)",
+    hover: shades.dark ? shades.greyAlpha(0.1) : 'rgba(0, 0, 0, 0.08)',
+    hoverOpacity: shades.dark ? 0.1 : 0.08,
+    disabled: shades.dark ? shades.greyAlpha(0.3) : 'rgba(0, 0, 0, 0.26)',
+    disabledBackground: shades.dark ? shades.greyAlpha(0.12) : 'rgba(0, 0, 0, 0.12)',
   },
   error: {
     main: "#bf360c",
@@ -721,15 +723,17 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     arbitalGreen: 'light-dark(#004d40,#02796b)',
   },
   ultraFeed: {
-    dim: shades.grey[600],
-    cardSeparator: `12px solid ${shades.greyAlpha(0.005)}`,
-    readBackground: shades.grey[300],
+    dim: shades.dark ? shades.grey[400] : shades.grey[600],
+    cardSeparator: shades.dark
+      ? `12px solid ${shades.greyAlpha(0.15)}`
+      : `12px solid ${shades.greyAlpha(0.005)}`,
+    readBackground: shades.dark ? shades.grey[200] : shades.grey[300],
     readBackgroundMobile: shades.grey[100],
     readOpacity: {
-      root: 0.7,
-      rootMobile: 0.7,
-      content: 0.8,
-      contentMobile: 0.7,
+      root: shades.dark ? 1 : 0.7,
+      rootMobile: shades.dark ? 0.9 : 0.7,
+      content: shades.dark ? 0.9 : 0.8,
+      contentMobile: shades.dark ? 1 : 0.7,
     },
   }
 })

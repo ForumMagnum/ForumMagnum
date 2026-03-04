@@ -52,7 +52,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       main: "#ffad08"
     },
     text: {
-      primaryAlert: "#137283",
+      primaryAlert: "light-dark(#137283,#b2c5b5)",
       contentHeader: shadePalette.grey[1000],
       debateComment: {
         [1]: "#66C9F3",
@@ -64,13 +64,13 @@ export const eaForumTheme: SiteThemeSpecification = {
       },
     },
     link: {
-      visited: "#7130a6",
+      visited: "light-dark(#7130a6,#798754)",
     },
     background: {
-      default: shadePalette.type === 'light' ? '#f6f8f9' : shadePalette.grey[60],
-      primaryDim: '#e2f1f4',
-      primaryTranslucent: "rgba(12, 134, 155, 0.05)",
-      warningTranslucent: "rgba(255, 173, 8, 0.1)",
+      default: shadePalette.dark ? shadePalette.grey[100] : '#f6f8f9',
+      primaryDim: "light-dark(#e2f1f4,#28383e)",
+      primaryTranslucent: "light-dark(rgba(12, 134, 155, 0.05),rgba(99,141,103,0.3))",
+      warningTranslucent: "light-dark(rgba(255, 173, 8, 0.1),rgba(255,173,8,0.3))",
     },
     header: {
       text: shadePalette.type === 'light' ? "rgba(0,0,0,.87)" : shadePalette.greyAlpha(.87),
@@ -84,10 +84,10 @@ export const eaForumTheme: SiteThemeSpecification = {
       sprout: '#5EB25C'
     },
     border: {
-      primaryHighlight: '#88c9d4',
-      primaryHighlight2: '#bae2e8',
-      secondaryHighlight: '#aedba3',
-      secondaryHighlight2: '#d8edd3',
+      primaryHighlight: "light-dark(#88c9d4,#314a4e)",
+      primaryHighlight2: "light-dark(#bae2e8,#314a4e)",
+      secondaryHighlight: "light-dark(#aedba3,#3e503a)",
+      secondaryHighlight2: "light-dark(#d8edd3,#3e503a)",
     },
     blockquoteHighlight: {
       commentHovered: shadePalette.type === 'light' ? "#b5e5ed" : "#144952",
