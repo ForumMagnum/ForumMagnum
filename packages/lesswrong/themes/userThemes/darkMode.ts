@@ -155,17 +155,9 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
         selected: "#0c70c7",
         selectedHover: "#0b62ae",
       },
-      digestAdBannerNoThanks: {
-        background: shadePalette.grey[600],
-        hoverBackground: shadePalette.grey[700],
-      },
-      messageReaction: "opacity(0.35)",
     },
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,
-    },
-    embeddedPlayer: {
-      opacity: 0.85,
     },
     dropdown: {
       background: shadePalette.grey[100],
@@ -198,9 +190,6 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
         bannerAdOpacity: 0.8,
       }
     },
-    arbital: {
-      arbitalGreen: '#02796b',
-    },
     ultraFeed: {
       dim: shadePalette.grey[400],
       cardSeparator: `12px solid ${shadePalette.greyAlpha(0.15)}`,
@@ -219,9 +208,6 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       hoverOpacity: 0.1,
       disabled: shadePalette.greyAlpha(0.3),
       disabledBackground: shadePalette.greyAlpha(0.12),
-    },
-    meetupMonth: {
-      petrov: '#eee',
     },
     // Banner ad compatibility - CSS filters and effects
     filters: {

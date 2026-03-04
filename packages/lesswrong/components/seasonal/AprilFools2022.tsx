@@ -10,6 +10,7 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import SectionFooter from "../common/SectionFooter";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { safeForDarkMode } from '../hooks/defineStyles';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserAprilFools2022Query($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -23,6 +24,12 @@ const UsersProfileMultiQuery = gql(`
 `);
 
 export const goodHeartStartDate = new Date("04/01/2022")
+const heartColors = {
+  orange: safeForDarkMode("#e64a19"),
+  yellow: safeForDarkMode("#f57f17"),
+  green: safeForDarkMode("#1b5e20"),
+};
+
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -67,26 +74,26 @@ const styles = (theme: ThemeType) => ({
   goodestHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: theme.palette.text.aprilFools.orange,
+    color: heartColors.orange,
   },
   orange: {
-    color: theme.palette.text.aprilFools.orange,
+    color: heartColors.orange,
   },
   veryGoodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: theme.palette.text.aprilFools.yellow,
+    color: heartColors.yellow,
   },
   yellow: {
-    color: theme.palette.text.aprilFools.yellow,
+    color: heartColors.yellow,
   },
   goodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: theme.palette.text.aprilFools.green,
+    color: heartColors.green,
   },
   green: {
-    color: theme.palette.text.aprilFools.green,
+    color: heartColors.green,
   },
 });
 

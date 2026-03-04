@@ -12,10 +12,11 @@
 // in the component palette may depend on colors/functions in the shade palette
 // (but not vise versa). These are merged together to create the overall theme.
 //
-// Components Should Use the Palette
-// =================================
-// When writing styles for UI components, use colors that come from the palette,
-// rather than writing the color directly, eg like this:
+// When to Use the Palette
+// =======================
+// When writing styles for UI components, use palette colors for colors that are
+// shared between components, or which are likely to be customized as part of the
+// theme, eg like this:
 //
 //   const styles = (theme: ThemeType) => ({
 //     normalText: {
@@ -39,19 +40,17 @@
 //     },
 //   });
 //
-// This is enforced by a unit test, which will provide a theme with blanked-out
-// palette colors and scan JSS styles for color words. Following this convention
-// should prevent almost all problems with dark-on-dark and light-on-light text.
-// However tooltips and buttons are occasionally inverted relative to the base
-// theme, and aesthetic issues may appear in dark mode that don't appear in
-// light mode and vise versa, so try to check your UI in both.
-//
-// If you can't find the color you want, go ahead and add it! Having to add
-// colors to the palette is meant to make sure you give a little thought to
-// themes and dark mode, not to restrict you to approved colors. First add your
-// color to ThemeType in themeType.ts. This will create type errors in all the
-// other places you need to add the color (currently defaultPalette.ts and
-// darkMode.ts).
+// There is a unit test which looks for colors that seem like they will fail to
+// adjust for dark mode. If your styles have a color in them, you can support
+// dark mode (and make this unit test pass) in a number of ways:
+//   * Use a color from the palette
+//   * Write the color using the CSS `light-dark` function, eg `light-dark(#333,#aaa)`.
+//   * Add `allowNonThemeColors: true` to the style declaration
+//   * Wrap the attribute value in `safeForDarkMode()`
+// Prefer `allowNonThemeColors: true` option for components that are
+// always-light or always-dark rather than inverting themselves. Use the
+// `safeForDarkMode` wrapper for colors that work on both light and dark
+// backgrounds because they're medium-darkness.
 //
 // Text Color and Alpha Versus Shade
 // =================================
@@ -78,22 +77,19 @@
 //
 // Do Use:
 //   Three or six hex digits: #rrggbb
-//   RGB 0-255 with alpha 0-1: "rgba(r,g,b,a)",
+//   RGBA 0-255 with alpha 0-1: "rgba(r,g,b,a)",
 // Avoid:
-//   Any color words (including "black" and "white"). If used in the theme in
-//   a place where material-UI uses them, material-UI will crash.
-//
+//   CSS named color strings other than "white", "black", and "transparent"
 //   HSL, HSLA, HWB, Lab, and LCH color specifiers, eg "hsl(60 100% 50%)"
 //   Functional notation without commas, eg "rgba(0 0 0 / 10%)"
 //   RGB percentages, eg "rgba(50%,25%,25%,1)"
 //   Omitted alpha: eg "rgb(0,0,100)"
 //   Importing color constants from @/lib/vendor/@material-ui/core/src/colors or other libraries
-//   Color keywords other than white, black, and transparent: eg "red", "grey", "wheat"
 //
 //
 
-import { mapValues } from "lodash";
-import { invertColor, invertHexColor, zeroTo255 } from "./colorUtil";
+import mapValues from "lodash/mapValues";
+import { invertHexColor } from "./colorUtil";
 
 export const grey = mapValues({
   // Exactly matches @/lib/vendor/@material-ui/core/src/colors/grey
@@ -191,9 +187,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tooltipText: "#fff",
     tooltipTextDim: "#c2c2c2",
     negativeKarmaRed: "#ff8a80",
-    moderationGuidelinesEasygoing: 'rgba(100, 169, 105, 0.9)',
-    moderationGuidelinesNormEnforcing: '#2B6A99',
-    moderationGuidelinesReignOfTerror: 'rgba(179,90,49,.8)',
     charsAdded: "#008800",
     charsRemoved: "#880000",
     invertedBackgroundText: shades.inverseGreyAlpha(1),
@@ -215,18 +208,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       title: shades.greyAlpha(.75),
       author: shades.greyAlpha(.65),
     },
-    eventMaybe: "#d59c00",
     
     reviewUpvote: "rgba(70,125,70, .87)",
     reviewDownvote: "rgba(125,70,70, .87)",
     reviewBallotIcon: 'rgb(47 108 152 / 50%)',
-    
-
-    aprilFools: {
-      orange: "#e64a19",
-      yellow: "#f57f17",
-      green: "#1b5e20",
-    },
 
     debateComment: {
       [1]: '#1192e8',
@@ -505,11 +490,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       selected: "#198cf0",
       selectedHover: "#0e7fe1",
     },
-    digestAdBannerNoThanks: {
-      background: shades.grey[700],
-      hoverBackground: shades.grey[800],
-    },
-    messageReaction: "opacity(0.15)",
   },
   intercom: {
     buttonBackground: "#f5f5f5 !important",
@@ -645,9 +625,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     individualQuoteHovered: shades.type === 'light' ? "#dbf0e1" : "#114411",
     addedBlockquoteHighlightStyles: "",
   },
-  embeddedPlayer: {
-    opacity: 1,
-  },
   dropdown: {
     background: grey[0],
     border: "transparent",
@@ -735,27 +712,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   warning: {
     main: "#ff9800",
   },
-  petrov: {
-    launchButtonBorder: "#000",
-    red: "#ff0000",
-    darkRed: "#990000",
-    red2: "#cc0000",
-    darkRed2: "#770000",
-    color1: "#aa8080",
-    color2: "#404040",
-    color3: "#998080",
-    color4: "#504040",
-  },
-  meetupMonth: {
-    acx: "#5f86c9",
-    ifanyone: "#b64d4d",
-    petrov: "#444",
-  },
   fundraisingThermometer: {
     shadow: '#222',
   },
   arbital: {
-    arbitalGreen: '#004d40',
+    arbitalGreen: 'light-dark(#004d40,#02796b)',
   },
   ultraFeed: {
     dim: shades.grey[600],

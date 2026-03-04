@@ -75,9 +75,7 @@ declare global {
       serifStack: string,
     },
     
-    // Used by material-UI for picking some of its own colors, and also by site
-    // themes
-    type: MuiThemeName,
+    type: "light"|"dark",
   }
   type ThemeComponentPalette = {
     primary: {
@@ -112,27 +110,11 @@ declare global {
     warning: {
       main: ColorString,
     },
-    petrov: {
-      launchButtonBorder: ColorString,
-      red: ColorString,
-      darkRed: ColorString,
-      red2: ColorString,
-      darkRed2: ColorString,
-      color1: ColorString,
-      color2: ColorString,
-      color3: ColorString,
-      color4: ColorString,
-    },
     fundraisingThermometer: {
       shadow: ColorString,
     },
     arbital: {
       arbitalGreen: ColorString,
-    },
-    meetupMonth: {
-      acx: ColorString,
-      ifanyone: ColorString,
-      petrov: ColorString,
     },
     text: {
       primary: ColorString,
@@ -161,9 +143,6 @@ declare global {
       tooltipText: ColorString,
       tooltipTextDim: ColorString,
       negativeKarmaRed: ColorString,
-      moderationGuidelinesEasygoing: ColorString,
-      moderationGuidelinesNormEnforcing: ColorString,
-      moderationGuidelinesReignOfTerror: ColorString,
       charsAdded: ColorString,
       charsRemoved: ColorString,
       invertedBackgroundText: ColorString,
@@ -190,13 +169,6 @@ declare global {
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       reviewBallotIcon: ColorString,
-      
-      eventMaybe: ColorString,
-      aprilFools: {
-        orange: ColorString,
-        yellow: ColorString,
-        green: ColorString,
-      },
       
       debateComment: {
         [1]: ColorString,
@@ -445,11 +417,6 @@ declare global {
         selected: ColorString,
         selectedHover: ColorString,
       },
-      digestAdBannerNoThanks: {
-        background: ColorString,
-        hoverBackground: ColorString,
-      },
-      messageReaction: string,
     },
     sideItemIndicator: {
       sideComment: ColorString,
@@ -602,9 +569,6 @@ declare global {
     },
     intercom?: { //Optional. If omitted, use defaults from library.
       buttonBackground: ColorString,
-    },
-    embeddedPlayer: {
-      opacity: number,
     },
     dropdown: {
       background: ColorString,
