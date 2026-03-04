@@ -7,7 +7,6 @@ import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
-import Comments from '@/server/collections/comments/collection';
 
 /**
  * Comment sorting mode, a string which gets translated into a mongodb sort
@@ -75,7 +74,7 @@ const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
 function getPostedAtTimeRange(terms: Pick<CommentsViewTerms, 'before'|'after'|'timeField'>) {
   if (!terms.before && !terms.after) return null;
   if (terms.timeField) {
-    if (!["createdAt", "postedAt", "lastEditedAt"].includes(terms.timeField)) {
+    if (!["postedAt", "lastEditedAt"].includes(terms.timeField)) {
       throw new Error("Invalid value for timeField: ", terms.timeField);
     }
   }

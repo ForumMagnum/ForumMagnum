@@ -317,6 +317,9 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postedAt" ON "Comments" USING bt
 -- Index "idx_Comments_parentCommentId"
 CREATE INDEX IF NOT EXISTS "idx_Comments_parentCommentId" ON "Comments" USING btree ("parentCommentId");
 
+-- Index "idx_Comments_lastEditedAt"
+CREATE INDEX IF NOT EXISTS "idx_Comments_lastEditedAt" ON "Comments" USING btree ("lastEditedAt");
+
 -- Index "idx_comments_top_comments"
 CREATE INDEX IF NOT EXISTS "idx_comments_top_comments" ON "Comments" USING btree (
   "postId",

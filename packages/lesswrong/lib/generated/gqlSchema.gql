@@ -2141,6 +2141,7 @@ input CommentsAllRecentCommentsInput {
   limit: String
   before: String
   after: String
+  timeField: String
 }
 
 input CommentsRecentCommentsInput {
@@ -2152,6 +2153,7 @@ input CommentsRecentCommentsInput {
   limit: String
   before: String
   after: String
+  timeField: String
 }
 
 input CommentsAfSubmissionsInput {
@@ -2195,6 +2197,7 @@ input CommentsPostsItemCommentsInput {
   authorIsUnreviewed: Boolean
   postId: String
   after: String
+  timeField: String
   limit: String
 }
 
@@ -2262,6 +2265,7 @@ input CommentsTopShortformInput {
   authorIsUnreviewed: Boolean
   before: String
   after: String
+  timeField: String
   shortformFrontpage: Boolean
 }
 
