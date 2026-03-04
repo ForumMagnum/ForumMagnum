@@ -569,7 +569,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     background: shades.grey[30],
   },
   ultrafeedModalHeader: {
-    background: shades.greyAlpha(.95),
+    background: shades.dark
+      ? "rgba(255,255,255,.95)"
+      : "rgba(0,0,0,.98)"
   },
   datePicker: {
     selectedDate: "#428bca",

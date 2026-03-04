@@ -50,10 +50,17 @@ export const lessWrongTheme: SiteThemeSpecification = {
       main: '#bf360c',
     },
     header: {
-      background: isBlackBarTitle ? shadePalette.inverseGreyAlpha(.1) : shadePalette.inverseGreyAlpha(.65)
+      background: shadePalette.dark
+        ? "rgba(50,50,50,.75)"
+        : isBlackBarTitle ? shadePalette.inverseGreyAlpha(.1) : shadePalette.inverseGreyAlpha(.65)
     },
     ultrafeedModalHeader: {
-      background: isBlackBarTitle ? shadePalette.inverseGreyAlpha(.4) : shadePalette.inverseGreyAlpha(.95)
+      background: shadePalette.dark
+        ? "rgba(50,50,50,.98)"
+        : (isBlackBarTitle
+          ? "rgba(255,255,255,.4)"
+          : "rgba(255,255,255,.95)"
+        )
     },
     ultraFeed: {
       readBackground: '#ffffffb3',

@@ -1,7 +1,5 @@
 import type { PartialDeep } from 'type-fest'
 import { invertHexColor, invertColor, colorToString, zeroTo255 } from '../colorUtil';
-import { forumSelect } from '../../lib/forumTypeUtils';
-import deepmerge from 'deepmerge';
 
 // CkEditor allows users to provide colors for table cell backgrounds and
 // borders, which get embedded into the HTML looking like this:
@@ -28,37 +26,12 @@ const getManualColorReplacements = () => ({
 const colorReplacementsCache = getManualColorReplacements();
 export const getColorReplacementsCache = (): Record<string,string> => colorReplacementsCache;
 
-const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
-  forumSelect({
-    LessWrong: {
-      header: {
-        background: 'rgba(50,50,50,.75)',
-      },
-      ultrafeedModalHeader: {
-        background: 'rgba(50,50,50,.98)',
-      },
-      background: {
-        translucentBackgroundHeavy: "rgba(0,0,0,.75)",
-        translucentBackground: "rgba(0,0,0,.5)",
-      }
-    },
-    default: {
-      ultrafeedModalHeader: {
-        background: shadePalette.greyAlpha(.98),
-      },
-      background: {
-        translucentBackgroundHeavy: "rgba(0,0,0,.75)",
-        translucentBackground: "rgba(0,0,0,.5)",
-      }
-    },
-  });
-
 export const getDarkModeTheme = (): UserThemeSpecification => ({
   shadePalette: {
     dark: true,
     type: "dark",
   },
-  componentPalette: (shadePalette: ThemeShadePalette) => deepmerge({
+  componentPalette: (shadePalette: ThemeShadePalette) => ({
     text: {
       disabled: shadePalette.greyAlpha(0.5),
       primaryAlert: '#b2c5b5',
@@ -131,6 +104,8 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       digestAdBannerInput: shadePalette.grey[300],
       glossaryBackground: "rgba(180,160,160,.1)",
       sidenoteBackground: "rgba(180,160,160,.1)",
+      translucentBackgroundHeavy: "rgba(0,0,0,.75)",
+      translucentBackground: "rgba(0,0,0,.5)",
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
@@ -217,7 +192,7 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       bannerAdBlurHeavy: 'blur(8px)',
       headerBackdropFilter: 'blur(4px) brightness(1.1)',
     }
-  }, forumComponentPalette(shadePalette)),
+  }),
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     dark: true,
     rawCSS: []
