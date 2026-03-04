@@ -69,7 +69,6 @@ const styles = (theme: ThemeType) => ({
     '--lexical-comment-min-height': `${COLLAPSED_HEIGHT}px`,
     '--lexical-comment-placeholder-top': '25%',
     '--lexical-comment-placeholder-transform': 'translateY(-50%)',
-    '--lexical-comment-placeholder-left': '50px',
     '& .EditorFormComponent-commentEditorHeight [contenteditable="true"]': {
       minHeight: COLLAPSED_HEIGHT,
       maxHeight: COLLAPSED_HEIGHT,

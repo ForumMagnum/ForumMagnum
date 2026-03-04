@@ -157,7 +157,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     margin: 10,
     borderRadius: 5,
     '--lexical-comment-placeholder-top': '10px',
-    '--lexical-comment-placeholder-left': '60px',
+    '--lexical-comment-placeholder-left': '10px',
     '--lexical-comment-min-height': '30px',
   },
   commentInputBoxEditor: {
