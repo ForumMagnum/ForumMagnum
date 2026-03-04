@@ -407,7 +407,7 @@ function $handleInsertInput(
   return true
 }
 
-function $handleInsertParagraph(
+export function $handleInsertParagraph(
   selection: RangeSelection,
   suggestionID: string,
   onSuggestionCreation: (id: string) => void,

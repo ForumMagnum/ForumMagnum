@@ -37,7 +37,7 @@ import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggesti
 import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext'
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND, SET_USER_MODE_COMMAND } from './Commands'
 import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST, QUOTE } from '@lexical/markdown'
-import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, type ListItemNode } from '@lexical/list'
+import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list'
 import { $isEmptyListItemExceptForSuggestions, hasChildComments } from './Utils'
 import { getSuggestionAuthorIdFromComments } from './suggestionPermissions'
 import { useCanRejectSuggestion, useCollaboratorIdentity } from '@/components/lexical/collaboration'
@@ -45,7 +45,7 @@ import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions
 import { randomId } from '@/lib/random'
 import { $acceptSuggestion } from './acceptSuggestion'
 import { $rejectSuggestion } from './rejectSuggestion'
-import { $handleBeforeInputEvent, $handleDeleteInputType, $handleInsertParagraphOnEmptyListItem } from './handleBeforeInputEvent'
+import { $handleBeforeInputEvent, $handleDeleteInputType, $handleInsertParagraph, $handleInsertParagraphOnEmptyListItem } from './handleBeforeInputEvent'
 import { $formatTextAsSuggestion } from './formatTextAsSuggestion'
 import { ConsoleLogger } from '@/lib/vendor/proton/logger'
 import { $selectionInsertClipboardNodes } from './selectionInsertClipboardNodes'
@@ -707,25 +707,16 @@ export function SuggestionModePlugin({
         (event) => {
           // Handle horizontal rule markdown shortcut (---, ***, ___)
           let shouldHandleHR = false
-          let emptyListItem: ListItemNode | null = null
-          
+
           editor.getEditorState().read(() => {
             const selection = $getSelection()
-            
-            // Check for HR shortcut
+
             const paragraphElement = $getTopLevelParagraphForHR(selection)
             if (paragraphElement) {
               const textContent = paragraphElement.getTextContent()
               if (HR.regExp.test(textContent)) {
                 shouldHandleHR = true
-                return
               }
-            }
-            
-            // Check for empty list item
-            if ($isRangeSelection(selection) && selection.isCollapsed()) {
-              const anchorNode = selection.anchor.getNode()
-              emptyListItem = $isEmptyListItemExceptForSuggestions(anchorNode)
             }
           })
 
@@ -748,32 +739,43 @@ export function SuggestionModePlugin({
             return true
           }
 
-          if (emptyListItem) {
-            // Handle Enter on empty list item - convert to paragraph as suggestion
-            const suggestionID = randomId()
-            editor.update(() => {
-              // Re-check inside update since editor state may have changed
-              const selection = $getSelection()
-              if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
-                return
-              }
+          // Handle Enter directly instead of deferring to beforeinput.
+          // On non-Apple browsers, Lexical's @lexical/rich-text KEY_ENTER_COMMAND
+          // handler (at COMMAND_PRIORITY_EDITOR) would call event.preventDefault()
+          // and dispatch INSERT_PARAGRAPH_COMMAND, preventing the beforeinput event
+          // from ever firing and bypassing suggestion mode's paragraph handling.
+          //
+          // We call $handleInsertParagraph directly (not inside editor.update())
+          // to match the execution context of the old BEFOREINPUT_EVENT_COMMAND flow,
+          // where Lexical's deferred reconciliation ensures the empty paragraph gets
+          // a <br> child for proper height.
+          const suggestionID = randomId()
+          const selection = $getSelection()
+          if ($isRangeSelection(selection)) {
+            if (selection.isCollapsed()) {
               const listItem = $isEmptyListItemExceptForSuggestions(selection.anchor.getNode())
-              if (!listItem) {
-                return
+              if (listItem) {
+                $handleInsertParagraphOnEmptyListItem(
+                  listItem,
+                  suggestionID,
+                  addCreatedIDtoSet,
+                  suggestionModeLogger,
+                )
+                event?.preventDefault()
+                return true
               }
-              $handleInsertParagraphOnEmptyListItem(
-                listItem,
-                suggestionID,
-                addCreatedIDtoSet,
-                suggestionModeLogger,
-              )
-            })
+            }
 
-            event?.preventDefault()
-            return true
+            $handleInsertParagraph(
+              selection,
+              suggestionID,
+              addCreatedIDtoSet,
+              suggestionModeLogger,
+            )
           }
 
-          return false
+          event?.preventDefault()
+          return true
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
