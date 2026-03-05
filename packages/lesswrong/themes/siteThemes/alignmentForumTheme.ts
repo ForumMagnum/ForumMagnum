@@ -58,7 +58,16 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       text: dark ? "#ffffff" : "rgba(0,0,0,0.87)",
       background: dark ? "rgba(0,0,0,0.5)" : "#ffffff",
     },
+    ultrafeedModalHeader: {
+      background: dark
+        ? "rgba(255,255,255,.95)"
+        : "rgba(0,0,0,.98)",
+    },
+    ultraFeed: {
+      readBackground: dark ? grey[200] : grey[300],
+    },
     link: {
+      color: "light-dark(#3f51b5,#7581d1)",
       visited: "light-dark(#8c4298,#798754)",
     }
   }),

@@ -76,16 +76,12 @@ declare global {
     680: ColorString,
     710: ColorString,
   }
-  type ThemeComponentPalette = Omit<BaseThemeComponentPalette, "text"|"link"|"background"|"tag"> & {
+  type ThemeComponentPalette = Omit<BaseThemeComponentPalette, "text"|"link"|"tag"> & {
     text: BaseThemeComponentPalette["text"] & {
       contentHeader?: ColorString,
     },
     link: BaseThemeComponentPalette["link"] & {
-      color?: ColorString,
       visitedHover?: ColorString,
-    },
-    background: BaseThemeComponentPalette["background"] & {
-      hover?: ColorString,
     },
     tag: BaseThemeComponentPalette["tag"] & {
       backgroundHover?: ColorString,

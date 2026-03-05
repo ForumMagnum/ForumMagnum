@@ -1,87 +1,7 @@
-import { isBlackBarTitle } from '../../components/seasonal/petrovDay/petrov-day-story/petrovConsts';
-import { grey, inverseGreyAlpha } from '../colorUtil';
-
-const sansSerifStack = [
-  'GreekFallback', // Ensures that greek letters render consistently
-  'Calibri',
-  'gill-sans-nova',
-  '"Gill Sans"',
-  '"Gill Sans MT"',
-  "Myriad Pro",
-  'Myriad',
-  '"Liberation Sans"',
-  '"Nimbus Sans L"',
-  'Tahoma',
-  'Geneva',
-  '"Helvetica Neue"',
-  'Helvetica',
-  'Arial',
-  'sans-serif'
-].join(',')
-
-const serifStackBody = [
-  'warnock-pro',
-  'Palatino',
-  '"Palatino Linotype"',
-  '"Palatino LT STD"',
-  '"Book Antiqua"',
-  'Georgia',
-  'serif'
-]
-
-const serifStack = serifStackBody.join(',')
-const headerStack = ["ETBookRoman", ...serifStackBody].join(',')
+import { headerStack, sansSerifStack, serifStack } from "../defaultPalette";
 
 export const lessWrongTheme: SiteThemeSpecification = {
   componentPalette: (dark: boolean) => ({
-    fonts: {sansSerifStack, serifStack},
-    primary: {
-      main: '#5f9b65',
-    },
-    secondary: {
-      main: '#5f9b65',
-    },
-    lwTertiary: {
-      main: "#69886e",
-      dark: "#21672b"
-    },
-    error: {
-      main: '#bf360c',
-    },
-    header: {
-      background: dark
-        ? "rgba(50,50,50,.75)"
-        : isBlackBarTitle ? inverseGreyAlpha(.1) : inverseGreyAlpha(.65)
-    },
-    ultrafeedModalHeader: {
-      background: dark
-        ? "rgba(50,50,50,.98)"
-        : (isBlackBarTitle
-          ? "rgba(255,255,255,.4)"
-          : "rgba(255,255,255,.95)"
-        )
-    },
-    ultraFeed: {
-      readBackground: dark ? grey[200] : '#ffffffb3',
-      readBackgroundMobile: grey[100],
-      readOpacity: {
-        root: dark ? 1 : 0.9,
-        content: 0.8,
-        rootMobile: 0.9,
-        contentMobile: dark ? 1 : 0.9,
-      },
-    },
-    background: {
-      default: `light-dark(#f8f4ee,#262626)`,
-      hover: '#f0ebe6'
-    },
-    link: {
-      color: "light-dark(#327E09,#788e6a)",
-      visited: "#798754"
-    },
-    fundraisingThermometer: {
-      shadow: '#222',
-    }
   }),
   make: (palette: ThemePalette) => ({
     typography: {
@@ -107,7 +27,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
           fontWeight: 600
         }
       },
-    errorStyle: {
+      errorStyle: {
         color: palette.error.main,
         fontFamily: sansSerifStack
       },

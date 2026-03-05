@@ -86,6 +86,38 @@
 //
 
 import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder, invertIfDarkMode } from "./colorUtil";
+import { isBlackBarTitle } from '../components/seasonal/petrovDay/petrov-day-story/petrovConsts';
+
+export const sansSerifStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
+  'Calibri',
+  'gill-sans-nova',
+  '"Gill Sans"',
+  '"Gill Sans MT"',
+  "Myriad Pro",
+  'Myriad',
+  '"Liberation Sans"',
+  '"Nimbus Sans L"',
+  'Tahoma',
+  'Geneva',
+  '"Helvetica Neue"',
+  'Helvetica',
+  'Arial',
+  'sans-serif'
+].join(',')
+
+const serifStackBody = [
+  'warnock-pro',
+  'Palatino',
+  '"Palatino Linotype"',
+  '"Palatino LT STD"',
+  '"Book Antiqua"',
+  'Georgia',
+  'serif'
+]
+
+export const serifStack = serifStackBody.join(',')
+export const headerStack = ["ETBookRoman", ...serifStackBody].join(',')
 
 export const defaultComponentPalette = (dark: boolean) => ({
   type: dark ? "dark" : "light",
@@ -97,9 +129,8 @@ export const defaultComponentPalette = (dark: boolean) => ({
   greyBorder,
   invertIfDarkMode,
   fonts: {
-    // Every site theme overrides these
-    sansSerifStack: "sans-serif",
-    serifStack: "serif",
+    sansSerifStack,
+    serifStack,
   },
   text: {
     primary: greyAlpha(.87),
@@ -178,8 +209,9 @@ export const defaultComponentPalette = (dark: boolean) => ({
     grey800: grey[800],
     tocLink: grey[600],
     tocLinkHighlighted: grey[1000],
+    color: "light-dark(#327E09,#788e6a)",
     primaryDim: "light-dark(#5caab7,#3a7883)",
-    visited: "light-dark(#bb7c43,#798754)",
+    visited: "#798754",
   },
   linkHover: {
     dim: greyAlpha(.3),
@@ -262,11 +294,12 @@ export const defaultComponentPalette = (dark: boolean) => ({
     eaButtonGreyOutline: "light-dark(#BCC1C9,#5F5F5F)",
   },
   background: {
-    default: dark ? grey[100] : grey[60],
+    default: "light-dark(#f8f4ee,#262626)",
     paper: grey[0], //Used by MUI
     contrastInDarkMode: "light-dark(#ffffff,#f5f5f5)",
     pageActiveAreaBackground: grey[0],
     profilePageBackground: "light-dark(#fcfbf8,#262626)",
+    hover: '#f0ebe6',
     translucentBackground: "light-dark(rgba(255,255,255,.5),rgba(0,0,0,.5))",
     translucentBackgroundHeavy: "light-dark(rgba(255,255,255,.75),rgba(0,0,0,.75))",
     loginBackdrop: "rgba(217,217,217,0.5)",
@@ -509,12 +542,17 @@ export const defaultComponentPalette = (dark: boolean) => ({
   },
   header: {
     text: greyAlpha(.87),
-    background: grey[30],
+    background: dark
+      ? "rgba(50,50,50,.75)"
+      : isBlackBarTitle ? inverseGreyAlpha(.1) : inverseGreyAlpha(.65),
   },
   ultrafeedModalHeader: {
     background: dark
-      ? "rgba(255,255,255,.95)"
-      : "rgba(0,0,0,.98)"
+      ? "rgba(50,50,50,.98)"
+      : (isBlackBarTitle
+        ? "rgba(255,255,255,.4)"
+        : "rgba(255,255,255,.95)"
+      )
   },
   datePicker: {
     selectedDate: "#428bca",
@@ -668,7 +706,7 @@ export const defaultComponentPalette = (dark: boolean) => ({
     cardSeparator: dark
       ? `12px solid ${greyAlpha(0.15)}`
       : `12px solid ${greyAlpha(0.005)}`,
-    readBackground: dark ? grey[200] : grey[300],
+    readBackground: dark ? grey[200] : '#ffffffb3',
     readBackgroundMobile: grey[100],
     readOpacity: {
       root: dark ? 1 : 0.7,
