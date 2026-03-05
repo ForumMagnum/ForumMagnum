@@ -5,9 +5,9 @@ import type { PartialDeep } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
 import type { ZIndexMap } from './zIndexes';
-import type { JssStyles } from '@/lib/jssStyles';
 import { userThemeNames, userThemeSettings, ThemeOptions } from './themeNames';
 import type { defaultComponentPalette } from './defaultPalette';
+import type { defaultBorderRadius, defaultTypography } from './createThemeDefaults';
 
 type WidenLiteral<T> =
   T extends string ? string :
@@ -23,6 +23,8 @@ type DeepWiden<T> =
 
 type InferredThemeComponentPalette = ReturnType<typeof defaultComponentPalette>;
 type BaseThemeComponentPalette = DeepWiden<InferredThemeComponentPalette>;
+type ThemeBorderRadius = DeepWiden<ReturnType<typeof defaultBorderRadius>>;
+type ThemeTypography = DeepWiden<ReturnType<typeof defaultTypography>>;
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"
@@ -116,56 +118,9 @@ declare global {
     spacing: {
       mainLayoutPaddingTop: number,
     },
-    borderRadius: {
-      default: number,
-      small: number,
-      quickTakesEntry: number,
-    },
+    borderRadius: ThemeBorderRadius,
     palette: ThemePalette,
-    typography: {
-      fontFamily: string,
-      cloudinaryFont: {
-        stack: string,
-        url: string,
-      },
-
-      postStyle: JssStyles,
-      commentStyle: JssStyles,
-      ultraFeedMobileStyle: JssStyles,
-      commentBlockquote: JssStyles,
-      commentHeader: JssStyles,
-      errorStyle: JssStyles,
-      title: JssStyles,
-      subtitle: JssStyles,
-      li: JssStyles,
-      display0: JssStyles,
-      display1: JssStyles,
-      display2: JssStyles,
-      display3: JssStyles,
-      display4: JssStyles,
-      postsItemTitle: JssStyles,
-      chapterTitle: JssStyles,
-      largeChapterTitle: JssStyles,
-      body1: JssStyles,
-      body2: JssStyles,
-      headline: JssStyles,
-      subheading: JssStyles,
-      headerStyle: JssStyles,
-      code: JssStyles,
-      codeblock: JssStyles,
-      contentNotice: JssStyles,
-      uiSecondary: JssStyles,
-      smallText: JssStyles,
-      tinyText: JssStyles,
-      caption: JssStyles,
-      button: JssStyles,
-      blockquote: JssStyles,
-      italic: JssStyles,
-      smallCaps: JssStyles,
-      
-      /** @deprecated */
-      pxToRem: (px: number) => string
-    },
+    typography: ThemeTypography,
     zIndexes: ZIndexMap,
     overrides: any,
     

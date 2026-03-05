@@ -215,9 +215,6 @@ export const eaForumTheme: SiteThemeSpecification = {
           fontWeight: 500,
           lineHeight: '1.25em'
         },
-        uiSecondary: {
-          sansSerifStack
-        },
         chapterTitle: {
           fontStyle: "unset",
           textTransform: "unset",

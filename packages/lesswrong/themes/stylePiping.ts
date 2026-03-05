@@ -18,7 +18,7 @@ const spoilerStyles = (theme: ThemeType) => ({
   '& .spoiler': {
     padding: 8,
     pointerEvents: 'auto',
-    minHeight: theme.typography.commentStyle.fontSize,
+    minHeight: 15,
     '&:not(:hover)': { // using ':not(:hover)' means we don't need to manually reset elements with special colors or backgrounds, instead they just automatically stay the same if we're not hovering
       ...hideSpoilers(theme),
     }

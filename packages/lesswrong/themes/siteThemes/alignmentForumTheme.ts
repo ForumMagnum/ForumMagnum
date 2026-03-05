@@ -84,12 +84,14 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       commentStyle: {
         fontFamily: sansSerifStack,
         fontVariantNumeric: "lining-nums",
+        '& b, & strong': undefined,
       },
       errorStyle: {
         color: palette.error!.main!,
         fontFamily: sansSerifStack
       },
       title: {
+        fontFamily: sansSerifStack,
         fontWeight: 500,
       },
       display2: {
@@ -101,8 +103,6 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       uiSecondary: {
         fontFamily: sansSerifStack,
       },
-    },
-    overrides: {
     },
 
     isBookUI: true,
