@@ -173,7 +173,7 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
   if (bundleIsServer) {
     const injectHTML = useInjectHTML();
     const ssrCache = useSsrQueryCache();
-    const resolverContext = useSSRResolverContext();
+    const ssrQueryRuntimeContext = useSSRResolverContext();
 
     if (debugSuspenseBoundaries) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -207,7 +207,7 @@ export const useQuery: typeof useQueryApollo = ((query: any, options?: UseQueryO
       // apollo-client to look for fields in the wrong place and return
       //  incorrect empty objects.
       const transformedQuery = addTypenameToDocument(query);
-      const result = await runQuery(transformedQuery, variables, resolverContext);
+      const result = await runQuery(transformedQuery, variables, ssrQueryRuntimeContext);
 
       const payloadData = ((result as any)?.data ?? null) as JsonValue;
       injectQueryResult(injectHTML, injectedKey, payloadData, ssrCache);
@@ -382,7 +382,7 @@ export const useBackgroundQuery: typeof useBackgroundQueryApollo = ((query: any,
   if (bundleIsServer) {
     const injectHTML = useInjectHTML();
     const ssrCache = useSsrQueryCache();
-    const resolverContext = useSSRResolverContext();
+    const ssrQueryRuntimeContext = useSSRResolverContext();
 
     const isNoSSR = (options && 'ssr' in options && !options.ssr);
     const isSkipped = options?.skip || isNoSSR;
@@ -400,7 +400,7 @@ export const useBackgroundQuery: typeof useBackgroundQueryApollo = ((query: any,
       const queryPromise = existingPromise ?? (async () => {
         const { runQuery } = await import("@/server/vulcan-lib/query");
         const transformedQuery = addTypenameToDocument(query);
-        const result = await runQuery(transformedQuery, variables, resolverContext);
+        const result = await runQuery(transformedQuery, variables, ssrQueryRuntimeContext);
 
         const payloadData = ((result as any)?.data ?? null) as JsonValue;
         injectQueryResult(injectHTML, injectedKey, payloadData, ssrCache);

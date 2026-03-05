@@ -7,7 +7,8 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from 'next/navigation';
 import { getRequestIdForServerComponentOrGenerateMetadata } from '../rendering/requestId';
-import { getResolverContextForSSR } from '@/server/rendering/ssrApolloClient';
+import { getSSRQueryRuntimeForSSR } from '@/server/rendering/ssrApolloClient';
+import type { SSRQueryRuntimeContext } from '@/lib/crud/ssrQueryRuntimeContext';
 
 const IGNORED_ERROR_MESSAGES = new Set(['app.operation_not_allowed', 'app.missing_document']);
 
@@ -148,9 +149,9 @@ export function handleMetadataError(prefix: string, error: unknown) {
 /**
  * Get a ResolverContext for use during metadata generation, given search params from the URL.
  */
-export async function getResolverContextForGenerateMetadata(searchParams: Record<string, string>): Promise<ResolverContext> {
+export async function getResolverContextForGenerateMetadata(searchParams: Record<string, string>): Promise<SSRQueryRuntimeContext> {
   const requestId = await getRequestIdForServerComponentOrGenerateMetadata();
   const searchParamsStr = JSON.stringify(searchParams);
-  return await getResolverContextForSSR(searchParamsStr, requestId);
+  return await getSSRQueryRuntimeForSSR(searchParamsStr, requestId);
 }
 

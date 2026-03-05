@@ -8,6 +8,7 @@ import { createAnonymousContext } from './createContexts';
 import { ResultOf, TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { EmailContextType } from '../emailComponents/emailContext';
 import type { OperationVariables } from '@apollo/client';
+import { isSSRQueryRuntimeContext, type SSRQueryRuntimeContext } from '@/lib/crud/ssrQueryRuntimeContext';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
@@ -26,16 +27,15 @@ export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[]) => void
     onGraphQLError = writeGraphQLErrorToStderr;
 }
 
-// note: if no context is passed, default to running requests with full admin privileges
-export const runQuery = async <TData extends Record<string, any>, TVariables extends OperationVariables>(query: string | TypedDocumentNode<TData, TVariables>, variables: TVariables = {} as TVariables, context?: Partial<ResolverContext>) => {
+async function executeLocalQuery<TData extends Record<string, any>, TVariables extends OperationVariables>(
+  stringQuery: string,
+  variables: TVariables,
+  context?: Partial<ResolverContext>,
+): Promise<ExecutionResult<ResultOf<TypedDocumentNode<TData, TVariables>>>> {
   const { getExecutableSchema } = await import('./apollo-server/initGraphQL');
 
   const executableSchema = getExecutableSchema();
   const queryContext = createAnonymousContext(context);
-
-  const stringQuery = typeof query === 'string'
-    ? query
-    : print(query)
 
   // see http://graphql.org/graphql-js/graphql/#graphql
   const result = await graphql({
@@ -45,6 +45,42 @@ export const runQuery = async <TData extends Record<string, any>, TVariables ext
     contextValue: queryContext,
     variableValues: variables,
   }) as ExecutionResult<ResultOf<TypedDocumentNode<TData, TVariables>>>;
+  return result;
+}
+
+async function executeWorkerQuery<TData extends Record<string, any>, TVariables extends OperationVariables>(
+  querySource: string,
+  variables: TVariables,
+  runtimeContext: SSRQueryRuntimeContext,
+): Promise<ExecutionResult<ResultOf<TypedDocumentNode<TData, TVariables>>>> {
+  const { executeSSRWorkerQuery, getFallbackResolverContextForSSR, recordSSRWorkerFallback } = await import('@/server/rendering/ssrApolloClient');
+  try {
+    return await executeSSRWorkerQuery({
+      requestId: runtimeContext.requestId,
+      querySource,
+      variables: variables as Record<string, unknown>,
+    }) as ExecutionResult<ResultOf<TypedDocumentNode<TData, TVariables>>>;
+  } catch (error) {
+    await recordSSRWorkerFallback();
+    const fallbackResolverContext = runtimeContext.resolverContext
+      ?? await getFallbackResolverContextForSSR(runtimeContext.requestId);
+    return await executeLocalQuery<TData, TVariables>(querySource, variables, fallbackResolverContext);
+  }
+}
+
+// note: if no context is passed, default to running requests with full admin privileges
+export const runQuery = async <TData extends Record<string, any>, TVariables extends OperationVariables>(
+  query: string | TypedDocumentNode<TData, TVariables>,
+  variables: TVariables = {} as TVariables,
+  context?: Partial<ResolverContext> | SSRQueryRuntimeContext,
+) => {
+  const stringQuery = typeof query === 'string'
+    ? query
+    : print(query);
+
+  const result = isSSRQueryRuntimeContext(context)
+    ? await executeWorkerQuery<TData, TVariables>(stringQuery, variables, context)
+    : await executeLocalQuery<TData, TVariables>(stringQuery, variables, context);
 
   if (result.errors) {
     onGraphQLError(result.errors);

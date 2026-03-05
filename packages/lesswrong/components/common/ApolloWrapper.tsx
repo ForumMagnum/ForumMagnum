@@ -10,6 +10,7 @@ import {
 import { ApolloNextAppProvider } from "@/lib/vendor/@apollo/client-integration-nextjs/ApolloNextAppProvider";
 import { SsrQueryCacheProvider } from "@/lib/crud/ssrQueryCache";
 import { SSRResolverContext } from "@/lib/crud/ssrResolverContext";
+import type { SSRQueryRuntimeContext } from "@/lib/crud/ssrQueryRuntimeContext";
 import { disableFragmentWarnings } from "graphql-tag";
 import { HTMLInjector } from '../hooks/useInjectHTML';
 
@@ -20,14 +21,14 @@ import { HTMLInjector } from '../hooks/useInjectHTML';
 // Disabling the warnings should basically be harmless as long as they're still enabled in the codegen context.
 disableFragmentWarnings();
 
-const makeApolloClientForServer = async (searchParamsStr: string, requestId: string): Promise<{ client: ApolloClient, context: ResolverContext }> => {
+const makeApolloClientForServer = async (searchParamsStr: string, requestId: string): Promise<{ client: ApolloClient, context: SSRQueryRuntimeContext }> => {
   if (!isServer) {
     throw new Error("Not server");
   }
 
-  const { getResolverContextForSSR, getApolloClientForSSRWithContext } = await import('@/server/rendering/ssrApolloClient');
-  const context = await getResolverContextForSSR(searchParamsStr, requestId);
-  const client = await getApolloClientForSSRWithContext(context);
+  const { getSSRQueryRuntimeForSSR, getApolloClientForSSRRuntime } = await import('@/server/rendering/ssrApolloClient');
+  const context = await getSSRQueryRuntimeForSSR(searchParamsStr, requestId);
+  const client = await getApolloClientForSSRRuntime(context);
   return { client, context };
 }
 
@@ -112,7 +113,7 @@ const ApolloWrapperServer = ({ searchParamsStr, requestId, children }: React.Pro
 }
 
 const ApolloWrapperServerAsync = React.memo(({ clientAndContextPromise, children }: {
-  clientAndContextPromise: Promise<{ client: ApolloClient, context: ResolverContext }>
+  clientAndContextPromise: Promise<{ client: ApolloClient, context: SSRQueryRuntimeContext }>
   children: React.ReactNode
 }) => {
   const { client, context } = use(clientAndContextPromise);
