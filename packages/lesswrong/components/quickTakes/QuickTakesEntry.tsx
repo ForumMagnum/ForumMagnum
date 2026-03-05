@@ -160,15 +160,6 @@ const QuickTakesEntry = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // TODO: The editor is currently pretty messed up if the user has enabled
-  // the markdown editor in their user settings, unless we're positioning the
-  // submit button at the bottom. For now, we just disable the editor in this
-  // case but we probably want to fix this properly in the long run. This is a
-  // pretty small percentage of users, so seems ~fine.
-  if (currentUser?.markDownPostEditor && !submitButtonAtBottom) {
-    return null;
-  }
-
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
   const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI();
   return <div className={classNames(classes.root, className)} ref={ref}>
