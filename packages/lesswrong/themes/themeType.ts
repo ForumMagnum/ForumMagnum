@@ -62,6 +62,9 @@ declare global {
   }
   type ThemeShadePalette = {
     dark: boolean,
+    type: "light"|"dark",
+  }
+  type ThemeComponentPalette = {
     grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
@@ -69,15 +72,10 @@ declare global {
     boxShadowColor: (alpha: number) => ColorString,
     greyBorder: (thickness: string, alpha: number) => string,
     invertIfDarkMode: (color: string) => string,
-    
     fonts: {
       sansSerifStack: string,
       serifStack: string,
     },
-    
-    type: "light"|"dark",
-  }
-  type ThemeComponentPalette = {
     primary: {
       main: ColorString,
       light: ColorString,

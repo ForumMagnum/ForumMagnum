@@ -1,4 +1,5 @@
 import { isBlackBarTitle } from '../../components/seasonal/petrovDay/petrov-day-story/petrovConsts';
+import { grey, inverseGreyAlpha } from '../colorUtil';
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -32,10 +33,8 @@ const serifStack = serifStackBody.join(',')
 const headerStack = ["ETBookRoman", ...serifStackBody].join(',')
 
 export const lessWrongTheme: SiteThemeSpecification = {
-  shadePalette: {
+  componentPalette: ({dark}: ThemeShadePalette) => ({
     fonts: {sansSerifStack, serifStack},
-  },
-  componentPalette: (shadePalette: ThemeShadePalette) => ({
     primary: {
       main: '#5f9b65',
     },
@@ -50,12 +49,12 @@ export const lessWrongTheme: SiteThemeSpecification = {
       main: '#bf360c',
     },
     header: {
-      background: shadePalette.dark
+      background: dark
         ? "rgba(50,50,50,.75)"
-        : isBlackBarTitle ? shadePalette.inverseGreyAlpha(.1) : shadePalette.inverseGreyAlpha(.65)
+        : isBlackBarTitle ? inverseGreyAlpha(.1) : inverseGreyAlpha(.65)
     },
     ultrafeedModalHeader: {
-      background: shadePalette.dark
+      background: dark
         ? "rgba(50,50,50,.98)"
         : (isBlackBarTitle
           ? "rgba(255,255,255,.4)"
@@ -63,13 +62,13 @@ export const lessWrongTheme: SiteThemeSpecification = {
         )
     },
     ultraFeed: {
-      readBackground: shadePalette.dark ? shadePalette.grey[200] : '#ffffffb3',
-      readBackgroundMobile: shadePalette.grey[100],
+      readBackground: dark ? grey[200] : '#ffffffb3',
+      readBackgroundMobile: grey[100],
       readOpacity: {
-        root: shadePalette.dark ? 1 : 0.9,
+        root: dark ? 1 : 0.9,
         content: 0.8,
         rootMobile: 0.9,
-        contentMobile: shadePalette.dark ? 1 : 0.9,
+        contentMobile: dark ? 1 : 0.9,
       },
     },
     background: {
