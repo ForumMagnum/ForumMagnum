@@ -27,10 +27,7 @@ const colorReplacementsCache = getManualColorReplacements();
 export const getColorReplacementsCache = (): Record<string,string> => colorReplacementsCache;
 
 export const getDarkModeTheme = (): UserThemeSpecification => ({
-  shadePalette: {
-    dark: true,
-    type: "dark",
-  },
+  dark: true,
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     dark: true,
     rawCSS: []

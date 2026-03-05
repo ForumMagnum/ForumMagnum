@@ -60,11 +60,8 @@ declare global {
     680: ColorString,
     710: ColorString,
   }
-  type ThemeShadePalette = {
-    dark: boolean,
-    type: "light"|"dark",
-  }
   type ThemeComponentPalette = {
+    type: "light"|"dark",
     grey: ThemeGreyscale,
     greyAlpha: (alpha: number) => ColorString,
     inverseGreyAlpha: (alpha: number) => ColorString,
@@ -634,9 +631,7 @@ declare global {
       },
     }
   };
-  type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette> & {
-    shadePalette: ThemeShadePalette
-  }
+  type ThemePalette = ThemeComponentPalette
   
   type ForumTypeFlags = {
     isBookUI: boolean,
@@ -736,18 +731,16 @@ declare global {
   type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };
   
   type BaseThemeSpecification = {
-    shadePalette: ThemeShadePalette,
-    componentPalette: (shadePalette: ThemeShadePalette) => ThemeComponentPalette,
+    componentPalette: (dark: boolean) => ThemeComponentPalette,
     make: (palette: ThemePalette) => NativeThemeType
   };
   type SiteThemeSpecification = {
-    shadePalette?: PartialDeep<ThemeShadePalette>,
-    componentPalette?: (shadePalette: ThemeShadePalette) => PartialDeep<ThemeComponentPalette>,
+    componentPalette?: (dark: boolean) => PartialDeep<ThemeComponentPalette>,
     make?: (palette: ThemePalette) => PartialDeep<NativeThemeType>
   };
   type UserThemeSpecification = {
-    shadePalette?: PartialDeep<ThemeShadePalette>,
-    componentPalette?: (shadePalette: ThemeShadePalette) => PartialDeep<ThemeComponentPalette>,
+    dark?: boolean,
+    componentPalette?: (dark: boolean) => PartialDeep<ThemeComponentPalette>,
     make?: (palette: ThemePalette) => PartialDeep<NativeThemeType>
   };
 }

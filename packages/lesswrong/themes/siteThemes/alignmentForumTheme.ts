@@ -23,7 +23,7 @@ const sansSerifStack = [
 ].join(',')
 
 export const alignmentForumTheme: SiteThemeSpecification = {
-  componentPalette: ({dark}: ThemeShadePalette) => ({
+  componentPalette: (dark: boolean) => ({
     fonts: {
       sansSerifStack,
       serifStack: sansSerifStack, //No serifs on Alignment Forum

@@ -7,10 +7,7 @@
 // between LessWrong, EA Forum, Alignment Forum, Progress Studies Forum, and
 // whatever other sites share the codebase.
 //
-// The palette is constructed in two parts: the shade palette
-// (ThemeShadePalette) and the component palette (ThemeComponentPalette). Colors
-// in the component palette may depend on colors/functions in the shade palette
-// (but not vise versa). These are merged together to create the overall theme.
+// Helper color functions are defined in `colorUtil.ts`.
 //
 // When to Use the Palette
 // =======================
@@ -90,14 +87,8 @@
 
 import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder, invertIfDarkMode } from "./colorUtil";
 
-export const defaultShadePalette = (): ThemeShadePalette => {
-  return {
-    dark: false,
-    type: "light",
-  }
-}
-
-export const defaultComponentPalette = ({dark}: ThemeShadePalette): ThemeComponentPalette => ({
+export const defaultComponentPalette = (dark: boolean): ThemeComponentPalette => ({
+  type: dark ? "dark" : "light",
   grey,
   greyAlpha,
   inverseGreyAlpha,

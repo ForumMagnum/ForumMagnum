@@ -1,5 +1,5 @@
 import transitions from '@/lib/vendor/@material-ui/core/src/styles/transitions';
-import { defaultShadePalette, defaultComponentPalette } from './defaultPalette';
+import { defaultComponentPalette } from './defaultPalette';
 import { defaultZIndexes } from "./zIndexes";
 import { isBookUI, isFriendlyUI } from './forumTheme';
 import { isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
@@ -19,8 +19,7 @@ const monoStack = [
 const titleDividerSpacing = 20
 
 export const baseTheme: BaseThemeSpecification = {
-  shadePalette: defaultShadePalette(),
-  componentPalette: (shadePalette: ThemeShadePalette) => defaultComponentPalette(shadePalette),
+  componentPalette: (dark: boolean) => defaultComponentPalette(dark),
   make: (palette: ThemePalette): NativeThemeType => {
     const spacingUnit = 8
   

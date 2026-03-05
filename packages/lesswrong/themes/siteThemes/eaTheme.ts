@@ -28,7 +28,7 @@ const sansSerifStack = [
 ].join(',')
 
 export const eaForumTheme: SiteThemeSpecification = {
-  componentPalette: ({dark}: ThemeShadePalette) => ({
+  componentPalette: (dark: boolean) => ({
     fonts: {sansSerifStack, serifStack},
     primaryAlpha: (alpha: number) => `rgba(12, 134, 155,${alpha})`,
     primary: {
