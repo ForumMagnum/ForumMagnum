@@ -111,6 +111,7 @@ import CalendlyPlugin from './embeds/CalendlyEmbed/CalendlyPlugin';
 import LWArtifactsPlugin from './embeds/LWArtifactsEmbed/LWArtifactsPlugin';
 import ContentEditable from './ui/ContentEditable';
 import { FootnotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnotesPlugin';
+import { FootnoteSidenotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnoteSidenotesPlugin';
 import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import LLMContentBlockPlugin from '../editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
@@ -978,6 +979,7 @@ export default function Editor({
             <PageBreakPlugin />
             <LayoutPlugin />
             <FootnotesPlugin />
+            <FootnoteSidenotesPlugin contentStyleType={isCommentEditor ? 'comment' : 'postHighlight'} />
             <MentionsPlugin />
             <SpoilersPlugin isSuggestionMode={isSuggestionMode} />
             <LLMContentBlockPlugin isSuggestionMode={isSuggestionMode} />
