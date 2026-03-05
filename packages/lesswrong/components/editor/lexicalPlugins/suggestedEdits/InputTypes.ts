@@ -23,7 +23,10 @@ export const InsertionInputTypes = [
   'insertReplacementText',
   'insertFromComposition',
   'insertLineBreak',
-  'insertParagraph',
+  // Note: 'insertParagraph' is intentionally omitted here. Enter key handling
+  // (which produces 'insertParagraph' beforeinput events) is handled directly
+  // in SuggestionModePlugin's KEY_ENTER_COMMAND handler at CRITICAL priority,
+  // which prevents the beforeinput event from ever firing.
   'insertFromPaste',
   'insertFromPasteAsQuotation',
 ]

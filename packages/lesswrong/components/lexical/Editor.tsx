@@ -387,6 +387,35 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       background: theme.palette.background.diffInserted,
       height: '26px',
     },
+    // Split suggestion: show two horizontal lines stretching from the end
+    // of the text to the right edge of the paragraph, indicating where the
+    // paragraph break will be inserted. The padding/margin overflow trick
+    // extends the inline element visually while the parent clips it.
+    '& p:has(> ins.split), & p:has(> ins.join)': {
+      overflow: 'hidden',
+    },
+    '& ins.split, & ins.join': {
+      display: 'inline-block',
+      position: 'relative',
+      height: '1lh',
+      verticalAlign: 'top',
+      paddingRight: '9999px',
+      marginRight: '-9999px',
+      borderTop: `2px solid ${theme.palette.background.diffInserted}`,
+      borderBottom: `2px solid ${theme.palette.background.diffInserted}`,
+      background: 'transparent',
+    },
+    '& ins.join::before': {
+      // pilcrow ("paragraph" character)
+      content: '"\u00B6"',
+      position: 'absolute',
+      left: 0,
+      top: '50%',
+      transform: 'translateY(-59%)',
+      textDecoration: 'line-through',
+      fontFamily: theme.typography.fontFamily,
+      color: theme.palette.background.diffInserted,
+    },
     '& li:has(> ins.block-type-change.target-bullet), & li:has(> ins.block-type-change.target-number), & li:has(> ins.block-type-change.target-check)': {
       background: theme.palette.background.diffInserted,
       '&::marker': {
