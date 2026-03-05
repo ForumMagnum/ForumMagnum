@@ -10,7 +10,7 @@ const PostsEditPage = () => {
   const version = query.version;
   
   return <div>
-    <PostsEditForm documentId={postId} version={version} useMultiToCLayout />
+    <PostsEditForm documentId={postId} version={version} />
   </div>
 }
 

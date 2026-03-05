@@ -4,7 +4,6 @@ import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere,
 import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
-import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';
@@ -30,6 +29,7 @@ import { usePathname } from 'next/navigation';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
 import { hasSidenotes } from '@/lib/betas';
 import {
+  SHARE_POPUP_QUERY_PARAM,
   CENTRAL_COLUMN_WIDTH,
   RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
   RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
@@ -147,10 +147,9 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   },
 }))
 
-const PostsEditFormInner = ({ documentId, version, useMultiToCLayout = false }: {
+const PostsEditFormInner = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
-  useMultiToCLayout?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { query } = useLocation();
@@ -233,7 +232,7 @@ const PostsEditFormInner = ({ documentId, version, useMultiToCLayout = false }: 
   return (<>
     <StatusCodeSetter status={200}/>
     <SideItemsContainer>
-    <DynamicTableOfContents title={document.title} rightColumnChildren={rightColumnChildren} useMultiToCLayout={useMultiToCLayout}>
+    <DynamicTableOfContents title={document.title} rightColumnChildren={rightColumnChildren}>
       <div className={classes.postForm}>
         {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
@@ -276,10 +275,9 @@ const PostsEditFormInner = ({ documentId, version, useMultiToCLayout = false }: 
   </>);
 }
 
-const PostsEditForm = ({ documentId, version, useMultiToCLayout = false }: {
+const PostsEditForm = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
-  useMultiToCLayout?: boolean,
 }) => {
   // HACK: key PostsEditForm with usePathname, so that when you navigate off of
   // /editPost and then return, no state belonging to PostsEditFormInner will be
@@ -290,7 +288,7 @@ const PostsEditForm = ({ documentId, version, useMultiToCLayout = false }: {
   // return a stale value on its first render. (This is a bug in the interaction
   // between apollo-client and nextjs 16.)
   const pathname = usePathname();
-  return <PostsEditFormInner documentId={documentId} version={version} useMultiToCLayout={useMultiToCLayout} key={pathname}/>
+  return <PostsEditFormInner documentId={documentId} version={version} key={pathname}/>
 }
 
 export default PostsEditForm;
