@@ -71,6 +71,13 @@ anyone unless the user is asking you to give that person permission to edit
 the post. Once you have the post URL, read the post at:
     GET /api/editPost?postId=[id]&key=[linkSharingKey] (even if the user-provided URL uses the /collaborateOnPost route)
 
+When making POST requests to these endpoints, pipe the JSON body from a heredoc
+to avoid shell escaping issues (some environments mangle characters like ! in
+inline curl -d arguments):
+    cat <<'EOF' | curl -X POST https://${hostname}/api/agent/commentOnDraft -H 'Content-Type: application/json' -d @-
+    { "postId": "...", "key": "...", "comment": "..." }
+    EOF
+
 To add add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
     with JSON body: { postId, key, agentName?, quote?, comment }
