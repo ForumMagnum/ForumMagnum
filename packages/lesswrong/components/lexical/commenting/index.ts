@@ -17,7 +17,6 @@ import {
   YArrayEvent,
   YMapEvent,
   YEvent,
-  Doc,
 } from 'yjs';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
 import { TupleSet } from '@/lib/utils/typeGuardUtils';
@@ -389,9 +388,7 @@ export class CommentStore {
   _withRemoteTransaction(fn: () => void): void {
     const provider = this._collabProvider;
     if (provider !== null) {
-      // @ts-expect-error doc does exist
-      const doc = provider.doc;
-      doc.transact(fn, this);
+      provider.document.transact(fn, this);
     }
   }
 
@@ -408,9 +405,7 @@ export class CommentStore {
   _getCollabComments(): null | YArray<any> {
     const provider = this._collabProvider;
     if (provider !== null) {
-      // @ts-expect-error doc does exist
-      const doc: Doc = provider.doc;
-      return doc.get('comments', YArray);
+      return provider.document.get('comments', YArray);
     }
     return null;
   }
