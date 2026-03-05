@@ -51,6 +51,9 @@ export const styles = (theme: ThemeType) => ({
   sectionTitle: {
     fontSize: 12,
   },
+  plainEditorContentStyles: {
+    marginTop: 0,
+  },
   markdownEditor: {
     fontSize: "inherit",
     fontFamily: "inherit",
@@ -743,7 +746,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const value = contents.value || "";
     return <div>
       { this.renderPlaceholder(!value, false) }
-      <ContentStyles contentType={contentType}  className={classNames({[classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle})}>
+      <ContentStyles contentType={contentType} className={classNames(classes.plainEditorContentStyles, {
+        [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle
+      })}>
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles, [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle}
           )}
