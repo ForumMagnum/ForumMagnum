@@ -158,10 +158,6 @@ function tagNameIsBoldedAnywhere(html: string, rawTagName: string): boolean {
 /* from the main description.
 */
 const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] }) => {
-  if (isFriendlyUI()) {
-    return false;
-  }
-
   const tooltipText = tag.summaries?.[0]?.contents?.html ?? getTagDescriptionHtmlHighlight(tag);
   if (!tooltipText) {
     return true;

@@ -12,7 +12,6 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, hasProminentLogoSetting } from '@/lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { useLocation } from '../../lib/routeUtil';
 import SearchBar from "@/components/common/SearchBar";
 import UsersMenu from "../users/UsersMenu";
@@ -25,10 +24,7 @@ import HeaderSubtitle from "@/components/common/HeaderSubtitle";
 import { Typography } from "@/components/common/Typography";
 import ForumIcon from "@/components/common/ForumIcon";
 import SiteLogo from "../ea-forum/SiteLogo";
-import MessagesMenuButton from "../messaging/MessagesMenuButton";
-import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { isHomeRoute } from '@/lib/routeChecks';
-import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from "../notifications/NotificationsMenu";
 import { IsLlmChatSidebarOpenContext } from './Layout';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
@@ -45,9 +41,9 @@ import { gql } from '@/lib/generated/gql-codegen';
 export const FUNDRAISER_BANNER_HEIGHT = 34;
 export const FUNDRAISER_BANNER_HEIGHT_MOBILE = 32;
 /** Height of top header (without fundraiser banner). On Book UI sites, this is for desktop only */
-const getHeaderHeight = () => isBookUI() ? 64 : 66;
+const getHeaderHeight = () => 64;
 /** Height of top header on mobile (without fundraiser banner). On Friendly UI sites, this is the same as the HEADER_HEIGHT */
-const getMobileHeaderHeight = () => isBookUI() ? 56 : 66;
+const getMobileHeaderHeight = () => 56;
 
 
 const textColorOverrideStyles = ({
@@ -134,28 +130,23 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.text.bannerAdOverlay,
 
-    ...(forumSelect({
-      LWAF: (theme.dark
-        ? {
-          background: theme.palette.panelBackground.bannerAdTranslucent,
-          backdropFilter: 'blur(4px) brightness(1.1)',
-          "&$blackBackgroundAppBar": {
-            boxShadow: theme.palette.boxShadow.appBarDarkBackground,
-            background: theme.palette.panelBackground.appBarDarkBackground,
-          },
-        } : {
-          backgroundColor: theme.palette.header.background,
-          backdropFilter: 'blur(4px)',
-          "&$blackBackgroundAppBar": {
-            boxShadow: theme.palette.boxShadow.appBar,
-            background: theme.palette.header.background,
-          },
-        }
-      ) as any,
-      default: {
+    ...(theme.dark
+      ? {
+        background: theme.palette.panelBackground.bannerAdTranslucent,
+        backdropFilter: 'blur(4px) brightness(1.1)',
+        "&$blackBackgroundAppBar": {
+          boxShadow: theme.palette.boxShadow.appBarDarkBackground,
+          background: theme.palette.panelBackground.appBarDarkBackground,
+        },
+      } : {
         backgroundColor: theme.palette.header.background,
-      },
-    })),
+        backdropFilter: 'blur(4px)',
+        "&$blackBackgroundAppBar": {
+          boxShadow: theme.palette.boxShadow.appBar,
+          background: theme.palette.header.background,
+        },
+      }
+    ),
     position: "static",
     width: "100%",
     display: "flex",
@@ -163,17 +154,6 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     boxSizing: "border-box",
     flexShrink: 0,
     flexDirection: "column",
-    ...(theme.isFriendlyUI ? {
-      maxWidth: "100vw",
-      overflow: "hidden",
-      padding: '1px 20px',
-      [theme.breakpoints.down('sm')]: {
-        padding: '1px 11px',
-      },
-      [theme.breakpoints.down('xs')]: {
-        padding: '9px 11px',
-      },
-    } : {}),
   },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
@@ -206,7 +186,7 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     flex: 1,
     position: "relative",
     top: 3,
-    paddingRight: theme.spacing.unit,
+    paddingRight: 8,
     color: theme.palette.text.secondary,
   },
   titleLink: {
@@ -218,16 +198,15 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     },
     display: 'flex',
     alignItems: 'center',
-    fontWeight: theme.isFriendlyUI ? 400 : undefined,
-    height: theme.isFriendlyUI ? undefined : '19px',
+    height: '19px',
     
     ...(theme.isAF && {
       top: 0,
     }),
   },
   menuButton: {
-    marginLeft: -theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: -8,
+    marginRight: 8,
   },
   icon: {
     width: 24,
@@ -267,10 +246,9 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     },
   },
   rightHeaderItems: {
-    marginRight: -theme.spacing.unit,
+    marginRight: -8,
     marginLeft: "auto",
     display: "flex",
-    alignItems: theme.isFriendlyUI ? 'center' : undefined,
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
@@ -381,7 +359,6 @@ const Header = ({
   const getCurrentUser = useGetCurrentUser();
   const currentUserId = useCurrentUserId();
   const isLoggedIn = !!currentUserId;
-  const usernameUnset = useFilteredCurrentUser(u => !!u?.usernameUnset);
   const toc = useGetToC();
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
@@ -413,9 +390,6 @@ const Header = ({
       setUnFixed(true);
     }
   }, [pathname, hash]);
-
-  const hasKarmaChangeNotifier = !isFriendlyUI() && isLoggedIn && !usernameUnset;
-  const hasMessagesButton = isFriendlyUI() && isLoggedIn && !usernameUnset;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -511,39 +485,29 @@ const Header = ({
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isFriendlyUI() && !hideNavigationSidebar)
-          ? <ForumIcon icon="CloseMenu" className={classes.icon} />
-          : <ForumIcon icon="Menu" className={classes.icon} />}
+        <ForumIcon icon="Menu" className={classes.icon} />
       </IconButton>}
     </React.Fragment>
   )
 
-  const usersMenuClass = isFriendlyUI() ? classes.hideXsDown : classes.hideMdDown
-  const usersMenuNode = isLoggedIn && <div className={searchOpen ? usersMenuClass : undefined}>
-    <AnalyticsContext pageSectionContext="usersMenu">
-      <UsersMenu />
-    </AnalyticsContext>
-  </div>
-
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-    {!isFriendlyUI() && usersMenuNode}
+
     {!isLoggedIn && <LWUsersAccountMenu />}
-    {hasKarmaChangeNotifier && <KarmaChangeNotifier
-      className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
-    />}
-    {isLoggedIn && !usernameUnset && <NotificationsMenuButton
-      toggle={handleNotificationToggle}
-      open={notificationOpen}
-      className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
-    />}
-    {hasMessagesButton && <SuspenseWrapper name="MesagesMenuButton">
-      <MessagesMenuButton
-        className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
+
+    {isLoggedIn && <>
+      <div className={searchOpen ? classes.hideMdDown : undefined}>
+        <AnalyticsContext pageSectionContext="usersMenu">
+          <UsersMenu />
+        </AnalyticsContext>
+      </div>
+      <KarmaChangeNotifier />
+      <NotificationsMenuButton
+        toggle={handleNotificationToggle}
+        open={notificationOpen}
       />
-    </SuspenseWrapper>}
-    {isFriendlyUI() && usersMenuNode}
+    </>}
   </div>
 
   // the left side nav menu
@@ -595,7 +559,7 @@ const Header = ({
             )}
             style={headerStyle}
           >
-            <Toolbar disableGutters={isFriendlyUI()}>
+            <Toolbar>
               {navigationMenuButton}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>

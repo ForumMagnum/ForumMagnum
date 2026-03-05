@@ -26,10 +26,10 @@ const styles = (theme: ThemeType) => ({
     marginTop: -12,
   },
   continueReadingList: {
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
   },
   subsection: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   footerWrapper: {
     display: "flex",

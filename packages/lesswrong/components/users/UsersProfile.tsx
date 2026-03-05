@@ -111,7 +111,7 @@ const styles = (theme: ThemeType) => ({
     ...sectionFooterLeftStyles,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
-      marginBottom: theme.spacing.unit,
+      marginBottom: 8,
     }
   },
   icon: {
@@ -125,7 +125,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 20,
   },
   bio: {
-    marginTop: theme.spacing.unit*3,
+    marginTop: 24,
   },
   postsTitle: {
     cursor: "pointer"

@@ -114,8 +114,6 @@ declare global {
       values: Record<BreakpointName,number>,
     },
     spacing: {
-      unit: number,
-      titleDividerSpacing: number,
       mainLayoutPaddingTop: number,
     },
     borderRadius: {
@@ -126,7 +124,6 @@ declare global {
     palette: ThemePalette,
     typography: {
       fontFamily: string,
-      fontDownloads?: string[],
       cloudinaryFont: {
         stack: string,
         url: string,

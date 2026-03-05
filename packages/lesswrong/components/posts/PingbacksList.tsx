@@ -21,8 +21,8 @@ const PostsListMultiQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
-    marginTop: theme.spacing.unit*2
+    marginBottom: 32,
+    marginTop: 16
   },
   title: {
     ...theme.typography.commentStyle,
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
       }),
   },
   list: {
-    marginTop: theme.spacing.unit
+    marginTop: 8
   },
 });
 

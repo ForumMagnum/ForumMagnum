@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
   title: {
     color: "white",
-    marginBottom: theme.spacing.unit*5
+    marginBottom: 40
   }
 })
 

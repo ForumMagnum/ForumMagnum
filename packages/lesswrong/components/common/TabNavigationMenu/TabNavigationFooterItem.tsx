@@ -27,10 +27,10 @@ const styles = defineStyles("TabNavigationFooterItem", (theme: ThemeType) => ({
     }),
   },
   navButton: {
-    paddingTop: theme.spacing.unit,
+    paddingTop: 8,
     paddingBottom: 2,
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
+    paddingLeft: 8,
+    paddingRight: 8,
     width: "100%",
     display: "flex",
     alignItems: "center",

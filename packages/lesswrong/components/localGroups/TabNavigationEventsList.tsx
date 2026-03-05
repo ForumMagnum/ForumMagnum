@@ -59,7 +59,7 @@ const styles = defineStyles("TabNavigationEventsList", (theme: ThemeType) => ({
     position: "relative",
     top: -1,
     color: theme.palette.text.slightlyIntense,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
   },
   yesterday: {
     color: "unset"
@@ -73,11 +73,11 @@ const styles = defineStyles("TabNavigationEventsList", (theme: ThemeType) => ({
   tooltipLogisticsTitle: {
     ...theme.typography.tinyText,
     ...theme.typography.italic,
-    marginTop: theme.spacing.unit
+    marginTop: 8
   },
   highlight: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*2,
+    marginTop: 8,
+    marginBottom: 16,
     fontSize: "1.1rem",
     [theme.breakpoints.down('sm')]: {
       display: "none"
@@ -101,8 +101,8 @@ const styles = defineStyles("TabNavigationEventsList", (theme: ThemeType) => ({
   tooltipDivider: {
     borderTop: theme.palette.border.tooltipHR,
     width: 25,
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2
+    marginTop: 16,
+    marginBottom: 16
   },
   event: {
     textOverflow: "ellipsis",

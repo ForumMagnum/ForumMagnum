@@ -40,10 +40,10 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: theme.palette.grey[100],
-    paddingTop: theme.spacing.unit*2,
-    paddingLeft: theme.spacing.unit*3,
-    paddingRight: theme.spacing.unit*3,
-    paddingBottom: theme.spacing.unit*2,
+    paddingTop: 16,
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingBottom: 16,
     borderRadius: "120px",
     marginBottom: 50,
     boxShadow: `0 0 10px ${theme.palette.grey[300]}`,
@@ -58,14 +58,14 @@ const styles = (theme: ThemeType) => ({
     },
   },
   karmaThreshold: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*2,
+    marginTop: 8,
+    marginBottom: 16,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center'
   },
   usersAboveThreshold: {
-    marginTop: theme.spacing.unit*1.5,
+    marginTop: 12,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -117,18 +117,18 @@ const styles = (theme: ThemeType) => ({
     marginRight: "auto",
   },
   keyCode: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit,
+    marginTop: 16,
+    marginBottom: 8,
     border: theme.palette.border.faint,
     height: 50,
     width: "100%",
     borderRadius: 3,
     boxShadow: `0 0 10px ${theme.palette.grey[200]}`,
-    padding: theme.spacing.unit*1.5
+    padding: "12px"
   },
   incorrectCode: {
     textAlign: "center",
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
     fontSize: 12,
     color: theme.palette.grey[500]
   },
@@ -137,8 +137,8 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "1.1em",
     color: theme.palette.grey[600],
     fontSize: "1.1rem",
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
+    marginTop: 16,
+    marginBottom: 16,
     maxWidth: 300
   },
   optedIn: {
@@ -151,12 +151,12 @@ const styles = (theme: ThemeType) => ({
     fontSize: "2.5rem",
   },
   link: {
-    marginTop: theme.spacing.unit*1.5,
+    marginTop: 12,
     color: theme.palette.primary.main
   },
   error: {
     color: theme.palette.error.main,
-    marginTop: theme.spacing.unit*2,
+    marginTop: 16,
     textAlign: "center"
   }
 })

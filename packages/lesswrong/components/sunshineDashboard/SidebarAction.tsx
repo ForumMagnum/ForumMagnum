@@ -4,7 +4,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("SidebarAction", (theme: ThemeType) => ({
   root: {
-    marginRight: theme.spacing.unit*2,
+    marginRight: 16,
     cursor:"pointer",
     opacity:.4,
     "&:hover": {

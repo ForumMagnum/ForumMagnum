@@ -21,7 +21,7 @@ const CommentWithRepliesFragmentMultiQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   shortformItem: {
-    marginTop: theme.spacing.unit * (theme.isFriendlyUI ? 2 : 4),
+    marginTop: 32,
   }
 })
 

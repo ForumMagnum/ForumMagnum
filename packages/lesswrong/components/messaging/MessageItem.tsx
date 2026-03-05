@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
   },
   root: {
-    marginBottom:theme.spacing.unit*1.5,
+    marginBottom:12,
   },
   rootWithImages: {
     maxWidth: '95%',
@@ -61,10 +61,10 @@ const styles = (theme: ThemeType) => ({
     "&$highlighted": {
       backgroundColor: theme.palette.grey[500],
     },
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
     borderRadius:5,
     wordWrap: "break-word",
     overflowWrap: "break-word",
@@ -81,10 +81,10 @@ const styles = (theme: ThemeType) => ({
     "&$highlighted": {
       backgroundColor: theme.palette.grey[500],
     },
-    marginLeft:theme.spacing.unit*1.5,
+    marginLeft:12,
   },
   meta: {
-    marginBottom: theme.spacing.unit * (theme.isFriendlyUI ? 1.5 : 0.5),
+    marginBottom: 4,
   },
   whiteMeta: {
     color: theme.palette.inverseGreyAlpha(.93),

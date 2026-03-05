@@ -31,7 +31,7 @@ const styles = defineStyles('ModerationTemplateSunshineItem', (theme: ThemeType)
     flex: 1,
   },
   editButton: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     cursor: "pointer",
     "&:hover": {
       opacity: 0.7,

@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 6
   },
   wikiEmpty: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     fontStyle: "italic",
     color: theme.palette.grey[500]
   }

@@ -10,7 +10,7 @@ import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginRight: theme.spacing.unit
+    marginRight: 8
   },
   input: {
     marginLeft: 5,

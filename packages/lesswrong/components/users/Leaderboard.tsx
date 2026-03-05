@@ -47,19 +47,19 @@ const styles = defineStyles("Leaderboard", (theme: ThemeType) => ({
   subTitle: {
     ...theme.typography.body1,
     color: theme.palette.grey[600],
-    marginBottom: theme.spacing.unit * 2,
-    marginTop: -theme.spacing.unit * 2,
+    marginBottom: 16,
+    marginTop: -16,
   },
   headerRow: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: theme.spacing.unit * 3,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 24,
+    marginBottom: 16,
   },
   toggleGroup: {
     display: "flex",
-    marginRight: theme.spacing.unit * 2,
+    marginRight: 16,
   },
   toggleButton: {
     padding: "8px 16px",

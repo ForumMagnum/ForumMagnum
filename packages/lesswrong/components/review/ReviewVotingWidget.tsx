@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     textAlign: "center",
     color: theme.palette.grey[800],
-    padding: theme.spacing.unit,
+    padding: 8,
     '& a': {
       color: theme.palette.primary.main
     }

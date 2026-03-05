@@ -39,8 +39,8 @@ const RejectedReasonDisplay = dynamic(() => import("../../sunshineDashboard/Reje
 
 const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   root: {
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    paddingLeft: 12,
+    paddingRight: 12,
     position: "relative",
     "&:hover .CommentsItemMeta-menu": {
       opacity:1
@@ -80,8 +80,8 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     },
   },
   firstParentComment: {
-    marginLeft: -theme.spacing.unit*1.5,
-    marginRight: -theme.spacing.unit*1.5
+    marginLeft: -12,
+    marginRight: -12
   },
   replyForm: {
     marginTop: 2,
@@ -124,7 +124,7 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     lineHeight: '1.5em'
   },
   postTitle: {
-    paddingTop: theme.spacing.unit,
+    paddingTop: 8,
     ...theme.typography.commentStyle,
     display: "block",
     color: theme.palette.link.dim2,

@@ -4,7 +4,7 @@ import classNames from 'classnames'
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginLeft: theme.spacing.unit*2.5
+    marginLeft: 20
   }
 })
 

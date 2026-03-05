@@ -6,7 +6,6 @@ import CommentsNewForm, {
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
-import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import LoginPopup from "../users/LoginPopup";
 
@@ -118,7 +117,6 @@ const QuickTakesEntry = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = useDialog();
-  const {onSignup} = useLoginPopoverContext();
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   const onCancel = useCallback(async (ev?: MouseEvent) => {
@@ -145,15 +143,11 @@ const QuickTakesEntry = ({
 
     isUnexpandedClickRef.current = false;
 
-    if (isFriendlyUI()) {
-      onSignup();
-    } else {
-      openDialog({
-        name: "LoginPopup",
-        contents: ({onClose}) => <LoginPopup onClose={onClose} />
-      });
-    }
-  }, [currentUser, openDialog, onSignup, expanded]);
+    openDialog({
+      name: "LoginPopup",
+      contents: ({onClose}) => <LoginPopup onClose={onClose} />
+    });
+  }, [currentUser, openDialog, expanded]);
 
   useEffect(() => {
     setTimeout(() => {

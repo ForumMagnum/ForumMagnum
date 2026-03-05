@@ -35,8 +35,8 @@ const JargonTermsMutation = gql(`
 
 const formStyles = defineStyles('JargonTermForm', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   editorField: {
     marginBottom: 0,

@@ -375,7 +375,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   permalinkLabel: {
     color: theme.palette.grey[600],
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
     marginLeft: 10,
     fontSize: theme.typography.body2.fontSize,
     fontFamily: theme.palette.fonts.sansSerifStack,

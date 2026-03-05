@@ -23,17 +23,17 @@ const styles = defineStyles("PostsWithApprovedJargonPage", (theme: ThemeType) =>
     ...theme.typography.body2
   },
   post: {
-    marginBottom: theme.spacing.unit * 4,
+    marginBottom: 32,
   },
   jargonTerms: {
-    marginTop: theme.spacing.unit * 0.5,
+    marginTop: 4,
     display: 'flex',
     flexWrap: 'wrap',
   },
   jargonTerm: {
-    margin: theme.spacing.unit * .5,
+    margin: 4,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    padding: `${theme.spacing.unit * .5}px ${theme.spacing.unit * 1}px`,
+    padding: "4px 8px",
     borderRadius: 3,
   },
   empty: {},

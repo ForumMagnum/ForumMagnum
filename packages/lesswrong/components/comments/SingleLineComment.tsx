@@ -28,8 +28,8 @@ export const singleLineStyles = (theme: ThemeType) => ({
   },
   marginTop: 0,
   marginBottom: 0,
-  paddingLeft: theme.spacing.unit,
-  paddingRight: theme.spacing.unit,
+  paddingLeft: 8,
+  paddingRight: 8,
   color: theme.palette.text.dim60,
   whiteSpace: "nowrap",
   fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
@@ -86,8 +86,8 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   date: {
     display:"inline-block",
     padding: SINGLE_LINE_PADDING_TOP,
-    paddingRight: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit
+    paddingRight: 8,
+    paddingLeft: 8
   },
   truncatedHighlight: {
     padding: SINGLE_LINE_PADDING_TOP,
@@ -128,7 +128,7 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
     }
   },
   highlightPadding: {
-    padding: theme.spacing.unit*1.5
+    padding: 12
   },
   isAnswer: {
     fontSize: theme.typography.body2.fontSize,
@@ -147,7 +147,7 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   },
   metaNotice: {
     ...metaNoticeStyles(theme),
-    marginRight: theme.spacing.unit
+    marginRight: 8
   },
   postTitle: {
     ...metaNoticeStyles(theme),

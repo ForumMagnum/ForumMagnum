@@ -7,7 +7,7 @@ import TagRevisionItem from "../tagging/TagRevisionItem";
 const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
-    marginBottom: theme.isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+    marginBottom: 32,
     position: "relative",
     boxShadow: theme.palette.boxShadow.default,
     borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],

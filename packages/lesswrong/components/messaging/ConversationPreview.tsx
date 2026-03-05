@@ -40,7 +40,7 @@ const ConversationsListQuery = gql(`
 
 const styles = defineStyles("ConversationPreview", (theme: ThemeType) => ({
   root: {
-    padding: theme.spacing.unit,
+    padding: 8,
     maxWidth: 700,
     [theme.breakpoints.down('xs')]: {
       display: "none"
@@ -49,7 +49,7 @@ const styles = defineStyles("ConversationPreview", (theme: ThemeType) => ({
   title: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    marginBottom: theme.spacing.unit
+    marginBottom: 8
   }
 }))
 

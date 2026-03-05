@@ -25,7 +25,7 @@ export const styles = defineStyles("SequencesGrid", (theme: ThemeType) => ({
     }
   },
   noResults: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     color: theme.palette.text.dim4,
     ...theme.typography.italic,
   }

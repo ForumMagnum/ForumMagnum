@@ -17,8 +17,8 @@ const styles = defineStyles("Divider", (theme: ThemeType) => ({
   divider: {
     height: 80,
     width: 80,
-    marginLeft: theme.spacing.unit*3,
-    marginRight: theme.spacing.unit*3,
+    marginLeft: 24,
+    marginRight: 24,
     display: "inline-block",
     opacity: .5
   },

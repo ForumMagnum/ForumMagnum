@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     fontSize: "14px",
     lineHeight: "18px",
-    paddingRight: theme.spacing.unit*2,
+    paddingRight: 16,
     color: theme.palette.text.notificationLabel,
     
     // Two-line ellipsis hack. Webkit-specific (doesn't work in Firefox),
