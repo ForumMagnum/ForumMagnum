@@ -402,7 +402,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
   }
 
   isReverted() {
-    return false;
+    return this.props.theme.direction === 'rtl';
   }
 
   render() {
@@ -454,7 +454,7 @@ class Slider extends React.Component<SliderProps & WithStylesProps<typeof styles
     });
 
     const trackProperty = vertical ? 'height' : 'width';
-    const horizontalMinimumPosition = 'left';
+    const horizontalMinimumPosition = theme.direction === 'ltr' ? 'left' : 'right';
     const thumbProperty = vertical ? 'top' : horizontalMinimumPosition;
     const inlineTrackBeforeStyles = { [trackProperty]: this.calculateTrackBeforeStyles(percent) };
     const inlineTrackAfterStyles = { [trackProperty]: this.calculateTrackAfterStyles(percent) };

@@ -1,6 +1,4 @@
 
-import { grey } from '../colorUtil';
-
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   '"freight-sans-pro"',
@@ -23,55 +21,52 @@ const sansSerifStack = [
 ].join(',')
 
 export const alignmentForumTheme: SiteThemeSpecification = {
-  componentPalette: (dark: boolean) => ({
+  shadePalette: {
     fonts: {
       sansSerifStack,
       serifStack: sansSerifStack, //No serifs on Alignment Forum
     },
+  },
+  componentPalette: (shadePalette: ThemeShadePalette) => ({
     primary: {
-      main: dark ? "#7581d1": "#3f51b5",
-      dark: dark ? "#7986cb": "#303f9f",
-      light: dark ? "#5968c9": "#7986cb",
-      contrastText: grey[0],
+      main: shadePalette.type === "dark" ? "#7581d1": "#3f51b5",
+      dark: shadePalette.type === "dark" ? "#7986cb": "#303f9f",
+      light: shadePalette.type === "dark" ? "#5968c9": "#7986cb",
+      contrastText: shadePalette.grey[0],
     },
     secondary: {
       main: "#3f51b5",
       dark: "#303f9f",
       light: "#7986cb",
-      contrastText: grey[0],
+      contrastText: shadePalette.grey[0],
     },
     review: {
       activeProgress: "rgba(63,81,181, .5)",
       progressBar: "rgba(63,81,181, 1)"
     },
     lwTertiary: {
-      main:  dark ? "#7799a4" : "#607e88",
-      dark:  dark ? "#7799a4" : "#607e88",
+      main:  shadePalette.type === "dark" ? "#7799a4" : "#607e88",
+      dark:  shadePalette.type === "dark" ? "#7799a4" : "#607e88",
     },
     error: {
       main: '#bf360c',
     },
     background: {
-      default: dark ? grey[100] : grey[60],
+      default: shadePalette.grey[60],
     },
     header: {
-      text: dark ? "#ffffff" : "rgba(0,0,0,0.87)",
-      background: dark ? "rgba(0,0,0,0.5)" : "#ffffff",
-    },
-    ultrafeedModalHeader: {
-      background: dark
-        ? "rgba(255,255,255,.95)"
-        : "rgba(0,0,0,.98)",
-    },
-    ultraFeed: {
-      readBackground: dark ? grey[200] : grey[300],
+      text: shadePalette.type === "dark" ? "#ffffff" : "rgba(0,0,0,0.87)",
+      background: shadePalette.type === "dark" ? "rgba(0,0,0,0.5)" : "#ffffff",
     },
     link: {
-      color: "light-dark(#3f51b5,#7581d1)",
-      visited: "light-dark(#8c4298,#798754)",
+      visited: "#8c4298",
     }
   }),
   make: (palette: ThemePalette) => ({
+    zIndexes: {
+      searchResults: 1100,
+      intercomButton: 1030,
+    },
     typography: {
       fontFamily: sansSerifStack,
       postStyle: {
@@ -84,14 +79,12 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       commentStyle: {
         fontFamily: sansSerifStack,
         fontVariantNumeric: "lining-nums",
-        '& b, & strong': undefined,
       },
       errorStyle: {
         color: palette.error!.main!,
         fontFamily: sansSerifStack
       },
       title: {
-        fontFamily: sansSerifStack,
         fontWeight: 500,
       },
       display2: {
@@ -103,6 +96,8 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       uiSecondary: {
         fontFamily: sansSerifStack,
       },
+    },
+    overrides: {
     },
 
     isBookUI: true,

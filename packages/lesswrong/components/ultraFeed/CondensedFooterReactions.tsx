@@ -85,7 +85,7 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
     color: theme.palette.ultraFeed.dim,
     lineHeight: '1',
     padding: '2px 6px',
-    borderRadius: 4,
+    borderRadius: theme.shape.borderRadius,
     transition: 'background-color 0.2s ease-in-out',
     '&:hover': {
       opacity: 1
@@ -121,7 +121,7 @@ const styles = defineStyles("CondensedFooterReactions", (theme: ThemeType) => ({
     alignItems: 'center',
     cursor: 'pointer',
     padding: '2px 4px',
-    borderRadius: 4,
+    borderRadius: theme.shape.borderRadius,
     transition: 'background-color 0.2s ease-in-out',
     '&:hover': {
       opacity: 1,

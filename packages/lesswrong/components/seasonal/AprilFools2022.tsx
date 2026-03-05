@@ -23,12 +23,6 @@ const UsersProfileMultiQuery = gql(`
 `);
 
 export const goodHeartStartDate = new Date("04/01/2022")
-const heartColors = {
-  orange: "light-dark(#e64a19,#ff7144)",
-  yellow: "light-dark(#f57f17,#ffba7d)",
-  green: "light-dark(#1b5e20,#7ee486)",
-};
-
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -73,26 +67,26 @@ const styles = (theme: ThemeType) => ({
   goodestHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: heartColors.orange,
+    color: theme.palette.text.aprilFools.orange,
   },
   orange: {
-    color: heartColors.orange,
+    color: theme.palette.text.aprilFools.orange,
   },
   veryGoodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: heartColors.yellow,
+    color: theme.palette.text.aprilFools.yellow,
   },
   yellow: {
-    color: heartColors.yellow,
+    color: theme.palette.text.aprilFools.yellow,
   },
   goodHeartIcon: {
     fontSize: 18,
     marginRight: 5,
-    color: heartColors.green,
+    color: theme.palette.text.aprilFools.green,
   },
   green: {
-    color: heartColors.green,
+    color: theme.palette.text.aprilFools.green,
   },
 });
 

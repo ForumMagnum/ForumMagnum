@@ -32,13 +32,6 @@ jest.mock("../components/hooks/useStyles", () => {
     withAddClasses: wrappedWithAddClasses,
   };
 });
-jest.mock("@/components/hooks/defineStyles", () => {
-  const originalModule = jest.requireActual("@/components/hooks/defineStyles");
-  return {
-    ...originalModule,
-    safeForDarkMode: (color: string) => `light-dark(${color},${color})`,
-  };
-});
 
 function enumerateFiles(dirPath: string): string[] {
   let fileList: string[] = [];
@@ -107,8 +100,6 @@ describe('JSS', () => {
     if (nonPaletteColors.length > 0) {
       // eslint-disable-next-line no-console
       console.error(`Non-palette colors in JSS styles:\n${nonPaletteColors.join("\n")}`);
-      // eslint-disable-next-line no-console
-      console.error("To prevent black-on-black text, use either a theme palette color, or check for dark mode with light-dark(#123,#edf) or theme.dark ? colorOne : colorTwo. Or disable the warning for this component by passing {allowNonThemeColors: true} in the stylesheet options.");
       nonPaletteColors.length.should.equal(0);
     }
   });
@@ -124,7 +115,7 @@ function assertNoNonPaletteColorsRec(componentName: string, path: string, lightM
   if (typeof lightModeStyleFragment === "string") {
     const mentionedColor = stringMentionsAnyColor(lightModeStyleFragment);
     if (mentionedColor && lightModeStyleFragment === darkModeStyleFragment && !lightModeStyleFragment.includes("light-dark")) {
-      outNonPaletteColors.push(`Color for ${componentName} at ${path} (${mentionedColor}) is the same in light mode and dark mode. `);
+      outNonPaletteColors.push(`Color for ${componentName} at ${path} (${mentionedColor}) is the same in light mode and dark mode. To prevent black-on-black text, use either a theme palette color, or check for dark mode with theme.dark ? colorOne : colorTwo. Or disable the warning for this component by passing {allowNonThemeColors: true} in the stylesheet options.`);
     }
   } else if (typeof lightModeStyleFragment === "object") {
     for (let key of Object.keys(lightModeStyleFragment)) {

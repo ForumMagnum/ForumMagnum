@@ -106,6 +106,7 @@ const styles = (theme: ThemeType) => ({
       borderStyle: "none",
       boxShadow: "none",
       backgroundColor: "transparent",
+      fontSize: "inherit",
       "-webkit-appearance": "none",
       cursor: "text",
       ...theme.typography.body2,

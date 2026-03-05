@@ -66,13 +66,15 @@ const buildTheme = (
   forumType: ForumTypeString,
   themeOptions: ThemeOptions,
 ): ThemeType => {
-  const dark = userTheme.dark ?? false;
-
-  let componentPalette: ThemeComponentPalette = baseTheme.componentPalette(dark);
-  if (siteTheme.componentPalette) componentPalette = deepmerge(componentPalette, siteTheme.componentPalette(dark));
-  if (userTheme.componentPalette) componentPalette = deepmerge(componentPalette, userTheme.componentPalette(dark));
-
-  const palette: ThemePalette = componentPalette;
+  let shadePalette: ThemeShadePalette = baseTheme.shadePalette;
+  if (siteTheme.shadePalette) shadePalette = deepmerge(shadePalette, siteTheme.shadePalette);
+  if (userTheme.shadePalette) shadePalette = deepmerge(shadePalette, userTheme.shadePalette);
+  
+  let componentPalette: ThemeComponentPalette = baseTheme.componentPalette(shadePalette);
+  if (siteTheme.componentPalette) componentPalette = deepmerge(componentPalette, siteTheme.componentPalette(shadePalette));
+  if (userTheme.componentPalette) componentPalette = deepmerge(componentPalette, userTheme.componentPalette(shadePalette));
+  
+  let palette: ThemePalette = { ...deepmerge(shadePalette, componentPalette), shadePalette };
   
   let combinedTheme = baseTheme.make(palette);
   if (siteTheme.make) combinedTheme = deepmerge(combinedTheme, siteTheme.make(palette));

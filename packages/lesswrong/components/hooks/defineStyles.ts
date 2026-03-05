@@ -63,14 +63,3 @@ export const classNameProxy = <T extends string>(prefix: string): ClassNameProxy
     }
   });
 }
-
-/**
- * No-op function that marks a color (or a CSS attribute containing a color)
- * as suitable for both light and dark mode, so that the unit test that looks
- * for risk of black-on-black colors will accept it. Use when a color doesn't
- * need to change in dark mode because it looks ok on both light and dark
- * backgrounds, or is on a background that doesn't change in dark mode.
- */
-export function safeForDarkMode(color: string) {
-  return color;
-}

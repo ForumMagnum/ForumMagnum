@@ -1,5 +1,4 @@
 import { isLWorAF } from "../lib/instanceSettings";
-import mapValues from "lodash/mapValues";
 
 type ColorTuple=[number,number,number,number]; //RGBA, all channels floating point zero to one
 
@@ -108,58 +107,6 @@ export function invertHexColor(color: string): string {
   validateColor(inverted);
   return colorToString(inverted);
 }
-
-export const grey = mapValues({
-  // Exactly matches @/lib/vendor/@material-ui/core/src/colors/grey
-  50: '#fafafa',
-  100: '#f5f5f5',
-  200: '#eeeeee',
-  300: '#e0e0e0',
-  400: '#bdbdbd',
-  500: '#9e9e9e',
-  600: '#757575',
-  700: '#616161',
-  800: '#424242',
-  900: '#212121',
-  A100: '#d5d5d5',
-  A200: '#aaaaaa',
-  A400: '#303030',
-  A700: '#616161',
-
-  // Greyscale colors not in the MUI palette
-  0: "#fff",
-  1000: "#000",
-
-  10: '#fefefe',
-  20: '#fdfdfd',
-  25: '#fcfcfc',
-  30: '#fbfbfb',
-  55: '#f9f9f9',
-  60: '#f8f8f8',
-  110: "#f3f3f3",
-  120: '#f2f2f2',
-  140: "#f0f0f0",
-  250: "#e8e8e8",
-  310: "#dddddd",
-  315: "#d4d4d4",
-  320: "#d9d9d9",
-  340: "#d0d0d0",
-  405: "#bbbbbb",
-  410: "#b3b3b3",
-  550: "#999999",
-  620: "#888888",
-  650: "#808080",
-  680: "#666666",
-  710: "#606060",
-  750: "#5e5e5e",
-}, v => `light-dark(${v},${invertHexColor(v)})`) as ThemeGreyscale;
-
-export const greyAlpha = (alpha: number) => `light-dark(rgba(0,0,0,${alpha}),rgba(255,255,255,${alpha}))`;
-export const inverseGreyAlpha = (alpha: number) => `light-dark(rgba(255,255,255,${alpha}),rgba(0,0,0,${alpha}))`;
-export const primaryAlpha = greyAlpha;
-export const boxShadowColor = (alpha: number) => greyAlpha(alpha);
-export const greyBorder = (thickness: string, alpha: number) => `${thickness} solid ${greyAlpha(alpha)}`;
-export const invertIfDarkMode = (color: string) => `light-dark(${color},${invertHexColor(color)})`;
 
 /**
  * Converts an HSL color value to RGB. Conversion formula

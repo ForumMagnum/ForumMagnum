@@ -13,13 +13,10 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
+import { registerComponent } from "../../../lib/vulcan-lib/components";
 import ContentStyles from "../../common/ContentStyles";
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { safeForDarkMode } from '@/components/hooks/defineStyles';
 
-const maybeColor = safeForDarkMode("#d59c00");
-
-const styles = defineStyles("RSVPs", (theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   body: {
     marginBottom: 48
   },
@@ -69,8 +66,8 @@ const styles = defineStyles("RSVPs", (theme: ThemeType) => ({
     marginRight: 8
   },
   maybeButton: {
-    color: maybeColor,
-    borderColor: maybeColor,
+    color: theme.palette.text.eventMaybe,
+    borderColor: theme.palette.text.eventMaybe,
     marginRight: 8
   },
   cantGoButton: {
@@ -107,12 +104,12 @@ const styles = defineStyles("RSVPs", (theme: ThemeType) => ({
     : {
       fontStyle: "italic",
     },
-}));
+});
 
-const RSVPs = ({post}: {
+const RSVPs = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  classes: ClassesType<typeof styles>
 }) => {
-  const classes = useStyles(styles);
   const { openDialog } = useDialog()
   const { query } = useLocation()
   const currentUser = useCurrentUser()
@@ -187,25 +184,25 @@ const RSVPs = ({post}: {
   </ContentStyles>;
 }
 
-const responseIconStyles = defineStyles("ResponseIcon", (theme: ThemeType) => ({
+const responseIconStyles = (theme: ThemeType) => ({
   goingIcon: {
     height: 14,
     color: theme.palette.primary.main
   },
   maybeIcon: {
     height: 14,
-    color: maybeColor
+    color: theme.palette.text.eventMaybe
   },
   noIcon: {
     height: 14,
     color: theme.palette.grey[500]
   },
-}));
+});
 
-export function ResponseIcon({response}: {
+function ResponseIconInner({response, classes}: {
   response: RsvpResponse
+  classes: ClassesType<typeof responseIconStyles>
 }) {
-  const classes = useStyles(responseIconStyles);
   switch (response) {
     case "yes":
       return <CheckCircleOutlineIcon className={classes.goingIcon} />
@@ -218,6 +215,8 @@ export function ResponseIcon({response}: {
   }
 }
 
-export default RSVPs;
+export const ResponseIcon = registerComponent('ResponseIcon', ResponseIconInner, {styles: responseIconStyles});
+
+export default registerComponent('RSVPs', RSVPs, {styles});
 
 

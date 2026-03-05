@@ -17,7 +17,7 @@ export type NotchedOutlineClassKey = 'root' | 'legend' | 'focused' | 'error' | '
 
 export const styles = defineStyles("MuiNotchedOutline", theme => {
   const light = theme.palette.type === 'light';
-  const align = 'left';
+  const align = theme.direction === 'rtl' ? 'right' : 'left';
 
   return {
     /* Styles applied to the root element. */
@@ -31,7 +31,7 @@ export const styles = defineStyles("MuiNotchedOutline", theme => {
       margin: 0,
       padding: 0,
       pointerEvents: 'none',
-      borderRadius: 4,
+      borderRadius: theme.shape.borderRadius,
       borderStyle: 'solid',
       borderWidth: 1,
       borderColor: light ? 'rgba(0, 0, 0, 0.23)' : 'rgba(255, 255, 255, 0.23)',
@@ -91,7 +91,7 @@ function NotchedOutline(props: NotchedOutlineProps) {
   const classes = useStyles(styles, classesOverride);
   const theme = useTheme();
 
-  const align = 'left';
+  const align = theme.direction === 'rtl' ? 'right' : 'left';
   const labelWidth = labelWidthProp > 0 ? labelWidthProp * 0.75 + 8 : 0;
 
   return (

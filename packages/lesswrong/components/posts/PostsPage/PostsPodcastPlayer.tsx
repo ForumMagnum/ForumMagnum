@@ -8,7 +8,7 @@ import { useTracking } from '../../../lib/analyticsEvents';
 const styles = (theme: ThemeType) => ({
   embeddedPlayer: {
     marginBottom: '2px',
-    opacity: theme.dark ? 0.85 : 1,
+    opacity: theme.palette.embeddedPlayer.opacity,
   },
   podcastIconList: {
     paddingLeft: '0px',

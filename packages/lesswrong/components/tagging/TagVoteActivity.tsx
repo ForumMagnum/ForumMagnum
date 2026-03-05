@@ -33,6 +33,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600]
   },
   headerCell: {
+    fontWeight: 700,
     ...theme.typography.body2,
   },
   votingCell: {

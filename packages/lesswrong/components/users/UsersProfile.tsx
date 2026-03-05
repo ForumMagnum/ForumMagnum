@@ -87,6 +87,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   usernameTitle: {
+    fontSize: "3.2rem",
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
     marginTop: 0,

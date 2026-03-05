@@ -14,7 +14,6 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { TooltipSpan } from '@/components/common/FMTooltip';
 import ModerationGuidelinesEditForm from "./ModerationGuidelinesEditForm";
 import ContentStyles from "../../common/ContentStyles";
-import { safeForDarkMode } from '@/components/hooks/defineStyles';
 
 
 const PostsModerationGuidelinesQuery = gql(`
@@ -48,13 +47,13 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.normal,
   },
   'easy-going': {
-    color: safeForDarkMode('rgba(100, 169, 105, 0.9)'),
+    color: theme.palette.text.moderationGuidelinesEasygoing,
   },
   'norm-enforcing': {
-    color: safeForDarkMode('#2B6A99'),
+    color: theme.palette.text.moderationGuidelinesNormEnforcing,
   },
   'reign-of-terror': {
-    color: safeForDarkMode('rgba(179,90,49,.8)'),
+    color: theme.palette.text.moderationGuidelinesReignOfTerror,
   },
   editButtonWrapper: {
     cursor: "pointer",

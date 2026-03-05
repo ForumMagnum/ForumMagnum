@@ -58,7 +58,7 @@ export const styles = defineStyles("MuiButton", theme => ({
     minWidth: 64,
     minHeight: 36,
     padding: '8px 16px',
-    borderRadius: 4,
+    borderRadius: theme.shape.borderRadius,
     color: theme.palette.text.primary,
     transition: theme.transitions.create(['background-color', 'box-shadow', 'border'], {
       duration: theme.transitions.duration.short,
