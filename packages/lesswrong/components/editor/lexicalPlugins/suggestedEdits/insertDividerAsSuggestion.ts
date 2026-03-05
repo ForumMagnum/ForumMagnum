@@ -20,11 +20,12 @@ export function $insertDividerAsSuggestion(onSuggestionCreation: (id: string) =>
   // paragraph, and leaves the cursor inside that wrapper. We need to
   // ensure the cursor ends up after the wrapper paragraph.
   const topLevelNode = insertedNode.getTopLevelElement() ?? insertedNode
-  if (!topLevelNode.getNextSibling()) {
+  let nextSibling = topLevelNode.getNextSibling()
+  if (!nextSibling) {
     const paragraph = $createParagraphNode()
     topLevelNode.insertAfter(paragraph)
+    nextSibling = paragraph
   }
-  const nextSibling = topLevelNode.getNextSibling()
   if ($isElementNode(nextSibling)) {
     nextSibling.selectStart()
   }

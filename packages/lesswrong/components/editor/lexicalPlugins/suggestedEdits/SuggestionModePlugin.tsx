@@ -136,6 +136,23 @@ function insertImageFileAsSuggestion(
 const LIST_TRANSFORMERS = [UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]
 
 /**
+ * Returns the top-level paragraph containing an HR markdown shortcut
+ * (---, ***, ___) if the current selection is a collapsed cursor inside one,
+ * or null otherwise.
+ */
+function $getHRShortcutParagraph(): ElementNode | null {
+  const selection = $getSelection()
+  if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+    return null
+  }
+  const topLevelParagraph = selection.anchor.getNode().getTopLevelElement()
+  if ($isParagraphNode(topLevelParagraph) && HR.regExp.test(topLevelParagraph.getTextContent())) {
+    return topLevelParagraph
+  }
+  return null
+}
+
+/**
  * Removes a top-level paragraph containing an HR markdown shortcut (---, ***, ___)
  * and inserts an HR as a suggestion at the same position.
  */
@@ -738,34 +755,16 @@ export function SuggestionModePlugin({
         (event) => {
           // Handle horizontal rule markdown shortcut (---, ***, ___)
           let shouldHandleHR = false
-
           editor.getEditorState().read(() => {
-            const selection = $getSelection()
-            if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
-              return
-            }
-
-            const anchorNode = selection.anchor.getNode()
-            const topLevelParagraph = anchorNode.getTopLevelElement()
-            if ($isParagraphNode(topLevelParagraph) && HR.regExp.test(topLevelParagraph.getTextContent())) {
-              shouldHandleHR = true
-            }
+            shouldHandleHR = $getHRShortcutParagraph() !== null
           })
 
           if (shouldHandleHR) {
             editor.update(() => {
-              const selection = $getSelection()
-              if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
-                return
+              const paragraph = $getHRShortcutParagraph()
+              if (paragraph) {
+                $removeParagraphAndInsertDividerSuggestion(paragraph, addCreatedIDtoSet)
               }
-
-              const anchorNode = selection.anchor.getNode()
-              const topLevelParagraph = anchorNode.getTopLevelElement()
-              if (!$isParagraphNode(topLevelParagraph) || !HR.regExp.test(topLevelParagraph.getTextContent())) {
-                return
-              }
-
-              $removeParagraphAndInsertDividerSuggestion(topLevelParagraph, addCreatedIDtoSet)
             })
 
             event?.preventDefault()
