@@ -75,7 +75,7 @@ const styles = (theme: ThemeType) => ({
   backgroundIsCurrent: {
     backgroundColor: theme.palette.grey[700],
     color: theme.palette.inverseGreyAlpha(.87),
-    '& *, & li::marker': {
+    '& *, & $messageBody *, & $messageBody li::marker': {
       color: theme.palette.inverseGreyAlpha(.87),
     },
     "&$highlighted": {
@@ -232,6 +232,3 @@ const MessageItem = ({message, highlight=false, showFullWidth=false, classes}: {
 export default registerComponent('MessageItem', MessageItem, {
   styles, hocs: [withErrorBoundary]
 });
-
-
-
