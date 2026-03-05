@@ -6,6 +6,5 @@ import {
 export async function GET(req: NextRequest) {
   return renderLiveEditorDraftMarkdownRoute({
     req,
-    mode: "collaborate",
   });
 }
