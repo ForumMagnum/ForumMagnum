@@ -140,9 +140,22 @@ function $reconcileSentinels(): void {
 
   // Track the most recent content (non-sentinel) node as we scan left to right
   let prevContent: LexicalNode | null = null;
+  // Track whether we've already kept a sentinel for the current gap between
+  // content nodes. Without this, duplicate consecutive sentinels can't be
+  // cleaned up: prevContent never advances past sentinels, so each duplicate
+  // sees the same (prevContent, nextContent) pair and is individually deemed
+  // "needed". This can happen when Yjs undo restores sentinels from the
+  // document history while reconciliation also needs sentinels in the same gap.
+  let sentinelKeptForCurrentGap = false;
 
   for (const child of children) {
     if ($isSentinelParagraphNode(child)) {
+      // If we already kept a sentinel for this gap, remove duplicates
+      if (sentinelKeptForCurrentGap) {
+        child.remove();
+        continue;
+      }
+
       // Existing sentinel: check if it's still needed by looking at its
       // content neighbors. We find the next content node by scanning forward
       // from the child's position in the tree.
@@ -153,13 +166,17 @@ function $reconcileSentinels(): void {
 
       if (!$isSentinelNeeded(prevContent, nextContent)) {
         child.remove();
+      } else {
+        sentinelKeptForCurrentGap = true;
       }
       // Don't update prevContent — sentinels don't count as content
       continue;
     }
 
-    // Content node: check if a sentinel should exist between prevContent
-    // and this node.
+    // Content node: reset the sentinel-kept flag for the next gap
+    sentinelKeptForCurrentGap = false;
+
+    // Check if a sentinel should exist between prevContent and this node.
     if ($isSentinelNeeded(prevContent, child)) {
       // Only insert if there isn't already a sentinel right before this node
       const prevSibling = child.getPreviousSibling();
