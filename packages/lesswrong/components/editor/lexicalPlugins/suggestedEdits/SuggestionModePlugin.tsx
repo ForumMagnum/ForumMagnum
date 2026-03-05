@@ -1,5 +1,5 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import { IS_APPLE, mergeRegister } from '@lexical/utils'
+import { $findMatchingParent, IS_APPLE, mergeRegister } from '@lexical/utils'
 import type { LexicalEditor, NodeKey } from 'lexical'
 import {
   $getNodeByKey,
@@ -38,7 +38,7 @@ import { useCommentStoreContext } from '@/components/lexical/commenting/CommentS
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND, SET_USER_MODE_COMMAND } from './Commands'
 import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST, QUOTE } from '@lexical/markdown'
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list'
-import { $isEmptyListItemExceptForSuggestions, hasChildComments } from './Utils'
+import { $getDeleteSuggestionType, $isEmptyListItemExceptForSuggestions, $isWholeSelectionInsideSuggestion, $wrapSelectionInSuggestionNode, hasChildComments } from './Utils'
 import { getSuggestionAuthorIdFromComments } from './suggestionPermissions'
 import { useCanRejectSuggestion, useCollaboratorIdentity } from '@/components/lexical/collaboration'
 import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions'
@@ -759,6 +759,8 @@ export function SuggestionModePlugin({
           // handler (at COMMAND_PRIORITY_EDITOR) would call event.preventDefault()
           // and dispatch INSERT_PARAGRAPH_COMMAND, preventing the beforeinput event
           // from ever firing and bypassing suggestion mode's paragraph handling.
+          // Because of this, 'insertParagraph' is excluded from InsertionInputTypes
+          // and all paragraph insertion logic lives here.
           //
           // We call $handleInsertParagraph directly (not inside editor.update())
           // to match the execution context of the old BEFOREINPUT_EVENT_COMMAND flow,
@@ -779,10 +781,33 @@ export function SuggestionModePlugin({
                 event?.preventDefault()
                 return true
               }
+            } else {
+              // Wrap the non-collapsed selection in a delete suggestion before
+              // splitting the paragraph, mirroring what $handleInsertInput does
+              // when beforeinput fires with inputType 'insertParagraph'.
+              const deleteSuggestionID = randomId()
+              const isInsideExistingSuggestion = $isWholeSelectionInsideSuggestion(selection)
+              const existingParentSuggestion = $findMatchingParent(selection.focus.getNode(), $isSuggestionNode)
+              const selectedNodes = selection.getNodes()
+              const deleteType = $getDeleteSuggestionType(selectedNodes)
+              const nodes = $wrapSelectionInSuggestionNode(selection, selection.isBackward(), deleteSuggestionID, deleteType, suggestionModeLogger)
+              if (isInsideExistingSuggestion && existingParentSuggestion?.getSuggestionTypeOrThrow() === 'insert') {
+                for (const node of nodes) {
+                  node.remove()
+                }
+              } else {
+                addCreatedIDtoSet(deleteSuggestionID)
+              }
+            }
+
+            const latestSelection = $getSelection()
+            if (!$isRangeSelection(latestSelection)) {
+              event?.preventDefault()
+              return true
             }
 
             $handleInsertParagraph(
-              selection,
+              latestSelection,
               suggestionID,
               addCreatedIDtoSet,
               suggestionModeLogger,

@@ -67,6 +67,7 @@ import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContex
 import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
 import { useCommentStoreContext, useCollabAuthorName, useCommentStore } from '@/components/lexical/commenting/CommentStoreContext';
 import { $isSuggestionNode } from '@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode';
+import { SuggestionTypesThatCanBeEmpty } from '@/components/editor/lexicalPlugins/suggestedEdits/Types';
 import { createThread, createComment, Thread, Comments, Comment } from '../../commenting';
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND } from '@/components/editor/lexicalPlugins/suggestedEdits/Commands';
 import useModal from '../../hooks/useModal';
@@ -1164,8 +1165,22 @@ function CommentsPanelList({
                 () => {
                   const markNodeKey = Array.from(markNodeKeys)[0];
                   const markNode = $getNodeByKey(markNodeKey);
-                  if ($isMarkNode(markNode) || $isSuggestionNode(markNode)) {
+                  if ($isMarkNode(markNode)) {
                     markNode.selectStart();
+                  } else if ($isSuggestionNode(markNode)) {
+                    // For empty suggestion nodes (split, join, etc.) that use
+                    // the paddingRight overflow trick, placing the caret inside
+                    // them causes the parent's overflow:hidden to scroll content
+                    // off-screen. Select the parent's start instead.
+                    const suggestionType = markNode.getSuggestionTypeOrThrow();
+                    if (SuggestionTypesThatCanBeEmpty.includes(suggestionType)) {
+                      const parent = markNode.getParent();
+                      if (parent) {
+                        parent.selectEnd();
+                      }
+                    } else {
+                      markNode.selectStart();
+                    }
                   }
                 },
                 {
@@ -1176,7 +1191,19 @@ function CommentsPanelList({
                     const markNodeKey = Array.from(markNodeKeys)[0];
                     const domElement = editor.getElementByKey(markNodeKey);
                     if (domElement !== null) {
-                      domElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+                      // Suggestion nodes like split/join use a paddingRight
+                      // overflow trick. Calling scrollIntoView on them causes the
+                      // parent's overflow:hidden to scroll horizontally, pushing
+                      // content off-screen. Use the parent as scroll target and
+                      // reset scrollLeft afterwards.
+                      const hasOverflowTrick = domElement.classList.contains('split') || domElement.classList.contains('join');
+                      const scrollTarget = hasOverflowTrick
+                        ? (domElement.parentElement ?? domElement)
+                        : domElement;
+                      scrollTarget.scrollIntoView({behavior: 'smooth', block: 'center'});
+                      if (hasOverflowTrick && domElement.parentElement) {
+                        domElement.parentElement.scrollLeft = 0;
+                      }
                     }
                     // Restore selection to the previous element
                     if (activeElement !== null) {

@@ -9,10 +9,8 @@ import {
 } from 'lexical'
 import { randomId } from '@/lib/random'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
-import { $wrapSelectionInSuggestionNode, $isNodeNotInline } from './Utils'
+import { $getDeleteSuggestionType, $wrapSelectionInSuggestionNode, $isNodeNotInline } from './Utils'
 import type { Logger } from '@/lib/vendor/proton/logger'
-import { $isHorizontalRuleNode } from '@lexical/extension'
-import type { SuggestionType } from './Types'
 
 /**
  * This command is triggered by $insertDataTransferForRichText to allow
@@ -64,12 +62,7 @@ export function $selectionInsertClipboardNodes(
 
   const isInitialSelectionNotCollapsed = !selection.isCollapsed()
   if (isInitialSelectionNotCollapsed) {
-    // Determine the deletion type based on what's being deleted
-    let deleteType: SuggestionType = 'delete'
-    const selectedNodes = selection.getNodes()
-    if (selectedNodes.length === 1 && $isHorizontalRuleNode(selectedNodes[0])) {
-      deleteType = 'delete-divider'
-    }
+    const deleteType = $getDeleteSuggestionType(selection.getNodes())
     $wrapSelectionInSuggestionNode(selection, selection.isBackward(), suggestionID, deleteType, logger)
     onSuggestionCreation(suggestionID)
     logger.info('Wrapped non-collapsed selection as delete suggestion', suggestionID)

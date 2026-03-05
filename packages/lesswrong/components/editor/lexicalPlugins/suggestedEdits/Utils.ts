@@ -16,6 +16,14 @@ import { $isListItemNode } from '@lexical/list'
 
 export const SUGGESTION_SUMMARY_KIND = 'suggestionSummary' as const;
 
+/** Determine the appropriate delete suggestion type for a set of selected nodes. */
+export function $getDeleteSuggestionType(selectedNodes: LexicalNode[]): SuggestionType {
+  if (selectedNodes.some($isHorizontalRuleNode)) {
+    return 'delete-divider'
+  }
+  return 'delete'
+}
+
 /** Check if a suggestion thread has comments beyond the auto-generated summary */
 export function hasChildComments(thread: { comments: Array<{ commentKind?: string }> }): boolean {
   return thread.comments.some((comment) => comment.commentKind !== SUGGESTION_SUMMARY_KIND)

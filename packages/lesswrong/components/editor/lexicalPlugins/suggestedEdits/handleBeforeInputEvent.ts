@@ -26,6 +26,7 @@ import { $isSuggestionNode, $createSuggestionNode } from './ProtonNode'
 import {
   getTargetRangeFromInputEvent,
   $wrapSelectionInSuggestionNode,
+  $getDeleteSuggestionType,
   getBoundaryForDeletion,
   $mergeWithExistingSuggestionNode,
   $isWholeSelectionInsideSuggestion,
@@ -36,7 +37,6 @@ import {
   $isEmptyListItemExceptForSuggestions,
 } from './Utils'
 import { $generateNodesFromDOM } from '@lexical/html'
-import { $isHorizontalRuleNode } from '@lexical/extension'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import { $isSentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockCursorNavigation/SentinelParagraphNode'
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
@@ -260,12 +260,7 @@ function $handleDeleteInput(
   const isWholeSelectionInsideExistingSuggestion = $isWholeSelectionInsideSuggestion(selection)
 
   if (!isWholeSelectionInsideExistingSuggestion || existingParentSuggestion?.getSuggestionTypeOrThrow() !== 'delete') {
-    // Determine the deletion type based on what's being deleted
-    let deleteType: SuggestionType = 'delete'
-    const selectedNodes = selection.getNodes()
-    if (selectedNodes.length === 1 && $isHorizontalRuleNode(selectedNodes[0])) {
-      deleteType = 'delete-divider'
-    }
+    const deleteType = $getDeleteSuggestionType(selection.getNodes())
     suggestionNodes = $wrapSelectionInSuggestionNode(selection, selection.isBackward(), suggestionID, deleteType, logger)
   }
 
@@ -342,12 +337,7 @@ function $handleInsertInput(
   if (!selection.isCollapsed() && data !== null && dataTransfer === null) {
     logger.info('Wrapping non-collapsed selection in a delete suggestion')
     const isInsideExistingSelection = $isWholeSelectionInsideSuggestion(selection)
-    // Determine the deletion type based on what's being deleted
-    let deleteType: SuggestionType = 'delete'
-    const selectedNodes = selection.getNodes()
-    if (selectedNodes.length === 1 && $isHorizontalRuleNode(selectedNodes[0])) {
-      deleteType = 'delete-divider'
-    }
+    const deleteType = $getDeleteSuggestionType(selection.getNodes())
     const nodes = $wrapSelectionInSuggestionNode(selection, selection.isBackward(), suggestionID, deleteType, logger)
     if (isInsideExistingSelection && existingParentSuggestion?.getSuggestionTypeOrThrow() === 'insert') {
       logger.info('Removing the wrapped suggestion as it is inside an existing one')
@@ -363,10 +353,6 @@ function $handleInsertInput(
   if (!$isRangeSelection(latestSelection)) {
     logger.info('Latest selection is not range selection')
     return true
-  }
-
-  if (inputType === 'insertParagraph') {
-    return $handleInsertParagraph(latestSelection, suggestionID, onSuggestionCreation, logger)
   }
 
   const canApplyTargetRangeForInputType = inputType !== 'insertText' && inputType !== 'insertFromPaste'
