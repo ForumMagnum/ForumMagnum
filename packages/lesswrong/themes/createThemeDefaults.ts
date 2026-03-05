@@ -236,7 +236,6 @@ export const baseTheme: BaseThemeSpecification = {
   
     return {
       dark: false,
-      baseFontSize: 13,
       breakpoints: {
         values: {
           xs: 0,
@@ -282,26 +281,8 @@ export const baseTheme: BaseThemeSpecification = {
         `0px 11px 14px -7px ${palette.boxShadowColor(0.2)},0px 23px 36px 3px ${palette.boxShadowColor(0.14)},0px 9px 44px 8px ${palette.boxShadowColor(0.12)}`,
         `0px 11px 15px -7px ${palette.boxShadowColor(0.2)},0px 24px 38px 3px ${palette.boxShadowColor(0.14)},0px 9px 46px 8px ${palette.boxShadowColor(0.12)}`,
       ],
-      shape: {
-        borderRadius: 4,
-      },
       transitions: transitions,
-      direction: "ltr",
 
-      overrides: {
-        MuiSelect: {
-          selectMenu: {
-            paddingLeft: spacingUnit
-          }
-        },
-      },
-      rawCSS: [
-        `@property --top-posts-page-scrim-opacity {
-          syntax: "<percentage>";
-          inherits: false;
-          initial-value: 36%;
-        }`
-      ],
       isBookUI: isBookUI(),
       isFriendlyUI: isFriendlyUI(),
       isLW: isLW(),

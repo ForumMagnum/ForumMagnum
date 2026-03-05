@@ -30,6 +30,5 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
   dark: true,
   make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     dark: true,
-    rawCSS: []
   }),
 });

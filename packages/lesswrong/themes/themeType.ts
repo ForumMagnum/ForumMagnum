@@ -106,8 +106,6 @@ declare global {
     forumType: ForumTypeString,
     themeOptions: ThemeOptions,
     dark: boolean,
-
-    baseFontSize: number,
     
     breakpoints: {
       /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
@@ -122,20 +120,13 @@ declare global {
     palette: ThemePalette,
     typography: ThemeTypography,
     zIndexes: ZIndexMap,
-    overrides: any,
     
     // Used by material-UI. Not used by us directly (for our styles use
     // `theme.palette.boxShadow` which defines shadows semantically rather than
     // with an arbitrary darkness number)
     shadows: string[],
     
-    rawCSS: string[],
-    
-    shape: {
-      borderRadius: number,
-    },
     transitions: MuiTransitions,
-    direction: "ltr"|"rtl",
   } & ForumTypeFlags;
 
   type NativeThemeType = Omit<ThemeType,"palette"|"forumType"|"themeOptions"|"breakpoints"> & { breakpoints: Omit<ThemeType["breakpoints"], "up"|"down"> };
