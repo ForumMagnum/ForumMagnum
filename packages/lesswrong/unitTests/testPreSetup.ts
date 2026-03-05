@@ -1,7 +1,9 @@
 import 'regenerator-runtime/runtime';
 import { filterConsoleLogSpam } from '../lib/consoleFilters';
+import { disableFragmentWarnings } from 'graphql-tag';
 
 filterConsoleLogSpam();
+disableFragmentWarnings();
 
 
 // Workaround for TextEncoder being missing from the environment that jest
