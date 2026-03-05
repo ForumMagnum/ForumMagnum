@@ -38,8 +38,8 @@ const ModerationTemplateFragmentMutation = gql(`
 
 const formStyles = defineStyles('ModerationTemplatesForm', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
 }));

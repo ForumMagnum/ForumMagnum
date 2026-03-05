@@ -37,10 +37,10 @@ const styles = defineStyles("CommentPermalink", (theme: ThemeType) => ({
   },
   permalinkLabel: {
     color: theme.palette.grey[600],
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
     marginLeft: 10,
     [theme.breakpoints.down('md')]: {
-      marginTop: theme.spacing.unit*2
+      marginTop: 16
     }
   },
   seeInContext: {

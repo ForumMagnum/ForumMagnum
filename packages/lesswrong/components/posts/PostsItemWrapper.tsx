@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => ({
   dragHandle: {
     pointerEvents: "none",
     color: theme.palette.icon.dim,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     cursor: "pointer",
   },
   addIcon: {

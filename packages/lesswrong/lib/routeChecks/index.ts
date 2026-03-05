@@ -26,10 +26,6 @@ export const isStandaloneRoute = (pathname: string) => pathnameMatchesAnyOf(path
   '/groups-map'
 ]);
 
-// ea-forum-look-here Uncomment when this route exists
-//export const isStaticHeaderRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/admin/digests/[num]');
-export const isStaticHeaderRoute = (pathname: string) => false;
-
 export const isFullscreenRoute = (pathname: string) => pathnameMatchesAnyOf(pathname, [
   "/inbox",
   "/inbox/[conversationId]",

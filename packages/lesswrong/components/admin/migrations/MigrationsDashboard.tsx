@@ -19,7 +19,7 @@ const styles = defineStyles("MigrationsDashboard", (theme: ThemeType) => ({
     fontWeight: 'bold',
     fontSize: 17,
     borderBottom: theme.palette.border.tableHeadingDivider,
-    marginBottom: theme.spacing.unit / 2,
+    marginBottom: 4,
   }
 }));
 

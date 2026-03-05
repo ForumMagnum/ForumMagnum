@@ -7,9 +7,9 @@ import LWTooltip from "../common/LWTooltip";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    paddingRight: theme.spacing.unit,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
+    paddingRight: 8,
+    paddingTop: 8,
+    paddingBottom: 8,
     cursor: "pointer",
     color: theme.palette.icon.slightlyDim2,
   },

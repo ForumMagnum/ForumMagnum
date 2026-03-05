@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
     display:"flex",
     alignItems: "center",
     backgroundColor: theme.palette.grey[50],
-    paddingLeft: theme.spacing.unit*2,
+    paddingLeft: 16,
     zIndex: theme.zIndexes.sidebarActionMenu,
   },
 })

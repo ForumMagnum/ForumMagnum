@@ -431,9 +431,9 @@ export const MessagePreview: LinkPreviewComponent<'/inbox' | '/inbox/[conversati
 
 const defaultPreviewStyles = defineStyles('DefaultPreview', (theme: ThemeType) => ({
   hovercard: {
-    padding: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    padding: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
     ...theme.typography.body2,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
@@ -710,9 +710,9 @@ export const MetaforecastPreview = ({href, id, className, children}: {
 
 const arbitalStyles = defineStyles('ArbitalPreview', (theme: ThemeType) => ({
   hovercard: {
-    padding: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    padding: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
     maxWidth: 500,
     overflow: 'hidden',
     textOverflow: 'ellipsis',

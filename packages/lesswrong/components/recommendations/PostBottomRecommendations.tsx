@@ -52,22 +52,6 @@ const styles = defineStyles("PostBottomRecommendations", (theme: ThemeType) => (
   },
 }));
 
-const WrapperComponent = ({hasTableOfContents, children}: {
-  hasTableOfContents: boolean
-  children: React.ReactNode
-}) => {
-  if (isFriendlyUI()) {
-    return <ToCColumn
-      tableOfContents={hasTableOfContents ? <div /> : null}
-      notHideable
-    >
-      {children}
-    </ToCColumn>;
-  } else {
-    return <>{children}</>
-  }
-};
-
 const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
   hasTableOfContents?: boolean,
@@ -127,7 +111,6 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
-        <WrapperComponent hasTableOfContents={!!hasTableOfContents}>
           <div>
             {hasUserPosts &&
               <div className={classes.section}>
@@ -164,7 +147,6 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
               </AnalyticsContext>
             </div>
           </div>
-        </WrapperComponent>
       </div>
     </AnalyticsContext>
   );

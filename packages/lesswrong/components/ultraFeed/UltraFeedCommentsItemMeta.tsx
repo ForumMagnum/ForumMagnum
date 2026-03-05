@@ -85,7 +85,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     width: 13,
     height: 13,
     marginLeft: -2,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     position: "relative",
     top: 2
   },

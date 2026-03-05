@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   reviewLabel: {
     ...theme.typography.postStyle,
     ...theme.typography.contentNotice,
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   contentNotice: {
     ...theme.typography.contentNotice,
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   infoIcon: {
     width: 16,
     height: 16,
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     verticalAlign: "top",
     color: theme.palette.icon.dim2,
   },

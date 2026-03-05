@@ -1,5 +1,4 @@
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
-import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType) => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -195,19 +194,6 @@ const tableStyles = (theme: ThemeType) => ({
   height: "100%",
   textAlign: "left",
   width: '100%',
-  ...(theme.isFriendlyUI && {
-    "& *": {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 14,
-      lineHeight: "1.4em",
-    },
-    "& sup *": {
-      fontSize: 10,
-    },
-    "& ul, & ol": {
-      paddingLeft: "1.5em",
-    },
-  }),
 });
 
 const tableCellStyles = (theme: ThemeType) => ({
@@ -218,11 +204,6 @@ const tableCellStyles = (theme: ThemeType) => ({
   '& p': {
     marginTop: '0.5em',
     marginBottom: '0.5em',
-    ...(theme.isFriendlyUI && {
-      marginLeft: 2,
-      marginRight: 2,
-      lineHeight: "1.4em",
-    }),
   },
   '& p:first-of-type': {
     marginTop: 0
@@ -367,9 +348,9 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
     // that tries to turn border off and on to indicate selection. Use
     // !important to ensure it's visible.
-    border: theme.isFriendlyUI ? undefined : theme.palette.border.normal+' !important',
+    border: theme.palette.border.normal+' !important',
     borderRadius: 8,
-    marginTop: theme.isFriendlyUI ? 0 : 8,
+    marginTop: 8,
     marginBottom: 8,
   },
   '& .detailsBlockTitle': {
@@ -379,7 +360,7 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     // give background !important to take precedence over CkEditor making it
     // pure-white when the cursor is inside it, which would make the
     // title-vs-contents distinction invisible
-    background: theme.isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
+    background: theme.palette.panelBackground.darken05+'!important',
     
     "&>*": {
       display: "inline",
@@ -393,7 +374,7 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     cursor: "pointer",
   },
   '& .detailsBlockContent': {
-    padding: theme.isFriendlyUI ? "0 8px 8px 20px" : 8,
+    padding: 8,
   },
   // Cancel out a global paragraph style that adds bottom margin to paragraphs
   // in the editor for some reason, which would create a page/editor mismatch
@@ -421,11 +402,8 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
   // the editor it would be a <summary> tag)
   '& div.detailsBlockTitle': {
     position: "relative",
-    paddingLeft: theme.isFriendlyUI ? 20 : 24,
+    paddingLeft: 24,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: theme.isFriendlyUI ? "20.8px" : undefined,
-    lineHeight: theme.isFriendlyUI ? "1.25em" : undefined,
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
   },
 
   // The 'div' part of this selector makes it specific to the editor (outside
@@ -433,9 +411,9 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& div.detailsBlockTitle::before': {
     content: '"▼"',
     cursor: "pointer",
-    fontSize: theme.isFriendlyUI ? 12 : 14,
+    fontSize: 14,
     position: "absolute",
-    left: theme.isFriendlyUI ? 0 : 8,
+    left: 8,
   },
   '& .detailsBlock.closed div.detailsBlockTitle::before': {
     content: '"▶"',
@@ -465,7 +443,7 @@ const ctaButtonStyles = (theme: ThemeType) => ({
     lineHeight: '20px',
     textTransform: 'none',
     padding: '12px 16px',
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
+    borderRadius: theme.borderRadius.small,
     boxShadow: 'none',
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
@@ -639,9 +617,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& a:visited, & a.visited': {
     color: theme.palette.link.visited
   },
-  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': theme.isFriendlyUI ? {
-    color: theme.palette.link.visitedHover,
-  } : {},
+  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': {},
   '& table': {
     ...tableStyles(theme)
   },
@@ -708,7 +684,7 @@ export const postBodyStyles = (theme: ThemeType) => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: theme.isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
+      borderTop: theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -760,7 +736,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
-    '& .footnotes': theme.isFriendlyUI ? {} : {
+    '& .footnotes': {
       marginTop: 0,
       paddingTop: 8,
       paddingLeft: 16,
@@ -798,8 +774,8 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
       color: theme.palette.text.spoilerBlockNotice,
     },
     '& hr': {
-      marginTop: theme.spacing.unit*1.5,
-      marginBottom: theme.spacing.unit*1.5
+      marginTop: 12,
+      marginBottom: 12
     },
   }
   return commentBodyStyles;
@@ -814,7 +790,7 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: theme.isFriendlyUI ? 14.3 : 16.64,
+    fontSize: 16.64,
     lineHeight: "22.75px",
     ...theme.typography.postStyle,
     '& blockquote': {
@@ -827,7 +803,7 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: theme.isFriendlyUI ? 14.3 : 16.64,
+      fontSize: 16.64,
       lineHeight: "23.4px",
     }
   };
@@ -857,7 +833,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           ...pBodyStyle(theme),
         },
       },
-      '--ck-spacing-standard': `${theme.spacing.unit}px`,
+      '--ck-spacing-standard': `8px`,
       '&.ck-content': {
         // As of v46, ckeditor applies some default styles via these css variables.
         // We have our own styles and don't want them, so just set them back to initial.
@@ -867,7 +843,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '--ck-content-line-height': 'initial',
         '--ck-content-word-break': 'initial',
 
-        marginLeft: -theme.spacing.unit,
+        marginLeft: -8,
         '--ck-focus-outer-shadow-geometry': "none",
         '--ck-focus-ring': theme.palette.border.transparent,
         '--ck-focus-outer-shadow': "none",
@@ -933,7 +909,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           }
         },
         '& .ck-thread__comment-count': {
-          paddingLeft: theme.spacing.unit*2,
+          paddingLeft: 16,
           color: theme.palette.grey[600],
           margin: 0,
           paddingBottom: ".5em",
@@ -942,7 +918,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           }
         },
         '& .ck-comment__input': {
-          paddingLeft: theme.spacing.unit*2
+          paddingLeft: 16
         },
         '& .ck-annotation__main, & .ck-comment__input, & .ck-thread__input': {
           width : "100%"

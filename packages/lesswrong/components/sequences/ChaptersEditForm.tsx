@@ -12,7 +12,7 @@ import AddDraftPostDialog from "./AddDraftPostDialog";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    padding: theme.spacing.unit
+    padding: 8
   },
   title: {
     ...theme.typography.display1,

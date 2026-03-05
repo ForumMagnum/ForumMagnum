@@ -3,7 +3,6 @@ import { useCurrentUser } from '../common/withUser';
 import { PermissionsPostMinimumInfo as PostPermissionsMinimumInfo, userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { moderationEmail } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import CalendarDate from "../common/CalendarDate";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
@@ -60,9 +59,6 @@ const CantCommentExplanation = ({post}: {
   const currentUser = useCurrentUser();
   const author = post.user ?? null;
   const email = moderationEmail.get()
-  if (isFriendlyUI() && post.shortform) {
-    return null;
-  }
   return (
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
       { userBlockedCommentingReason(currentUser, post, author)}{" "}

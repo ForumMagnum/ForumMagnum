@@ -12,9 +12,7 @@ import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
-import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import { useStyles, defineStyles } from "../hooks/useStyles";
@@ -350,19 +348,6 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
 }> = ({tag, query}) => {
   const classes = useStyles(styles);
-  if (isFriendlyUI()) {
-    return (
-      <>
-        <SectionTitle title={`Posts tagged ${tag.name}`} />
-        <div className={classes.postListMeta}>
-          <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-          <div className={classes.relevance}>
-            <RelevanceLabel />
-          </div>
-        </div>
-      </>
-    );
-  }
   return (
     <div className={classes.tagHeader}>
       <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
@@ -680,17 +665,9 @@ const LWTagPage = ({slug}: {slug: string}) => {
 
   const htmlWithAnchors = selectedLens?.tableOfContents?.html ?? selectedLens?.contents?.html ?? "";
 
-  let description = htmlWithAnchors;
-  // EA Forum wants to truncate much less than LW
-  if (isFriendlyUI()) {
-    description = truncated
-      ? truncateTagDescription(htmlWithAnchors, tag?.descriptionTruncationCount)
-      : htmlWithAnchors;
-  } else {
-    description = (truncated && !tag?.wikiOnly)
+  let description = (truncated && !tag?.wikiOnly)
     ? truncate(htmlWithAnchors, tag?.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
-  }
 
   const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
 

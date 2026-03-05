@@ -56,8 +56,8 @@ export const styles = defineStyles('CollectionsEditForm', (theme: ThemeType) => 
     border: theme.palette.border.normal,
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),

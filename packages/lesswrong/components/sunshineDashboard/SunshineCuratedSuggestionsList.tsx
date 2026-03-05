@@ -136,17 +136,15 @@ const SunshineCuratedSuggestionsList = ({ limit = 7, atBottom, classes, setCurat
   }
 
   let statusClass = '';
-  if (isLWorAF()) {
-    const daysSinceCurated = Math.floor(
-      (new Date().getTime() - curatedDate.getTime()) / (24 * 60 * 60 * 1000)
-    );
-    if (daysSinceCurated >= 6) {
-      statusClass = classes.urgent;
-    } else if (daysSinceCurated >= 4) {
-      statusClass = classes.alert;
-    } else if (daysSinceCurated >= 3) {
-      statusClass = classes.warning;
-    }
+  const daysSinceCurated = Math.floor(
+    (new Date().getTime() - curatedDate.getTime()) / (24 * 60 * 60 * 1000)
+  );
+  if (daysSinceCurated >= 6) {
+    statusClass = classes.urgent;
+  } else if (daysSinceCurated >= 4) {
+    statusClass = classes.alert;
+  } else if (daysSinceCurated >= 3) {
+    statusClass = classes.warning;
   }
 
   const needsDraftsText = !timeForCuration && !hasDrafts ? " (No drafts!)" : "";

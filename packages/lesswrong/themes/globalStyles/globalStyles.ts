@@ -1,5 +1,4 @@
 import type { JssStyles } from "@/lib/jssStyles";
-import { isFriendlyUI } from "../forumTheme";
 import { miscStyles } from "./miscStyles";
 
 export const maxSmallish = "@media screen and (max-width: 715px)";

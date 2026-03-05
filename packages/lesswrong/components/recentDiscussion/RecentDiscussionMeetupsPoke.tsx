@@ -13,7 +13,7 @@ import Loading from "../vulcan-core/Loading";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: 32,
     position: "relative",
     minHeight: 58,
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,

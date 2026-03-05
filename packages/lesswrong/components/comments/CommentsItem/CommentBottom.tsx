@@ -28,13 +28,13 @@ const styles = defineStyles("CommentBottom", (theme: ThemeType) => ({
   leftSection: {
     display: "flex",
     alignItems: "center",
-    columnGap: theme.spacing.unit,
+    columnGap: 8,
     flexWrap: "wrap",
   },
   rightSection: {
     display: "flex",
     alignItems: "center",
-    columnGap: theme.spacing.unit,
+    columnGap: 8,
     marginLeft: "auto",
   },
   answer: {
@@ -45,7 +45,7 @@ const styles = defineStyles("CommentBottom", (theme: ThemeType) => ({
     ...theme.typography.body2,
     fontWeight: 450,
     color: theme.palette.lwTertiary.main,
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
   },
 }))
 

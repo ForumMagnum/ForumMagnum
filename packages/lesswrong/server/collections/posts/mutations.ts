@@ -243,7 +243,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
   await removeRedraftNotifications(updatedDocument, oldDocument, context);
 
-  if (isEAForum()) {
+  if (isEAForum()) { // TODO UNGATE - LW should probably adopt this
     await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
   }
 

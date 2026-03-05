@@ -38,7 +38,7 @@ const UsersProfileMultiQuery = gql(`
 const styles = defineStyles("UserCommentsReplies", (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
-      marginRight: theme.spacing.unit*4,
+      marginRight: 32,
     }
   }
 }));

@@ -31,14 +31,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 2,
   },
   title: {
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-        fontWeight: 600,
-      }
-      : {
-        position: "relative",
-      }),
+    position: "relative",
     top: 2,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -50,9 +43,6 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "unset",
     lineHeight: "1.1em",
     marginBottom: 4,
-    ...(theme.isFriendlyUI && {
-      lineHeight: '1.2em'
-    }),
   },
   author: {
     marginRight: 0,

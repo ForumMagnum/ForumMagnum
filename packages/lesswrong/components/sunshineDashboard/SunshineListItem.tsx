@@ -6,10 +6,10 @@ const styles = (theme: ThemeType) => ({
   root: {
     position:"relative",
     borderTop: theme.palette.border.faint,
-    paddingTop: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
+    paddingTop: 8,
+    paddingLeft: 16,
+    paddingRight: 8,
+    paddingBottom: 8,
   },
   content: {
     ...theme.typography.postStyle,

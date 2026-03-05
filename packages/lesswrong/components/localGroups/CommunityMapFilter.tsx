@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
     width: 120,
     padding: "10px 10px 5px 10px",
     borderRadius: 2,
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   filters: {
     borderTopLeftRadius: 4,
@@ -122,7 +122,7 @@ const styles = (theme: ThemeType) => ({
   actionIcon: {
     width: '0.7em',
     height: '0.7em',
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     position: 'relative',
     top: 2,
     cursor: "pointer"
@@ -146,15 +146,15 @@ const styles = (theme: ThemeType) => ({
     }
   },
   divider: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit
+    marginTop: 8,
+    marginBottom: 8
   },
   topDivider: {
     marginTop: 0
   },
   subscribeSection: {
     cursor: "pointer",
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     }

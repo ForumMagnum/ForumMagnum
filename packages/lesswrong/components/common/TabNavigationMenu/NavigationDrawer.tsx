@@ -32,8 +32,8 @@ const styles = defineStyles("NavigationDrawer", (theme: ThemeType) => ({
   drawerNavigationMenuCompressed: {
     width:55,
     backgroundColor: theme.palette.grey[100],
-    paddingTop: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit,
+    paddingTop: 16,
+    paddingBottom: 8,
     borderRight: theme.palette.border.faint,
     height:"100%",
     color: theme.palette.grey[600],

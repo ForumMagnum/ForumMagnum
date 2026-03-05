@@ -40,7 +40,7 @@ const TagModerationGuidelinesQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   root: {
-    padding: theme.spacing.unit * 2,
+    padding: 16,
     position: "relative"
   },
   assistance: { //UNUSED

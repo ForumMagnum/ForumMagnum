@@ -11,13 +11,6 @@ const monoStack = [
   'monospace'
 ].join(',')
 
-// Will be used for the distance between the post title divider and the text on
-// mobile
-// Matches distance from the bottom of the secondaryInfo to the divider
-// = 16 (see header and divider) + the ~4 pixel distance from the bottom
-// of the secondaryInfo text to the bottom of the associated div
-const titleDividerSpacing = 20
-
 export const baseTheme: BaseThemeSpecification = {
   shadePalette: defaultShadePalette(),
   componentPalette: (shadePalette: ThemeShadePalette) => defaultComponentPalette(shadePalette),
@@ -37,8 +30,6 @@ export const baseTheme: BaseThemeSpecification = {
         },
       },
       spacing: {
-        unit: spacingUnit,
-        titleDividerSpacing,
         mainLayoutPaddingTop: 50
       },
       borderRadius: {
@@ -72,7 +63,7 @@ export const baseTheme: BaseThemeSpecification = {
           // This should be at least as big as the margin-bottom of <p> tags (18.1
           // on LW), and the distance on mobile between the divider and the top of
           // the notice is as good as any
-          marginBottom: titleDividerSpacing,
+          marginBottom: 20,
           wordBreak: "break-word"
         },
         body1: {

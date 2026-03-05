@@ -10,7 +10,7 @@ import FormatDate from "../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    padding: theme.spacing.unit,
+    padding: 8,
     borderBottom: "solid 1px",
     borderBottomColor: theme.palette.grey[200],
     '&:hover': {
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   },
   postLink: {
     float:"right",
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   titleRow: {

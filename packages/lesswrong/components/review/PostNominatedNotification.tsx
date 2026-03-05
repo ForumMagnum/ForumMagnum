@@ -25,14 +25,14 @@ const PostsListQuery = gql(`
 
 const styles = defineStyles("PostNominatedNotification", (theme: ThemeType) => ({
   root: {
-    padding: theme.spacing.unit*1.5,
+    padding: 12,
     width: getPostPreviewWidth(),
   },
   loading: {
     ...notificationLoadingStyles(theme)
   },
   reviewButton: {
-    padding: theme.spacing.unit,
+    padding: 8,
     textAlign: "center"
   }
 }))

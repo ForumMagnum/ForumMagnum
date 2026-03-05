@@ -7,7 +7,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     fontSize: ".85rem",
     lineHeight: "1.5em"
   }
