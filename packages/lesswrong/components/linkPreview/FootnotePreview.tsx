@@ -232,7 +232,6 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
                 footnoteHref={href}
                 footnoteHTML={footnoteHTML}
                 contentStyleType={contentStyleType}
-                classes={classes}
               />
             </FootnoteAncestorsContext.Provider>
           </div>
@@ -313,12 +312,12 @@ const isFootnoteContentsNonempty = (footnoteContentsElement: Element): boolean =
       .reduce((acc, p) => acc + p.textContent, "").trim();
 }
 
-const SidenoteDisplay = ({footnoteHref, footnoteHTML, contentStyleType, classes}: {
+const SidenoteDisplay = ({footnoteHref, footnoteHTML, contentStyleType}: {
   footnoteHref: string,
   footnoteHTML: string,
   contentStyleType: ContentStyleType,
-  classes: ClassesType<typeof footnotePreviewStyles>,
 }) => {
+  const classes = useStyles(footnotePreviewStyles);
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);
 
   return (
