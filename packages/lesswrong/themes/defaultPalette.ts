@@ -87,7 +87,7 @@
 
 import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder, invertIfDarkMode } from "./colorUtil";
 
-export const defaultComponentPalette = (dark: boolean): ThemeComponentPalette => ({
+export const defaultComponentPalette = (dark: boolean) => ({
   type: dark ? "dark" : "light",
   grey,
   greyAlpha,
