@@ -21,8 +21,9 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import { InteractionWrapper } from '../common/useClickableCell';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import { useTheme } from '../themes/useTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-export const footnotePreviewStyles = (theme: ThemeType) => ({
+export const footnotePreviewStyles = defineStyles("FootnotePreview", (theme: ThemeType) => ({
   hovercard: {
     padding: 16,
     ...theme.typography.body2,
@@ -134,7 +135,7 @@ export const footnotePreviewStyles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-})
+}))
 
 /**
  * Since footnotes can contain footnotes, by default we could have a side-item
@@ -144,14 +145,14 @@ export const footnotePreviewStyles = (theme: ThemeType) => ({
  */
 export const FootnoteAncestorsContext = React.createContext<string[]|null>(null);
 
-const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighlight", children}: {
-  classes: ClassesType<typeof footnotePreviewStyles>,
+const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", children}: {
   href: string,
   id?: string,
   rel?: string,
   contentStyleType?: ContentStyleType,
   children: React.ReactNode,
 }) => {
+  const classes = useStyles(footnotePreviewStyles);
   const { openDialog } = useDialog();
   const [disableHover, setDisableHover] = useState(false);
   const theme = useTheme();
@@ -408,8 +409,6 @@ function getFootnoteIndex(href: string, html: string): string|null {
   return null;
 }
 
-export default registerComponent('FootnotePreview', FootnotePreview, {
-  styles: footnotePreviewStyles,
-});
+export default FootnotePreview;
 
 

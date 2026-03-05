@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { mergeRegister } from '@lexical/utils';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 import { hasSidenotes } from '@/lib/betas';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import ContentStyles from '@/components/common/ContentStyles';
@@ -17,8 +17,6 @@ import {
   footnotePreviewStyles,
 } from '@/components/linkPreview/FootnotePreview';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
-
-const styles = defineStyles('LexicalFootnoteSidenotesPlugin', footnotePreviewStyles);
 
 type LexicalFootnoteSidenote = {
   key: string,
@@ -109,7 +107,7 @@ const LexicalFootnoteSidenoteItem = ({
   sidenote: LexicalFootnoteSidenote,
   contentStyleType: ContentStyleType,
 }) => {
-  const classes = useStyles(styles);
+  const classes = useStyles(footnotePreviewStyles);
   const [hovered, setHovered] = useState(false);
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (isInteractiveClickTarget(event.target)) {
