@@ -114,6 +114,10 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   date: {
     color: theme.palette.grey[600],
     fontSize: 10,
+  },
+  conversationPreviewTooltip: {
+    maxHeight: "100vh",
+    overflow: "hidden",
   }
 }));
 
@@ -240,7 +244,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     {results?.map(conversation => {
       const isExpanded = expandedConversationId === conversation._id;
       return (
-        <LWTooltip key={conversation._id} placement="left-start" tooltip={false} title={<div><ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth /></div>}>
+        <LWTooltip key={conversation._id} placement="left-start" tooltip={false} titleClassName={classes.conversationPreviewTooltip} title={<div><ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth /></div>}>
           <div  className={classes.conversationItem}>
             <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
               <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
@@ -257,7 +261,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
                 <ForumIcon icon="Link" className={classes.linkIcon} />
               </Link> 
               <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
-
             </div>
             {isExpanded && (
               <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
