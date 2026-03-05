@@ -10,7 +10,6 @@ import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 
 const sharedStyles = (theme: ThemeType) => ({
-  fontFamily: theme.typography.fontFamily,
   width: 'fit-content',
   display: 'inline-block',
   padding: '5px',

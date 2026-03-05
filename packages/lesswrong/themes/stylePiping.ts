@@ -18,7 +18,7 @@ const spoilerStyles = (theme: ThemeType) => ({
   '& .spoiler': {
     padding: 8,
     pointerEvents: 'auto',
-    minHeight: theme.typography.commentStyle.fontSize,
+    minHeight: 15,
     '&:not(:hover)': { // using ':not(:hover)' means we don't need to manually reset elements with special colors or backgrounds, instead they just automatically stay the same if we're not hovering
       ...hideSpoilers(theme),
     }
@@ -592,7 +592,12 @@ const baseBodyStyles = (theme: ThemeType) => ({
   },
   '& img': {
     maxWidth: "100%",
-    ...theme.postImageStyles,
+    ...(theme.dark && {
+      // Override image background color to white (so that transparent isn't
+      // black). Necessary because there are a handful of posts with images that
+      // have black-on-transparent text in them.
+      background: "#ffffff"
+    })
   },
   '& sup': {
     verticalAlign: 'baseline',

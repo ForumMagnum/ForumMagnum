@@ -10,7 +10,6 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("UltraFeedMainFeed", (theme: ThemeType) => ({
   emptyStateMessage: {
-    fontFamily: theme.palette.fonts.serifStack,
     ...theme.typography.commentStyle,
     color: theme.palette.error.main,
     fontSize: 18,

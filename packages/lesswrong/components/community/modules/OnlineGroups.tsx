@@ -144,7 +144,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     padding: '10px 14px',
     borderRadius: 4,
-    fontSize: theme.isFriendlyUI ? 14 : theme.typography.commentStyle.fontSize,
   },
   postGroupsCTA: {
     textAlign: 'center',

@@ -127,7 +127,6 @@ const styles = defineStyles("UltraFeedCommentItem", (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       padding: 6,
-      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
     },
   },
   numCommentsWithReadStyles: {
