@@ -1,7 +1,7 @@
 import { $createHorizontalRuleNode } from '@lexical/extension'
 import { $insertNodeToNearestRoot } from '@lexical/utils'
 import { randomId } from '@/lib/random'
-import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical'
+import { $createParagraphNode, $getSelection, $isElementNode, $isRangeSelection } from 'lexical'
 import { $createSuggestionNode } from './ProtonNode'
 
 export function $insertDividerAsSuggestion(onSuggestionCreation: (id: string) => void): boolean {
@@ -16,10 +16,17 @@ export function $insertDividerAsSuggestion(onSuggestionCreation: (id: string) =>
   suggestionNode.append(dividerNode)
 
   const insertedNode = $insertNodeToNearestRoot(suggestionNode)
-  if (!insertedNode.getNextSibling()) {
+  // $insertNodeToNearestRoot wraps inline nodes (like ProtonNode) in a
+  // paragraph, and leaves the cursor inside that wrapper. We need to
+  // ensure the cursor ends up after the wrapper paragraph.
+  const topLevelNode = insertedNode.getTopLevelElement() ?? insertedNode
+  if (!topLevelNode.getNextSibling()) {
     const paragraph = $createParagraphNode()
-    insertedNode.insertAfter(paragraph)
-    paragraph.selectEnd()
+    topLevelNode.insertAfter(paragraph)
+  }
+  const nextSibling = topLevelNode.getNextSibling()
+  if ($isElementNode(nextSibling)) {
+    nextSibling.selectStart()
   }
 
   onSuggestionCreation(suggestionID)

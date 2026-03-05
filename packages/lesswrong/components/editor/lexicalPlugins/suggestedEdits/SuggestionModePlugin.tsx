@@ -1,10 +1,11 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { $findMatchingParent, IS_APPLE, mergeRegister } from '@lexical/utils'
-import type { LexicalEditor, NodeKey } from 'lexical'
+import type { ElementNode, LexicalEditor, NodeKey } from 'lexical'
 import {
   $getNodeByKey,
   $getSelection,
   $isNodeSelection,
+  $isParagraphNode,
   $isRangeSelection,
   $isRootOrShadowRoot,
   $isTextNode,
@@ -88,7 +89,6 @@ import { $setBlocksTypeAsSuggestion, $wrapInQuoteAsSuggestion } from './setBlock
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/extension'
 import { $insertDividerAsSuggestion } from './insertDividerAsSuggestion'
 import { HR } from '@/components/lexical/plugins/MarkdownTransformers'
-import { $getTopLevelParagraphForHR } from '@/components/editor/lexicalPlugins/horizontalRuleEnter'
 import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggestion'
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import { eventFiles } from '@lexical/rich-text'
@@ -134,6 +134,22 @@ function insertImageFileAsSuggestion(
 }
 
 const LIST_TRANSFORMERS = [UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]
+
+/**
+ * Removes a top-level paragraph containing an HR markdown shortcut (---, ***, ___)
+ * and inserts an HR as a suggestion at the same position.
+ */
+function $removeParagraphAndInsertDividerSuggestion(
+  paragraph: ElementNode,
+  onSuggestionCreation: (id: string) => void,
+): boolean {
+  if (!$isRootOrShadowRoot(paragraph.getParent())) {
+    return false
+  }
+  paragraph.remove()
+  $insertDividerAsSuggestion(onSuggestionCreation)
+  return true
+}
 
 export function SuggestionModePlugin({
   isSuggestionMode,
@@ -725,29 +741,31 @@ export function SuggestionModePlugin({
 
           editor.getEditorState().read(() => {
             const selection = $getSelection()
+            if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+              return
+            }
 
-            const paragraphElement = $getTopLevelParagraphForHR(selection)
-            if (paragraphElement) {
-              const textContent = paragraphElement.getTextContent()
-              if (HR.regExp.test(textContent)) {
-                shouldHandleHR = true
-              }
+            const anchorNode = selection.anchor.getNode()
+            const topLevelParagraph = anchorNode.getTopLevelElement()
+            if ($isParagraphNode(topLevelParagraph) && HR.regExp.test(topLevelParagraph.getTextContent())) {
+              shouldHandleHR = true
             }
           })
 
           if (shouldHandleHR) {
             editor.update(() => {
               const selection = $getSelection()
-              const paragraphElement = $getTopLevelParagraphForHR(selection)
-              if (!paragraphElement) {
+              if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
                 return
               }
 
-              // Remove the paragraph with the dashes
-              paragraphElement.remove()
+              const anchorNode = selection.anchor.getNode()
+              const topLevelParagraph = anchorNode.getTopLevelElement()
+              if (!$isParagraphNode(topLevelParagraph) || !HR.regExp.test(topLevelParagraph.getTextContent())) {
+                return
+              }
 
-              // Insert the HR as a suggestion
-              $insertDividerAsSuggestion(addCreatedIDtoSet)
+              $removeParagraphAndInsertDividerSuggestion(topLevelParagraph, addCreatedIDtoSet)
             })
 
             event?.preventDefault()
@@ -880,13 +898,8 @@ export function SuggestionModePlugin({
             // Check for horizontal rule shortcut (---, ***, ___)
             const hrMatch = textContent.match(HR.regExp)
             if (hrMatch && hrMatch[0].length === anchorOffset) {
-              const actualParent = parent.getParent()!
-              const isActualParentBlockLevel = $isRootOrShadowRoot(actualParent.getParent())
-              if (isActualParentBlockLevel) {
-                // Remove the paragraph containing the dashes and the suggestion node
-                actualParent.remove()
-                // Insert the HR as a suggestion
-                $insertDividerAsSuggestion(addCreatedIDtoSet)
+              const actualParent = parent.getParent()
+              if (actualParent && $removeParagraphAndInsertDividerSuggestion(actualParent, addCreatedIDtoSet)) {
                 return
               }
             }

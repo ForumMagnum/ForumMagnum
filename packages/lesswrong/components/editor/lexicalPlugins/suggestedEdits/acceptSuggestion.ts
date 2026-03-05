@@ -64,13 +64,11 @@ function $joinNonInlineLeafElementWithNext(suggestionNode: ProtonNode) {
  *     <ins>            ← ProtonNode (inline)
  *       <hr>           ← decorator node
  *     </ins>
- *     <p><br></p>      ← trailing empty paragraph
  *   </p>
  *
  * After unwrapping the suggestion node, we move all children out of the
- * wrapper paragraph in order (decorator nodes become siblings, other
- * elements like the trailing empty paragraph are also moved out),
- * then remove the now-empty wrapper.
+ * wrapper paragraph (decorator nodes become siblings), then remove the
+ * now-empty wrapper.
  */
 function $unwrapAndReparentDecoratorNode(node: ProtonNode) {
   const parent = node.getParent()
