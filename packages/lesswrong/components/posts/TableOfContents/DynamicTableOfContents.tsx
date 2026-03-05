@@ -3,12 +3,14 @@ import { EditorContents } from '../../editor/Editor';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import TableOfContents from "./TableOfContents";
 import ToCColumn from "./ToCColumn";
+import MultiToCLayout from "./MultiToCLayout";
 import { DynamicTableOfContentsContext } from '@/components/common/sharedContexts';
 
-export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
+export const DynamicTableOfContents = ({title, rightColumnChildren, children, useMultiToCLayout = false}: {
   title?: string,
   rightColumnChildren?: React.ReactNode,
-  children: React.ReactNode
+  children: React.ReactNode,
+  useMultiToCLayout?: boolean,
 }) => {
   const [latestHtml, setLatestHtml] = useState<string | null>(null);
   const sectionData = useDynamicTableOfContents({
@@ -31,18 +33,29 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
 
   const displayedTitle = title || (sectionData.sections.length > 0 ? "Table of Contents" : "")
 
+  const tableOfContents = <TableOfContents
+    sectionData={sectionData}
+    title={displayedTitle}
+    fixedPositionToc={true}
+  />;
+
   return <div>
     <DynamicTableOfContentsContext.Provider value={context}>
-      <ToCColumn
-        tableOfContents={<TableOfContents 
-          sectionData={sectionData}
-          title={displayedTitle}
-        />}
+      {useMultiToCLayout ? <MultiToCLayout
+        segments={[{
+          toc: tableOfContents,
+          centralColumn: children,
+          rightColumn: rightColumnChildren,
+        }]}
+        tocRowMap={[0]}
+        tocContext="post"
+      /> : <ToCColumn
+        tableOfContents={tableOfContents}
         rightColumnChildren={rightColumnChildren}
         notHideable
       >
         {children}
-      </ToCColumn>
+      </ToCColumn>}
     </DynamicTableOfContentsContext.Provider>
   </div>;
 }

@@ -229,9 +229,10 @@ export const SideItemsSidebar = () => {
   />, [classes]);
 }
 
-export const SideItem = ({options, children}: {
+export const SideItem = ({options, children, anchorEl}: {
   options?: Partial<SideItemOptions>,
-  children: React.ReactNode
+  children: React.ReactNode,
+  anchorEl?: HTMLElement|null,
 }) => {
   const placementContext = useContext(SideItemsPlacementContext);
   const anchorRef = useRef<HTMLSpanElement>(null);
@@ -239,8 +240,8 @@ export const SideItem = ({options, children}: {
   const mergedOptions: SideItemOptions = {...defaultSideItemOptions, ...options};
   
   useEffect(() => {
-    if (placementContext && anchorRef.current) {
-      const anchor = anchorRef.current;
+    const anchor = anchorEl ?? anchorRef.current;
+    if (placementContext && anchor) {
       setPortalContainer(placementContext.addSideItem(anchor, mergedOptions));
       
       return () => {
@@ -249,10 +250,14 @@ export const SideItem = ({options, children}: {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [placementContext, mergedOptions.format, mergedOptions.offsetTop, mergedOptions.measuredElement]);
+  }, [placementContext, anchorEl, mergedOptions.format, mergedOptions.offsetTop, mergedOptions.measuredElement]);
 
   if (!placementContext) {
     return null;
+  }
+
+  if (anchorEl) {
+    return <>{portalContainer && createPortal(children, portalContainer)}</>;
   }
 
   return <span ref={anchorRef}>

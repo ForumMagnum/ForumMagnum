@@ -22,7 +22,7 @@ import { InteractionWrapper } from '../common/useClickableCell';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import { useTheme } from '../themes/useTheme';
 
-const footnotePreviewStyles = (theme: ThemeType) => ({
+export const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
     padding: 16,
     ...theme.typography.body2,
@@ -142,7 +142,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
  * React stack-depth limit is reached). Use a context provider to keep track of
  * what footnotes we're in, to prevent this.
  */
-const FootnoteAncestorsContext = React.createContext<string[]|null>(null);
+export const FootnoteAncestorsContext = React.createContext<string[]|null>(null);
 
 const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighlight", children}: {
   classes: ClassesType<typeof footnotePreviewStyles>,

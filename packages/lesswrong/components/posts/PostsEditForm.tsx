@@ -27,6 +27,15 @@ import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
+import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
+import { hasSidenotes } from '@/lib/betas';
+import {
+  CENTRAL_COLUMN_WIDTH,
+  RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+  RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+  RIGHT_COLUMN_WIDTH_XS,
+  sidenotesHiddenBreakpoint,
+} from './PostsPage/constants';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -40,7 +49,7 @@ const UsersCurrentPostRateLimitQuery = gql(`
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
-    maxWidth: 715,
+    maxWidth: CENTRAL_COLUMN_WIDTH,
     margin: "0 auto",
 
     [theme.breakpoints.down('xs')]: {
@@ -116,6 +125,15 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
     flexWrap: "wrap",
     marginTop: 20
   },
+  reserveSpaceForSidenotes: {
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+      [theme.breakpoints.down('xs')]: {
+        width: RIGHT_COLUMN_WIDTH_XS,
+      },
+    },
+  },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
   },
@@ -129,9 +147,10 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   },
 }))
 
-const PostsEditFormInner = ({ documentId, version }: {
+const PostsEditFormInner = ({ documentId, version, useMultiToCLayout = false }: {
   documentId: string,
   version?: string | null,
+  useMultiToCLayout?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { query } = useLocation();
@@ -203,10 +222,18 @@ const PostsEditFormInner = ({ documentId, version }: {
 
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId
+  const rightColumnChildren = (hasSidenotes() || isEAForum()) ? <>
+    {hasSidenotes() && <>
+      <div className={classes.reserveSpaceForSidenotes}/>
+      <SideItemsSidebar />
+    </>}
+    {isEAForum() && <NewPostHowToGuides/>}
+  </> : undefined;
 
   return (<>
     <StatusCodeSetter status={200}/>
-    <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum() && <NewPostHowToGuides/>}>
+    <SideItemsContainer>
+    <DynamicTableOfContents title={document.title} rightColumnChildren={rightColumnChildren} useMultiToCLayout={useMultiToCLayout}>
       <div className={classes.postForm}>
         {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
@@ -245,12 +272,14 @@ const PostsEditFormInner = ({ documentId, version }: {
         </DeferRender>
       </div>
     </DynamicTableOfContents>
+    </SideItemsContainer>
   </>);
 }
 
-const PostsEditForm = ({ documentId, version }: {
+const PostsEditForm = ({ documentId, version, useMultiToCLayout = false }: {
   documentId: string,
   version?: string | null,
+  useMultiToCLayout?: boolean,
 }) => {
   // HACK: key PostsEditForm with usePathname, so that when you navigate off of
   // /editPost and then return, no state belonging to PostsEditFormInner will be
@@ -261,7 +290,7 @@ const PostsEditForm = ({ documentId, version }: {
   // return a stale value on its first render. (This is a bug in the interaction
   // between apollo-client and nextjs 16.)
   const pathname = usePathname();
-  return <PostsEditFormInner documentId={documentId} version={version} key={pathname}/>
+  return <PostsEditFormInner documentId={documentId} version={version} useMultiToCLayout={useMultiToCLayout} key={pathname}/>
 }
 
 export default PostsEditForm;
