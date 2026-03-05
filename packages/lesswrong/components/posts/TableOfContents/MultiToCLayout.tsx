@@ -109,7 +109,7 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     transition: 'top 0.2s ease-in-out, height 0.2s ease-in-out',
     lineHeight: 1.0,
     marginLeft: 1,
-    paddingLeft: theme.spacing.unit*2,
+    paddingLeft: 16,
     textAlign: "left",
     maxHeight: `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`,
     height: fullHeightToCEnabled() ? `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))` : undefined,

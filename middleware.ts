@@ -58,8 +58,10 @@ export async function middleware(request: NextRequest) {
     const forwardedHeaders = new Headers(request.headers);
     forwardedHeaders.set(ForwardingHeaderName, "true");
     
+    const forwardUrl = request.nextUrl.href;
+    const fixedForwardedUrl = fixForwardUrl(forwardUrl);
     const forwardedFetchResponse = await fetch(
-      request.nextUrl,
+      fixedForwardedUrl,
       {
         headers: addedClientId ? addClientIdToRequestHeaders(forwardedHeaders, addedClientId) : forwardedHeaders,
         method: request.method,
@@ -342,6 +344,17 @@ async function findStatusCodeInStream(stream: ReadableStream<Uint8Array<ArrayBuf
   }
 }
 
+// HACK: When requests are forwarded through ngrok (or cloudflare's tunnel), they
+// get an X-Forwarded-Proto header of "https". This causes req.nextUrl to be
+// "https://localhost:3000", which doesn't work (because it shouldn't be https).
+// Work around this by dropping the "s".
+function fixForwardUrl(forwardUrl: string): string {
+  if (forwardUrl.startsWith("https://localhost")) {
+    return forwardUrl.replace("https://localhost", "http://localhost");
+  }
+  return forwardUrl;
+}
+
 export const config: MiddlewareConfig = {
   matcher: [
     {
@@ -362,7 +375,7 @@ export const config: MiddlewareConfig = {
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
     {
-      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+      source: "/((?!api|$|auth|graphql|graphql2|hocuspocusWebhook|analyticsEvent|public|ckeditor-token|ckeditor-webhook|feed.xml|reactionImages|_next/static|_next/image|favicon.ico|sitemap.xml|.well-known|oauth|logout|admin/debugHeaders|robots.txt).*)",
       missing: [
         { type: 'header', key: 'next-router-state-tree' },
       ],

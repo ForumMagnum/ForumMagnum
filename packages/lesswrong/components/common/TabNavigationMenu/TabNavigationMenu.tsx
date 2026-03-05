@@ -53,15 +53,15 @@ const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
         color: theme.palette.text.bannerAdOverlay,
         background: theme.palette.text.bannerAdOverlay,
       }),
-      marginBottom: theme.spacing.unit * 2.5,
+      marginBottom: 20,
       ...(theme.isFriendlyUI
         ? {
-          marginLeft: theme.spacing.unit * 2.5,
-          marginTop: theme.spacing.unit * 2.5,
+          marginLeft: 20,
+          marginTop: 20,
         }
         : {
-          marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
-          marginTop: theme.spacing.unit * 1.5,
+          marginLeft: 16 + (iconWidth + 16) - 2,
+          marginTop: 12,
         }),
     },
 }));
@@ -132,8 +132,6 @@ const TabNavigationMenu = ({
               iconOnlyNavigationEnabled={iconOnly}
             />
           })}
-          {/* NB: This returns null if you don't have any active resources */}
-          {/* <FeaturedResourceBanner terms={{view: "activeResources"}}/> */}
         </div>
     </AnalyticsContext>  )
 };

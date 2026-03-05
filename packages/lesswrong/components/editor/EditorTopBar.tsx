@@ -62,10 +62,6 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   const canEditOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "edit");
   const alwaysShownUserIds = [post.userId ?? '', ...post.coauthorUserIds]
 
-  if (isFriendlyUI() && post.collabEditorDialogue) {
-    return null;
-  }
-
   return <div className={classes.editorTopBar}>
     <div className={classes.presenceList}>
       <PresenceList connectedUsers={connectedUsers} alwaysShownUserIds={alwaysShownUserIds}/>

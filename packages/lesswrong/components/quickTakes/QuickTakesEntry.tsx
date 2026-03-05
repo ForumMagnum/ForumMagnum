@@ -1,13 +1,11 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useQuickTakesTags } from "./useQuickTakesTags";
 import CommentsNewForm, {
   CommentCancelCallback,
   CommentSuccessCallback } from "../comments/CommentsNewForm";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
-import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import LoginPopup from "../users/LoginPopup";
 
@@ -70,7 +68,6 @@ const styles = (theme: ThemeType) => ({
     '--lexical-comment-min-height': `${COLLAPSED_HEIGHT}px`,
     '--lexical-comment-placeholder-top': '25%',
     '--lexical-comment-placeholder-transform': 'translateY(-50%)',
-    '--lexical-comment-placeholder-left': '50px',
     '& .EditorFormComponent-commentEditorHeight [contenteditable="true"]': {
       minHeight: COLLAPSED_HEIGHT,
       maxHeight: COLLAPSED_HEIGHT,
@@ -120,12 +117,7 @@ const QuickTakesEntry = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = useDialog();
-  const {onSignup} = useLoginPopoverContext();
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const {
-    frontpage,
-    selectedTagIds,
-  } = useQuickTakesTags();
 
   const onCancel = useCallback(async (ev?: MouseEvent) => {
     ev?.preventDefault();
@@ -151,15 +143,11 @@ const QuickTakesEntry = ({
 
     isUnexpandedClickRef.current = false;
 
-    if (isFriendlyUI()) {
-      onSignup();
-    } else {
-      openDialog({
-        name: "LoginPopup",
-        contents: ({onClose}) => <LoginPopup onClose={onClose} />
-      });
-    }
-  }, [currentUser, openDialog, onSignup, expanded]);
+    openDialog({
+      name: "LoginPopup",
+      contents: ({onClose}) => <LoginPopup onClose={onClose} />
+    });
+  }, [currentUser, openDialog, expanded]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -196,8 +184,8 @@ const QuickTakesEntry = ({
         interactionType='reply'
         prefilledProps={{
           shortform: true,
-          shortformFrontpage: frontpage,
-          relevantTagIds: selectedTagIds,
+          shortformFrontpage: true,
+          relevantTagIds: [],
         }}
         enableGuidelines={false}
         className={classNames(classes.commentForm, {

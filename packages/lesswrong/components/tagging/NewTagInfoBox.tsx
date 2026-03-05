@@ -1,7 +1,6 @@
 import React from "react";
 import { styles as howToStyles } from "../posts/NewPostHowToGuides";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
-import { taggingNameSetting } from "@/lib/instanceSettings";
 import { Link } from "@/lib/reactRouterWrapper";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -41,7 +40,7 @@ const NewTagInfoBox = () => {
   const classes = useStyles(styles);
   const howToClasses = useStyles(howToStyles);
 
-  const tag = taggingNameSetting.get();
+  const tag = "wikitag";
   return (
     <AnalyticsContext pageElementContext="newTagInfoBox">
       <div className={classNames(howToClasses.root, classes.width)}>

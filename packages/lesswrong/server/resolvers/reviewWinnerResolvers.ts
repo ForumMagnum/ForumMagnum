@@ -8,11 +8,9 @@ import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
 
 
 export async function initReviewWinnerCache() {
-  if (isLWorAF()) {
-    const context = createAnonymousContext();
-    backgroundTask(reviewWinnerPostsCache.get());
-    backgroundTask(splashArtCoordinateCache.get(context));
-  }
+  const context = createAnonymousContext();
+  backgroundTask(reviewWinnerPostsCache.get());
+  backgroundTask(splashArtCoordinateCache.get(context));
 }
 
 export const reviewWinnerGraphQLTypeDefs = gql`

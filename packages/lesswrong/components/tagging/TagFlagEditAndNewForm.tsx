@@ -5,7 +5,6 @@ import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getUpdatedFieldValues } from '@/components/tanstack-form-components/helpers';
 import { EditorFormComponent, useEditorFormCallbacks } from '../editor/EditorFormComponent';
@@ -40,8 +39,8 @@ const TagFlagFragmentMutation = gql(`
 
 const formStyles = defineStyles('TagFlagsForm', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
 }));
@@ -118,8 +117,8 @@ const TagFlagEditAndNewForm = ({ initialData, onClose }: {
     >
       <DialogTitle>
         {initialData ?
-          `Edit ${taggingNameCapitalSetting.get()} Flag` :
-          `Create ${taggingNameCapitalSetting.get()} Flag`}
+          `Edit Wikitag Flag` :
+          `Create Wikitag Flag`}
       </DialogTitle>
       <DialogContent>
         <form className="vulcan-form" onSubmit={(e) => {

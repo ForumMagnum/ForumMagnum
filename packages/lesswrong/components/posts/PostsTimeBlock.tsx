@@ -31,7 +31,7 @@ const PostsListWithVotesMultiQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4
+    marginBottom: 32
   },
   timeBlockTitle: {
     whiteSpace: "pre",

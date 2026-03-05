@@ -1,5 +1,4 @@
 import { useQuery } from "@/lib/crud/useQuery";
-import { hookToHoc } from '../hocUtils';
 import { useApolloClient } from "@apollo/client/react";
 import { CurrentUserQuery } from "./currentUserQuery";
 
@@ -26,5 +25,3 @@ export const useQueryCurrentUser = () => {
     currentUserLoading: loading,
   }
 }
-
-export const withCurrentUser = hookToHoc(useQueryCurrentUser);

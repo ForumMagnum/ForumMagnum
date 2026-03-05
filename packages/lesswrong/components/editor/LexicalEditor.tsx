@@ -31,6 +31,7 @@ import Settings from '../lexical/Settings';
 import { TableCellNode } from '@lexical/table';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { gql } from '@/lib/generated/gql-codegen';
+import { HorizontalRuleExtension } from '@lexical/extension';
 
 const HocuspocusAuthQuery = gql(`
   query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -159,9 +160,6 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     },
     '& .footnote-content': {
       flex: 1,
-      '& p': {
-        margin: 0,
-      },
     },
     '& .footnote-reference': {
       cursor: 'pointer',
@@ -355,6 +353,11 @@ const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExpo
     const adjustedLineCount = Math.max(1, lines.length - trailingLineCountAdjustment);
     const lineCount = adjustedLineCount;
     output.element.setAttribute('data-gutter', formatCodeGutter(lineCount));
+    // Set the digit count so CSS can compute gutter width dynamically.
+    const digitCount = String(lineCount).length;
+    if (digitCount > 1) {
+      output.element.style.setProperty('--gutter-chars', String(digitCount));
+    }
   }
   return output;
 };
@@ -479,7 +482,7 @@ const LexicalEditor = ({
         namespace: 'Playground',
         nodes: PlaygroundNodes,
         theme: PlaygroundEditorTheme,
-        dependencies: [],
+        dependencies: [HorizontalRuleExtension],
       });
     },
     [],

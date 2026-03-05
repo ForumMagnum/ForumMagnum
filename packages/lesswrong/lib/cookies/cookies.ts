@@ -162,12 +162,6 @@ export const HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS = registerCookie({
   description: "Whether to hide the suggested users section on the subscribed tab feed"
 });
 
-export const HIDE_SURVEY_SCHEDULE_IDS = registerCookie({
-  name: "hide_survey_schedule_ids",
-  type: "necessary",
-  description: "Stores the ids of survey schedules that the user has hidden"
-});
-
 export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
   name: "selected_frontpage_tab",
   type: "functional",
@@ -184,12 +178,6 @@ export const HIDE_EAG_BANNER_COOKIE = registerCookie({
   name: "hide_eag_banner",
   type: "necessary",
   description: "Don't show any EAG(x) banners",
-});
-
-export const HIDE_EA_FORUM_SURVEY_BANNER_COOKIE = registerCookie({
-  name: "hide_ea_forum_survey_banner",
-  type: "necessary",
-  description: "Don't show the EA Forum survey banner",
 });
 
 export const NAV_MENU_FLAG_COOKIE_PREFIX = "nav_menu_flag_";

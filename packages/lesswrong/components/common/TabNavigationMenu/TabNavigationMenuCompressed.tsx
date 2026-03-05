@@ -19,8 +19,8 @@ const styles = defineStyles("TabNavigationMenuCompressed", (theme: ThemeType) =>
     color: theme.palette.grey[600],
   },
   divider: {
-    marginTop:theme.spacing.unit,
-    marginBottom:theme.spacing.unit
+    marginTop:8,
+    marginBottom:8
   }
 }))
 

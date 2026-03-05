@@ -6,7 +6,6 @@ export class FMCrosspostRoute<
   RequestSchema extends ZodType,
   ResponseSchema extends ZodType,
   RequestData extends z.infer<RequestSchema>,
-  ResponseData extends z.infer<ResponseSchema>,
 > {
   constructor(private config: {
     routeName: string,
@@ -37,7 +36,7 @@ export class FMCrosspostRoute<
   async makeRequest(
     data: RequestData,
     {foreignRequest}: {foreignRequest?: boolean} = {},
-  ): Promise<ResponseData> {
+  ): Promise<z.infer<ResponseSchema>> {
     const path = foreignRequest ? this.getForeignPath() : this.getPath();
     const parsedData = this.config.requestSchema.parse(data);
     const response = await fetch(path, {
@@ -62,6 +61,8 @@ export const crossposterDetailsRoute = new FMCrosspostRoute({
     fmCrosspostUserId: z.string().nullable().optional(),
   }),
 });
+
+const foo = crossposterDetailsRoute.getRequestSchema().safeParse({ userId: "123" });
 
 export const crosspostDetailsRoute = new FMCrosspostRoute({
   routeName: "crosspostDetails",

@@ -25,7 +25,7 @@ const styles = defineStyles("PostsPageEventData", (theme: ThemeType) => ({
     display: 'flex',
     ...theme.typography.postStyle,
     justifyContent: 'space-between',
-    marginTop: theme.spacing.unit*2,
+    marginTop: 16,
     color: theme.palette.text.dim,
     fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down('xs')]: {

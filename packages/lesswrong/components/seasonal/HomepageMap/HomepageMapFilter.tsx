@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   actionIcon: {
     width: '0.7em',
     height: '0.7em',
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     position: 'relative',
     top: 2,
     cursor: "pointer"
@@ -51,8 +51,8 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.darken05,
   },
   divider: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit
+    marginTop: 8,
+    marginBottom: 8
   },
   subscribeSection: {
     cursor: "pointer",

@@ -13,16 +13,16 @@ export type CardContentClassKey = 'root';
 export const styles = defineStyles("MuiCardContent", theme => ({
   /* Styles applied to the root element. */
   root: {
-    paddingLeft: theme.spacing.unit * 2,
-    paddingRight: theme.spacing.unit * 2,
+    paddingLeft: 16,
+    paddingRight: 16,
     paddingTop: 16,
     paddingBottom: 16,
     '&:last-child': {
       paddingBottom: 24,
     },
     [theme.breakpoints.up('sm')]: {
-      paddingLeft: theme.spacing.unit * 3,
-      paddingRight: theme.spacing.unit * 3,
+      paddingLeft: 24,
+      paddingRight: 24,
     },
   },
 }), {stylePriority: -10});

@@ -18,8 +18,8 @@ const styles = defineStyles("PopupLanguageModelChat", (theme: ThemeType) => ({
     width: 500,
     maxHeight: "calc(100vh - 80px)",
     position: "fixed",
-    right: theme.spacing.unit,
-    bottom: theme.spacing.unit,
+    right: 8,
+    bottom: 8,
     zIndex: theme.zIndexes.languageModelChat,
     [theme.breakpoints.down('sm')]: {
       display: "none"

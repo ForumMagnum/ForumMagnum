@@ -45,14 +45,14 @@ const styles = (theme: ThemeType) => ({
     }
   },
   newCommentLabel: {
-    paddingLeft: theme.spacing.unit*1.5,
+    paddingLeft: 12,
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontWeight: 600,
     marginTop: 12
   },
   newCommentSublabel: {
-    paddingLeft: theme.spacing.unit*1.5,
+    paddingLeft: 12,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     fontStyle: 'italic',

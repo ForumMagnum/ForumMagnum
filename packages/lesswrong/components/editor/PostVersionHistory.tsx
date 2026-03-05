@@ -9,7 +9,6 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { canUserEditPostMetadata, postGetEditUrl, isCollaborative } from '@/lib/collections/posts/helpers';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -150,7 +149,7 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
     variant={"outlined"}
     className={classes.versionHistoryButton}
   >
-    {preferredHeadingCase("Version History")}
+    Version History
   </EAButton>
 }
 

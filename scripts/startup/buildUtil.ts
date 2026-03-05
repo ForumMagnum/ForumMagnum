@@ -3,7 +3,6 @@ import fs from "fs";
 import process from "process";
 import { spawn, exec } from 'child_process';
 import { promisify } from 'util';
-import type { CommandLineOptions } from "../../build";
 
 const execAsync = promisify(exec);
 
@@ -44,7 +43,7 @@ const execAsync = promisify(exec);
  * part of the connection, from the bastion host to the DB, is then within the
  * same datacenter).
  */
-export function getDatabaseConfig(opts: Partial<CommandLineOptions>) {
+export function getDatabaseConfig(opts: {db?: string, postgresUrlFile?: string, postgresUrl?: string, noSshTunnel?: boolean}) {
   let dbConfig: any = null;
   if (opts.db) {
     let dbConfigFile = readFileOrDie(opts.db);
@@ -55,11 +54,11 @@ export function getDatabaseConfig(opts: Partial<CommandLineOptions>) {
       process.exit(1);
     }
   }
-  
+
   if (opts.postgresUrlFile) {
     opts.postgresUrl = readFileOrDie(opts.postgresUrlFile);
   }
-  
+
   // If SSH tunnel options are provided, generate an SSH command, and rewrite
   // postgresUrl to a loopback connection.
   let tunneledPgConnectionString: string|null = null;
@@ -150,40 +149,3 @@ function die(message: string, status?: number): never {
     process.exit(1);
   }
 }
-
-export async function startSshTunnel(sshTunnelCommand: any) {
-  if (sshTunnelCommand) {
-    const sshHost = sshTunnelCommand.at(-1).split('@')[1];
-    await execAsync(`
-      if [ -z "$(ssh-keygen -F ${sshHost})" ]; then
-        mkdir -p ~/.ssh
-        ssh-keyscan -H ${sshHost} >> ~/.ssh/known_hosts
-      fi`
-    );
-    
-    const sshTunnelProcess = spawn("/usr/bin/ssh", sshTunnelCommand, {
-      stdio: "inherit",
-      detached: false,
-    });
-
-    sshTunnelProcess.on('close', (status) => {
-      console.log(`SSH tunnel exited with status ${status}`);
-    });
-  }
-}
-
-let outputDir = './build';
-export function setOutputDir(dir: string) {
-  outputDir = dir;
-}
-export function getOutputDir() {
-  return outputDir;
-}
-
-export function logWithTimestamp(...args: any[]) {
-  const colorBlue = "\x1b[34m";
-  const colorNormal = "\x1b[0m";
-  const timestampStr = colorBlue + new Date().toISOString() + colorNormal + ':';
-  console.log(timestampStr, ...args);
-}
-

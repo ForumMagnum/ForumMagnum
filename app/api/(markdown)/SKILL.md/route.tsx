@@ -51,6 +51,76 @@ Reading collections:
  * /api/rationality
  * /api/codex
  * /api/hpmor
+
+Helping Users With Drafts
+=========================
+(This feature is currently in development, the API should not be assumed stable,
+and users using it should be reminded of LessWrong's policy on LLM writing, found
+at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B)
+
+The API can also be used to edit and comment on post drafts, which will appear
+in the post editor. This feature is only available for Lexical, which is enabled
+for users who have enabled the "Beta features" option in their settings, which
+can be found at https://www.lesswrong.com/account?tab=preferences. To give an AI
+agent access, the user needs to press the Share button, change the permissions
+for "Anyone with the link can" to "Edit", then copy the edit-post URL for you.
+The URL will look like this:
+    https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ
+The key in the URL is called the "link sharing key"; do not share this key with
+anyone unless the user is asking you to give that person permission to edit
+the post. Once you have the post URL, read the post at:
+    GET /api/editPost?postId=[id]&key=[linkSharingKey]
+
+To add add Google Docs-style comments to the draft, make a request to:
+    POST /api/agent/commentOnDraft
+    with JSON body: { postId, key, agentName?, quote?, comment }
+If a quote is provided, the comment will be attached to matching quoted text. The
+quote should be long enough to be unambiguous. If no quote is provided, the
+comment will be top-level. Both the quote and your comment should be in markdown.
+
+To replace text inside the draft, make a POST request to:
+    POST /api/agent/replaceText
+    with JSON body: { postId, key, agentName?, quote, replacement, mode?: "edit"|"suggest" }
+The quote and replacement should be in markdown. If the mode is "edit", the
+change will be applied immediately; if the mode is "suggest", the change will be
+displayed as a suggestion in the post editor. If the user hasn't said whether to
+use edit mode or suggest mode, use suggest mode.
+
+To insert new blocks of text into the draft, make a POST request to:
+    POST /api/agent/insertBlock
+    with JSON body: { postId, key, agentName?, location, markdown, mode?: "edit"|"suggest" }
+The location should be a markdown string that matches the start of a paragraph
+that already exists in the draft. The location can be one of the following:
+    "start": insert at the beginning of the post
+    "end": insert at the end of the post
+    "before": insert before the specified paragraph
+    "after": insert after the specified paragraph
+    "mode": "edit"|"suggest"
+
+To delete an existing block from the draft, make a POST request to:
+    POST /api/agent/deleteBlock
+    with JSON body: { postId, key, prefix, mode?: "edit"|"suggest" }
+The prefix should be a markdown string that matches the start of a paragraph
+that already exists in the draft.
+In edit mode, the matched block is removed immediately. In suggest mode, the
+matched block is wrapped as a deletion suggestion.
+
+Custom widgets are represented in markdown with fenced code blocks using:
+    \`\`\`widget[widgetId]
+    ... html/js content ...
+    \`\`\`
+Newly inserted widgets will have a unique widgetId in the bracket.
+
+To replace the HTML/JS contents of a widget, make a POST request to:
+    POST /api/agent/replaceWidget
+    with JSON body: {
+      postId, key, agentName?, widgetId,
+      replacement?: string,
+      unifiedDiff?: string,
+      mode?: "edit"|"suggest"
+    }
+Provide exactly one of replacement or unifiedDiff. In suggest mode, the
+change is represented as widget-content suggestions.
 `;
 
 export function GET(req: NextRequest) {

@@ -1,3 +1,4 @@
+"use client";
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -54,7 +55,7 @@ import { ChatSquareQuoteIcon } from '../icons/ChatSquareQuoteIcon';
 import { FileEarmarkTextIcon } from '../icons/FileEarmarkTextIcon';
 import {$isImageNode} from './ImageNode';
 import { INSERT_INLINE_COMMENT_AT_COMMAND } from '../plugins/CommentPlugin';
-import { SET_IMAGE_CAPTION_VISIBILITY_COMMAND } from '../plugins/ImagesPlugin/commands';
+
 
 const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
   imageContainer: {
@@ -558,22 +559,17 @@ export default function ImageComponent({
   }, [editor, $onEnter, $onEscape, onClick, onRightClick]);
 
   const setShowCaption = (show: boolean) => {
-    editor.dispatchCommand(SET_IMAGE_CAPTION_VISIBILITY_COMMAND, {
-      nodeKey: imageNodeKey,
-      showCaption: show,
+    editor.update(() => {
+      const node = $getNodeByKey(imageNodeKey);
+      if (!$isImageNode(node)) {
+        return;
+      }
+      node.setShowCaption(show);
+      if (show) {
+        const captionNode = node.getCaptionNode();
+        captionNode?.selectEnd();
+      }
     });
-    if (show) {
-      editor.update(() => {
-        const node = $getNodeByKey(imageNodeKey);
-        if ($isImageNode(node)) {
-          const captionNode = node.getCaptionNode();
-          captionNode?.selectEnd();
-        }
-      });
-    }
-    if (show && editor.isEditable()) {
-      editor.getRootElement()?.focus();
-    }
   };
 
 

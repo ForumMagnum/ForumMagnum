@@ -8,7 +8,6 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { FilterMode } from '../../lib/filterSettings';
 import { useSubscribeUserToTag } from '../hooks/useFilterSettings';
-import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import { Paper }from '@/components/widgets/Paper';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -209,9 +208,7 @@ const SubscribeButton = ({
     }
   }
 
-  const taggedPostWording = taggingNameIsSet.get()
-    ? `posts on this ${taggingNameSetting.get()}`
-    : "posts with this tag";
+  const taggedPostWording = `posts on this wikitag`
 
   return (
     <div className={classNames(className, classes.root)}>

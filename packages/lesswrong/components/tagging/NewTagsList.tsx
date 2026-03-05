@@ -1,5 +1,4 @@
 import React from 'react';
-import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import LoadMore from "../common/LoadMore";
 import TagsListItem from "./TagsListItem";
@@ -61,7 +60,7 @@ const NewTagsList = ({classes, showHeaders = true}: {
   const results = data?.tags?.results;
 
   return <div className={classes.root}>
-    {showHeaders && <h2>New {taggingNamePluralCapitalSetting.get()}</h2>}
+    {showHeaders && <h2>New Wikitags</h2>}
     <table>
       <tbody>
         {results?.map(tag => <tr key={tag._id}>

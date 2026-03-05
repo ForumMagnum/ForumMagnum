@@ -4,7 +4,6 @@ import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import UsersName from "../users/UsersName";
 import SequencesSmallPostLink from "./SequencesSmallPostLink";
 import ChapterTitle from "./ChapterTitle";
@@ -29,7 +28,7 @@ const ChaptersFragmentMultiQuery = gql(`
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
-    width: theme.isFriendlyUI ? FRIENDLY_HOVER_OVER_WIDTH : 450,
+    width: 450,
   },
   title: {
     ...theme.typography.body1,
@@ -98,7 +97,7 @@ const SequenceMeta: FC<{
 }
 
 const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
-  sequence: SequencesPageFragment,
+  sequence: SequenceSummaryFragment,
   chapters: ChaptersFragment[],
   maxPosts: number,
   totalPosts: number,
@@ -132,9 +131,17 @@ const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
   return <>{nodes}</>;
 }
 
+const _SequenceSummaryFragment = gql(`
+  fragment SequenceSummaryFragment on Sequence {
+    _id title postsCount canonicalCollectionSlug
+    user { ...UsersMinimumInfo }
+    contents { htmlHighlight wordCount }
+  }
+`)
+
 export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}: {
   classes: ClassesType<typeof styles>,
-  sequence: SequencesPageFragment|null,
+  sequence: SequenceSummaryFragment|null,
   showAuthor?: boolean
   maxPosts?: number,
 }) => {

@@ -20,8 +20,8 @@ const styles = defineStyles("SunshineNewUserPostItem", (theme: ThemeType) => ({
     flexWrap: "wrap"
   },
   post: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
+    marginTop: 16,
+    marginBottom: 16,
     fontSize: "1.1em",
   },
   postBody: {

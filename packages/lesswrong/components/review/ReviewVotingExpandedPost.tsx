@@ -71,10 +71,10 @@ const styles = (theme: ThemeType) => ({
     transform: "rotate(180deg)",
   },
   reviewVoting: {
-    padding: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*2,
+    padding: 16,
+    paddingBottom: 16,
     position: "relative",
-    right: theme.spacing.unit*4
+    right: 32
   }
 })
 

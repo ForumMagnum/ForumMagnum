@@ -17,6 +17,7 @@ import { type LiteAdaptor, liteAdaptor } from 'mathjax-full/js/adaptors/liteAdap
 import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html.js';
 import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
+import IframeWidgetSrcdocs from '@/server/collections/iframeWidgetSrcdocs/collection';
 import { ServerSafeNode } from '@/lib/domParser';
 
 const blockTags = new Set([
@@ -28,10 +29,27 @@ const blockTags = new Set([
 
 const isBlockTag = (nodeName: string): boolean => blockTags.has(nodeName);
 
+function isLexicalIframeWidgetElement(node: Node): node is Element {
+  if (node?.nodeType !== ServerSafeNode.ELEMENT_NODE) {
+    return false;
+  }
+  const element = node as Element;
+  return element.nodeName.toUpperCase() === 'IFRAME'
+    && element.getAttribute('data-lexical-iframe-widget') !== null;
+}
+
+function iframeWidgetElementToMarkdown(element: Element): string {
+  const widgetId = element.getAttribute('data-widget-id') ?? '';
+  const widgetMarkup = element.getAttribute('srcdoc') ?? '';
+  return `\n\n\`\`\`widget[${widgetId}]\n${widgetMarkup}\n\`\`\`\n\n`;
+}
+
 let _turndownService: TurndownService|null = null;
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v1';
 function getTurndown(): TurndownService {
-  if (!_turndownService) {
-    const TurndownService = require('turndown');
+  const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
+  if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
+    const TurndownService: typeof import('turndown') = require('turndown');
     const {gfm} = require('turndown-plugin-gfm');
 
     const indentMarkdown = (markdown: string, indentLevel: number): string => {
@@ -43,8 +61,11 @@ function getTurndown(): TurndownService {
         .join("\n");
     };
 
-    const turndownService: TurndownService = new TurndownService({
+    const turndownService = new TurndownService({
       blankReplacement: (content: string, node: Node) => {
+        if (isLexicalIframeWidgetElement(node)) {
+          return iframeWidgetElementToMarkdown(node);
+        }
         if (hasDataMarkdownAttribute(node)) {
           const element = node as Element;
           const markdown = element.getAttribute('data-markdown') ?? '';
@@ -58,7 +79,25 @@ function getTurndown(): TurndownService {
         return ''
       },
     })
+    turndownService.addRule('iframe-widget-markdown', {
+      filter: ['iframe'],
+      replacement: (_content, node) => {
+        const element = node as Element;
+        if (element.getAttribute('data-lexical-iframe-widget') === null) {
+          return element.outerHTML;
+        }
+        return iframeWidgetElementToMarkdown(element);
+      }
+    })
     turndownService.use(gfm); // Add support for strikethrough and tables
+    turndownService.addRule('suggestion-deletion', {
+      filter: ['del'],
+      replacement: (content) => `<del>${content}</del>`
+    })
+    turndownService.addRule('suggestion-insertion', {
+      filter: ['ins'],
+      replacement: (content) => `<ins>${content}</ins>`
+    })
     turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
     turndownService.addRule('raw-markdown', {
       filter: (node, options) => hasDataMarkdownAttribute(node),
@@ -139,6 +178,7 @@ function getTurndown(): TurndownService {
       filter: (node, options) => node.classList?.contains('detailsBlock'),
       replacement: (content) => `${content}\n+++`
     });
+    (turndownService as AnyBecauseHard).__buildMarker = TURNDOWN_BUILD_MARKER;
     _turndownService = turndownService;
   }
   return _turndownService;
@@ -208,11 +248,15 @@ export function renderMathInHtml(html: string): string {
     // RSS feeds, external scrapers, etc. (same rationale as the old
     // trimLatexAndAddCSS callback used with mathjax-node-page).
     const $ = cheerioParse(renderedHtml);
-    // Parity with old trimLatexAndAddCSS(): drop empty display equations.
-    // These can occasionally arise from malformed/empty TeX blocks.
+    // Drop only truly empty display equations.
+    // In MathJax v3, valid display equations can have empty text() while still
+    // containing rendered child nodes (<mjx-math>...), so text().trim()===""
+    // alone is not a safe emptiness check.
     $('mjx-container[display="true"]').each((_, elem) => {
       const node = $(elem);
-      if (node.text().trim() === '') {
+      const hasRenderedChildren = node.children().length > 0;
+      const hasMeaningfulText = node.text().trim() !== '';
+      if (!hasRenderedChildren && !hasMeaningfulText) {
         node.remove();
       }
     });
@@ -442,6 +486,40 @@ function lexicalMarkupToHtml(markup: string, context: ResolverContext, skipMathj
   } else {
     return renderMathInHtml(strippedHtml);
   }
+}
+
+export async function extractAndReplaceIframeWidgets(html: string, revisionId: string): Promise<string> {
+  const $ = cheerioParse(html);
+  const srcdocsToInsert: DbInsertion<DbIframeWidgetSrcdoc>[] = [];
+
+  $('iframe[data-lexical-iframe-widget]').each((_, element) => {
+    const iframe = $(element);
+    const rawSrcdoc = iframe.attr('srcdoc') ?? '';
+    if (!rawSrcdoc) {
+      return;
+    }
+    const srcdoc = cheerioParse(rawSrcdoc).root().find('del').remove().end().html() ?? '';
+
+    const srcdocId = randomId();
+    srcdocsToInsert.push({
+      _id: srcdocId,
+      createdAt: new Date(),
+      schemaVersion: 1,
+      revisionId,
+      html: srcdoc,
+    });
+
+    const replacementDiv = $('<div></div>')
+      .addClass('iframe-widget')
+      .attr('data-iframe-widget-id', srcdocId);
+    iframe.replaceWith(replacementDiv);
+  });
+
+  if (srcdocsToInsert.length === 0) {
+    return html;
+  }
+  await IframeWidgetSrcdocs.rawInsertMany(srcdocsToInsert);
+  return $.html();
 }
 
 interface DataToHTMLOptions {

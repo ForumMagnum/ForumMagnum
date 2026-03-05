@@ -81,7 +81,7 @@ const styles = defineStyles("CommunityMap", (theme: ThemeType) => ({
     cursor: "pointer",
     borderRadius: 2,
     width: 120,
-    marginBottom: theme.spacing.unit
+    marginBottom: 8
   },
   hideMap: {
     width: 34,

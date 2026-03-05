@@ -532,7 +532,7 @@ const styles = defineStyles("ModerationPageContent", (theme: ThemeType) => ({
     padding: '12px',
     transition: 'box-shadow 0.2s',
     '&:hover': {
-      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      boxShadow: `0 2px 8px ${theme.palette.boxShadowColor(0.1)}`
     }
   },
   rateLimitHeader: {

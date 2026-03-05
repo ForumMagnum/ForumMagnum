@@ -21,11 +21,11 @@ export const styles = defineStyles("MuiToolbar", theme => ({
   },
   /* Styles applied to the root element if `disableGutters={false}`. */
   gutters: {
-    paddingLeft: theme.spacing.unit * 2,
-    paddingRight: theme.spacing.unit * 2,
+    paddingLeft: 16,
+    paddingRight: 16,
     [theme.breakpoints.up('sm')]: {
-      paddingLeft: theme.spacing.unit * 3,
-      paddingRight: theme.spacing.unit * 3,
+      paddingLeft: 24,
+      paddingRight: 24,
     },
   },
   /* Styles applied to the root element if `variant="regular"`. */

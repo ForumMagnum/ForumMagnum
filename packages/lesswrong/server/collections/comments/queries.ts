@@ -162,6 +162,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     limit: String
     before: String
     after: String
+    timeField: String
   }
   
   input CommentsRecentCommentsInput {
@@ -173,6 +174,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     limit: String
     before: String
     after: String
+    timeField: String
   }
   
   input CommentsAfSubmissionsInput {
@@ -216,6 +218,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     authorIsUnreviewed: Boolean
     postId: String
     after: String
+    timeField: String
     limit: String
   }
   
@@ -283,6 +286,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     authorIsUnreviewed: Boolean
     before: String
     after: String
+    timeField: String
     shortformFrontpage: Boolean
   }
   
@@ -420,14 +424,6 @@ export const graphqlCommentQueryTypeDefs = gql`
     limit: String
   }
   
-  input CommentsForumEventCommentsInput {
-    userId: String
-    commentIds: [String!]
-    minimumKarma: Int
-    authorIsUnreviewed: Boolean
-    forumEventId: String
-  }
-  
   input CommentsAlignmentSuggestedCommentsInput {
     userId: String
     commentIds: [String!]
@@ -499,7 +495,6 @@ export const graphqlCommentQueryTypeDefs = gql`
     moderatorComments: CommentsModeratorCommentsInput
     debateResponses: CommentsDebateResponsesInput
     recentDebateResponses: CommentsRecentDebateResponsesInput
-    forumEventComments: CommentsForumEventCommentsInput
     alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput
     rss: CommentsRssInput
     draftComments: CommentsDraftCommentsInput

@@ -35,7 +35,6 @@ import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
 import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
 import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
-import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
 import SharePostPopup from "../SharePostPopup";
 import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
 import MultiToCLayout from "../TableOfContents/MultiToCLayout";
@@ -63,9 +62,7 @@ import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
 import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
 import CommentsListSection from "../../comments/CommentsListSection";
 import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
-import { MaybeStickyDigestAd } from "../../ea-forum/digestAd/StickyDigestAd";
 import AttributionInViewTracker from "../../common/AttributionInViewTracker";
-import ForumEventPostPagePollSection from "../../forumEvents/ForumEventPostPagePollSection";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
 import LWTooltip from "../../common/LWTooltip";
 import PostsPageDate from "./PostsPageDate";
@@ -96,7 +93,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   title: {
     marginBottom: 32,
     [theme.breakpoints.down('sm')]: {
-      marginBottom: theme.spacing.titleDividerSpacing,
+      marginBottom: 20,
     }
   },
   titleWithMarket: {
@@ -299,7 +296,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt ? new Date(post.lastVisitedAt) : undefined);
-  const { currentForumEvent } = useCurrentAndRecentForumEvents();
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
@@ -638,9 +634,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
   const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
 
-  // Show poll if tagged with the tag of the current forum event
-  const showGlobalForumEventPoll = (currentForumEvent?.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0) >= 1;
-
   // JB: postBodySection, betweenPostAndCommentsSection, and commentsSection are represented as variables here
   // to support the forum-gating below, because the comments-ToC changes the page structure wrt the ToC column
   // components. When the forum gating is removed, each of these variables should have only a single usage,
@@ -725,9 +718,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
         <PostPageReviewButton post={post} />
       </div>}
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-      {showGlobalForumEventPoll && <DeferRender ssr={false}>
-        <ForumEventPostPagePollSection postId={post._id} />
-      </DeferRender>}
   
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">
@@ -836,7 +826,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
         </ToCColumn>
     }
   
-    {isEAForum() && <DeferRender ssr={false}><MaybeStickyDigestAd post={post} /></DeferRender>}
     {hasPostRecommendations() && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <Suspense>
         <PostBottomRecommendations

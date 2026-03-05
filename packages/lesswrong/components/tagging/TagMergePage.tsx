@@ -4,7 +4,6 @@ import React, { useCallback, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
-import { taggingNameCapitalSetting, taggingNameSetting } from "../../lib/instanceSettings";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { Link } from "../../lib/reactRouterWrapper";
 import { tagGetUrl } from "../../lib/collections/tags/helpers";
@@ -140,13 +139,13 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   return (
     <SingleColumnSection className={classes.root}>
       <Typography className={classes.title} variant="title">
-        {taggingNameCapitalSetting.get()} merging tool
+        Wikitag merging tool
       </Typography>
       <div className={classes.section}>
         <div className={classes.selectTagRow}>
           <div className={classes.tagSection}>
             <div className={classes.tagSearch}>
-              <TagsSearchAutoComplete clickAction={setSourceTagId} placeholder={`Source ${taggingNameSetting.get()}`} />
+              <TagsSearchAutoComplete clickAction={setSourceTagId} placeholder={`Source wikitag`} />
             </div>
             {sourceTag ? (
               <div className={classes.tagSummary}>
@@ -164,7 +163,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
           </div>
           <div className={classes.tagSection}>
             <div className={classes.tagSearch}>
-              <TagsSearchAutoComplete clickAction={setTargetTagId} placeholder={`Target ${taggingNameSetting.get()}`} />
+              <TagsSearchAutoComplete clickAction={setTargetTagId} placeholder={`Target wikitag`} />
             </div>
             {targetTag ? (
               <div className={classes.tagSummary}>
@@ -204,7 +203,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             />
           </LWTooltip>
           <Typography variant="body2" component="label">
-            {`Remove posts from source ${taggingNameSetting.get()}`}
+            {`Remove posts from source wikitag`}
           </Typography>
         </div>
         <div className={classes.checkboxRow}>
@@ -214,7 +213,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             onChange={(_, checked) => setTransferSubtags(checked)}
           />
           <Typography variant="body2" component="label">
-            Transfer subtags (also removes them from source {taggingNameSetting.get()})
+            Transfer subtags (also removes them from source wikitag)
           </Typography>
         </div>
         <div className={classes.checkboxRow}>
@@ -224,7 +223,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             onChange={(_, checked) => setDeleteSource(checked)}
           />
           <Typography variant="body2" component="label">
-            Redirect source topic slug to target (The source {taggingNameSetting.get()} will be soft deleted and have
+            Redirect source topic slug to target (The source wikitag will be soft deleted and have
             "-deleted" added to its slug to avoid colliding with the target. You may want to first merge without this
             checked, and then do this as a final step.)
           </Typography>

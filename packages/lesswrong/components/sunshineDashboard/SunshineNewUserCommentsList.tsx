@@ -4,7 +4,7 @@ import { SunshineNewUserCommentItem } from "./SunshineNewUserCommentItem";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",

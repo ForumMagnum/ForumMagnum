@@ -58,17 +58,6 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
     return null
   }
 
-  if (isFriendlyUI()) {
-    return (
-      <TagExcerpt
-        tag={tag}
-        lines={4}
-        hideMultimedia
-        hideMoreLink
-      />
-    );
-  }
-
   const showCustomDescriptionHighlight = isLW() && tag.core && !hash;
 
   let highlight: string | undefined;

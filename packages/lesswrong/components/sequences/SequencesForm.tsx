@@ -1,5 +1,4 @@
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useState } from "react";
@@ -43,8 +42,8 @@ const SequencesEditMutation = gql(`
 
 const formStyles = defineStyles('SequencesForm', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
@@ -136,7 +135,7 @@ export const SequencesForm = ({
           {(field) => (
             <EditSequenceTitle
               field={field}
-              placeholder={preferredHeadingCase("Sequence title")}
+              placeholder={"Sequence title"}
             />
           )}
         </form.Field>
@@ -219,7 +218,7 @@ export const SequencesForm = ({
       </div>}
 
       {userIsAdminOrMod(currentUser) && <LegacyFormGroupLayout
-        label={preferredHeadingCase("Admin Options")}
+        label={"Admin Options"}
         startCollapsed={true}
         groupStyling
       >
@@ -264,7 +263,7 @@ export const SequencesForm = ({
               <LWTooltip title="The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right." placement="left-start" inlineBlock={false}>
                 <MuiTextField
                   field={field}
-                  label={preferredHeadingCase("Collection Slug")}
+                  label={"Collection Slug"}
                 />
               </LWTooltip>
             )}
@@ -297,7 +296,7 @@ export const SequencesForm = ({
       </LegacyFormGroupLayout>}
 
       {formType === 'edit' && <LegacyFormGroupLayout
-        label={preferredHeadingCase("Advanced Options")}
+        label={"Advanced Options"}
         startCollapsed={true}
         groupStyling
       >

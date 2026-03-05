@@ -306,5 +306,12 @@ export function getDbIndexesOnPosts() {
 
   indexSet.addIndex("Posts", { coauthorUserIds: 1 });
 
+  // Speeds up moderation log rejected-posts pagination with matching filter + sort.
+  indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Posts_rejected_postedAt"
+    ON "Posts" ("postedAt" DESC NULLS LAST)
+    WHERE "rejected" IS TRUE;
+  `);
+
   return indexSet;
 }

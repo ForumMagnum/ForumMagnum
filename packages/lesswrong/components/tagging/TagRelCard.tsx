@@ -1,6 +1,4 @@
 import React from 'react';
-import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
@@ -112,11 +110,11 @@ const TagRelCard = ({tagRel, classes}: {
       </TooltipIfDisabled>
       {newlyVoted && <span className={classes.removeButton}>
         <LWTooltip
-          title={`Remove your relevance vote from this ${taggingNameSetting.get()}`}
+          title={`Remove your relevance vote from this wikitag`}
           placement="top"
         >
           <TagRelevanceButton
-            label={preferredHeadingCase(`Remove ${taggingNameCapitalSetting.get()}`)}
+            label={`Remove Wikitag`}
             {...voteProps}
             voteType="smallUpvote"
             cancelVote

@@ -6,7 +6,7 @@ import { FilterSettings } from '../../lib/filterSettings';
 import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
+import { isEAForum, isLW, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import SectionTitle, { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
@@ -16,30 +16,20 @@ import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/helpers';
-import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
 import SingleColumnSection from "./SingleColumnSection";
 import PostsList2 from "../posts/PostsList2";
 import TagFilterSettings from "../tagging/TagFilterSettings";
 import LWTooltip from "./LWTooltip";
 import SettingsButton from "../icons/SettingsButton";
 import CuratedPostsList from "../recommendations/CuratedPostsList";
-import StickiedPosts from "../ea-forum/StickiedPosts";
 import PostsListViewToggle from "../posts/PostsListViewToggle";
-import SurveyPostsItem from "../surveys/SurveyPostsItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-const getTitleWrapperStyles = () => isLWorAF() ? {
-  marginBottom: 8
-} : {
-  display: "flex",
-  marginBottom: 8,
-  flexWrap: "wrap",
-  alignItems: "center"
-};
-
 const styles = defineStyles("HomeLatestPosts", (theme: ThemeType) => ({
-  titleWrapper: getTitleWrapperStyles(),
+  titleWrapper: {
+    marginBottom: 8
+  },
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
@@ -143,9 +133,7 @@ const HomeLatestPosts = () => {
   
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
-    if (isLWorAF()) {
-      void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
-    }
+    void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
     
     captureEvent("filterSettingsClicked", {
       settingsVisible: !filterSettingsVisibleDesktop,
@@ -155,15 +143,13 @@ const HomeLatestPosts = () => {
 
   const showCurated = isFriendlyUI() || (isLW() && reviewIsActive())
 
-  const {survey, refetch: refetchSurvey} = useCurrentFrontpageSurvey();
-
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
         <SectionTitle title={getLatestPostsName()} noTopMargin={isFriendlyUI()} noBottomPadding>
           <div className={classes.postsListSettings}>
             <LWTooltip
-              title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
+              title={`Use these buttons to increase or decrease the visibility of posts based on wikitag. Use the "+" button at the end to add additional wikitags to boost or reduce them.`}
               hideOnTouchScreens
             >
               <SettingsButton
@@ -173,7 +159,7 @@ const HomeLatestPosts = () => {
                   getFilterSettingsToggleLabels().desktopHidden}
                 showIcon={false}
                 onClick={changeShowTagFilterSettingsDesktop}
-                textShadow={isLWorAF()}
+                textShadow={true}
               />
               <SettingsButton
                 className={classes.hideOnDesktop}
@@ -210,18 +196,10 @@ const HomeLatestPosts = () => {
             </div>
           )}
         </AnalyticsContext>
-        {isFriendlyUI() && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList
             repeatedPostsPrecedence={1}
           />}
-          {survey?.survey &&
-            <SurveyPostsItem
-              survey={survey.survey}
-              surveyScheduleId={survey._id}
-              refetchSurvey={refetchSurvey}
-            />
-          }
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>

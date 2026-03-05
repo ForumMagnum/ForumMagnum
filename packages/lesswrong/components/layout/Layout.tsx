@@ -11,7 +11,7 @@ import { DialogManager } from '@/components/common/withDialog';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
-import { googleTagManagerIdSetting, isLW, isLWorAF, buttonBurstSetting, isAF } from '@/lib/instanceSettings';
+import { googleTagManagerIdSetting, isLW, isLWorAF, isAF } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { Helmet } from "@/components/layout/Helmet";
 import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
@@ -19,24 +19,15 @@ import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } fr
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
 import Header, { HeaderHeightProvider } from '@/components/layout/Header';
 import { useCookiePreferences, useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { UnreadNotificationsContextProvider } from '@/components/hooks/useUnreadNotifications';
-import { CurrentAndRecentForumEventsProvider } from '@/components/hooks/useCurrentForumEvent';
-import { LoginPopoverContextProvider } from '@/components/hooks/useLoginPopoverContext';
 import DeferRender from '@/components/common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
-import GlobalButtonBurst from '@/components/ea-forum/GlobalButtonBurst';
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import FlashMessages from "@/components/layout/FlashMessages";
 import AnalyticsClient from "@/components/common/AnalyticsClient";
 import AnalyticsPageInitializer from "@/components/common/AnalyticsPageInitializer";
-// import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
-// import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "@/components/comments/CommentOnSelection";
 import SidebarsWrapper from "@/components/layout/SidebarsWrapper";
-import AdminToggle from "@/components/admin/AdminToggle";
-// import EAHomeRightHandSide from "./ea-forum/EAHomeRightHandSide";
-// import ForumEventBanner from "./forumEvents/ForumEventBanner";
 import GlobalHotkeys from "@/components/common/GlobalHotkeys";
 import LlmChatWrapper from "@/components/languageModels/LlmChatWrapper";
 import LWBackgroundImage from "./LWBackgroundImage";
@@ -46,7 +37,7 @@ import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute, isStaticHeaderRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
@@ -59,14 +50,6 @@ import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarCon
 
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
 const SidebarLanguageModelChat = dynamic(() => import("../languageModels/SidebarLanguageModelChat"), { ssr: false });
-
-/**
- * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
- * and we require them to fill this in using the onboarding flow before continuing.
- * This is a list of route path segments that the user is allowed to view despite having an
- * 'incomplete' account.
- */
-const allowedIncompletePaths: string[] = ["termsOfUse"];
 
 const styles = defineStyles("Layout", (theme: ThemeType) => ({
   navSidebar: {
@@ -153,33 +136,24 @@ const Layout = ({children}: {
   // (isLW()) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const isInbox = pathname.startsWith('/inbox');
-  const isWrapped = pathname.startsWith('/wrapped');
 
-  let headerBackgroundColor: ColorString;
-  // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const wrappedBackgroundColor = useThemeColor(theme => theme.palette.wrapped.background)
-  if (isWrapped) {
-    headerBackgroundColor = wrappedBackgroundColor;
-  } else if (pathname.startsWith("/voting-portal")) {
-    headerBackgroundColor = "transparent";
-  } else if (isBlackBarTitle) {
+  let headerBackgroundColor: ColorString|undefined = undefined;
+  if (isBlackBarTitle) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
-  const render = () => {
-    // Check whether the current route is one which should have standalone
-    // navigation on the side. If there is no current route (ie, a 404 page),
-    // then it should.
-    const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
+  // Check whether the current route is one which should have standalone
+  // navigation on the side. If there is no current route (ie, a 404 page),
+  // then it should.
+  const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
     
-    return (
-      <AnalyticsContext path={pathname}>
+  return (
+    <AnalyticsContext path={pathname}>
       <SubtitlePortalProvider>
       <PopperPortalProvider>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
-      <LoginPopoverContextProvider>
       <SidebarsWrapper>
       <HideNavigationSidebarContextProvider>
       <EditorCommandsContextProvider>
@@ -187,20 +161,17 @@ const Layout = ({children}: {
       <LlmChatWrapper>
       <DisableNoKibitzContextProvider>
       <CommentOnSelectionPageWrapper>
-      <CurrentAndRecentForumEventsProvider>
       <LlmSidebarWrapper>
         <HeaderHeightProvider>
         <PageBackgroundWrapper>
-          {buttonBurstSetting.get() && <GlobalButtonBurst />}
           <DialogManager>
             <CommentBoxManager>
-              <ThemeFontDownloads/>
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                <MaybeCookieBanner hideIntercomButton={isWrapped || isInbox} />
+                <MaybeCookieBanner hideIntercomButton={isInbox} />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -211,13 +182,9 @@ const Layout = ({children}: {
                 <Header
                   searchResultsArea={searchResultsAreaRef}
                   standaloneNavigationPresent={standaloneNavigation}
-                  stayAtTop={isStaticHeaderRoute(pathname)}
                   backgroundColor={headerBackgroundColor}
                 />
               </SuspenseWrapper>}
-              {/* <SuspenseWrapper name="ForumEventBanner">
-                <ForumEventBanner />
-              </SuspenseWrapper> */}
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}>
                 {/* <SuspenseWrapper name="HomepageCommunityMap">
@@ -228,7 +195,6 @@ const Layout = ({children}: {
               <ErrorBoundary>
                 <FlashMessages />
               </ErrorBoundary>
-              {isFriendlyUI() && !isWrapped && <AdminToggle />}
 
               {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
               <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
@@ -240,7 +206,6 @@ const Layout = ({children}: {
         </PageBackgroundWrapper>
         </HeaderHeightProvider>
       </LlmSidebarWrapper>
-      </CurrentAndRecentForumEventsProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContextProvider>
       </LlmChatWrapper>
@@ -248,16 +213,13 @@ const Layout = ({children}: {
       </EditorCommandsContextProvider>
       </HideNavigationSidebarContextProvider>
       </SidebarsWrapper>
-      </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
       </PopperPortalProvider>
       </SubtitlePortalProvider>
-      </AnalyticsContext>
-    )
-  };
-  return render();
+    </AnalyticsContext>
+  )
 }
 
 
@@ -272,20 +234,6 @@ function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean
   }
 
   return hideIntercomButton ? null : <IntercomWrapper />
-}
-
-function ThemeFontDownloads() {
-  const theme = useTheme();
-
-  // ea-forum-look-here: the font downloads probably don't work in NextJS, may need to move them to e.g. SharedScripts
-  return <Helmet name="fonts">
-    {theme.typography.fontDownloads &&
-      theme.typography.fontDownloads.map(
-        (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
-      )
-    }
-    <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
-  </Helmet>
 }
 
 export const IsLlmChatSidebarOpenContext = createContext(false);

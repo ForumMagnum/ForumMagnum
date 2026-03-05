@@ -13,6 +13,7 @@ import { ReviewResultsTableDisplay, type ReviewResultsEntry } from './ReviewResu
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes } from './CollapsedFootnotes';
 import { WrappedStrawPoll } from './WrappedStrawPoll';
+import { HydratedIframeWidget } from './HydratedIframeWidget';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { useTracking } from '@/lib/analyticsEvents';
 import repeat from 'lodash/repeat';
@@ -23,7 +24,6 @@ import { useAbstractThemeOptions } from '../themes/useTheme';
 import dynamic from 'next/dynamic';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
-const ForumEventPostPagePollSection = dynamic(() => import('@/components/forumEvents/ForumEventPostPagePollSection'));
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   themeName: UserThemeSetting,
@@ -48,7 +48,6 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  *   wrapStrawPoll
  * Functionality from the old ContentItemBody which is implemented, but not well tested:
  *   addCTAButtonEventListeners
- *   replaceForumEventPollPlaceholders
  *   exposeInternalIds
  * Additional limitations:
  *   CDATA, directive, script, and style nodes are ignored. These will be
@@ -234,6 +233,12 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           {result}
         </WrappedStrawPoll>
       }
+      if (classNames.includes("iframe-widget")) {
+        const widgetId = attribs['data-iframe-widget-id'];
+        if (widgetId) {
+          result = <HydratedIframeWidget widgetId={widgetId} attribs={attribs} />;
+        }
+      }
       if (classNames.includes("ck-cta-button")) {
         if (attribs['data-href']) {
           attribs.href = validateUrl(attribs['data-href']);
@@ -242,12 +247,6 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         attribs['onClick'] = (ev: React.MouseEvent<HTMLAnchorElement>) => {
           captureEvent("ctaButtonClicked", {href: attribs['data-href']});
           originalOnClick?.(ev);
-        }
-      }
-      if (classNames.includes("ck-poll")) {
-        const forumEventId = attribs['data-internal-id'];
-        if (forumEventId) {
-          return <ForumEventPostPagePollSection id={forumEventId} forumEventId={forumEventId} />
         }
       }
       if (attribs['data-internal-id']) {

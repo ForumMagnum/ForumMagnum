@@ -3,7 +3,6 @@ import { useMessages } from '../../common/withMessages';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useApolloClient, useMutation } from "@apollo/client/react";
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { gql } from "@/lib/generated/gql-codegen";
 
@@ -65,7 +64,7 @@ const MoveToAnswersDropdownItem = ({comment, post}: {
   if (comment.answer) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Move To Comments")}
+        title={"Move To Comments"}
         onClick={handleMoveToComments}
       />
     );
@@ -73,7 +72,7 @@ const MoveToAnswersDropdownItem = ({comment, post}: {
 
   return (
     <DropdownItem
-      title={preferredHeadingCase("Move To Answers")}
+      title={"Move To Answers"}
       onClick={handleMoveToAnswers}
     />
   );

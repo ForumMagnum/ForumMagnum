@@ -7,17 +7,15 @@ import { useMessages } from '../common/withMessages';
 import { getUserABTestKey } from '../../lib/abTestImpl';
 import { useClientId } from '../hooks/useClientId.ts';
 import { useLocation } from '../../lib/routeUtil';
-import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import ContentStyles from "../common/ContentStyles";
 import ReCaptcha from "../common/ReCaptcha";
-import Loading from "../vulcan-core/Loading";
-import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import SignupSubscribeToCurated from "./SignupSubscribeToCurated";
 import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
 import useCookies from '@/lib/vendor/react-cookie/useCookies.tsx';
+import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LoginForm', (theme: ThemeType) => ({
   root: {
     wordBreak: "normal",
     padding: 16,
@@ -92,7 +90,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.link.dim,
     }
   }
-})
+}))
 
 type possibleActions = "login" | "signup" | "pwReset"
 
@@ -102,21 +100,11 @@ const currentActionToButtonText: Record<possibleActions, string> = {
   pwReset: "Request Password Reset"
 }
 
-type LoginFormProps = {
+const LoginForm = ({ startingState = "login", returnTo }: {
   startingState?: possibleActions,
-  immediateRedirect?: boolean,
-  onClose?: () => void,
-  classes: ClassesType<typeof styles>
-}
-
-const LoginForm = (props: LoginFormProps) => {
-  if (isFriendlyUI()) {
-    return <LoginFormEA {...props} />
-  }
-  return <LoginFormDefault {...props} />
-}
-
-const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
+  returnTo?: string
+}) => {
+  const classes = useStyles(styles);
   const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
   const hasOauthSection = !isEAForum();
 
@@ -171,6 +159,14 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
     setDisplayedError(error.message);
   }
   
+  const loginSuccess = useCallback(() => {
+    if (returnTo) {
+      window.location.href = returnTo;
+    } else {
+      location.reload()
+    }
+  }, [returnTo])
+
   const submitFunction = async (e: AnyBecauseTodo) => {
     e.preventDefault();
     const signupAbTestKey = getUserABTestKey({clientId});
@@ -184,7 +180,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       }
       if (data?.login?.token) {
         saveLoginToken(data.login.token);
-        location.reload()
+        loginSuccess();
       }
     } else if (currentAction === 'signup') {
       const { data, error } = await signupMutation({
@@ -200,7 +196,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       }
       if (data?.signup?.token) {
         saveLoginToken(data.signup.token);
-        location.reload()
+        loginSuccess();
       }
     } else if (currentAction === 'pwReset') {
       const { data, error } = await pwResetMutation({
@@ -214,6 +210,8 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       }
     }
   }
+
+  const oauthReturnTo = encodeURIComponent(returnTo ?? pathname);
 
   return <ContentStyles contentType="commentExceptPointerEvents">
     {reCaptchaSiteKeySetting.get() && <DeferRender ssr={false}>
@@ -250,8 +248,8 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
       {hasOauthSection && <>
         <div className={classes.oAuthComment}>...or continue with</div>
         <div className={classes.oAuthBlock}>
-          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${pathname}`}>GOOGLE</a>
-          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
+          <a className={classes.oAuthLink} href={`/auth/google?returnTo=${oauthReturnTo}`}>GOOGLE</a>
+          <a className={classes.oAuthLink} href={`/auth/github?returnTo=${oauthReturnTo}`}>GITHUB</a>
         </div>
       </>}
       {displayedError && <div className={classes.error}>{displayedError}</div>}
@@ -259,44 +257,6 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   </ContentStyles>;
 }
 
-const LoginFormEA = ({
-  startingState = "login",
-  immediateRedirect,
-  onClose,
-}: LoginFormProps) => {
-  const { pathname, query } = useLocation()
-  const [action, setAction] = useState<"login" | "signup" | null>(
-    startingState === "pwReset" ? "login" : "signup",
-  );
-
-  const wrappedSetAction = useCallback((action: "login" | "signup" | null) => {
-    setAction(action);
-    if (!action) {
-      onClose?.();
-    }
-  }, [onClose]);
-
-  const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
-  const returnTo = encodeURIComponent(returnUrl);
-
-  const urls: AnyBecauseTodo = {
-    login: `/auth/auth0?returnTo=${returnTo}`,
-    signup: `/auth/auth0?screen_hint=signup&returnTo=${returnTo}`,
-  };
-
-  if (immediateRedirect) {
-    window.location.href = urls[startingState];
-    return <Loading />;
-  }
-
-  return (
-    <EALoginPopover
-      action={action}
-      setAction={wrappedSetAction}
-    />
-  );
-}
-
-export default registerComponent('LoginForm', LoginForm, { styles });
+export default LoginForm;
 
 

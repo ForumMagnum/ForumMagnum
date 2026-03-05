@@ -31,7 +31,7 @@ import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
 import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
 import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
-import {createDOMRange, createRectsFromDOMRange} from '@lexical/selection';
+import {createDOMRange} from '@lexical/selection';
 import {$isRootTextContentEmpty, $rootTextContent} from '@lexical/text';
 import {mergeRegister, registerNestedElementResolver} from '@lexical/utils';
 import {
@@ -50,6 +50,7 @@ import {
   getDOMSelection,
   HISTORY_MERGE_TAG,
   KEY_ESCAPE_COMMAND,
+  SKIP_SCROLL_INTO_VIEW_TAG,
 } from 'lexical';
 import moment from 'moment';
 import {
@@ -64,17 +65,9 @@ import {createPortal} from 'react-dom';
 
 import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContext';
 import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
-import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext';
+import { useCommentStoreContext, useCollabAuthorName, useCommentStore } from '@/components/lexical/commenting/CommentStoreContext';
 import { $isSuggestionNode } from '@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode';
-import {
-  Comment,
-  Comments,
-  createComment,
-  createThread,
-  Thread,
-  useCollabAuthorName,
-  useCommentStore,
-} from '../../commenting';
+import { createThread, createComment, Thread, Comments, Comment } from '../../commenting';
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND } from '@/components/editor/lexicalPlugins/suggestedEdits/Commands';
 import useModal from '../../hooks/useModal';
 import CommentEditorTheme from '../../themes/CommentEditorTheme';
@@ -82,6 +75,51 @@ import Button from '../../ui/Button';
 import ContentEditable from '../../ui/ContentEditable';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
+
+/**
+ * Replacement for @lexical/selection's createRectsFromDOMRange.
+ * The upstream version has two issues that cause alternating lines in
+ * multiline selections to lose their highlight:
+ * 1. It filters out rects that span the full width of the editor root.
+ * 2. Its overlap filter treats tiny trailing rects (which browsers produce
+ *    at line-wrap boundaries) as overlapping the next line's main rect,
+ *    because their full-height extent creates a few pixels of cross-line
+ *    vertical overlap.
+ * This version only deduplicates rects that share the same visual line.
+ */
+function createRectsFromDOMRange(range: Range): DOMRect[] {
+  const selectionRects = Array.from(range.getClientRects());
+  let selectionRectsLength = selectionRects.length;
+  // Sort rects from top-left to bottom-right.
+  selectionRects.sort((a, b) => {
+    const top = a.top - b.top;
+    // Some rects match position closely, but not perfectly,
+    // so we give a 3px tolerance.
+    if (Math.abs(top) <= 3) {
+      return a.left - b.left;
+    }
+    return top;
+  });
+  let prevRect: DOMRect | undefined;
+  for (let i = 0; i < selectionRectsLength; i++) {
+    const selectionRect = selectionRects[i];
+    // Exclude rects that overlap preceding rects on the same visual line.
+    // We only consider rects as overlapping if they share the same line
+    // (tops within 3px), to avoid filtering out rects on adjacent lines
+    // that have minor cross-line vertical overlap from text rendering.
+    const isSameLine = prevRect && Math.abs(prevRect.top - selectionRect.top) <= 3;
+    if (
+      isSameLine &&
+      prevRect!.left + prevRect!.width > selectionRect.left
+    ) {
+      selectionRects.splice(i--, 1);
+      selectionRectsLength--;
+      continue;
+    }
+    prevRect = selectionRect;
+  }
+  return selectionRects;
+}
 
 import { ChatLeftTextIcon } from '../../icons/ChatLeftTextIcon';
 import { CommentsIcon } from '../../icons/CommentsIcon';
@@ -164,7 +202,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     margin: 10,
     borderRadius: 5,
     '--lexical-comment-placeholder-top': '10px',
-    '--lexical-comment-placeholder-left': '60px',
+    '--lexical-comment-placeholder-left': '10px',
     '--lexical-comment-min-height': '30px',
   },
   commentInputBoxEditor: {
@@ -318,6 +356,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
       marginTop: 4,
       color: theme.palette.grey[900],
       lineHeight: 1.5,
+      whiteSpace: 'pre-wrap',
     },
   },
   listDetails: {
@@ -363,7 +402,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   threadQuoteBox: {
     paddingTop: 12,
     paddingBottom: 4,
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[600],
     display: 'block',
     '&:hover $deleteButton': {
       opacity: 0.5,
@@ -373,6 +412,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     margin: '0 16px',
     paddingLeft: 8,
     borderLeft: `3px solid ${theme.palette.grey[300]}`,
+    whiteSpace: 'pre-wrap',
     '& span': {
       color: theme.palette.grey[700],
       backgroundColor: 'transparent',
@@ -775,7 +815,7 @@ function CommentInputBox({
         const boxElem = boxRef.current;
         if (range !== null && boxElem !== null) {
           const {left, bottom, width} = range.getBoundingClientRect();
-          const selectionRects = createRectsFromDOMRange(editor, range);
+          const selectionRects = createRectsFromDOMRange(range);
           let correctedLeft =
             selectionRects.length === 1 ? left + (width / 2) - 125 : left - 125;
           if (correctedLeft < 10) {
@@ -947,6 +987,17 @@ function CommentsComposer({
   );
 }
 
+const deleteCommentOrThreadDialogStyles = defineStyles('DeleteCommentOrThreadDialog', (theme: ThemeType) => ({
+  message: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.grey[900],
+    marginBottom: 24,
+  },
+  buttons: {
+  }
+}));
+
 function ShowDeleteCommentOrThreadDialog({
   commentOrThread,
   deleteCommentOrThread,
@@ -954,19 +1005,17 @@ function ShowDeleteCommentOrThreadDialog({
   thread = undefined,
 }: {
   commentOrThread: Comment | Thread;
-
-  deleteCommentOrThread: (
-    comment: Comment | Thread,
-    // eslint-disable-next-line no-shadow
-    thread?: Thread,
-  ) => void;
+  deleteCommentOrThread: (comment: Comment | Thread, thread?: Thread) => void;
   onClose: () => void;
   thread?: Thread;
 }): JSX.Element {
+  const classes = useStyles(deleteCommentOrThreadDialogStyles);
   return (
     <>
-      Are you sure you want to delete this {commentOrThread.type}?
-      <div className="Modal__content">
+      <div className={classes.message}>
+        Are you sure you want to delete this {commentOrThread.type}?
+      </div>
+      <div className={classes.buttons}>
         <Button
           onClick={() => {
             deleteCommentOrThread(commentOrThread, thread);
@@ -1092,7 +1141,7 @@ function CommentsPanelList({
             : null;
 
           const suggestionStatus = commentOrThread.status ?? 'open';
-          if (suggestionStatus === 'archived') {
+          if (suggestionStatus !== 'open') {
             return null;
           }
           const threadMarkId = isSuggestion ? getSuggestionThreadId(commentOrThread) : id;
@@ -1120,7 +1169,15 @@ function CommentsPanelList({
                   }
                 },
                 {
+                  // Suppress Lexical's default scroll-to-top behavior
+                  tag: SKIP_SCROLL_INTO_VIEW_TAG,
                   onUpdate() {
+                    // Scroll the mark node into view centered in the viewport
+                    const markNodeKey = Array.from(markNodeKeys)[0];
+                    const domElement = editor.getElementByKey(markNodeKey);
+                    if (domElement !== null) {
+                      domElement.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    }
                     // Restore selection to the previous element
                     if (activeElement !== null) {
                       (activeElement as HTMLElement).focus();
@@ -1131,7 +1188,7 @@ function CommentsPanelList({
             }
           };
 
-          const showEditor = commentOrThread.status === 'open';
+          const showEditor = (commentOrThread.status ?? 'open') === 'open';
 
           return (
             <li
@@ -1145,8 +1202,7 @@ function CommentsPanelList({
               <div className={classes.threadQuoteBox}>
                 {!isSuggestion && (
                   <blockquote className={classes.threadQuote}>
-                    {'> '}
-                    <span>{commentOrThread.quote}</span>
+                    {commentOrThread.quote}
                   </blockquote>
                 )}
                 {!isSuggestion && (

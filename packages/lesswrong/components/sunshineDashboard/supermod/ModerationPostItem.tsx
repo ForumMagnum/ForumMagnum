@@ -3,6 +3,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import FormatDate from '@/components/common/FormatDate';
 import { htmlToTextDefault } from '@/lib/htmlToText';
+import LLMScoreBadge from './LLMScoreBadge';
 
 const styles = defineStyles('ModerationPostItem', (theme: ThemeType) => ({
   root: {
@@ -126,6 +127,13 @@ const ModerationPostItem = ({
           </div>
         )}
       </div>
+      <LLMScoreBadge
+        documentId={post._id}
+        automatedContentEvaluations={post.automatedContentEvaluations}
+        contentHtml={post.contents?.html ?? ''}
+        contentType="Post"
+        stopPropagation
+      />
     </div>
   );
 };

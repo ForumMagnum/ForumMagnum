@@ -24,7 +24,6 @@ import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
 import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
-import {HorizontalRulePlugin} from '@lexical/react/LexicalHorizontalRulePlugin';
 import {ListPlugin} from '@lexical/react/LexicalListPlugin';
 import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
 import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
@@ -97,6 +96,7 @@ import ToolbarPlugin from './plugins/ToolbarPlugin';
 // import TreeViewPlugin from './plugins/TreeViewPlugin';
 // import TwitterPlugin from './embeds/TwitterEmbed/TwitterPlugin';
 import {VersionsPlugin} from './plugins/VersionsPlugin';
+import YjsUndoCursorPlugin from './plugins/YjsUndoCursorPlugin';
 import YouTubePlugin from './embeds/YouTubeEmbed/YouTubePlugin';
 import MetaculusPlugin from './embeds/MetaculusEmbed/MetaculusPlugin';
 import ThoughtsaverPlugin from './embeds/ThoughtsaverEmbed/ThoughtsaverPlugin';
@@ -115,6 +115,7 @@ import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
 import LLMContentBlockPlugin from '../editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
 import ReviewResultsPlugin from './embeds/ReviewResultsEmbed/ReviewResultsPlugin';
+import IframeWidgetPlugin from './embeds/IframeWidgetEmbed/IframeWidgetPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
 import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
@@ -132,6 +133,7 @@ import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/coll
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { MenuItem } from "@/components/common/Menus";
+import { HorizontalRulePlugin } from './plugins/LexicalHorizontalRulePlugin';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   '@keyframes sentinelCursorBlink': {
@@ -145,15 +147,18 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+    // --gutter-chars is set by CodeHighlightPrismPlugin to the digit count
+    // of the largest line number; padding-left and gutter width adapt accordingly.
     '& .code-block': {
       backgroundColor: theme.palette.grey[100],
       fontFamily: theme.typography.code.fontFamily,
       display: 'block',
-      padding: '8px 8px 8px 36px',
+      padding: '8px 8px 8px calc(var(--gutter-chars, 1) * 1ch + 25px)',
       lineHeight: 1.53,
       fontSize: 13,
       margin: '8px 0',
       overflowX: 'auto',
+      whiteSpace: 'pre',
       position: 'relative',
       tabSize: 2,
     },
@@ -168,7 +173,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       color: theme.palette.grey[600],
       whiteSpace: 'pre-wrap',
       textAlign: 'right',
-      minWidth: 25,
+      minWidth: 'calc(var(--gutter-chars, 1) * 1ch)',
     },
     '& .code-token-comment': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
@@ -202,6 +207,26 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     '& .code-token-function': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
+    },
+    // Iframe widget code blocks use the standard .code-block styles (gutter,
+    // font, padding, etc.) inherited from CodeNode. This class adds a visual
+    // border to distinguish them from regular code blocks.
+    '& .iframe-widget-code': {
+      border: theme.palette.greyBorder('1px', 0.2),
+      borderRadius: 4,
+    },
+    // In preview mode the plugin collapses the code element to act as a
+    // height-only spacer while a portaled preview overlay covers it.
+    '& .iframe-widget-code.iframe-widget-preview-mode': {
+      fontSize: '0 !important',
+      lineHeight: '0 !important',
+      overflow: 'hidden !important',
+      padding: '0 !important',
+      minHeight: '0 !important',
+      border: 'none !important',
+      '&::before': {
+        display: 'none !important',
+      },
     },
     '& .image-caption-container': {
       display: 'block',
@@ -476,15 +501,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     resize: 'vertical',
     minHeight: '100%',
     zIndex: 0,
-    // Extend the editor div into the left gutter so that the draggable block
-    // menu's hit zone covers the gutter area. This allows users to hover from
-    // the left to reveal the plus/drag icons, and prevents accidental
-    // overshoot from hiding them. The padding compensates so content stays
-    // in the same position. Floating plugins that portal into this element
-    // are unaffected because their anchor-relative positioning math cancels
-    // out the shift.
-    marginLeft: -50,
-    paddingLeft: 50,
   },
   cursorsContainer: {
     position: 'absolute',
@@ -821,26 +837,29 @@ export default function Editor({
         {isRichText ? (
           <>
             {isCollabConfigReady && collaborationConfig ? (
-              useCollabV2 ? (
-                <>
-                  <CollabV2
+              <>
+                {useCollabV2 ? (
+                  <>
+                    <CollabV2
+                      id={COLLAB_DOC_ID}
+                      shouldBootstrap={false}
+                      username={collaborationConfig.user.name}
+                      cursorsContainerRef={cursorsContainerRef}
+                    />
+                    <VersionsPlugin id={COLLAB_DOC_ID} />
+                  </>
+                ) : (
+                  <CollaborationPlugin
+                    key={collaborationConfig.postId}
                     id={COLLAB_DOC_ID}
+                    providerFactory={createWebsocketProvider}
                     shouldBootstrap={false}
                     username={collaborationConfig.user.name}
                     cursorsContainerRef={cursorsContainerRef}
                   />
-                  <VersionsPlugin id={COLLAB_DOC_ID} />
-                </>
-              ) : (
-                <CollaborationPlugin
-                  key={collaborationConfig.postId}
-                  id={COLLAB_DOC_ID}
-                  providerFactory={createWebsocketProvider}
-                  shouldBootstrap={false}
-                  username={collaborationConfig.user.name}
-                  cursorsContainerRef={cursorsContainerRef}
-                />
-              )
+                )}
+                <YjsUndoCursorPlugin />
+              </>
             ) : (
               <HistoryPlugin externalHistoryState={historyState} />
             )}
@@ -935,6 +954,7 @@ export default function Editor({
             <LLMContentBlockPlugin isSuggestionMode={isSuggestionMode} />
             <ClaimsPlugin />
             <ReviewResultsPlugin />
+            <IframeWidgetPlugin anchorElem={floatingAnchorElem ?? undefined} isSuggestionMode={isSuggestionMode} />
             <RemoveRedirectPlugin />
             <LLMAutocompletePlugin />
             {floatingAnchorElem && (
@@ -953,7 +973,6 @@ export default function Editor({
             )}
             {floatingAnchorElem && !isSmallWidthViewport && isEditable && (
               <>
-                {!isCommentEditor && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
                 <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
                 <TableHoverActionsV2Plugin anchorElem={floatingAnchorElem} />
               </>

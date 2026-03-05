@@ -1,7 +1,7 @@
 import type { TableCellNode, TableNode, TableRowNode } from '@lexical/table'
 import { $createTableNodeWithDimensions, $insertTableColumnAtSelection, $insertTableRowAtSelection, $isTableNode } from '@lexical/table'
 import { $insertNodeToNearestRoot, $insertFirst, $findMatchingParent } from '@lexical/utils'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import type { ProtonNode } from './ProtonNode'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import type { NodeKey } from 'lexical'
@@ -32,7 +32,7 @@ export function $insertNewTableAsSuggestion(
   const firstCell = tableCells[0]
   firstCell.selectStart()
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   for (const cell of tableCells) {
     $insertFirst(cell, $createSuggestionNode(suggestionID, 'insert-table'))
   }
@@ -70,7 +70,7 @@ export function $suggestTableDeletion(
     return true
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   for (const cell of tableCells) {
     $insertFirst(cell, $createSuggestionNode(suggestionID, 'delete-table'))
   }
@@ -94,7 +94,7 @@ export function $insertNewTableRowAsSuggestion(
     throw new Error('Expected table row to have children')
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
 
   for (let index = 0; index < children.length; index++) {
     const child = children[index]
@@ -153,7 +153,7 @@ export function $insertNewTableColumnAsSuggestion(
     throw new Error('Expected cell to have a parent table')
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
 
   const cellIndex = firstInsertedCell.getIndexWithinParent()
   for (const row of table.getChildren<TableRowNode>()) {
@@ -171,7 +171,7 @@ export function $insertNewTableColumnAsSuggestion(
 }
 
 export function $suggestTableRowDeletion(row: TableRowNode, onSuggestionCreation: (id: string) => void): boolean {
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
 
   const cells = row.getChildren<TableCellNode>()
   if (cells.length === 0) {
@@ -205,7 +205,7 @@ export function $suggestTableColumnDeletion(cell: TableCellNode, onSuggestionCre
     throw new Error('Expected cell to have table parent')
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
 
   const cellIndex = cell.getIndexWithinParent()
   for (const row of table.getChildren<TableRowNode>()) {

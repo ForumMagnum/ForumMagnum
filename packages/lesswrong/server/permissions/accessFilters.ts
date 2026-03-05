@@ -108,6 +108,13 @@ const jargonTermCheckAccess: CheckAccessFunction<'JargonTerms'> = async (current
   return await postCheckAccess(currentUser, post, context);
 };
 
+const iframeWidgetSrcdocCheckAccess: CheckAccessFunction<'IframeWidgetSrcdocs'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!document) return false;
+  const revision = await context.loaders.Revisions.load(document.revisionId);
+  if (!revision) return false;
+  return revisionCheckAccess(currentUser, revision, context);
+};
+
 const llmConversationCheckAccess: CheckAccessFunction<'LlmConversations'> = async (currentUser, document, context): Promise<boolean> => {
   return userIsAdmin(currentUser) || userOwns(currentUser, document);
 };
@@ -374,7 +381,6 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
-  AdvisorRequests: allowAccess,
   ArbitalCaches: allowAccess,
   ArbitalTagContentRels: allowAccess,
   AutomatedContentEvaluations: automatedContentEvaluationCheckAccess,
@@ -396,18 +402,12 @@ const accessFilters = {
   DebouncerEvents: allowAccess,
   DialogueChecks: dialogueCheckCheckAccess,
   DialogueMatchPreferences: dialogueMatchPreferenceCheckAccess,
-  DigestPosts: allowAccess,
-  Digests: allowAccess,
-  ElectionCandidates: allowAccess,
-  ElectionVotes: allowAccess,
   ElicitQuestionPredictions: allowAccess,
   ElicitQuestions: allowAccess,
   EmailTokens: allowAccess,
-  FeaturedResources: allowAccess,
   FieldChanges: allowAccess,
-  ForumEvents: allowAccess,
-  GardenCodes: allowAccess,
   GoogleServiceAccountSessions: allowAccess,
+  IframeWidgetSrcdocs: iframeWidgetSrcdocCheckAccess,
   Images: allowAccess,
   JargonTerms: jargonTermCheckAccess,
   LegacyData: allowAccess,
@@ -425,6 +425,9 @@ const accessFilters = {
   ModeratorActions: allowAccess,
   MultiDocuments: multiDocumentCheckAccess,
   Notifications: notificationCheckAccess,
+  OAuthAccessTokens: denyAll,
+  OAuthAuthorizationCodes: denyAll,
+  OAuthClients: denyAll,
   PetrovDayActions: allowAccess,
   PetrovDayLaunchs: allowAccess,
   PodcastEpisodes: allowAccess,
@@ -449,10 +452,6 @@ const accessFilters = {
   SplashArtCoordinates: allowAccess,
   Spotlights: allowAccess,
   Subscriptions: subscriptionCheckAccess,
-  Surveys: allowAccess,
-  SurveyQuestions: allowAccess,
-  SurveyResponses: allowAccess,
-  SurveySchedules: allowAccess,
   Tags: tagCheckAccess,
   TagFlags: allowAccess,
   TagRels: tagRelCheckAccess,
@@ -460,8 +459,6 @@ const accessFilters = {
   TypingIndicators: typingIndicatorCheckAccess,
   UltraFeedEvents: allowAccess,
   Users: userCheckAccess,
-  UserEAGDetails: allowAccess,
-  UserJobAds: allowAccess,
   UserMostValuablePosts: allowAccess,
   UserRateLimits: allowAccess,
   UserTagRels: userTagRelCheckAccess,

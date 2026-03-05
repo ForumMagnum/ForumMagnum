@@ -31,25 +31,6 @@ interface PostWithApprovedJargon {
   jargonTerms: Partial<DbJargonTerm>[];
 }
 
-const {Query: DigestHighlightsQuery, typeDefs: DigestHighlightsTypeDefs} = createPaginatedResolver({
-  name: "DigestHighlights",
-  graphQLType: "Post",
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-  ): Promise<DbPost[]> => context.repos.posts.getDigestHighlights({limit}),
-});
-
-const {Query: DigestPostsThisWeekQuery, typeDefs: DigestPostsThisWeekTypeDefs } = createPaginatedResolver({
-  name: "DigestPostsThisWeek",
-  graphQLType: "Post",
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-  ): Promise<DbPost[]> => context.repos.posts.getTopWeeklyDigestPosts(limit),
-  cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
-});
-
 const {Query: CuratedAndPopularThisWeekQuery, typeDefs: CuratedAndPopularThisWeekTypeDefs } = createPaginatedResolver({
   name: "CuratedAndPopularThisWeek",
   graphQLType: "Post",
@@ -66,6 +47,15 @@ const {Query: CuratedAndPopularThisWeekQuery, typeDefs: CuratedAndPopularThisWee
       af,
     });
   },
+});
+
+const {Query: CurationCandidatePostsQuery, typeDefs: CurationCandidatePostsTypeDefs } = createPaginatedResolver({
+  name: "CurationCandidatePosts",
+  graphQLType: "Post",
+  callback: async (
+    {repos}: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => repos.posts.getCurationCandidatePosts(limit),
 });
 
 const {Query: RecentlyActiveDialoguesQuery, typeDefs: RecentlyActiveDialoguesTypeDefs } = createPaginatedResolver({
@@ -375,43 +365,6 @@ export const postGqlQueries = {
   ) {
     return await getProfileDiamondComments(userId, limit);
   },
-  async DigestPosts(root: void, {num}: {num: number}, context: ResolverContext) {
-    const { repos } = context
-    return await repos.posts.getPostsForOnsiteDigest(num)
-  },
-  async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
-    const { currentUser, repos } = context
-    if (!currentUser || !currentUser.isAdmin) {
-      throw new Error('Permission denied')
-    }
-    const eligiblePosts = await repos.posts.getEligiblePostsForDigest(digestId, startDate, endDate)
-    if (!eligiblePosts.length) return []
-
-    // TODO: finish implementing this once we figure out what to do with it
-    // const votesRepo = new VotesRepo()
-    // const votes = await votesRepo.getDigestPlannerVotesForPosts(eligiblePosts.map(p => p._id))
-    // console.log('DigestPlannerData votes', votes)
-
-    return eligiblePosts.map(post => {
-      // const postVotes = votes.find(v => v.postId === post._id)
-      // const rating = postVotes ?
-      //   Math.round(
-      //     ((postVotes.smallUpvoteCount + 2 * postVotes.bigUpvoteCount) - (postVotes.smallDownvoteCount / 2 + postVotes.bigDownvoteCount)) / 10
-      //   ) : 0
-
-      return {
-        post,
-        digestPost: post.digestPostId
-          ? {
-            _id: post.digestPostId,
-            emailDigestStatus: post.emailDigestStatus,
-            onsiteDigestStatus: post.onsiteDigestStatus
-          }
-          : null,
-        rating: 0
-      }
-    })
-  },
   async HomepageCommunityEvents(root: void, { limit }: { limit: number }, context: ResolverContext): Promise<HomepageCommunityEventMarkersResult> {
     const { repos } = context
     const events = await repos.posts.getHomepageCommunityEvents(limit)
@@ -463,8 +416,6 @@ export const postGqlQueries = {
 
     return { token };
   },
-  ...DigestHighlightsQuery,
-  ...DigestPostsThisWeekQuery,
   ...CuratedAndPopularThisWeekQuery,
   ...RecentlyActiveDialoguesQuery,
   ...MyDialoguesQuery,
@@ -474,6 +425,10 @@ export const postGqlQueries = {
   ...PostsWithActiveDiscussionQuery,
   ...PostsBySubscribedAuthorsQuery,
   ...PostsWithApprovedJargonQuery,
+  ...CurationCandidatePostsQuery,
+  async LastCuratedDate(_root: void, _args: {}, context: ResolverContext) {
+    return { lastCuratedDate: await context.repos.posts.getLastCuratedDate() };
+  },
 }
 
 export const postGqlMutations = {
@@ -632,9 +587,8 @@ export const postGqlTypeDefs = gql`
     PostIsCriticism(args: JSON): Boolean
     ProfileDiamondPosts(userId: String!, limit: Int!): ProfileDiamondPostsResult!
     ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
-    DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
-    DigestPosts(num: Int): [Post!]
 
+    LastCuratedDate: LastCuratedDateResult!
     HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
     HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
     HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
@@ -650,6 +604,9 @@ export const postGqlTypeDefs = gql`
   type PostsUserCommentedOnResult {
     posts: [Post!]
   }
+  type LastCuratedDateResult {
+    lastCuratedDate: Date
+  }
 
   input PostReviewFilter {
     startDate: Date
@@ -660,12 +617,6 @@ export const postGqlTypeDefs = gql`
 
   input PostReviewSort {
     karma: Boolean
-  }
-
-  type DigestPlannerPost {
-    post: Post!
-    digestPost: DigestPost
-    rating: Int!
   }
 
   type RecombeeRecommendedPost {
@@ -728,8 +679,6 @@ export const postGqlTypeDefs = gql`
   type HocuspocusAuth {
     token: String!
   }
-  ${DigestHighlightsTypeDefs}
-  ${DigestPostsThisWeekTypeDefs}
   ${CuratedAndPopularThisWeekTypeDefs}
   ${RecentlyActiveDialoguesTypeDefs}
   ${MyDialoguesTypeDefs}
@@ -739,4 +688,5 @@ export const postGqlTypeDefs = gql`
   ${PostsWithActiveDiscussionTypeDefs}
   ${PostsBySubscribedAuthorsTypeDefs}
   ${PostsWithApprovedJargonTypeDefs}
+  ${CurationCandidatePostsTypeDefs}
 `

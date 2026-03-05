@@ -1,6 +1,6 @@
-import { $createHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
+import { $createHorizontalRuleNode } from '@lexical/extension'
 import { $insertNodeToNearestRoot } from '@lexical/utils'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical'
 import { $createSuggestionNode } from './ProtonNode'
 
@@ -10,7 +10,7 @@ export function $insertDividerAsSuggestion(onSuggestionCreation: (id: string) =>
     return true
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   const dividerNode = $createHorizontalRuleNode()
   const suggestionNode = $createSuggestionNode(suggestionID, 'insert-divider')
   suggestionNode.append(dividerNode)

@@ -2,7 +2,7 @@ import { $createLinkNode, $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND, typ
 import { $findMatchingParent, $wrapNodeInElement } from '@lexical/utils'
 import type { LexicalEditor, LexicalNode } from 'lexical'
 import { $getSelection, $isRangeSelection, $createTextNode } from 'lexical'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import { normalizeUrl, sanitizeUrl } from '@/components/lexical/utils/url'
 import type { LinkChangePayload } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
@@ -21,7 +21,7 @@ export function $handleLinkChangeSuggestion(
     return true
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
 
   const normalizedUrl = url ? normalizeUrl(url) : null
   const sanitizedUrl = normalizedUrl ? sanitizeUrl(normalizedUrl) : null

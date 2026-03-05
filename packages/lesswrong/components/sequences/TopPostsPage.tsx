@@ -6,7 +6,6 @@ import { CoordinateInfo, ReviewYearGroupInfo, ReviewSectionInfo, reviewWinnerYea
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import classNames from 'classnames';
@@ -784,7 +783,7 @@ const TopPostsPage = () => {
       <AnalyticsContext pageContext="topPostsPage">
         <div className={classes.widerColumn}>
           <div className={classes.description}>
-            <SectionTitle title={preferredHeadingCase("The Best of LessWrong")} titleClassName={classes.title} />
+            <SectionTitle title={"The Best of LessWrong"} titleClassName={classes.title} />
             <ContentStyles contentType="post">
               When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
               <br /><br />

@@ -8,7 +8,7 @@ import {
   $isParagraphNode,
   type BaseSelection
 } from 'lexical';
-import { $createHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
+import { $createHorizontalRuleNode } from '@lexical/extension';
 import { useEffect } from 'react';
 import { HR } from '../../../lexical/plugins/MarkdownTransformers';
 

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import PostsItem from "../posts/PostsItem";
 import ReviewVotingExpandedPost from "./ReviewVotingExpandedPost";
 import FrontpageReviewWidget from "./FrontpageReviewWidget";
@@ -140,8 +139,6 @@ export const QuickReviewPage2022 = ({classes}: {
     }
   }
 
-  const loadMoreText = preferredHeadingCase("Load More");
-
   return <div className={classes.grid}>
     <div className={classes.leftColumn}>
       {!expandedPost && <div>
@@ -177,7 +174,7 @@ export const QuickReviewPage2022 = ({classes}: {
       <SectionFooter>
         <div className={classes.loadMore}>
           {loading && <Loading/>}
-          <a onClick={() => handleLoadMore()}>{loadMoreText} ({truncatedPostsResults.length}/{totalCount})</a>
+          <a onClick={() => handleLoadMore()}>Load More ({truncatedPostsResults.length}/{totalCount})</a>
         </div>
       </SectionFooter>
     </div>

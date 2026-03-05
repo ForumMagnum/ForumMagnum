@@ -7,11 +7,11 @@ import {
   $isRangeSelection,
   $isTextNode,
 } from 'lexical'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
 import { $wrapSelectionInSuggestionNode, $isNodeNotInline } from './Utils'
 import type { Logger } from '@/lib/vendor/proton/logger'
-import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
+import { $isHorizontalRuleNode } from '@lexical/extension'
 import type { SuggestionType } from './Types'
 
 /**
@@ -60,7 +60,7 @@ export function $selectionInsertClipboardNodes(
     anchorBeforeInserting.offset === 0 &&
     currentBlock.getFirstDescendant()?.is(pointNode)
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
 
   const isInitialSelectionNotCollapsed = !selection.isCollapsed()
   if (isInitialSelectionNotCollapsed) {

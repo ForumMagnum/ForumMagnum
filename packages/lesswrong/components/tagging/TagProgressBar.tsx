@@ -7,7 +7,6 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
-import { taggingNamePluralSetting } from '@/lib/instanceSettings';
 import LoginPopup from "../users/LoginPopup";
 import LWTooltip from "../common/LWTooltip";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
@@ -119,7 +118,7 @@ const TagProgressBar = ({ classes }: {
             What's the Import?
             </Link>
           <SeparatorBullet />
-          <Link className={classes.allTagsBarColor} to={`/${taggingNamePluralSetting.get()}/dashboard`}>
+          <Link className={classes.allTagsBarColor} to={`/w/dashboard`}>
             Help Process Pages
           </Link>
         </PostsItem2MetaInfo>

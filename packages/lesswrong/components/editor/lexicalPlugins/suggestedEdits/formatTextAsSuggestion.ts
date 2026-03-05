@@ -8,7 +8,7 @@ import {
   $isTokenOrSegmented,
   $setSelection,
 } from 'lexical'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import { $isSuggestionNode, $createSuggestionNode } from './ProtonNode'
 import type { PropertyChangeSuggestionProperties } from './Types'
 import { $unwrapSuggestionNodeAndResolveIfNeeded } from './removeSuggestionNodeAndResolveIfNeeded'
@@ -82,7 +82,7 @@ export function $formatTextAsSuggestion(
     return true
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
 
   const selectedNodes = selection.getNodes()
 

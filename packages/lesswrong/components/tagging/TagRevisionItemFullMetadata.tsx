@@ -34,11 +34,11 @@ const styles = (theme: ThemeType) => ({
       fontSize: 14,
       fontWeight: 500,
       color: theme.palette.grey[600],
-      marginRight: theme.spacing.unit,
+      marginRight: 8,
     }
     : {
       color: theme.palette.grey[800],
-      marginRight: theme.spacing.unit,
+      marginRight: 8,
       fontSize: "1.1rem",
       ...theme.typography.commentStyle
     },

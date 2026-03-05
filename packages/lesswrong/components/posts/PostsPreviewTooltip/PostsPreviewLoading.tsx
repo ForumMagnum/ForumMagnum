@@ -5,8 +5,8 @@ import Loading from "../../vulcan-core/Loading";
 
 export const notificationLoadingStyles = (theme: ThemeType) => ({
   width: getPostPreviewWidth(),
-  paddingTop: theme.spacing.unit,
-  paddingBottom: theme.spacing.unit,
+  paddingTop: 8,
+  paddingBottom: 8,
 });
 
 const styles = (theme: ThemeType) => ({

@@ -1,9 +1,5 @@
 import { defineStyles } from '../hooks/useStyles';
 
-/**
- * These same styles are also used by `MessagesMenuButton`, so changes here
- * should also be checked there as well.
- */
 export const styles = defineStyles("NotificationsMenuButton", (theme: ThemeType) => ({
   badgeContainer: {
     padding: "none",

@@ -6,7 +6,7 @@ import SectionTitle from "../common/SectionTitle";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    width: 650 + (theme.spacing.unit*4),
+    width: 650 + (32),
     marginBottom: 100,
     [theme.breakpoints.down('md')]: {
       width: "unset",
@@ -16,15 +16,15 @@ const styles = (theme: ThemeType) => ({
   },
   header: {
     ...theme.typography.body2,
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit/2,
+    marginTop: 16,
+    marginBottom: 4,
     color: theme.palette.grey[700]
   },
   subQuestion: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   subSubQuestions: {
-    paddingLeft: theme.spacing.unit,
+    paddingLeft: 8,
     borderLeft: theme.palette.border.slightlyFaint,
   }
 })

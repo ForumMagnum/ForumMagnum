@@ -1,6 +1,5 @@
 import React from "react";
 import { useItemsRead } from "../../hooks/useRecordPostView";
-import { preferredHeadingCase } from "../../../themes/forumTheme";
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -27,7 +26,7 @@ const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   const title = isRead ? "Mark as Unread" : "Mark as Read";
   return (
     <DropdownItem
-      title={preferredHeadingCase(title)}
+      title={title}
       onClick={setRead.bind(null, !isRead)}
     />
   );

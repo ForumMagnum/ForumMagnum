@@ -1,5 +1,4 @@
 import type { JssStyles } from "@/lib/jssStyles";
-import { isFriendlyUI } from "../forumTheme";
 import { miscStyles } from "./miscStyles";
 
 export const maxSmallish = "@media screen and (max-width: 715px)";
@@ -14,6 +13,8 @@ const clearStyle = (theme: ThemeType) => ({
     "-webkit-font-smoothing": "antialiased",
     "-moz-osx-font-smoothing": "grayscale",
     color: theme.palette.text.maxIntensity,
+    "text-size-adjust": "none",
+    "-webkit-text-size-adjust": "none",
   },
   "*, *::before, *::after": {
     boxSizing: "inherit",

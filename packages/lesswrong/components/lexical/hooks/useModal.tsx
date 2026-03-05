@@ -12,9 +12,11 @@ import {useCallback, useMemo, useState} from 'react';
 
 import Modal from '../ui/Modal';
 
+export type ShowModal = (title: string, showModal: (onClose: () => void) => JSX.Element) => void;
+
 export default function useModal(): [
   JSX.Element | null,
-  (title: string, showModal: (onClose: () => void) => JSX.Element) => void,
+  ShowModal,
 ] {
   const [modalContent, setModalContent] = useState<null | {
     closeOnClickOutside: boolean;

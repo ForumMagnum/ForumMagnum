@@ -2,7 +2,6 @@ import React from "react";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import LoadMore from "../common/LoadMore";
-import FriendlyPopularComment from "./FriendlyPopularComment";
 import LWPopularComment from "./LWPopularComment";
 import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -41,12 +40,11 @@ const PopularCommentsList = () => {
 
   const results = data?.PopularComments?.results;
 
-  const CommentComponent = isFriendlyUI() ? FriendlyPopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">
       <div className={classes.root}>
         {results?.map((comment) =>
-          <CommentComponent
+          <LWPopularComment
             key={comment._id}
             comment={comment}
           />

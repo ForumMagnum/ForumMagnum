@@ -14,7 +14,7 @@ import {
   INSERT_UNORDERED_LIST_COMMAND,
 } from '@lexical/list';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/react/LexicalHorizontalRuleNode';
+import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/extension';
 import {
   LexicalTypeaheadMenuPlugin,
   MenuOption,
@@ -29,7 +29,7 @@ import {
 import {useCallback, useMemo, useState} from 'react';
 import * as ReactDOM from 'react-dom';
 
-import useModal from '../../hooks/useModal';
+import useModal, { ShowModal } from '../../hooks/useModal';
 import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
@@ -55,6 +55,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { InsertReviewResultsDialog } from '../../embeds/ReviewResultsEmbed/InsertReviewResultsDialog';
+import { INSERT_IFRAME_WIDGET_COMMAND } from '../../embeds/IframeWidgetEmbed/IframeWidgetPlugin';
 import { INSERT_LLM_CONTENT_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
 import {
   typeaheadPopover,
@@ -71,7 +72,10 @@ const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
     ...typeaheadPopover(theme),
     ...componentPickerMenu(),
   },
-  list: typeaheadList(theme),
+  list: {
+    ...typeaheadList(theme),
+    maxHeight: 400,
+  },
   listItem: typeaheadListItem(theme),
   item: typeaheadItem(theme),
   text: typeaheadItemText(),
@@ -173,8 +177,6 @@ function getDynamicOptions(editor: LexicalEditor, queryString: string) {
   return options;
 }
 
-type ShowModal = ReturnType<typeof useModal>[1];
-
 const headingIcons = {
   1: TypeH1Icon,
   2: TypeH2Icon,
@@ -241,8 +243,9 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
     new ComponentPickerOption('Divider', {
       icon: <HorizontalRuleIcon style={iconStyle} />,
       keywords: ['horizontal rule', 'divider', 'hr'],
-      onSelect: () =>
-        editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined),
+      onSelect: () => {
+        editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
+      }
     }),
     // new ComponentPickerOption('Page Break', {
     //   icon: <ScissorsIcon style={iconStyle} />,
@@ -344,6 +347,13 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
       keywords: ['collapse', 'collapsible', 'toggle'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined),
+    }),
+    new ComponentPickerOption('Custom Widget', {
+      icon: <CodeIcon style={iconStyle} />,
+      keywords: ['custom', 'iframe', 'widget', 'html', 'embed', 'javascript', 'interactive'],
+      onSelect: () => {
+        editor.dispatchCommand(INSERT_IFRAME_WIDGET_COMMAND, undefined);
+      },
     }),
     new ComponentPickerOption('LLM Content', {
       icon: <ForumIcon icon="Robot" style={iconStyle} />,

@@ -6,14 +6,14 @@ import FormatDate from "../../common/FormatDate";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginLeft: -theme.spacing.unit,
+    marginLeft: -8,
     display: "flex"
   },
   karma: {
     display: "inline-block",
     width: 16,
     textAlign: "center",
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     marginTop: 1,
     fontFamily: theme.typography.commentStyle.fontFamily,
   },
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
   tooltipKarma: {
     fontStyle: "italic",
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
     display:"flex",
     justifyContent: "space-between"
   },

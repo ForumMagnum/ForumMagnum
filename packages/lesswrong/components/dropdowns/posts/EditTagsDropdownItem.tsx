@@ -1,8 +1,5 @@
 import React from "react";
 import { useDialog } from "../../common/withDialog";
-
-import { taggingNamePluralCapitalSetting } from "../../../lib/instanceSettings";
-import { preferredHeadingCase } from "../../../themes/forumTheme";
 import EditTagsDialog from "../../tagging/EditTagsDialog";
 import DropdownItem from "../DropdownItem";
 
@@ -21,7 +18,7 @@ const EditTagsDropdownItem = ({post, closeMenu}: {
   }
   return (
     <DropdownItem
-      title={preferredHeadingCase(`Edit ${taggingNamePluralCapitalSetting.get()}`)}
+      title={`Edit Wikitags`}
       onClick={handleOpenTagDialog}
       icon="Tag"
     />

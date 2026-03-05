@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: 24,
     "& .Typography-body1": {
       paddingBottom: PADDING,
       "& a": {

@@ -53,10 +53,13 @@ function enumerateFiles(dirPath: string): string[] {
 function importAllFilesWithStyles() {
   const defineStylesRegex = /defineStyles\s*\(\s*["'](\w+)["']/gm;
   const registerComponentRegex = /registerComponent\s*(<\s*\w*\s*>)?\s*\(\s*["'](\w+)["']/gm;
-  const filesWithStyles = enumerateFiles("packages/lesswrong/components").filter(path => {
-    const fileContents = fs.readFileSync(path, "utf-8");
-    return !!(defineStylesRegex.exec(fileContents) || registerComponentRegex.exec(fileContents));
-  });
+  const componentRoots = ["packages/lesswrong/components", "app"];
+  const filesWithStyles = componentRoots
+    .flatMap(enumerateFiles)
+    .filter(path => {
+      const fileContents = fs.readFileSync(path, "utf-8");
+      return !!(defineStylesRegex.exec(fileContents) || registerComponentRegex.exec(fileContents));
+    });
   for (const file of filesWithStyles) {
     //eslint-disable-next-line import/no-dynamic-require
     require('../../../' + file);
@@ -111,7 +114,7 @@ function assertNoNonPaletteColors(componentName: string, lightModeStyles: JssSty
 function assertNoNonPaletteColorsRec(componentName: string, path: string, lightModeStyleFragment: any, darkModeStyleFragment: any, outNonPaletteColors: string[]) {
   if (typeof lightModeStyleFragment === "string") {
     const mentionedColor = stringMentionsAnyColor(lightModeStyleFragment);
-    if (mentionedColor && lightModeStyleFragment === darkModeStyleFragment) {
+    if (mentionedColor && lightModeStyleFragment === darkModeStyleFragment && !lightModeStyleFragment.includes("light-dark")) {
       outNonPaletteColors.push(`Color for ${componentName} at ${path} (${mentionedColor}) is the same in light mode and dark mode. To prevent black-on-black text, use either a theme palette color, or check for dark mode with theme.dark ? colorOne : colorTwo. Or disable the warning for this component by passing {allowNonThemeColors: true} in the stylesheet options.`);
     }
   } else if (typeof lightModeStyleFragment === "object") {

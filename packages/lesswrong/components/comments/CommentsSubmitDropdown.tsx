@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
-import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { isFriendlyUI } from '@/themes/forumTheme';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ForumIcon from '../common/ForumIcon';
 import LWPopper from '../common/LWPopper';
@@ -105,7 +105,7 @@ export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
           <Paper>
             <DropdownMenu className={classes.dropdownMenu}>
               <DropdownItem
-                title={preferredHeadingCase("Save As Draft")}
+                title={"Save As Draft"}
                 menuItemClassName={classes.dropdownItem}
                 onClick={() => {
                   if (!currentUser) {

@@ -1,4 +1,3 @@
-'use client';
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -20,7 +19,7 @@ import type {
 } from 'lexical';
 import React, { type JSX } from 'react';
 
-import {BlockWithAlignableContents} from '@lexical/react/LexicalBlockWithAlignableContents';
+import { BlockWithAlignableContentsWrapper } from '../../nodes/BlockWithAlignableContentsWrapper';
 import {
   DecoratorBlockNode,
   SerializedDecoratorBlockNode,
@@ -112,7 +111,7 @@ function TweetComponent({
   }, [createTweet, onError, tweetID]);
 
   return (
-    <BlockWithAlignableContents
+    <BlockWithAlignableContentsWrapper
       className={className}
       format={format}
       nodeKey={nodeKey}>
@@ -121,7 +120,7 @@ function TweetComponent({
         style={{display: 'inline-block', width: '550px'}}
         ref={containerRef}
       />
-    </BlockWithAlignableContents>
+    </BlockWithAlignableContentsWrapper>
   );
 }
 

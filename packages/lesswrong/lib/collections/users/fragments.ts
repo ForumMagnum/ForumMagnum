@@ -54,7 +54,6 @@ export const UsersProfile = gql(`
     howICanHelpOthers {
       ...RevisionDisplay
     }
-    profileTagIds
     organizerOfGroupIds
     programParticipation
     website
@@ -112,7 +111,6 @@ export const UsersCurrent = gql(`
     jobTitle
     organization
     careerStage
-    profileTagIds
     organizerOfGroupIds
     moderationStyle
     moderationGuidelines {
@@ -194,8 +192,6 @@ export const UsersCurrent = gql(`
     nearbyPeopleNotificationThreshold
     hideFrontpageMap
     emailSubscribedToCurated
-    subscribedToDigest
-    subscribedToNewsletter
     unsubscribeFromAll
     whenConfirmationEmailSent
     hideSubscribePoke
@@ -240,7 +236,6 @@ export const UsersCurrent = gql(`
     notificationRepliesToMyComments
     subforumPreferredLayout
     
-    hideJobAdUntil
     criticismTipsDismissed
     
     allowDatadogSessionReplay
@@ -253,7 +248,6 @@ export const UsersCurrent = gql(`
     hideActiveDialogueUsers
 
     hideSunshineSidebar
-    optedOutOfSurveys
     postGlossariesPinned
     generateJargonForDrafts
     generateJargonForPublishedPosts
@@ -579,8 +573,6 @@ export const UsersEdit = gql(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
-    subscribedToDigest
-    subscribedToNewsletter
     unsubscribeFromAll
     hasAuth0Id
 
@@ -689,7 +681,6 @@ export const UsersProfileEdit = gql(`
     howICanHelpOthers {
       ...RevisionEdit
     }
-    profileTagIds
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase

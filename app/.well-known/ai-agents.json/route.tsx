@@ -1,5 +1,6 @@
-import { siteNameWithArticleSetting, siteUrlSetting, taglineSetting } from "@/lib/instanceSettings";
-import { NextRequest } from "next/server";
+import { siteNameWithArticleSetting, taglineSetting } from "@/lib/instanceSettings";
+import { NextRequest, NextResponse } from "next/server";
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 
 /**
  * From: https://github.com/wild-card-ai/agents-json
@@ -9,12 +10,11 @@ import { NextRequest } from "next/server";
  * documentationUrl that points to SKILL.md, which is the real documentation.
  */
 export async function GET(req: NextRequest) {
-  return new Response(JSON.stringify({
+  const siteUrl = getSiteUrlFromReq(req);
+  return NextResponse.json({
     name: siteNameWithArticleSetting.get(),
     description: taglineSetting.get(),
-    url: siteUrlSetting.get(),
-    documentationUrl: `${siteUrlSetting.get()}/api/SKILL.md`,
-  }), {
-    headers: { "Content-Type": "application/json" },
+    url: siteUrl,
+    documentationUrl: `${siteUrl}/api/SKILL.md`,
   });
 }

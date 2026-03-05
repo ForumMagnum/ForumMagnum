@@ -79,50 +79,6 @@ export const getColorReplacementsCache = (): Record<string,string> => colorRepla
 
 const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
   forumSelect({
-    EAForum: {
-      primary: {
-        main: '#009da8',
-        light: '#0c869b',
-        dark: '#009da8'
-      },
-      secondary: {
-        main: '#3c9eaf',
-        light: '#788e6a',
-        dark: '#3c9eaf'
-      },
-      lwTertiary: {
-        main: "#0e9bb4",
-        dark: "#0e9bb4",
-      },
-      action: {
-        active: '#ffffff',
-        hover: 'rgba(255, 255, 255, 0.1)',
-        hoverOpacity: 0.1,
-        disabled: 'rgba(255, 255, 255, 0.3)',
-        disabledBackground: 'rgba(255, 255, 255, 0.12)',
-      },
-      text: {
-        primaryAlert: '#F3F9FA'
-      },
-      link: {
-        visited: '#9b71be',
-        visitedHover: '#8a59b3',
-      },
-      panelBackground: {
-        default: shadePalette.grey[20],
-        modalBackground: "#292929",
-        mapboxTooltip: "rgba(75,75,75,.94)",
-        loginInput: "#3d3d3d",
-        loginInputHovered: "#3f3f3f",
-        onboardingSection: "#424242",
-        onboardingPodcast: "#525252",
-        placeholderGradient: 'linear-gradient(90deg, #3f3f3f 33%, #4a4a4a 50%, #3f3f3f 66%)',
-      },
-      background: {
-        primaryTranslucent: "rgba(12,134,155,0.4)",
-        loginBackdrop: "rgba(0,0,0,0.5)",
-      }
-    },
     LessWrong: {
       header: {
         background: 'rgba(50,50,50,.75)',
@@ -144,13 +100,6 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         translucentBackground: "rgba(0,0,0,.5)",
       }
     },
-  });
-
-const forumOverrides = (palette: ThemePalette): PartialDeep<ThemeType['overrides']> =>
-  forumSelect({
-    EAForum: {
-    },
-    default: {},
   });
 
 export const getDarkModeTheme = (): UserThemeSpecification => ({
@@ -346,7 +295,6 @@ export const getDarkModeTheme = (): UserThemeSpecification => ({
       // have black-on-transparent text in them.
       background: "#ffffff",
     },
-    overrides: forumOverrides(palette),
     rawCSS: []
   }),
 });
