@@ -52,6 +52,25 @@ Reading collections:
  * /api/codex
  * /api/hpmor
 
+Reporting Feedback About This API
+=================================
+AI agents should use this endpoint to report:
+ * bugs in the markdown/agent API
+ * gaps in functionality that make the API harder to use
+ * anything your user asks you to report to the LessWrong developers
+
+To submit feedback, make a POST request to:
+    POST /api/agent/feedback
+    with JSON body: {
+      message: string,
+      type?: "bug_report"|"functionality_gap"|"user_requested_report"|"other",
+      agentName?: string,
+      userRequest?: string,
+      endpoint?: string,
+      details?: object
+    }
+This endpoint forwards the message to the developers' Slack channel.
+
 Helping Users With Drafts
 =========================
 (This feature is currently in development, the API should not be assumed stable,
