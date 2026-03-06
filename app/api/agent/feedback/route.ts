@@ -35,9 +35,7 @@ async function sendFeedbackToSlack(payload: z.infer<typeof agentFeedbackSchema>)
   const slackBotToken = process.env.AMANUENSIS_SLACK_BOT_TOKEN;
   const channelId = getFeedbackChannelId();
   if (!slackBotToken || !channelId) {
-    // eslint-disable-next-line no-console
-    console.error("Missing Slack configuration for /api/agent/feedback");
-    return;
+    throw new Error("Missing Slack configuration for /api/agent/feedback");
   }
 
   const slack = new WebClient(slackBotToken);
