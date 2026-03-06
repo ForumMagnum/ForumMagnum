@@ -271,6 +271,9 @@ export const routeTrie = {
             "deleteBlock": {
               "hasRoute": true
             },
+            "feedback": {
+              "hasRoute": true
+            },
             "insertBlock": {
               "hasRoute": true
             },
@@ -284,6 +287,7 @@ export const routeTrie = {
           "lowerCase": {
             "commentondraft": "commentOnDraft",
             "deleteblock": "deleteBlock",
+            "feedback": "feedback",
             "insertblock": "insertBlock",
             "replacetext": "replaceText",
             "replacewidget": "replaceWidget"
