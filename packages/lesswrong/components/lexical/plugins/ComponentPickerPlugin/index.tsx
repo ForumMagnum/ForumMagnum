@@ -211,9 +211,9 @@ function getBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType
       onSelect: () =>
         editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
     }),
-    new ComponentPickerOption('Block Quote', {
+    new ComponentPickerOption('Blockquote', {
       icon: <ChatSquareQuoteIcon style={iconStyle} />,
-      keywords: ['block quote'],
+      keywords: ['blockquote', 'block', 'quote'],
       onSelect: () =>
         applyBlockTypeChange(editor, 'quote'),
     }),
