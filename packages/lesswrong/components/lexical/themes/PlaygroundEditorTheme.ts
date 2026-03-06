@@ -111,9 +111,11 @@ const theme: EditorThemeClasses = {
   tableSelected: 'table-selected',
   tableSelection: 'table-selection',
   text: {
+    bold: 'text-bold',
     capitalize: 'text-capitalize',
     code: 'text-code',
     highlight: 'text-highlight',
+    italic: 'text-italic',
     lowercase: 'text-lowercase',
     strikethrough: 'text-strikethrough',
     underline: 'text-underline',
