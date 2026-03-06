@@ -46,7 +46,7 @@ export const replaceWidgetToolSchema = z.object({
  * Returns an error message string if validation fails, or null if valid.
  */
 export function validateReplaceWidgetExclusivity(value: { replacement?: string, unifiedDiff?: string }): string | null {
-  const operationCount = (value.replacement ? 1 : 0) + (value.unifiedDiff ? 1 : 0);
+  const operationCount = (typeof value.replacement === "string" ? 1 : 0) + (typeof value.unifiedDiff === "string" ? 1 : 0);
   if (operationCount !== 1) {
     return "Provide exactly one of replacement or unifiedDiff.";
   }

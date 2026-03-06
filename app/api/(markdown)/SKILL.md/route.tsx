@@ -65,11 +65,18 @@ can be found at https://www.lesswrong.com/account?tab=preferences. To give an AI
 agent access, the user needs to press the Share button, change the permissions
 for "Anyone with the link can" to "Edit", then copy the edit-post URL for you.
 The URL will look like this:
-    https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ
+    https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ (or /collaborateOnPost?postId=XYZXYZ&key=XYZXYZ, which is functionally equivalent)
 The key in the URL is called the "link sharing key"; do not share this key with
 anyone unless the user is asking you to give that person permission to edit
 the post. Once you have the post URL, read the post at:
-    GET /api/editPost?postId=[id]&key=[linkSharingKey]
+    GET /api/editPost?postId=[id]&key=[linkSharingKey] (even if the user-provided URL uses the /collaborateOnPost route)
+
+When making POST requests to these endpoints, pipe the JSON body from a heredoc
+to avoid shell escaping issues (some environments mangle characters like ! in
+inline curl -d arguments):
+    cat <<'EOF' | curl -X POST https://${hostname}/api/agent/commentOnDraft -H 'Content-Type: application/json' -d @-
+    { "postId": "...", "key": "...", "comment": "..." }
+    EOF
 
 To add add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
@@ -88,14 +95,13 @@ use edit mode or suggest mode, use suggest mode.
 
 To insert new blocks of text into the draft, make a POST request to:
     POST /api/agent/insertBlock
-    with JSON body: { postId, key, agentName?, location, markdown, mode?: "edit"|"suggest" }
+    with JSON body: { postId, key, agentName?, location: "start"|"end"|{ before: string }|{ after: string }, markdown, mode?: "edit"|"suggest" }
 The location should be a markdown string that matches the start of a paragraph
 that already exists in the draft. The location can be one of the following:
     "start": insert at the beginning of the post
     "end": insert at the end of the post
-    "before": insert before the specified paragraph
-    "after": insert after the specified paragraph
-    "mode": "edit"|"suggest"
+    "before": insert before the paragraph with the given markdown prefix
+    "after": insert after the paragraph with the given markdown prefix
 
 To delete an existing block from the draft, make a POST request to:
     POST /api/agent/deleteBlock

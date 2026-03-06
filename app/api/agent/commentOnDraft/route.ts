@@ -214,7 +214,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
-    const threadQuote = quote ?? "(No quote provided)";
+    const threadQuote = quote ?? "";
 
     const { threadId, commentId, anchorStatus, anchorNote } = await insertDraftCommentThread({
       postId,

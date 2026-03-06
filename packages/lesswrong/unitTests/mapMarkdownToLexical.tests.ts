@@ -3,8 +3,6 @@ import { $generateNodesFromDOM, $generateHtmlFromNodes } from "@lexical/html";
 import {
   $createParagraphNode,
   $createTextNode,
-  $isDecoratorNode,
-  $isElementNode,
   $createRangeSelection,
   $getRoot,
   $getSelection,
@@ -16,27 +14,8 @@ import { markdownToHtml, htmlToMarkdown } from "@/server/editor/conversionUtils"
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
 import { locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
-
-async function runEditorUpdate(editor: LexicalEditor, updater: () => void): Promise<void> {
-  await new Promise<void>((resolve) => {
-    editor.update(updater, { onUpdate: resolve });
-  });
-}
-
-async function loadMarkdownIntoHeadlessEditor(markdownDocument: string): Promise<LexicalEditor> {
-  const editor = createHeadlessEditor("MapMarkdownToLexicalTests");
-  const html = await markdownToHtml(markdownDocument);
-
-  await runEditorUpdate(editor, () => {
-    const dom = new JSDOM(html);
-    const lexicalNodes = $generateNodesFromDOM(editor, dom.window.document);
-    const root = $getRoot();
-    root.clear();
-    root.append(...lexicalNodes);
-  });
-
-  return editor;
-}
+import { runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
+import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
 async function selectMarkdownQuoteInEditor(
   editor: LexicalEditor,
@@ -74,15 +53,7 @@ async function deleteEverythingOutsideSelectionAndRoundTripToMarkdown(
     const selectedNodes = $generateNodesFromDOM(editor, dom.window.document);
     const root = $getRoot();
     root.clear();
-    for (const node of selectedNodes) {
-      if ($isElementNode(node) || $isDecoratorNode(node)) {
-        root.append(node);
-      } else {
-        const paragraph = $createParagraphNode();
-        paragraph.append(node);
-        root.append(paragraph);
-      }
-    }
+    root.append(...normalizeImportedTopLevelNodes(selectedNodes));
   });
 
   let html = "";
@@ -100,7 +71,7 @@ async function expectQuoteRoundTripsFromMarkdownDocument({
   markdownDocument: string
   markdownQuote: string
 }): Promise<void> {
-  const editor = await loadMarkdownIntoHeadlessEditor(markdownDocument);
+  const editor = await setupEditorWithContent(markdownDocument);
   await selectMarkdownQuoteInEditor(editor, markdownQuote);
   const extractedMarkdown = await deleteEverythingOutsideSelectionAndRoundTripToMarkdown(editor);
   const canonicalizeForComparison = (markdown: string): string => {

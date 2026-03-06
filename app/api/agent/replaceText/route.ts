@@ -1,8 +1,11 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createTextNode, $getNodeByKey, $isTextNode } from "lexical";
+import { $getNodeByKey, $isElementNode, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
+import { $generateNodesFromDOM } from "@lexical/html";
+import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
+import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import {
   deriveAgentAuthor,
@@ -22,13 +25,72 @@ interface ReplaceResult {
   suggestionId?: string
 }
 
-function applySuggestionReplacement({
+/**
+ * Parses a markdown replacement string into inline Lexical nodes suitable for
+ * insertion within an existing paragraph. When the markdown produces a single
+ * wrapping paragraph, the inline children are extracted so they stay inline.
+ */
+function $markdownToInlineNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
+  const html = markdownToHtml(markdown);
+  const dom = new JSDOM(html);
+  const nodes = $generateNodesFromDOM(editor, dom.window.document);
+  // Markdown typically produces a single paragraph wrapping inline children.
+  // Extract the inline children so they stay within the existing paragraph.
+  if (nodes.length === 1 && $isElementNode(nodes[0])) {
+    return nodes[0].getChildren();
+  }
+  return nodes;
+}
+
+export function $applyEditReplacement({
+  editor,
+  matchedNodeKey,
+  startOffset,
+  endOffset,
+  replacement,
+}: {
+  editor: LexicalEditor
+  matchedNodeKey?: string
+  startOffset?: number
+  endOffset?: number
+  replacement: string
+}): boolean {
+  if (!matchedNodeKey || startOffset === undefined || endOffset === undefined) {
+    return false;
+  }
+
+  const originalNode = $getNodeByKey(matchedNodeKey);
+  if (!$isTextNode(originalNode)) {
+    return false;
+  }
+
+  const splitNodes = originalNode.splitText(startOffset, endOffset);
+  const selectedNode = splitNodes.length > 1 ? splitNodes[1] : splitNodes[0];
+  if (!$isTextNode(selectedNode)) {
+    return false;
+  }
+
+  if (replacement.length > 0) {
+    const inlineNodes = $markdownToInlineNodes(editor, replacement);
+    for (const node of inlineNodes) {
+      selectedNode.insertBefore(node);
+    }
+    selectedNode.remove();
+  } else {
+    selectedNode.remove();
+  }
+  return true;
+}
+
+export function $applySuggestionReplacement({
+  editor,
   matchedNodeKey,
   startOffset,
   endOffset,
   replacement,
   suggestionId,
 }: {
+  editor: LexicalEditor
   matchedNodeKey?: string
   startOffset?: number
   endOffset?: number
@@ -56,7 +118,9 @@ function applySuggestionReplacement({
 
   const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
   if (replacement.length > 0) {
-    insertSuggestion.append($createTextNode(replacement));
+    for (const node of $markdownToInlineNodes(editor, replacement)) {
+      insertSuggestion.append(node);
+    }
   }
   deleteSuggestion.insertAfter(insertSuggestion);
 
@@ -98,26 +162,19 @@ export async function replaceTextInMainDoc({
           }
 
           if (mode === "edit") {
-            const node = selectionResult.matchedNodeKey
-              ? $getNodeByKey(selectionResult.matchedNodeKey)
-              : null;
-            if ($isTextNode(node) && selectionResult.startOffset !== undefined && selectionResult.endOffset !== undefined) {
-              const splitNodes = node.splitText(selectionResult.startOffset, selectionResult.endOffset);
-              const selectedNode = splitNodes.length > 1 ? splitNodes[1] : splitNodes[0];
-              if ($isTextNode(selectedNode)) {
-                if (replacement.length > 0) {
-                  selectedNode.setTextContent(replacement);
-                } else {
-                  selectedNode.remove();
-                }
-                replaced = true;
-              }
-            }
+            replaced = $applyEditReplacement({
+              editor,
+              matchedNodeKey: selectionResult.matchedNodeKey,
+              startOffset: selectionResult.startOffset,
+              endOffset: selectionResult.endOffset,
+              replacement,
+            });
             return;
           }
 
           suggestionId = randomId();
-          replaced = applySuggestionReplacement({
+          replaced = $applySuggestionReplacement({
+            editor,
             matchedNodeKey: selectionResult.matchedNodeKey,
             startOffset: selectionResult.startOffset,
             endOffset: selectionResult.endOffset,

@@ -7,31 +7,25 @@ import { withMainDocEditorSession } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
+import {
+  $createParagraphNode,
+  $isElementNode,
+  $isDecoratorNode,
+  type LexicalNode,
+} from "lexical";
 
-export function buildEditMarkdownUrl(postId: string, key?: string, version?: string): string {
-  const searchParams = new URLSearchParams({ postId });
-  if (key) searchParams.set("key", key);
-  if (version) searchParams.set("version", version);
-  return `/api/editPost?${searchParams.toString()}`;
-}
-
-export function buildCollaborateMarkdownUrl(postId: string, key?: string): string {
-  const searchParams = new URLSearchParams({ postId });
-  if (key) searchParams.set("key", key);
-  return `/api/collaborateOnPost?${searchParams.toString()}`;
-}
-
-export function buildEditHtmlUrl(postId: string, key?: string, version?: string): string {
-  const searchParams = new URLSearchParams({ postId });
-  if (key) searchParams.set("key", key);
-  if (version) searchParams.set("version", version);
-  return `/editPost?${searchParams.toString()}`;
-}
-
-export function buildCollaborateHtmlUrl(postId: string, key?: string): string {
-  const searchParams = new URLSearchParams({ postId });
-  if (key) searchParams.set("key", key);
-  return `/collaborateOnPost?${searchParams.toString()}`;
+export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
+  const normalized: LexicalNode[] = [];
+  for (const node of nodes) {
+    if ($isElementNode(node) || $isDecoratorNode(node)) {
+      normalized.push(node);
+    } else {
+      const paragraph = $createParagraphNode();
+      paragraph.append(node);
+      normalized.push(paragraph);
+    }
+  }
+  return normalized;
 }
 
 export function markdownRouteRedirect(req: NextRequest, path: string): NextResponse {
@@ -128,10 +122,8 @@ export async function getLiveDraftMarkdown({
 
 export async function renderLiveEditorDraftMarkdownRoute({
   req,
-  mode,
 }: {
   req: NextRequest
-  mode: "edit" | "collaborate"
 }): Promise<Response> {
   const postId = req.nextUrl.searchParams.get("postId");
   const key = req.nextUrl.searchParams.get("key") ?? undefined;
@@ -176,9 +168,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
 
     return renderEditorDraftMarkdown({
       title,
-      mode,
       postId: resolvedPostId,
-      key,
       version,
       bodyMarkdown,
     });
@@ -189,38 +179,20 @@ export async function renderLiveEditorDraftMarkdownRoute({
 
 export async function renderEditorDraftMarkdown({
   title,
-  mode,
   postId,
   bodyMarkdown,
-  key,
   version,
 }: {
   title: string
-  mode: "edit" | "collaborate"
   postId: string
   bodyMarkdown: string
-  key?: string
   version?: string
 }): Promise<Response> {
-  const htmlRoute = mode === "edit"
-    ? buildEditHtmlUrl(postId, key, version)
-    : buildCollaborateHtmlUrl(postId, key);
-  const alternateMarkdownRoute = mode === "edit"
-    ? buildCollaborateMarkdownUrl(postId, key)
-    : buildEditMarkdownUrl(postId, key);
-
   return markdownResponse(
     <div>
       <div className={markdownClasses.title}>
-        {mode === "edit" ? "Edit post draft: " : "Collaborative draft view: "}
+        {"Title: "}
         {title}
-      </div>
-      <div>
-        HTML route: <a href={htmlRoute}>{htmlRoute}</a>
-      </div>
-      <div>
-        {mode === "edit" ? "Collaboration route (Markdown): " : "Edit route (Markdown): "}
-        <a href={alternateMarkdownRoute}>{alternateMarkdownRoute}</a>
       </div>
       <div>
         Post ID: <code>{postId}</code>
