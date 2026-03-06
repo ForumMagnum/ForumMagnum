@@ -187,23 +187,6 @@ const headingIcons = {
 function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser: UsersCurrent | null) {
   const isAdminUser = userIsAdmin(currentUser);
   return [
-    new ComponentPickerOption('Paragraph', {
-      icon: <TextParagraphIcon style={iconStyle} />,
-      keywords: ['normal', 'paragraph', 'p', 'text'],
-      onSelect: () =>
-        applyBlockTypeChange(editor, 'paragraph'),
-    }),
-    ...([1, 2, 3] as const).map(
-      (n) => {
-        const HeadingIcon = headingIcons[n];
-        return new ComponentPickerOption(`Heading ${n}`, {
-          icon: <HeadingIcon style={iconStyle} />,
-          keywords: ['heading', 'header', `h${n}`],
-          onSelect: () =>
-            applyBlockTypeChange(editor, `h${n}`),
-        });
-      }
-    ),
     new ComponentPickerOption('Table', {
       icon: <TableIcon style={iconStyle} />,
       keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
@@ -222,23 +205,11 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
       onSelect: () =>
         editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
     }),
-    // new ComponentPickerOption('Check List', {
-    //   icon: <SquareCheckIcon style={iconStyle} />,
-    //   keywords: ['check list', 'todo list'],
-    //   onSelect: () =>
-    //     editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
-    // }),
-    new ComponentPickerOption('Quote', {
+    new ComponentPickerOption('Block Quote', {
       icon: <ChatSquareQuoteIcon style={iconStyle} />,
       keywords: ['block quote'],
       onSelect: () =>
         applyBlockTypeChange(editor, 'quote'),
-    }),
-    new ComponentPickerOption('Code', {
-      icon: <CodeIcon style={iconStyle} />,
-      keywords: ['javascript', 'python', 'js', 'codeblock'],
-      onSelect: () =>
-        applyBlockTypeChange(editor, 'code'),
     }),
     new ComponentPickerOption('Divider', {
       icon: <HorizontalRuleIcon style={iconStyle} />,
@@ -247,75 +218,9 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
         editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
       }
     }),
-    // new ComponentPickerOption('Page Break', {
-    //   icon: <ScissorsIcon style={iconStyle} />,
-    //   keywords: ['page break', 'divider'],
-    //   onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
-    // }),
-    // new ComponentPickerOption('Excalidraw', {
-    //   icon: <Diagram2Icon style={iconStyle} />,
-    //   keywords: ['excalidraw', 'diagram', 'drawing'],
-    //   onSelect: () =>
-    //     editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined),
-    // }),
-    // new ComponentPickerOption('Poll', {
-    //   icon: <CardChecklistIcon style={iconStyle} />,
-    //   keywords: ['poll', 'vote'],
-    //   onSelect: () =>
-    //     showModal('Insert Poll', (onClose) => (
-    //       <InsertPollDialog activeEditor={editor} onClose={onClose} />
-    //     )),
-    // }),
-    // ...EmbedConfigs.map(
-    //   (embedConfig) =>
-    //     new ComponentPickerOption(`Embed ${embedConfig.contentName}`, {
-    //       icon: embedConfig.icon,
-    //       keywords: [...embedConfig.keywords, 'embed'],
-    //       onSelect: () =>
-    //         editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type),
-    //     }),
-    // ),
-    // new ComponentPickerOption('Date', {
-    //   icon: <CalendarIcon style={iconStyle} />,
-    //   keywords: ['date', 'calendar', 'time'],
-    //   onSelect: () => {
-    //     const dateTime = new Date();
-    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-    //   },
-    // }),
-    // new ComponentPickerOption('Today', {
-    //   icon: <CalendarIcon style={iconStyle} />,
-    //   keywords: ['date', 'calendar', 'time', 'today'],
-    //   onSelect: () => {
-    //     const dateTime = new Date();
-    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-    //   },
-    // }),
-    // new ComponentPickerOption('Tomorrow', {
-    //   icon: <CalendarIcon style={iconStyle} />,
-    //   keywords: ['date', 'calendar', 'time', 'tomorrow'],
-    //   onSelect: () => {
-    //     const dateTime = new Date();
-    //     dateTime.setDate(dateTime.getDate() + 1);
-    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-    //   },
-    // }),
-    // new ComponentPickerOption('Yesterday', {
-    //   icon: <CalendarIcon style={iconStyle} />,
-    //   keywords: ['date', 'calendar', 'time', 'yesterday'],
-    //   onSelect: () => {
-    //     const dateTime = new Date();
-    //     dateTime.setDate(dateTime.getDate() - 1);
-    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-    //   },
-    // }),
-    new ComponentPickerOption('Equation', {
+    new ComponentPickerOption('Inline Equation', {
       icon: <PlusSlashMinusIcon style={iconStyle} />,
-      keywords: ['equation', 'latex', 'math'],
+      keywords: ['equation', 'latex', 'math', 'inline'],
       onSelect: () =>
         editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: true }),
     }),
@@ -325,15 +230,6 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
       onSelect: () =>
         editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: false }),
     }),
-    // new ComponentPickerOption('GIF', {
-    //   icon: <FiletypeGifIcon style={iconStyle} />,
-    //   keywords: ['gif', 'animate', 'image', 'file'],
-    //   onSelect: () =>
-    //     editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-    //       altText: 'Cat typing on a laptop',
-    //       src: catTypingGif,
-    //     }),
-    // }),
     new ComponentPickerOption('Image', {
       icon: <FileImageIcon style={iconStyle} />,
       keywords: ['image', 'photo', 'picture', 'file'],
@@ -342,9 +238,9 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
           <InsertImageDialog activeEditor={editor} onClose={onClose} />
         )),
     }),
-    new ComponentPickerOption('Collapsible', {
+    new ComponentPickerOption('Collapsible Section', {
       icon: <CaretRightFillIcon style={iconStyle} />,
-      keywords: ['collapse', 'collapsible', 'toggle'],
+      keywords: ['collapse', 'collapsible', 'toggle', 'section'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined),
     }),
@@ -361,14 +257,12 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
       onSelect: () =>
         editor.dispatchCommand(INSERT_LLM_CONTENT_BLOCK_COMMAND, undefined),
     }),
-    // new ComponentPickerOption('Columns Layout', {
-    //   icon: <ThreeColumnsIcon style={iconStyle} />,
-    //   keywords: ['columns', 'layout', 'grid'],
-    //   onSelect: () =>
-    //     showModal('Insert Columns Layout', (onClose) => (
-    //       <InsertLayoutDialog activeEditor={editor} onClose={onClose} />
-    //     )),
-    // }),
+    new ComponentPickerOption('Code Block', {
+      icon: <CodeIcon style={iconStyle} />,
+      keywords: ['javascript', 'python', 'js', 'code block', 'code', 'block'],
+      onSelect: () =>
+        applyBlockTypeChange(editor, 'code'),
+    }),
     ...(isAdminUser ? [
       new ComponentPickerOption('Review Results Table', {
         icon: <CardChecklistIcon style={iconStyle} />,
@@ -378,6 +272,23 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
             <InsertReviewResultsDialog activeEditor={editor} onClose={onClose} />
           )),
       }),
+      new ComponentPickerOption('Paragraph', {
+        icon: <TextParagraphIcon style={iconStyle} />,
+        keywords: ['normal', 'paragraph', 'p', 'text'],
+        onSelect: () =>
+          applyBlockTypeChange(editor, 'paragraph'),
+      }),
+      ...([1, 2, 3] as const).map(
+        (n) => {
+          const HeadingIcon = headingIcons[n];
+          return new ComponentPickerOption(`Heading ${n}`, {
+            icon: <HeadingIcon style={iconStyle} />,
+            keywords: ['heading', 'header', `h${n}`],
+            onSelect: () =>
+              applyBlockTypeChange(editor, `h${n}`),
+          });
+        }
+      ),
     ] : []),
   ];
 }
