@@ -7,6 +7,26 @@ import { withMainDocEditorSession } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
+import {
+  $createParagraphNode,
+  $isElementNode,
+  $isDecoratorNode,
+  type LexicalNode,
+} from "lexical";
+
+export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
+  const normalized: LexicalNode[] = [];
+  for (const node of nodes) {
+    if ($isElementNode(node) || $isDecoratorNode(node)) {
+      normalized.push(node);
+    } else {
+      const paragraph = $createParagraphNode();
+      paragraph.append(node);
+      normalized.push(paragraph);
+    }
+  }
+  return normalized;
+}
 
 export function markdownRouteRedirect(req: NextRequest, path: string): NextResponse {
   return NextResponse.redirect(new URL(path, req.url), 302);
