@@ -167,6 +167,11 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         const transformedStyle = transformStylesForDarkMode(attribs["style"], themeName);
         attribs["style"] = transformedStyle;
       }
+      for (const attribute of legacyHtmlColorAttributes) {
+        if (attribs[attribute]) {
+          attribs[attribute] = transformAttributeValueForDarkMode(attribs[attribute]);
+        }
+      }
 
       if (attribs['data-replacements'] && replacedSubstrings) {
         const substitutions = (JSON.parse(attribs['data-replacements']) as SubstitutionsAttr);
@@ -624,7 +629,9 @@ function splitText(textNode: DomHandlerText, splitOffset: number): [DomHandlerTe
   return null;
 }
 
-const attributesNeedingTransform: Record<string,boolean> = {
+const legacyHtmlColorAttributes = ["bgcolor"];
+
+const cssAttributesNeedingTransform: Record<string,boolean> = {
   "background": true,
   "backgroundColor": true,
   "borderColor": true,
@@ -634,7 +641,7 @@ const attributesNeedingTransform: Record<string,boolean> = {
 function transformStylesForDarkMode(styles: Record<string,string>, themeName: UserThemeSetting): Record<string,string> {
   if (themeName === 'dark' || themeName === 'auto') {
     return Object.fromEntries(Object.entries(styles).map(([attribute,value]) => {
-      if (attributesNeedingTransform[attribute]) {
+      if (cssAttributesNeedingTransform[attribute]) {
         const darkModeValue = transformAttributeValueForDarkMode(value)
         if (themeName === "auto" && darkModeValue !== value) {
           return [attribute, `light-dark(${value},${darkModeValue})`];
