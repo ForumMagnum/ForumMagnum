@@ -190,8 +190,14 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
     new ComponentPickerOption('Table', {
       icon: <TableIcon style={iconStyle} />,
       keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
-      onSelect: () =>
-        editor.dispatchCommand(OPEN_TABLE_SELECTOR_COMMAND, null),
+      onSelect: () => {
+        const nativeSelection = window.getSelection();
+        let anchorRect: DOMRect | null = null;
+        if (nativeSelection && nativeSelection.rangeCount > 0) {
+          anchorRect = nativeSelection.getRangeAt(0).getBoundingClientRect();
+        }
+        editor.dispatchCommand(OPEN_TABLE_SELECTOR_COMMAND, anchorRect);
+      },
     }),
     new ComponentPickerOption('Numbered List', {
       icon: <ListOlIcon style={iconStyle} />,
