@@ -3,14 +3,11 @@ import { isFriendlyUI } from '@/themes/forumTheme';
 
 export const getDefaultEditorPlaceholder = () => isFriendlyUI() ?
   `Highlight text to format it. Type @ to mention a user, post, or topic.` :
-
-  `Text goes here! See lesswrong.com/editor for info about everything the editor can do.
-
-lesswrong.com/editor covers formatting, draft-sharing, co-authoring, LaTeX, footnotes, tagging users and posts, spoiler tags, Markdown, tables, crossposting, and more.`;
+  `Type here! Use '/' for editor commands.`;
 
 export const getCommentEditorPlaceholder = () => isFriendlyUI() ?
   `Write a new comment...` :
-  `Text goes here! See lesswrong.com/editor for info about everything the editor can do.`;
+  `Type here! Use '/' for editor commands.`;
 
 export const debateEditorPlaceholder = `Enter your first dialogue comment here, add other participants as co-authors, then save this as a draft.
 
