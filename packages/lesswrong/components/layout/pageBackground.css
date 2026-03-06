@@ -31,6 +31,9 @@ body.creamBackground.theme-dark {
   background: #262626;
 }
 @media (prefers-color-scheme: light) {
+  body.theme-auto {
+    color-scheme: light only;
+  }
   body.whiteBackground.theme-auto {
     background: white;
   }
@@ -45,6 +48,9 @@ body.creamBackground.theme-dark {
   }
 }
 @media (prefers-color-scheme: dark) {
+  body.theme-auto {
+    color-scheme: dark only;
+  }
   body.whiteBackground.theme-auto {
     background: black;
   }
