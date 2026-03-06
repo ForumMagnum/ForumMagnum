@@ -650,12 +650,14 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string, contex
     }
     bestWordCount = wordCountWithoutFootnotes;
 
-    // Convert to HTML and try removing appendixes
+    // Convert to HTML and try removing appendixes and collapsible section bodies.
     const htmlWithoutFootnotes = await dataToHTML(withoutFootnotes, "markdown", context, { skipMathjax: true }) ?? "";
     const htmlWithoutFootnotesAndAppendices = htmlWithoutFootnotes
       .split(/<h[1-6]>.*(appendix).*<\/h[1-6]>/i)[0];
-    const markdownWithoutFootnotesAndAppendices = dataToMarkdown(htmlWithoutFootnotesAndAppendices, "html");
-    bestWordCount = markdownWithoutFootnotesAndAppendices.trim().split(/[\s]+/g).length;
+    const $ = cheerioParse(htmlWithoutFootnotesAndAppendices);
+    $('.detailsBlockContent').remove();
+    const markdownWithoutFootnotesAndAppendicesOrCollapsedBodies = dataToMarkdown($.html(), "html");
+    bestWordCount = markdownWithoutFootnotesAndAppendicesOrCollapsedBodies.trim().split(/[\s]+/g).length;
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Error in dataToWordCount", err)
