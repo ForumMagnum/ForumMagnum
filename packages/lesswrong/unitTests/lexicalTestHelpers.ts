@@ -1,6 +1,7 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
-import { $getRoot, type LexicalEditor } from "lexical";
+import { $getRoot, $isElementNode, type LexicalEditor } from "lexical";
+import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
@@ -24,4 +25,29 @@ export async function setupEditorWithContent(markdownContent: string, label = "L
   });
 
   return editor;
+}
+
+export interface SuggestionInfo {
+  type: string
+  textContent: string
+}
+
+export function getAllSuggestions(editor: LexicalEditor): SuggestionInfo[] {
+  const suggestions: SuggestionInfo[] = [];
+  editor.getEditorState().read(() => {
+    const root = $getRoot();
+    for (const child of root.getChildren()) {
+      if ($isElementNode(child)) {
+        for (const descendant of child.getChildren()) {
+          if ($isSuggestionNode(descendant)) {
+            suggestions.push({
+              type: descendant.getSuggestionTypeOrThrow(),
+              textContent: descendant.getTextContent(),
+            });
+          }
+        }
+      }
+    }
+  });
+  return suggestions;
 }

@@ -1,8 +1,11 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createTextNode, $getNodeByKey, $isTextNode } from "lexical";
+import { $getNodeByKey, $isElementNode, $isTextNode, type LexicalEditor } from "lexical";
+import { $generateNodesFromDOM } from "@lexical/html";
+import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
+import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import {
   deriveAgentAuthor,
@@ -22,13 +25,15 @@ interface ReplaceResult {
   suggestionId?: string
 }
 
-function applySuggestionReplacement({
+export function $applySuggestionReplacement({
+  editor,
   matchedNodeKey,
   startOffset,
   endOffset,
   replacement,
   suggestionId,
 }: {
+  editor: LexicalEditor
   matchedNodeKey?: string
   startOffset?: number
   endOffset?: number
@@ -56,7 +61,17 @@ function applySuggestionReplacement({
 
   const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
   if (replacement.length > 0) {
-    insertSuggestion.append($createTextNode(replacement));
+    const html = markdownToHtml(replacement);
+    const dom = new JSDOM(html);
+    const nodes = $generateNodesFromDOM(editor, dom.window.document);
+    // Markdown typically produces a single paragraph wrapping inline children.
+    // Extract the inline children so they stay within the existing paragraph.
+    const inlineNodes = (nodes.length === 1 && $isElementNode(nodes[0]))
+      ? nodes[0].getChildren()
+      : nodes;
+    for (const node of inlineNodes) {
+      insertSuggestion.append(node);
+    }
   }
   deleteSuggestion.insertAfter(insertSuggestion);
 
@@ -117,7 +132,8 @@ export async function replaceTextInMainDoc({
           }
 
           suggestionId = randomId();
-          replaced = applySuggestionReplacement({
+          replaced = $applySuggestionReplacement({
+            editor,
             matchedNodeKey: selectionResult.matchedNodeKey,
             startOffset: selectionResult.startOffset,
             endOffset: selectionResult.endOffset,

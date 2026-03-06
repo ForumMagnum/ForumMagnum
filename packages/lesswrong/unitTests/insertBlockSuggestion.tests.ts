@@ -1,7 +1,6 @@
-import { $getRoot, $isElementNode, type LexicalEditor } from "lexical";
-import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
+import type { LexicalEditor } from "lexical";
 import { $insertMarkdownBlockInEditor } from "../../../app/api/agent/insertBlock/route";
-import { runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
+import { getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
 import type { InsertLocation } from "../../../app/api/agent/toolSchemas";
 
 async function insertBlock(
@@ -16,20 +15,7 @@ async function insertBlock(
 }
 
 function getAllSuggestionTexts(editor: LexicalEditor): string[] {
-  const texts: string[] = [];
-  editor.getEditorState().read(() => {
-    const root = $getRoot();
-    for (const child of root.getChildren()) {
-      if ($isElementNode(child)) {
-        for (const descendant of child.getChildren()) {
-          if ($isSuggestionNode(descendant)) {
-            texts.push(descendant.getTextContent());
-          }
-        }
-      }
-    }
-  });
-  return texts;
+  return getAllSuggestions(editor).map(s => s.textContent);
 }
 
 describe("insertBlock suggest mode", () => {
