@@ -1,6 +1,12 @@
 import { NextRequest } from "next/server";
 
 export const markdownApiDocumentationMarkdown = (hostname: string) => `
+---
+name: lesswrong
+version: 2.0.0
+description: APIs for reading content on LessWrong, and helping users edit posts they share with an agent.
+homepage: https://www.lesswrong.com
+---
 LessWrong: A site dedicated to improving the art of rationality
 ===============================================================
 
