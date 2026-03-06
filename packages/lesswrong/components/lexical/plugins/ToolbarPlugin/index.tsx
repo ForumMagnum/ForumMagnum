@@ -128,6 +128,7 @@ import {
   useToolbarState,
 } from '../../context/ToolbarContext';
 import useModal from '../../hooks/useModal';
+import { useDialog } from '@/components/common/withDialog';
 // import {$createStickyNode} from '../../nodes/StickyNode';
 import DropDown, {
   DropDownItem,
@@ -768,6 +769,7 @@ export default function ToolbarPlugin({
     Array<{id: string; index: number}>
   >([]);
   const [modal, showModal] = useModal();
+  const { openDialog } = useDialog();
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const {toolbarState, updateToolbarState} = useToolbarState();
 
@@ -1500,12 +1502,15 @@ export default function ToolbarPlugin({
                 </DropDownItem> */}
                 <DropDownItem
                   onClick={() => {
-                    showModal('Insert Image', (onClose) => (
-                      <InsertImageDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
+                    openDialog({
+                      name: 'InsertImageDialog',
+                      contents: ({ onClose }) => (
+                        <InsertImageDialog
+                          activeEditor={activeEditor}
+                          onClose={onClose}
+                        />
+                      ),
+                    });
                   }}
                   >
                   <FileImageIcon className={classes.dropdownIcon} />

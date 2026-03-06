@@ -29,7 +29,7 @@ import {
 import {useCallback, useMemo, useState} from 'react';
 import * as ReactDOM from 'react-dom';
 
-import useModal, { ShowModal } from '../../hooks/useModal';
+import { useDialog, type OpenDialogContextType } from '@/components/common/withDialog';
 import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
@@ -184,7 +184,7 @@ const headingIcons = {
 } as const;
 
 
-function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser: UsersCurrent | null) {
+function getBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType['openDialog'], currentUser: UsersCurrent | null) {
   const isAdminUser = userIsAdmin(currentUser);
   return [
     new ComponentPickerOption('Table', {
@@ -240,9 +240,12 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
       icon: <FileImageIcon style={iconStyle} />,
       keywords: ['image', 'photo', 'picture', 'file'],
       onSelect: () =>
-        showModal('Insert Image', (onClose) => (
-          <InsertImageDialog activeEditor={editor} onClose={onClose} />
-        )),
+        openDialog({
+          name: 'InsertImageDialog',
+          contents: ({ onClose }) => (
+            <InsertImageDialog activeEditor={editor} onClose={onClose} />
+          ),
+        }),
     }),
     new ComponentPickerOption('Collapsible Section', {
       icon: <CaretRightFillIcon style={iconStyle} />,
@@ -274,9 +277,12 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
         icon: <CardChecklistIcon style={iconStyle} />,
         keywords: ['review', 'results', 'annual', 'voting', 'table'],
         onSelect: () =>
-          showModal('Insert Review Results Table', (onClose) => (
-            <InsertReviewResultsDialog activeEditor={editor} onClose={onClose} />
-          )),
+          openDialog({
+            name: 'InsertReviewResultsDialog',
+            contents: ({ onClose }) => (
+              <InsertReviewResultsDialog activeEditor={editor} onClose={onClose} />
+            ),
+          }),
       }),
       new ComponentPickerOption('Paragraph', {
         icon: <TextParagraphIcon style={iconStyle} />,
@@ -301,8 +307,8 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
 
 export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const [modal, showModal] = useModal();
   const [queryString, setQueryString] = useState<string | null>(null);
+  const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
@@ -311,7 +317,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   });
 
   const options = useMemo(() => {
-    const baseOptions = getBaseOptions(editor, showModal, currentUser);
+    const baseOptions = getBaseOptions(editor, openDialog, currentUser);
 
     if (!queryString) {
       return baseOptions;
@@ -327,7 +333,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           option.keywords.some((keyword) => regex.test(keyword)),
       ),
     ];
-  }, [editor, queryString, showModal, currentUser]);
+  }, [editor, queryString, openDialog, currentUser]);
 
   const onSelectOption = useCallback(
     (
@@ -349,7 +355,6 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
 
   return (
     <>
-      {modal}
       <LexicalTypeaheadMenuPlugin<ComponentPickerOption>
         onQueryChange={setQueryString}
         onSelectOption={onSelectOption}

@@ -15,7 +15,6 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { DraggableBlockMenuIcon } from '../../icons/DraggableBlockMenuIcon';
 import { PlusIcon } from '../../icons/PlusIcon';
-import useModal from '../../hooks/useModal';
 import { useInsertClaim } from '../../embeds/ElicitEmbed/ClaimsPlugin';
 import { isLWorAF } from '@/lib/instanceSettings';
 import BlockInsertToolbarPlugin from './BlockInsertToolbar';
@@ -108,7 +107,6 @@ export default function DraggableBlockPlugin({
   );
   const [isToolbarOpen, setIsToolbarOpen] = useState(false);
 
-  const [modal, showModal] = useModal();
   const insertClaim = useInsertClaim();
 
   const handleClose = useCallback(() => {
@@ -134,7 +132,6 @@ export default function DraggableBlockPlugin({
 
   return (
     <>
-      {modal}
       {/* eslint-disable-next-line react/jsx-pascal-case */}
       <DraggableBlockPlugin_EXPERIMENTAL
         anchorElem={anchorElem}
@@ -167,7 +164,6 @@ export default function DraggableBlockPlugin({
           anchorElem={anchorElem}
           buttonElem={addButtonRef.current}
           onClose={handleClose}
-          showModal={showModal}
           insertClaim={insertClaim}
         />
       )}

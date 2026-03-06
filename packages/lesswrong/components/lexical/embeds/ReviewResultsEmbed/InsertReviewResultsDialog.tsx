@@ -8,12 +8,18 @@ import type { LexicalEditor } from 'lexical';
 import { gql } from '@/lib/generated/gql-codegen';
 import { REVIEW_YEAR, reviewYears } from '@/lib/reviewUtils';
 import { INSERT_REVIEW_RESULTS_COMMAND } from './ReviewResultsPlugin';
-import { DialogActions } from '../../ui/Dialog';
-import TextInput from '../../ui/TextInput';
-import Button from '../../ui/Button';
+import LWDialog from '@/components/common/LWDialog';
+import { DialogTitle } from '@/components/widgets/DialogTitle';
+import { DialogContent } from '@/components/widgets/DialogContent';
+import { DialogActions } from '@/components/widgets/DialogActions';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('InsertReviewResultsDialog', (theme: ThemeType) => ({
+  paper: {
+    width: 400,
+  },
   error: {
     color: theme.palette.error.main,
     fontSize: 13,
@@ -93,25 +99,31 @@ export function InsertReviewResultsDialog({
   };
 
   return (
-    <>
-      <TextInput
-        label="Review Year"
-        value={yearStr}
-        onChange={setYearStr}
-        type="number"
-        data-test-id="review-results-year-input"
-      />
-      {error && <div className={classes.error}>{error}</div>}
-      {loading && <div className={classes.loading}>Fetching review results...</div>}
-      <DialogActions>
-        <Button
-          disabled={loading}
-          onClick={handleInsert}
-          data-test-id="review-results-insert-button"
-        >
-          {loading ? 'Loading...' : 'Insert'}
-        </Button>
-      </DialogActions>
-    </>
+    <LWDialog open={true} onClose={onClose} maxWidth={false} paperClassName={classes.paper}>
+      <DialogTitle>Insert Review Results Table</DialogTitle>
+      <DialogContent>
+        <TextField
+          label="Review Year"
+          value={yearStr}
+          onChange={(e) => setYearStr(e.target.value)}
+          type="number"
+          fullWidth
+          margin="dense"
+          data-test-id="review-results-year-input"
+        />
+        {error && <div className={classes.error}>{error}</div>}
+        {loading && <div className={classes.loading}>Fetching review results...</div>}
+        <DialogActions>
+          <Button
+            color="primary"
+            disabled={loading}
+            onClick={handleInsert}
+            data-test-id="review-results-insert-button"
+          >
+            {loading ? 'Loading...' : 'Insert'}
+          </Button>
+        </DialogActions>
+      </DialogContent>
+    </LWDialog>
   );
 }
