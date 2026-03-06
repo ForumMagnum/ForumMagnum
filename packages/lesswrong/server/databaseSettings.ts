@@ -173,7 +173,6 @@ export const awsAccessKeyIdSetting = new ServerSetting<string | null>('swrCachin
 export const awsSecretAccessKeySetting = new ServerSetting<string | null>('swrCaching.secretAccessKey', null);
 export const cloudFrontDistributionIdSetting = new ServerSetting<string | null>('swrCaching.distributionId', null);
 
-export const mailchimpAPIKeySetting = new ServerSetting<string | null>('mailchimp.apiKey', null)
 export const lightconeFundraiserStripeSecretKeySetting = new ServerSetting<string | null>('stripe.lightconeFundraiserSecretKey', null)
 
 export const googleDocImportClientIdSetting = new ServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
@@ -232,11 +231,6 @@ interface SSLSettings {
   allowUnauthorized?: boolean
   ca?: string
 }
-
-export const sslSetting = new ParsedServerSetting<SSLSettings | null>(
-  "analytics.ssl",
-  null,
-);
 
 export const commentAncestorsToNotifySetting = new ParsedServerSetting<number>('commentAncestorsToNotifySetting', 1);
 

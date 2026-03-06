@@ -1,7 +1,7 @@
 "use client";
 
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { isBookUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { isBookUI } from '@/themes/forumTheme';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
@@ -41,8 +41,8 @@ const styles = defineStyles('EditPaymentInfoPage', (theme: ThemeType) => ({
     marginBottom: 25
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
 }));
@@ -92,7 +92,7 @@ const UserPaymentInfoForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-      <LegacyFormGroupLayout label={preferredHeadingCase("Prize/Payment Info")} startCollapsed={false}>
+      <LegacyFormGroupLayout label={"Prize/Payment Info"} startCollapsed={false}>
         <div className={classes.fieldWrapper}>
           <form.Field name="paymentEmail">
             {(field) => (

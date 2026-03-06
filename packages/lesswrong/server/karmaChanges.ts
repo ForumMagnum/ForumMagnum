@@ -1,13 +1,8 @@
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
-import type {
-  KarmaChangesArgs,
-  AnyKarmaChange,
-} from './collections/users/karmaChangesGraphQL';
-import { isFriendlyUI } from '../themes/forumTheme';
-import type VotesRepo from './repos/VotesRepo';
-import { karmaChangeNotifierDefaultSettings, KarmaChangeSettingsType, KarmaChangeUpdateFrequency } from '@/lib/collections/users/helpers';
+import type { KarmaChangesArgs, AnyKarmaChange } from './collections/users/karmaChangesGraphQL';
+import { karmaChangeNotifierDefaultSettings, KarmaChangeSettingsType } from '@/lib/collections/users/helpers';
 
 // Our graphql type codegen returns output types with Dates as strings because
 // that's what we get on the client, but isn't what we return from the resolver(s).
@@ -62,58 +57,6 @@ const categorizeKarmaChanges = (changes: AnyKarmaChange[], suffix?: string): Kar
   return {
     totalChange, posts, comments, tagRevisions
   }
-}
-
-const getEAKarmaChanges = async (
-  votesRepo: VotesRepo,
-  args: KarmaChangesArgs,
-  nextBatchDate: Date|null,
-  updateFrequency: KarmaChangeUpdateFrequency,
-): Promise<KarmaChangesResult> => {
-  const changes = await votesRepo.getEAKarmaChanges(args);
-  const newChanges = categorizeKarmaChanges(changes)
-  
-  // We also display the rest of the karma changes that they got
-  // in the past 24 hours and in the past week underneath
-  // the ones they got since the last time they checked.
-  // This reduces the chance that they lose the changes after viewing them once.
-
-  let todaysKarmaChanges: KarmaChangesSimple|null = null;
-  const yesterday = moment().subtract(1, 'day').toDate()
-  // "Today" is only relevant for realtime notifications.
-  if (updateFrequency === 'realtime' && args.startDate > yesterday) {
-    const todaysChanges = await votesRepo.getEAKarmaChanges({
-      ...args,
-      startDate: yesterday,
-      endDate: args.startDate,
-    })
-    todaysKarmaChanges = categorizeKarmaChanges(todaysChanges, '-today')
-  }
-
-  let thisWeeksKarmaChanges: KarmaChangesSimple|null = null;
-  const lastWeek = moment().subtract(1, 'week').toDate()
-  // "This week" is only relevant for realtime and daily notifications.
-  if (['realtime', 'daily'].includes(updateFrequency) && args.startDate > lastWeek) {
-    const thisWeeksChanges = await votesRepo.getEAKarmaChanges({
-      ...args,
-      startDate: lastWeek,
-      endDate: !!todaysKarmaChanges ? yesterday : args.startDate,
-    })
-    thisWeeksKarmaChanges = categorizeKarmaChanges(thisWeeksChanges, '-thisWeek')
-  }
-
-  return {
-    totalChange: newChanges.totalChange,
-    startDate: args.startDate,
-    endDate: args.endDate,
-    nextBatchDate,
-    updateFrequency,
-    posts: newChanges.posts,
-    comments: newChanges.comments,
-    tagRevisions: newChanges.tagRevisions,
-    todaysKarmaChanges,
-    thisWeeksKarmaChanges,
-  };
 }
 
 /**
@@ -184,14 +127,6 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     af,
     showNegative: showNegativeKarma,
   };
-
-  if (isFriendlyUI()) {
-    const args = {
-      ...queryArgs,
-      ...limitDateRange({...queryArgs, maxDays: 40}),
-    };
-    return getEAKarmaChanges(votesRepo, args, nextBatchDate, updateFrequency);
-  }
 
   const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getLWKarmaChanges(queryArgs);
 

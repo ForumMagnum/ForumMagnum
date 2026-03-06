@@ -2,7 +2,6 @@
 
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
-import { hookToHoc } from './hocUtils'
 import { isClient, isServer, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
 import throttle from 'lodash/throttle';
@@ -78,7 +77,6 @@ export type AnalyticsProps = {
   chapter?: string,
   documentSlug?: string,
   postId?: string,
-  forumEventId?: string,
   documentId?: string,
   collectionName?: string,
   sequenceId?: string,
@@ -241,8 +239,6 @@ export function useTracking({eventType="unnamed", eventProps=emptyEventProps}: {
   }, [trackingContext, eventProps, eventType])
   return {captureEvent: track}
 }
-
-export const withTracking = hookToHoc(useTracking)
 
 export function useOnMountTracking<T extends EventProps>({
   eventType="unnamed",

@@ -3,7 +3,6 @@ import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useGetCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
-import { hookToHoc } from '../../lib/hocUtils';
 import { recombeeApi } from '../../lib/recombee/client';
 import { recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
@@ -22,7 +21,6 @@ export const useItemsRead = (): ItemsReadContextType => {
   if (!context) throw new Error("useItemsRead called but not a descedent of Layout");
   return context;
 }
-export const withItemsRead = hookToHoc(useItemsRead);
 
 type ViewablePost = Pick<PostsBase, "_id" | "isRead" | "title" | "draft">;
 

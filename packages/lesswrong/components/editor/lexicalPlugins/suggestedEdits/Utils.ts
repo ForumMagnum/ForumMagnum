@@ -8,13 +8,21 @@ import { $findMatchingParent, $insertFirst } from '@lexical/utils'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import type { TableCellNode, TableRowNode } from '@lexical/table'
 import { $isTableNode } from '@lexical/table'
-import { $isHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
+import { $isHorizontalRuleNode } from '@lexical/extension'
 import { $isCodeNode } from '@lexical/code'
 import { $isNonInlineLeafElement } from '@/lib/vendor/proton/isNonInlineLeafElement'
 import type { ListItemNode } from '@lexical/list'
 import { $isListItemNode } from '@lexical/list'
 
 export const SUGGESTION_SUMMARY_KIND = 'suggestionSummary' as const;
+
+/** Determine the appropriate delete suggestion type for a set of selected nodes. */
+export function $getDeleteSuggestionType(selectedNodes: LexicalNode[]): SuggestionType {
+  if (selectedNodes.some($isHorizontalRuleNode)) {
+    return 'delete-divider'
+  }
+  return 'delete'
+}
 
 /** Check if a suggestion thread has comments beyond the auto-generated summary */
 export function hasChildComments(thread: { comments: Array<{ commentKind?: string }> }): boolean {

@@ -12,7 +12,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles("RecentComments", (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
-      marginRight: theme.spacing.unit*4,
+      marginRight: 32,
     }
   },
   verticalHeightSpacer: {

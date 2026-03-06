@@ -49,14 +49,14 @@ interface PostItem {
 
 const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: 24,
     position: "relative",
   },
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
   },
   title: {
     fontSize: "1rem",
@@ -113,12 +113,12 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   headerButtons: {
     display: "flex",
     alignItems: "center",
-    gap: theme.spacing.unit,
+    gap: 8,
   },
   postList: {
     display: "flex",
     flexDirection: "column",
-    gap: theme.spacing.unit,
+    gap: 8,
   },
   postListDisabled: {
     opacity: 0.45,
@@ -128,12 +128,12 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   postRow: {
     display: "flex",
     alignItems: "center",
-    gap: theme.spacing.unit * 1.5,
+    gap: 12,
   },
   postItem: {
     display: "flex",
     alignItems: "center",
-    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 1.5}px`,
+    padding: "8px 12px",
     border: `1px solid ${theme.palette.grey[400]}`,
     borderRadius: 6,
     background: theme.palette.background.pageActiveAreaBackground,
@@ -152,7 +152,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     alignItems: "center",
     alignSelf: "stretch",
     cursor: "grab",
-    padding: `0 ${theme.spacing.unit * 1.5}px 0 4px`,
+    padding: "0 12px 0 4px",
     marginLeft: -4,
     touchAction: "none",
     "&:hover span": {
@@ -202,7 +202,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: theme.spacing.unit * 1.5,
+    marginLeft: 12,
     width: 32,
     height: 32,
     border: `1px solid ${theme.palette.primary.main}`,
@@ -225,7 +225,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   },
 
   searchDialog: {
-    padding: `${theme.spacing.unit * 1.5}px`,
+    padding: "12px",
     border: `1px solid ${theme.palette.grey[400]}`,
     borderRadius: 6,
     boxShadow: "none",
@@ -242,7 +242,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
       outline: "none",
       background: theme.palette.background.paper,
       fontFamily: theme.typography.fontFamily,
-      marginBottom: theme.spacing.unit,
+      marginBottom: 8,
       "&::placeholder": {
         color: theme.palette.text.dim40,
         opacity: 1,
@@ -281,7 +281,7 @@ const styles = defineStyles("TopPostsManager", (theme: ThemeType) => ({
   },
   dialogPostItemCheck: {
     color: theme.palette.grey[400],
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     fontSize: "0.8125rem",
   },
   noResults: {

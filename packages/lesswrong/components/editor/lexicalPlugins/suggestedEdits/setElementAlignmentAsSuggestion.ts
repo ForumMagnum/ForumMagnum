@@ -2,7 +2,7 @@ import { $findMatchingParent, $insertFirst } from '@lexical/utils'
 import { $getSelection, $isElementNode, $isRangeSelection, type ElementFormatType, type ElementNode } from 'lexical'
 import type { ProtonNode } from './ProtonNode'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import { $removeSuggestionNodeAndResolveIfNeeded } from './removeSuggestionNodeAndResolveIfNeeded'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import { $isListNode } from '@lexical/list'
@@ -24,7 +24,7 @@ export function $setElementAlignmentAsSuggestion(
   const nodes = selection.getNodes()
   const alreadyHandled = new Set()
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   let didCreateSuggestion = false
 
   for (const node of nodes) {

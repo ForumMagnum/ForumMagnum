@@ -1,7 +1,6 @@
 import { EditablePost, PostSubmitMeta, userCanEditCoauthors, detectLinkpost } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
-import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useMemo, useEffect, useState } from "react";
@@ -68,8 +67,8 @@ const PostsEditMutationFragmentMutation = gql(`
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   formSubmit: {
     display: "flex",
@@ -357,7 +356,7 @@ const PostForm = ({
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
   const [editorType, setEditorType] = useState<string>();
-  const [sidebarPanel, setSidebarPanel] = useState<"publish" | "settings" | "sharing" | null>("settings");
+  const [sidebarPanel, setSidebarPanel] = useState<"publish" | "settings" | "sharing" | null>(null);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
   const [showCoauthorSearch, setShowCoauthorSearch] = useState(false);
@@ -461,53 +460,20 @@ const PostForm = ({
   const isEvent = !!initialData.isEvent;
   const isDialogue = !!initialData.collabEditorDialogue;
 
-  const useSidebarLayout = isLWorAF();
-
-  // On non-LW forums, submit buttons are inline below the editor
-  const postSubmit = !useSidebarLayout ? (
-    <form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting, draft: s.values.draft })}>
-      {({ canSubmit, isSubmitting, draft }) => {
-        const draftLabel = getDraftLabel({ draft });
-        const submitLabel = preferredHeadingCase(draft ? "Publish" : "Publish Changes");
-
-        return isDialogue
-          ? <DialogueSubmit
-              formApi={form}
-              disabled={!canSubmit || isSubmitting}
-              submitLabel={submitLabel}
-              saveDraftLabel={draftLabel}
-            />
-          : <div className={classes.formSubmit}>
-              {!isEvent && <form.Field name="submitToFrontpage">
-                {(field) => <SubmitToFrontpageCheckbox field={field} />}
-              </form.Field>}
-              <PostSubmit
-                formApi={form}
-                disabled={!canSubmit || isSubmitting}
-                submitLabel={submitLabel}
-                saveDraftLabel={draftLabel}
-                feedbackLabel={"Get Feedback"}
-              />
-            </div>
-      }}
-    </form.Subscribe>
-  ) : null;
-
-  // On LW, the settings sidebar is portaled into the right column of ToCColumn
-  const sidebarPortalTarget = useSidebarLayout && isClient
+  const sidebarPortalTarget = isClient
     ? document.getElementById("editor-settings-portal")
     : null;
 
   return (
     <InlineCommentsPanelContext.Provider value={inlineCommentsContext}>
-    <form className={classNames(useSidebarLayout && classes.mobileBottomPadding)} onSubmit={(e) => {
+    <form className={classes.mobileBottomPadding} onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
       void form.handleSubmit();
     }}>
       {displayedErrorComponent}
 
-      {useSidebarLayout && <form.Subscribe selector={() => ({})}>
+      <form.Subscribe selector={() => ({})}>
         {() => (
           <div className={classes.topRightControls}>
             <button
@@ -552,44 +518,17 @@ const PostForm = ({
             </button>}
           </div>
         )}
-      </form.Subscribe>}
-
-      {/* On LW, the top bar contents (post category, sharing) move to the sidebar */}
-      {!useSidebarLayout && <FormGroupPostTopBar>
-        {!(isEvent || isDialogue) && <div className={classNames('form-input', classes.fieldWrapper)}>
-          <form.Field name="postCategory">
-            {(field) => (
-              <EditPostCategory
-                field={field}
-                post={form.state.values}
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        <div className={classNames('form-input', classes.fieldWrapper)}>
-          <form.Field name="sharingSettings">
-            {(field) => (
-              <PostSharingSettings
-                field={field}
-                post={form.state.values}
-                formType={formType}
-                editorType={editorType}
-              />
-            )}
-          </form.Field>
-        </div>
-      </FormGroupPostTopBar>}
+      </form.Subscribe>
 
       <LegacyFormGroupLayout
         groupStyling={false}
-        paddingStyling={!useSidebarLayout}
+        paddingStyling={false}
         flexAlignTopStyling={true}
       >
         {onTitleChange && <form.Subscribe selector={(s) => s.values.title ?? ""}>
           {(title) => <SyncTitleToParent title={title} onTitleChange={onTitleChange} />}
         </form.Subscribe>}
-        <div className={classNames('form-component-EditTitle', useSidebarLayout && classes.titleWithMetadata)}>
+        <div className={classNames('form-component-EditTitle', classes.titleWithMetadata)}>
           <form.Field name="title">
             {(field) => (
               <EditTitle
@@ -601,7 +540,7 @@ const PostForm = ({
         </div>
       </LegacyFormGroupLayout>
 
-      {useSidebarLayout && !(isEvent || isDialogue) && (
+      {!(isEvent || isDialogue) && (
         <LegacyFormGroupLayout groupStyling={false} paddingStyling={false}>
           <div className={classes.metadataRow}>
             <span className={classes.metaAuthorInfo}>
@@ -787,31 +726,9 @@ const PostForm = ({
         </LegacyFormGroupLayout>
       )}
 
-      {/* On non-LW forums, keep the old linkpost URL editing experience */}
-      {!useSidebarLayout && <form.Subscribe selector={(s) => ({ isLinkpost: s.values.postCategory === 'linkpost' })}>
-        {({ isLinkpost }) => !(isEvent || isDialogue) && isLinkpost && (
-          <LegacyFormGroupLayout
-            groupStyling={false}
-            paddingStyling={true}
-            flexStyling={true}
-          >
-            <div className={classNames('form-input', 'input-url', classes.fieldWrapper)}>
-              <form.Field name="url">
-                {(field) => (
-                  <EditLinkpostUrl
-                    field={field}
-                    post={form.state.values}
-                  />
-                )}
-                </form.Field>
-              </div>
-          </LegacyFormGroupLayout>
-        )}
-      </form.Subscribe>}
-
       <LegacyFormGroupLayout
         groupStyling={false}
-        paddingStyling={!useSidebarLayout}
+        paddingStyling={false}
       >
         <div className={classNames('form-input', 'input-contents', 'form-component-EditorFormComponent', classes.fieldWrapper)}>
           <form.Field name="contents">
@@ -830,14 +747,14 @@ const PostForm = ({
                 collectionName="Posts"
                 commentEditor={false}
                 commentStyles={false}
-                hideControls={useSidebarLayout}
+                hideControls={true}
               />
             )}
           </form.Field>
         </div>
       </LegacyFormGroupLayout>
 
-      {isEvent && <LegacyFormGroupLayout label={preferredHeadingCase("Event Details")}>
+      {isEvent && <LegacyFormGroupLayout label={"Event Details"}>
         <div className={classes.fieldWrapper}>
           <form.Field name="onlineEvent">
             {(field) => (
@@ -1037,21 +954,6 @@ const PostForm = ({
         </div>}
       </LegacyFormGroupLayout>}
 
-      {/* On non-LW forums, settings are inline below the editor */}
-      {!useSidebarLayout && <PostFormSecondaryGroups
-        form={form}
-        initialData={initialData}
-        formType={formType}
-        currentUser={currentUser}
-        addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
-        addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
-        addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
-        addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
-      />}
-
-      {postSubmit}
-
-      {/* On LW, the settings sidebar is portaled into the right column of ToCColumn */}
       {sidebarPortalTarget && sidebarPanel && createPortal(
         <EditorSettingsSidebar
           form={form}
@@ -1068,20 +970,18 @@ const PostForm = ({
       )}
 
       {/* On mobile (below md), show bottom bar with Save/Publish + bottom sheet for settings */}
-      {useSidebarLayout && (
-        <MobileEditorBottomBar
-          form={form}
-          initialData={initialData}
-          formType={formType}
-          currentUser={currentUser}
-          sidebarPanel={sidebarPanel}
-          setSidebarPanel={setSidebarPanel}
-          addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
-          addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
-          addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
-          addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
-        />
-      )}
+      <MobileEditorBottomBar
+        form={form}
+        initialData={initialData}
+        formType={formType}
+        currentUser={currentUser}
+        sidebarPanel={sidebarPanel}
+        setSidebarPanel={setSidebarPanel}
+        addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
+        addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
+        addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
+        addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
+      />
     </form >
     </InlineCommentsPanelContext.Provider>
   );

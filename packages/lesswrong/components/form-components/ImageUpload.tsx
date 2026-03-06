@@ -72,7 +72,7 @@ const styles = defineStyles('ImageUpload', (theme: ThemeType) => ({
   },
   imageIcon: {
     fontSize: 18,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
   },
   removeButton: {
     color: theme.palette.icon.dim,
@@ -137,11 +137,6 @@ const TriggerButton: FC<{
   const classes = useStyles(styles);
   let mainClass = classes.button;
   let showIcon = true;
-  if (isFriendlyUI() && imageType === "profileImageId") {
-    label = "profile image";
-    mainClass = classes.profileImageButton;
-    showIcon = false;
-  }
   return (
     <Button
       onClick={uploadImage}

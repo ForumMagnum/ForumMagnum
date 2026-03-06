@@ -1,4 +1,3 @@
-import { taggingNameSetting } from "@/lib/instanceSettings";
 import trim from "lodash/trim";
 
 export type QueryToken = {
@@ -40,7 +39,7 @@ export const parseQuery = (query: string): QueryParserResult => {
     } else if (prefix === "user:") {
       type = "user";
       isAdvanced = true;
-    } else if (prefix === `${taggingNameSetting.get()}:`) {
+    } else if (prefix === "wikitag:" || prefix === "tag:") {
       type = "tag";
       isAdvanced = true;
     }

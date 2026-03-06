@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     ...(theme.isFriendlyUI ? {fontWeight: 600} : {}),
     '& svg': {
-      marginRight: theme.spacing.unit
+      marginRight: 8
     },
     
     ...(isAF() && {

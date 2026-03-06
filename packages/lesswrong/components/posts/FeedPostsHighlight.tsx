@@ -34,7 +34,7 @@ const styles = defineStyles("FeedPostsHighlight", (theme: ThemeType) => ({
     marginBottom: 10,
   },
   highlightContinue: {
-    marginTop: theme.spacing.unit*2,
+    marginTop: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     '&& a, && a:hover': {
       color: theme.palette.primary.main,

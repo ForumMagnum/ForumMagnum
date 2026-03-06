@@ -7,7 +7,6 @@ import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import qs from 'qs';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -30,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "space-between",
     backgroundColor: theme.palette.panelBackground.default,
     zIndex: theme.zIndexes.reviewVotingMenu,
-    padding: theme.spacing.unit,
+    padding: 8,
     background: theme.palette.grey[310],
     borderBottom: theme.palette.border.slightlyFaint,
     flexWrap: "wrap"
@@ -163,7 +162,7 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   postsResults: PostsList[]|null,
 }) => {
   const currentUser = useCurrentUser();
-  const accountSettings = preferredHeadingCase("Account Settings");
+  const accountSettings = "Account Settings";
 
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
 

@@ -1,6 +1,6 @@
 import { $isListItemNode, $isListNode } from '@lexical/list'
 import type { ElementNode } from 'lexical'
-import { $nodesOfType, $isElementNode, $isRootOrShadowRoot } from 'lexical'
+import { $nodesOfType, $isDecoratorNode, $isElementNode, $isParagraphNode, $isRootOrShadowRoot } from 'lexical'
 import { $joinNonInlineLeafElements, $unwrapSuggestionNode } from './Utils'
 import { ProtonNode, $isSuggestionNode } from './ProtonNode'
 import { $findMatchingParent } from '@lexical/utils'
@@ -52,6 +52,42 @@ function $joinNonInlineLeafElementWithNext(suggestionNode: ProtonNode) {
   $joinNonInlineLeafElements(closestNonInlineParent, siblingElementToJoin)
 }
 
+/**
+ * Unwraps a suggestion node that contains a decorator (block-level) child
+ * like an HR. Because ProtonNode is inline, Lexical wraps it in a <p> when
+ * it's at the root level. After unwrapping, the decorator node would be
+ * stranded inside that <p>. This function moves it out and cleans up
+ * the wrapper paragraph.
+ *
+ * The typical structure before acceptance is:
+ *   <p>                ← wrapper paragraph
+ *     <ins>            ← ProtonNode (inline)
+ *       <hr>           ← decorator node
+ *     </ins>
+ *   </p>
+ *
+ * After unwrapping the suggestion node, we move all children out of the
+ * wrapper paragraph (decorator nodes become siblings), then remove the
+ * now-empty wrapper.
+ */
+function $unwrapAndReparentDecoratorNode(node: ProtonNode) {
+  const parent = node.getParent()
+  $unwrapSuggestionNode(node)
+  if (!$isParagraphNode(parent)) {
+    return
+  }
+  const children = parent.getChildren()
+  const hasDecoratorChild = children.some($isDecoratorNode)
+  if (!hasDecoratorChild) {
+    return
+  }
+  // Move all children out before the wrapper paragraph
+  for (const child of children) {
+    parent.insertBefore(child)
+  }
+  parent.remove()
+}
+
 export function $acceptSuggestion(suggestionID: string): boolean {
   const nodes = $nodesOfType(ProtonNode)
   for (const node of nodes) {
@@ -63,7 +99,9 @@ export function $acceptSuggestion(suggestionID: string): boolean {
       continue
     }
     const suggestionType = node.getSuggestionTypeOrThrow()
-    if ($isPlainInsertionSuggestion(suggestionType)) {
+    if (suggestionType === 'insert-divider') {
+      $unwrapAndReparentDecoratorNode(node)
+    } else if ($isPlainInsertionSuggestion(suggestionType)) {
       $unwrapSuggestionNode(node)
     } else if ($isPlainDeletionSuggestion(suggestionType)) {
       node.remove()

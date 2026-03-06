@@ -244,18 +244,6 @@ const NotificationsSettingsTab = ({
           </form.Field>
         </div>}
 
-        {isEAForum() && <HighlightableField name="subscribedToDigest">
-          <form.Field name="subscribedToDigest">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="EA Forum Digest"
-                description="Receive the EA Forum Digest emails"
-              />
-            )}
-          </form.Field>
-        </HighlightableField>}
-
         <form.Field name="unsubscribeFromAll">
           {(field) => (
             <SettingsToggleRow

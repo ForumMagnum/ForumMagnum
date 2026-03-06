@@ -1,4 +1,4 @@
-import { isAF, isEAForum, taggingNameSetting, commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { isAF, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { postGetPageUrl } from '../posts/helpers';
 import { userCanDo } from '../../vulcan-users/permissions';
@@ -21,7 +21,7 @@ export async function commentGetPageUrlFromDB(comment: DbComment, context: Resol
     return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
   } else if (comment.tagId) {
     const tag = await context.loaders.Tags.load(comment.tagId);
-    if (!tag) throw Error(`Unable to find ${taggingNameSetting.get()} for comment: ${comment._id}`)
+    if (!tag) throw Error(`Unable to find wikitag for comment: ${comment._id}`)
 
     return tagGetCommentLink({tagSlug: tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
   } else {
@@ -133,7 +133,7 @@ export async function getVotingSystemNameForDocument(document: VoteableType, col
     return "namesAttachedReactions";
   }
   if ((document as DbComment).tagId) {
-    return isEAForum() ? "eaEmojis" : "namesAttachedReactions";
+    return "namesAttachedReactions";
   }
   if ((document as DbComment).postId) {
     const post = await context.loaders.Posts.load((document as DbComment).postId!);

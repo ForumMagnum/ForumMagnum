@@ -9,8 +9,8 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.panelBackground.default,
     width: 600,
     position: "fixed",
-    right: theme.spacing.unit,
-    bottom: theme.spacing.unit,
+    right: 8,
+    bottom: 8,
     zIndex: theme.zIndexes.commentBoxPopup,
     [theme.breakpoints.down('sm')]: {
       width: "100%",

@@ -37,11 +37,11 @@ const styles = defineStyles("GlossaryEditorPage", (theme: ThemeType) => ({
   glossary: {
     marginTop: 4,
     background: theme.palette.background.pageActiveAreaBackground,
-    padding: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit * 4,
+    padding: 16,
+    paddingBottom: 32,
   },
   post: {
-    marginBottom: theme.spacing.unit * 4,
+    marginBottom: 32,
   }
 }));
 

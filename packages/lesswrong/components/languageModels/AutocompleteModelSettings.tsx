@@ -49,7 +49,7 @@ const styles = defineStyles("AutocompleteModelSettings", (theme: ThemeType) => (
     ...theme.typography.commentStyle,
   },
   section: {
-    marginBottom: theme.spacing.unit * 4,
+    marginBottom: 32,
   },
   list: {
     listStyle: "none",
@@ -61,31 +61,31 @@ const styles = defineStyles("AutocompleteModelSettings", (theme: ThemeType) => (
     position: "relative",
   },
   checkbox: {
-    padding: theme.spacing.unit,
+    padding: 8,
     alignSelf: "center",
   },
   content: {
-    marginLeft: theme.spacing.unit * 2,
+    marginLeft: 16,
     flex: 1,
     width: "400px",
   },
   button: {
-    marginTop: theme.spacing.unit * 2,
+    marginTop: 16,
   },
   progressBarSection: {
     position: "sticky",
     top: 0,
     zIndex: 5,
-    padding: theme.spacing.unit,
+    padding: 8,
     backdropFilter: "blur(5px)",
     mask: `linear-gradient(${theme.palette.text.alwaysBlack} 75%, ${theme.palette.background.transparent})`,
   },
   progressBar: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit,
+    marginTop: 16,
+    marginBottom: 8,
   },
   progressLabel: {
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
     textAlign: "center",
   },
   singleLineCommentWrapper: {
@@ -109,7 +109,7 @@ const styles = defineStyles("AutocompleteModelSettings", (theme: ThemeType) => (
     },
   },
   authorSection: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
   },
@@ -117,28 +117,28 @@ const styles = defineStyles("AutocompleteModelSettings", (theme: ThemeType) => (
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: theme.spacing.unit,
+    padding: 8,
     backgroundColor: theme.palette.grey[100],
     cursor: "pointer",
   },
   authorContent: {
-    padding: theme.spacing.unit * 2,
+    padding: 16,
   },
   sliderContainer: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
   },
   sliderLabel: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   postItem: {
     display: "flex",
     alignItems: "center",
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   tokenCount: {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
 }));
 

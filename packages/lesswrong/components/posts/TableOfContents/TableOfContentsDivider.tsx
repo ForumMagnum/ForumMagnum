@@ -4,10 +4,10 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles("TableOfContentsDivider", (theme: ThemeType) => ({
   divider: {
     width: 80,
-    marginBottom:theme.spacing.unit,
+    marginBottom:8,
     marginRight: "auto",
     borderBottom: theme.palette.border.faint,
-    paddingBottom: theme.spacing.unit,
+    paddingBottom: 8,
     display:"block",
   }
 }))

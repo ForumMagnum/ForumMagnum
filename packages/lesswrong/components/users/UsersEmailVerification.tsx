@@ -10,10 +10,10 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 const styles = defineStyles('UsersEmailVerification', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
-    marginLeft: theme.spacing.unit
+    marginLeft: 8
   },
   verifyEmailButton: {
-    marginTop: theme.spacing.unit
+    marginTop: 8
   }
 }));
 

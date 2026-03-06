@@ -51,7 +51,7 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginRight: 3,
   },
   conversationItem: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   conversationHeader: {
     display: "flex",
@@ -81,13 +81,13 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     marginLeft: 4,
   },
   conversationForm: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit,
+    marginTop: 16,
+    marginBottom: 16,
+    paddingBottom: 8,
     borderBottom: theme.palette.border.extraFaint,
   },
   templateList: {
-    marginTop: theme.spacing.unit * 4,
+    marginTop: 32,
     opacity: 0.5,
     display: 'flex',
     flexDirection: 'column',
@@ -96,15 +96,15 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
     },
   },
   templateGroup: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
     display: 'flex',
     flexDirection: 'column',
     '& h3': {
-      marginBottom: theme.spacing.unit,
+      marginBottom: 8,
     },
   },
   messagePrompt: {
-    padding: theme.spacing.unit,
+    padding: 8,
     color: theme.palette.grey[600],
     cursor: 'pointer',
     '&:hover': {
@@ -114,6 +114,10 @@ const styles = defineStyles('SunshineUserMessages', (theme: ThemeType) => ({
   date: {
     color: theme.palette.grey[600],
     fontSize: 10,
+  },
+  conversationPreviewTooltip: {
+    maxHeight: "100vh",
+    overflow: "hidden",
   }
 }));
 
@@ -167,7 +171,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     setExpandedConversationId(prev => prev === conversationId ? undefined : conversationId);
   }
 
-  const { data } = useQuery(ConversationsListMultiQuery, {
+  const { data, refetch } = useQuery(ConversationsListMultiQuery, {
     variables: {
       selector: { moderatorConversations: { userId: user._id } },
       limit: 10,
@@ -240,7 +244,7 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
     {results?.map(conversation => {
       const isExpanded = expandedConversationId === conversation._id;
       return (
-        <LWTooltip key={conversation._id} placement="left-start" tooltip={false} title={<div><ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth /></div>}>
+        <LWTooltip key={conversation._id} placement="left-start" tooltip={false} titleClassName={classes.conversationPreviewTooltip} title={<div><ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth /></div>}>
           <div  className={classes.conversationItem}>
             <div className={classes.conversationHeader} onClick={() => toggleConversationPreview(conversation._id)}>
               <MetaInfo><EmailIcon className={classes.icon}/> {conversation.messageCount}</MetaInfo>
@@ -257,7 +261,6 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
                 <ForumIcon icon="Link" className={classes.linkIcon} />
               </Link> 
               <ForumIcon icon={isExpanded ? "ExpandLess" : "ExpandMore"} className={classes.expandIcon} />
-
             </div>
             {isExpanded && (
               <ConversationPreview conversationId={conversation._id} showTitle={false} showFullWidth />
@@ -271,7 +274,8 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
         <MessagesNewForm 
           conversationId={embeddedConversationId} 
           templateQueries={templateQueries}
-          successEvent={(newMessage) => {
+          successEvent={async (newMessage) => {
+            await refetch();
             captureEvent('messageSent', {
               conversationId: newMessage.conversationId,
               sender: currentUser._id,
@@ -301,10 +305,12 @@ const SunshineUserMessagesInner = ({user, currentUser, posts, comments, showExpa
   </div>;
 }
 
-export const SunshineUserMessages = (props: SunshineUserMessagesProps) => (
-  <AppendToEditorProvider>
-    <SunshineUserMessagesInner {...props} />
-  </AppendToEditorProvider>
-);
+export const SunshineUserMessages = (props: SunshineUserMessagesProps) => {
+  return (
+    <AppendToEditorProvider>
+      <SunshineUserMessagesInner {...props} />
+    </AppendToEditorProvider>
+  );
+};
 
 export default SunshineUserMessages;

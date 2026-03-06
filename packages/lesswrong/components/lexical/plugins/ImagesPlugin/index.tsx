@@ -65,10 +65,6 @@ import {
   type SetImageCaptionVisibilityPayload,
   type SetImageSizePayload,
 } from './commands';
-import Button from '../../ui/Button';
-import {DialogActions, DialogButtonsList} from '../../ui/Dialog';
-import FileInput from '../../ui/FileInput';
-import TextInput from '../../ui/TextInput';
 import {
   uploadToCloudinary,
   ImageUploadError,
@@ -76,6 +72,41 @@ import {
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
 import { useMessages } from '@/components/common/withMessages'
 import { WithMessagesMessage } from '@/components/layout/FlashMessages';
+import LWDialog from '@/components/common/LWDialog';
+import { DialogTitle } from '@/components/widgets/DialogTitle';
+import { DialogContent } from '@/components/widgets/DialogContent';
+import { DialogActions } from '@/components/widgets/DialogActions';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const imageDialogStyles = defineStyles('InsertImageDialog', (theme: ThemeType) => ({
+  paper: {
+    width: 400,
+  },
+  fileInputWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  fileInputLabel: {
+    color: theme.palette.grey[600],
+    marginRight: 12,
+    fontSize: 14,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  errorText: {
+    color: theme.palette.error.main,
+    marginTop: 8,
+    fontSize: 14,
+  },
+  modeButtonsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
+  },
+}));
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -134,22 +165,27 @@ export function InsertImageUriDialogBody({
 
   return (
     <>
-      <TextInput
+      <TextField
         label="Image URL"
         placeholder="i.e. https://source.unsplash.com/random"
-        onChange={setSrc}
+        onChange={(e) => setSrc(e.target.value)}
         value={src}
+        fullWidth
+        margin="dense"
         data-test-id="image-modal-url-input"
       />
-      <TextInput
+      <TextField
         label="Alt Text"
         placeholder="Random unsplash image"
-        onChange={setAltText}
+        onChange={(e) => setAltText(e.target.value)}
         value={altText}
+        fullWidth
+        margin="dense"
         data-test-id="image-modal-alt-text-input"
       />
       <DialogActions>
         <Button
+          color="primary"
           data-test-id="image-modal-confirm-btn"
           disabled={isDisabled}
           onClick={() => onClick({altText, src})}>
@@ -232,28 +268,36 @@ export function InsertImageUploadedDialogBody({
     };
   }, []);
 
+  const classes = useStyles(imageDialogStyles);
+
   return (
     <>
-      <FileInput
-        label="Image Upload"
-        onChange={handleFileSelect}
-        accept="image/*"
-        data-test-id="image-modal-file-upload"
-      />
-      <TextInput
+      <div className={classes.fileInputWrapper}>
+        <label className={classes.fileInputLabel}>Image Upload</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleFileSelect(e.target.files)}
+          data-test-id="image-modal-file-upload"
+        />
+      </div>
+      <TextField
         label="Alt Text"
         placeholder="Descriptive alternative text"
-        onChange={setAltText}
+        onChange={(e) => setAltText(e.target.value)}
         value={altText}
+        fullWidth
+        margin="dense"
         data-test-id="image-modal-alt-text-input"
       />
       {uploadError && (
-        <div style={{color: 'red', marginTop: '8px', fontSize: '14px'}}>
+        <div className={classes.errorText}>
           {uploadError}
         </div>
       )}
       <DialogActions>
         <Button
+          color="primary"
           data-test-id="image-modal-file-upload-btn"
           disabled={isDisabled}
           onClick={handleConfirm}>
@@ -274,6 +318,7 @@ export function InsertImageDialog({
   onError?: (error: Error) => void;
 }): JSX.Element {
   const [mode, setMode] = useState<null | 'url' | 'file'>(null);
+  const classes = useStyles(imageDialogStyles);
   const hasModifier = useRef(false);
 
   useEffect(() => {
@@ -293,26 +338,31 @@ export function InsertImageDialog({
   };
 
   return (
-    <>
-      {!mode && (
-        <DialogButtonsList>
-          <Button
-            data-test-id="image-modal-option-url"
-            onClick={() => setMode('url')}>
-            URL
-          </Button>
-          <Button
-            data-test-id="image-modal-option-file"
-            onClick={() => setMode('file')}>
-            File
-          </Button>
-        </DialogButtonsList>
-      )}
-      {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
-      {mode === 'file' && (
-        <InsertImageUploadedDialogBody onClick={onClick} onError={onError} />
-      )}
-    </>
+    <LWDialog open={true} onClose={onClose} maxWidth={false} paperClassName={classes.paper}>
+      <DialogTitle>Insert Image</DialogTitle>
+      <DialogContent>
+        {!mode && (
+          <div className={classes.modeButtonsContainer}>
+            <Button
+              variant="outlined"
+              data-test-id="image-modal-option-url"
+              onClick={() => setMode('url')}>
+              URL
+            </Button>
+            <Button
+              variant="outlined"
+              data-test-id="image-modal-option-file"
+              onClick={() => setMode('file')}>
+              File
+            </Button>
+          </div>
+        )}
+        {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
+        {mode === 'file' && (
+          <InsertImageUploadedDialogBody onClick={onClick} onError={onError} />
+        )}
+      </DialogContent>
+    </LWDialog>
   );
 }
 

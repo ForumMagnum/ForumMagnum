@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import ContentType from "../posts/PostsPage/ContentType";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
 import LoadMore from "../common/LoadMore";
@@ -86,7 +85,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
     <div className={classes.subtitle}>
       <ContentType
         type="tags"
-        label={`${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Wiki/Tag'} Page Edits and Discussion`}
+        label={"Wikitag Page Edits and Discussion"}
       />
     </div>
     {tagUpdatesInTimeBlock.map(tagUpdates => <SingleLineTagUpdates

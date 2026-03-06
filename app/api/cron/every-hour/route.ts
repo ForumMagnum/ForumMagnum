@@ -3,6 +3,7 @@ import { clearArbitalCache } from '@/server/resolvers/arbitalPageData';
 import { permanentlyDeleteUsers } from '@/server/users/permanentDeletion';
 import { uniquePostUpvotersView } from "@/server/postgresView";
 import { clearLoggedOutServedSessionsWithNoViews, clearOldUltraFeedServedEvents } from '@/server/ultraFeed/cron';
+import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -24,10 +25,8 @@ export async function GET(request: NextRequest) {
   // These are heavier and we don't want to stress the db too much, so run these sequentially
 
   // Update unique post upvoters view
-  const uniquePostUpvotersJob = uniquePostUpvotersView.getCronJob()?.job;
-  if (uniquePostUpvotersJob) {
-    await uniquePostUpvotersJob();
-  }
+  const db = getSqlClientOrThrow();
+  await uniquePostUpvotersView.refresh(db);
 
   // Clear ultrafeed served events older than 48 hours
   await clearOldUltraFeedServedEvents();

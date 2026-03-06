@@ -9,8 +9,8 @@ import LWTooltip from "../../common/LWTooltip";
 
 const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   reviewVoting: {
-    padding: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*6,
+    padding: 16,
+    paddingBottom: 48,
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -18,11 +18,11 @@ const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   },
   reviewButton: {
     border: `solid 1px ${theme.palette.primary.main}`,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit*2,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    marginTop: theme.spacing.unit,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
+    marginTop: 8,
     display: "inline-block",
     borderRadius: 3
   }

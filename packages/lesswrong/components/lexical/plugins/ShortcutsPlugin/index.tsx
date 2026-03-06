@@ -60,6 +60,7 @@ import {
   isStrikeThrough,
   isSubscript,
   isSuperscript,
+  isUnderline,
   isUppercase,
 } from './shortcuts';
 
@@ -129,6 +130,8 @@ export default function ShortcutsPlugin({
         );
       } else if (isClearFormatting(event)) {
         clearFormatting(editor);
+      } else if (isUnderline(event)) {
+        // Swallow Ctrl/Cmd+U — underline is disabled
       } else if (isInsertLink(event)) {
         setIsLinkEditMode(true);
       } else if (isAddComment(event)) {

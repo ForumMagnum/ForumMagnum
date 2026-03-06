@@ -8,7 +8,6 @@ import { TagCommentType } from '@/lib/collections/comments/types';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
 import { tagGetHistoryUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '@/lib/reactRouterWrapper';
-import { preferredHeadingCase } from '@/themes/forumTheme';
 import { getKarmaNotificationTimingChoices } from '../KarmaChangeNotifierSettings';
 import { NewReactions } from './NewReactions';
 import { ColoredNumber } from './ColoredNumber';
@@ -92,7 +91,7 @@ const KarmaChangesDisplay = ({ karmaChanges, handleClose }: {
           </div>
         </div>}
       <Link to={`/account`} onClick={handleClose}>
-        <span className={classes.settings}>{preferredHeadingCase("Change Settings")}</span>
+        <span className={classes.settings}>Change Settings</span>
       </Link>
     </Typography>
   );

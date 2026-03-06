@@ -1,7 +1,7 @@
-import { $createHorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode'
+import { $createHorizontalRuleNode } from '@lexical/extension'
 import { $insertNodeToNearestRoot } from '@lexical/utils'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
-import { $createParagraphNode, $getSelection, $isRangeSelection } from 'lexical'
+import { randomId } from '@/lib/random'
+import { $createParagraphNode, $getSelection, $isElementNode, $isRangeSelection } from 'lexical'
 import { $createSuggestionNode } from './ProtonNode'
 
 export function $insertDividerAsSuggestion(onSuggestionCreation: (id: string) => void): boolean {
@@ -10,16 +10,24 @@ export function $insertDividerAsSuggestion(onSuggestionCreation: (id: string) =>
     return true
   }
 
-  const suggestionID = generateUUID()
+  const suggestionID = randomId()
   const dividerNode = $createHorizontalRuleNode()
   const suggestionNode = $createSuggestionNode(suggestionID, 'insert-divider')
   suggestionNode.append(dividerNode)
 
   const insertedNode = $insertNodeToNearestRoot(suggestionNode)
-  if (!insertedNode.getNextSibling()) {
+  // $insertNodeToNearestRoot wraps inline nodes (like ProtonNode) in a
+  // paragraph, and leaves the cursor inside that wrapper. We need to
+  // ensure the cursor ends up after the wrapper paragraph.
+  const topLevelNode = insertedNode.getTopLevelElement() ?? insertedNode
+  let nextSibling = topLevelNode.getNextSibling()
+  if (!nextSibling) {
     const paragraph = $createParagraphNode()
-    insertedNode.insertAfter(paragraph)
-    paragraph.selectEnd()
+    topLevelNode.insertAfter(paragraph)
+    nextSibling = paragraph
+  }
+  if ($isElementNode(nextSibling)) {
+    nextSibling.selectStart()
   }
 
   onSuggestionCreation(suggestionID)

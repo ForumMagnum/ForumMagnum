@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
@@ -109,7 +108,7 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
     </div>)}
     {expandLoadMore && loadingMore && <Loading/>}
     {hasLoadMore && <div className={classes.loadMore}><a onClick={loadMore}>
-      {preferredHeadingCase("Load More")}
+      Load More
     </a></div>}
   </div>
 }

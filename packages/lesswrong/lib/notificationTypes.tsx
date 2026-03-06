@@ -614,19 +614,6 @@ export const NewGroupOrganizerNotification = createNotificationType({
   Display: ({Localgroup}) => <>You've been added as an organizer of <Localgroup /></>,
 })
 
-export const NewSubforumMemberNotification = createNotificationType({
-  name: "newSubforumMember",
-  userSettingField: "notificationGroupAdministration",
-  async getMessage({documentType, documentId, context}: GetMessageProps) {
-    const { Users } = context;
-    if (documentType !== 'user') throw new Error("documentType must be user")
-    const newUser = await Users.findOne(documentId)
-    if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
-    return `A new user has joined your topic: ${newUser.displayName}`
-  },
-  Display: ({User, Tag}) => <><User /> has joined <Tag /></>,
-})
-
 export const NewCommentOnDraftNotification = createNotificationType({
   name: "newCommentOnDraft",
   userSettingField: "notificationCommentsOnDraft",
@@ -728,7 +715,6 @@ const notificationTypesArray = [
   KarmaPowersGainedNotification,
   CancelledRSVPNotification,
   NewGroupOrganizerNotification,
-  NewSubforumMemberNotification,
   NewCommentOnDraftNotification,
   CoauthorRequestNotification,
   CoauthorAcceptNotification,

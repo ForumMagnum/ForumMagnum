@@ -104,8 +104,8 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
       flexWrap: "wrap",
-      paddingTop: theme.spacing.unit,
-      paddingBottom: theme.spacing.unit,
+      paddingTop: 8,
+      paddingBottom: 8,
       paddingLeft: 5
     },
   },
@@ -134,8 +134,8 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   commentsBackground: {
     backgroundColor: theme.palette.panelBackground.postsItemExpandedComments,
     [theme.breakpoints.down('xs')]: {
-      paddingLeft: theme.spacing.unit/2,
-      paddingRight: theme.spacing.unit/2
+      paddingLeft: 4,
+      paddingRight: 4
     }
   },
   karma: {
@@ -145,7 +145,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
       width: "unset",
       justifyContent: "flex-start",
       marginLeft: 2,
-      marginRight: theme.spacing.unit
+      marginRight: 8
     }
   },
   karmaPredictedReviewWinner: {
@@ -167,7 +167,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
       height: "unset",
       maxWidth: "unset",
       width: "100%",
-      paddingRight: theme.spacing.unit,
+      paddingRight: 8,
       flex: "unset",
     },
     '&:hover': {
@@ -188,7 +188,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
-    marginRight: theme.spacing.unit*1.5,
+    marginRight: 12,
     zIndex: theme.zIndexes.postItemAuthor,
     flex: 1000,
     maxWidth: "fit-content",
@@ -207,7 +207,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis", // I'm not sure this line worked properly?
-    marginRight: theme.spacing.unit*1.5,
+    marginRight: 12,
     [theme.breakpoints.down('xs')]: {
       width: "unset",
       marginLeft: 0,
@@ -215,9 +215,9 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   },
   newCommentsSection: {
     width: "100%",
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit*2,
-    paddingTop: theme.spacing.unit,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 8,
     cursor: "pointer",
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     [theme.breakpoints.down('xs')]: {
@@ -265,7 +265,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
     cursor: "pointer",
     width: MENU_WIDTH,
     opacity: .5,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     display: "none",
     [theme.breakpoints.down('xs')]: {
       display: "block"
@@ -362,8 +362,8 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
       marginLeft: 28
   },
   bookmark: {
-    marginLeft: theme.spacing.unit/2,
-    marginRight: theme.spacing.unit*1.5,
+    marginLeft: 4,
+    marginRight: 12,
     position: "relative",
     height: 22,
   },

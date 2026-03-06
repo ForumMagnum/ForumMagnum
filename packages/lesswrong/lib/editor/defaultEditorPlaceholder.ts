@@ -7,7 +7,7 @@ export const getDefaultEditorPlaceholder = () => isFriendlyUI() ?
 
 export const getCommentEditorPlaceholder = () => isFriendlyUI() ?
   `Write a new comment...` :
-  `Text goes here! See lesswrong.com/editor for info about everything the editor can do.`;
+  `Type here! Use '/' for editor commands.`;
 
 export const debateEditorPlaceholder = `Enter your first dialogue comment here, add other participants as co-authors, then save this as a draft.
 

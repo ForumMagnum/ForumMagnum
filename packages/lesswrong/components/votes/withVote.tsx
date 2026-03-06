@@ -57,17 +57,6 @@ const performVoteRevisionMutation = gql(`
   }
 `)
 
-const performVoteElectionCandidateMutation = gql(`
-  mutation performVoteElectionCandidate($documentId: String, $voteType: String, $extendedVote: JSON) {
-    performVoteElectionCandidate(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
-      document {
-        ...WithVoteElectionCandidate
-      }
-      showVotingPatternWarning
-    }
-  }
-`)
-
 const performVoteTagMutation = gql(`
   mutation performVoteTag($documentId: String, $voteType: String, $extendedVote: JSON) {
     performVoteTag(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
@@ -107,7 +96,6 @@ const performVoteMutations = {
   TagRel: performVoteTagRelMutation,
   Message: performVoteMessageMutation,
   Revision: performVoteRevisionMutation,
-  ElectionCandidate: performVoteElectionCandidateMutation,
   Tag: performVoteTagMutation,
   MultiDocument: performVoteMultiDocumentMutation,
 } satisfies Record<typeof collectionNameToTypeName[VoteableCollectionName], DocumentNode>;

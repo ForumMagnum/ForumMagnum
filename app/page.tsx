@@ -3,7 +3,6 @@ import LWHome from "@/components/common/LWHome";
 import RouteRoot from "@/components/layout/RouteRoot";
 import AlignmentForumHome from "@/components/alignment-forum/AlignmentForumHome";
 import { forumSelect } from "@/lib/forumTypeUtils";
-import EAHome from "@/components/ea-forum/EAHome";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 assertRouteAttributes("/", {
@@ -19,7 +18,6 @@ export default async function Home() {
     {forumSelect({
       AlignmentForum: <AlignmentForumHome/>,
       LessWrong: <LWHome/>,
-      EAForum: <EAHome/>,
       default: <LWHome/>,
     })}
   </RouteRoot>;

@@ -1,16 +1,12 @@
-"use client";
-
 import React from 'react';
 import {
   DecoratorNode,
   LexicalNode,
   NodeKey,
   SerializedLexicalNode,
-  EditorConfig,
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
-  LexicalEditor,
 } from 'lexical';
 import ElicitBlock from '@/components/contents/ElicitBlock';
 

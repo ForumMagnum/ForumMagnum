@@ -21,19 +21,26 @@ const CommentWithRepliesFragmentMultiQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   shortformItem: {
-    marginTop: theme.spacing.unit * (theme.isFriendlyUI ? 2 : 4),
+    marginTop: 32,
   }
 })
 
-const ShortformThreadList = ({ classes }: {
+const ShortformThreadList = ({ classes, userId, showQuickTakeEntry = true, showPostTitle = true, limit = 20 }: {
   classes: ClassesType<typeof styles>,
+  userId?: string,
+  showQuickTakeEntry?: boolean,
+  showPostTitle?: boolean,
+  limit?: number,
 }) => {
   const currentUser = useCurrentUser();
+  const shortformSelector = userId
+    ? { shortform: { userId } }
+    : { shortform: {} };
   
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
     variables: {
-      selector: { shortform: {} },
-      limit: 20,
+      selector: shortformSelector,
+      limit,
       enableTotal: false,
     },
     fetchPolicy: 'cache-and-network',
@@ -43,7 +50,7 @@ const ShortformThreadList = ({ classes }: {
 
   return (
     <div>
-      {(userCanQuickTake(currentUser) || !currentUser) &&
+      {showQuickTakeEntry && (userCanQuickTake(currentUser) || !currentUser) &&
         <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
       }
 
@@ -54,6 +61,7 @@ const ShortformThreadList = ({ classes }: {
         return <div key={comment._id} className={classes.shortformItem}>
           <CommentOnPostWithReplies comment={comment} post={comment.post} commentNodeProps={{
             treeOptions: {
+              showPostTitle,
               refetch
             }
           }}/>
@@ -65,5 +73,3 @@ const ShortformThreadList = ({ classes }: {
 }
 
 export default registerComponent('ShortformThreadList', ShortformThreadList, {styles});
-
-

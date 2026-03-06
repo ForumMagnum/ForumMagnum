@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
@@ -30,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 6
   },
   wikiEmpty: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     fontStyle: "italic",
     color: theme.palette.grey[500]
   }
@@ -70,7 +69,7 @@ const TagEditsByUser = ({userId, limit, classes}: {
 
   if (resultsWithLiveTags.length === 0) {
     return <Typography variant="body2" className={classes.wikiEmpty}>
-      No {taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} contributions to display.
+      No wikitag contributions to display.
     </Typography>
   }
 

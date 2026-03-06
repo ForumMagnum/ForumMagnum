@@ -27,10 +27,10 @@ const styles = (theme: ThemeType) => ({
     marginTop: -12,
   },
   continueReadingList: {
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
   },
   subsection: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   footerWrapper: {
     display: "flex",
@@ -101,12 +101,6 @@ const styles = (theme: ThemeType) => ({
 });
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
-  if (isFriendlyUI()) {
-    return {
-      method: haveCurrentUser ? 'sample' : 'top',
-      count: haveCurrentUser ? 3 : 5
-    }
-  }
   if (isLW()) {
     return {
       lwRationalityOnly: true,

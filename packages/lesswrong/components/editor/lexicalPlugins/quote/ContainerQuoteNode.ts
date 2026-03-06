@@ -1,5 +1,3 @@
-"use client";
-
 import {
   type DOMConversionMap,
   type DOMConversionOutput,

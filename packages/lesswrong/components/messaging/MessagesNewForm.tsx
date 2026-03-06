@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
@@ -68,8 +68,8 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
     },
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitMinimalist: {
     height: 'fit-content',
@@ -114,6 +114,9 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
     '&:hover': {
       backgroundColor: theme.palette.background.primaryDim,
     },
+  },
+  messageInputForm: {
+    '--lexical-comment-min-height': '1em',
   },
 }));
 
@@ -202,7 +205,7 @@ const InnerMessagesNewForm = ({
         e.stopPropagation();
         void form.handleSubmit();
       }}>
-        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper, classes.messageInputForm)}>
           <form.Field name="contents">
             {(field) => (
               <EditorFormComponent
@@ -261,7 +264,7 @@ export const MessagesNewForm = ({
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const initialEditorType = getUserDefaultEditor(currentUser);
-  
+  const [formKey, setFormKey] = useState(0);
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
 
@@ -280,7 +283,7 @@ export const MessagesNewForm = ({
     getDraftMessageHtml({ html: template.contents.html, displayName: templateQueries?.displayName });
 
   return (
-    <div className={isMinimalist ? classes.rootMinimalist : classes.root}>
+    <div className={isMinimalist ? classes.rootMinimalist : classes.root} key={formKey}>
       <InnerMessagesNewForm
         isMinimalist={isMinimalist}
         submitLabel={submitLabel}
@@ -296,7 +299,10 @@ export const MessagesNewForm = ({
         }}
         templateQueries={templateQueries}
         conversationId={conversationId}
-        onSuccess={(newMessage) => successEvent(newMessage)}
+        onSuccess={(newMessage) => {
+          setFormKey(formKey => formKey + 1);
+          successEvent(newMessage);
+        }}
       />
     </div>
   );

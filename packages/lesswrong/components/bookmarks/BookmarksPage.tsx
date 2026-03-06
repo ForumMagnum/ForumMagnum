@@ -7,7 +7,7 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -71,7 +71,7 @@ const BookmarksPage = () => {
   return <AnalyticsContext pageContext="bookmarksPage" capturePostItemOnMount>
     <SingleColumnSection>
       <Typography variant="display2" className={classes.headline}>
-        {preferredHeadingCase(`Saved & Read`)}
+        Saved & Read
       </Typography>
       <Tabs
         value={activeTab}

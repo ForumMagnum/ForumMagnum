@@ -74,7 +74,7 @@ const styles = defineStyles("GroupLinks", (theme: ThemeType) => ({
     width: 'initial',
     height: '20px',
     fontSize: '14px',
-    marginLeft: theme.spacing.unit
+    marginLeft: 8
   },
 
   groupLinks: {
@@ -88,7 +88,7 @@ const styles = defineStyles("GroupLinks", (theme: ThemeType) => ({
   },
   
   websiteLink: {
-    marginLeft: theme.spacing.unit - 2,
+    marginLeft: 6,
     transform: "translateY(3px)",
   },
   

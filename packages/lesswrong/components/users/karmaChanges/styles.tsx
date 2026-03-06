@@ -22,10 +22,10 @@ export const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => 
   },
   title: {
     display: 'block',
-    paddingTop: theme.spacing.unit * 2,
-    paddingLeft: theme.spacing.unit * 2,
-    paddingRight: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit
+    paddingTop: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingBottom: 8
   },
   votedItems: {},
   votedItemRow: {
@@ -69,10 +69,10 @@ export const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => 
   settings: {
     display: 'block',
     textAlign: 'right',
-    paddingTop: theme.spacing.unit,
-    paddingRight: theme.spacing.unit * 2,
-    paddingLeft: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit * 2,
+    paddingTop: 8,
+    paddingRight: 16,
+    paddingLeft: 16,
+    paddingBottom: 16,
     color: theme.palette.grey[600],
     '&:hover': {
       color: theme.palette.grey[500]

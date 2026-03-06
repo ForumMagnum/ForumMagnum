@@ -96,7 +96,7 @@ const styles = defineStyles("LWPopularComment", (theme: ThemeType) => ({
     width: 600,
   },
   showParentComment: {
-    paddingRight: theme.spacing.unit,
+    paddingRight: 8,
     cursor: "pointer",
     color: theme.palette.text.bannerAdOverlay,
   },

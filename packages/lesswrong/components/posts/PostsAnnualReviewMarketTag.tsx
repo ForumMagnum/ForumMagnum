@@ -5,13 +5,11 @@ import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';
 import { tagStyle } from '../tagging/FooterTag';
 import { Card } from "@/components/widgets/Paper";
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import HoverOver from "../common/HoverOver";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 
 const sharedStyles = (theme: ThemeType) => ({
-  fontFamily: theme.typography.fontFamily,
   width: 'fit-content',
   display: 'inline-block',
   padding: '5px',
@@ -43,15 +41,8 @@ const styles = (theme: ThemeType) => ({
   },
   card: {
     padding: 16,
-    ...(theme.isFriendlyUI
-      ? {
-        paddingTop: 12,
-        width: FRIENDLY_HOVER_OVER_WIDTH,
-      }
-      : {
-        width: 450,
-        paddingTop: 8,
-      }),
+    width: 450,
+    paddingTop: 8,
   },
 });
 

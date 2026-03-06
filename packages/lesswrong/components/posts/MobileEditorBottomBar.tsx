@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { preferredHeadingCase } from "@/themes/forumTheme";
 import ForumIcon from "../common/ForumIcon";
 import EditorSettingsSidebar from "./EditorSettingsSidebar";
 import type { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
@@ -317,7 +316,7 @@ const MobileEditorBottomBar = ({
                 disabled={!canSubmit || isSubmitting}
                 onClick={() => form.setFieldValue("draft", false)}
               >
-                {preferredHeadingCase(draft ? "Publish" : "Publish Changes")}
+                {draft ? "Publish" : "Publish Changes"}
               </button>
             </div>
           </div>

@@ -1,5 +1,4 @@
 import type { JssStyles } from "@/lib/jssStyles";
-import { isFriendlyUI } from "../forumTheme";
 import { miscStyles } from "./miscStyles";
 
 export const maxSmallish = "@media screen and (max-width: 715px)";
@@ -9,17 +8,19 @@ export const commentsNodeRootMarginBottom = 17
 
 const clearStyle = (theme: ThemeType) => ({
   html: {
-    fontSize: theme.baseFontSize,
+    fontSize: 13,
     boxSizing: "border-box",
     "-webkit-font-smoothing": "antialiased",
     "-moz-osx-font-smoothing": "grayscale",
-    color: theme.palette.text.maxIntensity,
+    "text-size-adjust": "none",
+    "-webkit-text-size-adjust": "none",
   },
   "*, *::before, *::after": {
     boxSizing: "inherit",
   },
   body: {
     margin: 0,
+    color: theme.palette.text.maxIntensity,
     "@media print": {
       background: theme.palette.panelBackground.default,
     },

@@ -14,14 +14,17 @@ import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
 import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
-import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type ReviewGroup } from './groupings';
+import sumBy from 'lodash/sumBy';
+import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type TabId } from './groupings';
 import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
-import type { TabInfo } from './ModerationTabs';
+import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
 import { useCoreTags } from '@/components/tagging/useCoreTags';
 import { CoreTagsKeyboardProvider } from '@/components/tagging/CoreTagsKeyboardContext';
 import ModerationPostSidebar from './ModerationPostSidebar';
+import CurationPostView from './CurationView';
+import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 
 const SunshineUsersListMultiQuery = gql(`
@@ -53,6 +56,34 @@ const SunshineAutoClassifiedPostsListMultiQuery = gql(`
         ...SunshinePostsList
       }
       totalCount
+    }
+  }
+`);
+
+const CurationCandidatePostsQuery = gql(`
+  query CurationCandidatePostsQuery($limit: Int) {
+    CurationCandidatePosts(limit: $limit) {
+      results {
+        ...SunshineCurationPostsList
+      }
+    }
+  }
+`);
+
+const LastCuratedDateQuery = gql(`
+  query LastCuratedDateQuery {
+    LastCuratedDate {
+      lastCuratedDate
+    }
+  }
+`);
+
+const SingleUserSupermodQuery = gql(`
+  query singleUserSupermodQuery($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...SunshineUsersList
+      }
     }
   }
 `);
@@ -105,11 +136,14 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUserId, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
+  curationPosts: SunshineCurationPostsList[];
+  lastCuratedDate: string | null;
   initialOpenedUserId: string | null;
+  directUser: SunshineUsersList | null;
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
@@ -118,14 +152,16 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
-      if (users.length === 0 && posts.length === 0 && classifiedPosts.length === 0) {
+      const initialUsers = directUser ? [directUser, ...users] : users;
+      if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
         return {
           users: [],
           posts: [],
           classifiedPosts: [],
-          activeTab: 'all',
+          curationPosts: [],
+          activeTab: 'curation',
           focusedUserId: null,
           openedUserId: null,
           focusedPostId: null,
@@ -136,18 +172,57 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
         };
       }
 
-      const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length, posts.length, classifiedPosts.length);
+      if (initialOpenedUserId) {
+        return {
+          users: initialUsers,
+          posts,
+          classifiedPosts,
+          curationPosts,
+          activeTab: 'all',
+          focusedUserId: initialOpenedUserId,
+          openedUserId: initialOpenedUserId,
+          focusedPostId: null,
+          focusedContentIndex: 0,
+          undoQueue: [],
+          history: [],
+          runningLlmCheckId: null,
+        };
+      }
 
-      // Find first non-empty tab
-      const firstNonEmptyTab = visibleTabs.find(tab => tab.count > 0);
-      const firstTab = firstNonEmptyTab?.group ?? 'all';
+      const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
+      const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount);
+
+      // Default to curation when there are no curation notices (so you can add some)
+      // Otherwise, find the first non-empty non-curation tab
+      const firstNonEmptyTab = curationNoticeCount === 0
+        ? undefined
+        : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
+      const firstTab = firstNonEmptyTab?.group ?? 'curation';
+
+      if (firstTab === 'curation') {
+        return { 
+          users: initialUsers,
+          posts,
+          classifiedPosts,
+          curationPosts,
+          activeTab: 'curation',
+          focusedUserId: null,
+          openedUserId: null,
+          focusedPostId: curationPosts[0]?._id ?? null,
+          focusedContentIndex: 0,
+          undoQueue: [],
+          history: [],
+          runningLlmCheckId: null,
+        };
+      }
       
       if (firstTab === 'posts') {
         return {
-          users,
+          users: initialUsers,
           posts,
           classifiedPosts,
+          curationPosts,
           activeTab: 'posts',
           focusedUserId: null,
           openedUserId: null,
@@ -161,9 +236,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
 
       if (firstTab === 'classifiedPosts') {
         return {
-          users,
+          users: initialUsers,
           posts,
           classifiedPosts,
+          curationPosts,
           activeTab: 'classifiedPosts',
           focusedUserId: null,
           openedUserId: null,
@@ -179,9 +255,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
-        users,
+        users: initialUsers,
         posts,
         classifiedPosts,
+        curationPosts,
         activeTab: firstTab,
         focusedUserId: orderedUsers[0]?._id ?? null,
         openedUserId: initialOpenedUserId,
@@ -229,9 +306,11 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
 
   const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
 
+  const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
+
   const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length]);
+    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
+  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -252,6 +331,11 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
     return allPosts.find(p => p._id === state.focusedPostId) ?? null;
   }, [state.focusedPostId, state.posts, state.classifiedPosts]);
 
+  const focusedCurationPost = useMemo(() => {
+    if (!state.focusedPostId || state.activeTab !== 'curation') return null;
+    return state.curationPosts.find(p => p._id === state.focusedPostId) ?? null;
+  }, [state.focusedPostId, state.activeTab, state.curationPosts]);
+
   const handleOpenUser = useCallback((userId: string) => dispatch({ type: 'OPEN_USER', userId }), []);
 
   const handleFocusPost = useCallback((postId: string) => dispatch({ type: 'FOCUS_POST', postId }), []);
@@ -266,7 +350,9 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
 
   const handlePrevPost = useCallback(() => dispatch({ type: 'PREV_POST' }), []);
 
-  const handleTabChange = useCallback((newTab: ReviewGroup | 'all' | 'posts' | 'classifiedPosts') => dispatch({ type: 'CHANGE_TAB', tab: newTab }), []);
+  const handleTabChange = useCallback((newTab: TabId) => {
+    dispatch({ type: 'CHANGE_TAB', tab: newTab });
+  }, []);
 
   const handleNextTab = useCallback(() => dispatch({ type: 'NEXT_TAB' }), []);
 
@@ -303,13 +389,22 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
   }, [state.openedUserId, state.focusedUserId, allOrderedUsers]);
 
   const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
+  const isCurationTab = state.activeTab === 'curation';
+  const isPostLikeTab = isPostsTab || isCurationTab;
 
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
   return (
     <CoreTagsKeyboardProvider>
     <div className={classes.root}>
-      {isPostsTab ? (
+      {isCurationTab ? (
+        <CurationKeyboardHandler
+          onNextPost={handleNextPost}
+          onPrevPost={handlePrevPost}
+          onNextTab={handleNextTab}
+          onPrevTab={handlePrevTab}
+        />
+      ) : isPostsTab ? (
         <ModerationPostKeyboardHandler
           onNextPost={handleNextPost}
           onPrevPost={handlePrevPost}
@@ -342,6 +437,14 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
           dispatch={dispatch}
         />
       )}
+      {!openedUser && (
+        <ModerationTabs
+          tabs={visibleTabs}
+          activeTab={state.activeTab}
+          onTabChange={handleTabChange}
+          lastCuratedDate={lastCuratedDate}
+        />
+      )}
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
@@ -357,7 +460,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
             />
           ) : (
             <>
-              {!isPostsTab && (
+              {!isPostLikeTab && (
                 <div className={classes.undoQueueSection}>
                   <ModerationUndoHistory
                     undoQueue={state.undoQueue}
@@ -370,14 +473,13 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
                 <ModerationInboxList
                   userGroups={filteredGroups}
                   posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
+                  curationPosts={state.curationPosts}
                   focusedUserId={state.focusedUserId}
                   focusedPostId={state.focusedPostId}
                   onFocusUser={handleOpenUser}
                   onOpenUser={handleOpenUser}
                   onFocusPost={handleFocusPost}
-                  visibleTabs={visibleTabs}
                   activeTab={state.activeTab}
-                  onTabChange={handleTabChange}
                 />
               </div>
             </>
@@ -389,6 +491,14 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, initialOpenedUser
               post={focusedPost}
               currentUser={currentUser}
               dispatch={dispatch}
+            />
+          </div>
+        )}
+        {isCurationTab && !openedUser && (
+          <div className={classes.postDetailPanel}>
+            <CurationPostView
+              post={focusedCurationPost}
+              currentUser={currentUser}
             />
           </div>
         )}
@@ -430,12 +540,38 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  const { data: curationData, loading: curationLoading } = useQuery(CurationCandidatePostsQuery, {
+    variables: { limit: 200 },
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const { data: lastCuratedData } = useQuery(LastCuratedDateQuery, {
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const initialOpenedUserId = query.user || null;
+
+  const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
+  const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
+
+  const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
+    variables: { documentId: initialOpenedUserId },
+    skip: !shouldFetchDirectUser,
+    fetchPolicy: 'cache-and-network',
+  });
+
   // This is just to pre-fetch the core tags so that they're available when you open the posts tab
   useCoreTags();
 
-  const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
   const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
   const classifiedPosts = useMemo(() => classifiedPostsData?.posts?.results ?? [], [classifiedPostsData]);
+  const curationPosts = useMemo(() => curationData?.CurationCandidatePosts?.results ?? [], [curationData]);
+  const lastCuratedDate = lastCuratedData?.LastCuratedDate?.lastCuratedDate ?? null;
+
+  const directUser = useMemo(() => {
+    if (!shouldFetchDirectUser) return null;
+    return directUserData?.user?.result ?? null;
+  }, [shouldFetchDirectUser, directUserData]);
 
   useHydrateModerationPostCache(posts);
   useHydrateModerationPostCache(classifiedPosts);
@@ -444,7 +580,13 @@ const ModerationInbox = () => {
     return null;
   }
 
-  if ((usersLoading && !usersData) || (postsLoading && !postsData) || (classifiedPostsLoading && !classifiedPostsData)) {
+  const usersNotReady = usersLoading && !usersData;
+  const postsNotReady = postsLoading && !postsData;
+  const classifiedPostsNotReady = classifiedPostsLoading && !classifiedPostsData;
+  const curationNotReady = curationLoading && !curationData;
+  const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUserData;
+
+  if (usersNotReady || postsNotReady || classifiedPostsNotReady || curationNotReady || directUserNotReady) {
     return (
       <div className={classes.loading}>
         <Loading />
@@ -452,13 +594,14 @@ const ModerationInbox = () => {
     );
   }
 
-  const initialOpenedUserId = query.user || null;
-
   return <ModerationInboxInner
     users={users}
     posts={posts}
     classifiedPosts={classifiedPosts}
+    curationPosts={curationPosts}
+    lastCuratedDate={lastCuratedDate}
     initialOpenedUserId={initialOpenedUserId}
+    directUser={directUser}
     currentUser={currentUser}
   />;
 };

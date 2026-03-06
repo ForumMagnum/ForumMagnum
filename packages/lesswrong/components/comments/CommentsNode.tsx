@@ -44,8 +44,8 @@ const styles = (theme: ThemeType) => ({
   gapIndicator: {
     border: theme.palette.border.commentBorder,
     backgroundColor: theme.palette.grey[100],
-    marginLeft: theme.spacing.unit,
-    paddingTop: theme.spacing.unit,
+    marginLeft: 8,
+    paddingTop: 8,
   },
 })
 

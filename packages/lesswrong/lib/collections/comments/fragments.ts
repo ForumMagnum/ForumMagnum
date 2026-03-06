@@ -45,7 +45,6 @@ export const CommentsList = gql(`
     extendedScore
     score
     voteCount
-    emojiReactors
     af
     afDate
     moveToAlignmentUserId
@@ -77,9 +76,6 @@ export const CommentsList = gql(`
     rejected
     rejectedReason
     originalDialogueId
-
-    forumEventId
-    forumEventMetadata
   }
 `)
 

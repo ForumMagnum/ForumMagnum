@@ -1,11 +1,8 @@
 import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
-import { connectionStringSetting, mirrorConnectionSettingString, sslSetting } from "../databaseSettings";
-import { isEAForum, sslCAFileSetting } from "../../lib/instanceSettings";
-import fs from "fs";
-import { getInstanceSettingsFilePath } from "../commandLine";
-import path from "path";
+import { connectionStringSetting, mirrorConnectionSettingString } from "../databaseSettings";
+import { isEAForum } from "../../lib/instanceSettings";
 
 export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
 declare global {
@@ -18,19 +15,6 @@ export const getPgPromiseLib = () => {
     globalThis.pgPromiseLib = pgp({});
   }
   return globalThis.pgPromiseLib;
-}
-
-
-const getFullCAFilePath = (): string | null => {
-  const caFilePath = sslCAFileSetting.get();
-  const instanceSettingsPath = getInstanceSettingsFilePath();
-
-  if (!caFilePath || !instanceSettingsPath) {
-    return null;
-  }
-
-  const instanceSettingsDirectory = path.dirname(instanceSettingsPath);
-  return path.resolve(instanceSettingsDirectory, caFilePath);
 }
 
 let missingConnectionStringWarned = false;
@@ -55,21 +39,7 @@ function getAnalyticsConnectionFromString(connectionString: string | null): Anal
   }
   const analyticsConnectionPools = globalThis.analyticsConnectionPools;
   if (!analyticsConnectionPools.get(connectionString)) {
-    let ssl = sslSetting.get();
-    if (ssl) {
-      const caFilePath = getFullCAFilePath();
-      const ca = caFilePath ? fs.readFileSync(caFilePath).toString() : undefined;
-
-      ssl = {
-        ...ssl,
-        ...(ca && { ca })
-      };
-    }
-
-    const connectionOptions = {
-      connectionString: connectionString,
-      ...(ssl && { ssl })
-    };
+    const connectionOptions = { connectionString };
 
     analyticsConnectionPools.set(connectionString, getPgPromiseLib()(connectionOptions));
   }

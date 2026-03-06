@@ -8,7 +8,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameSetting, defaultVisibilityTags } from '@/lib/instanceSettings';
+import { defaultVisibilityTags } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
@@ -338,16 +338,16 @@ function filterModeToTooltip(mode: FilterModeType): React.ReactNode {
   }
   switch (modeWithoutFloat) {
     case "Required":
-      return <div><em>Required.</em> ONLY posts with this {taggingNameSetting.get()} will appear in {getLatestPostsName()}.</div>
+      return <div><em>Required.</em> ONLY posts with this wikitag will appear in {getLatestPostsName()}.</div>
     case "Hidden":
-      return <div><em>Hidden.</em> Posts with this {taggingNameSetting.get()} will be not appear in {getLatestPostsName()}.</div>
+      return <div><em>Hidden.</em> Posts with this wikitag will be not appear in {getLatestPostsName()}.</div>
     case "Reduced":
-      return <div><em>Reduced.</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
+      return <div><em>Reduced.</em> Posts with this wikitag with be shown as if they had half as much karma.</div>
     case "0.5":
-      return <div><em>0.5x</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
+      return <div><em>0.5x</em> Posts with this wikitag with be shown as if they had half as much karma.</div>
     case 0:
     case "Default":
-      return <div>This {taggingNameSetting.get()} will have default filtering and sorting.</div>
+      return <div>This wikitag will have default filtering and sorting.</div>
     default:
       if (typeof mode==="number" && mode<0)
         return <div><em>{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>

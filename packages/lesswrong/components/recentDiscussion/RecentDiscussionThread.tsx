@@ -23,7 +23,7 @@ import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+    marginBottom: 32,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
@@ -45,11 +45,11 @@ const styles = (theme: ThemeType) => ({
     // width: 300,
     // marginTop: -2,
     // textAlign: "right",
-    // marginRight: -theme.spacing.unit
+    // marginRight: -8
   },
   continueReading: {
-    marginTop:theme.spacing.unit*2,
-    marginBottom:theme.spacing.unit*2,
+    marginTop:16,
+    marginBottom:16,
   },
   postHighlight: {
     overflow: "hidden",

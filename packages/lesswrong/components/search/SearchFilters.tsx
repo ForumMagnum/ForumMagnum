@@ -2,7 +2,7 @@ import React, { MutableRefObject } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
-import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import {
@@ -97,7 +97,7 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
 ) => {
   return <TagMultiselect
     value={tagsFilter ?? []}
-    placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
+    placeholder={`Filter by wikitags`}
     hidePostCount
     startWithBorder
     updateCurrentValues={(values: Array<string>) => {

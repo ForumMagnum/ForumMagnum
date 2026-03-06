@@ -26,11 +26,11 @@ import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 
 
-const SequencesPageFragmentQuery = gql(`
-  query PostLinkPreviewSequence($documentId: String, $allowNull: Boolean) {
+const SequencePreviewQuery = gql(`
+  query SequencePreview($documentId: String, $allowNull: Boolean) {
     sequence(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {
       result {
-        ...SequencesPageFragment
+        ...SequenceSummaryFragment
       }
     }
   }
@@ -229,7 +229,7 @@ const PostLinkPreviewVariantCheck = ({ href, originalHref, post, targetLocation,
   originalHref: string,
   post: PostsList|null,
   targetLocation: RouterLocation,
-  comment?: any,
+  comment?: CommentsList|null,
   commentId?: string,
   error: any,
   id: string,
@@ -341,7 +341,7 @@ const PostLinkPreviewWithPost = ({href, post, id, className, children}: {
 
 const CommentLinkPreviewWithComment = ({href, comment, post, id, className, children}: {
   href: string,
-  comment: any,
+  comment: CommentsList|null,
   post: PostsList|null,
   id: string,
   className?: string,
@@ -380,7 +380,7 @@ export const SequencePreview: LinkPreviewComponent<'/sequences/[_id]' | '/s/[_id
   
   const sequenceId = params._id;
 
-  const { loading, data, error  } = useQuery(SequencesPageFragmentQuery, {
+  const { loading, data, error  } = useQuery(SequencePreviewQuery, {
     variables: { documentId: sequenceId, allowNull: true },
     fetchPolicy: 'cache-first',
     ssr: false,
@@ -431,9 +431,9 @@ export const MessagePreview: LinkPreviewComponent<'/inbox' | '/inbox/[conversati
 
 const defaultPreviewStyles = defineStyles('DefaultPreview', (theme: ThemeType) => ({
   hovercard: {
-    padding: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    padding: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
     ...theme.typography.body2,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
@@ -710,9 +710,9 @@ export const MetaforecastPreview = ({href, id, className, children}: {
 
 const arbitalStyles = defineStyles('ArbitalPreview', (theme: ThemeType) => ({
   hovercard: {
-    padding: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    padding: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
     maxWidth: 500,
     overflow: 'hidden',
     textOverflow: 'ellipsis',

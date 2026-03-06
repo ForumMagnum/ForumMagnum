@@ -13,6 +13,7 @@ import { ReviewResultsTableDisplay, type ReviewResultsEntry } from './ReviewResu
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes } from './CollapsedFootnotes';
 import { WrappedStrawPoll } from './WrappedStrawPoll';
+import { HydratedIframeWidget } from './HydratedIframeWidget';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { useTracking } from '@/lib/analyticsEvents';
 import repeat from 'lodash/repeat';
@@ -23,7 +24,6 @@ import { useAbstractThemeOptions } from '../themes/useTheme';
 import dynamic from 'next/dynamic';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
-const ForumEventPostPagePollSection = dynamic(() => import('@/components/forumEvents/ForumEventPostPagePollSection'));
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   themeName: UserThemeSetting,
@@ -48,7 +48,6 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  *   wrapStrawPoll
  * Functionality from the old ContentItemBody which is implemented, but not well tested:
  *   addCTAButtonEventListeners
- *   replaceForumEventPollPlaceholders
  *   exposeInternalIds
  * Additional limitations:
  *   CDATA, directive, script, and style nodes are ignored. These will be
@@ -168,6 +167,11 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         const transformedStyle = transformStylesForDarkMode(attribs["style"], themeName);
         attribs["style"] = transformedStyle;
       }
+      for (const attribute of legacyHtmlColorAttributes) {
+        if (attribs[attribute]) {
+          attribs[attribute] = transformAttributeValueForDarkMode(attribs[attribute]);
+        }
+      }
 
       if (attribs['data-replacements'] && replacedSubstrings) {
         const substitutions = (JSON.parse(attribs['data-replacements']) as SubstitutionsAttr);
@@ -234,6 +238,12 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           {result}
         </WrappedStrawPoll>
       }
+      if (classNames.includes("iframe-widget")) {
+        const widgetId = attribs['data-iframe-widget-id'];
+        if (widgetId) {
+          result = <HydratedIframeWidget widgetId={widgetId} attribs={attribs} />;
+        }
+      }
       if (classNames.includes("ck-cta-button")) {
         if (attribs['data-href']) {
           attribs.href = validateUrl(attribs['data-href']);
@@ -242,12 +252,6 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         attribs['onClick'] = (ev: React.MouseEvent<HTMLAnchorElement>) => {
           captureEvent("ctaButtonClicked", {href: attribs['data-href']});
           originalOnClick?.(ev);
-        }
-      }
-      if (classNames.includes("ck-poll")) {
-        const forumEventId = attribs['data-internal-id'];
-        if (forumEventId) {
-          return <ForumEventPostPagePollSection id={forumEventId} forumEventId={forumEventId} />
         }
       }
       if (attribs['data-internal-id']) {
@@ -625,7 +629,9 @@ function splitText(textNode: DomHandlerText, splitOffset: number): [DomHandlerTe
   return null;
 }
 
-const attributesNeedingTransform: Record<string,boolean> = {
+const legacyHtmlColorAttributes = ["bgcolor"];
+
+const cssAttributesNeedingTransform: Record<string,boolean> = {
   "background": true,
   "backgroundColor": true,
   "borderColor": true,
@@ -635,7 +641,7 @@ const attributesNeedingTransform: Record<string,boolean> = {
 function transformStylesForDarkMode(styles: Record<string,string>, themeName: UserThemeSetting): Record<string,string> {
   if (themeName === 'dark' || themeName === 'auto') {
     return Object.fromEntries(Object.entries(styles).map(([attribute,value]) => {
-      if (attributesNeedingTransform[attribute]) {
+      if (cssAttributesNeedingTransform[attribute]) {
         const darkModeValue = transformAttributeValueForDarkMode(value)
         if (themeName === "auto" && darkModeValue !== value) {
           return [attribute, `light-dark(${value},${darkModeValue})`];

@@ -2,13 +2,12 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { EditorContents } from '../../editor/Editor';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import TableOfContents from "./TableOfContents";
-import ToCColumn from "./ToCColumn";
+import MultiToCLayout, { HOVER_CLASSNAME } from "./MultiToCLayout";
 import { DynamicTableOfContentsContext } from '@/components/common/sharedContexts';
 import { isLWorAF } from '@/lib/instanceSettings';
 import type { ToCData, ToCSection } from '@/lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
-import { HOVER_CLASSNAME } from './MultiToCLayout';
 
 const EMPTY_TOC_DATA: ToCData = {
   html: null,
@@ -144,7 +143,7 @@ function syncHeadingIdsToEditorDom(sections: ToCSection[]) {
 export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   title?: string,
   rightColumnChildren?: React.ReactNode,
-  children: React.ReactNode
+  children: React.ReactNode,
 }) => {
   const classes = useStyles(editorStyles);
   const [latestHtml, setLatestHtml] = useState<string | null>(null);
@@ -181,29 +180,23 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
 
   const displayedTitle = title || (resolvedSectionData.sections.length > 0 ? "Table of Contents" : "")
 
-  // On LW, we render a portal target div in the right column. PostForm will use
-  // createPortal to render the EditorSettingsSidebar into this target, since it needs
-  // access to the TanStack form API which is created inside PostForm.
-  const editorSidebarPortalTarget = useFixedPositionToc
-    ? <div id="editor-settings-portal" />
-    : undefined;
-  const effectiveRightColumnChildren = rightColumnChildren || editorSidebarPortalTarget;
+  const tableOfContents = <TableOfContents
+    sectionData={resolvedSectionData}
+    title={displayedTitle}
+    fixedPositionToc={true}
+  />;
 
-  return <div className={classNames({ [classes.editorLayout]: useFixedPositionToc })}>
+  return <div className={classNames(useFixedPositionToc && classes.editorLayout)}>
     <DynamicTableOfContentsContext.Provider value={context}>
-        <ToCColumn
-          tableOfContents={<TableOfContents
-          sectionData={resolvedSectionData}
-          title={displayedTitle}
-          fixedPositionToc={useFixedPositionToc}
-        />}
-        rightColumnChildren={effectiveRightColumnChildren}
-        notHideable
-      >
-        <div id={useFixedPositionToc ? "postContent" : undefined}>
-          {children}
-        </div>
-      </ToCColumn>
+      <MultiToCLayout
+        segments={[{
+          toc: tableOfContents,
+          centralColumn: <div id="postContent">{children}</div>,
+          rightColumn: rightColumnChildren,
+        }]}
+        tocRowMap={[0]}
+        tocContext="post"
+      />
     </DynamicTableOfContentsContext.Provider>
   </div>;
 }

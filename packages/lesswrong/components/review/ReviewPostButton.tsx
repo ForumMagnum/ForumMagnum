@@ -13,8 +13,8 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     fontSize: "1rem",
     color: theme.palette.lwTertiary.main,
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit*1.5,
+    marginLeft: 8,
+    marginRight: 12,
     cursor: "pointer",
     '&:hover': {
       opacity: .8

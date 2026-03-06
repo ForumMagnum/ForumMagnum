@@ -4,7 +4,6 @@ import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere,
 import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
-import { SHARE_POPUP_QUERY_PARAM, CENTRAL_COLUMN_WIDTH } from './PostsPage/constants';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';
@@ -27,6 +26,16 @@ import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
+import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
+import { hasSidenotes } from '@/lib/betas';
+import {
+  SHARE_POPUP_QUERY_PARAM,
+  CENTRAL_COLUMN_WIDTH,
+  RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+  RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+  RIGHT_COLUMN_WIDTH_XS,
+  sidenotesHiddenBreakpoint,
+} from './PostsPage/constants';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -115,6 +124,15 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
     display: "flex",
     flexWrap: "wrap",
     marginTop: 20
+  },
+  reserveSpaceForSidenotes: {
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+      [theme.breakpoints.down('xs')]: {
+        width: RIGHT_COLUMN_WIDTH_XS,
+      },
+    },
   },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
@@ -207,10 +225,22 @@ const PostsEditFormInner = ({ documentId, version }: {
 
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId
+  const rightColumnChildren = (hasSidenotes() || isEAForum()) ? <>
+    {/* On LW, we render a portal target div in the right column. PostForm will use
+    createPortal to render the EditorSettingsSidebar into this target, since it needs
+    access to the TanStack form API which is created inside PostForm. */}
+    <div id="editor-settings-portal" />
+    {hasSidenotes() && <>
+      <div className={classes.reserveSpaceForSidenotes}/>
+      <SideItemsSidebar />
+    </>}
+    {isEAForum() && <NewPostHowToGuides/>}
+  </> : undefined;
 
   return (<>
     <StatusCodeSetter status={200}/>
-    <DynamicTableOfContents title={liveTitle || document.title} rightColumnChildren={isEAForum() && <NewPostHowToGuides/>}>
+    <SideItemsContainer>
+    <DynamicTableOfContents title={liveTitle || document.title} rightColumnChildren={rightColumnChildren}>
       <div className={classes.postForm}>
         {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
@@ -250,6 +280,7 @@ const PostsEditFormInner = ({ documentId, version }: {
         </DeferRender>
       </div>
     </DynamicTableOfContents>
+    </SideItemsContainer>
   </>);
 }
 

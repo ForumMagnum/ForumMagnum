@@ -51,6 +51,9 @@ export const styles = (theme: ThemeType) => ({
   sectionTitle: {
     fontSize: 12,
   },
+  plainEditorContentStyles: {
+    marginTop: 0,
+  },
   markdownEditor: {
     fontSize: "inherit",
     fontFamily: "inherit",
@@ -144,7 +147,7 @@ export const styles = (theme: ThemeType) => ({
     overflowY: "scroll"
   },
   select: {
-    marginRight: theme.spacing.unit*1.5
+    marginRight: 12
   },
   placeholder: {
     position: "absolute",
@@ -174,7 +177,7 @@ export const styles = (theme: ThemeType) => ({
     flexGrow: 1,
   },
   markdownImgErrText: {
-    margin: `${theme.spacing.unit * 3}px 0`,
+    margin: `${24}px 0`,
     color: theme.palette.error.main,
   },
   // class for the animation transitions of the bot tips card
@@ -743,7 +746,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const value = contents.value || "";
     return <div>
       { this.renderPlaceholder(!value, false) }
-      <ContentStyles contentType={contentType}  className={classNames({[classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle})}>
+      <ContentStyles contentType={contentType} className={classNames(classes.plainEditorContentStyles, {
+        [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle
+      })}>
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles, [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle}
           )}

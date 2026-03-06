@@ -23,7 +23,7 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.small,
   },
   child: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     marginBottom: 6,
     borderLeft: theme.palette.border.commentBorder,
     borderTop: theme.palette.border.commentBorder,
@@ -46,7 +46,7 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
     border: theme.palette.border.answerBorder,
   },
   answerChildComment: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
     border: theme.palette.border.commentBorder,
   },
   childAnswerComment: {
@@ -74,7 +74,7 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
   },
   shortformTop: {
     '&&': {
-      marginTop: theme.isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+      marginTop: 32,
       marginBottom: 0,
     }
   },

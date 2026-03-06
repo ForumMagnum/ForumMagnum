@@ -1,6 +1,5 @@
 import React from 'react';
 import { useCurrentUser } from '../../common/withUser';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -43,7 +42,7 @@ const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
   if (comment.retracted) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Unretract Comment")}
+        title={"Unretract Comment"}
         onClick={handleUnretract}
         tooltip="Comment will be un-crossed-out, indicating you endorse it again."
       />
@@ -52,7 +51,7 @@ const RetractCommentDropdownItem = ({comment}: {comment: CommentsList}) => {
 
   return (
     <DropdownItem
-      title={preferredHeadingCase("Retract Comment")}
+      title={"Retract Comment"}
       onClick={handleRetract}
       tooltip="Comment will become crossed out, indicating you no longer endorse it."
     />

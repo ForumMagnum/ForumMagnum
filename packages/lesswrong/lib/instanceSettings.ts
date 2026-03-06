@@ -114,42 +114,6 @@ export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'Les
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
-/**
- * Name of the tagging feature on your site. The EA Forum is going to try
- * calling them topics. You should set this setting with the lowercase singular
- * form of the name. We assume this is a single word currently. Spaces will
- * cause issues.
- */
-export const taggingNameSetting = new PublicInstanceSetting<string>('taggingName', 'tag', 'optional')
-export const taggingNameCapitalSetting = {get: () => startCase(taggingNameSetting.get())}
-export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting.get())}
-export const taggingNamePluralCapitalSetting = {get: () => pluralize(startCase(taggingNameSetting.get()))}
-export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
-export const taggingNameIsPluralized = {get: () => !isLWorAF() && taggingNameIsSet.get()};
-export const taggingNameCapitalizedWithPluralizationChoice = { get: () => {
-  if (taggingNameIsPluralized.get()) {
-    return taggingNamePluralCapitalSetting.get();
-  }
-  return taggingNameCapitalSetting.get();
-}};
-
-/** 
- * If set, this defines the "path part" previously occupied by "tag" in tag-related urls.
- * This allows the url for tags to be something other than the tag name, e.g. LessWrong is setting this to "w".
- * External consumers should use `tagUrlBaseSetting`, which defaults to taggingNameSetting (with or without pluralization).
- */
-const taggingUrlCustomBaseSetting = new PublicInstanceSetting<string|null>('taggingUrlCustomBase', null, 'optional')
-export const tagUrlBaseSetting = {get: () => {
-  const customBase = taggingUrlCustomBaseSetting.get();
-  if (customBase) {
-    return customBase;
-  }
-  if (taggingNameIsPluralized.get()) {
-    return taggingNamePluralSetting.get();
-  }
-  return taggingNameSetting.get();
-}}
-
 // NB: Now that neither LW nor the EAForum use this setting, it's a matter of
 // time before it falls out of date. Nevertheless, I expect any newly-created
 // forums to use this setting.
@@ -248,8 +212,6 @@ export const recombeeDatabaseIdSetting = new PublicInstanceSetting<string | null
 export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.publicApiToken', null, "optional");
 export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");
 
-export const isDatadogEnabled = () => isEAForum();
-
 export type PostFeedDetails = {
   name: string,
   label: string,
@@ -303,8 +265,6 @@ export const airtableApiKeySetting = new PublicInstanceSetting<string | null>('a
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning");
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning");
 
-export const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional"); // Post ID for the first post in the EAHomeHandbook Sequence
-
 export const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional");
 
 export const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning"); // Post ID for the /faq route
@@ -312,13 +272,6 @@ export const contactPostIdSetting = new PublicInstanceSetting<string>('contactPo
 export const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional");
 
 export const instanceDebuggersSetting = new PublicInstanceSetting<string[]>('instanceDebuggers', [], 'optional');
-
-/** Path of the certificate file *relative* to the instance settings file (so we don't have to store the full cert in instance settings) */
-export const sslCAFileSetting = new PublicInstanceSetting<string | null>(
-  "analytics.caFilePath",
-  null,
-  "optional"
-);
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning");
@@ -405,10 +358,6 @@ export const elicitSourceId = new PublicInstanceSetting('elicitSourceId', 'XCjOp
 
 export const mapboxAPIKeySetting = new PublicInstanceSetting<string | null>('mapbox.apiKey', null, "optional"); // API Key for the mapbox map and tile requests
 
-export const mailchimpForumDigestListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.forumDigestListId', null, "optional");
-export const mailchimpEAForumListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.eaForumListId', null, "optional");
-export const mailchimpEAForumNewsletterListIdSetting = new PublicInstanceSetting<string | null>('mailchimp.eaNewsletterListId', null, "optional");
-
 export const isProductionDBSetting = new PublicInstanceSetting<boolean>('isProductionDB', false, "optional");
 
 export const showReviewOnFrontPageIfActive = new PublicInstanceSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true, "optional");
@@ -436,10 +385,6 @@ export const adminAccountSetting = new PublicInstanceSetting<AccountInfo | null>
 
 export const crosspostKarmaThreshold = new PublicInstanceSetting<number | null>('crosspostKarmaThreshold', 100, "optional");
 
-export const ddTracingSampleRate = new PublicInstanceSetting<number>('datadog.tracingSampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
-export const ddRumSampleRate = new PublicInstanceSetting<number>('datadog.rumSampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
-export const ddSessionReplaySampleRate = new PublicInstanceSetting<number>('datadog.sessionReplaySampleRate', 100, "optional"); // Sample rate for backend traces, between 0 and 100
-
 /** Will we show our logo prominently, such as in the header */
 export const hasProminentLogoSetting = new PublicInstanceSetting<boolean>("hasProminentLogo", false, "optional");
 
@@ -458,8 +403,6 @@ export const auth0ClientSettings = new PublicInstanceSetting<Auth0ClientSettings
 // Null means requests are disabled
 export const requestFeedbackKarmaLevelSetting = new PublicInstanceSetting<number | null>('post.requestFeedbackKarmaLevel', 100, "optional");
 
-export const alwaysShowAnonymousReactsSetting = new PublicInstanceSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true, "optional");
-
 export const showSubscribeReminderInFeed = new PublicInstanceSetting<boolean>('feed.showSubscribeReminder', true, "optional");
 
 export const hasGoogleDocImportSetting = new PublicInstanceSetting<boolean>('googleDocImport.enabled', false, "optional");
@@ -469,8 +412,6 @@ export const recombeeEnabledSetting = new PublicInstanceSetting<boolean>('recomb
 export const recommendationsTabManuallyStickiedPostIdsSetting = new PublicInstanceSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', [], "optional");
 
 export const blackBarTitle = new PublicInstanceSetting<string | null>('blackBarTitle', null, "optional");
-
-export const quickTakesTagsEnabledSetting = new PublicInstanceSetting<boolean>('quickTakes.tagsEnabled', false, "optional");
 
 /** Whether to show permalinked (?commentId=...) comments at the top of the page, vs scrolling to show them in context */
 export const commentPermalinkStyleSetting = new PublicInstanceSetting<'top' | 'in-context'>('commentPermalinkStyle', 'top', "optional");
@@ -524,9 +465,6 @@ export const eventBannerMobileImageSetting = new PublicInstanceSetting<string | 
 export const eventBannerDesktopImageSetting = new PublicInstanceSetting<string | null>('eventBannerDesktopImage', null, "optional");
 export const eventBannerLinkSetting = new PublicInstanceSetting<string | null>('eventBannerLink', null, "optional");
 
-export const buttonBurstSetting = new PublicInstanceSetting<boolean>("buttonBurst.enabled", false, "optional");
-export const buttonBurstImage = new PublicInstanceSetting<string>("buttonBurst.image", "https://res.cloudinary.com/cea/image/upload/w_256,h_256,q_40,f_auto,dpr_1/v1711484824/bulby-canonical.png", "optional");
-
 export const placeholderSetting = new PublicInstanceSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail", "optional");
 
 export const disableCookiePreferenceAutoUpdateSetting = new PublicInstanceSetting<boolean>('disableCookiePreferenceAutoUpdate', false, "optional");
@@ -573,26 +511,6 @@ export const cloudinaryUploadPresetEditorName = new PublicInstanceSetting<string
 export const timeDecayFactorSetting = new PublicInstanceSetting<number>('timeDecayFactor', 1.15, "optional");
 export const frontpageBonusSetting = new PublicInstanceSetting<number>('frontpageScoreBonus', 10, "optional");
 export const curatedBonusSetting = new PublicInstanceSetting<number>('curatedScoreBonus', 10, "optional");
-
-/**
- * We apply a score boost to subforum comments using the formula:
- *   max(b, m * (1 - ((x / d) ** p)))
- * where b is the base (the minimum boost received after the duration
- * has expired), m is the magnitude (the maximum boost when the comment
- * is first posted), d is the duration in hours, p is the exponent
- * (defining the dropoff curve), and x is the elapsed time since the
- * comment was posted in hours.
- */
-export const defaultSubforumCommentBonus = {
-  base: 5,
-  magnitude: 100,
-  duration: 8,
-  exponent: 0.3,
-} as const;
-
-export type SubforumCommentBonus = typeof defaultSubforumCommentBonus;
-
-export const subforumCommentBonusSetting = new PublicInstanceSetting<SubforumCommentBonus>('subforumCommentBonus', defaultSubforumCommentBonus, "optional");
 
 // EA Frontpage time decay algorithm settings
 export const startingAgeHoursSetting = new PublicInstanceSetting<number>('frontpageAlgorithm.startingAgeHours', 6, "optional");

@@ -34,17 +34,17 @@ const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({
   root: {
     maxWidth: 1200,
     margin: '0 auto',
-    padding: theme.spacing.unit * 3,
+    padding: 24,
   },
   searchContainer: {
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: 24,
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing.unit * 2,
+    gap: 16,
   },
   searchRow: {
     display: 'flex',
-    gap: theme.spacing.unit * 2,
+    gap: 16,
     alignItems: 'flex-end',
     flexWrap: 'wrap',
   },
@@ -59,34 +59,34 @@ const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({
     height: 36,
   },
   resultsContainer: {
-    marginTop: theme.spacing.unit * 3,
+    marginTop: 24,
   },
   loadingContainer: {
     display: 'flex',
     justifyContent: 'center',
-    padding: theme.spacing.unit * 4,
+    padding: 32,
   },
   errorMessage: {
     color: theme.palette.error.main,
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
   },
   noResultsMessage: {
-    padding: theme.spacing.unit * 4,
+    padding: 32,
     textAlign: 'center',
     color: theme.palette.grey[600],
   },
   commentWrapper: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
   },
   title: {
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: 24,
   },
   helpText: {
     color: theme.palette.grey[600],
     fontSize: '0.875rem',
   },
   resultCount: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
   },
   outlinedLabel: {
     backgroundColor: theme.palette.background.default,
@@ -94,13 +94,13 @@ const styles = defineStyles("CommentEmbeddingsPage", (theme: ThemeType) => ({
     paddingRight: 4,
   },
   sectionDivider: {
-    marginTop: theme.spacing.unit * 5,
-    marginBottom: theme.spacing.unit * 3,
+    marginTop: 40,
+    marginBottom: 24,
     borderTop: `1px solid ${theme.palette.grey[300]}`,
-    paddingTop: theme.spacing.unit * 3,
+    paddingTop: 24,
   },
   sectionTitle: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
   },
   commentIdInput: {
     width: 300,

@@ -324,8 +324,7 @@ async function fetchModeratorPosts(db: SqlClient) {
 }
 
 async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: number, showExpiredRateLimits: boolean, showNewUserRateLimits: boolean) {
-  const [activeRateLimitsData, activeRateLimitsCountResult] = await Promise.all([
-    db.manyOrNone<RateLimitRow>(`
+  const activeRateLimitsQuery = `
       WITH latest_events AS (
         SELECT DISTINCT ON (e."userId", e.properties->>'rateLimitType', e.properties->>'actionType')
           e."userId",
@@ -368,24 +367,52 @@ async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: numbe
           ) as "rateLimits"
         FROM filtered_limits fl
         GROUP BY fl."userId"
+      ),
+      users_with_profile AS (
+        SELECT
+          uwl."userId",
+          uwl."rateLimits",
+          uwl."mostRecentActivation",
+          u._id as "user__id",
+          u."displayName" as "user_displayName",
+          u.slug as "user_slug",
+          u."createdAt" as "user_createdAt",
+          u.karma as "user_karma",
+          u."postCount" as "user_postCount",
+          u."commentCount" as "user_commentCount"
+        FROM users_with_limits uwl
+        LEFT JOIN "Users" u ON uwl."userId" = u._id
+      ),
+      eligible_users AS (
+        SELECT
+          uwp.*
+        FROM users_with_profile uwp
+        WHERE $3 OR COALESCE(uwp."user_postCount", 0) + COALESCE(uwp."user_commentCount", 0) >= 5
+      ),
+      paginated_users AS (
+        SELECT
+          eu.*
+        FROM eligible_users eu
+        ORDER BY eu."mostRecentActivation" DESC
+        LIMIT $1 OFFSET $2
       )
       SELECT
         uwl."userId",
         uwl."rateLimits"::text as "rateLimits",
         uwl."mostRecentActivation",
-        u._id as "user__id",
-        u."displayName" as "user_displayName",
-        u.slug as "user_slug",
-        u."createdAt" as "user_createdAt",
-        u.karma as "user_karma",
-        u."postCount" as "user_postCount",
-        u."commentCount" as "user_commentCount"
-      FROM users_with_limits uwl
-      LEFT JOIN "Users" u ON uwl."userId" = u._id
-      ${!showNewUserRateLimits ? `WHERE COALESCE(u."postCount", 0) + COALESCE(u."commentCount", 0) >= 5` : ''}
+        uwl."user__id",
+        uwl."user_displayName",
+        uwl."user_slug",
+        uwl."user_createdAt",
+        uwl."user_karma",
+        uwl."user_postCount",
+        uwl."user_commentCount"
+      FROM paginated_users uwl
       ORDER BY uwl."mostRecentActivation" DESC
-      LIMIT $1 OFFSET $2
-    `, [limit, offset]),
+    `;
+
+  const [activeRateLimitsData, activeRateLimitsCountResult] = await Promise.all([
+    db.manyOrNone<RateLimitRow>(activeRateLimitsQuery, [limit, offset, showNewUserRateLimits]),
     db.one<{count: number}>(`
       WITH latest_events AS (
         SELECT DISTINCT ON (e."userId", e.properties->>'rateLimitType', e.properties->>'actionType')
@@ -436,19 +463,26 @@ async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: numbe
 async function fetchDeletedComments(db: SqlClient, limit: number, offset: number) {
   const [deletedCommentsData, deletedCommentsCountResult] = await Promise.all([
     db.manyOrNone<DeletedCommentRow>(`
+      WITH paginated_comments AS (
+        SELECT
+          c._id, c."userId", c."postId", c."deletedDate", c."deletedReason",
+          c."deletedPublic", c.contents, c."deletedByUserId"
+        FROM "Comments" c
+        WHERE c.deleted = TRUE AND c."deletedPublic" = TRUE
+        ORDER BY c."deletedDate" DESC NULLS LAST
+        LIMIT $1 OFFSET $2
+      )
       SELECT
         c._id, c."userId", c."postId", c."deletedDate", c."deletedReason",
         c."deletedPublic", c.contents,
         u._id as "user__id", u."displayName" as "user_displayName", u.slug as "user_slug",
         du._id as "deletedByUser__id", du."displayName" as "deletedByUser_displayName", du.slug as "deletedByUser_slug",
         p._id as "post__id", p.title as "post_title", p.slug as "post_slug"
-      FROM "Comments" c
+      FROM paginated_comments c
       LEFT JOIN "Users" u ON c."userId" = u._id
       LEFT JOIN "Users" du ON c."deletedByUserId" = du._id
       LEFT JOIN "Posts" p ON c."postId" = p._id
-      WHERE c.deleted = TRUE AND c."deletedPublic" = TRUE
       ORDER BY c."deletedDate" DESC NULLS LAST
-      LIMIT $1 OFFSET $2
     `, [limit, offset]),
     db.one<{count: number}>(`
       SELECT COUNT(*) as count
@@ -476,16 +510,22 @@ async function fetchDeletedComments(db: SqlClient, limit: number, offset: number
 async function fetchRejectedPosts(db: SqlClient, limit: number, offset: number) {
   const [rejectedPostsData, rejectedPostsCountResult] = await Promise.all([
     db.manyOrNone<RejectedPostRow>(`
+      WITH paginated_posts AS (
+        SELECT
+          p._id, p.title, p.slug, p."userId", p."postedAt", p."rejectedReason", p."reviewedByUserId"
+        FROM "Posts" p
+        WHERE p.rejected = TRUE
+        ORDER BY p."postedAt" DESC NULLS LAST
+        LIMIT $1 OFFSET $2
+      )
       SELECT
         p._id, p.title, p.slug, p."userId", p."postedAt", p."rejectedReason",
         u._id as "user__id", u."displayName" as "user_displayName", u.slug as "user_slug",
         ru._id as "reviewedByUser__id", ru."displayName" as "reviewedByUser_displayName", ru.slug as "reviewedByUser_slug"
-      FROM "Posts" p
+      FROM paginated_posts p
       LEFT JOIN "Users" u ON p."userId" = u._id
       LEFT JOIN "Users" ru ON p."reviewedByUserId" = ru._id
-      WHERE p.rejected = TRUE
       ORDER BY p."postedAt" DESC NULLS LAST
-      LIMIT $1 OFFSET $2
     `, [limit, offset]),
     db.one<{count: number}>(`
       SELECT COUNT(*) as count
@@ -511,18 +551,24 @@ async function fetchRejectedPosts(db: SqlClient, limit: number, offset: number) 
 async function fetchRejectedComments(db: SqlClient, limit: number, offset: number) {
   const [rejectedCommentsData, rejectedCommentsCountResult] = await Promise.all([
     db.manyOrNone<RejectedCommentRow>(`
+      WITH paginated_comments AS (
+        SELECT
+          c._id, c."userId", c."postId", c."postedAt", c."rejectedReason", c.contents, c."reviewedByUserId"
+        FROM "Comments" c
+        WHERE c.rejected = TRUE
+        ORDER BY c."postedAt" DESC NULLS LAST
+        LIMIT $1 OFFSET $2
+      )
       SELECT
         c._id, c."userId", c."postId", c."postedAt", c."rejectedReason", c.contents,
         u._id as "user__id", u."displayName" as "user_displayName", u.slug as "user_slug",
         ru._id as "reviewedByUser__id", ru."displayName" as "reviewedByUser_displayName", ru.slug as "reviewedByUser_slug",
         p._id as "post__id", p.title as "post_title", p.slug as "post_slug"
-      FROM "Comments" c
+      FROM paginated_comments c
       LEFT JOIN "Users" u ON c."userId" = u._id
       LEFT JOIN "Users" ru ON c."reviewedByUserId" = ru._id
       LEFT JOIN "Posts" p ON c."postId" = p._id
-      WHERE c.rejected = TRUE
       ORDER BY c."postedAt" DESC NULLS LAST
-      LIMIT $1 OFFSET $2
     `, [limit, offset]),
     db.one<{count: number}>(`
       SELECT COUNT(*) as count
@@ -549,6 +595,14 @@ async function fetchRejectedComments(db: SqlClient, limit: number, offset: numbe
 async function fetchPostsWithBannedUsers(db: SqlClient, limit: number, offset: number) {
   const [postsWithBannedUsersData, postsWithBannedUsersCountResult] = await Promise.all([
     db.manyOrNone<PostWithBannedUsersRow>(`
+      WITH paginated_posts AS (
+        SELECT
+          p._id, p.title, p.slug, p."userId", p."createdAt", p."bannedUserIds"
+        FROM "Posts" p
+        WHERE p."bannedUserIds" IS NOT NULL AND array_length(p."bannedUserIds", 1) > 0
+        ORDER BY p."createdAt" DESC
+        LIMIT $1 OFFSET $2
+      )
       SELECT
         p._id, p.title, p.slug, p."userId", p."createdAt", p."bannedUserIds",
         u._id as "user__id", u."displayName" as "user_displayName", u.slug as "user_slug",
@@ -557,11 +611,9 @@ async function fetchPostsWithBannedUsers(db: SqlClient, limit: number, offset: n
           FROM unnest(p."bannedUserIds") AS banned_id
           JOIN "Users" bu ON bu._id = banned_id
         ) as "bannedUsers"
-      FROM "Posts" p
+      FROM paginated_posts p
       LEFT JOIN "Users" u ON p."userId" = u._id
-      WHERE p."bannedUserIds" IS NOT NULL AND array_length(p."bannedUserIds", 1) > 0
       ORDER BY p."createdAt" DESC
-      LIMIT $1 OFFSET $2
     `, [limit, offset]),
     db.one<{count: number}>(`
       SELECT COUNT(*) as count
@@ -586,6 +638,15 @@ async function fetchPostsWithBannedUsers(db: SqlClient, limit: number, offset: n
 async function fetchUsersWithBannedUsers(db: SqlClient, limit: number, offset: number) {
   const [usersWithBannedUsersData, usersWithBannedUsersCountResult] = await Promise.all([
     db.manyOrNone<UserWithBannedUsersRow>(`
+      WITH paginated_users AS (
+        SELECT
+          u._id, u."displayName", u.slug, u."bannedUserIds", u."bannedPersonalUserIds", u."createdAt"
+        FROM "Users" u
+        WHERE (u."bannedUserIds" IS NOT NULL AND array_length(u."bannedUserIds", 1) > 0)
+           OR (u."bannedPersonalUserIds" IS NOT NULL AND array_length(u."bannedPersonalUserIds", 1) > 0)
+        ORDER BY u."createdAt" DESC
+        LIMIT $1 OFFSET $2
+      )
       SELECT
         u._id, u."displayName", u.slug, u."bannedUserIds", u."bannedPersonalUserIds",
         (
@@ -598,11 +659,8 @@ async function fetchUsersWithBannedUsers(db: SqlClient, limit: number, offset: n
           FROM unnest(u."bannedPersonalUserIds") AS personal_id
           JOIN "Users" bpu ON bpu._id = personal_id
         ) as "bannedPersonalUsers"
-      FROM "Users" u
-      WHERE (u."bannedUserIds" IS NOT NULL AND array_length(u."bannedUserIds", 1) > 0)
-         OR (u."bannedPersonalUserIds" IS NOT NULL AND array_length(u."bannedPersonalUserIds", 1) > 0)
+      FROM paginated_users u
       ORDER BY u."createdAt" DESC
-      LIMIT $1 OFFSET $2
     `, [limit, offset]),
     db.one<{count: number}>(`
       SELECT COUNT(*) as count

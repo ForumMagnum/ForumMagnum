@@ -11,10 +11,9 @@ import { getCommentEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditCommentTitle } from "@/components/editor/EditCommentTitle";
-import { FormComponentQuickTakesTags } from "@/components/form-components/FormComponentQuickTakesTags";
 import { commentAllowTitle } from "@/lib/collections/comments/helpers";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { quickTakesTagsEnabledSetting, isAF, isLWorAF } from "@/lib/instanceSettings";
+import { isAF, isLWorAF } from "@/lib/instanceSettings";
 import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
@@ -61,8 +60,8 @@ const CommentsListMutation = gql(`
 
 const formStyles = defineStyles('CommentForm', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
     ...isIfAnyoneBuildsItFrontPage( {
       background: theme.palette.editor.bannerAdBackground,
       color: theme.palette.text.bannerAdOverlay,
@@ -290,14 +289,12 @@ export const CommentForm = ({
     postId?: string;
     parentAnswerId?: string;
     debateResponse?: boolean;
-    forumEventId?: string;
     contents?: CreateRevisionDataInput;
     shortform?: boolean;
     shortformFrontpage?: boolean;
     relevantTagIds?: string[];
     nominatedForReview?: `${ReviewYear}`;
     reviewingForReview?: `${ReviewYear}`;
-    forumEventMetadata?: DbComment['forumEventMetadata'];
   }
   alignmentForumPost?: boolean;
   hideAlignmentForumCheckbox?: boolean;
@@ -522,16 +519,6 @@ export const CommentForm = ({
               <FormComponentCheckbox
                 field={field}
                 label="Pinned"
-              />
-            )}
-          </form.Field>
-        </div>}
-
-        {quickTakesTagsEnabledSetting.get() && form.state.values.shortform && <div className={classNames("form-input", "input-relevantTagIds", classes.fieldWrapper)}>
-          <form.Field name="relevantTagIds">
-            {(field) => (
-              <FormComponentQuickTakesTags
-                field={field}
               />
             )}
           </form.Field>

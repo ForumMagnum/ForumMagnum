@@ -9,10 +9,10 @@ import { useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("SettingsColumn", (theme: ThemeType) => ({
   selectionList: {
-    marginRight: theme.spacing.unit*2,
+    marginRight: 16,
     [theme.breakpoints.down('xs')]: {
-      marginTop: theme.spacing.unit,
-      flex: `1 0 calc(50% - ${theme.spacing.unit*4}px)`,
+      marginTop: 8,
+      flex: `1 0 calc(50% - ${32}px)`,
       order: 1
     }
   },
@@ -22,7 +22,7 @@ const styles = defineStyles("SettingsColumn", (theme: ThemeType) => ({
       display: "block",
       fontStyle: theme.isFriendlyUI ? undefined : "italic",
       fontWeight: theme.isFriendlyUI ? undefined : 600,
-      marginBottom: theme.spacing.unit/2
+      marginBottom: 4
     },
   },
   menuItem: {
@@ -31,7 +31,7 @@ const styles = defineStyles("SettingsColumn", (theme: ThemeType) => ({
       display: "block",
       cursor: "pointer",
       color: theme.palette.grey[500],
-      marginLeft: theme.spacing.unit*1.5,
+      marginLeft: 12,
       whiteSpace: "nowrap",
       '&:hover': {
         color: theme.palette.grey[600],

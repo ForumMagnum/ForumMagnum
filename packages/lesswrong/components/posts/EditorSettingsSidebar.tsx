@@ -3,11 +3,10 @@ import classNames from "classnames";
 import { EditablePost, PostSubmitMeta, userCanEditCoauthors, getPostCollaborateUrl } from "@/lib/collections/posts/helpers";
 import { postStatusLabels, MODERATION_GUIDELINES_OPTIONS } from "@/lib/collections/posts/constants";
 import { getDefaultEditorPlaceholder } from "@/lib/editor/defaultEditorPlaceholder";
-import { isEAForum, isLWorAF, taggingNamePluralCapitalSetting } from "@/lib/instanceSettings";
+import { isEAForum, isLWorAF } from "@/lib/instanceSettings";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { userCanUseSharing } from "@/lib/betas";
-import { preferredHeadingCase } from "@/themes/forumTheme";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { defaultSharingSettings } from "@/lib/collections/posts/collabEditingPermissions";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -35,6 +34,7 @@ import { userCanCommentLock } from "@/lib/collections/users/helpers";
 
 const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   root: {
+    zIndex: 1,
     width: 300,
     position: "fixed",
     top: "var(--editor-right-rail-top)",
@@ -919,7 +919,7 @@ const EditorSettingsSidebar = ({
           <form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting, draft: s.values.draft })}>
             {({ canSubmit, isSubmitting, draft }) => {
               const draftLabel = !draft ? "Move to Drafts" : "Save Draft";
-              const submitLabel = preferredHeadingCase(draft ? "Publish" : "Publish Changes");
+              const submitLabel = draft ? "Publish" : "Publish Changes";
 
               return isDialogue
                 ? <DialogueSubmit
@@ -975,7 +975,7 @@ const EditorSettingsSidebar = ({
 
       {mode === "settings" && <div className={classes.panel}>
         {canSeeTags && (
-          <AccordionSection title={taggingNamePluralCapitalSetting.get()} defaultOpen>
+          <AccordionSection title="Wikitags" defaultOpen>
             <form.Field name="tagRelevance">
               {() => (
                 <FooterTagList

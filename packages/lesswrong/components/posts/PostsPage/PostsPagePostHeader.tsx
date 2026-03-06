@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.isFriendlyUI ? 20 : theme.spacing.unit*2,
+    marginBottom: theme.isFriendlyUI ? 20 : 16,
   },
   headerLeft: {
     width: "100%"
@@ -120,7 +120,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   divider: {
-    marginTop: theme.spacing.unit*2,
+    marginTop: 16,
     marginLeft:0,
     borderTop: theme.palette.border.faint,
     borderLeft: 'transparent'

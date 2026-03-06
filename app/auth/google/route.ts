@@ -28,6 +28,6 @@ export async function GET(request: NextRequest) {
     cookieStore.set('google_oauth_return', returnTo, GOOGLE_OAUTH_COOKIE_SETTINGS);
   }
   
-  const authUrl = getGoogleAuthUrl(state);
+  const authUrl = getGoogleAuthUrl(request, state);
   return NextResponse.redirect(authUrl);
 }

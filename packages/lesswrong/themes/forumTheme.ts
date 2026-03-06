@@ -5,7 +5,6 @@ import { getSiteTheme } from './siteThemes/index';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import { forumSelect } from '../lib/forumTypeUtils';
-import capitalize from 'lodash/capitalize';
 import createBreakpoints from "@/lib/vendor/@material-ui/core/src/styles/createBreakpoints";
 
 export type SiteUIStyle = "book" | "friendly";
@@ -67,15 +66,13 @@ const buildTheme = (
   forumType: ForumTypeString,
   themeOptions: ThemeOptions,
 ): ThemeType => {
-  let shadePalette: ThemeShadePalette = baseTheme.shadePalette;
-  if (siteTheme.shadePalette) shadePalette = deepmerge(shadePalette, siteTheme.shadePalette);
-  if (userTheme.shadePalette) shadePalette = deepmerge(shadePalette, userTheme.shadePalette);
-  
-  let componentPalette: ThemeComponentPalette = baseTheme.componentPalette(shadePalette);
-  if (siteTheme.componentPalette) componentPalette = deepmerge(componentPalette, siteTheme.componentPalette(shadePalette));
-  if (userTheme.componentPalette) componentPalette = deepmerge(componentPalette, userTheme.componentPalette(shadePalette));
-  
-  let palette: ThemePalette = { ...deepmerge(shadePalette, componentPalette), shadePalette };
+  const dark = userTheme.dark ?? false;
+
+  let componentPalette: ThemeComponentPalette = baseTheme.componentPalette(dark);
+  if (siteTheme.componentPalette) componentPalette = deepmerge(componentPalette, siteTheme.componentPalette(dark));
+  if (userTheme.componentPalette) componentPalette = deepmerge(componentPalette, userTheme.componentPalette(dark));
+
+  const palette: ThemePalette = componentPalette;
   
   let combinedTheme = baseTheme.make(palette);
   if (siteTheme.make) combinedTheme = deepmerge(combinedTheme, siteTheme.make(palette));
@@ -90,9 +87,3 @@ const buildTheme = (
     breakpoints: createBreakpoints(),
   };
 }
-
-/**
- * Convert heading to sentence case in Friendly UI sites, leave as is on LW (will usually be "start case" e.g. "Set Topics").
- * In the event of edge cases (e.g. "EA Forum" -> "Ea forum"), it's probably best to do an inline forumTypeSetting check
- */
-export const preferredHeadingCase = (input: string) => isFriendlyUI() ? capitalize(input) : input;

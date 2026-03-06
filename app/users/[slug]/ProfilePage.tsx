@@ -13,7 +13,6 @@ import { getUserFromResults } from "@/components/users/UsersProfile";
 import { useCurrentUser } from "@/components/common/withUser";
 import classNames from "classnames";
 import { useStyles } from "@/components/hooks/useStyles";
-import Loading from "@/components/vulcan-core/Loading";
 import UserContentFeed from "@/components/users/UserContentFeed";
 import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContextProvider";
 import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";
@@ -26,208 +25,65 @@ import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
 import NewConversationButton from "@/components/messaging/NewConversationButton";
 import ContentStyles from "@/components/common/ContentStyles";
 import { ContentItemBody } from "@/components/contents/ContentItemBody";
-import SunshineNewUsersProfileInfo from "@/components/sunshineDashboard/SunshineNewUsersProfileInfo";
 import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
-import SupervisorAccountIcon from "@/lib/vendor/@material-ui/icons/src/SupervisorAccount";
+import VisibilityOutlinedIcon from "@/lib/vendor/@material-ui/icons/src/VisibilityOutlined";
 import { Link } from "@/lib/reactRouterWrapper";
-import moment from "moment";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from "@/lib/instanceSettings";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
 import { SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
-import { truncate } from "@/lib/editor/ellipsize";
 import ProfileDiamondSections from "./ProfileDiamondSections";
 import { profileStyles } from "./profileStyles";
 import Error404 from "@/components/common/Error404";
 import { StatusCodeSetter } from "@/components/next/StatusCodeSetter";
 import LoadMore from "@/components/common/LoadMore";
+import { UserProfileTopPostsSection } from "./UserProfileTopPostsSection";
+import { cssUrl, formatReadableDate, getCollapsedBioHtml, getListPostImageUrl, getPostSummary } from "./userProfilePageUtil";
 
-// ── Constants ──
+const ProfileUserQuery = gql(`
+  query ProfileUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
+    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UsersProfile
+      }
+      totalCount
+    }
+  }
+`);
 
+const ProfilePostsQuery = gql(`
+  query ProfilePostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...UserProfilePost
+      }
+      totalCount
+    }
+  }
+  fragment UserProfilePost on Post {
+    ...PostsMinimumInfo
+    baseScore postedAt
+    contents { plaintextDescription }
+  }
+`);
+
+const ProfileSequencesQuery = gql(`
+  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {
+    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+      results {
+        ...SequenceContinueReadingFragment
+      }
+      totalCount
+    }
+  }
+`);
+
+type ProfileTab = "posts" | "sequences" | "quickTakes" | "feed";
 const INITIAL_POSTS_TO_SHOW = 7;
-const TOP_POSTS_LIMIT = 4;
 const SEQUENCES_LIMIT = 6;
-const BIO_COLLAPSED_WORD_LIMIT = 60;
-const POST_SUMMARY_WORD_LIMIT = 50;
 const SORT_PANEL_CLOSE_MS = 300;
-const SEPARATOR_LINE_PATTERN = /^[\s\-_=*~]{8,}$/;
-
-const DEFAULT_PREVIEWS = [
-  "/profile-placeholder-1.png",
-  "/profile-placeholder-2.png",
-  "/profile-placeholder-3.png",
-  "/profile-placeholder-4.png",
-];
-
-// ── Helper functions ──
-
-// Post shape used by the profile page helper functions. Fields are optional
-// to accommodate the DeepPartialObject wrapper that useQuery applies.
-interface PostWithPreview {
-  _id: string;
-  slug: string;
-  title?: string | null;
-  shortform?: boolean | null;
-  baseScore?: number | null;
-  postedAt?: string | null;
-  contents?: { plaintextDescription?: string | null } | null;
-  socialPreviewData?: { imageUrl?: string | null } | null;
-}
-
-function hashString(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h);
-}
-
-function cleanPostPreviewText(rawText: string): string {
-  if (!rawText) return "";
-  const normalized = rawText.replace(/\r\n?/g, "\n");
-  const cleanedLines = normalized
-    .split("\n")
-    .map((line) => line.replace(/[^\S\n]+/g, " ").trim())
-    .map((line) => (SEPARATOR_LINE_PATTERN.test(line) ? "" : line));
-  return cleanedLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
-}
-
-function truncatePreviewTextByWords(text: string, wordLimit: number): string {
-  if (!text) return "";
-  const tokens = text.match(/\S+|\s+/g) ?? [];
-  let wordCount = 0;
-  let result = "";
-
-  for (const token of tokens) {
-    if (/^\s+$/.test(token)) {
-      result += token;
-      continue;
-    }
-
-    if (wordCount >= wordLimit) {
-      return `${result.trimEnd()}...`;
-    }
-
-    result += token;
-    wordCount += 1;
-  }
-
-  return result.trimEnd();
-}
-
-function collapsePreviewParagraphsForList(text: string): string {
-  if (!text) return "";
-  // Flatten paragraph/line breaks for list items while leaving visible
-  // separation where breaks used to be.
-  return text.replace(/\n+/g, "   ").replace(/ {4,}/g, "   ").trim();
-}
-
-function getPostSummary(post: { contents?: { plaintextDescription?: string | null } | null }): string {
-  const fullSummary = cleanPostPreviewText(post?.contents?.plaintextDescription ?? "");
-  const singleParagraphSummary = collapsePreviewParagraphsForList(fullSummary);
-  return truncatePreviewTextByWords(singleParagraphSummary, POST_SUMMARY_WORD_LIMIT);
-}
-
-function getTopPostSummary(post: { contents?: { plaintextDescription?: string | null } | null }): string {
-  return cleanPostPreviewText(post?.contents?.plaintextDescription ?? "");
-}
-
-function getDefaultPreview(postId: string): string {
-  return DEFAULT_PREVIEWS[hashString(postId) % DEFAULT_PREVIEWS.length];
-}
-
-// When posts lack a social preview image, we show placeholder images instead.
-// This shuffles the placeholders deterministically (seeded by the first post's
-// ID) so each user's profile gets a consistent but varied arrangement -- the
-// same user always sees the same placeholders, but different profiles differ.
-function buildTopPostDefaultImages(topPosts: ReadonlyArray<PostWithPreview>): string[] {
-  const seed = hashString(topPosts[0]?._id ?? "seed");
-  const arr = [...DEFAULT_PREVIEWS];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = (seed + (i * 2654435761)) % (i + 1);
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-function getPostImageUrl(
-  post: PostWithPreview,
-  topPostDefaultImages: string[],
-  topPostIndex?: number,
-): string {
-  const fallback = topPostIndex !== undefined
-    ? topPostDefaultImages[topPostIndex % topPostDefaultImages.length]
-    : getDefaultPreview(post?._id ?? "0");
-  const url = post?.socialPreviewData?.imageUrl;
-  const trimmedUrl = url?.trim();
-  if (!trimmedUrl) return fallback;
-  if (trimmedUrl === "null" || trimmedUrl === "undefined") return fallback;
-  // Google-hosted images (Docs embeds, profile photos) don't render well as
-  // post preview cards, so fall back to a placeholder instead
-  if (trimmedUrl.includes("lh3.googleusercontent.com") || trimmedUrl.includes("docs.google.com")) {
-    return fallback;
-  }
-  if (trimmedUrl.includes("res.cloudinary.com") && trimmedUrl.includes("/upload/")) {
-    // Some legacy posts have an empty cloudinary public ID, which yields
-    // URLs like `.../upload/.../` that render as broken images.
-    const urlWithoutQuery = trimmedUrl.split(/[?#]/)[0];
-    if (urlWithoutQuery.endsWith("/")) return fallback;
-    return trimmedUrl.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
-  }
-  return trimmedUrl;
-}
-
-function getPostBackgroundImage(
-  post: PostWithPreview,
-  topPostDefaultImages: string[],
-  topPostIndex?: number,
-): string {
-  const fallback = topPostIndex !== undefined
-    ? topPostDefaultImages[topPostIndex % topPostDefaultImages.length]
-    : getDefaultPreview(post?._id ?? "0");
-  const imageUrl = getPostImageUrl(post, topPostDefaultImages, topPostIndex);
-  if (imageUrl === fallback) return cssUrl(fallback);
-  // Keep a fallback layer so broken/404 primary URLs still render a placeholder.
-  return `${cssUrl(imageUrl)}, ${cssUrl(fallback)}`;
-}
-
-function cssUrl(url: string): string {
-  // Use double-quoted CSS url(...) with JS escaping to avoid breakage from apostrophes.
-  return `url(${JSON.stringify(url)})`;
-}
-
-function getListPostImageUrl(post: PostWithPreview): string | null {
-  const rawUrl = post?.socialPreviewData?.imageUrl;
-  const imageUrl = rawUrl?.trim();
-  if (!imageUrl || imageUrl === "null" || imageUrl === "undefined") return null;
-  // List items should only show explicit per-post images, not placeholders.
-  if (imageUrl.includes("/profile-placeholder-")) return null;
-  if (imageUrl.includes("lh3.googleusercontent.com") || imageUrl.includes("docs.google.com")) {
-    return null;
-  }
-  if (imageUrl.includes("res.cloudinary.com") && imageUrl.includes("/upload/")) {
-    const urlWithoutQuery = imageUrl.split(/[?#]/)[0];
-    if (urlWithoutQuery.endsWith("/")) return null;
-    return imageUrl.replace("/upload/", "/upload/c_fill,g_auto,f_auto,q_auto/");
-  }
-  return imageUrl;
-}
-
-function formatReadableDate(date: Date | string): string {
-  const m = moment(new Date(date));
-  if (m.year() === moment().year()) {
-    return m.format("MMM D");
-  }
-  return m.format("MMM D, YYYY");
-}
-
-function getCollapsedBioHtml(htmlBio: string, wordLimit: number): string {
-  return truncate(htmlBio, wordLimit, "words");
-}
-
-type ProfileTab = "posts" | "sequences" | "feed";
 
 function parseProfileTab(value: unknown): ProfileTab | null {
-  if (value === "posts" || value === "sequences" || value === "feed") {
+  if (value === "posts" || value === "sequences" || value === "quickTakes" || value === "feed") {
     return value;
   }
   return null;
@@ -237,13 +93,16 @@ function getInitialProfileTab({
   preferredTab,
   hasPosts,
   hasSequences,
+  hasQuickTakes,
 }: {
   preferredTab: ProfileTab | null;
   hasPosts: boolean;
   hasSequences: boolean;
+  hasQuickTakes: boolean;
 }): ProfileTab {
   if (preferredTab === "sequences" && hasSequences) return "sequences";
   if (preferredTab === "posts" && hasPosts) return "posts";
+  if (preferredTab === "quickTakes" && hasQuickTakes) return "quickTakes";
   if (preferredTab === "feed") return "feed";
   if (!hasPosts) return "feed";
   return "posts";
@@ -280,40 +139,6 @@ function toggleSortPanel(
     setSortPanelOpen(true);
   }
 }
-
-const ProfileUserQuery = gql(`
-  query ProfileUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
-    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...UsersProfile
-      }
-      totalCount
-    }
-  }
-`);
-
-const ProfilePostsQuery = gql(`
-  query ProfilePostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
-    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...PostsList
-      }
-      totalCount
-    }
-  }
-`);
-
-const ProfileSequencesQuery = gql(`
-  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {
-    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
-      results {
-        ...SequenceContinueReadingFragment
-      }
-      totalCount
-    }
-  }
-`);
-
 export default function ProfilePage({slug}: {
   slug: string
 }) {
@@ -339,7 +164,7 @@ export default function ProfilePage({slug}: {
 
   return <>
     <StatusCodeSetter status={200}/>
-    <ProfilePageInner user={user} />;
+    <ProfilePageInner user={user} />
   </>
 }
 
@@ -353,16 +178,17 @@ function ProfilePageInner({user}: {
   const hasPosts = user.postCount > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
   const hasSequences = user.sequenceCount > 0;
+  const hasQuickTakes = !!user.shortformFeedId;
 
   const [activeTab, setActiveTab] = useState<ProfileTab>(getInitialProfileTab({
     preferredTab: parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]),
     hasPosts: user.postCount > 0,
     hasSequences: user.sequenceCount > 0,
+    hasQuickTakes,
   }));
 
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
   const [sortPanelClosing, setSortPanelClosing] = useState(false);
-  const [showModerationTools, setShowModerationTools] = useState(false);
   const [sortBy, setSortBy] = useState<AllPostsTabSortingMode>("new");
   const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -376,7 +202,6 @@ function ProfilePageInner({user}: {
   const bioNoFollow = user.karma < nofollowKarmaThreshold.get();
 
   const currentUser = useCurrentUser();
-  const canModerateUserProfile = userIsAdminOrMod(currentUser);
 
   return (
     <div className={classes.page}>
@@ -391,22 +216,10 @@ function ProfilePageInner({user}: {
               />
             </h1>
             <Suspense>
-              <ProfileHeaderActions
-                user={user}
-                showModerationTools={showModerationTools}
-                setShowModerationTools={setShowModerationTools}
-              />
+              <ProfileHeaderActions user={user} />
             </Suspense>
           </div>
-          {canModerateUserProfile && showModerationTools && <div className={classes.sunshineToolsSection}>
-            <Suspense fallback={<Loading/>}>
-              <SunshineNewUsersProfileInfo userId={userId} startExpanded />
-            </Suspense>
-          </div>}
-
-          {!user.hideProfileTopPosts && <Suspense>
-            <UserProfileTopPostsSection user={user}/>
-          </Suspense>}
+          {!user.hideProfileTopPosts && <UserProfileTopPostsSection user={user}/>}
 
           <Suspense>
             <ProfilePageMobileBio user={user} bioNoFollow={bioNoFollow}/>
@@ -423,7 +236,7 @@ function ProfilePageInner({user}: {
                     type="button"
                     onClick={() => handleTabSwitch("posts")}
                   >
-                    All posts
+                    Posts
                   </button>
                   {hasSequences && (
                     <button
@@ -435,13 +248,23 @@ function ProfilePageInner({user}: {
                       Sequences
                     </button>
                   )}
+                  {hasQuickTakes && (
+                    <button
+                      className={classNames(classes.profileTab, activeTab === "quickTakes" && classes.profileTabActive)}
+                      data-tab="quickTakes"
+                      type="button"
+                      onClick={() => handleTabSwitch("quickTakes")}
+                    >
+                      Quick takes
+                    </button>
+                  )}
                   <button
                     className={classNames(classes.profileTab, activeTab === "feed" && classes.profileTabActive)}
                     data-tab="feed"
                     type="button"
                     onClick={() => handleTabSwitch("feed")}
                   >
-                    Feed
+                    All
                   </button>
                 </div>
                 {((activeTab === "posts" && hasPosts) || (activeTab === "feed" && hasFeedContent) || activeTab === "sequences") && (
@@ -475,6 +298,15 @@ function ProfilePageInner({user}: {
               </div>
 
               <div className={classNames(
+                classes.tabPanel,
+                activeTab === "quickTakes" && classes.tabPanelActive
+              )}>
+                {activeTab === "quickTakes" && <Suspense>
+                  <ProfilePageQuickTakesTab user={user} />
+                </Suspense>}
+              </div>
+
+              <div className={classNames(
                 classes.feedList,
                 classes.tabPanel,
                 activeTab === "feed" && classes.tabPanelActive
@@ -496,127 +328,8 @@ function ProfilePageInner({user}: {
   );
 }
 
-function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
-  const classes = useStyles(profileStyles);
-  const userId = user._id;
-  const pinnedPostIds = user.pinnedPostIds ?? [];
-  const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
-
-  const { data: pinnedPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !hasPinnedPosts,
-    variables: {
-      selector: hasPinnedPosts ? { default: { exactPostIds: pinnedPostIds } } : undefined,
-      limit: TOP_POSTS_LIMIT,
-      enableTotal: false,
-    },
-    fetchPolicy: "cache-and-network",
-  });
-  const { data: topPostsData } = useQuery(ProfilePostsQuery, {
-    skip: !!hasPinnedPosts,
-    variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } } : undefined,
-      limit: TOP_POSTS_LIMIT,
-      enableTotal: false,
-    },
-    fetchPolicy: "cache-and-network",
-  });
-
-
-  // When using pinnedPostIds, reorder results to match the pinned order.
-  // The PostsList fragment guarantees all PostWithPreview fields exist at
-  // runtime, but useQuery wraps them in DeepPartialObject which makes
-  // every field optional. We narrow once here so helper functions get
-  // properly typed inputs.
-  const pinnedResults = (pinnedPostsData?.posts?.results ?? []) as PostWithPreview[];
-  const topResults = (topPostsData?.posts?.results ?? []) as PostWithPreview[];
-  const topPosts = hasPinnedPosts
-    ? pinnedPostIds.map(id => pinnedResults.find(p => p._id === id)).filter((p): p is PostWithPreview => !!p)
-    : topResults;
-  const topPost = topPosts[0];
-  const smallArticles = topPosts.slice(1, TOP_POSTS_LIMIT);
-  const topPostDefaultImages = buildTopPostDefaultImages(topPosts);
-  const hasEnoughTopPosts = topPosts.length >= 4;
-
-  if (!hasEnoughTopPosts) return null;
-
-  return (
-    <>
-      <div className={classes.topPostsIndicator}>
-        <LWTooltip title="Based on karma" placement="bottom">
-          <span className={classNames(classes.topPostsLabel, classes.topPostsLabelPlural)}>Top posts</span>
-          <span className={classNames(classes.topPostsLabel, classes.topPostsLabelSingular)}>Top post</span>
-        </LWTooltip>
-      </div>
-
-      {topPost && topPost.slug && (
-        <Link
-          to={postGetPageUrl(topPost)}
-          className={classNames(classes.postArticle, classes.postArticleTop)}
-        >
-          <div className={classes.postContent}>
-            <h2 className={classNames(classes.postTitle, classes.topPostTitle)}>
-              {topPost.title}
-            </h2>
-            <div className={classes.postSummaryWrapper}>
-              <p className={classes.postSummary}>{getTopPostSummary(topPost)}</p>
-            </div>
-            <div className={classes.postMetaBar}>
-              <LWTooltip title="Karma score">
-                <span className={classes.karmaScore}>{topPost.baseScore ?? 0}</span>
-              </LWTooltip>
-              <LWTooltip title={<ExpandedDate date={topPost.postedAt!} />}>
-                <span className={classes.postDate}>{formatReadableDate(topPost.postedAt!)}</span>
-              </LWTooltip>
-            </div>
-          </div>
-          <div
-            className={classes.postImage}
-            style={{
-              backgroundImage: getPostBackgroundImage(topPost, topPostDefaultImages, 0),
-            }}
-          ></div>
-        </Link>
-      )}
-
-      <div className={classes.smallArticlesGrid}>
-        {smallArticles.map((post, idx) => {
-          const imageBackground = getPostBackgroundImage(post, topPostDefaultImages, idx + 1);
-          return (
-            <article key={post._id} className={classes.smallArticle}>
-              <Link
-                to={postGetPageUrl(post)}
-                className={classes.articleLink}
-              >
-                <div
-                  className={classes.smallArticleImage}
-                  style={{ backgroundImage: imageBackground }}
-                ></div>
-                <div className={classes.smallArticleContent}>
-                  <h3 className={classes.smallArticleTitle}>
-                    {post.title}
-                  </h3>
-                  <div className={classes.smallArticleMeta}>
-                    <LWTooltip title="Karma score">
-                      <span className={classes.smallKarma}>{post.baseScore ?? 0}</span>
-                    </LWTooltip>
-                    <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
-                      <span className={classes.smallDate}>{formatReadableDate(post.postedAt!)}</span>
-                    </LWTooltip>
-                  </div>
-                </div>
-              </Link>
-            </article>
-          );
-        })}
-      </div>
-    </>
-  )
-}
-
-function ProfileHeaderActions({user, showModerationTools, setShowModerationTools}: {
+function ProfileHeaderActions({user}: {
   user: UsersProfile
-  showModerationTools: boolean
-  setShowModerationTools: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const classes = useStyles(profileStyles);
   const currentUser = useCurrentUser();
@@ -640,16 +353,14 @@ function ProfileHeaderActions({user, showModerationTools, setShowModerationTools
         </LWTooltip>
       )}
       {canModerateUserProfile && (
-        <LWTooltip title={showModerationTools ? "Hide moderation tools" : "Show moderation tools"} placement="bottom">
-          <button
-            type="button"
-            className={classes.profileActionIconButton}
-            aria-label={showModerationTools ? "Hide moderation tools" : "Show moderation tools"}
-            aria-expanded={showModerationTools}
-            onClick={() => setShowModerationTools((open) => !open)}
+        <LWTooltip title="Supermod page" placement="bottom">
+          <Link
+            to={`/admin/supermod?user=${user._id}`}
+            className={classes.profileActionIconLink}
+            aria-label={`${username}'s supermod page`}
           >
-            <SupervisorAccountIcon className={classes.profileActionIcon} />
-          </button>
+            <VisibilityOutlinedIcon className={classes.profileActionIcon} />
+          </Link>
         </LWTooltip>
       )}
     </div>
@@ -667,7 +378,7 @@ function ProfilePageSidebar({user, bioNoFollow}: {
   const [bioExpanded, setBioExpanded] = useState(false);
   const bioHtml = user?.htmlBio ?? "";
   const hasBio = !!bioHtml;
-  const collapsedBioHtml = getCollapsedBioHtml(bioHtml, BIO_COLLAPSED_WORD_LIMIT);
+  const collapsedBioHtml = getCollapsedBioHtml(bioHtml);
   const displayBioHtml = bioExpanded ? bioHtml : collapsedBioHtml;
   const showBioExpand = !!bioHtml && collapsedBioHtml !== bioHtml;
 
@@ -746,7 +457,7 @@ function ProfilePageMobileBio({user, bioNoFollow}: {
 
   const [bioExpanded, setBioExpanded] = useState(false);
   const bioHtml = user?.htmlBio ?? "";
-  const collapsedBioHtml = getCollapsedBioHtml(bioHtml, BIO_COLLAPSED_WORD_LIMIT);
+  const collapsedBioHtml = getCollapsedBioHtml(bioHtml);
   const displayBioHtml = bioExpanded ? bioHtml : collapsedBioHtml;
   const showBioExpand = !!bioHtml && collapsedBioHtml !== bioHtml;
 
@@ -1060,10 +771,30 @@ function ProfilePageFeedTab({user, sortPanelOpen, sortPanelClosing}: {
       <UltraFeedContextProvider openInNewTab={true}>
         <UltraFeedObserverProvider incognitoMode={false}>
           <OverflowNavObserverProvider>
-            <UserContentFeed userId={user._id} externalSortMode={feedSortBy} externalFilter={feedFilter} />
+            <div className={classes.profileFeedTopMargin}>
+              <UserContentFeed userId={user._id} externalSortMode={feedSortBy} externalFilter={feedFilter} />
+            </div>
           </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
       </UltraFeedContextProvider>
     )}
   </>
+}
+
+function ProfilePageQuickTakesTab({user}: {
+  user: UsersProfile,
+}) {
+  const classes = useStyles(profileStyles);
+
+  return (
+    <UltraFeedContextProvider openInNewTab={true}>
+      <UltraFeedObserverProvider incognitoMode={false}>
+        <OverflowNavObserverProvider>
+          <div className={classes.profileFeedTopMargin}>
+            <UserContentFeed userId={user._id} externalSortMode="recent" externalFilter="quickTakes" removeSideMargins={true} />
+          </div>
+        </OverflowNavObserverProvider>
+      </UltraFeedObserverProvider>
+    </UltraFeedContextProvider>
+  );
 }

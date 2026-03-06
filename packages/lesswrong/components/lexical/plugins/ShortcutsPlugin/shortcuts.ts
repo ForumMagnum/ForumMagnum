@@ -147,6 +147,11 @@ export function isCapitalize(event: KeyboardEvent): boolean {
   );
 }
 
+export function isUnderline(event: KeyboardEvent): boolean {
+  const {code} = event;
+  return code === 'KeyU' && isModifierMatch(event, CONTROL_OR_META);
+}
+
 export function isStrikeThrough(event: KeyboardEvent): boolean {
   const {code} = event;
   return (

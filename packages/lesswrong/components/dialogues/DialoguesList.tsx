@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   subsection: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   prompt: {
     color: theme.palette.lwTertiary.main,

@@ -2,7 +2,7 @@ import React, { type JSX, useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
 import { LexicalEditor } from 'lexical';
-import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode';
+import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/extension';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
@@ -10,6 +10,7 @@ import { INSERT_FOOTNOTE_COMMAND } from '@/components/editor/lexicalPlugins/foot
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import { InsertImageDialog } from '../ImagesPlugin';
 import { FileImageIcon } from '../../icons/FileImageIcon';
+import { useDialog } from '@/components/common/withDialog';
 import { TableIcon } from '../../icons/TableIcon';
 import { HorizontalRuleIcon } from '../../icons/HorizontalRuleIcon';
 import { PlusSlashMinusIcon } from '../../icons/PlusSlashMinusIcon';
@@ -67,10 +68,6 @@ const styles = defineStyles('LexicalBlockInsertToolbar', (theme: ThemeType) => (
   },
 }));
 
-type ShowModal = (
-  title: string,
-  showModal: (onClose: () => void) => JSX.Element,
-) => void;
 
 function positionToolbar(
   buttonElem: HTMLElement,
@@ -98,7 +95,6 @@ interface BlockInsertToolbarProps {
   anchorElem: HTMLElement;
   buttonElem: HTMLElement;
   onClose: () => void;
-  showModal: ShowModal;
   insertClaim: (() => void) | null;
 }
 
@@ -107,11 +103,11 @@ function BlockInsertToolbar({
   anchorElem,
   buttonElem,
   onClose,
-  showModal,
   insertClaim,
 }: BlockInsertToolbarProps): JSX.Element {
   const classes = useStyles(styles);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
+  const { openDialog } = useDialog();
 
   const updatePosition = useCallback(() => {
     const toolbarElem = toolbarRef.current;
@@ -178,9 +174,12 @@ function BlockInsertToolbar({
       type="button"
       onClick={() =>
         handleItemClick(() =>
-          showModal('Insert Image', (onCloseModal) => (
-            <InsertImageDialog activeEditor={editor} onClose={onCloseModal} />
-          )),
+          openDialog({
+            name: 'InsertImageDialog',
+            contents: ({ onClose }) => (
+              <InsertImageDialog activeEditor={editor} onClose={onClose} />
+            ),
+          }),
         )
       }
       className={classes.popupItem}
@@ -308,7 +307,6 @@ interface BlockInsertToolbarPluginProps {
   anchorElem: HTMLElement;
   buttonElem: HTMLElement;
   onClose: () => void;
-  showModal: ShowModal;
   insertClaim: (() => void) | null;
 }
 
@@ -317,7 +315,6 @@ export default function BlockInsertToolbarPlugin({
   anchorElem,
   buttonElem,
   onClose,
-  showModal,
   insertClaim,
 }: BlockInsertToolbarPluginProps): JSX.Element {
   return createPortal(
@@ -326,7 +323,6 @@ export default function BlockInsertToolbarPlugin({
       anchorElem={anchorElem}
       buttonElem={buttonElem}
       onClose={onClose}
-      showModal={showModal}
       insertClaim={insertClaim}
     />,
     anchorElem,

@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     [theme.breakpoints.down('xs')]: {
-      marginBottom: theme.spacing.unit*2,
+      marginBottom: 16,
       flex: `1 0 100%`,
       order: 0
     }

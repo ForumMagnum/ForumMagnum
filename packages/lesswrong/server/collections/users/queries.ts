@@ -78,11 +78,6 @@ export const graphqlUserQueryTypeDefs = gql`
     slug: String
   }
   
-  input UsersTagCommunityMembersInput {
-    hasBio: Boolean
-    profileTagId: String
-  }
-  
   input UserSelector {
     default: EmptyViewInput
     usersByUserIds: UsersUsersByUserIdsInput
@@ -95,7 +90,6 @@ export const graphqlUserQueryTypeDefs = gql`
     recentlyActive: EmptyViewInput
     allUsers: EmptyViewInput
     usersMapLocations: EmptyViewInput
-    tagCommunityMembers: UsersTagCommunityMembersInput
     reviewAdminUsers: EmptyViewInput
     usersWithPaymentInfo: EmptyViewInput
     usersWithOptedInToDialogueFacilitation: EmptyViewInput

@@ -34,9 +34,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     color: `${theme.palette.ultraFeed.dim} !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
-    },
     "& > *": {
     },
     "& a:hover, & a:active": {
@@ -85,7 +82,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     width: 13,
     height: 13,
     marginLeft: -2,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     position: "relative",
     top: 2
   },
@@ -172,9 +169,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
-    },
     backgroundColor: 'transparent',
     transition: 'background-color 1.5s ease-out',
     padding: '4px 0px',

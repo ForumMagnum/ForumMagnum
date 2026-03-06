@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
   hoverInfo: {
     position: "relative",
     backgroundColor: theme.palette.grey[50],
-    padding: theme.spacing.unit*2,
+    padding: 16,
     border: theme.palette.border.faint,
     boxShadow: theme.palette.boxShadow.sunshineSidebarHoverInfo,
     overflow: "hidden",

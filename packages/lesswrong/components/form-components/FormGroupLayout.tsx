@@ -7,17 +7,17 @@ const styles = (theme: ThemeType) => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
     border: theme.palette.border.grey300,
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
     background: theme.palette.background.pageActiveAreaBackground,
     ...(theme.isFriendlyUI ? {borderRadius: 6} : {})
   },
   formSectionBody: {
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
   formSectionPadding: {
-    paddingRight: theme.spacing.unit*2,
-    paddingLeft: theme.spacing.unit*2,
+    paddingRight: 16,
+    paddingLeft: 16,
   },
   formSectionCollapsed: {
     display: "none",

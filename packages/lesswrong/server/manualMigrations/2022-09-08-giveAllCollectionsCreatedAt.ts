@@ -1,7 +1,6 @@
 import { registerMigration, migrateDocuments } from "./migrationUtils";
 import { DatabaseMetadata } from "../../server/collections/databaseMetadata/collection";
 import { EmailTokens } from "../../server/collections/emailTokens/collection";
-import FeaturedResources from "../../server/collections/featuredResources/collection";
 import LegacyData from "../../server/collections/legacyData/collection";
 import Podcasts from "../../server/collections/podcasts/collection";
 import PodcastEpisodes from "../../server/collections/podcastEpisodes/collection";
@@ -10,6 +9,7 @@ import Migrations from "../../server/collections/migrations/collection";
 import ReadStatuses from "../../server/collections/readStatus/collection";
 import { Votes } from "../../server/collections/votes/collection";
 import Revisions from "../../server/collections/revisions/collection";
+import { getCollection } from "../collections/allCollections";
 
 const initCreatedAt = <N extends CollectionNameString>(
   collection: CollectionBase<N>,
@@ -62,7 +62,7 @@ export default registerMigration({
   idempotent: true,
   action: async () => {
     await initCreatedAt(DatabaseMetadata);
-    await initCreatedAt(FeaturedResources);
+    await initCreatedAt(getCollection("FeaturedResources" as CollectionNameString));
     await initCreatedAt(LegacyData);
     await initCreatedAt(PodcastEpisodes);
     await initCreatedAt(Podcasts);

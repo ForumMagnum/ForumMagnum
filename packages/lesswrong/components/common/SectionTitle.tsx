@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: theme.spacing.unit*3,
+    marginTop: 24,
     paddingBottom: 8,
   },
   noTopMargin: {

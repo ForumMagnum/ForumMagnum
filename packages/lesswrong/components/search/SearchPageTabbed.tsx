@@ -1,12 +1,10 @@
 "use client";
-
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info';
@@ -133,7 +131,6 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
       borderStyle: "none",
       boxShadow: "none",
       backgroundColor: "transparent",
-      fontSize: 'inherit',
       "-webkit-appearance": "none",
       cursor: "text",
       ...theme.typography.body2,
@@ -400,7 +397,7 @@ const SearchPageTabbed = () => {
             </div>
           </div>
           <LWTooltip
-            title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or ${taggingNameSetting.get()}:"Expected value" to filter by user or ${taggingNameSetting.get()}.`}
+            title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or wikitag:"Expected value" to filter by user or wikitag.`}
             className={classes.searchHelp}
           >
             <InfoIcon className={classes.infoIcon}/>
@@ -439,7 +436,7 @@ const SearchPageTabbed = () => {
         >
           <Tab label="Posts" value="Posts" />
           <Tab label="Comments" value="Comments" />
-          <Tab label={taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'} value="Tags" />
+          <Tab label="Wikitags" value="Tags" />
           <Tab label="Sequences" value="Sequences" />
           <Tab label="Users" value="Users" />
         </Tabs>

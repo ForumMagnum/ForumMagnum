@@ -1,10 +1,11 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import { IS_APPLE, mergeRegister } from '@lexical/utils'
-import type { LexicalEditor, NodeKey } from 'lexical'
+import { $findMatchingParent, IS_APPLE, mergeRegister } from '@lexical/utils'
+import type { ElementNode, LexicalEditor, NodeKey } from 'lexical'
 import {
   $getNodeByKey,
   $getSelection,
   $isNodeSelection,
+  $isParagraphNode,
   $isRangeSelection,
   $isRootOrShadowRoot,
   $isTextNode,
@@ -31,20 +32,21 @@ import { ProtonNode, $isSuggestionNode } from './ProtonNode'
 import { SuggestionTypesThatCanBeEmpty, type SuggestionID } from './Types'
 import { BEFOREINPUT_EVENT_COMMAND, COMPOSITION_START_EVENT_COMMAND, INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
 import type { SuggestionThreadController } from '@/components/editor/lexicalPlugins/suggestions/SuggestionThreadController'
+import debounce from 'lodash/debounce'
 import { reportError } from '@/lib/vendor/proton/reportError'
 import { useMarkNodesContext } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext'
 import { useCommentStoreContext } from '@/components/lexical/commenting/CommentStoreContext'
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND, SET_USER_MODE_COMMAND } from './Commands'
 import { UNORDERED_LIST, ORDERED_LIST, CHECK_LIST, QUOTE } from '@lexical/markdown'
-import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, type ListItemNode } from '@lexical/list'
-import { $isEmptyListItemExceptForSuggestions, hasChildComments } from './Utils'
+import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list'
+import { $getDeleteSuggestionType, $isEmptyListItemExceptForSuggestions, $isWholeSelectionInsideSuggestion, $wrapSelectionInSuggestionNode, hasChildComments } from './Utils'
 import { getSuggestionAuthorIdFromComments } from './suggestionPermissions'
 import { useCanRejectSuggestion, useCollaboratorIdentity } from '@/components/lexical/collaboration'
 import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions'
-import { generateUUID } from '@/lib/vendor/proton/generateUUID'
+import { randomId } from '@/lib/random'
 import { $acceptSuggestion } from './acceptSuggestion'
 import { $rejectSuggestion } from './rejectSuggestion'
-import { $handleBeforeInputEvent, $handleDeleteInputType, $handleInsertParagraphOnEmptyListItem } from './handleBeforeInputEvent'
+import { $handleBeforeInputEvent, $handleDeleteInputType, $handleInsertParagraph, $handleInsertParagraphOnEmptyListItem } from './handleBeforeInputEvent'
 import { $formatTextAsSuggestion } from './formatTextAsSuggestion'
 import { ConsoleLogger } from '@/lib/vendor/proton/logger'
 import { $selectionInsertClipboardNodes } from './selectionInsertClipboardNodes'
@@ -84,10 +86,9 @@ import {
 } from './handleTables'
 import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import { $setBlocksTypeAsSuggestion, $wrapInQuoteAsSuggestion } from './setBlocksTypeAsSuggestion'
-import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/react/LexicalHorizontalRuleNode'
+import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/extension'
 import { $insertDividerAsSuggestion } from './insertDividerAsSuggestion'
 import { HR } from '@/components/lexical/plugins/MarkdownTransformers'
-import { $getTopLevelParagraphForHR } from '@/components/editor/lexicalPlugins/horizontalRuleEnter'
 import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggestion'
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import { eventFiles } from '@lexical/rich-text'
@@ -133,6 +134,39 @@ function insertImageFileAsSuggestion(
 }
 
 const LIST_TRANSFORMERS = [UNORDERED_LIST, ORDERED_LIST, CHECK_LIST]
+
+/**
+ * Returns the top-level paragraph containing an HR markdown shortcut
+ * (---, ***, ___) if the current selection is a collapsed cursor inside one,
+ * or null otherwise.
+ */
+function $getHRShortcutParagraph(): ElementNode | null {
+  const selection = $getSelection()
+  if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+    return null
+  }
+  const topLevelParagraph = selection.anchor.getNode().getTopLevelElement()
+  if ($isParagraphNode(topLevelParagraph) && HR.regExp.test(topLevelParagraph.getTextContent())) {
+    return topLevelParagraph
+  }
+  return null
+}
+
+/**
+ * Removes a top-level paragraph containing an HR markdown shortcut (---, ***, ___)
+ * and inserts an HR as a suggestion at the same position.
+ */
+function $removeParagraphAndInsertDividerSuggestion(
+  paragraph: ElementNode,
+  onSuggestionCreation: (id: string) => void,
+): boolean {
+  if (!$isRootOrShadowRoot(paragraph.getParent())) {
+    return false
+  }
+  paragraph.remove()
+  $insertDividerAsSuggestion(onSuggestionCreation)
+  return true
+}
 
 export function SuggestionModePlugin({
   isSuggestionMode,
@@ -201,6 +235,24 @@ export function SuggestionModePlugin({
      */
     const suggestionNodeKeysToIDMap = new Map<NodeKey, SuggestionID>()
 
+    // Accumulates dirty suggestion IDs across debounce cycles, cleared when the
+    // debounced function executes. This is needed because multiple update listener
+    // invocations may fire before the debounce triggers.
+    const pendingSuggestionIds = new Set<string>()
+
+    const flushSummaryUpdates = debounce(() => {
+      for (const id of pendingSuggestionIds) {
+        const keys = markNodeMap.get(id)
+        if (!keys || keys.size === 0) {
+          continue
+        }
+        const summary = generateSuggestionSummary(editor, markNodeMap, id)
+        const content = JSON.stringify(summary)
+        controller.updateSuggestionSummary(id, content).catch(reportError)
+      }
+      pendingSuggestionIds.clear()
+    }, 500)
+
     return mergeRegister(
       /**
        * Handles suggestion node lifecycle:
@@ -211,15 +263,18 @@ export function SuggestionModePlugin({
        * - Orphan cleanup when nodes are deleted
        */
       editor.registerMutationListener(ProtonNode, (mutations, { updateTags }) => {
-        if (updateTags.has('collaboration')) {
-          return
-        }
-        
+        const isCollaborationUpdate = updateTags.has('collaboration')
+
         const createdSuggestionIDs = createdSuggestionIDsRef.current
         const idsToCreateThreadsFor: string[] = []
         const idsToReopenThreadsFor: string[] = []
         const idsToHandleDestruction: string[] = []
+        const idsToRegenerateSummaryFor: string[] = []
 
+        // Always populate markNodeMap regardless of update source, so that
+        // agent-created suggestions (which arrive via Yjs collaboration sync)
+        // have their node keys tracked for hover highlighting and
+        // sidebar-to-editor linking.
         editor.read(() => {
           for (const [key, mutation] of mutations) {
             const node = $getNodeByKey(key)
@@ -245,21 +300,28 @@ export function SuggestionModePlugin({
               suggestionNodeKeys.delete(key)
               if (suggestionNodeKeys.size === 0) {
                 markNodeMap.delete(id)
-                idsToHandleDestruction.push(id)
+                if (!isCollaborationUpdate) {
+                  idsToHandleDestruction.push(id)
+                }
+              } else if (!isCollaborationUpdate) {
+                // Some nodes were destroyed but others remain — summary may need regeneration
+                idsToRegenerateSummaryFor.push(id)
               }
             } else {
               if (!suggestionNodeKeys) {
                 // New suggestion
                 suggestionNodeKeys = new Set()
                 markNodeMap.set(id, suggestionNodeKeys)
-                
-                if (createdSuggestionIDs.has(id)) {
-                  idsToCreateThreadsFor.push(id)
-                } else {
-                  // Nodes appeared but weren't created locally - likely undo
-                  idsToReopenThreadsFor.push(id)
+
+                if (!isCollaborationUpdate) {
+                  if (createdSuggestionIDs.has(id)) {
+                    idsToCreateThreadsFor.push(id)
+                  } else {
+                    // Nodes appeared but weren't created locally - likely undo
+                    idsToReopenThreadsFor.push(id)
+                  }
                 }
-                
+
                 suggestionNodeKeys.add(key)
               } else {
                 if (!suggestionNodeKeys.has(key)) {
@@ -269,6 +331,12 @@ export function SuggestionModePlugin({
             }
           }
         })
+
+        // Skip thread lifecycle management for collaboration updates — the
+        // agent handles thread creation server-side.
+        if (isCollaborationUpdate) {
+          return
+        }
 
         // Skip thread management if commentStore hasn't synced yet (e.g., initial page load)
         // The markNodeMap is still updated above for hover/active state tracking
@@ -299,7 +367,7 @@ export function SuggestionModePlugin({
         // Reopen threads when nodes reappear (undo)
         for (const id of idsToReopenThreadsFor) {
           const thread = commentStore.getThreadByMarkID(id)
-          
+
           if (!thread) {
             // Thread was deleted - create a new one
             suggestionModeLogger.info(`Creating thread for reappearing suggestion ${id}`)
@@ -308,7 +376,7 @@ export function SuggestionModePlugin({
             controller.createSuggestionThread(id, content, summary[0].type).catch(reportError)
             continue
           }
-          
+
           if (thread.status === 'accepted' || thread.status === 'rejected') {
             suggestionModeLogger.info(`Reopening thread ${thread.id} for suggestion ${id}`)
             commentStore.updateThread(thread.id, {
@@ -319,7 +387,7 @@ export function SuggestionModePlugin({
             suggestionModeLogger.info(`Reopening archived thread ${thread.id} for suggestion ${id}`)
             commentStore.updateThread(thread.id, { status: 'open' })
           }
-          
+
           const keys = markNodeMap.get(id)
           if (keys && keys.size > 0) {
             const summary = generateSuggestionSummary(editor, markNodeMap, id)
@@ -330,7 +398,7 @@ export function SuggestionModePlugin({
 
         // Handle node destruction (redo or orphan cleanup)
         const isRedoOperation = isRedoOperationRef.current
-        
+
         for (const id of idsToHandleDestruction) {
           const thread = commentStore.getThreadByMarkID(id)
           if (!thread) {
@@ -358,23 +426,50 @@ export function SuggestionModePlugin({
             commentStore.updateThread(thread.id, { statusBeforeReopen: null })
           }
         }
+
+        // When some nodes for a suggestion were destroyed but others remain (e.g. undo
+        // removes an insertion node but the split marker stays), the remaining nodes
+        // won't appear in the dirty sets, so the update listener won't trigger a summary
+        // regeneration. Queue it explicitly here.
+        for (const id of idsToRegenerateSummaryFor) {
+          pendingSuggestionIds.add(id)
+        }
+        if (idsToRegenerateSummaryFor.length > 0) {
+          flushSummaryUpdates()
+        }
       }),
       // The ProtonNode mutation listener only fires for node creation/destruction/property changes,
       // not for text content changes within the node (which are TextNode mutations).
-      editor.registerUpdateListener(({ tags }) => {
+      // We debounce summary regeneration and filter to only suggestion IDs whose
+      // nodes intersect with the dirty sets, to avoid redundant work on every update.
+      editor.registerUpdateListener(({ tags, dirtyElements, dirtyLeaves }) => {
         if (tags.has('collaboration')) {
           return
         }
-        
+
+        // Find suggestion IDs that have at least one node key in the dirty sets
+        let hasDirty = false
         for (const [id, keys] of markNodeMap) {
           if (keys.size === 0) {
             continue
           }
-          const summary = generateSuggestionSummary(editor, markNodeMap, id)
-          const content = JSON.stringify(summary)
-          controller.updateSuggestionSummary(id, content).catch(reportError)
+          for (const key of keys) {
+            if (dirtyElements.has(key) || dirtyLeaves.has(key)) {
+              pendingSuggestionIds.add(id)
+              hasDirty = true
+              break
+            }
+          }
         }
+
+        if (!hasDirty) {
+          return
+        }
+
+        flushSummaryUpdates()
       }),
+      // Cancel the debounced summary regeneration on cleanup
+      () => { flushSummaryUpdates.cancel() },
     )
   }, [controller, editor, markNodeMap, suggestionModeLogger, commentStore])
 
@@ -647,8 +742,9 @@ export function SuggestionModePlugin({
             event.preventDefault()
             return editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')
           } else if (isUnderline) {
+            // Underline is disabled; just swallow the shortcut
             event.preventDefault()
-            return editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')
+            return true
           }
 
           return false
@@ -660,73 +756,84 @@ export function SuggestionModePlugin({
         (event) => {
           // Handle horizontal rule markdown shortcut (---, ***, ___)
           let shouldHandleHR = false
-          let emptyListItem: ListItemNode | null = null
-          
           editor.getEditorState().read(() => {
-            const selection = $getSelection()
-            
-            // Check for HR shortcut
-            const paragraphElement = $getTopLevelParagraphForHR(selection)
-            if (paragraphElement) {
-              const textContent = paragraphElement.getTextContent()
-              if (HR.regExp.test(textContent)) {
-                shouldHandleHR = true
-                return
-              }
-            }
-            
-            // Check for empty list item
-            if ($isRangeSelection(selection) && selection.isCollapsed()) {
-              const anchorNode = selection.anchor.getNode()
-              emptyListItem = $isEmptyListItemExceptForSuggestions(anchorNode)
-            }
+            shouldHandleHR = $getHRShortcutParagraph() !== null
           })
 
           if (shouldHandleHR) {
             editor.update(() => {
-              const selection = $getSelection()
-              const paragraphElement = $getTopLevelParagraphForHR(selection)
-              if (!paragraphElement) {
-                return
+              const paragraph = $getHRShortcutParagraph()
+              if (paragraph) {
+                $removeParagraphAndInsertDividerSuggestion(paragraph, addCreatedIDtoSet)
               }
-
-              // Remove the paragraph with the dashes
-              paragraphElement.remove()
-
-              // Insert the HR as a suggestion
-              $insertDividerAsSuggestion(addCreatedIDtoSet)
             })
 
             event?.preventDefault()
             return true
           }
 
-          if (emptyListItem) {
-            // Handle Enter on empty list item - convert to paragraph as suggestion
-            const suggestionID = generateUUID()
-            editor.update(() => {
-              // Re-check inside update since editor state may have changed
-              const selection = $getSelection()
-              if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
-                return
-              }
+          // Handle Enter directly instead of deferring to beforeinput.
+          // On non-Apple browsers, Lexical's @lexical/rich-text KEY_ENTER_COMMAND
+          // handler (at COMMAND_PRIORITY_EDITOR) would call event.preventDefault()
+          // and dispatch INSERT_PARAGRAPH_COMMAND, preventing the beforeinput event
+          // from ever firing and bypassing suggestion mode's paragraph handling.
+          // Because of this, 'insertParagraph' is excluded from InsertionInputTypes
+          // and all paragraph insertion logic lives here.
+          //
+          // We call $handleInsertParagraph directly (not inside editor.update())
+          // to match the execution context of the old BEFOREINPUT_EVENT_COMMAND flow,
+          // where Lexical's deferred reconciliation ensures the empty paragraph gets
+          // a <br> child for proper height.
+          const suggestionID = randomId()
+          const selection = $getSelection()
+          if ($isRangeSelection(selection)) {
+            if (selection.isCollapsed()) {
               const listItem = $isEmptyListItemExceptForSuggestions(selection.anchor.getNode())
-              if (!listItem) {
-                return
+              if (listItem) {
+                $handleInsertParagraphOnEmptyListItem(
+                  listItem,
+                  suggestionID,
+                  addCreatedIDtoSet,
+                  suggestionModeLogger,
+                )
+                event?.preventDefault()
+                return true
               }
-              $handleInsertParagraphOnEmptyListItem(
-                listItem,
-                suggestionID,
-                addCreatedIDtoSet,
-                suggestionModeLogger,
-              )
-            })
+            } else {
+              // Wrap the non-collapsed selection in a delete suggestion before
+              // splitting the paragraph, mirroring what $handleInsertInput does
+              // when beforeinput fires with inputType 'insertParagraph'.
+              const deleteSuggestionID = randomId()
+              const isInsideExistingSuggestion = $isWholeSelectionInsideSuggestion(selection)
+              const existingParentSuggestion = $findMatchingParent(selection.focus.getNode(), $isSuggestionNode)
+              const selectedNodes = selection.getNodes()
+              const deleteType = $getDeleteSuggestionType(selectedNodes)
+              const nodes = $wrapSelectionInSuggestionNode(selection, selection.isBackward(), deleteSuggestionID, deleteType, suggestionModeLogger)
+              if (isInsideExistingSuggestion && existingParentSuggestion?.getSuggestionTypeOrThrow() === 'insert') {
+                for (const node of nodes) {
+                  node.remove()
+                }
+              } else {
+                addCreatedIDtoSet(deleteSuggestionID)
+              }
+            }
 
-            event?.preventDefault()
-            return true
+            const latestSelection = $getSelection()
+            if (!$isRangeSelection(latestSelection)) {
+              event?.preventDefault()
+              return true
+            }
+
+            $handleInsertParagraph(
+              latestSelection,
+              suggestionID,
+              addCreatedIDtoSet,
+              suggestionModeLogger,
+            )
           }
 
-          return false
+          event?.preventDefault()
+          return true
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
@@ -791,13 +898,8 @@ export function SuggestionModePlugin({
             // Check for horizontal rule shortcut (---, ***, ___)
             const hrMatch = textContent.match(HR.regExp)
             if (hrMatch && hrMatch[0].length === anchorOffset) {
-              const actualParent = parent.getParent()!
-              const isActualParentBlockLevel = $isRootOrShadowRoot(actualParent.getParent())
-              if (isActualParentBlockLevel) {
-                // Remove the paragraph containing the dashes and the suggestion node
-                actualParent.remove()
-                // Insert the HR as a suggestion
-                $insertDividerAsSuggestion(addCreatedIDtoSet)
+              const actualParent = parent.getParent()
+              if (actualParent && $removeParagraphAndInsertDividerSuggestion(actualParent, addCreatedIDtoSet)) {
                 return
               }
             }

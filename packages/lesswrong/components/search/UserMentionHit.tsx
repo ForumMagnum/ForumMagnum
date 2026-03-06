@@ -26,13 +26,13 @@ const styles = defineStyles("UserMentionHit", (theme: ThemeType) => ({
     ...theme.typography.body2,
     display: "inline",
     color: theme.palette.grey[600],
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     fontSize: "1rem",
     
     ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack
     }),
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
 
     // To properly switch color on item being selected
     ".ck-on &": {
