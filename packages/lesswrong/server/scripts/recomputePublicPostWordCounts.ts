@@ -166,6 +166,7 @@ export async function recomputePublicPostWordCounts({
   let lastSeenPostId = "";
   let batchesProcessed = 0;
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const rows = await getPublicPostLatestRevisionBatch(lastSeenPostId, batchSize);
     if (rows.length === 0) {
