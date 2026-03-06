@@ -37,7 +37,6 @@ import { IndentIcon } from '../../icons/IndentIcon';
 import { OutdentIcon } from '../../icons/OutdentIcon';
 import { TypeBoldIcon } from '../../icons/TypeBoldIcon';
 import { TypeItalicIcon } from '../../icons/TypeItalicIcon';
-import { TypeUnderlineIcon } from '../../icons/TypeUnderlineIcon';
 import { LinkIcon } from '../../icons/LinkIcon';
 // import { FontColorIcon } from '../../icons/FontColorIcon';
 // import { BgColorIcon } from '../../icons/BgColorIcon';
@@ -937,7 +936,6 @@ export default function ToolbarPlugin({
       // Update text format
       updateToolbarState('isBold', selection.hasFormat('bold'));
       updateToolbarState('isItalic', selection.hasFormat('italic'));
-      updateToolbarState('isUnderline', selection.hasFormat('underline'));
       updateToolbarState(
         'isStrikethrough',
         selection.hasFormat('strikethrough'),
@@ -1313,17 +1311,6 @@ export default function ToolbarPlugin({
             type="button"
             aria-label={`Format text as italics. Shortcut: ${SHORTCUTS.ITALIC}`}>
             <TypeItalicIcon className={classNames(classes.formatIcon, { [classes.activeIcon]: toolbarState.isItalic })} />
-          </button>
-          <button
-            disabled={!isEditable}
-            onClick={(e) =>
-              dispatchFormatTextCommand('underline', isKeyboardInput(e))
-            }
-            className={classNames(classes.toolbarItemSpaced, { [classes.toolbarItemActive]: toolbarState.isUnderline })}
-            title={`Underline (${SHORTCUTS.UNDERLINE})`}
-            type="button"
-            aria-label={`Format text to underlined. Shortcut: ${SHORTCUTS.UNDERLINE}`}>
-            <TypeUnderlineIcon className={classNames(classes.formatIcon, { [classes.activeIcon]: toolbarState.isUnderline })} />
           </button>
           {canViewerSeeInsertCodeButton && (
             <button

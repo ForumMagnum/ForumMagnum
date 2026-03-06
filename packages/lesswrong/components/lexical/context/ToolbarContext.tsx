@@ -67,7 +67,6 @@ const INITIAL_TOOLBAR_STATE = {
   isStrikethrough: false,
   isSubscript: false,
   isSuperscript: false,
-  isUnderline: false,
   isLowercase: false,
   isUppercase: false,
   isCapitalize: false,

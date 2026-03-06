@@ -397,9 +397,6 @@ const exportTextNode = (_editor: LexicalEditorType, target: LexicalNode): DOMExp
   if (target.hasFormat('strikethrough')) {
     element = wrapElementWith(element, 's');
   }
-  if (target.hasFormat('underline')) {
-    element = wrapElementWith(element, 'u');
-  }
   if (target.hasFormat('subscript')) {
     element = wrapElementWith(element, 'sub');
   }
