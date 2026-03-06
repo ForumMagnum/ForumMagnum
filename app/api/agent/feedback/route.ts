@@ -18,7 +18,7 @@ function getFeedbackChannelId() {
 
 function buildSlackMessage(payload: z.infer<typeof agentFeedbackSchema>) {
   const lines = [
-    ":robot_face: *Agent API feedback submitted*",
+    ":lobster: *Agent API feedback submitted*",
     `*Type:* ${payload.type}`,
     payload.agentName ? `*Agent:* ${payload.agentName}` : null,
     payload.endpoint ? `*Endpoint:* ${payload.endpoint}` : null,
