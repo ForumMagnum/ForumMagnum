@@ -82,6 +82,7 @@ import {MaxLengthPlugin} from './plugins/MaxLengthPlugin';
 import MentionsPlugin from './plugins/MentionsPlugin';
 import PageBreakPlugin from './plugins/PageBreakPlugin';
 import PollPlugin from './plugins/PollPlugin';
+import DisableUnderlinePlugin from './plugins/DisableUnderlinePlugin';
 import ShortcutsPlugin from './plugins/ShortcutsPlugin';
 import SubmitOnCmdEnterPlugin from './plugins/SubmitOnCmdEnterPlugin';
 // import SpecialTextPlugin from './plugins/SpecialTextPlugin';
@@ -823,6 +824,7 @@ export default function Editor({
           setIsLinkEditMode={setIsLinkEditMode}
         />
       )}
+      <DisableUnderlinePlugin />
       <SubmitOnCmdEnterPlugin />
       <div
         className={classNames(

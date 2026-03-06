@@ -742,8 +742,9 @@ export function SuggestionModePlugin({
             event.preventDefault()
             return editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')
           } else if (isUnderline) {
+            // Underline is disabled; just swallow the shortcut
             event.preventDefault()
-            return editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')
+            return true
           }
 
           return false
