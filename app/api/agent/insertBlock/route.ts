@@ -75,9 +75,9 @@ function parseWholeWidgetFence(markdown: string): { widgetId: string, widgetMark
 /**
  * Wraps already-inserted top-level nodes in suggestion markup. Must be called
  * inside a Lexical editor.update() callback, after the nodes have been spliced
- * into the root.
+ * into the root at insertionIndex.
  */
-function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], suggestionId: string): void {
+function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionIndex: number, suggestionId: string): void {
   if (nodesToInsert.length === 0) return;
 
   const firstInserted = nodesToInsert[0];
@@ -85,23 +85,26 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], suggestion
 
   const firstDescendant = $isElementNode(firstInserted)
     ? firstInserted.getFirstDescendant()
-    : firstInserted;
+    : null;
   const lastDescendant = $isElementNode(lastInserted)
     ? lastInserted.getLastDescendant()
-    : lastInserted;
+    : null;
 
+  // Use text-level selection on the first/last text descendants when possible,
+  // which avoids a bug where root-level element selection clips the first
+  // character. For non-element, non-text nodes (e.g. decorator nodes like
+  // horizontal rules), fall back to root-level element selection.
+  const root = $getRoot();
   const selection = $createRangeSelection();
   if (firstDescendant && $isTextNode(firstDescendant)) {
     selection.anchor.set(firstDescendant.getKey(), 0, "text");
   } else {
-    selection.anchor.set(firstInserted.getKey(), 0, "element");
+    selection.anchor.set(root.getKey(), insertionIndex, "element");
   }
   if (lastDescendant && $isTextNode(lastDescendant)) {
     selection.focus.set(lastDescendant.getKey(), lastDescendant.getTextContentSize(), "text");
-  } else if ($isElementNode(lastInserted)) {
-    selection.focus.set(lastInserted.getKey(), lastInserted.getChildrenSize(), "element");
   } else {
-    selection.focus.set(lastInserted.getKey(), 0, "element");
+    selection.focus.set(root.getKey(), insertionIndex + nodesToInsert.length, "element");
   }
   $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
 }
@@ -185,7 +188,7 @@ export function $insertMarkdownBlockInEditor({
   let suggestionId: string | undefined = undefined;
   if (mode === "suggest") {
     suggestionId = randomId();
-    $wrapInsertedNodesAsSuggestion(nodesToInsert, suggestionId);
+    $wrapInsertedNodesAsSuggestion(nodesToInsert, insertionIndex, suggestionId);
   }
   return {
     inserted: true,

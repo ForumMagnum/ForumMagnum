@@ -42,18 +42,13 @@ describe("replaceText suggest mode", () => {
     expect(replaced).toBe(true);
 
     const suggestions = getAllSuggestions(editor);
-    const deleteSuggestion = suggestions.find(s => s.type === "delete");
-    const insertSuggestion = suggestions.find(s => s.type === "insert");
-
-    expect(deleteSuggestion).toBeDefined();
-    expect(deleteSuggestion!.textContent).toBe("This is a second paragraph.");
-
-    expect(insertSuggestion).toBeDefined();
-    // The replacement should contain "improved" as text content (formatting
-    // nodes like bold don't appear in textContent, but the text should not
-    // contain literal asterisks)
-    expect(insertSuggestion!.textContent).toBe("This is the improved second paragraph.");
-    expect(insertSuggestion!.textContent).not.toContain("**");
+    expect(suggestions.length).toBe(2);
+    expect(suggestions[0].type).toBe("delete");
+    expect(suggestions[0].textContent).toBe("This is a second paragraph.");
+    expect(suggestions[1].type).toBe("insert");
+    // Bold formatting is rendered as Lexical nodes, not literal asterisks,
+    // so textContent contains the plain text without markdown syntax.
+    expect(suggestions[1].textContent).toBe("This is the improved second paragraph.");
   });
 
   it("handles plain text replacement without markdown", async () => {
@@ -70,8 +65,10 @@ describe("replaceText suggest mode", () => {
     expect(replaced).toBe(true);
 
     const suggestions = getAllSuggestions(editor);
-    const insertSuggestion = suggestions.find(s => s.type === "insert");
-    expect(insertSuggestion).toBeDefined();
-    expect(insertSuggestion!.textContent).toBe("Replacement paragraph.");
+    expect(suggestions.length).toBe(2);
+    expect(suggestions[0].type).toBe("delete");
+    expect(suggestions[0].textContent).toBe("Second paragraph.");
+    expect(suggestions[1].type).toBe("insert");
+    expect(suggestions[1].textContent).toBe("Replacement paragraph.");
   });
 });
