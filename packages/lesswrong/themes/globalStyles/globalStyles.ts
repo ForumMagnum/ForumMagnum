@@ -12,7 +12,6 @@ const clearStyle = (theme: ThemeType) => ({
     boxSizing: "border-box",
     "-webkit-font-smoothing": "antialiased",
     "-moz-osx-font-smoothing": "grayscale",
-    color: theme.palette.text.maxIntensity,
     "text-size-adjust": "none",
     "-webkit-text-size-adjust": "none",
   },
@@ -21,6 +20,7 @@ const clearStyle = (theme: ThemeType) => ({
   },
   body: {
     margin: 0,
+    color: theme.palette.text.maxIntensity,
     "@media print": {
       background: theme.palette.panelBackground.default,
     },
