@@ -73,7 +73,7 @@ function collectSidenotes(rootElement: HTMLElement): LexicalFootnoteSidenote[] {
       key: `${footnoteId}:${index}`,
       anchorEl: referenceEl,
       footnoteHref: `#fn${footnoteId}`,
-      footnoteHTML: footnoteContentElement.innerHTML,
+      footnoteHTML: footnoteContentElement.outerHTML,
       footnoteIndex: referenceEl.getAttribute(FOOTNOTE_ATTRIBUTES.footnoteIndex),
     }];
   });
