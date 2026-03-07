@@ -551,6 +551,12 @@ export function getDefaultVotingSystem() {
 
 export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
 
+export function getDraftLabel(post: { draft?: boolean | null } | null) {
+  if (!post) return "Save Draft";
+  if (!post.draft) return "Move to Drafts";
+  return "Save Draft";
+}
+
 export const allPostsParams = (reviewYear: ReviewYear = REVIEW_YEAR) => {
   const startDate = getReviewPeriodStart(reviewYear).toDate();
   const endDate = getReviewPeriodEnd(reviewYear).toDate();

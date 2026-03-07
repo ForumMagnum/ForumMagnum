@@ -756,7 +756,9 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                     });
                     // Copy link after enabling
                     const url = getPostCollaborateUrl(postId, true, linkSharingKey);
-                    void navigator.clipboard.writeText(url).then(() => flash("Link sharing enabled & link copied"));
+                    void navigator.clipboard.writeText(url)
+                      .then(() => flash("Link sharing enabled & link copied"))
+                      .catch(() => flash("Failed to copy link"));
                   }}
                 >
                   <ForumIcon icon="Link" className={classes.shareLinkIcon} />

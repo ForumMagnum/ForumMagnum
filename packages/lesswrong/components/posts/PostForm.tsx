@@ -1,4 +1,4 @@
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, detectLinkpost } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, userCanEditCoauthors, detectLinkpost, getDraftLabel } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { useForm } from "@tanstack/react-form";
@@ -6,10 +6,7 @@ import classNames from "classnames";
 import React, { useMemo, useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useCurrentUser } from "../common/withUser";
-import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
 import { EditTitle } from "../editor/EditTitle";
-import { PostSharingSettings } from "../editor/PostSharingSettings";
-import { EditPostCategory } from "../form-components/EditPostCategory";
 import { SelectLocalgroup } from "../form-components/SelectLocalgroup";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
@@ -22,18 +19,12 @@ import { MultiSelectButtons } from "@/components/form-components/MultiSelectButt
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
-import { DialogueSubmit } from "./dialogues/DialogueSubmit";
-import { PostSubmit } from "./PostSubmit";
-import { SubmitToFrontpageCheckbox } from "./SubmitToFrontpageCheckbox";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
-import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import ForumIcon, { type ForumIconName } from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
-import PostFormSecondaryGroups from "./PostFormSecondaryGroups";
 import EditorSettingsSidebar from "./EditorSettingsSidebar";
 import MobileEditorBottomBar from "./MobileEditorBottomBar";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
@@ -48,6 +39,7 @@ import { useAutoSavePostFields } from "./useAutoSavePostFields";
 import { EditorUserMode, getDefaultEditorUserMode, type EditorUserModeType } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
 import { useEventListener } from "../hooks/useEventListener";
 import { accessLevelCan, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
   mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -332,12 +324,6 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     },
   },
 }));
-
-function getDraftLabel(post: { draft?: boolean | null } | null) {
-  if (!post) return "Save Draft";
-  if (!post.draft) return "Move to Drafts";
-  return "Save Draft";
-}
 
 const ON_SUBMIT_META: PostSubmitMeta = {};
 
@@ -1066,7 +1052,7 @@ const PostForm = ({
         addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
         addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
       />
-    </form >
+    </form>
     </InlineCommentsPanelContext.Provider>
     </EditorUserModeContext.Provider>
   );

@@ -3,15 +3,9 @@ import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import ForumIcon from "../common/ForumIcon";
 import EditorSettingsSidebar from "./EditorSettingsSidebar";
-import type { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
+import { getDraftLabel, type EditablePost, type PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import type { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
 import type { AddOnSubmitCallback, AddOnSuccessCallback } from "../editor/EditorFormComponent";
-
-function getDraftLabel(post: { draft?: boolean | null } | null) {
-  if (!post) return "Save Draft";
-  if (!post.draft) return "Move to Drafts";
-  return "Save Draft";
-}
 
 type SidebarMode = "publish" | "settings" | "sharing";
 
@@ -369,6 +363,7 @@ const MobileEditorBottomBar = ({
             formType={formType}
             mode={activeTab}
             currentUser={currentUser}
+            isSaving={isSaving}
             addOnSubmitCallbackCustom={addOnSubmitCallbackCustom}
             addOnSuccessCallbackCustom={addOnSuccessCallbackCustom}
             addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
