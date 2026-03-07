@@ -880,6 +880,7 @@ interface EditorSettingsSidebarProps {
   formType: "new" | "edit";
   mode: "publish" | "settings" | "sharing";
   currentUser: UsersCurrent | null;
+  isSaving?: boolean;
   addOnSubmitCallbackCustom: AddOnSubmitCallback<PostsEditMutationFragment>;
   addOnSuccessCallbackCustom: AddOnSuccessCallback<PostsEditMutationFragment>;
   addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>;
@@ -892,6 +893,7 @@ const EditorSettingsSidebar = ({
   formType,
   mode,
   currentUser,
+  isSaving = false,
   addOnSubmitCallbackCustom,
   addOnSuccessCallbackCustom,
   addOnSubmitCallbackModerationGuidelines,
@@ -920,11 +922,12 @@ const EditorSettingsSidebar = ({
             {({ canSubmit, isSubmitting, draft }) => {
               const draftLabel = !draft ? "Move to Drafts" : "Save Draft";
               const submitLabel = draft ? "Publish" : "Publish Changes";
+              const disabled = !canSubmit || isSubmitting || isSaving;
 
               return isDialogue
                 ? <DialogueSubmit
                     formApi={form}
-                    disabled={!canSubmit || isSubmitting}
+                    disabled={disabled}
                     submitLabel={submitLabel}
                     saveDraftLabel={draftLabel}
                   />
@@ -932,7 +935,7 @@ const EditorSettingsSidebar = ({
                     <div className={classes.submitButtons}>
                       <PostSubmit
                         formApi={form}
-                        disabled={!canSubmit || isSubmitting}
+                        disabled={disabled}
                         submitLabel={submitLabel}
                         saveDraftLabel={draftLabel}
                         feedbackLabel="Get Feedback"
@@ -1178,7 +1181,7 @@ const EditorSettingsSidebar = ({
           {userIsAdmin(currentUser) && (
             <div className={classes.fieldWrapper}>
               <form.Field name="slug">
-                {(field) => <MuiTextField field={field} label="Slug" />}
+                {(field) => <MuiTextField field={field} label="Slug" updateOnBlur />}
               </form.Field>
             </div>
           )}
@@ -1202,7 +1205,7 @@ const EditorSettingsSidebar = ({
               <form.Field name="userId">
                 {(field) => (
                   <LWTooltip title="The user id of the author" placement="left-start" inlineBlock={false}>
-                    <MuiTextField field={field} label="User ID" />
+                    <MuiTextField field={field} label="User ID" updateOnBlur />
                   </LWTooltip>
                 )}
               </form.Field>
@@ -1220,7 +1223,7 @@ const EditorSettingsSidebar = ({
               <form.Field name="readTimeMinutesOverride">
                 {(field) => (
                   <LWTooltip title="By default, this is calculated from the word count. Enter a value to override." placement="left-start" inlineBlock={false}>
-                    <MuiTextField field={field} label="Read time (minutes)" />
+                    <MuiTextField field={field} label="Read time (minutes)" updateOnBlur />
                   </LWTooltip>
                 )}
               </form.Field>
@@ -1230,7 +1233,7 @@ const EditorSettingsSidebar = ({
           {userIsAdmin(currentUser) && (
             <div className={classes.fieldWrapper}>
               <form.Field name="canonicalSource">
-                {(field) => <MuiTextField field={field} label="Canonical source" />}
+                {(field) => <MuiTextField field={field} label="Canonical source" updateOnBlur />}
               </form.Field>
             </div>
           )}
@@ -1238,7 +1241,7 @@ const EditorSettingsSidebar = ({
           {isLWorAF() && userIsAdmin(currentUser) && (
             <div className={classes.fieldWrapper}>
               <form.Field name="manifoldReviewMarketId">
-                {(field) => <MuiTextField field={field} label="Manifold review market ID" />}
+                {(field) => <MuiTextField field={field} label="Manifold review market ID" updateOnBlur />}
               </form.Field>
             </div>
           )}
@@ -1282,7 +1285,7 @@ const EditorSettingsSidebar = ({
           {userIsAdmin(currentUser) && (
             <div className={classes.fieldWrapper}>
               <form.Field name="feedId">
-                {(field) => <MuiTextField field={field} label="Feed ID" />}
+                {(field) => <MuiTextField field={field} label="Feed ID" updateOnBlur />}
               </form.Field>
             </div>
           )}
@@ -1290,7 +1293,7 @@ const EditorSettingsSidebar = ({
           {userIsAdmin(currentUser) && (
             <div className={classes.fieldWrapper}>
               <form.Field name="feedLink">
-                {(field) => <MuiTextField field={field} label="Feed link" />}
+                {(field) => <MuiTextField field={field} label="Feed link" updateOnBlur />}
               </form.Field>
             </div>
           )}
@@ -1312,7 +1315,7 @@ const EditorSettingsSidebar = ({
           {userIsAdmin(currentUser) && (
             <div className={classes.fieldWrapper}>
               <form.Field name="reviewForCuratedUserId">
-                {(field) => <MuiTextField field={field} label="Curated Review UserId" />}
+                {(field) => <MuiTextField field={field} label="Curated Review UserId" updateOnBlur />}
               </form.Field>
             </div>
           )}
@@ -1320,7 +1323,7 @@ const EditorSettingsSidebar = ({
           {userIsAdmin(currentUser) && (
             <div className={classes.fieldWrapper}>
               <form.Field name="commentSortOrder">
-                {(field) => <MuiTextField field={field} label="Comment sort order" />}
+                {(field) => <MuiTextField field={field} label="Comment sort order" updateOnBlur />}
               </form.Field>
             </div>
           )}

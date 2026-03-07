@@ -242,6 +242,7 @@ interface MobileEditorBottomBarProps {
   initialData: EditablePost;
   formType: "new" | "edit";
   currentUser: UsersCurrent | null;
+  isSaving?: boolean;
   sidebarPanel: SidebarMode | null;
   setSidebarPanel: React.Dispatch<React.SetStateAction<SidebarMode | null>>;
   addOnSubmitCallbackCustom: AddOnSubmitCallback<PostsEditMutationFragment>;
@@ -255,6 +256,7 @@ const MobileEditorBottomBar = ({
   initialData,
   formType,
   currentUser,
+  isSaving = false,
   sidebarPanel,
   setSidebarPanel,
   addOnSubmitCallbackCustom,
@@ -289,38 +291,41 @@ const MobileEditorBottomBar = ({
         isSubmitting: s.isSubmitting,
         draft: s.values.draft,
       })}>
-        {({ canSubmit, isSubmitting, draft }) => (
-          <div className={classes.bottomBar}>
-            <button
-              type="submit"
-              className={classes.draftButton}
-              disabled={!canSubmit || isSubmitting}
-              onClick={() => form.setFieldValue("draft", true)}
-            >
-              {getDraftLabel({ draft })}
-            </button>
-            <div className={classes.rightGroup}>
-              <button
-                type="button"
-                className={classNames(
-                  classes.settingsButton,
-                  sheetOpen && classes.settingsButtonActive,
-                )}
-                onClick={() => sheetOpen ? closeSheet() : openSheet()}
-              >
-                <ForumIcon icon="Settings" className={classes.settingsIcon} />
-              </button>
+        {({ canSubmit, isSubmitting, draft }) => {
+          const disabled = !canSubmit || isSubmitting || isSaving;
+          return (
+            <div className={classes.bottomBar}>
               <button
                 type="submit"
-                className={classes.publishButton}
-                disabled={!canSubmit || isSubmitting}
-                onClick={() => form.setFieldValue("draft", false)}
+                className={classes.draftButton}
+                disabled={disabled}
+                onClick={() => form.setFieldValue("draft", true)}
               >
-                {draft ? "Publish" : "Publish Changes"}
+                {getDraftLabel({ draft })}
               </button>
+              <div className={classes.rightGroup}>
+                <button
+                  type="button"
+                  className={classNames(
+                    classes.settingsButton,
+                    sheetOpen && classes.settingsButtonActive,
+                  )}
+                  onClick={() => sheetOpen ? closeSheet() : openSheet()}
+                >
+                  <ForumIcon icon="Settings" className={classes.settingsIcon} />
+                </button>
+                <button
+                  type="submit"
+                  className={classes.publishButton}
+                  disabled={disabled}
+                  onClick={() => form.setFieldValue("draft", false)}
+                >
+                  {draft ? "Publish" : "Publish Changes"}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        }}
       </form.Subscribe>
 
       {/* Bottom sheet overlay */}

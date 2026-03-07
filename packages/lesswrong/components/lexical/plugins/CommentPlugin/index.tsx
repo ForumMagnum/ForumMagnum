@@ -334,7 +334,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     margin: 0,
     width: '100%',
     position: 'absolute',
-    top: 42,
+    top: 37,
     overflowY: 'auto',
     height: 'calc(100% - 42px)',
   },

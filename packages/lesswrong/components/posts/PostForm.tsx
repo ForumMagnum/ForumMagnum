@@ -44,6 +44,7 @@ import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
 import UsersNameWrapper from "../users/UsersNameWrapper";
 import ErrorBoundary from "../common/ErrorBoundary";
 import { InlineCommentsPanelContext } from "../common/sharedContexts";
+import { useAutoSavePostFields } from "./useAutoSavePostFields";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
   mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -400,6 +401,8 @@ const PostForm = ({
     },
     onSubmitMeta: ON_SUBMIT_META,
     onSubmit: async ({ formApi, meta }) => {
+      await awaitPendingSaves();
+
       await Promise.all([
         onSubmitCallback.current?.(),
         onSubmitCallbackCustomHighlight.current?.(),
@@ -442,6 +445,8 @@ const PostForm = ({
       }
     },
   });
+
+  const { isSaving, awaitPendingSaves } = useAutoSavePostFields(form, initialData?._id, mutate);
 
   useEffect(() => {
     if (sidebarPanel) {
@@ -834,6 +839,7 @@ const PostForm = ({
                 <MuiTextField
                   field={field}
                   label="Event Registration Link"
+                  updateOnBlur
                 />
               </LWTooltip>
             )}
@@ -847,6 +853,7 @@ const PostForm = ({
                 <MuiTextField
                   field={field}
                   label="Join Online Event Link"
+                  updateOnBlur
                 />
               </LWTooltip>
             )}
@@ -884,6 +891,7 @@ const PostForm = ({
               <MuiTextField
                 field={field}
                 label="Contact Info"
+                updateOnBlur
               />
             )}
           </form.Field>
@@ -896,6 +904,7 @@ const PostForm = ({
                 <MuiTextField
                   field={field}
                   label="Facebook Event"
+                  updateOnBlur
                 />
               </LWTooltip>
             )}
@@ -909,6 +918,7 @@ const PostForm = ({
                 <MuiTextField
                   field={field}
                   label="Meetup.com Event"
+                  updateOnBlur
                 />
               </LWTooltip>
             )}
@@ -922,6 +932,7 @@ const PostForm = ({
                 <MuiTextField
                   field={field}
                   label="Website"
+                  updateOnBlur
                 />
               </LWTooltip>
             )}
@@ -961,6 +972,7 @@ const PostForm = ({
           formType={formType}
           mode={sidebarPanel}
           currentUser={currentUser}
+          isSaving={isSaving}
           addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
           addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
           addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
@@ -975,6 +987,7 @@ const PostForm = ({
         initialData={initialData}
         formType={formType}
         currentUser={currentUser}
+        isSaving={isSaving}
         sidebarPanel={sidebarPanel}
         setSidebarPanel={setSidebarPanel}
         addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}

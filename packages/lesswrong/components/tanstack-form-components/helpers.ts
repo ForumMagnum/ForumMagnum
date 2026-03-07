@@ -34,7 +34,7 @@ export function getUpdatedFieldValues<T extends AnyFormApi>(formApi: T, editable
   return recursivelyRemoveTypenameFrom(sanitizeEditableFieldValues(updatedFields, editableFields));
 }
 
-function recursivelyRemoveTypenameFrom<T extends Json>(json: T): T {
+export function recursivelyRemoveTypenameFrom<T extends Json>(json: T): T {
   if (!json) {
     return json;
   } else if (Array.isArray(json)) {
