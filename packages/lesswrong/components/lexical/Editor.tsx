@@ -623,7 +623,10 @@ export default function Editor({
   
   // Track when collaboration config is ready (set synchronously, not in useEffect)
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
-  
+
+  const externalModeContext = useContext(EditorUserModeContext);
+  const setIsWsConnected = useMemo(() => externalModeContext?.setIsWsConnected, [externalModeContext?.setIsWsConnected]);
+
   // Store initialHtml in a ref so the onSynced callback can access the latest value
   const initialHtmlRef = useRef(initialHtml);
   initialHtmlRef.current = initialHtml;
@@ -666,17 +669,21 @@ export default function Editor({
   }, [editor]);
   
   // Set up collaboration config before rendering collaboration plugins.
-  // Merge in our onSynced handler for bootstrap detection.
+  // Merge in our onSynced and onConnectionStatusChange handlers.
   useLayoutEffect(() => {
     if (collaborationConfig) {
-      const configWithSyncHandler: CollaborationConfig = {
+      const configWithHandlers: CollaborationConfig = {
         ...collaborationConfig,
         onSynced: (doc, isFirstSync, docId) => {
           handleCollaborationSync(doc, isFirstSync, docId);
           collaborationConfig.onSynced?.(doc, isFirstSync, docId);
         },
+        onConnectionStatusChange: (connected) => {
+          setIsWsConnected?.(connected);
+          collaborationConfig.onConnectionStatusChange?.(connected);
+        },
       };
-      setCollaborationConfig(configWithSyncHandler);
+      setCollaborationConfig(configWithHandlers);
     } else {
       setCollaborationConfig(null);
     }
@@ -690,7 +697,8 @@ export default function Editor({
       setCollaborationConfig(null);
       setIsCollabConfigReady(false);
     };
-  }, [collaborationConfig, handleCollaborationSync]);
+  }, [collaborationConfig, handleCollaborationSync, setIsWsConnected]);
+
   const {
     settings: {
       isCodeHighlighted,
@@ -738,7 +746,6 @@ export default function Editor({
 
   // Use shared context for user mode if available (provided by PostForm),
   // otherwise fall back to local state (e.g. comment editors).
-  const externalModeContext = useContext(EditorUserModeContext);
   const [localUserMode, setLocalUserMode] = useState<EditorUserModeType>(() => {
     if (canEdit) return EditorUserMode.Edit;
     if (canComment) return EditorUserMode.Suggest;

@@ -81,6 +81,10 @@ interface EditorUserModeContextType {
   setUserMode: (mode: EditorUserModeType) => void;
   canEdit: boolean;
   canComment: boolean;
+  /** Derived from both browser online/offline state and WebSocket connection status */
+  isConnected: boolean;
+  /** Set by the Lexical editor when the HocuspocusProvider status changes */
+  setIsWsConnected: (connected: boolean) => void;
 }
 
 export const EditorUserModeContext = createContext<EditorUserModeContextType | null>(null);

@@ -121,6 +121,10 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     background: theme.palette.background.pageActiveAreaBackground,
     boxShadow: `0 0 0 1px ${theme.palette.greyAlpha(0.08)} inset`,
   },
+  iconButtonDisconnected: {
+    borderColor: theme.palette.warning.main,
+    color: theme.palette.warning.main,
+  },
   publishIconButton: {
     background: theme.palette.buttons.alwaysPrimary,
     border: "none",
@@ -395,12 +399,29 @@ const PostForm = ({
     if (canComment) return EditorUserMode.Suggest;
     return EditorUserMode.View;
   });
+  const [isBrowserOnline, setIsBrowserOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [isWsConnected, setIsWsConnected] = useState(true);
+  const isConnected = isBrowserOnline && isWsConnected;
+
+  useEffect(() => {
+    const handleOnline = () => setIsBrowserOnline(true);
+    const handleOffline = () => setIsBrowserOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const editorUserModeContext = useMemo(() => ({
     userMode,
     setUserMode,
     canEdit,
     canComment,
-  }), [userMode, setUserMode, canEdit, canComment]);
+    isConnected,
+    setIsWsConnected,
+  }), [userMode, setUserMode, canEdit, canComment, isConnected]);
 
   const cycleEditorMode = useCallback(() => {
     setUserMode((current) => getNextEditorMode(current, canEdit, canComment));
@@ -553,10 +574,19 @@ const PostForm = ({
             >
               <ForumIcon icon="Settings" className={classes.icon} />
             </button>
-            {editorType === "lexical" && <LWTooltip title={editorModeLabels[userMode]} placement="bottom-end">
+            {editorType === "lexical" && <LWTooltip
+              title={isConnected
+                ? editorModeLabels[userMode]
+                : `${editorModeLabels[userMode]} — offline, changes saved locally`
+              }
+              placement="bottom-end"
+            >
               <button
                 type="button"
-                className={classes.iconButton}
+                className={classNames(
+                  classes.iconButton,
+                  !isConnected && classes.iconButtonDisconnected,
+                )}
                 onClick={cycleEditorMode}
               >
                 <ForumIcon icon={editorModeIcons[userMode]} className={classes.icon} />
