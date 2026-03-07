@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import pick from "lodash/pick";
 import { useMessages } from "../common/withMessages";
 import { recursivelyRemoveTypenameFrom } from "@/components/tanstack-form-components/helpers";
 import type { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import type { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
+import type { useMutation } from "@apollo/client/react";
+
+type PostFormValues = EditablePost & { title: string };
 
 /**
  * Fields that should NOT be auto-saved. Either they have their own save
  * mechanism, are editor-managed, or are display-only fields not on
  * UpdatePostDataInput.
  */
-const EXCLUDE_FIELDS = new Set([
+const EXCLUDE_FIELDS = new Set<string>([
   // Editor-managed (have their own save/revision pipeline)
   'contents', 'customHighlight', 'moderationGuidelines',
   // Only changed on explicit Publish / Save Draft
@@ -20,17 +24,15 @@ const EXCLUDE_FIELDS = new Set([
   '_id', 'tags', 'socialPreviewData', 'user', 'commentCount', 'afCommentCount', 'debate',
 ]);
 
-type UpdatePostMutateFn = (options: { variables: { selector: { _id: string }, data: AnyBecauseHard } }) => Promise<unknown>;
+type UpdatePostMutateFn = useMutation.MutationFunction<
+  updatePostPostFormMutation,
+  updatePostPostFormMutationVariables
+>;
 
-function getInitialFieldValues(form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>) {
-  const result: Record<string, unknown> = {};
-  const values = form.state.values as Record<string, unknown>;
-  for (const key of Object.keys(values)) {
-    if (!EXCLUDE_FIELDS.has(key)) {
-      result[key] = values[key];
-    }
-  }
-  return result;
+function getInitialFieldValues(form: TypedReactFormApi<PostFormValues, PostSubmitMeta>): Partial<PostFormValues> {
+  return Object.fromEntries(
+    Object.entries(form.state.values).filter(([key]) => !EXCLUDE_FIELDS.has(key))
+  ) as Partial<PostFormValues>;
 }
 
 /**
@@ -40,7 +42,7 @@ function getInitialFieldValues(form: TypedReactFormApi<EditablePost & { title: s
  * running are saved immediately after it completes.
  */
 export function useAutoSavePostFields(
-  form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>,
+  form: TypedReactFormApi<PostFormValues, PostSubmitMeta>,
   postId: string | undefined,
   mutate: UpdatePostMutateFn,
 ) {
@@ -50,10 +52,10 @@ export function useAutoSavePostFields(
   // Track what values we've already enqueued (or initialized with) so we
   // don't enqueue redundant saves while one is in-flight. Initialized from
   // the form's current values so we don't immediately try to save unchanged fields.
-  const lastEnqueuedRef = useRef(getInitialFieldValues(form));
+  const lastEnqueuedRef = useRef<Partial<PostFormValues>>(getInitialFieldValues(form));
 
   // Simple queue: at most one pending save waiting behind the in-flight one.
-  const pendingSaveRef = useRef<Record<string, unknown> | null>(null);
+  const pendingSaveRef = useRef<Partial<PostFormValues> | null>(null);
   const savingRef = useRef(false);
   // Resolvers waiting for the queue to drain (used by awaitPendingSaves)
   const drainResolversRef = useRef<Array<() => void>>([]);
@@ -67,7 +69,7 @@ export function useAutoSavePostFields(
     setIsSaving(true);
 
     try {
-      const cleanedFields = recursivelyRemoveTypenameFrom(fields as JsonRecord);
+      const cleanedFields = recursivelyRemoveTypenameFrom(fields);
       await mutate({
         variables: {
           selector: { _id: postId! },
@@ -77,7 +79,7 @@ export function useAutoSavePostFields(
     } catch (error) {
       flash({ messageString: "Failed to save changes", type: "error" });
       // Remove from lastEnqueued so a future change can retry
-      for (const key of Object.keys(fields)) {
+      for (const key of Object.keys(fields) as Array<keyof PostFormValues>) {
         delete lastEnqueuedRef.current[key];
       }
     } finally {
@@ -98,20 +100,19 @@ export function useAutoSavePostFields(
     if (!postId) return;
 
     const unsubscribe = form.store.subscribe(() => {
-      const values = form.state.values as Record<string, unknown>;
-      const fieldMeta = form.state.fieldMeta as Record<string, { isDirty?: boolean }>;
+      const values = form.state.values;
+      const fieldMeta = form.state.fieldMeta;
 
-      const changedFields: Record<string, unknown> = {};
+      const changedKeys = Object.entries(fieldMeta)
+        .filter(([key, meta]) => {
+          if (!meta.isDirty || EXCLUDE_FIELDS.has(key)) return false;
+          const typedKey = key as keyof PostFormValues;
+          return values[typedKey] !== lastEnqueuedRef.current[typedKey];
+        })
+        .map(([key]) => key);
 
-      for (const [key, meta] of Object.entries(fieldMeta)) {
-        if (!meta.isDirty || EXCLUDE_FIELDS.has(key)) continue;
-        const currentVal = values[key];
-        if (currentVal !== lastEnqueuedRef.current[key]) {
-          changedFields[key] = currentVal;
-        }
-      }
-
-      if (Object.keys(changedFields).length > 0) {
+      if (changedKeys.length > 0) {
+        const changedFields = pick(values, changedKeys);
         Object.assign(lastEnqueuedRef.current, changedFields);
         pendingSaveRef.current = { ...(pendingSaveRef.current ?? {}), ...changedFields };
         void processQueue();
