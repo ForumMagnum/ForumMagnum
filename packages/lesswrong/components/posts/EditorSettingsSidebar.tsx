@@ -8,7 +8,7 @@ import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { userCanUseSharing } from "@/lib/betas";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
-import { defaultSharingSettings } from "@/lib/collections/posts/collabEditingPermissions";
+import { defaultSharingSettings, type SharingSettings, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { TypedReactFormApi, TypedFieldApi } from "../tanstack-form-components/BaseAppForm";
 import { AddOnSubmitCallback, AddOnSuccessCallback, EditorFormComponent } from "../editor/EditorFormComponent";
@@ -371,7 +371,7 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     },
   },
   sharingSection: {
-    marginBottom: 14,
+    // marginBottom: 14,
   },
   sharingDivider: {
     height: 1,
@@ -453,7 +453,7 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   linkSharingDotOff: {
     background: theme.palette.greyAlpha(0.25),
   },
-  advancedToggle: {
+  textButton: {
     ...theme.typography.commentStyle,
     display: "inline",
     background: "none",
@@ -465,11 +465,6 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     "&:hover": {
       color: theme.palette.greyAlpha(0.7),
     },
-  },
-  advancedSection: {
-    marginTop: 10,
-    paddingTop: 10,
-    borderTop: theme.palette.greyBorder("1px", 0.08),
   },
   permissionRow: {
     display: "flex",
@@ -693,6 +688,33 @@ function SidebarToggle({ field, label }: {
   );
 }
 
+function SharingPermissionSelect({ field, settingsKey, label }: {
+  field: TypedFieldApi<SharingSettings | null | undefined>;
+  settingsKey: keyof SharingSettings;
+  label: string;
+}) {
+  const classes = useStyles(styles);
+  const settings = field.state.value ?? defaultSharingSettings;
+  return (
+    <div className={classes.permissionRow}>
+      <div className={classes.permissionLabel}>{label}</div>
+      <Select
+        className={classes.permissionSelect}
+        value={settings[settingsKey]}
+        onChange={(e) => field.handleChange({
+          ...settings,
+          [settingsKey]: e.target.value as CollaborativeEditingAccessLevel,
+        })}
+      >
+        <MenuItem value="none">None</MenuItem>
+        <MenuItem value="read">Read</MenuItem>
+        <MenuItem value="comment">Comment</MenuItem>
+        <MenuItem value="edit">Edit</MenuItem>
+      </Select>
+    </div>
+  );
+}
+
 function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   canShare: boolean;
@@ -700,7 +722,6 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
   flash: (message: string) => void;
 }) {
   const classes = useStyles(styles);
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const postId = form.state.values._id;
   const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
 
@@ -755,7 +776,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
             }}
           </form.Field>
 
-          <form.Field name="sharingSettings">
+          {/* <form.Field name="sharingSettings">
             {(field) => {
               const settings = field.state.value ?? defaultSharingSettings;
               const linkEnabled = settings.anyoneWithLinkCan !== "none";
@@ -771,7 +792,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 {linkEnabled && <span>&middot;</span>}
                 {linkEnabled && <button
                   type="button"
-                  className={classes.advancedToggle}
+                  className={classes.textButton}
                   onClick={() => {
                     field.handleChange({ ...settings, anyoneWithLinkCan: "none" });
                   }}
@@ -780,13 +801,19 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 </button>}
               </div>;
             }}
+          </form.Field> */}
+
+          <form.Field name="sharingSettings">
+            {(field) => (
+              <SharingPermissionSelect field={field} settingsKey="anyoneWithLinkCan" label="Anyone with link can" />
+            )}
           </form.Field>
         </div>
 
         {/* Shared users section */}
         <div className={classes.sharingDivider} />
         <div className={classes.sharingSection}>
-          <div className={classes.sectionLabel}>People</div>
+          {/* <div className={classes.sectionLabel}>People</div> */}
           <form.Field name="shareWithUsers">
             {(field) => (
               <EditableUsersList
@@ -796,58 +823,13 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
               />
             )}
           </form.Field>
-        </div>
 
-        {/* Advanced permissions */}
-        <div>
-          <button
-            type="button"
-            className={classes.advancedToggle}
-            onClick={() => setShowAdvanced((v) => !v)}
-          >
-            {showAdvanced ? "Hide permissions" : "Edit permissions"}
-          </button>
+          <form.Field name="sharingSettings">
+            {(field) => (
+              <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" label="Added people can" />
+            )}
+          </form.Field>
         </div>
-
-        {showAdvanced && <form.Field name="sharingSettings">
-          {(field) => {
-            const settings = field.state.value ?? defaultSharingSettings;
-            return <div className={classes.advancedSection}>
-              <div className={classes.permissionRow}>
-                <div className={classes.permissionLabel}>Added people can</div>
-                <Select
-                  className={classes.permissionSelect}
-                  value={settings.explicitlySharedUsersCan}
-                  onChange={(e) => field.handleChange({
-                    ...settings,
-                    explicitlySharedUsersCan: e.target.value as typeof settings.explicitlySharedUsersCan,
-                  })}
-                >
-                  <MenuItem value="none">None</MenuItem>
-                  <MenuItem value="read">Read</MenuItem>
-                  <MenuItem value="comment">Comment</MenuItem>
-                  <MenuItem value="edit">Edit</MenuItem>
-                </Select>
-              </div>
-              <div className={classes.permissionRow}>
-                <div className={classes.permissionLabel}>Anyone with link can</div>
-                <Select
-                  className={classes.permissionSelect}
-                  value={settings.anyoneWithLinkCan}
-                  onChange={(e) => field.handleChange({
-                    ...settings,
-                    anyoneWithLinkCan: e.target.value as typeof settings.anyoneWithLinkCan,
-                  })}
-                >
-                  <MenuItem value="none">None</MenuItem>
-                  <MenuItem value="read">Read</MenuItem>
-                  <MenuItem value="comment">Comment</MenuItem>
-                  <MenuItem value="edit">Edit</MenuItem>
-                </Select>
-              </div>
-            </div>;
-          }}
-        </form.Field>}
 
         {/* Co-Authors */}
         {canEditCoauthors && <>

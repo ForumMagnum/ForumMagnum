@@ -34,13 +34,13 @@ export function getUpdatedFieldValues<T extends AnyFormApi>(formApi: T, editable
   return recursivelyRemoveTypenameFrom(sanitizeEditableFieldValues(updatedFields, editableFields));
 }
 
-export function recursivelyRemoveTypenameFrom<T extends Json>(json: T): T {
+export function recursivelyRemoveTypenameFrom<T>(json: T): T {
   if (!json) {
     return json;
   } else if (Array.isArray(json)) {
     return json.map((el) => recursivelyRemoveTypenameFrom(el)) as unknown as T;
   } else if (typeof json === 'object' && isPlainObject(json)) {
-    const clone = mapValues(json, (v: Json) => recursivelyRemoveTypenameFrom(v));
+    const clone = mapValues(json as Record<string, unknown>, (v) => recursivelyRemoveTypenameFrom(v));
     if ('__typename' in clone) {
       delete clone.__typename;
     }
