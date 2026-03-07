@@ -45,7 +45,8 @@ import UsersNameWrapper from "../users/UsersNameWrapper";
 import ErrorBoundary from "../common/ErrorBoundary";
 import { InlineCommentsPanelContext, EditorUserModeContext } from "../common/sharedContexts";
 import { useAutoSavePostFields } from "./useAutoSavePostFields";
-import { EditorUserMode, type EditorUserModeType } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
+import { EditorUserMode, getDefaultEditorUserMode, type EditorUserModeType } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
+import { useEventListener } from "../hooks/useEventListener";
 import { accessLevelCan, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
@@ -394,25 +395,13 @@ const PostForm = ({
   const accessLevel = (initialData.myEditorAccess ?? "edit") as CollaborativeEditingAccessLevel;
   const canEdit = accessLevelCan(accessLevel, "edit") || !!currentUser?.isAdmin;
   const canComment = accessLevelCan(accessLevel, "comment") || !!currentUser?.isAdmin;
-  const [userMode, setUserMode] = useState<EditorUserModeType>(() => {
-    if (canEdit) return EditorUserMode.Edit;
-    if (canComment) return EditorUserMode.Suggest;
-    return EditorUserMode.View;
-  });
+  const [userMode, setUserMode] = useState<EditorUserModeType>(() => getDefaultEditorUserMode(canEdit, canComment));
   const [isBrowserOnline, setIsBrowserOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [isWsConnected, setIsWsConnected] = useState(true);
   const isConnected = isBrowserOnline && isWsConnected;
 
-  useEffect(() => {
-    const handleOnline = () => setIsBrowserOnline(true);
-    const handleOffline = () => setIsBrowserOnline(false);
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+  useEventListener('online', () => setIsBrowserOnline(true));
+  useEventListener('offline', () => setIsBrowserOnline(false));
 
   const editorUserModeContext = useMemo(() => ({
     userMode,
@@ -421,7 +410,7 @@ const PostForm = ({
     canComment,
     isConnected,
     setIsWsConnected,
-  }), [userMode, setUserMode, canEdit, canComment, isConnected]);
+  }), [userMode, setUserMode, canEdit, canComment, isConnected, setIsWsConnected]);
 
   const cycleEditorMode = useCallback(() => {
     setUserMode((current) => getNextEditorMode(current, canEdit, canComment));

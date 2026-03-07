@@ -121,7 +121,7 @@ import IframeWidgetPlugin from './embeds/IframeWidgetEmbed/IframeWidgetPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
 import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
-import { EditorUserMode, type EditorUserModeType } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
+import { EditorUserMode, getDefaultEditorUserMode, type EditorUserModeType } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
 import { SET_USER_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
 import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
@@ -625,7 +625,7 @@ export default function Editor({
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
 
   const externalModeContext = useContext(EditorUserModeContext);
-  const setIsWsConnected = useMemo(() => externalModeContext?.setIsWsConnected, [externalModeContext?.setIsWsConnected]);
+  const setIsWsConnected = externalModeContext?.setIsWsConnected;
 
   // Store initialHtml in a ref so the onSynced callback can access the latest value
   const initialHtmlRef = useRef(initialHtml);
@@ -746,11 +746,7 @@ export default function Editor({
 
   // Use shared context for user mode if available (provided by PostForm),
   // otherwise fall back to local state (e.g. comment editors).
-  const [localUserMode, setLocalUserMode] = useState<EditorUserModeType>(() => {
-    if (canEdit) return EditorUserMode.Edit;
-    if (canComment) return EditorUserMode.Suggest;
-    return EditorUserMode.View;
-  });
+  const [localUserMode, setLocalUserMode] = useState<EditorUserModeType>(() => getDefaultEditorUserMode(canEdit, canComment));
   const userMode = externalModeContext?.userMode ?? localUserMode;
   const setUserMode = externalModeContext?.setUserMode ?? setLocalUserMode;
 
