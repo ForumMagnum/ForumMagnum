@@ -6,7 +6,7 @@
  *
  */
 
-import React, {type JSX} from 'react';
+import React, {useContext, type JSX} from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 
@@ -133,9 +133,8 @@ import {
 import { getDataWithDiscardedSuggestions } from '../editor/lexicalPlugins/suggestedEdits/getDataWithDiscardedSuggestions';
 import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
-import Select from '@/lib/vendor/@material-ui/core/src/Select';
-import { MenuItem } from "@/components/common/Menus";
 import { HorizontalRulePlugin } from './plugins/LexicalHorizontalRulePlugin';
+import { EditorUserModeContext } from '@/components/common/sharedContexts';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   '@keyframes sentinelCursorBlink': {
@@ -495,22 +494,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },
-  userModeToggle: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    marginBottom: 6,
-  },
-  userModeSelect: {
-    padding: '4px 8px',
-    cursor: 'pointer',
-    background: theme.palette.grey[0],
-    color: theme.palette.grey[900],
-    fontSize: 13,
-    fontWeight: 500,
-    outline: 'none',
-    '&:hover': {
-    },
-  },
   editorScroller: {
     minHeight: 'var(--lexical-editor-min-height, 150px)',
     maxWidth: '100%',
@@ -750,27 +733,30 @@ export default function Editor({
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
-  // Initialize user mode based on access level:
-  // - Users with "edit" access start in Editing mode
-  // - Users with "comment" access (but not "edit") start in Suggesting mode
-  // - Users with "read" access (but not "comment") start in Viewing mode
   const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
   const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
-  const [userMode, setUserMode] = useState<EditorUserModeType>(() => {
+
+  // Use shared context for user mode if available (provided by PostForm),
+  // otherwise fall back to local state (e.g. comment editors).
+  const externalModeContext = useContext(EditorUserModeContext);
+  const [localUserMode, setLocalUserMode] = useState<EditorUserModeType>(() => {
     if (canEdit) return EditorUserMode.Edit;
     if (canComment) return EditorUserMode.Suggest;
     return EditorUserMode.View;
   });
+  const userMode = externalModeContext?.userMode ?? localUserMode;
+  const setUserMode = externalModeContext?.setUserMode ?? setLocalUserMode;
+
   const isSuggestionMode = userMode === EditorUserMode.Suggest;
   const isViewingMode = userMode === EditorUserMode.View;
-  
+
   // Set editor editability based on user mode.
   // In viewing mode the editor is non-editable, which disables toolbars,
   // image resizers, table hover actions, and other interactive features.
   useEffect(() => {
     editor.setEditable(!isViewingMode);
   }, [editor, isViewingMode]);
-  
+
   const collaboratorIdentity: CollaboratorIdentity | null = useMemo(() => {
     if (!collaborationConfig || !accessLevel) return null;
     return {
@@ -779,14 +765,21 @@ export default function Editor({
       accessLevel,
     };
   }, [collaborationConfig, accessLevel]);
-  
+
   const handleUserModeChange = useCallback((mode: EditorUserModeType) => {
     setUserMode(mode);
-  }, []);
+  }, [setUserMode]);
 
-  const handleSetUserMode = useCallback((mode: EditorUserModeType) => {
-    editor.dispatchCommand(SET_USER_MODE_COMMAND, mode);
-  }, [editor]);
+  // When the external context's userMode changes (e.g. from PostForm button),
+  // dispatch the command to the lexical editor so SuggestionModePlugin can apply it.
+  const prevExternalModeRef = useRef(externalModeContext?.userMode);
+  useEffect(() => {
+    const currentExternalMode = externalModeContext?.userMode;
+    if (currentExternalMode && currentExternalMode !== prevExternalModeRef.current) {
+      prevExternalModeRef.current = currentExternalMode;
+      editor.dispatchCommand(SET_USER_MODE_COMMAND, currentExternalMode);
+    }
+  }, [externalModeContext?.userMode, editor]);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
@@ -817,23 +810,6 @@ export default function Editor({
 
   return (
     <>
-      {isRichText && collaborationConfig && (!canEdit || !canComment) && (
-        <div className={classes.userModeToggle}>
-          <Select
-            className={classes.userModeSelect}
-            value={userMode}
-            onChange={(e) => handleSetUserMode(e.target.value as EditorUserModeType)}
-          >
-            <MenuItem value={EditorUserMode.View}>Viewing</MenuItem>
-            <MenuItem value={EditorUserMode.Suggest} disabled={!canComment}>
-              Suggesting
-            </MenuItem>
-            <MenuItem value={EditorUserMode.Edit} disabled={!canEdit}>
-              Editing
-            </MenuItem>
-          </Select>
-        </div>
-      )}
       {isRichText && (
         <ToolbarPlugin
           editor={editor}

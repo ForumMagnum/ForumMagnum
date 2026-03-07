@@ -3,7 +3,7 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useCurrentUser } from "../common/withUser";
 import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
@@ -30,7 +30,7 @@ import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import ForumIcon from "../common/ForumIcon";
+import ForumIcon, { type ForumIconName } from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import PostFormSecondaryGroups from "./PostFormSecondaryGroups";
@@ -43,8 +43,10 @@ import FormatDate from "../common/FormatDate";
 import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
 import UsersNameWrapper from "../users/UsersNameWrapper";
 import ErrorBoundary from "../common/ErrorBoundary";
-import { InlineCommentsPanelContext } from "../common/sharedContexts";
+import { InlineCommentsPanelContext, EditorUserModeContext } from "../common/sharedContexts";
 import { useAutoSavePostFields } from "./useAutoSavePostFields";
+import { EditorUserMode, type EditorUserModeType } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
+import { accessLevelCan, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
   mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -334,6 +336,27 @@ function getDraftLabel(post: { draft?: boolean | null } | null) {
 
 const ON_SUBMIT_META: PostSubmitMeta = {};
 
+const editorModeLabels: Record<EditorUserModeType, string> = {
+  [EditorUserMode.Edit]: "Editing",
+  [EditorUserMode.Suggest]: "Suggesting",
+  [EditorUserMode.View]: "Viewing",
+};
+
+const editorModeIcons: Record<EditorUserModeType, ForumIconName> = {
+  [EditorUserMode.Edit]: "Pencil",
+  [EditorUserMode.Suggest]: "PencilSquare",
+  [EditorUserMode.View]: "Eye",
+};
+
+function getNextEditorMode(current: EditorUserModeType, canEdit: boolean, canComment: boolean): EditorUserModeType {
+  const modes: EditorUserModeType[] = [];
+  if (canEdit) modes.push(EditorUserMode.Edit);
+  if (canComment) modes.push(EditorUserMode.Suggest);
+  modes.push(EditorUserMode.View);
+  const currentIndex = modes.indexOf(current);
+  return modes[(currentIndex + 1) % modes.length];
+}
+
 const SyncTitleToParent = ({ title, onTitleChange }: {
   title: string;
   onTitleChange: (title: string) => void;
@@ -363,6 +386,25 @@ const PostForm = ({
   const [showCoauthorSearch, setShowCoauthorSearch] = useState(false);
   const [editingLinkpostUrl, setEditingLinkpostUrl] = useState(false);
   const [linkpostUrlDraft, setLinkpostUrlDraft] = useState("");
+
+  const accessLevel = (initialData.myEditorAccess ?? "edit") as CollaborativeEditingAccessLevel;
+  const canEdit = accessLevelCan(accessLevel, "edit") || !!currentUser?.isAdmin;
+  const canComment = accessLevelCan(accessLevel, "comment") || !!currentUser?.isAdmin;
+  const [userMode, setUserMode] = useState<EditorUserModeType>(() => {
+    if (canEdit) return EditorUserMode.Edit;
+    if (canComment) return EditorUserMode.Suggest;
+    return EditorUserMode.View;
+  });
+  const editorUserModeContext = useMemo(() => ({
+    userMode,
+    setUserMode,
+    canEdit,
+    canComment,
+  }), [userMode, setUserMode, canEdit, canComment]);
+
+  const cycleEditorMode = useCallback(() => {
+    setUserMode((current) => getNextEditorMode(current, canEdit, canComment));
+  }, [canEdit, canComment]);
 
   // TODO: maybe this is just an edit form?
   const formType = initialData ? 'edit' : 'new';
@@ -470,6 +512,7 @@ const PostForm = ({
     : null;
 
   return (
+    <EditorUserModeContext.Provider value={editorUserModeContext}>
     <InlineCommentsPanelContext.Provider value={inlineCommentsContext}>
     <form className={classes.mobileBottomPadding} onSubmit={(e) => {
       e.preventDefault();
@@ -510,6 +553,15 @@ const PostForm = ({
             >
               <ForumIcon icon="Settings" className={classes.icon} />
             </button>
+            {editorType === "lexical" && <LWTooltip title={editorModeLabels[userMode]} placement="bottom-end">
+              <button
+                type="button"
+                className={classes.iconButton}
+                onClick={cycleEditorMode}
+              >
+                <ForumIcon icon={editorModeIcons[userMode]} className={classes.icon} />
+              </button>
+            </LWTooltip>}
             {(commentCount > 0 || showComments) && <button
               type="button"
               className={classNames(classes.iconButton, showComments && classes.iconButtonActive)}
@@ -997,6 +1049,7 @@ const PostForm = ({
       />
     </form >
     </InlineCommentsPanelContext.Provider>
+    </EditorUserModeContext.Provider>
   );
 };
 

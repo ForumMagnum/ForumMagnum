@@ -3,6 +3,7 @@
 import React, { createContext, useState, useMemo } from 'react';
 import { createContext as contextSelectorCreateContext } from "use-context-selector";
 import type { EditorContents } from '../editor/Editor';
+import type { EditorUserModeType } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
 
 interface DynamicTableOfContentsContextType {
   setToc: (document: EditorContents) => void;
@@ -74,6 +75,15 @@ export const InlineCommentsPanelContext = createContext<InlineCommentsPanelConte
   commentCount: 0,
   setCommentCount: () => {},
 });
+
+interface EditorUserModeContextType {
+  userMode: EditorUserModeType;
+  setUserMode: (mode: EditorUserModeType) => void;
+  canEdit: boolean;
+  canComment: boolean;
+}
+
+export const EditorUserModeContext = createContext<EditorUserModeContextType | null>(null);
 
 // RelevantTestGroupAllocation: A dictionary from the names of A/B tests to
 // which group a user is in, which is pruned to only the tests which affected

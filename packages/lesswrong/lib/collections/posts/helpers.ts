@@ -489,6 +489,7 @@ export type EditablePost = UpdatePostDataInput & {
   contents: CreateRevisionDataInput & { html: string | null } | null;
   debate: boolean;
   title: string;
+  myEditorAccess?: string;
 } & Pick<PostsListBase, 'postCategory'>;
 
 export interface PostSubmitMeta {
