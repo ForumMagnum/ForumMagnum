@@ -231,15 +231,15 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     "&:hover": {
       opacity: 1,
     },
-    "&:hover $postContent": {
-      opacity: 0.5,
-    },
-    "&:hover $postImage": {
-      opacity: 0.5,
-    },
   },
   postArticleTop: {
     gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+
+    "&:hover $postTitle": {
+      textDecoration: "underline",
+      textDecorationColor: theme.palette.greyAlpha(0.2),
+      textDecorationThickness: 1,
+    }
   },
   postContent: {
     gridColumn: "1 / 4",
@@ -260,7 +260,7 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: theme.palette.type === "dark" ? "rgba(0,0,0,.92)" : "rgba(255,255,255,.87)",
+    color: "light-dark(rgba(255,255,255,.87),rgba(0,0,0,.92))",
     fontSize: 14,
     aspectRatio: "3 / 2",
     transition: "opacity 0.15s ease",
@@ -361,11 +361,10 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     gridColumn: "span 2",
     display: "flex",
     flexDirection: "column",
-    "&:hover $smallArticleContent": {
-      opacity: 0.5,
-    },
-    "&:hover $smallArticleImage": {
-      opacity: 0.5,
+    "&:hover $smallArticleTitle": {
+      textDecoration: "underline",
+      textDecorationColor: theme.palette.greyAlpha(0.2),
+      textDecorationThickness: 1,
     },
   },
   smallArticleImage: {
@@ -665,16 +664,10 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     alignItems: "start",
     lineHeight: 1,
     color: "inherit",
-    "&:hover": {
-      opacity: 0.67,
-    },
   },
   sortIconDisabled: {
     opacity: 0.35,
     cursor: "default",
-    "&:hover": {
-      opacity: 0.35,
-    },
   },
   sortIcon: {
     fontSize: 16,
@@ -775,9 +768,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     overflow: "visible",
     position: "relative",
     transition: "opacity 0.15s ease",
-    "&:hover": {
-      opacity: 0.5,
-    },
   },
   sequenceCardImage: {
     width: "100%",
