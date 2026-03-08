@@ -50,6 +50,7 @@ interface Query {
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
+  UserContentFeed: UserContentFeedQueryResults;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
   RandomTag: Tag;
@@ -962,6 +963,19 @@ interface TagHistoryFeedEntry {
   summaryRevision: Revision | null;
   wikiMetadataChanged: FieldChange | null;
   lensOrSummaryMetadataChanged: FieldChange | null;
+}
+
+interface UserContentFeedQueryResults {
+  cutoff: Date | null;
+  endOffset: number;
+  results: Array<UserContentFeedEntry> | null;
+}
+
+interface UserContentFeedEntry {
+  type: UserContentFeedEntryType;
+  profileComment: Comment | null;
+  shortformComment: Comment | null;
+  userPost: Post | null;
 }
 
 interface DocumentDeletion {
@@ -8739,6 +8753,8 @@ interface GraphQLTypeMap {
   RecentDiscussionFeedEntry: RecentDiscussionFeedEntry;
   TagHistoryFeedQueryResults: TagHistoryFeedQueryResults;
   TagHistoryFeedEntry: TagHistoryFeedEntry;
+  UserContentFeedQueryResults: UserContentFeedQueryResults;
+  UserContentFeedEntry: UserContentFeedEntry;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;
