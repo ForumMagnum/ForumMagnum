@@ -14,6 +14,8 @@ export const ckEditorPluginStyles = defineStyles("CKEditor", (theme: ThemeType) 
     "--borderRadius-defaul": theme.borderRadius.default,
   },
   sidebar: {
+    // Position this above the sidebar that contains sidenotes
+    zIndex: 1,
     position: 'absolute',
     right: -350,
     width: 300,
