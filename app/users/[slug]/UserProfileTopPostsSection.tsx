@@ -106,7 +106,7 @@ export function UserProfileTopPostsSectionQuery({user}: {user: UsersProfile}) {
       selector: hasPinnedPosts
         ? { default: { exactPostIds: pinnedPostIds } }
         : (userId
-          ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } }
+          ? { userPosts: { userId, sortedBy: "top", excludeEvents: true, authorIsUnreviewed: null } }
           : undefined
         ),
       limit: TOP_POSTS_LIMIT,
