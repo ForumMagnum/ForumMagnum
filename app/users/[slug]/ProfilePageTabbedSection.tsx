@@ -9,34 +9,51 @@ import { ProfilePageSequencesTab } from "./ProfilePageSequencesTab";
 import { ProfilePageFeedTab } from "./ProfilePageFeedTab";
 import { AllPostsTabSortingMode } from "./ProfilePageAllPostsTab";
 import { ProfilePageQuickTakesTab } from "./ProfilePageQuickTakesTab";
+import { postsItemLikeStyles } from "@/components/localGroups/LocalGroupsItem";
 
-type ProfileTab = "posts" | "sequences" | "quickTakes" | "feed";
+const tabs = [
+  {
+    id: "posts",
+    label: "Posts",
+  },
+  {
+    id: "sequences",
+    label: "Sequences",
+  },
+  {
+    id: "quickTakes",
+    label: "Quick takes",
+  },
+  {
+    id: "feed",
+    label: "All",
+  },
+] as const;
+
+type ProfileTab = (typeof tabs)[number]["id"];
 const SORT_PANEL_CLOSE_MS = 300;
 
-function parseProfileTab(value: unknown): ProfileTab | null {
-  if (value === "posts" || value === "sequences" || value === "quickTakes" || value === "feed") {
-    return value;
-  }
+function parseProfileTab(value: string): ProfileTab | null {
+  if (typeof value !== "string") return null;
+  const tab = tabs.find((tab) => tab.id === value);
+  if (tab) return tab.id;
   return null;
 }
 
 function getInitialProfileTab({
   preferredTab,
-  hasPosts,
-  hasSequences,
-  hasQuickTakes,
+  availableTabs,
 }: {
   preferredTab: ProfileTab | null;
-  hasPosts: boolean;
-  hasSequences: boolean;
-  hasQuickTakes: boolean;
+  availableTabs: ProfileTab[],
 }): ProfileTab {
-  if (preferredTab === "sequences" && hasSequences) return "sequences";
-  if (preferredTab === "posts" && hasPosts) return "posts";
-  if (preferredTab === "quickTakes" && hasQuickTakes) return "quickTakes";
-  if (preferredTab === "feed") return "feed";
-  if (!hasPosts) return "feed";
-  return "posts";
+  if (preferredTab && availableTabs.includes(preferredTab)) {
+    return preferredTab;
+  }
+  if (availableTabs.includes("posts")) {
+    return "posts";
+  }
+  return availableTabs[0] ?? "feed";
 }
 
 function switchTab(
@@ -79,12 +96,15 @@ export function ProfilePageTabbedSection({user}: {
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
   const hasSequences = user.sequenceCount > 0;
   const hasQuickTakes = !!user.shortformFeedId;
-
+  const availableTabs: ProfileTab[] = [
+    ...(hasPosts ? ["posts"] as const : []),
+    ...(hasSequences ? ["sequences"] as const : []),
+    ...(hasQuickTakes ? ["quickTakes"] as const : []),
+    "feed"
+  ];
   const [activeTab, setActiveTab] = useState<ProfileTab>(getInitialProfileTab({
     preferredTab: parseProfileTab(cookies[SELECTED_PROFILE_TAB_COOKIE]),
-    hasPosts: user.postCount > 0,
-    hasSequences: user.sequenceCount > 0,
-    hasQuickTakes,
+    availableTabs,
   }));
 
   const [sortPanelOpen, setSortPanelOpen] = useState(false);
@@ -104,42 +124,17 @@ export function ProfilePageTabbedSection({user}: {
     <div className={classes.allPostsHeader} ref={tabsRef}>
       <div className={classes.allPostsLeftHeader}>
         <div className={classes.profileTabs}>
-          <button
-            className={classNames(classes.profileTab, activeTab === "posts" && classes.profileTabActive)}
-            data-tab="posts"
-            type="button"
-            onClick={() => handleTabSwitch("posts")}
-          >
-            Posts
-          </button>
-          {hasSequences && (
+          {tabs.map((tab) => availableTabs.includes(tab.id) && (
             <button
-              className={classNames(classes.profileTab, activeTab === "sequences" && classes.profileTabActive)}
-              data-tab="sequences"
+              key={tab.id}
+              className={classNames(classes.profileTab, activeTab === tab.id && classes.profileTabActive)}
+              data-tab={tab.id}
               type="button"
-              onClick={() => handleTabSwitch("sequences")}
+              onClick={() => handleTabSwitch(tab.id)}
             >
-              Sequences
+              {tab.label}
             </button>
-          )}
-          {hasQuickTakes && (
-            <button
-              className={classNames(classes.profileTab, activeTab === "quickTakes" && classes.profileTabActive)}
-              data-tab="quickTakes"
-              type="button"
-              onClick={() => handleTabSwitch("quickTakes")}
-            >
-              Quick takes
-            </button>
-          )}
-          <button
-            className={classNames(classes.profileTab, activeTab === "feed" && classes.profileTabActive)}
-            data-tab="feed"
-            type="button"
-            onClick={() => handleTabSwitch("feed")}
-          >
-            All
-          </button>
+          ))}
         </div>
         {((activeTab === "posts" && hasPosts) || (activeTab === "feed" && hasFeedContent) || activeTab === "sequences") && (
           <div className={classes.sortControl}>
@@ -155,40 +150,24 @@ export function ProfilePageTabbedSection({user}: {
       </div>
     </div>
 
-    <div className={classes.allPostsContainer}>
-      <div className={classNames(classes.postsList, classes.tabPanel, activeTab === "posts" && classes.tabPanelActive)}>
-        <Suspense>
+    <Suspense>
+      <div className={classes.allPostsContainer}>
+        {activeTab === "posts" && <div className={classNames(classes.postsList, classes.tabPanel)}>
           <ProfilePageAllPostsTab user={user} sortBy={sortBy} setSortBy={setSortBy} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
-        </Suspense>
-      </div>
+        </div>}
 
-      <div className={classNames(
-        classes.sequencesList, classes.tabPanel,
-        activeTab === "sequences" && classes.tabPanelActive
-      )}>
-        {activeTab === "sequences" && <Suspense>
+        {activeTab === "sequences" && <div className={classNames(classes.sequencesList, classes.tabPanel)}>
           <ProfilePageSequencesTab user={user} />
-        </Suspense>}
-      </div>
+        </div>}
 
-      <div className={classNames(
-        classes.tabPanel,
-        activeTab === "quickTakes" && classes.tabPanelActive
-      )}>
-        {activeTab === "quickTakes" && <Suspense>
+        {activeTab === "quickTakes" && <div className={classes.tabPanel}>
           <ProfilePageQuickTakesTab user={user} />
-        </Suspense>}
-      </div>
+        </div>}
 
-      <div className={classNames(
-        classes.feedList,
-        classes.tabPanel,
-        activeTab === "feed" && classes.tabPanelActive
-      )}>
-        {activeTab === "feed" && <Suspense>
+        {activeTab === "feed" && <div className={classNames(classes.feedList, classes.tabPanel)}>
           <ProfilePageFeedTab user={user} sortPanelOpen={sortPanelOpen} sortPanelClosing={sortPanelClosing} />
-        </Suspense>}
+        </div>}
       </div>
-    </div>
-    </div>
+    </Suspense>
+  </div>
 }

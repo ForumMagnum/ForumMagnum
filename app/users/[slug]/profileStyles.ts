@@ -731,9 +731,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     paddingTop: 12,
   },
   tabPanel: {
-    display: "none",
-  },
-  tabPanelActive: {
     display: "flex",
     flexDirection: "column",
     gap: 8,
