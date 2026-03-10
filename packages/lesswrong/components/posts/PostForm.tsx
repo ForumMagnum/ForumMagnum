@@ -520,6 +520,7 @@ const PostForm = ({
       <form.Subscribe selector={() => ({})}>
         {() => (
           <div className={classes.topRightControls}>
+            <LWTooltip title="Publishing menu">
             <button
               type="button"
               className={classNames(
@@ -528,11 +529,11 @@ const PostForm = ({
                 sidebarPanel === "publish" && classes.iconButtonActive,
                 sidebarPanel === "publish" && classes.publishIconButtonActive,
               )}
-              title={sidebarPanel === "publish" ? "Hide publish panel" : "Open publish panel"}
               onClick={() => setSidebarPanel((panel) => panel === "publish" ? null : "publish")}
             >
               <ForumIcon icon="ArrowRightOutline" className={classes.icon} />
             </button>
+            </LWTooltip>
             <button
               type="button"
               className={classNames(classes.iconButton, sidebarPanel === "sharing" && classes.iconButtonActive)}

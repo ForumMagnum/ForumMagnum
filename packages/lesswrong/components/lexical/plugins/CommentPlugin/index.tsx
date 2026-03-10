@@ -13,7 +13,7 @@ import type {
   NodeKey,
   RangeSelection,
 } from 'lexical';
-import React, { type JSX } from 'react';
+import React, { useContext, type JSX } from 'react';
 
 import {
   $createMarkNode,
@@ -248,6 +248,9 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   commentsPanel: {
     position: 'fixed',
     right: 86,
+    [theme.breakpoints.down('md')]: {
+      right: 6,
+    },
     width: 300,
     top: 'var(--editor-right-rail-top)',
     height: 'var(--editor-right-rail-height)',
@@ -267,11 +270,26 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     letterSpacing: '0.07em',
     textTransform: 'uppercase',
     fontWeight: 700,
-    display: 'block',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     width: '100%',
     color: theme.palette.greyAlpha(0.58),
     overflow: 'hidden',
     borderBottom: theme.palette.greyBorder('1px', 0.08),
+  },
+  commentsPanelCloseButton: {
+    height: 20,
+    width: 20,
+    padding: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  commentsPanelCloseButtonIcon: {
+    height: 16,
+    width: 16,
   },
   commentsPanelEditor: {
     position: 'relative',
@@ -334,7 +352,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     margin: 0,
     width: '100%',
     position: 'absolute',
-    top: 37,
+    top: 42,
     overflowY: 'auto',
     height: 'calc(100% - 42px)',
   },
@@ -1326,10 +1344,16 @@ function CommentsPanel({
   const classes = useStyles(styles);
   const listRef = useRef<HTMLUListElement>(null);
   const isEmpty = comments.length === 0;
+  const { setShowComments } = useContext(InlineCommentsPanelContext);
 
   return (
     <div className={classes.commentsPanel}>
-      <h2 className={classes.commentsPanelHeading}>Comments</h2>
+      <h2 className={classes.commentsPanelHeading}>
+        Comments
+        <Button onClick={() => setShowComments(false)} className={classes.commentsPanelCloseButton}>
+          <ForumIcon icon="Close" className={classes.commentsPanelCloseButtonIcon} />
+        </Button>
+      </h2>
       {isEmpty ? (
         <div className={classes.commentsPanelEmpty}>No Comments</div>
       ) : (
@@ -1359,7 +1383,7 @@ export default function CommentPlugin(): JSX.Element {
   const [commentAnchorRect, setCommentAnchorRect] = useState<DOMRect | null>(
     null,
   );
-  const { showComments, setShowComments, setCommentCount } = React.useContext(InlineCommentsPanelContext);
+  const { showComments, setShowComments, setCommentCount } = useContext(InlineCommentsPanelContext);
   const cancelAddComment = useCallback(() => {
     editor.update(() => {
       const selection = $getSelection();
