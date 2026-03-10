@@ -1202,7 +1202,7 @@ const EditorSettingsSidebar = ({
         )}
 
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
-          <div className={classes.moderationGuidelinesLabel}>Custom guidelines</div>
+          {/* <div className={classes.moderationGuidelinesLabel}>Custom guidelines</div> */}
           <form.Field name="moderationGuidelines">
             {(field) => (
               <EditorFormComponent
@@ -1217,7 +1217,7 @@ const EditorSettingsSidebar = ({
                 collectionName="Posts"
                 commentEditor={true}
                 commentStyles={true}
-                hideControls={false}
+                hideControls={true}
               />
             )}
           </form.Field>

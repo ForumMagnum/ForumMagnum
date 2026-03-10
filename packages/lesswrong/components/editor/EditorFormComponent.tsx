@@ -558,7 +558,7 @@ function InnerEditorFormComponent<S, R>({
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || updatedFormType==="edit");
 
-  const actualPlaceholder = ((collectionName === "Posts" && getPostPlaceholder(document)) || editorHintText || hintText || placeholder);
+  const actualPlaceholder = (editorHintText || hintText || placeholder || (collectionName === "Posts" ? getPostPlaceholder(document) : undefined));
 
   useEffect(() => {
     if (!isCollabEditor && collectionName === 'Posts' && fieldName === 'contents') {
