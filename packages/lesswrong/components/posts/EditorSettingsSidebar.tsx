@@ -252,7 +252,6 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     },
     "& .CoauthorsListEditor-list, & .EditableUsersList-list": {
       gap: 4,
-      marginTop: 4,
     },
   },
   accordionHeader: {
@@ -347,11 +346,6 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     // User list layout
     "& .CoauthorsListEditor-root, & .EditableUsersList-listEditor": {
       flexDirection: "column",
-      gap: 4,
-    },
-    "& .CoauthorsListEditor-list, & .EditableUsersList-list": {
-      gap: 4,
-      marginTop: 4,
     },
     // User search inputs
     "& .UsersSearchInput-input": {
@@ -361,13 +355,18 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
         fontSize: 18,
         color: theme.palette.greyAlpha(0.35),
       },
+      padding: 0,
     },
     "& .MuiInputBase-input": {
       ...theme.typography.commentStyle,
       fontSize: 13,
+      padding: 0,
     },
-    "& .MuiInput-underline:before": {
-      borderBottomColor: theme.palette.greyAlpha(0.12),
+    "& .UsersSearchInput-input.MuiInput-underline:before": {
+      borderBottom: "none !important",
+    },
+    "& .MuiInput-underline:after": {
+      transform: "scaleX(0)",
     },
     // User chips
     "& .SingleUsersItem-chip": {
@@ -376,8 +375,11 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
       fontSize: 12,
     },
   },
-  sharingSection: {
-    // marginBottom: 14,
+  sharingSection: {},
+  sharingSectionFlex: {
+    display: "flex",
+    alignItems: "end",
+    justifyContent: "space-between",
   },
   sharingDivider: {
     height: 1,
@@ -398,6 +400,8 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     gap: 6,
     width: "100%",
     padding: "8px 12px",
+    marginTop: 10,
+    marginBottom: 8,
     borderRadius: 8,
     border: "none",
     background: theme.palette.primary.main,
@@ -757,13 +761,13 @@ function SidebarToggle({ field, label }: {
 function SharingPermissionSelect({ field, settingsKey, label }: {
   field: TypedFieldApi<SharingSettings | null | undefined>;
   settingsKey: keyof SharingSettings;
-  label: string;
+  label?: string;
 }) {
   const classes = useStyles(styles);
   const settings = field.state.value ?? defaultSharingSettings;
   return (
     <div className={classes.permissionRow}>
-      <div className={classes.permissionLabel}>{label}</div>
+      {label && <div className={classes.permissionLabel}>{label}</div>}
       <Select
         className={classes.permissionSelect}
         value={settings[settingsKey]}
@@ -844,33 +848,6 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
             }}
           </form.Field>
 
-          {/* <form.Field name="sharingSettings">
-            {(field) => {
-              const settings = field.state.value ?? defaultSharingSettings;
-              const linkEnabled = settings.anyoneWithLinkCan !== "none";
-              return <div className={classes.linkSharingStatus}>
-                <div className={classNames(
-                  classes.linkSharingDot,
-                  linkEnabled ? classes.linkSharingDotOn : classes.linkSharingDotOff,
-                )} />
-                {linkEnabled
-                  ? `Anyone with the link can ${settings.anyoneWithLinkCan}`
-                  : "Link sharing off"
-                }
-                {linkEnabled && <span>&middot;</span>}
-                {linkEnabled && <button
-                  type="button"
-                  className={classes.textButton}
-                  onClick={() => {
-                    field.handleChange({ ...settings, anyoneWithLinkCan: "none" });
-                  }}
-                >
-                  Turn off
-                </button>}
-              </div>;
-            }}
-          </form.Field> */}
-
           <form.Field name="sharingSettings">
             {(field) => (
               <SharingPermissionSelect field={field} settingsKey="anyoneWithLinkCan" label="Anyone with link can" />
@@ -879,9 +856,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
         </div>
 
         {/* Shared users section */}
-        <div className={classes.sharingDivider} />
-        <div className={classes.sharingSection}>
-          {/* <div className={classes.sectionLabel}>People</div> */}
+        <div className={classes.sharingSectionFlex}>
           <form.Field name="shareWithUsers">
             {(field) => (
               <EditableUsersList
@@ -894,7 +869,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
 
           <form.Field name="sharingSettings">
             {(field) => (
-              <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" label="Added people can" />
+              <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" />
             )}
           </form.Field>
         </div>
@@ -903,7 +878,6 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
         {canEditCoauthors && <>
           <div className={classes.sharingDivider} />
           <div className={classes.sharingSection}>
-            <div className={classes.sectionLabel}>Co-Authors</div>
             <form.Field name="coauthorUserIds">
               {(field) => (
                 <CoauthorsListEditor
