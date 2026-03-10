@@ -8,7 +8,6 @@ import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { isAF, isEAForum, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, commentsTableOfContentsEnabled, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
@@ -42,7 +41,6 @@ import PostsPagePostHeader from "./PostsPagePostHeader";
 import PostsPagePostFooter from "./PostsPagePostFooter";
 import PostBodyPrefix from "./PostBodyPrefix";
 import CommentPermalink from "../../comments/CommentPermalink";
-import ToCColumn from "../TableOfContents/ToCColumn";
 import WelcomeBox from "./WelcomeBox";
 import TableOfContents from "../TableOfContents/TableOfContents";
 import RSVPs from "./RSVPs";
@@ -52,8 +50,6 @@ import PostBody from "./PostBody";
 import { CommentOnSelectionContentWrapper } from "../../comments/CommentOnSelection";
 import PermanentRedirect from "../../common/PermanentRedirect";
 import DebateBody from "../../comments/DebateBody";
-import PostsPageRecommendationsList from "../../recommendations/PostsPageRecommendationsList";
-import PostSideRecommendations from "../../recommendations/PostSideRecommendations";
 import PostBottomRecommendations from "../../recommendations/PostBottomRecommendations";
 import { NotifyMeDropdownItem } from "../../dropdowns/NotifyMeDropdownItem";
 import Row from "../../common/Row";
@@ -85,8 +81,6 @@ import { CommentsListMultiQuery, postCommentsThreadQuery } from '../queries';
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 const emptyArray: readonly any[] = [];
-
-const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
 
 // Also used in PostsCompareRevisions
 export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
@@ -135,7 +129,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     margin: "0 auto 40px",
   },
   commentsSection: {
-    minHeight: hasPostRecommendations() ? undefined : 'calc(70vh - 100px)',
+    minHeight: 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -450,17 +444,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   });
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
 
-  const showRecommendations = hasPostRecommendations() &&
-    !currentUser?.hidePostsRecommendations &&
-    !post.shortform &&
-    !post.draft &&
-    !post.question &&
-    !post.debate &&
-    !post.isEvent &&
-    !sequenceId &&
-    (post.contents?.wordCount ?? 0) >= 500;
-  const recommendationsPosition = getRecommendationsPosition();
-
   const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
   const linkedCommentId = globalLinkedCommentId || params.commentId
 
@@ -613,13 +596,10 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     </DeferRender>
   );
 
-  const rightColumnChildren = (welcomeBox || hasSidenotes() || (showRecommendations && recommendationsPosition === "right")) && <>
+  const rightColumnChildren = <>
     {welcomeBox}
-    {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
-    {hasSidenotes() && <>
-      <div className={classes.reserveSpaceForSidenotes}/>
-      <SideItemsSidebar/>
-    </>}
+    <div className={classes.reserveSpaceForSidenotes}/>
+    <SideItemsSidebar/>
   </>;
 
   const postsPageContext = useMemo(() => ({fullPost: fullPost ?? null, postPreload: postPreload ?? null}), [fullPost, postPreload]);
@@ -718,16 +698,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
         <PostPageReviewButton post={post} />
       </div>}
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-  
-      {showRecommendations && recommendationsPosition === "underPost" &&
-        <AnalyticsContext pageSectionContext="postBottomRecommendations">
-          <div className={classes.recommendations}>
-            <PostsPageRecommendationsList
-              strategy="tagWeightedCollabFilter"
-            />
-          </div>
-        </AnalyticsContext>
-      }
     </Suspense>
   </div>
 
@@ -787,53 +757,33 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     <SideItemVisibilityContextProvider post={fullPost}>
     <ReadingProgressBar post={post}/>
     {splashHeaderImage}
-    {commentsTableOfContentsEnabled()
-      ? <MultiToCLayout
-          segments={[
-            {
-              toc: (post.contents?.wordCount || 0) > HIDE_TOC_WORDCOUNT_LIMIT && tableOfContents,
-              centralColumn: postBodySection,
-              rightColumn: rightColumnChildren
-            },
-            {centralColumn: betweenPostAndCommentsSection},
-            {
-              toc: commentsToC,
-              centralColumn: commentsSection,
-              isCommentToC: true
-            },
-            {
-              centralColumn: <Suspense>
-                <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
-              </Suspense>
-            }
-          ]}
-          tocRowMap={[0, 0, 2, 2]}
-          showSplashPageHeader={showSplashPageHeader}
-          sharedToCFooter={<LWCommentCount
-            answerCount={answerCount}
-            commentCount={displayedPublicCommentCount}
-          />}
-          embedded={embedded}
-        />
-      : <ToCColumn
-          tableOfContents={tableOfContents}
-          header={header}
-          rightColumnChildren={rightColumnChildren}
-        >
-          {postBodySection}
-          {betweenPostAndCommentsSection}
-          {commentsSection}
-        </ToCColumn>
-    }
-  
-    {hasPostRecommendations() && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
-      <Suspense>
-        <PostBottomRecommendations
-          post={post}
-          hasTableOfContents={hasTableOfContents}
-        />
-      </Suspense>
-    </AnalyticsInViewTracker>}
+    <MultiToCLayout
+      segments={[
+        {
+          toc: (post.contents?.wordCount || 0) > HIDE_TOC_WORDCOUNT_LIMIT && tableOfContents,
+          centralColumn: postBodySection,
+          rightColumn: rightColumnChildren
+        },
+        {centralColumn: betweenPostAndCommentsSection},
+        {
+          toc: commentsToC,
+          centralColumn: commentsSection,
+          isCommentToC: true
+        },
+        {
+          centralColumn: <Suspense>
+            <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
+          </Suspense>
+        }
+      ]}
+      tocRowMap={[0, 0, 2, 2]}
+      showSplashPageHeader={showSplashPageHeader}
+      sharedToCFooter={<LWCommentCount
+        answerCount={answerCount}
+        commentCount={displayedPublicCommentCount}
+      />}
+      embedded={embedded}
+    />
     </SideItemVisibilityContextProvider>
     </ImageProvider>
     </SideItemsContainer>

@@ -930,6 +930,7 @@ const schema = {
       },
     },
   },
+  /** @deprecated */
   hidePostsRecommendations: {
     database: {
       type: "BOOL",

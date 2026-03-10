@@ -27,7 +27,6 @@ import { PostsEditFormQuery } from './queries';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
-import { hasSidenotes } from '@/lib/betas';
 import {
   SHARE_POPUP_QUERY_PARAM,
   CENTRAL_COLUMN_WIDTH,
@@ -221,13 +220,10 @@ const PostsEditFormInner = ({ documentId, version }: {
 
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId
-  const rightColumnChildren = (hasSidenotes() || isEAForum()) ? <>
-    {hasSidenotes() && <>
-      <div className={classes.reserveSpaceForSidenotes}/>
-      <SideItemsSidebar />
-    </>}
-    {isEAForum() && <NewPostHowToGuides/>}
-  </> : undefined;
+  const rightColumnChildren = <>
+    <div className={classes.reserveSpaceForSidenotes}/>
+    <SideItemsSidebar />
+  </>;
 
   return (<>
     <StatusCodeSetter status={200}/>

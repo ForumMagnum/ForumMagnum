@@ -1,4 +1,3 @@
-import { hasSidenotes } from "@/lib/betas";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
@@ -664,7 +663,7 @@ const PostFormSecondaryGroups = ({
               </form.Field>
             </div>}
 
-            {hasSidenotes() && <div className={classes.fieldWrapper}>
+            <div className={classes.fieldWrapper}>
               <form.Field name="disableSidenotes">
                 {(field) => (
                   <FormComponentCheckbox
@@ -673,7 +672,7 @@ const PostFormSecondaryGroups = ({
                   />
                 )}
               </form.Field>
-            </div>}
+            </div>
         </div>}
 
         {expandedFormGroup === 'Audio' && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters')) && <div className={classes.formGroup}>

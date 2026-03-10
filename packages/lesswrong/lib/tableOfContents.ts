@@ -1,4 +1,3 @@
-import { commentsTableOfContentsEnabled } from "./betas";
 import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
@@ -260,7 +259,7 @@ export function shouldShowTableOfContents({
   // If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
   // it's empty) to keep the horizontal position of things on the page from
   // being imbalanced.
-  const minHeadingsForToC = commentsTableOfContentsEnabled() ? 0 : 1;
+  const minHeadingsForToC = 0;
 
   return sections.length > minHeadingsForToC || (post?.question ?? false);
 }

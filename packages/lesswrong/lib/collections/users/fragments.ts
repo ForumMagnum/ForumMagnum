@@ -154,7 +154,6 @@ export const UsersCurrent = gql(`
       quickTakesCommunity
       popularComments
     }
-    hidePostsRecommendations
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
@@ -565,7 +564,6 @@ export const UsersEdit = gql(`
     noSingleLineComments
     hideCommunitySection
     showCommunityInRecentDiscussion
-    hidePostsRecommendations
     beta
     theme
 

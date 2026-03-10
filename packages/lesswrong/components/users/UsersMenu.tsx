@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetAnalyticsUrl, userGetDisplayName, userGetProfileUrl, userCanPost } from '../../lib/collections/users/helpers';
-import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
+import { dialoguesEnabled } from '../../lib/betas';
 
 import { Paper, Card }from '@/components/widgets/Paper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -379,20 +379,18 @@ const UsersMenu = ({classes}: {
                 />
               }
               {!isFriendlyUI() && messagesNode}
-              {userHasThemePicker(currentUser) &&
-                <ThemePickerMenu>
-                  <DropdownItem
-                    title="Theme"
-                    onClick={(ev) => {
-                      if (isMobile()) {
-                        ev.stopPropagation();
-                      }
-                    }}
-                    icon="Puzzle"
-                    iconClassName={classes.icon}
-                  />
-                </ThemePickerMenu>
-              }
+              <ThemePickerMenu>
+                <DropdownItem
+                  title="Theme"
+                  onClick={(ev) => {
+                    if (isMobile()) {
+                      ev.stopPropagation();
+                    }
+                  }}
+                  icon="Puzzle"
+                  iconClassName={classes.icon}
+                />
+              </ThemePickerMenu>
               {hasBookmarks &&<DropdownItem
                 title={styleSelect({friendly: "Saved & read", default: "Bookmarks"})}
                 to={styleSelect({friendly: "/saved", default: "/bookmarks"})}
