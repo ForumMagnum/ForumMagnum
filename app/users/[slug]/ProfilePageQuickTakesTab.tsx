@@ -1,4 +1,4 @@
-import { useStyles } from "@/components/hooks/useStyles";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { profileStyles } from "./profileStyles";
 import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContextProvider";
 import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";

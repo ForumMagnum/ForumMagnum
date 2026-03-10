@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import classNames from "classnames";
-import { useStyles } from "@/components/hooks/useStyles";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import UserContentFeed from "@/components/users/UserContentFeed";
 import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContextProvider";
 import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";

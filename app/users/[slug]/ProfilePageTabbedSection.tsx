@@ -2,7 +2,7 @@ import React, { useState, useRef, Suspense } from "react";
 import { SELECTED_PROFILE_TAB_COOKIE } from "@/lib/cookies/cookies";
 import { useCookiesWithConsent } from "@/components/hooks/useCookiesWithConsent";
 import classNames from 'classnames';
-import { useStyles } from "@/components/hooks/useStyles";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { profileStyles } from "./profileStyles";
 import { ProfilePageAllPostsTab } from "./ProfilePageAllPostsTab";
 import { ProfilePageSequencesTab } from "./ProfilePageSequencesTab";
@@ -10,6 +10,124 @@ import { ProfilePageFeedTab } from "./ProfilePageFeedTab";
 import { AllPostsTabSortingMode } from "./ProfilePageAllPostsTab";
 import { ProfilePageQuickTakesTab } from "./ProfilePageQuickTakesTab";
 import { postsItemLikeStyles } from "@/components/localGroups/LocalGroupsItem";
+
+const profilePageTabbedSectionUnsharedStyles = defineStyles("ProfilePageTabbedSectionUnshared", (theme: ThemeType) => ({
+  allPostsLeftColumn: {
+    flex: "1 1 0%",
+    minWidth: 0,
+    minHeight: "100vh",
+    "@media (max-width: 630px)": {
+      flex: "1 1 auto",
+    },
+  },
+  allPostsHeader: {
+    marginBottom: 6,
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    "@media (max-width: 630px)": {
+      display: "flex",
+      flexDirection: "column",
+      gap: 0,
+    },
+  },
+  allPostsLeftHeader: {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    width: "100%",
+    "@media (max-width: 630px)": {
+      width: "100%",
+      marginBottom: 16,
+    },
+  },
+  profileTabs: {
+    display: "flex",
+    gap: 22,
+    margin: 0,
+  },
+  profileTab: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    fontWeight: 400,
+    background: "none",
+    border: "none",
+    padding: 0,
+    cursor: "pointer",
+    color: theme.palette.text.dim,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    transition: "color 0.2s",
+    "&:hover": {
+      color: theme.palette.text.normal,
+    },
+  },
+  profileTabActive: {
+    color: theme.palette.text.normal,
+    fontWeight: 600,
+  },
+  sortControl: {
+    display: "flex",
+    alignItems: "start",
+    gap: 8,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    color: theme.palette.text.dim60,
+    position: "relative",
+  },
+  sortIconButton: {
+    background: "none",
+    border: "none",
+    padding: 0,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "start",
+    lineHeight: 1,
+    color: "inherit",
+  },
+  sortIconDisabled: {
+    opacity: 0.35,
+    cursor: "default",
+  },
+  sortIcon: {
+    fontSize: 16,
+    lineHeight: 1,
+  },
+  allPostsContainer: {
+    "@media (max-width: 630px)": {
+      display: "flex",
+      flexDirection: "column",
+      gap: 30,
+    },
+  },
+  postsList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    paddingTop: 12,
+    "@media (max-width: 630px)": {
+      width: "100%",
+    },
+  },
+  tabPanel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    "@media (max-width: 630px)": {
+      order: 1,
+    },
+  },
+  sequencesList: {
+    paddingTop: 20,
+  },
+  feedList: {
+    "& .UserContentFeed-feedContent": {
+      marginLeft: 0,
+      marginRight: 0,
+    },
+  },
+}));
 
 const tabs = [
   {
@@ -118,7 +236,7 @@ export function ProfilePageTabbedSection({user}: {
   };
   const handleSortPanelToggle = () => toggleSortPanel(sortPanelOpen, setSortPanelOpen, setSortPanelClosing);
 
-  const classes = useStyles(profileStyles);
+  const classes = useStyles(profilePageTabbedSectionUnsharedStyles);
 
   return <div className={classes.allPostsLeftColumn}>
     <div className={classes.allPostsHeader} ref={tabsRef}>

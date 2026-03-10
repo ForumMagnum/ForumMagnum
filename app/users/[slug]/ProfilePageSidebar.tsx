@@ -1,5 +1,5 @@
 import React, { useState, Suspense } from "react";
-import { useStyles } from "@/components/hooks/useStyles";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { profileStyles } from "./profileStyles";
 import { useCurrentUser } from "@/components/common/withUser";
 import { getCollapsedBioHtml } from "./userProfilePageUtil";
@@ -12,11 +12,89 @@ import ContentStyles from "@/components/common/ContentStyles";
 import { ContentItemBody } from "@/components/contents/ContentItemBody";
 import ProfileDiamondSections from "./ProfileDiamondSections";
 
+const profilePageSidebarUnsharedStyles = defineStyles("ProfilePageSidebarUnshared", (theme: ThemeType) => ({
+  postsSidebar: {
+    flex: "0 0 300px",
+    position: "sticky",
+    top: 80,
+    alignSelf: "start",
+    "@media (max-width: 630px)": {
+      display: "none",
+    },
+  },
+  sidebarAuthorBlock: {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    paddingBottom: 6,
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
+  },
+  sidebarAuthorName: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    fontWeight: 400,
+    margin: 0,
+    color: theme.palette.text.normal,
+    lineHeight: 1.1,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    "@media (max-width: 630px)": {
+      display: "none",
+    },
+  },
+  sidebarAuthorNameLink: {
+    color: "inherit",
+    textDecoration: "none",
+    "&:hover": {
+      opacity: 0.67,
+    },
+  },
+  sidebarBioSection: {
+    marginTop: 8,
+  },
+  sidebarMetaInfo: {
+    color: theme.palette.text.dim,
+    "& > div": {
+      flexWrap: "wrap",
+      gap: "4px 0",
+    },
+    "& > div > div": {
+      marginRight: "14px !important",
+    },
+  },
+  sidebarBioMeta: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: 8,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    color: theme.palette.text.dim,
+    fontWeight: 400,
+  },
+  sidebarBioWrapper: {
+    overflow: "hidden",
+    transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+  },
+  sidebarBioCollapsed: {
+    maxHeight: 400,
+  },
+  sidebarBioExpanded: {
+    maxHeight: 2000,
+    transition: "max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+  },
+  postsSidebarReadMore: {
+    marginTop: 5,
+  },
+}));
+
 export function ProfilePageSidebar({user, bioNoFollow}: {
   user: UsersProfile
   bioNoFollow: boolean
 }) {
-  const classes = useStyles(profileStyles);
+  const sharedClasses = useStyles(profileStyles);
+  const classes = useStyles(profilePageSidebarUnsharedStyles);
   const userId = user._id;
   const currentUser = useCurrentUser();
 
@@ -44,10 +122,10 @@ export function ProfilePageSidebar({user, bioNoFollow}: {
         {canSubscribeToUser && <UserNotifyDropdown
           user={user}
           popperPlacement="bottom-start"
-          className={classes.sidebarSubscribe}
+          className={sharedClasses.sidebarSubscribe}
         />}
         {canMessageUser && <NewConversationButton user={user} currentUser={currentUser}>
-          <a className={classes.sidebarMore}>Message</a>
+          <a className={sharedClasses.sidebarMore}>Message</a>
         </NewConversationButton>}
       </div>
     </div>
@@ -59,19 +137,19 @@ export function ProfilePageSidebar({user, bioNoFollow}: {
 
       {hasBio && <>
         <div className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}>
-          <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+          <ContentStyles contentType="post" className={sharedClasses.sidebarAuthorBioContent}>
             <ContentItemBody
-              className={classes.sidebarAuthorBio}
+              className={sharedClasses.sidebarAuthorBio}
               dangerouslySetInnerHTML={{ __html: displayBioHtml }}
               nofollow={bioNoFollow}
             />
           </ContentStyles>
         </div>
         {showBioExpand && (
-          <div className={classNames(classes.readMore, classes.postsSidebarReadMore)}>
+          <div className={classNames(sharedClasses.readMore, classes.postsSidebarReadMore)}>
             <a 
               href="#" 
-              className={classes.readMoreLink}
+              className={sharedClasses.readMoreLink}
               onClick={(e) => {
                 e.preventDefault();
                 setBioExpanded(!bioExpanded);
@@ -87,7 +165,6 @@ export function ProfilePageSidebar({user, bioNoFollow}: {
       <ProfileDiamondSections
         key={userId}
         userId={userId}
-        classes={classes}
       />
     </Suspense>
   </aside>

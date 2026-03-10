@@ -4,7 +4,7 @@ import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import classNames from "classnames";
-import { useStyles } from "@/components/hooks/useStyles";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import LWTooltip from "@/components/common/LWTooltip";
 import { ExpandedDate } from "@/components/common/FormatDate";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -12,6 +12,225 @@ import { profileStyles } from "./profileStyles";
 import LoadMore from "@/components/common/LoadMore";
 import { cssUrl, formatReadableDate, getListPostImageUrl, getPostSummary } from "./userProfilePageUtil";
 import { gql } from "@/lib/generated/gql-codegen";
+
+const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTabUnshared", (theme: ThemeType) => ({
+  listArticle: {
+    padding: "14px 0 15px",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
+    display: "block",
+    transition: "opacity 0.15s ease",
+    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    overflow: "visible",
+    "&:hover": {
+      opacity: 1,
+    },
+    "&:hover $listArticleTitleText": {
+      opacity: 0.65,
+    },
+    "&:hover $listArticleSummary": {
+      opacity: 0.65,
+    },
+    "&:hover $listArticleImage": {
+      opacity: 0.65,
+    },
+    "&:last-of-type": {
+      borderBottom: "none",
+    },
+    "@media (max-width: 630px)": {
+      padding: "12px 0",
+    },
+  },
+  listArticleContent: {
+    minWidth: 0,
+    display: "flex",
+    flexDirection: "column",
+    overflow: "visible",
+    "@media (max-width: 630px)": {
+      gap: 7,
+    },
+  },
+  listArticleBody: {
+    display: "flex",
+    alignItems: "stretch",
+    gap: 14,
+    minWidth: 0,
+    "@media (max-width: 750px)": {
+      gap: 10,
+    },
+  },
+  listArticleBodyNoImage: {
+    display: "block",
+  },
+  listArticleText: {
+    minWidth: 0,
+    flex: 1,
+    minHeight: 120,
+    height: 120,
+    display: "flex",
+    flexDirection: "column",
+    gap: 4,
+    overflow: "hidden",
+    "@media (max-width: 750px)": {
+      minHeight: 0,
+      height: "auto",
+      gap: 7,
+      overflow: "visible",
+    },
+  },
+  listArticleTextNoImage: {
+    minHeight: 0,
+    height: "auto",
+    gap: 7,
+    overflow: "visible",
+  },
+  listArticleTitle: {
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: 20,
+    fontWeight: 400,
+    margin: 0,
+    color: theme.palette.text.normal,
+    lineHeight: 1.2,
+    letterSpacing: "-.015em",
+    whiteSpace: "normal",
+    "@media (max-width: 630px)": {
+      fontSize: 18,
+      lineHeight: 1.28,
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+      overflow: "visible",
+      textOverflow: "clip",
+    },
+  },
+  listArticleTitleText: {
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 2,
+    lineClamp: 2,
+    overflow: "hidden",
+    minWidth: 0,
+    position: "relative",
+    zIndex: 1,
+    transition: "opacity 0.15s ease",
+  },
+  listArticleSummaryWrapper: {
+    flex: "1 1 0",
+    minHeight: 0,
+    marginTop: 1,
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: 14,
+    lineHeight: 1.48,
+    color: theme.palette.text.slightlyDim2,
+    "@media (max-width: 750px)": {
+      flex: "none",
+      minHeight: "auto",
+    },
+  },
+  listArticleSummaryWrapperNoImage: {
+    flex: "none",
+    minHeight: "auto",
+  },
+  listArticleSummary: {
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: 14,
+    fontWeight: 400,
+    lineHeight: 1.48,
+    color: theme.palette.text.slightlyDim2,
+    margin: 0,
+    whiteSpace: "pre-wrap",
+    maxHeight: "round(down, 100%, 1lh)",
+    overflow: "hidden",
+    position: "relative",
+    zIndex: 1,
+    transition: "opacity 0.15s ease",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      right: 0,
+      bottom: 0,
+      width: "5.2em",
+      height: "1lh",
+      backgroundColor: theme.palette.background.profilePageBackground,
+      WebkitMaskImage: "linear-gradient(to right, transparent, light-dark(black, white))",
+      maskImage: "linear-gradient(to right, transparent, light-dark(black, white))",
+      pointerEvents: "none",
+    },
+    "@media (max-width: 750px)": {
+      maxHeight: "none",
+      display: "-webkit-box",
+      WebkitBoxOrient: "vertical",
+      WebkitLineClamp: 2,
+      lineClamp: 2,
+      textOverflow: "ellipsis",
+      "&::after": {
+        display: "none",
+      },
+    },
+  },
+  listArticleSummaryNoImage: {
+    maxHeight: "none",
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 3,
+    lineClamp: 3,
+    textOverflow: "ellipsis",
+    "&::after": {
+      display: "none",
+    },
+  },
+  listArticleMeta: {
+    display: "flex",
+    alignItems: "center",
+    gap: 9,
+    marginTop: "auto",
+    minHeight: 20,
+  },
+  listMetaDivider: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    color: theme.palette.text.dim,
+    fontWeight: 500,
+    lineHeight: 1,
+  },
+  listKarma: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    color: theme.palette.text.slightlyDim2,
+    fontWeight: 600,
+    letterSpacing: 0.2,
+    lineHeight: 1.35,
+    whiteSpace: "nowrap",
+  },
+  listDate: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    color: theme.palette.text.dim,
+    fontWeight: 500,
+    letterSpacing: 0.45,
+    textTransform: "uppercase",
+    lineHeight: 1.35,
+    whiteSpace: "nowrap",
+  },
+  listArticleImage: {
+    display: "block",
+    width: 204,
+    height: "auto",
+    aspectRatio: "16 / 9",
+    borderRadius: 7,
+    flex: "0 0 204px",
+    alignSelf: "stretch",
+    backgroundColor: theme.palette.greyAlpha(0.07),
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    transition: "opacity 0.15s ease",
+    mixBlendMode: theme.dark ? "normal" : "multiply",
+    "@media (max-width: 750px)": {
+      display: "none",
+    },
+  },
+}));
 
 const ProfilePostsQuery = gql(`
   query ProfilePostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -39,7 +258,8 @@ export function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, 
   sortPanelOpen: boolean
   sortPanelClosing: boolean
 }) {
-  const classes = useStyles(profileStyles);
+  const sharedClasses = useStyles(profileStyles);
+  const classes = useStyles(profilePageAllPostsTabUnsharedStyles);
   const userId = user._id;
 
   const { data: recentPostsData, loading: recentPostsLoading, loadMoreProps } = useQueryWithLoadMore(ProfilePostsQuery, {
@@ -57,46 +277,46 @@ export function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, 
 
   return <>
     {(sortPanelOpen || sortPanelClosing) && (
-      <div className={classNames(classes.sortPanel, sortPanelClosing && classes.sortPanelClosing)}>
-        <div className={classes.sortPanelSection}>
-          <div className={classes.sortPanelHeader}>Sorted by:</div>
+      <div className={classNames(sharedClasses.sortPanel, sortPanelClosing && sharedClasses.sortPanelClosing)}>
+        <div className={sharedClasses.sortPanelSection}>
+          <div className={sharedClasses.sortPanelHeader}>Sorted by:</div>
           <button
-            className={classNames(classes.sortPanelOption, sortBy === "new" && classes.sortPanelOptionSelected)}
+            className={classNames(sharedClasses.sortPanelOption, sortBy === "new" && sharedClasses.sortPanelOptionSelected)}
             onClick={() => setSortBy("new")}
             type="button"
           >
             New
           </button>
           <button
-            className={classNames(classes.sortPanelOption, sortBy === "old" && classes.sortPanelOptionSelected)}
+            className={classNames(sharedClasses.sortPanelOption, sortBy === "old" && sharedClasses.sortPanelOptionSelected)}
             onClick={() => setSortBy("old")}
             type="button"
           >
             Old
           </button>
           <button
-            className={classNames(classes.sortPanelOption, sortBy === "magic" && classes.sortPanelOptionSelected)}
+            className={classNames(sharedClasses.sortPanelOption, sortBy === "magic" && sharedClasses.sortPanelOptionSelected)}
             onClick={() => setSortBy("magic")}
             type="button"
           >
             Magic (New & Upvoted)
           </button>
           <button
-            className={classNames(classes.sortPanelOption, sortBy === "top" && classes.sortPanelOptionSelected)}
+            className={classNames(sharedClasses.sortPanelOption, sortBy === "top" && sharedClasses.sortPanelOptionSelected)}
             onClick={() => setSortBy("top")}
             type="button"
           >
             Top
           </button>
           <button
-            className={classNames(classes.sortPanelOption, sortBy === "topInflation" && classes.sortPanelOptionSelected)}
+            className={classNames(sharedClasses.sortPanelOption, sortBy === "topInflation" && sharedClasses.sortPanelOptionSelected)}
             onClick={() => setSortBy("topInflation")}
             type="button"
           >
             Top (Inflation Adjusted)
           </button>
           <button
-            className={classNames(classes.sortPanelOption, sortBy === "recentComments" && classes.sortPanelOptionSelected)}
+            className={classNames(sharedClasses.sortPanelOption, sortBy === "recentComments" && sharedClasses.sortPanelOptionSelected)}
             onClick={() => setSortBy("recentComments")}
             type="button"
           >
@@ -106,9 +326,9 @@ export function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, 
       </div>
     )}
     {!hasPosts && !recentPostsLoading && (
-      <div className={classes.emptyStateContainer}>
-        <p className={classes.emptyStateDescription}>{userGetDisplayName(user)} has not written any posts yet.</p>
-        <div className={classes.emptyStateImage}>
+      <div className={sharedClasses.emptyStateContainer}>
+        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} has not written any posts yet.</p>
+        <div className={sharedClasses.emptyStateImage}>
           <img src="/profile-placeholder-2.png" alt="" />
         </div>
       </div>
@@ -121,7 +341,7 @@ export function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, 
         <article key={post._id} className={classes.listArticle}>
           <Link
             to={postGetPageUrl(post)}
-            className={classes.articleLink}
+            className={sharedClasses.articleLink}
           >
             <div className={classes.listArticleContent}>
               <div className={classNames(classes.listArticleBody, !hasListImage && classes.listArticleBodyNoImage)}>

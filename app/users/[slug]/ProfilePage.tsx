@@ -8,7 +8,7 @@ import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { getUserFromResults } from "@/components/users/UsersProfile";
 import { useCurrentUser } from "@/components/common/withUser";
 import classNames from "classnames";
-import { useStyles } from "@/components/hooks/useStyles";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import UsersNameWithModal from "@/components/ultraFeed/UsersNameWithModal";
 import LWTooltip from "@/components/common/LWTooltip";
 import UserMetaInfo from "@/components/users/UserMetaInfo";
@@ -28,6 +28,171 @@ import { getCollapsedBioHtml } from "./userProfilePageUtil";
 import { ProfilePageTabbedSection } from "./ProfilePageTabbedSection";
 import { ProfilePageSidebar } from "./ProfilePageSidebar";
 
+const profilePageUnsharedStyles = defineStyles("ProfilePageUnshared", (theme: ThemeType) => ({
+  page: {
+    width: "100%",
+    minHeight: "100vh",
+    // Cancel the centralColumn padding-top so the profile page sits flush
+    marginTop: -theme.spacing.mainLayoutPaddingTop,
+    background: "transparent",
+    color: theme.palette.text.normal,
+    fontFamily: theme.typography.fontFamily,
+    position: "relative" as const,
+    overflow: "hidden",
+    boxSizing: "border-box" as const,
+    "& *": {
+      boxSizing: "border-box" as const,
+    },
+    [theme.breakpoints.down("md")]: {
+      marginTop: theme.isFriendlyUI ? 0 : -theme.spacing.mainLayoutPaddingTop,
+    },
+    [theme.breakpoints.down("sm")]: {
+      marginTop: theme.isFriendlyUI ? 0 : -10,
+    },
+  },
+  profileContent: {
+    display: "block",
+    minHeight: "calc(100vh - 60px)",
+  },
+  profileMain: {
+    width: "100%",
+    maxWidth: 1100,
+    margin: "0 auto",
+    padding: "53px 80px 60px 80px",
+    color: theme.palette.text.normal,
+    background: "transparent",
+    "@media (max-width: 900px)": {
+      padding: "40px 30px 50px 30px",
+    },
+    "@media (max-width: 750px)": {
+      padding: "35px 25px 45px 25px",
+    },
+    "@media (max-width: 630px)": {
+      padding: "30px 20px 40px 20px",
+    },
+  },
+  profileHeader: {
+    marginBottom: 15,
+    paddingBottom: 10,
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
+    display: "grid",
+    gridTemplateColumns: "1fr auto 1fr",
+    alignItems: "center",
+  },
+  profileName: {
+    gridColumn: 2,
+    textAlign: "center",
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: "2.3rem",
+    fontWeight: 400,
+    margin: "0 0 2px 0",
+    color: theme.palette.text.normal,
+    lineHeight: 1.1,
+    letterSpacing: "-.02em",
+  },
+  profileNameLink: {
+    color: "inherit",
+    fontFamily: "inherit",
+    fontSize: "inherit",
+    fontWeight: "inherit" as const,
+    letterSpacing: "inherit",
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "none",
+      color: "inherit",
+    },
+  },
+  profileHeaderActions: {
+    gridColumn: 3,
+    justifySelf: "end",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    position: "relative",
+    top: 2,
+  },
+  profileActionIconLink: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "light-dark(#000, #fff)",
+    textDecoration: "none",
+    cursor: "pointer",
+    "&:hover": {
+      opacity: 0.67,
+    },
+    "&:focus-visible": {
+      outline: "1px solid light-dark(#000, #fff)",
+      outlineOffset: 2,
+      borderRadius: 2,
+    },
+  },
+  profileActionIcon: {
+    fontSize: 16,
+  },
+  mobileProfileBio: {
+    display: "none",
+    margin: "0 0 30px",
+    padding: "30px 0 30px",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
+    "@media (max-width: 630px)": {
+      display: "block",
+    },
+  },
+  mobileProfileName: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    fontWeight: 400,
+    margin: 0,
+    color: theme.palette.text.normal,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  mobileProfileHeaderRow: {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 10,
+  },
+  mobileProfileActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    margin: 0,
+  },
+  mobileMetaInfo: {
+    marginTop: 12,
+    color: theme.palette.text.dim,
+    "& > div": {
+      flexWrap: "wrap",
+      gap: "4px 0",
+    },
+    "& > div > div": {
+      marginRight: "14px !important",
+    },
+  },
+  allPostsSection: {
+    marginTop: 30,
+    display: "flex",
+    gap: 25,
+    "@media (max-width: 630px)": {
+      flexDirection: "column",
+    },
+  },
+  sidebarActionDisabled: {
+    color: theme.palette.primary.light,
+    cursor: "default",
+    "&:hover": {
+      opacity: 1,
+    },
+  },
+}));
+
 const ProfileUserQuery = gql(`
   query ProfileUserQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
     users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
@@ -42,7 +207,7 @@ const ProfileUserQuery = gql(`
 export default function ProfilePage({slug}: {
   slug: string
 }) {
-  const classes = useStyles(profileStyles);
+  const classes = useStyles(profilePageUnsharedStyles);
 
   const { data: userData } = useSuspenseQuery(ProfileUserQuery, {
     variables: {
@@ -71,7 +236,7 @@ export default function ProfilePage({slug}: {
 function ProfilePageInner({user}: {
   user: UsersProfile
 }) {
-  const classes = useStyles(profileStyles);
+  const classes = useStyles(profilePageUnsharedStyles);
   const userId = user?._id;
   const bioNoFollow = user.karma < nofollowKarmaThreshold.get();
 
@@ -114,7 +279,7 @@ function ProfilePageInner({user}: {
 function ProfileHeaderActions({user}: {
   user: UsersProfile
 }) {
-  const classes = useStyles(profileStyles);
+  const classes = useStyles(profilePageUnsharedStyles);
   const currentUser = useCurrentUser();
   const canEditProfile = !!user && userCanEditUser(currentUser, user);
   const canModerateUserProfile = userIsAdminOrMod(currentUser);
@@ -154,7 +319,8 @@ function ProfilePageMobileBio({user, bioNoFollow}: {
   user: UsersProfile,
   bioNoFollow: boolean
 }) {
-  const classes = useStyles(profileStyles);
+  const sharedClasses = useStyles(profileStyles);
+  const classes = useStyles(profilePageUnsharedStyles);
   const currentUser = useCurrentUser();
 
   const [bioExpanded, setBioExpanded] = useState(false);
@@ -177,31 +343,31 @@ function ProfilePageMobileBio({user, bioNoFollow}: {
           <UserNotifyDropdown
             user={user}
             popperPlacement="bottom-start"
-            className={classes.sidebarSubscribe}
+            className={sharedClasses.sidebarSubscribe}
           />
         ) : (
-          <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
+          <span className={classNames(sharedClasses.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
         )}
         {canMessageUser ? (
           <NewConversationButton user={user} currentUser={currentUser}>
-            <a className={classes.sidebarMore}>Message</a>
+            <a className={sharedClasses.sidebarMore}>Message</a>
           </NewConversationButton>
         ) : (
-          <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
+          <span className={classNames(sharedClasses.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
         )}
       </div>
     </div>
-    {bioHtml && <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+    {bioHtml && <ContentStyles contentType="post" className={sharedClasses.sidebarAuthorBioContent}>
       <ContentItemBody
-        className={classes.sidebarAuthorBio}
+        className={sharedClasses.sidebarAuthorBio}
         dangerouslySetInnerHTML={{ __html: displayBioHtml }}
         nofollow={bioNoFollow}
       />
     </ContentStyles>}
-    {showBioExpand && <div className={classes.readMore}>
+    {showBioExpand && <div className={sharedClasses.readMore}>
       <a
         href="#"
-        className={classes.readMoreLink}
+        className={sharedClasses.readMoreLink}
         onClick={(e) => {
           e.preventDefault();
           setBioExpanded(!bioExpanded);
