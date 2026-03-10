@@ -19,8 +19,6 @@ export const UsersMinimumInfo = gql(`
     deleted
     isAdmin
     htmlBio
-    jobTitle
-    organization
     postCount
     commentCount
     sequenceCount
@@ -42,20 +40,10 @@ export const UsersProfile = gql(`
     previousDisplayName
     oldSlugs
     groups
-    jobTitle
-    organization
-    careerStage
     biography {
       ...RevisionDisplay
     }
-    howOthersCanHelpMe {
-      ...RevisionDisplay
-    }
-    howICanHelpOthers {
-      ...RevisionDisplay
-    }
     organizerOfGroupIds
-    programParticipation
     website
     linkedinProfileURL
     facebookProfileURL
@@ -87,7 +75,6 @@ export const UsersProfile = gql(`
     noindex
     paymentEmail
     paymentInfo
-    goodHeartTokens
     postingDisabled
     allCommentingDisabled
     commentingOnOtherUsersDisabled
@@ -108,9 +95,6 @@ export const UsersCurrent = gql(`
     ...UsersMinimumInfo
     oldSlugs
     groups
-    jobTitle
-    organization
-    careerStage
     organizerOfGroupIds
     moderationStyle
     moderationGuidelines {
@@ -235,7 +219,6 @@ export const UsersCurrent = gql(`
     notificationRepliesToMyComments
     subforumPreferredLayout
     
-    allowDatadogSessionReplay
     hideFrontpageBook2020Ad
 
     showDialoguesList
@@ -290,7 +273,6 @@ export const UserKarmaChanges = gql(`
           reactionType
           userId
         }
-        eaAddedReacts
         collectionName
       }
       comments {
@@ -308,7 +290,6 @@ export const UserKarmaChanges = gql(`
           reactionType
           userId
         }
-        eaAddedReacts
         collectionName
       }
       tagRevisions {
@@ -321,100 +302,7 @@ export const UserKarmaChanges = gql(`
           reactionType
           userId
         }
-        eaAddedReacts
         collectionName
-      }
-      todaysKarmaChanges {
-        posts {
-          _id
-          scoreChange
-          postId
-          title
-          slug
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-        comments {
-          _id
-          scoreChange
-          commentId
-          description
-          postId
-          postTitle
-          postSlug
-          tagSlug
-          tagName
-          tagCommentType
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-        tagRevisions {
-          _id
-          scoreChange
-          tagId
-          tagSlug
-          tagName
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-      }
-      thisWeeksKarmaChanges {
-        posts {
-          _id
-          scoreChange
-          postId
-          title
-          slug
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-        comments {
-          _id
-          scoreChange
-          commentId
-          description
-          postId
-          postTitle
-          postSlug
-          tagSlug
-          tagName
-          tagCommentType
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-        tagRevisions {
-          _id
-          scoreChange
-          tagId
-          tagSlug
-          tagName
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
       }
     }
   }
@@ -663,17 +551,8 @@ export const UsersProfileEdit = gql(`
     _id
     slug
     displayName
-    jobTitle
-    organization
-    careerStage
     profileImageId
     biography {
-      ...RevisionEdit
-    }
-    howOthersCanHelpMe {
-      ...RevisionEdit
-    }
-    howICanHelpOthers {
       ...RevisionEdit
     }
     organizerOfGroupIds
@@ -697,24 +576,6 @@ export const UsersCrosspostInfo = gql(`
     username
     slug
     fmCrosspostUserId
-  }
-`)
-
-export const UserOnboardingAuthor = gql(`
-  fragment UserOnboardingAuthor on User {
-    _id
-    displayName
-    profileImageId
-    karma
-    jobTitle
-    organization
-  }
-`)
-
-export const UsersSocialMediaInfo = gql(`
-  fragment UsersSocialMediaInfo on User {
-    ...UsersProfile
-    twitterProfileURLAdmin
   }
 `)
 

@@ -864,10 +864,12 @@ export const PostsTwitterAdmin = gql(`
   fragment PostsTwitterAdmin on Post {
     ...PostsListWithVotes
     user {
-      ...UsersSocialMediaInfo
+      ...UsersProfile
+      twitterProfileURLAdmin
     }
     coauthors {
-      ...UsersSocialMediaInfo
+      ...UsersProfile
+      twitterProfileURLAdmin
     }
   }
 `)
