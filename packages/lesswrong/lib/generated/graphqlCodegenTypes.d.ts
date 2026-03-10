@@ -15663,6 +15663,33 @@ type updatePostDraftsListMutationVariables = Exact<{
 
 type updatePostDraftsListMutation = updatePostDraftsListMutation_Mutation;
 
+type latestGoogleDocMetadataSidebarQuery_Query = { __typename?: 'Query', latestGoogleDocMetadata: any | null };
+
+
+type latestGoogleDocMetadataSidebarQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  version: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type latestGoogleDocMetadataSidebarQuery = latestGoogleDocMetadataSidebarQuery_Query;
+
+type ImportGoogleDocSidebarMutation_ImportGoogleDoc_Post = (
+  { __typename?: 'Post' }
+  & PostsBase
+);
+
+type ImportGoogleDocSidebarMutation_Mutation = { __typename?: 'Mutation', ImportGoogleDoc: ImportGoogleDocSidebarMutation_ImportGoogleDoc_Post | null };
+
+
+type ImportGoogleDocSidebarMutationVariables = Exact<{
+  fileUrl: Scalars['String']['input'];
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ImportGoogleDocSidebarMutation = ImportGoogleDocSidebarMutation_Mutation;
+
 type updatePostExternalPostImporterMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
   & PostsList

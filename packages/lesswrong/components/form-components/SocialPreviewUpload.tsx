@@ -39,6 +39,7 @@ const styles = defineStyles('SocialPreviewUpload', (theme: ThemeType) => ({
   },
   cardTextArea: {
     padding: "8px 12px 10px",
+    backgroundColor: theme.palette.panelBackground.default,
   },
   cardTitle: {
     fontSize: 15,

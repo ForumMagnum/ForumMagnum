@@ -162,7 +162,10 @@ export const PostSubmit = ({
         </LWTooltip>}
         <Button type="submit"
           className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
-          onClick={() => formApi.setFieldValue('draft', true)}
+          onClick={async () => {
+            formApi.setFieldValue('draft', true);
+            await formApi.handleSubmit();
+          }}
           disabled={disabled}
         >
           {saveDraftLabel}

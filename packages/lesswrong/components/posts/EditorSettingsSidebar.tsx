@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import classNames from "classnames";
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, getPostCollaborateUrl } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, userCanEditCoauthors, getPostCollaborateUrl, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "@/lib/collections/posts/helpers";
 import { postStatusLabels, MODERATION_GUIDELINES_OPTIONS } from "@/lib/collections/posts/constants";
 import { getDefaultEditorPlaceholder } from "@/lib/editor/defaultEditorPlaceholder";
-import { isEAForum, isLWorAF } from "@/lib/instanceSettings";
+import { hasGoogleDocImportSetting, isEAForum, isLWorAF } from "@/lib/instanceSettings";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { userCanUseSharing } from "@/lib/betas";
@@ -31,6 +31,12 @@ import { Link } from "../../lib/reactRouterWrapper";
 import ForumIcon from "../common/ForumIcon";
 import { useMessages } from "../common/withMessages";
 import { userCanCommentLock } from "@/lib/collections/users/helpers";
+import { useMutation } from "@apollo/client/react";
+import { useQuery } from "@/lib/crud/useQuery";
+import { useLocation, useNavigate } from "@/lib/routeUtil";
+import { useTracking } from "@/lib/analyticsEvents";
+import Loading from "../vulcan-core/Loading";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   root: {
@@ -610,6 +616,66 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   editorGuideIcon: {
     fontSize: 16,
   },
+  importInfo: {
+    ...theme.typography.commentStyle,
+    fontSize: 12,
+    color: theme.palette.greyAlpha(0.6),
+    lineHeight: "1.4",
+    marginBottom: 8,
+  },
+  importInput: {
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    width: "100%",
+    backgroundColor: theme.palette.greyAlpha(0.04),
+    borderRadius: 6,
+    padding: "8px 8px",
+    color: theme.palette.text.normal,
+    outline: "none",
+    "&::placeholder": {
+      color: theme.palette.greyAlpha(0.35),
+    },
+  },
+  importButton: {
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    fontWeight: 600,
+    width: "100%",
+    padding: "7px 12px",
+    borderRadius: 6,
+    border: "none",
+    background: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+    transition: "background 0.15s ease",
+    "&:hover": {
+      background: theme.palette.primary.dark,
+    },
+    "&:disabled": {
+      opacity: 0.5,
+      cursor: "not-allowed",
+    },
+  },
+  importError: {
+    ...theme.typography.commentStyle,
+    fontSize: 12,
+    color: theme.palette.error.main,
+    marginTop: 4,
+  },
+  importFooter: {
+    ...theme.typography.commentStyle,
+    fontSize: 11,
+    color: theme.palette.greyAlpha(0.45),
+    fontStyle: "italic",
+    marginTop: 6,
+  },
+  importLoadingDots: {
+    marginTop: -8,
+  },
 }));
 
 function getFooterTagListPostInfo(post: EditablePost) {
@@ -858,6 +924,113 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
   );
 }
 
+function GoogleDocImportSection({ postId, version }: { postId: string; version?: string }) {
+  const classes = useStyles(styles);
+  const [googleDocUrl, setGoogleDocUrl] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { captureEvent } = useTracking();
+  const { flash } = useMessages();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const { data: latestGoogleDocMetadataQuery } = useQuery(
+    gql(`
+      query latestGoogleDocMetadataSidebar($postId: String!, $version: String) {
+        latestGoogleDocMetadata(postId: $postId, version: $version)
+      }
+    `),
+    {
+      variables: { postId, version },
+      context: { batchKey: "docImportInfo" },
+    }
+  );
+  const previousDocId = latestGoogleDocMetadataQuery?.latestGoogleDocMetadata?.id;
+
+  useEffect(() => {
+    if (previousDocId) {
+      setGoogleDocUrl(googleDocIdToUrl(previousDocId));
+    }
+  }, [previousDocId]);
+
+  const fileId = extractGoogleDocId(googleDocUrl);
+  const canImport = !!fileId;
+
+  const [importGoogleDocMutation, { loading: mutationLoading }] = useMutation(
+    gql(`
+      mutation ImportGoogleDocSidebar($fileUrl: String!, $postId: String) {
+        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {
+          ...PostsBase
+        }
+      }
+    `),
+    {
+      onCompleted: (data: { ImportGoogleDoc: PostsBase }) => {
+        setErrorMessage(null);
+        const resultPostId = data?.ImportGoogleDoc?._id;
+        const linkSharingKey = data?.ImportGoogleDoc?.linkSharingKey;
+        const editPostUrl = postGetEditUrl(resultPostId, false, linkSharingKey ?? undefined);
+
+        captureEvent("googleDocImportSubmitted", {
+          success: true,
+          fileUrl: googleDocUrl,
+          postId: resultPostId,
+          isNew: !postId,
+        });
+
+        if (location.url === editPostUrl) {
+          window.location.reload();
+        } else {
+          void navigate(editPostUrl);
+        }
+      },
+      onError: (error) => {
+        captureEvent("googleDocImportSubmitted", {
+          success: false,
+          fileUrl: googleDocUrl,
+          postId,
+          isNew: !postId,
+        });
+        setErrorMessage(error.message);
+        flash(error.message);
+      },
+    }
+  );
+
+  const handleImportClick = useCallback(async () => {
+    void importGoogleDocMutation({
+      variables: { fileUrl: googleDocUrl, postId },
+    });
+  }, [googleDocUrl, importGoogleDocMutation, postId]);
+
+  return (
+    <AccordionSection title="Import Google Doc">
+      <div className={classes.importInfo}>
+        Paste a link to a publicly accessible Google Doc (sharing set to "Anyone with the link can view")
+      </div>
+      <input
+        className={classes.importInput}
+        type="url"
+        placeholder="https://docs.google.com/document/d/..."
+        value={googleDocUrl}
+        onChange={(e) => setGoogleDocUrl(e.target.value)}
+      />
+      {errorMessage && <div className={classes.importError}>{errorMessage}</div>}
+      <button
+        type="button"
+        className={classes.importButton}
+        disabled={!canImport || mutationLoading}
+        onClick={handleImportClick}
+      >
+        {mutationLoading ? <Loading className={classes.importLoadingDots} /> : "Import"}
+      </button>
+      <div className={classes.importFooter}>
+        This will overwrite any unsaved changes
+        {postId ? `, but you can still restore saved versions from "Version history"` : ""}
+      </div>
+    </AccordionSection>
+  );
+}
+
 interface EditorSettingsSidebarProps {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   initialData: EditablePost;
@@ -975,6 +1148,10 @@ const EditorSettingsSidebar = ({
               )}
             </form.Field>
           </AccordionSection>
+        )}
+
+        {hasGoogleDocImportSetting.get() && (
+          <GoogleDocImportSection postId={initialData._id} />
         )}
 
         {canSeeHighlight && (

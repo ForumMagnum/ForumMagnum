@@ -254,6 +254,8 @@ type Documents = {
     "\n  query multiPostCurrentOpenThreadPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsMinimumInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostCurrentOpenThreadPageQueryDocument,
     "\n  query multiPostDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostDraftsListQueryDocument,
     "\n  mutation updatePostDraftsList($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostDraftsListDocument,
+    "\n      query latestGoogleDocMetadataSidebar($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    ": typeof types.latestGoogleDocMetadataSidebarDocument,
+    "\n      mutation ImportGoogleDocSidebar($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    ": typeof types.ImportGoogleDocSidebarDocument,
     "\n  mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.updatePostExternalPostImporterDocument,
     "\n  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.createCommentExternalPostImporterDocument,
     "\n    mutation importUrlAsDraftPost($url: String!) {\n      importUrlAsDraftPost(url: $url) {\n        alreadyExists\n        post {\n          _id\n          slug\n          title\n          content\n          url\n          postedAt\n          createdAt\n          modifiedAt\n          userId\n          draft\n          coauthorUserIds\n        }\n      }\n    }\n  ": typeof types.importUrlAsDraftPostDocument,
@@ -1101,6 +1103,8 @@ const documents: Documents = {
     "\n  query multiPostCurrentOpenThreadPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsMinimumInfo\n      }\n      totalCount\n    }\n  }\n": types.multiPostCurrentOpenThreadPageQueryDocument,
     "\n  query multiPostDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": types.multiPostDraftsListQueryDocument,
     "\n  mutation updatePostDraftsList($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostDraftsListDocument,
+    "\n      query latestGoogleDocMetadataSidebar($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    ": types.latestGoogleDocMetadataSidebarDocument,
+    "\n      mutation ImportGoogleDocSidebar($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    ": types.ImportGoogleDocSidebarDocument,
     "\n  mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n": types.updatePostExternalPostImporterDocument,
     "\n  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.createCommentExternalPostImporterDocument,
     "\n    mutation importUrlAsDraftPost($url: String!) {\n      importUrlAsDraftPost(url: $url) {\n        alreadyExists\n        post {\n          _id\n          slug\n          title\n          content\n          url\n          postedAt\n          createdAt\n          modifiedAt\n          userId\n          draft\n          coauthorUserIds\n        }\n      }\n    }\n  ": types.importUrlAsDraftPostDocument,
@@ -2682,6 +2686,14 @@ export function gql(source: "\n  query multiPostDraftsListQuery($selector: PostS
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation updatePostDraftsList($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation updatePostDraftsList($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsList\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n      query latestGoogleDocMetadataSidebar($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    "): (typeof documents)["\n      query latestGoogleDocMetadataSidebar($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n      mutation ImportGoogleDocSidebar($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    "): (typeof documents)["\n      mutation ImportGoogleDocSidebar($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
