@@ -181,7 +181,7 @@ function getHocuspocusHttpUrl(): string | null {
  * database. When clients auto-reconnect, Hocuspocus loads the new state
  * from the database.
  */
-async function resetHocuspocusDocument(documentName: string, newState: Uint8Array): Promise<void> {
+export async function resetHocuspocusDocument(documentName: string, newState: Uint8Array): Promise<void> {
   const httpUrl = getHocuspocusHttpUrl();
   const secret = process.env.HOCUSPOCUS_WEBHOOK_SECRET;
   if (!httpUrl || !secret) {

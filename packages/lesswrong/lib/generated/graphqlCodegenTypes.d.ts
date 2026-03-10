@@ -1128,6 +1128,11 @@ type ConversationsUserGroupUntitledConversationsInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
+type ConvertibleCollectionName =
+  | 'Comments'
+  | 'Posts'
+  | 'Tags';
+
 type CreateBookDataInput = {
   collectionId: Scalars['String']['input'];
   contents?: InputMaybe<CreateRevisionDataInput>;
@@ -3681,6 +3686,7 @@ type Mutation = {
   autosaveRevision?: Maybe<Revision>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
+  convertDocumentEditorType?: Maybe<Scalars['JSON']['output']>;
   createBook?: Maybe<BookOutput>;
   createChapter?: Maybe<ChapterOutput>;
   createCollection?: Maybe<CollectionOutput>;
@@ -3933,6 +3939,15 @@ type MutationclickRecommendationArgs = {
 
 type MutationconnectCrossposterArgs = {
   token?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationconvertDocumentEditorTypeArgs = {
+  collectionName: ConvertibleCollectionName;
+  document: Scalars['JSON']['input'];
+  documentId: Scalars['String']['input'];
+  fieldName: Scalars['String']['input'];
+  targetFormat: Scalars['String']['input'];
 };
 
 
@@ -15688,6 +15703,20 @@ type ImportGoogleDocSidebarMutationVariables = Exact<{
 
 
 type ImportGoogleDocSidebarMutation = ImportGoogleDocSidebarMutation_Mutation;
+
+type ConvertDocumentEditorTypeMutation_Mutation = { __typename?: 'Mutation', convertDocumentEditorType: any | null };
+
+
+type ConvertDocumentEditorTypeMutationVariables = Exact<{
+  documentId: Scalars['String']['input'];
+  collectionName: ConvertibleCollectionName;
+  fieldName: Scalars['String']['input'];
+  document: Scalars['JSON']['input'];
+  targetFormat: Scalars['String']['input'];
+}>;
+
+
+type ConvertDocumentEditorTypeMutation = ConvertDocumentEditorTypeMutation_Mutation;
 
 type updatePostExternalPostImporterMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }

@@ -8,6 +8,8 @@ import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { userCanUseSharing } from "@/lib/betas";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import type { EditorTypeString } from "../editor/Editor";
+import { disconnectCollaborationForPost } from "../lexical/collaboration";
 import { defaultSharingSettings, type SharingSettings, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { TypedReactFormApi, TypedFieldApi } from "../tanstack-form-components/BaseAppForm";
@@ -30,7 +32,7 @@ import { DialogueSubmit } from "./dialogues/DialogueSubmit";
 import { Link } from "../../lib/reactRouterWrapper";
 import ForumIcon from "../common/ForumIcon";
 import { useMessages } from "../common/withMessages";
-import { userCanCommentLock } from "@/lib/collections/users/helpers";
+import { userCanCommentLock, userUseMarkdownPostEditor } from "@/lib/collections/users/helpers";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
@@ -292,7 +294,7 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "5px 0",
+    padding: "11px 0",
     cursor: "pointer",
     userSelect: "none",
     "&:hover": {
@@ -1007,6 +1009,63 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
   );
 }
 
+const convertDocumentEditorTypeMutation = gql(`
+  mutation ConvertDocumentEditorType($documentId: String!, $collectionName: ConvertibleCollectionName!, $fieldName: String!, $document: JSON!, $targetFormat: String!) {
+    convertDocumentEditorType(documentId: $documentId, collectionName: $collectionName, fieldName: $fieldName, document: $document, targetFormat: $targetFormat)
+  }
+`);
+
+function MarkdownEditorToggle({ form }: {
+  form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
+}) {
+  const classes = useStyles(styles);
+  const contents = form.state.values.contents;
+  const currentType = contents?.originalContents?.type;
+  const isMarkdown = currentType === "markdown";
+  const postId = form.state.values._id;
+
+  const [convertEditorType, { loading }] = useMutation(convertDocumentEditorTypeMutation, {
+    onCompleted: () => {
+      // Reload to remount the editor with the new revision
+      window.location.reload();
+    },
+  });
+
+  const handleToggle = useCallback(async () => {
+    if (loading || !postId || !contents?.originalContents) return;
+    const targetFormat: EditorTypeString = isMarkdown ? "lexical" : "markdown";
+
+    // Disconnect local Hocuspocus providers before converting, same as
+    // PostVersionHistory does before restoring a revision. Prevents stale
+    // local Yjs state from being re-synced after the server resets the document.
+    await disconnectCollaborationForPost(postId);
+
+    void convertEditorType({
+      variables: {
+        documentId: postId,
+        collectionName: "Posts",
+        fieldName: "contents",
+        document: {
+          type: contents.originalContents.type,
+          value: contents.originalContents.data,
+        },
+        targetFormat,
+      },
+    });
+  }, [loading, postId, contents, isMarkdown, convertEditorType]);
+
+  return (
+    <div className={classes.toggleRow} onClick={handleToggle}>
+      <span className={classes.toggleLabel}>
+        {loading ? "Converting…" : "Markdown editor"}
+      </span>
+      <div className={classNames(classes.toggle, { [classes.toggleOn]: isMarkdown })}>
+        <div className={classNames(classes.toggleHandle, { [classes.toggleHandleOn]: isMarkdown })} />
+      </div>
+    </div>
+  );
+}
+
 interface EditorSettingsSidebarProps {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   initialData: EditablePost;
@@ -1046,6 +1105,9 @@ const EditorSettingsSidebar = ({
   const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
   const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
   const canShare = userCanUseSharing(currentUser);
+  const contentType = initialData.contents?.originalContents?.type;
+  const canSeeMarkdownToggle = userUseMarkdownPostEditor(currentUser)
+    && (contentType === "markdown" || contentType === "lexical");
 
   return (
     <div className={classes.root}>
@@ -1128,6 +1190,12 @@ const EditorSettingsSidebar = ({
 
         {hasGoogleDocImportSetting.get() && (
           <GoogleDocImportSection postId={initialData._id} />
+        )}
+
+        {canSeeMarkdownToggle && (
+          <div className={classes.accordionSection}>
+            <MarkdownEditorToggle form={form} />
+          </div>
         )}
 
         {canSeeHighlight && (

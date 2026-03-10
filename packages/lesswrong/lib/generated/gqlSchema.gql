@@ -1049,6 +1049,12 @@ input AutosaveContentType {
   value: ContentTypeData
 }
 
+enum ConvertibleCollectionName {
+  Posts
+  Comments
+  Tags
+}
+
 extend type Query {
   convertDocument(document: JSON, targetFormat: String): JSON
   latestGoogleDocMetadata(postId: String!, version: String): JSON
@@ -1057,6 +1063,7 @@ extend type Query {
 extend type Mutation {
   revertTagToRevision(tagId: String!, revertToRevisionId: String!): Tag
   autosaveRevision(postId: String!, contents: AutosaveContentType!): Revision
+  convertDocumentEditorType(documentId: String!, collectionName: ConvertibleCollectionName!, fieldName: String!, document: JSON!, targetFormat: String!): JSON
 }
 
 type ModeratorIPAddressInfo {
