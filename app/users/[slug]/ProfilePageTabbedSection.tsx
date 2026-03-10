@@ -211,14 +211,14 @@ const feedTab: ProfilePageTabDefinition<"feed"> = {
   useMultiColumnSettingsPanel: true,
 };
 
-const allTabs = [
+const allTabs: ProfilePageTabDefinition<ProfileTab>[] = [
   //feedTab,
   postsTab,
   commentsTab,
   wikiEditsTab,
   sequencesTab,
   quickTakesTab,
-] as const;
+];
 
 const profilePageTabSettingsByTabSchema = z.object({
   posts: profilePageAllPostsTabSettingsSchema.catch(defaultProfilePageAllPostsTabSettings).optional().default(defaultProfilePageAllPostsTabSettings),
