@@ -212,7 +212,7 @@ const feedTab: ProfilePageTabDefinition<"feed"> = {
 };
 
 const allTabs = [
-  feedTab,
+  //feedTab,
   postsTab,
   commentsTab,
   wikiEditsTab,
