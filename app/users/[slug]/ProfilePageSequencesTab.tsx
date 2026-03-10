@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import classNames from "classnames";
 import { useQuery } from "@/lib/crud/useQuery";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
@@ -8,8 +9,21 @@ import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
 import { profileStyles } from "./profileStyles";
 import { cssUrl } from "./userProfilePageUtil";
 import { gql } from "@/lib/generated/gql-codegen";
+import { z } from "zod";
 
 const profilePageSequencesTabUnsharedStyles = defineStyles("ProfilePageSequencesTabUnshared", (theme: ThemeType) => ({
+  sequencesList: {
+    paddingTop: 20,
+  },
+  tabPanel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    "@media (max-width: 630px)": {
+      order: 1,
+    },
+  },
   sequencesGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)",
@@ -66,14 +80,33 @@ const ProfileSequencesQuery = gql(`
   }
 `);
 
-export function ProfilePageSequencesTab({user}: {
-  user: UsersProfile
+export const profilePageSequencesTabSettingsSchema = z.object({});
+export type ProfilePageSequencesTabSettings = z.infer<typeof profilePageSequencesTabSettingsSchema>;
+
+export const defaultProfilePageSequencesTabSettings: ProfilePageSequencesTabSettings = {};
+
+export function ProfilePageSequencesTabSettingsForm({
+  settings,
+  onChange,
+}: {
+  settings: ProfilePageSequencesTabSettings,
+  onChange: (settings: ProfilePageSequencesTabSettings) => void,
 }) {
+  void settings;
+  void onChange;
+  return null;
+}
+
+export function ProfilePageSequencesTabContents({user, settings}: {
+  user: UsersProfile,
+  settings: ProfilePageSequencesTabSettings,
+}) {
+  void settings;
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageSequencesTabUnsharedStyles);
   const userId = user._id;
 
-  const { data: sequencesData, loading: sequencesLoading } = useQuery(ProfileSequencesQuery, {
+  const { data: sequencesData } = useQuery(ProfileSequencesQuery, {
     skip: !userId,
     variables: {
       selector: userId ? { userProfile: { userId } } : undefined,
@@ -84,27 +117,29 @@ export function ProfilePageSequencesTab({user}: {
   });
   const sequences = sequencesData?.sequences?.results ?? [];
 
-  return <div className={classes.sequencesGrid}>
-    {sequences.map((sequence) => {
-      const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get();
-      return (
-        <article key={sequence._id} className={classes.sequenceCard}>
-          <Link
-            to={sequenceGetPageUrl(sequence)}
-            className={sharedClasses.articleLink}
-          >
-            <div
-              className={classes.sequenceCardImage}
-              style={{
-                backgroundImage: cssUrl(`https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}`),
-              }}
-            />
-            <div className={classes.sequenceCardContent}>
-              <h3 className={classes.sequenceCardTitle}>{sequence.title}</h3>
-            </div>
-          </Link>
-        </article>
-      );
-    })}
+  return <div className={classNames(classes.sequencesList, classes.tabPanel)}>
+    <div className={classes.sequencesGrid}>
+      {sequences.map((sequence) => {
+        const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get();
+        return (
+          <article key={sequence._id} className={classes.sequenceCard}>
+            <Link
+              to={sequenceGetPageUrl(sequence)}
+              className={sharedClasses.articleLink}
+            >
+              <div
+                className={classes.sequenceCardImage}
+                style={{
+                  backgroundImage: cssUrl(`https://res.cloudinary.com/lesswrong-2-0/image/upload/c_fill,dpr_2.0,g_custom,h_380,q_auto,w_1200/v1/${imageId}`),
+                }}
+              />
+              <div className={classes.sequenceCardContent}>
+                <h3 className={classes.sequenceCardTitle}>{sequence.title}</h3>
+              </div>
+            </Link>
+          </article>
+        );
+      })}
+    </div>
   </div>
 }

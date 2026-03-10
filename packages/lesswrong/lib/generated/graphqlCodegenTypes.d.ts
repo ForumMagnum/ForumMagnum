@@ -11877,6 +11877,25 @@ type UserProfilePost = (
   & PostsMinimumInfo
 );
 
+type ProfilePageCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type ProfilePageCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<ProfilePageCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type ProfilePageCommentsQueryQuery_Query = { __typename?: 'Query', comments: ProfilePageCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type ProfilePageCommentsQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type ProfilePageCommentsQueryQuery = ProfilePageCommentsQueryQuery_Query;
+
 type ProfileSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
   { __typename?: 'Sequence' }
   & SequenceContinueReadingFragment
@@ -11895,6 +11914,25 @@ type ProfileSequencesQueryQueryVariables = Exact<{
 
 
 type ProfileSequencesQueryQuery = ProfileSequencesQueryQuery_Query;
+
+type ProfilePageWikiEditsQueryQuery_revisions_MultiRevisionOutput_results_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionTagFragment
+);
+
+type ProfilePageWikiEditsQueryQuery_revisions_MultiRevisionOutput = { __typename?: 'MultiRevisionOutput', totalCount: number | null, results: Array<ProfilePageWikiEditsQueryQuery_revisions_MultiRevisionOutput_results_Revision> };
+
+type ProfilePageWikiEditsQueryQuery_Query = { __typename?: 'Query', revisions: ProfilePageWikiEditsQueryQuery_revisions_MultiRevisionOutput | null };
+
+
+type ProfilePageWikiEditsQueryQueryVariables = Exact<{
+  selector: InputMaybe<RevisionSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type ProfilePageWikiEditsQueryQuery = ProfilePageWikiEditsQueryQuery_Query;
 
 type ProfileTopPostsQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }

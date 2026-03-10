@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, useState, useRef } from "react";
+import React from "react";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -12,8 +12,27 @@ import { profileStyles } from "./profileStyles";
 import LoadMore from "@/components/common/LoadMore";
 import { cssUrl, formatReadableDate, getListPostImageUrl, getPostSummary } from "./userProfilePageUtil";
 import { gql } from "@/lib/generated/gql-codegen";
+import { z } from "zod";
 
 const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTabUnshared", (theme: ThemeType) => ({
+  postsList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    paddingTop: 12,
+    "@media (max-width: 630px)": {
+      width: "100%",
+    },
+  },
+  tabPanel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    "@media (max-width: 630px)": {
+      order: 1,
+    },
+  },
   listArticle: {
     padding: "14px 0 15px",
     borderBottom: theme.palette.type === "dark"
@@ -249,14 +268,77 @@ const ProfilePostsQuery = gql(`
 `);
 
 const INITIAL_POSTS_TO_SHOW = 7;
-export type AllPostsTabSortingMode = "new" | "top" | "topInflation" | "recentComments" | "old" | "magic";
+export const allPostsTabSortingModeSchema = z.enum(["new", "top", "topInflation", "recentComments", "old", "magic"]);
+export type AllPostsTabSortingMode = z.infer<typeof allPostsTabSortingModeSchema>;
 
-export function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, sortPanelClosing}: {
+export const profilePageAllPostsTabSettingsSchema = z.object({
+  sortBy: allPostsTabSortingModeSchema,
+});
+export type ProfilePageAllPostsTabSettings = z.infer<typeof profilePageAllPostsTabSettingsSchema>;
+
+export const defaultProfilePageAllPostsTabSettings: ProfilePageAllPostsTabSettings = {
+  sortBy: "new",
+};
+
+export function ProfilePageAllPostsTabSettingsForm({
+  settings,
+  onChange,
+}: {
+  settings: ProfilePageAllPostsTabSettings,
+  onChange: (settings: ProfilePageAllPostsTabSettings) => void,
+}) {
+  const sharedClasses = useStyles(profileStyles);
+
+  return <div className={sharedClasses.sortPanelSection}>
+    <div className={sharedClasses.sortPanelHeader}>Sorted by:</div>
+    <button
+      className={classNames(sharedClasses.sortPanelOption, settings.sortBy === "new" && sharedClasses.sortPanelOptionSelected)}
+      onClick={() => onChange({ sortBy: "new" })}
+      type="button"
+    >
+      New
+    </button>
+    <button
+      className={classNames(sharedClasses.sortPanelOption, settings.sortBy === "old" && sharedClasses.sortPanelOptionSelected)}
+      onClick={() => onChange({ sortBy: "old" })}
+      type="button"
+    >
+      Old
+    </button>
+    <button
+      className={classNames(sharedClasses.sortPanelOption, settings.sortBy === "magic" && sharedClasses.sortPanelOptionSelected)}
+      onClick={() => onChange({ sortBy: "magic" })}
+      type="button"
+    >
+      Magic (New & Upvoted)
+    </button>
+    <button
+      className={classNames(sharedClasses.sortPanelOption, settings.sortBy === "top" && sharedClasses.sortPanelOptionSelected)}
+      onClick={() => onChange({ sortBy: "top" })}
+      type="button"
+    >
+      Top
+    </button>
+    <button
+      className={classNames(sharedClasses.sortPanelOption, settings.sortBy === "topInflation" && sharedClasses.sortPanelOptionSelected)}
+      onClick={() => onChange({ sortBy: "topInflation" })}
+      type="button"
+    >
+      Top (Inflation Adjusted)
+    </button>
+    <button
+      className={classNames(sharedClasses.sortPanelOption, settings.sortBy === "recentComments" && sharedClasses.sortPanelOptionSelected)}
+      onClick={() => onChange({ sortBy: "recentComments" })}
+      type="button"
+    >
+      Recent Comments
+    </button>
+  </div>;
+}
+
+export function ProfilePageAllPostsTabContents({user, settings}: {
   user: UsersProfile
-  sortBy: AllPostsTabSortingMode
-  setSortBy: React.Dispatch<React.SetStateAction<AllPostsTabSortingMode>>
-  sortPanelOpen: boolean
-  sortPanelClosing: boolean
+  settings: ProfilePageAllPostsTabSettings
 }) {
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageAllPostsTabUnsharedStyles);
@@ -265,7 +347,7 @@ export function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, 
   const { data: recentPostsData, loading: recentPostsLoading, loadMoreProps } = useQueryWithLoadMore(ProfilePostsQuery, {
     skip: !userId,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: sortBy, excludeEvents: true, authorIsUnreviewed: null } } : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy: settings.sortBy, excludeEvents: true, authorIsUnreviewed: null } } : undefined,
       limit: INITIAL_POSTS_TO_SHOW,
       enableTotal: true,
     },
@@ -275,56 +357,7 @@ export function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, 
   const recentPosts = recentPostsData?.posts?.results ?? [];
   const hasPosts = user.postCount > 0;
 
-  return <>
-    {(sortPanelOpen || sortPanelClosing) && (
-      <div className={classNames(sharedClasses.sortPanel, sortPanelClosing && sharedClasses.sortPanelClosing)}>
-        <div className={sharedClasses.sortPanelSection}>
-          <div className={sharedClasses.sortPanelHeader}>Sorted by:</div>
-          <button
-            className={classNames(sharedClasses.sortPanelOption, sortBy === "new" && sharedClasses.sortPanelOptionSelected)}
-            onClick={() => setSortBy("new")}
-            type="button"
-          >
-            New
-          </button>
-          <button
-            className={classNames(sharedClasses.sortPanelOption, sortBy === "old" && sharedClasses.sortPanelOptionSelected)}
-            onClick={() => setSortBy("old")}
-            type="button"
-          >
-            Old
-          </button>
-          <button
-            className={classNames(sharedClasses.sortPanelOption, sortBy === "magic" && sharedClasses.sortPanelOptionSelected)}
-            onClick={() => setSortBy("magic")}
-            type="button"
-          >
-            Magic (New & Upvoted)
-          </button>
-          <button
-            className={classNames(sharedClasses.sortPanelOption, sortBy === "top" && sharedClasses.sortPanelOptionSelected)}
-            onClick={() => setSortBy("top")}
-            type="button"
-          >
-            Top
-          </button>
-          <button
-            className={classNames(sharedClasses.sortPanelOption, sortBy === "topInflation" && sharedClasses.sortPanelOptionSelected)}
-            onClick={() => setSortBy("topInflation")}
-            type="button"
-          >
-            Top (Inflation Adjusted)
-          </button>
-          <button
-            className={classNames(sharedClasses.sortPanelOption, sortBy === "recentComments" && sharedClasses.sortPanelOptionSelected)}
-            onClick={() => setSortBy("recentComments")}
-            type="button"
-          >
-            Recent Comments
-          </button>
-        </div>
-      </div>
-    )}
+  return <div className={classNames(classes.postsList, classes.tabPanel)}>
     {!hasPosts && !recentPostsLoading && (
       <div className={sharedClasses.emptyStateContainer}>
         <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} has not written any posts yet.</p>
@@ -386,5 +419,5 @@ export function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, 
     })}
 
     <LoadMore {...loadMoreProps} />
-  </>
+  </div>
 }
