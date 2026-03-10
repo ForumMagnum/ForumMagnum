@@ -7,9 +7,8 @@ import { forumTitleSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting, reco
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { captureException } from "@/lib/sentryWrapper";
-import { getAuth0Profile, updateAuth0Email } from "../authentication/auth0";
 import { userFindOneByEmail } from "../commonQueries";
-import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId, hasAuth0 } from "../databaseSettings";
+import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { fetchFragmentSingle } from "../fetchFragment";
@@ -340,16 +339,6 @@ export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser)
     } else {
       modifier.$set.emails = [{address: newEmail, verified: false}];
       await utils.sendVerificationEmailConditional(user)
-    }
-
-    if (hasAuth0()) {
-      await updateAuth0Email(user, newEmail);
-      /*
-       * Be careful here: DbUser does NOT includes services, so overwriting
-       * modifier.$set.services is both very easy and very bad (amongst other
-       * things, it will invalidate the user's session)
-       */
-      modifier.$set["services.auth0"] = await getAuth0Profile(user);
     }
   }
   return modifier;

@@ -574,7 +574,6 @@ export const UsersEdit = gql(`
     whenConfirmationEmailSent
     emailSubscribedToCurated
     unsubscribeFromAll
-    hasAuth0Id
 
     # Moderation
     moderatorAssistance
