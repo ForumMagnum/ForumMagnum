@@ -6,7 +6,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isAF, isEAForum, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { isAF, isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useDialog } from '../../common/withDialog';
 import { PostsPageContext } from './PostsPageContext';
@@ -15,7 +15,6 @@ import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
@@ -37,7 +36,6 @@ import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
 import SharePostPopup from "../SharePostPopup";
 import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
 import MultiToCLayout from "../TableOfContents/MultiToCLayout";
-import PostsPagePostHeader from "./PostsPagePostHeader";
 import PostsPagePostFooter from "./PostsPagePostFooter";
 import PostBodyPrefix from "./PostBodyPrefix";
 import CommentPermalink from "../../comments/CommentPermalink";
@@ -69,7 +67,6 @@ import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHead
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint } from './constants';
 import { getPostDescription, getStructuredData } from './structuredData';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { ReadingProgressBar } from './ReadingProgressBar';
 import { StructuredData } from '@/components/common/StructuredData';
 import { LWCommentCount } from '../TableOfContents/LWCommentCount';
 import { NetworkStatus } from "@apollo/client";
@@ -99,18 +96,8 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     maxWidth: CENTRAL_COLUMN_WIDTH, // this necessary in both friendly and non-friendly UI to prevent Comment Permalinks from overflowing the page
-    ...(theme.isFriendlyUI && {
-      [theme.breakpoints.down('sm')]: {
-        // This can only be used when display: "block" is applied, otherwise the 100% confuses the
-        // grid layout into adding loads of left margin
-        maxWidth: `min(100%, ${CENTRAL_COLUMN_WIDTH}px)`,
-      }
-    }),
   },
   postBody: {
-    ...(theme.isFriendlyUI && {
-      width: "100%",
-    }),
   },
   audioPlayerHidden: {
     // Only show the play button next to headings if the audio player is visible
@@ -119,7 +106,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     },
   },
   postContent: {
-    marginBottom: theme.isFriendlyUI ? 40 : undefined
   },
   betweenPostAndComments: {
     minHeight: 24,
@@ -137,7 +123,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
-    paddingTop: theme.isFriendlyUI ? 16 : undefined
   },
   noCommentsPlaceholder: {
     marginTop: 60,
@@ -239,7 +224,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   dateAtBottom: {
     color: theme.palette.text.dim3,
-    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.typography.body2.fontSize,
     cursor: 'default'
   },
   reviewVoting: {
@@ -331,7 +316,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
 
   const reviewWinner = fullPost?.reviewWinner;
   const hasReviewWinnerArt = !!reviewWinner?.reviewWinnerArt?.splashArtImageUrl;
-  const showSplashPageHeader = isLWorAF() && hasReviewWinnerArt && !params.sequenceId;
+  const showSplashPageHeader = hasReviewWinnerArt && !params.sequenceId;
 
   useEffect(() => {
     if (!query[SHARE_POPUP_QUERY_PARAM]) return;
@@ -511,15 +496,12 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? (isLWorAF()
-        ? <TableOfContents
-            sectionData={sectionData}
-            title={post.title}
-            heading={<FixedPositionToCHeading post={post}/>}
-            fixedPositionToc={true}
-          />
-        : <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={false} />
-      )
+    ? <TableOfContents
+        sectionData={sectionData}
+        title={post.title}
+        heading={<FixedPositionToCHeading post={post}/>}
+        fixedPositionToc={true}
+      />
     : null;
 
   const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
@@ -565,7 +547,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
               className={classes.headerImage}
             />
           </div>}
-          {isBookUI() && <LWPostsPageHeader
+          <LWPostsPageHeader
             post={post}
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
@@ -573,14 +555,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             annualReviewMarketInfo={marketInfo}
             showSplashPageHeader={showSplashPageHeader}
-            />}
-          {!isBookUI() && <PostsPagePostHeader
-            post={post}
-            answers={answers ?? []}
-            showEmbeddedPlayer={showEmbeddedPlayer}
-            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-            dialogueResponses={debateResponses} 
-            annualReviewMarketInfo={marketInfo}/>}
+          />
           {(post._id === 'eKGdCNdKjvTBG9i6y') &&
             <FundraisingThermometer onPost />}
         </div>
@@ -588,16 +563,12 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     </AnalyticsContext>
   </>;
 
-  const welcomeBox = (
+  const rightColumnChildren = <>
     <DeferRender ssr={false}>
       <div className={classes.welcomeBox}>
         <WelcomeBox />
       </div>
     </DeferRender>
-  );
-
-  const rightColumnChildren = <>
-    {welcomeBox}
     <div className={classes.reserveSpaceForSidenotes}/>
     <SideItemsSidebar/>
   </>;
@@ -626,9 +597,8 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       classes.postBody,
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
-      {isBookUI() && header}
+      {header}
       {/* Body */}
-      {fullPost && isEAForum() && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
       {!post.debate && <ContentStyles
         contentType="post"
@@ -646,10 +616,10 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
                 isOldVersion={isOldVersion}
                 voteProps={voteProps}
               />
-              {post.isEvent && isBookUI() && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
-              }
-              </>
-            }
+              {post.isEvent && <p className={classes.dateAtBottom}>
+                Posted on: <PostsPageDate post={post} hasMajorRevision={false} />
+              </p>}
+            </>}
           </div>
           </CommentOnSelectionContentWrapper>
           </HoveredReactionContextProvider>
@@ -669,7 +639,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
         </div>
       </Row>}
 
-      {post.isEvent && post.group && isBookUI() &&
+      {post.isEvent && post.group &&
           <Row justifyContent="center">
             <div className={classes.bottomOfPostSubscribe}>
               <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
@@ -692,6 +662,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
         />}
 
     </div>
+
   const betweenPostAndCommentsSection = <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
     <Suspense>
       {reviewIsActive() && postEligibleForReview(post) && getReviewPhase() !== "RESULTS" && <div className={classes.reviewVoting}>
@@ -730,12 +701,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
             {isAF() && <AFUnreviewedCommentCount post={post}/>}
           </Suspense>
           </AnalyticsContext>
-          {isFriendlyUI() && Math.max(post.commentCount, comments?.length ?? 0) < 1 &&
-            <div className={classes.noCommentsPlaceholder}>
-              <div>No comments on this post yet.</div>
-              <div>Be the first to respond.</div>
-            </div>
-          }
         </div>
       </AttributionInViewTracker>
     </AnalyticsInViewTracker>
@@ -755,7 +720,6 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     <SideItemsContainer>
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
-    <ReadingProgressBar post={post}/>
     {splashHeaderImage}
     <MultiToCLayout
       segments={[
