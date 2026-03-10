@@ -15668,7 +15668,6 @@ type latestGoogleDocMetadataSidebarQuery_Query = { __typename?: 'Query', latestG
 
 type latestGoogleDocMetadataSidebarQueryVariables = Exact<{
   postId: Scalars['String']['input'];
-  version: InputMaybe<Scalars['String']['input']>;
 }>;
 
 

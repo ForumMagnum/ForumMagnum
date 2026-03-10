@@ -924,7 +924,21 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
   );
 }
 
-function GoogleDocImportSection({ postId, version }: { postId: string; version?: string }) {
+const latestGoogleDocMetadataSidebarQuery = gql(`
+  query latestGoogleDocMetadataSidebar($postId: String!) {
+    latestGoogleDocMetadata(postId: $postId)
+  }
+`);
+
+const importGoogleDocSidebarMutation = gql(`
+  mutation ImportGoogleDocSidebar($fileUrl: String!, $postId: String) {
+    ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {
+      ...PostsBase
+    }
+  }
+`);
+
+function GoogleDocImportSection({ postId }: { postId: string }) {
   const classes = useStyles(styles);
   const [googleDocUrl, setGoogleDocUrl] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -933,18 +947,14 @@ function GoogleDocImportSection({ postId, version }: { postId: string; version?:
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { data: latestGoogleDocMetadataQuery } = useQuery(
-    gql(`
-      query latestGoogleDocMetadataSidebar($postId: String!, $version: String) {
-        latestGoogleDocMetadata(postId: $postId, version: $version)
-      }
-    `),
+  const { data: metadataData } = useQuery(
+    latestGoogleDocMetadataSidebarQuery,
     {
-      variables: { postId, version },
+      variables: { postId },
       context: { batchKey: "docImportInfo" },
     }
   );
-  const previousDocId = latestGoogleDocMetadataQuery?.latestGoogleDocMetadata?.id;
+  const previousDocId = metadataData?.latestGoogleDocMetadata?.id;
 
   useEffect(() => {
     if (previousDocId) {
@@ -956,25 +966,19 @@ function GoogleDocImportSection({ postId, version }: { postId: string; version?:
   const canImport = !!fileId;
 
   const [importGoogleDocMutation, { loading: mutationLoading }] = useMutation(
-    gql(`
-      mutation ImportGoogleDocSidebar($fileUrl: String!, $postId: String) {
-        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {
-          ...PostsBase
-        }
-      }
-    `),
+    importGoogleDocSidebarMutation,
     {
-      onCompleted: (data: { ImportGoogleDoc: PostsBase }) => {
+      onCompleted: (data) => {
         setErrorMessage(null);
-        const resultPostId = data?.ImportGoogleDoc?._id;
-        const linkSharingKey = data?.ImportGoogleDoc?.linkSharingKey;
-        const editPostUrl = postGetEditUrl(resultPostId, false, linkSharingKey ?? undefined);
+        const result = data?.ImportGoogleDoc;
+        if (!result) return;
+
+        const editPostUrl = postGetEditUrl(result._id, false, result.linkSharingKey ?? undefined);
 
         captureEvent("googleDocImportSubmitted", {
           success: true,
           fileUrl: googleDocUrl,
-          postId: resultPostId,
-          isNew: !postId,
+          postId: result._id,
         });
 
         if (location.url === editPostUrl) {
@@ -988,7 +992,6 @@ function GoogleDocImportSection({ postId, version }: { postId: string; version?:
           success: false,
           fileUrl: googleDocUrl,
           postId,
-          isNew: !postId,
         });
         setErrorMessage(error.message);
         flash(error.message);
@@ -1024,8 +1027,7 @@ function GoogleDocImportSection({ postId, version }: { postId: string; version?:
         {mutationLoading ? <Loading className={classes.importLoadingDots} /> : "Import"}
       </button>
       <div className={classes.importFooter}>
-        This will overwrite any unsaved changes
-        {postId ? `, but you can still restore saved versions from "Version history"` : ""}
+        This will overwrite any unsaved changes, but you can still restore saved versions from "Version history"
       </div>
     </AccordionSection>
   );
