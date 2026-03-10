@@ -3890,7 +3890,10 @@ const schema = {
       },
     },
   },
-  // used by the EA Forum to track if a user has dismissed the post page criticism tips card
+  /**
+   * @deprecated
+   * used by the EA Forum to track if a user has dismissed the post page criticism tips card
+   */
   criticismTipsDismissed: {
     database: {
       type: "BOOL",

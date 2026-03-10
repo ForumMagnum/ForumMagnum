@@ -4,10 +4,8 @@ import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
-import { useLazyQuery, useMutation } from '@apollo/client/react';
+import { useMutation } from '@apollo/client/react';
 import { gql } from "@/lib/generated/gql-codegen";
-import { isEAForum } from '../../lib/instanceSettings';
-import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isCollaborative, PostCategory } from '../../lib/collections/posts/helpers';
 import { AutosaveEditorStateContext, DynamicTableOfContentsContext } from '../common/sharedContexts';
@@ -15,16 +13,12 @@ import { AppendToEditorContext } from './AppendToEditorContext';
 import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { CKEditorPortalProvider } from '../editor/CKEditorPortalProvider';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import LastEditedInWarning from "./LastEditedInWarning";
 import LocalStorageCheck from "./LocalStorageCheck";
 import EditorTypeSelect from "./EditorTypeSelect";
-import PostsEditBotTips from "../posts/PostsEditBotTips";
 import ErrorBoundary from "../common/ErrorBoundary";
 import PostVersionHistoryButton from './PostVersionHistory';
 
@@ -199,106 +193,7 @@ function InnerEditorFormComponent<S, R>({
   // is error prone and we don't want to encourage it. We no longer support draftJS
   // but some old posts still are using it so we show the warning for them too.
   const showEditorWarning = (updatedFormType !== "new") && (currentEditorType === 'html' || (currentEditorType as LegacyEditorTypeString) === 'draftJS')
-  
-  // On the EA Forum, our bot checks if posts are potential criticism,
-  // and if so we show a little card with tips on how to make it more likely to go well.
-  const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
-  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(!!currentUser?.criticismTipsDismissed)
-  const tipsNodeRef = useRef<HTMLElement|null>(null);
-  const updateCurrentUser = useUpdateCurrentUser()
-  
-  const handleDismissCriticismTips = () => {
-    // hide the card
-    setCriticismTipsDismissed(true)
-    captureEvent('criticismTipsDismissed', {postId: document._id})
-    // make sure not to show the card for this user ever again
-    void updateCurrentUser({
-      criticismTipsDismissed: true
-    })
-  }
-  
-  const [checkPostIsCriticism] = useLazyQuery(gql(`
-    query getPostIsCriticism($args: JSON) {
-      PostIsCriticism(args: $args)
-    }
-    `), {
-      //onCompleted: (data) => {
-        // SC 2024-09-18: We are temporarily hiding the user-facing card,
-        // as we are testing using gpt-4o-mini directly instead of a fine-tuned model.
-        
-        // const isCriticism = !!data.PostIsCriticism
-        // setPostFlaggedAsCriticism(isCriticism)
-        // if (isCriticism && !postFlaggedAsCriticism) {
-        //   captureEvent('criticismTipsShown', {postId: document._id})
-        // }
-      //}
-    }
-  )
 
-  const [cookies] = useCookiesWithConsent([HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE]);
-
-  // On the EA Forum, our bot checks if posts are potential criticism,
-  // and if so we show a little card with tips on how to make it more likely to go well.
-  const checkIsCriticism = useCallback((contents: EditorContents) => {
-    // The "Useful links" card appears on the "new post" form by default,
-    // in the same area as the criticism tips card. If the user hasn't dismissed it,
-    // then we don't bother to show the criticism tips card.
-    const conflictingCardVisible = updatedFormType === 'new' && cookies[HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE] !== 'true'
-    // We're currently skipping linkposts, since the linked post's author is
-    // not always the same person posting it on the forum.
-    if (
-      !isEAForum() ||
-      collectionName !== 'Posts' ||
-      conflictingCardVisible ||
-      document.isEvent ||
-      document.debate ||
-      document.shortform ||
-      document.url ||
-      criticismTipsDismissed
-    ) return
-
-    void checkPostIsCriticism({variables: { args: {
-      _id: document._id,
-      title: document.title ?? '',
-      contentType: contents.type,
-      body: contents.value
-    }}})
-  }, [
-    collectionName,
-    updatedFormType,
-    cookies,
-    document._id,
-    document.isEvent,
-    document.debate,
-    document.shortform,
-    document.url,
-    document.title,
-    criticismTipsDismissed,
-    checkPostIsCriticism
-  ])
-
-  // Run this check up to once per 20 min.
-  const throttledCheckIsCriticism = useDebouncedCallback(checkIsCriticism, {
-    rateLimitMs: 1000*60*20,
-    callOnLeadingEdge: true,
-    onUnmount: "cancelPending",
-    allowExplicitCallAfterUnmount: false,
-  });
-  // Run this check up to once per 2 min (called only when there is a significant amount of text added).
-  const throttledCheckIsCriticismLargeDiff = useDebouncedCallback(checkIsCriticism, {
-    rateLimitMs: 1000*60*2,
-    callOnLeadingEdge: true,
-    onUnmount: "cancelPending",
-    allowExplicitCallAfterUnmount: false,
-  })
-  
-  useEffect(() => {
-    // check when loading the post edit form
-    if (contents?.value?.length > 300) {
-      throttledCheckIsCriticism(contents)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  
   const saveBackup = useCallback((newContents: EditorContents) => {
     const sameAsSaved = newContents.value === document?.[fieldName]?.ckEditorMarkup
 
@@ -402,16 +297,6 @@ function InnerEditorFormComponent<S, R>({
       throttledSaveBackup(newContents);
       // Don't do server-side autosave if using the collaborative editor, since it autosaves through the ckEditor webhook
       if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
-    }
-    
-    // We only check posts that have >300 characters, which is ~a few sentences.
-    if (newContents?.value?.length > 300) {
-      // If there's a lot more text (ex. something pasted in), we check the post sooner.
-      if (newContents.value.length - (contents?.value?.length ?? 0) > 300) {
-        throttledCheckIsCriticismLargeDiff(newContents)
-      } else {
-        throttledCheckIsCriticism(newContents)
-      }
     }
   });
 
@@ -623,14 +508,6 @@ function InnerEditorFormComponent<S, R>({
         postId={document._id}
       />
     )}
-    <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear nodeRef={tipsNodeRef}>
-      {(state) => <PostsEditBotTips
-        handleDismiss={handleDismissCriticismTips}
-        postId={document._id}
-        nodeRef={tipsNodeRef}
-        className={classes[`${state}BotTips`]}
-      />}
-    </Transition>
   </div>
 }
 

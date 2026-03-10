@@ -235,8 +235,6 @@ export const UsersCurrent = gql(`
     notificationRepliesToMyComments
     subforumPreferredLayout
     
-    criticismTipsDismissed
-    
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
 
