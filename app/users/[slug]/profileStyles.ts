@@ -33,6 +33,15 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     padding: "53px 80px 60px 80px",
     color: theme.palette.text.normal,
     background: "transparent",
+    "@media (max-width: 900px)": {
+      padding: "40px 30px 50px 30px",
+    },
+    "@media (max-width: 750px)": {
+      padding: "35px 25px 45px 25px",
+    },
+    "@media (max-width: 630px)": {
+      padding: "30px 20px 40px 20px",
+    },
   },
   profileHeader: {
     marginBottom: 15,
@@ -125,6 +134,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     borderBottom: theme.palette.type === "dark"
       ? theme.palette.greyBorder("1px", 0.28)
       : "1px solid rgba(140,110,70,.14)",
+    "@media (max-width: 630px)": {
+      display: "block",
+    },
   },
   mobileProfileName: {
     fontFamily: theme.typography.fontFamily,
@@ -178,9 +190,15 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   topPostsLabelPlural: {
     display: "block",
+    "@media (max-width: 630px)": {
+      display: "none",
+    },
   },
   topPostsLabelSingular: {
     display: "none",
+    "@media (max-width: 630px)": {
+      display: "block",
+    },
   },
   emptyStateContainer: {
     display: "flex",
@@ -231,6 +249,11 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     "&:hover": {
       opacity: 1,
     },
+    "@media (max-width: 750px)": {
+      display: "flex",
+      flexDirection: "column-reverse",
+      gap: 16,
+    },
   },
   postArticleTop: {
     gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
@@ -251,6 +274,12 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     marginLeft: 0,
     aspectRatio: "3 / 2",
     transition: "opacity 0.15s ease",
+    "@media (max-width: 750px)": {
+      height: "auto",
+      maxHeight: "none",
+      width: "100%",
+      aspectRatio: "auto",
+    },
   },
   postImage: {
     gridColumn: "4 / 7",
@@ -265,6 +294,14 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     aspectRatio: "3 / 2",
     transition: "opacity 0.15s ease",
     mixBlendMode: theme.dark ? "normal" : "multiply",
+    "@media (max-width: 750px)": {
+      width: "100%",
+      height: 220,
+      aspectRatio: "auto",
+    },
+    "@media (max-width: 630px)": {
+      height: 200,
+    },
   },
   postTitle: {
     fontFamily: theme.typography.headerStyle.fontFamily,
@@ -284,6 +321,16 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     WebkitBoxOrient: "vertical",
     WebkitLineClamp: 4,
     overflow: "hidden",
+    "@media (max-width: 900px)": {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+    },
+    "@media (max-width: 630px)": {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+    },
   },
   topPostTitle: {
     fontSize: 44,
@@ -298,6 +345,11 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     fontSize: 15,
     lineHeight: 1.6,
     color: theme.palette.text.slightlyDim2,
+    "@media (max-width: 750px)": {
+      flex: "none",
+      minHeight: "auto",
+      marginBottom: 16,
+    },
   },
   postSummary: {
     fontFamily: theme.typography.postStyle.fontFamily,
@@ -325,6 +377,25 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
         ? "linear-gradient(to right, transparent, white)"
         : "linear-gradient(to right, transparent, black)",
       pointerEvents: "none",
+    },
+    "@media (max-width: 900px)": {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "pre-line",
+    },
+    "@media (max-width: 750px)": {
+      maxHeight: "none",
+      display: "-webkit-box",
+      WebkitBoxOrient: "vertical",
+      WebkitLineClamp: 4,
+      lineClamp: 4,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+    "@media (max-width: 630px)": {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "pre-line",
     },
   },
   postMetaBar: {
@@ -356,6 +427,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     display: "grid",
     gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
     gap: 25,
+    "@media (max-width: 630px)": {
+      display: "none",
+    },
   },
   smallArticle: {
     gridColumn: "span 2",
@@ -404,6 +478,11 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     lineClamp: 2,
     overflow: "hidden",
     textOverflow: "ellipsis",
+    "@media (max-width: 630px)": {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+    },
   },
   smallArticleMeta: {
     display: "flex",
@@ -448,18 +527,27 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     "&:last-of-type": {
       borderBottom: "none",
     },
+    "@media (max-width: 630px)": {
+      padding: "12px 0",
+    },
   },
   listArticleContent: {
     minWidth: 0,
     display: "flex",
     flexDirection: "column",
     overflow: "visible",
+    "@media (max-width: 630px)": {
+      gap: 7,
+    },
   },
   listArticleBody: {
     display: "flex",
     alignItems: "stretch",
     gap: 14,
     minWidth: 0,
+    "@media (max-width: 750px)": {
+      gap: 10,
+    },
   },
   listArticleBodyNoImage: {
     display: "block",
@@ -473,6 +561,12 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     flexDirection: "column",
     gap: 4,
     overflow: "hidden",
+    "@media (max-width: 750px)": {
+      minHeight: 0,
+      height: "auto",
+      gap: 7,
+      overflow: "visible",
+    },
   },
   listArticleTextNoImage: {
     minHeight: 0,
@@ -489,6 +583,15 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     lineHeight: 1.2,
     letterSpacing: "-.015em",
     whiteSpace: "normal",
+    "@media (max-width: 630px)": {
+      fontSize: 18,
+      lineHeight: 1.28,
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+      overflow: "visible",
+      textOverflow: "clip",
+    },
   },
   listArticleTitleText: {
     display: "-webkit-box",
@@ -510,6 +613,10 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     fontSize: 14,
     lineHeight: 1.48,
     color: theme.palette.text.slightlyDim2,
+    "@media (max-width: 750px)": {
+      flex: "none",
+      minHeight: "auto",
+    },
   },
   listArticleSummaryWrapperNoImage: {
     flex: "none",
@@ -539,6 +646,17 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       WebkitMaskImage: "linear-gradient(to right, transparent, light-dark(black, white))",
       maskImage: "linear-gradient(to right, transparent, light-dark(black, white))",
       pointerEvents: "none",
+    },
+    "@media (max-width: 750px)": {
+      maxHeight: "none",
+      display: "-webkit-box",
+      WebkitBoxOrient: "vertical",
+      WebkitLineClamp: 2,
+      lineClamp: 2,
+      textOverflow: "ellipsis",
+      "&::after": {
+        display: "none",
+      },
     },
   },
   listArticleSummaryNoImage: {
@@ -598,28 +716,46 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     backgroundPosition: "center",
     transition: "opacity 0.15s ease",
     mixBlendMode: theme.dark ? "normal" : "multiply",
+    "@media (max-width: 750px)": {
+      display: "none",
+    },
   },
   allPostsSection: {
     marginTop: 30,
     display: "flex",
     gap: 25,
+    "@media (max-width: 630px)": {
+      flexDirection: "column",
+    },
   },
   allPostsLeftColumn: {
     flex: "1 1 0%",
     minWidth: 0,
     minHeight: "100vh",
+    "@media (max-width: 630px)": {
+      flex: "1 1 auto",
+    },
   },
   allPostsHeader: {
     marginBottom: 6,
     display: "flex",
     alignItems: "baseline",
     justifyContent: "space-between",
+    "@media (max-width: 630px)": {
+      display: "flex",
+      flexDirection: "column",
+      gap: 0,
+    },
   },
   allPostsLeftHeader: {
     display: "flex",
     alignItems: "baseline",
     justifyContent: "space-between",
     width: "100%",
+    "@media (max-width: 630px)": {
+      width: "100%",
+      marginBottom: 16,
+    },
   },
   profileTabs: {
     display: "flex",
@@ -723,18 +859,29 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     color: theme.palette.text.normal,
   },
   allPostsContainer: {
+    "@media (max-width: 630px)": {
+      display: "flex",
+      flexDirection: "column",
+      gap: 30,
+    },
   },
   postsList: {
     display: "flex",
     flexDirection: "column",
     gap: 8,
     paddingTop: 12,
+    "@media (max-width: 630px)": {
+      width: "100%",
+    },
   },
   tabPanel: {
     display: "flex",
     flexDirection: "column",
     gap: 8,
     animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    "@media (max-width: 630px)": {
+      order: 1,
+    },
   },
   articleLink: {
     textDecoration: "none",
@@ -758,6 +905,10 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     gridTemplateColumns: "repeat(2, 1fr)",
     gap: 20,
     padding: "8px 0",
+    "@media (max-width: 630px)": {
+      gridTemplateColumns: "1fr",
+      gap: 24,
+    },
   },
   sequenceCard: {
     display: "flex",
@@ -808,6 +959,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     lineHeight: 1.1,
     textTransform: "uppercase",
     letterSpacing: 0.8,
+    "@media (max-width: 630px)": {
+      display: "none",
+    },
   },
   sidebarAuthorNameLink: {
     color: "inherit",
@@ -843,6 +997,9 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     position: "sticky",
     top: 80,
     alignSelf: "start",
+    "@media (max-width: 630px)": {
+      display: "none",
+    },
   },
   postsSidebarHasBio: {
     "& $sidebarStats": {
@@ -1051,169 +1208,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   },
   loadMoreLoading: {
     marginRight: 0,
-  },
-  "@media (max-width: 900px)": {
-    profileMain: {
-      padding: "40px 30px 50px 30px",
-    },
-    postTitle: {
-      wordWrap: "break-word",
-      overflowWrap: "break-word",
-      whiteSpace: "normal",
-    },
-    postSummary: {
-      wordWrap: "break-word",
-      overflowWrap: "break-word",
-      whiteSpace: "pre-line",
-    },
-  },
-  "@media (max-width: 750px)": {
-    profileMain: {
-      padding: "35px 25px 45px 25px",
-    },
-    postArticle: {
-      display: "flex",
-      flexDirection: "column-reverse",
-      gap: 16,
-    },
-    postContent: {
-      height: "auto",
-      maxHeight: "none",
-      width: "100%",
-      aspectRatio: "auto",
-    },
-    postImage: {
-      width: "100%",
-      height: 220,
-      aspectRatio: "auto",
-    },
-    postSummary: {
-      maxHeight: "none",
-      display: "-webkit-box",
-      WebkitBoxOrient: "vertical",
-      WebkitLineClamp: 4,
-      lineClamp: 4,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
-    postSummaryWrapper: {
-      flex: "none",
-      minHeight: "auto",
-      marginBottom: 16,
-    },
-    listArticleBody: {
-      gap: 10,
-    },
-    listArticleText: {
-      minHeight: 0,
-      height: "auto",
-      gap: 7,
-      overflow: "visible",
-    },
-    listArticleSummaryWrapper: {
-      flex: "none",
-      minHeight: "auto",
-    },
-    listArticleSummary: {
-      maxHeight: "none",
-      display: "-webkit-box",
-      WebkitBoxOrient: "vertical",
-      WebkitLineClamp: 2,
-      lineClamp: 2,
-      textOverflow: "ellipsis",
-      "&::after": {
-        display: "none",
-      },
-    },
-    listArticleImage: {
-      display: "none",
-    },
-  },
-  "@media (max-width: 630px)": {
-    profileMain: {
-      padding: "30px 20px 40px 20px",
-    },
-    postImage: {
-      height: 200,
-    },
-    smallArticlesGrid: {
-      display: "none",
-    },
-    topPostsLabelPlural: {
-      display: "none",
-    },
-    topPostsLabelSingular: {
-      display: "block",
-    },
-    mobileProfileBio: {
-      display: "block",
-    },
-    allPostsSection: {
-      flexDirection: "column",
-    },
-    allPostsLeftColumn: {
-      flex: "1 1 auto",
-    },
-    allPostsHeader: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 0,
-    },
-    allPostsLeftHeader: {
-      width: "100%",
-      marginBottom: 16,
-    },
-    allPostsContainer: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 30,
-    },
-    postsList: {
-      width: "100%",
-    },
-    tabPanel: {
-      order: 1,
-    },
-    postsSidebar: {
-      display: "none",
-    },
-    sequencesGrid: {
-      gridTemplateColumns: "1fr",
-      gap: 24,
-    },
-    sidebarAuthorName: {
-      display: "none",
-    },
-    postTitle: {
-      wordWrap: "break-word",
-      overflowWrap: "break-word",
-      whiteSpace: "normal",
-    },
-    postSummary: {
-      wordWrap: "break-word",
-      overflowWrap: "break-word",
-      whiteSpace: "pre-line",
-    },
-    smallArticleTitle: {
-      wordWrap: "break-word",
-      overflowWrap: "break-word",
-      whiteSpace: "normal",
-    },
-    listArticleTitle: {
-      fontSize: 18,
-      lineHeight: 1.28,
-      wordWrap: "break-word",
-      overflowWrap: "break-word",
-      whiteSpace: "normal",
-      overflow: "visible",
-      textOverflow: "clip",
-    },
-    listArticle: {
-      padding: "12px 0",
-    },
-    listArticleContent: {
-      gap: 7,
-    },
   },
   "@keyframes slideIn": {
     from: {
