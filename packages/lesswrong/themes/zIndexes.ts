@@ -53,7 +53,6 @@ export const defaultZIndexes = {
   backdrop: 1310,
   notificationsMenu: 1500,
   splashHeaderImageOptions: 2000,
-  gatherTownIframe: 9999, // 1000001 higher than everything except intercom
   afNonMemberPopup: 9999,
   commandPalette: 9999,
   lwPopper: 10000,

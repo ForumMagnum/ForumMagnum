@@ -6,7 +6,6 @@ import ChatBubbleOutline from '@/lib/vendor/@material-ui/icons/src/ChatBubbleOut
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import Check from '@/lib/vendor/@material-ui/icons/src/Check';
 import classNames from 'classnames';
-import { hasSideComments } from '../../../lib/betas';
 import LWTooltip from "../../common/LWTooltip";
 import { MenuItem } from "../../common/Menus";
 
@@ -72,7 +71,7 @@ const SetSideItemVisibility = ({classes}: {
   // If in a context that isn't a post page (eg, the triple-dot menu on posts in
   // a post list), this context won't be there and this option doesn't apply, so
   // hide it.
-  if (!sideItemVisibility || !hasSideComments())
+  if (!sideItemVisibility)
     return null;
   
   const {sideCommentMode, setSideCommentMode, inlineReactsMode, setInlineReactsMode} = sideItemVisibility;
@@ -160,9 +159,7 @@ export const SideItemVisibilityContextProvider = ({post, children}: {
   post:  PostsDetails|undefined
   children: React.ReactNode
 }) => {
-  const defaultSideCommentVisibility = hasSideComments()
-    ? (post?.sideCommentVisibility ?? "highKarma")
-    : "hidden";
+  const defaultSideCommentVisibility = post?.sideCommentVisibility ?? "highKarma";
   const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);
   const [inlineReactsMode,setInlineReactsMode] = useState<InlineReactsMode>(defaultInlineReactsMode);
   const context: SideItemVisibilityContextType = useMemo(

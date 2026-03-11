@@ -1,12 +1,9 @@
 import { isServer, isDevelopment, isAnyTest, isE2E, isProduction } from './executionEnvironment';
-import { pluralize } from './vulcan-lib/pluralize';
-import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import {initializeSetting} from './settingsCache'
 import { getInstanceSettings } from './getInstanceSettings';
 import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/forumTypeUtils';
 import type { FilterTag } from './filterSettings';
-import type { ReviewWinnerCategory, ReviewYear } from './reviewUtils';
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -151,9 +148,6 @@ export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<str
 /** Currently LW-only; forum-gated in `userCanVote` */
 export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");
 
-/** Whether posts and other content is visible to non-logged-in users (TODO: actually implement this) */
-export const publicAccess = new PublicInstanceSetting<boolean>("publicAccess", true, "optional");
-
 /** Header-related settings */
 export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
 export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
@@ -163,19 +157,11 @@ export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('for
 
 export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
 
-/** Whether this forum verifies user emails */
-export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
-
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
 
 export const performanceMetricLoggingEnabled = new PublicInstanceSetting<boolean>('performanceMetricLogging.enabled', false, "optional");
 export const performanceMetricLoggingBatchSize = new PublicInstanceSetting<number>('performanceMetricLogging.batchSize', 100, "optional");
 export const performanceMetricLoggingSqlSampleRate = new PublicInstanceSetting<number>('performanceMetricLogging.sqlSampleRate', 0.05, "optional");
-
-export const hasSideCommentsSetting = new PublicInstanceSetting<boolean>("comments.sideCommentsEnabled", true, "optional");
-export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolean>("comments.tableOfContentsEnabled", true, "optional");
-export const hasDialoguesSetting = new PublicInstanceSetting<boolean>("dialogues.enabled", true, "optional");
-export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("posts.inlineReactionsEnabled", true, "optional");
 
 const disableElastic = new PublicInstanceSetting<'true' | 'false'>(
   "disableElastic",
@@ -184,18 +170,6 @@ const disableElastic = new PublicInstanceSetting<'true' | 'false'>(
 );
 
 export const isElasticEnabled = () => !isAnyTest && !isE2E && disableElastic.get() !== 'true';
-
-export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', true, "optional")
-export const eaFrontpageDateDefault = (
-  isEvent?: boolean,
-  submitToFrontpage?: boolean,
-  draft?: boolean,
-) => {
-  if (isEvent || !submitToFrontpage || draft) {
-    return null;
-  }
-  return new Date();
-}
 
 export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
 export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")
@@ -246,8 +220,6 @@ export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetail
 
 export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('recombee.cacheTtlMs', 1000 * 60 * 60 * 24 * 30, "optional");
 
-export const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
-
 export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 
 export const anthropicApiKey = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
@@ -276,8 +248,6 @@ export const instanceDebuggersSetting = new PublicInstanceSetting<string[]>('ins
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning");
 
-export const botSiteRedirectEnabledSetting = new PublicInstanceSetting<boolean>('botSite.redirectEnabled', false, 'optional');
-
 // For development, there's a matched set of CkEditor settings as instance
 // settings, which take precedence over the database settings. This allows
 // using custom CkEditor settings that don't match what's in the attached
@@ -288,29 +258,13 @@ export const ckEditorApiPrefixOverrideSetting = new PublicInstanceSetting<string
 export const ckEditorApiSecretKeyOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.apiSecretKey', null, "optional");
 
 
-export const elasticCloudIdSetting = new PublicInstanceSetting<string | null>(
-  "elasticsearch.cloudId",
-  null,
-  "optional"
-);
+export const elasticCloudIdSetting = new PublicInstanceSetting<string | null>("elasticsearch.cloudId", null, "optional");
 
-export const elasticUsernameSetting = new PublicInstanceSetting<string | null>(
-  "elasticsearch.username",
-  null,
-  "optional"
-);
+export const elasticUsernameSetting = new PublicInstanceSetting<string | null>("elasticsearch.username", null, "optional");
 
-export const elasticPasswordSetting = new PublicInstanceSetting<string | null>(
-  "elasticsearch.password",
-  null,
-  "optional"
-);
+export const elasticPasswordSetting = new PublicInstanceSetting<string | null>("elasticsearch.password", null, "optional");
 
-export const searchOriginDate = new PublicInstanceSetting<string>(
-  "elasticsearch.searchOriginDate",
-  "2014-06-01T01:00:00Z",
-  "optional"
-);
+export const searchOriginDate = new PublicInstanceSetting<string>("elasticsearch.searchOriginDate", "2014-06-01T01:00:00Z", "optional");
 
 // Database ID string that this config file should match with
 export const expectedDatabaseIdSetting = new PublicInstanceSetting<string | null>('expectedDatabaseId', null, "warning");
@@ -335,8 +289,6 @@ export const ckEditorWebsocketUrlSetting = new PublicInstanceSetting<string | nu
 export const hideUnreviewedAuthorCommentsSettings = new PublicInstanceSetting<string | null>('hideUnreviewedAuthorComments', null, "optional"); // Hide comments by unreviewed authors after date provided (prevents spam / flaming / makes moderation easier, but delays new user engagement)
 export const cloudinaryCloudNameSetting = new PublicInstanceSetting<string>('cloudinary.cloudName', 'lesswrong-2-0', "optional"); // Cloud name for cloudinary hosting
 
-export const forumAllPostsNumDaysSetting = new PublicInstanceSetting<number>('forum.numberOfDays', 10, "optional"); // Number of days to display in the timeframe view
-
 export const nofollowKarmaThreshold = new PublicInstanceSetting<number>('nofollowKarmaThreshold', 10, "optional"); // Users with less than this much karma have their links marked as nofollow
 
 export const localeSetting = new PublicInstanceSetting<string>('locale', 'en-US', "optional");
@@ -348,9 +300,6 @@ export const legacyRouteAcronymSetting = new PublicInstanceSetting<string>('lega
 // Community tag, can be trivially applied to personalBlog, frontpage, and
 // curated, if those ever get refactored into tags.
 export const defaultVisibilityTags = new PublicInstanceSetting<Array<FilterTag>>('defaultVisibilityTags', [], "optional");
-
-export const gatherTownRoomId = new PublicInstanceSetting<string | null>("gatherTownRoomId", "aPVfK3G76UukgiHx", "optional");
-export const gatherTownRoomName = new PublicInstanceSetting<string | null>("gatherTownRoomName", "lesswrong-campus", "optional");
 
 // Public elicit settings
 export const elicitSourceURL = new PublicInstanceSetting('elicitSourceURL', 'https://LessWrong.com', "optional");
@@ -385,13 +334,7 @@ export const adminAccountSetting = new PublicInstanceSetting<AccountInfo | null>
 
 export const crosspostKarmaThreshold = new PublicInstanceSetting<number | null>('crosspostKarmaThreshold', 100, "optional");
 
-/** Will we show our logo prominently, such as in the header */
-export const hasProminentLogoSetting = new PublicInstanceSetting<boolean>("hasProminentLogo", false, "optional");
-
 export const hasCookieConsentSetting = new PublicInstanceSetting<boolean>('hasCookieConsent', false, "optional");
-
-export const maxRenderQueueSize = new PublicInstanceSetting<number>('maxRenderQueueSize', 10, "optional");
-export const queuedRequestTimeoutSecondsSetting = new PublicInstanceSetting<number>('queuedRequestTimeoutSeconds', 60, "optional");
 
 // Null means requests are disabled
 export const requestFeedbackKarmaLevelSetting = new PublicInstanceSetting<number | null>('post.requestFeedbackKarmaLevel', 100, "optional");
@@ -468,16 +411,7 @@ export const cloudinaryUploadPresetEventImageSetting = new PublicInstanceSetting
 export const cloudinaryUploadPresetSpotlightSetting = new PublicInstanceSetting<string | null>("cloudinary.uploadPresetSpotlight", "yjgxmsio", "optional");
 export const cloudinaryUploadPresetDigestSetting = new PublicInstanceSetting<string | null>("cloudinary.uploadPresetDigest", null, "optional");
 
-// Number of weeks to display in the timeframe view
-export const forumAllPostsNumWeeksSetting = new PublicInstanceSetting<number>("forum.numberOfWeeks", 4, "optional");
-// Number of months to display in the timeframe view
-export const forumAllPostsNumMonthsSetting = new PublicInstanceSetting<number>("forum.numberOfMonths", 4, "optional");
-// Number of years to display in the timeframe view
-export const forumAllPostsNumYearsSetting = new PublicInstanceSetting<number>("forum.numberOfYears", 4, "optional");
-
 export const bookDisplaySetting = new PublicInstanceSetting<boolean>('bookDisplaySetting', false, "optional");
-
-export const enableGoodHeartProject = new PublicInstanceSetting<boolean>('enableGoodHeartProject', false, "optional"); // enables UI for 2022 LW April Fools
 
 export const petrovPostIdSetting = new PublicInstanceSetting<string>('petrov.petrovPostId', '', "optional");
 export const petrovGamePostIdSetting = new PublicInstanceSetting<string>('petrov.petrovGamePostId', '', "optional");
@@ -485,8 +419,6 @@ export const petrovGamePostIdSetting = new PublicInstanceSetting<string>('petrov
 export const defaultAFModeratorPMsTagSlug = new PublicInstanceSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses", "optional");
 export const commentModerationWarningCommentIdSetting = new PublicInstanceSetting<string>('commentModerationWarningCommentId', '', "optional");
 export const postModerationWarningCommentIdSetting = new PublicInstanceSetting<string>('postModerationWarningCommentId', '', "optional");
-
-export const useExperimentalTagStyleSetting = new PublicInstanceSetting<boolean>('useExperimentalTagStyle', false, "optional");
 
 export const showAnalyticsDebug = new PublicInstanceSetting<"never" | "dev" | "always">("showAnalyticsDebug", "dev", "optional");
 
@@ -523,19 +455,3 @@ export const karmaRewarderId100 = new PublicInstanceSetting<string | null>('karm
 export const karmaRewarderId1000 = new PublicInstanceSetting<string | null>('karmaRewarderId1000', null, "optional");
 
 export const logoUrlSetting = new PublicInstanceSetting<string | null>('logoUrl', null, "optional");
-
-/** Url of the bot site to redirect to, e.g. https://forum-bots.effectivealtruism.org (must include the http(s)://) */
-export const botSiteUrlSetting = new PublicInstanceSetting<string | null>('botSite.url', null, "optional");
-/** e.g.
- * {
- *   '.*': [ // matches all paths
- *     '.*python.*',
- *     ...
- *   ],
- *   '/allPosts/?.*|/graphql/?.*': [ // Matches any path starting with /allPosts/ or /graphql/
- *     '.*python.*',
- *     ...
- *   ],
- * }
-*/
-export const botSiteUserAgentRegexesSetting = new PublicInstanceSetting<Record<string, string[]> | null>('botSite.userAgentRegexes', null, "optional");

@@ -2,7 +2,6 @@ import React, { ReactNode, useRef, useState }  from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Paper }from '@/components/widgets/Paper';
 import { useCurrentUser } from '../common/withUser';
-import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isBookUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
@@ -36,9 +35,6 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
   const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  if (!userCanUseTags(currentUser)) {
-    return null;
-  }
 
   const button = <a onClick={() => {
         setIsOpen(true);

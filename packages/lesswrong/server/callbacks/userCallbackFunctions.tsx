@@ -3,7 +3,7 @@ import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { forumTitleSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { forumTitleSetting, isEAForum, isLW, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { captureException } from "@/lib/sentryWrapper";
@@ -203,7 +203,7 @@ const utils = {
   },
 
   sendVerificationEmailConditional: async (user: DbUser) => {
-    if (!isAnyTest && verifyEmailsSetting.get()) {
+    if (!isAnyTest) {
       backgroundTask(sendVerificationEmail(user));
       await bellNotifyEmailVerificationRequired(user);
     }

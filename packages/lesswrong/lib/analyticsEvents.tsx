@@ -137,7 +137,7 @@ following system of context labels for tracking event location:
 USE THIS CONVENTION FOR TRACKING EVENT LOCATION
 * pageContext={page name}> e.g. tagPage, postPage, homePage
     - (only needs to defined once for each page)
-* pageSectionContext={sectionName}, e.g. recentDiscussion, gatherTownWidget, wikiSection, userDrafts
+* pageSectionContext={sectionName}, e.g. recentDiscussion, wikiSection, userDrafts
     - use for larger sections of a page
 * pageSubSectionContext is used when a section meaningfully has subsections (such as bookmarks list within the recommendations section on the frontpage)
 * pageElementContext={elementName}> e.g. hoverPreview, commentItem, answerItem
