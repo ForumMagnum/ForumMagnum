@@ -201,17 +201,6 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
   sheetPanelOpen: {
     transform: "translateY(0)",
   },
-  sheetHandle: {
-    display: "flex",
-    justifyContent: "center",
-    padding: "12px 0 8px",
-  },
-  sheetHandlePill: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    background: theme.palette.greyAlpha(0.2),
-  },
   sheetTabs: {
     display: "flex",
     borderBottom: theme.palette.greyBorder("1px", 0.1),
@@ -482,9 +471,6 @@ const MobileEditorBottomBar = ({
           sheetOpen && classes.sheetPanelOpen,
         )}
       >
-        {/* <div className={classes.sheetHandle}>
-          <div className={classes.sheetHandlePill} />
-        </div> */}
         <div className={classes.sheetTabs}>
           {TABS.map((tab) => (
             <button
