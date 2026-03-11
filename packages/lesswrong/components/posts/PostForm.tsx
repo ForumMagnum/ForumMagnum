@@ -611,6 +611,8 @@ const PostForm = ({
     ? document.getElementById("editor-settings-portal")
     : null;
 
+  const showMetadataRow = !(isEvent || isDialogue);
+
   return (
     <EditorUserModeContext.Provider value={editorUserModeContext}>
     <InlineCommentsPanelContext.Provider value={inlineCommentsContext}>
@@ -718,7 +720,7 @@ const PostForm = ({
           {(title) => <SyncTitleToParent title={title} onTitleChange={onTitleChange} />}
         </form.Subscribe>}
         {canEditMetadata ? (
-          <div className={classNames('form-component-EditTitle', classes.titleWithMetadata)}>
+          <div className={classNames('form-component-EditTitle', showMetadataRow && classes.titleWithMetadata)}>
             <form.Field name="title">
               {(field) => (
                 <EditTitle
@@ -736,7 +738,7 @@ const PostForm = ({
         {!canEditMetadata && <CollabEditorPermissionsNotices post={initialData} />}
       </LegacyFormGroupLayout>
 
-      {!(isEvent || isDialogue) && (
+      {showMetadataRow && (
         <LegacyFormGroupLayout groupStyling={false} paddingStyling={false}>
           <div className={classes.metadataRow}>
             <span className={classes.metaAuthorInfo}>
