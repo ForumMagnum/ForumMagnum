@@ -264,6 +264,7 @@ export async function pushRevisionToLexicalCollab(
 
 export interface HocuspocusCommentData {
   authorId: string;
+  authorName?: string;
   content: string;
   threadId: string;
   commentersInThread: string[];
@@ -309,6 +310,7 @@ export async function handleCommentAdded(
     documentId: postId,
     extraData: {
       senderUserID: comment.authorId,
+      senderDisplayName: comment.authorName,
       commentHtml: comment.content,
       linkSharingKey: post.linkSharingKey,
     },
