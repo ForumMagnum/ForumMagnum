@@ -136,6 +136,21 @@ that already exists in the draft.
 In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion.
 
+To insert an LLM content block (a visually distinct block attributed to a
+specific AI model) into the draft, make a POST request to:
+    POST /api/agent/insertLLMBlock
+    with JSON body: {
+      postId, key,
+      modelName?: string,
+      markdown: string,
+      location: "start"|"end"|{ before: string }|{ after: string }
+    }
+The modelName is displayed in the block header (e.g. "Claude Opus 4.6"). If
+omitted, it defaults to "AI Agent". The markdown is the content
+that will appear inside the block. The location works the same as insertBlock.
+LLM content blocks are always inserted directly (no suggest mode) because they
+are explicitly labeled as AI-generated content.
+
 Custom widgets are represented in markdown with fenced code blocks using:
     \`\`\`widget[widgetId]
     ... html/js content ...

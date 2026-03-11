@@ -109,7 +109,7 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionI
   $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
 }
 
-function $markdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
+export function $markdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
   const widgetFence = parseWholeWidgetFence(markdown);
   if (widgetFence) {
     const widgetNode = $createIframeWidgetNode(widgetFence.widgetId);
@@ -149,7 +149,7 @@ function findInsertionIndexByPrefix(
   return null;
 }
 
-function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): number | null {
+export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): number | null {
   const target = getInsertionIndexByLocation(location);
   if (target.mode === "fixed") {
     return target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index;

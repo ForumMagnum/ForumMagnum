@@ -274,6 +274,9 @@ export const routeTrie = {
             "insertBlock": {
               "hasRoute": true
             },
+            "insertLLMBlock": {
+              "hasRoute": true
+            },
             "replaceText": {
               "hasRoute": true
             },
@@ -286,6 +289,7 @@ export const routeTrie = {
             "deleteblock": "deleteBlock",
             "feedback": "feedback",
             "insertblock": "insertBlock",
+            "insertllmblock": "insertLLMBlock",
             "replacetext": "replaceText",
             "replacewidget": "replaceWidget"
           }
