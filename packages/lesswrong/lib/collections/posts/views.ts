@@ -6,7 +6,6 @@ import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../..
 import { viewFieldAllowAny, viewFieldNullOrMissing, jsonArrayContainsSelector } from '@/lib/utils/viewConstants';
 import { filters, postStatuses } from './constants';
 import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, reviewExcludedPostIds, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD, longformReviewTagId } from '../../reviewUtils';
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
 import { visitorGetsDynamicFrontpage } from '../../betas';
@@ -70,7 +69,6 @@ declare global {
     includeArchived?: boolean,
     includeDraftEvents?: boolean,
     includeShared?: boolean,
-    hideCommunity?: boolean,
     distance?: number,
     audioOnly?: boolean,
     // BEGIN overrides for parameters in the frontpageTimeDecayExpr
@@ -119,11 +117,6 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
   // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
-  const postCommentedExcludeCommunity = {$or: [
-    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$lt: 1}},
-    {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
-  ]}
-
   const alignmentForum = isAF() ? {af: true} : {}
   let params: any = {
     selector: {
@@ -138,7 +131,6 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
       groupId: viewFieldNullOrMissing,
       ...(terms.postIds && {_id: {$in: terms.postIds}}),
       ...(terms.notPostIds && {_id: {$nin: terms.notPostIds}}),
-      ...(terms.hideCommunity ? postCommentedExcludeCommunity : {}),
       ...validFields,
       ...alignmentForum
     },

@@ -132,10 +132,6 @@ export function stableSortTags<
   });
 }
 
-export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
-export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
-export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';
-
 export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag): boolean => {
   if (!allowTypeIIIPlayerSetting.get()) return false
 

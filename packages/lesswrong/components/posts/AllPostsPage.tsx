@@ -71,7 +71,6 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
   const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
     currentUser?.allPostsShowLowKarma || false;
   const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false;
-  const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false;
   return (
     <>
       <AnalyticsContext pageContext="allPostsPage">
@@ -98,7 +97,6 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
             currentIncludeEvents={currentIncludeEvents}
-            currentHideCommunity={currentHideCommunity}
             persistentSettings
             showTimeframe
           />
@@ -109,7 +107,6 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
               currentFilter,
               currentShowLowKarma,
               currentIncludeEvents,
-              currentHideCommunity,
               showSettings,
             }}
           />

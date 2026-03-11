@@ -147,7 +147,6 @@ export const UsersCurrent = gql(`
     allPostsFilter
     allPostsShowLowKarma
     allPostsIncludeEvents
-    allPostsHideCommunity
     allPostsOpenSettings
     draftsListSorting
     draftsListShowArchived

@@ -1,15 +1,13 @@
 import React from "react";
 import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
-import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
+import { tagGetDiscussionUrl } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum, isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
-import { randomId } from "@/lib/random";
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { checkModGPT } from "../languageModels/modGPT";
 import { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from "../mutationCallbacks";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { rateLimitDateWhenUserNextAbleToComment } from "../rateLimitUtils";
@@ -765,41 +763,6 @@ export async function trackCommentRateLimitHit({document, context}: AfterCreateC
   }
 }
 
-export async function checkModGPTOnCommentCreate({document, context}: AfterCreateCallbackProperties<'Comments'>) {
-  // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
-  // We skip comments by unreviewed authors, because those will be reviewed by a human.
-  if (
-    !isEAForum() ||
-    !document.postId ||
-    document.deleted ||
-    document.deletedPublic ||
-    document.spam ||
-    document.needsReview ||
-    document.authorIsUnreviewed ||
-    document.retracted ||
-    document.rejected ||
-    document.shortform ||
-    document.moderatorHat
-  ) {
-    return
-  }
-  
-  // only have ModGPT check comments on posts tagged with "Community"
-  const post = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentDoc: PostsOriginalContents,
-    currentUser: null,
-    skipFiltering: true,
-    selector: {_id: document.postId},
-  });
-  if (!post) return
-  
-  const postTags = post.tagRelevance
-  if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
-  
-  backgroundTask(checkModGPT(document, post, context))
-}
-
 // Elastic callback might go here
 
 /* NEW ASYNC */
@@ -973,45 +936,6 @@ export async function updateUserNotesOnCommentRejection({ newDocument, oldDocume
       }
     }, context));
   }
-}
-
-export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, context}: UpdateCallbackProperties<"Comments">) {
-  // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
-  // We skip comments by unreviewed authors, because those will be reviewed by a human.
-  if (
-    !isEAForum() ||
-    !newDocument.postId ||
-    newDocument.deleted ||
-    newDocument.deletedPublic ||
-    newDocument.spam ||
-    newDocument.needsReview ||
-    newDocument.authorIsUnreviewed ||
-    newDocument.retracted ||
-    newDocument.rejected ||
-    newDocument.shortform ||
-    newDocument.moderatorHat ||
-    !newDocument.contents?.originalContents?.data
-  ) {
-    return
-  }
-  
-  const noChange = oldDocument.contents?.originalContents?.data === newDocument.contents.originalContents.data
-  if (noChange) return
-
-  // only have ModGPT check comments on posts tagged with "Community"
-  const post = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentDoc: PostsOriginalContents,
-    currentUser: null,
-    skipFiltering: true,
-    selector: {_id: newDocument.postId},
-  });
-  if (!post) return
-  
-  const postTags = post.tagRelevance
-  if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
-  
-  backgroundTask(checkModGPT(newDocument, post, context))
 }
 
 /* EDIT ASYNC */

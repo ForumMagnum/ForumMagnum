@@ -27,7 +27,6 @@ const AllPostsList = ({
   currentFilter,
   currentShowLowKarma,
   currentIncludeEvents,
-  currentHideCommunity,
   showSettings,
 }: {
   currentTimeframe: string,
@@ -35,7 +34,6 @@ const AllPostsList = ({
   currentSorting: PostSortingMode,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
-  currentHideCommunity: boolean,
   showSettings: boolean,
 }) => {
   const {timezone} = useTimezone();
@@ -47,7 +45,6 @@ const AllPostsList = ({
       ? MAX_LOW_KARMA_THRESHOLD
       : DEFAULT_LOW_KARMA_THRESHOLD),
     excludeEvents: !currentIncludeEvents && currentFilter !== "events",
-    hideCommunity: currentHideCommunity,
     filter: currentFilter,
     sortedBy: currentSorting,
     after: query.after,
