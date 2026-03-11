@@ -127,6 +127,8 @@ import { CommentsIcon } from '../../icons/CommentsIcon';
 import { SendIcon } from '../../icons/SendIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import { InlineCommentsPanelContext } from '@/components/common/sharedContexts';
+import LWClickAwayListener from '@/components/common/LWClickAwayListener';
+import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
 import ForumIcon from '@/components/common/ForumIcon';
 import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
 import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
@@ -249,6 +251,9 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     position: 'fixed',
     right: 86,
     [theme.breakpoints.down('md')]: {
+      right: 66,
+    },
+    [theme.breakpoints.down('sm')]: {
       right: 6,
     },
     width: 300,
@@ -1384,6 +1389,7 @@ export default function CommentPlugin(): JSX.Element {
     null,
   );
   const { showComments, setShowComments, setCommentCount } = useContext(InlineCommentsPanelContext);
+  const isAboveSm = useIsAboveBreakpoint('sm');
   const cancelAddComment = useCallback(() => {
     editor.update(() => {
       const selection = $getSelection();
@@ -1686,13 +1692,15 @@ export default function CommentPlugin(): JSX.Element {
         )}
       {showComments && isPostEditor &&
         createPortal(
-          <CommentsPanel
-            comments={[...comments].reverse()}
-            submitAddComment={submitAddComment}
-            deleteCommentOrThread={deleteCommentOrThread}
-            activeIDs={activeIDs}
-            markNodeMap={markNodeMap}
-          />,
+          <LWClickAwayListener onClickAway={() => { if (!isAboveSm) setShowComments(false); }}>
+            <CommentsPanel
+              comments={[...comments].reverse()}
+              submitAddComment={submitAddComment}
+              deleteCommentOrThread={deleteCommentOrThread}
+              activeIDs={activeIDs}
+              markNodeMap={markNodeMap}
+            />
+          </LWClickAwayListener>,
           document.body,
         )}
     </>

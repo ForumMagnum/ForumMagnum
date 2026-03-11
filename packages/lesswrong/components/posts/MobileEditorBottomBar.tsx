@@ -6,7 +6,7 @@ import EditorSettingsSidebar from "./EditorSettingsSidebar";
 import { getDraftLabel, type EditablePost, type PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import type { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
 import type { AddOnSubmitCallback, AddOnSuccessCallback } from "../editor/EditorFormComponent";
-import { EditorUserModeContext } from "../common/sharedContexts";
+import { InlineCommentsPanelContext, EditorUserModeContext } from "../common/sharedContexts";
 import { getAvailableEditorModes, editorModeLabels } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
 
 type SidebarMode = "publish" | "settings" | "sharing";
@@ -336,6 +336,8 @@ const MobileEditorBottomBar = ({
     : [];
   const showModeSelector = editorType === "lexical" && editorModeContext && availableModes.length > 1;
 
+  const { showComments, setShowComments, commentCount } = useContext(InlineCommentsPanelContext);
+
   useEffect(() => {
     if (!modeExpanded) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -423,6 +425,22 @@ const MobileEditorBottomBar = ({
                       </div>
                     )}
                   </div>
+                )}
+                {(commentCount > 0 || showComments) && (
+                  <button
+                    type="button"
+                    className={classNames(
+                      classes.settingsButton,
+                      showComments && classes.settingsButtonActive,
+                    )}
+                    onClick={() => {
+                      setSidebarPanel(null);
+                      closeSheet();
+                      setShowComments((v) => !v);
+                    }}
+                  >
+                    <ForumIcon icon="Comment" className={classes.settingsIcon} />
+                  </button>
                 )}
                 <button
                   type="button"
