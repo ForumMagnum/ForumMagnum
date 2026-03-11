@@ -11577,13 +11577,6 @@ export type multiModeratorCommentsQueryQuery = { __typename?: 'Query', comments:
       & ShortformComments
     )> } | null };
 
-export type SequenceMetadataQueryVariables = Exact<{
-  sequenceId?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type SequenceMetadataQuery = { __typename?: 'Query', sequence: { __typename?: 'SingleSequenceOutput', result: { __typename?: 'Sequence', _id: string, title: string, bannerImageId: string | null, gridImageId: string | null, noindex: boolean, contents: { __typename?: 'Revision', plaintextDescription: string } | null } | null } | null };
-
 export type ProfilePostDiamondDataQueryQueryVariables = Exact<{
   userId: Scalars['String']['input'];
   limit: Scalars['Int']['input'];
@@ -19399,6 +19392,13 @@ export type PostMetadataQueryVariables = Exact<{
 
 
 export type PostMetadataQuery = { __typename?: 'Query', post: { __typename?: 'SinglePostOutput', result: { __typename?: 'Post', _id: string, title: string, slug: string, isEvent: boolean, groupId: string | null, canonicalSource: string | null, coauthorUserIds: Array<string>, shortform: boolean, eventImageId: string | null, noIndex: boolean, rejected: boolean, baseScore: number, createdAt: string | null, socialPreviewData: { __typename?: 'SocialPreviewType', _id: string, imageUrl: string, text: string | null }, customHighlight: { __typename?: 'Revision', plaintextDescription: string } | null, contents: { __typename?: 'Revision', plaintextDescription: string } | null, user: { __typename?: 'User', _id: string, displayName: string } | null, coauthors: Array<{ __typename?: 'User', _id: string, displayName: string }> | null } | null } | null };
+
+export type SequenceMetadataQueryVariables = Exact<{
+  sequenceId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type SequenceMetadataQuery = { __typename?: 'Query', sequence: { __typename?: 'SingleSequenceOutput', result: { __typename?: 'Sequence', _id: string, title: string, bannerImageId: string | null, gridImageId: string | null, noindex: boolean, contents: { __typename?: 'Revision', plaintextDescription: string } | null } | null } | null };
 
 export type CommentPermalinkMetadataQueryVariables = Exact<{
   commentId?: InputMaybe<Scalars['String']['input']>;

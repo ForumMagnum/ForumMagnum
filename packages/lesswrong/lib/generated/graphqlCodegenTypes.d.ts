@@ -11786,22 +11786,6 @@ type multiModeratorCommentsQueryQueryVariables = Exact<{
 
 type multiModeratorCommentsQueryQuery = multiModeratorCommentsQueryQuery_Query;
 
-type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
-
-type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, bannerImageId: string | null, gridImageId: string | null, noindex: boolean, contents: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
-
-type SequenceMetadataQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence | null };
-
-type SequenceMetadataQuery_Query = { __typename?: 'Query', sequence: SequenceMetadataQuery_sequence_SingleSequenceOutput | null };
-
-
-type SequenceMetadataQueryVariables = Exact<{
-  sequenceId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type SequenceMetadataQuery = SequenceMetadataQuery_Query;
-
 type ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult_results_ProfilePostDiamond = { __typename?: 'ProfilePostDiamond', _id: string, slug: string, date: string, karma: number, isReviewWinner: boolean, isCurated: boolean };
 
 type ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult = { __typename?: 'ProfileDiamondPostsResult', totalCount: number | null, results: Array<ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult_results_ProfilePostDiamond> };
@@ -24320,6 +24304,22 @@ type PostMetadataQueryVariables = Exact<{
 
 
 type PostMetadataQuery = PostMetadataQuery_Query;
+
+type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
+
+type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, bannerImageId: string | null, gridImageId: string | null, noindex: boolean, contents: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
+
+type SequenceMetadataQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence | null };
+
+type SequenceMetadataQuery_Query = { __typename?: 'Query', sequence: SequenceMetadataQuery_sequence_SingleSequenceOutput | null };
+
+
+type SequenceMetadataQueryVariables = Exact<{
+  sequenceId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type SequenceMetadataQuery = SequenceMetadataQuery_Query;
 
 type CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment_user_User = { __typename?: 'User', displayName: string };
 
