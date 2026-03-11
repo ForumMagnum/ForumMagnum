@@ -3,7 +3,7 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useMemo, useEffect, useState, useCallback } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCurrentUser } from "../common/withUser";
 import { EditTitle } from "../editor/EditTitle";
@@ -61,6 +61,8 @@ const PostsEditMutationFragmentMutation = gql(`
   }
 `);
 
+const ICON_BUTTON_SIZE = 34;
+
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: 16,
@@ -87,8 +89,8 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     },
   },
   iconButton: {
-    width: 34,
-    height: 34,
+    width: ICON_BUTTON_SIZE,
+    height: ICON_BUTTON_SIZE,
     borderRadius: 999,
     border: theme.palette.greyBorder("1px", 0.16),
     background: theme.palette.panelBackground.default,
@@ -117,6 +119,84 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   iconButtonDisconnected: {
     borderColor: theme.palette.warning.main,
     color: theme.palette.warning.main,
+  },
+  editorModeSelector: {
+    position: 'relative',
+    width: ICON_BUTTON_SIZE,
+    height: ICON_BUTTON_SIZE,
+  },
+  editorModeSelectorInner: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    height: ICON_BUTTON_SIZE,
+    borderRadius: 999,
+    background: theme.palette.panelBackground.default,
+    boxShadow: `inset 0 0 0 1px ${theme.palette.greyAlpha(0.16)}`,
+    overflow: 'hidden',
+    maxWidth: ICON_BUTTON_SIZE,
+    transition: 'max-width 0.25s ease, box-shadow 0.15s ease',
+    '&:hover': {
+      maxWidth: ICON_BUTTON_SIZE * 3,
+      boxShadow: `inset 0 0 0 1px ${theme.palette.greyAlpha(0.25)}`,
+    },
+  },
+  editorModeSelectorDisconnected: {
+    '&&': {
+      boxShadow: `inset 0 0 0 1px ${theme.palette.warning.main}`,
+    },
+    '&&:hover': {
+      boxShadow: `inset 0 0 0 1px ${theme.palette.warning.main}`,
+    },
+  },
+  editorModeOption: {
+    width: ICON_BUTTON_SIZE,
+    height: ICON_BUTTON_SIZE,
+    minWidth: ICON_BUTTON_SIZE,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    background: 'none',
+    border: 'none',
+    borderRadius: 999,
+    padding: 0,
+    color: theme.palette.greyAlpha(0.45),
+    transition: 'color 0.15s ease, background-color 0.15s ease',
+    '&:hover': {
+      color: theme.palette.greyAlpha(0.96),
+      background: theme.palette.greyAlpha(0.08),
+    },
+  },
+  editorModeOptionActive: {
+    color: theme.palette.primary.main,
+    '&:hover': {
+      color: theme.palette.primary.dark,
+    },
+  },
+  editorModeActiveOverlay: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    width: ICON_BUTTON_SIZE,
+    height: ICON_BUTTON_SIZE,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 999,
+    color: theme.palette.greyAlpha(0.75),
+    background: theme.palette.panelBackground.default,
+    transition: 'opacity 0.15s ease',
+    '$editorModeSelectorInner:hover &': {
+      opacity: 0,
+      pointerEvents: 'none',
+    },
+    '$editorModeSelectorDisconnected &': {
+      color: theme.palette.warning.main,
+    },
   },
   publishIconButton: {
     background: theme.palette.buttons.alwaysPrimary,
@@ -339,13 +419,12 @@ const editorModeIcons: Record<EditorUserModeType, ForumIconName> = {
   [EditorUserMode.View]: "Eye",
 };
 
-function getNextEditorMode(current: EditorUserModeType, canEdit: boolean, canComment: boolean): EditorUserModeType {
+function getAvailableEditorModes(canEdit: boolean, canComment: boolean): EditorUserModeType[] {
   const modes: EditorUserModeType[] = [];
   if (canEdit) modes.push(EditorUserMode.Edit);
   if (canComment) modes.push(EditorUserMode.Suggest);
   modes.push(EditorUserMode.View);
-  const currentIndex = modes.indexOf(current);
-  return modes[(currentIndex + 1) % modes.length];
+  return modes;
 }
 
 const SyncTitleToParent = ({ title, onTitleChange }: {
@@ -398,9 +477,7 @@ const PostForm = ({
     setIsWsConnected,
   }), [userMode, setUserMode, canEdit, canComment, isConnected, setIsWsConnected]);
 
-  const cycleEditorMode = useCallback(() => {
-    setUserMode((current) => getNextEditorMode(current, canEdit, canComment));
-  }, [canEdit, canComment]);
+  const availableModes = getAvailableEditorModes(canEdit, canComment);
 
   // TODO: maybe this is just an edit form?
   const formType = initialData ? 'edit' : 'new';
@@ -550,24 +627,6 @@ const PostForm = ({
             >
               <ForumIcon icon="Settings" className={classes.icon} />
             </button>
-            {editorType === "lexical" && <LWTooltip
-              title={isConnected
-                ? editorModeLabels[userMode]
-                : `${editorModeLabels[userMode]} — offline, changes saved locally`
-              }
-              placement="bottom-end"
-            >
-              <button
-                type="button"
-                className={classNames(
-                  classes.iconButton,
-                  !isConnected && classes.iconButtonDisconnected,
-                )}
-                onClick={cycleEditorMode}
-              >
-                <ForumIcon icon={editorModeIcons[userMode]} className={classes.icon} />
-              </button>
-            </LWTooltip>}
             {(commentCount > 0 || showComments) && <button
               type="button"
               className={classNames(classes.iconButton, showComments && classes.iconButtonActive)}
@@ -579,6 +638,40 @@ const PostForm = ({
             >
               <ForumIcon icon="Comment" className={classes.icon} />
             </button>}
+            {editorType === "lexical" && (
+              <div className={classes.editorModeSelector}>
+                <div className={classNames(
+                  classes.editorModeSelectorInner,
+                  !isConnected && classes.editorModeSelectorDisconnected,
+                )}>
+                  {availableModes.map(mode => (
+                    <LWTooltip key={mode} title={editorModeLabels[mode]} placement="bottom">
+                      <button
+                        type="button"
+                        className={classNames(
+                          classes.editorModeOption,
+                          mode === userMode && classes.editorModeOptionActive,
+                        )}
+                        onClick={() => setUserMode(mode)}
+                      >
+                        <ForumIcon icon={editorModeIcons[mode]} className={classes.icon} />
+                      </button>
+                    </LWTooltip>
+                  ))}
+                  <LWTooltip
+                    title={isConnected
+                      ? editorModeLabels[userMode]
+                      : `${editorModeLabels[userMode]} — offline, changes saved locally`
+                    }
+                    placement="bottom-end"
+                  >
+                    <div className={classes.editorModeActiveOverlay}>
+                      <ForumIcon icon={editorModeIcons[userMode]} className={classes.icon} />
+                    </div>
+                  </LWTooltip>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </form.Subscribe>
