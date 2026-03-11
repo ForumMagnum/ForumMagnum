@@ -2,7 +2,6 @@ import { isEAForum, verifyEmailsSetting, newUserIconKarmaThresholdSetting, isAF,
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import type { PermissionResult } from '../../make_voteable';
-import { hasAuthorModeration } from '../../betas';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import type { ForumIconName } from '@/components/common/ForumIcon';
@@ -128,9 +127,6 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
 const postHasModerationGuidelines = (
   post: PostsBase | PostsModerationGuidelines | DbPost,
 ): boolean => {
-  if (!hasAuthorModeration()) {
-    return false;
-  }
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
   // in document validation, we check for originalContents instead of html here,
   // which causes some problems with empty strings, but should overall be fine
@@ -411,24 +407,6 @@ export const isMod = (user: UsersProfile|UsersCurrent|DbUser): boolean => {
   return (user.isAdmin || user.groups?.includes('sunshineRegiment')) ?? false
 }
 
-/**
- * @returns "auth0" | "google-oauth2" | "facebook" | null
- */
-export const getAuth0Provider = (user: DbUser): string | null => {
-  return user.services?.auth0?.provider;
-}
-
-export const getAuth0Id = (user: DbUser) => {
-  const auth0 = user.services?.auth0;
-  if (auth0) {
-    const id = auth0.id ?? auth0.user_id;
-    if (id) {
-      return id;
-    }
-  }
-  throw new Error("User does not have an Auth0 user ID");
-}
-
 const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
 export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
   if (isE2E) return false;
@@ -534,7 +512,6 @@ type UserInputDateFields = KeysOfType<UpdateUserDataInput, Date | null | undefin
 
 export type EditableUser = Omit<UpdateUserDataInput & Omit<UsersEdit, UserInputDateFields>, 'howOthersCanHelpMe' | 'howICanHelpOthers' | 'legacyData'> & {
   _id: string;
-  hasAuth0Id?: boolean | null;
 };
 
 type ff = EditableUser['banned']

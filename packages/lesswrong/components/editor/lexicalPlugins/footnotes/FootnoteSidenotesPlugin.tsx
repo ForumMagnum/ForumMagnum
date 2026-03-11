@@ -3,7 +3,6 @@ import classNames from 'classnames';
 import { mergeRegister } from '@lexical/utils';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useStyles } from '@/components/hooks/useStyles';
-import { hasSidenotes } from '@/lib/betas';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
@@ -154,7 +153,7 @@ export const FootnoteSidenotesPlugin = ({
   const [sidenotes, setSidenotes] = useState<LexicalFootnoteSidenote[]>([]);
   const hasSideItemsSidebar = useHasSideItemsSidebar();
   const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint('lg');
-  const shouldShowSidenotes = hasSidenotes() && hasSideItemsSidebar && screenIsWideEnoughForSidenotes;
+  const shouldShowSidenotes = hasSideItemsSidebar && screenIsWideEnoughForSidenotes;
 
   useEffect(() => {
     if (!shouldShowSidenotes) {

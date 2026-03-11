@@ -3,7 +3,7 @@ import SimpleSchema from "@/lib/utils/simpleSchema";
 import {
   userGetProfileUrl,
   getUserEmail,
-  userOwnsAndInGroup, getAuth0Provider,
+  userOwnsAndInGroup,
   karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
@@ -448,14 +448,14 @@ const schema = {
       },
     },
   },
-  /** hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
+  /** @deprecated hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
   hasAuth0Id: {
     graphql: {
       outputType: "Boolean",
       // Mods cannot read because they cannot read services, which is a prerequisite
       canRead: [userOwns, "admins"],
       resolver: (user) => {
-        return getAuth0Provider(user) === "auth0";
+        return false;
       },
     },
   },
@@ -930,6 +930,7 @@ const schema = {
       },
     },
   },
+  /** @deprecated */
   hidePostsRecommendations: {
     database: {
       type: "BOOL",
@@ -3889,7 +3890,10 @@ const schema = {
       },
     },
   },
-  // used by the EA Forum to track if a user has dismissed the post page criticism tips card
+  /**
+   * @deprecated
+   * used by the EA Forum to track if a user has dismissed the post page criticism tips card
+   */
   criticismTipsDismissed: {
     database: {
       type: "BOOL",

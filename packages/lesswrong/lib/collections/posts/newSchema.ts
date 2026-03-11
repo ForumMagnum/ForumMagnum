@@ -1591,7 +1591,7 @@ const schema = {
             baseScore: tagRelevanceRecord[tag._id],
           },
         }));
-        const sortedTagInfo = stableSortTags(tagInfo);
+        const sortedTagInfo = stableSortTags(tagInfo, {coreTags: "last"});
         const sortedTags = sortedTagInfo.map(({ tag }) => tag);
         return await accessFilterMultiple(currentUser, "Tags", sortedTags, context);
       },
