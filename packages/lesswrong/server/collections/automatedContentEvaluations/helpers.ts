@@ -42,13 +42,17 @@ export interface PangramEvaluationResult {
 }
 
 /**
- * Strip LLM content blocks from HTML before sending to Pangram. These blocks
- * contain content that the user has explicitly labeled as AI-generated, so
- * including them would skew the AI detection scores.
+ * Strip elements from HTML that should not be included in AI detection scoring.
+ * This includes:
+ * - LLM content blocks (`div.llm-content-block`): explicitly labeled as AI-generated
+ * - Collapsible sections (`.detailsBlock`): our policy permits AI content in collapsible sections
+ * - Iframe widgets (`iframe[data-lexical-iframe-widget]`): contain code/HTML, not prose
  */
-function stripLLMContentBlocks(html: string): string {
+function stripExcludedContentForAIDetection(html: string): string {
   const $ = cheerioParse(html);
   $('div.llm-content-block').remove();
+  $('.detailsBlock').remove();
+  $('iframe[data-lexical-iframe-widget]').remove();
   return $.html();
 }
 
@@ -58,9 +62,9 @@ export async function getPangramEvaluation(revision: DbRevision): Promise<Pangra
     throw new Error("PANGRAM_API_KEY is not configured");
   }
 
-  const htmlWithoutLLMBlocks = stripLLMContentBlocks(revision.html ?? '');
+  const htmlWithoutExcludedContent = stripExcludedContentForAIDetection(revision.html ?? '');
   
-  const markdown = dataToMarkdown(htmlWithoutLLMBlocks, "html");
+  const markdown = dataToMarkdown(htmlWithoutExcludedContent, "html");
   // This should get the first 4-5k words.  There are longer posts but
   // it doesn't seem like it'll often be useful to check them in their
   // entirety, and every 1k words is more $$$.
