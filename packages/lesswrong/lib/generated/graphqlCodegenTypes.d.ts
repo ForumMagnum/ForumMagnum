@@ -17423,25 +17423,6 @@ type createRSSFeedNewFeedButtonMutationVariables = Exact<{
 
 type createRSSFeedNewFeedButtonMutation = createRSSFeedNewFeedButtonMutation_Mutation;
 
-type multiUserAprilFools2022QueryQuery_users_MultiUserOutput_results_User = (
-  { __typename?: 'User' }
-  & UsersProfile
-);
-
-type multiUserAprilFools2022QueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<multiUserAprilFools2022QueryQuery_users_MultiUserOutput_results_User> };
-
-type multiUserAprilFools2022QueryQuery_Query = { __typename?: 'Query', users: multiUserAprilFools2022QueryQuery_users_MultiUserOutput | null };
-
-
-type multiUserAprilFools2022QueryQueryVariables = Exact<{
-  selector: InputMaybe<UserSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiUserAprilFools2022QueryQuery = multiUserAprilFools2022QueryQuery_Query;
-
 type HomepageCommunityMapQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & PostsList
