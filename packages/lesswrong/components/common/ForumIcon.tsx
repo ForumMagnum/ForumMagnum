@@ -115,6 +115,7 @@ import MuiSnoozeIcon from "@/lib/vendor/@material-ui/icons/src/Snooze";
 import MuiFlagIcon from "@/lib/vendor/@material-ui/icons/src/Flag";
 import MuiDeleteIcon from "@/lib/vendor/@material-ui/icons/src/Delete";
 import MuiOpenInNewIcon from "@/lib/vendor/@material-ui/icons/src/OpenInNew";
+import MuiCloudOffIcon from "@/lib/vendor/@material-ui/icons/src/CloudOff";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -307,7 +308,8 @@ export type ForumIconName =
   "Snooze" |
   "Flag" |
   "Delete" |
-  "OpenInNew";
+  "OpenInNew" |
+  "CloudOff";
 
 const icons: Record<ForumIconName, IconComponent> = {
   VolumeUp: SpeakerWaveIcon,
@@ -455,6 +457,7 @@ const icons: Record<ForumIconName, IconComponent> = {
   Flag: MuiFlagIcon,
   Delete: MuiDeleteIcon,
   OpenInNew: MuiOpenInNewIcon,
+  CloudOff: MuiCloudOffIcon,
 };
 
 type IconProps = {

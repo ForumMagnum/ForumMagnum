@@ -3,7 +3,7 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useCurrentUser } from "../common/withUser";
 import { EditTitle } from "../editor/EditTitle";
@@ -146,14 +146,6 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
       boxShadow: `inset 0 0 0 1px ${theme.palette.greyAlpha(0.25)}`,
     },
   },
-  editorModeSelectorDisconnected: {
-    '&&': {
-      boxShadow: `inset 0 0 0 1px ${theme.palette.warning.main}`,
-    },
-    '&&:hover': {
-      boxShadow: `inset 0 0 0 1px ${theme.palette.warning.main}`,
-    },
-  },
   editorModeOption: {
     width: ICON_BUTTON_SIZE,
     height: ICON_BUTTON_SIZE,
@@ -195,9 +187,6 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     '$editorModeSelectorInner:hover &': {
       opacity: 0,
       pointerEvents: 'none',
-    },
-    '$editorModeSelectorDisconnected &': {
-      color: theme.palette.warning.main,
     },
   },
   publishIconButton: {
@@ -266,6 +255,14 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   },
   metaDate: {
     cursor: "default",
+  },
+  disconnectedIndicator: {
+    color: theme.palette.warning.main,
+  },
+  disconnectedIcon: {
+    width: 14,
+    height: 14,
+    marginBottom: -2,
   },
   // Linkpost toggle styled as inline text link, matching metadata row aesthetic
   linkpostToggle: {
@@ -416,6 +413,36 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   },
 }));
 
+/**
+ * Like useState<boolean>, but debounces transitions to `false` by `delayMs`.
+ * Transitions to `true` are instant and cancel any pending `false` timer.
+ */
+function useDebouncedFalse(initialValue: boolean, delayMs: number): [boolean, (value: boolean) => void] {
+  const [value, setValueRaw] = useState(initialValue);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const setValue = useCallback((next: boolean) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (next) {
+      setValueRaw(true);
+    } else {
+      timerRef.current = setTimeout(() => {
+        setValueRaw(false);
+      }, delayMs);
+    }
+  }, [delayMs]);
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+  return [value, setValue];
+}
+
 const ON_SUBMIT_META: PostSubmitMeta = {};
 
 const SyncTitleToParent = ({ title, onTitleChange }: {
@@ -457,7 +484,10 @@ const PostForm = ({
   });
   const [userMode, setUserMode] = useState<EditorUserModeType>(() => getDefaultEditorUserMode(canEdit, canComment));
   const [isBrowserOnline, setIsBrowserOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true);
-  const [isWsConnected, setIsWsConnected] = useState(true);
+  // Debounce the "disconnected" state so that the initial WS connection
+  // handshake (disconnected → connecting → connected) and brief reconnection
+  // blips don't flash the warning style. Transitions to "connected" are instant.
+  const [isWsConnected, setIsWsConnected] = useDebouncedFalse(true, 2000);
   const isConnected = isBrowserOnline && isWsConnected;
 
   useEventListener('online', () => setIsBrowserOnline(true));
@@ -645,10 +675,7 @@ const PostForm = ({
             </LWTooltip>}
             {editorType === "lexical" && (
               <div className={classes.editorModeSelector}>
-                <div className={classNames(
-                  classes.editorModeSelectorInner,
-                  !isConnected && classes.editorModeSelectorDisconnected,
-                )}>
+                <div className={classes.editorModeSelectorInner}>
                   {availableModes.map(mode => (
                     <LWTooltip key={mode} title={editorModeLabels[mode]} placement="bottom">
                       <button
@@ -869,6 +896,13 @@ const PostForm = ({
                 );
               }}
             </form.Subscribe>}
+            {!isConnected && (
+              <LWTooltip title="Offline — changes are saved locally">
+                <span className={classes.disconnectedIndicator}>
+                  <ForumIcon icon="CloudOff" className={classes.disconnectedIcon} />
+                </span>
+              </LWTooltip>
+            )}
           </div>
 
           {canEditMetadata && showCoauthorSearch && (
