@@ -84,7 +84,7 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     alignItems: "center",
     gap: 10,
     transition: "top 0.2s ease-in-out",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down("sm")]: {
       display: "none",
     },
   },

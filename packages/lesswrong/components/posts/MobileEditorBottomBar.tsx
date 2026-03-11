@@ -29,7 +29,7 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
     background: theme.palette.panelBackground.default,
     borderTop: theme.palette.greyBorder("1px", 0.12),
     zIndex: theme.zIndexes.header - 1,
-    [theme.breakpoints.up("lg")]: {
+    [theme.breakpoints.up("md")]: {
       display: "none",
     },
   },
@@ -464,9 +464,9 @@ const MobileEditorBottomBar = ({
           sheetOpen && classes.sheetPanelOpen,
         )}
       >
-        <div className={classes.sheetHandle}>
+        {/* <div className={classes.sheetHandle}>
           <div className={classes.sheetHandlePill} />
-        </div>
+        </div> */}
         <div className={classes.sheetTabs}>
           {TABS.map((tab) => (
             <button

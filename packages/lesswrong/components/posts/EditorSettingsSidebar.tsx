@@ -58,7 +58,7 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     paddingLeft: 6,
     paddingRight: 2,
     transition: "top 0.2s ease-in-out, height 0.2s ease-in-out",
-    [theme.breakpoints.down("md")]: {
+    [theme.breakpoints.down("sm")]: {
       display: "none",
     },
   },
