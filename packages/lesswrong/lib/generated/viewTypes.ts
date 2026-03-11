@@ -29,6 +29,7 @@ type ImagesViewName = never
 type JargonTermsViewName = "glossaryEditAll"|"postEditorJargonTerms"|"postsApprovedJargon";
 type LWEventsViewName = "adminView"|"emailHistory"|"gatherTownUsers"|"postVisits";
 type LegacyDataViewName = never
+type LinkPreviewCachesViewName = never
 type LlmConversationsViewName = "llmConversationsAll"|"llmConversationsWithUser";
 type LlmMessagesViewName = never
 type LocalgroupsViewName = "all"|"local"|"nearby"|"online"|"single"|"userActiveGroups"|"userInactiveGroups"|"userOrganizesGroups";
@@ -114,6 +115,7 @@ interface ViewTermsByCollectionName {
   JargonTerms: JargonTermsViewTerms
   LWEvents: LWEventsViewTerms
   LegacyData: ViewTermsBase
+  LinkPreviewCaches: ViewTermsBase
   LlmConversations: LlmConversationsViewTerms
   LlmMessages: ViewTermsBase
   Localgroups: LocalgroupsViewTerms

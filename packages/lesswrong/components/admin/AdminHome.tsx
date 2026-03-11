@@ -84,6 +84,7 @@ const AdminHome = () => {
       
       <h3>Debug Tools</h3>
       <ul>
+        <li><Link className={classes.link} to="/debug/linkPreview">Link Preview Tester</Link></li>
         <li><Link className={classes.link} to="/debug/emailHistory">Email History</Link></li>
         <li><Link className={classes.link} to="/debug/notificationEmailPreview">Notification Email Preview</Link></li>
         <li><Link className={classes.link} to="/searchTest">Search Test</Link></li>

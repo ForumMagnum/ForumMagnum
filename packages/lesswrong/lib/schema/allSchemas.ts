@@ -35,6 +35,7 @@ import { default as IframeWidgetSrcdocs } from '../collections/iframeWidgetSrcdo
 import { default as Images } from '../collections/images/newSchema';
 import { default as JargonTerms } from '../collections/jargonTerms/newSchema';
 import { default as LegacyData } from '../collections/legacyData/newSchema';
+import { default as LinkPreviewCaches } from '../collections/linkPreviewCaches/newSchema';
 import { default as LlmConversations } from '../collections/llmConversations/newSchema';
 import { default as LlmMessages } from '../collections/llmMessages/newSchema';
 import { default as Localgroups } from '../collections/localgroups/newSchema';
@@ -102,7 +103,7 @@ export const allSchemas = {
   ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
   DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
-  LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
+  LlmMessages, LinkPreviewCaches, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations,
   PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,

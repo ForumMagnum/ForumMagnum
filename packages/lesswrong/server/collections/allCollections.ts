@@ -37,6 +37,7 @@ import { IframeWidgetSrcdocs } from './iframeWidgetSrcdocs/collection';
 import { Images } from './images/collection';
 import { JargonTerms } from './jargonTerms/collection';
 import { LegacyData } from './legacyData/collection';
+import { LinkPreviewCaches } from './linkPreviewCaches/collection';
 import { LlmConversations } from './llmConversations/collection';
 import { LlmMessages } from './llmMessages/collection';
 import { Localgroups } from './localgroups/collection';
@@ -110,12 +111,16 @@ function getTestCollectionsByTypeName() {
 const allCollections = {
   ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
-  LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
-  Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations,
-  PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
-  ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,
-  TagFlags, TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes, YjsDocuments
+  DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens,
+  FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
+  LinkPreviewCaches,
+  LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
+  OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients,
+  PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
+  Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,
+  Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
+  TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
+  UserTagRels, Users, Votes, YjsDocuments
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;
 
 const collectionsByLowercaseName = Object.fromEntries(

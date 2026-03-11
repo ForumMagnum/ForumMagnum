@@ -634,6 +634,9 @@ export const routeTrie = {
         "emailHistory": {
           "hasPage": true
         },
+        "linkPreview": {
+          "hasPage": true
+        },
         "markdownApi": {
           "hasPage": true
         },
@@ -646,6 +649,7 @@ export const routeTrie = {
       },
       "lowerCase": {
         "emailhistory": "emailHistory",
+        "linkpreview": "linkPreview",
         "markdownapi": "markdownApi",
         "notificationemailpreview": "notificationEmailPreview",
         "query-waterfall": "query-waterfall"
