@@ -66,15 +66,13 @@ const ClientIDAssignerServer = async () => {
 const EnvironmentOverrideContextProviderServer = async ({children}: {
   children: React.ReactNode
 }) => {
-  const cookieStore = await cookies();
-  const timezoneCookie = cookieStore.get(TIMEZONE_COOKIE);
-  const timezone = timezoneCookie?.value ?? DEFAULT_TIMEZONE;
+  // Required in order to make the `new Date()` below safe
+  const _cookieStore = await cookies();
 
   const ssrMetadata: SSRMetadata = {
     renderedAt: new Date().toISOString(),
     // TODO: figure out how to port the exising cache-control response header logic here
     cacheFriendly: false,
-    timezone,
   };
   return <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
     {children}

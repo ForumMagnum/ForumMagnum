@@ -9,8 +9,6 @@ export type SSRMetadata = {
   /** ISO timestamp */
   renderedAt: string;
   cacheFriendly: boolean;
-  /** The timezone used on the server. This may differ from the client's timezone if this is a cached render */
-  timezone: string;
 }
 
 export const EnvironmentOverrideContext = React.createContext<Partial<SSRMetadata>>({});
