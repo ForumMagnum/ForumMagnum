@@ -629,6 +629,7 @@ const PostForm = ({
               <button
                 type="button"
                 className={classNames(
+                  "editor-sidebar-toggle",
                   classes.iconButton,
                   classes.publishIconButton,
                   sidebarPanel === "publish" && classes.iconButtonActive,
@@ -642,7 +643,7 @@ const PostForm = ({
               <LWTooltip title="Sharing and collaboration">
               <button
                 type="button"
-                className={classNames(classes.iconButton, sidebarPanel === "sharing" && classes.iconButtonActive)}
+                className={classNames("editor-sidebar-toggle", classes.iconButton, sidebarPanel === "sharing" && classes.iconButtonActive)}
                 title={sidebarPanel === "sharing" ? "Hide sharing panel" : "Share & collaborate"}
                 onClick={() => setSidebarPanel((panel) => panel === "sharing" ? null : "sharing")}
               >
@@ -652,7 +653,7 @@ const PostForm = ({
               <LWTooltip title="Settings">
               <button
                 type="button"
-                className={classNames(classes.iconButton, sidebarPanel === "settings" && classes.iconButtonActive)}
+                className={classNames("editor-sidebar-toggle", classes.iconButton, sidebarPanel === "settings" && classes.iconButtonActive)}
                 title={sidebarPanel === "settings" ? "Hide settings" : "Show settings"}
                 onClick={() => setSidebarPanel((panel) => panel === "settings" ? null : "settings")}
               >
@@ -1170,6 +1171,7 @@ const PostForm = ({
           mode={sidebarPanel}
           currentUser={currentUser}
           isSaving={isSaving}
+          onClose={() => setSidebarPanel(null)}
           addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
           addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
           addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}

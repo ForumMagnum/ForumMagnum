@@ -10,6 +10,7 @@ import { userCanUseSharing } from "@/lib/betas";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import type { EditorTypeString } from "../editor/Editor";
 import { disconnectCollaborationForPost } from "../lexical/collaboration";
+import ClickAwayListener from "../../lib/vendor/react-click-away-listener";
 import { defaultSharingSettings, type SharingSettings, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { TypedReactFormApi, TypedFieldApi } from "../tanstack-form-components/BaseAppForm";
@@ -50,13 +51,12 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     top: "var(--editor-right-rail-top)",
     right: 86,
     maxHeight: "var(--editor-right-rail-height)",
-    height: "var(--editor-right-rail-height)",
+    height: "max-content",
     overflowY: "auto",
     scrollbarWidth: "none",
     "&::-webkit-scrollbar": {
       width: 0,
     },
-    paddingBottom: 48,
     paddingLeft: 6,
     paddingRight: 2,
     transition: "top 0.2s ease-in-out, height 0.2s ease-in-out",
@@ -1091,6 +1091,7 @@ interface EditorSettingsSidebarProps {
   mode: "publish" | "settings" | "sharing";
   currentUser: UsersCurrent | null;
   isSaving?: boolean;
+  onClose?: () => void;
   addOnSubmitCallbackCustom: AddOnSubmitCallback<PostsEditMutationFragment>;
   addOnSuccessCallbackCustom: AddOnSuccessCallback<PostsEditMutationFragment>;
   addOnSubmitCallbackModerationGuidelines: AddOnSubmitCallback<PostsEditMutationFragment>;
@@ -1104,6 +1105,7 @@ const EditorSettingsSidebar = ({
   mode,
   currentUser,
   isSaving = false,
+  onClose,
   addOnSubmitCallbackCustom,
   addOnSuccessCallbackCustom,
   addOnSubmitCallbackModerationGuidelines,
@@ -1151,7 +1153,7 @@ const EditorSettingsSidebar = ({
     });
   }, [captureEvent, initialData, openDialog, postId]);
 
-  return (
+  const content = (
     <div className={classes.root}>
       {mode === "publish" && <>
         <div className={classes.submitArea}>
@@ -1622,6 +1624,19 @@ const EditorSettingsSidebar = ({
       </Link>}
     </div>
   );
+
+  if (onClose) {
+    return (
+      <ClickAwayListener
+        onClickAway={onClose}
+        ignoreClasses=".editor-sidebar-toggle, .MuiPopover-root, .ck-body-wrapper, .ck-balloon-panel"
+      >
+        {content}
+      </ClickAwayListener>
+    );
+  }
+
+  return content;
 };
 
 export default EditorSettingsSidebar;
