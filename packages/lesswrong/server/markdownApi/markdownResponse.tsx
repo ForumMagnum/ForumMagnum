@@ -3,6 +3,7 @@ import { htmlToMarkdown } from "../editor/conversionUtils";
 import { renderToString } from "../emails/renderEmail";
 import { NextResponse } from "next/server";
 import { siteUrlSetting } from "@/lib/instanceSettings";
+import { combineUrls } from "@/lib/vulcan-lib/utils";
 
 export const markdownClasses: Record<string, string> = {
   title: "markdown-title",
@@ -24,8 +25,8 @@ export async function renderReactToMarkdown(reactTree: React.ReactNode): Promise
 
     <h3>Navigation</h3>
     <ul>
-      <li><a href={`${siteUrlSetting.get()}/api/home`}>Front page</a></li>
-      <li><a href={`${siteUrlSetting.get()}/api/SKILL.md`}>Markdown API documentation</a></li>
+      <li><a href={`${combineUrls(siteUrlSetting.get(), "/api/home")}`}>Front page</a></li>
+      <li><a href={`${combineUrls(siteUrlSetting.get(), "/api/SKILL.md")}`}>Markdown API documentation</a></li>
     </ul>
   </div>)
   return htmlToMarkdown(html)

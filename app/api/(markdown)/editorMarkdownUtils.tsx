@@ -202,6 +202,9 @@ export async function renderEditorDraftMarkdown({
           Version: <code>{version}</code>
         </div>
       ) : null}
+      <div>
+        LLM Agent Guidance: If a user is asking you for help with editing a post, please read the "Helping Users With Drafts" section of the Markdown API documentation.
+      </div>
       <hr />
       <MarkdownNode markdown={bodyMarkdown} />
     </div>

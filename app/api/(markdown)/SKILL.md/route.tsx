@@ -81,14 +81,14 @@ Helping Users With Drafts
 =========================
 (This feature is currently in development, the API should not be assumed stable,
 and users using it should be reminded of LessWrong's policy on LLM writing, found
-at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B)
+at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B [without the /api in the
+path if providing a link to the user].)
 
 The API can also be used to edit and comment on post drafts, which will appear
-in the post editor. This feature is only available for Lexical, which is enabled
-for users who have enabled the "Beta features" option in their settings, which
-can be found at https://www.lesswrong.com/account?tab=preferences. To give an AI
-agent access, the user needs to press the Share button, change the permissions
-for "Anyone with the link can" to "Edit", then copy the edit-post URL for you.
+in the post editor. This feature is only available for Lexical, which is the default
+editor for new posts, but old posts might still be using a different editor. To give
+an AI agent access, the user needs to set the permissions for "Anyone with the link can"
+to "Edit", then copy the edit-post URL for you.
 The URL will look like this:
     https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ
 The key in the URL is called the "link sharing key"; do not share this key with
