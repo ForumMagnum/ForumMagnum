@@ -31,6 +31,7 @@ import { SubmitToFrontpageCheckbox } from "./SubmitToFrontpageCheckbox";
 import { DialogueSubmit } from "./dialogues/DialogueSubmit";
 import { Link } from "../../lib/reactRouterWrapper";
 import ForumIcon from "../common/ForumIcon";
+import { useDialog } from "../common/withDialog";
 import { useMessages } from "../common/withMessages";
 import { userCanCommentLock, userUseMarkdownPostEditor } from "@/lib/collections/users/helpers";
 import { useMutation } from "@apollo/client/react";
@@ -39,6 +40,7 @@ import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { useTracking } from "@/lib/analyticsEvents";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
+import { PostVersionHistoryDialog } from "../editor/PostVersionHistory";
 
 const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   root: {
@@ -153,6 +155,9 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     borderRadius: 12,
     padding: "0 12px",
     background: theme.palette.background.pageActiveAreaBackground,
+    "& > $accordionSection:last-child": {
+      borderBottom: "none",
+    },
     // Base font for all panel content
     ...theme.typography.commentStyle,
     fontSize: 13,
@@ -284,6 +289,13 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   },
   accordionContent: {
     paddingBottom: 14,
+  },
+  sectionActionButton: {
+    width: "100%",
+    border: "none",
+    background: "none",
+    textAlign: "left",
+    fontFamily: "inherit",
   },
   tagSection: {
     minHeight: 106,
@@ -1098,7 +1110,9 @@ const EditorSettingsSidebar = ({
   addOnSuccessCallbackModerationGuidelines,
 }: EditorSettingsSidebarProps) => {
   const classes = useStyles(styles);
+  const { openDialog } = useDialog();
   const { flash } = useMessages();
+  const { captureEvent } = useTracking();
 
   const isEvent = !!initialData.isEvent;
   const isDialogue = !!initialData.collabEditorDialogue;
@@ -1112,8 +1126,30 @@ const EditorSettingsSidebar = ({
   const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
   const canShare = userCanUseSharing(currentUser);
   const contentType = initialData.contents?.originalContents?.type;
+  const postId = initialData._id;
   const canSeeMarkdownToggle = userUseMarkdownPostEditor(currentUser)
     && (contentType === "markdown" || contentType === "lexical");
+
+  const openVersionHistory = useCallback(() => {
+    if (!postId) {
+      return;
+    }
+
+    captureEvent("versionHistoryButtonClicked", { postId });
+    openDialog({
+      name: "PostVersionHistory",
+      contents: ({ onClose }) => (
+        <PostVersionHistoryDialog
+          onClose={onClose}
+          post={{
+            ...initialData,
+            userId: initialData.userId ?? null,
+          }}
+          postId={postId}
+        />
+      ),
+    });
+  }, [captureEvent, initialData, openDialog, postId]);
 
   return (
     <div className={classes.root}>
@@ -1227,6 +1263,16 @@ const EditorSettingsSidebar = ({
             </form.Field>
           </AccordionSection>
         )}
+
+        <div className={classes.accordionSection}>
+          <button
+            type="button"
+            className={classNames(classes.accordionHeader, classes.sectionActionButton)}
+            onClick={openVersionHistory}
+          >
+            Version History
+          </button>
+        </div>
 
         <AccordionSection title="Moderation">
         {!isDialogue && (

@@ -481,6 +481,7 @@ export type EditablePost = UpdatePostDataInput & {
   commentCount: number;
   afCommentCount: number;
   contents: CreateRevisionDataInput & { html: string | null } | null;
+  contents_latest: string | null;
   debate: boolean;
   title: string;
   myEditorAccess?: string;

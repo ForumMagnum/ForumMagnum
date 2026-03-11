@@ -26,7 +26,6 @@ import LocalStorageCheck from "./LocalStorageCheck";
 import EditorTypeSelect from "./EditorTypeSelect";
 import PostsEditBotTips from "../posts/PostsEditBotTips";
 import ErrorBoundary from "../common/ErrorBoundary";
-import PostVersionHistoryButton from './PostVersionHistory';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -625,12 +624,6 @@ function InnerEditorFormComponent<S, R>({
     </CKEditorPortalProvider>
     {!hideControls && formVariant !== "grey" && (
       <EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
-    )}
-    {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id && (
-      <PostVersionHistoryButton
-        post={document}
-        postId={document._id}
-      />
     )}
     <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear nodeRef={tipsNodeRef}>
       {(state) => <PostsEditBotTips
