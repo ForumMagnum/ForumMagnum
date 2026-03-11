@@ -13782,26 +13782,6 @@ type autosaveRevisionMutationVariables = Exact<{
 
 type autosaveRevisionMutation = autosaveRevisionMutation_Mutation;
 
-type LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision_originalContents_ContentType = { __typename?: 'ContentType', type: string };
-
-type LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision = { __typename?: 'Revision', originalContents: LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision_originalContents_ContentType };
-
-type LinkSharingQueryQuery_getLinkSharedPost_Post = (
-  { __typename?: 'Post', contents: LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision | null }
-  & PostsEdit
-);
-
-type LinkSharingQueryQuery_Query = { __typename?: 'Query', getLinkSharedPost: LinkSharingQueryQuery_getLinkSharedPost_Post | null };
-
-
-type LinkSharingQueryQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-  linkSharingKey: Scalars['String']['input'];
-}>;
-
-
-type LinkSharingQueryQuery = LinkSharingQueryQuery_Query;
-
 type multiRevisionPostVersionHistoryQueryQuery_revisions_MultiRevisionOutput_results_Revision = (
   { __typename?: 'Revision' }
   & RevisionMetadataWithChangeMetrics

@@ -144,7 +144,6 @@ type Documents = {
     "\n  mutation updatePostEditTitle($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n": typeof types.updatePostEditTitleDocument,
     "\n    query getPostIsCriticism($args: JSON) {\n      PostIsCriticism(args: $args)\n    }\n    ": typeof types.getPostIsCriticismDocument,
     "\n    mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {\n      autosaveRevision(postId: $postId, contents: $contents) {\n        ...RevisionEdit\n      }\n    }\n  ": typeof types.autosaveRevisionDocument,
-    "\n    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {\n      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {\n        ...PostsEdit\n        contents {\n          originalContents {\n            type\n          }\n        }\n      }\n    }\n  ": typeof types.LinkSharingQueryDocument,
     "\n  query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {\n    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...RevisionMetadataWithChangeMetrics\n      }\n      totalCount\n    }\n  }\n": typeof types.multiRevisionPostVersionHistoryQueryDocument,
     "\n  query PostVersionHistory($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionDisplay\n        ...RevisionMetadata\n      }\n    }\n  }\n": typeof types.PostVersionHistoryDocument,
     "\n    mutation revertPostToRevision($postId: String!, $revisionId: String!) {\n      revertPostToRevision(postId: $postId, revisionId: $revisionId) {\n        ...PostsEdit\n      }\n    }\n  ": typeof types.revertPostToRevisionDocument,
@@ -995,7 +994,6 @@ const documents: Documents = {
     "\n  mutation updatePostEditTitle($selector: SelectorInput!, $data: UpdatePostDataInput!) {\n    updatePost(selector: $selector, data: $data) {\n      data {\n        ...PostsMinimumInfo\n      }\n    }\n  }\n": types.updatePostEditTitleDocument,
     "\n    query getPostIsCriticism($args: JSON) {\n      PostIsCriticism(args: $args)\n    }\n    ": types.getPostIsCriticismDocument,
     "\n    mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {\n      autosaveRevision(postId: $postId, contents: $contents) {\n        ...RevisionEdit\n      }\n    }\n  ": types.autosaveRevisionDocument,
-    "\n    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {\n      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {\n        ...PostsEdit\n        contents {\n          originalContents {\n            type\n          }\n        }\n      }\n    }\n  ": types.LinkSharingQueryDocument,
     "\n  query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {\n    revisions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...RevisionMetadataWithChangeMetrics\n      }\n      totalCount\n    }\n  }\n": types.multiRevisionPostVersionHistoryQueryDocument,
     "\n  query PostVersionHistory($documentId: String) {\n    revision(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...RevisionDisplay\n        ...RevisionMetadata\n      }\n    }\n  }\n": types.PostVersionHistoryDocument,
     "\n    mutation revertPostToRevision($postId: String!, $revisionId: String!) {\n      revertPostToRevision(postId: $postId, revisionId: $revisionId) {\n        ...PostsEdit\n      }\n    }\n  ": types.revertPostToRevisionDocument,
@@ -2250,10 +2248,6 @@ export function gql(source: "\n    query getPostIsCriticism($args: JSON) {\n    
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {\n      autosaveRevision(postId: $postId, contents: $contents) {\n        ...RevisionEdit\n      }\n    }\n  "): (typeof documents)["\n    mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {\n      autosaveRevision(postId: $postId, contents: $contents) {\n        ...RevisionEdit\n      }\n    }\n  "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {\n      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {\n        ...PostsEdit\n        contents {\n          originalContents {\n            type\n          }\n        }\n      }\n    }\n  "): (typeof documents)["\n    query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {\n      getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {\n        ...PostsEdit\n        contents {\n          originalContents {\n            type\n          }\n        }\n      }\n    }\n  "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
