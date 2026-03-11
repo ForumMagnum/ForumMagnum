@@ -50,6 +50,7 @@ import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon";
+import { PublishSettingsIcon } from "../icons/publishSettingsIcon";
 import ArrowLeftIcon from "@heroicons/react/24/solid/ArrowLeftIcon";
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
@@ -247,6 +248,7 @@ export type ForumIconName =
   "ArrowForward" |
   "ArrowRight" |
   "ArrowRightOutline" |
+  "PublishSettings" |
   "ArrowCircle" |
   "Autorenew" |
   "EllipsisVertical" |
@@ -393,6 +395,7 @@ const icons: Record<ForumIconName, IconComponent> = {
   ArrowLeft: ArrowLeftIcon,
   ArrowForward: MuiArrowForwardIcon,
   ArrowRightOutline: ArrowRightOutlineIcon,
+  PublishSettings: PublishSettingsIcon,
   ArrowCircle: ArrowCircleIcon,
   Autorenew: MuiReplayIcon,
   EllipsisVertical: MuiEllipsisVerticalIcon,

@@ -588,7 +588,7 @@ const PostForm = ({
               )}
               onClick={() => setSidebarPanel((panel) => panel === "publish" ? null : "publish")}
             >
-              <ForumIcon icon="ArrowRightOutline" className={classes.icon} />
+              <ForumIcon icon="PublishSettings" className={classes.icon} />
             </button>
             </LWTooltip>
             <button
