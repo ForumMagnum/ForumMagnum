@@ -53,7 +53,7 @@ export const ckEditorUserSessionsEnabled = () => isLWorAF();
 export const allowSubscribeToUserComments = true;
 export const allowSubscribeToSequencePosts = () => isFriendlyUI();
 
-export const hasAccountDeletionFlow = () => isEAForum();
+export const hasAccountDeletionFlow = () => false;
 export const useElicitApi = false;
 export const hasCollapsedFootnotes = false; // TODO re-enable for EAF once https://github.com/ForumMagnum/ForumMagnum/issues/10912 is fixed
 export const usesCurationEmailsCron = () => isLW();
