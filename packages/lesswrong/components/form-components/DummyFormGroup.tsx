@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { FormGroupHeader } from "../vulcan-forms/FormGroup";
+import { FormGroupHeader } from "./FormGroupHeader";
 
 const styles = (theme: ThemeType) => ({
   formSection: {

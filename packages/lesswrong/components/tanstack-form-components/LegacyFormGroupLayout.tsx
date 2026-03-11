@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { TooltipSpan } from "../common/FMTooltip";
 import FormGroupLayout from "../form-components/FormGroupLayout";
-import { FormGroupHeader } from "../vulcan-forms/FormGroup";
+import { FormGroupHeader } from "../form-components/FormGroupHeader";
 
 export const LegacyFormGroupLayout = ({
   label,
