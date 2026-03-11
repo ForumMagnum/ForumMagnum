@@ -26,7 +26,6 @@ const EventTime = ({post, dense=false}: {
 }) => {
   const now = moment(useCurrentTime())
   const { timezone } = useTimezone();
-  console.log('In EventTime, timezone', timezone);
   const start = post.startTime ? moment(post.startTime).tz(timezone) : undefined;
   const end = post.endTime ? moment(post.endTime).tz(timezone) : undefined;
 
