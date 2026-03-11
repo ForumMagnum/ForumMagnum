@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import ForumIcon from "../common/ForumIcon";
@@ -6,8 +6,12 @@ import EditorSettingsSidebar from "./EditorSettingsSidebar";
 import { getDraftLabel, type EditablePost, type PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import type { TypedReactFormApi } from "../tanstack-form-components/BaseAppForm";
 import type { AddOnSubmitCallback, AddOnSuccessCallback } from "../editor/EditorFormComponent";
+import { EditorUserModeContext } from "../common/sharedContexts";
+import { getAvailableEditorModes, editorModeLabels } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
 
 type SidebarMode = "publish" | "settings" | "sharing";
+
+const MOBILE_BUTTON_SIZE = 38;
 
 const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
   bottomBar: {
@@ -94,6 +98,66 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
   settingsIcon: {
     width: 18,
     height: 18,
+  },
+  // Editor mode selector (text dropdown, opens upward)
+  modeSelector: {
+    position: 'relative',
+  },
+  modeSelectorButton: {
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    fontWeight: 500,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 3,
+    height: MOBILE_BUTTON_SIZE,
+    borderRadius: 999,
+    border: theme.palette.greyBorder("1px", 0.16),
+    background: theme.palette.panelBackground.default,
+    color: theme.palette.greyAlpha(0.75),
+    padding: '0 10px 0 12px',
+    cursor: 'pointer',
+  },
+  modeSelectorButtonDisconnected: {
+    borderColor: theme.palette.warning.main,
+    color: theme.palette.warning.main,
+  },
+  modeSelectorChevron: {
+    width: 14,
+    height: 14,
+    transition: 'transform 0.2s ease',
+  },
+  modeSelectorChevronOpen: {
+    transform: 'rotate(180deg)',
+  },
+  modeSelectorMenu: {
+    position: 'absolute',
+    bottom: '100%',
+    left: 0,
+    marginBottom: 6,
+    background: theme.palette.panelBackground.default,
+    borderRadius: 8,
+    boxShadow: `0 2px 12px ${theme.palette.boxShadowColor(0.15)}`,
+    border: theme.palette.greyBorder("1px", 0.1),
+    overflow: 'hidden',
+    minWidth: 150,
+  },
+  modeSelectorMenuItem: {
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    fontWeight: 500,
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    padding: '10px 14px',
+    background: 'none',
+    border: 'none',
+    color: theme.palette.greyAlpha(0.65),
+    cursor: 'pointer',
+  },
+  modeSelectorMenuItemActive: {
+    color: theme.palette.primary.main,
+    fontWeight: 600,
   },
 
   // Bottom sheet
@@ -237,6 +301,7 @@ interface MobileEditorBottomBarProps {
   formType: "new" | "edit";
   currentUser: UsersCurrent | null;
   isSaving?: boolean;
+  editorType?: string;
   sidebarPanel: SidebarMode | null;
   setSidebarPanel: React.Dispatch<React.SetStateAction<SidebarMode | null>>;
   addOnSubmitCallbackCustom: AddOnSubmitCallback<PostsEditMutationFragment>;
@@ -251,6 +316,7 @@ const MobileEditorBottomBar = ({
   formType,
   currentUser,
   isSaving = false,
+  editorType,
   sidebarPanel,
   setSidebarPanel,
   addOnSubmitCallbackCustom,
@@ -261,6 +327,25 @@ const MobileEditorBottomBar = ({
   const classes = useStyles(styles);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<SidebarMode>("publish");
+  const [modeExpanded, setModeExpanded] = useState(false);
+  const modeSelectorRef = useRef<HTMLDivElement>(null);
+
+  const editorModeContext = useContext(EditorUserModeContext);
+  const availableModes = editorModeContext
+    ? getAvailableEditorModes(editorModeContext.canEdit, editorModeContext.canComment)
+    : [];
+  const showModeSelector = editorType === "lexical" && editorModeContext && availableModes.length > 1;
+
+  useEffect(() => {
+    if (!modeExpanded) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modeSelectorRef.current && !modeSelectorRef.current.contains(e.target as Node)) {
+        setModeExpanded(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [modeExpanded]);
 
   const openSheet = () => {
     setSheetOpen(true);
@@ -298,6 +383,47 @@ const MobileEditorBottomBar = ({
                 {getDraftLabel({ draft })}
               </button>
               <div className={classes.rightGroup}>
+                {showModeSelector && (
+                  <div ref={modeSelectorRef} className={classes.modeSelector}>
+                    <button
+                      type="button"
+                      className={classNames(
+                        classes.modeSelectorButton,
+                        !editorModeContext.isConnected && classes.modeSelectorButtonDisconnected,
+                      )}
+                      onClick={() => setModeExpanded(v => !v)}
+                    >
+                      {editorModeLabels[editorModeContext.userMode]}
+                      <ForumIcon
+                        icon="ThickChevronDown"
+                        className={classNames(
+                          classes.modeSelectorChevron,
+                          modeExpanded && classes.modeSelectorChevronOpen,
+                        )}
+                      />
+                    </button>
+                    {modeExpanded && (
+                      <div className={classes.modeSelectorMenu}>
+                        {availableModes.map(mode => (
+                          <button
+                            key={mode}
+                            type="button"
+                            className={classNames(
+                              classes.modeSelectorMenuItem,
+                              mode === editorModeContext.userMode && classes.modeSelectorMenuItemActive,
+                            )}
+                            onClick={() => {
+                              editorModeContext.setUserMode(mode);
+                              setModeExpanded(false);
+                            }}
+                          >
+                            {editorModeLabels[mode]}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
                 <button
                   type="button"
                   className={classNames(

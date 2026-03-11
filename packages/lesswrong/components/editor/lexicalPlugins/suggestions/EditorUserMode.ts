@@ -1,3 +1,5 @@
+import type { ForumIconName } from "@/components/common/ForumIcon";
+
 export const EditorUserMode = {
   Edit: 'edit',
   Suggest: 'suggest',
@@ -11,3 +13,23 @@ export function getDefaultEditorUserMode(canEdit: boolean | undefined, canCommen
   if (canComment) return EditorUserMode.Suggest;
   return EditorUserMode.View;
 }
+
+export function getAvailableEditorModes(canEdit: boolean, canComment: boolean): EditorUserModeType[] {
+  const modes: EditorUserModeType[] = [];
+  if (canEdit) modes.push(EditorUserMode.Edit);
+  if (canComment) modes.push(EditorUserMode.Suggest);
+  modes.push(EditorUserMode.View);
+  return modes;
+}
+
+export const editorModeLabels: Record<EditorUserModeType, string> = {
+  [EditorUserMode.Edit]: "Editing",
+  [EditorUserMode.Suggest]: "Suggesting",
+  [EditorUserMode.View]: "Viewing",
+};
+
+export const editorModeIcons: Record<EditorUserModeType, ForumIconName> = {
+  [EditorUserMode.Edit]: "Pencil",
+  [EditorUserMode.Suggest]: "PencilSquare",
+  [EditorUserMode.View]: "Eye",
+};

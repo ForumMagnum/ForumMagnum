@@ -23,7 +23,7 @@ import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
-import ForumIcon, { type ForumIconName } from "../common/ForumIcon";
+import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import EditorSettingsSidebar from "./EditorSettingsSidebar";
 import MobileEditorBottomBar from "./MobileEditorBottomBar";
@@ -36,7 +36,7 @@ import UsersNameWrapper from "../users/UsersNameWrapper";
 import ErrorBoundary from "../common/ErrorBoundary";
 import { InlineCommentsPanelContext, EditorUserModeContext } from "../common/sharedContexts";
 import { useAutoSavePostFields } from "./useAutoSavePostFields";
-import { EditorUserMode, getDefaultEditorUserMode, type EditorUserModeType } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
+import { getDefaultEditorUserMode, getAvailableEditorModes, editorModeLabels, editorModeIcons, type EditorUserModeType } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
 import { useEventListener } from "../hooks/useEventListener";
 import { accessLevelCan, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -406,26 +406,6 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
 }));
 
 const ON_SUBMIT_META: PostSubmitMeta = {};
-
-const editorModeLabels: Record<EditorUserModeType, string> = {
-  [EditorUserMode.Edit]: "Editing",
-  [EditorUserMode.Suggest]: "Suggesting",
-  [EditorUserMode.View]: "Viewing",
-};
-
-const editorModeIcons: Record<EditorUserModeType, ForumIconName> = {
-  [EditorUserMode.Edit]: "Pencil",
-  [EditorUserMode.Suggest]: "PencilSquare",
-  [EditorUserMode.View]: "Eye",
-};
-
-function getAvailableEditorModes(canEdit: boolean, canComment: boolean): EditorUserModeType[] {
-  const modes: EditorUserModeType[] = [];
-  if (canEdit) modes.push(EditorUserMode.Edit);
-  if (canComment) modes.push(EditorUserMode.Suggest);
-  modes.push(EditorUserMode.View);
-  return modes;
-}
 
 const SyncTitleToParent = ({ title, onTitleChange }: {
   title: string;
@@ -1139,6 +1119,7 @@ const PostForm = ({
         formType={formType}
         currentUser={currentUser}
         isSaving={isSaving}
+        editorType={editorType}
         sidebarPanel={sidebarPanel}
         setSidebarPanel={setSidebarPanel}
         addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
