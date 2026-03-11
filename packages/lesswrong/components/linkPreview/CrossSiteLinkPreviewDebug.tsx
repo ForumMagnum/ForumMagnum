@@ -13,20 +13,20 @@ const styles = defineStyles("CrossSiteLinkPreviewDebug", (theme: ThemeType) => (
     maxWidth: "min(860px, 96vw)",
   },
   root: {
-    padding: theme.spacing.unit * 2,
+    padding: 16,
   },
   heading: {
     ...theme.typography.display1,
     marginTop: 0,
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   metaLine: {
     ...theme.typography.body2,
     color: theme.palette.text.dim45,
-    marginBottom: theme.spacing.unit * 1.5,
+    marginBottom: 12,
   },
   debugBlock: {
-    marginBottom: theme.spacing.unit * 1.5,
+    marginBottom: 12,
     "& strong": {
       display: "block",
       marginBottom: 6,
@@ -39,15 +39,15 @@ const styles = defineStyles("CrossSiteLinkPreviewDebug", (theme: ThemeType) => (
       overflowY: "auto",
       background: theme.palette.greyAlpha(0.05),
       borderRadius: theme.borderRadius.default,
-      padding: theme.spacing.unit,
+      padding: 8,
       fontSize: "0.82rem",
     },
   },
   renderedHtml: {
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
     "& p": {
-      marginTop: theme.spacing.unit / 2,
-      marginBottom: theme.spacing.unit / 2,
+      marginTop: 4,
+      marginBottom: 4,
     },
   },
 }));

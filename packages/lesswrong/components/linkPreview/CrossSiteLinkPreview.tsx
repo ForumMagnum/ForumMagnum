@@ -22,7 +22,7 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
   popperCard: {
     width: 520,
     maxWidth: "min(520px, 90vw)",
-    padding: theme.spacing.unit * 1.5,
+    padding: 12,
     position: "relative",
   },
   titleRow: {
@@ -47,14 +47,14 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
     maxHeight: 220,
     objectFit: "cover",
     borderRadius: theme.borderRadius.default,
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
+    marginTop: 8,
+    marginBottom: 8,
   },
   contentRow: {
     display: "flex",
-    gap: theme.spacing.unit * 1.5,
+    gap: 12,
     alignItems: "flex-start",
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
   },
   textColumn: {
     flex: 1,
@@ -69,8 +69,8 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
   },
   html: {
     "& p": {
-      marginTop: theme.spacing.unit / 2,
-      marginBottom: theme.spacing.unit / 2,
+      marginTop: 4,
+      marginBottom: 4,
     },
   },
   loadingOrError: {
