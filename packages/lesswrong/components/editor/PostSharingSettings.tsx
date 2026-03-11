@@ -9,7 +9,7 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
 import { moderationEmail } from '@/lib/instanceSettings';
-import { EditablePost, getPostCollaborateUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
+import { EditablePost, postGetEditUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
 import { getCkEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
@@ -213,7 +213,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
     setIsChanged(true);
   };
   
-  const collabEditorLink = getPostCollaborateUrl(post._id, true, linkSharingKey)
+  const collabEditorLink = postGetEditUrl(post._id, true, linkSharingKey)
   
   const commentingTooltip = "(suggest changes requires edit permission)"
 

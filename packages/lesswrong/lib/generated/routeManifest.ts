@@ -142,9 +142,6 @@ export const routeTrie = {
           },
           "hasRoute": true
         },
-        "collaborateOnPost": {
-          "hasRoute": true
-        },
         "community": {
           "hasRoute": true
         },
@@ -440,7 +437,6 @@ export const routeTrie = {
         "skill.md": "SKILL.md",
         "about": "about",
         "codex": "codex",
-        "collaborateonpost": "collaborateOnPost",
         "community": "community",
         "contact": "contact",
         "curated": "curated",
@@ -578,9 +574,6 @@ export const routeTrie = {
           "hasPage": true
         }
       },
-      "hasPage": true
-    },
-    "collaborateOnPost": {
       "hasPage": true
     },
     "collections": {
@@ -1226,7 +1219,6 @@ export const routeTrie = {
     "ckeditor-token": "ckeditor-token",
     "ckeditor-webhook": "ckeditor-webhook",
     "codex": "codex",
-    "collaborateonpost": "collaborateOnPost",
     "collections": "collections",
     "community": "community",
     "compare": "compare",

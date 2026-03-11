@@ -1,4 +1,4 @@
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, detectLinkpost, getDraftLabel } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, userCanEditCoauthors, canUserEditPostMetadata, detectLinkpost } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { useForm } from "@tanstack/react-form";
@@ -39,6 +39,8 @@ import { useAutoSavePostFields } from "./useAutoSavePostFields";
 import { getDefaultEditorUserMode, getAvailableEditorModes, editorModeLabels, editorModeIcons, type EditorUserModeType } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
 import { useEventListener } from "../hooks/useEventListener";
 import { accessLevelCan, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
+import { LW_POST_TITLE_FONT_SIZE } from "../posts/PostsPage/PostsPageTitle";
+import CollabEditorPermissionsNotices from "../editor/CollabEditorPermissionsNotices";
 import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
@@ -388,6 +390,15 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
       marginBottom: 0,
     },
   },
+  readOnlyTitle: {
+    ...theme.typography.display3,
+    ...theme.typography.headerStyle,
+    fontSize: LW_POST_TITLE_FONT_SIZE,
+    lineHeight: '1.1',
+    textWrap: 'balance',
+    marginTop: 110,
+    marginBottom: 0,
+  },
   mobileBottomPadding: {
     [theme.breakpoints.down("md")]: {
       paddingBottom: 72,
@@ -440,6 +451,10 @@ const PostForm = ({
   const accessLevel = (initialData.myEditorAccess ?? "edit") as CollaborativeEditingAccessLevel;
   const canEdit = accessLevelCan(accessLevel, "edit") || !!currentUser?.isAdmin;
   const canComment = accessLevelCan(accessLevel, "comment") || !!currentUser?.isAdmin;
+  const canEditMetadata = canUserEditPostMetadata(currentUser, {
+    ...initialData,
+    userId: initialData.userId ?? null,
+  });
   const [userMode, setUserMode] = useState<EditorUserModeType>(() => getDefaultEditorUserMode(canEdit, canComment));
   const [isBrowserOnline, setIsBrowserOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true);
   const [isWsConnected, setIsWsConnected] = useState(true);
@@ -541,7 +556,9 @@ const PostForm = ({
     },
   });
 
-  const { isSaving, awaitPendingSaves } = useAutoSavePostFields(form, initialData?._id, mutate);
+  // Disable auto-save for collaborators who can't edit metadata — their content
+  // changes go through the collaborative editing protocol, not the form mutation.
+  const { isSaving, awaitPendingSaves } = useAutoSavePostFields(form, canEditMetadata ? initialData?._id : undefined, mutate);
 
   useEffect(() => {
     if (sidebarPanel) {
@@ -577,40 +594,42 @@ const PostForm = ({
       <form.Subscribe selector={() => ({})}>
         {() => (
           <div className={classes.topRightControls}>
-            <LWTooltip title="Publishing menu">
-            <button
-              type="button"
-              className={classNames(
-                classes.iconButton,
-                classes.publishIconButton,
-                sidebarPanel === "publish" && classes.iconButtonActive,
-                sidebarPanel === "publish" && classes.publishIconButtonActive,
-              )}
-              onClick={() => setSidebarPanel((panel) => panel === "publish" ? null : "publish")}
-            >
-              <ForumIcon icon="PublishSettings" className={classes.icon} />
-            </button>
-            </LWTooltip>
-            <LWTooltip title="Sharing and collaboration">
-            <button
-              type="button"
-              className={classNames(classes.iconButton, sidebarPanel === "sharing" && classes.iconButtonActive)}
-              title={sidebarPanel === "sharing" ? "Hide sharing panel" : "Share & collaborate"}
-              onClick={() => setSidebarPanel((panel) => panel === "sharing" ? null : "sharing")}
-            >
-              <ForumIcon icon="GroupAdd" className={classes.icon} />
-            </button>
-            </LWTooltip>
-            <LWTooltip title="Settings">
-            <button
-              type="button"
-              className={classNames(classes.iconButton, sidebarPanel === "settings" && classes.iconButtonActive)}
-              title={sidebarPanel === "settings" ? "Hide settings" : "Show settings"}
-              onClick={() => setSidebarPanel((panel) => panel === "settings" ? null : "settings")}
-            >
-              <ForumIcon icon="Settings" className={classes.icon} />
-            </button>
-            </LWTooltip>
+            {canEditMetadata && <>
+              <LWTooltip title="Publishing menu">
+              <button
+                type="button"
+                className={classNames(
+                  classes.iconButton,
+                  classes.publishIconButton,
+                  sidebarPanel === "publish" && classes.iconButtonActive,
+                  sidebarPanel === "publish" && classes.publishIconButtonActive,
+                )}
+                onClick={() => setSidebarPanel((panel) => panel === "publish" ? null : "publish")}
+              >
+                <ForumIcon icon="PublishSettings" className={classes.icon} />
+              </button>
+              </LWTooltip>
+              <LWTooltip title="Sharing and collaboration">
+              <button
+                type="button"
+                className={classNames(classes.iconButton, sidebarPanel === "sharing" && classes.iconButtonActive)}
+                title={sidebarPanel === "sharing" ? "Hide sharing panel" : "Share & collaborate"}
+                onClick={() => setSidebarPanel((panel) => panel === "sharing" ? null : "sharing")}
+              >
+                <ForumIcon icon="GroupAdd" className={classes.icon} />
+              </button>
+              </LWTooltip>
+              <LWTooltip title="Settings">
+              <button
+                type="button"
+                className={classNames(classes.iconButton, sidebarPanel === "settings" && classes.iconButtonActive)}
+                title={sidebarPanel === "settings" ? "Hide settings" : "Show settings"}
+                onClick={() => setSidebarPanel((panel) => panel === "settings" ? null : "settings")}
+              >
+                <ForumIcon icon="Settings" className={classes.icon} />
+              </button>
+              </LWTooltip>
+            </>}
             {(commentCount > 0 || showComments) && <LWTooltip title="Comments">
             <button
               type="button"
@@ -670,16 +689,23 @@ const PostForm = ({
         {onTitleChange && <form.Subscribe selector={(s) => s.values.title ?? ""}>
           {(title) => <SyncTitleToParent title={title} onTitleChange={onTitleChange} />}
         </form.Subscribe>}
-        <div className={classNames('form-component-EditTitle', classes.titleWithMetadata)}>
-          <form.Field name="title">
-            {(field) => (
-              <EditTitle
-                field={field}
-                document={form.state.values}
-              />
-            )}
-          </form.Field>
-        </div>
+        {canEditMetadata ? (
+          <div className={classNames('form-component-EditTitle', classes.titleWithMetadata)}>
+            <form.Field name="title">
+              {(field) => (
+                <EditTitle
+                  field={field}
+                  document={form.state.values}
+                />
+              )}
+            </form.Field>
+          </div>
+        ) : (
+          <div className={classes.readOnlyTitle}>
+            {initialData.title}
+          </div>
+        )}
+        {!canEditMetadata && <CollabEditorPermissionsNotices post={initialData} />}
       </LegacyFormGroupLayout>
 
       {!(isEvent || isDialogue) && (
@@ -687,18 +713,18 @@ const PostForm = ({
           <div className={classes.metadataRow}>
             <span className={classes.metaAuthorInfo}>
               by{" "}
-              <span className={classes.metaAuthorName}>{currentUser?.displayName}</span>
+              <span className={classes.metaAuthorName}>{initialData.user?.displayName ?? currentUser?.displayName}</span>
               <form.Field name="coauthorUserIds">
                 {(field) => <>
                   {(field.state.value ?? []).map((userId) => (
                     <span key={userId}>
                       , <UsersNameWrapper documentId={userId} simple className={classes.metaCoauthorName} />
-                      <span className={classes.metaCoauthorRemove} onClick={() => {
+                      {canEditMetadata && <span className={classes.metaCoauthorRemove} onClick={() => {
                         field.handleChange((field.state.value ?? []).filter((uid) => uid !== userId));
-                      }}>&times;</span>
+                      }}>&times;</span>}
                     </span>
                   ))}
-                  {userCanEditCoauthors(currentUser) && (
+                  {canEditMetadata && userCanEditCoauthors(currentUser) && (
                     <button
                       type="button"
                       className={classes.addCoauthorButton}
@@ -719,7 +745,7 @@ const PostForm = ({
               }
             </span>
 
-            <form.Subscribe selector={(s) => ({ postCategory: s.values.postCategory, url: s.values.url })}>
+            {canEditMetadata && <form.Subscribe selector={(s) => ({ postCategory: s.values.postCategory, url: s.values.url })}>
               {({ postCategory, url }) => {
                 const isLinkpost = postCategory === "linkpost";
                 const { linkpostDomain } = detectLinkpost({ url });
@@ -842,10 +868,10 @@ const PostForm = ({
                   </button>
                 );
               }}
-            </form.Subscribe>
+            </form.Subscribe>}
           </div>
 
-          {showCoauthorSearch && (
+          {canEditMetadata && showCoauthorSearch && (
             <div className={classes.coauthorSearchRow}>
               <ErrorBoundary>
                 <form.Field name="coauthorUserIds">
@@ -896,7 +922,7 @@ const PostForm = ({
         </div>
       </LegacyFormGroupLayout>
 
-      {isEvent && <LegacyFormGroupLayout label={"Event Details"}>
+      {canEditMetadata && isEvent && <LegacyFormGroupLayout label={"Event Details"}>
         <div className={classes.fieldWrapper}>
           <form.Field name="onlineEvent">
             {(field) => (
@@ -1102,7 +1128,7 @@ const PostForm = ({
         </div>}
       </LegacyFormGroupLayout>}
 
-      {sidebarPortalTarget && sidebarPanel && createPortal(
+      {canEditMetadata && sidebarPortalTarget && sidebarPanel && createPortal(
         <EditorSettingsSidebar
           form={form}
           initialData={initialData}
@@ -1118,8 +1144,13 @@ const PostForm = ({
         sidebarPortalTarget
       )}
 
-      {/* On mobile (below md), show bottom bar with Save/Publish + bottom sheet for settings */}
-      <MobileEditorBottomBar
+      {/* 
+          Technically logged out users should have access to the comments panel
+          but they can always just click on a post segment with an inline comment
+          to open it, so this only matters if there aren't already any comments
+          and they explicitly want to leave a comment that's not on a quoted segment.
+      */}
+      {canEditMetadata && <MobileEditorBottomBar
         form={form}
         initialData={initialData}
         formType={formType}
@@ -1132,7 +1163,7 @@ const PostForm = ({
         addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
         addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
         addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
-      />
+      />}
     </form>
     </InlineCommentsPanelContext.Provider>
     </EditorUserModeContext.Provider>

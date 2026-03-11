@@ -90,11 +90,11 @@ can be found at https://www.lesswrong.com/account?tab=preferences. To give an AI
 agent access, the user needs to press the Share button, change the permissions
 for "Anyone with the link can" to "Edit", then copy the edit-post URL for you.
 The URL will look like this:
-    https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ (or /collaborateOnPost?postId=XYZXYZ&key=XYZXYZ, which is functionally equivalent)
+    https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ
 The key in the URL is called the "link sharing key"; do not share this key with
 anyone unless the user is asking you to give that person permission to edit
 the post. Once you have the post URL, read the post at:
-    GET /api/editPost?postId=[id]&key=[linkSharingKey] (even if the user-provided URL uses the /collaborateOnPost route)
+    GET /api/editPost?postId=[id]&key=[linkSharingKey]
 
 When making POST requests to these endpoints, pipe the JSON body from a heredoc
 to avoid shell escaping issues (some environments mangle characters like ! in

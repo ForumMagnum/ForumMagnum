@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import classNames from "classnames";
-import { EditablePost, PostSubmitMeta, userCanEditCoauthors, getPostCollaborateUrl, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, userCanEditCoauthors, extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "@/lib/collections/posts/helpers";
 import { postStatusLabels, MODERATION_GUIDELINES_OPTIONS } from "@/lib/collections/posts/constants";
 import { getDefaultEditorPlaceholder } from "@/lib/editor/defaultEditorPlaceholder";
 import { hasGoogleDocImportSetting, isEAForum, isLWorAF } from "@/lib/instanceSettings";
@@ -430,6 +430,8 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     gap: 6,
     width: "100%",
     padding: "7px 12px",
+    marginTop: 16,
+    marginBottom: 14,
     borderRadius: 8,
     border: theme.palette.greyBorder("1px", 0.12),
     background: "transparent",
@@ -831,7 +833,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                       anyoneWithLinkCan: "read",
                     });
                     // Copy link after enabling
-                    const url = getPostCollaborateUrl(postId, true, linkSharingKey);
+                    const url = postGetEditUrl(postId, true, linkSharingKey);
                     void navigator.clipboard.writeText(url)
                       .then(() => flash("Link sharing enabled & link copied"))
                       .catch(() => flash("Failed to copy link"));
@@ -843,7 +845,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
               }
 
               return <CopyToClipboard
-                text={getPostCollaborateUrl(postId, true, linkSharingKey)}
+                text={postGetEditUrl(postId, true, linkSharingKey)}
                 onCopy={() => flash("Link copied")}
               >
                 <button type="button" className={classes.copyLinkButton}>

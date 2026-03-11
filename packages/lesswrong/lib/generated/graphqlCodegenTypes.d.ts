@@ -16067,6 +16067,22 @@ type PostsEditFormUserQueryVariables = Exact<{
 
 type PostsEditFormUserQuery = PostsEditFormUserQuery_Query;
 
+type LinkSharingEditQueryQuery_getLinkSharedPost_Post = (
+  { __typename?: 'Post' }
+  & PostsEditMutationFragment
+);
+
+type LinkSharingEditQueryQuery_Query = { __typename?: 'Query', getLinkSharedPost: LinkSharingEditQueryQuery_getLinkSharedPost_Post | null };
+
+
+type LinkSharingEditQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey: Scalars['String']['input'];
+}>;
+
+
+type LinkSharingEditQueryQuery = LinkSharingEditQueryQuery_Query;
+
 type PostsGroupDetailsQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = (
   { __typename?: 'Localgroup' }
   & localGroupsHomeFragment

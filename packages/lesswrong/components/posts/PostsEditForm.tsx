@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useMessages } from '../common/withMessages';
-import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl, postGetEditUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
+import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
@@ -15,6 +15,7 @@ import { EditorContext } from './EditorContext';
 import Loading from "../vulcan-core/Loading";
 import PermanentRedirect from "../common/PermanentRedirect";
 import Error404 from "../common/Error404";
+import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import PostsAcceptTos from "./PostsAcceptTos";
 import ForeignCrosspostEditForm from "./ForeignCrosspostEditForm";
 import RateLimitWarning from "../editor/RateLimitWarning";
@@ -43,6 +44,14 @@ const UsersCurrentPostRateLimitQuery = gql(`
       result {
         ...UsersCurrentPostRateLimit
       }
+    }
+  }
+`);
+
+const LinkSharingEditQuery = gql(`
+  query LinkSharingEditQuery($postId: String!, $linkSharingKey: String!) {
+    getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {
+      ...PostsEditMutationFragment
     }
   }
 `);
@@ -160,11 +169,29 @@ const PostsEditFormInner = ({ documentId, version }: {
   const [editorState, setEditorState] = useState<Editor|null>(null);
   const afNonMemberSuccessHandling = useAfNonMemberSuccessHandling();
 
-  const { loading, data: dataPost } = useQuery(PostsEditFormQuery, {
+  const hasLinkSharingKey = !!query.key;
+
+  // Standard query — used when no link-sharing key is present
+  const { loading: loadingStandard, data: dataPost } = useQuery(PostsEditFormQuery, {
     variables: { documentId: documentId, version: version ?? 'draft' },
     fetchPolicy: 'network-only',
+    skip: hasLinkSharingKey,
   });
-  const document = dataPost?.post?.result;
+
+  // Link-sharing query — used when a link-sharing key is in the URL. This
+  // handles first-time link-sharing visitors who aren't yet in
+  // linkSharingKeyUsedBy and wouldn't pass the standard resolver's access check.
+  const { loading: loadingLinkShared, data: dataLinkShared, error: linkSharedError } = useQuery(LinkSharingEditQuery, {
+    variables: { postId: documentId, linkSharingKey: query.key || "" },
+    fetchPolicy: 'network-only',
+    skip: !hasLinkSharingKey,
+  });
+
+  const loading = hasLinkSharingKey ? loadingLinkShared : loadingStandard;
+  const document = hasLinkSharingKey
+    ? dataLinkShared?.getLinkSharedPost
+    : dataPost?.post?.result;
+
   const [liveTitle, setLiveTitle] = useState("");
   useEffect(() => {
     setLiveTitle(document?.title ?? "");
@@ -187,23 +214,19 @@ const PostsEditFormInner = ({ documentId, version }: {
       wasEverDraft.current = isDraft;
     }
   }, [isDraft]);
-  
+
   if (loading) {
     return <Loading/>
   }
 
-  // If we only have read access to this post, but it's shared with us,
-  // redirect to the collaborative editor.
-  if (document && !canUserEditPostMetadata(currentUser, document) && !userIsPodcaster(currentUser)) {
-    return <PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
+  // Link-sharing query failed (invalid key, or sharing explicitly set to "none")
+  if (hasLinkSharingKey && linkSharedError) {
+    if (isMissingDocumentError(linkSharedError)) {
+      return <Error404/>
+    }
+    return <ErrorAccessDenied/>
   }
-  
-  // If we don't have access at all but a link-sharing key was provided, redirect to the
-  // collaborative editor
-  if (!document && !loading && query?.key) {
-    return <PermanentRedirect url={getPostCollaborateUrl(documentId, false, query.key)} status={302}/>
-  }
-  
+
   // If the post has a link-sharing key which is not in the URL, redirect to add
   // the link-sharing key to the URL. (linkSharingKey has field-level
   // permissions so it will only be present if we've either already used the
@@ -211,7 +234,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   if (document?.linkSharingKey && !(query?.key)) {
     return <PermanentRedirect url={postGetEditUrl(document._id, false, document.linkSharingKey)} status={302}/>
   }
-  
+
   // If we don't have the post and none of the earlier cases applied, we either
   // have an invalid post ID or the post is a draft that we don't have access
   // to.
@@ -224,7 +247,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   }
 
   // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId
+  const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId && currentUser?._id === document.userId;
   const rightColumnChildren = (hasSidenotes() || isEAForum()) ? <>
     {/* On LW, we render a portal target div in the right column. PostForm will use
     createPortal to render the EditorSettingsSidebar into this target, since it needs
