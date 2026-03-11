@@ -28,7 +28,7 @@ const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
     }
   });
   
-  if (!currentUser?.markDownPostEditor && !currentUser?.isAdmin && !currentUser?.beta) return null
+  if (!currentUser) return null
   const editors = getEditorsForUser(currentUser)
   
   return <>
