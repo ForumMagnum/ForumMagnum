@@ -285,6 +285,9 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   accordionContent: {
     paddingBottom: 14,
   },
+  tagSection: {
+    minHeight: 106,
+  },
   fieldWrapper: {
     marginTop: 6,
     marginBottom: 6,
@@ -722,11 +725,12 @@ const STICKY_PRIORITIES: Record<number, string> = {
   4: "Max",
 };
 
-function AccordionSection({ title, defaultOpen = false, children, className }: {
+function AccordionSection({ title, defaultOpen = false, children, className, contentClassName }: {
   title: string;
   defaultOpen?: boolean;
   children: React.ReactNode;
   className?: string;
+  contentClassName?: string;
 }) {
   const classes = useStyles(styles);
   const [open, setOpen] = useState(defaultOpen);
@@ -740,7 +744,7 @@ function AccordionSection({ title, defaultOpen = false, children, className }: {
           className={classNames(classes.accordionIcon, { [classes.accordionIconOpen]: open })}
         />
       </div>
-      {open && <div className={classes.accordionContent}>{children}</div>}
+      {open && <div className={classNames(classes.accordionContent, contentClassName)}>{children}</div>}
     </div>
   );
 }
@@ -1173,7 +1177,7 @@ const EditorSettingsSidebar = ({
 
       {mode === "settings" && <div className={classes.panel}>
         {canSeeTags && (
-          <AccordionSection title="Wikitags" defaultOpen>
+          <AccordionSection title="Wikitags" defaultOpen contentClassName={classes.tagSection}>
             <form.Field name="tagRelevance">
               {() => (
                 <FooterTagList
@@ -1246,7 +1250,6 @@ const EditorSettingsSidebar = ({
         )}
 
         <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
-          {/* <div className={classes.moderationGuidelinesLabel}>Custom guidelines</div> */}
           <form.Field name="moderationGuidelines">
             {(field) => (
               <EditorFormComponent

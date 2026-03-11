@@ -591,6 +591,7 @@ const PostForm = ({
               <ForumIcon icon="PublishSettings" className={classes.icon} />
             </button>
             </LWTooltip>
+            <LWTooltip title="Sharing and collaboration">
             <button
               type="button"
               className={classNames(classes.iconButton, sidebarPanel === "sharing" && classes.iconButtonActive)}
@@ -599,6 +600,8 @@ const PostForm = ({
             >
               <ForumIcon icon="GroupAdd" className={classes.icon} />
             </button>
+            </LWTooltip>
+            <LWTooltip title="Settings">
             <button
               type="button"
               className={classNames(classes.iconButton, sidebarPanel === "settings" && classes.iconButtonActive)}
@@ -607,7 +610,9 @@ const PostForm = ({
             >
               <ForumIcon icon="Settings" className={classes.icon} />
             </button>
-            {(commentCount > 0 || showComments) && <button
+            </LWTooltip>
+            {(commentCount > 0 || showComments) && <LWTooltip title="Comments">
+            <button
               type="button"
               className={classNames(classes.iconButton, showComments && classes.iconButtonActive)}
               title={showComments ? "Hide comments" : "Show comments"}
@@ -617,7 +622,8 @@ const PostForm = ({
               }}
             >
               <ForumIcon icon="Comment" className={classes.icon} />
-            </button>}
+            </button>
+            </LWTooltip>}
             {editorType === "lexical" && (
               <div className={classes.editorModeSelector}>
                 <div className={classNames(
