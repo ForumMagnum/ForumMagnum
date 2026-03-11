@@ -103,7 +103,12 @@ export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: Pic
 export function stableSortTags<
   T extends {name: string; core: boolean},
   TR extends {baseScore: number} | null | undefined
->(tagInfo: Array<{ tag: T; tagRel: TR }>): Array<{ tag: T; tagRel: TR }> {
+>(
+  tagInfo: Array<{ tag: T; tagRel: TR }>,
+  options?: { coreTags?: "first"|"last" },
+): Array<{ tag: T; tagRel: TR }> {
+  const coreTagsSort = (options?.coreTags === "first" ? 1 : -1);
+
   return [...tagInfo].sort((a, b) => {
     const tagA = a.tag;
     const tagB = b.tag;
@@ -111,8 +116,8 @@ export function stableSortTags<
     const tagRelB = b.tagRel;
 
     if (tagA.core !== tagB.core) {
-      // Core tags come first with isFriendlyUI(), last otherwise
-      return (tagA.core ? -1 : 1) * (isFriendlyUI() ? 1 : -1);
+      // Core tags come first unless options?.coreTags is "last"
+      return (tagA.core ? -1 : 1) * coreTagsSort;
     }
 
     if (tagRelA && tagRelB) {
