@@ -627,7 +627,7 @@ const PostForm = ({
         {() => (
           <div className={classes.topRightControls}>
             {canEditMetadata && <>
-              <LWTooltip title="Publishing menu">
+              <LWTooltip title="Publishing menu" placement="left">
               <button
                 type="button"
                 className={classNames(
@@ -642,7 +642,7 @@ const PostForm = ({
                 <ForumIcon icon="PublishSettings" className={classes.icon} />
               </button>
               </LWTooltip>
-              <LWTooltip title="Sharing and collaboration">
+              <LWTooltip title="Sharing and collaboration" placement="left">
               <button
                 type="button"
                 className={classNames("editor-sidebar-toggle", classes.iconButton, sidebarPanel === "sharing" && classes.iconButtonActive)}
@@ -652,7 +652,7 @@ const PostForm = ({
                 <ForumIcon icon="GroupAdd" className={classes.icon} />
               </button>
               </LWTooltip>
-              <LWTooltip title="Settings">
+              <LWTooltip title="Settings" placement="left">
               <button
                 type="button"
                 className={classNames("editor-sidebar-toggle", classes.iconButton, sidebarPanel === "settings" && classes.iconButtonActive)}
@@ -663,7 +663,7 @@ const PostForm = ({
               </button>
               </LWTooltip>
             </>}
-            {(commentCount > 0 || showComments) && <LWTooltip title="Comments">
+            {(commentCount > 0 || showComments) && <LWTooltip title="Comments" placement="left">
             <button
               type="button"
               className={classNames(classes.iconButton, showComments && classes.iconButtonActive)}
