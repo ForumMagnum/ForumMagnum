@@ -20,21 +20,20 @@ import PostsItemMeta from "../posts/PostsItemMeta";
 import CommentsNode from "../comments/CommentsNode";
 import PostsHighlight from "../posts/PostsHighlight";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RecentDiscussionThread", (theme: ThemeType) => ({
   root: {
     marginBottom: 32,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
     borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
-  },
-  plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
     backdropFilter: theme.palette.filters.bannerAdBlur,
   },
-  primaryBackground: {
-    backgroundColor: theme.palette.background.primaryDim,
+  cardStyle: {
+    border: theme.palette.border.commentBorder,
   },
   postStyle: theme.typography.postStyle,
   postItem: {
@@ -78,12 +77,19 @@ const styles = (theme: ThemeType) => ({
   content :{
     marginLeft: 4,
     marginRight: 4,
-    paddingBottom: 1
+    paddingBottom: 1,
+    "$cardStyle &": {
+      marginRight: 0,
+    },
   },
   commentsList: {
     marginTop: 12,
     marginLeft: 12,
     marginBottom: 8,
+    "$cardStyle &": {
+      marginLeft: 8,
+      marginRight: 0,
+    },
     [theme.breakpoints.down('sm')]: {
       marginLeft: 0,
       marginRight: 0,
@@ -91,12 +97,17 @@ const styles = (theme: ThemeType) => ({
     }
   },
   post: {
-    paddingTop: theme.isFriendlyUI ? 12 : 18,
+    paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
     borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
     marginBottom: 4,
     
+    "$cardStyle &": {
+      paddingLeft: 12,
+      paddingTop: 12,
+      paddingRight: 12,
+    },
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
       paddingLeft: 14,
@@ -150,7 +161,7 @@ const styles = (theme: ThemeType) => ({
     height: '1em',
     color: theme.palette.icon.dim6,
   },
-})
+}))
 
 const RecentDiscussionThread = ({
   post,
@@ -159,10 +170,9 @@ const RecentDiscussionThread = ({
   expandAllThreads: initialExpandAllThreads,
   maxLengthWords,
   smallerFonts,
-  isSubforumIntroPost,
+  cardStyle,
   commentTreeOptions = {},
   dismissCallback = () => {},
-  classes,
 }: {
   post: PostsRecentDiscussion,
   comments?: Array<CommentsList>,
@@ -170,12 +180,11 @@ const RecentDiscussionThread = ({
   expandAllThreads?: boolean,
   maxLengthWords?: number,
   smallerFonts?: boolean,
-  isSubforumIntroPost?: boolean,
+  cardStyle?: boolean,
   commentTreeOptions?: CommentTreeOptions,
   dismissCallback?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
+  const classes = useStyles(styles);
   const {
     isSkippable,
     showHighlight,
@@ -205,33 +214,19 @@ const RecentDiscussionThread = ({
     [classes.noComments]: post.commentCount === null
   });
   return (
-    <div ref={viewTrackingRef} className={classNames(
-      classes.root,
-      {
-        [classes.plainBackground]: !isSubforumIntroPost,
-        [classes.primaryBackground]: isSubforumIntroPost
-      }
-    )}>
-      <div className={classNames(
-        classes.post,
-        {
-          [classes.primaryBackground]: isSubforumIntroPost
-        }
-      )}>
+    <div ref={viewTrackingRef} className={classNames(classes.root, {
+      [classes.cardStyle]: cardStyle,
+    })}>
+      <div className={classes.post}>
         <div className={classes.postItem}>
           {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
           <div className={classes.titleAndActions}>
             <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})} eventProps={{intent: 'expandPost'}}>
               {post.title}
             </Link>
-            {isSubforumIntroPost && currentUser ? <Button
-              className={classes.closeButton}
-              onClick={dismissCallback}
-            >
-              <CloseIcon className={classes.closeIcon} />
-            </Button> : <div className={classes.actions}>
+            <div className={classes.actions}>
               <PostActionsButton post={post} autoPlace vertical />
-            </div>}
+            </div>
           </div>
           <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
             <PostsItemMeta post={post} hideTags={!isFriendlyUI()}/>
@@ -250,7 +245,7 @@ const RecentDiscussionThread = ({
                 startThreadTruncated={true}
                 expandAllThreads={expandAllThreads}
                 expandNewComments={false}
-                nestingLevel={1}
+                nestingLevel={cardStyle ? 2 : 1}
                 comment={comment.item}
                 childComments={comment.children}
                 key={comment.item._id}
@@ -265,7 +260,6 @@ const RecentDiscussionThread = ({
 
 export default registerComponent(
   'RecentDiscussionThread', RecentDiscussionThread, {
-    styles,
     hocs: [withErrorBoundary],
     areEqual: {
       post: (before, after) => (before?._id === after?._id),
@@ -273,5 +267,4 @@ export default registerComponent(
     },
   }
 );
-
 

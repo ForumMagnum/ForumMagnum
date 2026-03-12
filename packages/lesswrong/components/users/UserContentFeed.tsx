@@ -11,7 +11,8 @@ import classNames from 'classnames';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import { MixedTypeFeed } from '../common/MixedTypeFeed';
-import { UserContentFeedQuery } from '../common/feeds/feedQueries';
+import CommentsNode from '../comments/CommentsNode';
+import RecentDiscussionThread from '../recentDiscussion/RecentDiscussionThread';
 
 // Queries used only by the "top" sort mode fallback
 const USER_POSTS_QUERY = gql(`
@@ -62,6 +63,41 @@ const THREAD_BY_TOPLEVEL_QUERY = gql(`
     }
   }
 `);
+
+export const UserRecentContentQuery = gql(`
+  query UserRecentContentFeed($userId: String!, $limit: Int, $cutoff: Date, $offset: Int, $sortBy: String, $filter: String) {
+    UserContentFeed(userId: $userId, limit: $limit, cutoff: $cutoff, offset: $offset, sortBy: $sortBy, filter: $filter) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        userPost {
+          ...PostsListWithVotes
+          recentComments {
+            ...CommentsList
+          }
+        }
+        profileComment {
+          ...CommentsList
+          post {
+            ...PostsListWithVotes
+          }
+          topLevelComment {
+            ...CommentsListWithTopLevelComment
+          }
+        }
+        shortformComment {
+          ...CommentsList
+          post {
+            ...PostsListWithVotes
+          }
+        }
+      }
+    }
+  }
+`);
+
 
 export const userContentFeedStyles = defineStyles("UserContentFeed", (theme: ThemeType) => ({
   root: {
@@ -131,6 +167,8 @@ export const userContentFeedStyles = defineStyles("UserContentFeed", (theme: The
     justifyContent: 'center',
     alignItems: 'center',
   },
+  wrapPostItem: {
+  }
 }));
 
 // Renders a comment in the feed by fetching its full thread context and displaying
@@ -274,8 +312,8 @@ function RecentFeed({ userId, filter, feedSettings, removeSideMargins }: {
   const classes = useStyles(userContentFeedStyles);
 
   return (
-    <MixedTypeFeed<typeof UserContentFeedQuery>
-      query={UserContentFeedQuery}
+    <MixedTypeFeed<typeof UserRecentContentQuery>
+      query={UserRecentContentQuery}
       variables={{ userId, sortBy: "new", filter }}
       firstPageSize={20}
       pageSize={20}
@@ -289,30 +327,67 @@ function RecentFeed({ userId, filter, feedSettings, removeSideMargins }: {
               highlight: false,
             };
             return (
-              <UltraFeedPostItem
-                post={post}
-                postMetaInfo={postMetaInfo}
-                index={index ?? 0}
-                settings={feedSettings}
-              />
+              <div className={classes.wrapPostItem}>
+                {/*<UltraFeedPostItem
+                  post={post}
+                  postMetaInfo={postMetaInfo}
+                  index={index ?? 0}
+                  settings={feedSettings}
+                />*/}
+                <RecentDiscussionThread
+                  post={post}
+                  cardStyle
+                  refetch={() => {}}
+                  comments={post.recentComments ?? undefined}
+                  expandAllThreads={false}
+                />
+              </div>
             );
           },
         },
         profileComment: {
           render: (comment, index) => (
-            <PrefetchedThreadItem
+            <CommentsNode
+              key={comment._id}
+              treeOptions={{
+                condensed: false,
+                post: comment.post || undefined,
+                //tag: comment.tag || undefined,
+                showPostTitle: true,
+                forceNotSingleLine: true,
+              }}
+              comment={comment}
+              startThreadTruncated={true}
+              loadChildrenSeparately
+              loadDirectReplies
+            />
+            /*<PrefetchedThreadItem
               comment={comment}
               index={index ?? 0}
               feedSettings={feedSettings}
-            />
+            />*/
           ),
         },
         shortformComment: {
           render: (comment, index) => (
-            <PrefetchedThreadItem
+            /*<PrefetchedThreadItem
               comment={comment}
               index={index ?? 0}
               feedSettings={feedSettings}
+            />*/
+            <CommentsNode
+              key={comment._id}
+              treeOptions={{
+                condensed: false,
+                post: comment.post || undefined,
+                //tag: comment.tag || undefined,
+                showPostTitle: true,
+                forceNotSingleLine: true,
+              }}
+              comment={comment}
+              startThreadTruncated={true}
+              loadChildrenSeparately
+              loadDirectReplies
             />
           ),
         },
