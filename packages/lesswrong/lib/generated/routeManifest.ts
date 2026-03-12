@@ -72,9 +72,6 @@ export const routeTrie = {
         "moderationTemplates": {
           "hasPage": true
         },
-        "modgpt": {
-          "hasPage": true
-        },
         "random-user": {
           "hasPage": true
         },
@@ -101,7 +98,6 @@ export const routeTrie = {
         "migrations": "migrations",
         "moderation": "moderation",
         "moderationtemplates": "moderationTemplates",
-        "modgpt": "modgpt",
         "random-user": "random-user",
         "recentlyactiveusers": "recentlyActiveUsers",
         "supermod": "supermod",
