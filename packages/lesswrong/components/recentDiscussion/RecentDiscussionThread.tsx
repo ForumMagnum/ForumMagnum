@@ -174,7 +174,7 @@ const RecentDiscussionThread = ({
   commentTreeOptions = {},
   dismissCallback = () => {},
 }: {
-  post: PostsRecentDiscussion,
+  post: PostsRecentDiscussion|PostsListWithVotes,
   comments?: Array<CommentsList>,
   refetch: () => void,
   expandAllThreads?: boolean,
