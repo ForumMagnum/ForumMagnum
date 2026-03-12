@@ -1,7 +1,7 @@
-import Plugin from "@ckeditor/ckeditor5-core/src/plugin";
-import ButtonView from "@ckeditor/ckeditor5-ui/src/button/buttonview";
+import { Plugin } from "@ckeditor/ckeditor5-core/src/plugin";
+import { ButtonView } from "@ckeditor/ckeditor5-ui/src/button/buttonview";
 import { toWidget } from "@ckeditor/ckeditor5-widget/src/utils";
-import Widget from "@ckeditor/ckeditor5-widget/src/widget";
+import { Widget } from "@ckeditor/ckeditor5-widget/src/widget";
 import CTAButtonForm from "./cta-button-form";
 
 import buttonIcon from "./ckeditor5-cta-button.svg";

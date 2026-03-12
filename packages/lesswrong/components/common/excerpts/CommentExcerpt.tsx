@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
 
@@ -28,9 +27,6 @@ const CommentExcerpt = ({
   );
 }
 
-export default registerComponent(
-  "CommentExcerpt",
-  CommentExcerpt,
-);
+export default CommentExcerpt;
 
 

@@ -1,6 +1,4 @@
 'use client';
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect } from 'react';
 import { isServer } from '@/lib/executionEnvironment';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
@@ -31,6 +29,4 @@ const PermanentRedirect = ({url, status}: {
   return null;
 };
 
-export default registerComponent('PermanentRedirect', PermanentRedirect);
-
-
+export default PermanentRedirect;

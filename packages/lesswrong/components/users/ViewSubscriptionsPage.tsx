@@ -9,11 +9,10 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import {
   allowSubscribeToSequencePosts,
   allowSubscribeToUserComments,
-  userHasPeopleDirectory,
   userHasSubscribeTabFeed,
 } from '../../lib/betas';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
-import { isLW, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isLW } from '../../lib/instanceSettings';
 import { CountItemsContextProvider, useCountItemsContext } from '../hooks/CountItemsContext';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SubscriptionsList from "./SubscriptionsList";
@@ -50,15 +49,11 @@ const NoSubscriptionsMessage = ({currentUser, classes}: {
     return null;
   }
 
-  const usersLink = userHasPeopleDirectory(currentUser)
-    ? <Link to="/people-directory">users</Link>
-    : "users";
-
   return (
     <div className={classes.noSubscriptions}>
       You have no active subscriptions. Subscribe to{" "}
-      <Link to={`/${taggingNamePluralSetting.get()}`}>{taggingNamePluralSetting.get()}</Link>,{" "}
-      <Link to="/allPosts">posts</Link>, or {usersLink}{" "}
+      <Link to={`/wikitags`}>wikitags</Link>,{" "}
+      <Link to="/allPosts">posts</Link>, or users{" "}
       to receive notifications for new content.
     </div>
   );

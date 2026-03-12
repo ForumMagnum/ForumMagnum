@@ -22,6 +22,7 @@ interface Query {
   unreadNotificationCounts: NotificationCounts;
   NotificationDisplays: NotificationDisplaysResult | null;
   Lightcone2024FundraiserStripeAmounts: Array<number> | null;
+  Lightcone2025FundraiserAirtableAmounts: number;
   PetrovDay2024CheckNumberOfIncoming: PetrovDay2024CheckNumberOfIncomingData | null;
   petrov2024checkIfNuked: boolean | null;
   PetrovDayCheckIfIncoming: PetrovDayCheckIfIncomingData | null;
@@ -29,12 +30,12 @@ interface Query {
   UsersReadPostsOfTargetUser: Array<Post> | null;
   UserReadHistory: UserReadHistoryResult | null;
   PostsUserCommentedOn: UserReadHistoryResult | null;
-  PostIsCriticism: boolean | null;
-  DigestPlannerData: Array<DigestPlannerPost>;
-  DigestPosts: Array<Post> | null;
+  ProfileDiamondPosts: ProfileDiamondPostsResult;
+  ProfileDiamondComments: ProfileDiamondCommentsResult;
+  LastCuratedDate: LastCuratedDateResult;
   HomepageCommunityEvents: HomepageCommunityEventMarkersResult;
-  DigestHighlights: DigestHighlightsResult | null;
-  DigestPostsThisWeek: DigestPostsThisWeekResult | null;
+  HomepageCommunityEventPosts: HomepageCommunityEventPostsResult;
+  HocuspocusAuth: HocuspocusAuth | null;
   CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult | null;
   RecentlyActiveDialogues: RecentlyActiveDialoguesResult | null;
   MyDialogues: MyDialoguesResult | null;
@@ -44,23 +45,17 @@ interface Query {
   PostsWithActiveDiscussion: PostsWithActiveDiscussionResult | null;
   PostsBySubscribedAuthors: PostsBySubscribedAuthorsResult | null;
   PostsWithApprovedJargon: PostsWithApprovedJargonResult | null;
+  CurationCandidatePosts: CurationCandidatePostsResult | null;
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
-  SubscribedFeed: SubscribedFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
-  SubforumMagicFeed: SubforumMagicFeedQueryResults;
-  SubforumTopFeed: SubforumTopFeedQueryResults;
-  SubforumRecentCommentsFeed: SubforumRecentCommentsFeedQueryResults;
-  SubforumNewFeed: SubforumNewFeedQueryResults;
-  SubforumOldFeed: SubforumOldFeedQueryResults;
-  CurrentFrontpageSurvey: SurveySchedule | null;
+  UserContentFeed: UserContentFeedQueryResults;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
   RandomTag: Tag;
   ActiveTagCount: number;
   TagPreview: TagPreviewWithSummaries | null;
   TagsByCoreTagId: TagWithTotalCount;
-  UserWrappedDataByYear: WrappedDataByYear | null;
   SiteData: Site | null;
   latestDialogueMessages: Array<string> | null;
   getLinkSharedPost: Post | null;
@@ -76,10 +71,13 @@ interface Query {
   SearchSynonyms: Array<string>;
   getCrosspost: any;
   RevisionsDiff: string | null;
+  ReviewResultsTableData: ReviewResultsTableData | null;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
-  advisorRequest: SingleAdvisorRequestOutput | null;
-  advisorRequests: MultiAdvisorRequestOutput | null;
+  getBookWordCount: number | null;
+  getSequenceStats: SequenceStats | null;
+  reviewPredictionPosts: Array<Post>;
+  adminEmailPreviewAudience: AdminEmailAudiencePreview;
   arbitalTagContentRel: SingleArbitalTagContentRelOutput | null;
   arbitalTagContentRels: MultiArbitalTagContentRelOutput | null;
   ban: SingleBanOutput | null;
@@ -108,28 +106,16 @@ interface Query {
   dialogueChecks: MultiDialogueCheckOutput | null;
   dialogueMatchPreference: SingleDialogueMatchPreferenceOutput | null;
   dialogueMatchPreferences: MultiDialogueMatchPreferenceOutput | null;
-  digestPost: SingleDigestPostOutput | null;
-  digestPosts: MultiDigestPostOutput | null;
-  digest: SingleDigestOutput | null;
-  digests: MultiDigestOutput | null;
-  electionCandidate: SingleElectionCandidateOutput | null;
-  electionCandidates: MultiElectionCandidateOutput | null;
-  electionVote: SingleElectionVoteOutput | null;
-  electionVotes: MultiElectionVoteOutput | null;
   elicitQuestionPrediction: SingleElicitQuestionPredictionOutput | null;
   elicitQuestionPredictions: MultiElicitQuestionPredictionOutput | null;
   elicitQuestion: SingleElicitQuestionOutput | null;
   elicitQuestions: MultiElicitQuestionOutput | null;
-  featuredResource: SingleFeaturedResourceOutput | null;
-  featuredResources: MultiFeaturedResourceOutput | null;
   fieldChange: SingleFieldChangeOutput | null;
   fieldChanges: MultiFieldChangeOutput | null;
-  forumEvent: SingleForumEventOutput | null;
-  forumEvents: MultiForumEventOutput | null;
-  gardenCode: SingleGardenCodeOutput | null;
-  gardenCodes: MultiGardenCodeOutput | null;
   googleServiceAccountSession: SingleGoogleServiceAccountSessionOutput | null;
   googleServiceAccountSessions: MultiGoogleServiceAccountSessionOutput | null;
+  iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
+  iframeWidgetSrcdocs: MultiIframeWidgetSrcdocOutput | null;
   jargonTerm: SingleJargonTermOutput | null;
   jargonTerms: MultiJargonTermOutput | null;
   lWEvent: SingleLWEventOutput | null;
@@ -178,14 +164,6 @@ interface Query {
   spotlights: MultiSpotlightOutput | null;
   subscription: SingleSubscriptionOutput | null;
   subscriptions: MultiSubscriptionOutput | null;
-  surveyQuestion: SingleSurveyQuestionOutput | null;
-  surveyQuestions: MultiSurveyQuestionOutput | null;
-  surveyResponse: SingleSurveyResponseOutput | null;
-  surveyResponses: MultiSurveyResponseOutput | null;
-  surveySchedule: SingleSurveyScheduleOutput | null;
-  surveySchedules: MultiSurveyScheduleOutput | null;
-  survey: SingleSurveyOutput | null;
-  surveys: MultiSurveyOutput | null;
   tagFlag: SingleTagFlagOutput | null;
   tagFlags: MultiTagFlagOutput | null;
   tagRel: SingleTagRelOutput | null;
@@ -196,10 +174,6 @@ interface Query {
   typingIndicators: MultiTypingIndicatorOutput | null;
   ultraFeedEvent: SingleUltraFeedEventOutput | null;
   ultraFeedEvents: MultiUltraFeedEventOutput | null;
-  userEAGDetail: SingleUserEAGDetailOutput | null;
-  userEAGDetails: MultiUserEAGDetailOutput | null;
-  userJobAd: SingleUserJobAdOutput | null;
-  userJobAds: MultiUserJobAdOutput | null;
   userMostValuablePost: SingleUserMostValuablePostOutput | null;
   userMostValuablePosts: MultiUserMostValuablePostOutput | null;
   userRateLimit: SingleUserRateLimitOutput | null;
@@ -217,6 +191,8 @@ interface Mutation {
   NewUserCompleteProfile: NewUserCompletedProfile | null;
   UserExpandFrontpageSection: boolean | null;
   UserUpdateSubforumMembership: User | null;
+  karmaChangesChecked: boolean;
+  SoftDeleteUser: boolean;
   setVotePost: Post | null;
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;
@@ -227,8 +203,6 @@ interface Mutation {
   performVoteTagRel: VoteResultTagRel | null;
   setVoteRevision: Revision | null;
   performVoteRevision: VoteResultRevision | null;
-  setVoteElectionCandidate: ElectionCandidate | null;
-  performVoteElectionCandidate: VoteResultElectionCandidate | null;
   setVoteTag: Tag | null;
   performVoteTag: VoteResultTag | null;
   setVoteMultiDocument: MultiDocument | null;
@@ -247,7 +221,6 @@ interface Mutation {
   markConversationRead: boolean;
   sendEventTriggeredDM: boolean;
   initiateConversation: Conversation | null;
-  editSurvey: Survey | null;
   mergeTags: boolean | null;
   promoteLensToMain: boolean | null;
   RefreshDbSettings: boolean | null;
@@ -255,9 +228,6 @@ interface Mutation {
   signup: LoginReturnData | null;
   logout: LoginReturnData | null;
   resetPassword: string | null;
-  AddForumEventVote: boolean | null;
-  RemoveForumEventVote: boolean | null;
-  RemoveForumEventSticker: boolean | null;
   unlockPost: Post | null;
   revertPostToRevision: Post | null;
   importUrlAsDraftPost: ExternalPostImportData;
@@ -265,9 +235,15 @@ interface Mutation {
   autosaveRevision: Revision | null;
   lockThread: boolean;
   unlockThread: boolean;
+  rejectContentAndRemoveUserFromQueue: boolean;
+  approveUserCurrentContentOnly: boolean;
+  rerunLlmCheck: AutomatedContentEvaluation;
+  runLlmCheckForDocument: AutomatedContentEvaluation;
+  unlistLlmPost: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
   toggleBookmark: ToggleBookmarkOutput | null;
+  setIsBookmarked: SetIsBookmarkedOutput | null;
   setIsHidden: User;
   markAsReadOrUnread: boolean | null;
   markPostCommentsRead: boolean | null;
@@ -288,8 +264,9 @@ interface Mutation {
   increasePostViewCount: number | null;
   generateCoverImagesForPost: Array<ReviewWinnerArt | null> | null;
   flipSplashArtImage: boolean | null;
-  createAdvisorRequest: AdvisorRequestOutput | null;
-  updateAdvisorRequest: AdvisorRequestOutput | null;
+  upscaleReviewWinnerArt: ReviewWinnerArt | null;
+  adminSendTestEmail: AdminSendTestEmailResult;
+  adminSendBulkEmail: AdminSendBulkEmailResult;
   createBook: BookOutput | null;
   updateBook: BookOutput | null;
   createChapter: ChapterOutput | null;
@@ -304,18 +281,8 @@ interface Mutation {
   updateConversation: ConversationOutput | null;
   createCurationNotice: CurationNoticeOutput | null;
   updateCurationNotice: CurationNoticeOutput | null;
-  createDigestPost: DigestPostOutput | null;
-  updateDigestPost: DigestPostOutput | null;
-  createDigest: DigestOutput | null;
-  updateDigest: DigestOutput | null;
-  createElectionCandidate: ElectionCandidateOutput | null;
-  updateElectionCandidate: ElectionCandidateOutput | null;
-  createElectionVote: ElectionVoteOutput | null;
-  updateElectionVote: ElectionVoteOutput | null;
   createElicitQuestion: ElicitQuestionOutput | null;
   updateElicitQuestion: ElicitQuestionOutput | null;
-  createForumEvent: ForumEventOutput | null;
-  updateForumEvent: ForumEventOutput | null;
   createJargonTerm: JargonTermOutput | null;
   updateJargonTerm: JargonTermOutput | null;
   createLWEvent: LWEventOutput | null;
@@ -346,24 +313,12 @@ interface Mutation {
   createSpotlight: SpotlightOutput | null;
   updateSpotlight: SpotlightOutput | null;
   createSubscription: SubscriptionOutput | null;
-  createSurveyQuestion: SurveyQuestionOutput | null;
-  updateSurveyQuestion: SurveyQuestionOutput | null;
-  createSurveyResponse: SurveyResponseOutput | null;
-  updateSurveyResponse: SurveyResponseOutput | null;
-  createSurveySchedule: SurveyScheduleOutput | null;
-  updateSurveySchedule: SurveyScheduleOutput | null;
-  createSurvey: SurveyOutput | null;
-  updateSurvey: SurveyOutput | null;
   createTagFlag: TagFlagOutput | null;
   updateTagFlag: TagFlagOutput | null;
   createTag: TagOutput | null;
   updateTag: TagOutput | null;
   createUltraFeedEvent: UltraFeedEventOutput | null;
   updateUltraFeedEvent: UltraFeedEventOutput | null;
-  createUserEAGDetail: UserEAGDetailOutput | null;
-  updateUserEAGDetail: UserEAGDetailOutput | null;
-  createUserJobAd: UserJobAdOutput | null;
-  updateUserJobAd: UserJobAdOutput | null;
   createUserMostValuablePost: UserMostValuablePostOutput | null;
   updateUserMostValuablePost: UserMostValuablePostOutput | null;
   createUserRateLimit: UserRateLimitOutput | null;
@@ -377,6 +332,7 @@ interface Mutation {
 interface ContentType {
   type: string;
   data: ContentTypeData;
+  yjsState: string | null;
 }
 
 interface SelectorInput {
@@ -537,6 +493,21 @@ interface RecommendationSettingsInput {
   recommendationspage: RecommendationAlgorithmSettingsInput;
 }
 
+interface MailgunValidationResult {
+  email: string | null;
+  status: string | null;
+  validatedAt: Date | null;
+  httpStatus: number | null;
+  error: string | null;
+  isValid: boolean | null;
+  risk: string | null;
+  reason: string | null;
+  didYouMean: string | null;
+  isDisposableAddress: boolean | null;
+  isRoleAddress: boolean | null;
+  sourceUserId: string | null;
+}
+
 interface RecommendResumeSequence {
   sequence: Sequence | null;
   collection: Collection | null;
@@ -581,7 +552,6 @@ interface NewUserCompletedProfile {
   username: string | null;
   slug: string | null;
   displayName: string | null;
-  subscribedToDigest: boolean | null;
   usernameUnset: boolean | null;
 }
 
@@ -630,11 +600,6 @@ interface VoteResultTagRel {
 
 interface VoteResultRevision {
   document: Revision;
-  showVotingPatternWarning: boolean;
-}
-
-interface VoteResultElectionCandidate {
-  document: ElectionCandidate;
   showVotingPatternWarning: boolean;
 }
 
@@ -834,6 +799,10 @@ interface PostsUserCommentedOnResult {
   posts: Array<Post> | null;
 }
 
+interface LastCuratedDateResult {
+  lastCuratedDate: Date | null;
+}
+
 interface PostReviewFilter {
   startDate: Date | null;
   endDate: Date | null;
@@ -843,12 +812,6 @@ interface PostReviewFilter {
 
 interface PostReviewSort {
   karma: boolean | null;
-}
-
-interface DigestPlannerPost {
-  post: Post;
-  digestPost: DigestPost | null;
-  rating: number;
 }
 
 interface RecombeeRecommendedPost {
@@ -863,6 +826,32 @@ interface RecombeeRecommendedPost {
 interface VertexRecommendedPost {
   post: Post;
   attributionId: string | null;
+}
+
+interface ProfileDiamondPostsResult {
+  results: Array<ProfilePostDiamond>;
+  totalCount: number | null;
+}
+
+interface ProfileDiamondCommentsResult {
+  results: Array<ProfileCommentDiamond>;
+  totalCount: number | null;
+}
+
+interface ProfilePostDiamond {
+  _id: string;
+  slug: string;
+  date: Date;
+  karma: number;
+  isReviewWinner: boolean;
+  isCurated: boolean;
+}
+
+interface ProfileCommentDiamond {
+  id: string;
+  date: Date;
+  karma: number;
+  postId: string;
 }
 
 interface PostWithApprovedJargon {
@@ -881,12 +870,12 @@ interface HomepageCommunityEventMarkersResult {
   events: Array<HomepageCommunityEventMarker>;
 }
 
-interface DigestHighlightsResult {
-  results: Array<Post>;
+interface HomepageCommunityEventPostsResult {
+  posts: Array<Post>;
 }
 
-interface DigestPostsThisWeekResult {
-  results: Array<Post>;
+interface HocuspocusAuth {
+  token: string;
 }
 
 interface CuratedAndPopularThisWeekResult {
@@ -925,6 +914,10 @@ interface PostsWithApprovedJargonResult {
   results: Array<PostWithApprovedJargon>;
 }
 
+interface CurationCandidatePostsResult {
+  results: Array<Post>;
+}
+
 interface AllTagsActivityFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
@@ -953,25 +946,6 @@ interface RecentDiscussionFeedEntry {
   tagRevised: Revision | null;
 }
 
-interface SubscribedPostAndComments {
-  _id: string;
-  post: Post;
-  comments: Array<Comment> | null;
-  expandCommentIds: Array<string> | null;
-  postIsFromSubscribedUser: boolean;
-}
-
-interface SubscribedFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubscribedFeedEntry> | null;
-}
-
-interface SubscribedFeedEntry {
-  type: SubscribedFeedEntryType;
-  postCommented: SubscribedPostAndComments | null;
-}
-
 interface TagHistoryFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
@@ -990,75 +964,18 @@ interface TagHistoryFeedEntry {
   lensOrSummaryMetadataChanged: FieldChange | null;
 }
 
-interface SubforumMagicFeedQueryResults {
+interface UserContentFeedQueryResults {
   cutoff: Date | null;
   endOffset: number;
-  results: Array<SubforumMagicFeedEntry> | null;
+  results: Array<UserContentFeedEntry> | null;
 }
 
-interface SubforumMagicFeedEntry {
-  type: SubforumMagicFeedEntryType;
-  tagSubforumPosts: Post | null;
-  tagSubforumComments: Comment | null;
-  tagSubforumStickyComments: Comment | null;
-}
-
-interface SubforumTopFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubforumTopFeedEntry> | null;
-}
-
-interface SubforumTopFeedEntry {
-  type: SubforumTopFeedEntryType;
-  tagSubforumPosts: Post | null;
-  tagSubforumComments: Comment | null;
-  tagSubforumStickyComments: Comment | null;
-}
-
-interface SubforumRecentCommentsFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubforumRecentCommentsFeedEntry> | null;
-}
-
-interface SubforumRecentCommentsFeedEntry {
-  type: SubforumRecentCommentsFeedEntryType;
-  tagSubforumPosts: Post | null;
-  tagSubforumComments: Comment | null;
-  tagSubforumStickyComments: Comment | null;
-}
-
-interface SubforumNewFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubforumNewFeedEntry> | null;
-}
-
-interface SubforumNewFeedEntry {
-  type: SubforumNewFeedEntryType;
-  tagSubforumPosts: Post | null;
-  tagSubforumComments: Comment | null;
-  tagSubforumStickyComments: Comment | null;
-}
-
-interface SubforumOldFeedQueryResults {
-  cutoff: Date | null;
-  endOffset: number;
-  results: Array<SubforumOldFeedEntry> | null;
-}
-
-interface SubforumOldFeedEntry {
-  type: SubforumOldFeedEntryType;
-  tagSubforumPosts: Post | null;
-  tagSubforumComments: Comment | null;
-  tagSubforumStickyComments: Comment | null;
-}
-
-interface SurveyQuestionInfo {
-  _id: string | null;
-  question: string;
-  format: string;
+interface UserContentFeedEntry {
+  type: UserContentFeedEntryType;
+  profileComment: Comment | null;
+  shortformComment: Comment | null;
+  userPost: Post | null;
+  wikiEdit: Revision | null;
 }
 
 interface DocumentDeletion {
@@ -1092,79 +1009,6 @@ interface TagPreviewWithSummaries {
 interface TagWithTotalCount {
   tags: Array<Tag>;
   totalCount: number;
-}
-
-interface MostReadTopic {
-  slug: string | null;
-  name: string | null;
-  shortName: string | null;
-  count: number | null;
-}
-
-interface TagReadLikelihoodRatio {
-  tagId: string | null;
-  tagName: string | null;
-  tagShortName: string | null;
-  userReadCount: number | null;
-  readLikelihoodRatio: number | null;
-}
-
-interface MostReadAuthor {
-  _id: string | null;
-  slug: string | null;
-  displayName: string | null;
-  profileImageId: string | null;
-  count: number | null;
-  engagementPercentile: number | null;
-}
-
-interface TopCommentContents {
-  html: string | null;
-}
-
-interface TopComment {
-  _id: string | null;
-  postedAt: Date | null;
-  postId: string | null;
-  postTitle: string | null;
-  postSlug: string | null;
-  baseScore: number | null;
-  extendedScore: any;
-  contents: TopCommentContents | null;
-}
-
-interface MostReceivedReact {
-  name: string | null;
-  count: number | null;
-}
-
-interface CombinedKarmaVals {
-  date: Date;
-  postKarma: number;
-  commentKarma: number;
-}
-
-interface WrappedDataByYear {
-  engagementPercentile: number | null;
-  postsReadCount: number | null;
-  totalSeconds: number | null;
-  daysVisited: Array<string | null> | null;
-  mostReadTopics: Array<MostReadTopic | null> | null;
-  relativeMostReadCoreTopics: Array<TagReadLikelihoodRatio | null> | null;
-  mostReadAuthors: Array<MostReadAuthor | null> | null;
-  topPosts: Array<Post | null> | null;
-  postCount: number | null;
-  authorPercentile: number | null;
-  topComment: TopComment | null;
-  commentCount: number | null;
-  commenterPercentile: number | null;
-  topShortform: Comment | null;
-  shortformCount: number | null;
-  shortformPercentile: number | null;
-  karmaChange: number | null;
-  combinedKarmaVals: Array<CombinedKarmaVals | null> | null;
-  mostReceivedReacts: Array<MostReceivedReact | null> | null;
-  personality: string;
 }
 
 interface Site {
@@ -1229,7 +1073,17 @@ interface ToggleBookmarkInput {
   collectionName: string;
 }
 
+interface SetIsBookmarkedInput {
+  documentId: string;
+  collectionName: string;
+  isBookmarked: boolean;
+}
+
 interface ToggleBookmarkOutput {
+  data: Bookmark | null;
+}
+
+interface SetIsBookmarkedOutput {
   data: Bookmark | null;
 }
 
@@ -1239,9 +1093,24 @@ interface RssPostChangeInfo {
   htmlDiff: string;
 }
 
+interface ReviewResultsPostEntry {
+  rank: number;
+  title: string;
+  postUrl: string;
+  authorName: string;
+  coauthorNames: Array<string>;
+  votes: Array<number>;
+}
+
+interface ReviewResultsTableData {
+  year: number;
+  results: Array<ReviewResultsPostEntry>;
+}
+
 interface FeedSpotlightMetaInfo {
   sources: Array<string>;
   servedEventId: string;
+  rankingMetadata: any;
 }
 
 interface FeedPost {
@@ -1255,8 +1124,8 @@ interface FeedCommentThread {
   commentMetaInfos: any;
   comments: Array<Comment>;
   post: Post | null;
-  isOnReadPost: boolean | null;
   postSources: Array<string> | null;
+  postMetaInfo: any;
 }
 
 interface FeedSpotlightItem {
@@ -1269,6 +1138,12 @@ interface FeedSpotlightItem {
 interface FeedSubscriptionSuggestions {
   _id: string;
   suggestedUsers: Array<User>;
+}
+
+interface FeedMarker {
+  _id: string;
+  markerType: string;
+  timestamp: Date;
 }
 
 interface UltraFeedQueryResults {
@@ -1284,6 +1159,7 @@ interface UltraFeedEntry {
   feedPost: FeedPost | null;
   feedSpotlight: FeedSpotlightItem | null;
   feedSubscriptionSuggestions: FeedSubscriptionSuggestions | null;
+  feedMarker: FeedMarker | null;
 }
 
 interface ElicitQuestionPredictionCreator {
@@ -1293,45 +1169,74 @@ interface ElicitQuestionPredictionCreator {
   sourceUserId: string | null;
 }
 
-interface AdvisorRequest {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  userId: string | null;
-  user: User | null;
-  interestedInMetaculus: boolean | null;
-  jobAds: any;
+interface SequenceStats {
+  totalWordCount: number | null;
+  totalReadTime: number | null;
 }
 
-interface SingleAdvisorRequestInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
+interface AdminEmailAudienceFilterInput {
+  verifiedEmailOnly: boolean;
+  requireMailgunValid: boolean;
+  excludeUnsubscribed: boolean;
+  excludeDeleted: boolean;
+  onlyAdmins: boolean;
+  maxMailgunRisk?: MailgunRiskLevel | null;
+  includeUnknownRisk: boolean;
 }
 
-interface SingleAdvisorRequestOutput {
-  result: AdvisorRequest | null;
+interface AdminEmailPreviewAudienceInput {
+  filter: AdminEmailAudienceFilterInput;
 }
 
-interface AdvisorRequestsRequestsByUserInput {
-  userId?: string | null;
+interface AdminSendTestEmailInput {
+  userId: string;
+  subject: string;
+  from?: string | null;
+  html?: string | null;
+  text?: string | null;
 }
 
-interface AdvisorRequestSelector {
-  default: EmptyViewInput | null;
-  requestsByUser: AdvisorRequestsRequestsByUserInput | null;
+interface AdminSendBulkEmailInput {
+  filter: AdminEmailAudienceFilterInput;
+  subject: string;
+  from?: string | null;
+  html?: string | null;
+  text?: string | null;
+  maxRecipients?: number | null;
+  batchSize?: number | null;
+  concurrency?: number | null;
+  runId?: string | null;
 }
 
-interface MultiAdvisorRequestInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
+interface AdminEmailAudienceRow {
+  userId: string;
+  email: string;
 }
 
-interface MultiAdvisorRequestOutput {
-  results: Array<AdvisorRequest>;
-  totalCount: number | null;
+interface AdminEmailAudiencePreview {
+  totalCount: number;
+  sample: Array<AdminEmailAudienceRow>;
+}
+
+interface AdminSendTestEmailResult {
+  ok: boolean;
+  status: number | null;
+  email: string;
+  unsubscribeUrl: string;
+}
+
+interface AdminSendBulkEmailError {
+  batch: number;
+  status: number | null;
+}
+
+interface AdminSendBulkEmailResult {
+  ok: boolean;
+  runId: string;
+  processed: number;
+  batches: number;
+  errors: Array<AdminSendBulkEmailError>;
+  lastAfterUserId: string | null;
 }
 
 interface ArbitalCaches {
@@ -1389,11 +1294,22 @@ interface AutomatedContentEvaluation {
   aiChoice: string | null;
   aiReasoning: string | null;
   aiCoT: string | null;
+  pangramScore: number | null;
+  pangramMaxScore: number | null;
+  pangramPrediction: string | null;
+  pangramWindowScores: Array<PangramWindowScore> | null;
 }
 
 interface SentenceScore {
   sentence: string;
   score: number;
+}
+
+interface PangramWindowScore {
+  text: string;
+  score: number;
+  startIndex: number;
+  endIndex: number;
 }
 
 interface Ban {
@@ -1771,11 +1687,7 @@ interface Comment {
   post: Post | null;
   tagId: string | null;
   tag: Tag | null;
-  forumEventId: string | null;
-  forumEvent: ForumEvent | null;
-  forumEventMetadata: any;
   tagCommentType: TagCommentType;
-  subforumStickyPriority: number | null;
   userId: string | null;
   user: User | null;
   userIP: string | null;
@@ -1835,7 +1747,6 @@ interface Comment {
   rejectedReason: string | null;
   rejectedByUserId: string | null;
   rejectedByUser: User | null;
-  emojiReactors: any;
   af: boolean;
   suggestForAlignmentUserIds: Array<string>;
   suggestForAlignmentUsers: Array<User>;
@@ -1846,6 +1757,7 @@ interface Comment {
   agentFoundationsId: string | null;
   originalDialogueId: string | null;
   originalDialogue: Post | null;
+  isBookmarked: boolean;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   allVotes: Array<Vote> | null;
@@ -1856,6 +1768,7 @@ interface Comment {
   afBaseScore: number | null;
   afExtendedScore: any;
   afVoteCount: number | null;
+  automatedContentEvaluations: AutomatedContentEvaluation | null;
 }
 
 interface SingleCommentInput {
@@ -1993,6 +1906,9 @@ interface CommentsAllRecentCommentsInput {
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
+  before?: string | null;
+  after?: string | null;
+  timeField?: string | null;
 }
 
 interface CommentsRecentCommentsInput {
@@ -2002,6 +1918,9 @@ interface CommentsRecentCommentsInput {
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
   limit?: string | null;
+  before?: string | null;
+  after?: string | null;
+  timeField?: string | null;
 }
 
 interface CommentsAfSubmissionsInput {
@@ -2045,6 +1964,7 @@ interface CommentsPostsItemCommentsInput {
   authorIsUnreviewed?: boolean | null;
   postId?: string | null;
   after?: string | null;
+  timeField?: string | null;
   limit?: string | null;
 }
 
@@ -2112,6 +2032,7 @@ interface CommentsTopShortformInput {
   authorIsUnreviewed?: boolean | null;
   before?: string | null;
   after?: string | null;
+  timeField?: string | null;
   shortformFrontpage?: boolean | null;
 }
 
@@ -2249,14 +2170,6 @@ interface CommentsRecentDebateResponsesInput {
   limit?: string | null;
 }
 
-interface CommentsForumEventCommentsInput {
-  userId?: string | null;
-  commentIds?: Array<string> | null;
-  minimumKarma?: number | null;
-  authorIsUnreviewed?: boolean | null;
-  forumEventId?: string | null;
-}
-
 interface CommentsAlignmentSuggestedCommentsInput {
   userId?: string | null;
   commentIds?: Array<string> | null;
@@ -2328,7 +2241,6 @@ interface CommentSelector {
   moderatorComments: CommentsModeratorCommentsInput | null;
   debateResponses: CommentsDebateResponsesInput | null;
   recentDebateResponses: CommentsRecentDebateResponsesInput | null;
-  forumEventComments: CommentsForumEventCommentsInput | null;
   alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput | null;
   rss: CommentsRssInput | null;
   draftComments: CommentsDraftCommentsInput | null;
@@ -2460,6 +2372,11 @@ interface SingleCurationNoticeOutput {
 interface CurationNoticeSelector {
   default: EmptyViewInput | null;
   curationNoticesPage: EmptyViewInput | null;
+  curationNoticesPostView: CurationNoticesPostViewInput | null;
+}
+
+interface CurationNoticesPostViewInput {
+  postId?: string | null;
 }
 
 interface MultiCurationNoticeInput {
@@ -2585,202 +2502,6 @@ interface MultiDialogueMatchPreferenceOutput {
   totalCount: number | null;
 }
 
-interface DigestPost {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  digestId: string;
-  digest: Digest;
-  postId: string;
-  post: Post | null;
-  emailDigestStatus: string | null;
-  onsiteDigestStatus: string | null;
-}
-
-interface SingleDigestPostInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleDigestPostOutput {
-  result: DigestPost | null;
-}
-
-interface DigestPostSelector {
-  default: EmptyViewInput | null;
-}
-
-interface MultiDigestPostInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiDigestPostOutput {
-  results: Array<DigestPost>;
-  totalCount: number | null;
-}
-
-interface Digest {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  num: number;
-  startDate: Date;
-  endDate: Date | null;
-  publishedDate: Date | null;
-  onsiteImageId: string | null;
-  onsitePrimaryColor: string | null;
-}
-
-interface SingleDigestInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleDigestOutput {
-  result: Digest | null;
-}
-
-interface DigestsFindByNumInput {
-  num?: number | null;
-}
-
-interface DigestSelector {
-  default: EmptyViewInput | null;
-  findByNum: DigestsFindByNumInput | null;
-  all: EmptyViewInput | null;
-}
-
-interface MultiDigestInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiDigestOutput {
-  results: Array<Digest>;
-  totalCount: number | null;
-}
-
-interface ElectionCandidate {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  electionName: string;
-  name: string;
-  logoSrc: string;
-  href: string;
-  fundraiserLink: string | null;
-  gwwcLink: string | null;
-  gwwcId: string | null;
-  description: string;
-  userId: string;
-  user: User | null;
-  postCount: number;
-  tagId: string;
-  tag: Tag | null;
-  isElectionFundraiser: boolean;
-  amountRaised: number | null;
-  targetAmount: number | null;
-  currentUserVote: string | null;
-  currentUserExtendedVote: any;
-  voteCount: number;
-  baseScore: number;
-  extendedScore: any;
-  score: number;
-  afBaseScore: number | null;
-  afExtendedScore: any;
-  afVoteCount: number | null;
-}
-
-interface SingleElectionCandidateInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleElectionCandidateOutput {
-  result: ElectionCandidate | null;
-}
-
-interface ElectionCandidateDefaultViewInput {
-  electionName?: string | null;
-  sortBy?: string | null;
-}
-
-interface ElectionCandidateSelector {
-  default: ElectionCandidateDefaultViewInput | null;
-}
-
-interface MultiElectionCandidateInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiElectionCandidateOutput {
-  results: Array<ElectionCandidate>;
-  totalCount: number | null;
-}
-
-interface ElectionVote {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  electionName: string | null;
-  userId: string | null;
-  user: User | null;
-  compareState: any;
-  vote: any;
-  submittedAt: Date | null;
-  submissionComments: any;
-  userExplanation: string | null;
-  userOtherComments: string | null;
-}
-
-interface SingleElectionVoteInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleElectionVoteOutput {
-  result: ElectionVote | null;
-}
-
-interface ElectionVoteDefaultViewInput {
-  electionName?: string | null;
-  userId?: string | null;
-}
-
-interface ElectionVotesAllSubmittedVotesInput {
-  electionName?: string | null;
-  userId?: string | null;
-}
-
-interface ElectionVoteSelector {
-  default: ElectionVoteDefaultViewInput | null;
-  allSubmittedVotes: ElectionVotesAllSubmittedVotesInput | null;
-}
-
-interface MultiElectionVoteInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiElectionVoteOutput {
-  results: Array<ElectionVote>;
-  totalCount: number | null;
-}
-
 interface ElicitQuestionPrediction {
   _id: string;
   predictionId: string | null;
@@ -2865,44 +2586,6 @@ interface EmailTokens {
   legacyData: any;
 }
 
-interface FeaturedResource {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  title: string;
-  body: string | null;
-  ctaText: string;
-  ctaUrl: string;
-  expiresAt: Date;
-}
-
-interface SingleFeaturedResourceInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleFeaturedResourceOutput {
-  result: FeaturedResource | null;
-}
-
-interface FeaturedResourceSelector {
-  default: EmptyViewInput | null;
-  activeResources: EmptyViewInput | null;
-}
-
-interface MultiFeaturedResourceInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiFeaturedResourceOutput {
-  results: Array<FeaturedResource>;
-  totalCount: number | null;
-}
-
 interface FieldChange {
   _id: string;
   schemaVersion: number;
@@ -2941,160 +2624,6 @@ interface MultiFieldChangeOutput {
   totalCount: number | null;
 }
 
-interface ForumEvent {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  frontpageDescription: Revision | null;
-  frontpageDescription_latest: string | null;
-  frontpageDescriptionMobile: Revision | null;
-  frontpageDescriptionMobile_latest: string | null;
-  postPageDescription: Revision | null;
-  postPageDescription_latest: string | null;
-  title: string;
-  startDate: Date;
-  endDate: Date | null;
-  darkColor: string;
-  lightColor: string;
-  bannerTextColor: string;
-  contrastColor: string | null;
-  tagId: string | null;
-  tag: Tag | null;
-  postId: string | null;
-  post: Post | null;
-  commentId: string | null;
-  comment: Comment | null;
-  bannerImageId: string | null;
-  includesPoll: boolean;
-  isGlobal: boolean;
-  eventFormat: ForumEventFormat;
-  pollQuestion: Revision | null;
-  pollQuestion_latest: string | null;
-  pollAgreeWording: string | null;
-  pollDisagreeWording: string | null;
-  maxStickersPerUser: number;
-  customComponent: ForumEventCustomComponent | null;
-  commentPrompt: string | null;
-  publicData: any;
-  voteCount: number;
-}
-
-interface SingleForumEventInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleForumEventOutput {
-  result: ForumEvent | null;
-}
-
-interface ForumEventsUpcomingForumEventsInput {
-  limit?: string | null;
-}
-
-interface ForumEventsPastForumEventsInput {
-  limit?: string | null;
-}
-
-interface ForumEventsCurrentAndRecentForumEventsInput {
-  limit?: string | null;
-}
-
-interface ForumEventSelector {
-  default: EmptyViewInput | null;
-  upcomingForumEvents: ForumEventsUpcomingForumEventsInput | null;
-  pastForumEvents: ForumEventsPastForumEventsInput | null;
-  currentForumEvent: EmptyViewInput | null;
-  currentAndRecentForumEvents: ForumEventsCurrentAndRecentForumEventsInput | null;
-}
-
-interface MultiForumEventInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiForumEventOutput {
-  results: Array<ForumEvent>;
-  totalCount: number | null;
-}
-
-interface GardenCode {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  contents: Revision | null;
-  contents_latest: string | null;
-  pingbacks: any;
-  slug: string;
-  code: string;
-  title: string;
-  userId: string;
-  user: User | null;
-  startTime: Date | null;
-  endTime: Date;
-  fbLink: string | null;
-  type: string;
-  hidden: boolean;
-  deleted: boolean;
-  afOnly: boolean;
-}
-
-interface SingleGardenCodeInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleGardenCodeOutput {
-  result: GardenCode | null;
-}
-
-interface GardenCodeDefaultViewInput {
-  types?: string | null;
-  userId?: string | null;
-  code?: string | null;
-}
-
-interface GardenCodesUsersPrivateGardenCodesInput {
-  types?: string | null;
-  userId?: string | null;
-  code?: string | null;
-}
-
-interface GardenCodesPublicGardenCodesInput {
-  types?: string | null;
-  userId?: string | null;
-  code?: string | null;
-}
-
-interface GardenCodesGardenCodeByCodeInput {
-  types?: string | null;
-  userId?: string | null;
-  code?: string | null;
-}
-
-interface GardenCodeSelector {
-  default: GardenCodeDefaultViewInput | null;
-  usersPrivateGardenCodes: GardenCodesUsersPrivateGardenCodesInput | null;
-  publicGardenCodes: GardenCodesPublicGardenCodesInput | null;
-  gardenCodeByCode: GardenCodesGardenCodeByCodeInput | null;
-}
-
-interface MultiGardenCodeInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiGardenCodeOutput {
-  results: Array<GardenCode>;
-  totalCount: number | null;
-}
-
 interface GoogleServiceAccountSession {
   _id: string;
   schemaVersion: number;
@@ -3129,6 +2658,26 @@ interface MultiGoogleServiceAccountSessionInput {
 
 interface MultiGoogleServiceAccountSessionOutput {
   results: Array<GoogleServiceAccountSession>;
+  totalCount: number | null;
+}
+
+interface IframeWidgetSrcdoc {
+  _id: string;
+  createdAt: Date;
+  revisionId: string;
+  html: string;
+}
+
+interface SingleIframeWidgetSrcdocOutput {
+  result: IframeWidgetSrcdoc | null;
+}
+
+interface IframeWidgetSrcdocSelector {
+  default: EmptyViewInput | null;
+}
+
+interface MultiIframeWidgetSrcdocOutput {
+  results: Array<IframeWidgetSrcdoc>;
   totalCount: number | null;
 }
 
@@ -3518,6 +3067,7 @@ interface ModerationTemplate {
   name: string;
   collectionName: ModerationTemplateType;
   order: number;
+  groupLabel: string | null;
   deleted: boolean;
 }
 
@@ -3746,11 +3296,19 @@ interface MultiNotificationOutput {
   totalCount: number | null;
 }
 
-interface PageCacheEntry {
+interface OAuthAccessToken {
   _id: string;
-  schemaVersion: number;
   createdAt: Date;
-  legacyData: any;
+}
+
+interface OAuthAuthorizationCode {
+  _id: string;
+  createdAt: Date;
+}
+
+interface OAuthClient {
+  _id: string;
+  createdAt: Date;
 }
 
 interface PetrovDayAction {
@@ -4038,6 +3596,7 @@ interface Post {
   tagRel: TagRel | null;
   tags: Array<Tag>;
   tagRelevance: any;
+  tagRels: Array<TagRel>;
   lastPromotedComment: Comment | null;
   bestAnswer: Comment | null;
   noIndex: boolean;
@@ -4161,8 +3720,6 @@ interface Post {
   totalDialogueResponseCount: number;
   mostRecentPublishedDialogueResponseDate: Date | null;
   unreadDebateResponseCount: number;
-  emojiReactors: any;
-  commentEmojiReactors: any;
   rejected: boolean;
   rejectedReason: string | null;
   rejectedByUserId: string | null;
@@ -4186,6 +3743,7 @@ interface Post {
   curationNotices: Array<CurationNotice> | null;
   reviews: Array<Comment> | null;
   automatedContentEvaluations: AutomatedContentEvaluation | null;
+  isBookmarked: boolean;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -4234,6 +3792,8 @@ interface PostDefaultViewInput {
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  requiredUnnominated?: boolean | null;
+  requiredFrontpage?: boolean | null;
 }
 
 interface PostsUserPostsInput {
@@ -4403,6 +3963,8 @@ interface PostsTimeframeInput {
   timeField?: string | null;
   curatedAfter?: string | null;
   limit?: number | null;
+  requiredUnnominated?: boolean | null;
+  requiredFrontpage?: boolean | null;
 }
 
 interface PostsDailyInput {
@@ -5235,6 +4797,29 @@ interface PostsSunshineNewPostsInput {
   curatedAfter?: string | null;
 }
 
+interface PostsSunshineAutoClassifiedPostsInput {
+  postIds?: Array<string> | null;
+  notPostIds?: Array<string> | null;
+  groupId?: string | null;
+  af?: boolean | null;
+  question?: boolean | null;
+  authorIsUnreviewed?: boolean | null;
+  exactPostIds?: Array<string> | null;
+  hideCommunity?: boolean | null;
+  karmaThreshold?: number | null;
+  excludeEvents?: boolean | null;
+  userId?: string | null;
+  includeRelatedQuestions?: string | null;
+  filter?: string | null;
+  view?: string | null;
+  filterSettings?: any;
+  sortedBy?: string | null;
+  after?: string | null;
+  before?: string | null;
+  timeField?: string | null;
+  curatedAfter?: string | null;
+}
+
 interface PostsSunshineNewUsersPostsInput {
   postIds?: Array<string> | null;
   notPostIds?: Array<string> | null;
@@ -5707,6 +5292,7 @@ interface PostSelector {
   postsWithBannedUsers: PostsPostsWithBannedUsersInput | null;
   communityResourcePosts: PostsCommunityResourcePostsInput | null;
   sunshineNewPosts: PostsSunshineNewPostsInput | null;
+  sunshineAutoClassifiedPosts: PostsSunshineAutoClassifiedPostsInput | null;
   sunshineNewUsersPosts: PostsSunshineNewUsersPostsInput | null;
   sunshineCuratedSuggestions: PostsSunshineCuratedSuggestionsInput | null;
   hasEverDialogued: PostsHasEverDialoguedInput | null;
@@ -5895,7 +5481,7 @@ interface ReviewVotesReviewVotesFromUserInput {
 }
 
 interface ReviewVotesReviewVotesAdminDashboardInput {
-  year?: number | null;
+  year?: string | null;
 }
 
 interface ReviewVotesReviewVotesForPostAndUserInput {
@@ -5931,6 +5517,9 @@ interface ReviewWinnerArt {
   postId: string;
   splashArtImagePrompt: string;
   splashArtImageUrl: string;
+  midjourneyJobId: string | null;
+  midjourneyImageIndex: number | null;
+  upscaledImageUrl: string | null;
   activeSplashArtCoordinates: SplashArtCoordinate | null;
 }
 
@@ -6036,6 +5625,8 @@ interface Revision {
   originalContents: ContentType;
   html: string | null;
   markdown: string | null;
+  agentMarkdown: string | null;
+  agentMarkdownExcerpt: string | null;
   ckEditorMarkup: string | null;
   wordCount: number;
   htmlHighlight: string;
@@ -6403,165 +5994,6 @@ interface MultiSubscriptionOutput {
   totalCount: number | null;
 }
 
-interface SurveyQuestion {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  surveyId: string;
-  survey: Survey;
-  question: string;
-  format: SurveyQuestionFormat;
-  order: number;
-}
-
-interface SingleSurveyQuestionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleSurveyQuestionOutput {
-  result: SurveyQuestion | null;
-}
-
-interface SurveyQuestionSelector {
-  default: EmptyViewInput | null;
-}
-
-interface MultiSurveyQuestionInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiSurveyQuestionOutput {
-  results: Array<SurveyQuestion>;
-  totalCount: number | null;
-}
-
-interface SurveyResponse {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  surveyId: string | null;
-  survey: Survey | null;
-  surveyScheduleId: string | null;
-  surveySchedule: SurveySchedule | null;
-  userId: string | null;
-  user: User | null;
-  clientId: string | null;
-  client: ClientId | null;
-  response: any;
-}
-
-interface SingleSurveyResponseInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleSurveyResponseOutput {
-  result: SurveyResponse | null;
-}
-
-interface SurveyResponseSelector {
-  default: EmptyViewInput | null;
-}
-
-interface MultiSurveyResponseInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiSurveyResponseOutput {
-  results: Array<SurveyResponse>;
-  totalCount: number | null;
-}
-
-interface SurveySchedule {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  surveyId: string;
-  survey: Survey | null;
-  name: string | null;
-  impressionsLimit: number | null;
-  maxVisitorPercentage: number | null;
-  minKarma: number | null;
-  maxKarma: number | null;
-  target: SurveyScheduleTarget | null;
-  startDate: Date | null;
-  endDate: Date | null;
-  deactivated: boolean | null;
-  clientIds: Array<string> | null;
-  clients: Array<ClientId> | null;
-}
-
-interface SingleSurveyScheduleInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleSurveyScheduleOutput {
-  result: SurveySchedule | null;
-}
-
-interface SurveyScheduleSelector {
-  default: EmptyViewInput | null;
-  surveySchedulesByCreatedAt: EmptyViewInput | null;
-}
-
-interface MultiSurveyScheduleInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiSurveyScheduleOutput {
-  results: Array<SurveySchedule>;
-  totalCount: number | null;
-}
-
-interface Survey {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  name: string;
-  questions: Array<SurveyQuestion>;
-}
-
-interface SingleSurveyInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleSurveyOutput {
-  result: Survey | null;
-}
-
-interface SurveySelector {
-  default: EmptyViewInput | null;
-  surveysByCreatedAt: EmptyViewInput | null;
-}
-
-interface MultiSurveyInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiSurveyOutput {
-  results: Array<Survey>;
-  totalCount: number | null;
-}
-
 interface TagFlag {
   _id: string;
   schemaVersion: number;
@@ -6688,6 +6120,8 @@ interface Tag {
   userId: string | null;
   user: User | null;
   adminOnly: boolean;
+  removalResistant: boolean;
+  authorOnly: boolean;
   canEditUserIds: Array<string> | null;
   charsAdded: number | null;
   charsRemoved: number | null;
@@ -6972,95 +6406,6 @@ interface UserActivity {
   legacyData: any;
 }
 
-interface UserEAGDetail {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  userId: string | null;
-  user: User | null;
-  careerStage: Array<string> | null;
-  countryOrRegion: string | null;
-  nearestCity: string | null;
-  willingnessToRelocate: any;
-  experiencedIn: Array<string> | null;
-  interestedIn: Array<string> | null;
-  lastUpdated: Date | null;
-}
-
-interface SingleUserEAGDetailInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleUserEAGDetailOutput {
-  result: UserEAGDetail | null;
-}
-
-interface UserEAGDetailsDataByUserInput {
-  userId?: string | null;
-}
-
-interface UserEAGDetailSelector {
-  default: EmptyViewInput | null;
-  dataByUser: UserEAGDetailsDataByUserInput | null;
-}
-
-interface MultiUserEAGDetailInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiUserEAGDetailOutput {
-  results: Array<UserEAGDetail>;
-  totalCount: number | null;
-}
-
-interface UserJobAd {
-  _id: string;
-  schemaVersion: number;
-  createdAt: Date;
-  legacyData: any;
-  userId: string | null;
-  user: User | null;
-  jobName: string | null;
-  adState: string | null;
-  reminderSetAt: Date | null;
-  lastUpdated: Date | null;
-}
-
-interface SingleUserJobAdInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleUserJobAdOutput {
-  result: UserJobAd | null;
-}
-
-interface UserJobAdsAdsByUserInput {
-  userId?: string | null;
-}
-
-interface UserJobAdSelector {
-  default: EmptyViewInput | null;
-  adsByUser: UserJobAdsAdsByUserInput | null;
-}
-
-interface MultiUserJobAdInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiUserJobAdOutput {
-  results: Array<UserJobAd>;
-  totalCount: number | null;
-}
-
 interface UserMostValuablePost {
   _id: string;
   schemaVersion: number;
@@ -7210,6 +6555,8 @@ interface User {
   oldSlugs: Array<string>;
   biography: Revision | null;
   biography_latest: string | null;
+  pinnedPostIds: Array<string>;
+  hideProfileTopPosts: boolean;
   username: string | null;
   emails: Array<any> | null;
   isAdmin: boolean;
@@ -7247,7 +6594,6 @@ interface User {
   showCommunityInRecentDiscussion: boolean;
   hidePostsRecommendations: boolean;
   petrovOptOut: boolean;
-  optedOutOfSurveys: boolean | null;
   postGlossariesPinned: boolean | null;
   generateJargonForDrafts: boolean | null;
   generateJargonForPublishedPosts: boolean | null;
@@ -7286,6 +6632,7 @@ interface User {
   permanentDeletionRequestedAt: Date | null;
   voteBanned: boolean | null;
   nullifyVotes: boolean | null;
+  votingDisabled: boolean;
   deleteContent: boolean | null;
   banned: Date | null;
   IPs: Array<string> | null;
@@ -7332,8 +6679,6 @@ interface User {
   karmaChangeLastOpened: Date | null;
   karmaChangeBatchStart: Date | null;
   emailSubscribedToCurated: boolean | null;
-  subscribedToDigest: boolean | null;
-  subscribedToNewsletter: boolean | null;
   unsubscribeFromAll: boolean | null;
   hideSubscribePoke: boolean | null;
   hideMeetupsPoke: boolean | null;
@@ -7442,7 +6787,6 @@ interface User {
   acknowledgedNewUserGuidelines: boolean | null;
   moderatorActions: Array<ModeratorAction> | null;
   subforumPreferredLayout: SubforumPreferredLayout | null;
-  hideJobAdUntil: Date | null;
   criticismTipsDismissed: boolean | null;
   hideFromPeopleDirectory: boolean;
   allowDatadogSessionReplay: boolean;
@@ -7456,11 +6800,13 @@ interface User {
   rateLimitNextAbleToComment: any;
   rateLimitNextAbleToPost: any;
   recentKarmaInfo: any;
+  mailgunValidation: MailgunValidationResult | null;
   hideSunshineSidebar: boolean | null;
-  inactiveSurveyEmailSentAt: Date | null;
-  userSurveyEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  lastRemovedFromReviewQueueAt: Date | null;
+  rejectedContentCount: number | null;
+  userRateLimits: Array<UserRateLimit> | null;
 }
 
 interface UserSelectorUniqueInput {
@@ -7487,11 +6833,6 @@ interface UsersUsersProfileInput {
   slug?: string | null;
 }
 
-interface UsersTagCommunityMembersInput {
-  hasBio?: boolean | null;
-  profileTagId?: string | null;
-}
-
 interface UserSelector {
   default: EmptyViewInput | null;
   usersByUserIds: UsersUsersByUserIdsInput | null;
@@ -7504,7 +6845,6 @@ interface UserSelector {
   recentlyActive: EmptyViewInput | null;
   allUsers: EmptyViewInput | null;
   usersMapLocations: EmptyViewInput | null;
-  tagCommunityMembers: UsersTagCommunityMembersInput | null;
   reviewAdminUsers: EmptyViewInput | null;
   usersWithPaymentInfo: EmptyViewInput | null;
   usersWithOptedInToDialogueFacilitation: EmptyViewInput | null;
@@ -7587,31 +6927,9 @@ interface MultiVoteOutput {
   totalCount: number | null;
 }
 
-interface CreateAdvisorRequestDataInput {
-  legacyData?: any;
-  userId: string;
-  interestedInMetaculus?: boolean | null;
-  jobAds?: any;
-}
-
-interface CreateAdvisorRequestInput {
-  data: CreateAdvisorRequestDataInput;
-}
-
-interface UpdateAdvisorRequestDataInput {
-  legacyData?: any;
-  userId?: string | null;
-  interestedInMetaculus?: boolean | null;
-  jobAds?: any;
-}
-
-interface UpdateAdvisorRequestInput {
-  selector: SelectorInput;
-  data: UpdateAdvisorRequestDataInput;
-}
-
-interface AdvisorRequestOutput {
-  data: AdvisorRequest | null;
+interface YjsDocument {
+  _id: string;
+  createdAt: Date;
 }
 
 interface CreateBookDataInput {
@@ -7761,10 +7079,7 @@ interface CreateCommentDataInput {
   topLevelCommentId?: string | null;
   postId?: string | null;
   tagId?: string | null;
-  forumEventId?: string | null;
-  forumEventMetadata?: any;
   tagCommentType?: TagCommentType | null;
-  subforumStickyPriority?: number | null;
   userId?: string | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
@@ -7816,7 +7131,6 @@ interface UpdateCommentDataInput {
   postedAt?: Date | null;
   postId?: string | null;
   tagId?: string | null;
-  subforumStickyPriority?: number | null;
   authorIsUnreviewed?: boolean | null;
   answer?: boolean | null;
   shortform?: boolean | null;
@@ -7930,152 +7244,6 @@ interface CurationNoticeOutput {
   data: CurationNotice | null;
 }
 
-interface CreateDigestPostDataInput {
-  legacyData?: any;
-  digestId: string;
-  postId: string;
-  emailDigestStatus?: string | null;
-  onsiteDigestStatus?: string | null;
-}
-
-interface CreateDigestPostInput {
-  data: CreateDigestPostDataInput;
-}
-
-interface UpdateDigestPostDataInput {
-  legacyData?: any;
-  digestId?: string | null;
-  postId?: string | null;
-  emailDigestStatus?: string | null;
-  onsiteDigestStatus?: string | null;
-}
-
-interface UpdateDigestPostInput {
-  selector: SelectorInput;
-  data: UpdateDigestPostDataInput;
-}
-
-interface DigestPostOutput {
-  data: DigestPost | null;
-}
-
-interface CreateDigestDataInput {
-  legacyData?: any;
-  num: number;
-  startDate: Date;
-  endDate?: Date | null;
-  publishedDate?: Date | null;
-  onsiteImageId?: string | null;
-  onsitePrimaryColor?: string | null;
-}
-
-interface CreateDigestInput {
-  data: CreateDigestDataInput;
-}
-
-interface UpdateDigestDataInput {
-  legacyData?: any;
-  num?: number | null;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  publishedDate?: Date | null;
-  onsiteImageId?: string | null;
-  onsitePrimaryColor?: string | null;
-}
-
-interface UpdateDigestInput {
-  selector: SelectorInput;
-  data: UpdateDigestDataInput;
-}
-
-interface DigestOutput {
-  data: Digest | null;
-}
-
-interface CreateElectionCandidateDataInput {
-  legacyData?: any;
-  electionName: string;
-  name: string;
-  logoSrc: string;
-  href: string;
-  fundraiserLink?: string | null;
-  gwwcLink?: string | null;
-  gwwcId?: string | null;
-  description: string;
-  userId?: string | null;
-  tagId: string;
-  isElectionFundraiser?: boolean | null;
-  amountRaised?: number | null;
-  targetAmount?: number | null;
-}
-
-interface CreateElectionCandidateInput {
-  data: CreateElectionCandidateDataInput;
-}
-
-interface UpdateElectionCandidateDataInput {
-  legacyData?: any;
-  electionName?: string | null;
-  name?: string | null;
-  logoSrc?: string | null;
-  href?: string | null;
-  fundraiserLink?: string | null;
-  gwwcLink?: string | null;
-  gwwcId?: string | null;
-  description?: string | null;
-  userId?: string | null;
-  tagId?: string | null;
-  isElectionFundraiser?: boolean | null;
-  amountRaised?: number | null;
-  targetAmount?: number | null;
-}
-
-interface UpdateElectionCandidateInput {
-  selector: SelectorInput;
-  data: UpdateElectionCandidateDataInput;
-}
-
-interface ElectionCandidateOutput {
-  data: ElectionCandidate | null;
-}
-
-interface CreateElectionVoteDataInput {
-  legacyData?: any;
-  electionName: string;
-  userId: string;
-  compareState?: any;
-  vote?: any;
-  submittedAt?: Date | null;
-  submissionComments?: any;
-  userExplanation?: string | null;
-  userOtherComments?: string | null;
-}
-
-interface CreateElectionVoteInput {
-  data: CreateElectionVoteDataInput;
-}
-
-interface UpdateElectionVoteDataInput {
-  legacyData?: any;
-  electionName?: string | null;
-  userId?: string | null;
-  compareState?: any;
-  vote?: any;
-  submittedAt?: Date | null;
-  submissionComments?: any;
-  userExplanation?: string | null;
-  userOtherComments?: string | null;
-}
-
-interface UpdateElectionVoteInput {
-  selector: SelectorInput;
-  data: UpdateElectionVoteDataInput;
-}
-
-interface ElectionVoteOutput {
-  data: ElectionVote | null;
-}
-
 interface CreateElicitQuestionDataInput {
   legacyData?: any;
   title: string;
@@ -8103,75 +7271,6 @@ interface UpdateElicitQuestionInput {
 
 interface ElicitQuestionOutput {
   data: ElicitQuestion | null;
-}
-
-interface CreateForumEventDataInput {
-  legacyData?: any;
-  frontpageDescription?: CreateRevisionDataInput | null;
-  frontpageDescriptionMobile?: CreateRevisionDataInput | null;
-  postPageDescription?: CreateRevisionDataInput | null;
-  title: string;
-  startDate: Date;
-  endDate?: Date | null;
-  darkColor?: string | null;
-  lightColor?: string | null;
-  bannerTextColor?: string | null;
-  contrastColor?: string | null;
-  tagId?: string | null;
-  postId?: string | null;
-  commentId?: string | null;
-  bannerImageId?: string | null;
-  includesPoll?: boolean | null;
-  isGlobal?: boolean | null;
-  eventFormat?: ForumEventFormat | null;
-  pollQuestion?: CreateRevisionDataInput | null;
-  pollAgreeWording?: string | null;
-  pollDisagreeWording?: string | null;
-  maxStickersPerUser?: number | null;
-  customComponent?: ForumEventCustomComponent | null;
-  commentPrompt?: string | null;
-  publicData?: any;
-}
-
-interface CreateForumEventInput {
-  data: CreateForumEventDataInput;
-}
-
-interface UpdateForumEventDataInput {
-  legacyData?: any;
-  frontpageDescription?: CreateRevisionDataInput | null;
-  frontpageDescriptionMobile?: CreateRevisionDataInput | null;
-  postPageDescription?: CreateRevisionDataInput | null;
-  title?: string | null;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  darkColor?: string | null;
-  lightColor?: string | null;
-  bannerTextColor?: string | null;
-  contrastColor?: string | null;
-  tagId?: string | null;
-  postId?: string | null;
-  commentId?: string | null;
-  bannerImageId?: string | null;
-  includesPoll?: boolean | null;
-  isGlobal?: boolean | null;
-  eventFormat?: ForumEventFormat | null;
-  pollQuestion?: CreateRevisionDataInput | null;
-  pollAgreeWording?: string | null;
-  pollDisagreeWording?: string | null;
-  maxStickersPerUser?: number | null;
-  customComponent?: ForumEventCustomComponent | null;
-  commentPrompt?: string | null;
-  publicData?: any;
-}
-
-interface UpdateForumEventInput {
-  selector: SelectorInput;
-  data: UpdateForumEventDataInput;
-}
-
-interface ForumEventOutput {
-  data: ForumEvent | null;
 }
 
 interface CreateJargonTermDataInput {
@@ -8333,6 +7432,7 @@ interface CreateModerationTemplateDataInput {
   name: string;
   collectionName: ModerationTemplateType;
   order?: number | null;
+  groupLabel?: string | null;
 }
 
 interface CreateModerationTemplateInput {
@@ -8345,6 +7445,7 @@ interface UpdateModerationTemplateDataInput {
   name?: string | null;
   collectionName?: ModerationTemplateType | null;
   order?: number | null;
+  groupLabel?: string | null;
   deleted?: boolean | null;
 }
 
@@ -8779,6 +7880,7 @@ interface ReportOutput {
 interface ContentTypeInput {
   type: string;
   data: ContentTypeData;
+  yjsState?: string | null;
 }
 
 interface CreateRevisionDataInput {
@@ -8958,132 +8060,6 @@ interface SubscriptionOutput {
   data: Subscription | null;
 }
 
-interface CreateSurveyQuestionDataInput {
-  legacyData?: any;
-  surveyId: string;
-  question: string;
-  format: SurveyQuestionFormat;
-  order: number;
-}
-
-interface CreateSurveyQuestionInput {
-  data: CreateSurveyQuestionDataInput;
-}
-
-interface UpdateSurveyQuestionDataInput {
-  legacyData?: any;
-  surveyId?: string | null;
-  question?: string | null;
-  format?: SurveyQuestionFormat | null;
-  order?: number | null;
-}
-
-interface UpdateSurveyQuestionInput {
-  selector: SelectorInput;
-  data: UpdateSurveyQuestionDataInput;
-}
-
-interface SurveyQuestionOutput {
-  data: SurveyQuestion | null;
-}
-
-interface CreateSurveyResponseDataInput {
-  legacyData?: any;
-  surveyId: string;
-  surveyScheduleId: string;
-  userId: string;
-  clientId: string;
-  response?: any;
-}
-
-interface CreateSurveyResponseInput {
-  data: CreateSurveyResponseDataInput;
-}
-
-interface UpdateSurveyResponseDataInput {
-  legacyData?: any;
-  surveyId?: string | null;
-  surveyScheduleId?: string | null;
-  userId?: string | null;
-  clientId?: string | null;
-  response?: any;
-}
-
-interface UpdateSurveyResponseInput {
-  selector: SelectorInput;
-  data: UpdateSurveyResponseDataInput;
-}
-
-interface SurveyResponseOutput {
-  data: SurveyResponse | null;
-}
-
-interface CreateSurveyScheduleDataInput {
-  legacyData?: any;
-  surveyId: string;
-  name: string;
-  impressionsLimit?: number | null;
-  maxVisitorPercentage?: number | null;
-  minKarma?: number | null;
-  maxKarma?: number | null;
-  target: SurveyScheduleTarget;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  deactivated?: boolean | null;
-  clientIds?: Array<string> | null;
-}
-
-interface CreateSurveyScheduleInput {
-  data: CreateSurveyScheduleDataInput;
-}
-
-interface UpdateSurveyScheduleDataInput {
-  legacyData?: any;
-  surveyId?: string | null;
-  name?: string | null;
-  impressionsLimit?: number | null;
-  maxVisitorPercentage?: number | null;
-  minKarma?: number | null;
-  maxKarma?: number | null;
-  target?: SurveyScheduleTarget | null;
-  startDate?: Date | null;
-  endDate?: Date | null;
-  deactivated?: boolean | null;
-  clientIds?: Array<string> | null;
-}
-
-interface UpdateSurveyScheduleInput {
-  selector: SelectorInput;
-  data: UpdateSurveyScheduleDataInput;
-}
-
-interface SurveyScheduleOutput {
-  data: SurveySchedule | null;
-}
-
-interface CreateSurveyDataInput {
-  legacyData?: any;
-  name: string;
-}
-
-interface CreateSurveyInput {
-  data: CreateSurveyDataInput;
-}
-
-interface UpdateSurveyDataInput {
-  legacyData?: any;
-  name?: string | null;
-}
-
-interface UpdateSurveyInput {
-  selector: SelectorInput;
-  data: UpdateSurveyDataInput;
-}
-
-interface SurveyOutput {
-  data: Survey | null;
-}
-
 interface CreateTagFlagDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
@@ -9130,6 +8106,8 @@ interface CreateTagDataInput {
   defaultOrder?: number | null;
   descriptionTruncationCount?: number | null;
   adminOnly?: boolean | null;
+  removalResistant?: boolean | null;
+  authorOnly?: boolean | null;
   canEditUserIds?: Array<string> | null;
   reviewedByUserId?: string | null;
   wikiGrade?: number | null;
@@ -9170,6 +8148,8 @@ interface UpdateTagDataInput {
   defaultOrder?: number | null;
   descriptionTruncationCount?: number | null;
   adminOnly?: boolean | null;
+  removalResistant?: boolean | null;
+  authorOnly?: boolean | null;
   canEditUserIds?: Array<string> | null;
   deleted?: boolean | null;
   needsReview?: boolean | null;
@@ -9223,64 +8203,6 @@ interface UpdateUltraFeedEventDataInput {
 
 interface UltraFeedEventOutput {
   data: UltraFeedEvent | null;
-}
-
-interface CreateUserEAGDetailDataInput {
-  legacyData?: any;
-  lastUpdated?: Date | null;
-}
-
-interface CreateUserEAGDetailInput {
-  data: CreateUserEAGDetailDataInput;
-}
-
-interface UpdateUserEAGDetailDataInput {
-  legacyData?: any;
-  careerStage?: Array<string> | null;
-  countryOrRegion?: string | null;
-  nearestCity?: string | null;
-  willingnessToRelocate?: any;
-  experiencedIn?: Array<string> | null;
-  interestedIn?: Array<string> | null;
-  lastUpdated?: Date | null;
-}
-
-interface UpdateUserEAGDetailInput {
-  selector: SelectorInput;
-  data: UpdateUserEAGDetailDataInput;
-}
-
-interface UserEAGDetailOutput {
-  data: UserEAGDetail | null;
-}
-
-interface CreateUserJobAdDataInput {
-  legacyData?: any;
-  userId: string;
-  jobName: string;
-  adState: string;
-  reminderSetAt?: Date | null;
-  lastUpdated?: Date | null;
-}
-
-interface CreateUserJobAdInput {
-  data: CreateUserJobAdDataInput;
-}
-
-interface UpdateUserJobAdDataInput {
-  legacyData?: any;
-  adState?: string | null;
-  reminderSetAt?: Date | null;
-  lastUpdated?: Date | null;
-}
-
-interface UpdateUserJobAdInput {
-  selector: SelectorInput;
-  data: UpdateUserJobAdDataInput;
-}
-
-interface UserJobAdOutput {
-  data: UserJobAd | null;
 }
 
 interface CreateUserMostValuablePostDataInput {
@@ -9379,6 +8301,8 @@ interface CreateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
+  pinnedPostIds?: Array<string> | null;
+  hideProfileTopPosts?: boolean | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName: string;
@@ -9402,7 +8326,6 @@ interface CreateUserDataInput {
   showCommunityInRecentDiscussion?: boolean | null;
   hidePostsRecommendations?: boolean | null;
   petrovOptOut?: boolean | null;
-  optedOutOfSurveys?: boolean | null;
   postGlossariesPinned?: boolean | null;
   acceptedTos?: boolean | null;
   hideNavigationSidebar?: boolean | null;
@@ -9474,8 +8397,6 @@ interface CreateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
-  subscribedToDigest?: boolean | null;
-  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -9518,15 +8439,12 @@ interface CreateUserDataInput {
   conversationsDisabled?: boolean | null;
   acknowledgedNewUserGuidelines?: boolean | null;
   subforumPreferredLayout?: SubforumPreferredLayout | null;
-  hideJobAdUntil?: Date | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
   allowDatadogSessionReplay?: boolean | null;
   reviewForAlignmentForumUserId?: string | null;
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
-  inactiveSurveyEmailSentAt?: Date | null;
-  userSurveyEmailSentAt?: Date | null;
 }
 
 interface CreateUserInput {
@@ -9540,6 +8458,8 @@ interface UpdateUserDataInput {
   howICanHelpOthers?: CreateRevisionDataInput | null;
   slug?: string | null;
   biography?: CreateRevisionDataInput | null;
+  pinnedPostIds?: Array<string> | null;
+  hideProfileTopPosts?: boolean | null;
   username?: string | null;
   isAdmin?: boolean | null;
   displayName?: string | null;
@@ -9569,7 +8489,6 @@ interface UpdateUserDataInput {
   showCommunityInRecentDiscussion?: boolean | null;
   hidePostsRecommendations?: boolean | null;
   petrovOptOut?: boolean | null;
-  optedOutOfSurveys?: boolean | null;
   postGlossariesPinned?: boolean | null;
   generateJargonForDrafts?: boolean | null;
   generateJargonForPublishedPosts?: boolean | null;
@@ -9646,8 +8565,6 @@ interface UpdateUserDataInput {
   karmaChangeLastOpened?: Date | null;
   karmaChangeBatchStart?: Date | null;
   emailSubscribedToCurated?: boolean | null;
-  subscribedToDigest?: boolean | null;
-  subscribedToNewsletter?: boolean | null;
   unsubscribeFromAll?: boolean | null;
   hideSubscribePoke?: boolean | null;
   hideMeetupsPoke?: boolean | null;
@@ -9715,7 +8632,6 @@ interface UpdateUserDataInput {
   conversationsDisabled?: boolean | null;
   acknowledgedNewUserGuidelines?: boolean | null;
   subforumPreferredLayout?: SubforumPreferredLayout | null;
-  hideJobAdUntil?: Date | null;
   criticismTipsDismissed?: boolean | null;
   hideFromPeopleDirectory?: boolean | null;
   allowDatadogSessionReplay?: boolean | null;
@@ -9723,8 +8639,6 @@ interface UpdateUserDataInput {
   afApplicationText?: string | null;
   afSubmittedApplication?: boolean | null;
   hideSunshineSidebar?: boolean | null;
-  inactiveSurveyEmailSentAt?: Date | null;
-  userSurveyEmailSentAt?: Date | null;
   recommendationSettings?: RecommendationSettingsInput | null;
 }
 
@@ -9765,6 +8679,7 @@ interface GraphQLTypeMap {
   PostMetadataOutput: PostMetadataOutput;
   RecommendationAlgorithmSettingsInput: RecommendationAlgorithmSettingsInput;
   RecommendationSettingsInput: RecommendationSettingsInput;
+  MailgunValidationResult: MailgunValidationResult;
   RecommendResumeSequence: RecommendResumeSequence;
   CommentCountTag: CommentCountTag;
   TopCommentedTagUser: TopCommentedTagUser;
@@ -9781,7 +8696,6 @@ interface GraphQLTypeMap {
   VoteResultMessage: VoteResultMessage;
   VoteResultTagRel: VoteResultTagRel;
   VoteResultRevision: VoteResultRevision;
-  VoteResultElectionCandidate: VoteResultElectionCandidate;
   VoteResultTag: VoteResultTag;
   VoteResultMultiDocument: VoteResultMultiDocument;
   CommentsWithReactsResult: CommentsWithReactsResult;
@@ -9809,16 +8723,20 @@ interface GraphQLTypeMap {
   GivingSeasonHeart: GivingSeasonHeart;
   UserReadHistoryResult: UserReadHistoryResult;
   PostsUserCommentedOnResult: PostsUserCommentedOnResult;
+  LastCuratedDateResult: LastCuratedDateResult;
   PostReviewFilter: PostReviewFilter;
   PostReviewSort: PostReviewSort;
-  DigestPlannerPost: DigestPlannerPost;
   RecombeeRecommendedPost: RecombeeRecommendedPost;
   VertexRecommendedPost: VertexRecommendedPost;
+  ProfileDiamondPostsResult: ProfileDiamondPostsResult;
+  ProfileDiamondCommentsResult: ProfileDiamondCommentsResult;
+  ProfilePostDiamond: ProfilePostDiamond;
+  ProfileCommentDiamond: ProfileCommentDiamond;
   PostWithApprovedJargon: PostWithApprovedJargon;
   HomepageCommunityEventMarker: HomepageCommunityEventMarker;
   HomepageCommunityEventMarkersResult: HomepageCommunityEventMarkersResult;
-  DigestHighlightsResult: DigestHighlightsResult;
-  DigestPostsThisWeekResult: DigestPostsThisWeekResult;
+  HomepageCommunityEventPostsResult: HomepageCommunityEventPostsResult;
+  HocuspocusAuth: HocuspocusAuth;
   CuratedAndPopularThisWeekResult: CuratedAndPopularThisWeekResult;
   RecentlyActiveDialoguesResult: RecentlyActiveDialoguesResult;
   MyDialoguesResult: MyDialoguesResult;
@@ -9828,38 +8746,19 @@ interface GraphQLTypeMap {
   PostsWithActiveDiscussionResult: PostsWithActiveDiscussionResult;
   PostsBySubscribedAuthorsResult: PostsBySubscribedAuthorsResult;
   PostsWithApprovedJargonResult: PostsWithApprovedJargonResult;
+  CurationCandidatePostsResult: CurationCandidatePostsResult;
   AllTagsActivityFeedQueryResults: AllTagsActivityFeedQueryResults;
   AllTagsActivityFeedEntry: AllTagsActivityFeedEntry;
   RecentDiscussionFeedQueryResults: RecentDiscussionFeedQueryResults;
   RecentDiscussionFeedEntry: RecentDiscussionFeedEntry;
-  SubscribedPostAndComments: SubscribedPostAndComments;
-  SubscribedFeedQueryResults: SubscribedFeedQueryResults;
-  SubscribedFeedEntry: SubscribedFeedEntry;
   TagHistoryFeedQueryResults: TagHistoryFeedQueryResults;
   TagHistoryFeedEntry: TagHistoryFeedEntry;
-  SubforumMagicFeedQueryResults: SubforumMagicFeedQueryResults;
-  SubforumMagicFeedEntry: SubforumMagicFeedEntry;
-  SubforumTopFeedQueryResults: SubforumTopFeedQueryResults;
-  SubforumTopFeedEntry: SubforumTopFeedEntry;
-  SubforumRecentCommentsFeedQueryResults: SubforumRecentCommentsFeedQueryResults;
-  SubforumRecentCommentsFeedEntry: SubforumRecentCommentsFeedEntry;
-  SubforumNewFeedQueryResults: SubforumNewFeedQueryResults;
-  SubforumNewFeedEntry: SubforumNewFeedEntry;
-  SubforumOldFeedQueryResults: SubforumOldFeedQueryResults;
-  SubforumOldFeedEntry: SubforumOldFeedEntry;
-  SurveyQuestionInfo: SurveyQuestionInfo;
+  UserContentFeedQueryResults: UserContentFeedQueryResults;
+  UserContentFeedEntry: UserContentFeedEntry;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;
   TagWithTotalCount: TagWithTotalCount;
-  MostReadTopic: MostReadTopic;
-  TagReadLikelihoodRatio: TagReadLikelihoodRatio;
-  MostReadAuthor: MostReadAuthor;
-  TopCommentContents: TopCommentContents;
-  TopComment: TopComment;
-  MostReceivedReact: MostReceivedReact;
-  CombinedKarmaVals: CombinedKarmaVals;
-  WrappedDataByYear: WrappedDataByYear;
   Site: Site;
   LoginReturnData: LoginReturnData;
   MigrationsDashboardData: MigrationsDashboardData;
@@ -9870,23 +8769,31 @@ interface GraphQLTypeMap {
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   ToggleBookmarkInput: ToggleBookmarkInput;
+  SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
+  SetIsBookmarkedOutput: SetIsBookmarkedOutput;
   RssPostChangeInfo: RssPostChangeInfo;
+  ReviewResultsPostEntry: ReviewResultsPostEntry;
+  ReviewResultsTableData: ReviewResultsTableData;
   FeedSpotlightMetaInfo: FeedSpotlightMetaInfo;
   FeedPost: FeedPost;
   FeedCommentThread: FeedCommentThread;
   FeedSpotlightItem: FeedSpotlightItem;
   FeedSubscriptionSuggestions: FeedSubscriptionSuggestions;
+  FeedMarker: FeedMarker;
   UltraFeedQueryResults: UltraFeedQueryResults;
   UltraFeedEntry: UltraFeedEntry;
   ElicitQuestionPredictionCreator: ElicitQuestionPredictionCreator;
-  AdvisorRequest: AdvisorRequest;
-  SingleAdvisorRequestInput: SingleAdvisorRequestInput;
-  SingleAdvisorRequestOutput: SingleAdvisorRequestOutput;
-  AdvisorRequestsRequestsByUserInput: AdvisorRequestsRequestsByUserInput;
-  AdvisorRequestSelector: AdvisorRequestSelector;
-  MultiAdvisorRequestInput: MultiAdvisorRequestInput;
-  MultiAdvisorRequestOutput: MultiAdvisorRequestOutput;
+  SequenceStats: SequenceStats;
+  AdminEmailAudienceFilterInput: AdminEmailAudienceFilterInput;
+  AdminEmailPreviewAudienceInput: AdminEmailPreviewAudienceInput;
+  AdminSendTestEmailInput: AdminSendTestEmailInput;
+  AdminSendBulkEmailInput: AdminSendBulkEmailInput;
+  AdminEmailAudienceRow: AdminEmailAudienceRow;
+  AdminEmailAudiencePreview: AdminEmailAudiencePreview;
+  AdminSendTestEmailResult: AdminSendTestEmailResult;
+  AdminSendBulkEmailError: AdminSendBulkEmailError;
+  AdminSendBulkEmailResult: AdminSendBulkEmailResult;
   ArbitalCaches: ArbitalCaches;
   ArbitalTagContentRel: ArbitalTagContentRel;
   SingleArbitalTagContentRelInput: SingleArbitalTagContentRelInput;
@@ -9896,6 +8803,7 @@ interface GraphQLTypeMap {
   MultiArbitalTagContentRelOutput: MultiArbitalTagContentRelOutput;
   AutomatedContentEvaluation: AutomatedContentEvaluation;
   SentenceScore: SentenceScore;
+  PangramWindowScore: PangramWindowScore;
   Ban: Ban;
   SingleBanInput: SingleBanInput;
   SingleBanOutput: SingleBanOutput;
@@ -9999,7 +8907,6 @@ interface GraphQLTypeMap {
   CommentsModeratorCommentsInput: CommentsModeratorCommentsInput;
   CommentsDebateResponsesInput: CommentsDebateResponsesInput;
   CommentsRecentDebateResponsesInput: CommentsRecentDebateResponsesInput;
-  CommentsForumEventCommentsInput: CommentsForumEventCommentsInput;
   CommentsAlignmentSuggestedCommentsInput: CommentsAlignmentSuggestedCommentsInput;
   CommentsRssInput: CommentsRssInput;
   CommentsDraftCommentsInput: CommentsDraftCommentsInput;
@@ -10022,6 +8929,7 @@ interface GraphQLTypeMap {
   SingleCurationNoticeInput: SingleCurationNoticeInput;
   SingleCurationNoticeOutput: SingleCurationNoticeOutput;
   CurationNoticeSelector: CurationNoticeSelector;
+  CurationNoticesPostViewInput: CurationNoticesPostViewInput;
   MultiCurationNoticeInput: MultiCurationNoticeInput;
   MultiCurationNoticeOutput: MultiCurationNoticeOutput;
   DatabaseMetadata: DatabaseMetadata;
@@ -10041,34 +8949,6 @@ interface GraphQLTypeMap {
   DialogueMatchPreferenceSelector: DialogueMatchPreferenceSelector;
   MultiDialogueMatchPreferenceInput: MultiDialogueMatchPreferenceInput;
   MultiDialogueMatchPreferenceOutput: MultiDialogueMatchPreferenceOutput;
-  DigestPost: DigestPost;
-  SingleDigestPostInput: SingleDigestPostInput;
-  SingleDigestPostOutput: SingleDigestPostOutput;
-  DigestPostSelector: DigestPostSelector;
-  MultiDigestPostInput: MultiDigestPostInput;
-  MultiDigestPostOutput: MultiDigestPostOutput;
-  Digest: Digest;
-  SingleDigestInput: SingleDigestInput;
-  SingleDigestOutput: SingleDigestOutput;
-  DigestsFindByNumInput: DigestsFindByNumInput;
-  DigestSelector: DigestSelector;
-  MultiDigestInput: MultiDigestInput;
-  MultiDigestOutput: MultiDigestOutput;
-  ElectionCandidate: ElectionCandidate;
-  SingleElectionCandidateInput: SingleElectionCandidateInput;
-  SingleElectionCandidateOutput: SingleElectionCandidateOutput;
-  ElectionCandidateDefaultViewInput: ElectionCandidateDefaultViewInput;
-  ElectionCandidateSelector: ElectionCandidateSelector;
-  MultiElectionCandidateInput: MultiElectionCandidateInput;
-  MultiElectionCandidateOutput: MultiElectionCandidateOutput;
-  ElectionVote: ElectionVote;
-  SingleElectionVoteInput: SingleElectionVoteInput;
-  SingleElectionVoteOutput: SingleElectionVoteOutput;
-  ElectionVoteDefaultViewInput: ElectionVoteDefaultViewInput;
-  ElectionVotesAllSubmittedVotesInput: ElectionVotesAllSubmittedVotesInput;
-  ElectionVoteSelector: ElectionVoteSelector;
-  MultiElectionVoteInput: MultiElectionVoteInput;
-  MultiElectionVoteOutput: MultiElectionVoteOutput;
   ElicitQuestionPrediction: ElicitQuestionPrediction;
   SingleElicitQuestionPredictionInput: SingleElicitQuestionPredictionInput;
   SingleElicitQuestionPredictionOutput: SingleElicitQuestionPredictionOutput;
@@ -10082,43 +8962,22 @@ interface GraphQLTypeMap {
   MultiElicitQuestionInput: MultiElicitQuestionInput;
   MultiElicitQuestionOutput: MultiElicitQuestionOutput;
   EmailTokens: EmailTokens;
-  FeaturedResource: FeaturedResource;
-  SingleFeaturedResourceInput: SingleFeaturedResourceInput;
-  SingleFeaturedResourceOutput: SingleFeaturedResourceOutput;
-  FeaturedResourceSelector: FeaturedResourceSelector;
-  MultiFeaturedResourceInput: MultiFeaturedResourceInput;
-  MultiFeaturedResourceOutput: MultiFeaturedResourceOutput;
   FieldChange: FieldChange;
   SingleFieldChangeInput: SingleFieldChangeInput;
   SingleFieldChangeOutput: SingleFieldChangeOutput;
   FieldChangeSelector: FieldChangeSelector;
   MultiFieldChangeInput: MultiFieldChangeInput;
   MultiFieldChangeOutput: MultiFieldChangeOutput;
-  ForumEvent: ForumEvent;
-  SingleForumEventInput: SingleForumEventInput;
-  SingleForumEventOutput: SingleForumEventOutput;
-  ForumEventsUpcomingForumEventsInput: ForumEventsUpcomingForumEventsInput;
-  ForumEventsPastForumEventsInput: ForumEventsPastForumEventsInput;
-  ForumEventsCurrentAndRecentForumEventsInput: ForumEventsCurrentAndRecentForumEventsInput;
-  ForumEventSelector: ForumEventSelector;
-  MultiForumEventInput: MultiForumEventInput;
-  MultiForumEventOutput: MultiForumEventOutput;
-  GardenCode: GardenCode;
-  SingleGardenCodeInput: SingleGardenCodeInput;
-  SingleGardenCodeOutput: SingleGardenCodeOutput;
-  GardenCodeDefaultViewInput: GardenCodeDefaultViewInput;
-  GardenCodesUsersPrivateGardenCodesInput: GardenCodesUsersPrivateGardenCodesInput;
-  GardenCodesPublicGardenCodesInput: GardenCodesPublicGardenCodesInput;
-  GardenCodesGardenCodeByCodeInput: GardenCodesGardenCodeByCodeInput;
-  GardenCodeSelector: GardenCodeSelector;
-  MultiGardenCodeInput: MultiGardenCodeInput;
-  MultiGardenCodeOutput: MultiGardenCodeOutput;
   GoogleServiceAccountSession: GoogleServiceAccountSession;
   SingleGoogleServiceAccountSessionInput: SingleGoogleServiceAccountSessionInput;
   SingleGoogleServiceAccountSessionOutput: SingleGoogleServiceAccountSessionOutput;
   GoogleServiceAccountSessionSelector: GoogleServiceAccountSessionSelector;
   MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
+  IframeWidgetSrcdoc: IframeWidgetSrcdoc;
+  SingleIframeWidgetSrcdocOutput: SingleIframeWidgetSrcdocOutput;
+  IframeWidgetSrcdocSelector: IframeWidgetSrcdocSelector;
+  MultiIframeWidgetSrcdocOutput: MultiIframeWidgetSrcdocOutput;
   Images: Images;
   JargonTerm: JargonTerm;
   SingleJargonTermInput: SingleJargonTermInput;
@@ -10205,7 +9064,9 @@ interface GraphQLTypeMap {
   NotificationSelector: NotificationSelector;
   MultiNotificationInput: MultiNotificationInput;
   MultiNotificationOutput: MultiNotificationOutput;
-  PageCacheEntry: PageCacheEntry;
+  OAuthAccessToken: OAuthAccessToken;
+  OAuthAuthorizationCode: OAuthAuthorizationCode;
+  OAuthClient: OAuthClient;
   PetrovDayAction: PetrovDayAction;
   SinglePetrovDayActionInput: SinglePetrovDayActionInput;
   SinglePetrovDayActionOutput: SinglePetrovDayActionOutput;
@@ -10284,6 +9145,7 @@ interface GraphQLTypeMap {
   PostsPostsWithBannedUsersInput: PostsPostsWithBannedUsersInput;
   PostsCommunityResourcePostsInput: PostsCommunityResourcePostsInput;
   PostsSunshineNewPostsInput: PostsSunshineNewPostsInput;
+  PostsSunshineAutoClassifiedPostsInput: PostsSunshineAutoClassifiedPostsInput;
   PostsSunshineNewUsersPostsInput: PostsSunshineNewUsersPostsInput;
   PostsSunshineCuratedSuggestionsInput: PostsSunshineCuratedSuggestionsInput;
   PostsHasEverDialoguedInput: PostsHasEverDialoguedInput;
@@ -10394,30 +9256,6 @@ interface GraphQLTypeMap {
   SubscriptionSelector: SubscriptionSelector;
   MultiSubscriptionInput: MultiSubscriptionInput;
   MultiSubscriptionOutput: MultiSubscriptionOutput;
-  SurveyQuestion: SurveyQuestion;
-  SingleSurveyQuestionInput: SingleSurveyQuestionInput;
-  SingleSurveyQuestionOutput: SingleSurveyQuestionOutput;
-  SurveyQuestionSelector: SurveyQuestionSelector;
-  MultiSurveyQuestionInput: MultiSurveyQuestionInput;
-  MultiSurveyQuestionOutput: MultiSurveyQuestionOutput;
-  SurveyResponse: SurveyResponse;
-  SingleSurveyResponseInput: SingleSurveyResponseInput;
-  SingleSurveyResponseOutput: SingleSurveyResponseOutput;
-  SurveyResponseSelector: SurveyResponseSelector;
-  MultiSurveyResponseInput: MultiSurveyResponseInput;
-  MultiSurveyResponseOutput: MultiSurveyResponseOutput;
-  SurveySchedule: SurveySchedule;
-  SingleSurveyScheduleInput: SingleSurveyScheduleInput;
-  SingleSurveyScheduleOutput: SingleSurveyScheduleOutput;
-  SurveyScheduleSelector: SurveyScheduleSelector;
-  MultiSurveyScheduleInput: MultiSurveyScheduleInput;
-  MultiSurveyScheduleOutput: MultiSurveyScheduleOutput;
-  Survey: Survey;
-  SingleSurveyInput: SingleSurveyInput;
-  SingleSurveyOutput: SingleSurveyOutput;
-  SurveySelector: SurveySelector;
-  MultiSurveyInput: MultiSurveyInput;
-  MultiSurveyOutput: MultiSurveyOutput;
   TagFlag: TagFlag;
   SingleTagFlagInput: SingleTagFlagInput;
   SingleTagFlagOutput: SingleTagFlagOutput;
@@ -10473,20 +9311,6 @@ interface GraphQLTypeMap {
   MultiUltraFeedEventInput: MultiUltraFeedEventInput;
   MultiUltraFeedEventOutput: MultiUltraFeedEventOutput;
   UserActivity: UserActivity;
-  UserEAGDetail: UserEAGDetail;
-  SingleUserEAGDetailInput: SingleUserEAGDetailInput;
-  SingleUserEAGDetailOutput: SingleUserEAGDetailOutput;
-  UserEAGDetailsDataByUserInput: UserEAGDetailsDataByUserInput;
-  UserEAGDetailSelector: UserEAGDetailSelector;
-  MultiUserEAGDetailInput: MultiUserEAGDetailInput;
-  MultiUserEAGDetailOutput: MultiUserEAGDetailOutput;
-  UserJobAd: UserJobAd;
-  SingleUserJobAdInput: SingleUserJobAdInput;
-  SingleUserJobAdOutput: SingleUserJobAdOutput;
-  UserJobAdsAdsByUserInput: UserJobAdsAdsByUserInput;
-  UserJobAdSelector: UserJobAdSelector;
-  MultiUserJobAdInput: MultiUserJobAdInput;
-  MultiUserJobAdOutput: MultiUserJobAdOutput;
   UserMostValuablePost: UserMostValuablePost;
   SingleUserMostValuablePostInput: SingleUserMostValuablePostInput;
   SingleUserMostValuablePostOutput: SingleUserMostValuablePostOutput;
@@ -10514,7 +9338,6 @@ interface GraphQLTypeMap {
   SingleUserOutput: SingleUserOutput;
   UsersUsersByUserIdsInput: UsersUsersByUserIdsInput;
   UsersUsersProfileInput: UsersUsersProfileInput;
-  UsersTagCommunityMembersInput: UsersTagCommunityMembersInput;
   UserSelector: UserSelector;
   MultiUserInput: MultiUserInput;
   MultiUserOutput: MultiUserOutput;
@@ -10526,11 +9349,7 @@ interface GraphQLTypeMap {
   VoteSelector: VoteSelector;
   MultiVoteInput: MultiVoteInput;
   MultiVoteOutput: MultiVoteOutput;
-  CreateAdvisorRequestDataInput: CreateAdvisorRequestDataInput;
-  CreateAdvisorRequestInput: CreateAdvisorRequestInput;
-  UpdateAdvisorRequestDataInput: UpdateAdvisorRequestDataInput;
-  UpdateAdvisorRequestInput: UpdateAdvisorRequestInput;
-  AdvisorRequestOutput: AdvisorRequestOutput;
+  YjsDocument: YjsDocument;
   CreateBookDataInput: CreateBookDataInput;
   CreateBookInput: CreateBookInput;
   UpdateBookDataInput: UpdateBookDataInput;
@@ -10566,36 +9385,11 @@ interface GraphQLTypeMap {
   UpdateCurationNoticeDataInput: UpdateCurationNoticeDataInput;
   UpdateCurationNoticeInput: UpdateCurationNoticeInput;
   CurationNoticeOutput: CurationNoticeOutput;
-  CreateDigestPostDataInput: CreateDigestPostDataInput;
-  CreateDigestPostInput: CreateDigestPostInput;
-  UpdateDigestPostDataInput: UpdateDigestPostDataInput;
-  UpdateDigestPostInput: UpdateDigestPostInput;
-  DigestPostOutput: DigestPostOutput;
-  CreateDigestDataInput: CreateDigestDataInput;
-  CreateDigestInput: CreateDigestInput;
-  UpdateDigestDataInput: UpdateDigestDataInput;
-  UpdateDigestInput: UpdateDigestInput;
-  DigestOutput: DigestOutput;
-  CreateElectionCandidateDataInput: CreateElectionCandidateDataInput;
-  CreateElectionCandidateInput: CreateElectionCandidateInput;
-  UpdateElectionCandidateDataInput: UpdateElectionCandidateDataInput;
-  UpdateElectionCandidateInput: UpdateElectionCandidateInput;
-  ElectionCandidateOutput: ElectionCandidateOutput;
-  CreateElectionVoteDataInput: CreateElectionVoteDataInput;
-  CreateElectionVoteInput: CreateElectionVoteInput;
-  UpdateElectionVoteDataInput: UpdateElectionVoteDataInput;
-  UpdateElectionVoteInput: UpdateElectionVoteInput;
-  ElectionVoteOutput: ElectionVoteOutput;
   CreateElicitQuestionDataInput: CreateElicitQuestionDataInput;
   CreateElicitQuestionInput: CreateElicitQuestionInput;
   UpdateElicitQuestionDataInput: UpdateElicitQuestionDataInput;
   UpdateElicitQuestionInput: UpdateElicitQuestionInput;
   ElicitQuestionOutput: ElicitQuestionOutput;
-  CreateForumEventDataInput: CreateForumEventDataInput;
-  CreateForumEventInput: CreateForumEventInput;
-  UpdateForumEventDataInput: UpdateForumEventDataInput;
-  UpdateForumEventInput: UpdateForumEventInput;
-  ForumEventOutput: ForumEventOutput;
   CreateJargonTermDataInput: CreateJargonTermDataInput;
   CreateJargonTermInput: CreateJargonTermInput;
   UpdateJargonTermDataInput: UpdateJargonTermDataInput;
@@ -10677,26 +9471,6 @@ interface GraphQLTypeMap {
   CreateSubscriptionDataInput: CreateSubscriptionDataInput;
   CreateSubscriptionInput: CreateSubscriptionInput;
   SubscriptionOutput: SubscriptionOutput;
-  CreateSurveyQuestionDataInput: CreateSurveyQuestionDataInput;
-  CreateSurveyQuestionInput: CreateSurveyQuestionInput;
-  UpdateSurveyQuestionDataInput: UpdateSurveyQuestionDataInput;
-  UpdateSurveyQuestionInput: UpdateSurveyQuestionInput;
-  SurveyQuestionOutput: SurveyQuestionOutput;
-  CreateSurveyResponseDataInput: CreateSurveyResponseDataInput;
-  CreateSurveyResponseInput: CreateSurveyResponseInput;
-  UpdateSurveyResponseDataInput: UpdateSurveyResponseDataInput;
-  UpdateSurveyResponseInput: UpdateSurveyResponseInput;
-  SurveyResponseOutput: SurveyResponseOutput;
-  CreateSurveyScheduleDataInput: CreateSurveyScheduleDataInput;
-  CreateSurveyScheduleInput: CreateSurveyScheduleInput;
-  UpdateSurveyScheduleDataInput: UpdateSurveyScheduleDataInput;
-  UpdateSurveyScheduleInput: UpdateSurveyScheduleInput;
-  SurveyScheduleOutput: SurveyScheduleOutput;
-  CreateSurveyDataInput: CreateSurveyDataInput;
-  CreateSurveyInput: CreateSurveyInput;
-  UpdateSurveyDataInput: UpdateSurveyDataInput;
-  UpdateSurveyInput: UpdateSurveyInput;
-  SurveyOutput: SurveyOutput;
   CreateTagFlagDataInput: CreateTagFlagDataInput;
   CreateTagFlagInput: CreateTagFlagInput;
   UpdateTagFlagDataInput: UpdateTagFlagDataInput;
@@ -10711,16 +9485,6 @@ interface GraphQLTypeMap {
   CreateUltraFeedEventInput: CreateUltraFeedEventInput;
   UpdateUltraFeedEventDataInput: UpdateUltraFeedEventDataInput;
   UltraFeedEventOutput: UltraFeedEventOutput;
-  CreateUserEAGDetailDataInput: CreateUserEAGDetailDataInput;
-  CreateUserEAGDetailInput: CreateUserEAGDetailInput;
-  UpdateUserEAGDetailDataInput: UpdateUserEAGDetailDataInput;
-  UpdateUserEAGDetailInput: UpdateUserEAGDetailInput;
-  UserEAGDetailOutput: UserEAGDetailOutput;
-  CreateUserJobAdDataInput: CreateUserJobAdDataInput;
-  CreateUserJobAdInput: CreateUserJobAdInput;
-  UpdateUserJobAdDataInput: UpdateUserJobAdDataInput;
-  UpdateUserJobAdInput: UpdateUserJobAdInput;
-  UserJobAdOutput: UserJobAdOutput;
   CreateUserMostValuablePostDataInput: CreateUserMostValuablePostDataInput;
   CreateUserMostValuablePostInput: CreateUserMostValuablePostInput;
   UpdateUserMostValuablePostDataInput: UpdateUserMostValuablePostDataInput;
@@ -10744,7 +9508,6 @@ interface GraphQLTypeMap {
 }
 
 interface CreateInputsByCollectionName {
-  AdvisorRequests: CreateAdvisorRequestInput;
   Books: CreateBookInput;
   Chapters: CreateChapterInput;
   Collections: CreateCollectionInput;
@@ -10752,12 +9515,7 @@ interface CreateInputsByCollectionName {
   Comments: CreateCommentInput;
   Conversations: CreateConversationInput;
   CurationNotices: CreateCurationNoticeInput;
-  DigestPosts: CreateDigestPostInput;
-  Digests: CreateDigestInput;
-  ElectionCandidates: CreateElectionCandidateInput;
-  ElectionVotes: CreateElectionVoteInput;
   ElicitQuestions: CreateElicitQuestionInput;
-  ForumEvents: CreateForumEventInput;
   JargonTerms: CreateJargonTermInput;
   LWEvents: CreateLWEventInput;
   Localgroups: CreateLocalgroupInput;
@@ -10774,15 +9532,9 @@ interface CreateInputsByCollectionName {
   SplashArtCoordinates: CreateSplashArtCoordinateInput;
   Spotlights: CreateSpotlightInput;
   Subscriptions: CreateSubscriptionInput;
-  SurveyQuestions: CreateSurveyQuestionInput;
-  SurveyResponses: CreateSurveyResponseInput;
-  SurveySchedules: CreateSurveyScheduleInput;
-  Surveys: CreateSurveyInput;
   TagFlags: CreateTagFlagInput;
   Tags: CreateTagInput;
   UltraFeedEvents: CreateUltraFeedEventInput;
-  UserEAGDetails: CreateUserEAGDetailInput;
-  UserJobAds: CreateUserJobAdInput;
   UserMostValuablePosts: CreateUserMostValuablePostInput;
   UserRateLimits: CreateUserRateLimitInput;
   UserTagRels: CreateUserTagRelInput;
@@ -10803,18 +9555,21 @@ interface CreateInputsByCollectionName {
   DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
   EmailTokens: never;
-  FeaturedResources: never;
   FieldChanges: never;
-  GardenCodes: never;
   GoogleServiceAccountSessions: never;
+  IframeWidgetSrcdocs: never;
   Images: never;
   LegacyData: never;
   LlmConversations: never;
   LlmMessages: never;
+  LoginTokens: never;
+  MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
   Notifications: never;
-  PageCache: never;
+  OAuthAccessTokens: never;
+  OAuthAuthorizationCodes: never;
+  OAuthClients: never;
   PetrovDayLaunchs: never;
   Podcasts: never;
   PostEmbeddings: never;
@@ -10835,10 +9590,10 @@ interface CreateInputsByCollectionName {
   TypingIndicators: never;
   UserActivities: never;
   Votes: never;
+  YjsDocuments: never;
 }
 
 interface UpdateInputsByCollectionName {
-  AdvisorRequests: UpdateAdvisorRequestInput;
   Books: UpdateBookInput;
   Chapters: UpdateChapterInput;
   Collections: UpdateCollectionInput;
@@ -10846,12 +9601,7 @@ interface UpdateInputsByCollectionName {
   Comments: UpdateCommentInput;
   Conversations: UpdateConversationInput;
   CurationNotices: UpdateCurationNoticeInput;
-  DigestPosts: UpdateDigestPostInput;
-  Digests: UpdateDigestInput;
-  ElectionCandidates: UpdateElectionCandidateInput;
-  ElectionVotes: UpdateElectionVoteInput;
   ElicitQuestions: UpdateElicitQuestionInput;
-  ForumEvents: UpdateForumEventInput;
   JargonTerms: UpdateJargonTermInput;
   LlmConversations: UpdateLlmConversationInput;
   Localgroups: UpdateLocalgroupInput;
@@ -10866,14 +9616,8 @@ interface UpdateInputsByCollectionName {
   Revisions: UpdateRevisionInput;
   Sequences: UpdateSequenceInput;
   Spotlights: UpdateSpotlightInput;
-  SurveyQuestions: UpdateSurveyQuestionInput;
-  SurveyResponses: UpdateSurveyResponseInput;
-  SurveySchedules: UpdateSurveyScheduleInput;
-  Surveys: UpdateSurveyInput;
   TagFlags: UpdateTagFlagInput;
   Tags: UpdateTagInput;
-  UserEAGDetails: UpdateUserEAGDetailInput;
-  UserJobAds: UpdateUserJobAdInput;
   UserMostValuablePosts: UpdateUserMostValuablePostInput;
   UserRateLimits: UpdateUserRateLimitInput;
   UserTagRels: UpdateUserTagRelInput;
@@ -10894,17 +9638,20 @@ interface UpdateInputsByCollectionName {
   DialogueMatchPreferences: never;
   ElicitQuestionPredictions: never;
   EmailTokens: never;
-  FeaturedResources: never;
   FieldChanges: never;
-  GardenCodes: never;
   GoogleServiceAccountSessions: never;
+  IframeWidgetSrcdocs: never;
   Images: never;
   LWEvents: never;
   LegacyData: never;
   LlmMessages: never;
+  LoginTokens: never;
+  MailgunValidations: never;
   ManifoldProbabilitiesCaches: never;
   Migrations: never;
-  PageCache: never;
+  OAuthAccessTokens: never;
+  OAuthAuthorizationCodes: never;
+  OAuthClients: never;
   PetrovDayActions: never;
   PetrovDayLaunchs: never;
   PodcastEpisodes: never;
@@ -10929,4 +9676,5 @@ interface UpdateInputsByCollectionName {
   UltraFeedEvents: never;
   UserActivities: never;
   Votes: never;
+  YjsDocuments: never;
 }

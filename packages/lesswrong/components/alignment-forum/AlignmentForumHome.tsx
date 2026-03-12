@@ -1,6 +1,4 @@
 "use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
@@ -16,18 +14,19 @@ import SectionButton from "../common/SectionButton";
 import RecentDiscussionThreadsList from "../recentDiscussion/RecentDiscussionThreadsList";
 import EAPopularCommentsSection from "../ea-forum/EAPopularCommentsSection";
 import RotatingReviewWinnerSpotlight from "../review/RotatingReviewWinnerSpotlight";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AlignmentForumHome", (theme: ThemeType) => ({
   frontpageSequencesGridList: {
     [legacyBreakpoints.maxSmall]: {
       marginTop: 40,
     }
   }
-});
+}));
 
-const AlignmentForumHome = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const AlignmentForumHome = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true} as const;
@@ -67,8 +66,6 @@ const AlignmentForumHome = ({classes}: {
   )
 };
 
-export default registerComponent(
-  'AlignmentForumHome', AlignmentForumHome, {styles}
-);
+export default AlignmentForumHome;
 
 

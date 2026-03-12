@@ -4,7 +4,6 @@ import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, mergeWithDefaultViewSelector, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { FieldChanges } from '@/server/collections/fieldChanges/collection';
-import gql from 'graphql-tag';
 import { allViews } from '@/lib/views/allViews';
 import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 
@@ -49,7 +48,7 @@ export function viewBasedSubquery<
     doQuery: async (limit: number, cutoff: SortKeyType): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
       const viewSet = allViews[collection.collectionName] as CollectionViewSet<N, Record<string, ViewFunction<N>>>;
       const selectorWithDefaults = includeDefaultSelector
-        ? mergeWithDefaultViewSelector(viewSet, selector)
+        ? mergeWithDefaultViewSelector(viewSet, selector, context)
         : selector;
       const results = await queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
       return await accessFilterMultiple(context.currentUser, collection.collectionName, results, context);
@@ -228,7 +227,7 @@ async function queryWithCutoff<N extends CollectionNameString>({
   // TODO: figure out how to get the appropriate collection's default view piped through here without going through allViews, if possible
   const viewSet: CollectionViewSet<CollectionNameString, any> = allViews[collectionName];
   const mergedSelector = mergeSelectors(
-    getDefaultViewSelector(viewSet),
+    getDefaultViewSelector(viewSet, context),
     selector,
     cutoffSelector
   )

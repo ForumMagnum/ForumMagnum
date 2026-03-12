@@ -45,6 +45,29 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
   // powers.
   useAdminPowers: boolean,
 }): Promise<CollaborativeEditingAccessLevel> {
+  return getCollaborativeEditorAccessWithKey({
+    formType,
+    post,
+    user,
+    context,
+    useAdminPowers,
+    linkSharingKey: getSharingKeyFromContext(context),
+  });
+}
+
+/**
+ * Get collaborative editor access level, with an explicit link sharing key.
+ * This is useful when the key is passed as a GraphQL argument rather than
+ * being available in the request context.
+ */
+export async function getCollaborativeEditorAccessWithKey({formType, post, user, context, useAdminPowers, linkSharingKey}: {
+  formType: "new"|"edit"|null,
+  post: DbPost|null,
+  user: DbUser|null,
+  context: ResolverContext,
+  useAdminPowers: boolean,
+  linkSharingKey: string | null,
+}): Promise<CollaborativeEditingAccessLevel> {
   // FIXME: There's a lot of redundancy between this function and
   // canUserEditPostMetadata in lib/collections/posts/helpers.ts, but they are
   // tricky to merge because of the `useAdminPowers` flag and because
@@ -75,8 +98,7 @@ export async function getCollaborativeEditorAccess({formType, post, user, contex
   } 
   
   const canonicalLinkSharingKey = post.linkSharingKey;
-  const unvalidatedLinkSharingKey = getSharingKeyFromContext(context);
-  const keysMatch = !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey });
+  const keysMatch = !!canonicalLinkSharingKey && !!linkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: linkSharingKey });
   if (keysMatch) {
     accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.anyoneWithLinkCan);
   }

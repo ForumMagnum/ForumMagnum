@@ -1,12 +1,10 @@
 "use client";
-
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info';
@@ -26,7 +24,6 @@ import {
 } from '../../lib/search/searchUtil';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { userHasPeopleDirectory } from '../../lib/betas';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import SearchFilters from "./SearchFilters";
@@ -133,7 +130,6 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
       borderStyle: "none",
       boxShadow: "none",
       backgroundColor: "transparent",
-      fontSize: 'inherit',
       "-webkit-appearance": "none",
       cursor: "text",
       ...theme.typography.body2,
@@ -286,7 +282,10 @@ const SearchPageTabbed = () => {
         ...searchState,
         sort: elasticSortingToUrlParam(newSorting),
       }),
-    }, {replace: true});
+    }, {
+      replace: true,
+      skipRouter: true,
+    });
   }
   // we try to keep the URL synced with the search state
   const updateUrl = useCallback((search: ExpandedSearchState, tags: Array<string>) => {
@@ -326,7 +325,8 @@ const SearchPageTabbed = () => {
       
     updateUrl(updatedSearchState, clearTagFilters ? [] : tagsFilter)
     setSearchState(updatedSearchState)
-  }, [updateUrl, tagsFilter])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateUrl])
 
   useEffect(() => {
     if (searchState.query) {
@@ -342,7 +342,8 @@ const SearchPageTabbed = () => {
         query: query.query,
       }));
     }
-  }, [query.query, searchState?.query]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query.query]);
 
   if (!isSearchEnabled()) {
     return <div className={classes.root}>
@@ -395,7 +396,7 @@ const SearchPageTabbed = () => {
             </div>
           </div>
           <LWTooltip
-            title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or ${taggingNameSetting.get()}:"Expected value" to filter by user or ${taggingNameSetting.get()}.`}
+            title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or wikitag:"Expected value" to filter by user or wikitag.`}
             className={classes.searchHelp}
           >
             <InfoIcon className={classes.infoIcon}/>
@@ -434,7 +435,7 @@ const SearchPageTabbed = () => {
         >
           <Tab label="Posts" value="Posts" />
           <Tab label="Comments" value="Comments" />
-          <Tab label={taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'} value="Tags" />
+          <Tab label="Wikitags" value="Tags" />
           <Tab label="Sequences" value="Sequences" />
           <Tab label="Users" value="Users" />
         </Tabs>
@@ -442,14 +443,6 @@ const SearchPageTabbed = () => {
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
           <CustomStats className={classes.resultCount} />
-          {userHasPeopleDirectory(currentUser) && tab === "Users" && searchState?.query &&
-            <Link
-              to={`/people-directory?query=${encodeURIComponent(searchState.query)}`}
-              className={classes.peopleDirectory}
-            >
-              -&gt; View results in People directory (beta)
-            </Link>
-          }
           <CustomScrollTo targetRef={scrollToRef}>
             <Hits hitComponent={HitComponent} />
           </CustomScrollTo>

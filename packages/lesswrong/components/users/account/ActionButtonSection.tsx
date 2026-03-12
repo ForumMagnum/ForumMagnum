@@ -1,9 +1,10 @@
 import React, { ReactNode } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import EAButton from "../../ea-forum/EAButton";
 import Loading from "../../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ActionButtonSection", (theme: ThemeType) => ({
   blurb: {
     fontSize: 14,
     lineHeight: '20px',
@@ -11,7 +12,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[800],
     marginBottom: 16
   },
-});
+}));
 
 type ActionButtonSectionProps = {
   buttonText: string;
@@ -19,7 +20,6 @@ type ActionButtonSectionProps = {
   description: ReactNode;
   loading?: boolean;
   onClick: () => void;
-  classes: ClassesType<typeof styles>;
 };
 
 const ActionButtonSection = ({
@@ -28,8 +28,8 @@ const ActionButtonSection = ({
   description,
   loading = false,
   onClick,
-  classes,
 }: ActionButtonSectionProps) => {
+  const classes = useStyles(styles);
   return (
     <div>
       <div className={classes.blurb}>{description}</div>
@@ -40,7 +40,7 @@ const ActionButtonSection = ({
   );
 };
 
-export default registerComponent('ActionButtonSection', ActionButtonSection, {styles});
+export default ActionButtonSection;
 
 
 

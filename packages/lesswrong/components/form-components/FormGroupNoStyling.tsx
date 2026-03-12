@@ -1,5 +1,4 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FormGroupLayoutProps } from './FormGroupLayout';
 
 const FormGroupNoStyling = ({children}: FormGroupLayoutProps) => {
@@ -8,6 +7,6 @@ const FormGroupNoStyling = ({children}: FormGroupLayoutProps) => {
   </React.Fragment>
 }
   
-export default registerComponent('FormGroupNoStyling', FormGroupNoStyling);
+export default FormGroupNoStyling;
 
 

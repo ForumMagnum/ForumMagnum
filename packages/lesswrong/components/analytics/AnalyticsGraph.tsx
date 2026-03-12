@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { TooltipProps } from "recharts";
 import { useThemeColor } from "../themes/useTheme";
@@ -14,6 +13,9 @@ import ForumDropdown from "../common/ForumDropdown";
 import LWTooltip from "../common/LWTooltip";
 import AnalyticsGraphSkeleton from "./AnalyticsGraphSkeleton";
 import AnalyticsDisclaimers from "./AnalyticsDisclaimers";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const CONTROLS_BREAKPOINT = 650;
 
@@ -26,7 +28,7 @@ export const GRAPH_HEIGHT = 300;
  */
 export const GRAPH_LEFT_MARGIN = 14;
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("AnalyticsGraph", (theme: ThemeType) => ({
   root: {
     overflow: "auto hidden",
     display: "flex",
@@ -163,7 +165,7 @@ export const styles = (theme: ThemeType) => ({
     fontSize: 12,
     fontWeight: 500,
   },
-});
+}));
 
 const dateOptions = {
   last7Days: {
@@ -188,8 +190,7 @@ const dateOptions = {
   }
 } as const;
 
-const startEndDateFromOption = (option: string) => {
-  const now = new Date();
+const startEndDateFromOption = (now: Date, option: string) => {
   switch (option) {
     case dateOptions.last7Days.value:
       return {
@@ -221,10 +222,10 @@ const startEndDateFromOption = (option: string) => {
 
 interface ColoredCheckboxProps extends CheckboxProps {
   fillColor: string;
-  classes: ClassesType<typeof styles>;
 }
 
-const ColoredCheckbox: React.FC<ColoredCheckboxProps> = ({ fillColor, classes, ...props }: ColoredCheckboxProps) => {
+const ColoredCheckbox: React.FC<ColoredCheckboxProps> = ({ fillColor, ...props }: ColoredCheckboxProps) => {
+  const classes = useStyles(styles);
   return (
     <Checkbox
       className={classes.checkbox}
@@ -244,14 +245,13 @@ export const AnalyticsGraph = ({
   postIds,
   initialDisplayFields = ["views", "reads"],
   disclaimerEarliestDate,
-  classes,
 }: {
   initialDisplayFields?: AnalyticsField[];
   userId?: string;
   postIds?: string[];
   disclaimerEarliestDate?: Date,
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const LINE_COLORS: Record<AnalyticsField, string> = {
     reads: useThemeColor(theme => theme.palette.graph.analyticsReads),
     views: useThemeColor(theme => theme.palette.primary.main),
@@ -262,7 +262,8 @@ export const AnalyticsGraph = ({
   const [displayFields, setDisplayFields] = useState<AnalyticsField[]>(initialDisplayFields);
   const [dateOption, setDateOption] = useState<string>(dateOptions.last30Days.value);
 
-  const {startDate: fallbackStartDate, endDate: fallbackEndDate} = startEndDateFromOption(dateOption);
+  const now = useCurrentTime();
+  const {startDate: fallbackStartDate, endDate: fallbackEndDate} = startEndDateFromOption(now, dateOption);
   const [displayStartDate, setDisplayStartDate] = useState<Date | null>(fallbackStartDate);
   const [displayEndDate, setDisplayEndDate] = useState<Date>(fallbackEndDate);
 
@@ -292,7 +293,7 @@ export const AnalyticsGraph = ({
     setDateOption(option);
 
     if (option !== dateOptions.custom.value) {
-      const {startDate, endDate} = startEndDateFromOption(option);
+      const {startDate, endDate} = startEndDateFromOption(new Date(), option);
       updateDisplayDates(startDate, endDate);
     } else {
       openDialog({
@@ -404,7 +405,6 @@ export const AnalyticsGraph = ({
               <ColoredCheckbox
                 checked={displayFields.includes(field)}
                 onChange={() => toggleField(field as AnalyticsField)}
-                classes={classes}
                 fillColor={LINE_COLORS[field]}
               />
               {startCase(field)}
@@ -434,10 +434,6 @@ export const AnalyticsGraph = ({
   );
 };
 
-export default registerComponent(
-  "AnalyticsGraph",
-  AnalyticsGraph,
-  {styles},
-);
+export default AnalyticsGraph;
 
 

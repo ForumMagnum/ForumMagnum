@@ -13,11 +13,12 @@ import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
 import AnalyticsTracker from "../common/AnalyticsTracker";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const IMAGE_WIDTH = 292;
 const IMAGE_HEIGHT = 96;
 
-export const styles = (theme: ThemeType)=> ({
+export const styles = defineStyles("PostsItemIntroSequence", (theme: ThemeType)=> ({
   root: {
     position: "relative",
     borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
@@ -45,8 +46,8 @@ export const styles = (theme: ThemeType)=> ({
     [theme.breakpoints.down('xs')]: {
       gridTemplateAreas: '"karma title" "karma author"',
       flexWrap: "wrap",
-      paddingTop: theme.spacing.unit,
-      paddingBottom: theme.spacing.unit,
+      paddingTop: 8,
+      paddingBottom: 8,
     },
   },
   postsItemWithImage: {
@@ -76,7 +77,7 @@ export const styles = (theme: ThemeType)=> ({
     },
     [theme.breakpoints.down('xs')]: {
       maxWidth: '80%',
-      paddingRight: theme.spacing.unit,
+      paddingRight: 8,
     },
     '&:hover': {
       opacity: 1,
@@ -86,7 +87,7 @@ export const styles = (theme: ThemeType)=> ({
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
-    marginRight: theme.spacing.unit*1.5,
+    marginRight: 12,
     zIndex: theme.zIndexes.postItemAuthor,
     gridArea: "author",
     width: "min-content",
@@ -127,14 +128,13 @@ export const styles = (theme: ThemeType)=> ({
     paddingTop: 7,
     paddingBottom:8,
   },
-})
+}));
 
 const PostsItemIntroSequence = ({
   post,
   sequence,
   showBottomBorder=true,
   hideAuthor=false,
-  classes,
   curatedIconLeft=false,
   translucentBackground=false,
   withImage,
@@ -147,11 +147,11 @@ const PostsItemIntroSequence = ({
   defaultToShowUnreadComments?: boolean,
   dense?: boolean,
   hideAuthor?: boolean,
-  classes: ClassesType<typeof styles>,
   curatedIconLeft?: boolean,
   translucentBackground?: boolean,
   withImage?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const { isRead } = useRecordPostView(post);
   const postLink = postGetPageUrl(post, false, sequence?._id);
 
@@ -212,7 +212,6 @@ const PostsItemIntroSequence = ({
 };
 
 export default registerComponent('PostsItemIntroSequence', PostsItemIntroSequence, {
-  styles,
   hocs: [withErrorBoundary],
 });
 

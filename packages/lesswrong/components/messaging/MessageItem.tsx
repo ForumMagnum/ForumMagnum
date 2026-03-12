@@ -19,6 +19,7 @@ import HoveredReactionContextProvider from '../votes/lwReactions/HoveredReaction
 import { useHover } from '../common/withHover';
 import type { MessageVotingBottomComponent } from '@/lib/voting/votingSystemTypes';
 import { SideItemsSidebar } from '../contents/SideItems';
+import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
 
 const styles = (theme: ThemeType) => ({
   hoverWrapper: {
@@ -26,7 +27,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
   },
   root: {
-    marginBottom:theme.spacing.unit*1.5,
+    marginBottom:12,
   },
   rootWithImages: {
     maxWidth: '95%',
@@ -48,36 +49,50 @@ const styles = (theme: ThemeType) => ({
   rootCurrentUser: {
     columnGap: 0,
   },
+  fullWidth: {
+    maxWidth: '100%',
+  },
   messageWrapper: {
     position: 'relative',
     gridArea: 'message',
   },
   message: {
     backgroundColor: theme.palette.grey[200],
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    "&$highlighted": {
+      backgroundColor: theme.palette.grey[500],
+    },
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
     borderRadius:5,
     wordWrap: "break-word",
     overflowWrap: "break-word",
     whiteSpace: "normal",
     flexGrow: 1,
   },
+  highlighted: {},
   backgroundIsCurrent: {
     backgroundColor: theme.palette.grey[700],
-    color: theme.palette.panelBackground.default,
-    marginLeft:theme.spacing.unit*1.5,
+    color: theme.palette.inverseGreyAlpha(.87),
+    '& *, & $messageBody *, & $messageBody li::marker': {
+      color: theme.palette.inverseGreyAlpha(.87),
+    },
+    "&$highlighted": {
+      backgroundColor: theme.palette.grey[500],
+    },
+    marginLeft:12,
   },
   meta: {
-    marginBottom:theme.spacing.unit * (theme.isFriendlyUI ? 1.5 : 0.5),
+    marginBottom: 4,
   },
   whiteMeta: {
-    color: theme.palette.text.invertedBackgroundText2,
+    color: theme.palette.inverseGreyAlpha(.93),
   },
   messageBody: {
+    ...postBodyStyles(theme),
+    ...commentBodyStyles(theme),
     '& a': {
-      color: theme.palette.primary.light,
       wordWrap: "break-word",
       overflowWrap: "break-word",
       whiteSpace: "normal",
@@ -113,8 +128,10 @@ const styles = (theme: ThemeType) => ({
 /**
  * Display of a single message in the Conversation Wrapper
 */
-const MessageItem = ({message, classes}: {
+const MessageItem = ({message, highlight=false, showFullWidth=false, classes}: {
   message: messageListFragment,
+  highlight?: boolean,
+  showFullWidth?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -163,12 +180,16 @@ const MessageItem = ({message, classes}: {
     <div className={classNames(
       classes.root,
       isFriendlyUI() ? classes.rootWithImages : classes.rootWithoutImages,
-      isCurrentUser && classes.rootCurrentUser
+      isCurrentUser && classes.rootCurrentUser,
+      showFullWidth && classes.fullWidth,
     )}>
       {profilePhoto}
       <HoveredReactionContextProvider voteProps={voteProps}>
         <div className={classes.messageWrapper}>
-          <Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
+          <Typography variant="body2" className={classNames(classes.message, {
+            [classes.backgroundIsCurrent]: isCurrentUser,
+            [classes.highlighted]: highlight,
+          })}>
             <div className={classes.meta}>
               {message.user && <span className={classes.username}>
                 <span className={colorClassName}><UsersName user={message.user}/></span>
@@ -211,6 +232,3 @@ const MessageItem = ({message, classes}: {
 export default registerComponent('MessageItem', MessageItem, {
   styles, hocs: [withErrorBoundary]
 });
-
-
-

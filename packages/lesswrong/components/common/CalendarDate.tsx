@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
@@ -16,6 +15,6 @@ const CalendarDate = ({date}: {
   return <TimeTag dateTime={date}>{moment(new Date(date)).tz(timezone).calendar()}</TimeTag>
 };
 
-export default registerComponent('CalendarDate', CalendarDate);
+export default CalendarDate;
 
 

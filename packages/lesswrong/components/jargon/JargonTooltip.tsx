@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { ContentItemBody } from '../contents/ContentItemBody';
@@ -204,6 +203,6 @@ export const JargonTooltip = ({term, definitionHTML, approved, deleted, humansAn
   </AnalyticsContext>;
 }
 
-export default registerComponent('JargonTooltip', JargonTooltip);
+export default JargonTooltip;
 
 

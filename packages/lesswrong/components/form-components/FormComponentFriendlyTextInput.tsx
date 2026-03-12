@@ -1,6 +1,5 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { rootStyles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import TextField from "@/lib/vendor/@material-ui/core/src/TextField";
 import classNames from "classnames";
 import { defineStyles, useStyles } from "../hooks/useStyles";
@@ -11,7 +10,7 @@ const styles = defineStyles('FormComponentFriendlyTextInput', (theme: ThemeType)
     fontSize: 12,
   },
   textField: {
-    ...friendlyInputStyles(theme).root,
+    ...friendlyInputStyles(theme),
     "& .MuiInputBase-input": {
       padding: 0,
       fontSize: 14,

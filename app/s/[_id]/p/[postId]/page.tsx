@@ -1,13 +1,24 @@
 import React from "react";
 import SequencesPost from '@/components/sequences/SequencesPost';
-import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+
+assertRouteAttributes("/s/[_id]/p/[postId]", {
+  whiteBackground: true,
+  hasLinkPreview: true,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: true,
+});
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string; postId: string }>(({ postId }) => postId);
 
-export default function Page() {
-  return <RouteRoot metadata={{ background: 'white', titleComponent: PostsPageHeaderTitle }}>
-    <SequencesPost />
+export default async function Page({ params }: {
+  params: Promise<{ _id: string; postId: string }>
+}) {
+  const { _id, postId } = await params;
+  return <RouteRoot>
+    <SequencesPost postId={postId} sequenceId={_id} />
   </RouteRoot>;
 }

@@ -73,6 +73,7 @@ export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, o
           originalContents: {
             type: "ckEditorMarkup",
             data: newHtml,
+            yjsState: null,
           },
           currentUser: user,
           context: resolverContext,

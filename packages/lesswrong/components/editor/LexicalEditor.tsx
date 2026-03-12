@@ -1,0 +1,599 @@
+"use client";
+
+import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
+import { LexicalCollaboration } from '@lexical/react/LexicalCollaborationContext';
+import {
+  defineExtension,
+  type DOMExportOutput,
+  type DOMExportOutputMap,
+  type LexicalEditor as LexicalEditorType,
+  type LexicalNode,
+  TextNode,
+} from 'lexical';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import classNames from 'classnames';
+import { useCurrentUser } from '../common/withUser';
+import WarningBanner from '../common/WarningBanner';
+import { useClientId } from '../hooks/useClientId';
+import type { CollaborationConfig } from '../lexical/collaboration';
+import { useApolloClient } from '@apollo/client/react';
+import { useLocation } from '@/lib/routeUtil';
+import type { ApolloClient } from '@apollo/client/core';
+import Editor from '../lexical/Editor';
+import { LexicalEditorContext } from './LexicalEditorContext';
+import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
+import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
+import { SharedHistoryContext } from '../lexical/context/SharedHistoryContext';
+import { TableContext } from '../lexical/plugins/TablePlugin';
+import PlaygroundNodes from '../lexical/nodes/PlaygroundNodes';
+import PlaygroundEditorTheme from '../lexical/themes/PlaygroundEditorTheme';
+import { ToolbarContext } from '../lexical/context/ToolbarContext';
+import Settings from '../lexical/Settings';
+import { TableCellNode } from '@lexical/table';
+import { CodeHighlightNode, CodeNode } from '@lexical/code';
+import { gql } from '@/lib/generated/gql-codegen';
+import { HorizontalRuleExtension } from '@lexical/extension';
+
+const HocuspocusAuthQuery = gql(`
+  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
+    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
+      token
+    }
+  }
+`);
+
+
+const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
+  editorContainer: {
+    position: 'relative',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: '1.1rem',
+    lineHeight: 1.7,
+  },
+  editorShell: {
+    '--lexical-editor-min-height': '400px',
+  },
+  editorInner: {
+    position: 'relative',
+    background: theme.palette.panelBackground.default,
+    borderRadius: 4,
+  },
+  editorInput: {
+    minHeight: 400,
+    resize: 'none',
+    fontSize: '1.1rem',
+    position: 'relative',
+    outline: 'none',
+    padding: '12px 16px',
+    caretColor: theme.palette.text.normal,
+    '&:focus': {
+      outline: 'none',
+    },
+    // Content styles
+    '& p': {
+      margin: '0 0 1em 0',
+    },
+    '& h1': {
+      fontSize: '1.8rem',
+      fontWeight: 600,
+      marginBottom: '0.5em',
+      marginTop: '1em',
+    },
+    '& h2': {
+      fontSize: '1.5rem',
+      fontWeight: 600,
+      marginBottom: '0.5em',
+      marginTop: '1em',
+    },
+    '& h3': {
+      fontSize: '1.3rem',
+      fontWeight: 600,
+      marginBottom: '0.5em',
+      marginTop: '1em',
+    },
+    '& blockquote': {
+      margin: '1em 0',
+      padding: '0.5em 1em',
+      borderLeft: `4px solid ${theme.palette.grey[300]}`,
+      color: theme.palette.grey[700],
+      backgroundColor: theme.palette.grey[100],
+    },
+    '& ul, & ol': {
+      margin: '0 0 1em 0',
+      padding: '0 0 0 1.5em',
+    },
+    '& li': {
+      margin: '0.25em 0',
+    },
+    '& code': {
+      fontFamily: 'monospace',
+      backgroundColor: theme.palette.grey[100],
+      padding: '0.2em 0.4em',
+      borderRadius: 4,
+      fontSize: '0.9em',
+    },
+    '& pre': {
+      margin: '1em 0',
+      padding: '1em',
+      backgroundColor: theme.palette.grey[100],
+      borderRadius: 4,
+      overflow: 'auto',
+      '& code': {
+        backgroundColor: 'transparent',
+        padding: 0,
+      },
+    },
+    '& a': {
+      color: theme.palette.primary.main,
+      textDecoration: 'underline',
+    },
+    '& strong': {
+      fontWeight: 600,
+    },
+    '& em': {
+      fontStyle: 'italic',
+    },
+    // Footnote styles
+    '& .footnote-section': {
+      marginTop: '2em',
+      paddingTop: '1em',
+      borderTop: `1px solid ${theme.palette.grey[300]}`,
+      fontSize: '0.9em',
+      listStyle: 'none',
+      padding: 0,
+      counterReset: 'footnote-counter',
+    },
+    '& .footnote-item': {
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '0.5em',
+      marginBottom: '0.5em',
+      padding: '0.5em',
+      backgroundColor: theme.palette.grey[50],
+      borderRadius: 4,
+      counterIncrement: 'footnote-counter',
+      '&::before': {
+        content: 'counter(footnote-counter) ". "',
+        flexShrink: 0,
+        minWidth: '1.5em',
+        textAlign: 'right',
+      },
+    },
+    '& .footnote-content': {
+      flex: 1,
+    },
+    '& .footnote-reference': {
+      cursor: 'pointer',
+      '& a': {
+        color: theme.palette.primary.main,
+        textDecoration: 'none',
+        '&:hover': {
+          textDecoration: 'underline',
+        },
+      },
+    },
+    '& .footnote-back-link': {
+      marginRight: '0.25em',
+      '& a': {
+        color: theme.palette.primary.main,
+        textDecoration: 'none',
+        '&:hover': {
+          textDecoration: 'underline',
+        },
+      },
+    },
+    // Math styles
+    '& .math-tex': {
+      cursor: 'pointer',
+    },
+    '& .math-preview': {
+      fontFamily: 'inherit',
+    },
+    '& .math-inline': {
+      display: 'inline-block',
+      verticalAlign: 'middle',
+    },
+    '& .math-display': {
+      display: 'block',
+      textAlign: 'center',
+      margin: '1em 0',
+      padding: '0.5em',
+    },
+    // Spoiler styles
+    '& .spoilers': {
+      backgroundColor: theme.palette.grey[100],
+      border: `1px solid ${theme.palette.grey[300]}`,
+      borderRadius: 4,
+      padding: '1em',
+      margin: '1em 0',
+      position: 'relative',
+      '&::before': {
+        content: '"Spoiler"',
+        position: 'absolute',
+        top: -10,
+        left: 10,
+        backgroundColor: theme.palette.panelBackground.default,
+        padding: '0 4px',
+        fontSize: '0.75em',
+        color: theme.palette.grey[600],
+        fontWeight: 500,
+      },
+    },
+    // Claim/prediction styles
+    '& .elicit-binary-prediction-wrapper': {
+      margin: '1em 0',
+    },
+    // Table styles
+    '& table': {
+      borderCollapse: 'collapse',
+      width: 'auto',
+      margin: '1em 0',
+      border: `1px solid ${theme.palette.grey[300]}`,
+    },
+    '& th, & td': {
+      border: `1px solid ${theme.palette.grey[300]}`,
+      padding: '8px 12px',
+      minWidth: 50,
+      verticalAlign: 'top',
+      position: 'relative',
+    },
+    '& th': {
+      backgroundColor: theme.palette.grey[100],
+      fontWeight: 600,
+      textAlign: 'left',
+    },
+    '& td': {
+      backgroundColor: theme.palette.panelBackground.default,
+    },
+    // Selected cell highlighting (class applied by Lexical via theme.tableCellSelected)
+    '& td.table-cell-selected, & th.table-cell-selected': {
+      backgroundColor: theme.palette.primary.light,
+    },
+    // Table resize handles (if using column resize)
+    '& .table-cell-resizer': {
+      position: 'absolute',
+      right: -2,
+      top: 0,
+      bottom: 0,
+      width: 4,
+      cursor: 'col-resize',
+      backgroundColor: 'transparent',
+      '&:hover': {
+        backgroundColor: theme.palette.primary.main,
+      },
+    },
+  },
+  editorInputComment: {
+    minHeight: 100,
+  },
+  editorPlaceholder: {
+    color: theme.palette.grey[500],
+    overflow: 'hidden',
+    position: 'absolute',
+    textOverflow: 'ellipsis',
+    top: 12,
+    left: 16,
+    fontSize: '1.1rem',
+    userSelect: 'none',
+    display: 'inline-block',
+    pointerEvents: 'none',
+  },
+}));
+
+interface LexicalEditorProps {
+  data?: string;
+  placeholder?: string;
+  onChange: (html: string) => void;
+  onReady?: () => void;
+  /**
+   * Called with a function that generates HTML with all suggestions rejected,
+   * or null on unmount. The parent stores this and invokes it at submit time.
+   */
+  onGetDataWithDiscardedSuggestions?: (fn: (() => string | undefined) | null) => void;
+  commentEditor?: boolean;
+  /** Collection name to determine whether collaboration is supported. */
+  collectionName?: CollectionNameString;
+  /** Document ID for collaborative editing. When provided for Posts, the editor always uses
+   * collaborative mode for consistency, even if not sharing with others. */
+  documentId?: string | null;
+  /** Collaborative editor access level for suggested edits permissions */
+  accessLevel?: CollaborativeEditingAccessLevel;
+}
+
+const getCodeHighlightClassName = (highlightType: string | null | undefined) => {
+  if (!highlightType) {
+    return undefined;
+  }
+  return PlaygroundEditorTheme.codeHighlight?.[highlightType];
+};
+
+const exportCodeHighlightNode = (_editor: LexicalEditorType, target: LexicalNode): DOMExportOutput => {
+  if (!(target instanceof CodeHighlightNode)) {
+    return { element: null };
+  }
+  const text = target.getTextContent();
+  const highlightType = target.getHighlightType();
+  const className = getCodeHighlightClassName(highlightType);
+  if (!className) {
+    return { element: document.createTextNode(text) };
+  }
+  const span = document.createElement('span');
+  span.className = className;
+  span.textContent = text;
+  return { element: span };
+};
+
+const exportTableCellNode = (editor: LexicalEditorType, target: LexicalNode): DOMExportOutput => {
+  if (!(target instanceof TableCellNode)) {
+    return { element: null };
+  }
+  const output = target.exportDOM(editor);
+  if (output.element && 'style' in output.element) {
+    output.element.style = '';
+  }
+  return output;
+};
+
+const formatCodeGutter = (lineCount: number) => {
+  const lines = Array.from({ length: lineCount }, (_, index) => String(index + 1));
+  return lines.join('\n');
+};
+
+function wrapElementWith(element: HTMLElement, tag: string): HTMLElement {
+  const wrapper = document.createElement(tag);
+  wrapper.appendChild(element);
+  return wrapper;
+}
+
+/**
+ * Custom TextNode export that produces non-redundant HTML.
+ *
+ * Lexical's built-in TextNode.exportDOM calls createDOM (which renders
+ * <strong>/<em> based on getElementInnerTag) and then wraps the result
+ * with <b>/<i>/<s>/<u>.  This causes doubled markup (e.g.
+ * <b><strong>text</strong></b>) which downstream consumers like Turndown
+ * convert into doubled Markdown markers (****text****).
+ *
+ * This override builds the export HTML from scratch, wrapping a plain
+ * <span> with exactly one semantic element per active format.
+ */
+const exportTextNode = (_editor: LexicalEditorType, target: LexicalNode): DOMExportOutput => {
+  if (!(target instanceof TextNode)) {
+    return { element: null };
+  }
+
+  const span = document.createElement('span');
+  span.style.whiteSpace = 'pre-wrap';
+  span.textContent = target.getTextContent();
+
+  if (target.hasFormat('lowercase')) {
+    span.style.textTransform = 'lowercase';
+  } else if (target.hasFormat('uppercase')) {
+    span.style.textTransform = 'uppercase';
+  } else if (target.hasFormat('capitalize')) {
+    span.style.textTransform = 'capitalize';
+  }
+
+  const nodeStyle = target.getStyle();
+  if (nodeStyle) {
+    span.style.cssText = span.style.cssText + '; ' + nodeStyle;
+  }
+
+  let element: HTMLElement = span;
+  if (target.hasFormat('code')) {
+    element = wrapElementWith(element, 'code');
+  }
+  if (target.hasFormat('highlight')) {
+    element = wrapElementWith(element, 'mark');
+  }
+  // Use <b> and <i> rather than <strong> and <em> for clipboard
+  // compatibility with external paste targets (Google Docs, Word, etc.)
+  if (target.hasFormat('bold')) {
+    element = wrapElementWith(element, 'b');
+  }
+  if (target.hasFormat('italic')) {
+    element = wrapElementWith(element, 'i');
+  }
+  if (target.hasFormat('strikethrough')) {
+    element = wrapElementWith(element, 's');
+  }
+  if (target.hasFormat('subscript')) {
+    element = wrapElementWith(element, 'sub');
+  }
+  if (target.hasFormat('superscript')) {
+    element = wrapElementWith(element, 'sup');
+  }
+
+  return { element };
+};
+
+const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExportOutput => {
+  if (!(target instanceof CodeNode)) {
+    return { element: null };
+  }
+  const output = target.exportDOM(editor);
+  if (output.element instanceof HTMLElement) {
+    const textContent = target.getTextContent();
+    const lines = textContent.split('\n');
+    const lastLineIndex = lines.length - 1;
+    // Avoid an extra gutter line when the code ends with a single trailing newline, which is itself stripped from the exported html.
+    // Otherwise, we get the appearance of an empty newline at the end of the codeblock, but also a vertical scrollbar.
+    const trailingLineCountAdjustment = lines[lastLineIndex] === '' ? 1 : 0;
+    const adjustedLineCount = Math.max(1, lines.length - trailingLineCountAdjustment);
+    const lineCount = adjustedLineCount;
+    output.element.setAttribute('data-gutter', formatCodeGutter(lineCount));
+    // Set the digit count so CSS can compute gutter width dynamically.
+    const digitCount = String(lineCount).length;
+    if (digitCount > 1) {
+      output.element.style.setProperty('--gutter-chars', String(digitCount));
+    }
+  }
+  return output;
+};
+
+async function fetchHocuspocusToken(
+  apolloClient: ApolloClient,
+  postId: string,
+  linkSharingKey: string | null,
+): Promise<string> {
+  const { data } = await apolloClient.query({
+    query: HocuspocusAuthQuery,
+    variables: { postId, linkSharingKey },
+    fetchPolicy: 'network-only',
+  });
+  const token = data?.HocuspocusAuth?.token;
+  if (!token) {
+    throw new Error('Failed to fetch collaboration token');
+  }
+  return token;
+}
+
+const LexicalEditor = ({
+  data = '',
+  placeholder = 'Start writing...',
+  onChange,
+  onReady,
+  onGetDataWithDiscardedSuggestions,
+  collectionName,
+  documentId = null,
+  commentEditor = false,
+  accessLevel,
+}: LexicalEditorProps) => {
+  const classes = useStyles(lexicalStyles);
+  const currentUser = useCurrentUser();
+  const clientId = useClientId();
+  const apolloClient = useApolloClient();
+  const { query } = useLocation();
+  const linkSharingKey = typeof query.key === 'string' ? query.key : null;
+  const initialHtmlRef = useRef<string | null>(null);
+  const lastDocumentIdRef = useRef<string | null>(null);
+  const lastEmittedHtmlRef = useRef<string | null>(null);
+  const [editorVersion, setEditorVersion] = useState(0);
+  const [collaborationWarning, setCollaborationWarning] = useState<string | null>(null);
+
+  if (lastDocumentIdRef.current !== documentId) {
+    lastDocumentIdRef.current = documentId;
+    initialHtmlRef.current = data;
+  } else if (initialHtmlRef.current === null) {
+    initialHtmlRef.current = data;
+  }
+
+  const isPostEditor = collectionName === 'Posts';
+  const editorContextValue = useMemo(() => ({
+    collectionName,
+    isPostEditor,
+  }), [collectionName, isPostEditor]);
+
+  // Always enable collaboration for posts (when documentId is available).
+  // This ensures we always use Yjs for consistency, even when not sharing with others.
+  // Anonymous users can collaborate if they have a clientId (from cookie).
+  const shouldEnableCollaboration = isPostEditor && !!documentId;
+
+  // Build collaboration config directly -- no initial auth query needed.
+  // The wsUrl is a build-time constant, the documentName is derived from the postId,
+  // and auth tokens are fetched lazily by getToken on each WebSocket connection attempt.
+  const collaborationConfig: CollaborationConfig | null = useMemo(() => {
+    if (!shouldEnableCollaboration) {
+      return null;
+    }
+    const userId = currentUser?._id ?? clientId ?? 'anonymous';
+    const userName = currentUser?.displayName ?? 'Anonymous';
+    
+    return {
+      postId: documentId!,
+      getToken: () => fetchHocuspocusToken(apolloClient, documentId!, linkSharingKey),
+      user: {
+        id: userId,
+        name: userName,
+      },
+      onError: (error) => {
+        setCollaborationWarning(error.message);
+      },
+    };
+  }, [shouldEnableCollaboration, currentUser, clientId, documentId, apolloClient, linkSharingKey]);
+
+  useEffect(() => {
+    onReady?.();
+  }, [onReady]);
+
+  // Handle external data changes when not in collaborative mode (e.g., comments).
+  // In collaborative mode, the Yjs document is the source of truth.
+  useEffect(() => {
+    if (shouldEnableCollaboration) return;
+    const lastEmitted = lastEmittedHtmlRef.current;
+    if (lastEmitted !== null && data === lastEmitted) return;
+    // Only suppress the no-op "same as initial" case before any user edits.
+    // After edits, a reset back to the initial value (often "") is a real
+    // external update (e.g. successful form submit) and must remount.
+    if (lastEmitted === null && (initialHtmlRef.current ?? '') === data) return;
+    initialHtmlRef.current = data;
+    setEditorVersion((prev) => prev + 1);
+  }, [shouldEnableCollaboration, data]);
+
+  const handleChange = useCallback((html: string) => {
+    lastEmittedHtmlRef.current = html;
+    onChange(html);
+  }, [onChange]);
+
+  const app = useMemo(
+    () => {
+      const domExportMap: DOMExportOutputMap = new Map();
+      domExportMap.set(TextNode, exportTextNode);
+      domExportMap.set(TableCellNode, exportTableCellNode);
+      domExportMap.set(CodeNode, exportCodeNode);
+      domExportMap.set(CodeHighlightNode, exportCodeHighlightNode);
+
+      return defineExtension({
+        $initialEditorState: null,
+        html: {
+          export: domExportMap,
+        },
+        name: '@lexical/playground',
+        namespace: 'Playground',
+        nodes: PlaygroundNodes,
+        theme: PlaygroundEditorTheme,
+        dependencies: [HorizontalRuleExtension],
+      });
+    },
+    [],
+  );
+
+  return (
+    <LexicalEditorContext.Provider value={editorContextValue}>
+    <LexicalCollaboration>
+      <LexicalExtensionComposer extension={app} contentEditable={null}>
+        <SharedHistoryContext>
+          <TableContext>
+            <ToolbarContext>
+              {collaborationWarning && shouldEnableCollaboration && (
+                <WarningBanner message={collaborationWarning} />
+              )}
+              <div className={classNames(!commentEditor && classes.editorShell)}>
+                <Editor
+                  key={`${documentId ?? 'lexical-new'}-${editorVersion}`}
+                  collaborationConfig={collaborationConfig ?? undefined}
+                  accessLevel={accessLevel}
+                  initialHtml={initialHtmlRef.current ?? ''}
+                  onChangeHtml={handleChange}
+                  onGetDataWithDiscardedSuggestions={onGetDataWithDiscardedSuggestions}
+                  placeholder={placeholder}
+                  commentEditor={commentEditor}
+                />
+              </div>
+              {/* {!commentEditor && <Settings />} */}
+              {/* {isDevPlayground ? <DocsPlugin /> : null}
+              {isDevPlayground ? <PasteLogPlugin /> : null}
+              {isDevPlayground ? <TestRecorderPlugin /> : null}
+
+              {measureTypingPerf ? <TypingPerfPlugin /> : null} */}
+            </ToolbarContext>
+          </TableContext>
+        </SharedHistoryContext>
+      </LexicalExtensionComposer>
+    </LexicalCollaboration>
+    </LexicalEditorContext.Provider>
+  );
+};
+
+export default LexicalEditor;
+

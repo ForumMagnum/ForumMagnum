@@ -18,7 +18,6 @@ export const getViewablePostsSelector = (postsTableAlias?: string) => {
   return `
     ${aliasPrefix}"status" = ${postStatuses.STATUS_APPROVED} AND
     ${aliasPrefix}"draft" = FALSE AND
-    ${aliasPrefix}"deletedDraft" = FALSE AND
     ${aliasPrefix}"isFuture" = FALSE AND
     ${aliasPrefix}"unlisted" = FALSE AND
     ${aliasPrefix}"shortform" = FALSE AND
@@ -35,7 +34,6 @@ export const getViewableEventsSelector = (postsTableAlias?: string) => {
     ${aliasPrefix}"isEvent" IS TRUE AND
     ${aliasPrefix}"status" = ${postStatuses.STATUS_APPROVED} AND
     ${aliasPrefix}"draft" IS FALSE AND
-    ${aliasPrefix}"deletedDraft" IS FALSE AND
     ${aliasPrefix}"isFuture" IS FALSE AND
     ${aliasPrefix}"unlisted" IS FALSE AND
     ${aliasPrefix}"shortform" IS FALSE AND

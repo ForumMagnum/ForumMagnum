@@ -1,18 +1,16 @@
 import "@/components/momentjs";
 
-import React from "react";
-import ClientAppGenerator from "@/components/next/ClientAppGenerator";
-import { getInstanceSettings } from "@/lib/getInstanceSettings";
+import React, { Suspense } from "react";
+import ClientAppGenerator, { EnvironmentOverrideContextProvider } from "@/components/layout/ClientAppGenerator";
 import { cookies } from "next/headers";
-import { ClientRouteMetadataProvider } from "@/components/ClientRouteMetadataContext";
-import { DEFAULT_TIMEZONE } from "@/lib/utils/timeUtil";
-import { getRouteMetadata } from "@/components/ServerRouteMetadataContext";
+import { DEFAULT_TIMEZONE, SSRMetadata } from "@/lib/utils/timeUtil";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
-import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
-import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, LAST_VISITED_FRONTPAGE_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
+import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
 import { SharedScripts } from "@/components/next/SharedScripts";
 import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
+import { BodyWithBackgroundColor } from "@/components/layout/PageBackgroundWrapper";
+import PageBackgroundColorSwitcher from "@/components/layout/PageBackgroundColorSwitcher";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getDefaultMetadata();
@@ -23,41 +21,60 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = await cookies();
-
-  const timezoneCookie = cookieStore.get(TIMEZONE_COOKIE);
-
-  const timezone = timezoneCookie?.value ?? DEFAULT_TIMEZONE;
-  const clientId = cookieStore.get(CLIENT_ID_COOKIE)?.value ?? null;
-  const clientIdNewCookieExists = !!cookieStore.get(CLIENT_ID_NEW_COOKIE)?.value;
-  const isReturningVisitor = !!cookieStore.get(LAST_VISITED_FRONTPAGE_COOKIE)?.value;
-
-  const clientIdInvalidated = clientId && await new ClientIdsRepo().isClientIdInvalidated(clientId); // TODO Move off the critical path
-
-  const routeMetadata = getRouteMetadata().get();
-
   return (
     <html>
       <head>
-        <SharedScripts isReturningVisitor={isReturningVisitor} />
+        <SharedScripts/>
       </head>
-      <body>
-        <ClientRouteMetadataProvider initialMetadata={routeMetadata}>
-        <ClientIDAssigner clientIdNewCookieExists={clientIdNewCookieExists} clientIdInvalidated={!!clientIdInvalidated}/>
-        <ClientAppGenerator
-          abTestGroupsUsed={{}}
-          ssrMetadata={{
-            renderedAt: new Date().toISOString(),
-            // TODO: figure out how to port the exising cache-control response header logic here
-            cacheFriendly: false,
-            timezone,
-          }}
-        >
-          {children}
-        </ClientAppGenerator>
-        </ClientRouteMetadataProvider>
-      </body>
+      <BodyWithBackgroundColor>
+        <Suspense>
+          <ClientIDAssignerServer/>
+          <PageBackgroundColorSwitcher/>
+        </Suspense>
+        <Suspense>
+          <EnvironmentOverrideContextProviderServer>
+            <ClientAppGeneratorWithRequestId>
+              {children}
+            </ClientAppGeneratorWithRequestId>
+          </EnvironmentOverrideContextProviderServer>
+        </Suspense>
+      </BodyWithBackgroundColor>
     </html>
   );
 }
 
+const ClientAppGeneratorWithRequestId = async ({ children }: {
+  children: React.ReactNode,
+}) => {
+  const { getRequestIdForServerComponentOrGenerateMetadata } = await import("@/server/rendering/requestId");
+  const requestId = await getRequestIdForServerComponentOrGenerateMetadata();
+
+  return <ClientAppGenerator abTestGroupsUsed={{}} requestId={requestId}>
+    {children}
+  </ClientAppGenerator>
+}
+
+const ClientIDAssignerServer = async () => {
+  const ClientIdsRepo = (await import("@/server/repos/ClientIdsRepo")).default;
+  const cookieStore = await cookies();
+  const clientId = cookieStore.get(CLIENT_ID_COOKIE)?.value ?? null;
+  const clientIdNewCookieExists = !!cookieStore.get(CLIENT_ID_NEW_COOKIE)?.value;
+  const clientIdInvalidated = clientId && await new ClientIdsRepo().isClientIdInvalidated(clientId); // TODO Move off the critical path
+  return <ClientIDAssigner clientIdNewCookieExists={clientIdNewCookieExists} clientIdInvalidated={!!clientIdInvalidated}/>
+}
+
+const EnvironmentOverrideContextProviderServer = async ({children}: {
+  children: React.ReactNode
+}) => {
+  // Required in order to make the `new Date()` below safe
+  const _cookieStore = await cookies();
+
+  const ssrMetadata: SSRMetadata = {
+    renderedAt: new Date().toISOString(),
+    // TODO: figure out how to port the exising cache-control response header logic here
+    cacheFriendly: false,
+  };
+  return <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
+    {children}
+  </EnvironmentOverrideContextProvider>
+}

@@ -6,8 +6,6 @@ export const votingSystemNames = z.enum([
   'namesAttachedReactions',
   'reactionsAndLikes',
   'reactsBallot',
-  'emojiReactions',
-  'eaEmojis',
 ]);
 
 export type VotingSystemName = z.infer<typeof votingSystemNames>;

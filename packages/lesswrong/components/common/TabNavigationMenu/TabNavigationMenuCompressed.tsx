@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 
 // -- See here for all the tab content --
@@ -6,8 +5,10 @@ import getMenuTabs from './menuTabs'
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import TabNavigationCompressedItem from "./TabNavigationCompressedItem";
 import SimpleDivider from "../../widgets/SimpleDivider";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TabNavigationMenuCompressed", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -18,15 +19,15 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
   divider: {
-    marginTop:theme.spacing.unit,
-    marginBottom:theme.spacing.unit
+    marginTop:8,
+    marginBottom:8
   }
-})
+}))
 
-const TabNavigationMenuCompressed = ({onClickSection, classes}: {
+const TabNavigationMenuCompressed = ({onClickSection}: {
   onClickSection: (e?: React.BaseSyntheticEvent) => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.root}>
       {forumSelect(getMenuTabs()).map(tab => {
@@ -42,8 +43,6 @@ const TabNavigationMenuCompressed = ({onClickSection, classes}: {
   )
 };
 
-export default registerComponent(
-  'TabNavigationMenuCompressed', TabNavigationMenuCompressed, {styles}
-);
+export default TabNavigationMenuCompressed;
 
 

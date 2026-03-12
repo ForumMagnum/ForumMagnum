@@ -1,5 +1,4 @@
 import React, { ComponentType } from "react";
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SectionTitle, { SectionTitleProps } from "./SectionTitle";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -7,8 +6,10 @@ import classNames from "classnames";
 import SingleColumnSection from "./SingleColumnSection";
 import LWTooltip from "./LWTooltip";
 import ForumIcon from "./ForumIcon";
+import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ExpandableSection", (theme: ThemeType) => ({
   title: {
     display: "flex",
     columnGap: 10,
@@ -44,7 +45,7 @@ const styles = (theme: ThemeType) => ({
   chevronExpanded: {
     transform: "rotate(90deg)",
   },
-});
+}));
 
 type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
   pageSectionContext: string,
@@ -65,9 +66,10 @@ const ExpandableSection = ({
   afterTitleTo,
   AfterTitleComponent,
   children,
-  classes,
   ...sectionTitleProps
-}: ExpandableSectionProps & {classes: ClassesType<typeof styles>}) => {
+}: ExpandableSectionProps) => {
+  const classes = useStyles(styles);
+
   return (
     <AnalyticsContext pageSectionContext={pageSectionContext}>
       <SingleColumnSection>
@@ -110,10 +112,4 @@ const ExpandableSection = ({
   );
 }
 
-export default registerComponent(
-  "ExpandableSection",
-  ExpandableSection,
-  {styles},
-);
-
-
+export default ExpandableSection;

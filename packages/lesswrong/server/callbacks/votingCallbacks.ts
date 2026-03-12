@@ -8,17 +8,13 @@ import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
-import { createAdminContext } from '../vulcan-lib/createContexts';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
-import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from "@/lib/collections/moderatorActions/constants";
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
-import { captureException } from '@/lib/sentryWrapper';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
-import { createModeratorAction } from '../collections/moderatorActions/mutations';
 import { userGetGroups } from '@/lib/vulcan-users/permissions';
 import { backgroundTask } from '../utils/backgroundTask';
 
@@ -128,7 +124,6 @@ export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: Co
   backgroundTask(incVoteCount(voteDocTuple));
   backgroundTask(checkAutomod(voteDocTuple, collection, user, context));
   await maybeCreateReviewMarket(voteDocTuple, collection, user, context);
-  await maybeCreateModeratorAlertsAfterVote(voteDocTuple, collection, user, context);
 }
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
@@ -301,7 +296,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
   if ((newDocument.baseScore ?? 0) < reviewMarketCreationMinimumKarmaSetting.get()) return;
   const post = await Posts.findOne({_id: newDocument._id})
-  if (!post || post.draft || post.deletedDraft) return;
+  if (!post || post.draft) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
   if (post.manifoldReviewMarketId) return;
 
@@ -320,49 +315,4 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   // Return if market creation fails
   if (!liteMarket) return;
   await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
-}
-
-async function maybeCreateModeratorAlertsAfterVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
-  if (!isLWorAF() || vote.collectionName !== 'Comments' || !newDocument.userId) {
-    return;
-  }
-
-  const adminContext = createAdminContext();
-
-  const { userId } = newDocument;
-
-  try {
-    const [longtermDownvoteScore, previousAlert] = await Promise.all([
-      context.repos.votes.getLongtermDownvoteScore(userId),
-      context.ModeratorActions.findOne({ userId, type: RECEIVED_SENIOR_DOWNVOTES_ALERT }, { sort: { createdAt: -1 } })
-    ]);
-  
-    // This seems to happen for new users or users who haven't been voted on at all by longterm senior users
-    if (!longtermDownvoteScore) {
-      return;
-    }
-  
-    // If the user has already been flagged with this moderator action in the last 3 months, no need to apply it again
-    if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(3, 'month'))) {
-      return;
-    }
-  
-    const {
-      commentCount,
-      longtermScore,
-      longtermSeniorDownvoterCount
-    } = longtermDownvoteScore;
-  
-    if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
-      backgroundTask(createModeratorAction({
-        data: {
-          type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
-          userId: userId,
-          endedAt: new Date()
-        },
-      }, adminContext));
-    }
-  } catch (err) {
-    captureException(err);
-  }
 }

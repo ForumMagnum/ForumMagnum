@@ -4,7 +4,7 @@ import { Typography } from "../common/Typography";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     color: theme.palette.text.dim4,
     ...theme.typography.italic,
   }

@@ -11,5 +11,14 @@ export const AutomatedContentEvaluationsFragment = gql(`
     aiChoice
     aiReasoning
     aiCoT
+    pangramScore
+    pangramMaxScore
+    pangramPrediction
+    pangramWindowScores {
+      text
+      score
+      startIndex
+      endIndex
+    }
   }
 `);

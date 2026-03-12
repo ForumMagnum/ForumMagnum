@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userHasAutosummarize } from "../../../lib/betas";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
@@ -34,9 +33,4 @@ const SummarizeDropdownItem = ({post, closeMenu}: {
   );
 }
 
-export default registerComponent(
-  "SummarizeDropdownItem",
-  SummarizeDropdownItem,
-);
-
-
+export default SummarizeDropdownItem;

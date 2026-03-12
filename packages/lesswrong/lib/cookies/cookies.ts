@@ -162,28 +162,28 @@ export const HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS = registerCookie({
   description: "Whether to hide the suggested users section on the subscribed tab feed"
 });
 
-export const HIDE_SURVEY_SCHEDULE_IDS = registerCookie({
-  name: "hide_survey_schedule_ids",
-  type: "necessary",
-  description: "Stores the ids of survey schedules that the user has hidden"
-});
-
 export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
   name: "selected_frontpage_tab",
   type: "functional",
   description: "Stores the selected tab for logged out users"
 });
 
+export const SELECTED_PROFILE_TAB_COOKIE = registerCookie({
+  name: "selected_profile_tab",
+  type: "functional",
+  description: "Stores the selected profile page tab (feed, posts, comments, wiki edits, sequences, or quick takes)",
+});
+
+export const PROFILE_TAB_SETTINGS_COOKIE = registerCookie({
+  name: "profile_tab_settings",
+  type: "functional",
+  description: "Stores settings for all profile page tabs, including comments",
+});
+
 export const HIDE_EAG_BANNER_COOKIE = registerCookie({
   name: "hide_eag_banner",
   type: "necessary",
   description: "Don't show any EAG(x) banners",
-});
-
-export const HIDE_EA_FORUM_SURVEY_BANNER_COOKIE = registerCookie({
-  name: "hide_ea_forum_survey_banner",
-  type: "necessary",
-  description: "Don't show the EA Forum survey banner",
 });
 
 export const NAV_MENU_FLAG_COOKIE_PREFIX = "nav_menu_flag_";
@@ -236,10 +236,22 @@ export const PINNED_GLOSSARY_COOKIE = registerCookie({
   description: 'Whether the glossary is pinned',
 });
 
+export const HIDE_SOLSTICE_GLOBE_COOKIE = registerCookie({
+  name: 'hide_solstice_globe',
+  type: 'necessary',
+  description: 'Whether the solstice season globe is hidden and replaced with a map',
+});
+
 export const NO_ADMIN_NEXT_REDIRECT_COOKIE = registerCookie({
   name: 'no_admin_next_redirect',
   type: 'functional',
   description: `If set, admins won't be redirected to the baserates-prod-test.vercel.app domain`,
+});
+
+export const HIDE_FUNDRAISER_BANNER_COOKIE = registerCookie({
+  name: 'hide_fundraiser_banner_2026',
+  type: 'necessary',
+  description: 'Whether the 2026 fundraiser banner has been dismissed',
 });
 
 

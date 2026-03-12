@@ -5,7 +5,7 @@ import { parseDocumentFromString } from "@/lib/domParser";
 import { highlightFromHTML, truncate } from "@/lib/editor/ellipsize";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { extractTableOfContents } from "@/lib/tableOfContents";
-import { sanitizeAllowedTags } from "@/lib/vulcan-lib/utils";
+import { sanitizeAllowedTags } from "@/lib/utils/sanitize";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { htmlStartingAtHash } from "@/server/extractHighlights";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
@@ -14,7 +14,8 @@ import { ContentType } from "./revisionSchemaTypes";
 import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import { getOriginalContents } from "./helpers";
-import { isLWorAF } from "@/lib/instanceSettings";
+import { rewritePostLinksForAgentMarkdown } from "@/server/markdownApi/markdownLinks";
+import { truncateMarkdown } from "@/server/markdownApi/markdownTruncation";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -210,11 +211,17 @@ const schema = {
         // suggestion. Original contents is only visible to people who are invited
         // to collaborative editing. (This is only relevant for posts, but supporting
         // it means we need originalContents to default to unviewable)
+        let contents: ContentType;
         if (document.collectionName === "Posts" && document.documentId) {
           const post = await context.loaders["Posts"].load(document.documentId);
-          return getOriginalContents(context.currentUser, post, document.originalContents, context);
+          contents = await getOriginalContents(context.currentUser, post, document.originalContents, context);
+        } else {
+          contents = document.originalContents ?? { type: 'ckEditorMarkup', data: '' };
         }
-        return document.originalContents ?? { type: 'ckEditorMarkup', data: '' };
+        // Strip yjsState from the GraphQL output — it's a large base64 blob
+        // only needed server-side for restore operations, not by clients.
+        const { yjsState, ...rest } = contents;
+        return rest;
       },
     },
   },
@@ -236,6 +243,29 @@ const schema = {
       canRead: ["guests"],
       resolver: ({ originalContents }) =>
         originalContents ? dataToMarkdown(originalContents.data, originalContents.type) : null,
+    },
+  },
+  agentMarkdown: {
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      resolver: async ({ originalContents }, args, context) => {
+        if (!originalContents) return null;
+        const markdown = dataToMarkdown(originalContents.data, originalContents.type);
+        return rewritePostLinksForAgentMarkdown(markdown, context);
+      },
+    },
+  },
+  agentMarkdownExcerpt: {
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      resolver: async ({ originalContents }, args,context) => {
+        if (!originalContents) return null;
+        const markdown = dataToMarkdown(originalContents.data, originalContents.type);
+        const truncatedMarkdown = truncateMarkdown(markdown, 1000);
+        return await rewritePostLinksForAgentMarkdown(truncatedMarkdown, context);
+      }
     },
   },
   ckEditorMarkup: {
@@ -306,8 +336,8 @@ const schema = {
       resolver: ({ html }) => {
         if (!html) return "";
         const mainTextHtml = sanitizeHtml(html, {
-          allowedTags: sanitizeAllowedTags.filter((tag) => tag !== "blockquote" && tag !== "img"),
-          nonTextTags: ["blockquote", "img", "style"],
+          allowedTags: sanitizeAllowedTags.filter((tag) => tag !== "blockquote"),
+          nonTextTags: ["blockquote", "style"],
           exclusiveFilter: function (element) {
             return (
               element.attribs?.class === "spoilers" ||
@@ -317,7 +347,7 @@ const schema = {
           },
         });
         const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH);
-        return htmlToTextDefault(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
+        return htmlToTextDefault(truncatedHtml, { fallbackToImageText: true }).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
       },
     },
   },

@@ -1,8 +1,6 @@
 import React, { useCallback } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -43,15 +41,12 @@ const ExcludeFromRecommendationsDropdownItem = ({post}: {
     : "Exclude from Recommendations"
   return (
     <DropdownItem
-      title={preferredHeadingCase(label)}
+      title={label}
       onClick={handleToggleDisableRecommendations}
     />
   );
 }
 
-export default registerComponent(
-  'ExcludeFromRecommendationsDropdownItem',
-  ExcludeFromRecommendationsDropdownItem,
-);
+export default ExcludeFromRecommendationsDropdownItem;
 
 

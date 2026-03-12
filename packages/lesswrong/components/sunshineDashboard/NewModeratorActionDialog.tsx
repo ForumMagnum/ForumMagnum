@@ -4,7 +4,6 @@ import { DialogTitle } from "@/components/widgets/DialogTitle";
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FormComponentDatePicker } from '../form-components/FormComponentDateTime';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { FormComponentSelect } from '@/components/form-components/FormComponentSelect';
@@ -31,8 +30,8 @@ const styles = defineStyles('NewModeratorActionDialog', (theme: ThemeType) => ({
     minHeight: 400
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
@@ -150,6 +149,6 @@ const NewModeratorActionDialog = ({ onClose, userId }: {
   )
 };
 
-export default registerComponent('NewModeratorActionDialog', NewModeratorActionDialog);
+export default NewModeratorActionDialog;
 
 

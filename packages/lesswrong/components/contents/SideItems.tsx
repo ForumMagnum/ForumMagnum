@@ -61,8 +61,12 @@ function useForceRerender() {
   return {renderCount, rerender};
 }
 
-export const SideItemsContainer = ({children}: {
+export const SideItemsContainer = ({
+  children,
+  hideBlockSideItems = false,
+}: {
   children: React.ReactNode
+  hideBlockSideItems?: boolean
 }) => {
   const classes = useStyles(styles);
   const state = useRef<SideItemsState>({sideItems: [], maxId: -1});
@@ -111,9 +115,11 @@ export const SideItemsContainer = ({children}: {
   }), [addSideItem, removeSideItem, resizeItem]);
   
   const sideItemsDisplayContext: SideItemsDisplayContextType = useMemo(() => ({
-    sideItems: state.current.sideItems
+    sideItems: hideBlockSideItems
+      ? state.current.sideItems.filter((sideItem) => sideItem.options.format !== "block")
+      : state.current.sideItems
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [renderCount, state.current.sideItems]);
+  }), [renderCount, state.current.sideItems, hideBlockSideItems]);
   
   useEffect(() => {
     // Watch contents for size-change of the central column, which will happen
@@ -223,9 +229,10 @@ export const SideItemsSidebar = () => {
   />, [classes]);
 }
 
-export const SideItem = ({options, children}: {
+export const SideItem = ({options, children, anchorEl}: {
   options?: Partial<SideItemOptions>,
-  children: React.ReactNode
+  children: React.ReactNode,
+  anchorEl?: HTMLElement|null,
 }) => {
   const placementContext = useContext(SideItemsPlacementContext);
   const anchorRef = useRef<HTMLSpanElement>(null);
@@ -233,8 +240,8 @@ export const SideItem = ({options, children}: {
   const mergedOptions: SideItemOptions = {...defaultSideItemOptions, ...options};
   
   useEffect(() => {
-    if (placementContext && anchorRef.current) {
-      const anchor = anchorRef.current;
+    const anchor = anchorEl ?? anchorRef.current;
+    if (placementContext && anchor) {
       setPortalContainer(placementContext.addSideItem(anchor, mergedOptions));
       
       return () => {
@@ -243,10 +250,14 @@ export const SideItem = ({options, children}: {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [placementContext, mergedOptions.format, mergedOptions.offsetTop, mergedOptions.measuredElement]);
+  }, [placementContext, anchorEl, mergedOptions.format, mergedOptions.offsetTop, mergedOptions.measuredElement]);
 
   if (!placementContext) {
     return null;
+  }
+
+  if (anchorEl) {
+    return <>{portalContainer && createPortal(children, portalContainer)}</>;
   }
 
   return <span ref={anchorRef}>

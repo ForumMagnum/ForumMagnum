@@ -12,6 +12,9 @@
 const MAX_DEPTH = 50;
 const MAX_TOTAL_PATHS = 1000;
 
+// Boost multiplier for comments that are reviews
+const REVIEW_COMMENT_BOOST = 10.0;
+
 import { UltraFeedResolverSettings, CommentScoringSettings, ThreadInterestModelSettings } from '../../components/ultraFeed/ultraFeedSettingsTypes';
 import { 
   PreDisplayFeedComment, 
@@ -24,6 +27,9 @@ import {
   ThreadEngagementStats,
 } from '../../components/ultraFeed/ultraFeedTypes';
 import * as crypto from 'crypto';
+import { loggerConstructor } from '@/lib/utils/logging';
+
+const ultraFeedLog = loggerConstructor('ultrafeed');
 
 /**
  * Generates a stable hash ID for a comment thread based on its comment IDs. This creates a consistent identifier for each unique thread composition.
@@ -77,6 +83,7 @@ export function buildDistinctLinearThreads(
         lastViewed: candidate.lastViewed,
         lastInteracted: candidate.lastInteracted,
         postedAt: candidate.postedAt,
+        fromSubscribedUser: candidate.fromSubscribedUser,
       }
     };
   });
@@ -198,6 +205,10 @@ function calculateCommentScore(
   
   if (comment.authorId && subscribedToUserIds.has(comment.authorId)) {
     boost *= settings.commentSubscribedAuthorMultiplier; 
+  }
+
+  if (comment.reviewingForReview) {
+    boost *= REVIEW_COMMENT_BOOST;
   }
 
   const boostedScore = decayedScore * boost;
@@ -522,6 +533,8 @@ function prepareThreadForDisplay(
       postedAt: comment.postedAt,
       displayStatus: displayStatus,
       highlight: shouldHighlight ?? false,
+      isParentPostRead: isOnReadPost,
+      fromSubscribedUser: comment.fromSubscribedUser,
     };
 
     return {
@@ -536,7 +549,6 @@ function prepareThreadForDisplay(
   return {
     comments: finalComments,
     primarySource: primarySource as FeedItemSourceType,
-    isOnReadPost: isOnReadPost,
   };
 }
 
@@ -615,34 +627,62 @@ export async function getUltraFeedCommentThreads(
   const finalRankedThreads = selectBestThreads(allScoredThreads); 
 
   // --- Filter out non-viable threads ---
+  const nonViableReasons = {
+    zeroOrNegativeScore: 0,
+    allCommentsViewed: 0,
+    allCommentsServedInSession: 0,
+  };
+  
   const viableThreads = finalRankedThreads.filter(rankedThreadInfo => {
     const thread = rankedThreadInfo.thread;
     
     // Exclude threads with zero or negative scores
-    if (rankedThreadInfo.score <= 0) return false;
+    if (rankedThreadInfo.score <= 0) {
+      nonViableReasons.zeroOrNegativeScore++;
+      return false;
+    }
     
     // Exclude threads where ALL comments have been viewed or interacted with
     const hasUnviewedComment = thread.some(comment => 
       !comment.lastViewed && !comment.lastInteracted
     );
-    if (!hasUnviewedComment) return false;
+    if (!hasUnviewedComment) {
+      nonViableReasons.allCommentsViewed++;
+      return false;
+    }
     
-    // Exclude threads where ALL comments have already been served in this session, i.e. duplicate thread
+    // Exclude threads where ALL comments have already been served in this session
     if (sessionId && servedCommentIdsInSession.size > 0) {
       const hasUnservedComment = thread.some(comment => 
         !servedCommentIdsInSession.has(comment.commentId)
       );
-      if (!hasUnservedComment) return false;
+      if (!hasUnservedComment) {
+        nonViableReasons.allCommentsServedInSession++;
+        return false;
+      }
     }
     
     return true;
   });
 
-  // --- Prepare for Display --- 
+  const totalThreads = finalRankedThreads.length;
+  const nonViableCount = totalThreads - viableThreads.length;
+  ultraFeedLog(
+    `Comment threads - total: ${totalThreads}, viable: ${viableThreads.length}, ` +
+    `non-viable: ${nonViableCount} (score≤0: ${nonViableReasons.zeroOrNegativeScore}, ` +
+    `viewed: ${nonViableReasons.allCommentsViewed}, served: ${nonViableReasons.allCommentsServedInSession}), ` +
+    `limit: ${limit}`
+  );
+  
   const displayThreads = viableThreads
     .slice(0, limit) 
     .map(rankedThreadInfo => prepareThreadForDisplay(rankedThreadInfo, engagementStatsMap))
     .filter(rankedThreadInfo => !!rankedThreadInfo);
+
+  const returnedCommentIds = displayThreads.flatMap(thread => 
+    thread.comments.map(comment => comment.commentId.substring(0, 3))
+  );
+  ultraFeedLog(`Returning comments (first 3 chars): [${returnedCommentIds.join(', ')}]`);
 
   return displayThreads;
 } 

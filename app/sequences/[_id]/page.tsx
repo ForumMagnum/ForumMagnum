@@ -1,29 +1,30 @@
 import React from "react";
 import SequencesSingle from '@/components/sequences/SequencesSingle';
-import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
-import merge from "lodash/merge";
-import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
-import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { generateSequencePageMetadata } from "@/server/pageMetadata/sequencePageMetadata";
 
-export async function generateMetadata({ params }: { params: Promise<{ _id: string }> }): Promise<Metadata> {
-  const [{ _id }, defaultMetadata] = await Promise.all([
-    params,
-    getDefaultMetadata(),
-  ]);
+assertRouteAttributes("/sequences/[_id]", {
+  whiteBackground: false,
+  hasLinkPreview: true,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
-  const ogUrl = combineUrls(getSiteUrl(), `/s/${_id}`);
-  const canonicalUrl = sequenceGetPageUrl({ _id }, true);
-
-  return merge({}, defaultMetadata, {
-    openGraph: { url: ogUrl },
-    alternates: { canonical: canonicalUrl },
-  });
+export async function generateMetadata({ params, searchParams }: {
+  params: Promise<{ _id: string }>
+  searchParams: Promise<{}>,
+}): Promise<Metadata> {
+  return generateSequencePageMetadata({ params, searchParams });
 }
 
-export default function Page() {
+export default async function Page({ params }: {
+  params: Promise<{ _id: string }>
+}) {
+  const { _id } = await params;
   return <RouteRoot>
-    <SequencesSingle />
+    <SequencesSingle _id={_id} />
   </RouteRoot>
 }

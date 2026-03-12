@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState, useEffect, useRef } from 'react';
 import { useUserLocation } from '../hooks/useUserLocation';
 import { useCurrentUser } from '../common/withUser';
@@ -29,6 +28,8 @@ import DistanceUnitToggle from "./modules/DistanceUnitToggle";
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersProfileUpdateMutation = gql(`
   mutation updateUserCommunity($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -40,7 +41,7 @@ const UsersProfileUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("Community", (theme: ThemeType) => ({
   section: {
     maxWidth: 1200,
     margin: 'auto',
@@ -210,11 +211,10 @@ const styles = (theme: ThemeType) => ({
   addGroup: {
     marginTop: 40
   },
-});
+}));
 
-const Community = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const Community = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const navigate = useNavigate();
@@ -554,6 +554,6 @@ const Community = ({classes}: {
   )
 }
 
-export default registerComponent('Community', Community, {styles});
+export default Community;
 
 

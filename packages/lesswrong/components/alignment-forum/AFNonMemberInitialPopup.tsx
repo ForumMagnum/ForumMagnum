@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { useTagBySlug } from '../tagging/useTag';
@@ -8,8 +7,10 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button'
 import { ContentItemBody } from "../contents/ContentItemBody";
 import LWDialog from "../common/LWDialog";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AFNonMemberInitialPopup", (theme: ThemeType) => ({
   dialog: {
     zIndex: theme.zIndexes.afNonMemberPopup
   },
@@ -26,14 +27,14 @@ const styles = (theme: ThemeType) => ({
   understandConfirmationButton: {
     fontSize: "1rem"
   }
-});
+}));
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const AFNonMemberInitialPopup = ({onClose, classes}: {
+const AFNonMemberInitialPopup = ({onClose}: {
   onClose?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const updateCurrentUser = useUpdateCurrentUser();
   const { flash } = useMessages();
   const [open, setOpen] = useState(true)
@@ -72,6 +73,6 @@ const AFNonMemberInitialPopup = ({onClose, classes}: {
   );
 }
 
-export default registerComponent('AFNonMemberInitialPopup', AFNonMemberInitialPopup, {styles});
+export default AFNonMemberInitialPopup;
 
 

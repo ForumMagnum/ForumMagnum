@@ -6,7 +6,7 @@ const PostsPageMultiQuery = gql(`
   query multiPostusePostQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
     posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
-        ...PostsPage
+        ...PostsList
       }
       totalCount
     }
@@ -15,7 +15,7 @@ const PostsPageMultiQuery = gql(`
 
 export const usePostBySlug = ({slug, ssr=true}: {slug: string, ssr?: boolean}):
   {
-    post: PostsPage,
+    post: PostsList,
     loading: false,
     error: null
   } | {
@@ -55,7 +55,7 @@ export const usePostByLegacyId = ({ legacyId, ssr=true }: {
   ssr?: boolean
 }):
   {
-    post: PostsPage,
+    post: PostsList,
     loading: false,
     error: null
   } | {

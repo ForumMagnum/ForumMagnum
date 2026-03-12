@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
@@ -9,8 +8,10 @@ import Divider from "../common/Divider";
 import SequencesNewButton from "../sequences/SequencesNewButton";
 import SequencesGridWrapper from "../sequences/SequencesGridWrapper";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AFLibraryPage", (theme: ThemeType) => ({
   pageTitle: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
@@ -21,11 +22,10 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 1,
     marginTop: 0,
   }
-});
+}));
 
-export const AFLibraryPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const AFLibraryPage = () => {
+  const classes = useStyles(styles);
   return <div>
     <AnalyticsContext pageContext="sequencesHome">
       <SingleColumnSection>
@@ -60,7 +60,7 @@ export const AFLibraryPage = ({classes}: {
   </div>;
 }
 
-export default registerComponent('AFLibraryPage', AFLibraryPage, {styles});
+export default AFLibraryPage;
 
 
 

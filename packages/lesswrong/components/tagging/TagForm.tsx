@@ -48,8 +48,8 @@ const TagWithFlagsFragmentMutation = gql(`
 
 const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
@@ -343,6 +343,32 @@ export const TagForm = ({
                   field={field}
                   label="Admin Only"
                 />
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="removalResistant">
+              {(field) => (
+                <LWTooltip title="If a moderator or high-karma user upvotes this tag on a post, it can only be removed by a moderator downvote." placement="left-start" inlineBlock={false}>
+                  <FormComponentCheckbox
+                    field={field}
+                    label="Removal-resistant"
+                  />
+                </LWTooltip>
+              )}
+            </form.Field>
+          </div>
+
+          <div className={classes.fieldWrapper}>
+            <form.Field name="authorOnly">
+              {(field) => (
+                <LWTooltip title="Only post authors and moderators can apply, remove, or vote on this tag when used on posts." placement="left-start" inlineBlock={false}>
+                  <FormComponentCheckbox
+                    field={field}
+                    label="Author-only"
+                  />
+                </LWTooltip>
               )}
             </form.Field>
           </div>

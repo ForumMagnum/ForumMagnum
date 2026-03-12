@@ -9,17 +9,21 @@ import uniq from 'lodash/uniq';
 import { ConditionalVisibilitySettings } from '../editor/conditionalVisibilityBlock/conditionalVisibility';
 import ConditionalVisibilityBlockDisplay from '../editor/conditionalVisibilityBlock/ConditionalVisibilityBlockDisplay';
 import ElicitBlock from './ElicitBlock';
+import { ReviewResultsTableDisplay, type ReviewResultsEntry } from './ReviewResultsTableDisplay';
 import { hasCollapsedFootnotes } from '@/lib/betas';
 import { CollapsedFootnotes } from './CollapsedFootnotes';
 import { WrappedStrawPoll } from './WrappedStrawPoll';
+import { HydratedIframeWidget } from './HydratedIframeWidget';
 import { validateUrl } from '@/lib/vulcan-lib/utils';
 import { useTracking } from '@/lib/analyticsEvents';
-import ForumEventPostPagePollSection from '../forumEvents/ForumEventPostPagePollSection';
 import repeat from 'lodash/repeat';
 import { captureException } from '@/lib/sentryWrapper';
-import { getColorReplacements } from '@/themes/userThemes/darkMode';
+import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
-import { ThemeContext } from '../themes/useTheme';
+import { useAbstractThemeOptions } from '../themes/useTheme';
+import dynamic from 'next/dynamic';
+
+const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
 
 type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description"|"noHoverPreviewPrefetch"|"nofollow"|"contentStyleType"|"replacedSubstrings"|"idInsertions"> & {
   themeName: UserThemeSetting,
@@ -44,7 +48,6 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  *   wrapStrawPoll
  * Functionality from the old ContentItemBody which is implemented, but not well tested:
  *   addCTAButtonEventListeners
- *   replaceForumEventPollPlaceholders
  *   exposeInternalIds
  * Additional limitations:
  *   CDATA, directive, script, and style nodes are ignored. These will be
@@ -58,7 +61,7 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
 export const ContentItemBody = (props: ContentItemBodyProps) => {
   const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref, invertSubstitutionColors } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
-  const themeContext = useContext(ThemeContext)
+  const abstractThemeOptions = useAbstractThemeOptions();
   const html = (nofollow
     ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
     : dangerouslySetInnerHTML.__html
@@ -91,18 +94,22 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   
   const passedThroughProps: PassedThroughContentItemBodyProps = {
     ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings", "idInsertions"]),
-    themeName: themeContext!.abstractThemeOptions.name,
+    themeName: abstractThemeOptions.name,
     bodyRef,
   };
   
-  return <div className={className} ref={bodyRef}>
-    {parsedHtml.childNodes.map((child,i) => <ContentItemBodyInner
-      key={i}
-      parsedHtml={child}
-      passedThroughProps={passedThroughProps}
-      root={true}
-    />)}
-  </div>
+  return (
+    <div className={className} ref={bodyRef}>
+      {parsedHtml.childNodes.map((child, i) => (
+        <ContentItemBodyInner
+          key={i}
+          parsedHtml={child}
+          passedThroughProps={passedThroughProps}
+          root={true}
+        />
+      ))}
+    </div>
+  );
 }
 
 const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
@@ -160,6 +167,11 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         const transformedStyle = transformStylesForDarkMode(attribs["style"], themeName);
         attribs["style"] = transformedStyle;
       }
+      for (const attribute of legacyHtmlColorAttributes) {
+        if (attribs[attribute]) {
+          attribs[attribute] = transformAttributeValueForDarkMode(attribs[attribute]);
+        }
+      }
 
       if (attribs['data-replacements'] && replacedSubstrings) {
         const substitutions = (JSON.parse(attribs['data-replacements']) as SubstitutionsAttr);
@@ -183,12 +195,14 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           let visibilityOptions: ConditionalVisibilitySettings|null = null;
           try {
             visibilityOptions = JSON.parse(visibilityOptionsStr)
-            result = <ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
-              {result}
-            </ConditionalVisibilityBlockDisplay>;
           } catch {
             // eslint-disable-next-line no-console
             console.error("Error parsing conditional visibility options", visibilityOptionsStr);
+          }
+          if (visibilityOptions) {
+            result = <ConditionalVisibilityBlockDisplay options={visibilityOptions!}>
+              {result}
+            </ConditionalVisibilityBlockDisplay>;
           }
         }
       }
@@ -198,10 +212,37 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
           result = <ElicitBlock questionId={elicitId}/>
         }
       }
+      if (classNames.includes("review-results-table")) {
+        const reviewResultsStr = attribs['data-review-results'];
+        if (reviewResultsStr) {
+          let data: { year: number; results: ReviewResultsEntry[] } | null = null;
+          try {
+            data = JSON.parse(reviewResultsStr) as { year: number; results: ReviewResultsEntry[] };
+          } catch {
+            // Fall through to default rendering on parse failure
+          }
+          if (data) {
+            result = <ReviewResultsTableDisplay results={data.results} context="content-item-body" />;
+          }
+        }
+      }
+      if (classNames.includes("llm-content-block")) {
+        // Ensure data-model-name has a value so the inline model label rendered
+        // by CSS ::before (via attr()) is visible even when unspecified.
+        if (!attribs['data-model-name']) {
+          attribs['data-model-name'] = 'Unknown Model';
+        }
+      }
       if (classNames.includes("strawpoll-embed")) {
         result = <WrappedStrawPoll>
           {result}
         </WrappedStrawPoll>
+      }
+      if (classNames.includes("iframe-widget")) {
+        const widgetId = attribs['data-iframe-widget-id'];
+        if (widgetId) {
+          result = <HydratedIframeWidget widgetId={widgetId} attribs={attribs} />;
+        }
       }
       if (classNames.includes("ck-cta-button")) {
         if (attribs['data-href']) {
@@ -211,12 +252,6 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         attribs['onClick'] = (ev: React.MouseEvent<HTMLAnchorElement>) => {
           captureEvent("ctaButtonClicked", {href: attribs['data-href']});
           originalOnClick?.(ev);
-        }
-      }
-      if (classNames.includes("ck-poll")) {
-        const forumEventId = attribs['data-internal-id'];
-        if (forumEventId) {
-          return <ForumEventPostPagePollSection id={forumEventId} forumEventId={forumEventId} />
         }
       }
       if (attribs['data-internal-id']) {
@@ -235,7 +270,15 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         }
       }
 
-      if (root && ['p','div','table'].includes(TagName)) {
+      if (TagName === 'pre' && classNames.includes('code-block')) {
+        return (
+          <ContentCodeBlockWithMenu attribs={attribs} classNames={classNames}>
+            {result}
+          </ContentCodeBlockWithMenu>
+        );
+      }
+
+      if (root && ['p','div','table','figure'].includes(TagName)) {
         return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
           {result}
         </MaybeScrollableBlock>
@@ -586,7 +629,9 @@ function splitText(textNode: DomHandlerText, splitOffset: number): [DomHandlerTe
   return null;
 }
 
-const attributesNeedingTransform: Record<string,boolean> = {
+const legacyHtmlColorAttributes = ["bgcolor"];
+
+const cssAttributesNeedingTransform: Record<string,boolean> = {
   "background": true,
   "backgroundColor": true,
   "borderColor": true,
@@ -596,7 +641,7 @@ const attributesNeedingTransform: Record<string,boolean> = {
 function transformStylesForDarkMode(styles: Record<string,string>, themeName: UserThemeSetting): Record<string,string> {
   if (themeName === 'dark' || themeName === 'auto') {
     return Object.fromEntries(Object.entries(styles).map(([attribute,value]) => {
-      if (attributesNeedingTransform[attribute]) {
+      if (cssAttributesNeedingTransform[attribute]) {
         const darkModeValue = transformAttributeValueForDarkMode(value)
         if (themeName === "auto" && darkModeValue !== value) {
           return [attribute, `light-dark(${value},${darkModeValue})`];
@@ -614,20 +659,20 @@ function transformStylesForDarkMode(styles: Record<string,string>, themeName: Us
 
 function transformAttributeValueForDarkMode(attributeValue: string): string {
   const normalized = attributeValue.trim().toLowerCase();
-  if (!getColorReplacements()[normalized]) {
+  if (!getColorReplacementsCache()[normalized]) {
     const parsedColor = parseColor(normalized);
     if (parsedColor) {
       const invertedColor = invertColor(parsedColor);
-      getColorReplacements()[normalized] = colorToString(invertedColor);
+      getColorReplacementsCache()[normalized] = colorToString(invertedColor);
     } else {
       // If unable to parse a color (eg an unsupported color format), use black
       // as a safe dark-mode background color
-      getColorReplacements()[normalized] = "#000000";
+      getColorReplacementsCache()[normalized] = "#000000";
     }
   }
   
-  if (getColorReplacements()[normalized]) {
-    return getColorReplacements()[normalized];
+  if (getColorReplacementsCache()[normalized]) {
+    return getColorReplacementsCache()[normalized];
   } else {
     return attributeValue;
   }

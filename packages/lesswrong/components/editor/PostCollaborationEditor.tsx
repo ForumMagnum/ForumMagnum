@@ -13,7 +13,6 @@ import DeferRender from '../common/DeferRender';
 import Error404 from "../common/Error404";
 import PostsAuthors from "../posts/PostsPage/PostsAuthors";
 import CollabEditorPermissionsNotices from "./CollabEditorPermissionsNotices";
-import CKPostEditor from "./CKPostEditor";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import ContentStyles from "../common/ContentStyles";
@@ -23,6 +22,12 @@ import ForeignCrosspostEditForm from "../posts/ForeignCrosspostEditForm";
 import PostVersionHistoryButton from './PostVersionHistory';
 import { gql } from '@/lib/generated/gql-codegen';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import dynamic from 'next/dynamic';
+import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
+import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
+
+const CKPostEditor = dynamic(() => import("./CKPostEditor"));
+const LexicalEditor = dynamic(() => import("./LexicalEditor"));
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -38,10 +43,26 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 640,
     position: "relative",
     padding: 0,
-  }
+  },
+  editorWithSidenotes: {
+    display: 'flex',
+    alignItems: 'flex-start',
+  },
+  editorMainColumn: {
+    flex: 1,
+    minWidth: 0,
+  },
+  editorSidebar: {
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    marginLeft: 24,
+    flexShrink: 0,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      display: 'none',
+    },
+  },
 })
 
-// Editor that _only_ gives people access to the ckEditor, without any other post options
+// Editor that gives people access to the collaborative editor (Lexical or CKEditor, depending on the post's current editor type)
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType<typeof styles>,
 }) => {
@@ -53,6 +74,11 @@ const PostCollaborationEditor = ({ classes }: {
     query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {
       getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {
         ...PostsEdit
+        contents {
+          originalContents {
+            type
+          }
+        }
       }
     }
   `), {
@@ -64,10 +90,12 @@ const PostCollaborationEditor = ({ classes }: {
     ssr: true,
   });
 
-  // Many downstream components expect something with `contents`, which PostsEdit doesn't have.
-  // I don't know whether a bunch of this functionality was just broken in the context of the collaborative editor
-  // because the types used to be wrong, or if none of it mattered.
-  const post: PostsPage | undefined = data?.getLinkSharedPost ? { ...data.getLinkSharedPost, contents: null } : undefined;
+  const queryResult = data?.getLinkSharedPost;
+
+  // Many downstream components expect something with `contents`, which we don't fetch in full.
+  // Things seem to work anyways; I don't know whether a bunch of that functionality was just
+  // broken in the context of the collaborative editor because the types used to be wrong, or if none of it mattered.
+  const post: PostsPage | undefined = queryResult ? { ...queryResult, contents: null } : undefined;
   
   // Error handling and loading state
   if (!postId) {
@@ -96,7 +124,7 @@ const PostCollaborationEditor = ({ classes }: {
   // If you're the primary author, an admin, or have edit permissions, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
   if (canUserEditPostMetadata(currentUser, post)) {
-      return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined)}/>
+    return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined)}/>
   }
 
   // If the post has a link-sharing key which is not in the URL, redirect to add
@@ -112,6 +140,11 @@ const PostCollaborationEditor = ({ classes }: {
     return <ForeignCrosspostEditForm post={post} />;
   }
 
+  // Determine which editor to use based on the post's most recent revision.
+  // By the time we get here, `queryResult` should never be null.
+  const postEditorType = queryResult?.contents?.originalContents?.type;
+  const useLexical = postEditorType === 'lexical';
+
   return <>
     <StatusCodeSetter status={200}/>
     <SingleColumnSection>
@@ -121,25 +154,48 @@ const PostCollaborationEditor = ({ classes }: {
       {/*!post.draft && <div>
         You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
       </div>*/}
-      <ContentStyles className={classes.editor} contentType="post">
-        <DeferRender ssr={false}>
-          <CKPostEditor
-            documentId={postId}
-            collectionName="Posts"
-            fieldName="contents"
-            formType="edit"
-            userId={currentUser?._id}
-            isCollaborative={true}
-            accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
-            document={post}
-            onReady={()=>{}}
-          />
-          <PostVersionHistoryButton
-            post={post}
-            postId={postId}
-          />
-        </DeferRender>
-      </ContentStyles>
+      <SideItemsContainer>
+        <div className={classes.editorWithSidenotes}>
+          <div className={classes.editorMainColumn}>
+            <ContentStyles className={classes.editor} contentType="post">
+              <DeferRender ssr={false}>
+                {useLexical ? (
+                  <LexicalEditor
+                    data={''}
+                    placeholder="Start writing..."
+                    onChange={() => {}}
+                    onReady={() => {}}
+                    commentEditor={false}
+                    documentId={post._id}
+                    collectionName="Posts"
+                    accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+                  />
+                ) : (
+                  <CKPostEditor
+                    data={''}
+                    documentId={postId}
+                    collectionName="Posts"
+                    fieldName="contents"
+                    formType="edit"
+                    userId={currentUser?._id}
+                    isCollaborative={true}
+                    accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+                    document={post}
+                    onReady={()=>{}}
+                  />
+                )}
+                <PostVersionHistoryButton
+                  post={post}
+                  postId={postId}
+                />
+              </DeferRender>
+            </ContentStyles>
+          </div>
+          <div className={classes.editorSidebar}>
+            <SideItemsSidebar />
+          </div>
+        </div>
+      </SideItemsContainer>
     </SingleColumnSection>
   </>
 };

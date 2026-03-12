@@ -30,7 +30,6 @@ declare global {
     userId?: string,
     drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"
     tagId?: string,
-    forumEventId?: string,
     relevantTagId?: string,
     maxAgeDays?: number,
     parentCommentId?: string,
@@ -41,8 +40,8 @@ declare global {
     sortBy?: CommentSortingMode,
     before?: Date|string|null,
     after?: Date|string|null,
+    timeField?: keyof DbComment,
     reviewYear?: ReviewYear
-    profileTagIds?: string[],
     shortformFrontpage?: boolean,
     showCommunity?: boolean,
     commentIds?: string[],
@@ -70,6 +69,21 @@ const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   recentComments: { lastSubthreadActivity: -1 },
   /** DEPRECATED */
   recentDiscussion: { lastSubthreadActivity: -1 },
+}
+
+function getPostedAtTimeRange(terms: Pick<CommentsViewTerms, 'before'|'after'|'timeField'>) {
+  if (!terms.before && !terms.after) return null;
+  if (terms.timeField) {
+    if (!["postedAt", "lastEditedAt"].includes(terms.timeField)) {
+      throw new Error("Invalid value for timeField: ", terms.timeField);
+    }
+  }
+  return {
+    [terms.timeField ?? "postedAt"]: {
+      ...(terms.before && {$lt: new Date(terms.before)}),
+      ...(terms.after && {$gte: new Date(terms.after)})
+    }
+  };
 }
 
 const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"; context?: ResolverContext; } = {}) => {
@@ -333,7 +347,7 @@ function draftComments(terms: CommentsViewTerms) {
 
 function allRecentComments(terms: CommentsViewTerms) {
   return {
-    selector: { deletedPublic: false },
+    selector: { deletedPublic: false, ...getPostedAtTimeRange(terms) },
     options: { 
       sort: terms.sortBy 
         ? sortings[terms.sortBy]
@@ -345,7 +359,7 @@ function allRecentComments(terms: CommentsViewTerms) {
 
 function recentComments(terms: CommentsViewTerms) {
   return {
-    selector: { score:{$gt:0}, deletedPublic: false},
+    selector: { score:{$gt:0}, deletedPublic: false, ...getPostedAtTimeRange(terms)},
     options: {
       sort: terms.sortBy 
         ? sortings[terms.sortBy] 
@@ -500,14 +514,6 @@ function answersAndReplies(terms: CommentsViewTerms) {
 }
 
 function topShortform(terms: CommentsViewTerms) {
-  const timeRange = ((terms.before || terms.after)
-    ? { postedAt: {
-      ...(terms.before && {$lt: new Date(terms.before)}),
-      ...(terms.after && {$gte: new Date(terms.after)})
-    } }
-    : null
-  );
-
   const shortformFrontpage =
     isEAForum() && typeof terms.shortformFrontpage === "boolean"
       ? {shortformFrontpage: terms.shortformFrontpage}
@@ -518,7 +524,7 @@ function topShortform(terms: CommentsViewTerms) {
       shortform: true,
       parentCommentId: viewFieldNullOrMissing,
       deleted: false,
-      ...timeRange,
+      ...getPostedAtTimeRange(terms),
       ...shortformFrontpage,
     },
     options: {sort: {baseScore: -1, postedAt: -1}}
@@ -540,14 +546,15 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   const maxAgeDays = terms.maxAgeDays ?? 5;
   const currentUserId = context?.currentUser?._id;
+  const hidePersonalShortforms = !context?.currentUser || context.currentUser.frontpageFilterSettings?.personalBlog === "Hidden";
   return {
     selector: {
       shortform: true,
-      shortformFrontpage: true,
+      ...(hidePersonalShortforms ? { shortformFrontpage: true } : {}),
       deleted: false,
       rejected: {$ne: true},
       parentCommentId: viewFieldNullOrMissing,
-      createdAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
+      postedAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
       $and: [
         !terms.showCommunity
           ? {
@@ -571,11 +578,11 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
       $or: [
         {
           baseScore: {$gte: 1},
-          createdAt: {$lt: twoHoursAgo},
+          postedAt: {$lt: twoHoursAgo},
         },
         {
           baseScore: {$gte: -5},
-          createdAt: {$gte: twoHoursAgo},
+          postedAt: {$gte: twoHoursAgo},
         },
       ],
     },
@@ -684,12 +691,6 @@ function reviews({userId, postId, reviewYear, sortBy="top", minimumKarma}: Comme
   };
 }
 
-// TODO merge with subforumFeedSortings
-export const subforumSorting: Record<CommentSortingMode,MongoSelector<DbComment>> = {
-  ...sortings,
-}
-export const subforumDiscussionDefaultSorting = "recentComments"
-
 function tagDiscussionComments(terms: CommentsViewTerms) {
   return {
   selector: {
@@ -697,36 +698,6 @@ function tagDiscussionComments(terms: CommentsViewTerms) {
     tagCommentType: "DISCUSSION"
   },
 }};
-
-function tagSubforumComments({tagId, sortBy=subforumDiscussionDefaultSorting}: CommentsViewTerms) {
-  const sorting = subforumSorting[sortBy] || subforumSorting.new
-  return {
-  selector: {
-    $or: [{tagId: tagId, tagCommentType: "SUBFORUM"}, {relevantTagIds: tagId}],
-    topLevelCommentId: viewFieldNullOrMissing,
-    deleted: false,
-  },
-  options: {
-    sort: sorting,
-  },
-}};
-
-// DEPRECATED (will be deleted once there are no more old clients floating around)
-// For 'Discussion from your subforums' on the homepage
-function latestSubforumDiscussion(terms: CommentsViewTerms) {
-  return {
-    selector: {
-      tagId: {$in: terms.profileTagIds ?? []},
-      tagCommentType: "SUBFORUM",
-      topLevelCommentId: viewFieldNullOrMissing,
-      lastSubthreadActivity: {$gt: moment().subtract(2, 'days').toDate()}
-    },
-    options: {
-      sort: subforumSorting.recentComments,
-      limit: 3,
-    },
-  }
-}
 
 function moderatorComments(terms: CommentsViewTerms) {
   return {
@@ -759,19 +730,6 @@ function recentDebateResponses(terms: CommentsViewTerms) {
       deleted: false,
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
-  };
-}
-
-function forumEventComments(terms: CommentsViewTerms) {
-  return {
-    selector: {
-      forumEventId: terms.forumEventId,
-      ...(terms.userId && { userId: terms.userId }),
-      deleted: false,
-    },
-    options: {
-      sort: { postedAt: -1 },
-    },
   };
 }
 
@@ -836,12 +794,9 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   reviews2019,
   reviews,
   tagDiscussionComments,
-  tagSubforumComments,
-  latestSubforumDiscussion,
   moderatorComments,
   debateResponses,
   recentDebateResponses,
-  forumEventComments,
   alignmentSuggestedComments,
   // Copied over from server/rss.ts
   rss: recentComments,

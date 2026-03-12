@@ -1,13 +1,13 @@
 /* eslint-disable no-tabs */
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
 import { toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils';
-import Widget from '@ckeditor/ckeditor5-widget/src/widget';
-import Command from '@ckeditor/ckeditor5-core/src/command';
-import blockAutoformatEditing from '@ckeditor/ckeditor5-autoformat/src/blockautoformatediting';
-import first from '@ckeditor/ckeditor5-utils/src/first';
-import type { Element } from '@ckeditor/ckeditor5-engine';
-import type Writer from '@ckeditor/ckeditor5-engine/src/model/writer';
-import type Schema from '@ckeditor/ckeditor5-engine/src/model/schema';
+import { Widget } from '@ckeditor/ckeditor5-widget/src/widget';
+import { Command } from '@ckeditor/ckeditor5-core/src/command';
+import { blockAutoformatEditing } from '@ckeditor/ckeditor5-autoformat/src/blockautoformatediting';
+import { first } from '@ckeditor/ckeditor5-utils/src/first';
+import type { ModelElement as Element } from '@ckeditor/ckeditor5-engine';
+import type { ModelWriter as Writer } from '@ckeditor/ckeditor5-engine/src/model/writer';
+import type { ModelSchema as Schema } from '@ckeditor/ckeditor5-engine/src/model/schema';
 
 type SpoilerBlockCommandOptions = {
 	/**

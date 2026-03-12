@@ -7,7 +7,6 @@ import sortBy from 'lodash/sortBy';
 import type PgCollection from '../sql/PgCollection';
 
 // Collection imports
-import { AdvisorRequests } from './advisorRequests/collection';
 import { ArbitalCaches } from './arbitalCache/collection';
 import { ArbitalTagContentRels } from './arbitalTagContentRels/collection';
 import { AutomatedContentEvaluations } from './automatedContentEvaluations/collection';
@@ -29,33 +28,31 @@ import { DatabaseMetadata } from './databaseMetadata/collection';
 import { DebouncerEvents } from './debouncerEvents/collection';
 import { DialogueChecks } from './dialogueChecks/collection';
 import { DialogueMatchPreferences } from './dialogueMatchPreferences/collection';
-import { DigestPosts } from './digestPosts/collection';
-import { Digests } from './digests/collection';
-import { ElectionCandidates } from './electionCandidates/collection';
-import { ElectionVotes } from './electionVotes/collection';
 import { ElicitQuestionPredictions } from './elicitQuestionPredictions/collection';
 import { ElicitQuestions } from './elicitQuestions/collection';
 import { EmailTokens } from './emailTokens/collection';
-import { FeaturedResources } from './featuredResources/collection';
 import { FieldChanges } from './fieldChanges/collection';
-import { ForumEvents } from './forumEvents/collection';
-import { GardenCodes } from './gardencodes/collection';
 import { GoogleServiceAccountSessions } from './googleServiceAccountSessions/collection';
+import { IframeWidgetSrcdocs } from './iframeWidgetSrcdocs/collection';
 import { Images } from './images/collection';
 import { JargonTerms } from './jargonTerms/collection';
 import { LegacyData } from './legacyData/collection';
 import { LlmConversations } from './llmConversations/collection';
 import { LlmMessages } from './llmMessages/collection';
 import { Localgroups } from './localgroups/collection';
+import { LoginTokens } from './loginTokens/collection';
 import { LWEvents } from './lwevents/collection';
 import { ManifoldProbabilitiesCaches } from './manifoldProbabilitiesCaches/collection';
+import { MailgunValidations } from './mailgunValidations/collection';
 import { Messages } from './messages/collection';
 import { Migrations } from './migrations/collection';
 import { ModerationTemplates } from './moderationTemplates/collection';
 import { ModeratorActions } from './moderatorActions/collection';
 import { MultiDocuments } from './multiDocuments/collection';
 import { Notifications } from './notifications/collection';
-import { PageCache } from './pagecache/collection';
+import { OAuthAccessTokens } from './oAuthAccessTokens/collection';
+import { OAuthAuthorizationCodes } from './oAuthAuthorizationCodes/collection';
+import { OAuthClients } from './oAuthClients/collection';
 import { PetrovDayActions } from './petrovDayActions/collection';
 import { PetrovDayLaunchs } from './petrovDayLaunchs/collection';
 import { PodcastEpisodes } from './podcastEpisodes/collection';
@@ -80,24 +77,19 @@ import { SideCommentCaches } from './sideCommentCaches/collection';
 import { SplashArtCoordinates } from './splashArtCoordinates/collection';
 import { Spotlights } from './spotlights/collection';
 import { Subscriptions } from './subscriptions/collection';
-import { SurveyQuestions } from './surveyQuestions/collection';
-import { SurveyResponses } from './surveyResponses/collection';
-import { SurveySchedules } from './surveySchedules/collection';
-import { Surveys } from './surveys/collection';
 import { TagFlags } from './tagFlags/collection';
 import { TagRels } from './tagRels/collection';
 import { Tags } from './tags/collection';
 import { Tweets } from './tweets/collection';
 import { TypingIndicators } from './typingIndicators/collection';
 import { UltraFeedEvents } from './ultraFeedEvents/collection';
-import { UserEAGDetails } from './userEAGDetails/collection';
-import { UserJobAds } from './userJobAds/collection';
 import { UserMostValuablePosts } from './userMostValuablePosts/collection';
 import { UserRateLimits } from './userRateLimits/collection';
 import { UserTagRels } from './userTagRels/collection';
 import { UserActivities } from './useractivities/collection';
 import { Users } from './users/collection';
 import { Votes } from './votes/collection';
+import { YjsDocuments } from './yjsDocuments/collection';
 
 function getTestCollections() {
   let testCollections: Record<never, never>;
@@ -116,16 +108,14 @@ function getTestCollectionsByTypeName() {
 
 // TODO: maybe put this behind a proxy like `getAllRepos` for performance?
 const allCollections = {
-  AdvisorRequests, ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
+  ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, DigestPosts, Digests, ElectionCandidates, ElectionVotes, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FeaturedResources,
-  FieldChanges, ForumEvents, GardenCodes, GoogleServiceAccountSessions, Images, JargonTerms, LWEvents, LegacyData, LlmConversations, LlmMessages,
-  Localgroups, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, PageCache, PetrovDayActions,
-  PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds,
-  ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches,
-  SplashArtCoordinates, Spotlights, Subscriptions, SurveyQuestions, SurveyResponses, SurveySchedules, Surveys, TagFlags, TagRels, Tags,
-  Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserEAGDetails, UserJobAds, UserMostValuablePosts, UserRateLimits, UserTagRels, Users,
-  Votes
+  DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
+  LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
+  Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations,
+  PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
+  ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,
+  TagFlags, TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes, YjsDocuments
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;
 
 const collectionsByLowercaseName = Object.fromEntries(
@@ -144,6 +134,10 @@ export function getCollection<N extends CollectionNameString>(name: N): PgCollec
 export function getAllCollections(): Array<CollectionBase<CollectionNameString>> {
   const collectionsWithTestCollections = { ...allCollections, ...getTestCollections() };
   return sortBy(Object.values(collectionsWithTestCollections), (c) => c.collectionName);
+}
+
+export function getAllNonTestCollectionsByName() {
+  return allCollections;
 }
 
 export function getAllCollectionsByName() {

@@ -1,9 +1,10 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { CookieSignature, CookieType, CookiesTable } from "../../../lib/cookies/utils";
 import { Typography } from "../Typography";
+import { useStyles } from "@/components/hooks/useStyles";
+import { defineStyles } from "@/components/hooks/defineStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CookieTable", (theme: ThemeType) => ({
   root: {},
   heading: {
     padding: 0,
@@ -49,19 +50,18 @@ const styles = (theme: ThemeType) => ({
   tdDescription: {
     width: "60%",
   },
-});
+}));
 
 const CookieTable = ({
   type,
   thirdPartyName,
   className,
-  classes,
 }: {
   type: CookieType;
   thirdPartyName?: string;
   className?: string;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const filteredCookies = Object.values(CookiesTable).filter(
     (cookie: CookieSignature) => cookie.type === type && cookie.thirdPartyName === thirdPartyName
   );
@@ -93,6 +93,6 @@ const CookieTable = ({
   );
 };
 
-export default registerComponent("CookieTable", CookieTable, { styles });
+export default CookieTable;
 
 

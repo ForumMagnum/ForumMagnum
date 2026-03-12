@@ -17,12 +17,15 @@ const styles = defineStyles('CommandPalette', (theme: ThemeType) => ({
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
+  overlayLarge: {
+    top: '10vh',
+  },
   container: {
     backgroundColor: theme.palette.background.paper,
     borderRadius: theme.borderRadius.small,
     boxShadow: theme.shadows[3],
     width: '500px',
-    maxHeight: '400px',
+    maxHeight: '700px',
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
@@ -37,6 +40,9 @@ const styles = defineStyles('CommandPalette', (theme: ThemeType) => ({
   commandList: {
     maxHeight: '300px',
     overflowY: 'auto',
+  },
+  commandListLarge: {
+    maxHeight: '600px',
   },
   commandItem: {
     padding: '8px 16px',
@@ -170,8 +176,10 @@ const CommandListItem = ({ command, commandIndex: index, selectedIndex, onClose 
   return menuItem;
 };
 
-const CommandPalette = ({ commands, onClose }: {
+const CommandPalette = ({ commands, large, hideDisabledCommands, onClose }: {
   commands: CommandPaletteItem[];
+  large?: boolean;
+  hideDisabledCommands?: boolean;
   onClose: () => void;
 }) => {
   const classes = useStyles(styles);
@@ -180,7 +188,8 @@ const CommandPalette = ({ commands, onClose }: {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const commandListRef = useRef<HTMLDivElement>(null);
 
-  const filteredCommands = commands.filter(({ label }) => {
+  const filteredCommands = commands.filter(({ label, isDisabled }) => {
+    if (hideDisabledCommands && isDisabled()) return false;
     if (!searchQuery) return true;
     return label.toLowerCase().includes(searchQuery.toLowerCase());
   });
@@ -238,7 +247,7 @@ const CommandPalette = ({ commands, onClose }: {
   }, [selectedIndex]);
 
   return (
-    <div className={classes.overlay} onClick={handleOverlayClick}>
+    <div className={classNames(classes.overlay, large && classes.overlayLarge)} onClick={handleOverlayClick}>
       <div className={classes.container}>
         <input
           key="command-palette-search-input"
@@ -250,7 +259,7 @@ const CommandPalette = ({ commands, onClose }: {
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <div className={classes.commandList} ref={commandListRef}>
+        <div className={classNames(classes.commandList, large && classes.commandListLarge)} ref={commandListRef}>
           {filteredCommands.length > 0 ? (
             filteredCommands.map((command, index) => {
               return <CommandListItem

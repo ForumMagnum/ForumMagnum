@@ -1,11 +1,9 @@
 "use client";
-
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { slugify } from '@/lib/utils/slugify';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import { useTagBySlug } from './useTag';
 import { TagForm } from './TagForm';
@@ -15,6 +13,7 @@ import NewTagInfoBox from "./NewTagInfoBox";
 import Loading from "../vulcan-core/Loading";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const TagEditFragmentUpdateMutation = gql(`
   mutation updateTagNewTagPage($selector: SelectorInput!, $data: UpdateTagDataInput!) {
@@ -26,7 +25,7 @@ const TagEditFragmentUpdateMutation = gql(`
   }
 `);
 
-export const styles = (_theme: ThemeType) => ({
+export const styles = defineStyles("NewTagPage", (_theme: ThemeType) => ({
   root: {
     position: "relative",
   },
@@ -38,9 +37,10 @@ export const styles = (_theme: ThemeType) => ({
       right: -240,
     },
   },
-});
+}));
 
-const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const NewTagPage = () => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const [updateTag] = useMutation(TagEditFragmentUpdateMutation);
@@ -58,9 +58,9 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   if (!currentUser) {
     return (
       <SingleColumnSection>
-        <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
+        <SectionTitle title={`New Wikitag`}/>
         <div>
-          You must be logged in to define new {taggingNamePluralSetting.get()}.
+          You must be logged in to define new wikitags.
         </div>
       </SingleColumnSection>
     );
@@ -69,9 +69,9 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   if (!tagUserHasSufficientKarma(currentUser, "new")) {
     return (
       <SingleColumnSection>
-        <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
+        <SectionTitle title={`New Wikitag`}/>
         <div>
-          You do not have enough karma to define new {taggingNamePluralSetting.get()}. You must have
+          You do not have enough karma to define new wikitags. You must have
           at least {getTagMinimumKarmaPermissions().new} karma.
         </div>
       </SingleColumnSection>
@@ -87,7 +87,7 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
       }
 
       {createdType === "tag"
-        ? <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
+        ? <SectionTitle title={`New Wikitag`}/>
         : <SectionTitle title={`New Wiki Page`}/>
       }
       {!loadingExistingTag && (
@@ -119,6 +119,4 @@ const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-export default registerComponent('NewTagPage', NewTagPage, {styles});
-
-
+export default NewTagPage;

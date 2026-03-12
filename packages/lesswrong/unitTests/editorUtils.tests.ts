@@ -73,4 +73,22 @@ A sample piece of content[^footnote1] that has complex footnotes[^footnote2]
     const wordCountWithAppendix = await dataToWordCount(nonAppendixMarkdown+appendixMarkdown, "markdown", createAnonymousContext());
     expect(wordCountWithoutAppendix).toBe(wordCountWithAppendix);
   });
+
+  it("excludes collapsible section body but keeps collapsible title", async () => {
+    const markdownWithShortCollapsedBody = `
+A sample piece of content.
++++ Visible title words
+Hidden body.
++++
+`;
+    const markdownWithLongCollapsedBody = `
+A sample piece of content.
++++ Visible title words
+Hidden body words should not count, even when this sentence is much longer.
++++
+`;
+    const shortCollapsedBodyWordCount = await dataToWordCount(markdownWithShortCollapsedBody, "markdown", createAnonymousContext());
+    const longCollapsedBodyWordCount = await dataToWordCount(markdownWithLongCollapsedBody, "markdown", createAnonymousContext());
+    expect(shortCollapsedBodyWordCount).toBe(longCollapsedBodyWordCount);
+  });
 });

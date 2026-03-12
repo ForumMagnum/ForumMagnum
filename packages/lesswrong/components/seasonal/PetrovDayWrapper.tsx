@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
@@ -32,6 +31,6 @@ const PetrovDayWrapper = () => {
   }
 }
 
-export default registerComponent('PetrovDayWrapper', PetrovDayWrapper);
+export default PetrovDayWrapper;
 
 

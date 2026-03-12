@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import withErrorBoundary from "../common/withErrorBoundary";
 import { useLocation } from "../../lib/routeUtil";
@@ -72,13 +72,15 @@ const styles = (theme: ThemeType) => ({
 
 const ConversationContents = ({
   conversation,
-  currentUser,
+  currentUserId,
   scrollRef,
+  sendEmail = true,
   classes,
 }: {
   conversation: ConversationsList;
-  currentUser: UsersCurrent;
+  currentUserId: string;
   scrollRef?: React.RefObject<HTMLDivElement|null>;
+  sendEmail?: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
   // Count messages sent, and use it to set a distinct value for `key` on `MessagesNewForm`
@@ -142,12 +144,12 @@ const ConversationContents = ({
       profileViewedFrom.current = query.from;
     } else if (conversation && conversation.participantIds?.length === 2 && ls) {
       // if this is a conversation with one other person, see if we have info on where the current user found them
-      const otherUserId = conversation.participantIds.find((id) => id !== currentUser._id);
+      const otherUserId = conversation.participantIds.find((id) => id !== currentUserId);
       const storedLastViewedProfiles = ls.getItem("lastViewedProfiles")
       const lastViewedProfiles = storedLastViewedProfiles ? JSON.parse(storedLastViewedProfiles) : [];
       profileViewedFrom.current = lastViewedProfiles?.find((profile: any) => profile.userId === otherUserId)?.from;
     }
-  }, [query.from, conversation, currentUser._id]);
+  }, [query.from, conversation, currentUserId]);
 
   const renderMessages = () => {
     if (!results?.length) return null;
@@ -155,7 +157,7 @@ const ConversationContents = ({
     return (
       <div data-testid="conversation-messages">
         {results.map((message, idx) => (
-          <SideItemsContainer key={message._id}>
+          <SideItemsContainer key={message._id} hideBlockSideItems>
             <MessageItem message={message} />
           </SideItemsContainer>
         ))}
@@ -172,15 +174,16 @@ const ConversationContents = ({
         {renderMessages()}
         <div className={classes.editor}>
           <MessagesNewForm
-            key={`sendMessage-${messageSentCount}`}
+            key={`sendMessage-${conversation._id}-${messageSentCount}`}
             conversationId={conversation._id}
             templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
             formStyle="minimalist"
+            sendEmail={sendEmail}
             successEvent={(newMessage) => {
               setMessageSentCount(messageSentCount + 1);
               captureEvent("messageSent", {
                 conversationId: conversation._id,
-                sender: currentUser._id,
+                sender: currentUserId,
                 participantIds: conversation.participantIds,
                 messageCount: (conversation.messageCount || 0) + 1,
                 ...(profileViewedFrom?.current && { from: profileViewedFrom.current }),

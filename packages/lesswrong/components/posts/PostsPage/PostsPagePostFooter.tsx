@@ -94,7 +94,6 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const votingSystem = getVotingSystemByName(votingSystemName);
   const wordCount = post.contents?.wordCount || 0
   const PostBottomSecondaryVotingComponent = postBottomSecondaryVotingComponents[votingSystemName]?.() ?? null;
-  const isEAEmojis = votingSystemName === "eaEmojis";
 
   return <>
     {isLWorAF() && !post.shortform && !post.isEvent &&
@@ -106,7 +105,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
         </AnalyticsContext>
       </SuspenseWrapper>
     }
-    {!post.shortform && (isLW() || isEAEmojis) &&
+    {!post.shortform && isLW() &&
       <>
         <div className={classes.footerSection}>
           <div className={classNames(classes.voteBottom, isLWorAF() && classes.lwVote)}>
@@ -115,7 +114,7 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
             </AnalyticsContext>
           </div>
           {isFriendlyUI() && <div className={classes.secondaryInfoRight}>
-            <BookmarkButton documentId={post._id} collectionName="Posts" className={classes.bookmarkButton} placement='bottom-start' />
+            <BookmarkButton documentId={post._id} collectionName="Posts" initial={post.isBookmarked} className={classes.bookmarkButton} placement='bottom-start' />
             <SharePostButton post={post} />
             <span className={classes.actions}>
               <AnalyticsContext pageElementContext="tripleDotMenu">

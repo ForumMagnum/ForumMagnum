@@ -67,4 +67,19 @@ export const graphqlTypeDefs = gql`
     frontpageEA: RecommendationAlgorithmSettingsInput!
     recommendationspage: RecommendationAlgorithmSettingsInput!
   }
+
+  type MailgunValidationResult {
+    email: String
+    status: String
+    validatedAt: Date
+    httpStatus: Int
+    error: String
+    isValid: Boolean
+    risk: String
+    reason: String
+    didYouMean: String
+    isDisposableAddress: Boolean
+    isRoleAddress: Boolean
+    sourceUserId: String
+  }
 `;

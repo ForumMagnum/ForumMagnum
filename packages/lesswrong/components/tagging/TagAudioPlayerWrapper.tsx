@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 import T3AudioPlayer from "../posts/PostsPage/T3AudioPlayer";
@@ -31,6 +30,6 @@ export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer}: {
   );
 }
 
-export default registerComponent('TagAudioPlayerWrapper', TagAudioPlayerWrapper);
+export default TagAudioPlayerWrapper;
 
  

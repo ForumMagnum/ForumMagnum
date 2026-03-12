@@ -1,12 +1,12 @@
 import React, { FC, memo } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import rng from "../../lib/seedrandom";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
+import { defineStyles, useStyles } from "../hooks/useStyles";
 
 export type ProfileImageFallback = "initials";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UsersProfileImage", (theme: ThemeType) => ({
   root: {
     borderRadius: "50%",
   },
@@ -30,6 +30,8 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 1,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
+}), {
+  stylePriority: -1,
 });
 
 const MIN_HUE = 100;
@@ -62,9 +64,9 @@ const InitialFallback: FC<{
   displayName: string,
   size: number,
   className?: string,
-  classes: ClassesType<typeof styles>,
-}> = memo(({displayName, size, className, classes}) => {
+}> = memo(({displayName, size, className}) => {
   displayName ??= "";
+  const classes = useStyles(styles);
   const initials = displayName
     .split(/[\s-_.()]/)
     .map((s) => s?.[0]?.toUpperCase())
@@ -110,13 +112,13 @@ export type UserWithProfileImage = {
   profileImageId?: string | null,
 }
 
-const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {
+const UsersProfileImage = ({user, size, fallback="initials", className}: {
   user?: UserWithProfileImage|null,
   size: number,
   fallback?: ProfileImageFallback,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   if (!user?.displayName) {
     return (
       <picture className={classes.wrapper}>
@@ -156,7 +158,6 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
           displayName={user.displayName}
           size={size}
           className={className}
-          classes={classes}
         />
       </picture>
     );
@@ -165,10 +166,5 @@ const UsersProfileImage = ({user, size, fallback="initials", className, classes}
   return null;
 }
 
-export default registerComponent(
-  "UsersProfileImage",
-  UsersProfileImage,
-  {styles, stylePriority: -1},
-);
-
+export default UsersProfileImage;
 

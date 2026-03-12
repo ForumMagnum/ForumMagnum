@@ -1,12 +1,13 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import ReportForm from "../sunshineDashboard/ReportForm";
 import SingleColumnSection from "../common/SingleColumnSection";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReportUserButton", (theme: ThemeType) => ({
   reportUserSection: {
     marginTop: 80,
     textAlign: "right",
@@ -21,12 +22,12 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.dark,
     }
   },
-});
+}));
 
-const ReportUserButton = ({user, classes}: {
+const ReportUserButton = ({user}: {
   user: UsersProfile,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
   const { flash } = useMessages()
@@ -57,6 +58,5 @@ const ReportUserButton = ({user, classes}: {
   }
 }
 
-export default registerComponent('ReportUserButton', ReportUserButton, {styles});
-
+export default ReportUserButton;
 

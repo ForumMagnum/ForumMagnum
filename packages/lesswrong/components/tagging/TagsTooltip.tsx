@@ -1,5 +1,4 @@
 import React, { FC, ReactNode, useCallback, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTagPreview } from "./useTag";
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from "classnames";
@@ -268,6 +267,4 @@ const TagsTooltip = ({
   );
 }
 
-export default registerComponent("TagsTooltip", TagsTooltip);
-
-
+export default TagsTooltip;

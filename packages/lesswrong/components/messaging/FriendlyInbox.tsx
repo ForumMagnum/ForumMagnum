@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
 import type { InboxComponentProps } from "./InboxWrapper";
-import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useMarkConversationRead } from "../hooks/useMarkConversationRead";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
@@ -232,40 +231,54 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
     color: theme.palette.grey[500],
   },
+  sendEmailCheckboxIcon: {
+    height: 16,
+    marginTop: 5,
+    marginLeft: -10,
+    marginRight: 6,
+    color: theme.palette.grey[500],
+  },
 });
 
 const FriendlyInbox = ({
-  currentUser,
+  currentUserId,
   conversationId,
   view = "userConversations",
   isModInbox = false,
+  userCanViewModInbox = false,
   showArchive = false,
+  isAdmin = false,
   classes,
 }: InboxComponentProps & {
   conversationId?: string;
   classes: ClassesType<typeof styles>;
 }) => {
   const { openDialog } = useDialog();
-  const { location, query } = useLocation();
+  const { query } = useLocation();
   const navigate = useNavigate();
-  const markConversationRead = useMarkConversationRead();
+  
+  const [sendEmail, setSendEmail] = useState(true);
 
   isModInbox ||= query.isModInbox === "true";
+
+  const userId = query.userId;
 
   const selectedConversationRef = useRef<HTMLDivElement|null>(null);
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
-      const newQuery = { ...query };
-      if (conversationId) {
-        newQuery.conversation = conversationId;
-      } else {
-        delete newQuery.conversation;
-      }
-      const search = Object.keys(newQuery).length > 0 ? `?${qs.stringify(newQuery)}` : '';
-      navigate({ ...location, search });
+      navigate(location => {
+        const newQuery = { ...location.query };
+        if (conversationId) {
+          newQuery.conversation = conversationId;
+        } else {
+          delete newQuery.conversation;
+        }
+        const search = Object.keys(newQuery).length > 0 ? `?${qs.stringify(newQuery)}` : '';
+        return { ...location, search };
+      });
     },
-    [navigate, location, query]
+    [navigate]
   );
 
   const openNewConversationDialog = useCallback(() => {
@@ -278,14 +291,22 @@ const FriendlyInbox = ({
     });
   }, [isModInbox, openDialog]);
 
-  const selectorTerms = { userId: currentUser._id, showArchive };
   const selectedView = isModInbox ? "moderatorConversations" : view;
+  const selectorTerms = useMemo(() => ({
+    userId: currentUserId,
+    showArchive,
+    ...((selectedView === "moderatorConversations" && userId) ? { userId } : {})
+  }), [currentUserId, showArchive, userId, selectedView]);
+
   const initialLimit = 50;
+  
   const {
     data: conversationsData,
     loading: conversationsLoading,
     refetch: refetchConversations,
     loadMoreProps,
+    variables: conversationsVariables,
+    client
   } = useQueryWithLoadMore(ConversationsListWithReadStatusMultiQuery, {
     variables: {
       selector: { [selectedView]: selectorTerms },
@@ -294,6 +315,8 @@ const FriendlyInbox = ({
     },
     itemsPerPage: 50,
   });
+
+  const markConversationRead = useMarkConversationRead();
 
   const conversations = useMemo(() => conversationsData?.conversations?.results ?? [], [conversationsData?.conversations?.results]);
 
@@ -309,16 +332,41 @@ const FriendlyInbox = ({
   const fetchedSelectedConversation = data?.conversation?.result;
   const selectedConversation = fetchedSelectedConversation || eagerSelectedConversation;
 
+  const updateConversationCache = useCallback((conversationId: string) => {
+    if (!conversationsData?.conversations) return;
+    const needsUpdate = conversationsData?.conversations?.results?.some((conversation) => conversation._id === conversationId && conversation.hasUnreadMessages);
+    if (!needsUpdate) return;
+
+    client.cache.writeQuery({
+      query: ConversationsListWithReadStatusMultiQuery,
+      variables: conversationsVariables,
+      data: {
+        conversations: {
+          ...conversationsData.conversations,
+          results: conversationsData.conversations.results.map((conversation) => {
+            if (conversation._id === conversationId && conversation.hasUnreadMessages) {
+              return {
+                ...conversation,
+                hasUnreadMessages: false,
+              };
+            }
+            return conversation;
+          }),
+        },
+      },
+    });
+  }, [conversationsData, conversationsVariables, client?.cache]);
+
   const onOpenConversation = useCallback(async (conversationId: string) => {
+    updateConversationCache(conversationId);
     await markConversationRead(conversationId);
-    await refetchConversations();
-  }, [markConversationRead, refetchConversations]);
+  }, [markConversationRead, updateConversationCache]);
 
   useEffect(() => {
     if (fetchedSelectedConversation?._id) {
       void onOpenConversation(fetchedSelectedConversation._id);
     }
-  }, [fetchedSelectedConversation, onOpenConversation]);
+  }, [fetchedSelectedConversation?._id, onOpenConversation]);
 
   const openConversationOptions = () => {
     if (!selectedConversation) return;
@@ -332,10 +380,10 @@ const FriendlyInbox = ({
     });
   };
 
-  const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && !isModInbox;
+  const showModeratorLink = userCanViewModInbox && !isModInbox;
 
   const title = selectedConversation
-    ? conversationGetFriendlyTitle(selectedConversation, currentUser)
+    ? conversationGetFriendlyTitle(selectedConversation, currentUserId)
     : "No conversation selected";
 
   const ButtonComponent = isFriendlyUI() ? EAButton : Button;
@@ -362,13 +410,13 @@ const FriendlyInbox = ({
             <SectionFooterCheckbox
               label={<ForumIcon className={classes.modInboxCheckboxIcon} icon="Flag" />}
               value={isModInbox}
-              onClick={() => navigate({ ...location, search: modInboxQueryParam })}
+              onClick={() => navigate(location => ({ ...location, search: modInboxQueryParam }))}
               tooltip={isModInbox ? "Hide mod messages" : "Show mod messages"}
             />
             <SectionFooterCheckbox
               label={<ArchiveIcon className={classes.archivedCheckboxIcon} />}
               value={showArchive}
-              onClick={() => navigate({ ...location, search: archiveQueryParam })}
+              onClick={() => navigate(location => ({ ...location, search: archiveQueryParam }))}
               tooltip={showArchive ? "Hide archived messages" : "Show archived messages"}
             />
             <LWTooltip title="Start a new conversation" className={classes.actionIconWrapper}>
@@ -382,7 +430,7 @@ const FriendlyInbox = ({
                 loading: conversationsLoading,
                 loadMoreProps,
               }}
-              currentUser={currentUser}
+              currentUserId={currentUserId}
               selectedConversationId={conversationId}
               setSelectedConversationId={selectConversationCallback}
             />
@@ -397,6 +445,14 @@ const FriendlyInbox = ({
             <>
               <div className={classes.columnHeader}>
                 <div className={classes.headerText}>{title}</div>
+                {isAdmin && (
+                  <SectionFooterCheckbox
+                    label={<ForumIcon className={classes.sendEmailCheckboxIcon} icon="Envelope" />}
+                    value={sendEmail}
+                    onClick={() => setSendEmail(!sendEmail)}
+                    tooltip="Send email notifications for new messages"
+                  />
+                )}
                 <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
               </div>
               <div className={classes.conversation} ref={selectedConversationRef}>
@@ -405,9 +461,10 @@ const FriendlyInbox = ({
                 </Link>
                 <ConversationDetails conversation={selectedConversation} hideOptions />
                 <ConversationContents
-                  currentUser={currentUser}
+                  currentUserId={currentUserId}
                   conversation={selectedConversation}
                   scrollRef={selectedConversationRef}
+                  sendEmail={sendEmail}
                 />
               </div>
             </>

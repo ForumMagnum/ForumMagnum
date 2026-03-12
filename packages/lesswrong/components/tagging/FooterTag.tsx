@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useExperimentalTagStyleSetting } from '@/lib/instanceSettings';
@@ -208,6 +207,6 @@ const FooterTag = ({
   );
 }
 
-export default registerComponent("FooterTag", FooterTag);
+export default FooterTag;
 
 

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { addDefaultLensToLenses, TagLens } from '@/lib/arbital/useTagLenses';
@@ -79,10 +78,9 @@ export interface TagHistorySettings {
   lensId: string
 }
 
-const TagHistoryPage = () => {
+const TagHistoryPage = ({slug}: {slug: string}) => {
   const classes = useStyles(tagHistoryStyles);
-  const { params, query } = useLocation();
-  const { slug } = params;
+  const { query } = useLocation();
   const focusedUser: string = query.user;
   const { tag, loading: loadingTag, error } = useTagBySlug(slug, "TagHistoryFragment");
   const lenses = useMemo(() => addDefaultLensToLenses(tag, tag?.lensesIncludingDeleted), [tag]);
@@ -320,6 +318,4 @@ const TagHistoryFeedSettings = ({expanded, settings, setSettings, lenses}: {
   </div>
 }
 
-export default registerComponent("TagHistoryPage", TagHistoryPage);
-
-
+export default TagHistoryPage;

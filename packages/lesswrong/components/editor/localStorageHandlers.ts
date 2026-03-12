@@ -78,5 +78,6 @@ export const getLSKeyPrefix = (editorType: string): string => {
     case "markdown": return "md_";
     case "html":     return "html_";
     case "ckEditorMarkup": return "ckeditor_";
+    case "lexical": return "lexical_";
   }
 }

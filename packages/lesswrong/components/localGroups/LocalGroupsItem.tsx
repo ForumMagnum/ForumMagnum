@@ -1,16 +1,17 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import PostsItemMetaInfo from "../posts/PostsItemMetaInfo";
 import GroupLinks from "./GroupLinks";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 export const postsItemLikeStyles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.postStyle,
     position: "relative",
     display: "flex",
-    padding: theme.spacing.unit*1.5,
+    padding: 12,
     alignItems: "center",
     flexWrap: "nowrap",
     background: theme.palette.panelBackground.default,
@@ -39,10 +40,10 @@ export const postsItemLikeStyles = (theme: ThemeType) => ({
     textDecoration: "none",
     whiteSpace: "nowrap",
     flexGrow: 1,
-    marginRight: theme.spacing.unit * 2,
+    marginRight: 16,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
-      marginBottom: theme.spacing.unit*1.5
+      marginBottom: 12
     }
   },
   actions: {
@@ -65,7 +66,7 @@ export const postsItemLikeStyles = (theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LocalGroupsItem", (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
   location: {
     color: theme.palette.text.dim40,
@@ -74,12 +75,12 @@ const styles = (theme: ThemeType) => ({
   links: {
     minWidth: 132,
   }
-});
+}));
 
-const LocalGroupsItem = ({group, classes}: {
+const LocalGroupsItem = ({group}: {
   group: localGroupsHomeFragment,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   if (!group) { return null }
 
   return (
@@ -95,7 +96,7 @@ const LocalGroupsItem = ({group, classes}: {
   )
 }
 
-export default registerComponent('LocalGroupsItem', LocalGroupsItem, {styles});
+export default LocalGroupsItem;
 
 
 

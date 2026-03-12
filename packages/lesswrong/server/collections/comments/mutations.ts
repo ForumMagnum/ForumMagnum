@@ -3,9 +3,8 @@ import { userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
-import { addReferrerToComment, assignPostVersion, checkModGPTOnCommentCreate, checkModGPTOnCommentUpdate, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleForumEventMetadataEdit, handleForumEventMetadataNew, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, moveToAnswers, newCommentsEmptyCheck, newCommentsPollResponseCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
+import { addReferrerToComment, assignPostVersion, checkModGPTOnCommentCreate, checkModGPTOnCommentUpdate, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, maybeCreateAutomatedContentEvaluationForComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
@@ -22,7 +21,6 @@ async function newCheck(user: DbUser | null, document: CreateCommentDataInput | 
   if (!user || !document) return false;
   
   newCommentsEmptyCheck(document);
-  newCommentsPollResponseCheck(document);
   await newCommentsRateLimit(document, user, context);
 
   if (!document.postId) return userCanDo(user, 'comments.new')
@@ -78,13 +76,12 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
 
   data = await commentsNewOperations(data, currentUser, context);
   data = await commentsNewUserApprovedStatus(data, context);
-  data = await handleForumEventMetadataNew(data, context);
 
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Comments', callbackProps);
   let documentWithId = afterCreateProperties.document;
 
   invalidatePostOnCommentCreate(documentWithId, context);
-  documentWithId = await updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties);  
+  backgroundTask(updateDescendentCommentCountsOnCreate(documentWithId, afterCreateProperties));
 
   documentWithId = await updateRevisionsDocumentIds({
     newDoc: documentWithId,
@@ -95,12 +92,6 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
     newDoc: documentWithId,
     props: afterCreateProperties,
   });
-
-  await upsertPolls({
-    revisionId: documentWithId.contents_latest,
-    comment: documentWithId,
-    context,
-  })
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Comments', documentWithId);
 
@@ -129,6 +120,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   });
 
   backgroundTask(updateCommentEmbeddings(documentWithId._id));
+  backgroundTask(maybeCreateAutomatedContentEvaluationForComment(documentWithId, null, context));
 
   return documentWithId;
 }
@@ -160,24 +152,17 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
 
   let modifier = dataToModifier(data);
   modifier = await moveToAnswers(modifier, oldDocument, context);
-  modifier = await handleForumEventMetadataEdit(modifier, oldDocument, context);
 
   data = modifierToData(modifier);
   let updatedDocument = await updateAndReturnDocument(data, Comments, commentSelector, context);
 
   invalidatePostOnCommentUpdate(updatedDocument, context);
-  updatedDocument = await updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties);  
+  backgroundTask(updateDescendentCommentCountsOnEdit(updatedDocument, updateCallbackProperties));
 
   updatedDocument = await notifyUsersOfNewPingbackMentions({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
-
-  await upsertPolls({
-    revisionId: updatedDocument.contents_latest,
-    comment: updatedDocument,
-    context,
-  })
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Comments', updatedDocument, oldDocument);
 
@@ -203,6 +188,7 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
   backgroundTask(updateCommentEmbeddings(updatedDocument._id));
 
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));
+  backgroundTask(maybeCreateAutomatedContentEvaluationForComment(updatedDocument, oldDocument, context));
 
   return updatedDocument;
 }

@@ -45,20 +45,18 @@ export const prodLw = merge({
     databaseId: "lightcone-infrastructure-lesswrong-prod-2",
     publicApiToken: "sb95OJbQ7mKLQAm1abPog2m5vCPj7XqZlVYdHGyANcjzqaHT5fX6HEgB0vCfiLav"
   },
-  taggingName: "wikitag",
-  taggingUrlCustomBase: "w",
   homepagePosts: {
     feeds: [
       {
         name: "forum-classic",
-        label: "Latest",
+        label: "Recent",
         description: "The classic LessWrong frontpage algorithm that combines karma with time discounting, plus any tag-based weighting if applied.",
         showToLoggedOut: true
       },
       {
         name: "recombee-hybrid",
         label: "Enriched",
-        description: "An equal mix of Latest and Recommended.",
+        description: "An equal mix of Recent and Recommended.",
         showSparkleIcon: true,
         defaultTab: true,
         showToLoggedOut: true

@@ -1,4 +1,3 @@
-import Digests from "@/server/collections/digests/collection";
 import { addField, dropField } from "./meta/utils";
 
 /**
@@ -28,12 +27,12 @@ import { addField, dropField } from "./meta/utils";
 export const acceptsSchemaHash = "c1dd7ed968b6af5a78625296b5e5fec0";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Digests, "onsiteImageId");
-  await addField(db, Digests, "onsitePrimaryColor");
+  await addField(db, "Digests", "onsiteImageId");
+  await addField(db, "Digests", "onsitePrimaryColor");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, Digests, "onsiteImageId");
-  await dropField(db, Digests, "onsitePrimaryColor");
+  await dropField(db, "Digests", "onsiteImageId");
+  await dropField(db, "Digests", "onsitePrimaryColor");
 }
 

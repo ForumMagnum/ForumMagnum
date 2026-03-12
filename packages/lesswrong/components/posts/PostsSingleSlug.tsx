@@ -1,6 +1,4 @@
 "use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { usePostBySlug } from './usePost';
@@ -8,10 +6,9 @@ import PostsPageWrapper from "./PostsPage/PostsPageWrapper";
 import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
 
-const PostsSingleSlug = () => {
-  const { params, query } = useLocation();
+const PostsSingleSlug = ({slug}: {slug: string}) => {
+  const { query } = useLocation();
   const version = query?.revision
-  const slug = params.slug;
   const { post, loading } = usePostBySlug({ slug });
   
   if (post) {
@@ -21,6 +18,6 @@ const PostsSingleSlug = () => {
   }
 };
 
-export default registerComponent('PostsSingleSlug', PostsSingleSlug);
+export default PostsSingleSlug;
 
 

@@ -1,8 +1,6 @@
 import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
-import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
-import LRU from "lru-cache";
-import { getViewableCommentsSelector, getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
+import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
@@ -18,34 +16,6 @@ type MeanPostKarma = {
   _id: number,
   meanKarma: number,
 }
-
-type PostAndDigestPost = DbPost & {digestPostId: string|null, emailDigestStatus: string|null, onsiteDigestStatus: string|null}
-
-// Map from emoji names to an array of user display names
-type PostEmojiReactors = Record<string, string[]>;
-
-const postEmojiReactorCache = new LRU<string, Promise<PostEmojiReactors>>({
-  maxAge: 30 * 1000, // 30 second TTL
-  updateAgeOnGet: false,
-});
-
-// Map from comment ids to maps from emoji names to an array of user display names
-type CommentEmojiReactors = Record<string, Record<string, string[]>>;
-
-const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>({
-  maxAge: 30 * 1000, // 30 second TTL
-  updateAgeOnGet: false,
-});
-
-export type PostAndCommentsResultRow = {
-  postId: string
-  commentIds: string[]|null
-  fullCommentTreeIds: string[]|null
-  subscribedPosts: boolean|null
-  subscribedComments: boolean|null
-  postedAt: Date|null
-  last_commented: Date|null
-};
 
 const constructFilters = (
   {
@@ -159,21 +129,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [oldUserId, newUserId]);
   }
 
-  async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
-    const maybeRequireAF = isAF() ? "AND af IS TRUE" : ""
-    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
-      -- PostsRepo.postRouteWillDefinitelyReturn200
-      SELECT EXISTS(
-        SELECT 1
-        FROM "Posts"
-        WHERE "_id" = $1 AND ${getViewablePostsSelector()}
-        ${maybeRequireAF}
-      )
-    `, [id]);
-
-    return res?.exists ?? false;
-  }
-
   async getEarliestPostTime(): Promise<Date> {
     const result = await this.oneOrNone(`
       -- PostsRepo.getEarliestPostTime
@@ -259,147 +214,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 
 
-  async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
-    const end = endDate ?? new Date()
-    return this.getRawDb().manyOrNone(`
-      -- PostsRepo.getEligiblePostsForDigest
-      SELECT p.*, dp._id as "digestPostId", dp."emailDigestStatus", dp."onsiteDigestStatus"
-      FROM "Posts" p
-      LEFT JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."digestId" = $1
-      WHERE p."postedAt" > $2 AND
-        p."postedAt" <= $3 AND
-        p."baseScore" > 2 AND
-        p."isEvent" is not true AND
-        p."shortform" is not true AND
-        p."isFuture" is not true AND
-        p."authorIsUnreviewed" is not true AND
-        p."draft" is not true AND
-        p."deletedDraft" is not true
-      ORDER BY p."baseScore" desc
-      LIMIT 200
-    `, [digestId, startDate, end], "getEligiblePostsForDigest");
-  }
-  
-  async getPostsForOnsiteDigest(num: number): Promise<Array<DbPost>> {
-    return this.manyOrNone(`
-      -- PostsRepo.getPostsForOnsiteDigest
-      SELECT p.*
-      FROM "Posts" p
-      JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."onsiteDigestStatus" = 'yes'
-      JOIN "Digests" d ON d.num = $1 AND dp."digestId" = d._id
-      WHERE
-        p."draft" is not true AND
-        p."deletedDraft" is not true
-      ORDER BY p."curatedDate" DESC NULLS LAST, p."suggestForCuratedUserIds" DESC NULLS LAST, p."baseScore" desc
-      LIMIT 50
-    `, [num]);
-  }
-
-  async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
-    const {emojiReactors} = await this.getRawDb().one(`
-      -- PostsRepo.getPostEmojiReactors
-      SELECT JSON_OBJECT_AGG("key", "displayNames") AS "emojiReactors"
-      FROM (
-        SELECT
-          "key",
-          (ARRAY_AGG(
-            "displayName" ORDER BY "createdAt" ASC)
-          ) AS "displayNames"
-        FROM (
-          SELECT
-            u."displayName",
-            v."createdAt",
-            (JSONB_EACH(v."extendedVoteType")).*
-          FROM "Votes" v
-          JOIN "Users" u ON u."_id" = v."userId"
-          WHERE
-            v."collectionName" = 'Posts' AND
-            v."documentId" = $1 AND
-            v."cancelled" IS NOT TRUE AND
-            v."isUnvote" IS NOT TRUE AND
-            v."extendedVoteType" IS NOT NULL
-        ) q
-        WHERE "key" IN ($2:csv) AND "value" = TO_JSONB(TRUE)
-        GROUP BY "key"
-      ) q
-    `, [postId, eaPublicEmojiNames]);
-    return emojiReactors;
-  }
-
-  async getPostEmojiReactorsWithCache(postId: string): Promise<PostEmojiReactors> {
-    const cached = postEmojiReactorCache.get(postId);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const emojiReactors = this.getPostEmojiReactors(postId);
-    postEmojiReactorCache.set(postId, emojiReactors);
-    return emojiReactors;
-  }
-
-  async getCommentEmojiReactors(postId: string): Promise<CommentEmojiReactors> {
-    const {emojiReactors} = await this.getRawDb().one(`
-      -- PostsRepo.getCommentEmojiReactors
-      SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
-      FROM (
-        SELECT
-          "commentId",
-          JSON_OBJECT_AGG("key", "displayNames")
-            FILTER (WHERE "key" IN ($2:csv))
-            AS "reactorDisplayNames"
-        FROM (
-          SELECT
-            "commentId",
-            "key",
-            (ARRAY_AGG(
-              "displayName" ORDER BY "createdAt" ASC)
-            ) AS "displayNames"
-          FROM (
-            SELECT
-              c."_id" AS "commentId",
-              u."displayName",
-              v."createdAt",
-              (JSONB_EACH(v."extendedVoteType")).*
-            FROM "Comments" c
-            JOIN "Votes" v ON
-              v."collectionName" = 'Comments' AND
-              v."documentId" = c."_id" AND
-              v."cancelled" IS NOT TRUE AND
-              v."isUnvote" IS NOT TRUE AND
-              v."extendedVoteType" IS NOT NULL
-            JOIN "Users" u ON u."_id" = v."userId"
-            WHERE c."postId" = $1
-          ) q
-          WHERE "value" = TO_JSONB(TRUE)
-          GROUP BY "commentId", "key"
-        ) q
-        GROUP BY "commentId"
-      ) q
-    `, [postId, eaPublicEmojiNames]);
-    return emojiReactors;
-  }
-
-  async getCommentEmojiReactorsWithCache(postId: string): Promise<CommentEmojiReactors> {
-    const cached = commentEmojiReactorCache.get(postId);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const emojiReactors = this.getCommentEmojiReactors(postId);
-    commentEmojiReactorCache.set(postId, emojiReactors);
-    return emojiReactors;
-  }
-
-  getTopWeeklyDigestPosts(limit = 3): Promise<DbPost[]> {
-    return this.any(`
-      -- PostsRepo.getTopWeeklyDigestPosts
-      SELECT p.*
-      FROM "Posts" p
-      JOIN "DigestPosts" dp ON p."_id" = dp."postId"
-      JOIN "Digests" d ON d."_id" = dp."digestId"
-      ORDER BY d."num" DESC, p."baseScore" DESC
-      LIMIT $1
-    `, [limit]);
-  }
-
   getRecentlyActiveDialogues(limit = 3): Promise<DbPost[]> {
     return this.any(`
       -- PostsRepo.getRecentlyActiveDialogues
@@ -469,12 +283,14 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [maxAgeInDays, numPostsPerDigest, limit]);
   }
 
-  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3}: {
+  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3, af}: {
     currentUser?: DbUser | null,
     days?: number,
     limit?: number,
+    af?: boolean,
   } = {}) {
     const postFilter = getViewablePostsSelector("p");
+    const afFilter = af ? `p."af" IS TRUE AND` : "";
     const readFilter = currentUser
       ? {
         join: `
@@ -491,6 +307,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       FROM "Posts" p
       ${readFilter.join}
       WHERE
+        ${afFilter}
         p."curatedDate" > NOW() - ($1 || ' days')::INTERVAL AND
         p."disableRecommendation" IS NOT TRUE AND
         ${readFilter.filter}
@@ -501,6 +318,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       JOIN "Users" u ON p."userId" = u."_id"
       ${readFilter.join}
       WHERE
+        ${afFilter}
         p."curatedDate" IS NULL AND
         p."frontpageDate" > NOW() - ($1 || ' days')::INTERVAL AND
         COALESCE(
@@ -968,98 +786,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     [userId, limit]);
   }
   
-  async getPostsAndCommentsFromSubscriptions(userId: string, maxAgeDays: number): Promise<Array<PostAndCommentsResultRow >> {
-    return await this.getRawDb().manyOrNone<PostAndCommentsResultRow>(`
-      WITH RECURSIVE user_subscriptions AS (
-        SELECT DISTINCT type, "documentId" AS "userId"
-        FROM "Subscriptions" s
-        WHERE state = 'subscribed'
-          AND s.deleted IS NOT TRUE
-          AND "collectionName" = 'Users'
-          AND "type" = 'newActivityForFeed'
-          AND "userId" = $(userId)
-      ),
-      posts_by_subscribees AS (
-        SELECT
-          p._id AS "postId",
-          "postedAt",
-          TRUE as "subscribedPosts"
-        FROM "Posts" p
-        JOIN user_subscriptions us
-        USING ("userId")
-        WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
-        ORDER BY p."postedAt" DESC
-      ),
-      comments_from_subscribees AS (
-        SELECT
-          "postId",
-          (ARRAY_AGG(c._id ORDER BY c."postedAt" DESC))[1:5] AS "commentIds",
-          MAX(c."postedAt") AS last_commented
-        FROM "Comments" c
-        JOIN user_subscriptions us
-        USING ("userId")
-        WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
-          AND c."postId" IS NOT NULL
-          AND c.deleted IS NOT TRUE
-          AND c.retracted IS NOT TRUE
-          AND ${getViewableCommentsSelector('c')}
-        GROUP BY "postId"
-      ),
-      posts_with_comments_from_subscribees AS (
-        SELECT
-          c."postId",
-          ARRAY_AGG(c._id) AS "commentIds",
-          MAX(c."postedAt") AS last_commented,
-          TRUE as "subscribedComments"
-        FROM "Comments" c
-        JOIN (SELECT UNNEST("commentIds") AS _id, "postId", last_commented FROM comments_from_subscribees) un
-        ON c._id = un._id AND c."postId" = un."postId" AND c."postedAt" > un.last_commented - INTERVAL '1 week'
-        GROUP BY c."postId"
-      ),
-      parent_comments AS (
-        SELECT
-          c._id,
-          c."postId",
-          c."parentCommentId",
-          c."postedAt"
-        FROM "Comments" c
-        WHERE c._id IN (SELECT UNNEST("commentIds") FROM posts_with_comments_from_subscribees)
-        UNION
-        SELECT
-          c._id,
-          c."postId",
-          c."parentCommentId",
-          c."postedAt"
-        FROM "Comments" c
-        JOIN parent_comments pc ON pc."parentCommentId" = c._id
-      ),
-      combined AS (
-        SELECT
-          *
-        FROM posts_by_subscribees
-        FULL JOIN posts_with_comments_from_subscribees USING ("postId")
-      )
-      SELECT combined.*, ARRAY_AGG(DISTINCT parent_comments._id) AS "fullCommentTreeIds"
-      FROM combined
-      JOIN "Posts" p ON combined."postId" = p._id
-      LEFT JOIN parent_comments ON parent_comments."postId" = combined."postId"
-      WHERE
-        p.draft IS NOT TRUE
-        AND p.status = 2
-        AND p.rejected IS NOT TRUE
-        AND p."authorIsUnreviewed" IS NOT TRUE
-        AND p."hiddenRelatedQuestion" IS NOT TRUE
-        AND p.unlisted IS NOT TRUE
-        AND p."isFuture" IS NOT TRUE
-        AND p."isEvent" IS NOT TRUE
-      GROUP BY combined."postId", combined."postedAt", last_commented, combined."subscribedPosts", combined."subscribedComments", combined."commentIds"
-      ORDER BY GREATEST(last_commented, combined."postedAt") DESC;    
-    `, {
-      userId,
-      maxAgeDays: `${maxAgeDays} days`,
-    });
-  }
-  
   async ensurePostHasNonDraftContents(postId: string) {
     await this.none(`
       UPDATE "Revisions" AS r
@@ -1306,6 +1032,42 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       AND "googleLocation" -> 'geometry' -> 'location' ->> 'lng' IS NOT NULL
       LIMIT $1
     `, [limit]);
+  }
+  getCurationCandidatePosts(limit: number): Promise<DbPost[]> {
+    return this.any(`
+      -- PostsRepo.getCurationCandidatePosts
+      SELECT p.*
+      FROM "Posts" p
+      WHERE p."draft" IS NOT TRUE
+        AND p."deletedDraft" IS NOT TRUE
+        AND p."status" = 2
+        AND p."curatedDate" IS NULL
+        AND (
+          (p."suggestForCuratedUserIds" IS NOT NULL
+            AND array_length(p."suggestForCuratedUserIds", 1) > 0
+            AND p."postedAt" > NOW() - INTERVAL '60 days')
+          OR
+          (p."baseScore" > 100
+            AND p."postedAt" > NOW() - INTERVAL '30 days')
+        )
+      ORDER BY (CASE WHEN EXISTS (
+        SELECT 1 FROM "CurationNotices" cn WHERE cn."postId" = p."_id" AND cn."deleted" IS NOT TRUE
+      ) THEN 0 ELSE 1 END),
+      COALESCE(array_length(p."suggestForCuratedUserIds", 1), 0) DESC,
+      p."postedAt" DESC
+      LIMIT $(limit)
+    `, { limit });
+  }
+  async getLastCuratedDate(): Promise<Date | null> {
+    const row = await this.oneOrNone(`
+      -- PostsRepo.getLastCuratedDate
+      SELECT p."curatedDate"
+      FROM "Posts" p
+      WHERE p."curatedDate" IS NOT NULL
+      ORDER BY p."curatedDate" DESC
+      LIMIT 1
+    `);
+    return row?.curatedDate ?? null;
   }
 }
 

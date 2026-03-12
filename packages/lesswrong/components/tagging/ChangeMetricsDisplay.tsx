@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { ChangeMetrics } from '../../server/collections/revisions/collection';
 import classNames from 'classnames';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ChangeMetricsDisplay", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
   },
@@ -13,16 +14,18 @@ const styles = (theme: ThemeType) => ({
   charsRemoved: {
     color: theme.palette.text.charsRemoved,
   },
+}), {
+  stylePriority: -1,
 });
 
-const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className, classes}: {
+const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className}: {
   changeMetrics: ChangeMetrics,
   showCharacters?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
   const {added, removed} = changeMetrics;
   const characters = showCharacters ? " characters" : "";
+  const classes = useStyles(styles);
 
   return <span className={classNames(classes.root, className)}>
     {(added>0 && removed>0)
@@ -34,10 +37,6 @@ const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className, classes
   </span>
 }
 
-export default registerComponent(
-  "ChangeMetricsDisplay",
-  ChangeMetricsDisplay,
-  {styles, stylePriority: -1},
-);
+export default ChangeMetricsDisplay;
 
 

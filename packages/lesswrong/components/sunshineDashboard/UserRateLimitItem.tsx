@@ -1,7 +1,6 @@
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import moment from 'moment';
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import ClearIcon from '@/lib/vendor/@material-ui/icons/src/Clear'
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
@@ -74,7 +73,12 @@ const UserRateLimitDisplayMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserRateLimitItem', (theme: ThemeType) => ({
+  setRateLimit: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: 6,
+  },
   rateLimitForm: {
     [theme.breakpoints.up('md')]: {
       border: theme.palette.border.normal,
@@ -127,7 +131,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 1
     },
   },
-});
+}));
 
 const USER_RATE_LIMIT_TYPES = {
   allComments: "Comments",
@@ -206,8 +210,8 @@ const formStyles = defineStyles('SurveySchedulesForm', (theme: ThemeType) => ({
     flexWrap: 'wrap',
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
   cancelButton: cancelButtonStyles(theme),
@@ -383,10 +387,22 @@ export const UserRateLimitsForm = ({
   );
 };
 
-export const UserRateLimitItem = ({ userId, classes }: {
-  userId: string,
-  classes: ClassesType<typeof styles>,
-}) => {
+type UserRateLimitItemProps = {
+  showForm?: boolean;
+  userId: string;
+  user?: undefined;
+} | {
+  showForm?: boolean;
+  userId?: undefined;
+  user: SunshineUsersList;
+};
+
+export const UserRateLimitItem = (props: UserRateLimitItemProps) => {
+  const classes = useStyles(styles);
+  const { showForm } = props;
+
+  const userId = props.userId ?? props.user._id;
+
   const [createNewRateLimit, setCreateNewRateLimit] = useState(false);
   const [editingExistingRateLimitId, setEditingExistingRateLimitId] = useState<string>();
 
@@ -397,9 +413,10 @@ export const UserRateLimitItem = ({ userId, classes }: {
       enableTotal: false,
     },
     notifyOnNetworkStatusChange: true,
+    skip: !userId,
   });
 
-  const existingRateLimits = data?.userRateLimits?.results;
+  const existingRateLimits = data?.userRateLimits?.results ?? props.user?.userRateLimits;
 
   const [create] = useMutation(UserRateLimitMutationFragmentCreateMutation);
 
@@ -438,41 +455,44 @@ export const UserRateLimitItem = ({ userId, classes }: {
 
   return <div>
     {/** Doesn't have both a comment and post rate limit */}
-    {existingRateLimits.length < 2 && <div>
-      Set Rate Limit: <Select
-        value=''
-        onChange={(e) => createRateLimit(e.target.value)}
-        className={classes.newRateLimit}
-      >
-        <MenuItem value={COMMENTS_THREE_PER_DAY}>
-          Comments (3 per day for 3 weeks)
-        </MenuItem>
-        <MenuItem value={COMMENTS_ONE_PER_DAY}>
-          Comments (1 per day for 3 weeks)
-        </MenuItem>
-        <MenuItem value={COMMENTS_ONE_PER_THREE_DAYS}>
-          Comments (1 per 3 days for 3 weeks)
-        </MenuItem>
-        <MenuItem value={POSTS_ONE_PER_WEEK}>
-          Posts (1 per week for 6 weeks)
-        </MenuItem>
-        <MenuItem value='custom'>Custom</MenuItem>
-      </Select>
-    </div>}
-    {(createNewRateLimit || editingExistingRateLimitId) && <div className={classes.rateLimitForm}>
-      <UserRateLimitsForm
-        {...existingOrDefaultValue}
-        onSuccess={async () => {
-          await refetch();
-          setCreateNewRateLimit(false);
-          setEditingExistingRateLimitId(undefined);
-        }}
-        onCancel={() => {
-          setCreateNewRateLimit(false);
-          setEditingExistingRateLimitId(undefined);
-        }}
-      />
-    </div>}
+    {showForm && <>
+      {existingRateLimits.length < 2 && <div className={classes.setRateLimit}>
+        <span>{'Set Rate Limit: '}</span>
+        <Select
+          value=''
+          onChange={(e) => createRateLimit(e.target.value)}
+          className={classes.newRateLimit}
+        >
+          <MenuItem value={COMMENTS_THREE_PER_DAY}>
+            Comments (3 per day for 3 weeks)
+          </MenuItem>
+          <MenuItem value={COMMENTS_ONE_PER_DAY}>
+            Comments (1 per day for 3 weeks)
+          </MenuItem>
+          <MenuItem value={COMMENTS_ONE_PER_THREE_DAYS}>
+            Comments (1 per 3 days for 3 weeks)
+          </MenuItem>
+          <MenuItem value={POSTS_ONE_PER_WEEK}>
+            Posts (1 per week for 6 weeks)
+          </MenuItem>
+          <MenuItem value='custom'>Custom</MenuItem>
+        </Select>
+      </div>}
+      {(createNewRateLimit || editingExistingRateLimitId) && <div className={classes.rateLimitForm}>
+        <UserRateLimitsForm
+          {...existingOrDefaultValue}
+          onSuccess={async () => {
+            await refetch();
+            setCreateNewRateLimit(false);
+            setEditingExistingRateLimitId(undefined);
+          }}
+          onCancel={() => {
+            setCreateNewRateLimit(false);
+            setEditingExistingRateLimitId(undefined);
+          }}
+        />
+      </div>}
+    </>}
     {existingRateLimits.length > 0 && existingRateLimits.map(existingRateLimit =>
       <div key={`user-rate-limit-${existingRateLimit._id}`} className={classes.existingRateLimitInfo}>
         Rate Limit ({getRateLimitDescription(existingRateLimit)})
@@ -490,7 +510,4 @@ export const UserRateLimitItem = ({ userId, classes }: {
   </div>;
 }
 
-export default registerComponent('UserRateLimitItem', UserRateLimitItem, { styles });
-
-
-
+export default UserRateLimitItem;

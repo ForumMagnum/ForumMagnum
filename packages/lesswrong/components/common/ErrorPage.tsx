@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import SingleColumnSection from "./SingleColumnSection";
 import ErrorMessage from "./ErrorMessage";
 
@@ -13,7 +12,7 @@ const ErrorPage = ({error}: {
   </SingleColumnSection>
 }
 
-export default registerComponent('ErrorPage', ErrorPage);
+export default ErrorPage;
 
 
 

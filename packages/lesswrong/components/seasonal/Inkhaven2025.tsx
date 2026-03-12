@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
@@ -156,7 +155,4 @@ export const Inkhaven2025Banner = () => {
   );
 }
 
-export default registerComponent('Inkhaven2025Banner', Inkhaven2025Banner);
-
-
-
+export default Inkhaven2025Banner;

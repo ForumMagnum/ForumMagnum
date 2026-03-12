@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { conditionalVisibilityModes, ConditionalVisibilitySettings } from './conditionalVisibility';
 
@@ -41,7 +40,7 @@ const ShowBlockVisibilityCondition = ({options, children}: {
   </div>
 }
 
-export default registerComponent('ShowBlockVisibilityCondition', ShowBlockVisibilityCondition);
+export default ShowBlockVisibilityCondition;
 
 
 

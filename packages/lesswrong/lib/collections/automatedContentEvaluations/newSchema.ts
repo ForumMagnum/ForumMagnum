@@ -16,6 +16,7 @@ const schema = {
     }
   },
 
+  // score & sentenceScores are Sapling fields
   score: {
     database: {
       type: "DOUBLE PRECISION",
@@ -39,6 +40,7 @@ const schema = {
     },
   },
 
+  // aiChoice, aiReasoning, and aiCoT are the results of calling an LLM for a qualitative judgment based on specified criteria
   aiChoice: {
     database: {
       type: "TEXT",
@@ -72,6 +74,55 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
+    },
+  },
+
+  // Pangram AI detection fields
+  pangramScore: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["sunshineRegiment", "admins"],
+    },
+  },
+
+  pangramMaxScore: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["sunshineRegiment", "admins"],
+    },
+  },
+
+  pangramPrediction: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["sunshineRegiment", "admins"],
+      validation: {
+        allowedValues: ["AI", "Human", "Mixed"],
+      },
+    },
+  },
+
+  pangramWindowScores: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+      typescriptType: "{ text: string; score: number; startIndex: number; endIndex: number; }[]",
+    },
+    graphql: {
+      outputType: "[PangramWindowScore!]",
+      canRead: ["sunshineRegiment", "admins"],
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"AutomatedContentEvaluations">>;

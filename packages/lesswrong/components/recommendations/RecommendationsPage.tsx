@@ -1,7 +1,5 @@
 "use client";
-
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { isLW } from '../../lib/instanceSettings';
 import ConfigurableRecommendationsList from "./ConfigurableRecommendationsList";
@@ -18,7 +16,7 @@ const RecommendationsPage = () => {
   )
 };
 
-export default registerComponent('RecommendationsPage', RecommendationsPage);
+export default RecommendationsPage;
 
 
 

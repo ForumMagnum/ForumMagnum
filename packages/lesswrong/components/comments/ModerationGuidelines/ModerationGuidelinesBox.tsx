@@ -9,12 +9,12 @@ import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { getFrontpageGuidelines, getDefaultGuidelines } from './ForumModerationGuidelinesContent'
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { TooltipSpan } from '@/components/common/FMTooltip';
 import ModerationGuidelinesEditForm from "./ModerationGuidelinesEditForm";
 import ContentStyles from "../../common/ContentStyles";
+import { safeForDarkMode } from '@/components/hooks/defineStyles';
 
 
 const PostsModerationGuidelinesQuery = gql(`
@@ -41,20 +41,20 @@ const TagModerationGuidelinesQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   root: {
-    padding: theme.spacing.unit * 2,
+    padding: 16,
     position: "relative"
   },
   assistance: { //UNUSED
     color: theme.palette.text.normal,
   },
   'easy-going': {
-    color: theme.palette.text.moderationGuidelinesEasygoing,
+    color: safeForDarkMode('rgba(100, 169, 105, 0.9)'),
   },
   'norm-enforcing': {
-    color: theme.palette.text.moderationGuidelinesNormEnforcing,
+    color: safeForDarkMode('#2B6A99'),
   },
   'reign-of-terror': {
-    color: theme.palette.text.moderationGuidelinesReignOfTerror,
+    color: safeForDarkMode('rgba(179,90,49,.8)'),
   },
   editButtonWrapper: {
     cursor: "pointer",
@@ -87,7 +87,7 @@ const truncateGuidelines = (guidelines: string) => {
   return truncatise(guidelines, {
     TruncateLength: 300,
     TruncateBy: "characters",
-    Suffix: `... <a>(${preferredHeadingCase("Read More")})</a>`,
+    Suffix: `... <a>Read More</a>`,
     Strict: false
   });
 }

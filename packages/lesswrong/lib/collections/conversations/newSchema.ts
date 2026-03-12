@@ -221,17 +221,25 @@ const schema = {
           context.repos.conversations.getReadStatuses(currentUser._id, conversationIds)
         );
       },
-      sqlResolver: ({ field, currentUserField, join }) =>
-        join({
-          isNonCollectionJoin: true,
-          table: "ConversationUnreadMessages",
-          type: "left",
-          on: {
-            conversationId: field("_id"),
-            userId: currentUserField("_id"),
-          },
-          resolver: (unreadMessagesField) => `COALESCE(${unreadMessagesField("hasUnreadMessages")}, FALSE)`,
-        }),
+      sqlResolver: ({ field, currentUserField }) => `
+        COALESCE(
+          EXISTS (
+            SELECT 1
+            FROM "Notifications" n
+            INNER JOIN "Messages" m ON
+              n."documentId" = m."_id"
+              AND n."documentType" = 'message'
+              AND n."userId" = ${currentUserField("_id")}
+              AND m."conversationId" = ${field("_id")}
+            WHERE
+              n."emailed" IS NOT TRUE
+              AND n."waitingForBatch" IS NOT TRUE
+              AND n."deleted" IS NOT TRUE
+              AND n."viewed" IS NOT TRUE
+          ),
+          FALSE
+        )
+      `,
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Conversations">>;

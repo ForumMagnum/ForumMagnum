@@ -87,7 +87,8 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
       const valuesToInsert = events.map(ev => ({
         environment: environmentDescription,
         event_type: ev.type,
-        timestamp: ev.timestamp,
+        // Convert to ISO string to ensure UTC timezone is used
+        timestamp: ev.timestamp.toISOString(),
         event: ev.props,
       }));
       const query = getPgPromiseLib().helpers.insert(valuesToInsert, analyticsColumnSet);
@@ -101,7 +102,7 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
       
       inFlightRequestCounter.inFlightRequests++;
       try {
-        await connection?.none(query);
+        await connection.none(query);
       } finally {
         inFlightRequestCounter.inFlightRequests--;
       }
@@ -173,10 +174,6 @@ export async function pruneOldPerfMetrics() {
  */
 export function serverWriteEvent(event: AnyBecauseTodo) {
   const { type, timestamp, props } = event;
-  if (pendingEvents) {
-    pendingEvents.push(event);
-    return;
-  }
   backgroundTask(writeEventsToAnalyticsDB([{
     type, timestamp,
     props: {
@@ -217,19 +214,5 @@ export function serverCaptureEvent(eventType: string, eventProps?: EventProps, s
   } catch(e) {
     // eslint-disable-next-line no-console
     console.error("Error while capturing analytics event: ", e);
-  }
-}
-
-// Analytics events that were recorded during startup before we were ready
-// to write them to the analytics DB.
-let pendingEvents: any[]|null = [];
-
-export function startAnalyticsWriter() {
-  const deferredEvents = pendingEvents;
-  pendingEvents = null;
-  if (deferredEvents) {
-    for (let event of deferredEvents) {
-      serverWriteEvent(event);
-    }
   }
 }

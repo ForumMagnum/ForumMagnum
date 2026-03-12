@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogContentText } from "@/components/widgets/DialogContentText";
@@ -74,6 +73,4 @@ export const NewLensDialog = ({ tag, refetchTag, updateSelectedLens, onClose }: 
   </LWDialog>;
 }
 
-export default registerComponent('NewLensDialog', NewLensDialog);
-
-
+export default NewLensDialog;

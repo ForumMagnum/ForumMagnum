@@ -4,7 +4,6 @@ import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { useScrollHighlight } from '../hooks/useScrollHighlight';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
-import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import classNames from 'classnames';
 import { isAF } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
@@ -13,6 +12,7 @@ import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivi
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { isSpecialClick } from '@/lib/utils/eventUtils';
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
 const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
@@ -93,10 +93,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate}
     return null;
   }
   
-  if (!commentsTableOfContentsEnabled()) {
-    return null;
-  }
-
   return <div className={classes.root}>
     <CommentsTableOfContentsTitle post={post}/>
 

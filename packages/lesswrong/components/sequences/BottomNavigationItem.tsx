@@ -57,7 +57,7 @@ const styles = (theme: ThemeType) => ({
 
   login: {
     position: "relative", // TODO: figure out more elegant way of doing this without weird CSS rituals
-    top: theme.spacing.unit
+    top: 8
   }
 });
 

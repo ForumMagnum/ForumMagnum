@@ -1,11 +1,8 @@
 import React, { Fragment, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPageUtils';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -41,9 +38,6 @@ const styles = defineStyles('TagPreview', (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }
-  },
-  rootEAWidth: {
-    width: FRIENDLY_HOVER_OVER_WIDTH,
   },
   mainContent: {
     ...(!theme.isFriendlyUI && {
@@ -164,10 +158,6 @@ function tagNameIsBoldedAnywhere(html: string, rawTagName: string): boolean {
 /* from the main description.
 */
 const tagShowTitle = (tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] }) => {
-  if (isFriendlyUI()) {
-    return false;
-  }
-
   const tooltipText = tag.summaries?.[0]?.contents?.html ?? getTagDescriptionHtmlHighlight(tag);
   if (!tooltipText) {
     return true;
@@ -249,16 +239,14 @@ const TagPreview = ({
   const hasFooter = showCount || autoApplied;
   const subTagName = "Sub-" + (
     tag.subTags.length > 1
-      ? taggingNamePluralCapitalSetting.get()
-      : taggingNameCapitalSetting.get()
+      ? "Wikitags"
+      : "Wikitag"
   );
 
   const hasDescription = !!getTagDescriptionHtml(tag) && !hideDescription;
   const hasMultipleSummaries = summaryTabs.length > 1;
   return (
-    <div className={classNames(classes.root, {
-      [classes.rootEAWidth]: isFriendlyUI() && hasDescription,
-    })}>
+    <div className={classes.root}>
       {hasMultipleSummaries && <div className={classes.tabsContainer}>
        {summaryTabs}
       </div>}
@@ -369,8 +357,4 @@ const TagPreviewTitle = ({tag}: {
   </div>
 }
 
-export default registerComponent("TagPreview", TagPreview);
-
-
-
-
+export default TagPreview;

@@ -66,8 +66,6 @@ const LockThreadDialog = ({commentId, onClose, classes}: {
   );
 }
 
-export default registerComponent(
-  'LockThreadDialog', LockThreadDialog, {styles},
-);
+export default registerComponent('LockThreadDialog', LockThreadDialog, {styles});
 
 

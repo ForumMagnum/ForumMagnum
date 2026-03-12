@@ -7,11 +7,11 @@ import { userCanDo, userIsMemberOf, userIsPodcaster, userOwns } from "@/lib/vulc
 import { swrInvalidatePostRoute } from "@/server/cache/swr";
 import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/callbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation, purgeCurationEmailQueueWhenUncurating } from "@/server/callbacks/postCallbackFunctions";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
 import { hasEmbeddingsForRecommendations } from "@/server/embeddings";
+import { maybeAutoFrontpagePost } from "@/server/frontpageClassifier/predictions";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { handleCrosspostUpdate } from "@/server/fmCrosspost/crosspost";
 import { rehostPostMetaImages } from "@/server/scripts/convertImagesToCloudinary";
@@ -38,9 +38,21 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
 
   await postsUndraftRateLimit(document, previewDocument, user, context);
 
-  // Prevent users from editing or re-drafting rejected posts to hide them
-  if (userOwns(user, document) && document.rejected) {
+  // If the user doesn't have posting permissions, don't let them edit posts at all
+  // This prevents them from publishing previously-made draft posts, etc.
+  if (!userCanPost(user)) {
     return false;
+  }
+
+  // For rejected posts owned by the user, allow redrafting.
+  // Technically this lets someone edit the contents if they do it in the same operation,
+  // but that's more annoying to prevent and I don't expect too many cases of that.
+  // (Also it only matters when doing moderation.)
+  if (userOwns(user, document) && document.rejected) {
+    const isRedrafting = !document.draft && previewDocument.draft;
+    if (!isRedrafting) {
+      return false;
+    }
   }
 
   if (userCanDo(user, 'posts.alignment.move.all') ||
@@ -112,12 +124,6 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     props: afterCreateProperties,
   });
 
-  await upsertPolls({
-    revisionId: documentWithId.contents_latest,
-    post: documentWithId,
-    context,
-  })
-
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Posts', documentWithId);
 
   // former newAfter callbacks
@@ -144,6 +150,10 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   await sendUsersSharedOnPostNotifications(documentWithId);
   if (hasEmbeddingsForRecommendations()) {
     await updatePostEmbeddingsOnChange(documentWithId, undefined);
+
+    if (!documentWithId.draft) {
+      await maybeAutoFrontpagePost(documentWithId._id, context);
+    }
   }
 
   await rehostPostMetaImages(documentWithId);
@@ -214,12 +224,6 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
     props: updateCallbackProperties,
   });
 
-  await upsertPolls({
-    revisionId: updatedDocument.contents_latest,
-    post: updatedDocument,
-    context,
-  })
-
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);
 
   // former updateAsync callbacks
@@ -239,7 +243,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
   await removeRedraftNotifications(updatedDocument, oldDocument, context);
 
-  if (isEAForum()) {
+  if (isEAForum()) { // TODO UNGATE - LW should probably adopt this
     await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
   }
 

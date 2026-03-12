@@ -1,12 +1,13 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
-import { SidebarsContext } from '../../common/SidebarsWrapper';
+import { SidebarsContext } from '@/components/layout/SidebarsWrapper';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { isClient } from '../../../lib/executionEnvironment';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import ForumIcon from "../../common/ForumIcon";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -15,7 +16,7 @@ export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
 
-export const styles = (theme: ThemeType) => ({
+export const styles = defineStyles("ToCColumn", (theme: ThemeType) => ({
   root: {
     position: "relative",
     [theme.breakpoints.down('sm')]: {
@@ -78,7 +79,7 @@ export const styles = (theme: ThemeType) => ({
     top: 0,
     lineHeight: 1.0,
     marginLeft: 1,
-    paddingLeft: theme.spacing.unit*2,
+    paddingLeft: 16,
     textAlign: "left",
     maxHeight: "100vh",
     overflowY: "auto",
@@ -128,7 +129,7 @@ export const styles = (theme: ThemeType) => ({
   hideTocButtonHidden: {
     display: "none",
   },
-});
+}));
 
 const shouldHideToggleContentsButton = () => {
   if (!isClient) {
@@ -151,15 +152,14 @@ export const ToCColumn = ({
   rightColumnChildren,
   notHideable,
   children,
-  classes,
 }: {
   tableOfContents: React.ReactNode|null,
   header?: React.ReactNode,
   rightColumnChildren?: React.ReactNode,
   notHideable?: boolean,
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {captureEvent} = useTracking();
   const {sideCommentsActive} = useContext(SidebarsContext)!;
   const [hideTocButtonHidden, setHideTocButtonHidden] = useState(
@@ -229,6 +229,6 @@ export const ToCColumn = ({
   );
 }
 
-export default registerComponent("ToCColumn", ToCColumn, {styles});
+export default ToCColumn;
 
 

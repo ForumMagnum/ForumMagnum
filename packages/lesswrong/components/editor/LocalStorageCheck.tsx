@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
+import { SerializedEditorContents, deserializeEditorContents, EditorContents, getEditorsForUser } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
-import { preferredHeadingCase } from '@/themes/forumTheme';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useEffectOnce } from '../hooks/useEffectOnce';
 
 const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
   root: {
@@ -71,7 +71,7 @@ const restorableStateHasMetadata = (savedState: any) => {
 type GetLocalStorageHandlers = (editorType?: string) => any;
 
 const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: GetLocalStorageHandlers): RestorableState|null => {
-  const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
+  const editors = getEditorsForUser(currentUser)
   
   for (const editorType of editors) {
     const savedState = getLocalStorageHandlers(editorType).get();
@@ -98,21 +98,19 @@ type LocalStorageCheckProps = {
 
 const LocalStorageCheck = (props: LocalStorageCheckProps) => {
   const {getLocalStorageHandlers, getNewPostLocalStorageHandlers} = props;
-  const [localStorageChecked, setLocalStorageChecked] = useState(false);
   const [restorableState, setRestorableState] = useState<{restorableState: RestorableState|null, newPostRestorableState: RestorableState|null} | null>(null);
   const currentUser = useCurrentUser();
   
-  useEffect(() => {
-    if (!localStorageChecked) {
-      setLocalStorageChecked(true);
-      const restorableState = getRestorableState(currentUser, getLocalStorageHandlers);
-      const newPostRestorableState = getRestorableState(currentUser, getNewPostLocalStorageHandlers);
+  useEffectOnce(() => {
+    const restorableState = getRestorableState(currentUser, getLocalStorageHandlers);
+    const newPostRestorableState = getRestorableState(currentUser, getNewPostLocalStorageHandlers);
+    if (restorableState || newPostRestorableState) {
       setRestorableState({
         restorableState,
         newPostRestorableState,
       });
     }
-  }, [localStorageChecked, getLocalStorageHandlers, getNewPostLocalStorageHandlers, currentUser]);
+  });
 
   const restorableDocument = restorableState?.restorableState?.savedDocument ?? null;
   const newPostRestorableDocument = restorableState?.newPostRestorableState?.savedDocument ?? null;
@@ -151,7 +149,7 @@ const LocalStorageCheckVisible = (props: LocalStorageCheckProps & {
           // eslint-disable-next-line no-console
           console.error("Error restoring from localStorage");
         }
-      }}>{preferredHeadingCase("Restore Autosave")}</a>
+      }}>Restore Autosave</a>
     </div>
     <div className={classes.restoreBody}> {displayedRestore || legacyRestored} </div>
 

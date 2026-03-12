@@ -1,17 +1,12 @@
 "use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
 import { usePostBySlug } from './usePost';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import PermanentRedirect from "../common/PermanentRedirect";
 import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
 
-const PostsSingleSlugRedirect = () => {
-  const { params } = useLocation();
-  const slug = params.slug;
+const PostsSingleSlugRedirect = ({slug}: {slug: string}) => {
   const { post, loading } = usePostBySlug({ slug });
 
   if (post) {
@@ -22,6 +17,4 @@ const PostsSingleSlugRedirect = () => {
   }
 };
 
-export default registerComponent('PostsSingleSlugRedirect', PostsSingleSlugRedirect);
-
-
+export default PostsSingleSlugRedirect;

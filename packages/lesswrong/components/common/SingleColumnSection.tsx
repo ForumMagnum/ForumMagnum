@@ -1,3 +1,4 @@
+"use client";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
@@ -7,7 +8,7 @@ export const SECTION_WIDTH = 765
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: 32,
     maxWidth: SECTION_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",

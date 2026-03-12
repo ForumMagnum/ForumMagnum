@@ -17,7 +17,7 @@ const styles = defineStyles('EditLinkpostUrl', (theme: ThemeType) => ({
     fontSize: 14,
   },
   input: {
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     borderRadius: theme.borderRadius.default,
     padding: "8px 8px 5px 8px",

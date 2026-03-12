@@ -1,11 +1,12 @@
 import React from "react"
 import { registerComponent } from "../../lib/vulcan-lib/components"
-import MetaInfo, { styles as metaInfoStyles } from "../common/MetaInfo"
 import { isFriendlyUI } from "@/themes/forumTheme";
 import FormatDate from "../common/FormatDate";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles, useStyles } from "../hooks/useStyles";
+import MetaInfo from "../common/MetaInfo";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UserMentionHit", (theme: ThemeType) => ({
   root: {
     color: "inherit",
     ...(theme.isFriendlyUI && {
@@ -23,20 +24,27 @@ const styles = (theme: ThemeType) => ({
   },
   userHitLabel: {
     ...theme.typography.body2,
-    ...metaInfoStyles(theme).root,
-    marginLeft: theme.spacing.unit,
+    display: "inline",
+    color: theme.palette.grey[600],
+    marginRight: 8,
+    fontSize: "1rem",
+    
+    ...(theme.isFriendlyUI && {
+      fontFamily: theme.palette.fonts.sansSerifStack
+    }),
+    marginLeft: 8,
 
     // To properly switch color on item being selected
     ".ck-on &": {
       color: "inherit",
     },
   },
-});
+}));
 
-const UserMentionHit = ({hit, classes}: {
+const UserMentionHit = ({hit}: {
   hit: SearchUser,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const icon = isFriendlyUI()
     ? <ForumIcon icon="UserOutline" className={classes.icon} />
     : "👤";
@@ -51,10 +59,4 @@ const UserMentionHit = ({hit, classes}: {
   </span>
 }
 
-export default registerComponent(
-  "UserMentionHit",
-  UserMentionHit,
-  {styles},
-);
-
-
+export default UserMentionHit;

@@ -95,7 +95,7 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
   },
   addReactionButton: {
     verticalAlign: "bottom",
-    filter: theme.palette.buttons.messageReaction,
+    filter: theme.dark ? "opacity(0.35)" : "opacity(0.15)",
     cursor: "pointer",
     "& svg": {
       width: 20,
@@ -314,7 +314,7 @@ export function reactionVoteIsMatch(react: UserVoteOnSingleReaction, name: Emoji
 }
 
 
-const NamesAttachedReactionsVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem}: CommentVotingComponentProps & WithStylesProps) => {
+const NamesAttachedReactionsVoteOnCommentInner = ({document, hideKarma=false, collectionName, votingSystem}: CommentVotingComponentProps) => {
   const classes = useStyles(styles);
   const voteProps = useVote(document, collectionName, votingSystem);
   return <span className={classes.root}>
@@ -335,7 +335,7 @@ const NamesAttachedReactionsVoteOnCommentInner = ({document, hideKarma=false, co
 
 const NamesAttachedReactionsCommentBottomInner = ({
   document, hideKarma=false, commentBodyRef, voteProps, post, invertColors=false
-}: NamesAttachedReactionsCommentBottomProps & WithStylesProps) => {
+}: NamesAttachedReactionsCommentBottomProps) => {
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLElement|null>(null);
   const currentUserId = useCurrentUserId();

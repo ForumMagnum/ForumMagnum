@@ -3,7 +3,6 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
 import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { useCurrentUser } from '../common/withUser';
 import { Paper }from '@/components/widgets/Paper';
@@ -18,7 +17,7 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import UltraFeedSuggestedUserCard from "../ultraFeed/UltraFeedSuggestedUserCard";
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { useIsMobile } from '../hooks/useScreenWidth';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS } from '@/lib/cookies/cookies';
 import moment from 'moment';
@@ -227,7 +226,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
   enableDismissButton?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const isMobile = useIsMobile();
+  const isMobile = !useIsAboveBreakpoint("sm");
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS]);
   
@@ -268,9 +267,7 @@ export const SuggestedFeedSubscriptions = ({ suggestedUsers, settingsButton, ena
   
   const followingCount = followingCountData?.subscriptions?.totalCount ?? 0;
   
-  const baseUsersToShow = isMobile ? INITIAL_USERS_TO_SHOW_MOBILE : INITIAL_USERS_TO_SHOW_DESKTOP;
-  // Show twice as many users when following count is < 2
-  const usersToShow = followingCount < 2 ? baseUsersToShow * 2 : baseUsersToShow;
+  const usersToShow = isMobile ? INITIAL_USERS_TO_SHOW_MOBILE : INITIAL_USERS_TO_SHOW_DESKTOP;
 
   const { captureEvent } = useTracking();
 

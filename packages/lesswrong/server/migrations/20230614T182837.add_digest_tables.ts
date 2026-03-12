@@ -51,15 +51,14 @@
  */
 export const acceptsSchemaHash = "7abdde9662fea7114e47457ccdc6f4ad";
 
-import DigestPosts from "../../server/collections/digestPosts/collection"
-import Digests from "../../server/collections/digests/collection"
 import { randomId } from "../../lib/random"
 import InsertQuery from "../../server/sql/InsertQuery"
+import { getCollection } from "../collections/allCollections";
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  await createTable(db, Digests)
-  await createTable(db, DigestPosts)
+  await createTable(db, "Digests")
+  await createTable(db, "DigestPosts")
 
   // insert a digest to start
   const now = new Date()
@@ -69,12 +68,13 @@ export const up = async ({db}: MigrationContext) => {
     startDate: now,
     createdAt: now,
   }
-  const query = new InsertQuery(Digests.getTable(), newDigest as DbDigest)
+  const Digests = getCollection("Digests" as any)
+  const query = new InsertQuery(Digests.getTable(), newDigest)
   const {sql, args} = query.compile()
   await db.none(sql, args)
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropTable(db, DigestPosts)
-  await dropTable(db, Digests)
+  await dropTable(db, "DigestPosts")
+  await dropTable(db, "Digests")
 }

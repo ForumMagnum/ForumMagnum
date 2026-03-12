@@ -30,7 +30,8 @@ describe("syncDocumentWithLatestRevision", () => {
       contents: {
         originalContents: {
           type: 'ckEditorMarkup',
-          data: '<p>Post version 1</p>'
+          data: '<p>Post version 1</p>',
+          yjsState: null
         }
       }
     })

@@ -3,11 +3,6 @@ declare module "deepmerge" {
   export default function deepmerge(a: any, b: any, options?: {isMergeableObject: any}): any
 }
 
-declare module "markdown-it-footnote" {
-  const markdownItFootnote: AnyBecauseTodo;
-  export default markdownItFootnote;
-}
-
 declare module "markdown-it-sub" {
   const markdownItSub: AnyBecauseTodo;
   export default markdownItSub;
@@ -20,19 +15,6 @@ declare module "markdown-it-sup" {
 
 declare module "turndown-plugin-gfm" {
   export const gfm: AnyBecauseTodo
-}
-
-declare module "mathjax-node" {
-  const mjAPI: AnyBecauseTodo
-  export default mjAPI
-}
-declare module "mathjax-node-page" {
-  export const mjpage: AnyBecauseTodo
-}
-
-declare module "universal-cookie-express" {
-  const universalCookieExpress: AnyBecauseTodo
-  export default universalCookieExpress
 }
 
 declare module "gpt-3-encoder" {
@@ -48,11 +30,6 @@ declare module "feedparser-promised" {
 declare module "html-lexer" {
   const HtmlLexer: AnyBecauseTodo
   export default HtmlLexer
-}
-
-declare module "passport-auth0/lib/Profile" {
-  const Profile: AnyBecauseTodo
-  export default Profile;
 }
 
 declare module "@extractus/article-extractor" {

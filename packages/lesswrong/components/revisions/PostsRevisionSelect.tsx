@@ -10,6 +10,8 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import RevisionSelect from "./RevisionSelect";
 import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionPostsRevisionSelectQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -33,17 +35,14 @@ const PostsDetailsQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsRevisionSelect', (theme: ThemeType) => ({
   revisionList: {
   },
-});
+}));
 
-const PostsRevisionSelect = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
-  const { params } = useLocation();
+const PostsRevisionSelect = ({postId}: {postId: string}) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
-  const postId = params._id;
   
   const { loading: loadingPost, data } = useQuery(PostsDetailsQuery, {
     variables: { documentId: postId },
@@ -86,6 +85,6 @@ const PostsRevisionSelect = ({ classes }: {
   </SingleColumnSection>
 }
 
-export default registerComponent("PostsRevisionSelect", PostsRevisionSelect, {styles});
+export default PostsRevisionSelect;
 
 

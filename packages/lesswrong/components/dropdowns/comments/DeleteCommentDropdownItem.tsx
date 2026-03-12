@@ -1,11 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { userCanModerateComment } from '../../../lib/collections/users/helpers';
 import { useDialog } from '../../common/withDialog'
 import { useModerateComment } from './withModerateComment';
 import { useCurrentUser } from '../../common/withUser';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import DeleteCommentDialog from "./DeleteCommentDialog";
 import DropdownItem from "../DropdownItem";
@@ -67,7 +65,7 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   ) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Undo Delete")}
+        title={"Undo Delete"}
         onClick={handleUndoDelete}
       />
     );
@@ -76,8 +74,4 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
   }
 }
 
-export default registerComponent(
-  'DeleteCommentDropdownItem', DeleteCommentDropdownItem,
-);
-
-
+export default DeleteCommentDropdownItem;

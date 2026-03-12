@@ -9,7 +9,6 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { canUserEditPostMetadata, postGetEditUrl, isCollaborative } from '@/lib/collections/posts/helpers';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -22,6 +21,7 @@ import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { disconnectCollaborationForPost } from "../lexical/collaboration";
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -149,7 +149,7 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
     variant={"outlined"}
     className={classes.versionHistoryButton}
   >
-    {preferredHeadingCase("Version History")}
+    Version History
   </EAButton>
 }
 
@@ -210,6 +210,12 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     }
     captureEvent("restoreVersionClicked", {postId, revisionId: selectedRevisionId})
     setRevertInProgress(true);
+
+    // Always disconnect local Lexical collaboration providers (if any) before
+    // restore. This is a safe no-op when no provider exists, and prevents
+    // stale local Yjs state from being re-synced right after server reset.
+    await disconnectCollaborationForPost(postId);
+
     await revertMutation({
       variables: {
         postId: postId,

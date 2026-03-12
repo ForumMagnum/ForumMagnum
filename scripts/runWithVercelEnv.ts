@@ -211,12 +211,6 @@ function getVercelEnvName(environment: EnvironmentType, codegen: boolean) {
   }
 }
 
-interface LoadEnvOptions {
-  environment: EnvironmentType;
-  forumType: Exclude<ForumType, "none">;
-  codegen?: boolean | null;
-}
-
 export function getForumTypeEnv(forumType: Exclude<ForumType, "none">) {
   switch (forumType) {
     case 'lw':
@@ -228,38 +222,49 @@ export function getForumTypeEnv(forumType: Exclude<ForumType, "none">) {
   }
 }
 
-async function loadAndValidateEnv({ environment, forumType, codegen }: LoadEnvOptions) {
+async function pullEnv({ environment, codegen }: {
+  environment: EnvironmentType;
+  codegen?: boolean | null;
+}) {
+  const vercelEnvName = getVercelEnvName(environment, !!codegen);
+  const settingsFileName = `.env.local`;
+  const tempFileName = '.env.temp';
+
+  try {
+    // Download settings to a temp file, then replace .env.local with it if
+    // they're different. This avoids "changing" the settings file when it
+    // isn't actually changed, which would cause any development servers
+    // watching that file to force-refresh everything.
+    // Ignore changes to VERCEL_OIDC_TOKEN because it's regenerated on every
+    // pull, and we don't actually use it.
+    console.log(`Running vercel env pull with environment=${vercelEnvName}`);
+    await exec(`vercel env pull ${tempFileName} --yes --environment=${vercelEnvName}`);
+    if (await envFileContentsDiffer(settingsFileName, tempFileName, {
+      ignoredEnvKeys: ["VERCEL_OIDC_TOKEN"]
+    })) {
+      await fs.rename(tempFileName, settingsFileName);
+    } else {
+      await fs.unlink(tempFileName);
+    }
+  } catch (e) {
+    try {
+      await fs.unlink(tempFileName);
+    } catch {}
+    throw new Error(`Failed to pull Vercel environment "${vercelEnvName}" with error: ${e}`);
+  }
+}
+
+async function loadAndValidateEnv({ environment, forumType, codegen }: {
+  environment: EnvironmentType;
+  forumType: Exclude<ForumType, "none">;
+  codegen?: boolean | null;
+}) {
   // In a Github Actions context, we run `vercel env pull` in an action step
   // and we'd need to pass in `--token` to run it here instead, which would
   // require exposing the secrets in an annoying way.
-  if (!process.env.SKIP_VERCEL_CODE_PULL) {
-    const vercelEnvName = getVercelEnvName(environment, !!codegen);
-    const settingsFileName = `.env.local`;
-    const tempFileName = '.env.temp';
-
-    try {
-      // Download settings to a temp file, then replace .env.local with it if
-      // they're different. This avoids "changing" the settings file when it
-      // isn't actually changed, which would cause any development servers
-      // watching that file to force-refresh everything.
-      // Ignore changes to VERCEL_OIDC_TOKEN because it's regenerated on every
-      // pull, and we don't actually use it.
-      await exec(`vercel env pull ${tempFileName} --yes --environment=${vercelEnvName}`);
-      if (await envFileContentsDiffer(settingsFileName, tempFileName, {
-        ignoredEnvKeys: ["VERCEL_OIDC_TOKEN"]
-      })) {
-        await fs.rename(tempFileName, settingsFileName);
-      } else {
-        await fs.unlink(tempFileName);
-      }
-    } catch (e) {
-      try {
-        await fs.unlink(tempFileName);
-      } catch {}
-      throw new Error(`Failed to pull Vercel environment "${vercelEnvName}" with error: ${e}`);
-    }
+  if (!process.env.SKIP_VERCEL_CODE_PULL && !codegen) {
+    await pullEnv({ environment, codegen });
   }
-
   const useDevSettings = environment === "dev";
   
   loadEnvConfig(process.cwd(), useDevSettings);

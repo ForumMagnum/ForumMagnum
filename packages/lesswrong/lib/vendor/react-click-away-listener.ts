@@ -44,6 +44,7 @@ interface Props extends HTMLAttributes<HTMLElement> {
   mouseEvent?: MouseEvents;
   touchEvent?: TouchEvents;
   children: ReactElement<any>;
+  ignoreClasses?: string;
 }
 
 const eventTypeMapping = {
@@ -60,7 +61,8 @@ const ClickAwayListener: FunctionComponent<Props> = ({
   children,
   onClickAway,
   mouseEvent = 'click',
-  touchEvent = 'touchend'
+  touchEvent = 'touchend',
+  ignoreClasses
 }) => {
   const node = useRef<HTMLElement | null>(null);
   const bubbledEventTarget = useRef<EventTarget | null>(null);
@@ -117,7 +119,16 @@ const ClickAwayListener: FunctionComponent<Props> = ({
       const isBubbledEventTarget = bubbledEventTarget.current === event.target;
       const notContainedInDocument = !nodeDocument.contains(event.target as Node);
 
-      if (isContainedByNode || isBubbledEventTarget || notContainedInDocument) {
+      let isIgnored = false;
+      if (ignoreClasses) {
+        const target = event.target;
+        const element = target instanceof Element ? target : (target as Node)?.parentElement;
+        if (element?.closest(ignoreClasses)) {
+          isIgnored = true;
+        }
+      }
+
+      if (isContainedByNode || isBubbledEventTarget || notContainedInDocument || isIgnored) {
         return;
       }
 
@@ -131,7 +142,7 @@ const ClickAwayListener: FunctionComponent<Props> = ({
       nodeDocument.removeEventListener(mouseEvent, handleEvents);
       nodeDocument.removeEventListener(touchEvent, handleEvents);
     };
-  }, [mouseEvent, onClickAway, touchEvent]);
+  }, [mouseEvent, onClickAway, touchEvent, ignoreClasses]);
 
   const mappedMouseEvent = eventTypeMapping[mouseEvent];
   const mappedTouchEvent = eventTypeMapping[touchEvent];

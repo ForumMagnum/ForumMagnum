@@ -3,7 +3,7 @@ import { Posts } from '../../server/collections/posts/collection';
 import Revisions from '../../server/collections/revisions/collection';
 import { sleep } from '../../lib/helpers';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
-import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from '../ckEditor/ckEditorApi';
+import { createRemoteStorageDocument, deleteCkEditorCloudDocument, fetchCkEditorDocumentFromStorage, flushAllCkEditorCollaborations, postIdToCkEditorDocumentId, saveOrUpdateDocumentRevision } from '../ckEditor/ckEditorApi';
 import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';
 import { cheerioWrapAll } from '../editor/conversionUtils';
 import { cheerioParse } from '../utils/htmlUtil';
@@ -44,7 +44,7 @@ function revisionHasContentWrapper(revision: DbRevision) {
 }
 
 async function saveFlushAndPush(postId: string, ckEditorId: string, migratedHtml: string) {
-  await documentHelpers.saveOrUpdateDocumentRevision(postId, migratedHtml);
+  await saveOrUpdateDocumentRevision(postId, migratedHtml);
 
   const updatedContent = {
     content: {
@@ -55,16 +55,16 @@ async function saveFlushAndPush(postId: string, ckEditorId: string, migratedHtml
   };
 
   try {
-    const remoteDocument = await ckEditorApi.fetchCkEditorDocumentFromStorage(ckEditorId);
+    const remoteDocument = await fetchCkEditorDocumentFromStorage(ckEditorId);
     const newDocumentPayload: CreateDocumentPayload = merge({ ...remoteDocument }, updatedContent);
   
     //Repeated twice because ckEditor is bad at their jobs. Without this, 
     //complains about inability to create new session when there's an existing one
-    await ckEditorApi.deleteCkEditorCloudDocument(ckEditorId);
-    await ckEditorApi.deleteCkEditorCloudDocument(ckEditorId);
+    await deleteCkEditorCloudDocument(ckEditorId);
+    await deleteCkEditorCloudDocument(ckEditorId);
 
     await sleep(10000);
-    await ckEditorApiHelpers.createRemoteStorageDocument(newDocumentPayload);
+    await createRemoteStorageDocument(newDocumentPayload);
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log('Failed to delete remote document from storage', { err });
@@ -73,7 +73,7 @@ async function saveFlushAndPush(postId: string, ckEditorId: string, migratedHtml
 
 async function migrateDialogue(dialogue: DbPost) {
   const postId = dialogue._id;
-  const ckEditorId = documentHelpers.postIdToCkEditorDocumentId(postId);
+  const ckEditorId = postIdToCkEditorDocumentId(postId);
 
   const revisions = await Revisions.find({ documentId: postId, fieldName: 'contents' }, { sort: { editedAt: -1 } }).fetch();
 
@@ -119,6 +119,6 @@ export default registerMigration({
     const dialogueMigrations = dialogues.map(migrateDialogue);
 
     await Promise.all(dialogueMigrations);
-    await ckEditorApi.flushAllCkEditorCollaborations();
+    await flushAllCkEditorCollaborations();
   }
 });

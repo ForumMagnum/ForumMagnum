@@ -1,15 +1,22 @@
 import React from "react";
 import Nominations2018 from '@/components/review/Nominations2018';
-import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), {
-    title: '2018 Nominations',
-  });
+  return merge({}, await getDefaultMetadata(), getPageTitleFields('2018 Nominations'));
 }
+
+assertRouteAttributes("/nominations/2018", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 export default function Page() {
   return <RouteRoot>

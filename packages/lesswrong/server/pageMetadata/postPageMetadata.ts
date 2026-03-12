@@ -1,12 +1,13 @@
-import { getClient } from "@/lib/apollo/nextApolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum, cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
+import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { getPostDescription } from "@/components/posts/PostsPage/structuredData";
 import { notFound } from "next/navigation";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { runQuery } from "../vulcan-lib/query";
 
 const PostMetadataQuery = gql(`
   query PostMetadata($postId: String) {
@@ -63,10 +64,13 @@ function getCitationTags(post: PostMetadataQuery_post_SinglePostOutput_result_Po
     formattedDate = formattedDate.slice(0, formattedDate.indexOf("T")).replace(/-/g, "/");
   }
   
+  const authors: string[] = [
+    ...(post.user?.displayName ? [post.user.displayName] : []),
+    ...filterNonnull(post.coauthors?.map(coauthor => coauthor.displayName) ?? [])
+  ];
   return {
     citation_title: post.title,
-    ...(post.user?.displayName && { citation_author: post.user.displayName }),
-    ...(post.coauthors?.filter(({ _id }) => !post.coauthorUserIds.includes(_id))?.map(coauthor => coauthor.displayName) && { citation_author: post.coauthors?.map(coauthor => coauthor.displayName) }),
+    citation_author: authors,
     ...(formattedDate && { citation_publication_date: formattedDate }),
   } satisfies Metadata['other'];
 }
@@ -81,20 +85,21 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
 
     const postId = paramsToPostIdConverter(paramValues);
     const commentId = searchParamsValues.commentId;
-
-    const client = getClient();
+    const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);
 
     try {
       const [{ data: postData }, { data: commentData }] = await Promise.all([
-        client.query({
-          query: PostMetadataQuery,
-          variables: { postId },
-        }),
+        runQuery(
+          PostMetadataQuery,
+          { postId },
+          resolverContext
+        ),
         commentId
-          ? client.query({
-              query: CommentPermalinkMetadataQuery,
-              variables: { commentId },
-            })
+          ? runQuery(
+              CommentPermalinkMetadataQuery,
+              { commentId },
+              resolverContext
+            )
           : { data: null },
       ]);
   

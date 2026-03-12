@@ -1,10 +1,11 @@
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import React, { useState } from "react";
 import LWDialog from "../common/LWDialog";
 import { DatePicker } from "../form-components/FormComponentDateTime";
 import EAButton from "../ea-forum/EAButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("DateRangeModal", (theme: ThemeType) => ({
   paper: {
     overflow: "visible",
   },
@@ -23,21 +24,20 @@ const styles = (theme: ThemeType) => ({
     padding: '8px 24px 12px 24px',
     gap: "8px",
   }
-});
+}));
 
 const DateRangeModal = ({
   onClose,
   startDate,
   endDate,
   updateDisplayDates,
-  classes,
 }: {
   onClose?: () => void;
   startDate: Date | null;
   endDate: Date;
   updateDisplayDates: (startDate: Date | null, endDate: Date) => void;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const [startDateInternal, setStartDateInternal] = useState<Date | null>(startDate);
   const [endDateInternal, setEndDateInternal] = useState<Date>(endDate);
 
@@ -76,6 +76,4 @@ const DateRangeModal = ({
   );
 };
 
-export default registerComponent("DateRangeModal", DateRangeModal, { styles });
-
-
+export default DateRangeModal;

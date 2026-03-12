@@ -36,6 +36,24 @@ class BookmarksRepo extends AbstractRepo<"Bookmarks"> {
     });
   }
 
+  public async setBookmarkActive(userId: string, documentId: string, collectionName: string, active: boolean): Promise<DbBookmark> {
+    return this.one(`
+      INSERT INTO "Bookmarks" ("_id", "userId", "documentId", "collectionName", "active", "createdAt", "lastUpdated")
+      VALUES ($(bookmarkId), $(userId), $(documentId), $(collectionName), $(active), NOW(), NOW())
+      ON CONFLICT ("userId", "documentId", "collectionName") DO UPDATE 
+      SET 
+        "active" = $(active),
+        "lastUpdated" = NOW()
+      RETURNING *
+    `, {
+      bookmarkId: randomId(),
+      userId,
+      documentId,
+      collectionName,
+      active,
+    });
+  }
+
   public async updateBookmarkCountForUser(userId: string): Promise<void> {
     await  this.none(`
       UPDATE "Users" u

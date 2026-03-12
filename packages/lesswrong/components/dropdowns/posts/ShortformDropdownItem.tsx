@@ -1,9 +1,6 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
-
 import { useCurrentUser } from "../../common/withUser";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
-import { preferredHeadingCase } from "../../../themes/forumTheme";
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -37,18 +34,13 @@ const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
     });
   }
 
-  const contentType = preferredHeadingCase("Quick Takes");
+  const contentType = "Quick Takes";
   return (
     <DropdownItem
-      title={preferredHeadingCase(`Set as user's ${contentType} Post`)}
+      title={`Set as user's ${contentType} Post`}
       onClick={handleMakeShortform}
     />
   );
 }
 
-export default registerComponent(
-  "ShortformDropdownItem",
-  ShortformDropdownItem,
-);
-
-
+export default ShortformDropdownItem;

@@ -1,5 +1,4 @@
-import React, { FC } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
+import React from "react";
 import type { UsePostsItem } from "./usePostsItem";
 import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
 import UnarchiveIcon from "@/lib/vendor/@material-ui/icons/src/Unarchive";
@@ -107,6 +106,6 @@ const PostsItemTrailingButtons = ({
   );
 }
 
-export default registerComponent("PostsItemTrailingButtons", PostsItemTrailingButtons);
+export default PostsItemTrailingButtons;
 
 

@@ -17,18 +17,20 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import SequencesTooltip from "../sequences/SequencesTooltip";
 import LWPopper from "../common/LWPopper";
 import ContentStyles from "../common/ContentStyles";
-import { apolloSSRFlag } from '@/lib/helpers';
-import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import { linkStyles } from './linkStyles';
 import LWTooltip from '../common/LWTooltip';
 import ConversationPreview from '../messaging/ConversationPreview';
+import type { LinkPreviewComponent, RoutePreviewParams } from '@/lib/routeChecks/hoverPreviewRoutes';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { getUrlClass } from '@/server/utils/getUrlClass';
 
 
-const SequencesPageFragmentQuery = gql(`
-  query PostLinkPreviewSequence($documentId: String, $allowNull: Boolean) {
+const SequencePreviewQuery = gql(`
+  query SequencePreview($documentId: String, $allowNull: Boolean) {
     sequence(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {
       result {
-        ...SequencesPageFragment
+        ...SequenceSummaryFragment
       }
     }
   }
@@ -75,8 +77,9 @@ function logMissingLinkPreview(message: string) {
   }
 }
 
-export const PostLinkPreview = ({href, targetLocation, id, className, children}: {
+export const PostLinkPreview = ({href, originalHref, targetLocation, id, className, children}: {
   href: string,
+  originalHref: string,
   targetLocation: RouterLocation,
   id: string,
   className?: string,
@@ -90,7 +93,7 @@ export const PostLinkPreview = ({href, targetLocation, id, className, children}:
       allowNull: true,
     },
     fetchPolicy: 'cache-first',
-    ssr: apolloSSRFlag(false),
+    ssr: false,
   });
   const post = data?.post?.result;
   
@@ -102,20 +105,23 @@ export const PostLinkPreview = ({href, targetLocation, id, className, children}:
     post={post||null}
     targetLocation={targetLocation}
     error={error}
-    href={href} id={id} className={className}
+    href={href} originalHref={originalHref}
+    id={id} className={className}
   >
     {children}
   </PostLinkPreviewVariantCheck>
 }
 
-export const PostLinkPreviewSequencePost = ({href, targetLocation, id, className, children}: {
+export const PostLinkPreviewSequencePost: LinkPreviewComponent<'/s/[_id]/p/[postId]'> = ({href, originalHref, targetLocation, params, id, className, children}: {
   href: string,
+  originalHref: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/s/[_id]/p/[postId]'>,
   id: string,
   className?: string,
   children: ReactNode,
 }) => {
-  const postID = targetLocation.params.postId;
+  const postID = params.postId;
 
   const { loading, error, data } = useQuery(PostsListQuery, {
     variables: { documentId: postID, allowNull: true },
@@ -128,50 +134,55 @@ export const PostLinkPreviewSequencePost = ({href, targetLocation, id, className
     logMissingLinkPreview(`Link preview: No post found with ID ${postID}, error: ${error}`);
   }
 
-  return <PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} id={id} className={className}>
+  return <PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} originalHref={originalHref} id={id} className={className}>
     {children}
   </PostLinkPreviewVariantCheck>
 }
 
-export const PostLinkPreviewSlug = ({href, targetLocation, id, className, children}: {
+export const PostLinkPreviewSlug: LinkPreviewComponent<'/highlights/[slug]' | '/hpmor/[slug]' | '/codex/[slug]' | '/rationality/[slug]' | '/posts/slug/[slug]'> = ({href, originalHref, targetLocation, params, id, className, children}: {
   href: string,
+  originalHref: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/highlights/[slug]' | '/hpmor/[slug]' | '/codex/[slug]' | '/rationality/[slug]' | '/posts/slug/[slug]'>,
   id: string,
   className?: string,
   children: ReactNode,
 }) => {
-  const slug = targetLocation.params.slug;
+  const slug = params.slug;
   const { post, error } = usePostBySlug({ slug, ssr: false });
 
-  return <PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
+  return <PostLinkPreviewVariantCheck href={href} originalHref={originalHref} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
     {children}
   </PostLinkPreviewVariantCheck>
 }
 
-export const PostLinkPreviewLegacy = ({href, targetLocation, id, className, children}: {
+export const PostLinkPreviewLegacy: LinkPreviewComponent<'/lw/[id]' | '/lw/[id]/[slug]'> = ({href, originalHref, targetLocation, params, id, className, children}: {
   href: string,
+  originalHref: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/lw/[id]' | '/lw/[id]/[slug]'>,
   id: string,
   className?: string,
   children: ReactNode,
 }) => {
-  const legacyId = targetLocation.params.id;
+  const legacyId = params.id;
   const { post, error } = usePostByLegacyId({ legacyId, ssr: false });
 
-  return <PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
+  return <PostLinkPreviewVariantCheck href={href} originalHref={originalHref} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
     {children}
   </PostLinkPreviewVariantCheck>
 }
 
-export const CommentLinkPreviewLegacy = ({href, targetLocation, id, className, children}: {
+export const CommentLinkPreviewLegacy: LinkPreviewComponent<'/lw/[id]/[slug]/[commentId]'> = ({href, targetLocation, params, id, className, children}: {
   href: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/lw/[id]/[slug]/[commentId]'>,
   id: string,
   className?: string,
   children: ReactNode,
 }) => {
-  const legacyPostId = targetLocation.params.id;
-  const legacyCommentId = targetLocation.params.commentId;
+  const legacyPostId = params.id;
+  const legacyCommentId = params.commentId;
 
   const { post, error: postError } = usePostByLegacyId({ legacyId: legacyPostId, ssr: false });
   const { comment, error: commentError } = useCommentByLegacyId({ legacyId: legacyCommentId, ssr: false });
@@ -187,15 +198,16 @@ export const CommentLinkPreviewLegacy = ({href, targetLocation, id, className, c
   </PostLinkPreviewWithPost>
 }
 
-export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, className, children}: {
+export const PostCommentLinkPreviewGreaterWrong: LinkPreviewComponent<'/posts/[_id]/[slug]/comment' | '/posts/[_id]/[slug]/comment/[commentId]'> = ({href, targetLocation, params, id, className, children}: {
   href: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/posts/[_id]/[slug]/comment' | '/posts/[_id]/[slug]/comment/[commentId]'>,
   id: string,
   className?: string,
   children: ReactNode
 }) => {
-  const postId = targetLocation.params._id;
-  const commentId = targetLocation.params.commentId;
+  const postId = params._id;
+  const commentId = 'commentId' in params ? params.commentId : targetLocation.params.commentId;
 
   const { loading, data, error   } = useQuery(PostsListQuery, {
     variables: { documentId: postId, allowNull: true },
@@ -212,18 +224,34 @@ export const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, cl
   </PostLinkCommentPreview>
 }
 
-const PostLinkPreviewVariantCheck = ({ href, post, targetLocation, comment, commentId, error, id, className, children}: {
+const PostLinkPreviewVariantCheck = ({ href, originalHref, post, targetLocation, comment, commentId, error, id, className, children}: {
   href: string,
+  originalHref: string,
   post: PostsList|null,
   targetLocation: RouterLocation,
-  comment?: any,
+  comment?: CommentsList|null,
   commentId?: string,
   error: any,
   id: string,
   className?: string,
   children: ReactNode,
 }) => {
-  if (targetLocation.query.commentId) {
+  // If the link is to a ?commentId= or #commentId URL, the preview should show
+  // the comment that's been linked to. _But_, if a link is to a hash, then
+  // `targetLocation` will be a merged URL, which may inherit a commentId query
+  // from the page you're already on. Ie, if you're on /posts/postId/slug?commentId=1234
+  // and you hover over a link to "#Section_3", then targetLocation will be
+  // /posts/postId/slug?commentId=1234#Section_3 but the link should not be
+  // previewed link a comment permalink.
+  //
+  // To distinguish these, we check for ?commentId in originalHref (the link as
+  // it was before any parsing, relative-path resolution etc was done), rather
+  // than in href.
+  const URLClass = getUrlClass()
+  const originalUrlSiteRelative = new URLClass(originalHref, getSiteUrl());
+  const commentIdQuery = originalUrlSiteRelative.searchParams.get('commentId');
+
+  if (commentIdQuery) {
     return <PostLinkCommentPreview commentId={targetLocation.query.commentId} href={href} post={post} id={id} className={className}>
       {children}
     </PostLinkCommentPreview>
@@ -313,7 +341,7 @@ const PostLinkPreviewWithPost = ({href, post, id, className, children}: {
 
 const CommentLinkPreviewWithComment = ({href, comment, post, id, className, children}: {
   href: string,
-  comment: any,
+  comment: CommentsList|null,
   post: PostsList|null,
   id: string,
   className?: string,
@@ -342,17 +370,17 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, className, chil
   );
 }
 
-export const SequencePreview = ({targetLocation, href, className, children}: {
-  targetLocation: RouterLocation,
+export const SequencePreview: LinkPreviewComponent<'/sequences/[_id]' | '/s/[_id]'> = ({params, href, className, children}: {
+  params: RoutePreviewParams<'/sequences/[_id]' | '/s/[_id]'>,
   href: string,
   className?: string,
   children: ReactNode,
 }) => {
   const classes = useStyles(linkStyles);
   
-  const sequenceId = targetLocation.params._id;
+  const sequenceId = params._id;
 
-  const { loading, data, error  } = useQuery(SequencesPageFragmentQuery, {
+  const { loading, data, error  } = useQuery(SequencePreviewQuery, {
     variables: { documentId: sequenceId, allowNull: true },
     fetchPolicy: 'cache-first',
     ssr: false,
@@ -376,13 +404,15 @@ export const SequencePreview = ({targetLocation, href, className, children}: {
   );
 }
 
-export const MessagePreview = ({href, targetLocation, id, className, children}: {
+export const MessagePreview: LinkPreviewComponent<'/inbox' | '/inbox/[conversationId]'> = ({href, targetLocation, params, id, className, children}: {
   href: string,
   targetLocation: RouterLocation,
+  params: RoutePreviewParams<'/inbox' | '/inbox/[conversationId]'>,
   id?: string,
   className?: string,
   children: ReactNode,
 }) => {
+  void params;
   return (
     <LWTooltip
       tooltip={false}
@@ -401,9 +431,9 @@ export const MessagePreview = ({href, targetLocation, id, className, children}: 
 
 const defaultPreviewStyles = defineStyles('DefaultPreview', (theme: ThemeType) => ({
   hovercard: {
-    padding: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    padding: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
     ...theme.typography.body2,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle,
@@ -494,7 +524,7 @@ export const MetaculusPreview = ({href, id, className, children}: {
   const classes = useStyles(linkStyles);
 
   const { anchorEl, hover, eventHandlers } = useHover();
-  const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/) || []
+  const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/(\d+)/) || []
 
   if (!questionNumber) {
     return <a href={href} className={className}>
@@ -510,7 +540,7 @@ export const MetaculusPreview = ({href, id, className, children}: {
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.metaculusBackground}>
-          <iframe className={classes.metaculusIframe} src={`https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf`} />
+          <iframe className={classes.metaculusIframe} src={`https://www.metaculus.com/questions/embed/${questionNumber}`} />
         </div>
       </LWPopper>
     </span>
@@ -680,9 +710,9 @@ export const MetaforecastPreview = ({href, id, className, children}: {
 
 const arbitalStyles = defineStyles('ArbitalPreview', (theme: ThemeType) => ({
   hovercard: {
-    padding: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    padding: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
     maxWidth: 500,
     overflow: 'hidden',
     textOverflow: 'ellipsis',

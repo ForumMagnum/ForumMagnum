@@ -1,8 +1,6 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useCallback } from 'react';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -35,7 +33,7 @@ const MoveToDraftDropdownItem = ({ post }: {
   if (!post.draft && currentUser && canUserEditPostMetadata(currentUser, post)) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Move to Draft")}
+        title={"Move to Draft"}
         onClick={handleMoveToDraftDropdownItem}
       />
     );
@@ -44,9 +42,6 @@ const MoveToDraftDropdownItem = ({ post }: {
   }
 }
 
-export default registerComponent(
-  'MoveToDraftDropdownItem',
-  MoveToDraftDropdownItem,
-);
+export default MoveToDraftDropdownItem;
 
 

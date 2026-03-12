@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { styles as inputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { rootStyles as inputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
 import SingleTagItem from "./SingleTagItem";
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 12,
   },
   greyContainer: {
-    ...inputStyles(theme).root,
+    ...inputStyles(theme),
     "&:hover, &:focus": {}, // Overwrite styles from above
     padding: 8,
     display: "flex",

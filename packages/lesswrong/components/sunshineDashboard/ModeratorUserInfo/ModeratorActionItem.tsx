@@ -13,6 +13,7 @@ import LWTooltip from "../../common/LWTooltip";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import FormatDate from '@/components/common/FormatDate';
 
 const ModeratorActionDisplayUpdateMutation = gql(`
   mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {
@@ -28,6 +29,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
+    gap: 6,
     '&:hover': {
       '& $clearIcon': {
         opacity: .5
@@ -60,7 +62,8 @@ const styles = (theme: ThemeType) => ({
     marginRight: 10
   },
   clearIcon: {
-    opacity: .1
+    opacity: .1,
+    marginBottom: -2,
   }
 });
 
@@ -150,6 +153,7 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
 
 
   return <div key={`${user._id}_${moderatorAction.type}`} className={classes.root}>
+    <FormatDate date={moderatorAction.createdAt} />{" "}
     {`${MODERATOR_ACTION_TYPES[moderatorAction.type]}${suffix}`}{" "}
     <MetaInfo className={classes.date}>
       {editing 

@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { JargonTermForm } from './JargonTermForm';
 import JargonTooltip from "./JargonTooltip";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import LWTooltip from "../common/LWTooltip";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
 const JargonTermsUpdateMutation = gql(`
   mutation updateJargonTermJargonEditorRow($selector: SelectorInput!, $data: UpdateJargonTermDataInput!) {
@@ -41,7 +42,7 @@ export const formStyles = {
   },
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("JargonEditorRow", (theme: ThemeType) => ({
   root: {
     width: '100%',
     ...commentBodyStyles(theme, true),
@@ -164,16 +165,15 @@ const styles = (theme: ThemeType) => ({
       marginRight: 8
     }
   }
-});
+}));
 
 // Jargon editor row
-export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
-  classes: ClassesType<typeof styles>,
+export const JargonEditorRow = ({jargonTerm, instancesOfJargonCount, setShowMoreTerms}: {
   jargonTerm: JargonTerms,
   instancesOfJargonCount?: number,
   setShowMoreTerms: (expanded: boolean) => void,
 }) => {
-
+  const classes = useStyles(styles);
   const [edit, setEdit] = useState(false);
 
   const [updateJargonTerm] = useMutation(JargonTermsUpdateMutation);
@@ -271,6 +271,4 @@ export const JargonEditorRow = ({classes, jargonTerm, instancesOfJargonCount, se
   </div>
 }
 
-export default registerComponent('JargonEditorRow', JargonEditorRow, {styles});
-
-
+export default JargonEditorRow;

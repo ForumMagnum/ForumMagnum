@@ -3,8 +3,7 @@
   "entry": [
     "packages/lesswrong/client/clientStartup.ts",
     "packages/lesswrong/server/runServer.ts",
-    "packages/lesswrong/lib/index.ts",
-    "packages/lesswrong/viteClient/importCkEditorVite.ts"
+    "packages/lesswrong/lib/index.ts"
   ],
   "project": [
     "packages/lesswrong/**",

@@ -46,20 +46,18 @@ export const localLwDevDb = merge({
     databaseId: "lightcone-infrastructure-dev",
     publicApiToken: "6rcWJN7eFk8M977tQqEO7SH9n32u3RmPJo9z516AK2vRsiGB4WuaRIzknHwP0jC2"
   },
-  taggingName: "wikitag",
-  taggingUrlCustomBase: "w",
   homepagePosts: {
     feeds: [
       {
         name: "forum-classic",
-        label: "Latest",
+        label: "Recent",
         description: "The classic LessWrong frontpage algorithm that combines karma with time discounting, plus any tag-based weighting if applied.",
         showToLoggedOut: true
       },
       {
         name: "recombee-hybrid",
         label: "Enriched",
-        description: "An equal mix of Latest and Recommended.",
+        description: "An equal mix of Recent and Recommended.",
         showSparkleIcon: true,
         defaultTab: true,
         showToLoggedOut: true

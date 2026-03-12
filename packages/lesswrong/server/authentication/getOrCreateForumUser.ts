@@ -2,7 +2,6 @@ import type { Profile } from "passport";
 import { captureException } from "@/lib/sentryWrapper";
 import { userFindOneByEmail, usersFindAllByEmail } from "../commonQueries";
 import Users from "../../server/collections/users/collection";
-import { promisify } from "util";
 import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 import { updateUser, createUser } from "../collections/users/mutations";
 
@@ -47,12 +46,11 @@ const syncOAuthUser = async (user: DbUser, profile: Profile): Promise<DbUser> =>
   return user;
 }
 
-export const getOrCreateForumUser = async <P extends Profile>(
+export const getOrCreateForumUserAsync = async <P extends Profile>(
   profilePath: string,
   profile: P,
   getIdFromProfile: IdFromProfile<P>,
   getUserDataFromProfile: UserDataFromProfile<P>,
-  callback: (err?: Error | null, user?: DbUser) => void,
 ) => {
   try {
     const profileId = getIdFromProfile(profile);
@@ -82,24 +80,22 @@ export const getOrCreateForumUser = async <P extends Profile>(
         if (user) {
           const userUpdated = await updateUser({ data: {[profilePath]: profile}, selector: { _id: user._id } }, createAnonymousContext());
           if (user.banned && new Date(user.banned) > new Date()) {
-            return callback(new Error("banned"));
+            throw new Error("banned");
           }
-          return callback(null, userUpdated);
+          return userUpdated;
         }
       }
 
       const userCreated = await createUser({ data: await getUserDataFromProfile(profile) }, createAnonymousContext());
-      return callback(null, userCreated);
+      return userCreated;
     }
     user = await syncOAuthUser(user, profile)
     if (user.banned && new Date(user.banned) > new Date()) {
-      return callback(new Error("banned"))
+      throw new Error("banned");
     }
-    return callback(null, user);
+    return user;
   } catch (err) {
     captureException(err);
-    return callback(err);
+    throw err;
   }
 }
-
-export const getOrCreateForumUserAsync = promisify(getOrCreateForumUser);

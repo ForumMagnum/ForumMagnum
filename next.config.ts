@@ -1,13 +1,15 @@
 import path from 'path';
 import fs from 'fs';
-import { redirects } from "./packages/lesswrong/lib/redirects";
+import { redirects } from "./packages/lesswrong/lib/routeChecks/redirects";
+import type { NextConfig } from 'next';
+import type { WebpackConfigContext } from 'next/dist/server/config-shared';
 
 const serverExternalPackages = [
-  'superagent-proxy', 'gpt-3-encoder', 'mathjax-node', 'mathjax', 'turndown', 'cloudinary',
-  '@aws-sdk/client-cloudfront', 'auth0', 'jimp', 'juice', '@sentry/nextjs',
+  'superagent-proxy', 'gpt-3-encoder', 'mathjax-full', 'turndown', 'cloudinary',
+  '@aws-sdk/client-cloudfront', 'jimp', 'juice', '@sentry/nextjs',
   'request', 'stripe', 'openai', 'twitter-api-v2', 'draft-js', 'draft-convert', 'csso',
   'js-tiktoken', 'cheerio', '@elastic/elasticsearch', '@googlemaps/google-maps-services-js',
-  'intercom-client',
+  'intercom-client', 'jsdom',
   // Needs to be external for email-rendering to be able to use prerenderToNodeStream,
   // because nextjs bundles a version of react-dom which omits react-dom/static (and
   // doesn't provide anything in its place that would work for server-component email
@@ -34,24 +36,24 @@ function loadTsConfig(configPath: string) {
   }
 }
 
-/** @type {import('next').NextConfig} */
-module.exports = {
+/** @type {NextConfig} */
+const nextConfig: NextConfig = {
+  cacheComponents: true,
   reactStrictMode: false,
 
   compiler: {
     define: {
       ...(process.env.E2E === 'true' ? { 'process.env.E2E': 'true' } : {}),
       'process.env.FORUM_TYPE': process.env.FORUM_TYPE ?? 'LessWrong',
+      ...(process.env.VERCEL_DEPLOYMENT_ID ? { 'process.env.VERCEL_DEPLOYMENT_ID': 'true' } : {}),
+      ...(process.env.HOCUSPOCUS_URL ? { 'process.env.NEXT_PUBLIC_HOCUSPOCUS_URL': process.env.HOCUSPOCUS_URL } : {}),
     },
   },
   productionBrowserSourceMaps: true,
   typedRoutes: true,
   experimental: {
     serverSourceMaps: true,
-  },
-
-  outputFileTracingIncludes: {
-    '/graphql': ['./node_modules/mathjax/unpacked/*.js', './node_modules/mathjax/unpacked/**/*.js']
+    turbopackFileSystemCacheForDev: true,
   },
   
   turbopack: {
@@ -71,6 +73,9 @@ module.exports = {
       '@/*': './packages/lesswrong/*',
 
       'superagent-proxy': './packages/lesswrong/stubs/emptyModule.js',
+      'jsdom': {
+        browser: './packages/lesswrong/stubs/emptyModule.js',
+      },
     },
   },
   serverExternalPackages,
@@ -85,7 +90,7 @@ module.exports = {
     }]
   },
 
-  webpack: (config, { isServer, dev }) => {
+  webpack: (config, { isServer, dev }: WebpackConfigContext) => {
     if (isServer && !dev) {
       config.devtool = 'source-map';
     }
@@ -164,8 +169,8 @@ module.exports = {
 
     config.resolve.plugins = config.resolve.plugins || [];
     config.resolve.plugins.push({
-      apply(resolver) {
-        resolver.hooks.resolve.tap('TsConfigPathsPlugin', (request, resolveContext) => {
+      apply(resolver: AnyBecauseHard) {
+        resolver.hooks.resolve.tap('TsConfigPathsPlugin', (request: AnyBecauseHard, resolveContext: AnyBecauseHard) => {
           if (!request.request) return;
           
           // Check each path mapping
@@ -226,8 +231,11 @@ module.exports = {
   },
 };
 
+module.exports = nextConfig;
+
 // Injected content via Sentry wizard below
 
+// eslint-disable-next-line no-restricted-imports
 import { withSentryConfig } from "@sentry/nextjs";
 
 module.exports = process.env.E2E ? module.exports : withSentryConfig(
@@ -253,15 +261,6 @@ module.exports = process.env.E2E ? module.exports : withSentryConfig(
     // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
     // side errors will fail.
     tunnelRoute: '/api/sentry',
-
-    // Automatically tree-shake Sentry logger statements to reduce bundle size
-    disableLogger: true,
-
-    // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-    // See the following for more information:
-    // https://docs.sentry.io/product/crons/
-    // https://vercel.com/docs/cron-jobs
-    automaticVercelMonitors: true,
 
     authToken: process.env.SENTRY_AUTH_TOKEN,
 

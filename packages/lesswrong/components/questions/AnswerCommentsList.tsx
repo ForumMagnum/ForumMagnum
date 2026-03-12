@@ -16,20 +16,20 @@ const styles = (theme: ThemeType) => ({
   noComments: {
     position: "relative",
     textAlign: "right",
-    top:-theme.spacing.unit*8
+    top: -64
   },
   noCommentAnswersList: {
     borderTop: 'transparent'
   },
   editor: {
-    marginLeft: theme.spacing.unit*4,
-    marginTop: theme.spacing.unit*2,
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingBottom: theme.spacing.unit*1.5,
+    marginLeft: 32,
+    marginTop: 16,
+    paddingLeft: 12,
+    paddingBottom: 12,
     borderTop: `solid 1px ${theme.palette.grey[300]}`
   },
   newComment: {
-    padding: theme.spacing.unit*2.5,
+    padding: 20,
     textAlign: 'right',
     color: theme.palette.grey[600]
   },

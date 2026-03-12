@@ -1,0 +1,10 @@
+# Cursor Ignore File
+# Controls which files Cursor can access for indexing and AI features
+
+**/LessWrong-Credentials/
+**/.env*
+
+# Database credentials and MCP configuration (in case they end up in workspace)
+**/credentials.json
+**/mcp.json
+

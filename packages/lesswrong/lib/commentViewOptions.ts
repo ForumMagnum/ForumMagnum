@@ -1,16 +1,16 @@
-import { isFriendlyUI, preferredHeadingCase } from "../themes/forumTheme";
+import { isFriendlyUI } from "../themes/forumTheme";
 import { isAF } from "./instanceSettings";
 
 const getCustomViewNames = (): Partial<Record<CommentsViewName,string>> => ({
   'postCommentsMagic': isFriendlyUI() ? 'New & upvoted' : 'magic (new & upvoted)',
   'postCommentsTop': isFriendlyUI() ? 'Top' : 'top scoring',
-  'postCommentsRecentReplies': preferredHeadingCase('latest reply'),
-  'afPostCommentsTop': preferredHeadingCase('top scoring'),
+  'postCommentsRecentReplies': 'latest reply',
+  'afPostCommentsTop': 'top scoring',
   'postCommentsNew': isFriendlyUI() ? 'New' : 'newest',
   'postCommentsOld': isFriendlyUI() ? 'Old' : 'oldest',
-  'postCommentsBest': preferredHeadingCase('highest karma'),
-  'postCommentsDeleted': preferredHeadingCase('deleted'),
-  'postLWComments': preferredHeadingCase('top scoring (include LW)'),
+  'postCommentsBest': 'highest karma',
+  'postCommentsDeleted': 'deleted',
+  'postLWComments': 'top scoring (include LW)',
 });
 
 const getCommentsTopView = (): CommentsViewName =>

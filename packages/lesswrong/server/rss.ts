@@ -2,9 +2,7 @@ import RSS from 'rss';
 import { Comments } from '../server/collections/comments/collection';
 import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../lib/collections/posts/helpers';
-import { userGetDisplayNameById } from '../lib/vulcan-users/helpers';
 import { forumTitleSetting, siteUrlSetting, taglineSetting } from '../lib/instanceSettings';
-import moment from '../lib/moment-timezone';
 import { rssTermsToUrl, RSSTerms } from '../lib/rss_urls';
 import { accessFilterMultiple } from '../lib/utils/schemaUtils';
 import { getCommentParentTitle } from '@/lib/notificationDataHelpers';
@@ -67,7 +65,7 @@ export const servePostRSS = async (terms: RSSTerms,) => {
     options: parameters.options,
   });
 
-  await asyncForeachSequential(postsCursor, async (post) => {
+  await asyncForeachSequential(postsCursor, async (post: PostsRSSFeed) => {
     // LESSWRONG - this was added to handle karmaThresholds
     let thresholdDate = (karmaThreshold === 2)  ? post.scoreExceeded2Date
                       : (karmaThreshold === 30) ? post.scoreExceeded30Date
@@ -86,14 +84,13 @@ export const servePostRSS = async (terms: RSSTerms,) => {
     let date = (viewDate > thresholdDate) ? viewDate : thresholdDate;
 
     const postLink = `<a href="${postGetPageUrl(post, true)}#comments">Discuss</a>`;
-    const formattedTime = moment(post.postedAt).tz(moment.tz.guess()).format('LLL z');
     const feedItem: any = {
       title: post.title,
-      description: `Published on ${formattedTime}<br/><br/>${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
+      description: `${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
       // LESSWRONG - changed how author is set for RSS because
       // LessWrong posts don't reliably have post.author defined.
       //author: post.author,
-      author: await userGetDisplayNameById(post.userId, context),
+      author: post.user?.displayName ?? "[anonymous]",
       // LESSWRONG - this was added to handle karmaThresholds
       // date: post.postedAt
       date: date,
@@ -112,7 +109,7 @@ export const serveCommentRSS = async (terms: RSSTerms, req: NextRequest) => {
   const feed = new RSS(getMeta(url));
   const context = await getContextFromReqAndRes({req, isSSR: false});
 
-  let parameters = viewTermsToQuery(CommentsViews, terms);
+  let parameters = viewTermsToQuery(CommentsViews, terms, undefined, context);
   parameters.options.limit = 50;
   const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
   const restrictedComments = await accessFilterMultiple(null, 'Comments', commentsCursor, context) as DbComment[];

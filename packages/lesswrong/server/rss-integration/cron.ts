@@ -5,7 +5,7 @@ import feedparser from 'feedparser-promised';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { diffHtml } from '../resolvers/htmlDiff';
-import { sanitize } from '../../lib/vulcan-lib/utils';
+import { sanitize } from "@/lib/utils/sanitize";
 import { dataToHTML } from '../editor/conversionUtils';
 import { fetchFragmentSingle } from '../fetchFragment';
 import gql from 'graphql-tag';

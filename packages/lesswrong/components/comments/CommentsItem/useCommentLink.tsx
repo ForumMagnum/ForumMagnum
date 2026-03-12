@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, PropsWithChildren, useContext } from "react";
+import React, { FC, MouseEvent, PropsWithChildren, useContext, useSyncExternalStore } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import qs from "qs";
@@ -6,6 +6,8 @@ import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
+import { isSpecialClick } from "@/lib/utils/eventUtils";
+import { useMatchSSR } from "@/components/common/DeferRender";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,
@@ -16,14 +18,15 @@ export type UseCommentLinkProps = {
   permalink?: boolean,
 }
 
-export const useCommentLink = ({
+export const CommentLinkWrapper = ({
   comment,
   post,
   tag,
   scrollOnClick,
   scrollIntoView,
   permalink,
-}: UseCommentLinkProps) => {
+  children
+}: UseCommentLinkProps & { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const {location, query} = useSubscribedLocation();
   const {captureEvent} = useTracking();
@@ -44,6 +47,9 @@ export const useCommentLink = ({
       buttonPressed: event.button,
       furtherContext,
     });
+    if (isSpecialClick(event)) {
+      return;
+    }
 
     // If the current location is not the same as the link's location (e.g. if a
     // comment on a post is showing on the frontpage), fall back to just following
@@ -67,19 +73,15 @@ export const useCommentLink = ({
     }
   }
 
-  const Wrapper: FC<PropsWithChildren<{}>> = scrollOnClick
-    ? ({children}) => (
-      <a rel="nofollow" href={url} onClick={handleLinkClick}>
-        {children}
-      </a>
-    )
-    : ({children}) => (
-      <Link rel="nofollow" to={url} eventProps={{furtherContext}}>
-        {children}
-      </Link>
-    );
-
-  return Wrapper;
+  if (scrollOnClick) {
+    return <a rel="nofollow" href={url} onClick={handleLinkClick}>
+      {children}
+    </a>
+  } else {
+    return <Link rel="nofollow" to={url} eventProps={{furtherContext}}>
+      {children}
+    </Link>
+  }
 }
 
 /**
@@ -90,12 +92,17 @@ export const useCommentLink = ({
  */
 export const useCommentLinkState = () => {
   const { query, hash } = useSubscribedLocation();
-  const { matchSSR } = useContext(EnvironmentOverrideContext);
 
   const queryId = query.commentId
-  const hashId = matchSSR ? '' : hash.slice(1)
+  const hashId = hash.slice(1);
 
-  const scrollToCommentId = commentPermalinkStyleSetting.get() === 'in-context' ? queryId ?? hashId : hashId
+  // Hash is only available on the client, not the server; useSyncExternalStore suppresses
+  // the SSR mismatch
+  const scrollToCommentId = useSyncExternalStore(
+    ()=>()=>{},
+    () => commentPermalinkStyleSetting.get() === 'in-context' ? (queryId ?? hashId) : hashId,
+    () => commentPermalinkStyleSetting.get() === 'in-context' ? queryId : "",
+  ) ?? "";
 
   return { linkedCommentId: queryId, scrollToCommentId }
 }

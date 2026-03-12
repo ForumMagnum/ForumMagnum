@@ -1,5 +1,3 @@
-import { getWithLoader } from "@/lib/loaders";
-
 export type GoogleDocMetadata = {
   id: string;
   name: string;
@@ -23,15 +21,7 @@ export const getLatestContentsRevision = async <T extends { contents_latest: str
     return null;
   }
   if (context) {
-    const revisions = await getWithLoader(
-      context,
-      Revisions,
-      "documentLatestRevision",
-      {},
-      "_id",
-      document.contents_latest,
-    );
-    return revisions[0] ?? null;
+    return await context.loaders.Revisions.load(document.contents_latest);
   }
   return Revisions.findOne({_id: document.contents_latest});
 }

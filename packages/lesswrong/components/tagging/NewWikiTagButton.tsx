@@ -1,7 +1,6 @@
 import React from 'react';
 import { Paper }from '@/components/widgets/Paper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '@/components/common/withDialog';
@@ -111,7 +110,7 @@ const NewWikiTagButton = ({ hideLabel=false, className }: {
   );
 };
 
-export default registerComponent("NewWikiTagButton", NewWikiTagButton);
+export default NewWikiTagButton;
 
 
 

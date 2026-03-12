@@ -1,14 +1,14 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import LoadMore from "../common/LoadMore";
-import FriendlyPopularComment from "./FriendlyPopularComment";
 import LWPopularComment from "./LWPopularComment";
 import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PopularCommentsList", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -18,9 +18,10 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     color: theme.palette.grey[1000],
   },
-});
+}));
 
-const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const PopularCommentsList = () => {
+  const classes = useStyles(styles);
   const initialLimit = 3;
   const { data, loadMoreProps } = useQueryWithLoadMore(gql(`
     query PopularComments($limit: Int) {
@@ -39,12 +40,11 @@ const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) =
 
   const results = data?.PopularComments?.results;
 
-  const CommentComponent = isFriendlyUI() ? FriendlyPopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">
       <div className={classes.root}>
         {results?.map((comment) =>
-          <CommentComponent
+          <LWPopularComment
             key={comment._id}
             comment={comment}
           />
@@ -55,10 +55,6 @@ const PopularCommentsList = ({classes}: {classes: ClassesType<typeof styles>}) =
   );
 }
 
-export default registerComponent(
-  "PopularCommentsList",
-  PopularCommentsList,
-  {styles},
-);
+export default PopularCommentsList;
 
 

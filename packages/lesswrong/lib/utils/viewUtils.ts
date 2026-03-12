@@ -27,7 +27,12 @@ export function describeTerms(collectionName: CollectionNameString, terms: ViewT
  * Given a set of terms describing a view, translate them into a mongodb selector
  * and options, which is ready to execute (but don't execute it yet).
  */
-export function viewTermsToQuery<N extends CollectionNameString>(viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>, terms: ViewTermsByCollectionName[N], apolloClient?: any, resolverContext?: ResolverContext) {
+export function viewTermsToQuery<N extends CollectionNameString>(
+  viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
+  terms: ViewTermsByCollectionName[N],
+  apolloClient: any,
+  resolverContext: ResolverContext
+) {
   return getParameters(viewSet, terms, apolloClient, resolverContext);
 }
 
@@ -37,14 +42,21 @@ export function viewTermsToQuery<N extends CollectionNameString>(viewSet: Collec
  * a query that doesn't pass through the views system, you probably want to use
  * this selector as a starting point.
  */
-export function getDefaultViewSelector<N extends CollectionNameString>(viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>) {
+export function getDefaultViewSelector<N extends CollectionNameString>(
+  viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
+  resolverContext: ResolverContext
+) {
   // Downcast the generic to avoid a very expensive but useless type inference that indexes over all view terms by collection
-  const viewQuery = viewTermsToQuery<CollectionNameString>(viewSet, {})
+  const viewQuery = viewTermsToQuery<CollectionNameString>(viewSet, {}, undefined, resolverContext)
   return replaceSpecialFieldSelectors(viewQuery.selector);
 }
 
-export function mergeWithDefaultViewSelector<N extends CollectionNameString>(viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>, selector: MongoSelector<ObjectsByCollectionName[N]>) {
-  return mergeSelectors(getDefaultViewSelector(viewSet), selector);
+export function mergeWithDefaultViewSelector<N extends CollectionNameString>(
+  viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
+  selector: MongoSelector<ObjectsByCollectionName[N]>,
+  resolverContext: ResolverContext
+) {
+  return mergeSelectors(getDefaultViewSelector(viewSet, resolverContext), selector);
 }
 
 /**

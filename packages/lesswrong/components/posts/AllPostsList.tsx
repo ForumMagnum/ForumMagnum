@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTimezone } from "../common/withTimezone";
 import { useLocation } from "../../lib/routeUtil";
 import { AllowHidingFrontPagePostsContext } from "../dropdowns/posts/PostActions";
@@ -53,6 +52,8 @@ const AllPostsList = ({
     sortedBy: currentSorting,
     after: query.after,
     before: query.before,
+    requiredUnnominated: query.unnominated === 'true',
+    requiredFrontpage: query.frontpage === 'true',
   };
   if (currentTimeframe === "allTime") {
     return (
@@ -154,6 +155,6 @@ const AllPostsList = ({
   );
 }
 
-export default registerComponent("AllPostsList", AllPostsList);
+export default AllPostsList;
 
 

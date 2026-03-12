@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { CSSProperties } from 'react';
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from './cloudinaryHelpers';
 import { useAbstractThemeOptions } from '../themes/useTheme';
@@ -123,6 +122,6 @@ const CloudinaryImage2 = ({
   </picture>
 };
 
-export default registerComponent('CloudinaryImage2', CloudinaryImage2);
+export default CloudinaryImage2;
 
 

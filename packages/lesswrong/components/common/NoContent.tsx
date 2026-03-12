@@ -5,7 +5,7 @@ import { Typography } from "./Typography";
 const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[600],
-    margin: theme.spacing.unit*2
+    margin: 16
   },
 })
 

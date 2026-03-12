@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDismissRecommendation } from './withDismissRecommendation';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import sortBy from 'lodash/sortBy';
@@ -84,7 +83,7 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
   </div>
 }
 
-export default registerComponent('ContinueReadingList', ContinueReadingList);
+export default ContinueReadingList;
 
 
 

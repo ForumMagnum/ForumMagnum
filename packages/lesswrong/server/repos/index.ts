@@ -1,3 +1,5 @@
+import BookmarksRepo from "./BookmarksRepo";
+import BooksRepo from "./BooksRepo";
 import CollectionsRepo from "./CollectionsRepo";
 import ClientIdsRepo from "./ClientIdsRepo";
 import CommentsRepo from "./CommentsRepo";
@@ -6,15 +8,12 @@ import ConversationsRepo from "./ConversationsRepo";
 import CurationEmailsRepo from "./CurationEmailsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
-import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
-import ElectionVotesRepo from "./ElectionVotesRepo";
-import ForumEventsRepo from "./ForumEventsRepo";
 import JargonTermsRepo from "./JargonTermsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import LWEventsRepo from "./LWEventsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import NotificationsRepo from "./NotificationsRepo";
-import PageCacheRepo from "./PageCacheRepo";
+import OAuthAuthorizationCodesRepo from "./OAuthAuthorizationCodesRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
@@ -30,14 +29,11 @@ import SequencesRepo from "./SequencesRepo";
 import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
 import SpotlightsRepo from "./SpotlightsRepo";
-import SurveysRepo from "./SurveysRepo";
-import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
 import TweetsRepo from "./TweetsRepo";
 import UltraFeedEventsRepo from "./UltraFeedEventsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
-import BookmarksRepo from "./BookmarksRepo";
 
 declare global {
   type AllRepos = typeof allRepos;
@@ -50,6 +46,7 @@ declare global {
 
 const allRepos = {
   bookmarks: BookmarksRepo,
+  books: BooksRepo,
   clientIds: ClientIdsRepo,
   collections: CollectionsRepo,
   comments: CommentsRepo,
@@ -58,15 +55,12 @@ const allRepos = {
   curationEmails: CurationEmailsRepo,
   databaseMetadata: DatabaseMetadataRepo,
   debouncerEvents: DebouncerEventsRepo,
-  electionCandidates: ElectionCandidatesRepo,
-  electionVotes: ElectionVotesRepo,
-  forumEvents: ForumEventsRepo,
   jargonTerms: JargonTermsRepo,
   localgroups: LocalgroupsRepo,
   lwEvents: LWEventsRepo,
   manifoldProbabilitiesCachesRepo: ManifoldProbabilitiesCachesRepo,
   notifications: NotificationsRepo,
-  pageCaches: PageCacheRepo,
+  oAuthAuthorizationCodes: OAuthAuthorizationCodesRepo,
   postEmbeddings: PostEmbeddingsRepo,
   postRecommendations: PostRecommendationsRepo,
   postRelations: PostRelationsRepo,
@@ -82,8 +76,6 @@ const allRepos = {
   sideComments: SideCommentCachesRepo,
   splashArtCoordinates: SplashArtCoordinatesRepo,
   spotlights: SpotlightsRepo,
-  surveys: SurveysRepo,
-  surveySchedules: SurveySchedulesRepo,
   tags: TagsRepo,
   tweets: TweetsRepo,
   ultraFeedEvents: UltraFeedEventsRepo,

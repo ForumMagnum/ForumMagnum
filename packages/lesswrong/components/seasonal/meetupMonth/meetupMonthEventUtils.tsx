@@ -1,5 +1,6 @@
 const ifAnyoneTitle = '<Your City Here> "If Anyone Builds It" reading group'
 const petrovTitle = '<Your City Here> Petrov Day'
+const solsticeTitle = '<Your City Here> Solstice'
 
 const ifAnyoneText = `
 <p><em>(Edit the title and text here to whatever makes sense for your group)</em></p>
@@ -23,13 +24,26 @@ Location: [Your Location]
 </p>
 `
 
+const solsticeText = `
+<p><em>(Edit the title and text here to whatever makes sense for your group)</em></p>
+<p>Join us on the longest night of the year to celebrate humanity's struggles and triumphs.</p>.
+<p>
+Contact Info: [Your Contact Info]
+</p>
+<p>
+Location: [Your Location]
+</p>
+`
 
-export const getMeetupMonthInfo = (types: Array<'IFANYONE' | 'PETROV'>) => {
+
+export const getMeetupMonthInfo = (types: Array<'IFANYONE' | 'PETROV' | 'SOLSTICE'>) => {
   switch (types[0]) {
     case 'IFANYONE':
       return { title: ifAnyoneTitle, data: ifAnyoneText }
     case 'PETROV':
       return { title: petrovTitle, data: petrovText }
+    case 'SOLSTICE':
+      return { title: solsticeTitle, data: solsticeText }
     default:
       return { title: '', data: '' }
   }

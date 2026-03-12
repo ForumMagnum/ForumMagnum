@@ -1,9 +1,7 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { userCanDo, userIsMemberOf } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { isAF } from '../../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -62,7 +60,7 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   if (!post?.frontpageDate) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Suggest Curation")}
+        title={"Suggest Curation"}
         sideMessage="Must be frontpage"
         disabled
       />
@@ -78,15 +76,10 @@ const SuggestCuratedDropdownItem = ({post}: {post: PostsBase}) => {
   const onClick = isSuggested ? handleUnsuggestCurated : handleSuggestCurated;
   return (
     <DropdownItem
-      title={preferredHeadingCase(title)}
+      title={title}
       onClick={onClick}
     />
   );
 }
 
-export default registerComponent(
-  'SuggestCuratedDropdownItem',
-  SuggestCuratedDropdownItem,
-);
-
-
+export default SuggestCuratedDropdownItem;

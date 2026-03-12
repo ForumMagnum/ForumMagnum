@@ -21,6 +21,7 @@ import { PostsViews } from '@/lib/collections/posts/views';
 import { RevisionHTML } from '@/lib/collections/revisions/fragments';
 import type { RecommendedPost, RecombeeRecommendedPost, NativeRecommendedPost } from '@/lib/recombee/types';
 import { backgroundTask } from '../utils/backgroundTask';
+import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -419,24 +420,20 @@ const helpers = {
     const attributionId = recResponse.recommId;
     const ttlMs = recombeeCacheTtlMsSetting.get();
 
-    const recsToInsert: MongoBulkWriteOperations<DbRecommendationsCache> = recResponse.recomms.map((rec) => ({
-      insertOne: {
-        document: {
-          _id: randomId(),
-          userId,
-          postId: rec.id,
-          source: 'recombee',
-          scenario,
-          attributionId,
-          ttlMs,
-          createdAt,
-          schemaVersion: 1,
-          legacyData: null,
-        }
-      }
-    }));
-
-    backgroundTask(context.RecommendationsCaches.rawCollection().bulkWrite(recsToInsert));
+    backgroundTask(context.RecommendationsCaches.rawInsertMany(
+      recResponse.recomms.map((rec) => ({
+        _id: randomId(),
+        userId,
+        postId: rec.id,
+        source: 'recombee',
+        scenario,
+        attributionId,
+        ttlMs,
+        createdAt,
+        schemaVersion: 1,
+        legacyData: null,
+      }))
+    ));
   },
 
   async getCachedRecommendations({ recRequest, scenario, batch, skipCache, context }: GetCachedRecommendationsArgs): Promise<RecResponse[]> {
@@ -593,6 +590,10 @@ const recombeeApi = {
       context
     });
 
+    if (!recombeeResponseWithScenario) {
+      return [];
+    }
+
     const { recomms, recommId, scenario } = recombeeResponseWithScenario;
     const recsWithMetadata = new Map(recomms.map(rec => [rec.id, { ...rec, recommId, scenario }]));
     const recommendedPostIds = recomms.map(({ id }) => id);
@@ -726,6 +727,7 @@ const recombeeApi = {
   },
 
   async upsertPost(post: DbPost, context: ResolverContext) {
+    if (!isRecombeeRecommendablePost(post)) return;
     const client = getRecombeeClientOrThrow();
 
     const contents = await fetchFragmentSingle({

@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import PostsPodcastPlayer from "./PostsPage/PostsPodcastPlayer";
@@ -29,9 +28,4 @@ const PostsAudioCard = ({post}: {post: PostsBestOfList}) => {
   );
 }
 
-export default registerComponent(
-  "PostsAudioCard",
-  PostsAudioCard,
-);
-
-
+export default PostsAudioCard;

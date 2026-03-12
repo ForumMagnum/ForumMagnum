@@ -1,10 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button, { ButtonProps } from '@/lib/vendor/@material-ui/core/src/Button/Button';
 import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EAButton", (theme: ThemeType) => ({
   root: {
     minWidth: 30,
     fontSize: 14,
@@ -50,19 +51,21 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[200],
     },
   },
-})
+}), {
+  stylePriority: -2,
+});
 
 /**
  * Button component with the standard EA Forum styling
  * (see login and sign up site header buttons for example)
  */
-const EAButton = ({style, variant="contained", eventProps, className, children, classes, ...buttonProps}: {
+const EAButton = ({style, variant="contained", eventProps, className, children, ...buttonProps}: {
   style?: 'primary'|'grey',
   eventProps?: Record<string, string>,
   className?: string,
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 } & ButtonProps) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -92,8 +95,4 @@ const EAButton = ({style, variant="contained", eventProps, className, children, 
   )
 }
 
-export default registerComponent(
-  'EAButton', EAButton, {styles, stylePriority: -2}
-);
-
-
+export default EAButton;

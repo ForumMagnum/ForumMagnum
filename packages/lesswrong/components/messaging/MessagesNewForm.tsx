@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
@@ -11,13 +11,13 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
+import { getUserDefaultEditor } from "../editor/Editor";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
 import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
-import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import Error404 from "../common/Error404";
 
 const messageListFragmentMutation = gql(`
@@ -68,8 +68,8 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
     },
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitMinimalist: {
     height: 'fit-content',
@@ -115,33 +115,23 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
       backgroundColor: theme.palette.background.primaryDim,
     },
   },
-  editorWrapper: {
-    marginRight: -64,
+  messageInputForm: {
+    '--lexical-comment-min-height': '1em',
   },
-  emailCheckbox: {
-    marginTop: 0,
-    marginRight: 0,
-    justifyContent: "flex-end",
-    '& .MuiFormControlLabel-label': {
-      marginTop: -3,
-    },
-  },
-  emailCheckboxWrapper: {
-    '&&': {
-      alignSelf: 'start',
-      marginTop: -30,
-      marginRight: -36,
-      minWidth: 110,
-      [theme.breakpoints.down('xs')]: {
-        marginRight: -44,
-      },
-    },
-  }
 }));
 
-interface MessagesNewFormProps {
+const InnerMessagesNewForm = ({
+  isMinimalist,
+  submitLabel = "Submit",
+  sendEmail = true,
+  prefilledProps,
+  templateQueries,
+  conversationId,
+  onSuccess,
+}: {
   isMinimalist: boolean;
   submitLabel?: React.ReactNode;
+  sendEmail?: boolean;
   prefilledProps: {
     conversationId: string;
     contents: {
@@ -151,15 +141,10 @@ interface MessagesNewFormProps {
       };
     };
   };
+  templateQueries?: TemplateQueryStrings;
+  conversationId: string;
   onSuccess: (doc: messageListFragment) => void;
-}
-
-const InnerMessagesNewForm = ({
-  isMinimalist,
-  submitLabel = "Submit",
-  prefilledProps,
-  onSuccess,
-}: MessagesNewFormProps) => {
+}) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   
@@ -171,7 +156,7 @@ const InnerMessagesNewForm = ({
     onSubmitCallback,
     onSuccessCallback,
     addOnSubmitCallback,
-    addOnSuccessCallback
+    addOnSuccessCallback,
   } = useEditorFormCallbacks<messageListFragment>();
 
   const [create] = useMutation(messageListFragmentMutation);
@@ -181,7 +166,6 @@ const InnerMessagesNewForm = ({
   const form = useForm({
     defaultValues: {
       ...prefilledProps,
-      email: false,
     },
     onSubmit: async ({ formApi }) => {
       await onSubmitCallback.current?.();
@@ -189,8 +173,9 @@ const InnerMessagesNewForm = ({
       try {
         let result: messageListFragment;
 
-        const { email, ...rest } = formApi.state.values;
-        const submitData = userIsAdmin(currentUser) ? { ...rest, noEmail: !email } : rest;
+        const submitData = userIsAdmin(currentUser) 
+          ? { ...formApi.state.values, noEmail: !sendEmail } 
+          : formApi.state.values;
 
         const { data } = await create({ variables: { data: submitData } });
         if (!data?.createMessage?.data) {
@@ -208,6 +193,7 @@ const InnerMessagesNewForm = ({
     },
   });
 
+
   const handleSubmit = useCallback(() => form.handleSubmit(), [form]);
   const formRef = useFormSubmitOnCmdEnter(handleSubmit);
 
@@ -219,7 +205,7 @@ const InnerMessagesNewForm = ({
         e.stopPropagation();
         void form.handleSubmit();
       }}>
-        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper, classes.editorWrapper)}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper, classes.messageInputForm)}>
           <form.Field name="contents">
             {(field) => (
               <EditorFormComponent
@@ -236,22 +222,11 @@ const InnerMessagesNewForm = ({
                 commentEditor={true}
                 commentStyles={true}
                 hideControls={true}
+                getLocalStorageId={() => ({id: conversationId, verify: false})}
               />
             )}
           </form.Field>
         </div>
-
-        {userIsAdmin(currentUser) && <div className={classNames(classes.fieldWrapper, classes.emailCheckboxWrapper)}>
-          <form.Field name="email">
-            {(field) => (
-              <FormComponentCheckbox
-                field={field}
-                label="Send email"
-                className={classes.emailCheckbox}
-              />
-            )}
-          </form.Field>
-        </div>}
 
         <form.Subscribe selector={(s) => [s.isSubmitting]}>
           {([isSubmitting]) => (
@@ -276,16 +251,20 @@ export const MessagesNewForm = ({
   templateQueries,
   successEvent,
   submitLabel,
+  sendEmail = true,
   formStyle="default",
 }: {
   conversationId: string;
   templateQueries?: TemplateQueryStrings;
   successEvent: (newMessage: messageListFragment) => void;
   submitLabel?: string,
+  sendEmail?: boolean;
   formStyle?: FormDisplayMode;
 }) => {
   const classes = useStyles(styles);
-  
+  const currentUser = useCurrentUser();
+  const initialEditorType = getUserDefaultEditor(currentUser);
+  const [formKey, setFormKey] = useState(0);
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
 
@@ -304,25 +283,29 @@ export const MessagesNewForm = ({
     getDraftMessageHtml({ html: template.contents.html, displayName: templateQueries?.displayName });
 
   return (
-    <div className={isMinimalist ? classes.rootMinimalist : classes.root}>
+    <div className={isMinimalist ? classes.rootMinimalist : classes.root} key={formKey}>
       <InnerMessagesNewForm
         isMinimalist={isMinimalist}
         submitLabel={submitLabel}
+        sendEmail={sendEmail}
         prefilledProps={{
           conversationId,
           contents: {
             originalContents: {
-              type: "ckEditorMarkup",
+              type: initialEditorType,
               data: templateHtml ?? '',
             },
           },
         }}
-        onSuccess={(newMessage) => successEvent(newMessage)}
+        templateQueries={templateQueries}
+        conversationId={conversationId}
+        onSuccess={(newMessage) => {
+          setFormKey(formKey => formKey + 1);
+          successEvent(newMessage);
+        }}
       />
     </div>
   );
 };
 
 export default MessagesNewForm;
-
-

@@ -1,29 +1,29 @@
 import React from 'react';
 
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import ConversationTitleEditForm from "./ConversationTitleEditForm";
 import Loading from "../vulcan-core/Loading";
 import MetaInfo from "../common/MetaInfo";
 import UsersName from "../users/UsersName";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ConversationDetails", (theme: ThemeType) => ({
   root: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
+    marginTop: 16,
+    marginBottom: 16,
     display: "flex",
     justifyContent: "space-between",
     flexWrap: "wrap",
   }
-})
+}))
 
 // Component for displaying details about currently selected conversation
-const ConversationDetails = ({conversation, hideOptions = false, classes}: {
+const ConversationDetails = ({conversation, hideOptions = false}: {
   conversation: ConversationsList,
   hideOptions?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   if (!conversation?.participants?.length) return <Loading />
 
@@ -48,12 +48,12 @@ const ConversationDetails = ({conversation, hideOptions = false, classes}: {
         </MetaInfo>)}
       </span>
       {!hideOptions && <span onClick={openConversationOptions}>
-        <MetaInfo button>{preferredHeadingCase("Conversation Options")}</MetaInfo>
+        <MetaInfo button>Conversation Options</MetaInfo>
       </span>}
     </div>
   )
 }
 
-export default registerComponent('ConversationDetails', ConversationDetails, {styles});
+export default ConversationDetails;
 
 

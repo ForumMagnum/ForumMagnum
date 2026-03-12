@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import type { ToCData } from '../../../lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -33,8 +32,8 @@ const styles = defineStyles("NavigationDrawer", (theme: ThemeType) => ({
   drawerNavigationMenuCompressed: {
     width:55,
     backgroundColor: theme.palette.grey[100],
-    paddingTop: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit,
+    paddingTop: 16,
+    paddingBottom: 8,
     borderRight: theme.palette.border.faint,
     height:"100%",
     color: theme.palette.grey[600],
@@ -90,6 +89,6 @@ const NavigationDrawer = ({open, handleClose, toc}: {
   </Drawer>
 }
 
-export default registerComponent('NavigationDrawer', NavigationDrawer);
+export default NavigationDrawer;
 
 

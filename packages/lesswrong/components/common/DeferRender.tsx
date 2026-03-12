@@ -1,6 +1,6 @@
 import { isMobile } from "@/lib/utils/isMobile";
 import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
-import React, { ReactNode, useContext, useEffect, useState, useTransition } from "react";
+import React, { ReactNode, useContext, useEffect, useState, useSyncExternalStore, useTransition } from "react";
 
 const DeferRender = ({
   ssr,
@@ -34,7 +34,7 @@ const DeferRender = ({
     clientTiming === "mobile-aware" ? (isMobile() ? "async-non-blocking" : "sync") : clientTiming;
 
   const [_isPending, startTransition] = useTransition();
-  const { matchSSR } = useContext(EnvironmentOverrideContext);
+  const matchSSR = useMatchSSR();
   const [canRender, setClientCanRender] = useState(matchSSR ? ssr : mobileAwareTiming === "sync");
 
   useEffect(() => {
@@ -53,5 +53,9 @@ const DeferRender = ({
 
   return <>{children}</>;
 };
+
+export function useMatchSSR() {
+  return useSyncExternalStore(()=>()=>{}, ()=>false, ()=>true)
+}
 
 export default DeferRender;

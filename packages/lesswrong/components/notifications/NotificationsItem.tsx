@@ -5,7 +5,7 @@ import React, { FC, ReactNode, useCallback, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { parseRouteWithErrors } from '../linkPreview/parseRouteWithErrors';
+import { parseRouteWithErrors } from '@/lib/routeChecks/parseRouteWithErrors';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
 import { getUrlClass } from '@/server/utils/getUrlClass';
@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     fontSize: "14px",
     lineHeight: "18px",
-    paddingRight: theme.spacing.unit*2,
+    paddingRight: 16,
     color: theme.palette.text.notificationLabel,
     
     // Two-line ellipsis hack. Webkit-specific (doesn't work in Firefox),
@@ -180,7 +180,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
       case "message":
         return (
           <TooltipWrapper
-            title={<ConversationPreview conversationId={parsedPath?.query?.conversation} />}
+            title={<ConversationPreview conversationId={parsedPath?.query?.conversation} messageId={documentId} count={1} />}
             classes={classes}
           >
             {children}

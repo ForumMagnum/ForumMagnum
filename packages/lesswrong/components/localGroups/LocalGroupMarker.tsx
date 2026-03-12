@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { GroupIconSVG } from './Icons'
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -7,10 +6,12 @@ import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 import ForumIcon from "../common/ForumIcon";
 import StyledMapPopup from "./StyledMapPopup";
 import GroupLinks from "./GroupLinks";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LocalGroupMarker", (theme: ThemeType) => ({
   icon: {
     height: 15, 
     width: 15,
@@ -23,25 +24,23 @@ const styles = (theme: ThemeType) => ({
     fill: theme.palette.group,
     opacity: 0.8,
   },
-});
+}));
 
-const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location }: {
   group: any,
   handleMarkerClick: any,
   handleInfoWindowClose: any,
   infoOpen: boolean,
   location: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
 
   const { html = "" } = group.contents || {}
   const htmlBody = {__html: html};
 
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const GroupIcon = () => isEAForum()
+  const groupIcon = isEAForum()
     ? <ForumIcon icon="Star" className={classes.eaIcon}/>
     : <GroupIconSVG className={classes.icon}/>;
 
@@ -53,7 +52,7 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
       offsetTop={-15}
     >
       <span onClick={() => handleMarkerClick(group._id)}>
-        <GroupIcon/>
+        {groupIcon}
       </span>
     </Marker>
     {infoOpen && 
@@ -71,7 +70,4 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   </React.Fragment>
 }
 
-export default registerComponent("LocalGroupMarker", LocalGroupMarker, {styles});
-
-
-
+export default LocalGroupMarker;

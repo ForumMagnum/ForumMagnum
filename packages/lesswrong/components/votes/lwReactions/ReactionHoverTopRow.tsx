@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import type { EmojiReactName, UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import { VotingProps } from '../votingProps';
 import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
@@ -10,8 +9,10 @@ import UsersWhoReacted from "./UsersWhoReacted";
 import ReactOrAntireactVote from "./ReactOrAntireactVote";
 import ReactionDescription from "./ReactionDescription";
 import ReactionIcon from "../ReactionIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReactionHoverTopRow", (theme: ThemeType) => ({
   hoverBallotEntry: {
     fontFamily: theme.typography.commentStyle.fontFamily,
     cursor: "pointer",
@@ -46,15 +47,15 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   },
-})
+}))
 
-const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButtons, voteProps, classes}: {
+const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButtons, voteProps}: {
   reactionName: EmojiReactName
   userReactions: UserReactInfo[],
   showNonInlineVoteButtons: boolean,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const nonInlineReactions = filter(userReactions, r => !(r.quotes?.length));
   const nonInlineNetReactionCount = sumBy(nonInlineReactions, r => r.reactType==="disagreed"?-1:1);
   const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
@@ -82,7 +83,5 @@ const ReactionHoverTopRow = ({reactionName, userReactions, showNonInlineVoteButt
   </div>
 }
 
-export default registerComponent('ReactionHoverTopRow', ReactionHoverTopRow, {styles});
-
-
+export default ReactionHoverTopRow;
 

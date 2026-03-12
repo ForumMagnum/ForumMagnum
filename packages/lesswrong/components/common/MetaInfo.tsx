@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { Typography } from "./Typography";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-export const styles = (theme: ThemeType) => ({
+const styles = defineStyles("MetaInfo", (theme: ThemeType) => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     fontSize: "1rem",
     
     ...(theme.isFriendlyUI && {
@@ -20,15 +21,15 @@ export const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[400],
     },
   }
-})
+}))
 
-const MetaInfo = ({children, classes, button, className}: {
+const MetaInfo = ({children, button, className}: {
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   button?: boolean,
   className?: string
   title?: string,
 }) => {
+  const classes = useStyles(styles);
   return <Typography
     component='span'
     className={classNames(classes.root, button && classes.button, className)}
@@ -37,6 +38,4 @@ const MetaInfo = ({children, classes, button, className}: {
   </Typography>
 }
 
-export default registerComponent('MetaInfo', MetaInfo, {styles});
-
-
+export default MetaInfo;

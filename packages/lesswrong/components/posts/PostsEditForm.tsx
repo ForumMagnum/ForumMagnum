@@ -1,15 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
-import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
-import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/constants';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -28,6 +25,16 @@ import NewPostHowToGuides from "./NewPostHowToGuides";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { PostsEditFormQuery } from './queries';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import { usePathname } from 'next/navigation';
+import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
+import {
+  SHARE_POPUP_QUERY_PARAM,
+  CENTRAL_COLUMN_WIDTH,
+  RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+  RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+  RIGHT_COLUMN_WIDTH_XS,
+  sidenotesHiddenBreakpoint,
+} from './PostsPage/constants';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -41,7 +48,7 @@ const UsersCurrentPostRateLimitQuery = gql(`
 
 const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   postForm: {
-    maxWidth: 715,
+    maxWidth: CENTRAL_COLUMN_WIDTH,
     margin: "0 auto",
 
     [theme.breakpoints.down('xs')]: {
@@ -117,6 +124,15 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
     flexWrap: "wrap",
     marginTop: 20
   },
+  reserveSpaceForSidenotes: {
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+      [theme.breakpoints.down('xs')]: {
+        width: RIGHT_COLUMN_WIDTH_XS,
+      },
+    },
+  },
   collaborativeRedirectLink: {
     color:  theme.palette.secondary.main
   },
@@ -130,16 +146,14 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
   },
 }))
 
-const PostsEditForm = ({ documentId, version }: {
+const PostsEditFormInner = ({ documentId, version }: {
   documentId: string,
   version?: string | null,
 }) => {
-  // return <></>;
   const classes = useStyles(styles);
   const { query } = useLocation();
   const navigate = useNavigate();
   const { flash } = useMessages();
-  const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
 
   const [editorState, setEditorState] = useState<Editor|null>(null);
@@ -169,7 +183,7 @@ const PostsEditForm = ({ documentId, version }: {
     }
   }, [isDraft]);
   
-  if (!document && loading) {
+  if (loading) {
     return <Loading/>
   }
 
@@ -206,10 +220,15 @@ const PostsEditForm = ({ documentId, version }: {
 
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId
+  const rightColumnChildren = <>
+    <div className={classes.reserveSpaceForSidenotes}/>
+    <SideItemsSidebar />
+  </>;
 
   return (<>
     <StatusCodeSetter status={200}/>
-    <DynamicTableOfContents title={document.title} rightColumnChildren={isEAForum() && <NewPostHowToGuides/>}>
+    <SideItemsContainer>
+    <DynamicTableOfContents title={document.title} rightColumnChildren={rightColumnChildren}>
       <div className={classes.postForm}>
         {currentUser && <PostsAcceptTos currentUser={currentUser} />}
         {postWillBeHidden && <NewPostModerationWarning />}
@@ -225,8 +244,11 @@ const PostsEditForm = ({ documentId, version }: {
               onSuccess={(post, options) => {
                 const alreadySubmittedToAF = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(post.userId!)
                 if (!post.draft && !alreadySubmittedToAF) afNonMemberSuccessHandling(post);
-                if (options?.submitOptions?.redirectToEditor) {
-                  navigate(postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined));
+                if (options?.submitOptions?.skipRedirect) {
+                  return;
+                } else if (options?.submitOptions?.redirectToEditor) {
+                  const redirectPath = postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined);
+                  navigate(redirectPath);
                 } else {
                   // If they are publishing a draft, show the share popup
                   // Note: we can't use isDraft here because it gets updated to true when they click "Publish"
@@ -245,9 +267,26 @@ const PostsEditForm = ({ documentId, version }: {
         </DeferRender>
       </div>
     </DynamicTableOfContents>
+    </SideItemsContainer>
   </>);
 }
 
-export default registerComponent('PostsEditForm', PostsEditForm);
+const PostsEditForm = ({ documentId, version }: {
+  documentId: string,
+  version?: string | null,
+}) => {
+  // HACK: key PostsEditForm with usePathname, so that when you navigate off of
+  // /editPost and then return, no state belonging to PostsEditFormInner will be
+  // preserved. Without this, if you save a post and then return to the edit
+  // page, nextjs (starting in next 16 with cacheComponents:true) will keep a
+  // copy of the editor's state variables inside an inactive <Activity>, and
+  // when resurrected, the useQuery(..., fetchPolicy: "network-only") will
+  // return a stale value on its first render. (This is a bug in the interaction
+  // between apollo-client and nextjs 16.)
+  const pathname = usePathname();
+  return <PostsEditFormInner documentId={documentId} version={version} key={pathname}/>
+}
+
+export default PostsEditForm;
 
 

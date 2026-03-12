@@ -1,4 +1,3 @@
-import { mergeFeedQueries, viewBasedSubquery, SubquerySortField, SortDirection } from '../utils/feedUtil';
 import { Comments } from '../../server/collections/comments/collection';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { Tags } from '../../server/collections/tags/collection';
@@ -13,16 +12,8 @@ import orderBy from 'lodash/orderBy';
 import mapValues from 'lodash/mapValues';
 import pick from 'lodash/pick';
 import maxBy from 'lodash/maxBy';
-import {
-  defaultSubforumSorting,
-  SubforumSorting,
-  subforumSortings,
-  subforumSortingToResolverName,
-  subforumSortingTypes,
-} from '../../lib/collections/tags/subforumHelpers';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { taggingNamePluralSetting } from '../../lib/instanceSettings';
 import difference from 'lodash/difference';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import union from 'lodash/union';
@@ -39,134 +30,6 @@ import { updateTag } from '../collections/tags/mutations';
 import { mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { CommentsViews } from '@/lib/collections/comments/views';
 import { backgroundTask } from '../utils/backgroundTask';
-
-type SubforumFeedSort = {
-  posts: SubquerySortField<DbPost, keyof DbPost>,
-  comments: SubquerySortField<DbComment, keyof DbComment>,
-  sortDirection?: SortDirection,
-}
-
-const subforumFeedSortings: Record<SubforumSorting, SubforumFeedSort> = {
-  magic: {
-    posts: { sortField: "score" },
-    comments: { sortField: "score" },
-  },
-  new: {
-    posts: { sortField: "postedAt" },
-    comments: { sortField: "postedAt" },
-  },
-  old: {
-    posts: { sortField: "postedAt", sortDirection: "asc" },
-    comments: { sortField: "postedAt", sortDirection: "asc" },
-    sortDirection: "asc",
-  },
-  top: {
-    posts: { sortField: "baseScore" },
-    comments: { sortField: "baseScore" },
-  },
-  recentComments: {
-    posts: { sortField: "lastCommentedAt" },
-    comments: { sortField: "lastSubthreadActivity" },
-  },
-}
-
-const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: SubforumFeedSort) => async ({
-  limit = 20, cutoff, offset, args: {tagId, af}, context,
-}: {
-  limit?: number,
-  cutoff?: SortKeyType,
-  offset?: number,
-  args: {tagId: string, af?: boolean},
-  context: ResolverContext,
-}) => mergeFeedQueries({
-  limit,
-  cutoff,
-  offset,
-  sortDirection: sorting.sortDirection,
-  subqueries: [
-    // Subforum posts
-    viewBasedSubquery({
-      type: "tagSubforumPosts",
-      collection: Posts,
-      ...sorting.posts,
-      context,
-      includeDefaultSelector: true,
-      selector: {
-        [`tagRelevance.${tagId}`]: {$gte: 1},
-        hiddenRelatedQuestion: undefined,
-        shortform: undefined,
-        groupId: undefined,
-        ...(af ? {af: true} : undefined),
-      },
-    }),
-    // Subforum comments
-    viewBasedSubquery({
-      type: "tagSubforumComments",
-      collection: Comments,
-      ...sorting.comments,
-      context,
-      includeDefaultSelector: true,
-      selector: {
-        $or: [{tagId: tagId, tagCommentType: "SUBFORUM"}, {relevantTagIds: tagId}],
-        topLevelCommentId: {$exists: false},
-        subforumStickyPriority: {$exists: false},
-        ...(af ? {af: true} : undefined),
-      },
-    }),
-    // Sticky subforum comments
-    viewBasedSubquery({
-      type: "tagSubforumStickyComments",
-      collection: Comments,
-      sortField: "subforumStickyPriority",
-      sortDirection: "asc",
-      sticky: true,
-      context,
-      includeDefaultSelector: true,
-      selector: {
-        tagId,
-        tagCommentType: "SUBFORUM",
-        topLevelCommentId: {$exists: false},
-        subforumStickyPriority: {$exists: true},
-        ...(af ? {af: true} : undefined),
-      },
-    }),
-  ],
-});
-
-export const subForumFeedGraphQLTypeDefs = gql(subforumSortings.map(sorting => `
-  type Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults {
-    cutoff: Date
-    endOffset: Int!
-    results: [Subforum${subforumSortingToResolverName(sorting)}FeedEntry!]
-  }
-  enum Subforum${subforumSortingToResolverName(sorting)}FeedEntryType {
-    tagSubforumPosts
-    tagSubforumComments
-    tagSubforumStickyComments
-  }
-  type Subforum${subforumSortingToResolverName(sorting)}FeedEntry {
-    type: Subforum${subforumSortingToResolverName(sorting)}FeedEntryType!
-    tagSubforumPosts: Post
-    tagSubforumComments: Comment
-    tagSubforumStickyComments: Comment
-  }
-  extend type Query {
-    Subforum${subforumSortingToResolverName(sorting)}Feed(
-      limit: Int
-      cutoff: ${subforumSortingTypes[sorting]}
-      offset: Int
-      tagId: String!
-      af: Boolean
-    ): Subforum${subforumSortingToResolverName(sorting)}FeedQueryResults!
-  }
-`).join('\n'))
-
-export const subForumFeedGraphQLQueries = {
-  ...(Object.fromEntries(subforumSortings.map((sorting) => [
-    `Subforum${subforumSortingToResolverName(sorting)}Feed`,
-    createSubforumFeedResolver(subforumFeedSortings[sorting] ?? subforumFeedSortings[defaultSubforumSorting])
-  ])))
-}
 
 export const tagGraphQLTypeDefs = gql`
   enum DocumentDeletionNetChange {
@@ -233,14 +96,14 @@ interface TagUpdates {
   documentDeletions: CategorizedDeletionEvent[];
 }
 
-function getRootCommentsInTimeBlockSelector(before: Date, after: Date): MongoSelector<DbComment> {
+function getRootCommentsInTimeBlockSelector(before: Date, after: Date, context: ResolverContext): MongoSelector<DbComment> {
   return mergeWithDefaultViewSelector(CommentsViews, {
     deleted: false,
     postedAt: {$lt: before, $gt: after},
     topLevelCommentId: null,
     tagId: {$exists: true, $ne: null},
     tagCommentType: "DISCUSSION",
-  });
+  }, context);
 }
 
 function getDocumentDeletionsInTimeBlockSelector(documentIds: string[], before: Date, after: Date) {
@@ -455,7 +318,7 @@ export const tagResolversGraphQLMutations = {
     const { currentUser } = context;
 
     if (!userIsAdminOrMod(currentUser)) {
-      throw new Error(`Must be an admin/mod to merge ${taggingNamePluralSetting.get()}`);
+      throw new Error(`Must be an admin/mod to merge wikitags`);
     }
     if (!sourceTagId || !targetTagId) {
       throw new Error("sourceTagId and targetTagId required");
@@ -678,7 +541,7 @@ export const tagResolversGraphQLQueries = {
     if(moment.duration(moment(before).diff(after)).as('hours') > 30)
       throw new Error("TagUpdatesInTimeBlock limited to a one-day interval");
     
-    const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after);
+    const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after, context);
 
     // Get
     // - revisions to tags, lenses, and summaries in the given time interval

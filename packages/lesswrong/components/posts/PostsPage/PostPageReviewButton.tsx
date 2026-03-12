@@ -2,7 +2,6 @@ import React from "react";
 import { forumTitleSetting } from "@/lib/instanceSettings";
 import { canNominate, REVIEW_YEAR, postEligibleForReview } from "@/lib/reviewUtils";
 import { useCurrentUser } from "@/components/common/withUser";
-import { registerComponent } from "@/lib/vulcan-lib/components";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import ReviewVotingWidget from "../../review/ReviewVotingWidget";
 import ReviewPostButton from "../../review/ReviewPostButton";
@@ -10,8 +9,8 @@ import LWTooltip from "../../common/LWTooltip";
 
 const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   reviewVoting: {
-    padding: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*6,
+    padding: 16,
+    paddingBottom: 48,
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -19,17 +18,17 @@ const styles = defineStyles("PostPageReviewButton", (theme: ThemeType) => ({
   },
   reviewButton: {
     border: `solid 1px ${theme.palette.primary.main}`,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit*2,
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    marginTop: theme.spacing.unit,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
+    marginTop: 8,
     display: "inline-block",
     borderRadius: 3
   }
 }))
 
-function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList}) {
+function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|SunshinePostsList}) {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
@@ -44,6 +43,4 @@ function PostPageReviewButton({post}: {post: PostsWithNavigation|PostsWithNaviga
   )
 }
 
-export default registerComponent('PostPageReviewButton', PostPageReviewButton);
-
-
+export default PostPageReviewButton;

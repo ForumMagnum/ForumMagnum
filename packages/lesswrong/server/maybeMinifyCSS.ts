@@ -1,5 +1,4 @@
 import { isDevelopment } from '@/lib/executionEnvironment';
-import { minify } from 'csso';
 
 const alwaysMinify = true;
 
@@ -11,6 +10,7 @@ export function maybeMinifyCSS(css: string): string {
   if (isDevelopment && !alwaysMinify) {
     return css;
   } else {
+    const { minify } = require('csso');
     return minify(css).css;
   }
 }

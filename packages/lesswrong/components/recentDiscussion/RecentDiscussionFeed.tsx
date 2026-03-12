@@ -2,7 +2,6 @@ import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { showSubscribeReminderInFeed } from '@/lib/instanceSettings';
 import { ObservableQuery } from '@apollo/client';
@@ -11,16 +10,11 @@ import RecentDiscussionTag from "./RecentDiscussionTag";
 import RecentDiscussionTagRevisionItem from "./RecentDiscussionTagRevisionItem";
 import RecentDiscussionSubscribeReminder from "./RecentDiscussionSubscribeReminder";
 import RecentDiscussionMeetupsPoke from "./RecentDiscussionMeetupsPoke";
-import EARecentDiscussionThread from "./EARecentDiscussionThread";
-import EARecentDiscussionQuickTake from "./EARecentDiscussionQuickTake";
-import EARecentDiscussionTagCommented from "./EARecentDiscussionTagCommented";
-import EARecentDiscussionTagRevision from "./EARecentDiscussionTagRevision";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import { RecentDiscussionFeedQuery } from '../common/feeds/feedQueries';
-import FeedSelectorDropdown from '../common/FeedSelectorCheckbox';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { randomId } from '../../lib/random';
 
@@ -38,23 +32,13 @@ const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
   },
 }));
 
-const recentDisucssionFeedComponents = () => forumSelect({
-  LWAF: {
-    ThreadComponent: RecentDiscussionThread,
-    ShortformComponent: RecentDiscussionThread,
-    TagCommentedComponent: RecentDiscussionTag,
-    TagRevisionComponent: RecentDiscussionTagRevisionItem,
-    SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
-    MeetupsPokeComponent: RecentDiscussionMeetupsPoke,
-  },
-  default: {
-    ThreadComponent: EARecentDiscussionThread,
-    ShortformComponent: EARecentDiscussionQuickTake,
-    TagCommentedComponent: EARecentDiscussionTagCommented,
-    TagRevisionComponent: EARecentDiscussionTagRevision,
-    SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
-    MeetupsPokeComponent: () => null,
-  },
+const recentDisucssionFeedComponents = () => ({
+  ThreadComponent: RecentDiscussionThread,
+  ShortformComponent: RecentDiscussionThread,
+  TagCommentedComponent: RecentDiscussionTag,
+  TagRevisionComponent: RecentDiscussionTagRevisionItem,
+  SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
+  MeetupsPokeComponent: RecentDiscussionMeetupsPoke,
 });
 
 const RecentDiscussionFeed = ({
@@ -117,9 +101,7 @@ const RecentDiscussionFeed = ({
     <AnalyticsContext pageSectionContext="recentDiscussion" recentDiscussionContext={{ feedSessionId: sessionId }}>
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
         <SingleColumnSection>
-          <SectionTitle title={title} titleClassName={classes.titleText}>
-            <FeedSelectorDropdown currentFeedType="classic" />
-          </SectionTitle>
+          <SectionTitle title={title} titleClassName={classes.titleText} />
           <MixedTypeFeed
             query={RecentDiscussionFeedQuery}
             variables={{

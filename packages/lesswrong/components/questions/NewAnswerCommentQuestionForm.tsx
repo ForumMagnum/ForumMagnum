@@ -12,7 +12,7 @@ import CommentsNewForm from "../comments/CommentsNewForm";
 const styles = (theme: ThemeType) => ({
   root: {
     borderTop: theme.palette.border.intense,
-    maxWidth:650 + (theme.spacing.unit*4),
+    maxWidth:650 + (32),
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
       marginRight: "auto"
@@ -21,16 +21,16 @@ const styles = (theme: ThemeType) => ({
   chooseResponseType: {
     display: "flex",
     justifyContent: "space-between",
-    padding: theme.spacing.unit,
+    padding: 8,
   },
   responseType: {
     ...theme.typography.commentStyle,
     fontSize: 16,
     width: "calc(50% - 12px)",
     textAlign: "center",
-    padding: theme.spacing.unit*2,
+    padding: 16,
     color: theme.palette.grey[500],
-    marginRight: theme.spacing.unit*1.5,
+    marginRight: 12,
     cursor: "pointer",
     '&:hover': {
       color: theme.palette.text.normal,
@@ -65,8 +65,8 @@ const styles = (theme: ThemeType) => ({
   },
   toggleFocus: {
     cursor: "pointer",
-    paddingTop: theme.spacing.unit*1.5,
-    padding: theme.spacing.unit
+    paddingTop: 12,
+    padding: 8
   }
 })
 

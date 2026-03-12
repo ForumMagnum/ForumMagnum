@@ -5,8 +5,10 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import ForumIcon from "../common/ForumIcon";
 import { isE2E } from '@/lib/executionEnvironment';
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LanguageModelLauncherButton", (theme: ThemeType) => ({
   root: {
     position: "fixed",
     bottom: 20,
@@ -39,12 +41,12 @@ const styles = (theme: ThemeType) => ({
     witdh: 24,
     height: 24,
   }
-});
+}));
 
-export const LanguageModelLauncherButton = ({classes, onClick}: {
-  classes: ClassesType<typeof styles>,
+export const LanguageModelLauncherButton = ({onClick}: {
   onClick: () => void,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
@@ -55,10 +57,9 @@ export const LanguageModelLauncherButton = ({classes, onClick}: {
   },[captureEvent, setCookie, onClick]);
 
   useEffect(() => {
-    if (cookies[SHOW_LLM_CHAT_COOKIE]==="false" || isE2E) {
-      return;
+    if (cookies[SHOW_LLM_CHAT_COOKIE]==="true" && !isE2E) {
+      openLlmChat();
     }
-    openLlmChat();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -67,6 +68,4 @@ export const LanguageModelLauncherButton = ({classes, onClick}: {
   </div>;
 }
 
-export default registerComponent('LanguageModelLauncherButton', LanguageModelLauncherButton, {styles});
-
-
+export default LanguageModelLauncherButton;

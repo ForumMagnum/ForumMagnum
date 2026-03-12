@@ -1,5 +1,4 @@
 import React, {useCallback} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import ErrorBoundary from "../common/ErrorBoundary";
@@ -59,6 +58,6 @@ export const FormUserSelect = ({ field, label }: FormUserSelectProps) => {
   />
 };
 
-export default registerComponent("UserSelect", UserSelect);
+export default UserSelect;
 
 

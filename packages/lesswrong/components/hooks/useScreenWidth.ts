@@ -1,88 +1,61 @@
-import { useEffect, useState } from "react";
-import { isClient } from "../../lib/executionEnvironment";
+import { useSyncExternalStore } from "react";
 import { useTheme } from "../themes/useTheme";
 
-/**
- * WARNING: This hook is not SSR safe!
- *
- * It assumes you're on the desktop and can cause layout shift on load for mobile
- * users if you're not careful.
- */
-export const useIsAboveScreenWidth = (targetScreenWidth: number) => {
-  const initialScreenWidth = isClient ? window.innerWidth : 4000;
-  const [actualScreenWidth, setActualScreenWidth] = useState(initialScreenWidth);
-  
-  useEffect(() => {
-    const handleResize = () => {
-      setActualScreenWidth(window.innerWidth);
-    }
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [])
-  
-  if (!isClient) {
-    return true;
-  }
-  
-  
-  return actualScreenWidth > targetScreenWidth;
+function subscribeToResize(callback: () => void) {
+  window.addEventListener("resize", callback);
+  return () => window.removeEventListener("resize", callback);
 }
 
 /**
- * WARNING: This hook is not SSR safe!
- *
- * It assumes you're on the desktop and can cause layout shift on load for mobile
- * users if you're not careful.
+ * Returns whether the screen width is above (>=) a threshold, in pixels. On
+ * first render and during SSR, returns `defaultValue` (which is then changed
+ * to the correct value, if it's different, in a useLayoutEffect). So if the
+ * screen dimension doesn't match the default, this will cause a double render.
  */
-export const useIsAboveBreakpoint = (breakpoint: BreakpointName) => {
+export const useIsAboveScreenWidth = (targetScreenWidth: number, defaultValue=true) => {
+  return useSyncExternalStore(
+    subscribeToResize,
+    () => window.innerWidth >= targetScreenWidth,
+    () => defaultValue,
+  );
+}
+
+/**
+ * Returns whether the screen width is above (>=) a named breakpoint. On first
+ * render and during SSR, returns `defaultValue` (which is then changed to the
+ * correct value, if it's different, in a useLayoutEffect).
+ */
+export const useIsAboveBreakpoint = (breakpoint: BreakpointName, defaultValue=true) => {
   const theme = useTheme();
   const breakpointWidth = theme.breakpoints.values[breakpoint];
-  return useIsAboveScreenWidth(breakpointWidth);
+  return useIsAboveScreenWidth(breakpointWidth, defaultValue);
 }
 
 /**
- * WARNING: This hook is not SSR safe!
- *
- * It assumes you're on the desktop and can cause layout shift on load for mobile
- * users if you're not careful.
- *
- * NB: This is not the same as !useIsMobile(), because tablets exist.
+ * Get the window size. If server side or hydrating, returns 4000x2000. This
+ * won't cause an SSR mismatch, but may cause visible layout shift.  We have a module-level
+ * assignment to avoid returning a new object from getSnapshot even when the values
+ * haven't changed, which would otherwise cause an infinite render loop and break.
  */
-export const useIsDesktop = () => {
-  return useIsAboveBreakpoint('lg');
+let cachedSize = { width: 4000, height: 2000 };
+
+function getSnapshot() {
+  if (cachedSize.width !== window.innerWidth || cachedSize.height !== window.innerHeight) {
+    cachedSize = { width: window.innerWidth, height: window.innerHeight };
+  }
+  return cachedSize;
 }
 
-/**
- * WARNING: This hook is not SSR safe!
- *
- * It assumes you're on the desktop and can cause layout shift on load for mobile
- * users if you're not careful.
- */
-export const useIsMobile = () => {
-  return !useIsAboveBreakpoint('sm');
+const SERVER_SNAPSHOT = { width: 4000, height: 2000 };
+
+function getServerSnapshot() {
+  return SERVER_SNAPSHOT;
 }
 
-/**
- * WARNING: This hook is not SSR safe!
- *
- * It assumes you're on the desktop and can cause layout shift on load for mobile
- * users if you're not careful.
- */
 export const useWindowSize = () => {
-  const [size, setSize] = useState<{width: number, height: number}>(
-    isClient
-      ? {width: window.innerWidth, height: window.innerHeight}
-      : {width: 4000, height: 2000}
+  return useSyncExternalStore(
+    subscribeToResize,
+    getSnapshot,
+    getServerSnapshot
   );
-
-  useEffect(() => {
-    const handleResize = () => setSize({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [])
-
-  return size;
 }

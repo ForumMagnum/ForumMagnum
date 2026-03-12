@@ -5,7 +5,6 @@ import { useCurrentUser } from '../common/withUser';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import {AnalyticsContext} from '@/lib/analyticsEvents'
-import {preferredHeadingCase} from '@/themes/forumTheme'
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import qs from 'qs'
 import { eligibleToNominate, ReviewYear } from '@/lib/reviewUtils';

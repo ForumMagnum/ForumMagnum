@@ -1,11 +1,9 @@
 import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
-import { siteUrlSetting, tagUrlBaseSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
+import { siteUrlSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
-import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
-import type { RouterLocation } from '../../vulcan-lib/routes';
-import type { Request, Response } from 'express';
+import { isFriendlyUI } from "../../../themes/forumTheme";
 import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
 import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
@@ -36,8 +34,8 @@ type GetUrlOptions = {
   pathId?: string
 }
 
-export const getTagCreateUrl = () => `/${tagUrlBaseSetting.get()}/create`
-export const getTagGradingSchemeUrl = () => `/${tagUrlBaseSetting.get()}/tag-grading-scheme`
+export const getTagCreateUrl = () => `/w/create`
+export const getTagGradingSchemeUrl = () => `/w/tag-grading-scheme`
 
 export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbsolute=false, hash?: string) => {
   const urlSearchParams = urlOptions
@@ -46,15 +44,15 @@ export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbs
   const searchSuffix = search ? `?${search}` : ''
   const hashSuffix = hash ? `#${hash}` : ''
 
-  const url = `/${tagUrlBaseSetting.get()}/${tag.slug}`
+  const url = `/w/${tag.slug}`
   const urlWithSuffixes = `${url}${searchSuffix}${hashSuffix}`
   return isAbsolute ? combineUrls(siteUrlSetting.get(), urlWithSuffixes) : urlWithSuffixes
 }
 
-export const tagGetHistoryUrl = (tag: {slug: string}) => `/${tagUrlBaseSetting.get()}/${tag.slug}/history`
+export const tagGetHistoryUrl = (tag: {slug: string}) => `/w/${tag.slug}/history`
 
 export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
-  const suffix = `/${tagUrlBaseSetting.get()}/${tag.slug}/discussion`
+  const suffix = `/w/${tag.slug}/discussion`
   return isAbsolute ? combineUrls(siteUrlSetting.get(), suffix) : suffix
 }
 
@@ -77,7 +75,7 @@ export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSS
 // TODO: Is this necessary if we instead have version as a search param in the main tagGetUrl function?
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string, lens?: MultiDocumentContentDisplay|TagLens): string => {
   const lensParam = lens ? `lens=${lens.slug}&` : "";
-  return `/${tagUrlBaseSetting.get()}/${tag.slug}?${lensParam}version=${versionNumber}`;
+  return `/w/${tag.slug}?${lensParam}version=${versionNumber}`;
 }
 
 export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {
@@ -105,7 +103,12 @@ export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: Pic
 export function stableSortTags<
   T extends {name: string; core: boolean},
   TR extends {baseScore: number} | null | undefined
->(tagInfo: Array<{ tag: T; tagRel: TR }>): Array<{ tag: T; tagRel: TR }> {
+>(
+  tagInfo: Array<{ tag: T; tagRel: TR }>,
+  options?: { coreTags?: "first"|"last" },
+): Array<{ tag: T; tagRel: TR }> {
+  const coreTagsSort = (options?.coreTags === "first" ? 1 : -1);
+
   return [...tagInfo].sort((a, b) => {
     const tagA = a.tag;
     const tagB = b.tag;
@@ -113,8 +116,8 @@ export function stableSortTags<
     const tagRelB = b.tagRel;
 
     if (tagA.core !== tagB.core) {
-      // Core tags come first with isFriendlyUI(), last otherwise
-      return (tagA.core ? -1 : 1) * (isFriendlyUI() ? 1 : -1);
+      // Core tags come first unless options?.coreTags is "last"
+      return (tagA.core ? -1 : 1) * coreTagsSort;
     }
 
     if (tagRelA && tagRelB) {
@@ -129,12 +132,6 @@ export function stableSortTags<
   });
 }
 
-export const tagRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
-  const tagSlug = parsedRoute.params.slug;
-  if (!tagSlug) return false;
-  return await context.repos.tags.tagRouteWillDefinitelyReturn200(tagSlug);
-}
-
 export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
 export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
 export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';
@@ -146,7 +143,7 @@ export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag): boolean => {
 };
 
 export const getTagPostsSortOrderOptions = () => ({
-  relevance: { label: preferredHeadingCase("Most Relevant") },
+  relevance: { label: "Most Relevant" },
   ...getSortOrderOptions(),
 } satisfies Record<string, SettingsOption>);
 

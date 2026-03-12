@@ -14,7 +14,9 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap"
   },
   commentPreview: {
-    maxWidth: 600
+    maxWidth: 600,
+    maxHeight: '50vh',
+    overflow: 'auto'
   },
   deleted: {
     opacity: .6,

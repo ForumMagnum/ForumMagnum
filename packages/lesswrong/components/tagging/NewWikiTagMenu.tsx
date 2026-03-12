@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { getTagCreateUrl } from "../../lib/collections/tags/helpers";
 import { Paper }from '@/components/widgets/Paper';
@@ -39,7 +38,7 @@ const NewWikiTagMenu = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default registerComponent("NewWikiTagMenu", NewWikiTagMenu);
+export default NewWikiTagMenu;
 
  
 

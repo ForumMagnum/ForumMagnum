@@ -44,13 +44,28 @@ class ConversationsRepo extends AbstractRepo<"Conversations"> {
       hasUnreadMessages: boolean,
     }>(`
       -- ConversationsRepo.getReadStatuses
-      SELECT "converationId", "hasUnreadMessages"
-      FROM "ConversationUnreadMessages"
-      WHERE "conversationId" IN ($1:csv) AND "userId" = $2
+      SELECT
+        c."_id" AS "conversationId",
+        EXISTS (
+          SELECT 1
+          FROM "Notifications" n
+          INNER JOIN "Messages" m ON
+            n."documentId" = m."_id"
+            AND n."documentType" = 'message'
+            AND n."userId" = $2
+            AND m."conversationId" = c."_id"
+          WHERE
+            n."emailed" IS NOT TRUE
+            AND n."waitingForBatch" IS NOT TRUE
+            AND n."deleted" IS NOT TRUE
+            AND n."viewed" IS NOT TRUE
+        ) AS "hasUnreadMessages"
+      FROM "Conversations" c
+      WHERE c."_id" IN ($1:csv)
     `, [conversationIds, userId]);
     const statusesByConversation = keyBy(results, (res) => res.conversationId);
     return conversationIds.map(
-      (id) => statusesByConversation[id].hasUnreadMessages ?? false,
+      (id) => statusesByConversation[id]?.hasUnreadMessages ?? false,
     );
   }
 

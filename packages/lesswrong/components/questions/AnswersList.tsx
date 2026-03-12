@@ -8,15 +8,15 @@ import AnswersSorting from "./AnswersSorting";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    width: 650 + (theme.spacing.unit*4),
+    width: 650 + (32),
     [theme.breakpoints.down('md')]: {
       width: "unset"
     }
   },
   answersList: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*5,
-    paddingBottom: theme.spacing.unit*2,
+    marginTop: 16,
+    marginBottom: 40,
+    paddingBottom: 16,
   },
   answersSorting:{
     ...theme.typography.body1,

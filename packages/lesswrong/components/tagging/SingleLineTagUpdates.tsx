@@ -6,7 +6,6 @@ import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/coll
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
-import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import AllPostsPageTagDocDeletionItem, { DocumentDeletion } from './AllPostsPageTagDocDeletionItem';
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 import PostsItemComments from "../posts/PostsItemComments";
@@ -174,7 +173,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
           <span>History</span>
         </Link>}
       
-      {revisionIds.length>0 && <Link to={`revisions/${tagUrlBaseSetting.get()}/${tag.slug}`} className={classes.subheading}>
+      {revisionIds.length>0 && <Link to={`revisions/w/${tag.slug}`} className={classes.subheading}>
         Edits
       </Link>}
       {revisionIds.map(revId => <div key={revId}>

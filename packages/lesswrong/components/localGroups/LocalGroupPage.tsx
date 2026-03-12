@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanPost } from '@/lib/collections/users/helpers';
@@ -11,7 +10,6 @@ import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupL
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
 import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@/lib/vendor/@material-ui/icons/src/Person';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -28,7 +26,6 @@ import GroupFormLink from "./GroupFormLink";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Error404 from "../common/Error404";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
-import EventCards from "../events/modules/EventCards";
 import LoadMore from "../common/LoadMore";
 import ContentStyles from "../common/ContentStyles";
 import { Typography } from "../common/Typography";
@@ -37,6 +34,8 @@ import LocalGroupSubscribers from "./LocalGroupSubscribers";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostLocalGroupPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -59,7 +58,7 @@ const localGroupsHomeFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
   root: {},
   topSection: {
     [theme.breakpoints.up('md')]: {
@@ -150,7 +149,7 @@ const styles = (theme: ThemeType) => ({
   groupCategories: {
     display: 'flex',
     columnGap: 10,
-    marginTop: theme.spacing.unit * 2
+    marginTop: 16
   },
   groupCategory: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -163,14 +162,14 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 4
   },
   groupDescription: {
-    marginTop: theme.spacing.unit * 3,
+    marginTop: 24,
     marginBottom: 20,
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0
     }
   },
   groupDescriptionBody: {
-    padding: theme.spacing.unit,
+    padding: 8,
   },
   contactUsSection: {
     display: 'flex',
@@ -251,9 +250,6 @@ const styles = (theme: ThemeType) => ({
   pastEventCard: {
     height: 350,
     filter: 'saturate(0.3) opacity(0.8)',
-    '& .EventCards-addToCal': {
-      display: 'none'
-    }
   },
   mapContainer: {
     height: 260,
@@ -266,13 +262,13 @@ const styles = (theme: ThemeType) => ({
       maxWidth: 'none'
     },
   }
-});
+}));
 
-const LocalGroupPage = ({ classes, documentId: groupId }: {
-  classes: ClassesType<typeof styles>,
+const LocalGroupPage = ({ documentId: groupId }: {
   documentId: string,
   groupId?: string,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const { loading: groupLoading, data } = useQuery(localGroupsHomeFragmentQuery, {
@@ -356,48 +352,8 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   
   const groupHasContactInfo = group.facebookLink || group.facebookPageLink || group.meetupLink || group.slackLink || group.website || group.contactInfo
   
-  // the EA Forum shows the group's events as event cards instead of post list items
   let upcomingEventsList = <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
-  if (isEAForum()) {
-    upcomingEventsList = !!upcomingEvents?.length ? (
-      <div className={classes.eventCards}>
-        <EventCards
-          events={upcomingEvents}
-          loading={upcomingEventsLoading}
-          numDefaultCards={2}
-          hideSpecialCards
-          hideGroupNames
-        />
-        <LoadMore {...upcomingEventsLoadMoreProps} loadingClassName={classes.loading} />
-      </div>
-    ) : <Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
-        <NotifyMeButton
-          showIcon={false}
-          document={group}
-          subscribeMessage="Subscribe to be notified when an event is added."
-          componentIfSubscribed={<span>We'll notify you when an event is added.</span>}
-          className={classes.notifyMeButton}
-        />
-      </Typography>
-  }
-  
   let tbdEventsList: React.JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
-  if (isEAForum()) {
-    tbdEventsList = tbdEvents?.length ? <>
-      <Typography variant="headline" className={classes.eventsHeadline}>
-        Events yet to be scheduled
-      </Typography>
-      <div className={classes.eventCards}>
-        <EventCards
-          events={tbdEvents}
-          loading={tbdEventsLoading}
-          hideSpecialCards
-          hideGroupNames
-        />
-        <LoadMore {...tbdEventsLoadMoreProps}  />
-      </div>
-    </> : null
-  }
   
   let pastEventsList: React.JSX.Element|null = <>
     <Typography variant="headline" className={classes.eventsHeadline}>
@@ -405,23 +361,6 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
     </Typography>
     <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
   </>
-  if (isEAForum()) {
-    pastEventsList = pastEvents?.length ? <>
-      <Typography variant="headline" className={classes.eventsHeadline}>
-        Past events
-      </Typography>
-      <div className={classes.eventCards}>
-        <EventCards
-          events={pastEvents}
-          loading={pastEventsLoading}
-          hideSpecialCards
-          hideGroupNames
-          cardClassName={classes.pastEventCard}
-        />
-        <LoadMore {...pastEventsLoadMoreProps}  />
-      </div>
-    </> : null
-  }
   
   const canCreateEvent = currentUser && userCanPost(currentUser);
   const canEditGroup = (currentUser && group)
@@ -504,7 +443,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         {(groupHasContactInfo || smallMap) && <div className={classes.contactUsSection}>
           {groupHasContactInfo && <div className={classes.externalLinkBtns}>
             <Typography variant="headline" className={classes.contactUsHeadline}>
-              {preferredHeadingCase("Contact Us")}
+              Contact Us
             </Typography>
             <div>
               {group.facebookLink && <div className={classes.externalLinkBtnRow}>
@@ -574,7 +513,7 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
         </div>}
 
         <Typography variant="headline" className={classes.eventsHeadline}>
-          {preferredHeadingCase("Upcoming Events")}
+          Upcoming Events
         </Typography>
         {upcomingEventsList}
 
@@ -588,6 +527,4 @@ const LocalGroupPage = ({ classes, documentId: groupId }: {
   )
 }
 
-export default registerComponent('LocalGroupPage', LocalGroupPage, {styles});
-
-
+export default LocalGroupPage;

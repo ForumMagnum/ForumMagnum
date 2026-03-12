@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
-import { taggingNameSetting } from '../../lib/instanceSettings';
+import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
 import ForumIcon from "../common/ForumIcon";
+import KeystrokeDisplay from "@/components/sunshineDashboard/supermod/KeystrokeDisplay";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,12 +29,11 @@ const styles = (theme: ThemeType) => ({
       border: theme.palette.border.grey300,
       color: theme.palette.grey[800]
     },
-    ...(theme.isFriendlyUI
-      ? {
-        ...coreTagStyle(theme),
-        opacity: 0.6,
-      }
-      : {}),
+  },
+  tagWithShortcut: {
+    display: 'inline-flex',
+    alignItems: 'baseline',
+    position: 'relative',
   },
   selectedTag: {
     display: 'inline-flex',
@@ -42,7 +41,6 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     columnGap: 4,
     ...tagStyle(theme),
-    ...(theme.isFriendlyUI ? coreTagStyle(theme) : {}),
     cursor: 'default'
   },
   smallTag: {
@@ -77,6 +75,14 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     fontWeight: 600,
   },
+  loadingSpinner: {
+    display: 'inline-block',
+    marginLeft: 8,
+    '& svg': {
+      width: 14,
+      height: 14,
+    },
+  },
 });
 
 export interface ChecklistTag {
@@ -102,6 +108,7 @@ const TagsChecklist = ({
   truncate = false,
   smallText = false,
   shortNames = false,
+  keyboardShortcuts,
 }: {
   onTagSelected?: (
     tag: { tagId: string; tagName: string; parentTagId?: string },
@@ -116,6 +123,7 @@ const TagsChecklist = ({
   truncate?: boolean;
   smallText?: boolean,
   shortNames?: boolean,
+  keyboardShortcuts?: Record<string, string>,
 }) => {
   const [loadMoreClicked, setLoadMoreClicked] = useState(false);
 
@@ -156,8 +164,10 @@ const TagsChecklist = ({
 
   return (
     <>
-      {tagsToDisplay?.map((tagChecklistItem, i) =>
-        tagChecklistItem.selected ? (
+      {tagsToDisplay?.map((tagChecklistItem, i) => {
+        const shortcut = keyboardShortcuts?.[tagChecklistItem.tag._id];
+        
+        return tagChecklistItem.selected ? (
           <div
             key={tagChecklistItem.tag._id}
             className={classNames(classes.selectedTag, {
@@ -166,6 +176,9 @@ const TagsChecklist = ({
             })}
           >
             {getTagName(tagChecklistItem)}
+            {shortcut ? (
+              <KeystrokeDisplay keystroke={shortcut} withMargin />
+            ) : null}
             <button
               className={classes.removeTag} 
               onClick={() => handleOnTagRemoved(tagChecklistItem.tag, selectedTagIds)}
@@ -179,8 +192,8 @@ const TagsChecklist = ({
             disabled={!tooltips}
             title={
               <div>
-                Click to assign <em>{tagChecklistItem.tag.name}</em> {taggingNameSetting.get()}
-                {!!tagChecklistItem.tag.parentTag && <span>. Its parent {taggingNameSetting.get()} <em>{tagChecklistItem.tag.parentTag.name}</em> will also be assigned automatically</span>}
+                Click to assign <em>{tagChecklistItem.tag.name}</em> {"wikitag"}
+                {!!tagChecklistItem.tag.parentTag && <span>. Its parent {"wikitag"} <em>{tagChecklistItem.tag.parentTag.name}</em> will also be assigned automatically</span>}
               </div>
             }
             hideOnTouchScreens
@@ -189,14 +202,18 @@ const TagsChecklist = ({
               className={classNames(classes.tag, {
                 [classes.smallTag]: smallText,
                 [classes.finalTag]: i === tagsToDisplay.length - 1,
+                [classes.tagWithShortcut]: shortcut,
               })}
               onClick={() => handleOnTagSelected(tagChecklistItem.tag, selectedTagIds)}
             >
               {getTagName(tagChecklistItem)}
+              {shortcut ? (
+                <KeystrokeDisplay keystroke={shortcut} withMargin />
+              ) : null}
             </div>
           </LWTooltip>
-        )
-      )}
+        );
+      })}
       {shouldDisplayLoadMore && <LoadMore
         message={`${numHidden} more`}
         loadMore={() => setLoadMoreClicked(true)}

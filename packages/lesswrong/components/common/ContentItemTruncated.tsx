@@ -1,22 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncateWithGrace } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 import { ContentItemBody } from "../contents/ContentItemBody";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TRUNCATION_MAX_HEIGHT = 600;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ContentItemTruncated", (theme: ThemeType) => ({
   maxHeight: {
     maxHeight: TRUNCATION_MAX_HEIGHT,
     overflow: "hidden"
   }
-})
+}))
 
 // ContentItemTruncated: Wrapper around ContentItemBody with options for
 // limiting length and height in various ways.
-const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, nofollow}: {
-  classes: ClassesType<typeof styles>,
+const ContentItemTruncated = ({maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, nofollow}: {
   maxLengthWords: number,
   graceWords?: number,
   expanded?: boolean,
@@ -36,6 +36,7 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   description?: string,
   nofollow?: boolean
 }) => {
+  const classes = useStyles(styles);
   const contentsRef = useRef<HTMLDivElement>(null);
   const [hasHeightLimit, setHasHeightLimit] = useState(false);
   
@@ -77,6 +78,4 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   </>
 }
 
-export default registerComponent('ContentItemTruncated', ContentItemTruncated, {styles});
-
-
+export default ContentItemTruncated;

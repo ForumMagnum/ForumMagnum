@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Notifications from "../../server/collections/notifications/collection";
-import { READ_WORDS_PER_MINUTE } from "../../lib/collections/posts/newSchema";
+import { READ_WORDS_PER_MINUTE } from "@/lib/collections/posts/constants";
 import { getSocialPreviewSql } from "../../lib/collections/posts/helpers";
 import type { NotificationDisplay } from "../../lib/notificationTypes";
 
@@ -193,12 +193,10 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."waitingForBatch" IS NOT TRUE AND
         ${type ? `n."type" = $(type) AND` : ""}
         ${includeMessages ? "": `COALESCE(n."documentType", '') <> 'message' AND`}
-        NOT COALESCE(p."deletedDraft", FALSE) AND
         NOT COALESCE(pu."deleted", FALSE) AND
         NOT COALESCE(pl."deleted", FALSE) AND
         NOT COALESCE(c."deleted", FALSE) AND
         NOT COALESCE(cu."deleted", FALSE) AND
-        NOT COALESCE(cp."deletedDraft", FALSE) AND
         NOT COALESCE(cpu."deleted", FALSE) AND
         NOT COALESCE(cpl."deleted", FALSE) AND
         NOT COALESCE(t."deleted", FALSE) AND

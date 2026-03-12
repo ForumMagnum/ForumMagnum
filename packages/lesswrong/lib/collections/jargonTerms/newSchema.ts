@@ -4,6 +4,7 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { generateIdResolverSingle } from "../../utils/schemaUtils";
 import { getAdminTeamAccountId } from "@/server/utils/adminTeamAccount";
 import { getWithCustomLoader } from "@/lib/loaders";
+import { adminAccountSetting } from "@/lib/instanceSettings";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -69,7 +70,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: async (document, args, context) => {
-        const botAccountId = await getAdminTeamAccountId(context);
+        const botAccountId = adminAccountSetting.get()?._id ?? await getAdminTeamAccountId(context);
         if (!botAccountId) {
           return null;
         }

@@ -29,7 +29,7 @@ import {
   userPassesCrosspostingKarmaThreshold,
   getDefaultVotingSystem
 } from "./helpers";
-import { postStatuses, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
+import { postStatuses, READ_WORDS_PER_MINUTE, sideCommentAlwaysExcludeKarma, sideCommentFilterMinKarma } from "./constants";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import SimpleSchema from "@/lib/utils/simpleSchema";
@@ -78,9 +78,7 @@ import { commentIncludedInCounts } from "../comments/helpers";
 import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { classifyPost } from "@/server/frontpageClassifier/predictions";
-
-// TODO: This disagrees with the value used for the book progress bar
-export const READ_WORDS_PER_MINUTE = 250;
+import { getCollectionBySlug } from "../sequences/helpers";
 
 const rsvpType = new SimpleSchema({
   name: {
@@ -123,6 +121,23 @@ export async function getLastReadStatus(post: DbPost, context: ResolverContext) 
   );
   if (!readStatus.length) return null;
   return readStatus[0];
+}
+
+async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
+  const { currentUser, Bookmarks } = context;
+  if (!currentUser) return false;
+
+  const bookmarks = await getWithLoader(
+    context,
+    Bookmarks,
+    `bookmarksByUser:${currentUser._id}:Posts`,
+    { userId: currentUser._id, collectionName: "Posts", active: true },
+    "documentId",
+    documentId,
+    { limit: 1 }
+  );
+
+  return bookmarks.length > 0;
 }
 
 export const sideCommentCacheVersion = 1;
@@ -458,6 +473,11 @@ const schema = {
       },
     },
   },
+  /**
+   * Whether the post should be hidden from the user's drafts list, if it's a
+   * draft. This flag must not be set if `draft` isn't also true, and should
+   * not be checked in any contxt where drafts are already excluded.
+   */
   deletedDraft: {
     database: {
       type: "BOOL",
@@ -469,12 +489,11 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["members"],
-      onUpdate: ({ data, newDocument, oldDocument, currentUser }) => {
-        if (!currentUser?.isAdmin && oldDocument.deletedDraft && !newDocument.deletedDraft) {
-          throw new Error("You cannot un-delete posts");
-        }
-        return data.deletedDraft;
+      canUpdate: [userOwns, "sunshineRegiment", "admins"],
+      onUpdate: ({ newDocument }) => {
+        // The `deletedDraft` field can't be set if `draft` is false
+        if (!newDocument.draft) return false;
+        else return newDocument.deletedDraft;
       },
       validation: {
         optional: true,
@@ -1572,7 +1591,7 @@ const schema = {
             baseScore: tagRelevanceRecord[tag._id],
           },
         }));
-        const sortedTagInfo = stableSortTags(tagInfo);
+        const sortedTagInfo = stableSortTags(tagInfo, {coreTags: "last"});
         const sortedTags = sortedTagInfo.map(({ tag }) => tag);
         return await accessFilterMultiple(currentUser, "Tags", sortedTags, context);
       },
@@ -1594,6 +1613,17 @@ const schema = {
       validation: {
         optional: true,
         blackbox: true,
+      },
+    },
+  },
+  tagRels: {
+    graphql: {
+      outputType: "[TagRel!]!",
+      canRead: ["guests"],
+      resolver: async (post, args, context) => {
+        const { currentUser, TagRels } = context;
+        const tagRels = await getWithLoader(context, TagRels, "tagRelsByPost", { postId: post._id }, "postId", post._id);
+        return await accessFilterMultiple(currentUser, "TagRels", tagRels, context);
       },
     },
   },
@@ -1852,7 +1882,6 @@ const schema = {
           {
             documentId: post._id,
             draft: false,
-            deletedDraft: false,
           },
           "documentId",
           post._id
@@ -1866,7 +1895,6 @@ const schema = {
           on: {
             documentId: field("_id"),
             draft: "false",
-            deletedDraft: "false",
           },
           resolver: (spotlightsField) => spotlightsField("*"),
         }),
@@ -2447,7 +2475,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, args, context) => {
         if (!post.canonicalCollectionSlug) return null;
-        const collection = await context.Collections.findOne({ slug: post.canonicalCollectionSlug });
+        const collection = await getCollectionBySlug(post.canonicalCollectionSlug, context);
         return await accessFilterSingle(context.currentUser, "Collections", collection, context);
       },
     },
@@ -3506,19 +3534,10 @@ const schema = {
         if (!hasSideComments() || isNotHostedHere(post)) {
           return null;
         }
-        // If the post was fetched with a SQL resolver then we will already
-        // have the side comments cache available (even though the type system
-        // doesn't know about it), otherwise we have to fetch it from the DB.
-        const sqlFetchedPost = post as unknown as PostSideComments;
-        // `undefined` means we didn't run a SQL resolver. `null` means we ran
-        // a SQL resolver, but no relevant cache record was found.
-        const cache =
-          sqlFetchedPost.sideCommentsCache === undefined
-            ? await SideCommentCaches.findOne({
-                postId: post._id,
-                version: sideCommentCacheVersion,
-              })
-            : sqlFetchedPost.sideCommentsCache;
+        const cache = await SideCommentCaches.findOne({
+          postId: post._id,
+          version: sideCommentCacheVersion,
+        })
 
         const cachedAt = new Date(cache?.createdAt ?? 0);
         const editedAt = new Date(post.modifiedAt ?? 0);
@@ -3537,7 +3556,7 @@ const schema = {
           Partial<Pick<DbComment, "contents">>;
 
         const comments: CommentForSideComments[] = await Comments.find({
-          ...getDefaultViewSelector(CommentsViews),
+          ...getDefaultViewSelector(CommentsViews, context),
           postId: post._id,
           ...(cacheIsValid && {
             _id: {
@@ -3844,7 +3863,7 @@ const schema = {
         const timeCutoff = new Date(lastCommentedOrNow.getTime() - (maxAgeHours * oneHourInMs));
         const loaderName = af ? "recentCommentsAf" : "recentComments";
         const filter = {
-          ...getDefaultViewSelector(CommentsViews),
+          ...getDefaultViewSelector(CommentsViews, context),
           score: { $gt: 0 },
           draft: false,
           deletedPublic: false,
@@ -3975,32 +3994,6 @@ const schema = {
       },
     },
   },
-  emojiReactors: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: async (post, _, context) => {
-        const { extendedScore } = post;
-        if (!isEAForum() || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
-          return {};
-        }
-        const reactors = await context.repos.posts.getPostEmojiReactorsWithCache(post._id);
-        return reactors ?? {};
-      },
-    },
-  },
-  commentEmojiReactors: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: (post, _, context) => {
-        if (post.votingSystem !== "eaEmojis") {
-          return null;
-        }
-        return context.repos.posts.getCommentEmojiReactorsWithCache(post._id);
-      },
-    },
-  },
   rejected: {
     database: {
       type: "BOOL",
@@ -4070,7 +4063,7 @@ const schema = {
         const { Comments } = context;
         const firstComment = await Comments.findOne(
           {
-            ...getDefaultViewSelector(CommentsViews),
+            ...getDefaultViewSelector(CommentsViews, context),
             postId: post._id,
             // This actually forces `deleted: false` by combining with the default view selector
             deletedPublic: false,
@@ -4396,6 +4389,15 @@ const schema = {
           sort: { createdAt: -1 },
         })
       }
+    }
+  },
+  isBookmarked: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (post, args, context) => {
+        return await getIsBookmarked(post._id, context);
+      },
     }
   },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,

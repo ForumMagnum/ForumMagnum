@@ -18,6 +18,7 @@ import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
 import type { NextRequest } from 'next/server';
 import { backgroundTask } from '@/server/utils/backgroundTask';
+import LoginTokens from '@/server/collections/loginTokens/collection';
 
 // Given an HTTP request, clear a named cookie. Handles the difference between
 // the Meteor and Express server middleware setups. Works by setting an
@@ -153,8 +154,16 @@ export const loginDataGraphQLMutations = {
     return { token }
   },
   async logout(root: void, args: {}, context: ResolverContext) {
-    await clearCookie("loginToken");
-    await clearCookie("meteor_login_token");
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    for (const cookieName of ["loginToken", "meteor_login_token"]) {
+      const cookieValue = cookieStore.get(cookieName)?.value
+      if (cookieValue) {
+        await invalidateLoginToken(hashLoginToken(cookieValue));
+        await clearCookie(cookieName);
+      }
+    }
+    
     return {
       token: null
     }
@@ -252,17 +261,33 @@ export const loginDataGraphQLMutations = {
 
 
 async function insertHashedLoginToken(userId: string, hashedToken: string) {
-  const tokenWithMetadata = {
-    when: new Date(),
-    hashedToken
-  }
-
-  await Users.rawUpdateOne({_id: userId}, {
-    $addToSet: {
-      "services.resume.loginTokens": tokenWithMetadata
-    }
+  await LoginTokens.rawInsert({
+    createdAt: new Date(),
+    userId,
+    hashedToken,
+    loggedOutAt: null,
   });
 };
+
+async function invalidateLoginToken(token: string) {
+  const now = new Date();
+  await LoginTokens.rawUpdateMany(
+    {hashedToken: token},
+    {$set: {
+      loggedOutAt: now
+    }}
+  );
+}
+
+export async function invalidateLoginTokensFor(userId: string) {
+  const now = new Date();
+  await LoginTokens.rawUpdateMany(
+    {userId, loggedOutAt: null},
+    {$set: {
+      loggedOutAt: now
+    }}
+  );
+}
 
 
 function registerLoginEvent(user: DbUser, headers: Headers|undefined) {

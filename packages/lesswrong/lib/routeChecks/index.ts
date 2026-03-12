@@ -1,10 +1,17 @@
-// eslint-disable-next-line no-restricted-imports
-import { matchPath } from 'react-router'
-import { isAF, taggingNamePluralSetting } from "../instanceSettings";
+import { matchPath } from '../vendor/react-router/matchPath';
+import { isAF } from "../instanceSettings";
+import { routePatternToReactRouterPath } from './routePatternFormat';
+import type { ParamMap } from '../../../../.next/types/routes';
 
-function pathnameMatchesRoutePath(pathname: string, routePath: string) {
+type NextExistingRoute = keyof ParamMap;
+
+function pathnameMatchesAnyOf(pathname: string, routePaths: NextExistingRoute[]) {
+  return routePaths.some(routePath => pathnameMatchesRoutePath(pathname, routePath));
+}
+
+function pathnameMatchesRoutePath(pathname: string, routePath: NextExistingRoute) {
   return !!matchPath(pathname, {
-    path: routePath,
+    path: routePatternToReactRouterPath(routePath),
     exact: true,
     strict: false,
   });
@@ -14,24 +21,36 @@ export const isHomeRoute = (pathname: string) => pathnameMatchesRoutePath(pathna
 
 export const isSunshineSidebarRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/');
 
-export const isStandaloneRoute = (pathname: string) => ['/crosspostLogin', '/groups-map'].some(route => pathnameMatchesRoutePath(pathname, route));
+export const isStandaloneRoute = (pathname: string) => pathnameMatchesAnyOf(pathname, [
+  '/crosspostLogin',
+  '/groups-map'
+]);
 
-export const isStaticHeaderRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/admin/digests/:num');
+export const isFullscreenRoute = (pathname: string) => pathnameMatchesAnyOf(pathname, [
+  "/inbox",
+  "/inbox/[conversationId]",
+  "/moderatorInbox",
+]);
 
-export const isFullscreenRoute = (pathname: string) => ["/inbox", "/inbox/:_id", "/moderatorInbox", "/conversation"].some(route => pathnameMatchesRoutePath(pathname, route));
+const routesWithLeftNavigationColumn = [
+  "/",
+  "/allPosts",
+  "/questions",
+  "/quicktakes",
+  "/collections/[_id]",
+  "/library",
+] as const satisfies readonly NextExistingRoute[];
 
-export const isUnspacedGridRoute = (pathname: string) => {
-  // Check for the subforum2 route pattern
-  const routePath = `/${taggingNamePluralSetting.get()}/:slug/subforum2`;
-  return pathnameMatchesRoutePath(pathname, routePath);
-};
+export type LeftNavigationRoutePattern = typeof routesWithLeftNavigationColumn[number];
+
+export const isRouteWithLeftNavigationColumn = (pathname: string) => pathnameMatchesAnyOf(pathname, [...routesWithLeftNavigationColumn]);
 
 export const isPostsSingleRoute = (pathname: string) => {
-  const match = matchPath(pathname, {
-    path: '/posts/:_id/:slug?',
+  const match = matchPath<{ _id: string }>(pathname, {
+    path: ['/posts/[_id]', '/posts/[_id]/[slug]'].map(routePatternToReactRouterPath),
     exact: true,
     strict: false,
   });
 
-  return match && (match.params as { _id: string })._id !== 'slug';
+  return !!match && match.params._id !== 'slug';
 }

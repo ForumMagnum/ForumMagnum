@@ -10,6 +10,18 @@ import SequencesSmallPostLink from "./SequencesSmallPostLink";
 import ContentItemTruncated from "../common/ContentItemTruncated";
 import LWTooltip from "../common/LWTooltip";
 import ChapterTitle from "./ChapterTitle";
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from "@/lib/generated/gql-codegen";
+import Loading from '../vulcan-core/Loading';
+
+const GET_SEQUENCE_STATS = gql(`
+  query GetSequenceStats($sequenceId: String!) {
+    getSequenceStats(sequenceId: $sequenceId) {
+      totalWordCount
+      totalReadTime
+    }
+  }
+`);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -159,14 +171,13 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 
-  const posts = sequence.chapters.flatMap(chapter => chapter.posts)
-  const [
-    totalWordCount,
-    totalReadTime,
-  ] = posts.reduce(([wordCount, readTime], curr) => ([
-    wordCount + (curr?.contents?.wordCount ?? 0),
-    readTime + (curr?.readTimeMinutes ?? 0),
-  ]), [0, 0]);
+  const { data, loading: statsLoading } = useQuery(GET_SEQUENCE_STATS, {
+    variables: { sequenceId: sequence._id },
+    fetchPolicy: 'cache-first',
+  });
+
+  const totalWordCount = data?.getSequenceStats?.totalWordCount ?? 0;
+  const totalReadTime = data?.getSequenceStats?.totalReadTime ?? 0;
 
   const highlight = sequence.contents?.htmlHighlight || ""
 
@@ -210,16 +221,16 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
               description={`sequence ${sequence._id}`}
             />
           </ContentStyles>}
-          <LWTooltip title={<div> ({totalWordCount.toLocaleString("en-US")} words)</div>}>
+          {statsLoading ? <Loading/> : <LWTooltip title={<div> ({totalWordCount.toLocaleString("en-US")} words)</div>}>
             <div className={classes.wordcount}>{totalReadTime} min read</div>
-          </LWTooltip>
+          </LWTooltip>}
         </div>
       </div>
       <div className={classes.right}>
         {sequence.chapters.flatMap(({posts, title}, index) =>
           <React.Fragment key={index}>
             {title && <ChapterTitle title={title}/>}
-            {posts.map((post) => (
+            {posts.map(post => (
               <SequencesSmallPostLink
                 key={sequence._id + post._id}
                 post={post}

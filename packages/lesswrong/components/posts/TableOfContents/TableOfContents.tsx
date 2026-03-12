@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import withErrorBoundary from '../../common/withErrorBoundary'
-import { SidebarsContext } from '../../common/SidebarsWrapper';
+import { SidebarsContext } from '@/components/layout/SidebarsWrapper';
 import type { ToCData } from '../../../lib/tableOfContents';
 import TableOfContentsList, { ToCDisplayOptions } from './TableOfContentsList';
 import { AnalyticsContext } from '@/lib/analyticsEvents';

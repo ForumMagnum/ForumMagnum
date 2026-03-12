@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { ArrowSVG } from './Icons';
@@ -8,10 +7,12 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 import GroupLinks from "./GroupLinks";
 import StyledMapPopup from "./StyledMapPopup";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LocalEventMarker", (theme: ThemeType) => ({
   icon: {
     width: 15, 
     height: 15,
@@ -24,26 +25,24 @@ const styles = (theme: ThemeType) => ({
     fill: theme.palette.event,
     opacity: 0.8,
   },
-});
+}));
 
-const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location }: {
   event: PostsList,
   handleMarkerClick: (eventId: string) => void,
   handleInfoWindowClose: (eventId: string) => void,
   infoOpen: boolean,
   location: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
   const { htmlHighlight = "" } = event.contents || {}
   const htmlBody = {__html: htmlHighlight};
 
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const EventIcon = () => isEAForum() ? 
-    <RoomIcon className={classes.eaIcon}/> : 
-    <ArrowSVG className={classes.icon}/>;
+  const eventIcon = isEAForum()
+    ? <RoomIcon className={classes.eaIcon}/>
+    : <ArrowSVG className={classes.icon}/>;
 
   return <React.Fragment>
     <Marker
@@ -53,7 +52,7 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
       offsetTop={-25}
     >
       <span onClick={() => handleMarkerClick(event._id)}>
-        <EventIcon/>
+        {eventIcon}
       </span>
     </Marker>
     {infoOpen && 
@@ -72,7 +71,7 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   </React.Fragment>
 }
 
-export default registerComponent("LocalEventMarker", LocalEventMarker, {styles});
+export default LocalEventMarker;
 
 
 

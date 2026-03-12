@@ -15,7 +15,7 @@ import PropTypes, { InferProps, Validator } from 'prop-types';
 
 import type { EventInfo } from '@ckeditor/ckeditor5-utils';
 import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
-import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
+import type { ModelDocumentChangeEvent as DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
 import type { WatchdogConfig } from '../ckeditor5-watchdog/watchdog';
 import type { EditorCreatorFunction } from '../ckeditor5-watchdog/editorwatchdog';
 
@@ -23,11 +23,13 @@ import { ContextWatchdogContext } from './ckeditorcontext';
 import { randomId } from '@/lib/random';
 import { default as EditorWatchdog } from "../ckeditor5-watchdog/editorwatchdog";
 import { default as ContextWatchdog } from "../ckeditor5-watchdog/contextwatchdog";
+import { WrappedEditorConfig } from '@/components/editor/editorConfigs';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
 export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor> & {
   isCollaborative: boolean
+  config: WrappedEditorConfig
 }, {}> {
 	/**
 	 * Contains a promise that resolves when the editor destruction is finished.
@@ -51,7 +53,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 */
 	private instance: Editor | undefined | null;
 
-	constructor( props: Props<TEditor> & { isCollaborative: boolean } ) {
+	constructor( props: Props<TEditor> & { isCollaborative: boolean, config: WrappedEditorConfig } ) {
 		super( props );
 
 		const { CKEDITOR_VERSION } = window;

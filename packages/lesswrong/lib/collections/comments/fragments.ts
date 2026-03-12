@@ -40,11 +40,11 @@ export const CommentsList = gql(`
     }
     currentUserVote
     currentUserExtendedVote
+    isBookmarked
     baseScore
     extendedScore
     score
     voteCount
-    emojiReactors
     af
     afDate
     moveToAlignmentUserId
@@ -76,9 +76,6 @@ export const CommentsList = gql(`
     rejected
     rejectedReason
     originalDialogueId
-
-    forumEventId
-    forumEventMetadata
   }
 `)
 
@@ -208,6 +205,15 @@ export const CommentsListWithParentMetadata = gql(`
   }
 `)
 
+export const SunshineCommentsList = gql(`
+  fragment SunshineCommentsList on Comment {
+    ...CommentsListWithParentMetadata
+    automatedContentEvaluations {
+      ...AutomatedContentEvaluationsFragment
+    }
+  }
+`)
+
 // TODO: This is now the same as CommentWithRepliesFragment, now that said
 // fragment gets the tag field
 export const StickySubforumCommentFragment = gql(`
@@ -316,5 +322,20 @@ export const SuggestAlignmentComment = gql(`
       _id
       displayName
     }
+  }
+`)
+
+export const CommentsMarkdownFragment = gql(`
+  fragment CommentsMarkdownFragment on Comment {
+    _id
+    postId
+    parentCommentId
+    postedAt
+    baseScore
+    voteCount
+    votingSystem
+    extendedScore
+    user { _id slug displayName }
+    contents { agentMarkdown plaintextMainText }
   }
 `)

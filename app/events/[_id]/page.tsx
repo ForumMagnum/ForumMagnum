@@ -1,23 +1,25 @@
 import React from "react";
 import PostsSingle from '@/components/posts/PostsSingle';
-import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
-import { hasPostRecommendations } from "@/lib/betas";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
 
-export default function Page() {
+assertRouteAttributes("/events/[_id]", {
+  whiteBackground: true,
+  hasLinkPreview: true,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: true,
+});
+
+export default async function Page({ params }: { params: Promise<{ _id: string }> }) {
+  const { _id } = await params;
   return <RouteRoot
     delayedStatusCode
-    metadata={{
-      subtitle: 'Community',
-      subtitleLink: '/community',
-      background: 'white',
-      noFooter: hasPostRecommendations(),
-      titleComponent: PostsPageHeaderTitle
-    }}
+    subtitle={{ title: 'Community', link: '/community' }}
   >
-    <PostsSingle />
+    <PostsSingle _id={_id} />
   </RouteRoot>;
 }

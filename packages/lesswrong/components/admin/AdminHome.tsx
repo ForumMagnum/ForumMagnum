@@ -1,19 +1,17 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { hasDigests, hasForumEvents, hasSurveys, hasTwitterFeatures } from '../../lib/betas';
-import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 import SingleColumnSection from "../common/SingleColumnSection";
 import AdminMetadata from "./AdminMetadata";
 import Loading from "../vulcan-core/Loading";
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
-// Also used in ModerationLog
-export const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AdminHome", (theme: ThemeType) => ({
   adminHomeOrModerationLogPage: {
     fontFamily: theme.typography.fontFamily,
   
@@ -38,11 +36,10 @@ export const styles = (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
-});
+}));
 
-const AdminHome = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const AdminHome = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {refreshDbSettings, isRefreshingDbSettings} = useRefreshDbSettings();
   
@@ -58,7 +55,8 @@ const AdminHome = ({ classes }: {
       
       <h3>Moderation</h3>
       <ul>
-        <li><Link className={classes.link} to="/admin/moderation">Moderation Dashboard</Link></li>
+        <li><Link className={classes.link} to="/admin/supermod">Supermod</Link></li>
+        <li><Link className={classes.link} to="/admin/moderation">Moderation Dashboard (legacy)</Link></li>
         <li><Link className={classes.link} to="/moderation/altAccounts">Alt-Accounts Investigator</Link></li>
         <li><Link className={classes.link} to="/admin/recentlyActiveUsers">Recently Active Users</Link></li>
         <li><Link className={classes.link} to="/admin/moderationTemplates">Moderation Templates</Link></li>
@@ -66,23 +64,17 @@ const AdminHome = ({ classes }: {
         <li><Link className={classes.link} to="/admin/random-user">Random User</Link></li>
         <li><Link className={classes.link} to="/moderatorComments">Moderator Comments</Link></li>
         <li><Link className={classes.link} to="/moderation">Moderation Log</Link></li>
-        <li><Link className={classes.link} to={`/${taggingNamePluralSetting.get()}/dashboard`}>{taggingNamePluralCapitalSetting.get()} Dashboard</Link></li>
+        <li><Link className={classes.link} to={`/w/dashboard`}>Wikitags Dashboard</Link></li>
       </ul>
 
       <h3>Site Admin</h3>
       <ul>
-        {isEAForum() && <li><Link className={classes.link} to="/admin/election-candidates">Donation Election Candidates</Link></li>}
-        {hasDigests() && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
-        {hasTwitterFeatures() && <li><Link className={classes.link} to="/admin/twitter">Twitter tools</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
-        {hasSurveys() && <li><Link className={classes.link} to="/admin/surveys">Surveys</Link></li>}
-        {hasForumEvents() &&
-          <li><Link className={classes.link} to="/adminForumEvents">Forum events</Link></li>
-        }
+        <li><Link className={classes.link} to="/admin/emailSender">Email Sender</Link></li>
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>
         <li><Link className={classes.link} to="/admin/synonyms">Search Synonyms</Link></li>
-        <li><Link className={classes.link} to="/admin/tagMerge">{taggingNameCapitalSetting.get()} Merging Tool</Link></li>
+        <li><Link className={classes.link} to="/admin/tagMerge">Wikitag Merging Tool</Link></li>
         <li><Link className={classes.link} to="/admin/googleServiceAccount">Google Doc import service account</Link></li>
         <li><span className={classes.link} onClick={refreshDbSettings}>Refresh DB Settings</span></li>
         {isRefreshingDbSettings && <Loading />}
@@ -96,7 +88,7 @@ const AdminHome = ({ classes }: {
         <li><Link className={classes.link} to="/postListEditorTest">Post List Editor Test</Link></li>
         <li><Link className={classes.link} to="/imageUpload">Image Upload Test</Link></li>
         <li><Link className={classes.link} to="/admin/recommendationsSample">Recommendations Explorer</Link></li>
-        <li><Link className={classes.link} to="/admin/onboarding">View onboarding flow</Link> (for testing purposes - this will not make any changes to your account)</li>
+        <li><Link className={classes.link} to="/admin/debugDatabaseDifferences">Debug database differences</Link></li>
       </ul>
 
       <h3>Server Information</h3>
@@ -105,6 +97,6 @@ const AdminHome = ({ classes }: {
   </SingleColumnSection>
 }
 
-export default registerComponent('AdminHome', AdminHome, {styles});
+export default AdminHome;
 
 

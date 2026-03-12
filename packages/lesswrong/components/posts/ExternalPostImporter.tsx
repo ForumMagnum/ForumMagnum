@@ -13,6 +13,9 @@ import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { makeEditorConfig } from '../editor/editorConfigs';
+import { userHasLexicalEditor } from '../editor/Editor';
+import LexicalEditor from '../editor/LexicalEditor';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -147,10 +150,12 @@ const ImportedPostEditor = ({
   post,
   onContentChange,
   classes,
+  useLexical,
 }: {
   post: ExternalPostImportData['post'];
   onContentChange: (updatedContent: string) => void;
   classes: ClassesType<typeof styles>;
+  useLexical: boolean;
 }) => {
   const [editorValue, setEditorValue] = useState<string>(post.content || '');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
@@ -163,21 +168,31 @@ const ImportedPostEditor = ({
   return (
     <div className={classes.editorContainer}>
       <ContentStyles contentType="post">
-        <CKEditor
-          isCollaborative={false}
-          editor={getCkPostEditor(false)}
-          data={editorValue}
-          ref={ckEditorRef}
-          config={{
-            // Other configurations as needed
-          }}
-          onReady={(editor: any) => {
-            editorRef.current = editor;
-          }}
-          onChange={(_event: any, editor: any) => {
-            setEditorValue(editor.getData());
-          }}
-        />
+        {useLexical ? (
+          <LexicalEditor
+            data={editorValue}
+            placeholder="Edit the imported post..."
+            onChange={setEditorValue}
+            onReady={() => {}}
+            commentEditor={false}
+          />
+        ) : (
+          <CKEditor
+            isCollaborative={false}
+            editor={getCkPostEditor(false)}
+            data={editorValue}
+            ref={ckEditorRef}
+            config={makeEditorConfig({
+              // Other configurations as needed
+            })}
+            onReady={(editor: any) => {
+              editorRef.current = editor;
+            }}
+            onChange={(_event: any, editor: any) => {
+              setEditorValue(editor.getData());
+            }}
+          />
+        )}
       </ContentStyles>
     </div>
   );
@@ -187,10 +202,12 @@ const CommentEditor = ({
   onPublish,
   onCancel,
   classes,
+  useLexical,
 }: {
   onPublish: (commentContent: string) => void;
   onCancel: () => void;
   classes: ClassesType<typeof styles>;
+  useLexical: boolean;
 }) => {
   const [commentValue, setCommentValue] = useState<string>('');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
@@ -201,21 +218,31 @@ const CommentEditor = ({
   return (
     <div className={classes.commentEditorContainer}>
       <ContentStyles contentType="comment">
-        <CKEditor
-          isCollaborative={false}
-          editor={getCkCommentEditor()}
-          data={commentValue}
-          ref={ckEditorRef}
-          config={{
-            placeholder: 'Write a review about the imported post...',
-          }}
-          onReady={(editor: any) => {
-            editorRef.current = editor;
-          }}
-          onChange={(_event: any, editor: any) => {
-            setCommentValue(editor.getData());
-          }}
-        />
+        {useLexical ? (
+          <LexicalEditor
+            data={commentValue}
+            placeholder="Write a review about the imported post..."
+            onChange={setCommentValue}
+            onReady={() => {}}
+            commentEditor
+          />
+        ) : (
+          <CKEditor
+            isCollaborative={false}
+            editor={getCkCommentEditor()}
+            data={commentValue}
+            ref={ckEditorRef}
+            config={makeEditorConfig({
+              placeholder: 'Write a review about the imported post...',
+            })}
+            onReady={(editor: any) => {
+              editorRef.current = editor;
+            }}
+            onChange={(_event: any, editor: any) => {
+              setCommentValue(editor.getData());
+            }}
+          />
+        )}
         <div className={classes.editorButtons}>
           <Button
             className={classNames(classes.formButton, classes.cancelButton)}
@@ -248,6 +275,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
   const { flash } = useMessages();
 
   const currentUser = useCurrentUser();
+  const editorType = userHasLexicalEditor(currentUser) ? 'lexical' : 'ckEditorMarkup';
 
   const [importUrlAsDraftPost, { data, loading, error }] = useMutation(gql(`
     mutation importUrlAsDraftPost($url: String!) {
@@ -301,7 +329,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
         contents: {
           originalContents: {
             data: commentContent,
-            type: 'ckEditorMarkup',
+            type: editorType,
           },
         },
       };
@@ -316,7 +344,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
             contents: {
               originalContents: {
                 data: postContent,
-                type: 'ckEditorMarkup',
+                type: editorType,
               },
             },
             draft: false,
@@ -418,12 +446,18 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
             post={post}
             onContentChange={setPostContent}
             classes={classes}
+            useLexical={editorType === 'lexical'}
           />
           <Typography variant="body2">
             To nominate a linkpost for the Annual Review, you must write your own review it.<br />
             Please explain why you think this post or paper is significant to LessWrong's intellectual progress.
           </Typography>
-          <CommentEditor onPublish={handlePublish} onCancel={handleImportDifferentPost} classes={classes} />
+          <CommentEditor
+            onPublish={handlePublish}
+            onCancel={handleImportDifferentPost}
+            classes={classes}
+            useLexical={editorType === 'lexical'}
+          />
           {publishingPost && <Loading />}
         </div>
       )}

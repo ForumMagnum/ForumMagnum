@@ -1,8 +1,6 @@
 import React from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { UltraFeedSettingsType } from './ultraFeedSettingsTypes';
-import { MiscSettings } from './settingsComponents/UltraFeedSettingsComponents';
-import ForumIcon from '../common/ForumIcon';
+import { UltraFeedSettingsType, UltraFeedAlgorithm } from './ultraFeedSettingsTypes';
 
 const styles = defineStyles('UltraFeedFollowingSettings', (theme: ThemeType) => ({
   root: {
@@ -25,24 +23,9 @@ const UltraFeedFollowingSettings = ({
 }: UltraFeedFollowingSettingsProps) => {
   const classes = useStyles(styles);
 
-  const handleIncognitoChange = (field: 'incognitoMode', checked: boolean) => {
-    updateSettings({
-      resolverSettings: {
-        ...settings.resolverSettings,
-        incognitoMode: checked,
-      },
-    });
-  };
-
   return (
     <div className={classes.root}>
-      <MiscSettings
-        formValues={{
-          incognitoMode: settings.resolverSettings.incognitoMode,
-        }}
-        onBooleanChange={handleIncognitoChange}
-        defaultOpen={true}
-      />
+      There are no settings for the Following feed at this time.
     </div>
   );
 };

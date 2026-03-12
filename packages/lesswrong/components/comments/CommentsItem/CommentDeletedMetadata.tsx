@@ -1,8 +1,9 @@
 import React from 'react';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import CalendarDate from "../../common/CalendarDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const DeletedCommentsMetaDataQuery = gql(`
   query CommentDeletedMetadata($documentId: String) {
@@ -14,7 +15,7 @@ const DeletedCommentsMetaDataQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentDeletedMetadata", (theme: ThemeType) => ({
   root: {
     opacity: 0.5,
   },
@@ -23,12 +24,12 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 3,
     fontStyle: "italic",
   },
-});
+}));
 
-const CommentDeletedMetadata = ({documentId, classes}: {
+const CommentDeletedMetadata = ({documentId}: {
   documentId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { data } = useQuery(DeletedCommentsMetaDataQuery, {
     variables: { documentId: documentId },
   });
@@ -54,9 +55,7 @@ const CommentDeletedMetadata = ({documentId, classes}: {
   }
 };
 
-export default registerComponent(
-  'CommentDeletedMetadata', CommentDeletedMetadata, {styles}
-);
+export default CommentDeletedMetadata;
 
 
 

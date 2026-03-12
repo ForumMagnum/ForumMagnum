@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "1.5em",
   },
   leftMargin: {
-    marginLeft: theme.spacing.unit * 2
+    marginLeft: 16
   },
   archivedItem: {
     opacity: 0.5

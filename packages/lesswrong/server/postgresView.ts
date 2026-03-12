@@ -1,6 +1,5 @@
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { queryWithLock } from "./queryWithLock";
-import { addCronJob, CronJobSpec } from "./cron/cronUtil";
 
 type PostgresViewRefreshSpec = {
   interval: string,
@@ -8,8 +7,6 @@ type PostgresViewRefreshSpec = {
 }
 
 export class PostgresView {
-  private cronJob: CronJobSpec|null = null;
-
   constructor(
     private name: string,
     private createViewQuery: string,
@@ -18,13 +15,6 @@ export class PostgresView {
     private dependencies?: SchemaDependency[],
     private queryTimeout = 60,
   ) {
-    if (this.refreshSpec) {
-      this.cronJob = addCronJob({
-        name: `refreshPostgresView-${this.name}`,
-        interval: this.refreshSpec.interval,
-        job: () => this.refresh(getSqlClientOrThrow()),
-      });
-    }
   }
 
   getName(): string {
@@ -48,12 +38,9 @@ export class PostgresView {
       await queryWithLock(db, this.refreshSpec.query, this.queryTimeout);
     }
   }
-
-  getCronJob() {
-    return this.cronJob;
-  }
 }
 
+// TODO: this view is now unused; remove it in a follow-up PR along with a migration to drop it from the DB.
 export const conversationUnreadMessagesView = new PostgresView(
   "ConversationUnreadMessages",
   `CREATE OR REPLACE VIEW "ConversationUnreadMessages" AS
@@ -82,40 +69,6 @@ export const conversationUnreadMessagesView = new PostgresView(
     {type: "collection", name: "Messages"},
   ],
 );
-
-
-const createUserLoginTokensQuery = `
-  CREATE MATERIALIZED VIEW IF NOT EXISTS "UserLoginTokens" AS
-  SELECT
-    JSONB_ARRAY_ELEMENTS("services"->'resume'->'loginTokens')->>'hashedToken' "hashedToken",
-    "_id" "userId"
-  FROM "Users"
-  WHERE JSONB_TYPEOF("services"->'resume'->'loginTokens') = 'array'
-`;
-
-const createUserLoginTokensIndexQuery = `
-  CREATE UNIQUE INDEX IF NOT EXISTS idx_user_login_tokens_hashed_token
-  ON "UserLoginTokens"
-  USING BTREE ("hashedToken")
-`;
-
-const refreshUserLoginTokensIndexQuery = `
-  REFRESH MATERIALIZED VIEW CONCURRENTLY "UserLoginTokens"
-`;
-
-export const userLoginTokensView = new PostgresView(
-  "UserLoginTokens",
-  createUserLoginTokensQuery,
-  [createUserLoginTokensIndexQuery],
-  {
-    interval: "every 5 minutes",
-    query: refreshUserLoginTokensIndexQuery,
-  },
-  [
-    {type: "collection", name: "Users"},
-  ],
-);
-
 
 /**
  * The collaborative filter strategy requires comparing the sets of unique voters
@@ -170,7 +123,6 @@ export const uniquePostUpvotersView = new PostgresView(
 
 export const getAllPostgresViews = () => [
   conversationUnreadMessagesView,
-  userLoginTokensView,
   uniquePostUpvotersView,
 ];
 

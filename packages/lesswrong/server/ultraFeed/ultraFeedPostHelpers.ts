@@ -18,7 +18,7 @@ const UNVIEWED_RECOMBEE_CONFIG = {
 export async function getRecommendedPostsForUltraFeed(
   context: ResolverContext,
   limit: number,
-  scenarioId = 'recombee-lesswrong-custom',
+  scenarioId = 'recombee-lesswrong-ultrafeed',
   additionalExcludedIds: string[] = []
 ): Promise<FeedFullPost[]> {
   const { currentUser, repos } = context;
@@ -176,7 +176,7 @@ export async function getUltraFeedPostThreads(
   maxAgeDays: number
 ): Promise<FeedFullPost[]> {
 
-  const recombeeScenario = 'recombee-lesswrong-custom';
+  const recombeeScenario = 'recombee-lesswrong-ultrafeed';
 
   const [recommendedPostItems, latestAndSubscribedPostItems] = await Promise.all([
     (recommendedPostsLimit > 0)

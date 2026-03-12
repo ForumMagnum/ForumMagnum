@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import React from 'react';
 import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useFilteredCurrentUser } from '../../common/withUser';
 import type { VotingProps } from '../../votes/votingProps';
@@ -14,8 +13,10 @@ import CommentBottomCaveats from "./CommentBottomCaveats";
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { Link } from '@/lib/reactRouterWrapper';
 import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentBottom", (theme: ThemeType) => ({
   bottom: {
     display: "flex",
     alignItems: "center",
@@ -24,8 +25,17 @@ const styles = (theme: ThemeType) => ({
     minHeight: 12,
     ...(theme.isFriendlyUI ? {} : {fontSize: 12}),
   },
-  bottomWithReacts: {
-    justifyContent: "space-between"
+  leftSection: {
+    display: "flex",
+    alignItems: "center",
+    columnGap: 8,
+    flexWrap: "wrap",
+  },
+  rightSection: {
+    display: "flex",
+    alignItems: "center",
+    columnGap: 8,
+    marginLeft: "auto",
   },
   answer: {
     display: "flex",
@@ -35,11 +45,11 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     fontWeight: 450,
     color: theme.palette.lwTertiary.main,
-    marginLeft: "auto"
+    marginLeft: 8,
   },
-})
+}))
 
-const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton, classes}: {
+const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton}: {
   comment: CommentsList,
   post: PostsMinimumInfo|undefined,
   treeOptions: CommentTreeOptions,
@@ -47,8 +57,8 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   voteProps: VotingProps<VoteableTypeClient>,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   replyButton: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const userCanReplyOnBlocked = useFilteredCurrentUser(u => userCanDo(u, 'comments.replyOnBlocked.all'));
   const userCanModerateAll = useFilteredCurrentUser(u => userCanDo(u, 'posts.moderate.all'));
 
@@ -77,33 +87,41 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   )
   const showEditInContext = treeOptions.showEditInContext;
 
+  const showVoteBottom = !!VoteBottomComponent && !treeOptions.hideVoteBottom;
+  const showRightSection = showVoteBottom || showEditInContext;
+
   return (
     <div className={classNames(
       classes.bottom,
       comment.answer && classes.answer,
-      !!VoteBottomComponent && classes.bottomWithReacts,
     )}>
-      <CommentBottomCaveats comment={comment} />
-      {showReplyButton && replyButton}
-      {VoteBottomComponent && !treeOptions.hideVoteBottom && <VoteBottomComponent
-        document={comment}
-        hideKarma={treeOptions.post?.hideCommentKarma}
-        collectionName="Comments"
-        votingSystem={votingSystem}
-        commentBodyRef={commentBodyRef}
-        voteProps={voteProps}
-      />}
-      {showEditInContext && <Link
-        to={commentGetPageUrlFromIds({commentId: comment._id, postId: comment.postId})}
-        target="_blank" rel="noopener noreferrer"
-        className={classes.editInContext}>
-          Edit in context
-      </Link>}
+      <div className={classes.leftSection}>
+        <CommentBottomCaveats comment={comment} />
+        {showReplyButton && replyButton}
+      </div>
+      {showRightSection && (
+        <div className={classes.rightSection}>
+          {showVoteBottom && <VoteBottomComponent
+            document={comment}
+            hideKarma={treeOptions.post?.hideCommentKarma}
+            collectionName="Comments"
+            votingSystem={votingSystem}
+            commentBodyRef={commentBodyRef}
+            voteProps={voteProps}
+          />}
+          {showEditInContext && <Link
+            to={commentGetPageUrlFromIds({commentId: comment._id, postId: comment.postId})}
+            target="_blank" rel="noopener noreferrer"
+            className={classes.editInContext}>
+              Edit in context
+          </Link>}
+        </div>
+      )}
     </div>
   );
 }
 
-export default registerComponent('CommentBottom', CommentBottom, {styles});
+export default CommentBottom;
 
 
 

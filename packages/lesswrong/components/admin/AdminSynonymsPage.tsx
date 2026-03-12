@@ -1,7 +1,6 @@
 "use client";
 
-import React, { FC, useState, useEffect, useCallback, ChangeEvent } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
+import React, { useState, useEffect, useCallback, ChangeEvent } from "react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -12,8 +11,10 @@ import Error404 from "../common/Error404";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from "@/components/hooks/defineStyles";
+import { useStyles } from "@/components/hooks/useStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AdminSynonymsPage", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     display: "flex",
@@ -27,9 +28,10 @@ const styles = (theme: ThemeType) => ({
       textTransform: "none",
     },
   },
-});
+}));
 
-const AdminSynonymsEditor: FC<{classes: ClassesType<typeof styles>}> = ({classes}) => {
+const AdminSynonymsEditor = () => {
+  const classes = useStyles(styles);
   const [synonyms, setSynonyms] = useState<string[]>([]);
   const {data, loading, error} = useQuery(gql(`
     query SearchSynonyms {
@@ -103,19 +105,11 @@ const AdminSynonymsEditor: FC<{classes: ClassesType<typeof styles>}> = ({classes
   );
 }
 
-const AdminSynonymsPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const AdminSynonymsPage = () => {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
-    ? <AdminSynonymsEditor classes={classes} />
+    ? <AdminSynonymsEditor />
     : <Error404 />;
 }
 
-export default registerComponent(
-  "AdminSynonymsPage",
-  AdminSynonymsPage,
-  {styles},
-);
-
-
+export default AdminSynonymsPage;

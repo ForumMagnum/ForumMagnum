@@ -1,7 +1,5 @@
 import React from 'react';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import moment from '../../../lib/moment-timezone';
-import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import TimeTag from "../../common/TimeTag";
 
 
@@ -91,6 +89,6 @@ export const PrettyEventDateTime = ({
   );
 };
 
-export default registerComponent("PrettyEventDateTime", PrettyEventDateTime);
+export default PrettyEventDateTime;
 
 

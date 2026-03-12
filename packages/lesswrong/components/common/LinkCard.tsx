@@ -1,10 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import LWTooltip from "./LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LinkCard", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     position: "relative",
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType) => ({
       top: 0,
     },
   },
-});
+}));
 
 // A clickable card which can contain clickable links. This exists to work
 // around a limitation of HTML, which is that you can't nest <a> tags in <a>
@@ -37,15 +38,15 @@ const styles = (theme: ThemeType) => ({
 // described in https://www.sarasoueidan.com/blog/nested-links/, we make the
 // card background and card contents siblings rather than nested, then use
 // z-index to control which is clickable.
-const LinkCard = ({children, to, tooltip, className, classes, onClick, clickable}: {
+const LinkCard = ({children, to, tooltip, className, onClick, clickable}: {
   children?: React.ReactNode,
   to: string,
   tooltip?: any,
   className?: string,
-  classes: ClassesType<typeof styles>,
   onClick?: any,
   clickable?: boolean
 }) => {
+  const classes = useStyles(styles);
   const card = (
     <div className={classNames(className, classes.root)}>
       <div className={classes.background}>
@@ -67,6 +68,6 @@ const LinkCard = ({children, to, tooltip, className, classes, onClick, clickable
 }
 
 
-export default registerComponent("LinkCard", LinkCard, {styles});
+export default LinkCard;
 
 

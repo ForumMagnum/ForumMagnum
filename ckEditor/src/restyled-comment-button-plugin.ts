@@ -1,6 +1,6 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import commentIcon from '@ckeditor/ckeditor5-comments/theme/icons/add-comment.svg';
-import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
+import commentIcon from '@ckeditor/ckeditor5-icons/theme/icons/add-comment.svg';
+import { ButtonView } from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 
 export default class RestyledCommentButton extends Plugin {
   init() {

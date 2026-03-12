@@ -1,7 +1,5 @@
 "use client";
-
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import SingleColumnSection from "../../common/SingleColumnSection";
 import Error404 from "../../common/Error404";
@@ -18,6 +16,6 @@ export const PetrovDayPoll = () => {
   </SingleColumnSection>;
 }
 
-export default registerComponent('PetrovDayPoll', PetrovDayPoll);
+export default PetrovDayPoll;
 
 

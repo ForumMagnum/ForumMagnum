@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
@@ -6,8 +5,10 @@ import CloudinaryImage from "../common/CloudinaryImage";
 import LinkCard from "../common/LinkCard";
 import UsersName from "../users/UsersName";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("BigCollectionsCard", (theme: ThemeType) => ({
   root: {
     width:"100%",
     background: theme.palette.panelBackground.default,
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   card: {
-    padding:theme.spacing.unit*2.5,
+    padding:20,
     display:"flex",
     height:318,
     flexWrap: "wrap",
@@ -32,11 +33,11 @@ const styles = (theme: ThemeType) => ({
   },
   content: {
     marginLeft: 33,
-    marginBottom:theme.spacing.unit*2,
+    marginBottom:16,
     width: "100%",
     maxWidth: 307,
     borderTop: `solid 4px ${theme.palette.text.maxIntensity}`, // This color gets overwritten by a content-specific color from the database
-    paddingTop: theme.spacing.unit,
+    paddingTop: 8,
     [theme.breakpoints.down('sm')]: {
       marginLeft: 0,
     }
@@ -46,7 +47,7 @@ const styles = (theme: ThemeType) => ({
   },
   author: {
     ...theme.typography.postStyle,
-    marginBottom:theme.spacing.unit,
+    marginBottom:8,
     ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
@@ -69,13 +70,13 @@ const styles = (theme: ThemeType) => ({
       }
     }
   }
-})
+}))
 
-const BigCollectionsCard = ({ collection, url, classes }: {
+const BigCollectionsCard = ({ collection, url }: {
   collection: CoreReadingCollection,
   url: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const cardContentStyle = {borderTopColor: collection.color}
 
   return <LinkCard className={classes.root} to={url}>
@@ -98,8 +99,6 @@ const BigCollectionsCard = ({ collection, url, classes }: {
   </LinkCard>
 }
 
-export default registerComponent(
-  "BigCollectionsCard", BigCollectionsCard, { styles }
-);
+export default BigCollectionsCard;
 
 

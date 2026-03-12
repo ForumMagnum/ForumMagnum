@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
@@ -25,7 +24,7 @@ export const CommentsSortBySelector = ({setRestoreScrollPos}: {
     const currentQuery = isEmpty(query) ? {} : query
     const newQuery = {...currentQuery, commentsSortBy: sortBy}
     setRestoreScrollPos?.(window.scrollY);
-    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { scroll: false })
   };
 
   const currentSortBy: string = query?.commentsSortBy || "new"
@@ -34,6 +33,6 @@ export const CommentsSortBySelector = ({setRestoreScrollPos}: {
   return <InlineSelect options={sortByOptions} selected={selectedOption} handleSelect={handleViewClick}/>
 };
 
-export default registerComponent('CommentsSortBySelector', CommentsSortBySelector);
+export default CommentsSortBySelector;
 
 

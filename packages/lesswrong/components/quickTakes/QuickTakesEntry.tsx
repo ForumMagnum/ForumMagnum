@@ -1,13 +1,11 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { useQuickTakesTags } from "./useQuickTakesTags";
 import CommentsNewForm, {
   CommentCancelCallback,
   CommentSuccessCallback } from "../comments/CommentsNewForm";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
-import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import LoginPopup from "../users/LoginPopup";
 
@@ -44,8 +42,12 @@ const styles = (theme: ThemeType) => ({
       margin: 0,
       minHeight: 30,
     },
+    '--lexical-comment-min-height': `${COLLAPSED_HEIGHT}px`,
     '& .ck.ck-editor__editable_inline': {
       border: "none !important",
+    },
+    '& [contenteditable="true"]': {
+      border: "none",
     },
     '& .EditorTypeSelect-select': {
       display: 'none',
@@ -62,6 +64,14 @@ const styles = (theme: ThemeType) => ({
     },
     '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
       minHeight: 'unset'
+    },
+    '--lexical-comment-min-height': `${COLLAPSED_HEIGHT}px`,
+    '--lexical-comment-placeholder-top': '25%',
+    '--lexical-comment-placeholder-transform': 'translateY(-50%)',
+    '& .EditorFormComponent-commentEditorHeight [contenteditable="true"]': {
+      minHeight: COLLAPSED_HEIGHT,
+      maxHeight: COLLAPSED_HEIGHT,
+      overflow: 'hidden',
     },
     '& .LocalStorageCheck-root': {
       display: 'none',
@@ -107,12 +117,7 @@ const QuickTakesEntry = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = useDialog();
-  const {onSignup} = useLoginPopoverContext();
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const {
-    frontpage,
-    selectedTagIds,
-  } = useQuickTakesTags();
 
   const onCancel = useCallback(async (ev?: MouseEvent) => {
     ev?.preventDefault();
@@ -138,15 +143,11 @@ const QuickTakesEntry = ({
 
     isUnexpandedClickRef.current = false;
 
-    if (isFriendlyUI()) {
-      onSignup();
-    } else {
-      openDialog({
-        name: "LoginPopup",
-        contents: ({onClose}) => <LoginPopup onClose={onClose} />
-      });
-    }
-  }, [currentUser, openDialog, onSignup, expanded]);
+    openDialog({
+      name: "LoginPopup",
+      contents: ({onClose}) => <LoginPopup onClose={onClose} />
+    });
+  }, [currentUser, openDialog, expanded]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -158,15 +159,6 @@ const QuickTakesEntry = ({
     // This should only ever run on the first render
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // TODO: The editor is currently pretty messed up if the user has enabled
-  // the markdown editor in their user settings, unless we're positioning the
-  // submit button at the bottom. For now, we just disable the editor in this
-  // case but we probably want to fix this properly in the long run. This is a
-  // pretty small percentage of users, so seems ~fine.
-  if (currentUser?.markDownPostEditor && !submitButtonAtBottom) {
-    return null;
-  }
 
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
   const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI();
@@ -183,8 +175,8 @@ const QuickTakesEntry = ({
         interactionType='reply'
         prefilledProps={{
           shortform: true,
-          shortformFrontpage: frontpage,
-          relevantTagIds: selectedTagIds,
+          shortformFrontpage: true,
+          relevantTagIds: [],
         }}
         enableGuidelines={false}
         className={classNames(classes.commentForm, {

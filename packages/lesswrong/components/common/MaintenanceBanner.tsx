@@ -1,15 +1,17 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { siteNameWithArticleSetting, explanationText, maintenanceTime } from '@/lib/instanceSettings';
 import { ExpandedDate } from "../common/FormatDate";
 import { isMobile } from "../../lib/utils/isMobile";
 import classNames from "classnames";
 import startCase from "lodash/startCase";
 import SingleColumnSection from "./SingleColumnSection";
+import { useStyles } from "../hooks/useStyles";
+import { defineStyles } from "../hooks/defineStyles";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const urgentCutoff = 2 * 60 * 60 * 1000; // 2 hours
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("MaintenanceBanner", (theme: ThemeType) => ({
   root: {
     padding: 20,
     width: "100%",
@@ -33,12 +35,14 @@ const styles = (theme: ThemeType) => ({
     marginLeft: "auto",
     width: "fit-content",
   },
-});
+}))
 
-const MaintenanceBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const MaintenanceBanner = () => {
+  const classes = useStyles(styles);
   const maintenanceTimeValue = maintenanceTime.get();
+  const now = useCurrentTime();
   if (!maintenanceTimeValue) return <></>;
-  const isUrgent = new Date(maintenanceTimeValue).getTime() - Date.now() < urgentCutoff;
+  const isUrgent = new Date(maintenanceTimeValue).getTime() - now.getTime() < urgentCutoff;
   return (
     <SingleColumnSection
       className={classNames(classes.root, { [classes.rootMobile]: isMobile(), [classes.rootUrgent]: isUrgent })}
@@ -52,6 +56,4 @@ const MaintenanceBanner = ({ classes }: { classes: ClassesType<typeof styles> })
   );
 };
 
-export default registerComponent("MaintenanceBanner", MaintenanceBanner, { styles });
-
-
+export default MaintenanceBanner;

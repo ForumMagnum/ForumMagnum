@@ -8,7 +8,7 @@ import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
-import { getReviewNameInSitu, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
+import { eligibleToNominate, getReviewNameInSitu, shouldShowReviewVotePrompt } from '../../../lib/reviewUtils';
 import startCase from 'lodash/startCase';
 import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import CommentsItemMeta from './CommentsItemMeta';
@@ -30,17 +30,17 @@ import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
 import ReviewVotingWidget from "../../review/ReviewVotingWidget";
 import LWHelpIcon from "../../common/LWHelpIcon";
 import CoreTagIcon from "../../tagging/CoreTagIcon";
-import RejectedReasonDisplay from "../../sunshineDashboard/RejectedReasonDisplay";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
-import pick from 'lodash/pick';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import dynamic from 'next/dynamic';
 
+const RejectedReasonDisplay = dynamic(() => import("../../sunshineDashboard/RejectedReasonDisplay"));
 
 const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   root: {
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    paddingLeft: 12,
+    paddingRight: 12,
     position: "relative",
     "&:hover .CommentsItemMeta-menu": {
       opacity:1
@@ -80,8 +80,8 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     },
   },
   firstParentComment: {
-    marginLeft: -theme.spacing.unit*1.5,
-    marginRight: -theme.spacing.unit*1.5
+    marginLeft: -12,
+    marginRight: -12
   },
   replyForm: {
     marginTop: 2,
@@ -124,7 +124,7 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     lineHeight: '1.5em'
   },
   postTitle: {
-    paddingTop: theme.spacing.unit,
+    paddingTop: 8,
     ...theme.typography.commentStyle,
     display: "block",
     color: theme.palette.link.dim2,
@@ -314,13 +314,14 @@ export const CommentsItem = ({
   const votingSystemName = comment.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
 
-  const displayReviewVoting = 
-    !hideReviewVoteButtons &&
-    reviewIsActive() &&
-    comment.reviewingForReview === REVIEW_YEAR+"" &&
-    post &&
-    currentUserId !== post.userId &&
-    currentUserEligibleToNominate;
+  const displayReviewVoting =
+    !hideReviewVoteButtons
+    && shouldShowReviewVotePrompt({
+      reviewingForReview: comment.reviewingForReview,
+      postAuthorUserId: post?.userId ?? null,
+      currentUserId,
+      isEligibleToNominate: currentUserEligibleToNominate,
+    });
 
   const voteProps = useVote(comment, "Comments", votingSystem);
   const showInlineCancel = replyFormIsOpen && isMinimalist

@@ -1,5 +1,5 @@
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 
 export const rowStyles = {
   root: {
@@ -22,12 +22,12 @@ export const rowStyles = {
     minWidth: 140,
   },
 };
-const styles = (_theme: ThemeType) => rowStyles;
+const styles = defineStyles("MigrationsDashboardRow", (_theme: ThemeType) => rowStyles);
 
-const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, classes}: {
+const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}}: {
   migration: any,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const [expanded, setExpanded] = React.useState(false);
   
   let status;
@@ -63,10 +63,4 @@ const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, 
   </div>
 }
 
-export default registerComponent(
-  "MigrationsDashboardRow", MigrationsDashboardRow, {
-    styles
-  }
-);
-
-
+export default MigrationsDashboardRow;

@@ -3,12 +3,17 @@ import { createSqlFragmentFromAst } from "@/server/sql/SqlFragment";
 import { runTestCases } from "@/server/sql/tests/testHelpers";
 import { TestCollection4DefaultFragment, TestCollection4ArgFragment, TestCollection3DefaultFragment, TestCollection2DefaultFragment } from "@/server/sql/tests/testFragments";
 import { Kind, type DocumentNode, type FragmentDefinitionNode } from "graphql";
+import { enableCustomSqlResolvers } from "@/server/sql/ProjectionContext";
 
 const getFragmentDefs = (...docs: DocumentNode[]): FragmentDefinitionNode[] => {
   return docs.flatMap(doc => doc.definitions).filter(def => def.kind === Kind.FRAGMENT_DEFINITION);
 };
 
 describe("SelectFragmentQuery", () => {
+  if (!enableCustomSqlResolvers) {
+    it('has auto-generated joins disabled', ()=>{});
+    return;
+  }
   runTestCases([
     {
       name: "can build fragment queries with a where clause",

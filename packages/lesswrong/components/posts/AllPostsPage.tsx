@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { TooltipRef } from '../common/FMTooltip';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -82,7 +82,7 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
             placement="top-end"
           >
             {(ref: Ref<HTMLDivElement>) => <div ref={ref} className={classes.title} onClick={toggleSettings}>
-              <SectionTitle title={preferredHeadingCase("All Posts")}>
+              <SectionTitle title={"All Posts"}>
                 {isFriendlyUI() ?
                   <SortButton label={formatSort(currentSorting)} /> :
                   <SettingsButton label={`Sorted by ${ getSortOrderOptions()[currentSorting].label }`}/>

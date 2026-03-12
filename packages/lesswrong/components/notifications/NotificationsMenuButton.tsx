@@ -13,14 +13,12 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ForumIcon from "../common/ForumIcon";
 import LWClickAwayListener from "../common/LWClickAwayListener";
-import { useReadQuery } from '@apollo/client/react';
 import { useStyles } from '../hooks/useStyles';
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { styles } from './notificationsMenuButtonStyles';
 import ErrorBoundary from '../common/ErrorBoundary';
 
 import dynamic from 'next/dynamic';
-const NotificationsPopover = dynamic(() => import("./NotificationsPopover"), { ssr: false });
 const LWPopper = dynamic(() => import("../common/LWPopper"), { ssr: false });
 
 const UserKarmaChangesQuery = gql(`
@@ -93,138 +91,14 @@ const hasKarmaChange = (
   return lastOpened < (endDate ?? new Date(0)) || updateFrequency === "realtime";
 }
 
-const FriendlyNotificationsMenuButtonInner = ({
-  toggle,
-  className,
-}: NotificationsMenuButtonProps) => {
-  
-  const classes = useStyles(styles);
-  const currentUser = useCurrentUser();
-  const updateCurrentUser = useUpdateCurrentUser();
-  const {pathname} = useLocation();
-  const {notificationsOpened, latestUnreadCount} = useUnreadNotifications();
-  const unreadNotifications = latestUnreadCount ?? 0;
-  const [open, setOpen] = useState(false);
-  const anchorEl = useRef<HTMLDivElement>(null);
-  const { refetch, data: karmaChangesData } = useQuery(UserKarmaChangesQuery, {
-    variables: { documentId: currentUser?._id },
-    skip: !currentUser,
-  });
-  const karmaChanges = karmaChangesData?.user?.result;
-
-  const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
-  const hasBadge = unreadNotifications > 0;
-  const badgeText = hasBadge ? `${unreadNotifications}` : "";
-
-  useEffect(() => {
-    void refetch();
-  }, [refetch, currentUser?.karmaChangeLastOpened]);
-
-  const onOpenNotificationsPopover = useCallback(() => {
-    const now = new Date();
-    void updateCurrentUser({
-      karmaChangeLastOpened: now,
-      karmaChangeBatchStart: now,
-    });
-    void notificationsOpened();
-  }, [updateCurrentUser, notificationsOpened]);
-
-  const closePopover = useCallback(() => setOpen(false), []);
-
-  const onClick = useCallback(() => {
-    setOpen((open) => !open);
-    toggle();
-  }, [toggle]);
-  return (
-    <div ref={anchorEl}>
-      <Badge
-        className={classNames(classes.badgeContainer, className)}
-        badgeClassName={classNames(classes.badge, {
-          [classes.badgeBackground]: hasBadge,
-          [classes.badge1Char]: badgeText.length === 1,
-          [classes.badge2Chars]: badgeText.length === 2,
-        })}
-        badgeContent={
-          <>
-            {badgeText}
-            {showKarmaStar &&
-              <ForumIcon
-                icon="Star"
-                className={classNames(classes.karmaStar, {
-                  [classes.karmaStarWithBadge]: hasBadge,
-                  [classes.karmaStarWithoutBadge]: !hasBadge,
-                })}
-              />
-            }
-          </>
-        }
-      >
-        {/*
-          * `LWClickAwayListener` is outside the `LWPopper` so that clicks on the notification bell
-          * itself don't trigger the clickaway listener (which would result in the popper closing and
-          * then reopening).
-          *
-          * Note that this violates a general rule in favour of putting the clickaway listener inside
-          * `LWPopper` see this PR description for why that rule exists: https://github.com/ForumMagnum/ForumMagnum/pull/9331
-          */}
-        <LWClickAwayListener onClickAway={() => setOpen(false)}>
-          <>
-            <IconButton
-              classes={{root: classNames(classes.buttonClosed, {
-                [classes.buttonActive]: pathname.indexOf("/notifications") === 0,
-              })}}
-              onClick={onClick}
-            >
-              <ForumIcon icon="BellBorder" />
-            </IconButton>
-            <DeferRender ssr={false}>
-              <LWPopper
-                open={open}
-                anchorEl={anchorEl.current}
-                placement="bottom"
-                tooltip={false}
-                overflowPadding={16}
-                clickable
-              >
-                <NotificationsPopover
-                  karmaChanges={karmaChanges?.karmaChanges}
-                  onOpenNotificationsPopover={onOpenNotificationsPopover}
-                  closePopover={closePopover}
-                />
-              </LWPopper>
-            </DeferRender>
-          </>
-        </LWClickAwayListener>
-      </Badge>
-    </div>
-  );
-}
-
-const FriendlyNotificationsMenuButtonPlaceholder = ({toggle}: {
-  toggle: () => void,
-}) => {
-  // ea-forum-look-here
-  // This component is a loading-placeholder that will be shown briefly (less
-  // than a second) during pageload. It should visually match
-  // FriendlyNotificationsMenuButtonInner (but with zero notifications). Not
-  // implementing this will cause mild visual jank during loading (the buttons
-  // will be hidden, causing things next to them to shift horizontally.)
-  return null; // TODO
-}
-
 const NotificationsMenuButton = ({ open, toggle, className }: NotificationsMenuButtonProps) => {
-  const fallback = isFriendlyUI()
-    ? <FriendlyNotificationsMenuButtonPlaceholder toggle={toggle} />
-    : <BookNotificationsMenuButtonPlaceholder toggle={toggle} />
+  const fallback = <BookNotificationsMenuButtonPlaceholder toggle={toggle} />
   return <SuspenseWrapper
     name="NotificationsMenuButton"
     fallback={fallback}
   >
     <ErrorBoundary fallback={fallback}>
-      {isFriendlyUI()
-        ? <FriendlyNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
-        : <BookNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
-      }
+      <BookNotificationsMenuButtonInner open={open} toggle={toggle} className={className}/>
     </ErrorBoundary>
   </SuspenseWrapper>
 }

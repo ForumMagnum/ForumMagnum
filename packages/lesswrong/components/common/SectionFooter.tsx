@@ -1,16 +1,17 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Typography } from "./Typography";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
 export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) => ({
   '& > *': {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
     '&:after': {
       content: '"•"',
-      marginLeft: (theme.spacing.unit*2)*spacingMultiplier, 
-      marginRight: (theme.spacing.unit*2)*spacingMultiplier,
+      marginLeft: 16*spacingMultiplier, 
+      marginRight: 16*spacingMultiplier,
     },
     // Each child of the sectionFooter has a bullet divider, except for the last one.
     '&:last-child': {
@@ -22,15 +23,15 @@ export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 1) =
   }
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SectionFooter", (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "center",
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
-    marginRight: theme.spacing.unit/2,
-    marginLeft: theme.spacing.unit/2,
+    marginTop: 8,
+    marginBottom: 8,
+    marginRight: 4,
+    marginLeft: 4,
     color: theme.palette.lwTertiary.main,
     ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
@@ -45,19 +46,18 @@ const styles = (theme: ThemeType) => ({
       }
       : {}),
   }
-})
+}))
 
-const SectionFooter = ({ children, className, classes }: {
+const SectionFooter = ({ children, className }: {
   children: React.ReactNode,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return (
     <Typography variant="body2" className={classNames(classes.root, className)}>
       { children }
     </Typography>
   )
 }
-export default registerComponent('SectionFooter', SectionFooter, {styles});
 
-
+export default SectionFooter;

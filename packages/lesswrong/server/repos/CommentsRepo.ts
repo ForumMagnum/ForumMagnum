@@ -11,6 +11,7 @@ import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
+import { REVIEW_YEAR } from "@/lib/reviewUtils";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -455,19 +456,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     return postIds.map(postId => commentsByPost[postId] ?? []);
   }
 
-  async setLatestPollVote({ forumEventId, latestVote, userId }: { forumEventId: string; latestVote: number | null; userId: string; }): Promise<void> {
-    await this.getRawDb().none(`
-      -- CommentsRepo.setLatestPollVote
-      UPDATE "Comments"
-      SET "forumEventMetadata" = jsonb_set("forumEventMetadata", '{poll,latestVote}',
-        CASE
-          WHEN $2 IS NULL THEN 'null'::jsonb
-          ELSE to_jsonb($2::float)
-        END)
-      WHERE "forumEventId" = $1 AND "userId" = $3
-    `, [forumEventId, latestVote, userId]);
-  }
-
   /**
    * Get comments for the UltraFeed
    */
@@ -516,7 +504,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               AND c."postedAt" > (NOW() - INTERVAL '1 day' * $(initialCandidateLookbackDaysParam))
               AND p.draft IS NOT TRUE
               AND (CASE WHEN $(restrictCandidatesToSubscribed) THEN c."userId" IN (SELECT "authorId" FROM "SubscribedAuthorIds") ELSE TRUE END)
-          ORDER BY c."postedAt" DESC
+          ORDER BY 
+              (CASE WHEN c."reviewingForReview" = $(reviewYear) THEN 0 ELSE 1 END),
+              c."postedAt" DESC
           LIMIT $(initialCandidateLimit)
       ),
       "CandidateThreadTopLevelIds" AS (
@@ -534,6 +524,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
               c.shortform,
               c."postedAt",
               c."descendentCount",
+              c."reviewingForReview",
               CASE 
                 WHEN c.shortform IS TRUE THEN 'quicktakes'
                 WHEN sa."authorId" IS NOT NULL THEN 'subscriptionsComments'
@@ -605,6 +596,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           c.shortform,
           c."postedAt",
           c."descendentCount",
+          c."reviewingForReview",
           c."primarySource",
           c."fromSubscribedUser",
           c."isInitialCandidate",
@@ -623,6 +615,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       initialCandidateLookbackDaysParam: initialCandidateLookbackDays,
       commentServedEventRecencyHoursParam: commentServedEventRecencyHours,
       restrictCandidatesToSubscribed,
+      reviewYear: REVIEW_YEAR.toString(),
     });
 
     // Safety check for duplicates from the database query
@@ -653,6 +646,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         lastViewed: comment.lastViewed ?? null,
         lastInteracted: comment.lastInteracted ?? null,
         isRead: !!comment.isRead,
+        reviewingForReview: comment.reviewingForReview ?? null,
       };
     });
   }

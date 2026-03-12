@@ -1,9 +1,10 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import moment from "moment";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const getMissingClientRangeText = () => forumSelect({
   EAForum: "Jan 11th - Jun 14th of 2021",
@@ -21,19 +22,19 @@ const getDataCollectionFirstDay = () => forumSelect({
   default: null,
 });
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AnalyticsDisclaimers", (theme: ThemeType) => ({
   root: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
       margin: `0 ${GRAPH_LEFT_MARGIN}px`,
     }
     : {},
-});
+}));
 
-const AnalyticsDisclaimers = ({earliestDate, classes}: {
+const AnalyticsDisclaimers = ({earliestDate}: {
   earliestDate: Date,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return (
     <>
       {getMissingClientLastDay() && moment(earliestDate) < moment(getMissingClientLastDay()) && (
@@ -53,10 +54,6 @@ const AnalyticsDisclaimers = ({earliestDate, classes}: {
   );
 };
 
-export default registerComponent(
-  "AnalyticsDisclaimers",
-  AnalyticsDisclaimers,
-  {styles},
-);
+export default AnalyticsDisclaimers;
 
 

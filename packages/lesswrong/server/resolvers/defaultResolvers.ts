@@ -10,7 +10,7 @@ import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '@/
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { throwError } from "@/server/vulcan-lib/errors";
 import { captureException } from "@/lib/sentryWrapper";
-import { Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
+import { GraphQLError, Kind, print, type FieldNode, type FragmentDefinitionNode, type GraphQLResolveInfo } from "graphql";
 import isEqual from "lodash/isEqual";
 import { getCollectionAccessFilter } from "../permissions/accessFilters";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
@@ -18,6 +18,7 @@ import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 import UserActivities from "../collections/useractivities/collection";
 import { visitorGetsDynamicFrontpage } from "@/lib/betas";
 import { getWithCustomLoader } from "@/lib/loaders";
+import { enableCustomSqlResolvers } from "../sql/ProjectionContext";
 
 
 const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInfo, resultFieldName: string, typeName: string) => {
@@ -63,6 +64,11 @@ const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInf
     fragmentDefinitions: fragmentsWithImplicitFragment,
     fragmentName: fieldName,
   };
+};
+
+const stripNonDbFields = <N extends CollectionNameString>(doc: ObjectsByCollectionName[N], collectionName: N, context: ResolverContext) => {
+  const schema = context[collectionName].schema;
+  return Object.fromEntries(Object.entries(doc).filter(([fieldName]) => !!schema[fieldName]?.database));
 };
 
 type DefaultSingleResolverHandler<N extends CollectionNameString> = {
@@ -142,7 +148,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       captureException(`Got a ${collectionName} multi request with conflicting term and resolverArg keys: ${conflictingKeys.join(', ')}`);
       throwError({
         id: 'app.conflicting_term_and_resolver_arg_keys',
-        data: { terms, otherQueryVariables, collectionName },
+        data: { terms, otherQueryVariables, collectionName, conflictingKeys },
       });
     }
 
@@ -154,7 +160,10 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       maxAllowedSkip !== null &&
       terms.offset > maxAllowedSkip
     ) {
-      throw new Error("Exceeded maximum value for skip");
+      throwError({
+        id: "Exceeded maximum value for skip",
+        noSentryCapture: context.isGreaterWrong,
+      });
     }
 
     // get currentUser and Users collection from context
@@ -208,6 +217,10 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       );
     }
     let docs = await fetchDocs();
+    
+    // strip out any non-db fields from the docs so we can prime the loader cache with them
+    const sanitizedDocs = docs.map(doc => stripNonDbFields(doc, collectionName, context));
+    sanitizedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
 
     // Were there enough results to reach the limit specified in the query?
     const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
@@ -220,9 +233,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     // take the remaining documents and remove any fields that shouldn't be accessible
     const restrictedDocs = await restrictViewableFieldsMultiple(currentUser, collection, viewableDocs);
-
-    // prime the cache
-    restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
 
     const data: { results: Partial<T>[]; totalCount?: number } = { results: restrictedDocs };
 
@@ -272,7 +282,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     }
     const documentId = usedSelector._id;
     
-    if (!documentId) {
+    if (!documentId && !usedSelector.slug) {
       if (allowNull) {
         return { result: null };
       } else {
@@ -287,7 +297,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const fragmentInfo = getFragmentInfo(info, "result", typeName);
 
     let doc: ObjectsByCollectionName[N] | null;
-    if (fragmentInfo) {
+    if (fragmentInfo && enableCustomSqlResolvers) {
       // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
       const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
       const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentDefinitions);
@@ -304,7 +314,12 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       const db = getSqlClientOrThrow();
       doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
     } else {
-      doc = await collection.findOne(convertDocumentIdToIdInSelector(usedSelector));
+      const selector = convertDocumentIdToIdInSelector(usedSelector);
+      if (selector._id && Object.keys(selector).length===1) {
+        doc = await context.loaders[collectionName].load(selector._id);
+      } else {
+        doc = await collection.findOne(selector);
+      }
     }
 
     if (!doc) {
@@ -313,6 +328,9 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       } else {
         throwError({
           id: 'app.missing_document',
+          // Don't log not-found errors in Sentry if the request is from GreaterWrong because
+          // it periodically retries deleted IDs it saw in the past
+          noSentryCapture: context.isGreaterWrong,
           data: { documentId, selector, collectionName: collection.collectionName },
         });
       }
@@ -328,10 +346,12 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
         if (reasonDenied.reason) {
           throwError({
             id: reasonDenied.reason,
+            noSentryCapture: context.isGreaterWrong,
           });
         } else {
           throwError({
             id: 'app.operation_not_allowed',
+            noSentryCapture: context.isGreaterWrong,
             data: {documentId, operationName: `${typeName}.read.single`}
           });
         }

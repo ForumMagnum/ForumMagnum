@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
@@ -56,9 +55,7 @@ const BanUserFromPostDropdownItem = ({comment, post}: {
   );
 };
 
-export default registerComponent(
-  'BanUserFromPostDropdownItem', BanUserFromPostDropdownItem,
-);
+export default BanUserFromPostDropdownItem;
 
 
 

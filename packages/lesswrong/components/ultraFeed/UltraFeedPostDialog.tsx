@@ -48,7 +48,7 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import PostsPageQuestionContent from "../questions/PostsPageQuestionContent";
 import { useSubscribedLocation } from "@/lib/routeUtil";
 import { RecombeeRecommendationsContextWrapper } from '../recommendations/RecombeeRecommendationsContextWrapper';
-import { Helmet } from '../common/Helmet';
+import { Helmet } from '@/components/layout/Helmet';
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import AttributionInViewTracker from "../common/AttributionInViewTracker";
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
@@ -375,7 +375,7 @@ const styles = defineStyles("UltraFeedPostDialog", (theme: ThemeType) => ({
   },
   permalinkLabel: {
     color: theme.palette.grey[600],
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
     marginLeft: 10,
     fontSize: theme.typography.body2.fontSize,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -835,6 +835,7 @@ const UltraFeedPostDialog = ({
                 <BookmarkButton 
                   documentId={displayPost._id} 
                   collectionName="Posts" 
+                  initial={displayPost.isBookmarked}
                   className={classes.bookmarkButton} 
                   placement="bottom-start" 
                 />

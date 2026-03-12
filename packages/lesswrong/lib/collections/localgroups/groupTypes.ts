@@ -16,13 +16,17 @@ export const groupTypes = [
   //   shortName: "MIRIx",
   //   longName: "MIRIx",
   // },
+  // {
+  //   shortName: "IFANYONE",
+  //   longName: "If Anyone Builds It",
+  // },
+  // {
+  //   shortName: "PETROV",
+  //   longName: "Petrov Day",
+  // },
   {
-    shortName: "IFANYONE",
-    longName: "If Anyone Builds It",
-  },
-  {
-    shortName: "PETROV",
-    longName: "Petrov Day",
+    shortName: "SOLSTICE",
+    longName: "Solstice Celebration",
   }
 ];
 

@@ -1,5 +1,4 @@
 import React, { createContext, useContext } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { ConditionalVisibilitySettings } from './conditionalVisibility';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ShowBlockVisibilityCondition from "./ShowBlockVisibilityCondition";
@@ -72,7 +71,7 @@ export const RevealHiddenBlocks = ({children}: {
   </RevealHiddenBlocksContext.Provider>
 }
 
-export default registerComponent('ConditionalVisibilityBlockDisplay', ConditionalVisibilityBlockDisplay);
+export default ConditionalVisibilityBlockDisplay;
 
 
 

@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 import { useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { gql } from "@/lib/generated/gql-codegen";
 import PostsPage from './PostsPage';
 import ErrorAccessDenied from "../../common/ErrorAccessDenied";
@@ -32,10 +31,11 @@ const PostsWithNavigationQuery = gql(`
   }
 `);
 
-const PostsPageWrapper = ({ sequenceId, version, documentId }: {
+const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
   sequenceId: string|null,
   version?: string,
   documentId: string,
+  embedded?: boolean,
 }) => {
   // Check the cache for a copy of the post with the PostsListWithVotes fragment, so that when you click through
   // a PostsItem, you can see the start of the post (the part of the text that was in the hover-preview) while
@@ -102,9 +102,11 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     <PostsPage
       fullPost={post}
       postPreload={postPreloadWithSequence ?? undefined}
+      sequenceIdFromUrl={sequenceId}
       refetch={refetch}
+      embedded={embedded}
     />
   </>;
 }
 
-export default registerComponent("PostsPageWrapper", PostsPageWrapper);
+export default PostsPageWrapper;

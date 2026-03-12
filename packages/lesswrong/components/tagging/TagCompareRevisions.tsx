@@ -1,7 +1,5 @@
 "use client";
-
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from './useTag';
 import { useLocation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
@@ -36,10 +34,9 @@ const styles = defineStyles('TagCompareRevisions', (theme) => ({
   description: {},
 }));
 
-const TagCompareRevisions = () => {
+const TagCompareRevisions = ({slug}: {slug: string}) => {
   const classes = useStyles(styles);
-  const { params, query } = useLocation();
-  const { slug } = params;
+  const { query } = useLocation();
   const versionBefore = query.before;
   const versionAfter = query.after;
   const { tag, loading: loadingTag, error: tagError } = useTagBySlug(slug, "TagFragment");
@@ -86,7 +83,7 @@ const TagCompareRevisions = () => {
   </SingleColumnSection>
 }
 
-export default registerComponent("TagCompareRevisions", TagCompareRevisions);
+export default TagCompareRevisions;
 
 
 

@@ -3,6 +3,8 @@ import schema from "@/lib/collections/splashArtCoordinates/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate } from "@/server/callbacks/countOfReferenceCallbacks";
+import { splashArtCoordinateCache } from "@/server/review/splashArtCoordinatesCache";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks } from "@/server/vulcan-lib/mutators";
@@ -29,6 +31,7 @@ export async function createSplashArtCoordinate({ data }: CreateSplashArtCoordin
   let documentWithId = afterCreateProperties.document;
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('SplashArtCoordinates', documentWithId);
+  backgroundTask(splashArtCoordinateCache.recompute(context));
 
   return documentWithId;
 }

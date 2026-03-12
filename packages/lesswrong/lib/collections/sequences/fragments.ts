@@ -52,7 +52,7 @@ export const SequencesPageWithChaptersFragment = gql(`
   fragment SequencesPageWithChaptersFragment on Sequence {
     ...SequencesPageFragment
     chapters {
-      ...ChaptersFragment
+      ...SlimChapter
     }
   }
 `)

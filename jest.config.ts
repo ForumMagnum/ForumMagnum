@@ -200,13 +200,6 @@ export default () => createJestConfig({
   // },
 
   moduleNameMapper: {
-    // Because of https://github.com/apollographql/apollo-client-integrations/issues/353,
-    // we need to stub out this file so that we can successfully import anything in the
-    // app/ directory for testing purposes (which we want to do e.g. in forumTypeUtils.tests
-    // to check that we aren't making any forbidden top-level calls by importing all of
-    // our entrypoints that import the rest of the source graph).
-    "(.*)/nextApolloClient": "<rootDir>/packages/lesswrong/stubs/emptyModule.js",
-
     // Should match "paths" in tsconfig.json
     "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
     "@/viteClient/(.*)": "<rootDir>/packages/lesswrong/stubs/viteClient/$1",
@@ -253,8 +246,20 @@ export default () => createJestConfig({
   //
   // This block needs to live here because otherwise it gets overriden by the
   // default `transformIgnorePatterns` from `createJestConfig`.
+  const transpileNodeModules = [
+    "react-instantsearch",
+    "@extractus",
+    "bellajs",
+    "react-error-boundary",
+    "jsdom",
+    "html-encoding-sniffer",
+    "@exodus/bytes",
+    "@csstools/*",
+    "parse5",
+  ];
+  
   config.transformIgnorePatterns = [
-    "/node_modules/(?!(react-instantsearch|@extractus|bellajs)/)"
+    `/node_modules/(?!(?:${transpileNodeModules.join("|")})/)`,
   ];
   return config;
 });

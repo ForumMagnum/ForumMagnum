@@ -1,6 +1,5 @@
 import {
   TIME_DECAY_FACTOR,
-  getSubforumScoreBoost,
   SCORE_BIAS,
 } from '../lib/scoring';
 import { runSqlQuery } from "@/server/sql/sqlClient";
@@ -10,7 +9,7 @@ import { getCollection } from "@/server/collections/allCollections";
 
 // INACTIVITY_THRESHOLD_DAYS =  number of days after which a single vote will not have a big enough effect to trigger a score update
 //      and posts can become inactive
-const INACTIVITY_THRESHOLD_DAYS = 30;
+export const INACTIVITY_THRESHOLD_DAYS = 30;
 
 interface BatchUpdateParams {
   inactive?: boolean;
@@ -35,14 +34,7 @@ const getPgCollectionProjections = (collectionName: VoteableCollectionName) => {
         (CASE WHEN "curatedDate" IS NULL THEN 0 ELSE 10 END)) AS "baseScore"`;
       break;
     case "Comments":
-      const {base, magnitude, duration, exponent} = getSubforumScoreBoost();
-      const ageHours = '(EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "createdAt") / 3600)';
-      proj.baseScore = `("baseScore" + (CASE WHEN "tagCommentType" = 'SUBFORUM'
-        THEN GREATEST(
-          ${base},
-          ${magnitude} * (1 - POW(${ageHours} / ${duration}, ${exponent}))
-        )
-        ELSE 0 END)) as "baseScore"`;
+      proj.baseScore = '("baseScore")';
       break;
     default:
       break;

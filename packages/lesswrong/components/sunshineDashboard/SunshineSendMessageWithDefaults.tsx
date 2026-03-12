@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import { Menu } from '@/components/widgets/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
@@ -70,6 +70,11 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
 }) => {
   const currentUser = useCurrentUser()
   const [anchorEl, setAnchorEl] = useState<any>(null);
+
+  const embedConversationAndClose = useCallback((conversationId: string, templateQueries: TemplateQueryStrings) => {
+    embedConversation?.(conversationId, templateQueries);
+    setAnchorEl(null);
+  }, [embedConversation]);
   
   const { data } = useQuery(ModerationTemplateFragmentMultiQuery, {
     variables: {
@@ -98,7 +103,7 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
         anchorEl={anchorEl}
       >
         <MenuItem value={0}>
-          <NewConversationButton user={user} currentUser={currentUser} includeModerators embedConversation={embedConversation}>
+          <NewConversationButton user={user} currentUser={currentUser} includeModerators embedConversation={embedConversationAndClose}>
             New Message
           </NewConversationButton>
         </MenuItem>
@@ -110,7 +115,7 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
               </div>}
             >
               <MenuItem>
-                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateId: template._id, displayName: user.displayName}} includeModerators embedConversation={embedConversation}>
+                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateId: template._id, displayName: user.displayName}} includeModerators embedConversation={embedConversationAndClose}>
                   {template.name}
                 </NewConversationButton>
               </MenuItem>

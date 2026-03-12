@@ -2,7 +2,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import SunshineListCount from "./SunshineListCount";
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineNewTagsItem from "./SunshineNewTagsItem";
@@ -45,7 +44,7 @@ const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>})
     return (
       <div className={classes.root}>
         <SunshineListTitle>
-          Unreviewed {taggingNamePluralCapitalSetting.get()} <SunshineListCount count={totalCount}/>
+          Unreviewed Wikitags <SunshineListCount count={totalCount}/>
         </SunshineListTitle>
         {results.map(tag =>
           <div key={tag._id} >

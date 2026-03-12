@@ -85,7 +85,7 @@ export const ReviewProgressReviews = ({classes, reviewYear}: {
       {reviewsResults.map(review => {
         return <CheckBoxTwoToneIcon className={classes.filledIcon} key={review._id}/>
       })}
-      {range(0, uncheckedBoxes).map(a => <CheckBoxOutlineBlankIcon className={classes.icon} key={`${currentUser?._id}`}/>) }
+      {range(0, uncheckedBoxes).map(i => <CheckBoxOutlineBlankIcon className={classes.icon} key={i}/>) }
     </div>
   </LWTooltip>
 }

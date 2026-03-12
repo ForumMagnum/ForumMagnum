@@ -1,16 +1,27 @@
 import React from "react";
 import PostsSingle from '@/components/posts/PostsSingle';
-import { PostsPageHeaderTitle } from '@/components/titles/PostsPageHeaderTitle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id, { noIndex: true });
 
-export default function Page() {
+assertRouteAttributes("/posts/[_id]/[slug]/comment", {
+  whiteBackground: false,
+  hasLinkPreview: true,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: true,
+});
+
+export default async function Page({ params }: {
+  params: Promise<{ _id: string, slug: string }>
+}) {
+  const { _id, slug } = await params;
   return <RouteRoot
     delayedStatusCode
-    metadata={{ noFooter: false, titleComponent: PostsPageHeaderTitle }}
+    noFooter={false}
   >
-    <PostsSingle />
+    <PostsSingle _id={_id} slug={slug} />
   </RouteRoot>;
 }

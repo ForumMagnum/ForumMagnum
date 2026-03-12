@@ -1,4 +1,3 @@
-import { Application, json, Request, Response } from "express";
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "@/server/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
 import { testServerSetting } from "../lib/instanceSettings";
@@ -162,31 +161,4 @@ export const dropAndCreatePg = async ({templateId, dropExisting}: DropAndCreateP
   // eslint-disable-next-line no-console
   console.log("Creating PG database");
   await createTestingSqlClient(templateId, dropExisting);
-}
-
-// In development mode, we need a clean way to recreate the integration test
-// database. We definitely don't ever want this in prod though.
-// TODO: There should be a much cleaner way to do this now we have a complete
-// schema and dockerized postgres.
-export const addTestingRoutes = (app: Application) => {
-  // TODO: better check for dev mode
-  if (testServerSetting.get()) {
-    const integrationRoute = "/api/dropAndCreatePg";
-    app.use(integrationRoute, json({ limit: "1mb" }));
-    app.post(integrationRoute, async (req: Request, res: Response) => {
-      try {
-        const { templateId } = req.body;
-        if (!templateId || typeof templateId !== "string") {
-          throw new Error("No templateId provided");
-        }
-        await dropAndCreatePg({
-          templateId,
-          dropExisting: true,
-        });
-        res.status(200).send({status: "ok"});
-      } catch (e) {
-        res.status(500).send({status: "error", message: e.message});
-      }
-    });
-  }
 }

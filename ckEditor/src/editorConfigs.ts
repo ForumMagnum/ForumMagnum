@@ -32,10 +32,10 @@ const embedConfig = {
 		},
 		{
 			name: 'Metaculus',
-			url: /^metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/,
+			url: /^metaculus\.com\/questions\/(\d+)/,
 			html: ([match, questionNumber]: RegExpMatchArray) => `
 				<div data-metaculus-id="${questionNumber}" style="background-color: #2c3947;" class="metaculus-preview">
-					<iframe style="height: 400px; width: 100%; border: none;" src="https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf"/>
+					<iframe style="height: 400px; width: 100%; border: none;" src="https://www.metaculus.com/questions/embed/${questionNumber}"/>
 				</div>
 			`
 		},

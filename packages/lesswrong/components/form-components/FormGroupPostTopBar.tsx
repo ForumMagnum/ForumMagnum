@@ -1,5 +1,4 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FormGroupLayoutProps } from './FormGroupLayout';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { hasGoogleDocImportSetting, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
@@ -88,25 +87,17 @@ const styles = defineStyles("FormGroupPostTopBar", (theme: ThemeType) => ({
 
 const LinkToEditorGuideButton = () => {
   const classes = useStyles(styles);
-  const navigate = useNavigate();
 
-  if (isLWorAF()) {
-    return (
-      <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
-        <EAButton
-          className={classes.editorGuideButton}
-          onClick={() => {
-            navigate(tagGetUrl({slug: "guide-to-the-lesswrong-editor"}))
-          }}
-        >
-          <ForumIcon icon="QuestionMarkCircle" className={classes.editorGuideIcon} />
-          Editor Guide
-        </EAButton>
-      </LWTooltip>
-    );
-  } else {
-    return null;
-  }
+  return (
+    <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
+      <Link to={tagGetUrl({slug: "guide-to-the-lesswrong-editor"})}>
+      <EAButton className={classes.editorGuideButton}>
+        <ForumIcon icon="QuestionMarkCircle" className={classes.editorGuideIcon} />
+        Editor Guide
+      </EAButton>
+      </Link>
+    </LWTooltip>
+  );
 }
 
 const FormGroupPostTopBar = ({ children }: { children: React.ReactNode }) => {
@@ -129,6 +120,6 @@ const FormGroupPostTopBar = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default registerComponent('FormGroupPostTopBar', FormGroupPostTopBar);
+export default FormGroupPostTopBar;
 
 

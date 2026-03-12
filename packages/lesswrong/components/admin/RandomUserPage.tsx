@@ -6,14 +6,15 @@ import { useCurrentUser } from '../common/withUser';
 import { useLazyQuery } from '@apollo/client/react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { gql } from "@/lib/generated/gql-codegen";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { Typography } from "../common/Typography";
 import Error404 from "../common/Error404";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RandomUserPage", (theme: ThemeType) => ({
   root: {
     marginTop: -theme.spacing.mainLayoutPaddingTop,
     padding: "24px 36px 60px",
@@ -29,11 +30,10 @@ const styles = (theme: ThemeType) => ({
     marginRight: 16,
     backgroundColor: theme.palette.grey[60],
   },
-});
+}));
 
-const RandomUserPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const RandomUserPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [newTabKeyHeld, setNewTabKeyHeld] = useState(false);
   const [alreadyRedirected, setAlreadyRedirected] = useState(false);
@@ -99,8 +99,6 @@ const RandomUserPage = ({classes}: {
   </SingleColumnSection>
 }
 
-export default registerComponent(
-  "RandomUserPage", RandomUserPage, {styles}
-);
+export default RandomUserPage;
 
 

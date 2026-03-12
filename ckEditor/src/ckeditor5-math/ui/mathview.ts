@@ -1,4 +1,4 @@
-import View from '@ckeditor/ckeditor5-ui/src/view';
+import { View } from '@ckeditor/ckeditor5-ui/src/view';
 import type { Locale } from "@ckeditor/ckeditor5-utils";
 
 import { renderEquation } from '../utils';

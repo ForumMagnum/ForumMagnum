@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { styles } from './PostsPage/PostsPage';
 import { useQuery } from "@/lib/crud/useQuery";
@@ -34,10 +33,9 @@ const PostsWithNavigationQuery = gql(`
   }
 `);
 
-const PostsCompareRevisions = () => {
+const PostsCompareRevisions = ({postId, slug}: {postId: string, slug: string}) => {
   const classes = useStyles(styles);
-  const { params, query } = useLocation();
-  const postId = params._id;
+  const { query } = useLocation();
   const versionBefore = query.before;
   const versionAfter = query.after;
   
@@ -89,6 +87,6 @@ const PostsCompareRevisions = () => {
   </div>;
 }
 
-export default registerComponent("PostsCompareRevisions", PostsCompareRevisions);
+export default PostsCompareRevisions;
 
 

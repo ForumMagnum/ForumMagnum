@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import PostsItem from "../posts/PostsItem";
 
 const SequencesPostsList = ({posts, chapter}: {
@@ -11,6 +10,4 @@ const SequencesPostsList = ({posts, chapter}: {
   </div>
 }
 
-export default registerComponent('SequencesPostsList', SequencesPostsList);
-
-
+export default SequencesPostsList;

@@ -1,7 +1,7 @@
 // @ts-check (uses JSDoc types for type checking)
 
 import { ATTRIBUTES, ELEMENTS } from "../constants";
-import type Schema from '@ckeditor/ckeditor5-engine/src/model/schema';
+import type { ModelSchema as Schema } from '@ckeditor/ckeditor5-engine/src/model/schema';
 
 /**
  * Declares the custom element types used by the footnotes plugin.

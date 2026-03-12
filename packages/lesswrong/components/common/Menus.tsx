@@ -94,7 +94,7 @@ export const MenuItem = ({value, disabled, disableRipple, dense, onClick, classN
   </ButtonBase>;
 }
 
-export const MenuItemLink = ({to, className, disabled, disableTouchRipple, children}: {
+export const MenuItemLink = ({to, className, disabled, disableTouchRipple, onClick, children}: {
   to: string,
   className?: string,
   disabled?: boolean,
@@ -114,6 +114,7 @@ export const MenuItemLink = ({to, className, disabled, disableTouchRipple, child
     )}
     disabled={disabled}
     disableTouchRipple={disableTouchRipple}
+    onClick={onClick}
     component={Link}
     to={to}
   >

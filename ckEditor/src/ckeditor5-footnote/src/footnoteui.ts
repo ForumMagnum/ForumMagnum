@@ -1,11 +1,11 @@
 // @ts-check (uses JSDoc types for type checking)
 
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
 // @ts-ignore-next-line
 import footnoteIcon from '../theme/ckeditor5-footnote-icon.svg';
 import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
-import Collection from '@ckeditor/ckeditor5-utils/src/collection';
-import Model from '@ckeditor/ckeditor5-ui/src/model';
+import { Collection } from '@ckeditor/ckeditor5-utils/src/collection';
+import { UIModel as Model } from '@ckeditor/ckeditor5-ui/src/model';
 import { modelQueryElement, modelQueryElementsAll } from './utils';
 import { COMMANDS, ATTRIBUTES, ELEMENTS, TOOLBAR_COMPONENT_NAME } from './constants';
 import type { ListDropdownItemDefinition } from '@ckeditor/ckeditor5-ui'

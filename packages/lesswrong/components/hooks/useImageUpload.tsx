@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import { cloudinaryCloudNameSetting, cloudinaryUploadPresetBannerSetting, cloudinaryUploadPresetDigestSetting, cloudinaryUploadPresetEventImageSetting, cloudinaryUploadPresetGridImageSetting, cloudinaryUploadPresetProfileSetting, cloudinaryUploadPresetSocialPreviewSetting, cloudinaryUploadPresetSpotlightSetting } from '@/lib/instanceSettings';
 import { useTheme, useThemeColor } from "../themes/useTheme";
-import { Helmet } from "../common/Helmet";
 import { useExternalScript } from "./useExternalScript";
 
 type CloudinaryImageUploadError = {

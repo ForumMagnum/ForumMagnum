@@ -3,11 +3,12 @@ import { isElasticEnabled } from "@/lib/instanceSettings";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { approveUnreviewedSubmissions, changeDisplayNameRateLimit, clearKarmaChangeBatchOnSettingsChange, createRecombeeUser, handleSetShortformPost, makeFirstUserAdminAndApproved, maybeSendVerificationEmail, newAlignmentUserMoveShortform, newAlignmentUserSendPMAsync, newSubforumMemberNotifyMods, reindexDeletedUserContent, sendWelcomingPM, subscribeOnSignup, subscribeToEAForumAudience, syncProfileUpdatedAt, updateMailchimpSubscription, updateDisplayName, updateUserMayTriggerReview, updatingPostAudio, userEditBannedCallbacksAsync, userEditChangeDisplayNameCallbacksAsync, userEditDeleteContentCallbacksAsync, usersEditCheckEmail } from "@/server/callbacks/userCallbackFunctions";
+import { approveUnreviewedSubmissionsOnApproval, changeDisplayNameRateLimit, clearKarmaChangeBatchOnSettingsChange, createRecombeeUser, handleSetShortformPost, makeFirstUserAdminAndApproved, maybeSendVerificationEmail, newAlignmentUserMoveShortform, newAlignmentUserSendPMAsync, reindexDeletedUserContent, sendWelcomingPM, subscribeOnSignup, syncProfileUpdatedAt, updateDisplayName, updateUserMayTriggerReview, updatingPostAudio, userEditBannedCallbacksAsync, userEditChangeDisplayNameCallbacksAsync, userEditDeleteContentCallbacksAsync, usersEditCheckEmail, closeReviewTriggerModeratorActionsOnReview } from "@/server/callbacks/userCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { validateAndStoreMailgunValidation } from "@/server/mailgun/mailgunValidations";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -77,13 +78,21 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
   }
 
   await subscribeOnSignup(documentWithId);
-  await subscribeToEAForumAudience(documentWithId);
   await sendWelcomingPM(documentWithId);
 
   uploadImagesInEditableFields({
     newDoc: documentWithId,
     props: asyncProperties,
   });
+
+  if (documentWithId.email) {
+    backgroundTask(
+      validateAndStoreMailgunValidation({
+        email: documentWithId.email,
+        sourceUserId: documentWithId._id,
+      }),
+    );
+  }
 
   return documentWithId;
 }
@@ -108,7 +117,6 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
 
   data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
-  await updateMailchimpSubscription(data, updateCallbackProperties);
   await updateDisplayName(data, updateCallbackProperties);
 
   data = await createRevisionsForEditableFields({
@@ -136,8 +144,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
   updateUserMayTriggerReview(updateCallbackProperties);
   await userEditDeleteContentCallbacksAsync(updateCallbackProperties);
 
-  await newSubforumMemberNotifyMods(updatedDocument, oldDocument, context);
-  await approveUnreviewedSubmissions(updatedDocument, oldDocument, context);
+  await approveUnreviewedSubmissionsOnApproval(updatedDocument, oldDocument, context);
   await handleSetShortformPost(updatedDocument, oldDocument, context);
   await updatingPostAudio(updatedDocument, oldDocument);
   await userEditChangeDisplayNameCallbacksAsync(updatedDocument, oldDocument, context);
@@ -155,6 +162,8 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
   }
 
   await reindexDeletedUserContent(updatedDocument, oldDocument, context);
+
+  backgroundTask(closeReviewTriggerModeratorActionsOnReview(updatedDocument, oldDocument, context));
 
   backgroundTask(logFieldChanges({ currentUser, collection: Users, oldDocument, data: origData }));
 

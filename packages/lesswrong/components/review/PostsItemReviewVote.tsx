@@ -10,6 +10,7 @@ import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
 import ReviewPostButton from "./ReviewPostButton";
 import { useCurrentUserReviewVote } from '../hooks/useCurrentUserReviewVote';
+import Loading from '../vulcan-core/Loading';
 
 export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
@@ -85,16 +86,16 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {
   marginRight?: boolean
 }) => {
   const [anchorEl, setAnchorEl] = useState<any>(null)
-  const [newVote, setNewVote] = useState<VoteIndex|null>(null)
 
   const currentUser = useCurrentUser()
 
   const skip = !canNominate(currentUser, post);
-  const currentUserReviewVote = useCurrentUserReviewVote(post._id, skip);
+  const { vote: currentUserReviewVote, loading } = useCurrentUserReviewVote(post._id, skip);
 
   if (skip) return null
+  if (loading) return <Loading />
 
-  const voteIndex = newVote || currentUserReviewVote?.qualitativeScore || 0
+  const voteIndex = currentUserReviewVote?.qualitativeScore || 0
   const displayVote = getCostData({})[voteIndex as VoteIndex]?.value
   const nominationsPhase = getReviewPhase() === "NOMINATIONS"
 
@@ -118,7 +119,7 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {
 
     <LWPopper placement="right" anchorEl={anchorEl} open={!!anchorEl}>
       <Card className={classes.card}>
-        <ReviewVotingWidget post={post} setNewVote={setNewVote}/>
+        <ReviewVotingWidget post={post} />
         <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={`Write up your thoughts on what was good about a post, how it could be improved, and how you think stands the tests of time as part of the broader ${forumTitleSetting.get()} conversation`} placement="bottom">
         <div className={classes.reviewButton}>Write a Review</div>
       </LWTooltip>}/>

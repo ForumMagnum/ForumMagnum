@@ -375,6 +375,42 @@ const schema = {
       },
     },
   },
+  removalResistant: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"],
+      canUpdate: ["admins", "sunshineRegiment"],
+      canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  authorOnly: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"],
+      canUpdate: ["admins", "sunshineRegiment"],
+      canCreate: ["admins", "sunshineRegiment"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   canEditUserIds: {
     database: {
       type: "VARCHAR(27)[]",
@@ -529,7 +565,7 @@ const schema = {
         const lastCommentTime = (tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt) ?? undefined;
         const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, "hours").toDate();
         const comments = await Comments.find({
-          ...getDefaultViewSelector(CommentsViews),
+          ...getDefaultViewSelector(CommentsViews, context),
           tagId: tag._id,
           score: { $gt: 0 },
           draft: false,

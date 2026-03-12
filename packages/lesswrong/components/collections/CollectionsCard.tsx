@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -7,8 +6,10 @@ import LinkCard from "../common/LinkCard";
 import CloudinaryImage from "../common/CloudinaryImage";
 import UsersName from "../users/UsersName";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CollectionsCard", (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 347,
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   card: {
-    padding: theme.spacing.unit*2.5,
+    padding: 20,
     display: "flex",
     height: 315,
     [theme.breakpoints.down('sm')]: {
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('xs')]: {
       height: "auto",
-      padding: theme.spacing.unit*1.25,
+      padding: 10,
     },
     flexWrap: "wrap",
     flexDirection: "column",
@@ -36,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
   content: {
     borderTop: `solid 4px ${theme.palette.text.maxIntensity}`, // This gets overwritten by a color from the DB
-    paddingTop: theme.spacing.unit*1.5
+    paddingTop: 12
   },
   title: {
     fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
@@ -50,7 +51,7 @@ const styles = (theme: ThemeType) => ({
   },
   author: {
     ...theme.typography.postStyle,
-    marginBottom:theme.spacing.unit,
+    marginBottom:8,
     display: "inline-block",
     ...(theme.isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -84,14 +85,14 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-})
+}))
 
-const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
+const CollectionsCard = ({ collection, url, mergeTitle=false }: {
   collection: CoreReadingCollection,
   url: string,
   mergeTitle?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const cardContentStyle = {borderTopColor: collection.color}
 
   return <LinkCard className={classes.root} to={url}>
@@ -121,8 +122,6 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   </LinkCard>
 }
 
-export default registerComponent(
-  "CollectionsCard", CollectionsCard, { styles }
-);
+export default CollectionsCard;
 
 

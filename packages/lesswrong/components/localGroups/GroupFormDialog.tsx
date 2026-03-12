@@ -3,7 +3,6 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { useNavigate } from '../../lib/routeUtil';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useForm } from '@tanstack/react-form';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { MuiTextField } from '@/components/form-components/MuiTextField';
@@ -11,7 +10,7 @@ import { localGroupTypeFormOptions, GROUP_CATEGORIES } from '@/lib/collections/l
 import { isEAForum, isLW } from '@/lib/instanceSettings';
 import { MultiSelectButtons } from '@/components/form-components/MultiSelectButtons';
 import { FormComponentMultiSelect } from '@/components/form-components/FormComponentMultiSelect';
-import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
+import { isFriendlyUI } from '@/themes/forumTheme';
 import { FormUserMultiselect } from '@/components/form-components/UserMultiselect';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { ImageUpload } from '@/components/form-components/ImageUpload';
@@ -84,8 +83,8 @@ const styles = defineStyles('GroupFormDialog', (theme: ThemeType) => ({
     },
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
 }));
 
@@ -198,7 +197,7 @@ const LocalGroupForm = ({
           {(field) => (
             <FormUserMultiselect
               field={field}
-              label={preferredHeadingCase("Add Organizers")}
+              label={"Add Organizers"}
             />
           )}
         </form.Field>
@@ -441,7 +440,7 @@ const GroupFormDialog = ({ onClose, documentId, isOnline }: {
   </LWDialog>
 }
 
-export default registerComponent('GroupFormDialog', GroupFormDialog);
+export default GroupFormDialog;
 
 
 

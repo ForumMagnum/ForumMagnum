@@ -106,6 +106,7 @@ client_meta.json
 client_stats.html
 
 playwright-report
+.playwright-mcp/
 test-results
 .next
 
@@ -120,3 +121,11 @@ dependency-graph.svg
 .env.sentry-build-plugin
 
 tsconfig.tsbuildinfo
+tsconfig-client.tsbuildinfo
+tsconfig-server.tsbuildinfo
+
+# NextJS
+next-env.d.ts
+
+# Fly
+fly/hocuspocusServer/dist/

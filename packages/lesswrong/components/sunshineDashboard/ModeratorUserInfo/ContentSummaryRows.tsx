@@ -15,6 +15,7 @@ const styles = (theme: ThemeType) => ({
   contentSummaryRow: {
     display: "flex",
     flexWrap: "wrap",
+    alignItems: "center",
   },
   displayTitles: {
     display: "block",

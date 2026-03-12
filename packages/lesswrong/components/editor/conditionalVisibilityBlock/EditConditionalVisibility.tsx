@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ConditionalVisibilityMode, conditionalVisibilityModes, ConditionalVisibilitySettings, EditConditionalVisibilityProps } from './conditionalVisibility';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -82,7 +81,7 @@ export const EditConditionalVisibility = ({initialState, setDocumentState}: Edit
   </div>
 }
 
-export default registerComponent('EditConditionalVisibility', EditConditionalVisibility);
+export default EditConditionalVisibility;
 
 
 

@@ -5,7 +5,7 @@ import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
-import { useCommentLink, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
+import { CommentLinkWrapper, useCommentLinkState } from '../comments/CommentsItem/useCommentLink';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { ContentItemBodyImperative } from '../contents/contentBodyUtil';
@@ -28,10 +28,10 @@ import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReaction
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
-    paddingTop: theme.spacing.unit*2.5,
-    paddingLeft: theme.spacing.unit*2.5,
-    paddingRight: theme.spacing.unit*2.5,
+    marginBottom: 32,
+    paddingTop: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
     border: `solid 2px ${theme.palette.grey[300]}`,
     [theme.breakpoints.down('md')]: {
       marginLeft: "auto",
@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
   answerHeader: {
     display: "flex",
     alignItems: "center",
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
     flexWrap: "wrap",
   },
   author: {
@@ -82,8 +82,8 @@ const styles = (theme: ThemeType) => ({
   separator: {
     borderColor: theme.palette.grey[200],
     width: "25%",
-    marginTop: theme.spacing.unit*4,
-    marginBottom: theme.spacing.unit*8
+    marginTop: 32,
+    marginBottom: 64
   },
   linkIcon: {
     fontSize: "1.2rem",
@@ -107,8 +107,8 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
+    paddingTop: 8,
+    paddingBottom: 8,
     marginTop: 50
   },
   deleted: {
@@ -117,10 +117,10 @@ const styles = (theme: ThemeType) => ({
   footerVote: {
     fontSize: 42,
     textAlign: "center",
-    marginRight: theme.spacing.unit
+    marginRight: 8
   },
   footerRight: {
-    marginTop: theme.spacing.unit*2
+    marginTop: 16
   },
   newComment: {
     marginTop: 16,
@@ -171,7 +171,6 @@ const Answer = ({ comment, post, childComments, classes }: {
     setReplyFormIsOpen(false);
   }, []);
 
-  const CommentLinkWrapper = useCommentLink({comment, post});
   const menuIcon = isFriendlyUI()
     ? undefined
     : <MoreHorizIcon />;
@@ -194,7 +193,7 @@ const Answer = ({ comment, post, childComments, classes }: {
             Answer was deleted
           </Typography>
           {isFriendlyUI() &&
-            <CommentLinkWrapper>
+            <CommentLinkWrapper comment={comment} post={post}>
               <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
             </CommentLinkWrapper>
           }
@@ -222,7 +221,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                   <SmallSideVote document={comment} collectionName="Comments"/>
                 </span>
                 {isFriendlyUI() &&
-                  <CommentLinkWrapper>
+                  <CommentLinkWrapper comment={comment} post={post}>
                     <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
                   </CommentLinkWrapper>
                 }

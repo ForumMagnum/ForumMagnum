@@ -6,9 +6,7 @@ import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { isAF } from '../../lib/instanceSettings';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { hasAuthorModeration } from '@/lib/betas';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -20,6 +18,8 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import { getMeetupMonthInfo } from '../seasonal/meetupMonth/meetupMonthEventUtils';
+import { getUserDefaultEditor } from '../editor/Editor';
+import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
 
 const PostsEditMutation = gql(`
   mutation createPostPostsNewForm($data: CreatePostDataInput!) {
@@ -202,8 +202,12 @@ const PostsNewForm = () => {
   });
   const currentUserWithModGuidelines = dataUser?.user?.result;
 
-  const types = (['IFANYONE', 'PETROV'] as const).filter(type => query[type])
-  const { data, title } = getMeetupMonthInfo(types)
+  const types = (['IFANYONE', 'PETROV', 'SOLSTICE'] as const).filter(type => query[type]);
+  const { data: meetupMonthData, title } = getMeetupMonthInfo(types)
+  
+  const defaultContents = meetupMonthData
+    ? { originalContents: { type: getUserDefaultRichTextEditor(currentUser), data: meetupMonthData } }
+    : { originalContents: { type: getUserDefaultEditor(currentUser), data: "" }};
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
@@ -211,14 +215,14 @@ const PostsNewForm = () => {
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
-    title: title ?? "Untitled Draft",
+    title: title || "Untitled Draft",
     types,
     meta: query && !!query.meta,
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     generateDraftJargon: currentUser?.generateJargonForDrafts,
     postCategory,
-    contents: { originalContents: { type: "ckEditorMarkup", data } }
+    contents: defaultContents,
   }
 
   if (userIsMemberOf(currentUser, 'alignmentForum')) {
@@ -248,7 +252,7 @@ const PostsNewForm = () => {
           : prefilledProps;
 
 
-        const hasModerationGuidelines = currentUserWithModGuidelines.moderationGuidelines?.originalContents && hasAuthorModeration()
+        const hasModerationGuidelines = currentUserWithModGuidelines.moderationGuidelines?.originalContents
 
         const moderationGuidelines = sanitizeEditableFieldValues(currentUserWithModGuidelines, ['moderationGuidelines']).moderationGuidelines
 
@@ -306,6 +310,6 @@ const PostsNewForm = () => {
   }
 }
 
-export default registerComponent('PostsNewForm', PostsNewForm);
+export default PostsNewForm;
 
 

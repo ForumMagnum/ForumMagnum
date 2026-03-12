@@ -8,10 +8,6 @@ export function getDbIndexesOnUsers() {
   indexSet.addIndex("Users", {username:1}, {unique:true,sparse:1});
   indexSet.addIndex("Users", {email:1}, {sparse:1});
   indexSet.addIndex("Users", {"emails.address":1}, {unique:true,sparse:1}); //TODO: deprecate emails field – do not build upon
-  indexSet.addIndex("Users", {"services.resume.loginTokens.hashedToken":1}, {unique:true,sparse:1});
-  indexSet.addIndex("Users", {"services.resume.loginTokens.token":1}, {unique:true,sparse:1});
-  indexSet.addIndex("Users", {"services.resume.haveLoginTokensToDelete":1}, {sparse:1});
-  indexSet.addIndex("Users", {"services.resume.loginTokens.when":1}, {sparse:1});
   indexSet.addIndex("Users", {"services.email.verificationTokens.token":1}, {unique:true,sparse:1});
   indexSet.addIndex("Users", {"services.password.reset.token":1}, {unique:true,sparse:1});
   indexSet.addIndex("Users", {"services.password.reset.when":1}, {sparse:1});
@@ -88,6 +84,14 @@ export function getDbIndexesOnUsers() {
   indexSet.addIndex("Users", { afKarma:1, reviewForAlignmentForumUserId:1, groups:1, createdAt:1 });
   indexSet.addIndex("Users", { afSubmittedApplication:1, reviewForAlignmentForumUserId:1, groups:1, createdAt:1 });
   indexSet.addIndex("Users", {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
+
+
+  // Speeds up moderation log globally banned users list ordering and filtering.
+  indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_banned_karma"
+    ON "Users" ("karma" DESC NULLS LAST, "banned")
+    WHERE "banned" IS NOT NULL;
+  `);
 
   return mergeDatabaseIndexSets([ 
     indexSet,

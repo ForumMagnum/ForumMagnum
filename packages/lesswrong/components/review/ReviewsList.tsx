@@ -56,7 +56,7 @@ export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
   const reviews = data?.comments?.results;
   const sortedReviews = sortBy(reviews, obj => {
     if (sortReviews === "top") return -(obj.baseScore ?? 0)
-    if (sortReviews === "new") return -obj.postedAt 
+    if (sortReviews === "new") return -(new Date(obj.postedAt))
   })
   
   return <div className={classes.root}>

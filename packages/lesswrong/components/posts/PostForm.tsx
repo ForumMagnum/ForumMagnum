@@ -1,8 +1,6 @@
 import { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { isLWorAF, isEAForum, fmCrosspostSiteNameSetting, fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
-import { registerComponent } from "@/lib/vulcan-lib/components";
-import { preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useState } from "react";
@@ -59,8 +57,8 @@ const PostsEditMutationFragmentMutation = gql(`
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   formSubmit: {
     display: "flex",
@@ -186,7 +184,7 @@ const PostForm = ({
   const postSubmit = <form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting, draft: s.values.draft })}>
     {({ canSubmit, isSubmitting, draft }) => {
       const draftLabel = getDraftLabel({ draft });
-      const submitLabel = preferredHeadingCase(draft ? "Publish" : "Publish Changes");
+      const submitLabel = draft ? "Publish" : "Publish Changes";
 
       return isDialogue
         ? <DialogueSubmit
@@ -309,7 +307,7 @@ const PostForm = ({
         </div>
       </LegacyFormGroupLayout>
 
-      {isEvent && <LegacyFormGroupLayout label={preferredHeadingCase("Event Details")}>
+      {isEvent && <LegacyFormGroupLayout label={"Event Details"}>
         <div className={classes.fieldWrapper}>
           <form.Field name="onlineEvent">
             {(field) => (
@@ -525,6 +523,6 @@ const PostForm = ({
   );
 };
 
-export default registerComponent("PostForm", PostForm);
+export default PostForm;
 
 

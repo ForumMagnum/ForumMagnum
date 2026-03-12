@@ -12,7 +12,8 @@ const restrictedImportsPaths = [
   { name: "@/lib/vendor/@material-ui/core/src/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
   { name: "@/lib/vendor/@material-ui/core/src/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
   { name: "@/lib/vendor/@material-ui/core/src/NoSsr", importNames: ["Popper"], message: "Don't use @/lib/vendor/@material-ui/core/src/NoSsr/NoSsr; use react-no-ssr instead" },
-  { name: "@apollo/client", importNames: ["useQuery", "useSuspenseQuery"], message: "Don't import useQuery from Apollo directly; use the wrapper in lib/crud/useQuery" },
+  { name: "@apollo/client", importNames: ["useQuery", "useSuspenseQuery", "useBackgroundQuery", "useReadQuery"], message: "Don't import useQuery from Apollo directly; use the wrapper in lib/crud/useQuery" },
+  { name: "@apollo/client/react", importNames: ["useQuery", "useSuspenseQuery", "useBackgroundQuery", "useReadQuery"], message: "Don't import useQuery from Apollo directly; use the wrapper in lib/crud/useQuery" },
   { name: "@apollo/client", importNames: ["gql"], message: "Don't import gql from Apollo; use @/lib/generated/gql-codegen" },
   { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
   { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
@@ -36,6 +37,7 @@ module.exports = {
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
 
     // Uncomment to enable cycle-detection. Note that caching doesn't seem to
     // work quite right with this plugin; after fixing some issues, you will
@@ -50,7 +52,7 @@ module.exports = {
     "allowImportExportEverywhere": true,
     "ecmaVersion": 6,
     "sourceType": "module",
-    "project": "./tsconfig.json",
+    "project": "./tsconfig-shared.json",
   },
   "rules": {
     "babel/generator-star-spacing": 0,
@@ -62,7 +64,6 @@ module.exports = {
         "Optional",
         "OneOf",
         "Maybe",
-        "MailChimpAPI",
         "Juice",
         "Run",
         "AppComposer",
@@ -102,25 +103,6 @@ module.exports = {
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
 
-    // A function with a name starting with an uppercase letter should only be
-    // used as a constructor
-    "babel/new-cap": [1, {
-      "capIsNewExceptions": [
-        "Optional",
-        "OneOf",
-        "Maybe",
-        "MailChimpAPI",
-        "Juice",
-        "Run",
-        "AppComposer",
-        "Query",
-        "Map",
-        "List",
-        "GET",
-        "POST",
-      ]
-    }],
-
     // Warn if defining a component inside a function, which results in the
     // component's subtree and its state being destroyed on every render
     "react/no-unstable-nested-components": [1, {
@@ -146,6 +128,17 @@ module.exports = {
     }],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
+
+    "react-hooks/refs": 0,
+    "react-hooks/immutability": 0,
+    "react-hooks/static-components": 0,
+    "react-hooks/set-state-in-effect": 0,
+    "react-hooks/preserve-manual-memoization": 0,
+    
+    // Warns if a .tsx/.jsx file doesn't import "react", because some build
+    // environments need that, but ours doesn't.
+    "react/react-in-jsx-scope": 0,
+
     "import/no-unresolved": 1,
     "import/no-dynamic-require": 1,
     "import/no-self-import": 1,
@@ -184,9 +177,25 @@ module.exports = {
     // }],
     "import/no-mutable-exports": 1,
     "no-restricted-imports": ["error", {
-      "paths": restrictedImportsPaths,
+      "paths": [
+        ...restrictedImportsPaths,
+      ],
       patterns: [
-        "@/lib/vendor/@material-ui/core/src/colors/*"
+        {
+          group: ["@/lib/vendor/@material-ui/core/src/colors/*"],
+        },
+        {
+          group: ["js-tiktoken*"],
+          message: "Don't import js-tiktoken at top level unless the turbopack bundler bug has been fixed",
+        },
+        {
+          group: ["openai*"],
+          message: "Don't import openai at top level unless the turbopack bundler bug has been fixed",
+        },
+        {
+          group: ["linkedom*"],
+          message: "Don't import openai at top level unless the turbopack bundler bug has been fixed",
+        },
       ]
     }],
 
@@ -432,6 +441,7 @@ module.exports = {
     // You wouldn't have thought this was necessary would you
     ".eslintrc.js",
     "packages/lesswrong/lib/vendor/@material-ui",
-    "packages/lesswrong/lib/generated/gql-codegen"
+    "packages/lesswrong/lib/generated/gql-codegen",
+    "packages/lesswrong/lib/generated"
   ]
 }

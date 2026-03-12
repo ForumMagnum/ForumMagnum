@@ -53,7 +53,7 @@ const styles = defineStyles('FMCrosspostControl', (theme: ThemeType) => ({
   },
   buttonIcon: {
     fontSize: 18,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
   },
   error: {
     color: theme.palette.error.main,

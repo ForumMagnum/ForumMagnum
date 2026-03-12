@@ -16,6 +16,7 @@ interface FragmentTypes {
   BookmarksFeedItemFragment: BookmarksFeedItemFragment
   BookmarksMinimumInfoFragment: BookmarksMinimumInfoFragment
   BookmarksWithDocumentFragment: BookmarksWithDocumentFragment
+  ChapterPostSlim: ChapterPostSlim
   ChaptersEdit: ChaptersEdit
   ChaptersFragment: ChaptersFragment
   CkEditorUserSessionInfo: CkEditorUserSessionInfo
@@ -31,6 +32,7 @@ interface FragmentTypes {
   CommentsListWithModGPTAnalysis: CommentsListWithModGPTAnalysis
   CommentsListWithParentMetadata: CommentsListWithParentMetadata
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
+  CommentsMarkdownFragment: CommentsMarkdownFragment
   ConceptItemFragment: ConceptItemFragment
   ConversationsList: ConversationsList
   ConversationsListWithReadStatus: ConversationsListWithReadStatus
@@ -38,21 +40,15 @@ interface FragmentTypes {
   CurationNoticesFragment: CurationNoticesFragment
   DeletedCommentsMetaData: DeletedCommentsMetaData
   DeletedCommentsModerationLog: DeletedCommentsModerationLog
-  DigestPostsMinimumInfo: DigestPostsMinimumInfo
-  DigestsMinimumInfo: DigestsMinimumInfo
   DraftComments: DraftComments
-  ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElicitQuestionFragment: ElicitQuestionFragment
   ExplorePageTagFragment: ExplorePageTagFragment
-  FeaturedResourcesFragment: FeaturedResourcesFragment
   FeedCommentThreadFragment: FeedCommentThreadFragment
+  FeedMarkerFragment: FeedMarkerFragment
   FeedPostFragment: FeedPostFragment
   FeedSpotlightFragment: FeedSpotlightFragment
   FeedSubscriptionSuggestionsFragment: FeedSubscriptionSuggestionsFragment
   FieldChangeFragment: FieldChangeFragment
-  ForumEventsDisplay: ForumEventsDisplay
-  ForumEventsEdit: ForumEventsEdit
-  ForumEventsMinimumInfo: ForumEventsMinimumInfo
   FrontpageShortformComments: FrontpageShortformComments
   GoogleServiceAccountSessionAdminInfo: GoogleServiceAccountSessionAdminInfo
   GoogleServiceAccountSessionInfo: GoogleServiceAccountSessionInfo
@@ -63,6 +59,7 @@ interface FragmentTypes {
   LlmConversationsViewingPageFragment: LlmConversationsViewingPageFragment
   LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
   LlmMessagesFragment: LlmMessagesFragment
+  MarkdownPostsList: MarkdownPostsList
   MembersOfGroupFragment: MembersOfGroupFragment
   ModerationTemplateFragment: ModerationTemplateFragment
   ModeratorActionDisplay: ModeratorActionDisplay
@@ -81,7 +78,6 @@ interface FragmentTypes {
   PodcastSelect: PodcastSelect
   PostPodcastEpisode: PostPodcastEpisode
   PostSequenceNavigation: PostSequenceNavigation
-  PostSideComments: PostSideComments
   PostWithDialogueMessage: PostWithDialogueMessage
   PostWithGeneratedSummary: PostWithGeneratedSummary
   PostsAuthors: PostsAuthors
@@ -115,6 +111,7 @@ interface FragmentTypes {
   PostsWithNavigation: PostsWithNavigation
   PostsWithNavigationAndRevision: PostsWithNavigationAndRevision
   PostsWithVotes: PostsWithVotes
+  ProfileTopPost: ProfileTopPost
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   ReviewWinnerAll: ReviewWinnerAll
@@ -130,6 +127,7 @@ interface FragmentTypes {
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
   RevisionTagFragment: RevisionTagFragment
   SequenceContinueReadingFragment: SequenceContinueReadingFragment
+  SequenceSummaryFragment: SequenceSummaryFragment
   SequencesEdit: SequencesEdit
   SequencesPageFragment: SequencesPageFragment
   SequencesPageTitleFragment: SequencesPageTitleFragment
@@ -137,6 +135,7 @@ interface FragmentTypes {
   ShortformComments: ShortformComments
   ShortformRecentDiscussion: ShortformRecentDiscussion
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
+  SlimChapter: SlimChapter
   SplashArtCoordinates: SplashArtCoordinates
   SplashArtCoordinatesEdit: SplashArtCoordinatesEdit
   SpotlightDisplay: SpotlightDisplay
@@ -144,20 +143,15 @@ interface FragmentTypes {
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
   SpotlightMinimumInfo: SpotlightMinimumInfo
   StickySubforumCommentFragment: StickySubforumCommentFragment
-  SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
   SubscriptionState: SubscriptionState
   SuggestAlignmentComment: SuggestAlignmentComment
   SuggestAlignmentPost: SuggestAlignmentPost
   SuggestAlignmentUser: SuggestAlignmentUser
+  SunshineCommentsList: SunshineCommentsList
   SunshineCurationPostsList: SunshineCurationPostsList
   SunshinePostsList: SunshinePostsList
   SunshineTagFragment: SunshineTagFragment
   SunshineUsersList: SunshineUsersList
-  SurveyMinimumInfo: SurveyMinimumInfo
-  SurveyQuestionMinimumInfo: SurveyQuestionMinimumInfo
-  SurveyResponseMinimumInfo: SurveyResponseMinimumInfo
-  SurveyScheduleEdit: SurveyScheduleEdit
-  SurveyScheduleMinimumInfo: SurveyScheduleMinimumInfo
   TagBasicInfo: TagBasicInfo
   TagCreationHistoryFragment: TagCreationHistoryFragment
   TagDetailsFragment: TagDetailsFragment
@@ -194,12 +188,10 @@ interface FragmentTypes {
   UltraFeedPostFragment: UltraFeedPostFragment
   UnclaimedReportsList: UnclaimedReportsList
   UserAltAccountsFragment: UserAltAccountsFragment
-  UserEAGDetailsMinimumInfo: UserEAGDetailsMinimumInfo
-  UserJobAdsMinimumInfo: UserJobAdsMinimumInfo
   UserKarmaChanges: UserKarmaChanges
   UserMostValuablePostInfo: UserMostValuablePostInfo
-  UserOnboardingAuthor: UserOnboardingAuthor
   UserOnboardingTag: UserOnboardingTag
+  UserProfilePost: UserProfilePost
   UserRateLimitDisplay: UserRateLimitDisplay
   UserRateLimitMutationFragment: UserRateLimitMutationFragment
   UserTagRelDetails: UserTagRelDetails
@@ -216,10 +208,8 @@ interface FragmentTypes {
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersProfileEdit: UsersProfileEdit
-  UsersSocialMediaInfo: UsersSocialMediaInfo
   UsersWithReviewInfo: UsersWithReviewInfo
   WithVoteComment: WithVoteComment
-  WithVoteElectionCandidate: WithVoteElectionCandidate
   WithVoteMessage: WithVoteMessage
   WithVoteMultiDocument: WithVoteMultiDocument
   WithVotePost: WithVotePost
@@ -244,24 +234,20 @@ interface FragmentTypesByCollection {
   AutomatedContentEvaluations: "AutomatedContentEvaluationsFragment"
   Bookmarks: "BookmarksFeedItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"
-  Chapters: "ChaptersEdit"|"ChaptersFragment"
+  Chapters: "ChaptersEdit"|"ChaptersFragment"|"SlimChapter"
   CkEditorUserSessions: "CkEditorUserSessionInfo"
   ClientIds: "ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsBestOfFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
-  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"UltraFeedComment"|"WithVoteComment"
+  Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithModGPTAnalysis"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"CommentsMarkdownFragment"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"StickySubforumCommentFragment"|"SuggestAlignmentComment"|"SunshineCommentsList"|"UltraFeedComment"|"WithVoteComment"
   Conversations: "ConversationsList"|"ConversationsListWithReadStatus"|"ConversationsMinimumInfo"
   CurationNotices: "CurationNoticesFragment"
-  DigestPosts: "DigestPostsMinimumInfo"
-  Digests: "DigestsMinimumInfo"
-  ElectionCandidates: "ElectionCandidateBasicInfo"|"WithVoteElectionCandidate"
   ElicitQuestions: "ElicitQuestionFragment"
-  FeaturedResources: "FeaturedResourcesFragment"
   FeedCommentThreads: "FeedCommentThreadFragment"
+  FeedMarkers: "FeedMarkerFragment"
   FeedPosts: "FeedPostFragment"
   FeedSpotlightItems: "FeedSpotlightFragment"
   FeedSubscriptionSuggestionses: "FeedSubscriptionSuggestionsFragment"
   FieldChanges: "FieldChangeFragment"
-  ForumEvents: "ForumEventsDisplay"|"ForumEventsEdit"|"ForumEventsMinimumInfo"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionAdminInfo"|"GoogleServiceAccountSessionInfo"
   JargonTerms: "JargonTerms"|"JargonTermsPost"
   LWEvents: "emailHistoryFragment"|"lastEventFragment"|"newEventFragment"
@@ -276,32 +262,25 @@ interface FragmentTypesByCollection {
   PetrovDayActions: "PetrovDayActionInfo"
   PodcastEpisodes: "PodcastEpisodeCreateFragment"|"PodcastEpisodeFull"
   Podcasts: "PodcastSelect"
-  Posts: "HighlightWithHash"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostSideComments"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsTwitterAdmin"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ProfileTopPost"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UserProfilePost"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"newRSSFeedFragment"
   Reports: "UnclaimedReportsList"
   ReviewVotes: "reviewAdminDashboard"|"reviewVoteFragment"
   ReviewWinnerArts: "ReviewWinnerArtImages"
   ReviewWinners: "ReviewWinnerAll"|"ReviewWinnerAnnouncement"|"ReviewWinnerTopPostsPage"
   Revisions: "RecentDiscussionRevisionTagFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionHTML"|"RevisionHistoryEntry"|"RevisionHistorySummaryEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionTagFragment"|"WithVoteRevision"
-  Sequences: "SequenceContinueReadingFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
+  Sequences: "SequenceContinueReadingFragment"|"SequenceSummaryFragment"|"SequencesEdit"|"SequencesPageFragment"|"SequencesPageTitleFragment"|"SequencesPageWithChaptersFragment"
   SideCommentCaches: "SideCommentCacheMinimumInfo"
   SplashArtCoordinates: "SplashArtCoordinates"|"SplashArtCoordinatesEdit"
   Spotlights: "SpotlightDisplay"|"SpotlightEditQueryFragment"|"SpotlightHeaderEventSubtitle"|"SpotlightMinimumInfo"
-  SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
   Subscriptions: "MembersOfGroupFragment"|"SubscriptionState"
-  SurveyQuestions: "SurveyQuestionMinimumInfo"
-  SurveyResponses: "SurveyResponseMinimumInfo"
-  SurveySchedules: "SurveyScheduleEdit"|"SurveyScheduleMinimumInfo"
-  Surveys: "SurveyMinimumInfo"
   TagFlags: "TagFlagEditFragment"|"TagFlagFragment"
   TagRels: "TagRelBasicInfo"|"TagRelCreationFragment"|"TagRelFragment"|"TagRelHistoryFragment"|"TagRelMinimumFragment"|"WithVoteTagRel"
   Tags: "AllTagsPageFragment"|"ConceptItemFragment"|"ExplorePageTagFragment"|"SunshineTagFragment"|"TagBasicInfo"|"TagCreationHistoryFragment"|"TagDetailsFragment"|"TagEditFragment"|"TagFragment"|"TagFullContributorsList"|"TagHistoryFragment"|"TagName"|"TagPageArbitalContentFragment"|"TagPageFragment"|"TagPageRevisionWithArbitalContentFragment"|"TagPageWithArbitalContentAndLensRevisionFragment"|"TagPageWithArbitalContentFragment"|"TagPageWithRevisionFragment"|"TagPreviewFragment"|"TagRecentDiscussion"|"TagRevisionFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubforumSidebarFragment"|"TagSubtagFragment"|"TagWithFlagsAndRevisionFragment"|"TagWithFlagsFragment"|"UserOnboardingTag"|"WithVoteTag"
-  UserEAGDetails: "UserEAGDetailsMinimumInfo"
-  UserJobAds: "UserJobAdsMinimumInfo"
   UserMostValuablePosts: "UserMostValuablePostInfo"
   UserRateLimits: "UserRateLimitDisplay"|"UserRateLimitMutationFragment"
   UserTagRels: "UserTagRelDetails"
-  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
+  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
 }
 
@@ -314,6 +293,7 @@ interface CollectionNamesByFragmentName {
   BookmarksFeedItemFragment: "Bookmarks"
   BookmarksMinimumInfoFragment: "Bookmarks"
   BookmarksWithDocumentFragment: "Bookmarks"
+  ChapterPostSlim: "Posts"
   ChaptersEdit: "Chapters"
   ChaptersFragment: "Chapters"
   CkEditorUserSessionInfo: "CkEditorUserSessions"
@@ -329,6 +309,7 @@ interface CollectionNamesByFragmentName {
   CommentsListWithModGPTAnalysis: "Comments"
   CommentsListWithParentMetadata: "Comments"
   CommentsListWithTopLevelComment: "Comments"
+  CommentsMarkdownFragment: "Comments"
   ConceptItemFragment: "Tags"
   ConversationsList: "Conversations"
   ConversationsListWithReadStatus: "Conversations"
@@ -336,21 +317,15 @@ interface CollectionNamesByFragmentName {
   CurationNoticesFragment: "CurationNotices"
   DeletedCommentsMetaData: "Comments"
   DeletedCommentsModerationLog: "Comments"
-  DigestPostsMinimumInfo: "DigestPosts"
-  DigestsMinimumInfo: "Digests"
   DraftComments: "Comments"
-  ElectionCandidateBasicInfo: "ElectionCandidates"
   ElicitQuestionFragment: "ElicitQuestions"
   ExplorePageTagFragment: "Tags"
-  FeaturedResourcesFragment: "FeaturedResources"
   FeedCommentThreadFragment: never
+  FeedMarkerFragment: never
   FeedPostFragment: never
   FeedSpotlightFragment: never
   FeedSubscriptionSuggestionsFragment: never
   FieldChangeFragment: "FieldChanges"
-  ForumEventsDisplay: "ForumEvents"
-  ForumEventsEdit: "ForumEvents"
-  ForumEventsMinimumInfo: "ForumEvents"
   FrontpageShortformComments: "Comments"
   GoogleServiceAccountSessionAdminInfo: "GoogleServiceAccountSessions"
   GoogleServiceAccountSessionInfo: "GoogleServiceAccountSessions"
@@ -361,6 +336,7 @@ interface CollectionNamesByFragmentName {
   LlmConversationsViewingPageFragment: "LlmConversations"
   LlmConversationsWithMessagesFragment: "LlmConversations"
   LlmMessagesFragment: "LlmMessages"
+  MarkdownPostsList: "Posts"
   MembersOfGroupFragment: "Subscriptions"
   ModerationTemplateFragment: "ModerationTemplates"
   ModeratorActionDisplay: "ModeratorActions"
@@ -379,7 +355,6 @@ interface CollectionNamesByFragmentName {
   PodcastSelect: "Podcasts"
   PostPodcastEpisode: "Posts"
   PostSequenceNavigation: "Posts"
-  PostSideComments: "Posts"
   PostWithDialogueMessage: "Posts"
   PostWithGeneratedSummary: "Posts"
   PostsAuthors: "Posts"
@@ -413,6 +388,7 @@ interface CollectionNamesByFragmentName {
   PostsWithNavigation: "Posts"
   PostsWithNavigationAndRevision: "Posts"
   PostsWithVotes: "Posts"
+  ProfileTopPost: "Posts"
   RSSFeedMinimumInfo: "RSSFeeds"
   RecentDiscussionRevisionTagFragment: "Revisions"
   ReviewWinnerAll: "ReviewWinners"
@@ -428,6 +404,7 @@ interface CollectionNamesByFragmentName {
   RevisionMetadataWithChangeMetrics: "Revisions"
   RevisionTagFragment: "Revisions"
   SequenceContinueReadingFragment: "Sequences"
+  SequenceSummaryFragment: "Sequences"
   SequencesEdit: "Sequences"
   SequencesPageFragment: "Sequences"
   SequencesPageTitleFragment: "Sequences"
@@ -435,6 +412,7 @@ interface CollectionNamesByFragmentName {
   ShortformComments: "Comments"
   ShortformRecentDiscussion: "Posts"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
+  SlimChapter: "Chapters"
   SplashArtCoordinates: "SplashArtCoordinates"
   SplashArtCoordinatesEdit: "SplashArtCoordinates"
   SpotlightDisplay: "Spotlights"
@@ -442,20 +420,15 @@ interface CollectionNamesByFragmentName {
   SpotlightHeaderEventSubtitle: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
   StickySubforumCommentFragment: "Comments"
-  SubscribedPostAndCommentsFeed: never
   SubscriptionState: "Subscriptions"
   SuggestAlignmentComment: "Comments"
   SuggestAlignmentPost: "Posts"
   SuggestAlignmentUser: "Users"
+  SunshineCommentsList: "Comments"
   SunshineCurationPostsList: "Posts"
   SunshinePostsList: "Posts"
   SunshineTagFragment: "Tags"
   SunshineUsersList: "Users"
-  SurveyMinimumInfo: "Surveys"
-  SurveyQuestionMinimumInfo: "SurveyQuestions"
-  SurveyResponseMinimumInfo: "SurveyResponses"
-  SurveyScheduleEdit: "SurveySchedules"
-  SurveyScheduleMinimumInfo: "SurveySchedules"
   TagBasicInfo: "Tags"
   TagCreationHistoryFragment: "Tags"
   TagDetailsFragment: "Tags"
@@ -492,12 +465,10 @@ interface CollectionNamesByFragmentName {
   UltraFeedPostFragment: "Posts"
   UnclaimedReportsList: "Reports"
   UserAltAccountsFragment: "Users"
-  UserEAGDetailsMinimumInfo: "UserEAGDetails"
-  UserJobAdsMinimumInfo: "UserJobAds"
   UserKarmaChanges: "Users"
   UserMostValuablePostInfo: "UserMostValuablePosts"
-  UserOnboardingAuthor: "Users"
   UserOnboardingTag: "Tags"
+  UserProfilePost: "Posts"
   UserRateLimitDisplay: "UserRateLimits"
   UserRateLimitMutationFragment: "UserRateLimits"
   UserTagRelDetails: "UserTagRels"
@@ -514,10 +485,8 @@ interface CollectionNamesByFragmentName {
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersProfileEdit: "Users"
-  UsersSocialMediaInfo: "Users"
   UsersWithReviewInfo: "Users"
   WithVoteComment: "Comments"
-  WithVoteElectionCandidate: "ElectionCandidates"
   WithVoteMessage: "Messages"
   WithVoteMultiDocument: "MultiDocuments"
   WithVotePost: "Posts"
@@ -537,9 +506,9 @@ interface CollectionNamesByFragmentName {
   reviewVoteFragment: "ReviewVotes"
 }
 
-type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FieldChanges"|"GoogleServiceAccountSessions"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"OAuthAccessTokens"|"OAuthAuthorizationCodes"|"OAuthClients"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"FieldChanges"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PageCache"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "ArbitalCaches"|"ArbitalTagContentRels"|"AutomatedContentEvaluations"|"Bans"|"Bookmarks"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentEmbeddings"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FieldChanges"|"GoogleServiceAccountSessions"|"IframeWidgetSrcdocs"|"Images"|"JargonTerms"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"LoginTokens"|"MailgunValidations"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"OAuthAccessTokens"|"OAuthAuthorizationCodes"|"OAuthClients"|"PetrovDayActions"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UltraFeedEvents"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"|"YjsDocuments"
 
-type CollectionNameWithSlug = "Collections"|"GardenCodes"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
+type CollectionNameWithSlug = "Collections"|"MultiDocuments"|"Posts"|"TagFlags"|"Tags"|"Users"
 

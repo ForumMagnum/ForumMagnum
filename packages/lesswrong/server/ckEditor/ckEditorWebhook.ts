@@ -1,6 +1,6 @@
 import { Posts } from '../../server/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
-import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
+import { ckEditorDocumentIdToPostId, endCkEditorUserSession, fetchCkEditorCloudStorageDocumentHtml, fetchCkEditorCommentThread, saveDocumentRevision, saveOrUpdateDocumentRevision } from './ckEditorApi';
 import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
 import { createAdminContext } from "../vulcan-lib/createContexts";
@@ -54,13 +54,13 @@ export async function handleCkEditorWebhook(message: any) {
       };
       const commentAddedPayload = payload as CkEditorCommentAdded;
       
-      const thread = await ckEditorApi.fetchCkEditorCommentThread(payload?.comment?.thread_id);
+      const thread = await fetchCkEditorCommentThread(payload?.comment?.thread_id);
       const commentersInThread: string[] = [...new Set(thread.map(comment => comment?.user?.id))];
       
       await notifyCkEditorCommentAdded({
         commenterUserId: payload?.comment?.user?.id,
         commentHtml: payload?.comment?.content,
-        postId: documentHelpers.ckEditorDocumentIdToPostId(payload?.document?.id),
+        postId: ckEditorDocumentIdToPostId(payload?.document?.id),
         commentersInThread,
       });
       break;
@@ -78,9 +78,9 @@ export async function handleCkEditorWebhook(message: any) {
       }
       const documentSavedPayload = payload as CkEditorDocumentSaved;
       const ckEditorDocumentId = documentSavedPayload?.document?.id;
-      const postId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId);
-      const documentContents = await ckEditorApiHelpers.fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
-      await documentHelpers.saveOrUpdateDocumentRevision(postId, documentContents);
+      const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
+      const documentContents = await fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
+      await saveOrUpdateDocumentRevision(postId, documentContents);
       break;
     }
     case "collaboration.document.updated": {
@@ -97,9 +97,9 @@ export async function handleCkEditorWebhook(message: any) {
       }
       const documentUpdatedPayload = payload as CkEditorDocumentUpdated;
       const ckEditorDocumentId = documentUpdatedPayload?.document?.id;
-      const postId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId);
-      const documentContents = await ckEditorApiHelpers.fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
-      await documentHelpers.saveOrUpdateDocumentRevision(postId, documentContents);
+      const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
+      const documentContents = await fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
+      await saveOrUpdateDocumentRevision(postId, documentContents);
       break;
     }
     
@@ -113,7 +113,7 @@ export async function handleCkEditorWebhook(message: any) {
         const userConnectedPayload = payload as CkEditorUserConnectionChange;
         const userId = userConnectedPayload?.user?.id;
         const ckEditorDocumentId = userConnectedPayload?.document?.id;
-        const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
+        const documentId = ckEditorDocumentIdToPostId(ckEditorDocumentId)
         if (!!userId && !!documentId) {
           const adminContext = createAdminContext();
           await createCkEditorUserSession({
@@ -134,10 +134,10 @@ export async function handleCkEditorWebhook(message: any) {
         const userId = userDisconnectedPayload?.user?.id;
         const ckEditorDocumentId = userDisconnectedPayload?.document?.id;
         if (!!userId && !!ckEditorDocumentId) {
-          const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
+          const documentId = ckEditorDocumentIdToPostId(ckEditorDocumentId)
           const userSession = await CkEditorUserSessions.findOne({userId, documentId, endedAt: {$exists: false}}, {sort:{createdAt: -1}});
           if (!!userSession) {
-            await documentHelpers.endCkEditorUserSession(userSession._id, "ckEditorWebhook", new Date(sent_at))
+            await endCkEditorUserSession(userSession._id, "ckEditorWebhook", new Date(sent_at))
           }
         }
       }
@@ -147,9 +147,9 @@ export async function handleCkEditorWebhook(message: any) {
       const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
       const userId = userDisconnectedPayload?.user?.id;
       const ckEditorDocumentId = userDisconnectedPayload?.document?.id;
-      const documentContents = await ckEditorApiHelpers.fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
-      const postId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId);
-      await documentHelpers.saveDocumentRevision(userId, postId, documentContents);
+      const documentContents = await fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
+      const postId = ckEditorDocumentIdToPostId(ckEditorDocumentId);
+      await saveDocumentRevision(userId, postId, documentContents);
 
       break;
     }

@@ -18,8 +18,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   iconSet: {
-    marginLeft: theme.isFriendlyUI ? 6 : theme.spacing.unit,
-    marginRight: theme.isFriendlyUI ? 2 : theme.spacing.unit,
+    marginLeft: theme.isFriendlyUI ? 6 : 8,
+    marginRight: theme.isFriendlyUI ? 2 : 8,
     lineHeight: "1.0rem",
     '&:empty': {
       display: 'none',

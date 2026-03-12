@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import moment from 'moment';
 import type { Moment } from 'moment';
 import { getTimeBlockTitle } from './PostsTimeframeList';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { loadMoreTimeframeMessages, TimeframeType } from './timeframeUtils';
 import PostsTimeBlock from "./PostsTimeBlock";
 import { Typography } from "../common/Typography";
@@ -34,28 +32,28 @@ const PostsTimeframeListExponential = ({postListParameters}: {
       after: moment(now).add(-24,'hours').startOf('day'),
       before: moment(now).endOf('day'),
       timeframe: "daily",
-      getTitle: (_size) => preferredHeadingCase("Today and Yesterday"),
+      getTitle: (_size) => "Today and Yesterday",
     },
     // Past week
     {
       after: moment(now).add(-7*24,'hours').startOf('day'),
       before: moment(now).add(-24,'hours').startOf('day'),
       timeframe: "weekly",
-      getTitle: (_size) => preferredHeadingCase("Past week"),
+      getTitle: (_size) => "Past week",
     },
     // Past two weeks
     {
       after: moment(now).add(-14*24,'hours').startOf('day'),
       before: moment(now).add(-7*24,'hours').startOf('day'),
       timeframe: "weekly",
-      getTitle: (_size) => preferredHeadingCase("Past 14 days"),
+      getTitle: (_size) => "Past 14 days",
     },
     // Past month
     {
       after: moment(now).add(-31*24,'hours').startOf('day'),
       before: moment(now).add(-14*24,'hours').startOf('day'),
       timeframe: "monthly",
-      getTitle: (_size) => preferredHeadingCase("Past 31 days"),
+      getTitle: (_size) => "Past 31 days",
     }
   ];
   
@@ -65,7 +63,6 @@ const PostsTimeframeListExponential = ({postListParameters}: {
     after: roundedMonthStart,
     before: moment(now).add(-31*24,'hours').startOf('day'),
     timeframe: "monthly",
-    // Not calling preferredHeadingCase because month names are always capitalized
     getTitle: (_size) => `Since ${roundedMonthStart.format("MMMM Do")}`,
   });
 
@@ -103,12 +100,9 @@ const PostsTimeframeListExponential = ({postListParameters}: {
       variant="body1"
       onClick={loadMoreMonths}
     >
-      <a>{preferredHeadingCase(loadMoreTimeframeMessages["monthly"])}</a>
+      <a>{loadMoreTimeframeMessages["monthly"]}</a>
     </Typography>
   </div>
 }
 
-export default registerComponent('PostsTimeframeListExponential', PostsTimeframeListExponential);
-
-
-
+export default PostsTimeframeListExponential;

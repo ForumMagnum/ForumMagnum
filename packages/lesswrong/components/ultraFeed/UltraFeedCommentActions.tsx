@@ -9,14 +9,17 @@ import EditCommentDropdownItem from "../dropdowns/comments/EditCommentDropdownIt
 import { useCurrentUserId } from "../common/withUser";
 import BookmarkDropdownItem from "../dropdowns/posts/BookmarkDropdownItem";
 import SeeLessDropdownItem from "../dropdowns/posts/SeeLessDropdownItem";
+import ScoreBreakdownDropdownItem from "../dropdowns/ScoreBreakdownDropdownItem";
+import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 
-const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit, onSeeLess, isSeeLessMode }: {
+const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit, onSeeLess, isSeeLessMode, commentMetaInfo }: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
   closeMenu?: () => void,
   showEdit: () => void,
   onSeeLess?: () => void,
   isSeeLessMode?: boolean,
+  commentMetaInfo?: FeedCommentMetaInfo,
 }) => {
   const currentUserId = useCurrentUserId();
   const url = comment.postId
@@ -49,6 +52,11 @@ const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit, onSeeLess
           title={`Follow ${userGetDisplayName(comment.user)}`}
           subscriptionType="newActivityForFeed"
         />}
+      {commentMetaInfo?.rankingMetadata && <ScoreBreakdownDropdownItem
+        metadata={commentMetaInfo.rankingMetadata}
+        sources={commentMetaInfo.sources}
+        commentMetaInfo={commentMetaInfo}
+      />}
       <NotifyMeToggleDropdownItem
         document={comment}
         title="Subscribe to replies"

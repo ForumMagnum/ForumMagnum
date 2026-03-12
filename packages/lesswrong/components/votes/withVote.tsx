@@ -57,17 +57,6 @@ const performVoteRevisionMutation = gql(`
   }
 `)
 
-const performVoteElectionCandidateMutation = gql(`
-  mutation performVoteElectionCandidate($documentId: String, $voteType: String, $extendedVote: JSON) {
-    performVoteElectionCandidate(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
-      document {
-        ...WithVoteElectionCandidate
-      }
-      showVotingPatternWarning
-    }
-  }
-`)
-
 const performVoteTagMutation = gql(`
   mutation performVoteTag($documentId: String, $voteType: String, $extendedVote: JSON) {
     performVoteTag(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
@@ -107,7 +96,6 @@ const performVoteMutations = {
   TagRel: performVoteTagRelMutation,
   Message: performVoteMessageMutation,
   Revision: performVoteRevisionMutation,
-  ElectionCandidate: performVoteElectionCandidateMutation,
   Tag: performVoteTagMutation,
   MultiDocument: performVoteMultiDocumentMutation,
 } satisfies Record<typeof collectionNameToTypeName[VoteableCollectionName], DocumentNode>;
@@ -176,8 +164,7 @@ export const useVote = <T extends VoteableTypeClient, CollectionName extends Vot
         },
       })
     } catch(e) {
-      const errorMessage = e.graphQLErrors.map((gqlErr: any)=>gqlErr.message).join("; ");
-      messages.flash({ messageString: errorMessage });
+      messages.flash({ messageString: e.message });
       setOptimisticResponseDocument(null);
     }
   }, [messages, mutate, collectionName, votingSystemOrDefault, getCurrentUser]);

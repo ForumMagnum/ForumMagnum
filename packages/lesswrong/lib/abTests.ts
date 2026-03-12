@@ -63,21 +63,21 @@ export const twoLineEventsSidebarABTest = new ABTest({
   },
 });
 
-export const ultraFeedABTest = new ABTest({
-  name: "ultraFeed",
+export const lexicalEditorABTest = new ABTest({
+  name: "lexicalEditorABTest",
   active: true,
-  affectsLoggedOut: true,
-  description: "Tests the new UltraFeed vs classic Recent Discussion Feed",
+  affectsLoggedOut: false,
+  description: "Controls whether beta users get the Lexical editor by default. Users can override their group to switch back to CKEditor.",
   groups: {
-    control: {
-      description: "Show classic feed (Recent Discussion)",
-      weight: 1
+    ckEditor: {
+      description: "Use CKEditor (classic editor)",
+      weight: 0,
     },
-    ultraFeed: {
-      description: "Show the New Feed",
-      weight: 1
-    }
-  }
+    lexical: {
+      description: "Use Lexical editor",
+      weight: 1,
+    },
+  },
 });
 
-export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest, ultraFeedABTest];
+export const allABTests = [welcomeBoxABTest, twoLineEventsSidebarABTest, lexicalEditorABTest];

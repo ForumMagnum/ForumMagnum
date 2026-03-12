@@ -1,7 +1,5 @@
 "use client";
-
 import React, { useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -16,7 +14,7 @@ const styles = defineStyles("LoginPage", (theme: ThemeType) => ({
   },
 }));
 
-const LoginPage = () => {
+const LoginPage = ({ returnTo }: { returnTo?: string }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
@@ -24,9 +22,13 @@ const LoginPage = () => {
   useEffect(() => {
     // If already logged in, redirect to the front page
     if (currentUser) {
-      navigate({pathname: "/"});
+      if (returnTo) {
+        navigate(returnTo);
+      } else {
+        navigate({pathname: "/"});
+      }
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, navigate, returnTo]);
 
   if (currentUser) {
     // If already logged in, leave page body blank. You won't see it for more
@@ -35,11 +37,9 @@ const LoginPage = () => {
     return <div />;
   } else {
     return <div className={classes.root}>
-      <LoginForm />
+      <LoginForm returnTo={returnTo} />
     </div>;
   }
 }
 
-export default registerComponent('LoginPage', LoginPage);
-
-
+export default LoginPage;

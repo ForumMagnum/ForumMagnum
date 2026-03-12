@@ -1,5 +1,4 @@
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
-import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType) => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -19,7 +18,7 @@ const spoilerStyles = (theme: ThemeType) => ({
   '& .spoiler': {
     padding: 8,
     pointerEvents: 'auto',
-    minHeight: theme.typography.commentStyle.fontSize,
+    minHeight: 15,
     '&:not(:hover)': { // using ':not(:hover)' means we don't need to manually reset elements with special colors or backgrounds, instead they just automatically stay the same if we're not hovering
       ...hideSpoilers(theme),
     }
@@ -155,7 +154,7 @@ const viewpointsPreviewStyles = (_theme: ThemeType) => ({
 })
 
 const youtubePreviewStyles = (_theme: ThemeType) => ({
-  '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
+  '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"], & div.youtube-preview': {
     position: 'relative',
     height: 0,
     paddingBottom: '56.2493%',
@@ -177,6 +176,13 @@ const lwartifactsPreviewStyles = (_theme: ThemeType) => ({
       height: 525,
       border: 'none'
     }
+  },
+  '& div.lwartifacts-preview': {
+    '& iframe': {
+      width: '100%',
+      height: 525,
+      border: 'none'
+    }
   }
 })
 
@@ -188,19 +194,6 @@ const tableStyles = (theme: ThemeType) => ({
   height: "100%",
   textAlign: "left",
   width: '100%',
-  ...(theme.isFriendlyUI && {
-    "& *": {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 14,
-      lineHeight: "1.4em",
-    },
-    "& sup *": {
-      fontSize: 10,
-    },
-    "& ul, & ol": {
-      paddingLeft: "1.5em",
-    },
-  }),
 });
 
 const tableCellStyles = (theme: ThemeType) => ({
@@ -211,11 +204,6 @@ const tableCellStyles = (theme: ThemeType) => ({
   '& p': {
     marginTop: '0.5em',
     marginBottom: '0.5em',
-    ...(theme.isFriendlyUI && {
-      marginLeft: 2,
-      marginRight: 2,
-      lineHeight: "1.4em",
-    }),
   },
   '& p:first-of-type': {
     marginTop: 0
@@ -264,14 +252,105 @@ const footnoteStyles = (_theme: ThemeType) => ({
   },
 });
 
+const llmContentBlockStyles = (theme: ThemeType) => ({
+  '& .llm-content-block': {
+    margin: '1em 0',
+    position: 'relative',
+    fontFamily: '"cronos-pro", serif',
+    fontSize: 19.3,
+    fontWeight: 400,
+    opacity: 0.94,
+    // Render the model label inline so the content starts immediately after it.
+    '&::before': {
+      content: 'attr(data-model-name)',
+      display: 'inline-block',
+      lineHeight: 1.3,
+      fontSize: '0.85em',
+      color: theme.palette.greyAlpha(0.6),
+      paddingRight: 6,
+      borderRight: `1px solid ${theme.palette.grey[400]}`,
+      fontWeight: 600,
+      fontVariant: 'small-caps',
+    },
+    '&:has(> .llm-content-block-content > p:first-child)::before': {
+      float: 'left',
+      marginRight: 8,
+      marginBottom: 0,
+    },
+    '&:not(:has(> .llm-content-block-content > p:first-child))::before': {
+      float: 'none',
+      display: 'block',
+      width: 'fit-content',
+      marginRight: 0,
+      marginTop: '1em',
+      marginBottom: '1em',
+    },
+    '& > .llm-content-block-content': {
+      '& > :first-child': {
+        marginTop: 0,
+      },
+      '& > :last-child': {
+        marginBottom: 0,
+      },
+    },
+    '&:has(> .llm-content-block-content > p:last-child) > .llm-content-block-content > p:last-child::after': {
+      content: '"⊙"',
+      color: theme.palette.greyAlpha(0.55),
+      fontSize: '0.85em',
+      paddingLeft: 3,
+      marginLeft: 9,
+      borderLeft: `1px solid ${theme.palette.grey[400]}`,
+      fontWeight: 300,
+      letterSpacing: 2.1,
+      opacity: 0.6,
+    },
+    '& > .llm-content-block-content > p:last-child:has(> br:only-child)': {
+      display: 'inline-block',
+      margin: 0,
+      minWidth: '0.6em',
+    },
+    '& > .llm-content-block-content > p:last-child:has(> br:only-child) > br:only-child': {
+      display: 'none',
+    },
+    '& > .llm-content-block-content > p:last-child:has(> br:only-child)::after': {
+      content: '"⊙"',
+      display: 'inline-block',
+      color: theme.palette.greyAlpha(0.55),
+      fontSize: '0.85em',
+      lineHeight: 'inherit',
+      paddingLeft: 3,
+      marginLeft: 0,
+      borderLeft: `1px solid ${theme.palette.grey[400]}`,
+      fontWeight: 300,
+      letterSpacing: 2.1,
+      opacity: 0.6,
+    },
+    '&:not(:has(> .llm-content-block-content > p:last-child)) > .llm-content-block-content::after': {
+      content: '"⊙"',
+      display: 'block',
+      width: 'fit-content',
+      color: theme.palette.greyAlpha(0.55),
+      fontSize: '0.85em',
+      lineHeight: 1.3,
+      marginTop: '1em',
+      marginBottom: '1em',
+      paddingLeft: 3,
+      borderLeft: `1px solid ${theme.palette.grey[400]}`,
+      fontWeight: 300,
+      letterSpacing: 2.1,
+      opacity: 0.6,
+    },
+  },
+});
+
 const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& .detailsBlock': {
     // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
     // that tries to turn border off and on to indicate selection. Use
     // !important to ensure it's visible.
-    border: theme.isFriendlyUI ? undefined : theme.palette.border.normal+' !important',
+    border: theme.palette.border.normal+' !important',
     borderRadius: 8,
-    marginTop: theme.isFriendlyUI ? 0 : 8,
+    marginTop: 8,
     marginBottom: 8,
   },
   '& .detailsBlockTitle': {
@@ -281,7 +360,7 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     // give background !important to take precedence over CkEditor making it
     // pure-white when the cursor is inside it, which would make the
     // title-vs-contents distinction invisible
-    background: theme.isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
+    background: theme.palette.panelBackground.darken05+'!important',
     
     "&>*": {
       display: "inline",
@@ -295,7 +374,7 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     cursor: "pointer",
   },
   '& .detailsBlockContent': {
-    padding: theme.isFriendlyUI ? "0 8px 8px 20px" : 8,
+    padding: 8,
   },
   // Cancel out a global paragraph style that adds bottom margin to paragraphs
   // in the editor for some reason, which would create a page/editor mismatch
@@ -323,11 +402,8 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
   // the editor it would be a <summary> tag)
   '& div.detailsBlockTitle': {
     position: "relative",
-    paddingLeft: theme.isFriendlyUI ? 20 : 24,
+    paddingLeft: 24,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: theme.isFriendlyUI ? "20.8px" : undefined,
-    lineHeight: theme.isFriendlyUI ? "1.25em" : undefined,
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
   },
 
   // The 'div' part of this selector makes it specific to the editor (outside
@@ -335,10 +411,9 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& div.detailsBlockTitle::before': {
     content: '"▼"',
     cursor: "pointer",
-    fontSize: theme.isFriendlyUI ? 12 : 14,
-    paddingRight: 4,
+    fontSize: 14,
     position: "absolute",
-    left: theme.isFriendlyUI ? 0 : 8,
+    left: 8,
   },
   '& .detailsBlock.closed div.detailsBlockTitle::before': {
     content: '"▶"',
@@ -368,7 +443,7 @@ const ctaButtonStyles = (theme: ThemeType) => ({
     lineHeight: '20px',
     textTransform: 'none',
     padding: '12px 16px',
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
+    borderRadius: theme.borderRadius.small,
     boxShadow: 'none',
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
@@ -402,8 +477,66 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& pre': {
     ...theme.typography.codeblock
   },
+  '& pre.code-block, & pre[data-highlight-language]': {
+    backgroundColor: theme.palette.grey[100],
+    fontFamily: theme.typography.code.fontFamily,
+    display: 'block',
+    padding: '8px 8px 8px 36px',
+    lineHeight: 1.53,
+    fontSize: 13,
+    margin: '8px 0',
+    overflowX: 'auto',
+    position: 'relative',
+    tabSize: 2,
+  },
+  '& pre.code-block::before, & pre[data-highlight-language]::before': {
+    content: 'attr(data-gutter)',
+    position: 'absolute',
+    backgroundColor: theme.palette.grey[200],
+    left: 0,
+    top: 0,
+    borderRight: `1px solid ${theme.palette.grey[300]}`,
+    padding: 8,
+    color: theme.palette.grey[600],
+    whiteSpace: 'pre-wrap',
+    textAlign: 'right',
+    minWidth: 25,
+  },
   '& code': {
     ...theme.typography.code
+  },
+  '& .code-token-comment': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
+  },
+  '& .code-token-deleted': {
+    borderImage: theme.palette.lexicalEditor.codeHighlight.tokenDeleted,
+  },
+  '& .code-token-inserted': {
+    borderImage: theme.palette.lexicalEditor.codeHighlight.tokenInserted,
+  },
+  '& .code-token-unchanged': {
+    borderImage: theme.palette.lexicalEditor.codeHighlight.tokenUnchanged,
+  },
+  '& .code-token-punctuation': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenPunctuation,
+  },
+  '& .code-token-property': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenProperty,
+  },
+  '& .code-token-selector': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenSelector,
+  },
+  '& .code-token-operator': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenOperator,
+  },
+  '& .code-token-attr': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenAttr,
+  },
+  '& .code-token-variable': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenVariable,
+  },
+  '& .code-token-function': {
+    color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
   },
   '& blockquote': {
     ...theme.typography.blockquote,
@@ -459,7 +592,12 @@ const baseBodyStyles = (theme: ThemeType) => ({
   },
   '& img': {
     maxWidth: "100%",
-    ...theme.postImageStyles,
+    ...(theme.dark && {
+      // Override image background color to white (so that transparent isn't
+      // black). Necessary because there are a handful of posts with images that
+      // have black-on-transparent text in them.
+      background: "#ffffff"
+    })
   },
   '& sup': {
     verticalAlign: 'baseline',
@@ -484,9 +622,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& a:visited, & a.visited': {
     color: theme.palette.link.visited
   },
-  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': theme.isFriendlyUI ? {
-    color: theme.palette.link.visitedHover,
-  } : {},
+  '& a:visited:hover, & a.visited:hover, & a:visited:active, & a.visited:active': {},
   '& table': {
     ...tableStyles(theme)
   },
@@ -494,15 +630,6 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& figure.table': {
     width: 'fit-content',
     height: 'fit-content',
-  },
-  // Many column tables should overflow instead of squishing
-  //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
-  //    squishy tables (which is the default behavior above)
-  '& figure.table:has(> table > tbody > tr > td + td + td + td)': {
-    overflowX: 'auto',
-    '& table': {
-      width: 700,
-    },
   },
   '& td, & th': {
     ...tableCellStyles(theme)
@@ -524,6 +651,13 @@ const baseBodyStyles = (theme: ThemeType) => ({
   },
   '& ol > li > ol > li > ol': {
     listStyle: 'lower-roman',
+  },
+  // Hide the marker on Lexical wrapper list items that only contain a nested
+  // list (no text content of their own). Without this, the wrapper's marker
+  // (e.g. "2.") appears on the same line as the nested list's first item
+  // (e.g. "a."), making them look squished together.
+  '& .nested-list-item': {
+    listStyleType: 'none',
   },
   "& u": {
     textDecoration: "none",
@@ -547,6 +681,7 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
+    ...llmContentBlockStyles(theme),
     ...conditionallyVisibleBlockStyles(theme),
     ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
@@ -554,7 +689,7 @@ export const postBodyStyles = (theme: ThemeType) => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: theme.isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
+      borderTop: theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -606,7 +741,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
-    '& .footnotes': theme.isFriendlyUI ? {} : {
+    '& .footnotes': {
       marginTop: 0,
       paddingTop: 8,
       paddingLeft: 16,
@@ -644,8 +779,8 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
       color: theme.palette.text.spoilerBlockNotice,
     },
     '& hr': {
-      marginTop: theme.spacing.unit*1.5,
-      marginBottom: theme.spacing.unit*1.5
+      marginTop: 12,
+      marginBottom: 12
     },
   }
   return commentBodyStyles;
@@ -660,7 +795,7 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: theme.isFriendlyUI ? 14.3 : 16.64,
+    fontSize: 16.64,
     lineHeight: "22.75px",
     ...theme.typography.postStyle,
     '& blockquote': {
@@ -673,7 +808,7 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: theme.isFriendlyUI ? 14.3 : 16.64,
+      fontSize: 16.64,
       lineHeight: "23.4px",
     }
   };
@@ -703,9 +838,17 @@ export const ckEditorStyles = (theme: ThemeType) => {
           ...pBodyStyle(theme),
         },
       },
-      '--ck-spacing-standard': `${theme.spacing.unit}px`,
+      '--ck-spacing-standard': `8px`,
       '&.ck-content': {
-        marginLeft: -theme.spacing.unit,
+        // As of v46, ckeditor applies some default styles via these css variables.
+        // We have our own styles and don't want them, so just set them back to initial.
+        '--ck-content-font-family': 'initial',
+        '--ck-content-font-size': 'initial',
+        '--ck-content-font-color': 'initial',
+        '--ck-content-line-height': 'initial',
+        '--ck-content-word-break': 'initial',
+
+        marginLeft: -8,
         '--ck-focus-outer-shadow-geometry': "none",
         '--ck-focus-ring': theme.palette.border.transparent,
         '--ck-focus-outer-shadow': "none",
@@ -713,7 +856,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '& p': {
           marginTop: "1em",
           marginBottom: "1em",
-          '&:first-of-type': {
+          '&:first-child': {
             marginTop: 0,
           }
         },
@@ -771,7 +914,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           }
         },
         '& .ck-thread__comment-count': {
-          paddingLeft: theme.spacing.unit*2,
+          paddingLeft: 16,
           color: theme.palette.grey[600],
           margin: 0,
           paddingBottom: ".5em",
@@ -780,7 +923,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
           }
         },
         '& .ck-comment__input': {
-          paddingLeft: theme.spacing.unit*2
+          paddingLeft: 16
         },
         '& .ck-annotation__main, & .ck-comment__input, & .ck-thread__input': {
           width : "100%"
@@ -804,6 +947,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
       "--ck-color-comment-marker": theme.palette.editor.commentMarker,
       "--ck-color-comment-marker-active": theme.palette.editor.commentMarkerActive,
       '--ck-color-widget-editable-focus-background': theme.palette.panelBackground.default,
+      "--ck-comment-content-font-color": theme.palette.text.maxIntensity,
     }
   }
 }

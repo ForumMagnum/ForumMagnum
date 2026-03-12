@@ -1,5 +1,4 @@
 import React, { CSSProperties, useRef, useState } from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreHorizIcon from '@/lib/vendor/@material-ui/icons/src/MoreHoriz';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -10,6 +9,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import PopperCard from "../../common/PopperCard";
 import PostActions from "./PostActions";
 import LWClickAwayListener from "../../common/LWClickAwayListener";
+import { FeedPostMetaInfo } from '../../ultraFeed/ultraFeedTypes';
 
 const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   root: {
@@ -35,9 +35,10 @@ interface PostActionsComponentProps {
   includeBookmark?: boolean;
   onSeeLess?: () => void;
   isSeeLessMode?: boolean;
+  postMetaInfo?: FeedPostMetaInfo;
 }
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, onSeeLess, isSeeLessMode, className, ActionsComponent}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, onSeeLess, isSeeLessMode, className, iconClassName, ActionsComponent, postMetaInfo}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
@@ -47,7 +48,9 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   onSeeLess?: () => void;
   isSeeLessMode?: boolean;
   className?: string,
+  iconClassName?: string,
   ActionsComponent?: React.ComponentType<PostActionsComponentProps>,
+  postMetaInfo?: FeedPostMetaInfo,
 }) => {
   const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
@@ -82,7 +85,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   const MenuComponent = ActionsComponent ?? PostActions;
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
-      <Icon className={classes.icon} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
+      <Icon className={classNames(classes.icon, iconClassName)} onClick={(ev: React.MouseEvent) => handleSetOpen(!isOpen)}/>
     </div>
     <PopperCard
       open={isOpen}
@@ -94,14 +97,14 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
       <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
-        <MenuComponent post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} />
+        <MenuComponent post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} postMetaInfo={postMetaInfo} />
       </LWClickAwayListener>
     </PopperCard>
   </div>
 }
 
 
-export default registerComponent('PostActionsButton', PostActionsButton);
+export default PostActionsButton;
 
 
 

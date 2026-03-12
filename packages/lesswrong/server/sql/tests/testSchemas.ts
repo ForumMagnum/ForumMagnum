@@ -171,10 +171,29 @@ export const testSchema5: SchemaType<CollectionNameString> = {
   },
 };
 
+export const testSchema6: SchemaType<CollectionNameString> = {
+  _id: DEFAULT_ID_FIELD,
+  binaryField: {
+    database: {
+      type: "BYTEA",
+    },
+  },
+  schemaVersion: {
+    database: {
+      type: "DOUBLE PRECISION",
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["guests"],
+    },
+  },
+};
+
 export const testSchemas = {
   TestCollection: testSchema,
   TestCollection2: testSchema2,
   TestCollection3: testSchema3,
   TestCollection4: testSchema4,
   TestCollection5: testSchema5,
+  TestCollection6: testSchema6,
 };

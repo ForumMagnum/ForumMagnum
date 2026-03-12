@@ -1,5 +1,4 @@
 import React, { CSSProperties, useRef, useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTracking } from '../../../lib/analyticsEvents';
 import type { Placement as PopperPlacementType } from "popper.js";
 import classNames from 'classnames';
@@ -117,5 +116,5 @@ const UserActionsButton = ({
   );
 };
 
-export default registerComponent('UserActionsButton', UserActionsButton);
+export default UserActionsButton;
 

@@ -1,45 +1,31 @@
-import { mailUrlSetting } from '../databaseSettings';
+import { getMailgunClient, MAILGUN_DOMAIN } from '../mailgun/mailgunClient';
 import type { RenderedEmail } from './renderEmail';
-import nodemailer from 'nodemailer';
-
-const getMailUrl = () => {
-  if (mailUrlSetting.get())
-    return mailUrlSetting.get();
-  else if (process.env.MAIL_URL)
-    return process.env.MAIL_URL;
-  else
-    return null;
-};
 
 /**
- * Send an email. Returns true for success or false for failure.
- *
- * API descended from meteor
+ * Send an email using Mailgun. Returns true for success or false for failure.
  */
-export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
+export const sendMailgunEmail = async (email: RenderedEmail): Promise<boolean> => {
   if (email.user?.deleted) {
     // eslint-disable-next-line no-console
     console.error("Attempting to send an email to a deleted user");
     return false;
   }
 
-  const mailUrl = getMailUrl();
+  const mailgunClient = getMailgunClient();
   
-  if (!mailUrl) {
+  if (!mailgunClient) {
     // eslint-disable-next-line no-console
-    console.error("Unable to send email because no mailserver is configured");
+    console.error("Unable to send email because no Mailgun API key is configured");
     return false;
   }
   
-  const transport = nodemailer.createTransport(mailUrl);
-  
-  const result = await transport.sendMail({
+  const result = await mailgunClient.messages.create(MAILGUN_DOMAIN, {
     from: email.from,
     to: email.to,
     subject: email.subject,
     text: email.text,
-    html: email.html,
+    html: email.html
   });
   
-  return true;
+  return result.status === 200;
 }

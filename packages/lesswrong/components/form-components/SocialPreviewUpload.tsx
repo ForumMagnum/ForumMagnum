@@ -10,7 +10,8 @@ import {
 import { randomId } from "../../lib/random";
 import { getCkEditorName } from "../editor/Editor";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
-import { getSiteUrl, sanitize } from "../../lib/vulcan-lib/utils";
+import { getSiteUrl } from "../../lib/vulcan-lib/utils";
+import { sanitize } from "@/lib/utils/sanitize";
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '../../lib/collections/posts/helpers';
 import { defineStyles, useStyles } from '../hooks/useStyles';

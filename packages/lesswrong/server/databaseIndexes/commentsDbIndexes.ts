@@ -20,6 +20,7 @@ export function getDbIndexesOnComments() {
   indexSet.addIndex("Comments", { userId:1, postedAt:-1 });
 
   indexSet.addIndex("Comments", { parentCommentId: "hashed" });
+  indexSet.addIndex("Comments", { lastEditedAt:1 });
 
   indexSet.addIndex("Comments",
     augmentForDefaultView({ postId:1, parentAnswerId:1, answer:1, deleted:1, baseScore:-1, postedAt:-1 }),
@@ -91,8 +92,6 @@ export function getDbIndexesOnComments() {
     { name: "comments.moderatorHat" }
   );
   
-  indexSet.addIndex("Comments", augmentForDefaultView({ forumEventId: 1, userId: 1, postedAt: -1 }));
-  
   // For allowing `CommentsRepo.getPromotedCommentsOnPosts` to use an index-only scan, which is much faster than an index scan followed by pulling each comment from disk to get its "promotedAt".
   void indexSet.addCustomPgIndex(`
     CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_postId_promotedAt"
@@ -134,6 +133,20 @@ export function getDbIndexesOnComments() {
     CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_deletedDate"
     ON "Comments" ("deletedDate" DESC NULLS LAST)
     WHERE "deleted" IS TRUE;
+  `);
+
+  // Speeds up moderation log rejected-comments pagination and avoids explicit sort work.
+  indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_rejected_postedAt"
+    ON "Comments" ("postedAt" DESC NULLS LAST)
+    WHERE "rejected" IS TRUE;
+  `);
+
+  // Speeds up moderation log public-deleted-comments pagination with matching filter + sort.
+  indexSet.addCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_deletedPublic_deletedDate"
+    ON "Comments" ("deletedDate" DESC NULLS LAST)
+    WHERE "deleted" IS TRUE AND "deletedPublic" IS TRUE;
   `);
 
   return indexSet;

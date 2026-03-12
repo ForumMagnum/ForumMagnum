@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import SvgIcon from '../icons/SvgIcon';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { TooltipSpan } from '../common/FMTooltip';
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 // just the "f", used for the FB Group link
 export const FacebookIcon = (props: any) => <SvgIcon viewBox="0 0 155.139 155.139" {...props}>
@@ -57,7 +58,7 @@ export const SlackIcon = (props: any) => <SvgIcon viewBox="70 70 130 130" {...pr
   </g>
 </SvgIcon>
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("GroupLinks", (theme: ThemeType) => ({
   root: {
     display: 'inline-block'
   },
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType) => ({
     width: 'initial',
     height: '20px',
     fontSize: '14px',
-    marginLeft: theme.spacing.unit
+    marginLeft: 8
   },
 
   groupLinks: {
@@ -87,7 +88,7 @@ const styles = (theme: ThemeType) => ({
   },
   
   websiteLink: {
-    marginLeft: theme.spacing.unit - 2,
+    marginLeft: 6,
     transform: "translateY(3px)",
   },
   
@@ -128,22 +129,23 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 0
     }
   }
-});
+}));
 
 const tooltips: Partial<Record<string,string>> = {
   'LW': "This is a LessWrong group",
   'EA': "This is an Effective Altruism group",
   'SSC': "This is a Slate Star Codex group",
-  'MIRIx': "This is a MIRIx group",
-  "IFANYONE": "This is a reading group for 'If Anyone Builds It, Everyone Dies'",
-  "PETROV": "This is an event celebrating Petrov Day",
+  // 'MIRIx': "This is a MIRIx group",
+  // "IFANYONE": "This is a reading group for 'If Anyone Builds It, Everyone Dies'",
+  // "PETROV": "This is an event celebrating Petrov Day",
   }
 
-const GroupLinks = ({ document, noMargin, classes }: {
+const GroupLinks = ({ document, noMargin }: {
   document: localGroupsBase|PostsBase,
   noMargin?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   // tooltip text differs between group and event
   const isEvent = 'isEvent' in document;
   const groupLinkProps = {
@@ -209,6 +211,6 @@ const GroupLinks = ({ document, noMargin, classes }: {
   )
 }
 
-export default registerComponent("GroupLinks", GroupLinks, {styles});
+export default GroupLinks;
 
 

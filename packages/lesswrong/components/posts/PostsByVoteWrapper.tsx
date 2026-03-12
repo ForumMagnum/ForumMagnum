@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isLWorAF } from '@/lib/instanceSettings';
 import PostsByVote from "./PostsByVote";
 import ErrorBoundary from "../common/ErrorBoundary";
@@ -65,6 +64,6 @@ const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=fal
   </ErrorBoundary>
 }
 
-export default registerComponent("PostsByVoteWrapper", PostsByVoteWrapper);
+export default PostsByVoteWrapper;
 
 

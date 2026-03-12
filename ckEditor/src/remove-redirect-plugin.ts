@@ -1,6 +1,6 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import UpcastWriter from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
-import Matcher from '@ckeditor/ckeditor5-engine/src/view/matcher';
+import { Plugin } from '@ckeditor/ckeditor5-core/src/plugin';
+import { ViewUpcastWriter as UpcastWriter } from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
+import { Matcher } from '@ckeditor/ckeditor5-engine/src/view/matcher';
 import type { ClipboardPipeline } from '@ckeditor/ckeditor5-clipboard';
 
 /**

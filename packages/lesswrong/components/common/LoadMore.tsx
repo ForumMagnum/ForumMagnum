@@ -5,7 +5,6 @@ import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../hooks/useQueryWithLoadMore';
 import { useIsFirstRender } from "../hooks/useFirstRender";
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import Loading from "../vulcan-core/Loading";
 import type { WrappedFetchMore } from '../hooks/useQueryWithLoadMore';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -75,7 +74,7 @@ const LoadMore = ({
   hidden=false,
   sectionFooterStyles,
   afterPostsListMarginTop,
-  message=preferredHeadingCase("Load More"),
+  message="Load More",
 }: {
   // loadMore: Callback when clicked.
   loadMore: WrappedFetchMore | LoadMoreCallback,
@@ -133,8 +132,8 @@ export const LoadMorePlaceholder = ({sectionFooterStyles}: {
   sectionFooterStyles?: boolean,
 }) => {
   const classes = useStyles(styles);
-  return <a className={classNames(classes.root, sectionFooterStyles && classes.sectionFooterStyles)} href="#" >
-    {preferredHeadingCase("Load More")}
+  return <a className={classNames(classes.root, sectionFooterStyles && classes.sectionFooterStyles)} href="#">
+    Load More
   </a>
 }
 

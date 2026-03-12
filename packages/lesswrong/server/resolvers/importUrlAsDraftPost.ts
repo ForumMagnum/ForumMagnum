@@ -5,7 +5,8 @@ import { fetchFragmentSingle } from '../fetchFragment'
 import Users from '@/server/collections/users/collection'
 import { ExternalPostImportData } from '@/components/posts/ExternalPostImporter'
 import { eligibleToNominate } from '@/lib/reviewUtils';
-import { sanitize } from "../../lib/vulcan-lib/utils";
+import { sanitize } from "@/lib/utils/sanitize";
+import { getUserDefaultRichTextEditor } from "@/lib/editor/defaultRichTextEditor";
 import gql from 'graphql-tag';
 import { createPost } from "../collections/posts/mutations";
 import { PostsEditQueryFragment } from '@/lib/collections/posts/fragments';
@@ -88,7 +89,7 @@ export async function importUrlAsDraftPost(url: string, context: ResolverContext
       userId: reviewUser._id,
       title: extractedData.title,
       url: url,
-      contents: {originalContents: {data: sanitize(extractedData.content ?? ''), type: 'ckEditorMarkup'}},
+      contents: {originalContents: {data: sanitize(extractedData.content ?? ''), type: getUserDefaultRichTextEditor(context.currentUser)}},
       postedAt: extractedData.published ? new Date(extractedData.published) : undefined,
       coauthorUserIds: [context.currentUser._id],
       hasCoauthorPermission: true,

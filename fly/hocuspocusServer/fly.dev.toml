@@ -1,0 +1,44 @@
+# fly.dev.toml - Development Hocuspocus server
+#
+# Deploy with: fly deploy --config fly.dev.toml
+# Set secrets with: fly secrets set DATABASE_URL="..." --config fly.dev.toml
+#
+
+app = 'hocuspocusserver-dev'
+primary_region = 'iad'
+
+[build]
+
+[env]
+  NODE_ENV = "development"
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8080
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+
+  [[services.tcp_checks]]
+    grace_period = "30s"
+    interval = "15s"
+    timeout = "2s"
+
+[[vm]]
+  memory = '512mb'
+  cpus = 1
+  memory_mb = 512

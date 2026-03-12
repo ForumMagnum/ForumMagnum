@@ -1,5 +1,5 @@
 import { useTracking } from '@/lib/analyticsEvents';
-import { useQuery } from '@/lib/crud/useQuery';
+import { useBackgroundQuery, useReadQuery } from '@/lib/crud/useQuery';
 import { getDefaultFilterSettings, FilterSettings, FilterMode, filterModeIsSubscribed, FilterTag } from '@/lib/filterSettings';
 import findIndex from 'lodash/findIndex';
 import filter from 'lodash/filter';
@@ -7,7 +7,7 @@ import { useState, useCallback } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { gql } from '@/lib/generated/gql-codegen';
-import { type QueryRef, useReadQuery, useBackgroundQuery } from '@apollo/client/react';
+import { type QueryRef } from '@apollo/client/react';
 import type { ResultOf } from '@graphql-typed-document-node/core';
 
 export const TagBasicInfoMultiQuery = gql(`

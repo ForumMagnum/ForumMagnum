@@ -2,12 +2,9 @@ import { useCallback } from "react";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 
-import { useUnreadNotifications } from "./useUnreadNotifications";
-
 type MarkConversationRead = (conversationId: string) => Promise<void>;
 
 export const useMarkConversationRead = (): MarkConversationRead => {
-  const {refetchUnreadNotifications} = useUnreadNotifications();
   const [markConversationRead] = useMutation(
     gql(`
       mutation markConversationRead($conversationId: String!) {
@@ -22,6 +19,5 @@ export const useMarkConversationRead = (): MarkConversationRead => {
         conversationId,
       },
     });
-    await refetchUnreadNotifications();
-  }, [markConversationRead, refetchUnreadNotifications]);
+  }, [markConversationRead]);
 }

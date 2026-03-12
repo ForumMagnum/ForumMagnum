@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
-import { classifyHost, classifyLink, useLocation } from '../../lib/routeUtil';
+import { classifyLink, useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import withErrorBoundary from '../common/withErrorBoundary';
 import { locationHashIsFootnote, locationHashIsFootnoteBackreference } from '../contents/CollapsedFootnotes';
@@ -11,7 +11,8 @@ import { DefaultPreview, MetaculusPreview, ManifoldPreview, FatebookPreview, Neu
 import FootnotePreview from "./FootnotePreview";
 import { NoSideItems } from '../contents/SideItems';
 
-import { parseRouteWithErrors, routePreviewComponentMapping } from './parseRouteWithErrors';
+import { routePreviewComponentMapping, type LinkPreviewComponent } from '@/lib/routeChecks/hoverPreviewRoutes';
+import { parseRouteWithErrors } from '../../lib/routeChecks/parseRouteWithErrors';
 
 export const linkIsExcludedFromPreview = (url: string): boolean => {
   // Don't try to preview special JS links
@@ -39,7 +40,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
 }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
-  href = href.trim();
+  href = href ? href.trim() : href;
 
   // Invalid link with no href? Don't transform it.
   if (!href) {
@@ -72,13 +73,13 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
       const destinationUrl = hostType==="onsite" ? parsedUrl.url : href;
 
       if (parsedUrl.routePattern) {
-        const PreviewComponent = routePreviewComponentMapping[parsedUrl.routePattern];
+        const PreviewComponent = routePreviewComponentMapping[parsedUrl.routePattern] as LinkPreviewComponent;
         const previewComponentName = PreviewComponent?.name;
 
         if (PreviewComponent) {
           return <AnalyticsContext pageElementContext="linkPreview" href={destinationUrl} hoverPreviewType={previewComponentName} onsite>
             <NoSideItems>
-              <PreviewComponent href={destinationUrl} targetLocation={parsedUrl} id={id ?? ''} noPrefetch={noPrefetch} className={className}>
+              <PreviewComponent href={destinationUrl} originalHref={href} targetLocation={parsedUrl} params={parsedUrl.params} id={id ?? ''} noPrefetch={noPrefetch} className={className}>
                 {children}
               </PreviewComponent>
             </NoSideItems>

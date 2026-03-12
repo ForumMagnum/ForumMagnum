@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
@@ -59,7 +58,7 @@ const SECTION_WIDTH = 960
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: 32,
     maxWidth: SECTION_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",
@@ -170,15 +169,15 @@ const TaggingDashboard = ({classes}: {
 
   const { openDialog } = useDialog();
   
-  const dashboardTagsNameAlt = taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tags'
+  const dashboardTagsNameAlt = "Wikitags";
 
   return <div>
     <div className={classes.root}>
       <div className={classes.navigationLinks}>
         <div className={classes.navigationLinksDivider}/>
         <p><a href="#Pages_in_need_of_work">{dashboardTagsNameAlt} in Need of Work</a></p>
-        <p><a href="#Newest_tags">Newest {taggingNameCapitalSetting.get()}</a></p>
-        <p><a href="#Tag_voting_activity">{taggingNameCapitalSetting.get()} Voting Activity</a></p>
+        <p><a href="#Newest_tags">Newest Wikitag</a></p>
+        <p><a href="#Tag_voting_activity">Wikitag Voting Activity</a></p>
         <p><a href="#Tag_activity_feed">Combined {dashboardTagsNameAlt} Activity Feed</a></p>
         <div className={classes.navigationLinksDivider}/>
       </div>
@@ -195,8 +194,8 @@ const TaggingDashboard = ({classes}: {
                 />
               })}>
                 {query.focus
-                  ? `Edit ${taggingNameCapitalSetting.get()} Flag`
-                  : `New ${taggingNameCapitalSetting.get()} Flag`
+                  ? `Edit Wikitag Flag`
+                  : `New Wikitag Flag`
                 }
               </span>
             }
@@ -211,7 +210,7 @@ const TaggingDashboard = ({classes}: {
                  }
                  }
               }
-            > {collapsed ? "Uncollapse" : "Collapse"} {taggingNamePluralCapitalSetting.get()}</a>
+            > {collapsed ? "Uncollapse" : "Collapse"} {"Wikitags"}</a>
           </SectionButton>
         </SectionTitle>
         <div className={classes.flagList}>
@@ -239,11 +238,11 @@ const TaggingDashboard = ({classes}: {
     </div>
     <SingleColumnSection>
       <div id="Newest_tags" className={classes.sectionPositioning}>
-        <SectionTitle title={`Newest ${taggingNamePluralCapitalSetting.get()}`}/>
+        <SectionTitle title={`Newest Wikitags`}/>
         <NewTagsList showHeaders={false}/>
       </div>
       <div id="Tag_voting_activity" className={classes.sectionPositioning}>
-        <SectionTitle title={`${taggingNameCapitalSetting.get()} Voting Activity`}/>
+        <SectionTitle title="Wikitag Voting Activity"/>
         <TagVoteActivity showHeaders={false} showNewTags={false} limit={10} itemsPerPage={100}/>
       </div>
       <div id="Tag_activity_feed" className={classes.sectionPositioning}>

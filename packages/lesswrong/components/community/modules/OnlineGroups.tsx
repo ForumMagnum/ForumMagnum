@@ -5,7 +5,6 @@ import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useThemeColor } from '@/components/themes/useTheme';
 
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -145,7 +144,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     padding: '10px 14px',
     borderRadius: 4,
-    fontSize: theme.isFriendlyUI ? 14 : theme.typography.commentStyle.fontSize,
   },
   postGroupsCTA: {
     textAlign: 'center',
@@ -224,7 +222,7 @@ const OnlineGroups = ({keywordSearch, includeInactive, toggleIncludeInactive, cl
               </div>
               <div className={classes.onlineGroupJoin}>
                 <Link to={`/groups/${group._id}`} className={classes.onlineGroupBtn}>
-                  {preferredHeadingCase("Learn More")}
+                  Learn More
                 </Link>
               </div>
             </div>

@@ -1,5 +1,4 @@
 import React from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
@@ -130,7 +129,5 @@ const PostsPageTitle = ({post, className}: {
   )
 }
 
-export default registerComponent('PostsPageTitle', PostsPageTitle);
-
-
+export default PostsPageTitle;
 

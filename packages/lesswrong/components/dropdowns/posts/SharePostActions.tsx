@@ -1,29 +1,30 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { useMessages } from '../../common/withMessages';
 
 import { Paper }from '@/components/widgets/Paper';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 import DropdownMenu from "../DropdownMenu";
 import DropdownItem from "../DropdownItem";
 import DropdownDivider from "../DropdownDivider";
 import SocialMediaIcon from "../../icons/SocialMediaIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles("SharePostActions", (_theme: ThemeType) => ({
   icon: {
     height: 20,
     fill: "currentColor",
   },
-})
+}))
 
-const SharePostActions = ({post, onClick, classes}: {
+const SharePostActions = ({post, onClick}: {
   post: PostsBase,
   onClick?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
   
@@ -62,7 +63,7 @@ const SharePostActions = ({post, onClick, classes}: {
   return <div onClick={onClick}><Paper>
     <DropdownMenu>
       <DropdownItem
-        title={preferredHeadingCase("Copy Link")}
+        title={"Copy Link"}
         icon="Link"
         onClick={copyLink}
       />
@@ -86,6 +87,6 @@ const SharePostActions = ({post, onClick, classes}: {
   </Paper></div>
 }
 
-export default registerComponent('SharePostActions', SharePostActions, {styles});
+export default SharePostActions;
 
 

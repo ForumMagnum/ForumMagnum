@@ -1,5 +1,4 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { hookToHoc } from '../../lib/hocUtils';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 
@@ -61,5 +60,3 @@ export const useDialog = (): OpenDialogContextType => {
   if (!result) throw new Error("useDialog called but not a descendent of DialogManagerComponent");
   return result;
 }
-export const withDialog = hookToHoc(useDialog);
-export default withDialog;

@@ -4,7 +4,7 @@ import React, { FC, MouseEvent, useState, useCallback } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import classNames from 'classnames';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
@@ -24,7 +24,7 @@ const PostsExpandedHighlightQuery = gql(`
 
 const styles = (theme: ThemeType) => ({
   highlightContinue: {
-    marginTop:theme.spacing.unit*2,
+    marginTop:16,
     fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     '&& a, && a:hover': {
       color: theme.palette.primary.main,
@@ -58,7 +58,7 @@ const TruncatedSuffix: FC<{
         onClick={clickExpand}
         eventProps={{intent: 'expandPost'}}
       >
-        {`(${preferredHeadingCase("See More")}${moreWordsText})`}
+        {`(See More${moreWordsText})`}
       </Link>
     );
   }

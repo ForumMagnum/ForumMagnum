@@ -76,23 +76,17 @@ export async function hydrateCurationEmailsQueue(postId: string) {
   const userIdsToEmail = await usersRepo.getCurationSubscribedUserIds();
   const now = new Date();
 
-  const bulkWriteOperations = userIdsToEmail.map((userId) => ({
-    insertOne: {
-      document: {
+  for (const batch of chunk(userIdsToEmail, 1000)) {
+    await CurationEmails.rawInsertMany(
+      batch.map(userId => ({
+        _id: randomId(),
         userId,
         postId,
         createdAt: now,
-        _id: randomId(),
         schemaVersion: 1,
         legacyData: null,
-      }
-    }
-  }));
-
-  if (bulkWriteOperations.length) {
-    for (const batch of chunk(bulkWriteOperations, 1000)) {
-      await CurationEmails.rawCollection().bulkWrite(batch);
-    }
+      }))
+    );
   }
 }
 

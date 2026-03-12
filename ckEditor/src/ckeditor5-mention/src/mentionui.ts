@@ -12,7 +12,7 @@ import { debounce } from 'lodash-es';
 import MentionsView from './ui/mentionsview';
 import DomWrapperView from './ui/domwrapperview';
 import MentionListItemView from './ui/mentionlistitemview';
-import type Position from '@ckeditor/ckeditor5-engine/src/model/position';
+import type { ModelPosition as Position } from '@ckeditor/ckeditor5-engine/src/model/position';
 import type { Marker } from '@ckeditor/ckeditor5-engine/src/model/markercollection';
 
 const VERTICAL_SPACING = 3;

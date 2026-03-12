@@ -4,11 +4,8 @@ import { getFieldValue } from './Card';
 import _sortBy from 'lodash/sortBy';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 import { useCurrentUser } from '../common/withUser';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import Loading from "./Loading";
 import LoadMore from "../common/LoadMore";
-import { useQuery } from "@/lib/crud/useQuery";
-import { gql } from "@/lib/generated/gql-codegen";
 
 type ColumnComponent = React.ComponentType<{column: any}>
 
@@ -255,6 +252,4 @@ const DatatableDefaultCell = ({ column, document }: {
 }
 
 
-export default registerComponent('Datatable', Datatable);
-
-
+export default Datatable;

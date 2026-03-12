@@ -33,7 +33,7 @@ const initGlobals = (isProd: boolean) => {
 }
 
 const fetchImports = async () => {
-  const { ckEditorApi: { checkEditorBundle, uploadEditorBundle } } = await import('./packages/lesswrong/server/ckEditor/ckEditorApi');
+  const { checkEditorBundle, uploadEditorBundle } = await import('./packages/lesswrong/server/ckEditor/ckEditorApi');
   const { ckEditorBundleVersion } = await import('./packages/lesswrong/lib/wrapCkEditor')
 
   return { ckEditorBundleVersion, checkEditorBundle, uploadEditorBundle };

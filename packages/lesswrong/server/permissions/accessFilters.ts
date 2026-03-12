@@ -10,9 +10,9 @@ import { constantTimeCompare } from "@/lib/helpers";
 import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 
 
-const defaultCheckAccess: CheckAccessFunction<CollectionNameString> = async () => false;
-
+const denyAll: CheckAccessFunction<CollectionNameString> = async () => false;
 export const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
+const adminOnly: CheckAccessFunction<CollectionNameString> = async (currentUser) => userIsAdmin(currentUser);
 
 const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
@@ -108,6 +108,13 @@ const jargonTermCheckAccess: CheckAccessFunction<'JargonTerms'> = async (current
   return await postCheckAccess(currentUser, post, context);
 };
 
+const iframeWidgetSrcdocCheckAccess: CheckAccessFunction<'IframeWidgetSrcdocs'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!document) return false;
+  const revision = await context.loaders.Revisions.load(document.revisionId);
+  if (!revision) return false;
+  return revisionCheckAccess(currentUser, revision, context);
+};
+
 const llmConversationCheckAccess: CheckAccessFunction<'LlmConversations'> = async (currentUser, document, context): Promise<boolean> => {
   return userIsAdmin(currentUser) || userOwns(currentUser, document);
 };
@@ -180,7 +187,7 @@ const postCheckAccess: CheckAccessFunction<'Posts'> = async (currentUser, post, 
     return true;
   } else if (!currentUser && !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey })) {
     return true;
-  } else if (post.isFuture || post.draft || post.deletedDraft) {
+  } else if (post.isFuture || post.draft) {
     return false;
     // TODO: consider getting rid of this clause entirely and instead just relying on default view filter, 
     // since LW is now allowing people to see rejected content and preventing them from seeing 'not-yet-rejected
@@ -374,7 +381,6 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
-  AdvisorRequests: allowAccess,
   ArbitalCaches: allowAccess,
   ArbitalTagContentRels: allowAccess,
   AutomatedContentEvaluations: automatedContentEvaluationCheckAccess,
@@ -385,7 +391,7 @@ const accessFilters = {
   CkEditorUserSessions: allowAccess,
   ClientIds: clientIdCheckAccess,
   Collections: allowAccess,
-  CommentEmbeddings: defaultCheckAccess,
+  CommentEmbeddings: denyAll,
   Comments: commentCheckAccess,
   CommentModeratorActions: allowAccess,
   Conversations: conversationCheckAccess,
@@ -396,33 +402,31 @@ const accessFilters = {
   DebouncerEvents: allowAccess,
   DialogueChecks: dialogueCheckCheckAccess,
   DialogueMatchPreferences: dialogueMatchPreferenceCheckAccess,
-  DigestPosts: allowAccess,
-  Digests: allowAccess,
-  ElectionCandidates: allowAccess,
-  ElectionVotes: allowAccess,
   ElicitQuestionPredictions: allowAccess,
   ElicitQuestions: allowAccess,
   EmailTokens: allowAccess,
-  FeaturedResources: allowAccess,
   FieldChanges: allowAccess,
-  ForumEvents: allowAccess,
-  GardenCodes: allowAccess,
   GoogleServiceAccountSessions: allowAccess,
+  IframeWidgetSrcdocs: iframeWidgetSrcdocCheckAccess,
   Images: allowAccess,
   JargonTerms: jargonTermCheckAccess,
   LegacyData: allowAccess,
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
   Localgroups: allowAccess,
+  LoginTokens: denyAll,
   LWEvents: lweventCheckAccess,
   ManifoldProbabilitiesCaches: allowAccess,
+  MailgunValidations: adminOnly,
   Messages: messageCheckAccess,
   Migrations: allowAccess,
   ModerationTemplates: allowAccess,
   ModeratorActions: allowAccess,
   MultiDocuments: multiDocumentCheckAccess,
   Notifications: notificationCheckAccess,
-  PageCache: allowAccess,
+  OAuthAccessTokens: denyAll,
+  OAuthAuthorizationCodes: denyAll,
+  OAuthClients: denyAll,
   PetrovDayActions: allowAccess,
   PetrovDayLaunchs: allowAccess,
   PodcastEpisodes: allowAccess,
@@ -447,10 +451,6 @@ const accessFilters = {
   SplashArtCoordinates: allowAccess,
   Spotlights: allowAccess,
   Subscriptions: subscriptionCheckAccess,
-  Surveys: allowAccess,
-  SurveyQuestions: allowAccess,
-  SurveyResponses: allowAccess,
-  SurveySchedules: allowAccess,
   Tags: tagCheckAccess,
   TagFlags: allowAccess,
   TagRels: tagRelCheckAccess,
@@ -458,13 +458,12 @@ const accessFilters = {
   TypingIndicators: typingIndicatorCheckAccess,
   UltraFeedEvents: allowAccess,
   Users: userCheckAccess,
-  UserEAGDetails: allowAccess,
-  UserJobAds: allowAccess,
   UserMostValuablePosts: allowAccess,
   UserRateLimits: allowAccess,
   UserTagRels: userTagRelCheckAccess,
   UserActivities: allowAccess,
   Votes: voteCheckAccess,
+  YjsDocuments: denyAll,
 } satisfies Record<CollectionNameString, CheckAccessFunction<CollectionNameString>>;
 
 function collectionHasAccessFilter<N extends CollectionNameString>(collectionName: N): collectionName is (N & keyof typeof accessFilters) {

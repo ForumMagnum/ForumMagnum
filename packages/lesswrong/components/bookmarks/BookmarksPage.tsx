@@ -7,18 +7,20 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import BookmarksTab from "./BookmarksTab";
 import ReadHistoryTab from "./ReadHistoryTab";
 import VoteHistoryTab from "./VoteHistoryTab";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("BookmarksPage", (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
     fontSize: theme.isFriendlyUI ? 28 : undefined,
@@ -40,27 +42,26 @@ const styles = (theme: ThemeType) => ({
       fontSize: 13,
     }
   }
-});
+}));
 
-const BookmarksPage = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const BookmarksPage = () => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
-  const { location } = useLocation()
+  const { location: {hash} } = useSubscribedLocation()
   const [activeTab, setActiveTab] = useState<TabType>('bookmarks')
   
   useEffect(() => {
     // unfortunately the hash is unavailable on the server, so we check it here instead
-    if (location.hash === '#readhistory') {
+    if (hash === '#readhistory') {
       setActiveTab('readhistory')
-    } else if (location.hash === '#votehistory') {
+    } else if (hash === '#votehistory') {
       setActiveTab('votehistory')
     }
-  }, [location.hash])
+  }, [hash])
   
   const handleChangeTab = (e: React.ChangeEvent, value: TabType) => {
     setActiveTab(value)
-    navigate({...location, hash: `#${value}`}, {replace: true})
+    navigate({hash: `#${value}`}, {replace: true, scroll: false})
   }
 
   const currentUser = useCurrentUser()
@@ -70,7 +71,7 @@ const BookmarksPage = ({ classes }: {
   return <AnalyticsContext pageContext="bookmarksPage" capturePostItemOnMount>
     <SingleColumnSection>
       <Typography variant="display2" className={classes.headline}>
-        {preferredHeadingCase(`Saved & Read`)}
+        Saved & Read
       </Typography>
       <Tabs
         value={activeTab}
@@ -88,10 +89,6 @@ const BookmarksPage = ({ classes }: {
   </AnalyticsContext>
 }
 
-
 export default registerComponent('BookmarksPage', BookmarksPage, {
   hocs: [withErrorBoundary],
-  styles
 });
-
-

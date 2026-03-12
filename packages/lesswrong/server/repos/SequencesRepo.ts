@@ -3,23 +3,11 @@ import Sequences from "../../server/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector, getViewableSequencesSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { READ_WORDS_PER_MINUTE } from "@/lib/collections/posts/constants";
 
 class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
     super(Sequences);
-  }
-
-  async sequenceRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
-    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
-      -- SequencesRepo.sequenceRouteWillDefinitelyReturn200
-      SELECT EXISTS(
-        SELECT 1
-        FROM "Sequences"
-        WHERE "_id" = $1 AND ${getViewableSequencesSelector()}
-      )
-    `, [id]);
-
-    return res?.exists ?? false;
   }
 
   private getSearchDocumentQuery(): string {
@@ -135,6 +123,35 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
       const result = resultsById[compositeId];
       return result ? parseInt(result.read_count, 10) : 0
     });
+  }
+
+  async getSequenceWordCountAndReadTime(sequenceId: string): Promise<{ totalWordCount: number, totalReadTime: number }> {
+    const result = await this.getRawDb().oneOrNone<{ totalWordCount: number, totalReadTime: number }>(`
+      -- SequencesRepo.getSequenceWordCountAndReadTime
+      SELECT
+        COALESCE(SUM(r."wordCount"), 0) as "totalWordCount",
+        COALESCE(SUM(
+          CASE
+            WHEN p."readTimeMinutesOverride" IS NOT NULL THEN GREATEST(1, ROUND(p."readTimeMinutesOverride"))
+            ELSE GREATEST(1, ROUND(COALESCE(r."wordCount", 0) / $(readWordsPerMinute)))
+          END
+        ), 0) as "totalReadTime"
+      FROM "Sequences" s
+      JOIN "Chapters" c ON c."sequenceId" = s."_id"
+      CROSS JOIN UNNEST(c."postIds") AS post_id
+      JOIN "Posts" p ON p."_id" = post_id
+      JOIN "Revisions" r ON r."_id" = p."contents_latest"
+      WHERE s."_id" = $(sequenceId)
+      AND ${getViewablePostsSelector("p")}
+    `, {
+      sequenceId,
+      readWordsPerMinute: READ_WORDS_PER_MINUTE,
+    });
+
+    return {
+      totalWordCount: result?.totalWordCount ?? 0,
+      totalReadTime: result?.totalReadTime ?? 0,
+    };
   }
 }
 

@@ -1,10 +1,27 @@
 import React from "react";
 import PostsAnalyticsPage from '@/components/analytics/PostsAnalyticsPage';
-import RouteRoot from "@/components/next/RouteRoot";
+import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import merge from "lodash/merge";
+import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
+import type { Metadata } from "next";
+
+assertRouteAttributes("/postAnalytics", {
+  whiteBackground: true,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
+
+export async function generateMetadata(): Promise<Metadata> {
+  // ea-forum-look-here TODO Get post ID from search params and get post title
+  return merge({}, await getDefaultMetadata(), getPageTitleFields('Post Analytics'));
+}
 
 
 export default function Page() {
-  return <RouteRoot metadata={{ background: 'white' }}>
+  return <RouteRoot>
     <PostsAnalyticsPage />
   </RouteRoot>;
 }

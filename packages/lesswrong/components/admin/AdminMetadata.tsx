@@ -1,10 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import Loading from "../vulcan-core/Loading";
+import { useStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AdminMetadata", (theme: ThemeType) => ({
   indexesTable: {
     border: theme.palette.border.maxIntensity,
     padding: 5,
@@ -16,9 +17,10 @@ const styles = (theme: ThemeType) => ({
     width: 700,
     padding: 5,
   },
-});
+}));
 
-const AdminMetadata = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const AdminMetadata = () => {
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(gql(`
     query AdminMetadataQuery {
       AdminMetadata
@@ -43,7 +45,7 @@ const AdminMetadata = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   </ul>
 }
 
-export default registerComponent('AdminMetadata', AdminMetadata, {styles});
+export default AdminMetadata;
 
 
 

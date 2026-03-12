@@ -1,6 +1,8 @@
 import crypto from 'crypto';
 import { googleClientIdSetting, googleOAuthSecretSetting } from '@/server/databaseSettings';
-import { getSiteUrl } from '@/lib/vulcan-lib/utils';
+import { NextRequest } from 'next/server';
+import { getSiteUrlFromReq } from '@/server/utils/getSiteUrl';
+import { combineUrls } from '../vulcan-lib/utils';
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -30,13 +32,14 @@ export function generateOAuthState(): string {
   return crypto.randomBytes(32).toString('hex');
 }
 
-export function getGoogleAuthUrl(state: string, returnTo?: string): string {
+export function getGoogleAuthUrl(request: NextRequest, state: string, returnTo?: string): string {
+  const siteUrl = getSiteUrlFromReq(request);
   const clientId = googleClientIdSetting.get();
   if (!clientId) throw new Error('Google OAuth not configured');
 
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: `${getSiteUrl()}auth/google/callback`,
+    redirect_uri: combineUrls(siteUrl, '/auth/google/callback'),
     response_type: 'code',
     scope: 'openid email profile',
     access_type: 'offline',
@@ -45,13 +48,14 @@ export function getGoogleAuthUrl(state: string, returnTo?: string): string {
   });
 
   if (returnTo) {
-    params.append('state', `${state}:${encodeURIComponent(returnTo)}`);
+    params.set('state', `${state}:${encodeURIComponent(returnTo)}`);
   }
 
   return `${GOOGLE_AUTH_URL}?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(code: string): Promise<GoogleTokenResponse> {
+export async function exchangeCodeForTokens(request: NextRequest, code: string): Promise<GoogleTokenResponse> {
+  const siteUrl = getSiteUrlFromReq(request);
   const clientId = googleClientIdSetting.get();
   const clientSecret = googleOAuthSecretSetting.get();
   
@@ -68,7 +72,7 @@ export async function exchangeCodeForTokens(code: string): Promise<GoogleTokenRe
       code,
       client_id: clientId,
       client_secret: clientSecret,
-      redirect_uri: `${getSiteUrl()}auth/google/callback`,
+      redirect_uri: combineUrls(siteUrl, '/auth/google/callback'),
       grant_type: 'authorization_code',
     }),
   });

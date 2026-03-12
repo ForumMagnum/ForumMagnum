@@ -2,9 +2,9 @@
 
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils';
-import type ContainerElement from '@ckeditor/ckeditor5-engine/src/view/containerelement';
+import type { ViewContainerElement as ContainerElement } from '@ckeditor/ckeditor5-engine/src/view/containerelement';
 import type { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/downcastdispatcher';
-import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
+import { ModelElement } from '@ckeditor/ckeditor5-engine/src/model/element';
 import { viewQueryElement, viewQueryText } from '../utils';
 import { ATTRIBUTES, CLASSES, ELEMENTS } from '../constants';
 

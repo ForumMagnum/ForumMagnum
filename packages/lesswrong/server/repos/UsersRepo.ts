@@ -2,7 +2,6 @@ import AbstractRepo from "./AbstractRepo";
 import Users from "../../server/collections/users/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
-import { userLoginTokensView } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
@@ -48,10 +47,14 @@ class UsersRepo extends AbstractRepo<"Users"> {
     super(Users);
   }
 
-  getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
-    return this.oneOrNone(`
+  async getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
+    return await this.oneOrNone(`
       -- UsersRepo.getUserByLoginToken
-      SELECT * FROM fm_get_user_by_login_token($1)
+      SELECT u.*
+      FROM "Users" u
+      JOIN "LoginTokens" lt ON lt."userId"=u."_id"
+      WHERE lt."hashedToken" = $1
+        AND lt."loggedOutAt" IS NULL
     `, [hashedToken]);
   }
 
@@ -89,21 +92,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
   }
 
-  async clearLoginTokens(userId: string): Promise<void> {
-    await this.none(`
-      -- UsersRepo.clearLoginTokens
-      UPDATE "Users"
-      SET services = jsonb_set(
-        services,
-        '{resume, loginTokens}'::TEXT[],
-        '[]'::JSONB,
-        true
-      )
-      WHERE _id = $1
-    `, [userId]);
-    await this.refreshUserLoginTokens();
-  }
-
   async resetPassword(userId: string, hashedPassword: string): Promise<void> {
     await this.none(`
       -- UsersRepo.resetPassword
@@ -130,11 +118,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId, hashedPassword]);
-    await this.refreshUserLoginTokens();
-  }
-
-  private async refreshUserLoginTokens() {
-    await userLoginTokensView.refresh(this.getRawDb());
   }
 
   verifyEmail(userId: string): Promise<null> {
@@ -155,6 +138,25 @@ class UsersRepo extends AbstractRepo<"Users"> {
           fm_build_nested_jsonb(('{' || $2 || '}')::TEXT[], $3::JSONB)
       WHERE "_id" = $1
     `, [userId, section, String(expanded)]);
+  }
+
+  markKarmaChangesChecked(userId: string, startDate: Date | null | undefined, endDate: Date | null | undefined): Promise<null> {
+    return this.none(`
+      -- UsersRepo.markKarmaChangesChecked
+      UPDATE "Users"
+      SET
+        "karmaChangeBatchStart" = CASE
+          WHEN $2::TIMESTAMPTZ IS NULL THEN "karmaChangeBatchStart"
+          WHEN "karmaChangeBatchStart" IS NULL OR "karmaChangeBatchStart" < $2::TIMESTAMPTZ THEN $2::TIMESTAMPTZ
+          ELSE "karmaChangeBatchStart"
+        END,
+        "karmaChangeLastOpened" = CASE
+          WHEN $3::TIMESTAMPTZ IS NULL THEN "karmaChangeLastOpened"
+          WHEN "karmaChangeLastOpened" IS NULL OR "karmaChangeLastOpened" < $3::TIMESTAMPTZ THEN $3::TIMESTAMPTZ
+          ELSE "karmaChangeLastOpened"
+        END
+      WHERE "_id" = $1
+    `, [userId, startDate ?? null, endDate ?? null]);
   }
 
   removeAlignmentGroupAndKarma(userId: string, reduceAFKarma: number): Promise<null> {
@@ -332,113 +334,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return result.isDisplayNameTaken;
   }
   
-  /**
-   * Returns a list of users who haven't read a post in over 4 months
-   * and who we want to email a feedback survey to.
-   *
-   * This excludes admins, deleted/deactivated users,
-   * flagged or purged or removed from queue users,
-   * users who were banned any time over the past 4 month period,
-   * and users who have already been sent this email.
-   */
-  async getInactiveUsersToEmail(limit: number): Promise<DbUser[]> {
-    return this.manyOrNone(`
-      -- UsersRepo.getInactiveUsersToEmail
-      SELECT
-        u.*
-      FROM public."Users" AS u
-      LEFT JOIN (
-        SELECT "userId", MAX("lastUpdated") AS max_last_updated
-        FROM "ReadStatuses"
-        WHERE "isRead" IS TRUE
-        GROUP BY "userId"
-      ) AS rs ON u._id = rs."userId"
-      WHERE
-        u."inactiveSurveyEmailSentAt" IS NULL
-        AND u."unsubscribeFromAll" IS NOT TRUE
-        AND u."isAdmin" IS NOT TRUE
-        AND u.deleted IS NOT TRUE
-        AND u."deleteContent" IS NOT TRUE
-        AND u."sunshineFlagged" IS NOT TRUE
-        AND (
-          u.banned IS NULL
-          OR u.banned < CURRENT_TIMESTAMP - INTERVAL '4 months'
-        )
-        AND (
-          u."reviewedByUserId" IS NOT NULL
-          OR u."sunshineNotes" IS NULL
-          OR u."sunshineNotes" = ''
-        )
-        AND (
-          (
-            rs.max_last_updated IS NULL
-            AND u."createdAt" < CURRENT_TIMESTAMP - INTERVAL '4 months'
-          )
-          OR (
-            rs.max_last_updated IS NOT NULL
-            AND rs.max_last_updated < CURRENT_TIMESTAMP - INTERVAL '4 months'
-          )
-        )
-      ORDER BY u."createdAt" desc
-      LIMIT $1;
-    `, [limit])
-  }
-  
-   /**
-   * Returns a list of users to whom we want to send an email
-   * asking them to fill in the annual EA Forum user survey.
-   *
-   * This excludes deleted/deactivated users,
-   * flagged or purged or removed from queue users,
-   * users who unsubscribed from all site emails,
-   * users who were banned any time over the past 6 month period,
-   * users who have less than -10 karma,
-   * users who haven't been to the site in the past 2 years,
-   * and users who have already been sent this email.
-   */
-   async getUsersForUserSurveyEmail(limit: number): Promise<DbUser[]> {
-    return this.manyOrNone(`
-      -- UsersRepo.getUsersForUserSurveyEmail
-      SELECT
-        u.*
-      FROM public."Users" AS u
-      LEFT JOIN (
-        SELECT "userId", MAX("lastUpdated") AS max_last_updated
-        FROM "ReadStatuses"
-        WHERE "isRead" IS TRUE
-        GROUP BY "userId"
-      ) AS rs ON u._id = rs."userId"
-      WHERE
-        u."userSurveyEmailSentAt" IS NULL
-        AND u."unsubscribeFromAll" IS NOT TRUE
-        AND u.deleted IS NOT TRUE
-        AND u."deleteContent" IS NOT TRUE
-        AND u."sunshineFlagged" IS NOT TRUE
-        AND (
-          u.banned IS NULL
-          OR u.banned < CURRENT_TIMESTAMP - INTERVAL '6 months'
-        )
-        AND (
-          u."reviewedByUserId" IS NOT NULL
-          OR u."sunshineNotes" IS NULL
-          OR u."sunshineNotes" = ''
-        )
-        AND u.karma >= -10
-        AND (
-          (
-            rs.max_last_updated IS NULL
-            AND u."createdAt" > CURRENT_TIMESTAMP - INTERVAL '2 years'
-          )
-          OR (
-            rs.max_last_updated IS NOT NULL
-            AND rs.max_last_updated > CURRENT_TIMESTAMP - INTERVAL '2 years'
-          )
-        )
-      ORDER BY u."createdAt" desc
-      LIMIT $1;
-    `, [limit])
-  }
-
   async searchFacets(facetFieldName: string, query: string): Promise<string[]> {
     const {name, pgField} = getFacetField(facetFieldName);
     const normalizedFacetField = name === "mapLocationAddress"

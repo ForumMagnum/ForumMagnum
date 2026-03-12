@@ -3,7 +3,7 @@ import { Card } from "@/components/widgets/Paper";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../contents/CollapsedFootnotes';
-import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
+import { hasCollapsedFootnotes } from '@/lib/betas';
 import classNames from 'classnames';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
@@ -20,8 +20,10 @@ import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import { InteractionWrapper } from '../common/useClickableCell';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
+import { useTheme } from '../themes/useTheme';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const footnotePreviewStyles = (theme: ThemeType) => ({
+export const footnotePreviewStyles = defineStyles("FootnotePreview", (theme: ThemeType) => ({
   hovercard: {
     padding: 16,
     ...theme.typography.body2,
@@ -133,7 +135,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-})
+}))
 
 /**
  * Since footnotes can contain footnotes, by default we could have a side-item
@@ -141,23 +143,28 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
  * React stack-depth limit is reached). Use a context provider to keep track of
  * what footnotes we're in, to prevent this.
  */
-const FootnoteAncestorsContext = React.createContext<string[]|null>(null);
+export const FootnoteAncestorsContext = React.createContext<string[]|null>(null);
 
-const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighlight", children}: {
-  classes: ClassesType<typeof footnotePreviewStyles>,
+const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", children}: {
   href: string,
   id?: string,
   rel?: string,
   contentStyleType?: ContentStyleType,
   children: React.ReactNode,
 }) => {
+  const classes = useStyles(footnotePreviewStyles);
   const { openDialog } = useDialog();
   const [disableHover, setDisableHover] = useState(false);
+  const theme = useTheme();
+  const minScreenWidthForTooltips = theme.breakpoints.values.sm;
   const { eventHandlers: anchorEventHandlers, hover: anchorHovered, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "linkPreview",
       hoverPreviewType: "DefaultPreview",
       href,
+    },
+    getIsEnabled: () => {
+      return !isMobile() && window.innerWidth >= minScreenWidthForTooltips;
     },
   });
   const { eventHandlers: sidenoteEventHandlers, hover: sidenoteHovered } = useHover();
@@ -185,7 +192,9 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
   // information isn't wired to pass through the hover-preview system.
 
   const onClick = useCallback((ev: React.MouseEvent) => {
-    if (isRegularClick(ev) && isMobile() && footnoteHTML !== null) {
+    const isWideEnoughForTooltips = window.innerWidth >= minScreenWidthForTooltips;
+    const openModalOnClick = isMobile() || !isWideEnoughForTooltips;
+    if (isRegularClick(ev) && openModalOnClick && footnoteHTML !== null) {
       setDisableHover(true);
       openDialog({
         name: "FootnoteDialog",
@@ -198,18 +207,18 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
     } else {
       window.dispatchEvent(new CustomEvent(EXPAND_FOOTNOTES_EVENT, {detail: href}));
     }
-  }, [href, footnoteHTML, openDialog]);
+  }, [href, footnoteHTML, openDialog, minScreenWidthForTooltips]);
   
   const postPageContext = usePostsPageContext();
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
   const sidenotesDisabledOnPost = post?.disableSidenotes;
   const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("lg");
   const hasSideItemsSidebar = useHasSideItemsSidebar();
-  const sidenoteIsVisible = hasSidenotes() && hasSideItemsSidebar && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
+  const sidenoteIsVisible = hasSideItemsSidebar && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
 
   return (
     <span>
-      {hasSidenotes() && !sidenotesDisabledOnPost && footnoteHTML !== null &&
+      {!sidenotesDisabledOnPost && footnoteHTML !== null &&
         <SideItem options={{offsetTop: -6}}>
           <div
             {...sidenoteEventHandlers}
@@ -223,7 +232,6 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
                 footnoteHref={href}
                 footnoteHTML={footnoteHTML}
                 contentStyleType={contentStyleType}
-                classes={classes}
               />
             </FootnoteAncestorsContext.Provider>
           </div>
@@ -247,12 +255,13 @@ const FootnotePreview = ({classes, href, id, rel, contentStyleType="postHighligh
           anchorEl={anchorEl}
           placement="bottom-start"
           allowOverflow
+          flip
           clickable
         >
           <InteractionWrapper>
             <Card>
               <ContentStyles contentType={contentStyleType} className={classes.hovercard}>
-                <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
+                <ContentItemBody dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
               </ContentStyles>
             </Card>
           </InteractionWrapper>
@@ -303,12 +312,12 @@ const isFootnoteContentsNonempty = (footnoteContentsElement: Element): boolean =
       .reduce((acc, p) => acc + p.textContent, "").trim();
 }
 
-const SidenoteDisplay = ({footnoteHref, footnoteHTML, contentStyleType, classes}: {
+const SidenoteDisplay = ({footnoteHref, footnoteHTML, contentStyleType}: {
   footnoteHref: string,
   footnoteHTML: string,
   contentStyleType: ContentStyleType,
-  classes: ClassesType<typeof footnotePreviewStyles>,
 }) => {
+  const classes = useStyles(footnotePreviewStyles);
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);
 
   return (
@@ -399,8 +408,6 @@ function getFootnoteIndex(href: string, html: string): string|null {
   return null;
 }
 
-export default registerComponent('FootnotePreview', FootnotePreview, {
-  styles: footnotePreviewStyles,
-});
+export default FootnotePreview;
 
 

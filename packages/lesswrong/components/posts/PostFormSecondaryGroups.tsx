@@ -1,8 +1,7 @@
-import { hasSidenotes } from "@/lib/betas";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userCanEditCoauthors, userPassesCrosspostingKarmaThreshold } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF, taggingNamePluralCapitalSetting } from "@/lib/instanceSettings";
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWorAF } from "@/lib/instanceSettings";
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwns } from "@/lib/vulcan-users/permissions";
@@ -54,8 +53,8 @@ const styles = defineStyles('PostFormSecondaryGroups', (theme: ThemeType) => ({
     borderRadius: 2,
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   secondaryOptionLabelActive: {
     borderBottom: `none`,
@@ -222,7 +221,7 @@ const PostFormSecondaryGroups = ({
       </div>
       <div>
         {expandedFormGroup === 'Tags' &&  <div className={classes.formGroup}>  
-          <h3 className={classes.formGroupTitle}>Apply {taggingNamePluralCapitalSetting.get()}</h3>
+          <h3 className={classes.formGroupTitle}>Apply Wikitags</h3>
           <form.Field name="tagRelevance">
             {() => (<FooterTagList
               post={getFooterTagListPostInfo(initialData)}
@@ -664,7 +663,7 @@ const PostFormSecondaryGroups = ({
               </form.Field>
             </div>}
 
-            {hasSidenotes() && <div className={classes.fieldWrapper}>
+            <div className={classes.fieldWrapper}>
               <form.Field name="disableSidenotes">
                 {(field) => (
                   <FormComponentCheckbox
@@ -673,7 +672,7 @@ const PostFormSecondaryGroups = ({
                   />
                 )}
               </form.Field>
-            </div>}
+            </div>
         </div>}
 
         {expandedFormGroup === 'Audio' && (userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters')) && <div className={classes.formGroup}>

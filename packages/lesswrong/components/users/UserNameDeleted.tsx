@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -52,6 +51,4 @@ const UserNameDeletedWithAdminHover = ({user}: {
   </span>
 }
 
-export default registerComponent('UserNameDeleted', UserNameDeleted);
-
-
+export default UserNameDeleted;

@@ -1,5 +1,4 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
 import { Paper }from '@/components/widgets/Paper';
@@ -98,6 +97,6 @@ const SingleLineFeedEvent = ({expands=false, expanded=false, setExpanded, frame,
   }
 }
 
-export default registerComponent("SingleLineFeedEvent", SingleLineFeedEvent);
+export default SingleLineFeedEvent;
 
 

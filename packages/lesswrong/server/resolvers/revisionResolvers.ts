@@ -85,7 +85,7 @@ export const revisionResolversGraphQLMutations = {
 
     const newRevision: Partial<DbRevision> = {
       ...await buildRevision({
-        originalContents: { type: contents.type, data: contents.value },
+        originalContents: { type: contents.type, data: contents.value, yjsState: null },
         currentUser,
         context,
       }),
@@ -126,6 +126,12 @@ export const revisionResolversGraphQLQueries = {
         return {
           type: "markdown",
           value: dataToMarkdown(document.value, document.type),
+        };
+      case "lexical":
+        // Lexical stores content as HTML internally, so convert to HTML
+        return {
+          type: "lexical",
+          value: await dataToHTML(document.value, document.type, context),
         };
     }
   },

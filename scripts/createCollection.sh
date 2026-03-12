@@ -5,6 +5,7 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
+export SKIP_VERCEL_CODE_PULL=true
 yarn repl dev "packages/lesswrong/server/codegen/generateNewCollection.ts" "generateNewCollection(\"$1\")"
 status=$?
 

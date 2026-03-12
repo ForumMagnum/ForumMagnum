@@ -382,14 +382,13 @@ import { useForm } from '@tanstack/react-form';
 import { Components } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { preferredHeadingCase } from '@/themes/forumTheme';
 import { defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator } from '@/lib/editor/make_editable';
 
 /* Shared styles for all generated forms */
 const sharedFieldStyles = defineStyles('GeneratedFormFieldStyles', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
 }));
 `;
@@ -450,8 +449,8 @@ const sharedFieldStyles = defineStyles('GeneratedFormFieldStyles', (theme: Theme
 
 const formStyles = defineStyles('${className}', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
 }));

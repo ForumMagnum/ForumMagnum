@@ -1,6 +1,5 @@
 import React, {useCallback} from 'react';
 import { makeSortableListComponent } from './sortableList';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import SingleUsersItem from "./SingleUsersItem";
@@ -76,6 +75,6 @@ export const FormUserMultiselect = ({ field, label }: FormUserMultiselectProps) 
   />
 };
 
-export default registerComponent("UserMultiselect", UserMultiselect);
+export default UserMultiselect;
 
 

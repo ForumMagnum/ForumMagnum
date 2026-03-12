@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil'
 import PostsEditForm from "./PostsEditForm";
 
@@ -15,7 +14,7 @@ const PostsEditPage = () => {
   </div>
 }
 
-export default registerComponent('PostsEditPage', PostsEditPage);
+export default PostsEditPage;
 
 
 

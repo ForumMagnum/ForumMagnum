@@ -1,11 +1,6 @@
 import React, { MouseEvent, useCallback, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useTracking } from '../../lib/analyticsEvents';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
-import EAButton from "../ea-forum/EAButton";
-import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import LWPopper from "../common/LWPopper";
 import LoginForm from "./LoginForm";
@@ -23,43 +18,7 @@ const styles = defineStyles('UsersAccountMenu', (theme: ThemeType) => ({
     opacity: .8,
     color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
   },
-  login: {
-    marginLeft: 12,
-    marginRight: 8
-  },
-  signUp: {
-    display: 'inline-block',
-    marginRight: 8,
-    '@media (max-width: 540px)': {
-      display: 'none'
-    }
-  },
 }));
-
-export const EAUsersAccountMenu = () => {
-  const classes = useStyles(styles);
-  const {onLogin, onSignup} = useLoginPopoverContext();
-  return (
-    <div className={classes.root}>
-      <EAButton
-        style="grey"
-        onClick={onLogin}
-        data-testid="user-login-button"
-        className={classes.login}
-      >
-        Login
-      </EAButton>
-      <EAButton
-        onClick={onSignup}
-        data-testid="user-signup-button"
-        className={classes.signUp}
-      >
-        Sign up
-      </EAButton>
-      <EALoginPopover />
-    </div>
-  );
-}
 
 export const LWUsersAccountMenu = () => {
   const classes = useStyles(styles);

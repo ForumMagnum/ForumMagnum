@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import Loading from "../vulcan-core/Loading";
 import ChaptersItem from "./ChaptersItem";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -50,6 +49,6 @@ const ChaptersList = ({sequenceId, canEdit, nextSuggestedNumberRef}: {
   </div>
 }
 
-export default registerComponent('ChaptersList', ChaptersList);
+export default ChaptersList;
 
 

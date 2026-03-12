@@ -10,7 +10,7 @@ import type { ClaimsPlugin, InsertClaimCommand } from './claims';
 // for this.)
 declare module '@ckeditor/ckeditor5-core' {
   interface EditorConfig {
-    math: MathConfig
+    math?: MathConfig
     claims?: ClaimsPluginConfiguration
   }
   interface PluginsMap {

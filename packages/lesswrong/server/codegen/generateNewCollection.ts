@@ -457,7 +457,7 @@ async function insertIntoAccessFilters(collectionName: string) {
   }
 
   // Build the new accessFilter entry and insert the default (reject) access filter
-  const accessFilterEntry = `  ${collectionName}: defaultCheckAccess,`;
+  const accessFilterEntry = `  ${collectionName}: denyAll,`;
   
   // Find the correct position to insert the entry (alphabetically)
   let insertPosition = accessFiltersObjectStartIndex + 1;

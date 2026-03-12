@@ -1,0 +1,95 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ *
+ */
+
+.table-selection *::selection {
+  background-color: transparent;
+}
+.table-selected {
+  outline: 2px solid rgb(60, 132, 244);
+}
+.table-cell {
+  border: 1px solid #bbb;
+  width: 75px;
+  vertical-align: top;
+  text-align: start;
+  padding: 6px 8px;
+  position: relative;
+  outline: none;
+}
+/*
+  A firefox workaround to allow scrolling of overflowing table cell
+  ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1904159
+*/
+.table-cell > * {
+  overflow: inherit;
+}
+.table-cell-resizer {
+  position: absolute;
+  right: -4px;
+  height: 100%;
+  width: 8px;
+  cursor: ew-resize;
+  z-index: 10;
+  top: 0;
+}
+.table-cell-header {
+  background-color: #f2f3f5;
+  text-align: start;
+}
+.table-cell-selected {
+  caret-color: transparent;
+}
+.table-cell-selected::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: highlight;
+  mix-blend-mode: multiply;
+  content: '';
+  pointer-events: none;
+}
+
+/* Text format styles — bold and italic use CSS classes so that both
+   formats can be applied simultaneously on a single <span>. */
+.text-bold {
+  font-weight: bold;
+}
+.text-italic {
+  font-style: italic;
+}
+.text-strikethrough {
+  text-decoration: line-through;
+}
+.text-underline {
+  text-decoration: underline;
+}
+.text-underline-strikethrough {
+  text-decoration: underline line-through;
+}
+.text-code {
+  font-family: Menlo, Consolas, Monaco, monospace;
+  font-size: 94%;
+  padding: 1px 0.25rem;
+  background-color: rgb(240, 242, 245);
+  border-radius: 2px;
+}
+.text-highlight {
+  background-color: rgb(255, 212, 0);
+}
+.text-capitalize {
+  text-transform: capitalize;
+}
+.text-lowercase {
+  text-transform: lowercase;
+}
+.text-uppercase {
+  text-transform: uppercase;
+}

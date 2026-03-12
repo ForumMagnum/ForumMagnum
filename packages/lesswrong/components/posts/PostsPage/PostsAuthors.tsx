@@ -4,13 +4,8 @@ import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
 import PostsCoauthor from "./PostsCoauthor";
+import { AUTHOR_MARKER_STYLES } from "./authorMarkerStyles";
 import { Typography } from "../../common/Typography";
-
-export const AUTHOR_MARKER_STYLES = {
-  display: "inline-block",
-  marginLeft: 3,
-  marginRight: -3,
-};
 
 const styles = (theme: ThemeType) => ({
   root: {

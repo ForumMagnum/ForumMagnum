@@ -6,6 +6,8 @@ import { captureException } from '@/lib/sentryWrapper';
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from 'next/navigation';
+import { getRequestIdForServerComponentOrGenerateMetadata } from '../rendering/requestId';
+import { getResolverContextForSSR } from '@/server/rendering/ssrApolloClient';
 
 const IGNORED_ERROR_MESSAGES = new Set(['app.operation_not_allowed', 'app.missing_document']);
 
@@ -65,16 +67,19 @@ function getPageTitleString(title: string) {
   return `${title} — ${siteName}`;
 }
 
-export function getPageTitleFields(title: string) {
+export function getPageTitleFields(title: string): Metadata {
   return {
     title: getPageTitleString(title),
     openGraph: {
       title: getPageTitleString(title),
     },
-  } satisfies Metadata;
+  };
 }
 
-export function getMetadataDescriptionFields(description: string) {
+export function getMetadataDescriptionFields(description: string|null): Metadata {
+  if (!description) {
+    return {};
+  }
   return {
     description,
     twitter: {
@@ -83,10 +88,13 @@ export function getMetadataDescriptionFields(description: string) {
     openGraph: {
       description,
     },
-  } satisfies Metadata;
+  };
 }
 
-export function getMetadataImagesFields(images: string) {
+export function getMetadataImagesFields(images: string|null): Metadata {
+  if (!images) {
+    return {};
+  }
   return {
     twitter: {
       ...(images ? { images } : {}),
@@ -94,7 +102,7 @@ export function getMetadataImagesFields(images: string) {
     openGraph: {
       ...(images ? { images } : {}),
     },
-  } satisfies Metadata;
+  };
 }
 
 export function getCommentDescription(comment: CommentPermalinkMetadataQuery_comment_SingleCommentOutput_result_Comment) {
@@ -136,3 +144,13 @@ export function handleMetadataError(prefix: string, error: unknown) {
   captureException(error);
   return notFound();
 }
+
+/**
+ * Get a ResolverContext for use during metadata generation, given search params from the URL.
+ */
+export async function getResolverContextForGenerateMetadata(searchParams: Record<string, string>): Promise<ResolverContext> {
+  const requestId = await getRequestIdForServerComponentOrGenerateMetadata();
+  const searchParamsStr = JSON.stringify(searchParams);
+  return await getResolverContextForSSR(searchParamsStr, requestId);
+}
+

@@ -3,7 +3,7 @@ import classNames from "classnames";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
-import { useCommentLink, useCommentLinkState } from "./useCommentLink";
+import { CommentLinkWrapper, useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
 import { useFilteredCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -21,9 +21,9 @@ import LoadMore from "../../common/LoadMore";
 import ForumIcon from "../../common/ForumIcon";
 import CommentsMenu from "../../dropdowns/comments/CommentsMenu";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
-import CommentPollVote from "./CommentPollVote";
 import { metaNoticeStyles } from "./metaNoticeStyles";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { getReviewLink } from "@/lib/reviewUtils";
 
 const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -192,7 +192,6 @@ export const CommentsItemMeta = ({
     scrollIntoView,
     scrollOnClick: postPage && !isParentComment,
   };
-  const CommentLinkWrapper = useCommentLink(commentLinkProps);
 
   /**
    * Show the moderator comment annotation if:
@@ -208,15 +207,6 @@ export const CommentsItemMeta = ({
   const moderatorCommentAnnotation = comment.hideModeratorHat
     ? "Moderator Comment (Invisible)"
     : "Moderator Comment";
-
-  const getReviewLink = (year: string) => {
-    // We changed our review page in 2018 and 2019. In 2020 we came up with a page
-    // that we'll hopefully stick with for awhile.
-    if (year === "2018" || year === "2019") {
-      return `/reviews/${year}`;
-    }
-    return `/reviewVoting/${year}`;
-  }
 
   const reviewingForReview = isEAForum() && comment.reviewingForReview === "2020"
     ? "the Decade"
@@ -331,12 +321,11 @@ export const CommentsItemMeta = ({
           className={classes.showMoreTags}
         />}
       </span>}
-      {comment.forumEventId && <CommentPollVote comment={comment} />}
 
       {(rightSectionElements || isFriendlyUI() || menuVisible) && <span className={classes.rightSection}>
         {rightSectionElements}
         {isFriendlyUI() &&
-          <CommentLinkWrapper>
+          <CommentLinkWrapper {...commentLinkProps}>
             <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
           </CommentLinkWrapper>
         }

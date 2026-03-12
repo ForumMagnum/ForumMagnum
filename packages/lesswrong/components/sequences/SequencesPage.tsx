@@ -5,7 +5,6 @@ import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { defaultSequenceBannerIdSetting, nofollowKarmaThreshold } from '@/lib/instanceSettings';
-import { getHeaderHeight, getMobileHeaderHeight } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
@@ -62,7 +61,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
 
 const styles = (theme: ThemeType) => ({
   root: {
-    paddingTop: theme.isFriendlyUI ? (270 + getHeaderHeight()) : 380,
+    paddingTop: theme.isFriendlyUI ? `calc(270px + var(--header-height))` : 380,
   },
   deletedText: {
     paddingTop: 20,
@@ -92,7 +91,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   titleWrapper: {
-    paddingLeft: theme.spacing.unit/2
+    paddingLeft: 4
   },
   title: {
     fontFamily: theme.typography.uiSecondary.fontFamily,
@@ -100,19 +99,19 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.smallCaps,
   },
   description: {
-    marginTop: theme.spacing.unit * 2,
-    marginLeft: theme.spacing.unit/2,
-    marginBottom: theme.isFriendlyUI ? 40 : theme.spacing.unit * 2,
+    marginTop: 16,
+    marginLeft: 4,
+    marginBottom: theme.isFriendlyUI ? 40 : 16,
   },
   banner: {
     position: "absolute",
     right: 0,
-    top: getHeaderHeight(),
+    top: "var(--header-height)",
     width: "100vw",
     height: 380,
     zIndex: theme.zIndexes.sequenceBanner,
     [theme.breakpoints.down('sm')]: {
-      top: getMobileHeaderHeight(),
+      top: "var(--header-height)",
     },
     "& img": {
       width: "100vw",
@@ -128,10 +127,10 @@ const styles = (theme: ThemeType) => ({
     ...sectionFooterLeftStyles
   },
   metaItem: {
-    marginRight: theme.spacing.unit
+    marginRight: 8
   },
   content: {
-    padding: theme.spacing.unit * 4,
+    padding: 32,
     position: 'relative',
     backgroundColor: theme.palette.panelBackground.default,
     borderRadius: theme.borderRadius.default,
@@ -141,8 +140,8 @@ const styles = (theme: ThemeType) => ({
       marginTop: -100,
     },
     [theme.breakpoints.down('xs')]: {
-      marginTop: theme.isFriendlyUI ? undefined : theme.spacing.unit,
-      padding: theme.isFriendlyUI ? 16 : theme.spacing.unit
+      marginTop: theme.isFriendlyUI ? undefined : 8,
+      padding: theme.isFriendlyUI ? 16 : 8
     },
   },
   leftAction: {

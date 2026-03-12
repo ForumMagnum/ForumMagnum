@@ -1,5 +1,4 @@
 import React, { Ref, useCallback, useEffect, useRef, useState } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { AnalyticsProps } from '@/lib/analyticsEvents';
 import { useHover } from './withHover';
@@ -69,7 +68,7 @@ export const TooltipRef = <T extends HTMLElement>({
     }
   }, []);
 
-  const { eventHandlers, hover, everHovered, anchorEl } = useHover<any>({
+  const { eventHandlers, hover, everHovered, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
       title: typeof title === "string" ? title : undefined,

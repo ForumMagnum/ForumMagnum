@@ -1,14 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
-import { fullHeightToCEnabled } from '../../../lib/betas';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import TableOfContentsDivider from "./TableOfContentsDivider";
 
-const getSectionOffsetStyling = () => (fullHeightToCEnabled() ? {
+const getSectionOffsetStyling = () => ({
   display: 'flex',
   flexDirection: 'column-reverse',
-} : {});
+});
 
 const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
   root: {
@@ -43,7 +41,7 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     paddingTop: 6,
     paddingBottom: 6,
     color: theme.palette.link.tocLink,
-    lineHeight: fullHeightToCEnabled() ? "1em" : "1.2em",
+    lineHeight: "1em",
     '&:hover':{
       color: theme.palette.link.tocLinkHighlighted,
       opacity: theme.isFriendlyUI ? 1 : undefined
@@ -57,7 +55,7 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
   // Makes sure that the start of the ToC is in line with the start of the text
   title: {
     paddingTop: 3,
-    paddingBottom: theme.spacing.unit*1.5,
+    paddingBottom: 12,
     borderBottom: theme.palette.border.faint,
     fontSize: theme.isFriendlyUI ? "1em" : undefined,
     '&:hover': {
@@ -65,10 +63,9 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     }
   },
   level0: {
-    display:"block",
     maxWidth: '100%',
-    marginBottom: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginBottom: 8,
+    marginRight: 8,
     '& $link': {
       whiteSpace: "normal",
     },
@@ -164,6 +161,6 @@ const TableOfContentsRow = ({
   </div>
 }
 
-export default registerComponent("TableOfContentsRow", TableOfContentsRow);
+export default TableOfContentsRow;
 
 

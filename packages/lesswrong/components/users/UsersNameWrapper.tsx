@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { Placement as PopperPlacementType } from "popper.js"
 import Loading from "../vulcan-core/Loading";
 import UsersNameDisplay from "./UsersNameDisplay";
@@ -45,6 +44,4 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=fals
   }
 };
 
-export default registerComponent('UsersNameWrapper', UsersNameWrapper);
-
-
+export default UsersNameWrapper;

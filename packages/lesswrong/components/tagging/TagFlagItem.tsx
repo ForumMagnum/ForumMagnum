@@ -5,7 +5,6 @@ import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from "../common/withUser";
-import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import LWPopper from "../common/LWPopper";
@@ -53,7 +52,7 @@ const styles = (theme: ThemeType) => ({
   },
   hoverCard: {
     maxWidth: 350,
-    padding: theme.spacing.unit,
+    padding: 8,
   }
 })
 
@@ -85,7 +84,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey", classe
   
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
   
-  const tagsNameAlt = taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tags'
+  const tagsNameAlt = "Wikitags";
   
   const tagFlagDescription = {
     tagFlagId:`tagFlag ${tagFlag?._id}`,

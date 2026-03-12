@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useBookmark } from "../../hooks/useBookmark";
 import { BookmarkableCollectionName } from "@/lib/collections/bookmarks/constants";
 import DropdownItem from "../DropdownItem";
@@ -37,9 +36,4 @@ const BookmarkDropdownItem = ({
   );
 }
 
-export default registerComponent(
-  "BookmarkDropdownItem",
-  BookmarkDropdownItem,
-);
-
-
+export default BookmarkDropdownItem;

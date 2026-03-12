@@ -218,32 +218,6 @@ export const postgresFunctions: PostgresFunction[] = [
     dependencies: [{type: "collection", name: "Comments"}],
   },
   {
-    // Returns true if the given vote added a specific emoji, false if the
-    // given vote did not add that emoji, or null if the given vote does not
-    // exist (currently only works for EA emojis)
-    source: `
-      CREATE OR REPLACE FUNCTION fm_vote_added_emoji(
-        vote_id TEXT,
-        emoji_name TEXT
-      ) RETURNS BOOLEAN LANGUAGE sql AS $$
-        SELECT
-          COALESCE(target."extendedVoteType"->emoji_name = TO_JSONB(TRUE), FALSE) AND
-          COALESCE(v."extendedVoteType"->emoji_name <> TO_JSONB(TRUE), TRUE)
-        FROM "Votes" target
-        LEFT JOIN "Votes" v ON
-          v."votedAt" < target."votedAt" AND
-          v."userId" = target."userId" AND
-          v."documentId" = target."documentId" AND
-          v."collectionName" = target."collectionName"
-        WHERE
-          target."_id" = vote_id
-        ORDER BY v."votedAt" DESC
-        LIMIT 1
-      $$
-    `,
-    dependencies: [{type: "collection", name: "Votes"}],
-  },
-  {
     // Checks a user has a verified email, from their `emails`.
     source: `
       CREATE OR REPLACE FUNCTION fm_has_verified_email(emails jsonb[])
@@ -261,35 +235,6 @@ export const postgresFunctions: PostgresFunction[] = [
         END;
       $$
     `,
-  },
-  {
-    // Fetches user by hashed login token. First attempts to read from the cached
-    // version in the `UserLoginTokens` materialized view, otherwise falls back
-    // to reading directly from the user object (which is slower).
-    source: `
-      CREATE OR REPLACE FUNCTION fm_get_user_by_login_token(hashed_token TEXT)
-        RETURNS SETOF "Users" LANGUAGE plpgsql AS $$
-        DECLARE
-        BEGIN
-          RETURN QUERY
-            SELECT u.*
-            FROM "Users" u
-            JOIN "UserLoginTokens" lt ON lt."userId" = u."_id"
-            WHERE lt."hashedToken" = hashed_token;
-          IF (FOUND = FALSE) THEN
-            RETURN QUERY
-              SELECT *
-              FROM "Users"
-              WHERE "services"->'resume'->'loginTokens' @>
-                ('[{"hashedToken": "' || hashed_token || '"}]')::JSONB;
-          END IF;
-        END
-      $$
-    `,
-    dependencies: [
-      {type: "collection", name: "Users"},
-      {type: "view", name: "UserLoginTokens"},
-    ],
   },
   {
     // Calculate the last date user updated their profile. This may be slow (it

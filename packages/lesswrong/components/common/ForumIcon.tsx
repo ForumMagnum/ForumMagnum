@@ -5,27 +5,17 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
 import { SpeakerWaveIcon } from "../icons/speakerWaveIcon";
-import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
 import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
-import StarIcon from "@heroicons/react/24/solid/StarIcon";
-import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
-import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import UserOutlineIcon from "@heroicons/react/24/outline/UserIcon";
 import UserCircleIcon from "@heroicons/react/24/outline/UserCircleIcon";
-import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
 import GiftIcon from "@heroicons/react/24/solid/GiftIcon";
-import BellIcon from "@heroicons/react/24/solid/BellIcon";
 import BellAlertIcon from "@heroicons/react/24/solid/BellAlertIcon";
-import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
-import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
 import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
 import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
 import HeartIcon from "@heroicons/react/24/solid/HeartIcon";
 import HeartOutlineIcon from "@heroicons/react/24/outline/HeartIcon";
-import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
-import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
@@ -36,39 +26,24 @@ import CalendarIcon from "@heroicons/react/24/solid/CalendarIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
 import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
-import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
 import MapIcon from "@heroicons/react/24/outline/MapIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
 import ChatBubbleLeftRightIcon from "@heroicons/react/24/outline/ChatBubbleLeftRightIcon";
-import ChatBubbleLeftRightFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftRightIcon";
-import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
-import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
-import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
 import ListBulletIcon from "@heroicons/react/24/outline/ListBulletIcon";
-import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import TagFilledIcon from "@heroicons/react/24/solid/TagIcon";
-import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
-import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import EyeSlashIcon from "@heroicons/react/24/solid/EyeSlashIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import PencilSquareIcon from "@heroicons/react/24/outline/PencilSquareIcon";
-import SettingsIcon from "@heroicons/react/24/outline/Cog6ToothIcon";
 import EnvelopeIcon from "@heroicons/react/24/outline/EnvelopeIcon";
-import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PhotoIcon from "@heroicons/react/24/outline/PhotoIcon";
 import DocumentTextIcon from "@heroicons/react/24/outline/DocumentTextIcon";
 import DocumentIcon from "@heroicons/react/24/solid/DocumentIcon";
-import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
-import ChartBarOutlineIcon from "@heroicons/react/24/outline/ChartBarIcon";
-import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
-import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
 import QuestionMarkCircleFilledIcon from "@heroicons/react/24/solid/QuestionMarkCircleIcon";
-import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import ArrowLongUp from "@heroicons/react/20/solid/ArrowLongUpIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
@@ -77,16 +52,13 @@ import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon";
 import ArrowLeftIcon from "@heroicons/react/24/solid/ArrowLeftIcon";
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
-import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
 import Bars3 from "@heroicons/react/24/outline/Bars3Icon";
 import ViewColumnsIcon from "@heroicons/react/24/outline/ViewColumnsIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
-import ArrowDownRightIcon from '@heroicons/react/24/outline/ArrowDownRightIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
-import FlagIcon from "@heroicons/react/24/outline/FlagIcon";
 import MuiBookmarkIcon from "@/lib/vendor/@material-ui/icons/src/Bookmark";
 import MuiBookmarkBorderIcon from "@/lib/vendor/@material-ui/icons/src/BookmarkBorder";
 import MuiBookmarksIcon from "@/lib/vendor/@material-ui/icons/src/Bookmarks";
@@ -103,6 +75,7 @@ import MuiVisibilityOff from "@/lib/vendor/@material-ui/icons/src/VisibilityOff"
 import MuiVisibility from "@/lib/vendor/@material-ui/icons/src/Visibility";
 import MuiEditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
 import MuiShowChartIcon from "@/lib/vendor/@material-ui/icons/src/ShowChart";
+import MuiInsightsIcon from "@/lib/vendor/@material-ui/icons/src/Insights";
 import MuiNotesIcon from "@/lib/vendor/@material-ui/icons/src/Notes";
 import MuiWarningIcon from "@/lib/vendor/@material-ui/icons/src/Warning";
 import MuiLocationIcon from "@/lib/vendor/@material-ui/icons/src/LocationOn";
@@ -134,14 +107,18 @@ import ThumbUpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/ThumbUpOutli
 import CopyIcon from "@heroicons/react/24/outline/DocumentDuplicateIcon";
 import MuiAddIcon from "@/lib/vendor/@material-ui/icons/src/Add";
 import BookIcon from "@heroicons/react/24/solid/BookOpenIcon";
+import MuiPostIcon from "@/lib/vendor/@material-ui/icons/src/Description";
+import MuiCommentIcon from "@/lib/vendor/@material-ui/icons/src/Message";
+import MuiSnoozeIcon from "@/lib/vendor/@material-ui/icons/src/Snooze";
 import MuiFlagIcon from "@/lib/vendor/@material-ui/icons/src/Flag";
+import MuiDeleteIcon from "@/lib/vendor/@material-ui/icons/src/Delete";
+import MuiOpenInNewIcon from "@/lib/vendor/@material-ui/icons/src/OpenInNew";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
  * the props using React.HTMLAttributes otherwise you will have bugs. See the
  * files below for examples
  */
-import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
 import { StickyIcon } from "../icons/stickyIcon";
@@ -152,7 +129,6 @@ import { CardIcon } from "../icons/cardIcon";
 import { ListIcon } from "../icons/listIcon";
 import { AddEmojiIcon } from "../icons/addEmoji";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
-import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
 import { QIcon } from "../icons/qIcon";
@@ -174,6 +150,8 @@ import { CrossReactionCapIcon } from "../icons/CrossReactionCapIcon";
 import { GivingHandIcon } from "../icons/GivingHandIcon";
 import { DictionaryIcon } from "../icons/Dictionary";
 import { QuestionMarkIcon } from "../icons/QuestionMarkIcon";
+import MuiArrowForwardIcon from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
+import MuiVolumeUpIcon from "@/lib/vendor/@material-ui/icons/src/VolumeUp";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 
 /**
@@ -184,6 +162,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
  */
 export type ForumIconName =
   "VolumeUp" |
+  "VolumeUpBookUI" |
   "GivingHand" |
   "BookOpen" |
   "Bookmark" |
@@ -263,6 +242,7 @@ export type ForumIconName =
   "DocumentFilled" |
   "SoftUpArrow" |
   "ArrowLeft" |
+  "ArrowForward" |
   "ArrowRight" |
   "ArrowRightOutline" |
   "ArrowCircle" |
@@ -280,6 +260,7 @@ export type ForumIconName =
   "CloseMenu" |
   "Q" |
   "BarChart" |
+  "Insights" |
   "Funnel" |
   "FilterBars" |
   "Voted" |
@@ -317,283 +298,157 @@ export type ForumIconName =
   "NoteAdd" |
   "ThumbUp" |
   "ThumbUpOutline" |
-  "Flag";
+  "Post" |
+  "ModDashboardComment" |
+  "Snooze" |
+  "Flag" |
+  "Delete" |
+  "OpenInNew";
 
-const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
-  LWAF: {
-    VolumeUp: SpeakerWaveIcon,
-    GivingHand: GivingHandIcon,
-    BookOpen: BookOpenIcon,
-    Bookmark: MuiBookmarkIcon,
-    BookmarkBorder: MuiBookmarkBorderIcon,
-    Bookmarks: MuiBookmarksIcon,
-    Sparkles: SparklesIcon,
-    Karma: MuiStarIcon,
-    KarmaOutline: MuiStarBorderIcon,
-    Star: MuiStarIcon,
-    User: MuiPersonIcon,
-    UserOutline: UserOutlineIcon,
-    UserCircle: UserCircleIcon,
-    Users: MuiPeopleIcon,
-    UsersOutline: UsersOutlineIcon,
-    Gift: GiftIcon,
-    Bell: MuiNotificationsIcon,
-    BellAlert: BellAlertIcon,
-    BellBorder: MuiBellBorderIcon,
-    AddEmoji: AddEmojiIcon,
-    Link: MuiLinkIcon,
-    BoldLink: BoldLinkIcon,
-    Pin: StickyIcon,
-    Author: AuthorIcon,
-    Sprout: SproutIcon,
-    Close: CloseIcon,
-    Clock: ClockIcon,
-    No: NoSymbolIcon,
-    Calendar: CalendarIcon,
-    CalendarDays: CalendarDaysIcon,
-    Work: BriefcaseIcon,
-    School: AcademicCapIcon,
-    MapPin: MuiLocationIcon,
-    Map: MapIcon,
-    Pencil: PencilIcon,
-    PencilSquare: PencilSquareIcon,
-    Comment: CommentIcon,
-    CommentFilled: CommentFilledIcon,
-    ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
-    ChatBubbleLeftRightFilled: MuiForumIcon,
-    Shortform: MuiNotesIcon,
-    Warning: MuiWarningIcon,
-    ListBullet: ListBulletIcon,
-    Report: MuiReportIcon,
-    Tag: MuiTagIcon,
-    TagFilled: TagFilledIcon,
-    Eye: MuiVisibility,
-    EyeSlash: EyeSlashIcon,
-    EyeOutline: MuiVisibilityOff,
-    Edit: MuiEditIcon,
-    Analytics: MuiShowChartIcon,
-    ChevronLeft: ChevronLeftIcon,
-    ChevronRight: ChevronRightIcon,
-    ThickChevronLeft: ThickChevronLeftIcon,
-    ThickChevronRight: ThickChevronRightIcon,
-    ThickChevronDown: ThickChevronDownIcon,
-    ChevronUpDown: ChevronUpDownIcon,
-    ArrowsUpDown: ArrowsUpDownIcon,
-    NarrowArrowDown: ArrowLongDown,
-    NarrowArrowUp: ArrowLongUp,
-    Plus: PlusIcon,
-    PlusSmall: PlusSmallIcon,
-    MinusSmall: MinusSmallIcon,
-    Heart: HeartIcon,
-    HeartOutline: HeartOutlineIcon,
-    Settings: MuiSettingsIcon,
-    Email: MuiEmailIcon,
-    Envelope: EnvelopeIcon,
-    EAEnvelope: EAEnvelopeIcon,
-    Image: PhotoIcon,
-    Document: DocumentTextIcon,
-    DocumentFilled: DocumentIcon,
-    Puzzle: MuiPuzzleIcon,
-    Check: MuiCheckIcon,
-    CheckCircle: CheckCircleIcon,
-    CheckSmall: CheckSmallIcon,
-    Card: CardIcon,
-    List: ListIcon,
-    SoftUpArrow: SoftUpArrowIcon,
-    ArrowRight: ArrowRightIcon,
-    ArrowLeft: ArrowLeftIcon,
-    ArrowRightOutline: ArrowRightOutlineIcon,
-    ArrowCircle: ArrowCircleIcon,
-    Autorenew: MuiReplayIcon,
-    EllipsisVertical: MuiEllipsisVerticalIcon,
-    Share: MuiShareIcon,
-    ClipboardDocumentList: ClipboardDocumentListIcon,
-    ClipboardDocument: ClipboardDocumentIcon,
-    QuestionMarkCircle: QuestionMarkCircleIcon,
-    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
-    QuestionMark: QuestionMarkIcon,
-    Search: MuiSearchIcon,
-    ComputerDesktop: ComputerDesktopIcon,
-    Menu: MuiMenuIcon,
-    CloseMenu: CloseMenuIcon,
-    Q: QIcon,
-    BarChart: ChartBarIcon,
-    Funnel: FilterAlt,
-    FilterBars: FilterBarsIcon,
-    Voted: VotedIcon,
-    InfoCircle: InformationCircleIcon,
-    BarsArrowDown: BarsArrowDown,
-    Bars3: Bars3,
-    ViewColumns: ViewColumnsIcon,
-    ListView: ListViewIcon,
-    CardView: CardViewIcon,
-    LightbulbChat: LightbulbChatIcon,
-    VoteBallot: MuiVoteIcon,
-    Import: ArrowDownOnSquareIcon,
-    AddReaction: AddReactionIcon,
-    LabBeaker: LabBeakerIcon,
-    Sparkle: SparkleIcon,
-    NotInterested: MuiNotInterestedIcon,
-    Robot: RobotIcon,
-    ExpandMore: MuiExpandMoreIcon,
-    ExpandLess: MuiExpandLessIcon,
-    PlaylistAdd: MuiPlaylistAddIcon,
-    PlusOne: PlusOneIcon,
-    Undo: UndoIcon,
-    Clear: ClearIcon,
-    Fullscreen: FullscreenIcon,
-    FullscreenExit: FullscreenExitIcon,
-    TickReaction: TickReactionIcon,
-    CrossReaction: CrossReactionIcon,
-    CrossReactionCap: CrossReactionCapIcon,
-    Add: MuiAddIcon,
-    Copy: CopyIcon,
-    Book: BookIcon,
-    Dictionary: DictionaryIcon,
-    ArrowDownRight: MuiArrowDownRightIcon,
-    DragIndicator: MuiDragIndicatorIcon,
-    NoteAdd: MuiNoteAddOutlinedIcon,
-    ThumbUp: ThumbsUpIcon,
-    ThumbUpOutline: ThumbUpOutlineIcon,
-    Flag: MuiFlagIcon,
-  },
-  default: {
-    VolumeUp: SpeakerWaveIcon,
-    GivingHand: GivingHandIcon,
-    BookOpen: BookOpenIcon,
-    Bookmark: BookmarkIcon,
-    BookmarkBorder: BookmarkOutlineIcon,
-    Bookmarks: BookmarkIcon,
-    Sparkles: SparklesIcon,
-    Karma: StarIcon,
-    KarmaOutline: StarOutlineIcon,
-    Star: StarIcon,
-    User: UserIcon,
-    UserOutline: UserOutlineIcon,
-    UserCircle: UserCircleIcon,
-    Users: UsersIcon,
-    UsersOutline: UsersOutlineIcon,
-    Gift: GiftIcon,
-    Bell: BellIcon,
-    BellAlert: BellAlertIcon,
-    BellBorder: BellOutlineIcon,
-    AddEmoji: AddEmojiIcon,
-    Link: LinkIcon,
-    BoldLink: BoldLinkIcon,
-    Pin: PinIcon,
-    Author: AuthorIcon,
-    Sprout: SproutIcon,
-    Close: CloseIcon,
-    Clock: ClockIcon,
-    No: NoSymbolIcon,
-    Calendar: CalendarIcon,
-    CalendarDays: CalendarDaysIcon,
-    Work: BriefcaseIcon,
-    School: AcademicCapIcon,
-    MapPin: MapPinIcon,
-    Map: MapIcon,
-    Pencil: PencilIcon,
-    PencilSquare: PencilSquareIcon,
-    Comment: CommentIcon,
-    CommentFilled: CommentFilledIcon,
-    ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
-    ChatBubbleLeftRightFilled: ChatBubbleLeftRightFilledIcon,
-    Shortform: LightbulbIcon,
-    Warning: WarningIcon,
-    ListBullet: ListBulletIcon,
-    Report: ReportIcon,
-    Tag: TagIcon,
-    TagFilled: TagFilledIcon,
-    Eye: EyeIcon,
-    EyeSlash: EyeSlashIcon,
-    EyeOutline: EyeOutlineIcon,
-    Edit: PencilIcon,
-    Analytics: MuiShowChartIcon,
-    ChevronLeft: ChevronLeftIcon,
-    ChevronRight: ChevronRightIcon,
-    ThickChevronLeft: ThickChevronLeftIcon,
-    ThickChevronRight: ThickChevronRightIcon,
-    ThickChevronDown: ThickChevronDownIcon,
-    ChevronUpDown: ChevronUpDownIcon,
-    ArrowsUpDown: ArrowsUpDownIcon,
-    NarrowArrowDown: ArrowLongDown,
-    NarrowArrowUp: ArrowLongUp,
-    Plus: PlusIcon,
-    PlusSmall: PlusSmallIcon,
-    MinusSmall: MinusSmallIcon,
-    Heart: HeartIcon,
-    HeartOutline: HeartOutlineIcon,
-    Settings: SettingsIcon,
-    Email: EmailIcon,
-    Envelope: EnvelopeIcon,
-    EAEnvelope: EAEnvelopeIcon,
-    Image: PhotoIcon,
-    Document: DocumentTextIcon,
-    DocumentFilled: DocumentIcon,
-    Puzzle: PuzzleIcon,
-    Check: CheckIcon,
-    CheckCircle: CheckCircleIcon,
-    CheckSmall: CheckSmallIcon,
-    Card: CardIcon,
-    List: ListIcon,
-    SoftUpArrow: SoftUpArrowIcon,
-    ArrowLeft: ArrowLeftIcon,
-    ArrowRight: ArrowRightIcon,
-    ArrowRightOutline: ArrowRightOutlineIcon,
-    ArrowCircle: ArrowCircleIcon,
-    Autorenew: MuiReplayIcon,
-    EllipsisVertical: EllipsisVerticalIcon,
-    Share: ShareIcon,
-    ClipboardDocumentList: ClipboardDocumentListIcon,
-    ClipboardDocument: ClipboardDocumentIcon,
-    QuestionMarkCircle: QuestionMarkCircleIcon,
-    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
-    QuestionMark: QuestionMarkIcon,
-    Search: SearchIcon,
-    ComputerDesktop: ComputerDesktopIcon,
-    Menu: MenuIcon,
-    CloseMenu: CloseMenuIcon,
-    Q: QIcon,
-    BarChart: ChartBarOutlineIcon,
-    Funnel: FunnelIcon,
-    FilterBars: FilterBarsIcon,
-    Voted: VotedIcon,
-    InfoCircle: InformationCircleIcon,
-    BarsArrowDown: BarsArrowDown,
-    Bars3: Bars3,
-    ViewColumns: ViewColumnsIcon,
-    ListView: ListViewIcon,
-    CardView: CardViewIcon,
-    LightbulbChat: LightbulbChatIcon,
-    VoteBallot: MuiVoteIcon,
-    Import: ArrowDownOnSquareIcon,
-    AddReaction: AddReactionIcon,
-    LabBeaker: LabBeakerIcon,
-    Sparkle: SparkleIcon,
-    NotInterested: MuiNotInterestedIcon,
-    Robot: RobotIcon,
-    ExpandMore: MuiExpandMoreIcon,
-    ExpandLess: MuiExpandLessIcon,
-    PlaylistAdd: MuiPlaylistAddIcon,
-    PlusOne: PlusOneIcon,
-    Undo: UndoIcon,
-    Clear: ClearIcon,
-    Fullscreen: FullscreenIcon,
-    FullscreenExit: FullscreenExitIcon,
-    TickReaction: TickReactionIcon,
-    CrossReaction: CrossReactionIcon,
-    CrossReactionCap: CrossReactionCapIcon,
-    Add: MuiAddIcon,
-    Copy: CopyIcon,
-    Book: BookIcon,
-    Dictionary: DictionaryIcon,
-    ArrowDownRight: ArrowDownRightIcon,
-    DragIndicator: MuiDragIndicatorIcon,
-    NoteAdd: MuiNoteAddOutlinedIcon,
-    ThumbUp: ThumbsUpIcon,
-    ThumbUpOutline: ThumbUpOutlineIcon,
-    Flag: FlagIcon,
-  },
+const icons: Record<ForumIconName, IconComponent> = {
+  VolumeUp: SpeakerWaveIcon,
+  VolumeUpBookUI: MuiVolumeUpIcon,
+  GivingHand: GivingHandIcon,
+  BookOpen: BookOpenIcon,
+  Bookmark: MuiBookmarkIcon,
+  BookmarkBorder: MuiBookmarkBorderIcon,
+  Bookmarks: MuiBookmarksIcon,
+  Sparkles: SparklesIcon,
+  Karma: MuiStarIcon,
+  KarmaOutline: MuiStarBorderIcon,
+  Star: MuiStarIcon,
+  User: MuiPersonIcon,
+  UserOutline: UserOutlineIcon,
+  UserCircle: UserCircleIcon,
+  Users: MuiPeopleIcon,
+  UsersOutline: UsersOutlineIcon,
+  Gift: GiftIcon,
+  Bell: MuiNotificationsIcon,
+  BellAlert: BellAlertIcon,
+  BellBorder: MuiBellBorderIcon,
+  AddEmoji: AddEmojiIcon,
+  Link: MuiLinkIcon,
+  BoldLink: BoldLinkIcon,
+  Pin: StickyIcon,
+  Author: AuthorIcon,
+  Sprout: SproutIcon,
+  Close: CloseIcon,
+  Clock: ClockIcon,
+  No: NoSymbolIcon,
+  Calendar: CalendarIcon,
+  CalendarDays: CalendarDaysIcon,
+  Work: BriefcaseIcon,
+  School: AcademicCapIcon,
+  MapPin: MuiLocationIcon,
+  Map: MapIcon,
+  Pencil: PencilIcon,
+  PencilSquare: PencilSquareIcon,
+  Comment: CommentIcon,
+  CommentFilled: CommentFilledIcon,
+  ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
+  ChatBubbleLeftRightFilled: MuiForumIcon,
+  Shortform: MuiNotesIcon,
+  Warning: MuiWarningIcon,
+  ListBullet: ListBulletIcon,
+  Report: MuiReportIcon,
+  Tag: MuiTagIcon,
+  TagFilled: TagFilledIcon,
+  Eye: MuiVisibility,
+  EyeSlash: EyeSlashIcon,
+  EyeOutline: MuiVisibilityOff,
+  Edit: MuiEditIcon,
+  Analytics: MuiShowChartIcon,
+  ChevronLeft: ChevronLeftIcon,
+  ChevronRight: ChevronRightIcon,
+  ThickChevronLeft: ThickChevronLeftIcon,
+  ThickChevronRight: ThickChevronRightIcon,
+  ThickChevronDown: ThickChevronDownIcon,
+  ChevronUpDown: ChevronUpDownIcon,
+  ArrowsUpDown: ArrowsUpDownIcon,
+  NarrowArrowDown: ArrowLongDown,
+  NarrowArrowUp: ArrowLongUp,
+  Plus: PlusIcon,
+  PlusSmall: PlusSmallIcon,
+  MinusSmall: MinusSmallIcon,
+  Heart: HeartIcon,
+  HeartOutline: HeartOutlineIcon,
+  Settings: MuiSettingsIcon,
+  Email: MuiEmailIcon,
+  Envelope: EnvelopeIcon,
+  EAEnvelope: EAEnvelopeIcon,
+  Image: PhotoIcon,
+  Document: DocumentTextIcon,
+  DocumentFilled: DocumentIcon,
+  Puzzle: MuiPuzzleIcon,
+  Check: MuiCheckIcon,
+  CheckCircle: CheckCircleIcon,
+  CheckSmall: CheckSmallIcon,
+  Card: CardIcon,
+  List: ListIcon,
+  SoftUpArrow: SoftUpArrowIcon,
+  ArrowRight: ArrowRightIcon,
+  ArrowLeft: ArrowLeftIcon,
+  ArrowForward: MuiArrowForwardIcon,
+  ArrowRightOutline: ArrowRightOutlineIcon,
+  ArrowCircle: ArrowCircleIcon,
+  Autorenew: MuiReplayIcon,
+  EllipsisVertical: MuiEllipsisVerticalIcon,
+  Share: MuiShareIcon,
+  ClipboardDocumentList: ClipboardDocumentListIcon,
+  ClipboardDocument: ClipboardDocumentIcon,
+  QuestionMarkCircle: QuestionMarkCircleIcon,
+  QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
+  QuestionMark: QuestionMarkIcon,
+  Search: MuiSearchIcon,
+  ComputerDesktop: ComputerDesktopIcon,
+  Menu: MuiMenuIcon,
+  CloseMenu: CloseMenuIcon,
+  Q: QIcon,
+  BarChart: ChartBarIcon,
+  Insights: MuiInsightsIcon,
+  Funnel: FilterAlt,
+  FilterBars: FilterBarsIcon,
+  Voted: VotedIcon,
+  InfoCircle: InformationCircleIcon,
+  BarsArrowDown: BarsArrowDown,
+  Bars3: Bars3,
+  ViewColumns: ViewColumnsIcon,
+  ListView: ListViewIcon,
+  CardView: CardViewIcon,
+  LightbulbChat: LightbulbChatIcon,
+  VoteBallot: MuiVoteIcon,
+  Import: ArrowDownOnSquareIcon,
+  AddReaction: AddReactionIcon,
+  LabBeaker: LabBeakerIcon,
+  Sparkle: SparkleIcon,
+  NotInterested: MuiNotInterestedIcon,
+  Robot: RobotIcon,
+  ExpandMore: MuiExpandMoreIcon,
+  ExpandLess: MuiExpandLessIcon,
+  PlaylistAdd: MuiPlaylistAddIcon,
+  PlusOne: PlusOneIcon,
+  Undo: UndoIcon,
+  Clear: ClearIcon,
+  Fullscreen: FullscreenIcon,
+  FullscreenExit: FullscreenExitIcon,
+  TickReaction: TickReactionIcon,
+  CrossReaction: CrossReactionIcon,
+  CrossReactionCap: CrossReactionCapIcon,
+  Add: MuiAddIcon,
+  Copy: CopyIcon,
+  Book: BookIcon,
+  Dictionary: DictionaryIcon,
+  ArrowDownRight: MuiArrowDownRightIcon,
+  DragIndicator: MuiDragIndicatorIcon,
+  NoteAdd: MuiNoteAddOutlinedIcon,
+  ThumbUp: ThumbsUpIcon,
+  ThumbUpOutline: ThumbUpOutlineIcon,
+  Post: MuiPostIcon,
+  ModDashboardComment: MuiCommentIcon,
+  Snooze: MuiSnoozeIcon,
+  Flag: MuiFlagIcon,
+  Delete: MuiDeleteIcon,
+  OpenInNew: MuiOpenInNewIcon,
 };
 
 type IconProps = {
@@ -664,8 +519,7 @@ const ForumIcon = ({
   ...props
 }: ForumIconProps) => {
   const classes = useStyles(styles);
-  const icons = forumSelect(ICONS);
-  const Icon = icons[icon] ?? ICONS.default[icon];
+  const Icon = icons[icon];
   if (!Icon) {
     // eslint-disable-next-line no-console
     console.error(`Invalid ForumIcon name: ${icon}`);

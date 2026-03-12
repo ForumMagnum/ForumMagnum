@@ -10,15 +10,15 @@ import {
   getDenormalizedFieldOnUpdate
 } from "../../utils/schemaUtils";
 import { userGetDisplayNameById } from "../../vulcan-users/helpers";
-import { isEAForum } from "../../instanceSettings";
+import { isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentGetPageUrlFromDB, getVotingSystemNameForDocument } from "./helpers";
 import { viewTermsToQuery } from "../../utils/viewUtils";
-import { ForumEventCommentMetadataSchema } from "../forumEvents/types";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField, getAllVotes, getCurrentUserVotes } from "@/lib/make_voteable";
 import { customBaseScoreReadAccess } from "./voting";
 import { CommentsViews } from "./views";
+import { getWithLoader } from "../../loaders";
 
 function isCommentOnPost(data: Partial<DbComment> | CreateCommentDataInput | UpdateCommentDataInput) {
   return "postId" in data;
@@ -44,6 +44,23 @@ async function isParentPostKarmaHidden(comment: DbComment, context: ResolverCont
 
 function canReadUser(user: DbUser | null, comment: DbComment) {
   return isEAForum() ? documentIsNotDeleted(user, comment) : true;
+}
+
+async function getIsBookmarked(documentId: string, context: ResolverContext): Promise<boolean> {
+  const { currentUser, Bookmarks } = context;
+  if (!currentUser) return false;
+
+  const bookmarks = await getWithLoader(
+    context,
+    Bookmarks,
+    `bookmarksByUser:${currentUser._id}:Comments`,
+    { userId: currentUser._id, collectionName: "Comments", active: true },
+    "documentId",
+    documentId,
+    { limit: 1 }
+  );
+
+  return bookmarks.length > 0;
 }
 
 const schema = {
@@ -239,47 +256,6 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Tags", fieldName: "tagId" }),
     },
   },
-  forumEventId: {
-    database: {
-      type: "VARCHAR(27)",
-      foreignKey: "ForumEvents",
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["guests"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  forumEvent: {
-    graphql: {
-      outputType: "ForumEvent",
-      canRead: ["guests"],
-      resolver: generateIdResolverSingle({ foreignCollectionName: "ForumEvents", fieldName: "forumEventId" }),
-    },
-  },
-  /**
-   * Extra data regarding how this comment relates to the `forumEventId`. Currently
-   * this is used for "STICKERS" events, to trigger the creation of a sticker on the
-   * frontpage banner as a side effect.
-   */
-  forumEventMetadata: {
-    database: {
-      type: "JSONB",
-    },
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      canCreate: ["members"],
-      validation: {
-        simpleSchema: ForumEventCommentMetadataSchema,
-        optional: true,
-        blackbox: true,
-      },
-    },
-  },
   tagCommentType: {
     database: {
       type: "TEXT",
@@ -294,21 +270,6 @@ const schema = {
       canCreate: ["members"],
       validation: {
         allowedValues: ["SUBFORUM", "DISCUSSION"],
-        optional: true,
-      },
-    },
-  },
-  subforumStickyPriority: {
-    database: {
-      type: "DOUBLE PRECISION",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Float",
-      canRead: ["guests"],
-      canUpdate: ["sunshineRegiment", "admins"],
-      canCreate: ["sunshineRegiment", "admins"],
-      validation: {
         optional: true,
       },
     },
@@ -506,7 +467,7 @@ const schema = {
         const params = viewTermsToQuery(CommentsViews, {
           view: "shortformLatestChildren",
           topLevelCommentId: comment._id,
-        });
+        }, undefined, context);
         const comments = await Comments.find(params.selector, params.options).fetch();
         return await accessFilterMultiple(currentUser, "Comments", comments, context);
       },
@@ -1226,21 +1187,6 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "rejectedByUserId" }),
     },
   },
-  emojiReactors: {
-    graphql: {
-      outputType: "JSON",
-      canRead: ["guests"],
-      resolver: async (comment, _, context) => {
-        const { extendedScore } = comment;
-        if (!isEAForum() || !extendedScore || Object.keys(extendedScore).length < 1 || "agreement" in extendedScore) {
-          return {};
-        }
-        if (!comment.postId) return {};
-        const reactors = await context.repos.posts.getCommentEmojiReactorsWithCache(comment.postId);
-        return reactors[comment._id] ?? {};
-      },
-    },
-  },
   af: {
     database: {
       type: "BOOL",
@@ -1369,6 +1315,15 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Posts", fieldName: "originalDialogueId" }),
     },
   },
+  isBookmarked: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (comment, args, context) => {
+        return await getIsBookmarked(comment._id, context);
+      },
+    }
+  },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   allVotes: {
@@ -1418,6 +1373,28 @@ const schema = {
     },
   },
   afVoteCount: DEFAULT_AF_VOTE_COUNT_FIELD,
+  automatedContentEvaluations: {
+    graphql: {
+      outputType: "AutomatedContentEvaluation",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (comment, args, context) => {
+        if (!isLWorAF()) return null;
+        const { AutomatedContentEvaluations, Revisions } = context;
+        const revisionIds = (await Revisions.find({
+          documentId: comment._id,
+          fieldName: "contents",
+        }, {
+          sort: { editedAt: -1 },
+        }, { _id: 1 }).fetch()).map(r => r._id);
+
+        return AutomatedContentEvaluations.findOne({
+          revisionId: { $in: revisionIds },
+        }, {
+          sort: { createdAt: -1 },
+        });
+      }
+    }
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Comments">>;
 
 export default schema;

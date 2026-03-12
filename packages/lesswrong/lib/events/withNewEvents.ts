@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
-import { hookToHoc } from '../../lib/hocUtils';
 import omit from 'lodash/omit';
 import { useMutationNoCache } from '../crud/useMutationNoCache';
 import { gql } from "@/lib/generated/gql-codegen";
@@ -82,7 +81,3 @@ export const useNewEvents = () => {
   
   return {recordEvent, closeAllEvents};
 }
-
-export const withNewEvents = hookToHoc(useNewEvents);
-
-export default withNewEvents;

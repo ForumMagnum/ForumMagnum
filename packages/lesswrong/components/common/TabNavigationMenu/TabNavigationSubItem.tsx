@@ -1,27 +1,27 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { iconWidth } from './TabNavigationItem'
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const iconPadding = (theme: ThemeType) =>
-  theme.isFriendlyUI ? theme.spacing.unit / 2 : iconWidth + (theme.spacing.unit * 2);
+const iconPadding = (theme: ThemeType) => iconWidth + 16;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TabNavigationSubItem", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     display: "block",
-    paddingBottom: theme.spacing.unit,
+    paddingBottom: 8,
     // padding reflects how large an icon+padding is
-    paddingLeft: (theme.spacing.unit*2) + iconPadding(theme),
+    paddingLeft: 16 + iconPadding(theme),
     color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[700],
     ...(theme.isBookUI && theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     width:
       TAB_NAVIGATION_MENU_WIDTH - // base width
-      ((theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2))) - // paddingLeft,
-      (theme.spacing.unit*2), // leave some space on the right,
+      (16 + (iconWidth + 16)) - // paddingLeft,
+      16, // leave some space on the right,
     fontSize: "1rem",
     whiteSpace: "nowrap",
     overflow: "hidden",
@@ -31,18 +31,18 @@ const styles = (theme: ThemeType) => ({
     },
     boxSizing: "content-box"
   }
-})
+}))
 
-const TabNavigationSubItem = ({children, classes, className}: {
+const TabNavigationSubItem = ({children, className}: {
   children?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
+  const classes = useStyles(styles);
   return <div className={classNames(classes.root, className)}>
     {children}
   </div>
 }
 
-export default registerComponent('TabNavigationSubItem', TabNavigationSubItem, {styles});
+export default TabNavigationSubItem;
 
 

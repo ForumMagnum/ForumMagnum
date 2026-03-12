@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
 import { DialogContent } from '../widgets/DialogContent';
@@ -8,21 +7,19 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import { DialogActions } from '../widgets/DialogActions';
 import LWDialog from "../common/LWDialog";
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AFApplicationForm", (theme: ThemeType) => ({
   modalTextField: {
     marginTop: 10,
   },
-});
+}));
 
-interface ExternalProps {
-  onClose: any,
-}
-
-interface AFApplicationFormProps extends ExternalProps, WithStylesProps {
-}
-
-const AFApplicationForm = ({ onClose, classes }: AFApplicationFormProps) => {
+const AFApplicationForm = ({ onClose }: {
+  onClose: () => void,
+}) => {
+  const classes = useStyles(styles);
   const updateCurrentUser = useUpdateCurrentUser();
   const { flash } = useMessages();
   const [applicationText, setApplicationText] = useState("");
@@ -77,8 +74,4 @@ const AFApplicationForm = ({ onClose, classes }: AFApplicationFormProps) => {
   )
 }
 
-export default registerComponent(
-  'AFApplicationForm', AFApplicationForm, { styles }
-);
-
-
+export default AFApplicationForm;

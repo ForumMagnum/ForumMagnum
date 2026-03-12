@@ -3,11 +3,11 @@ import SimpleSchema from "@/lib/utils/simpleSchema";
 import {
   userGetProfileUrl,
   getUserEmail,
-  userOwnsAndInGroup, getAuth0Provider,
+  userOwnsAndInGroup,
   karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
-import { userOwns, userIsAdmin, userHasntChangedName, userIsMemberOf } from "../../vulcan-users/permissions";
+import { userOwns, userIsAdmin, userIsMemberOf } from "../../vulcan-users/permissions";
 import { isAF, isEAForum } from "../../instanceSettings";
 import {
   accessFilterMultiple, arrayOfForeignKeysOnCreate, generateIdResolverMulti,
@@ -29,9 +29,12 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
-import { loadByIds } from "@/lib/loaders";
+import { getWithLoader, loadByIds } from "@/lib/loaders";
+import { VOTING_DISABLED } from "../moderatorActions/constants";
+import { isActionActive } from "../moderatorActions/helpers";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -71,7 +74,7 @@ const ownsOrIsMod = (user: DbUser | null, document: any) => {
 };
 
 const canUpdateName = (user: DbUser | null) => {
-  return isEAForum() ? userIsMemberOf(user, 'members') : userHasntChangedName(user);
+  return userIsMemberOf(user, 'members');
 };
 
 const DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS = {
@@ -318,6 +321,40 @@ const schema = {
   },
   biography_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   
+  // pinnedPostIds: User-customized order of top posts to feature on their profile.
+  // If empty, profile displays top 4 posts by karma (default behavior).
+  // If set, profile displays these 4 posts in this specific order.
+  pinnedPostIds: {
+    database: {
+      type: "VARCHAR(27)[]",
+      defaultValue: [],
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins"],
+      canCreate: ["admins"],
+    },
+  },
+
+  // hideProfileTopPosts: If true, hide the featured top-posts section on profile pages.
+  hideProfileTopPosts: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins"],
+      canCreate: ["admins"],
+    },
+  },
+  
   username: {
     database: {
       type: "TEXT",
@@ -411,14 +448,14 @@ const schema = {
       },
     },
   },
-  /** hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
+  /** @deprecated hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
   hasAuth0Id: {
     graphql: {
       outputType: "Boolean",
       // Mods cannot read because they cannot read services, which is a prerequisite
       canRead: [userOwns, "admins"],
       resolver: (user) => {
-        return getAuth0Provider(user) === "auth0";
+        return false;
       },
     },
   },
@@ -444,7 +481,7 @@ const schema = {
     },
   },
   /**
-   Used for tracking changes of displayName
+   * Used for tracking changes of displayName
    */
   previousDisplayName: {
     database: {
@@ -893,6 +930,7 @@ const schema = {
       },
     },
   },
+  /** @deprecated */
   hidePostsRecommendations: {
     database: {
       type: "BOOL",
@@ -922,21 +960,6 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  optedOutOfSurveys: {
-    database: {
-      type: "BOOL",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
@@ -1534,6 +1557,34 @@ const schema = {
       },
     },
   },
+  votingDisabled: {
+    graphql: {
+      outputType: "Boolean!",
+      canRead: ["guests"],
+      resolver: async (user: DbUser, args: unknown, context: ResolverContext) => {
+        const { ModeratorActions } = context;
+
+        const moderatorActions = await getWithLoader(
+          context,
+          ModeratorActions,
+          'votingDisabledModeratorAction',
+          {
+            userId: user._id,
+            type: VOTING_DISABLED,
+          },
+          'userId',
+          user._id,
+          { sort: { createdAt: -1 } }
+        );
+
+        if (moderatorActions.length === 0) return false;
+
+        const moderatorAction = moderatorActions[0];
+
+        return isActionActive(moderatorAction);
+      },
+    }
+  },
   // deleteContent: Flag all comments and posts from this user as deleted
   deleteContent: {
     database: {
@@ -2110,40 +2161,6 @@ const schema = {
   emailSubscribedToCurated: {
     database: {
       type: "BOOL",
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: ["members"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  subscribedToDigest: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: ["members"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  subscribedToNewsletter: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
     },
     graphql: {
       outputType: "Boolean",
@@ -3646,7 +3663,7 @@ const schema = {
       },
     },
   },
-  profileTagIds: {
+  profileTagIds: { //DEPRECATED Was an EA-forum-specific subforum
     database: {
       type: "VARCHAR(27)[]",
       defaultValue: [],
@@ -3873,23 +3890,10 @@ const schema = {
       },
     },
   },
-  // used by the EA Forum to track when a user has dismissed the frontpage job ad
-  hideJobAdUntil: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: [userOwns, "admins"],
-      canUpdate: [userOwns, "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  // used by the EA Forum to track if a user has dismissed the post page criticism tips card
+  /**
+   * @deprecated
+   * used by the EA Forum to track if a user has dismissed the post page criticism tips card
+   */
   criticismTipsDismissed: {
     database: {
       type: "BOOL",
@@ -4148,6 +4152,44 @@ const schema = {
       },
     },
   },
+  mailgunValidation: {
+    graphql: {
+      outputType: "MailgunValidationResult",
+      canRead: ["admins"],
+      resolver: async (user: DbUser, _args: unknown, context: ResolverContext) => {
+        const { currentUser } = context;
+        if (!currentUser || !userIsAdmin(currentUser)) return null;
+
+        const email = user.email?.trim().toLowerCase();
+        if (!email) return null;
+
+        const db = getSqlClientOrThrow();
+        return db.oneOrNone(
+          `
+            -- Users.mailgunValidation
+            SELECT
+              mv.email,
+              mv.status,
+              mv."validatedAt",
+              mv."httpStatus",
+              mv.error,
+              mv."isValid",
+              mv.risk,
+              mv.reason,
+              mv."didYouMean",
+              mv."isDisposableAddress",
+              mv."isRoleAddress",
+              mv."sourceUserId"
+            FROM "MailgunValidations" mv
+            WHERE lower(mv.email) = $1
+            ORDER BY mv."validatedAt" DESC
+            LIMIT 1
+          `,
+          [email],
+        );
+      },
+    },
+  },
   hideSunshineSidebar: {
     database: {
       type: "BOOL",
@@ -4160,38 +4202,6 @@ const schema = {
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  // EA Forum emails the user a survey if they haven't read a post in 4 months
-  inactiveSurveyEmailSentAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  // Used by EAF to track when we last emailed the user about the annual user survey
-  userSurveyEmailSentAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["members"],
       validation: {
         optional: true,
       },
@@ -4256,6 +4266,59 @@ const schema = {
       inputType: "RecommendationSettingsInput",
       canRead: [userOwns],
       canUpdate: [userOwns],
+    },
+  },
+  lastRemovedFromReviewQueueAt: {
+    graphql: {
+      outputType: "Date",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const { FieldChanges } = context;
+
+        // TODO: use a custom data loader here?
+        const fieldChanges = await getWithLoader(
+          context,
+          FieldChanges,
+          'needsReviewFieldChanges',
+          { documentId: user._id, fieldName: "needsReview", newValue: 'false' },
+          'documentId',
+          user._id,
+          { sort: { createdAt: -1 }, limit: 1 },
+        );
+
+        return fieldChanges[0]?.createdAt;
+      },
+    },
+  },
+  rejectedContentCount: {
+    graphql: {
+      outputType: "Int",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const { Posts, Comments } = context;
+        const postCount = await Posts.find({ userId: user._id, rejected: true }).count();
+        const commentCount = await Comments.find({ userId: user._id, rejected: true }).count();
+        return postCount + commentCount;
+      },
+    }
+  },
+  userRateLimits: {
+    graphql: {
+      outputType: "[UserRateLimit!]",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        const { UserRateLimits } = context;
+        const userRateLimits = await getWithLoader(
+          context,
+          UserRateLimits,
+          'userRateLimits',
+          { userId: user._id },
+          'userId',
+          user._id
+        );
+
+        return userRateLimits;
+      },
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;

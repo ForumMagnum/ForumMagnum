@@ -4,6 +4,12 @@
 # outputs from awkwardly intermingling, three of these four jobs run run
 # redirected to a file, which is then printed after all four have finished.
 
+export BROWSERSLIST_IGNORE_OLD_DATA=1
+
+# Node v25+ emits DEP0169 for Yarn Classic's internal use of `url.parse()`.
+# This warning isn't actionable for this repo; silence just that warning code.
+export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--disable-warning=DEP0169"
+
 CKEDITOR_DIR="ckEditor"
 mkdir -p tmp
 

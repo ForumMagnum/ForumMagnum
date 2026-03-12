@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
@@ -35,7 +34,7 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
     const currentQuery = isEmpty(query) ? {view: 'postCommentsTop'} : query
     const newQuery = {...currentQuery, view: view, commentId: undefined}
     setRestoreScrollPos?.(window.scrollY - permalinkedCommentHeight());
-    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { scroll: false })
   };
 
   const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
@@ -47,6 +46,6 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
 
 };
 
-export default registerComponent('CommentsViews', CommentsViews);
+export default CommentsViews;
 
 

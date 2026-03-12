@@ -17,6 +17,10 @@ import DebateIcon from "@/lib/vendor/@material-ui/icons/src/Forum";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
 import UltraFeedMetaInfoPill from "./UltraFeedMetaInfoPill";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
+import { Link } from "@/lib/reactRouterWrapper";
+import { metaNoticeStyles } from "../comments/CommentsItem/metaNoticeStyles";
+import { getReviewLink } from "@/lib/reviewUtils";
+import { useCurrentTime } from "@/lib/utils/timeUtil";
 
 const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => ({
   root: {
@@ -30,9 +34,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     color: `${theme.palette.ultraFeed.dim} !important`,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
-    },
     "& > *": {
     },
     "& a:hover, & a:active": {
@@ -81,7 +82,7 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     width: 13,
     height: 13,
     marginLeft: -2,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     position: "relative",
     top: 2
   },
@@ -114,6 +115,14 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
   moderatorHat: {
     marginRight: 12,
     whiteSpace: "nowrap",
+  },
+  metaNotice: {
+    ...metaNoticeStyles(theme),
+  },
+  reviewForNotice: {
+    marginRight: 8,
+    fontSize: "inherit",
+    whiteSpace: 'nowrap',
   },
   newContentDateStyling: {
   },
@@ -160,9 +169,6 @@ const styles = defineStyles("UltraFeedCommentsItemMeta", (theme: ThemeType) => (
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: theme.typography.ultraFeedMobileStyle.fontSize,
-    },
     backgroundColor: 'transparent',
     transition: 'background-color 1.5s ease-out',
     padding: '4px 0px',
@@ -365,6 +371,7 @@ const UltraFeedCommentsItemMeta = ({
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const now = useCurrentTime();
   const [postTitleHighlighted, setPostTitleHighlighted] = useState(false);
   const { post } = comment;
   const { feedType } = useUltraFeedContext();
@@ -376,7 +383,7 @@ const UltraFeedCommentsItemMeta = ({
   const moderatorCommentAnnotation = comment.hideModeratorHat ? "Moderator Comment (Invisible)" : "Moderator Comment";
   const showModeratorCommentAnnotation = comment.moderatorHat && (!comment.hideModeratorHat || userIsAdmin(currentUser));
 
-  const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(Date.now() - (7 * 24 * 60 * 60 * 1000)));
+  const isNewContent = comment.postedAt && (new Date(comment.postedAt) > new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)));
   const isTopLevelComment = !comment.parentCommentId;
   const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted;
   
@@ -396,7 +403,15 @@ const UltraFeedCommentsItemMeta = ({
       <div className={classes.tripleDotMenu}>
         {!hideActionsMenu && setShowEdit && post &&
           <AnalyticsContext pageElementContext="tripleDotMenu">
-            <CommentsMenu comment={comment} post={post} showEdit={setShowEdit} onSeeLess={onSeeLess} isSeeLessMode={isSeeLessMode} ActionsComponent={UltraFeedCommentActions} />
+            <CommentsMenu
+              comment={comment}
+              post={post}
+              showEdit={setShowEdit}
+              onSeeLess={onSeeLess}
+              isSeeLessMode={isSeeLessMode}
+              ActionsComponent={UltraFeedCommentActions}
+              commentMetaInfo={metaInfo}
+            />
           </AnalyticsContext>
         }
       </div>
@@ -420,6 +435,14 @@ const UltraFeedCommentsItemMeta = ({
         {!hideDate && post && <span className={classNames({[classes.newContentDateStyling]: isNewContent})}>
           <CommentsItemDate comment={comment} post={post} className={classes.date}/>
         </span>}
+        {comment.reviewingForReview &&
+          <Link
+            to={getReviewLink(comment.reviewingForReview)}
+            className={classNames(classes.metaNotice, classes.reviewForNotice)}
+          >
+            {`Review for ${comment.reviewingForReview} Review`}
+          </Link>
+        }
         {post.shortform && isTopLevelComment && <UltraFeedMetaInfoPill type="quickTake" readStyles={isRead} />}
         {showModeratorCommentAnnotation &&
           <span className={classes.moderatorHat}>

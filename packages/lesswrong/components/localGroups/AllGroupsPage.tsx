@@ -1,6 +1,4 @@
 "use client";
-
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import LocalGroupsList from "./LocalGroupsList";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -19,7 +17,4 @@ const AllGroupsPage = () => {
   )
 }
 
-export default registerComponent('AllGroupsPage', AllGroupsPage);
-
-
-
+export default AllGroupsPage;

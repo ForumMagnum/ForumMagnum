@@ -1,19 +1,20 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SeparatorBullet", (theme: ThemeType) => ({
   root: {
     marginLeft: 10,
     marginRight: 10,
     color: theme.palette.primary.main
   }
-})
-const SeparatorBullet = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+}))
+
+const SeparatorBullet = () => {
+  const classes = useStyles(styles);
   return <span className={classes.root}>{" "}•{" "}</span>;
 }
 
-export default registerComponent("SeparatorBullet", SeparatorBullet, {styles});
+export default SeparatorBullet;
 
 

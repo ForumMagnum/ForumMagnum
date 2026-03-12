@@ -15,11 +15,23 @@ export interface UltraFeedDisplaySettings {
   commentMaxWords: number;
 }
 
+export type UltraFeedAlgorithm = 'scoring' | 'sampling';
+
+export interface UnifiedScoringSettings {
+  subscribedBonusSetting: number;
+  quicktakeBonus: number;
+  timeDecayHalfLifeHours: number;
+  postsMultiplier: number;
+  threadsMultiplier: number;
+}
+
 export interface UltraFeedResolverSettings {
   incognitoMode: boolean;
+  algorithm: UltraFeedAlgorithm | undefined;
   sourceWeights: Record<FeedItemSourceType, number>;
   threadInterestModel: ThreadInterestModelSettings;
   commentScoring: CommentScoringSettings;
+  unifiedScoring: UnifiedScoringSettings;
   subscriptionsFeedSettings: UltraFeedSubscriptionFeedSettings;
 }
 interface UltraFeedSubscriptionFeedSettings {
@@ -94,7 +106,7 @@ export const DEFAULT_SOURCE_WEIGHTS: Record<FeedItemSourceType, number> = {
   'recentComments': 20,
   'quicktakes': 15,
   'subscriptionsComments': 15,
-  'recombee-lesswrong-custom': 30,
+  'recombee-lesswrong-ultrafeed': 30,
   'hacker-news': 20,
   'subscriptionsPosts': 15,
   'spotlights': 5,
@@ -141,14 +153,24 @@ const DEFAULT_THREAD_INTEREST_MODEL_SETTINGS: ThreadInterestModelSettings = {
   repetitionPenaltyStrength: 0.5,
 };
 
+const DEFAULT_UNIFIED_SCORING_SETTINGS: UnifiedScoringSettings = {
+  subscribedBonusSetting: 3,
+  quicktakeBonus: 5,
+  timeDecayHalfLifeHours: 12,
+  postsMultiplier: 1.0,
+  threadsMultiplier: 1.0,
+};
+
 export const DEFAULT_SETTINGS: UltraFeedSettingsType = {
   displaySettings: DEFAULT_DISPLAY_SETTINGS_DESKTOP,
   resolverSettings: {
     incognitoMode: false,
+    algorithm: undefined,
     sourceWeights: DEFAULT_SOURCE_WEIGHTS,
     commentScoring: DEFAULT_COMMENT_SCORING_SETTINGS,
     threadInterestModel: DEFAULT_THREAD_INTEREST_MODEL_SETTINGS,
-    subscriptionsFeedSettings: { hideRead: true },
+    unifiedScoring: DEFAULT_UNIFIED_SCORING_SETTINGS,
+    subscriptionsFeedSettings: { hideRead: false },
   },
 };
 
@@ -159,10 +181,12 @@ export const getDefaultSettingsForDevice = (device: DeviceKind): UltraFeedSettin
     displaySettings: device === 'mobile' ? DEFAULT_DISPLAY_SETTINGS_MOBILE : DEFAULT_DISPLAY_SETTINGS_DESKTOP,
     resolverSettings: {
       incognitoMode: false,
+      algorithm: undefined,
       sourceWeights: DEFAULT_SOURCE_WEIGHTS,
       commentScoring: { ...DEFAULT_COMMENT_SCORING_SETTINGS },
       threadInterestModel: { ...DEFAULT_THREAD_INTEREST_MODEL_SETTINGS },
-      subscriptionsFeedSettings: { hideRead: true },
+      unifiedScoring: { ...DEFAULT_UNIFIED_SCORING_SETTINGS },
+      subscriptionsFeedSettings: { hideRead: false },
     },
   };
 };
@@ -201,7 +225,7 @@ export const sourceWeightConfigs: SourceWeightConfig[] = [
     description: "Recent comments, prioritized karma and previous engagement with the threads or posts they're on"
   },
   {
-    key: 'recombee-lesswrong-custom',
+    key: 'recombee-lesswrong-ultrafeed',
     label: "Personalized Post Recs",
     description: "Tailored for you based on your reading and voting history."
   },
@@ -247,10 +271,12 @@ export const getWordCountLevel = (
 
 export interface SettingsFormState {
   incognitoMode: boolean;
+  algorithm: UltraFeedAlgorithm | undefined;
   sourceWeights: SourceWeightFormState;
   displaySetting: DisplaySettingsFormState;
   commentScoring: CommentScoringFormState;
   threadInterestModel: ThreadInterestModelFormState;
+  unifiedScoring: UnifiedScoringFormState;
 }
 
 export interface SettingsFormErrors {
@@ -280,5 +306,6 @@ export type SourceWeightFormState = {
 export type DisplaySettingsFormState = ToFormState<typeof DEFAULT_SETTINGS["displaySettings"]>;
 export type CommentScoringFormState = ToFormState<typeof DEFAULT_SETTINGS["resolverSettings"]["commentScoring"]>;
 export type ThreadInterestModelFormState = ToFormState<typeof DEFAULT_SETTINGS["resolverSettings"]["threadInterestModel"]>;
+export type UnifiedScoringFormState = ToFormState<typeof DEFAULT_SETTINGS["resolverSettings"]["unifiedScoring"]>;
 
 export const ULTRA_FEED_SETTINGS_KEY = 'ultraFeedSettings';

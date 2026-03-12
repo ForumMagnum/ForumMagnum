@@ -7,7 +7,7 @@
  * @module mention/ui/mentionlistitemview
  */
 
-import ListItemView from '@ckeditor/ckeditor5-ui/src/list/listitemview';
+import { ListItemView } from '@ckeditor/ckeditor5-ui/src/list/listitemview';
 
 export default class MentionListItemView extends ListItemView {
   children: AnyBecauseTodo

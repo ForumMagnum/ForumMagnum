@@ -1,8 +1,6 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { tagUrlBaseSetting } from '@/lib/instanceSettings';
 import { tagGetUrl } from '@/lib/collections/tags/helpers';
 import { type ErrorLike } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery"
@@ -130,7 +128,7 @@ const RedlinkTagPage = ({tag, slug}: {
   const navigate = useNavigate();
   const title = capitalizeFirstLetter(inferRedLinkTitle(tag, slug??null) ?? "Unnamed");
 
-  const createPageUrl = `/${tagUrlBaseSetting.get()}/create?name=${encodeURIComponent(title)}&type=wiki`
+  const createPageUrl = `/w/create?name=${encodeURIComponent(title)}&type=wiki`
   function createPage() {
     navigate(createPageUrl);
   }
@@ -173,7 +171,7 @@ const RedlinkTagPage = ({tag, slug}: {
   </SingleColumnSection>
 }
 
-export default registerComponent('RedlinkTagPage', RedlinkTagPage);
+export default RedlinkTagPage;
 
 
 

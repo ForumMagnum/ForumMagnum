@@ -64,12 +64,14 @@ export const uniqueId = new class {
   private usedUserIds = new Set<number>();
 
   get() {
+    // eslint-disable-next-line no-constant-condition
     do {
       const n = Math.floor(Math.random() * 10_000_000);
       if (!this.usedUserIds.has(n)) {
         this.usedUserIds.add(n);
         return n;
       }
+    // eslint-disable-next-line no-constant-condition
     } while (true);
   }
 }
@@ -109,12 +111,14 @@ type CreateNewUserOptions = Partial<{
   database: Database,
   isAdmin: boolean,
   karma: number,
+  hideSunshineSidebar: boolean,
 }>;
 
 export const createNewUser = async ({
   database = db,
   isAdmin = false,
   karma = 0,
+  hideSunshineSidebar = false,
 }: CreateNewUserOptions = {}): Promise<PlaywrightUser> => {
   const user = createNewUserDetails();
   const {_id, username, email, slug, displayName, password} = user;
@@ -138,9 +142,10 @@ export const createNewUser = async ({
       "karma",
       "usernameUnset",
       "acceptedTos",
-      "services"
-    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE, $10::JSONB)
-  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma, services]);
+      "services",
+      "hideSunshineSidebar"
+    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE, $10::JSONB, $11)
+  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma, services, hideSunshineSidebar]);
 
   return user;
 }
@@ -255,6 +260,44 @@ export const createNewPost = async (): Promise<PlaywrightPost> => {
     postPageUrl,
   };
 }
+
+export const enableAnonymousCollaborativeEditing = async ({
+  postId,
+  accessLevel = "edit",
+}: {
+  postId: string;
+  accessLevel?: "read" | "comment" | "edit";
+}): Promise<{ linkSharingKey: string }> => {
+  const linkSharingKey = `playwright-share-${uniqueId.get()}`;
+  const sharingSettings = {
+    anyoneWithLinkCan: accessLevel,
+    explicitlySharedUsersCan: "comment",
+  };
+
+  await db.get().none(
+    `
+      UPDATE "Posts"
+      SET
+        "linkSharingKey" = $2,
+        "sharingSettings" = $3::jsonb
+      WHERE "_id" = $1
+    `,
+    [postId, linkSharingKey, sharingSettings],
+  );
+
+  const row = await db.get().oneOrNone(
+    `SELECT "linkSharingKey", "sharingSettings" FROM "Posts" WHERE "_id" = $1`,
+    [postId],
+  );
+  if (!row?.linkSharingKey || row.linkSharingKey !== linkSharingKey) {
+    throw new Error(`Failed to set linkSharingKey for post ${postId}`);
+  }
+  if (!row?.sharingSettings || row.sharingSettings.anyoneWithLinkCan !== accessLevel) {
+    throw new Error(`Failed to set sharingSettings for post ${postId}`);
+  }
+
+  return { linkSharingKey };
+};
 
 type CreateNewGroupOptions = Partial<{
   organizerIds: string[],

@@ -10,17 +10,12 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useGlobalKeydown, useOnSearchHotkey } from '../common/withGlobalKeydown';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting, quickTakesTagsEnabledSetting } from '@/lib/instanceSettings';
-import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
 import { RelevanceLabel, tagPageHeaderStyles, tagPostTerms } from "./TagPageUtils";
 import { useStyles, defineStyles } from "../hooks/useStyles";
-import { getHeaderHeight } from "../common/Header";
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import { TagLens, useTagLenses } from "@/lib/arbital/useTagLenses";
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
@@ -119,7 +114,7 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
       width: '100%',
     },
     position: 'absolute',
-    top: getHeaderHeight(),
+    top: "var(--header-height)",
     [theme.breakpoints.down('sm')]: {
       width: 'unset',
       '& > picture > img': {
@@ -174,7 +169,7 @@ const styles = defineStyles("LWTagPage", (theme: ThemeType) => ({
       display: 'none !important',
     },
     position: 'absolute',
-    top: 74,
+    top: "calc(var(--header-height) + 10px)",
     right: 8,
   },
   mobileButtonRow: {
@@ -353,19 +348,6 @@ const PostsListHeading: FC<{
   query: Record<string, string>,
 }> = ({tag, query}) => {
   const classes = useStyles(styles);
-  if (isFriendlyUI()) {
-    return (
-      <>
-        <SectionTitle title={`Posts tagged ${tag.name}`} />
-        <div className={classes.postListMeta}>
-          <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-          <div className={classes.relevance}>
-            <RelevanceLabel />
-          </div>
-        </div>
-      </>
-    );
-  }
   return (
     <div className={classes.tagHeader}>
       <div className={classes.postsTaggedTitle}>Posts tagged <em>{tag.name}</em></div>
@@ -542,11 +524,11 @@ function getTagQueryOptions(
   return { tagFragmentName, tagQueryOptions: { extraVariables } };
 }
 
-const LWTagPage = () => {
+const LWTagPage = ({slug}: {slug: string}) => {
   const classes = useStyles(styles);
 
   const currentUser = useCurrentUser();
-  const { query, params: { slug } } = useLocation();
+  const { query } = useLocation();
   const lensSlug = query.lens ?? query.l;
   // const { onOpenEditor } = useContext(TagEditorContext);
   
@@ -683,17 +665,9 @@ const LWTagPage = () => {
 
   const htmlWithAnchors = selectedLens?.tableOfContents?.html ?? selectedLens?.contents?.html ?? "";
 
-  let description = htmlWithAnchors;
-  // EA Forum wants to truncate much less than LW
-  if (isFriendlyUI()) {
-    description = truncated
-      ? truncateTagDescription(htmlWithAnchors, tag?.descriptionTruncationCount)
-      : htmlWithAnchors;
-  } else {
-    description = (truncated && !tag?.wikiOnly)
+  let description = (truncated && !tag?.wikiOnly)
     ? truncate(htmlWithAnchors, tag?.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>")
     : htmlWithAnchors
-  }
 
   const { topContributors, smallContributors } = useDisplayedContributors(selectedLens?.contributors ?? null);
 
@@ -745,7 +719,7 @@ const LWTagPage = () => {
     return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit ${taggingNamePluralSetting.get()} without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
+    throw new Error(`Sorry, you cannot edit wikitags without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts
@@ -773,13 +747,13 @@ const LWTagPage = () => {
     ? (
       <div className={classNames(classes.subHeading,classes.centralColumn)}>
         <div className={classes.subHeadingInner}>
-          {tag.parentTag && <div className={classes.relatedTag}>Parent {taggingNameCapitalSetting.get()}: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+          {tag.parentTag && <div className={classes.relatedTag}>Parent Wikitag: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
           {/* For subtags it would be better to:
               - put them at the bottom of the page
               - truncate the list
               for our first use case we only need a small number of subtags though, so I'm leaving it for now
           */}
-          {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{
+          {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? "Wikitags" : "Wikitag"}:&nbsp;{
               tag.subTags.map((subTag, idx) => {
               return <Fragment key={idx}>
                 <Link className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>
@@ -877,22 +851,6 @@ const LWTagPage = () => {
             <AddPostsToTag tag={tag} />
           </PostsList2>}
         </AnalyticsContext>
-        {quickTakesTagsEnabledSetting.get() && <DeferRender ssr={false}>
-          <AnalyticsContext pageSectionContext="quickTakesSection">
-            <CommentsListCondensed
-              label="Quick takes"
-              terms={{
-                view: "tagSubforumComments" as const,
-                tagId: tag._id,
-                sortBy: 'new',
-              }}
-              initialLimit={8}
-              itemsPerPage={20}
-              showTotal
-              hideTag
-            />
-          </AnalyticsContext>
-        </DeferRender>}
       </>}
     </div>
   );
@@ -917,7 +875,7 @@ const LWTagPage = () => {
         <div className={classes.nonMobileAudioPlayerSpaceHolder} />
       </>}
       {query.flagId && <span>
-        <Link to={`/${taggingNamePluralSetting.get()}/dashboard?focus=${query.flagId}`}>
+        <Link to={`/w/dashboard?focus=${query.flagId}`}>
           <TagFlagItem 
             itemType={["allPages", "myPages"].includes(query.flagId) ? tagFlagItemType[query.flagId] : "tagFlagId"}
             documentId={query.flagId}
@@ -1092,8 +1050,4 @@ const TagOrLensBody = ({tag, selectedLens, description}: {
   </HoveredReactionContextProvider>
 }
 
-export default registerComponent("LWTagPage", LWTagPage);
-
-
-
-
+export default LWTagPage;
