@@ -1,6 +1,5 @@
 import { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
 import { elasticSyncDocument } from "../search/elastic/elasticCallbacks";
-import { userCanUseTags } from "@/lib/betas";
 import { canVoteOnTagAsync } from "@/lib/voting/tagRelVoteRules";
 import { updatePostDenormalizedTags } from "../tagging/helpers";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
@@ -143,7 +142,7 @@ export async function reexportProfileTagUsersToElastic(newDocument: DbTag, { old
 export async function validateTagRelCreate(newDocument: Partial<DbInsertion<DbTagRel>>, { currentUser, context }: CreateCallbackProperties<'TagRels', Partial<DbInsertion<DbTagRel>>>) {
   const {tagId, postId} = newDocument;
 
-  if (!userCanUseTags(currentUser) || !currentUser || !tagId || !postId) {
+  if (!currentUser || !tagId || !postId) {
     throw new Error(`You do not have permission to add this wikitag`);
   }
 

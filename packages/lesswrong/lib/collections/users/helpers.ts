@@ -1,4 +1,4 @@
-import { isEAForum, verifyEmailsSetting, newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
+import { isEAForum, newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import type { PermissionResult } from '../../make_voteable';
@@ -289,11 +289,6 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Per
 
 // Return true if the user's account has at least one verified email address.
 export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): boolean => {
-  // Some forums don't do their own email verification
-  if (!verifyEmailsSetting.get()) {
-    return true
-  }
-
   if (!user || !user.emails)
     return false;
   for (let email of user.emails) {

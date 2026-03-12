@@ -1,8 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
-import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { useFilteredCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './constants';
 import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
@@ -89,7 +87,6 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   sequenceId: string|null,
   classes: ClassesType<typeof styles>,
 }) => {
-  const hasPingbacks = useFilteredCurrentUser(u => userHasPingbacks(u));
   const votingSystemName = (post.votingSystem || "default") as VotingSystemName;
   const votingSystem = getVotingSystemByName(votingSystemName);
   const wordCount = post.contents?.wordCount || 0
@@ -138,11 +135,11 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       </AnalyticsContext>}
     </div>}
 
-    {hasPingbacks && <SuspenseWrapper name="pingbacks">
+    <SuspenseWrapper name="pingbacks">
       <AnalyticsContext pageSectionContext="pingbacks">
         <PingbacksList postId={post._id}/>
       </AnalyticsContext>
-    </SuspenseWrapper>}
+    </SuspenseWrapper>
   </>
 }
 

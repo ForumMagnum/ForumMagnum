@@ -8,7 +8,6 @@ import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { getSortOrderOptions, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
-import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
 import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
@@ -138,12 +137,11 @@ const USER_SETTING_NAMES = {
   filter: 'allPostsFilter',
   showLowKarma: 'allPostsShowLowKarma',
   showEvents: 'allPostsIncludeEvents',
-  hideCommunity: 'allPostsHideCommunity'
 }
 
 export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
@@ -151,7 +149,6 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   currentFilter: any,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
-  currentHideCommunity?: boolean,
   timeframes?: readonly TimeframeSettingType[],
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
@@ -241,27 +238,6 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               </MetaInfo>
             </QueryLink>
           </TooltipSpan>
-
-          {isEAForum() && <TooltipSpan
-            title={<div>
-              <div>By default, Community posts are shown.</div>
-              <div>Toggle to hide them.</div>
-            </div>}
-            placement="left-start"
-          >
-            <QueryLink
-              className={classes.checkboxGroup}
-              onClick={() => setSetting('hideCommunity', !currentHideCommunity)}
-              query={{hideCommunity: !currentHideCommunity}}
-              merge
-              rel="nofollow"
-            >
-              <Checkbox classes={{root: classes.checkbox}} checked={!currentHideCommunity}/>
-              <MetaInfo>
-                Show community
-              </MetaInfo>
-            </QueryLink>
-          </TooltipSpan>}
         </div>
       </div>
   );

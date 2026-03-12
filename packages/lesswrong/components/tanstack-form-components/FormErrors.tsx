@@ -1,8 +1,48 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import classNames from 'classnames';
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import withErrorBoundary from '../common/withErrorBoundary';
+import { registerComponent } from '@/lib/vulcan-lib/components';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
 import { CombinedGraphQLErrors } from '@apollo/client';
 
-export const FormError = ({ error, errorContext="" }: {
+const styles = defineStyles('FormErrors', (theme: ThemeType) => ({
+  root: {
+    ...theme.typography.errorStyle
+  },
+  alert: {
+    color: theme.palette.error.main,
+  },
+}));
+
+export const FormErrorsInner = ({ errors }: {
+  errors: any[]
+}) => {
+  const classes = useStyles(styles);
+  const rootRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (errors.length > 0) {
+      rootRef.current?.scrollIntoView();
+    }
+  }, [errors.length]);
+  
+  return (
+    <div className={classNames(classes.root, "form-errors")} ref={rootRef}>
+      {!!errors.length && (
+        <div className={classes.alert}>
+          <ul>
+            {errors.map((error, index) => 
+              <FormError key={index} error={error} errorContext="form" />
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const FormError = ({ error, errorContext="" }: {
   error: any,
   errorContext: any,
 }) => {
@@ -58,3 +98,7 @@ function isJsonString(s: string) {
     return false;
   }
 }
+
+export const FormErrors = registerComponent("FormErrors", FormErrorsInner, {
+  hocs: [withErrorBoundary],
+});

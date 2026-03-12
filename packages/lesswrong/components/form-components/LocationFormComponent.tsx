@@ -9,7 +9,6 @@ import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { UpdateCurrentValues } from '../vulcan-forms/propTypes';
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
 
@@ -146,113 +145,20 @@ export const useGoogleMaps = (): [boolean, any] => {
   return [true, window?.google?.maps];
 }
 
-
-/**
- * LocationPicker: A textbox for typing in a location. This is split from LocationFormComponent
- * so that it can be used outside of vulcan-forms.
- */
-const LocationPicker = ({
-  document,
-  path,
-  label,
-  value,
-  updateCurrentValues,
-  stringVersionFieldName,
-  variant = "default",
-  locationTypes,
-}: {
-  document: AnyBecauseHard,
-  path: string,
-  label?: string,
-  value: AnyBecauseHard,
-  updateCurrentValues: UpdateCurrentValues,
-  stringVersionFieldName?: string|null,
-  variant?: "default" | "grey",
-  locationTypes?: QueryType[],
-}) => {
-  const classes = useStyles(styles);
-
-  // if this location field has a matching field that just stores the string version of the location,
-  // make sure to update the matching field along with this one
-  const locationFieldName: string|null = stringVersionFieldName || null;
-
-  const location =
-    (locationFieldName && document?.[locationFieldName])
-    || document?.[path]?.formatted_address
-    || ""
-  const [ mapsLoaded ] = useGoogleMaps()
-  const geosuggestEl = useRef<any>(null)
-
-  useEffect(() => {
-    if (geosuggestEl && geosuggestEl.current) {
-      geosuggestEl.current.update(value?.formatted_address)
-    }
-  }, [value])
-
-  const handleCheckClear = useCallback((value: AnyBecauseTodo) => {
-    // clear location fields if the user deletes the input text
-    if (value === '') {
-      void updateCurrentValues({
-        ...(locationFieldName ? {[locationFieldName]: null} : {}),
-        [path]: null,
-      })
-    }
-  }, [updateCurrentValues, locationFieldName, path]);
-
-  const handleSuggestSelect = useCallback((suggestion: Suggest) => {
-    if (suggestion && suggestion.gmaps) {
-      void updateCurrentValues({
-        ...(locationFieldName ? {
-          [locationFieldName]: suggestion.label
-        } : {}),
-        [path]: suggestion.gmaps,
-      })
-    }
-  }, [updateCurrentValues, locationFieldName, path]);
-  if (!document || !mapsLoaded) {
-    return <Loading />;
-  }
-
-  const isGrey = variant === "grey";
-  const labelNode = isGrey
-    ? <SectionTitle title={label} noTopMargin titleClassName={classes.sectionTitle} />
-    : value && <FormLabel className={classes.label}>{label}</FormLabel>;
-
-  return (
-    <div className={classNames(classes.root, isGrey && classes.greyRoot)}>
-      {label && labelNode}
-      <Geosuggest
-        ref={geosuggestEl}
-        placeholder={label}
-        onChange={handleCheckClear}
-        onSuggestSelect={handleSuggestSelect}
-        initialValue={location}
-        types={locationTypes}
-      />
-    </div>
-  );
-}
-
-export default LocationPicker;
-
-
-
-interface LocationFormComponentProps {
-  field: TypedFieldApi<AnyBecauseHard>;
-  label: string;
-  /** Optional sibling field that stores the plain‑string version of the location */
-  stringVersionFieldName?: keyof localGroupsEdit | null;
-  variant?: 'default' | 'grey';
-  locationTypes?: QueryType[];
-}
-
 export const LocationFormComponent = ({
   field,
   label,
   stringVersionFieldName = null,
   variant = 'default',
   locationTypes,
-}: LocationFormComponentProps) => {
+}: {
+  field: TypedFieldApi<AnyBecauseHard>;
+  label: string;
+  /** Optional sibling field that stores the plain‑string version of the location */
+  stringVersionFieldName?: keyof localGroupsEdit | null;
+  variant?: 'default' | 'grey';
+  locationTypes?: QueryType[];
+}) => {
   const classes = useStyles(styles);
   const [mapsLoaded] = useGoogleMaps();
   const geosuggestEl = useRef<Geosuggest>(null);

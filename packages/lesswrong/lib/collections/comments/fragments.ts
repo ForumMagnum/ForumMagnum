@@ -240,16 +240,6 @@ export const WithVoteComment = gql(`
   }
 `)
 
-export const CommentsListWithModGPTAnalysis = gql(`
-  fragment CommentsListWithModGPTAnalysis on Comment {
-    ...CommentsList
-    post {
-      ...PostsMinimumInfo
-    }
-    modGPTAnalysis
-  }
-`)
-
 export const CommentsForAutocomplete = gql(`
   fragment CommentsForAutocomplete on Comment {
     _id

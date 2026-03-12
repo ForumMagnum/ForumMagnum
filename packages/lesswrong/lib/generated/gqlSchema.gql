@@ -1983,8 +1983,6 @@ type Comment {
   relevantTags: [Tag!]!
   debateResponse: Boolean
   rejected: Boolean!
-  modGPTAnalysis: String
-  modGPTRecommendation: String
   rejectedReason: String
   rejectedByUserId: String
   rejectedByUser: User
@@ -2062,13 +2060,6 @@ input CommentsPostCommentsDeletedInput {
 }
 
 input CommentsAllCommentsDeletedInput {
-  userId: String
-  commentIds: [String!]
-  minimumKarma: Int
-  authorIsUnreviewed: Boolean
-}
-
-input CommentsCheckedByModGPTInput {
   userId: String
   commentIds: [String!]
   minimumKarma: Int
@@ -2457,7 +2448,6 @@ input CommentSelector {
   commentReplies: CommentsCommentRepliesInput
   postCommentsDeleted: CommentsPostCommentsDeletedInput
   allCommentsDeleted: CommentsAllCommentsDeletedInput
-  checkedByModGPT: CommentsCheckedByModGPTInput
   postCommentsTop: CommentsPostCommentsTopInput
   postCommentsRecentReplies: CommentsPostCommentsRecentRepliesInput
   postCommentsMagic: CommentsPostCommentsMagicInput
@@ -3095,7 +3085,6 @@ input LWEventSelector {
   adminView: LWEventsAdminViewInput
   postVisits: LWEventsPostVisitsInput
   emailHistory: LWEventsEmailHistoryInput
-  gatherTownUsers: EmptyViewInput
 }
 
 input MultiLWEventInput {
@@ -7740,8 +7729,6 @@ input CreateCommentDataInput {
   relevantTagIds: [String!]
   debateResponse: Boolean
   rejected: Boolean
-  modGPTAnalysis: String
-  modGPTRecommendation: String
   rejectedReason: String
   rejectedByUserId: String
   af: Boolean
@@ -7792,8 +7779,6 @@ input UpdateCommentDataInput {
   relevantTagIds: [String!]
   debateResponse: Boolean
   rejected: Boolean
-  modGPTAnalysis: String
-  modGPTRecommendation: String
   rejectedReason: String
   rejectedByUserId: String
   af: Boolean

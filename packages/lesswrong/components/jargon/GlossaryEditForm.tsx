@@ -14,7 +14,7 @@ import { EditablePost } from '@/lib/collections/posts/helpers';
 import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import LWTooltip from "../common/LWTooltip";
-import { IconRight, IconDown } from "../vulcan-forms/FormGroup";
+import { IconRight, IconDown } from "../form-components/FormGroupHeader";
 import Row from "../common/Row";
 import MetaInfo from "../common/MetaInfo";
 import EditUserJargonSettings from "./EditUserJargonSettings";

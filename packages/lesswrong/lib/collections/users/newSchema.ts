@@ -1181,6 +1181,7 @@ const schema = {
       },
     },
   },
+  /** @deprecated */
   allPostsHideCommunity: {
     database: {
       type: "BOOL",

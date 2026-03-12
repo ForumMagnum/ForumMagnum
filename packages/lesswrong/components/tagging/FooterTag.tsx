@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useExperimentalTagStyleSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -27,18 +26,6 @@ export const tagStyle = (theme: ThemeType) => ({
   whiteSpace: theme.isFriendlyUI ? "nowrap": undefined,
 })
 
-const newTagStyle = (theme: ThemeType) => ({
-  marginRight: 4,
-  padding: 5,
-  paddingLeft: 8,
-  paddingRight: 7,
-  marginBottom: 8,
-  borderRadius: 4,
-  boxShadow: theme.palette.tag.boxShadow,
-  color: theme.palette.primary.main,
-  fontSize: 15
-})
-
 export const smallTagTextStyle = (theme: ThemeType) => ({
   fontSize: 12,
   paddingTop: 1,
@@ -60,17 +47,13 @@ export const coreTagStyle = (theme: ThemeType) => ({
 const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
   root: {
     display: "inline-block",
-    cursor: "pointer",
     ...theme.typography.commentStyle,
     "&:hover": {
       opacity: 1,
       backgroundColor: theme.palette.tag.backgroundHover,
     },
     "& a:hover": theme.isFriendlyUI ? {opacity: 1} : {},
-    ...(useExperimentalTagStyleSetting.get() && theme.isBookUI
-      ? newTagStyle(theme)
-      : tagStyle(theme)
-    )
+    ...tagStyle(theme)
   },
   tooltip: {
     marginTop: theme.isFriendlyUI ? 6 : undefined,

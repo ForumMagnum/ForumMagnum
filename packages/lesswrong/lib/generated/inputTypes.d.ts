@@ -1742,8 +1742,6 @@ interface Comment {
   relevantTags: Array<Tag>;
   debateResponse: boolean | null;
   rejected: boolean;
-  modGPTAnalysis: string | null;
-  modGPTRecommendation: string | null;
   rejectedReason: string | null;
   rejectedByUserId: string | null;
   rejectedByUser: User | null;
@@ -1804,13 +1802,6 @@ interface CommentsPostCommentsDeletedInput {
 }
 
 interface CommentsAllCommentsDeletedInput {
-  userId?: string | null;
-  commentIds?: Array<string> | null;
-  minimumKarma?: number | null;
-  authorIsUnreviewed?: boolean | null;
-}
-
-interface CommentsCheckedByModGPTInput {
   userId?: string | null;
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
@@ -2199,7 +2190,6 @@ interface CommentSelector {
   commentReplies: CommentsCommentRepliesInput | null;
   postCommentsDeleted: CommentsPostCommentsDeletedInput | null;
   allCommentsDeleted: CommentsAllCommentsDeletedInput | null;
-  checkedByModGPT: CommentsCheckedByModGPTInput | null;
   postCommentsTop: CommentsPostCommentsTopInput | null;
   postCommentsRecentReplies: CommentsPostCommentsRecentRepliesInput | null;
   postCommentsMagic: CommentsPostCommentsMagicInput | null;
@@ -2782,7 +2772,6 @@ interface LWEventSelector {
   adminView: LWEventsAdminViewInput | null;
   postVisits: LWEventsPostVisitsInput | null;
   emailHistory: LWEventsEmailHistoryInput | null;
-  gatherTownUsers: EmptyViewInput | null;
 }
 
 interface MultiLWEventInput {
@@ -7111,8 +7100,6 @@ interface CreateCommentDataInput {
   relevantTagIds?: Array<string> | null;
   debateResponse?: boolean | null;
   rejected?: boolean | null;
-  modGPTAnalysis?: string | null;
-  modGPTRecommendation?: string | null;
   rejectedReason?: string | null;
   rejectedByUserId?: string | null;
   af?: boolean | null;
@@ -7163,8 +7150,6 @@ interface UpdateCommentDataInput {
   relevantTagIds?: Array<string> | null;
   debateResponse?: boolean | null;
   rejected?: boolean | null;
-  modGPTAnalysis?: string | null;
-  modGPTRecommendation?: string | null;
   rejectedReason?: string | null;
   rejectedByUserId?: string | null;
   af?: boolean | null;
@@ -8865,7 +8850,6 @@ interface GraphQLTypeMap {
   CommentsCommentRepliesInput: CommentsCommentRepliesInput;
   CommentsPostCommentsDeletedInput: CommentsPostCommentsDeletedInput;
   CommentsAllCommentsDeletedInput: CommentsAllCommentsDeletedInput;
-  CommentsCheckedByModGPTInput: CommentsCheckedByModGPTInput;
   CommentsPostCommentsTopInput: CommentsPostCommentsTopInput;
   CommentsPostCommentsRecentRepliesInput: CommentsPostCommentsRecentRepliesInput;
   CommentsPostCommentsMagicInput: CommentsPostCommentsMagicInput;

@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import _sortBy from 'lodash/sortBy';
-import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import TagsListItem from "./TagsListItem";
@@ -63,7 +62,7 @@ const AllTagsAlphabetical = ({classes}: {
         title={`All Wikitags (${loading ? "loading" : results?.length})`}
         anchor={`all-wikitags`}
       >
-        {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") &&
+        {tagUserHasSufficientKarma(currentUser, "new") &&
           <SectionButton>
             <AddBoxIcon/>
             <Link to={getTagCreateUrl()}>

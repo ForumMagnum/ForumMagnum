@@ -31,7 +31,6 @@ class FeatureStrategy extends RecommendationStrategy {
     const readFilter = this.getAlreadyReadFilter(currentUser);
     const recommendedFilter = this.getAlreadyRecommendedFilter(currentUser);
     const postFilter = this.getDefaultPostFilter(strategy);
-    const tagFilter = this.getTagFilter();
 
     let joins = "";
     let filters = "";
@@ -71,7 +70,6 @@ class FeatureStrategy extends RecommendationStrategy {
           ${filters}
           ${readFilter.filter}
           ${postFilter.filter}
-          ${tagFilter.filter}
         ORDER BY 0 ${score} DESC
         LIMIT $(count) * 10
       ) p
@@ -82,7 +80,6 @@ class FeatureStrategy extends RecommendationStrategy {
       ...readFilter.args,
       ...recommendedFilter.args,
       ...postFilter.args,
-      ...tagFilter.args,
       ...args,
       ...options,
       postId,

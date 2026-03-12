@@ -30,7 +30,6 @@ import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
-import { hasDraftComments } from '@/lib/betas';
 import CommentsSubmitDropdown from "./CommentsSubmitDropdown";
 import { useTracking } from "@/lib/analyticsEvents";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
@@ -215,7 +214,7 @@ const CommentSubmit = ({
     submitBtnProps.disabled = true;
   }
 
-  const showDropdownMenu = hasDraftComments() && !disableSubmitDropdown;
+  const showDropdownMenu = !disableSubmitDropdown;
 
   return (
     <div

@@ -40,23 +40,8 @@ function emailHistory(terms: LWEventsViewTerms) {
   }
 }
 
-function gatherTownUsers(terms: LWEventsViewTerms) {
-  const oneHourAgo = new Date(new Date().getTime()-(60*60*1000));
-  return {
-    selector: {
-      name: "gatherTownUsersCheck",
-      "properties.checkFailed": false,
-      createdAt: {$gt: oneHourAgo},
-    },
-    options: {
-      sort: {createdAt: -1}
-    }
-  }
-}
-
 export const LWEventsViews = new CollectionViewSet('LWEvents', {
   adminView,
   postVisits,
   emailHistory,
-  gatherTownUsers,
 });

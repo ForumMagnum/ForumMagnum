@@ -1,4 +1,3 @@
-import { userCanUseTags } from "@/lib/betas";
 import { getRootDocument } from "@/lib/collections/multiDocuments/helpers";
 import { accessLevelCan, getCollaborativeEditorAccess, getSharingKeyFromContext } from "@/lib/collections/posts/collabEditingPermissions";
 import { postStatusLabels } from "@/lib/collections/posts/constants";
@@ -125,7 +124,6 @@ const llmMessageCheckAccess: CheckAccessFunction<'LlmMessages'> = async (current
 
 const lweventCheckAccess: CheckAccessFunction<'LWEvents'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
-  if (document.name === "gatherTownUsersCheck") return true;
 
   return userOwns(currentUser, document)
     ? userCanDo(currentUser, 'events.view.own')
@@ -348,8 +346,7 @@ const subscriptionCheckAccess: CheckAccessFunction<'Subscriptions'> = async (cur
 }
 
 const tagRelCheckAccess: CheckAccessFunction<'TagRels'> = async (currentUser, tagRel, context): Promise<boolean> => {
-  if (userCanUseTags(currentUser)) return true;
-  return !tagRel.deleted;
+  return true;
 }
 
 const tagCheckAccess: CheckAccessFunction<'Tags'> = async (currentUser, tag, context): Promise<boolean> => {

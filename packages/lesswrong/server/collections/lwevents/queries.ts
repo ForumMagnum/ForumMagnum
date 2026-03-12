@@ -36,7 +36,6 @@ export const graphqlLweventQueryTypeDefs = gql`
     adminView: LWEventsAdminViewInput
     postVisits: LWEventsPostVisitsInput
     emailHistory: LWEventsEmailHistoryInput
-    gatherTownUsers: EmptyViewInput
   }
   
   input MultiLWEventInput {

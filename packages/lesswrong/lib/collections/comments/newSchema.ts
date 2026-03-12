@@ -1113,38 +1113,6 @@ const schema = {
       },
     },
   },
-  // How well does ModGPT (GPT-4o) think this comment adheres to forum norms and rules? (currently EAF only)
-  modGPTAnalysis: {
-    database: {
-      type: "TEXT",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["sunshineRegiment", "admins"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  // This should be one of: Intervene, Consider reviewing, Don't intervene
-  modGPTRecommendation: {
-    database: {
-      type: "TEXT",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: ["sunshineRegiment", "admins"],
-      canUpdate: ["admins"],
-      canCreate: ["admins"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   rejectedReason: {
     database: {
       type: "TEXT",
