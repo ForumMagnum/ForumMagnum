@@ -1,6 +1,5 @@
 import React from 'react';
 import classNames from 'classnames';
-import { userHasCommentProfileImages } from '../../../lib/betas';
 import { useFilteredCurrentUser } from '../../common/withUser';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
@@ -71,7 +70,6 @@ const CommentUserName = ({
   tooltipPlacement?: PopperPlacementType,
 }) => {
   const classes = useStyles(styles);
-  const currentUserHasProfileImages = useFilteredCurrentUser(u => userHasCommentProfileImages(u));
   const author = comment.user;
 
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;

@@ -25,11 +25,6 @@ interface WithTrackingProps {
   captureEvent: any,
 }
 
-interface WithTimezoneProps {
-  timezone: string,
-  timezoneIsKnown: boolean,
-}
-
 interface WithLocationProps {
   location: RouterLocation,
 }

@@ -24,7 +24,6 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import dynamic from 'next/dynamic';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
-import { hasSidenotes } from '@/lib/betas';
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
 
 const CKPostEditor = dynamic(() => import("./CKPostEditor"));
@@ -146,8 +145,6 @@ const PostCollaborationEditor = ({ classes }: {
   const postEditorType = queryResult?.contents?.originalContents?.type;
   const useLexical = postEditorType === 'lexical';
 
-  const showSidenotes = hasSidenotes();
-
   return <>
     <StatusCodeSetter status={200}/>
     <SingleColumnSection>
@@ -194,9 +191,9 @@ const PostCollaborationEditor = ({ classes }: {
               </DeferRender>
             </ContentStyles>
           </div>
-          {showSidenotes && <div className={classes.editorSidebar}>
+          <div className={classes.editorSidebar}>
             <SideItemsSidebar />
-          </div>}
+          </div>
         </div>
       </SideItemsContainer>
     </SingleColumnSection>

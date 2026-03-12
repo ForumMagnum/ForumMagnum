@@ -625,7 +625,6 @@ extend type Query {
   UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]
   UserReadHistory(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostsUserCommentedOn(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
-  PostIsCriticism(args: JSON): Boolean
   ProfileDiamondPosts(userId: String!, limit: Int!): ProfileDiamondPostsResult!
   ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
   LastCuratedDate: LastCuratedDateResult!

@@ -17,70 +17,6 @@ const htmlToTextDefault = compileHtmlToText();
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
 
-const isPostKarmaChange = (change: AnyKarmaChange): change is PostKarmaChange =>
-  "title" in change && !!change.title;
-
-const isCommentKarmaChange = (change: AnyKarmaChange): change is CommentKarmaChange =>
-  "tagCommentType" in change && !!change.tagCommentType;
-
-/**
- * Given an array of karma changes on an account's content,
- * calculates the total karma change for that account,
- * and splits the karma changes into buckets by content type.
- *
- * Takes an optional _id suffix to separately identify these changes.
- */
-const categorizeKarmaChanges = (changes: AnyKarmaChange[], suffix?: string): KarmaChangesSimple & {totalChange: number} => {
-  const posts: PostKarmaChange[] = [];
-  const comments: CommentKarmaChange[] = [];
-  const tagRevisions: RevisionsKarmaChange[] = [];
-  let totalChange = 0;
-
-  for (const change of changes) {
-    totalChange += change.scoreChange;
-    if (suffix) {
-      change._id += suffix
-    }
-    if (isPostKarmaChange(change)) {
-      posts.push(change);
-    } else if (isCommentKarmaChange(change)) {
-      comments.push({
-        ...change,
-        description: htmlToTextDefault(change.description ?? "")
-          .substring(0, COMMENT_DESCRIPTION_LENGTH),
-      });
-    } else { // This is a TagRevisionKarmaChange
-      tagRevisions.push(change);
-    }
-  }
-  
-  return {
-    totalChange, posts, comments, tagRevisions
-  }
-}
-
-/**
- * The the amount of time between two dates to at-most `maxDays` days.
- * `endDate` is always unchanged, and if the number of days is greater than
- * `maxDays` the `startDate` will be pulled closer.
- */
-const limitDateRange = ({startDate, endDate, maxDays}: {
-  startDate: Date,
-  endDate: Date,
-  maxDays: number,
-}): {
-  startDate: Date,
-  endDate: Date,
-} => {
-  const start = startDate.getTime();
-  const end = endDate.getTime();
-  const maxDelta = maxDays * 24 * 60 * 60 * 1000;
-  return {
-    startDate: new Date(Math.max(start, end - maxDelta)),
-    endDate,
-  };
-};
-
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
 //
@@ -176,8 +112,6 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     posts: changedPosts,
     comments: changedComments,
     tagRevisions: changedTagRevisions,
-    todaysKarmaChanges: null,
-    thisWeeksKarmaChanges: null,
   };
 }
 

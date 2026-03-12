@@ -9,7 +9,7 @@ describe('stableSortTags', () => {
       { tag: { name: 'Orange', core: false }, tagRel: { baseScore: 15 } },
     ];
 
-    const sortedTags = stableSortTags(tags);
+    const sortedTags = stableSortTags(tags, {coreTags: "first"});
 
     expect(sortedTags).toEqual([
       { tag: { name: 'Banana', core: true }, tagRel: { baseScore: 20 } },
@@ -25,7 +25,7 @@ describe('stableSortTags', () => {
       { tag: { name: 'Apple', core: false }, tagRel: { baseScore: 10 } },
     ];
 
-    const sortedTags = stableSortTags(tags);
+    const sortedTags = stableSortTags(tags, {coreTags: "first"});
 
     expect(sortedTags).toEqual([
       { tag: { name: 'Apple', core: false }, tagRel: { baseScore: 10 } },
@@ -41,7 +41,7 @@ describe('stableSortTags', () => {
       { tag: { name: 'Apple', core: true }, tagRel: null },
     ];
 
-    const sortedTags = stableSortTags(tags);
+    const sortedTags = stableSortTags(tags, {coreTags: "first"});
 
     expect(sortedTags).toEqual([
       { tag: { name: 'Banana', core: true }, tagRel: null },
