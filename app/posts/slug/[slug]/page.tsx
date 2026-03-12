@@ -1,6 +1,5 @@
 import React from "react";
 import PostsSingleSlugRedirect from '@/components/posts/PostsSingleSlugRedirect';
-import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
@@ -23,7 +22,6 @@ export default async function Page({ params }: {
   const { slug } = await params;
   return <RouteRoot
     delayedStatusCode
-    noFooter={hasPostRecommendations()}
   >
     <PostsSingleSlugRedirect slug={slug} />
   </RouteRoot>;

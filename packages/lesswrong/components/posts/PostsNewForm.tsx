@@ -7,7 +7,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { isAF } from '../../lib/instanceSettings';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { hasAuthorModeration } from '@/lib/betas';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -253,7 +252,7 @@ const PostsNewForm = () => {
           : prefilledProps;
 
 
-        const hasModerationGuidelines = currentUserWithModGuidelines.moderationGuidelines?.originalContents && hasAuthorModeration()
+        const hasModerationGuidelines = currentUserWithModGuidelines.moderationGuidelines?.originalContents
 
         const moderationGuidelines = sanitizeEditableFieldValues(currentUserWithModGuidelines, ['moderationGuidelines']).moderationGuidelines
 

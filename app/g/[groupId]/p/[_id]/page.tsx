@@ -3,7 +3,6 @@ import PostsSingle from '@/components/posts/PostsSingle';
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
-import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
@@ -28,7 +27,6 @@ export default async function Page({ params }: {
   return <RouteRoot
     delayedStatusCode
     subtitle={{ title: 'Community', link: '/community' }}
-    noFooter={hasPostRecommendations()}
   >
     <PostsSingle _id={_id} />
   </RouteRoot>;

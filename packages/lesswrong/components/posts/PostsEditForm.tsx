@@ -28,7 +28,6 @@ import { PostsEditFormQuery } from './queries';
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { usePathname } from 'next/navigation';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
-import { hasSidenotes } from '@/lib/betas';
 import {
   SHARE_POPUP_QUERY_PARAM,
   CENTRAL_COLUMN_WIDTH,
@@ -248,17 +247,14 @@ const PostsEditFormInner = ({ documentId, version }: {
 
   // on LW, show a moderation message to users who haven't been approved yet
   const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId && currentUser?._id === document.userId;
-  const rightColumnChildren = (hasSidenotes() || isEAForum()) ? <>
-    {/* On LW, we render a portal target div in the right column. PostForm will use
+  const rightColumnChildren = <>
+    {/* We render a portal target div in the right column. PostForm will use
     createPortal to render the EditorSettingsSidebar into this target, since it needs
     access to the TanStack form API which is created inside PostForm. */}
     <div id="editor-settings-portal" />
-    {hasSidenotes() && <>
-      <div className={classes.reserveSpaceForSidenotes}/>
-      <SideItemsSidebar />
-    </>}
-    {isEAForum() && <NewPostHowToGuides/>}
-  </> : undefined;
+    <div className={classes.reserveSpaceForSidenotes}/>
+    <SideItemsSidebar />
+  </>;
 
   return (<>
     <StatusCodeSetter status={200}/>

@@ -9,7 +9,6 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import {
   allowSubscribeToSequencePosts,
   allowSubscribeToUserComments,
-  userHasPeopleDirectory,
   userHasSubscribeTabFeed,
 } from '../../lib/betas';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
@@ -50,15 +49,11 @@ const NoSubscriptionsMessage = ({currentUser, classes}: {
     return null;
   }
 
-  const usersLink = userHasPeopleDirectory(currentUser)
-    ? <Link to="/people-directory">users</Link>
-    : "users";
-
   return (
     <div className={classes.noSubscriptions}>
       You have no active subscriptions. Subscribe to{" "}
       <Link to={`/wikitags`}>wikitags</Link>,{" "}
-      <Link to="/allPosts">posts</Link>, or {usersLink}{" "}
+      <Link to="/allPosts">posts</Link>, or users{" "}
       to receive notifications for new content.
     </div>
   );

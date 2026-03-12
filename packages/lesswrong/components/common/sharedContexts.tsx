@@ -24,7 +24,6 @@ interface AutosaveEditorStateContext {
 
 type DisableNoKibitzContextType = { disableNoKibitz: boolean; setDisableNoKibitz: (disableNoKibitz: boolean) => void; };
 
-export const TimezoneContext = createContext<string | null>(null);
 export const UserContext = contextSelectorCreateContext<UsersCurrent|null>(null);
 export const DynamicTableOfContentsContext = createContext<DynamicTableOfContentsContextType | null>(null);
 

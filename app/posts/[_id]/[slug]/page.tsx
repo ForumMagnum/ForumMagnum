@@ -1,7 +1,6 @@
 import React from "react";
 import PostsSingle from '../../../../packages/lesswrong/components/posts/PostsSingle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
-import { hasPostRecommendations } from "@/lib/betas";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
@@ -21,7 +20,6 @@ export default async function PostPage({ params }: {
   const { _id, slug } = await params;
   return <RouteRoot
     delayedStatusCode
-    noFooter={hasPostRecommendations()}
   >
     <PostsSingle _id={_id} slug={slug} />
   </RouteRoot>;

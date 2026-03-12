@@ -3,7 +3,7 @@ import { Card } from "@/components/widgets/Paper";
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../contents/CollapsedFootnotes';
-import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
+import { hasCollapsedFootnotes } from '@/lib/betas';
 import classNames from 'classnames';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
@@ -214,11 +214,11 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
   const sidenotesDisabledOnPost = post?.disableSidenotes;
   const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("lg");
   const hasSideItemsSidebar = useHasSideItemsSidebar();
-  const sidenoteIsVisible = hasSidenotes() && hasSideItemsSidebar && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
+  const sidenoteIsVisible = hasSideItemsSidebar && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
 
   return (
     <span>
-      {hasSidenotes() && !sidenotesDisabledOnPost && footnoteHTML !== null &&
+      {!sidenotesDisabledOnPost && footnoteHTML !== null &&
         <SideItem options={{offsetTop: -6}}>
           <div
             {...sidenoteEventHandlers}

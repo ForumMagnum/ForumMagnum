@@ -1,13 +1,12 @@
 import React from 'react';
 import classNames from 'classnames';
-import { fullHeightToCEnabled } from '../../../lib/betas';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import TableOfContentsDivider from "./TableOfContentsDivider";
 
-const getSectionOffsetStyling = () => (fullHeightToCEnabled() ? {
+const getSectionOffsetStyling = () => ({
   display: 'flex',
   flexDirection: 'column-reverse',
-} : {});
+});
 
 const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
   root: {
@@ -42,7 +41,7 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     paddingTop: 6,
     paddingBottom: 6,
     color: theme.palette.link.tocLink,
-    lineHeight: fullHeightToCEnabled() ? "1em" : "1.2em",
+    lineHeight: "1em",
     '&:hover':{
       color: theme.palette.link.tocLinkHighlighted,
       opacity: theme.isFriendlyUI ? 1 : undefined
@@ -64,7 +63,6 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     }
   },
   level0: {
-    display:"block",
     maxWidth: '100%',
     marginBottom: 8,
     marginRight: 8,

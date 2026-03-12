@@ -15,7 +15,6 @@ import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
 import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
 import { convertImportedGoogleDoc, convertImportedGoogleDocMarkdown } from '../editor/googleDocUtils';
-import { postIsCriticism } from '../languageModels/criticismTipsBot';
 import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
@@ -188,13 +187,6 @@ const {Query: PostsWithApprovedJargonQuery, typeDefs: PostsWithApprovedJargonTyp
   }
 });
 
-export type PostIsCriticismRequest = {
-  _id?: string,
-  title: string,
-  contentType: string,
-  body: string
-}
-
 interface ProfilePostDiamondRow {
   _id: string;
   slug: string;
@@ -333,14 +325,6 @@ export const postGqlQueries = {
     }
   },
 
-  async PostIsCriticism(root: void, { args }: { args: PostIsCriticismRequest }, context: ResolverContext) {
-    const { currentUser } = context
-    if (!currentUser) {
-      throw new Error('Must be logged in to check post')
-    }
-
-    return await postIsCriticism(args, currentUser._id)
-  },
   async ProfileDiamondPosts(
     root: void,
     {
@@ -584,7 +568,6 @@ export const postGqlTypeDefs = gql`
       sort: PostReviewSort
     ): UserReadHistoryResult
 
-    PostIsCriticism(args: JSON): Boolean
     ProfileDiamondPosts(userId: String!, limit: Int!): ProfileDiamondPostsResult!
     ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
 

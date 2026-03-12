@@ -2,10 +2,8 @@ import Users from "@/server/collections/users/collection";
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { loggerConstructor } from "@/lib/utils/logging";
-import { isEAForum } from "@/lib/instanceSettings";
 import md5 from "md5";
 import { captureException } from "@/lib/sentryWrapper";
-import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 // import { dogstatsd } from "../datadog/tracer";
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { updateUser } from "../collections/users/mutations";
@@ -24,10 +22,6 @@ async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
   await updateUser({ data: { deleted: true }, selector: { _id: user._id } }, adminContext)
   // Wait until async callbacks finish. This is overcautious, as there should be no need for the callbacks to refetch the user object
   await new Promise(resolve => setTimeout(resolve, 5000));
-
-  // Delete in auth0 to the extent possible
-  const deletedFromAuth0 = await auth0RemoveAssociationAndTryDeleteUser(user);
-  logger(`Removed association with Auth0 for user with display name "${user.displayName}". The user was${deletedFromAuth0 ? "" : " not"} deleted from Auth0`)
 
   // Permanently delete from the forum itself
   await Users.rawRemove({ _id: user._id });

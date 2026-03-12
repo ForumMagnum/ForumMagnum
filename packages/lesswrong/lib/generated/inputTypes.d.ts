@@ -30,7 +30,6 @@ interface Query {
   UsersReadPostsOfTargetUser: Array<Post> | null;
   UserReadHistory: UserReadHistoryResult | null;
   PostsUserCommentedOn: UserReadHistoryResult | null;
-  PostIsCriticism: boolean | null;
   ProfileDiamondPosts: ProfileDiamondPostsResult;
   ProfileDiamondComments: ProfileDiamondCommentsResult;
   LastCuratedDate: LastCuratedDateResult;

@@ -73,7 +73,6 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   noCollapseCommentsFrontpage: 'preferences',
   hideCommunitySection: 'preferences',
   showCommunityInRecentDiscussion: 'preferences',
-  hidePostsRecommendations: 'preferences',
   postGlossariesPinned: 'preferences',
   googleLocation: 'preferences',
   mapLocation: 'preferences',

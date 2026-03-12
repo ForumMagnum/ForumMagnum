@@ -190,7 +190,6 @@ interface FragmentTypes {
   UserAltAccountsFragment: UserAltAccountsFragment
   UserKarmaChanges: UserKarmaChanges
   UserMostValuablePostInfo: UserMostValuablePostInfo
-  UserOnboardingAuthor: UserOnboardingAuthor
   UserOnboardingTag: UserOnboardingTag
   UserProfilePost: UserProfilePost
   UserRateLimitDisplay: UserRateLimitDisplay
@@ -209,7 +208,6 @@ interface FragmentTypes {
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersProfileEdit: UsersProfileEdit
-  UsersSocialMediaInfo: UsersSocialMediaInfo
   UsersWithReviewInfo: UsersWithReviewInfo
   WithVoteComment: WithVoteComment
   WithVoteMessage: WithVoteMessage
@@ -282,7 +280,7 @@ interface FragmentTypesByCollection {
   UserMostValuablePosts: "UserMostValuablePostInfo"
   UserRateLimits: "UserRateLimitDisplay"|"UserRateLimitMutationFragment"
   UserTagRels: "UserTagRelDetails"
-  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserKarmaChanges"|"UserOnboardingAuthor"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersSocialMediaInfo"|"UsersWithReviewInfo"
+  Users: "SuggestAlignmentUser"|"SunshineUsersList"|"UserAltAccountsFragment"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"UsersCrosspostInfo"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UsersEdit"|"UsersMapEntry"|"UsersMinimumInfo"|"UsersProfile"|"UsersProfileEdit"|"UsersWithReviewInfo"
   Votes: "TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
 }
 
@@ -469,7 +467,6 @@ interface CollectionNamesByFragmentName {
   UserAltAccountsFragment: "Users"
   UserKarmaChanges: "Users"
   UserMostValuablePostInfo: "UserMostValuablePosts"
-  UserOnboardingAuthor: "Users"
   UserOnboardingTag: "Tags"
   UserProfilePost: "Posts"
   UserRateLimitDisplay: "UserRateLimits"
@@ -488,7 +485,6 @@ interface CollectionNamesByFragmentName {
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersProfileEdit: "Users"
-  UsersSocialMediaInfo: "Users"
   UsersWithReviewInfo: "Users"
   WithVoteComment: "Comments"
   WithVoteMessage: "Messages"
