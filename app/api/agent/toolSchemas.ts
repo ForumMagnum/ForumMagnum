@@ -77,6 +77,14 @@ export const insertLLMBlockToolSchema = z.object({
   location: insertLocationSchema,
 });
 
+export const insertWidgetToolSchema = z.object({
+  postId: z.string().describe("The ID of the post"),
+  key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  agentName: z.string().optional().describe("Name to attribute the widget insertion to"),
+  content: z.string().describe("The raw HTML/JS content for the widget"),
+  location: insertLocationSchema,
+});
+
 export const deleteBlockToolSchema = z.object({
   postId: z.string().describe("The ID of the post"),
   key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),

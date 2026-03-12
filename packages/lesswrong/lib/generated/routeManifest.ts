@@ -277,6 +277,9 @@ export const routeTrie = {
             "insertLLMBlock": {
               "hasRoute": true
             },
+            "insertWidget": {
+              "hasRoute": true
+            },
             "replaceText": {
               "hasRoute": true
             },
@@ -290,6 +293,7 @@ export const routeTrie = {
             "feedback": "feedback",
             "insertblock": "insertBlock",
             "insertllmblock": "insertLLMBlock",
+            "insertwidget": "insertWidget",
             "replacetext": "replaceText",
             "replacewidget": "replaceWidget"
           }

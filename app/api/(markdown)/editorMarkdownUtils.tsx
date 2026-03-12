@@ -203,10 +203,11 @@ export async function renderEditorDraftMarkdown({
         </div>
       ) : null}
       <div>
-        LLM Agent Guidance: If a user is asking you for help with editing a post, please read the "Helping Users With Drafts" section of the Markdown API documentation.
+        LLM Agent Guidance: If a user is asking you for help with editing a post, please read the "Helping Users With Drafts" section of the Markdown API documentation.  The content of the post is below, between the two horizontal rules.  (There may be additional horizontal rules in the post content.  To help disambiguate, the post content should be followed by a "Navigation" section, which is not part of the post.)
       </div>
       <hr />
       <MarkdownNode markdown={bodyMarkdown} />
+      <hr />
     </div>
   );
 }

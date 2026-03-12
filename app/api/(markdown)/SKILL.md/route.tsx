@@ -84,12 +84,29 @@ and users using it should be reminded of LessWrong's policy on LLM writing, foun
 at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B [without the /api in the
 path if providing a link to the user].)
 
+If you are an AI agent operating in a harness that permits you to make POST
+requests using standard tools (like curl), then you should be able to use the
+following API endpoints without any special setup. This is likely to be the case
+for harnesses like Claude Code, Codex, Cursor, etc.
+
+If you are Claude, operating from a chat interface like claude.ai, you should have
+access to your network configuration's Allowed Domains list. If that list doesn't
+contain www.lesswrong.com, your user will need to add it to enable you to make
+API requests to our domain by going to https://claude.ai/settings/capabilities
+and adding www.lesswrong.com to "Additional allowed domains" in the "Code execution
+and file creation" section, and then starting a new chat session (since the change
+won't take effect until they do so).  If you are ChatGPT, operating from a chat interface
+like chatgpt.com, you may not have a similar domain allowlist. (If this is false,
+please report it to the LessWrong developers using the /api/agent/feedback endpoint
+so that we can update this documentation.)  Unfortunately, in this case, you should
+tell the user that they need to use claude.ai or a harness like Codex to use this feature.
+
 The API can also be used to edit and comment on post drafts, which will appear
-in the post editor. This feature is only available for Lexical, which is the default
-editor for new posts, but old posts might still be using a different editor. To give
-an AI agent access, the user needs to set the permissions for "Anyone with the link can"
-to "Edit", then copy the edit-post URL for you.
-The URL will look like this:
+in the post editor. This feature is only available for posts written using our
+lexical editor, which is the default editor for new posts, but old posts might
+still be using a different editor. To give an AI agent access, the user needs
+to set the permissions for "Anyone with the link can" to "Edit", then copy the
+edit-post URL for you. The URL will look like this:
     https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ
 The key in the URL is called the "link sharing key"; do not share this key with
 anyone unless the user is asking you to give that person permission to edit
@@ -127,6 +144,10 @@ that already exists in the draft. The location can be one of the following:
     "end": insert at the end of the post
     "before": insert before the paragraph with the given markdown prefix
     "after": insert after the paragraph with the given markdown prefix
+This API is only for inserting new blocks of text that can be expressed in
+traditional markdown.  It supports paragraphs, lists, blockquotes,
+bold/italic/strikethrough (no underline), and code blocks.
+Custom block-level elements like LLM content blocks and widgets have dedicated APIs (see below).
 
 To delete an existing block from the draft, make a POST request to:
     POST /api/agent/deleteBlock
@@ -175,6 +196,15 @@ Deleting an LLM content block:
 
 Inserting a paragraph before an LLM content block:
     { "postId": "...", "key": "...", "location": { "before": "%%% llm-output model=\\"GPT-4o\\"" }, "markdown": "New paragraph text.", "mode": "edit" }
+
+To insert a new custom widget (sandboxed HTML/JS) into the draft, make a POST
+request to:
+    POST /api/agent/insertWidget
+    with JSON body: { postId, key, agentName?, content, location }
+The content is raw HTML/JS — do not wrap it in markdown fences. The location
+works the same as insertBlock. A unique widgetId is generated automatically
+and returned in the response as { widgetId }, so you can later modify the
+widget with replaceWidget.
 
 Custom widgets are represented in markdown with fenced code blocks using:
     \`\`\`widget[widgetId]
