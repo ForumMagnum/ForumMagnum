@@ -65,7 +65,10 @@ export function $applyEditReplacement({
   }
 
   const splitNodes = originalNode.splitText(startOffset, endOffset);
-  const selectedNode = splitNodes.length > 1 ? splitNodes[1] : splitNodes[0];
+  // When startOffset > 0, splitText produces [before, match, ...] so the match is at index 1.
+  // When startOffset === 0, there is no "before" part, so the match is at index 0.
+  const matchNodeIndex = startOffset > 0 ? 1 : 0;
+  const selectedNode = splitNodes[matchNodeIndex];
   if (!$isTextNode(selectedNode)) {
     return false;
   }
@@ -107,7 +110,8 @@ export function $applySuggestionReplacement({
   }
 
   const splitNodes = originalNode.splitText(startOffset, endOffset);
-  const selectedNode = splitNodes.length > 1 ? splitNodes[1] : splitNodes[0];
+  const matchNodeIndex = startOffset > 0 ? 1 : 0;
+  const selectedNode = splitNodes[matchNodeIndex];
   if (!$isTextNode(selectedNode)) {
     return false;
   }

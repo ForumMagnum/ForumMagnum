@@ -149,6 +149,50 @@ describe("replaceText edit mode", () => {
   });
 });
 
+describe("replaceText edit mode when quote starts at beginning of text node", () => {
+  it("replaces text correctly when quote matches from the start of a paragraph", async () => {
+    const editor = await setupEditorWithContent(
+      "Hello world. This is a test post."
+    );
+
+    // Quote starts at position 0 of the text node but does not cover the entire node
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "Hello world.",
+      "Goodbye world.",
+    );
+
+    expect(replaced).toBe(true);
+
+    const text = getPlainTextContent(editor);
+    expect(text).toContain("Goodbye world.");
+    expect(text).toContain("This is a test post.");
+    // The original "Hello world." should no longer be present
+    expect(text).not.toContain("Hello world.");
+  });
+
+  it("replaces text correctly in suggest mode when quote starts at beginning of text node", async () => {
+    const editor = await setupEditorWithContent(
+      "Hello world. This is a test post."
+    );
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "Hello world.",
+      "Goodbye world.",
+    );
+
+    expect(replaced).toBe(true);
+
+    const suggestions = getAllSuggestions(editor);
+    expect(suggestions.length).toBe(2);
+    expect(suggestions[0].type).toBe("delete");
+    expect(suggestions[0].textContent).toBe("Hello world.");
+    expect(suggestions[1].type).toBe("insert");
+    expect(suggestions[1].textContent).toBe("Goodbye world.");
+  });
+});
+
 describe("getAllSuggestions finds suggestions inside nested structures", () => {
   it("finds suggestions inside list items", async () => {
     const editor = await setupEditorWithContent(
