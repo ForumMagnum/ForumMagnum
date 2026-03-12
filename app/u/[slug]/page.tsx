@@ -2,7 +2,7 @@ import React from "react";
 import { generateUserPageMetadata } from "@/server/pageMetadata/userPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
-import UsersSingle from "@/components/users/UsersSingle";
+import UsersSingle from "../../users/[slug]/UsersSingle";
 
 assertRouteAttributes("/u/[slug]", {
   whiteBackground: false,

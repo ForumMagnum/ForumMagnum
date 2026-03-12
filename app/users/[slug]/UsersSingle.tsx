@@ -16,13 +16,6 @@ export const getUserStructuredData = (user: UsersProfile) => {
     "name": user.displayName,
     "url": userGetProfileUrl(user, true),
     ...((user.biography?.plaintextDescription) && { "description": user.biography.plaintextDescription }),
-    ...((user.jobTitle) && { "jobTitle": user.jobTitle }),
-    ...(user.organization && {
-      "worksFor": {
-        "@type": "Organization",
-        "name": user.organization,
-      }
-    }),
     "interactionStatistic": [
       {
         "@type": "InteractionCounter",
@@ -40,8 +33,6 @@ export const getUserStructuredData = (user: UsersProfile) => {
       },
     ],
     "memberSince": new Date(user.createdAt).toISOString(),
-    ...((user.howOthersCanHelpMe?.plaintextDescription) && { "seeks": user.howOthersCanHelpMe.plaintextDescription }),
-    ...((user.howICanHelpOthers?.plaintextDescription) && { "offers": user.howICanHelpOthers.plaintextDescription }),
   };
 };
 

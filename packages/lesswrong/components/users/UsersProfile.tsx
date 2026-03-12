@@ -19,7 +19,7 @@ import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy'
-import { getUserStructuredData } from './UsersSingle';
+import { getUserStructuredData } from '../../../../app/users/[slug]/UsersSingle';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 import { useDialog } from '../common/withDialog';
 import pick from 'lodash/pick';
