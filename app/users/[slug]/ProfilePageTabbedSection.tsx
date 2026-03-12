@@ -214,8 +214,8 @@ const feedTab: ProfilePageTabDefinition<"feed"> = {
 const allTabs: ProfilePageTabDefinition<ProfileTab>[] = [
   feedTab,
   postsTab,
-  commentsTab,
-  wikiEditsTab,
+  //commentsTab,
+  //wikiEditsTab,
   sequencesTab,
   quickTakesTab,
 ];
