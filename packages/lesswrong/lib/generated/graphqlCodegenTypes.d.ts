@@ -11110,12 +11110,14 @@ type UserContentFeedEntry = {
   shortformComment?: Maybe<Comment>;
   type: UserContentFeedEntryType;
   userPost?: Maybe<Post>;
+  wikiEdit?: Maybe<Revision>;
 };
 
 type UserContentFeedEntryType =
   | 'profileComment'
   | 'shortformComment'
-  | 'userPost';
+  | 'userPost'
+  | 'wikiEdit';
 
 type UserContentFeedQueryResults = {
   __typename?: 'UserContentFeedQueryResults';
@@ -13091,8 +13093,13 @@ type UltraFeedSubscriptionsQueryVariables = Exact<{
 
 type UltraFeedSubscriptionsQuery = UltraFeedSubscriptionsQuery_Query;
 
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post_recentComments_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
 type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post = (
-  { __typename?: 'Post' }
+  { __typename?: 'Post', recentComments: Array<UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post_recentComments_Comment> | null }
   & PostsListWithVotes
 );
 
@@ -13121,7 +13128,12 @@ type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_Us
   & CommentsList
 );
 
-type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry = { __typename?: 'UserContentFeedEntry', type: UserContentFeedEntryType, userPost: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post | null, profileComment: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment | null, shortformComment: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_shortformComment_Comment | null };
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_wikiEdit_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionTagFragment
+);
+
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry = { __typename?: 'UserContentFeedEntry', type: UserContentFeedEntryType, userPost: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post | null, profileComment: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment | null, shortformComment: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_shortformComment_Comment | null, wikiEdit: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_wikiEdit_Revision | null };
 
 type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults = { __typename: 'UserContentFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry> | null };
 
@@ -21471,6 +21483,24 @@ type UserContentFeedCommentsQueryVariables = Exact<{
 
 type UserContentFeedCommentsQuery = UserContentFeedCommentsQuery_Query;
 
+type UserContentFeedWikiEditsQuery_revisions_MultiRevisionOutput_results_Revision = (
+  { __typename?: 'Revision' }
+  & RevisionTagFragment
+);
+
+type UserContentFeedWikiEditsQuery_revisions_MultiRevisionOutput = { __typename?: 'MultiRevisionOutput', totalCount: number | null, results: Array<UserContentFeedWikiEditsQuery_revisions_MultiRevisionOutput_results_Revision> };
+
+type UserContentFeedWikiEditsQuery_Query = { __typename?: 'Query', revisions: UserContentFeedWikiEditsQuery_revisions_MultiRevisionOutput | null };
+
+
+type UserContentFeedWikiEditsQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+
+type UserContentFeedWikiEditsQuery = UserContentFeedWikiEditsQuery_Query;
+
 type UserContentFeedThreadQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }
   & UltraFeedComment
@@ -21488,60 +21518,6 @@ type UserContentFeedThreadQueryVariables = Exact<{
 
 
 type UserContentFeedThreadQuery = UserContentFeedThreadQuery_Query;
-
-type UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post_recentComments_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
-type UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post = (
-  { __typename?: 'Post', recentComments: Array<UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post_recentComments_Comment> | null }
-  & PostsListWithVotes
-);
-
-type UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_post_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_topLevelComment_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithTopLevelComment
-);
-
-type UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment = (
-  { __typename?: 'Comment', post: UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_post_Post | null, topLevelComment: UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_topLevelComment_Comment | null }
-  & CommentsList
-);
-
-type UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_shortformComment_Comment_post_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_shortformComment_Comment = (
-  { __typename?: 'Comment', post: UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_shortformComment_Comment_post_Post | null }
-  & CommentsList
-);
-
-type UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry = { __typename?: 'UserContentFeedEntry', type: UserContentFeedEntryType, userPost: UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post | null, profileComment: UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment | null, shortformComment: UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_shortformComment_Comment | null };
-
-type UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults = { __typename: 'UserContentFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry> | null };
-
-type UserRecentContentFeedQuery_Query = { __typename?: 'Query', UserContentFeed: UserRecentContentFeedQuery_UserContentFeed_UserContentFeedQueryResults };
-
-
-type UserRecentContentFeedQueryVariables = Exact<{
-  userId: Scalars['String']['input'];
-  limit: InputMaybe<Scalars['Int']['input']>;
-  cutoff: InputMaybe<Scalars['Date']['input']>;
-  offset: InputMaybe<Scalars['Int']['input']>;
-  sortBy: InputMaybe<Scalars['String']['input']>;
-  filter: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type UserRecentContentFeedQuery = UserRecentContentFeedQuery_Query;
 
 type UsersNameWrapperQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }

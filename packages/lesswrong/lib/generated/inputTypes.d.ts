@@ -975,6 +975,7 @@ interface UserContentFeedEntry {
   profileComment: Comment | null;
   shortformComment: Comment | null;
   userPost: Post | null;
+  wikiEdit: Revision | null;
 }
 
 interface DocumentDeletion {

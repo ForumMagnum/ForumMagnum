@@ -903,6 +903,7 @@ enum UserContentFeedEntryType {
   profileComment
   shortformComment
   userPost
+  wikiEdit
 }
 
 type UserContentFeedEntry {
@@ -910,6 +911,7 @@ type UserContentFeedEntry {
   profileComment: Comment
   shortformComment: Comment
   userPost: Post
+  wikiEdit: Revision
 }
 
 extend type Query {
