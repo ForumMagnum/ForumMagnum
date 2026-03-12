@@ -148,6 +148,9 @@ export const UserContentFeedQuery = gql(`
         type
         userPost {
           ...PostsListWithVotes
+          recentComments {
+            ...CommentsList
+          }
         }
         profileComment {
           ...CommentsList
@@ -163,6 +166,9 @@ export const UserContentFeedQuery = gql(`
           post {
             ...PostsListWithVotes
           }
+        }
+        wikiEdit {
+          ...RevisionTagFragment
         }
       }
     }

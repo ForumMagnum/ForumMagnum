@@ -11,8 +11,10 @@ import classNames from 'classnames';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import { MixedTypeFeed } from '../common/MixedTypeFeed';
+import { UserContentFeedQuery as SharedUserContentFeedQuery } from '../common/feeds/feedQueries';
 import CommentsNode from '../comments/CommentsNode';
 import RecentDiscussionThread from '../recentDiscussion/RecentDiscussionThread';
+import SingleLineTagUpdates from '../tagging/SingleLineTagUpdates';
 
 // Queries used only by the "top" sort mode fallback
 const USER_POSTS_QUERY = gql(`
@@ -43,6 +45,17 @@ const USER_COMMENTS_QUERY = gql(`
   }
 `);
 
+const USER_WIKI_EDITS_QUERY = gql(`
+  query UserContentFeedWikiEdits($userId: String!, $limit: Int!) {
+    revisions(selector: { revisionsByUser: { userId: $userId } }, limit: $limit, enableTotal: true) {
+      results {
+        ...RevisionTagFragment
+      }
+      totalCount
+    }
+  }
+`);
+
 const COMMENTS_LIST_MULTI_QUERY = gql(`
   query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
     comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
@@ -59,40 +72,6 @@ const THREAD_BY_TOPLEVEL_QUERY = gql(`
     comments(selector: { repliesToCommentThreadIncludingRoot: { topLevelCommentId: $topLevelCommentId } }, limit: $limit) {
       results {
         ...UltraFeedComment
-      }
-    }
-  }
-`);
-
-export const UserRecentContentQuery = gql(`
-  query UserRecentContentFeed($userId: String!, $limit: Int, $cutoff: Date, $offset: Int, $sortBy: String, $filter: String) {
-    UserContentFeed(userId: $userId, limit: $limit, cutoff: $cutoff, offset: $offset, sortBy: $sortBy, filter: $filter) {
-      __typename
-      cutoff
-      endOffset
-      results {
-        type
-        userPost {
-          ...PostsListWithVotes
-          recentComments {
-            ...CommentsList
-          }
-        }
-        profileComment {
-          ...CommentsList
-          post {
-            ...PostsListWithVotes
-          }
-          topLevelComment {
-            ...CommentsListWithTopLevelComment
-          }
-        }
-        shortformComment {
-          ...CommentsList
-          post {
-            ...PostsListWithVotes
-          }
-        }
       }
     }
   }
@@ -251,7 +230,7 @@ function PrefetchedThreadItem({ comment, index, feedSettings }: {
 
 
 type SortMode = 'recent' | 'top';
-type FilterMode = 'all' | 'posts' | 'quickTakes' | 'comments';
+type FilterMode = 'all' | 'posts' | 'quickTakes' | 'comments' | 'wikiEdits';
 
 interface UserContentFeedProps {
   userId: string;
@@ -264,10 +243,12 @@ interface UserContentFeedProps {
 
 type PostItem = PostsListWithVotes;
 type CommentItem = CommentsList & { post: PostItem | null };
+type WikiEditItem = RevisionTagFragment;
 
 type FeedItem =
-  | { type: 'post'; data: PostItem; postedAt: Date }
-  | { type: 'comment'; data: CommentItem; postedAt: Date };
+  | { type: 'post'; data: PostItem; sortAt: Date }
+  | { type: 'comment'; data: CommentItem; sortAt: Date }
+  | { type: 'wikiEdit'; data: WikiEditItem; sortAt: Date };
 
 // Renders a single item in the score-sorted ("top") feed
 function TopSortedFeedItem({ item, index, feedSettings }: {
@@ -289,15 +270,31 @@ function TopSortedFeedItem({ item, index, feedSettings }: {
         settings={feedSettings}
       />
     );
-  } else {
+  }
+
+  if (item.type === 'comment') {
     return (
       <PrefetchedThreadItem
         comment={item.data}
         index={index}
         feedSettings={feedSettings}
       />
-    );
+    )
   }
+
+  const tag = item.data.tag ?? item.data.lens?.parentTag;
+  if (!tag) {
+    return null;
+  }
+
+  return (
+    <SingleLineTagUpdates
+      tag={tag}
+      revisionIds={[item.data._id]}
+      changeMetrics={item.data.changeMetrics}
+      lastRevisedAt={new Date(item.data.editedAt)}
+    />
+  );
 }
 
 // "Recent" mode: uses a server-side resolver that properly interleaves posts and
@@ -312,8 +309,8 @@ function RecentFeed({ userId, filter, feedSettings, removeSideMargins }: {
   const classes = useStyles(userContentFeedStyles);
 
   return (
-    <MixedTypeFeed<typeof UserRecentContentQuery>
-      query={UserRecentContentQuery}
+    <MixedTypeFeed<typeof SharedUserContentFeedQuery>
+      query={SharedUserContentFeedQuery}
       variables={{ userId, sortBy: "new", filter }}
       firstPageSize={20}
       pageSize={20}
@@ -391,6 +388,23 @@ function RecentFeed({ userId, filter, feedSettings, removeSideMargins }: {
             />
           ),
         },
+        wikiEdit: {
+          render: (revision) => {
+            const tag = revision.tag ?? revision.lens?.parentTag;
+            if (!tag) {
+              return null;
+            }
+
+            return (
+              <SingleLineTagUpdates
+                tag={tag}
+                revisionIds={[revision._id]}
+                changeMetrics={revision.changeMetrics}
+                lastRevisedAt={new Date(revision.editedAt)}
+              />
+            );
+          },
+        },
       }}
     />
   );
@@ -410,9 +424,10 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  const skipPosts = filter === 'comments';
-  const skipProfileComments = filter === 'posts' || filter === 'quickTakes';
-  const skipShortformComments = filter === 'posts';
+  const skipPosts = filter === 'comments' || filter === 'wikiEdits';
+  const skipProfileComments = filter === 'posts' || filter === 'quickTakes' || filter === 'wikiEdits';
+  const skipShortformComments = filter === 'posts' || filter === 'wikiEdits';
+  const skipWikiEdits = filter === 'posts' || filter === 'quickTakes' || filter === 'comments';
 
   const {
     data: postsData,
@@ -456,6 +471,20 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
     }
   );
 
+  const {
+    data: wikiEditsData,
+    loading: wikiEditsLoading,
+    loadMoreProps: wikiEditsLoadMoreProps,
+  } = useQueryWithLoadMore<UserContentFeedWikiEditsQuery, UserContentFeedWikiEditsQueryVariables>(
+    USER_WIKI_EDITS_QUERY,
+    {
+      variables: { userId, limit: initialLimit },
+      skip: !userId || skipWikiEdits,
+      fetchPolicy: 'cache-and-network',
+      itemsPerPage: 10,
+    }
+  );
+
   const mixedFeed = useMemo(() => {
     const items: FeedItem[] = [];
 
@@ -465,6 +494,7 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
       ? []
       : (shortformCommentsData?.comments?.results ?? []).map((comment) => ({ ...comment, post: null })) as CommentItem[];
     const shortformCommentIds = new Set(shortformComments.map((comment) => comment._id));
+    const wikiEdits = skipWikiEdits ? [] : (wikiEditsData?.revisions?.results ?? []);
     const comments: CommentItem[] = (() => {
       if (filter === 'quickTakes') {
         return shortformComments;
@@ -490,7 +520,7 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
       items.push({
         type: 'post',
         data: post,
-        postedAt: new Date(post.postedAt)
+        sortAt: new Date(post.postedAt)
       });
     });
 
@@ -499,7 +529,16 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
       items.push({
         type: 'comment',
         data: comment,
-        postedAt: new Date(comment.postedAt)
+        sortAt: new Date(comment.postedAt)
+      });
+    });
+
+    wikiEdits.forEach((revision) => {
+      if (!revision?.editedAt) return;
+      items.push({
+        type: 'wikiEdit',
+        data: revision,
+        sortAt: new Date(revision.editedAt),
       });
     });
 
@@ -510,12 +549,13 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
     });
 
     return items;
-  }, [postsData, profileCommentsData, shortformCommentsData, filter, skipPosts, skipProfileComments, skipShortformComments]);
+  }, [postsData, profileCommentsData, shortformCommentsData, wikiEditsData, filter, skipPosts, skipProfileComments, skipShortformComments, skipWikiEdits]);
 
   const postsHasMore = !skipPosts && !postsLoadMoreProps.hidden;
   const profileCommentsHasMore = !skipProfileComments && !profileCommentsLoadMoreProps.hidden;
   const shortformCommentsHasMore = !skipShortformComments && !shortformCommentsLoadMoreProps.hidden;
-  const hasMoreRemote = postsHasMore || profileCommentsHasMore || shortformCommentsHasMore;
+  const wikiEditsHasMore = !skipWikiEdits && !wikiEditsLoadMoreProps.hidden;
+  const hasMoreRemote = postsHasMore || profileCommentsHasMore || shortformCommentsHasMore || wikiEditsHasMore;
 
   const handleLoadMore = useCallback(async () => {
     if (loadingMore || !hasMoreRemote) return;
@@ -526,11 +566,12 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
       if (postsHasMore) promises.push(postsLoadMoreProps.loadMore());
       if (profileCommentsHasMore) promises.push(profileCommentsLoadMoreProps.loadMore());
       if (shortformCommentsHasMore) promises.push(shortformCommentsLoadMoreProps.loadMore());
+      if (wikiEditsHasMore) promises.push(wikiEditsLoadMoreProps.loadMore());
       await Promise.all(promises);
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMoreRemote, postsHasMore, profileCommentsHasMore, shortformCommentsHasMore, postsLoadMoreProps, profileCommentsLoadMoreProps, shortformCommentsLoadMoreProps]);
+  }, [loadingMore, hasMoreRemote, postsHasMore, profileCommentsHasMore, shortformCommentsHasMore, wikiEditsHasMore, postsLoadMoreProps, profileCommentsLoadMoreProps, shortformCommentsLoadMoreProps, wikiEditsLoadMoreProps]);
 
   // Set up infinite scroll
   useEffect(() => {
@@ -557,7 +598,8 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
   const isInitialLoading = (
     (!skipPosts && postsLoading) ||
     (!skipProfileComments && profileCommentsLoading) ||
-    (!skipShortformComments && shortformCommentsLoading)
+    (!skipShortformComments && shortformCommentsLoading) ||
+    (!skipWikiEdits && wikiEditsLoading)
   ) && mixedFeed.length === 0;
 
   if (isInitialLoading) {
@@ -568,7 +610,7 @@ function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit
     <div className={classNames(classes.feedContent, removeSideMargins && classes.feedContentNoSideMargins)}>
       {mixedFeed.map((item, index) => (
         <TopSortedFeedItem
-          key={item.type === 'post' ? `post-${item.data._id}` : `comment-${item.data._id}`}
+          key={`${item.type}-${item.data._id}`}
           item={item}
           index={index}
           feedSettings={feedSettings}

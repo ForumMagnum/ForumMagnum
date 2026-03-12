@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { mergeFeedQueries, viewBasedSubquery } from '../utils/feedUtil';
 import { Posts } from '../collections/posts/collection';
 import { Comments } from '../collections/comments/collection';
+import { Revisions } from '../collections/revisions/collection';
 import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 
 export const userContentFeedGraphQLTypeDefs = gql`
@@ -14,12 +15,14 @@ export const userContentFeedGraphQLTypeDefs = gql`
     profileComment
     shortformComment
     userPost
+    wikiEdit
   }
   type UserContentFeedEntry {
     type: UserContentFeedEntryType!
     profileComment: Comment
     shortformComment: Comment
     userPost: Post
+    wikiEdit: Revision
   }
   extend type Query {
     UserContentFeed(
@@ -37,9 +40,10 @@ export const userContentFeedGraphQLQueries = {
   UserContentFeed: async (_root: void, args: { userId: string; limit?: number; cutoff?: Date; offset?: number; sortBy?: string; filter?: string }, context: ResolverContext) => {
     const { userId, limit = 20, cutoff, offset, filter = "all" } = args;
 
-    const skipPosts = filter === 'comments';
-    const skipProfileComments = filter === 'posts' || filter === 'quickTakes';
-    const skipShortform = filter === 'posts';
+    const skipPosts = filter === 'comments' || filter === 'wikiEdits';
+    const skipProfileComments = filter === 'posts' || filter === 'quickTakes' || filter === 'wikiEdits';
+    const skipShortform = filter === 'posts' || filter === 'wikiEdits';
+    const skipWikiEdits = filter === 'posts' || filter === 'quickTakes' || filter === 'comments';
 
     const result = await mergeFeedQueries<Date>({
       limit,
@@ -99,6 +103,21 @@ export const userContentFeedGraphQLQueries = {
             shortform: true,
             deleted: false,
             parentCommentId: viewFieldNullOrMissing,
+          },
+        }) : null,
+
+        !skipWikiEdits ? viewBasedSubquery({
+          type: "wikiEdit",
+          collection: Revisions,
+          sortField: "editedAt",
+          context,
+          includeDefaultSelector: true,
+          selector: {
+            userId,
+            $or: [
+              { collectionName: "Tags", fieldName: "description" },
+              { collectionName: "MultiDocuments", fieldName: "contents" },
+            ],
           },
         }) : null,
       ],

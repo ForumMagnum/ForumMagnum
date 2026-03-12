@@ -29,7 +29,7 @@ const profilePageFeedTabUnsharedStyles = defineStyles("ProfilePageFeedTabUnshare
 }));
 
 export const profilePageFeedTabSortingModeSchema = z.enum(["recent", "top"]);
-export const profilePageFeedTabFilterSchema = z.enum(["all", "posts", "quickTakes", "comments"]);
+export const profilePageFeedTabFilterSchema = z.enum(["all", "posts", "quickTakes", "comments", "wikiEdits"]);
 export const profilePageFeedTabSettingsSchema = z.object({
   sortBy: profilePageFeedTabSortingModeSchema,
   filter: profilePageFeedTabFilterSchema,
@@ -98,6 +98,13 @@ export function ProfilePageFeedTabSettingsForm({
       >
         Posts
       </button>
+      <button
+        className={classNames(sharedClasses.sortPanelOption, settings.filter === "wikiEdits" && sharedClasses.sortPanelOptionSelected)}
+        onClick={() => onChange({ ...settings, filter: "wikiEdits" })}
+        type="button"
+      >
+        Wiki edits
+      </button>
     </div>
   </>;
 }
@@ -110,8 +117,7 @@ export function ProfilePageFeedTabContents({user, settings}: {
   const classes = useStyles(profilePageFeedTabUnsharedStyles);
 
   const hasPosts = user.postCount > 0;
-  // FIXME: This is missing some other content types. The there-is-nothing handler should be coming from MixedTypeFeed.
-  const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0;
+  const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0 || (user?.tagRevisionCount ?? 0) > 0;
 
   return <div className={classNames(classes.feedList, classes.tabPanel)}>
     {!hasFeedContent && (
