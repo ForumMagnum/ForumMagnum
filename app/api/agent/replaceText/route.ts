@@ -1,7 +1,7 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $getNodeByKey, $isElementNode, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
+import { $getNodeByKey, $getRoot, $isElementNode, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $generateNodesFromDOM } from "@lexical/html";
 import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
@@ -12,8 +12,8 @@ import {
   HOCUSPOCUS_FLUSH_WAIT_MS,
   sleep,
   withMainDocEditorSession,
-  selectQuotedTextInEditor,
 } from "../editorAgentUtil";
+import { locateMarkdownQuoteSelectionInSubtree, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
@@ -131,6 +131,123 @@ export function $applySuggestionReplacement({
   return true;
 }
 
+/**
+ * Split anchor and focus text nodes at their respective offsets and collect
+ * all sibling nodes between them (inclusive). Used when a quote spans across
+ * multiple inline nodes (e.g. plain text + inline code).
+ */
+function $splitAndCollectSelectedNodes(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+): LexicalNode[] | null {
+  if (anchor.type !== "text" || focus.type !== "text") return null;
+
+  const anchorNode = $getNodeByKey(anchor.key);
+  const focusNode = $getNodeByKey(focus.key);
+  if (!$isTextNode(anchorNode) || !$isTextNode(focusNode)) return null;
+
+  // Determine the first selected node by splitting the anchor text node
+  let firstSelectedNode: LexicalNode | null;
+  if (anchor.offset === 0) {
+    firstSelectedNode = anchorNode;
+  } else if (anchor.offset >= anchorNode.getTextContent().length) {
+    firstSelectedNode = anchorNode.getNextSibling();
+  } else {
+    const splits = anchorNode.splitText(anchor.offset);
+    firstSelectedNode = splits[1] ?? null;
+  }
+  if (!firstSelectedNode) return null;
+
+  // Determine the last selected node by splitting the focus text node
+  let lastSelectedNode: LexicalNode | null;
+  if (focus.offset >= focusNode.getTextContent().length) {
+    lastSelectedNode = focusNode;
+  } else if (focus.offset <= 0) {
+    lastSelectedNode = focusNode.getPreviousSibling();
+  } else {
+    const splits = focusNode.splitText(focus.offset);
+    lastSelectedNode = splits[0];
+  }
+  if (!lastSelectedNode) return null;
+
+  // Walk siblings from first to last
+  const selectedNodes: LexicalNode[] = [];
+  let current: LexicalNode | null = firstSelectedNode;
+  while (current) {
+    selectedNodes.push(current);
+    if (current.getKey() === lastSelectedNode.getKey()) break;
+    current = current.getNextSibling();
+  }
+
+  // Verify we reached lastSelectedNode
+  if (selectedNodes.length === 0 || selectedNodes[selectedNodes.length - 1].getKey() !== lastSelectedNode.getKey()) {
+    return null;
+  }
+
+  return selectedNodes;
+}
+
+export function $applyEditReplacementMultiNode({
+  editor,
+  anchor,
+  focus,
+  replacement,
+}: {
+  editor: LexicalEditor
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  replacement: string
+}): boolean {
+  const selectedNodes = $splitAndCollectSelectedNodes(anchor, focus);
+  if (!selectedNodes) return false;
+
+  if (replacement.length > 0) {
+    const inlineNodes = $markdownToInlineNodes(editor, replacement);
+    for (const node of inlineNodes) {
+      selectedNodes[0].insertBefore(node);
+    }
+  }
+
+  for (const node of selectedNodes) {
+    node.remove();
+  }
+
+  return true;
+}
+
+export function $applySuggestionReplacementMultiNode({
+  editor,
+  anchor,
+  focus,
+  replacement,
+  suggestionId,
+}: {
+  editor: LexicalEditor
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  replacement: string
+  suggestionId: string
+}): boolean {
+  const selectedNodes = $splitAndCollectSelectedNodes(anchor, focus);
+  if (!selectedNodes) return false;
+
+  const deleteSuggestion = $createSuggestionNode(suggestionId, "delete");
+  selectedNodes[0].insertBefore(deleteSuggestion);
+  for (const node of selectedNodes) {
+    deleteSuggestion.append(node);
+  }
+
+  const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
+  if (replacement.length > 0) {
+    for (const node of $markdownToInlineNodes(editor, replacement)) {
+      insertSuggestion.append(node);
+    }
+  }
+  deleteSuggestion.insertAfter(insertSuggestion);
+
+  return true;
+}
+
 export async function replaceTextInMainDoc({
   postId,
   token,
@@ -159,32 +276,51 @@ export async function replaceTextInMainDoc({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          const selectionResult = selectQuotedTextInEditor(quote);
-          quoteFoundInDocument = selectionResult.quoteFoundInDocument;
-          if (!selectionResult.selectionCreated) {
+          const root = $getRoot();
+          const selectionResult = locateMarkdownQuoteSelectionInSubtree({
+            rootNodeKey: root.getKey(),
+            markdownQuote: quote,
+          });
+          quoteFoundInDocument = selectionResult.found;
+          if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) {
             return;
           }
 
+          const { anchor, focus } = selectionResult;
+          const sameTextNode = anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
+
           if (mode === "edit") {
-            replaced = $applyEditReplacement({
-              editor,
-              matchedNodeKey: selectionResult.matchedNodeKey,
-              startOffset: selectionResult.startOffset,
-              endOffset: selectionResult.endOffset,
-              replacement,
-            });
+            if (sameTextNode) {
+              replaced = $applyEditReplacement({
+                editor,
+                matchedNodeKey: anchor.key,
+                startOffset: anchor.offset,
+                endOffset: focus.offset,
+                replacement,
+              });
+            } else {
+              replaced = $applyEditReplacementMultiNode({
+                editor, anchor, focus, replacement,
+              });
+            }
             return;
           }
 
           suggestionId = randomId();
-          replaced = $applySuggestionReplacement({
-            editor,
-            matchedNodeKey: selectionResult.matchedNodeKey,
-            startOffset: selectionResult.startOffset,
-            endOffset: selectionResult.endOffset,
-            replacement,
-            suggestionId,
-          });
+          if (sameTextNode) {
+            replaced = $applySuggestionReplacement({
+              editor,
+              matchedNodeKey: anchor.key,
+              startOffset: anchor.offset,
+              endOffset: focus.offset,
+              replacement,
+              suggestionId,
+            });
+          } else {
+            replaced = $applySuggestionReplacementMultiNode({
+              editor, anchor, focus, replacement, suggestionId,
+            });
+          }
           if (!replaced) {
             suggestionId = undefined;
           }
