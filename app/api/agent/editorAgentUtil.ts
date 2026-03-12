@@ -11,6 +11,7 @@ import {
   SKIP_COLLAB_TAG,
 } from "lexical";
 import PlaygroundNodes from "@/components/lexical/nodes/PlaygroundNodes";
+import { buildTextNodeExportMap } from "@/components/editor/lexicalDomExport";
 import { randomId } from "@/lib/random";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
@@ -106,6 +107,9 @@ export function createHeadlessEditor(errorLabel: string): LexicalEditor {
   return createEditor({
     namespace: `Agent-${errorLabel}`,
     nodes: PlaygroundNodes,
+    html: {
+      export: buildTextNodeExportMap(),
+    },
     onError: (error) => {
       throw error;
     },
