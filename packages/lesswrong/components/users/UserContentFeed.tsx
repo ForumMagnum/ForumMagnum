@@ -13,7 +13,7 @@ import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 
 const USER_POSTS_QUERY = gql(`
   query UserContentFeedPosts($userId: String!, $limit: Int!, $sortedBy: String!) {
-    posts(selector: { userPosts: { userId: $userId, sortedBy: $sortedBy } }, limit: $limit, enableTotal: true) {
+    posts(selector: { userPosts: { userId: $userId, sortedBy: $sortedBy, authorIsUnreviewed: null } }, limit: $limit, enableTotal: true) {
       results {
         ...PostsListWithVotes
       }

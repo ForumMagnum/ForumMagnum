@@ -569,7 +569,7 @@ function ProfilePageAllPostsTab({user, sortBy, setSortBy, sortPanelOpen, sortPan
   const { data: recentPostsData, loading: recentPostsLoading, loadMoreProps } = useQueryWithLoadMore(ProfilePostsQuery, {
     skip: !userId,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: sortBy, excludeEvents: true } } : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy: sortBy, excludeEvents: true, authorIsUnreviewed: null } } : undefined,
       limit: INITIAL_POSTS_TO_SHOW,
       enableTotal: true,
     },
