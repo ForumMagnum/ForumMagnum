@@ -325,17 +325,10 @@ function RecentFeed({ userId, filter, feedSettings, removeSideMargins }: {
             };
             return (
               <div className={classes.wrapPostItem}>
-                {/*<UltraFeedPostItem
-                  post={post}
-                  postMetaInfo={postMetaInfo}
-                  index={index ?? 0}
-                  settings={feedSettings}
-                />*/}
                 <RecentDiscussionThread
                   post={post}
                   cardStyle
                   refetch={() => {}}
-                  comments={post.recentComments ?? undefined}
                   expandAllThreads={false}
                 />
               </div>
@@ -355,23 +348,11 @@ function RecentFeed({ userId, filter, feedSettings, removeSideMargins }: {
               }}
               comment={comment}
               startThreadTruncated={true}
-              loadChildrenSeparately
-              loadDirectReplies
             />
-            /*<PrefetchedThreadItem
-              comment={comment}
-              index={index ?? 0}
-              feedSettings={feedSettings}
-            />*/
           ),
         },
         shortformComment: {
           render: (comment, index) => (
-            /*<PrefetchedThreadItem
-              comment={comment}
-              index={index ?? 0}
-              feedSettings={feedSettings}
-            />*/
             <CommentsNode
               key={comment._id}
               treeOptions={{
@@ -383,8 +364,6 @@ function RecentFeed({ userId, filter, feedSettings, removeSideMargins }: {
               }}
               comment={comment}
               startThreadTruncated={true}
-              loadChildrenSeparately
-              loadDirectReplies
             />
           ),
         },

@@ -148,17 +148,11 @@ export const UserContentFeedQuery = gql(`
         type
         userPost {
           ...PostsListWithVotes
-          recentComments {
-            ...CommentsList
-          }
         }
         profileComment {
           ...CommentsList
           post {
             ...PostsListWithVotes
-          }
-          topLevelComment {
-            ...CommentsListWithTopLevelComment
           }
         }
         shortformComment {

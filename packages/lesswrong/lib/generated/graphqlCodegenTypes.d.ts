@@ -13093,13 +13093,8 @@ type UltraFeedSubscriptionsQueryVariables = Exact<{
 
 type UltraFeedSubscriptionsQuery = UltraFeedSubscriptionsQuery_Query;
 
-type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post_recentComments_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsList
-);
-
 type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post = (
-  { __typename?: 'Post', recentComments: Array<UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post_recentComments_Comment> | null }
+  { __typename?: 'Post' }
   & PostsListWithVotes
 );
 
@@ -13108,13 +13103,8 @@ type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_Us
   & PostsListWithVotes
 );
 
-type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_topLevelComment_Comment = (
-  { __typename?: 'Comment' }
-  & CommentsListWithTopLevelComment
-);
-
 type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment = (
-  { __typename?: 'Comment', post: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_post_Post | null, topLevelComment: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_topLevelComment_Comment | null }
+  { __typename?: 'Comment', post: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_post_Post | null }
   & CommentsList
 );
 
