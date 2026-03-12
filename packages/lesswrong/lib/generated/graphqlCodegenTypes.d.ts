@@ -6915,6 +6915,7 @@ type Query = {
   TagsByCoreTagId: TagWithTotalCount;
   UltraFeed: UltraFeedQueryResults;
   UltraFeedSubscriptions: UltraFeedQueryResults;
+  UserContentFeed: UserContentFeedQueryResults;
   UserReadHistory?: Maybe<UserReadHistoryResult>;
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   UsersReadPostsOfTargetUser?: Maybe<Array<Post>>;
@@ -7321,6 +7322,16 @@ type QueryUltraFeedSubscriptionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   settings?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+
+type QueryUserContentFeedArgs = {
+  cutoff?: InputMaybe<Scalars['Date']['input']>;
+  filter?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
+  userId: Scalars['String']['input'];
 };
 
 
@@ -11093,6 +11104,26 @@ type UserActivity = {
   schemaVersion: Scalars['Float']['output'];
 };
 
+type UserContentFeedEntry = {
+  __typename?: 'UserContentFeedEntry';
+  profileComment?: Maybe<Comment>;
+  shortformComment?: Maybe<Comment>;
+  type: UserContentFeedEntryType;
+  userPost?: Maybe<Post>;
+};
+
+type UserContentFeedEntryType =
+  | 'profileComment'
+  | 'shortformComment'
+  | 'userPost';
+
+type UserContentFeedQueryResults = {
+  __typename?: 'UserContentFeedQueryResults';
+  cutoff?: Maybe<Scalars['Date']['output']>;
+  endOffset: Scalars['Int']['output'];
+  results?: Maybe<Array<UserContentFeedEntry>>;
+};
+
 type UserCoreTagReads = {
   __typename?: 'UserCoreTagReads';
   tagId: Scalars['String']['output'];
@@ -13059,6 +13090,55 @@ type UltraFeedSubscriptionsQueryVariables = Exact<{
 
 
 type UltraFeedSubscriptionsQuery = UltraFeedSubscriptionsQuery_Query;
+
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_topLevelComment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithTopLevelComment
+);
+
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment = (
+  { __typename?: 'Comment', post: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_post_Post | null, topLevelComment: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment_topLevelComment_Comment | null }
+  & CommentsList
+);
+
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_shortformComment_Comment_post_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_shortformComment_Comment = (
+  { __typename?: 'Comment', post: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_shortformComment_Comment_post_Post | null }
+  & CommentsList
+);
+
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry = { __typename?: 'UserContentFeedEntry', type: UserContentFeedEntryType, userPost: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_userPost_Post | null, profileComment: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_profileComment_Comment | null, shortformComment: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry_shortformComment_Comment | null };
+
+type UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults = { __typename: 'UserContentFeedQueryResults', cutoff: string | null, endOffset: number, results: Array<UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults_results_UserContentFeedEntry> | null };
+
+type UserContentFeedQuery_Query = { __typename?: 'Query', UserContentFeed: UserContentFeedQuery_UserContentFeed_UserContentFeedQueryResults };
+
+
+type UserContentFeedQueryVariables = Exact<{
+  userId: Scalars['String']['input'];
+  limit: InputMaybe<Scalars['Int']['input']>;
+  cutoff: InputMaybe<Scalars['Date']['input']>;
+  offset: InputMaybe<Scalars['Int']['input']>;
+  sortBy: InputMaybe<Scalars['String']['input']>;
+  filter: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UserContentFeedQuery = UserContentFeedQuery_Query;
 
 type updateUserCommunityMutation_updateUser_UserOutput_data_User = (
   { __typename?: 'User' }
