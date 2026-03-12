@@ -1,10 +1,10 @@
 "use client";
 import React from 'react';
-import { useLocation } from '../../lib/routeUtil';
-import { userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { useLocation } from '@/lib/routeUtil';
+import { userGetProfileUrl, userGetProfileUrlFromSlug } from "@/lib/collections/users/helpers";
 import { slugify } from '@/lib/utils/slugify';
-import PermanentRedirect from "../common/PermanentRedirect";
-import UsersProfile from "./UsersProfile";
+import PermanentRedirect from "@/components/common/PermanentRedirect";
+import ProfilePage from './ProfilePage';
 
 /**
  * Build structured data for a user to help with SEO.
@@ -48,7 +48,7 @@ const UsersSingle = ({slug: rawSlug}: {slug: string}) => {
     // pageload.
     return <PermanentRedirect url={canonicalUrl} />;
   } else {
-    return <UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
+    return <ProfilePage slug={slug} />
   }
 };
 

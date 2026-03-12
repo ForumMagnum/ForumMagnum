@@ -138,12 +138,44 @@ export const UltraFeedSubscriptionsQuery = gql(`
   }
 `);
 
-export type FeedQuery = 
+export const UserContentFeedQuery = gql(`
+  query UserContentFeed($userId: String!, $limit: Int, $cutoff: Date, $offset: Int, $sortBy: String, $filter: String) {
+    UserContentFeed(userId: $userId, limit: $limit, cutoff: $cutoff, offset: $offset, sortBy: $sortBy, filter: $filter) {
+      __typename
+      cutoff
+      endOffset
+      results {
+        type
+        userPost {
+          ...PostsListWithVotes
+        }
+        profileComment {
+          ...CommentsList
+          post {
+            ...PostsListWithVotes
+          }
+        }
+        shortformComment {
+          ...CommentsList
+          post {
+            ...PostsListWithVotes
+          }
+        }
+        wikiEdit {
+          ...RevisionTagFragment
+        }
+      }
+    }
+  }
+`);
+
+export type FeedQuery =
   | typeof AllTagsActivityFeedQuery
   | typeof TagHistoryFeedQuery
   | typeof RecentDiscussionFeedQuery
   | typeof UltraFeedQuery
-  | typeof UltraFeedSubscriptionsQuery;
+  | typeof UltraFeedSubscriptionsQuery
+  | typeof UserContentFeedQuery;
 
 export interface FeedPaginationResultVariables {
   cutoff?: number | null,

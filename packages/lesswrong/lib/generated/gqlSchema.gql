@@ -893,6 +893,31 @@ extend type Query {
   TagHistoryFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, options: JSON): TagHistoryFeedQueryResults!
 }
 
+type UserContentFeedQueryResults {
+  cutoff: Date
+  endOffset: Int!
+  results: [UserContentFeedEntry!]
+}
+
+enum UserContentFeedEntryType {
+  profileComment
+  shortformComment
+  userPost
+  wikiEdit
+}
+
+type UserContentFeedEntry {
+  type: UserContentFeedEntryType!
+  profileComment: Comment
+  shortformComment: Comment
+  userPost: Post
+  wikiEdit: Revision
+}
+
+extend type Query {
+  UserContentFeed(userId: String!, limit: Int, cutoff: Date, offset: Int, sortBy: String, filter: String): UserContentFeedQueryResults!
+}
+
 extend type Mutation {
   markConversationRead(conversationId: String!): Boolean!
   sendEventTriggeredDM(eventType: String!): Boolean!

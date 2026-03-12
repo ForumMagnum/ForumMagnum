@@ -9,6 +9,66 @@ import { Link } from "@/lib/reactRouterWrapper";
 import PostsTooltip from "@/components/posts/PostsPreviewTooltip/PostsTooltip";
 import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import { profileStyles } from "./profileStyles";
+
+const profileDiamondSectionsUnsharedStyles = defineStyles("ProfileDiamondSectionsUnshared", (theme: ThemeType) => ({
+  diamondsSection: {
+    marginTop: 28,
+  },
+  diamondsSectionHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    height: 20,
+    marginBottom: 8,
+    paddingBottom: 6,
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
+  },
+  diamondsSectionTitle: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    fontWeight: 600,
+    color: theme.palette.text.dim,
+    textTransform: "uppercase" as const,
+    letterSpacing: 0.8,
+  },
+  diamondsSectionCount: {
+    fontWeight: 400,
+    letterSpacing: 0,
+    textTransform: "none" as const,
+  },
+  diamondsGrid: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    gap: 2,
+  },
+  diamondLink: {
+    display: "block",
+    width: 10,
+    height: 10,
+    clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
+    textDecoration: "none",
+    "&:hover": {
+      opacity: 0.5,
+    },
+  },
+  diamondSolid: {
+    backgroundColor: theme.palette.primary.main,
+  },
+  diamondGold: {
+    backgroundColor: "light-dark(#b8860b, #daa520)",
+    borderColor: "light-dark(#b8860b, #daa520)",
+  },
+  sidebarActionHidden: {
+    visibility: "hidden",
+  },
+  loadMoreLoading: {
+    marginRight: 0,
+  },
+}));
 
 const DIAMONDS_INITIAL = 250;
 const DIAMONDS_SHOW_ALL_LIMIT = 2000;
@@ -44,11 +104,6 @@ const ProfileCommentDiamondDataQuery = gql(`
     }
   }
 `);
-
-interface ProfileDiamondSectionsProps {
-  userId: string;
-  classes: Record<string, string>;
-}
 
 function formatCountWithCommas(count: number): string {
   return count.toLocaleString();
@@ -121,10 +176,11 @@ function useProfileDiamondDataWithLoadMore(userId: string) {
   };
 }
 
-export default function ProfileDiamondSections({
-  userId,
-  classes,
-}: ProfileDiamondSectionsProps) {
+export default function ProfileDiamondSections({ userId }: {
+  userId: string;
+}) {
+  const sharedClasses = useStyles(profileStyles);
+  const classes = useStyles(profileDiamondSectionsUnsharedStyles);
   const {
     diamondPosts,
     commentDiamonds,
@@ -146,14 +202,14 @@ export default function ProfileDiamondSections({
             </div>
             {canShowAllPostDiamonds && (
               postDiamondsLoadMoreProps.hidden ? (
-                <span className={classNames(classes.readMoreLink, classes.sidebarActionHidden)}>
+                <span className={classNames(sharedClasses.readMoreLink, classes.sidebarActionHidden)}>
                   Show all
                 </span>
               ) : (
                 <LoadMore
                   {...postDiamondsLoadMoreProps}
                   totalCount={undefined}
-                  className={classes.readMoreLink}
+                  className={sharedClasses.readMoreLink}
                   loadingClassName={classes.loadMoreLoading}
                   message="Show all"
                 />
@@ -195,14 +251,14 @@ export default function ProfileDiamondSections({
             </div>
             {canShowAllCommentDiamonds && (
               commentDiamondsLoadMoreProps.hidden ? (
-                <span className={classNames(classes.readMoreLink, classes.sidebarActionHidden)}>
+                <span className={classNames(sharedClasses.readMoreLink, classes.sidebarActionHidden)}>
                   Show all
                 </span>
               ) : (
                 <LoadMore
                   {...commentDiamondsLoadMoreProps}
                   totalCount={undefined}
-                  className={classes.readMoreLink}
+                  className={sharedClasses.readMoreLink}
                   loadingClassName={classes.loadMoreLoading}
                   message="Show all"
                 />
