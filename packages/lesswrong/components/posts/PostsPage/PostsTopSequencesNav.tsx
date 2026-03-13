@@ -27,24 +27,10 @@ const styles = (theme: ThemeType) => ({
   root: {
     marginLeft:-20,
     display: "flex",
-    alignItems: "center",
-    
-    ...(theme.isFriendlyUI && {
-      marginBottom: -8,
-    }),
+    alignItems: "center"
   },
   title: {
-    ...titleStyles(theme),
-    
-    ...(theme.isFriendlyUI && {
-      textTransform: 'uppercase',
-      fontSize: 18,
-      color: theme.palette.greyAlpha(0.7),
-      fontWeight: 500,
-    }),
-    ...(theme.isFriendlyUI && theme.dark && {
-      color: theme.palette.icon.dim,
-    }),
+    ...titleStyles(theme)
   },
   blackText: {
     '&&': {

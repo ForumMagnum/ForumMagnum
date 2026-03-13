@@ -19,13 +19,8 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    ...(theme.isFriendlyUI
-      ? {
-        marginTop: 8,
-      } : {
-        gap: "4px",
-        marginBottom: 4,
-      }),
+    gap: "4px",
+    marginBottom: 4,
   },
   addButton: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -46,11 +41,9 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
     ...filteringStyles(theme),
   },
   personalAndPlus: {
-    ...(theme.isFriendlyUI ? {} : {
-      gap: "4px",
-      display: "flex",
-      alignItems: "center"
-    }),
+    gap: "4px",
+    display: "flex",
+    alignItems: "center"
   }
 }));
 

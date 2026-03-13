@@ -14,18 +14,11 @@ const styles = defineStyles("LoadMore", (theme: ThemeType) => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     display: "inline-block",
     minHeight: 20,
-    ...(theme.isFriendlyUI
-      ? {
-        fontSize: 14,
-        fontWeight: 600,
-        lineHeight: "24px",
-      }
-      : {}),
     ...(theme.isAF && {
       fontWeight: 500,
     }),

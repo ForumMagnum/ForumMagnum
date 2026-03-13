@@ -23,21 +23,14 @@ const styles = (theme: ThemeType) => ({
     display: 'inline-block',
     color: theme.palette.text.dim2,
     whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.grey[800],
-      fontWeight: 600
-    }),
+    fontSize: theme.typography.body2.fontSize
   },
   icon: {
     fontSize: "1.3rem",
     color: theme.palette.icon.dim600,
     position: "relative",
     top: 3,
-    marginRight: 4,
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.grey[800]
-    }),
+    marginRight: 4
   },
   tooltipTitle: {
     marginBottom: 8,

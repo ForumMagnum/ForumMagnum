@@ -13,7 +13,6 @@ export type RecommendationsListItem = ComponentType<{
 
 const styles = (theme: ThemeType) => ({
   noMoreMessage: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
 });
 

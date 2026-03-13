@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, isEAForum, isLW, isLWorAF, requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost, PostSubmitMeta } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
@@ -14,38 +13,22 @@ import LWTooltip from "../common/LWTooltip";
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: theme.isFriendlyUI ? 14 : 16,
+    fontSize: 16,
     marginLeft: 5,
-    ...(theme.isFriendlyUI ? {
-      textTransform: 'none',
-    } : {
-      paddingBottom: 4,
-      fontWeight: 500,
-      "&:hover": {
-        background: theme.palette.buttons.hoverGrayHighlight,
-      }
-    })
+    paddingBottom: 4,
+    fontWeight: 500,
+    "&:hover": {
+      background: theme.palette.buttons.hoverGrayHighlight,
+    }
   },
   secondaryButton: {
-    ...(theme.isFriendlyUI ? {
-      color: theme.palette.grey[680],
-      padding: '8px 12px'
-    } : {
-      color: theme.palette.text.dim40,
-    })
+    color: theme.palette.text.dim40,
   },
   submitButtons: {
     marginLeft: 'auto'
   },
   submitButton: {
-    ...(theme.isFriendlyUI ? {
-      backgroundColor: theme.palette.buttons.alwaysPrimary,
-      color: theme.palette.text.alwaysWhite,
-      boxShadow: 'none',
-      marginLeft: 10,
-    } : {
-      color: theme.palette.secondary.main
-    })
+    color: theme.palette.secondary.main
   },
   cancelButton: {
   },
@@ -160,10 +143,6 @@ export const PostSubmit = ({
           onClick={onSubmitClick}
           disabled={disabled}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isFriendlyUI() ? {
-            variant: "contained",
-            color: "primary",
-          } : {})}
         >
           {submitLabel}
         </Button>

@@ -25,10 +25,7 @@ const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeTy
   root: {
     marginBottom: 32,
     position: "relative",
-    backgroundColor: theme.isFriendlyUI
-      ? theme.palette.grey[0]
-      : theme.palette.panelBackground.recentDiscussionThread,
-    border: theme.isFriendlyUI ? `1px solid ${theme.palette.grey[200]}` : undefined,
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
 
     padding: 16,
     ...theme.typography.body2,

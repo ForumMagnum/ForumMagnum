@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Paper }from '@/components/widgets/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isBookUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import LWPopper from "../common/LWPopper";
 import AddTagOrWikiPage from "./AddTagOrWikiPage";
@@ -72,7 +71,7 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
         </LWPopper>
     </a>
   
-  if (isBookUI() && hasTooltip) {
+  if (hasTooltip) {
     return <LWTooltip title="Add a tag">
       {button}
     </LWTooltip>

@@ -12,7 +12,6 @@ import { DatePicker } from "../../form-components/FormComponentDateTime";
 
 const styles = (theme: ThemeType) => ({
   message: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
 });
 

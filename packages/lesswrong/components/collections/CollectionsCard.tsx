@@ -39,9 +39,7 @@ const styles = defineStyles("CollectionsCard", (theme: ThemeType) => ({
     borderTop: `solid 4px ${theme.palette.text.maxIntensity}`, // This gets overwritten by a color from the DB
     paddingTop: 12
   },
-  title: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-  },
+  title: {},
   mergeTitle: {
     display: "inline",
     marginRight: 10,
@@ -52,10 +50,7 @@ const styles = defineStyles("CollectionsCard", (theme: ThemeType) => ({
   author: {
     ...theme.typography.postStyle,
     marginBottom:8,
-    display: "inline-block",
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    display: "inline-block"
   },
   media: {
     '& img':{

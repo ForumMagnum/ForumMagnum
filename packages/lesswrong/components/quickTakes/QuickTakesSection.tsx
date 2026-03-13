@@ -53,13 +53,11 @@ const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
   },
   list: {
     marginTop: 4,
-    ...(theme.isFriendlyUI ? {} : {
-      display: "flex",
-      flexDirection: "column",
-      gap: "4px",  
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: '1.16rem',
-    })
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",  
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: '1.16rem',
   },
 }));
 

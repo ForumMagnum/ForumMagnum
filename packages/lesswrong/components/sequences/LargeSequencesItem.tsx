@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
-import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import UsersName from "../users/UsersName";
 import ContentStyles from "../common/ContentStyles";
 import SequencesSmallPostLink from "./SequencesSmallPostLink";
@@ -61,18 +59,10 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[600],
     }
   },
-  eaTitle: {
-    fontFamily: theme.typography.fontFamily,
-    lineHeight: '1.4em',
-    fontWeight: 600
-  },
   description: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     marginBottom: 12
-  },
-  eaDescription: {
-    fontSize: "1rem",
   },
   author: {
     ...theme.typography.body2,
@@ -108,7 +98,7 @@ const styles = (theme: ThemeType) => ({
     objectFit: "cover"
   },
   chapterTitle: {
-    fontSize: `${theme.isFriendlyUI ? "1.2rem" : "1.25rem"} !important`,
+    fontSize: `${"1.25rem"} !important`,
     margin: "8px 0 -8px 0 !important",
   },
   postIcon: {
@@ -131,7 +121,7 @@ const styles = (theme: ThemeType) => ({
     width: "45%",
     display: "flex",
     flexDirection: "column",
-    justifyContent: theme.isFriendlyUI ? "flex-start" : "center",
+    justifyContent: "center",
     maxHeight: 600,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -198,7 +188,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
           <div className={classes.titleAndAuthor}>
             <Link
               to={`/s/${sequence._id}`}
-              className={classNames(classes.title, {[classes.eaTitle]: isFriendlyUI})}
+              className={classes.title}
             >
               {sequence.title}
             </Link>
@@ -209,7 +199,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
           </div>
           {(highlight.length > 0) && <ContentStyles
             contentType="postHighlight"
-            className={classNames(classes.description, {[classes.eaDescription]: isFriendlyUI})}
+            className={classes.description}
           >
             <ContentItemTruncated
               maxLengthWords={100}

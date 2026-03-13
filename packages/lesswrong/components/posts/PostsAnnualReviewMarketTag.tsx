@@ -16,12 +16,9 @@ const sharedStyles = (theme: ThemeType) => ({
   boxSizing: 'border-box',
   paddingLeft: 6,
   paddingRight: 6,
-  marginRight: theme.isFriendlyUI ? 3 : undefined,
-  marginBottom: theme.isFriendlyUI ? 8 : undefined,
   fontWeight: theme.typography.body1.fontWeight,
   ...theme.typography.commentStyle,
-  cursor: "pointer",
-  whiteSpace: theme.isFriendlyUI ? "nowrap": undefined,
+  cursor: "pointer"
 })
 
 const styles = (theme: ThemeType) => ({

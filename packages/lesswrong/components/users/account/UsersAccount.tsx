@@ -22,8 +22,8 @@ const styles = defineStyles("UsersAccount", (theme: ThemeType) => ({
     },
   },
   header: {
-    paddingTop: theme.isFriendlyUI ? '32px' : '48px',
-    paddingBottom: theme.isFriendlyUI ? '16px' : '32px',
+    paddingTop: '48px',
+    paddingBottom: '32px',
     [theme.breakpoints.down('xs')]: {
       paddingTop: 28,
       paddingBottom: 20,

@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     display: "inline-block",
     width: 20,
-    marginLeft: theme.isFriendlyUI ? undefined : -6,
+    marginLeft: -6,
     verticalAlign: "sub",
   },
 });

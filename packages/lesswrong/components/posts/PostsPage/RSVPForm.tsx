@@ -15,13 +15,9 @@ import { MenuItem } from "../../common/Menus";
 import { responseToText } from '@/lib/collections/posts/constants';
 
 const styles = (theme: ThemeType) => ({
-  emailMessage: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }
-    : {
-      fontStyle: "italic",
-    },
+  emailMessage: {
+    fontStyle: "italic",
+  },
 });
 
 const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {

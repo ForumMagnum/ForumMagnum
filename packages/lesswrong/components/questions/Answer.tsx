@@ -50,12 +50,7 @@ const styles = (theme: ThemeType) => ({
   author: {
     display: 'inline-block',
     fontWeight: 600,
-    ...theme.typography.postStyle,
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {}),
+    ...theme.typography.postStyle
   },
   date: {
     display: 'inline-block',
@@ -71,7 +66,7 @@ const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexGrow: 1,
     position: "relative",
-    top: theme.isFriendlyUI ? 0 : -4,
+    top: -4,
   },
   footer: {
     marginTop: 5,

@@ -1,5 +1,4 @@
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
-import { isFriendlyUI } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
 import React, { useCallback } from "react";
@@ -18,14 +17,12 @@ import type { ReviewYear } from "@/lib/reviewUtils";
 import { useCurrentUser } from "../common/withUser";
 import ArrowForward from "@/lib/vendor/@material-ui/icons/src/ArrowForward";
 import { useDialog } from "../common/withDialog";
-import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import { useFormSubmitOnCmdEnter } from "../hooks/useFormSubmitOnCmdEnter";
 import LoginPopup from "../users/LoginPopup";
 import Loading from "../vulcan-core/Loading";
 import Error404 from "../common/Error404";
 import FormGroupNoStyling from "../form-components/FormGroupNoStyling";
-import FormGroupQuickTakes from "../form-components/FormGroupQuickTakes";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { withDateFields } from "@/lib/utils/dateUtils";
 import { useMutation } from "@apollo/client/react";
@@ -74,29 +71,11 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     justifyContent: 'end',
     alignItems: 'center',
   },
-  submitQuickTakes: {
-    padding: getCommentsNewFormPadding(theme),
-    borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
-    borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
-  },
   submitQuickTakesNewForm: {
     background: theme.palette.grey[100],
   },
-  submitQuickTakesButtonAtBottom: theme.isFriendlyUI
-    ? {
-      marginTop: 20,
-      padding: 20,
-      borderTop: `1px solid ${theme.palette.grey[300]}`,
-    }
-    : {},
-  formButton: theme.isFriendlyUI ? {
-    fontSize: 14,
-    textTransform: 'none',
-    padding: '6px 12px',
-    borderRadius: 6,
-    boxShadow: 'none',
-    marginLeft: 8,
-  } : {
+  submitQuickTakesButtonAtBottom: {},
+  formButton: {
     fontSize: "16px",
     color: theme.palette.lwTertiary.main,
     marginLeft: "5px",
@@ -105,17 +84,9 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     },
   },
   cancelButton: {
-    color: theme.isFriendlyUI ? undefined : theme.palette.grey[400],
+    color: theme.palette.grey[400],
   },
-  submitButton: theme.isFriendlyUI ? {
-    backgroundColor: theme.palette.buttons.alwaysPrimary,
-    color: theme.palette.text.alwaysWhite,
-    '&:disabled': {
-      backgroundColor: theme.palette.buttons.alwaysPrimary,
-      color: theme.palette.text.alwaysWhite,
-      opacity: .5,
-    }
-  } : {
+  submitButton: {
     padding: '8px',
   },
   submitMinimalist: {
@@ -206,21 +177,13 @@ const CommentSubmit = ({
   const { openDialog } = useDialog();
 
   const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
-  const cancelBtnProps: InnerButtonProps = isFriendlyUI() && !isMinimalist ? { variant: "contained" } : {};
-  const submitBtnProps: InnerButtonProps = isFriendlyUI() && !isMinimalist ? { variant: "contained", color: "primary" } : {};
-
   const actualSubmitDisabled = formDisabledDueToRateLimit || loading || !formCanSubmit || formIsSubmitting;
-  if (actualSubmitDisabled) {
-    submitBtnProps.disabled = true;
-  }
-
   const showDropdownMenu = !disableSubmitDropdown;
 
   return (
     <div
       className={classNames(classes.submit, {
         [classes.submitMinimalist]: isMinimalist,
-        [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI()),
         [classes.submitQuickTakesNewForm]: isQuickTake && formType === 'new',
         [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
       })}
@@ -232,7 +195,6 @@ const CommentSubmit = ({
         <Button
           onClick={cancelCallback}
           className={classNames(formButtonClass, classes.cancelButton)}
-          {...cancelBtnProps}
         >
           {cancelLabel}
         </Button>
@@ -253,7 +215,7 @@ const CommentSubmit = ({
               ev.preventDefault();
             }
           }}
-          {...submitBtnProps}
+          {...actualSubmitDisabled ? {disabled: true} : {}}
         >
           {(formIsSubmitting || loading) ? <Loading /> : isMinimalist ? <ArrowForward /> : submitLabel}
         </Button>
@@ -268,7 +230,6 @@ export const CommentForm = ({
   prefilledProps,
   alignmentForumPost,
   hideAlignmentForumCheckbox,
-  quickTakesFormGroup,
   formClassName,
   editorHintText,
   commentMinimalistStyle,
@@ -297,7 +258,6 @@ export const CommentForm = ({
   }
   alignmentForumPost?: boolean;
   hideAlignmentForumCheckbox?: boolean;
-  quickTakesFormGroup?: boolean;
   formClassName?: string;
   editorHintText?: string;
   commentMinimalistStyle?: boolean;
@@ -320,9 +280,7 @@ export const CommentForm = ({
 
   const showAfCheckbox = !hideAlignmentForumCheckbox && !isAF() && alignmentForumPost && (userIsMemberOf(currentUser, 'alignmentForum') || userIsAdmin(currentUser));
 
-  const DefaultFormGroupLayout = quickTakesFormGroup
-    ? FormGroupQuickTakes
-    : FormGroupNoStyling;
+  const DefaultFormGroupLayout = FormGroupNoStyling;
 
   const {
     onSubmitCallback,

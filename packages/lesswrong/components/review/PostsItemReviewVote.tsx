@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
     display: "inline-block"
   },
   card: {
-    padding: theme.isFriendlyUI ? "8px 24px" : 8,
+    padding: 8,
     textAlign: "center",
   },
   reviewButton: {

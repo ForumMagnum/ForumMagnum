@@ -58,7 +58,6 @@ const styles = (theme: ThemeType) => ({
 
       height: "100%",
       width: "100%",
-      paddingTop: theme.isFriendlyUI ? 5 : undefined,
       paddingRight: 0,
       paddingLeft: 48,
       verticalAlign: "bottom",
@@ -77,26 +76,21 @@ const styles = (theme: ThemeType) => ({
       position: 'fixed',
     },
   },
-  searchInputAreaSmall: theme.isFriendlyUI ? {
-    minWidth: 34,
-  } : {},
+  searchInputAreaSmall: {},
   searchIcon: {
     "--icon-size": "24px",
   },
   searchIconButton: {
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text ,
+    color: theme.palette.header.text ,
   },
-  searchIconButtonSmall: theme.isFriendlyUI ? {
-    padding: 6,
-    marginTop: 6,
-  } : {},
+  searchIconButtonSmall: {},
   closeSearchIcon: {
     fontSize: 14,
   },
   searchBarClose: {
     display: "inline-block",
     position: "absolute",
-    top: theme.isFriendlyUI ? 18 : 15,
+    top: 15,
     right: 5,
     cursor: "pointer"
   },

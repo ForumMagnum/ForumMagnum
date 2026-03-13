@@ -12,7 +12,6 @@ import { useCurrentUser } from '../../common/withUser';
 
 const styles = (theme: ThemeType) => ({
   subtitle: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   deleteWithoutTrace: {
     marginRight:"auto"

@@ -40,16 +40,16 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 2
   },
-  postTitle: theme.isFriendlyUI ? {} : {
+  postTitle: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     fontSize: "1rem",
     fontWeight: 500,
   },
-  titleWithCurationNotice: theme.isFriendlyUI ? {} : {
-    color: 'green',
-    fontWeight: 600,
-  },
+  titleWithCurationNotice: {
+      color: 'green',
+      fontWeight: 600,
+    },
   oldPost: {
     opacity: 0.5,
   },

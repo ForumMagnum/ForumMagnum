@@ -17,7 +17,6 @@ const USER_SETTING_NAMES = {
 const styles = (theme: ThemeType) => ({
   root: {
     display: "block",
-    marginTop: theme.isFriendlyUI ? 10 : undefined,
     marginBottom: 8,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,

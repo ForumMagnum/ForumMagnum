@@ -34,16 +34,8 @@ const styles = (theme: ThemeType) => ({
 
   title: {
     fontSize: 16,
-    ...(theme.isFriendlyUI
-      ? {
-        lineHeight: 1.25,
-        maxHeight: 42,
-        minHeight: 42,
-      }
-      : {
-        lineHeight: 1.0,
-        maxHeight: 32,
-      }),
+    lineHeight: 1.0,
+    maxHeight: 32,
     paddingTop: 2,
     display: "-webkit-box",
     "-webkit-line-clamp": 2,
@@ -76,14 +68,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
-    background: theme.palette.panelBackground.default,
-    ...(theme.isFriendlyUI
-      ? {
-        borderRadius: `0 0 ${theme.borderRadius.small}px ${theme.borderRadius.small}px`,
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {
-      }),
+    background: theme.palette.panelBackground.default
   },
   bookItemShadowStyle: {
     boxShadow: "none",
@@ -102,18 +87,12 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[200],
     display: 'block',
     height: 95,
-    borderRadius: theme.isFriendlyUI
-      ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
-      : undefined,
     [legacyBreakpoints.maxSmall]: {
       height: "124px !important",
     },
     "& img": {
       width: "100%",
       height: 95,
-      borderRadius: theme.isFriendlyUI
-        ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
-        : undefined,
       [legacyBreakpoints.maxSmall]: {
         width: "335px !important",
         height: "124px !important",

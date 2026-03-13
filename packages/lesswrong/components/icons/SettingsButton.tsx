@@ -21,8 +21,7 @@ const styles = (theme: ThemeType) => ({
   label: {
     ...theme.typography.body2,
     fontSize: 14,
-    color: theme.palette.grey[600],
-    ...(theme.isFriendlyUI ? {fontWeight: 600} : {}),
+    color: theme.palette.grey[600]
   },
   blackLabel: {
     color: theme.palette.text.primary,

@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   discussionCount: {
     [theme.breakpoints.down('sm')]: {
       alignSelf: "flex-start", //appears too low when there's no label
-      marginTop: theme.isFriendlyUI ? undefined : -2,
+      marginTop: -2,
     }
   },
   discussionCountWithoutLabel: {
