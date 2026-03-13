@@ -1,7 +1,7 @@
 import compose from 'lodash/flowRight';
 import React from 'react';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
-import { withAddClasses } from '@/components/hooks/useStyles';
+import { withAddClasses, type RegisterComponentStyles } from '@/components/hooks/useStyles';
 import isEqual from 'lodash/isEqual';
 import type { StyleOptions } from '@/server/styleGeneration';
 
@@ -13,7 +13,7 @@ type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
 type ComponentOptions = StyleOptions & {
   // JSS styles for this component. These will generate class names, which will
   // be passed as an extra prop named "classes".
-  styles?: any
+  styles?: RegisterComponentStyles
 
   // Whether this component can take a ref. If set, forwardRef is used to pass
   // the ref across any higher-order components. If not set, and HoCs are

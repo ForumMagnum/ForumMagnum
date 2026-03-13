@@ -17,6 +17,9 @@ import { type AbstractThemeOptions, abstractThemeToConcrete, themeOptionsAreConc
 import { getForumTheme } from "@/themes/forumTheme";
 import { classNameProxy, defineStyles } from "./defineStyles";
 
+type LegacyStyles = (theme: ThemeType) => JssStyles;
+export type RegisterComponentStyles = LegacyStyles|StyleDefinition<any>;
+
 export type StylesContextType = {
   initialTheme: ThemeType
   stylesAwaitingServerInjection: StyleDefinition[]
@@ -199,6 +202,52 @@ export const withStyles = <T extends {classes: any}>(styles: StyleDefinition, Co
   }) as unknown as React.ForwardRefExoticComponent<Omit<T, "classes"> & { classes?: Partial<T["classes"]> } & React.RefAttributes<any>>;
 }
 
+function getNormalizedStyleOptionValue(
+  options: StyleOptions|undefined,
+  key: keyof StyleOptions
+) {
+  switch (key) {
+    case "stylePriority":
+      return options?.stylePriority ?? 0;
+    case "allowNonThemeColors":
+      return options?.allowNonThemeColors ?? false;
+  }
+}
+
+function validateRegisterComponentStyles(
+  styles: StyleDefinition,
+  componentName: string,
+  options?: StyleOptions,
+) {
+  if (styles.name !== componentName) {
+    throw new Error(`registerComponent("${componentName}") received styles for "${styles.name}"`);
+  }
+
+  for (const key of ["stylePriority", "allowNonThemeColors"] as const) {
+    const styleDefinitionValue = getNormalizedStyleOptionValue(styles.options, key);
+    const registerComponentValue = getNormalizedStyleOptionValue(options, key);
+    if (styleDefinitionValue !== registerComponentValue) {
+      throw new Error(
+        `registerComponent("${componentName}") received mismatched ${key}: `+
+        `styles=${String(styleDefinitionValue)} registerComponent=${String(registerComponentValue)}`
+      );
+    }
+  }
+}
+
+function getStyleDefinitionForRegisterComponent(
+  styles: RegisterComponentStyles,
+  name: string,
+  options?: StyleOptions,
+): StyleDefinition {
+  if (typeof styles === "function") {
+    return defineStyles(name, styles, options);
+  }
+
+  validateRegisterComponentStyles(styles, name, options);
+  return styles;
+}
+
 export function getClassName<T extends StyleDefinition>(
   stylesName: T["name"],
   className: keyof ReturnType<T["styles"]> & string
@@ -207,11 +256,11 @@ export function getClassName<T extends StyleDefinition>(
 }
 
 export const withAddClasses = (
-  styles: (theme: ThemeType) => JssStyles,
+  styles: RegisterComponentStyles,
   name: string,
   options?: StyleOptions,
 ) => {
-  const styleDefinition = defineStyles(name, styles, options);
+  const styleDefinition = getStyleDefinitionForRegisterComponent(styles, name, options);
 
   return (Component: AnyBecauseHard) => {
     return function AddClassesHoc(props: AnyBecauseHard) {

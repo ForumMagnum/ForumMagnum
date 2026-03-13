@@ -11,8 +11,9 @@ import {
   xsTitleWidth,
 } from "./AuthorAnalyticsPage";
 import classNames from "classnames";
+import { defineStyles } from "../hooks/defineStyles";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AnalyticsPostItem", (theme: ThemeType) => ({
   root: {
     padding: "12px 4px 12px 12px",
     border: `1px solid ${theme.palette.grey[200]}`,
@@ -56,6 +57,8 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
+}), {
+  stylePriority: -1,
 });
 
 export const AnalyticsPostItem = ({post, className, classes}: {
