@@ -1146,6 +1146,15 @@ function CommentsPanelList({
     };
   }, [counter]);
 
+  useEffect(() => {
+    if (activeIDs.length === 0 || !listRef.current) return;
+    const activeThreadId = activeIDs[0];
+    const activeElement = listRef.current.querySelector(`[data-thread-id="${CSS.escape(activeThreadId)}"]`);
+    if (activeElement) {
+      activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [activeIDs, listRef]);
+
   return (
     <ul className={classes.commentsPanelList} ref={listRef}>
       {comments.map((commentOrThread) => {
@@ -1239,6 +1248,7 @@ function CommentsPanelList({
           return (
             <li
               key={id}
+              data-thread-id={threadMarkId}
               onClick={handleClickThread}
               className={classNames(
                 classes.listThread,
