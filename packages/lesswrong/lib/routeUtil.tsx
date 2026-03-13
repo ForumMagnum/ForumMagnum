@@ -7,11 +7,7 @@ import { parseQuery } from './routeChecks/parseRoute';
 import {siteUrlSetting} from './instanceSettings'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { urlIsAbsolute } from './vulcan-lib/utils';
-import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-
-export const LocationContext = React.createContext<RouterLocation|null>(null);
-export const SubscribeLocationContext = React.createContext<RouterLocation|null>(null);
-export const NavigationContext = React.createContext<{ history: AppRouterInstance }|null>(null);
+import { LocationContext, NavigationContext, SubscribeLocationContext } from './locationContexts';
 
 type MaybeRelativeLocationDescriptor = LocationDescriptor|1|-1;
 
