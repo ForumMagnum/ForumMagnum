@@ -78,7 +78,7 @@ module.exports = {
     "babel/object-curly-spacing": 0,
     "babel/object-shorthand": 0,
     "babel/arrow-parens": 0,
-    "eol-last": 1,
+    "eol-last": 0,
     "no-await-in-loop": 0,
     "comma-dangle": 0,
     "eqeqeq": [1, "always", {"null": "ignore"}],
